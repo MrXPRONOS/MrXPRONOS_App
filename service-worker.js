@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v119-ux-experiments-20261107';
+const VERSION = 'v120-fonts-install-compact-20261107';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -30,6 +30,9 @@ const STATIC_ASSETS = [
     './assets/css/home-premium.css',
     './assets/css/daily-hub.css',
     './assets/css/home-polish.css',
+    './assets/css/ux-direct.css',
+    './assets/css/daily-ux.css',
+    './assets/css/site-typography.css',
     './assets/css/pronos-premium.css',
     './assets/css/scores-exacts.css',
     './assets/css/history-premium.css',
