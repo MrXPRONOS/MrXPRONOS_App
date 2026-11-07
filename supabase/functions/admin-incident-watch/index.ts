@@ -113,8 +113,9 @@ Deno.serve(async req=>{
   {data:cronSnapshot,error:cronError}
  ]=await Promise.all([
   sb.from("cron_runs").select("name,last_run_at,last_ok,meta").limit(200),
-  sb.from("admin_push_campaigns").select("id,status,error,completed_at")
-   .eq("status","failed").gte("completed_at",new Date(Date.now()-24*3600000).toISOString()).limit(100),
+  sb.from("admin_push_campaigns").select("id,status,error,completed_at,summary")
+   .in("status",["failed","sent"])
+   .gte("completed_at",new Date(Date.now()-24*3600000).toISOString()).limit(200),
   sb.from("admin_cron_snapshot").select("status,jobs,fetched_at").eq("id",1).maybeSingle()
  ]);
  if(cronsError||pushError||cronError)return send({
@@ -172,10 +173,14 @@ Deno.serve(async req=>{
   else if(entry.last_ok===true)recovered.add(key);
  }
  for(const entry of failedPush||[]){
-  observations.push({key:"push:"+entry.id,source:"push",severity:"medium",
-   summary:"Campagne Push en échec",evidence:String(entry.id),
+  const errors=Number(entry.summary?.failed||0);
+  if(entry.status!=="failed"&&errors<=0)continue;
+  observations.push({key:"push:"+entry.id,source:"push",
+   severity:entry.status==="failed"?"medium":"low",
+   summary:entry.status==="failed"?"Campagne Push en échec":"Campagne Push : erreurs partielles d'appareils",
+   evidence:String(entry.id)+"|"+errors,
    action:"Examiner les erreurs par appareil ; ne pas renvoyer si la livraison est incertaine.",
-   detail:{campaign_id:entry.id,provider:"Supabase Push"}});
+   detail:{campaign_id:entry.id,provider:"Supabase Push",device_failures:errors}});
  }
  if(apiKey&&cronObserved?.status==="ok"&&Array.isArray(cronObserved.jobs)&&
     (ageMin(cronObserved.fetched_at)??Infinity)<180){
