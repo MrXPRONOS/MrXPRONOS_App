@@ -1,0 +1,269 @@
+/*
+ * Accueil compact — les selections et les derniers gagnants restent lisibles
+ * et la barre de performance remonte dans le premier ecran mobile.
+ * Cette feuille est chargee apres les styles historiques de l'accueil.
+ */
+.mx-premium-home .mx-home-showcase {
+  gap: 8px;
+  margin: 10px 0 8px;
+}
+.mx-premium-home .mx-home-showcase-block {
+  padding: 11px;
+}
+.mx-premium-home .mx-home-showcase-head {
+  margin-bottom: 6px;
+}
+.mx-premium-home .mx-home-picks {
+  gap: 9px;
+}
+.mx-premium-home .mx-home-picks .pick-card {
+  min-height: 148px;
+  padding: 9px;
+}
+.mx-premium-home .pick-head {
+  margin: 22px 0 5px;
+}
+.mx-premium-home .pick-logo {
+  width: 33px;
+  height: 33px;
+  flex: 0 0 33px;
+}
+.mx-premium-home .pick-teams {
+  margin-bottom: 5px;
+}
+.mx-premium-home .pick-highlight {
+  min-height: 28px;
+  padding: 5px 7px;
+}
+.mx-premium-home .pick-confidence {margin-top: 5px;}
+.mx-premium-home .mx-home-proofbar {min-height: 56px;}
+
+@media (max-width: 700px) {
+  /* Le hero conserve son titre et ses deux actions, mais perd la hauteur vide. */
+  .mx-premium-home .mx-hero,
+  .mx-premium-home .mx-hero-inner {
+    min-height: 202px !important;
+    height: auto !important;
+  }
+  .mx-premium-home .mx-hero-copy {
+    width: 100% !important;
+    max-width: 345px !important;
+    padding: 12px 0 14px !important;
+  }
+  html body.mx-premium-home .mx-hero h1 {
+    max-width: 345px !important;
+    font-size: clamp(23px, 6vw, 28px) !important;
+    line-height: 1.05 !important;
+    margin: 0 0 11px !important;
+    letter-spacing: -.028em !important;
+  }
+  .mx-premium-home .mx-hero-actions {
+    display: grid !important;
+    width: min(100%, 350px) !important;
+    grid-template-columns: minmax(0, 1.17fr) minmax(0, 1fr) !important;
+    flex-direction: row !important;
+    gap: 7px !important;
+    margin: 0 !important;
+  }
+  .mx-premium-home .mx-hero-actions .mx-pill {
+    min-width: 0 !important;
+    min-height: 44px !important;
+    height: auto !important;
+    padding: 7px 9px !important;
+    border-radius: 9px !important;
+    font-size: 10.5px !important;
+    line-height: 1.18 !important;
+    white-space: normal !important;
+    gap: 5px !important;
+    text-align: left;
+  }
+  .mx-premium-home .mx-hero-actions .mx-pill span {
+    flex: none;
+    margin-left: auto;
+  }
+  .mx-premium-home .mx-hero-player {
+    right: -22% !important;
+    height: 192px !important;
+    opacity: .22 !important;
+  }
+  .mx-premium-home .mx-hero-quote {display: none !important;}
+
+  /* Les deux zones de coupons sont de petits rails a defilement horizontal. */
+  .mx-premium-home .mx-home-showcase {
+    display: grid !important;
+    gap: 5px !important;
+    margin: 5px 0 5px !important;
+  }
+  .mx-premium-home .mx-home-showcase-block {
+    min-width: 0 !important;
+    padding: 6px !important;
+    border-radius: 10px !important;
+  }
+  .mx-premium-home .mx-home-showcase-head {
+    align-items: center !important;
+    gap: 5px !important;
+    margin-bottom: 4px !important;
+  }
+  .mx-premium-home .mx-home-showcase-kicker {display: none !important;}
+  .mx-premium-home .mx-home-showcase-head h2 {
+    margin: 0 !important;
+    font-size: 15px !important;
+    line-height: 1.17 !important;
+    white-space: nowrap;
+  }
+  .mx-premium-home .mx-home-showcase-head a {
+    font-size: 10px !important;
+    line-height: 1.2;
+  }
+  .mx-premium-home .mx-home-picks {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 0 1px 2px !important;
+    scroll-snap-type: x proximity !important;
+    scroll-padding-inline: 1px;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mx-premium-home .mx-home-picks::-webkit-scrollbar {display: none;}
+  .mx-premium-home .mx-home-picks .pick-card {
+    box-sizing: border-box !important;
+    flex: 0 0 clamp(174px, 61%, 252px) !important;
+    width: clamp(174px, 61%, 252px) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 108px !important;
+    height: 108px !important;
+    max-height: 108px !important;
+    padding: 6px !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+    scroll-snap-align: start;
+  }
+  .mx-premium-home .pick-badge,
+  .mx-premium-home .pick-category {
+    top: 5px !important;
+    min-height: 16px !important;
+    padding: 2px 5px !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
+  }
+  .mx-premium-home .pick-badge {right: 5px !important;}
+  .mx-premium-home .pick-category {left: 5px !important;}
+  .mx-premium-home .pick-head {
+    margin: 16px 0 3px !important;
+    gap: 3px !important;
+  }
+  .mx-premium-home .pick-league,
+  .mx-premium-home .pick-time {
+    font-size: 8px !important;
+    line-height: 1.1 !important;
+  }
+  .mx-premium-home .pick-teams {
+    grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) !important;
+    gap: 3px !important;
+    margin: 0 0 4px !important;
+    min-height: 25px;
+  }
+  .mx-premium-home .pick-team,
+  .mx-premium-home .pick-team--right {
+    min-width: 0 !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+  }
+  .mx-premium-home .pick-team--right {flex-direction: row-reverse !important;}
+  .mx-premium-home .pick-logo {
+    width: 22px !important;
+    height: 22px !important;
+    flex: 0 0 22px !important;
+    padding: 2px !important;
+    border-radius: 5px !important;
+  }
+  .mx-premium-home .pick-team-name {
+    min-width: 0 !important;
+    text-align: left !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .mx-premium-home .pick-team--right .pick-team-name {text-align: right !important;}
+  .mx-premium-home .pick-vs {
+    min-width: 30px !important;
+    min-height: 25px !important;
+    padding: 2px !important;
+    border-radius: 6px !important;
+  }
+  .mx-premium-home .pick-vs strong,
+  .mx-premium-home .pick-card--winner .pick-vs strong {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+  .mx-premium-home .pick-vs small {font-size: 8px !important;}
+  .mx-premium-home .pick-highlight {
+    min-height: 21px !important;
+    padding: 3px 5px !important;
+    gap: 4px !important;
+    border-radius: 5px !important;
+  }
+  .mx-premium-home .pick-highlight span {
+    font-size: 8px !important;
+    letter-spacing: .01em !important;
+  }
+  .mx-premium-home .pick-highlight strong {
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+  }
+  .mx-premium-home .pick-confidence {
+    gap: 4px !important;
+    margin-top: 4px !important;
+  }
+  .mx-premium-home .pick-confidence>span,
+  .mx-premium-home .pick-confidence>b {
+    font-size: 9px !important;
+  }
+  .mx-premium-home .pick-confidence-bar {height: 3px !important;}
+
+  /* L'essentiel de la performance est immediatement sous les rails. */
+  .mx-premium-home .mx-home-proofbar {
+    grid-template-columns: 1fr 1fr !important;
+    min-height: 52px !important;
+    height: 52px !important;
+    border-radius: 8px !important;
+  }
+  .mx-premium-home .mx-home-proofbar-ticker {display: none !important;}
+  .mx-premium-home .mx-home-proof-stat {padding: 6px 4px !important;}
+  .mx-premium-home .mx-home-proof-stat>span {font-size: 18px !important;}
+  .mx-premium-home .mx-home-proof-stat small {font-size: 10px !important;}
+  .mx-premium-home .mx-home-proof-stat .success-bar {height: 3px !important;}
+
+  /* Un etat vide court ne doit pas occuper la hauteur d'une carte pleine. */
+  .mx-premium-home .mx-home-picks>.no-events {
+    flex: 1 0 100% !important;
+    min-height: 52px !important;
+    padding: 9px !important;
+    font-size: 12px !important;
+  }
+  .mx-premium-home .mx-home-picks .mx-load-heading {
+    min-height: 38px !important;
+    padding: 6px !important;
+  }
+}
+@media(max-width:370px) {
+  html body.mx-premium-home .mx-hero h1 {font-size: 22px !important;}
+  .mx-premium-home .mx-hero-actions .mx-pill {font-size: 10px !important;}
+  .mx-premium-home .mx-home-picks .pick-card {
+    flex-basis: clamp(168px, 62%, 190px) !important;
+    width: clamp(168px, 62%, 190px) !important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .mx-premium-home .mx-home-picks {scroll-behavior: auto;}
+}

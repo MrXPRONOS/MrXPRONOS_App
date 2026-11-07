@@ -1,0 +1,117 @@
+/*
+  Mr XPRONOS — typographie publique unifiee.
+  Manrope : navigation, cartes, descriptions et formulaires.
+  Outfit : titres, chiffres cles et signatures.
+  Chargee en DERNIER pour remplacer les anciennes familles locales sans
+  modifier l'identite du logo (images/SVG).
+*/
+:root {
+  --mx-font-body: "Manrope", "Segoe UI", Arial, sans-serif;
+  --mx-font-display: "Outfit", "Manrope", "Segoe UI", Arial, sans-serif;
+}
+html, html body,
+html body button,
+html body input,
+html body select,
+html body textarea,
+html body option {
+  font-family: var(--mx-font-body) !important;
+}
+html body :is(
+  main, div, section, article, aside, header, footer, nav,
+  p, li, ul, ol, a, span, small, label, strong, b, em,
+  blockquote, q, summary, details, table, thead, tbody, tr,
+  th, td, time, cite, figcaption, figure
+) {
+  font-family: inherit !important;
+}
+html body :is(h1, h2, h3, h4, h5, h6),
+html body :is(
+  .mx-brandname, .mx-brand-signature, .mx-hero-quote,
+  .mx-pronos-quote, .mx-history-quote, .mx-bonus-quote,
+  .mx-live-hero-quote, .mx-home-proof-stat > span,
+  .success-rate-value, .mx-daily-stat strong, .mx-step-num,
+  .pick-vs strong, .match-score-center strong,
+  .mx-install-panel h2
+) {
+  font-family: var(--mx-font-display) !important;
+}
+/* No more handwritten cursive for the brand's textual signatures. */
+html body :is(
+  .mx-brand-signature, .mx-hero-quote, .mx-pronos-quote,
+  .mx-history-quote, .mx-bonus-quote, .mx-live-hero-quote
+) {
+  font-style: normal !important;
+  letter-spacing: -.02em !important;
+}
+html body :is(h1, h2, h3, h4, h5, h6) {
+  font-synthesis: none;
+  text-wrap: balance;
+}
+html body :is(button, a, input, select, textarea) {
+  -webkit-tap-highlight-color: rgba(235,185,99,.17);
+}
+/* Keep content legible even when another legacy mobile sheet shrinks it. */
+@media(max-width:700px) {
+  html body :is(.mx-nav-more-panel a, .mx-daily-nav-more-panel a) {
+    font-size: 12px !important;
+  }
+  html body :is(.mx-install-panel-button, .mx-daily-install) {
+    font-size: 13px !important;
+  }
+}
+
+/* Les anciennes fenetres modales imposaient Montserrat en !important. */
+html body :is(.modal-content, .popup-content, .ios-guide-content) {
+  font-family: var(--mx-font-body) !important;
+}
+html body :is(.modal-content, .popup-content, .ios-guide-content)
+  :is(h1, h2, h3, h4) {
+  font-family: var(--mx-font-display) !important;
+}
+
+/* Titres de pages : identite editoriale forte, contenu HTML et SEO inchanges. */
+html body h1 {
+  text-transform: uppercase !important;
+  letter-spacing: -.02em !important;
+}
+
+/* Le code reste complet et visible sur mobile (ne plus masquer « Code Promo : »). */
+@media(max-width:700px) {
+  html body .mx-site-header .mx-code-button .mx-code-label {
+    display:inline !important;
+    font-size:inherit !important;
+    white-space:nowrap !important;
+  }
+  html body .mx-site-header .mx-code-button {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:3px !important;
+    white-space:nowrap !important;
+    min-height:36px !important;
+    padding:7px 9px !important;
+    font-size:10px !important;
+    letter-spacing:-.015em !important;
+  }
+  html body .mx-site-header .mx-code-button strong {
+    font-size:inherit !important;
+    letter-spacing:0 !important;
+  }
+  /* Evite que les titres en capitales debordent sur 320–390px. */
+  html body.mx-premium-home .mx-hero h1 {
+    font-size:clamp(24px,6.6vw,30px) !important;
+    line-height:1.06 !important;
+    max-width:340px !important;
+    overflow-wrap:normal;
+  }
+}
+@media(max-width:390px) {
+  html body .mx-site-header .mx-code-button {
+    padding:6px 5px !important;
+    gap:2px !important;
+    font-size:9px !important;
+    letter-spacing:-.03em !important;
+  }
+  html body .mx-site-header .mx-header-actions {gap:3px !important;}
+}
