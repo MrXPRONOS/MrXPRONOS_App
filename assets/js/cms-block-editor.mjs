@@ -195,19 +195,24 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     return parts.join("\n");
   }
   function refreshPreview(){
-    const base=htmlText(new URL(".",location.href).href);
+    const base="https://mrxpronos.github.io/MrXPRONOS_App/";
     const contents=safePreviewHtml();
     frame.style.width=previewMobile?"min(100%,390px)":"100%";
     frame.srcdoc='<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
       +'<base href="'+base+'"><link rel="stylesheet" href="assets/css/style.css">'
       +'<link rel="stylesheet" href="assets/css/article-detail-premium.css">'
       +'<link rel="stylesheet" href="assets/css/site-typography.css">'
-      +'<style>body{background:#0b1520;color:#edf1f7;padding:20px;margin:0}'
-      +'article{max-width:820px;margin:auto;overflow-wrap:anywhere}img,video{max-width:100%;height:auto}'
-      +'p{line-height:1.7}blockquote{border-left:3px solid #ddb96f;padding:12px;margin:8px 0}'
-      +'</style></head><body class="mx-article-detail-page"><article>'
-      +'<p style="color:#dfbc7d;font-weight:700">Mr XPRONOS · Aperçu non publié</p>'
-      +contents+'</article></body></html>';
+      +'<style>img,video{max-width:100%;height:auto}.article-content{overflow-wrap:anywhere}'
+      +'.mx-reader-preview-label{color:#e9b650;font-size:12px;font-weight:700}'
+      +'</style></head><body class="mx-article-detail-page">'
+      +'<header class="mx-site-header"><div class="container mx-header-container">'
+      +'<div class="logo"><img src="assets/images/mrxpronos-horizontal.webp" alt="Mr XPRONOS"></div>'
+      +'</div></header><main class="container mx-article-detail-main"><div id="blog-post">'
+      +'<article class="card article-page-card mx-reader-article">'
+      +'<div class="mx-reader-meta"><span>Football</span><span class="mx-reader-preview-label">Non publié</span></div>'
+      +'<h1>Aperçu de votre article</h1><div class="article-content">'
+      +contents+'</div><div class="mx-reader-disclaimer">Cette analyse est informative. Les paris comportent un risque de perte.</div>'
+      +'</article></div></main></body></html>';
   }
   mobileButton.onclick=()=>{previewMobile=true;refreshPreview();};
   desktopButton.onclick=()=>{previewMobile=false;refreshPreview();};
