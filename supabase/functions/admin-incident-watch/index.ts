@@ -46,7 +46,7 @@ Deno.serve(async req=>{
  let body:any={};
  try{body=await req.json()}catch{return send({error:"Invalid JSON"},400)}
  const runs=(Array.isArray(body?.runs)?body.runs:[]).slice(0,120).map(sanitizeRun)
-  .filter(x=>x.id>0&&x.name&&Date.parse(x.created_at));
+  .filter((x:any)=>x.id>0&&x.name&&Date.parse(x.created_at));
  const now=new Date().toISOString();
  const observations:Observation[]=[];const recovered=new Set<string>();
  const sourceFlags:Record<string,string>={github:runs.length?"ok":"no_runs"};
@@ -59,8 +59,8 @@ Deno.serve(async req=>{
   groups.get(key)!.push(run);
  }
  for(const [name,entries] of groups){
-  const recent=entries.filter(x=>x.status==="completed").sort(
-    (a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
+  const recent=entries.filter((x:any)=>x.status==="completed").sort(
+    (a:any,b:any)=>Date.parse(b.created_at)-Date.parse(a.created_at));
   if(!recent.length)continue;
   const issueKey="github:"+name.slice(0,160);
   if(recent[0].conclusion==="success"){recovered.add(issueKey);continue;}
