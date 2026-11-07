@@ -468,85 +468,110 @@ async function renderStats() {
 async function renderPronosticsReadOnly() {
   const root = $("tab-pronostics");
   if (!root) return;
-
   root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Pronostics (lecture seule)</h3>
-      <div class="row">
-        <div>
-          <label>Jour</label>
-          <select id="pDay">
-            <option value="today">Aujourd’hui</option>
-            <option value="tomorrow">Demain</option>
-            <option value="yesterday">Hier</option>
-          </select>
-        </div>
-        <div>
-          <label>Catégorie</label>
-          <select id="pCat">
-            <option value="simple">Simple</option>
-            <option value="pro">Pro</option>
-            <option value="vip">VIP</option>
-          </select>
-        </div>
+    <div class="card admin-pronostics-panel">
+      <div class="admin-section-heading">
+        <div><h3>Pronostics Pro & VIP</h3><p class="muted">Flux public · consultation et diagnostic, sans modifier les résultats</p></div>
+        <button type="button" class="btn btn-secondary" id="pRefresh">↻ Actualiser</button>
       </div>
-      <label>Recherche</label>
-      <input id="pSearch" placeholder="équipe / ligue...">
-      <div id="pList" style="margin-top:10px">${premiumAdminLoading("matches", 2)}</div>
-    </div>
-  `;
-
-  const data = await fetch(`data.json?t=${Date.now()}`, { cache:"no-cache" })
-    .then(r => r.json())
-    .catch(() => null);
-
-  const matches = Array.isArray(data?.matches) ? data.matches : [];
-
-  const getDateStr = (day) => {
+      <div class="admin-filter-row">
+        <div><label for="pDay">Date</label><select id="pDay">
+          <option value="today">Aujourd'hui</option><option value="tomorrow">Demain</option>
+          <option value="yesterday">Hier</option>
+        </select></div>
+        <div><label for="pCat">Catégorie</label><select id="pCat">
+          <option value="pro">Pro</option><option value="vip">VIP</option>
+        </select></div>
+        <div><label for="pSearch">Recherche</label><input id="pSearch" type="search" placeholder="Équipe ou compétition"></div>
+      </div>
+      <div id="pStatus" class="muted" role="status" aria-live="polite">Chargement des pronostics…</div>
+      <div id="pList"></div>
+    </div>`;
+  let matches = [];
+  let loadFailed = false;
+  const dayKey = (day) => {
     const d = new Date();
     d.setUTCHours(0,0,0,0);
-    if (day==="tomorrow") d.setUTCDate(d.getUTCDate()+1);
-    if (day==="yesterday") d.setUTCDate(d.getUTCDate()-1);
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth()+1).padStart(2,"0");
-    const dd = String(d.getUTCDate()).padStart(2,"0");
-    return `${y}-${m}-${dd}`;
+    d.setUTCDate(d.getUTCDate() + (day === "tomorrow" ? 1 : day === "yesterday" ? -1 : 0));
+    return d.toISOString().slice(0,10);
   };
-
-  function render() {
-    const day = $("pDay").value;
-    const cat = $("pCat").value;
-    const q = ($("pSearch").value||"").toLowerCase().trim();
-    const targetDate = getDateStr(day);
-
-    const list = matches.filter(m => {
-      const eventDate = (m.event_date||"").slice(0,10);
-      if (eventDate !== targetDate) return false;
-      if ((m.category||"") !== cat) return false;
-      if (!q) return true;
-      const s = `${m.home_team||""} ${m.away_team||""} ${m.league||""}`.toLowerCase();
-      return s.includes(q);
+  const safeLogo = (value) => {
+    if (!value) return "";
+    try {
+      const target = new URL(String(value),document.baseURI);
+      return (target.protocol === "https:" || target.origin === location.origin)
+        ? target.href : "";
+    } catch { return ""; }
+  };
+  const scoreOf = (m) => {
+    const h = m.home_score ?? m.score?.home ?? m.score?.home_score;
+    const a = m.away_score ?? m.score?.away ?? m.score?.away_score;
+    return h != null && a != null ? `${h}-${a}` : "—";
+  };
+  const labelStatus = (m) => {
+    const raw = String(m.status || m.result || "").toLowerCase();
+    if (["won","win","gagné","gagne","success"].includes(raw)) return "Gagné";
+    if (["lost","loss","perdu","failed"].includes(raw)) return "Perdu";
+    if (["void","cancelled","annulé"].includes(raw)) return "Annulé";
+    if (m.is_finished) return "Terminé · à vérifier";
+    return "En attente";
+  };
+  const render = () => {
+    const date = dayKey($("pDay").value);
+    const category = $("pCat").value;
+    const search = $("pSearch").value.toLocaleLowerCase("fr").trim();
+    const selected = matches.filter(m => {
+      const when = String(m.event_date || m.date || m.kickoff || "").slice(0,10);
+      const searchable = [m.home_team,m.away_team,m.league].join(" ").toLocaleLowerCase("fr");
+      return when === date && String(m.category||"").toLowerCase() === category
+        && (!search || searchable.includes(search));
     });
-
-    $("pList").innerHTML = list.length ? `
-      <table>
-        <thead><tr><th>Match</th><th>DC</th><th>Conf</th><th>Status</th></tr></thead>
-        <tbody>
-          ${list.map(m => `
-            <tr>
-              <td>${escapeHtml(m.home_team)} vs ${escapeHtml(m.away_team)}<div class="muted">${escapeHtml(m.league||"")}</div></td>
-              <td>${escapeHtml(m.prediction?.double_chance||"-")}</td>
-              <td>${escapeHtml(m.prediction?.confidence||0)}%</td>
-              <td>${escapeHtml(m.status||"")}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    ` : `<div class="muted">Aucun résultat.</div>`;
-  }
-
-  ["pDay","pCat","pSearch"].forEach(id => $(id).addEventListener("input", render));
-  render();
+    $("pStatus").textContent = loadFailed ? "Flux indisponible : vérifie la publication de data.json."
+      : selected.length ? `${selected.length} rencontre(s) · ${category.toUpperCase()} · ${date}`
+      : `Aucun pronostic ${category.toUpperCase()} pour le ${date}.`;
+    if (loadFailed || !selected.length) {
+      $("pList").replaceChildren();
+      return;
+    }
+    const head = '<div class="admin-pronostics-table-scroll"><table><thead><tr><th>Match / compétition</th><th>Pronostic</th><th>Confiance</th><th>Score</th><th>État</th></tr></thead><tbody>';
+    const rows = selected.map(m => {
+      const logo = (name,url) => {
+        const src = safeLogo(url);
+        return src ? `<img class="admin-team-logo" src="${escapeHtml(src)}" alt="${escapeHtml(name)}" loading="lazy" onerror="this.hidden=true">` : "";
+      };
+      const pred = m.prediction || (Array.isArray(m.predictions) ? m.predictions[0] : {}) || {};
+      const market = pred.market_label || pred.bet_type || pred.type || pred.double_chance || pred.pick || "—";
+      const confidenceRaw = Number(pred.confidence);
+      const confidence = pred.confidence == null || !Number.isFinite(confidenceRaw)
+        ? "—" : `${(confidenceRaw <= 1 ? confidenceRaw*100 : confidenceRaw).toFixed(0)} %`;
+      const when = m.event_date || m.kickoff || "";
+      const localDate = when && !Number.isNaN(Date.parse(when)) ? new Date(when).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" UTC" : "—";
+      return `<tr>
+        <td><div class="admin-team-pair">${logo(m.home_team,m.home_logo)}<b>${escapeHtml(m.home_team||"Équipe A")}</b><span>–</span><b>${escapeHtml(m.away_team||"Équipe B")}</b>${logo(m.away_team,m.away_logo)}</div>
+          <small class="muted">${escapeHtml(m.league||"")} · ${escapeHtml(localDate)}</small></td>
+        <td>${escapeHtml(market)}</td><td>${escapeHtml(confidence)}</td>
+        <td>${escapeHtml(scoreOf(m))}</td><td>${escapeHtml(labelStatus(m))}</td></tr>`;
+    }).join("");
+    $("pList").innerHTML = head + rows + "</tbody></table></div>";
+  };
+  const refresh = async () => {
+    $("pStatus").textContent = "Actualisation du flux…";
+    try {
+      const response = await fetch(`data.json?t=${Date.now()}`,{cache:"no-store"});
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (!Array.isArray(data?.matches)) throw new Error("Format du flux incorrect");
+      matches = data.matches;
+      loadFailed = false;
+    } catch {
+      loadFailed = true;
+      matches = [];
+    }
+    render();
+  };
+  for (const id of ["pDay","pCat","pSearch"]) $(id).addEventListener("input",render);
+  $("pRefresh").addEventListener("click",()=>void refresh());
+  await refresh();
 }
 
 // -----------------------------
