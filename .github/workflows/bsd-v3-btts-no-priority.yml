@@ -1,0 +1,65 @@
+name: BSD V3 - BTTS NO priority experiment
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd_v3/btts_no_experiment.py'
+      - '.github/workflows/bsd-v3-btts-no-priority.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v3-btts-no-priority
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      PYTHONPATH: bsd
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python -m pip install requests cryptography pillow
+      - run: python -m compileall -q bsd bsd_v3
+      - name: Restore encrypted private history
+        run: python bsd/bsd_archive.py restore
+      - name: Run chronological BTTS NO experiment
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from bsd_archive import _read_json
+          from bsd_v3.btts_no_experiment import experiment
+          history=_read_json(Path("bsd/all_matches_bsd.json"),None)
+          report=experiment(history)
+          Path("bsd_v3/artifacts").mkdir(parents=True,exist_ok=True)
+          Path("bsd_v3/artifacts/btts_no_experiment.json").write_text(
+              json.dumps(report,indent=2),encoding="utf-8")
+          print("BSD_V3_BTTS_NO_EXPERIMENT",json.dumps({
+              "chosen":report["chosen_on_recent_selection"],
+              "accepted":report["accepted"],
+              "active":report["active_policy"],
+              "stability":report["tables"]["train"][report["active_policy"]],
+              "validation":report["tables"]["validation"][report["active_policy"]],
+              "october_base":report["october_base"],
+              "october_filtered":report["october_filtered"],
+          }))
+          PY
+      - if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: bsd-v3-btts-no-${{ github.run_id }}
+          path: bsd_v3/artifacts/btts_no_experiment.json
+          retention-days: 30
