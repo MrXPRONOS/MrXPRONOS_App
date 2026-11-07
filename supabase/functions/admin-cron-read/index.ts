@@ -15,6 +15,14 @@ const reply=(req:Request,x:unknown,status=200)=>new Response(JSON.stringify(x),{
 const publicHost=(raw:string)=>{
  try{return new URL(raw).hostname.toLowerCase();}catch{return "inconnu";}
 };
+function workflowHint(raw:string){
+ try{
+  const url=new URL(raw);
+  if(url.hostname.toLowerCase()!=="api.github.com")return null;
+  const match=url.pathname.match(/^\/repos\/MrXPRONOS\/MrXPRONOS_App\/actions\/workflows\/([\w.-]+)\/dispatches\/?$/);
+  return match?match[1]:null;
+ }catch{return null;}
+}
 async function targetFingerprint(raw:string,secret:string){
  const encoder=new TextEncoder();
  const key=await crypto.subtle.importKey("raw",encoder.encode(secret),
@@ -35,7 +43,8 @@ async function sanitizeJob(job:any,secret:string){
   enabled:job.enabled===true,last_status:Number(job.lastStatus||0),
   last_execution:Number(job.lastExecution||0),next_execution:Number(job.nextExecution||0),
   last_duration_ms:Number(job.lastDuration||0),schedule,
-  endpoint:publicHost(raw),endpoint_fingerprint:await targetFingerprint(raw,secret)
+  endpoint:publicHost(raw),endpoint_fingerprint:await targetFingerprint(raw,secret),
+  workflow_hint:workflowHint(raw)
  };
 }
 Deno.serve(async req=>{
