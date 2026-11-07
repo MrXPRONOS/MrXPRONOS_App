@@ -1,6 +1,8 @@
 // Mr XPRONOS admin Push: durable queue, server idempotency and scheduled dispatch.
 // This endpoint does not expose CRON_SECRET or the service key to the browser.
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+import {createRemoteJWKSet,jwtVerify} from "https://esm.sh/jose@5.9.6";
+const githubJwks=createRemoteJWKSet(new URL("https://token.actions.githubusercontent.com/.well-known/jwks"));
 const origins=new Set(["https://mrxpronos.github.io","http://localhost:3000","http://127.0.0.1:3000","http://127.0.0.1:8000"]);
 function headers(req:Request){
   const origin=req.headers.get("origin")||"";
@@ -40,7 +42,20 @@ Deno.serve(async(req)=>{
  const isCron=authorization===`Bearer ${cronSecret}`;
  let actorId:string|null=null;
  if(operation==="dispatch"){
-  if(!isCron)return json(req,{error:"Dispatch réservé au planificateur"},403);
+  let verifiedGithub=false;
+  if(!isCron && authorization.toLowerCase().startsWith("bearer ")){
+   try{
+    const {payload}=await jwtVerify(authorization.slice(7),githubJwks,{
+      issuer:"https://token.actions.githubusercontent.com",
+      audience:"mrxpronos-admin-push"
+    });
+    verifiedGithub=payload.repository==="MrXPRONOS/MrXPRONOS_App"
+      &&payload.ref==="refs/heads/main"
+      &&["schedule","workflow_dispatch"].includes(String(payload.event_name||""))
+      &&payload.workflow_ref==="MrXPRONOS/MrXPRONOS_App/.github/workflows/admin-push-dispatch.yml@refs/heads/main";
+   }catch{verifiedGithub=false;}
+  }
+  if(!isCron&&!verifiedGithub)return json(req,{error:"Dispatch réservé au workflow GitHub vérifié"},403);
  }else{
   if(!authorization.toLowerCase().startsWith("bearer "))return json(req,{error:"Session requise"},401);
   const userClient=createClient(url,anon,{global:{headers:{Authorization:authorization}}});
