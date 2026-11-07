@@ -2,6 +2,7 @@ import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
 import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
 import { createAdminHighlightWidget,loadAdminHighlights } from "./admin-unified-highlights.mjs";
+import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
 import { mountAdminUsers } from "./admin-users.mjs";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsServerSearch } from "./cms-server-search.mjs";
@@ -209,7 +210,7 @@ async function renderAdminOverview() {
         entry.append(label,status);list.appendChild(entry);
       }
       health.appendChild(list);
-      state.textContent="Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC · Données estimées";
+      state.textContent=adminSnapshotLabel("Supabase",new Date(),{windowText:"données estimées"});
       void loadAdminHighlights(sb).then(result=>extraWidget?.draw(result)).catch(err=>{
         extra.textContent="Indicateurs complémentaires indisponibles : "+String(err?.message||err);
       });
