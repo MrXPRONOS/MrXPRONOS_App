@@ -50,3 +50,24 @@
   .mx-daily-section-top h2 {font-size:23px;}
   .mx-daily-card-link,.mx-daily-more{font-size:13px;}
 }
+
+.mx-daily-nav-more {position:relative;flex:none;}
+.mx-daily-nav-more>summary {
+  display:inline-flex;align-items:center;gap:5px;list-style:none;cursor:pointer;
+  color:#dce9f0;font-size:13px;font-weight:700;min-height:36px;
+}
+.mx-daily-nav-more>summary::-webkit-details-marker{display:none}
+.mx-daily-nav-more-panel {
+  position:absolute;top:100%;right:0;z-index:80;min-width:176px;
+  padding:8px;border:1px solid #4a6a81;border-radius:10px;
+  background:#091d2c;box-shadow:0 12px 28px #02090e;
+  display:grid;gap:3px;
+}
+.mx-daily-nav-more-panel a{display:block;padding:9px 11px;border-radius:7px;white-space:nowrap}
+.mx-daily-nav-more-panel a:hover{background:#1d3c52;text-decoration:none}
+.mx-daily-nav-more>summary:focus-visible{outline:3px solid #f8d9a2;outline-offset:3px}
+@media(max-width:760px){
+  .mx-daily-nav{overflow:visible;flex-wrap:wrap;padding:7px 0;gap:8px 14px}
+  .mx-daily-nav a{font-size:12px}
+  .mx-daily-nav-more-panel{right:auto;left:0}
+}
