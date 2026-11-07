@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime,timezone
 from urllib.parse import urlsplit,unquote
 import json,mimetypes
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright,expect
 
 ROOT=Path(__file__).resolve().parents[1]
 ORIGIN="https://mrxpronos.test"
@@ -81,15 +81,16 @@ def run(browser,width):
     page.goto(ORIGIN+"/index.html",wait_until="domcontentloaded")
     panel=page.locator("#mx-install-panel")
     panel.wait_for(state="visible",timeout=15000)
-    page.locator("#mx-install-panel-title").get_by_text(
-        "Mr XPRONOS directement sur votre écran d’accueil.").wait_for(timeout=12000)
+    expect(page.locator("#mx-install-panel-title")).to_have_text(
+        "Mr XPRONOS directement sur votre écran d’accueil.",timeout=12000)
     panel.scroll_into_view_if_needed()
     ready(page,"install_value_v1","exposure")
     page.locator(".mx-install-panel-button").click(timeout=10000)
     ready(page,"install_value_v1","conversion")
 
     page.goto(ORIGIN+"/aujourdhui.html",wait_until="domcontentloaded")
-    page.locator("#favorites-title").get_by_text("Suivez vos équipes favorites.").wait_for(timeout=12000)
+    expect(page.locator("#favorites-title")).to_have_text(
+        "Suivez vos équipes favorites.",timeout=12000)
     favorites=page.locator("#daily-favorites")
     favorites.scroll_into_view_if_needed()
     ready(page,"favorites_guidance_v1","exposure")
@@ -101,7 +102,7 @@ def run(browser,width):
     ready(page,"favorites_guidance_v1","conversion")
     assert page.evaluate("""() => window.__phase5Calls.filter(
       c=>c.name==="track_experiment_v1" && c.params?.p_kind==="conversion"
-    ).length""")==2, "One conversion per genuine CTA/form action expected"
+    ).length""")==1, "Exactly one genuine favorite conversion expected in this page"
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth+3"),"Mobile horizontal overflow"
     ctx.close()
 
