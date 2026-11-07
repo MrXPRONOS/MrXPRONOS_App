@@ -1,4 +1,5 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
+import { mountIncidentCenter } from "./admin-incidents.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
 import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
@@ -23,7 +24,7 @@ const premiumAdminLoading = (kind = "admin", count = 3) =>
   window.MXLoading?.render?.(kind, count) || '<div class="muted">Chargement…</div>';
 
 
-const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","audit"];
+const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","incidents","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
 
@@ -185,6 +186,7 @@ const TAB_LOADERS = {
   vip: renderVip,
   health: renderHealth,
   audit: renderAudit,
+  incidents: async () => mountIncidentCenter(sb,$("tab-incidents")),
 };
 
 async function loadTabIfNeeded(name) {
