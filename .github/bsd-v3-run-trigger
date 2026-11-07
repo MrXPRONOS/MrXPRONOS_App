@@ -1,4 +1,4 @@
 BSD V3 on-demand prospective trigger
-requested_at_utc=2026-11-06T22:07:00Z
-policy=btts_side70_league58_quality_gate
-source=chat_btts_quality_improvement
+requested_at_utc=2026-11-07T03:06:00Z
+policy=dedicated_over25_priority_70_68_league58
+source=chat_over25_priority
