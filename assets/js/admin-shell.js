@@ -17,6 +17,7 @@ const screenTitles = {
  media:["Médiathèque","Importer, retrouver et sélectionner les images et vidéos.","CONTENUS"],
  health:["Automatisations","Surveiller les tâches programmées et leur état.","SYSTÈME"],
  incidents:["Incidents","Créer, suivre et résoudre les incidents.","SYSTÈME"],
+ users:["Administrateurs","Déléguer les accès et contrôler les rôles.","SYSTÈME"],
  audit:["Journal d’audit","Consulter les actions et les modifications.","SYSTÈME"]
 };
 function closeMenu(){
