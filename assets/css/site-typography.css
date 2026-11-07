@@ -69,3 +69,49 @@ html body :is(.modal-content, .popup-content, .ios-guide-content)
   :is(h1, h2, h3, h4) {
   font-family: var(--mx-font-display) !important;
 }
+
+/* Titres de pages : identite editoriale forte, contenu HTML et SEO inchanges. */
+html body h1 {
+  text-transform: uppercase !important;
+  letter-spacing: -.02em !important;
+}
+
+/* Le code reste complet et visible sur mobile (ne plus masquer « Code Promo : »). */
+@media(max-width:700px) {
+  html body .mx-site-header .mx-code-button .mx-code-label {
+    display:inline !important;
+    font-size:inherit !important;
+    white-space:nowrap !important;
+  }
+  html body .mx-site-header .mx-code-button {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:3px !important;
+    white-space:nowrap !important;
+    min-height:36px !important;
+    padding:7px 9px !important;
+    font-size:10px !important;
+    letter-spacing:-.015em !important;
+  }
+  html body .mx-site-header .mx-code-button strong {
+    font-size:inherit !important;
+    letter-spacing:0 !important;
+  }
+  /* Evite que les titres en capitales debordent sur 320–390px. */
+  html body.mx-premium-home .mx-hero h1 {
+    font-size:clamp(24px,6.6vw,30px) !important;
+    line-height:1.06 !important;
+    max-width:340px !important;
+    overflow-wrap:normal;
+  }
+}
+@media(max-width:390px) {
+  html body .mx-site-header .mx-code-button {
+    padding:6px 5px !important;
+    gap:2px !important;
+    font-size:9px !important;
+    letter-spacing:-.03em !important;
+  }
+  html body .mx-site-header .mx-header-actions {gap:3px !important;}
+}
