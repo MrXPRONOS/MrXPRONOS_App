@@ -101,3 +101,19 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase functions deploy admin-media-publish --project-ref nhwafcpndlufzzxexikh
+
+
+      - name: Deploy read-only cron-job.org observer (admin JWT)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy admin-cron-read --project-ref nhwafcpndlufzzxexikh
+
+      - name: Deploy admin content link checker (admin JWT)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy admin-link-check --project-ref nhwafcpndlufzzxexikh
+
+      - name: Deploy signed incident watchdog (GitHub OIDC)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy admin-incident-watch --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
