@@ -32,8 +32,14 @@ export const COPY={
 };
 function visitor(){
   try{
-    const s=localStorage.getItem("mx_user_id")||"";
-    return /^(MX|PL)-[a-zA-Z0-9._-]{6,120}$/.test(s)?s:null;
+    const existing=localStorage.getItem("mx_user_id")||"";
+    if(/^(MX|PL)-[a-zA-Z0-9._-]{6,120}$/.test(existing))return existing;
+    // First-time visitors have not necessarily loaded the legacy analytics code yet.
+    // Reuse the same identity key as telemetry V2 / PWA; never use fingerprinting.
+    if(typeof crypto==="undefined"||typeof crypto.randomUUID!=="function")return null;
+    const id="MX-"+crypto.randomUUID();
+    localStorage.setItem("mx_user_id",id);
+    return id;
   }catch{return null;}
 }
 function uuid(){
