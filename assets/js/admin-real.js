@@ -77,17 +77,20 @@ function organizeCmsEditor(root) {
   if(!title||!listHeading)return;
   const group=document.createElement("div");
   group.className="admin-cms-editor-fields";
-  while(title.nextElementSibling && title.nextElementSibling!==listHeading) {
-    group.appendChild(title.nextElementSibling);
+  // Keep a short contextual note visible above the collapsed editor.
+  const description=title.nextElementSibling?.matches("p.muted")?title.nextElementSibling:null;
+  const anchor=description||title;
+  while(anchor.nextElementSibling && anchor.nextElementSibling!==listHeading) {
+    group.appendChild(anchor.nextElementSibling);
   }
-  title.after(group);
+  anchor.after(group);
   const toggle=document.createElement("button");
   toggle.type="button";
   toggle.className="btn btn-secondary admin-cms-editor-toggle";
   toggle.textContent="Créer / modifier un contenu";
   toggle.setAttribute("aria-expanded","false");
   group.hidden=true;
-  title.after(toggle);
+  anchor.after(toggle);
   const show=(visible)=>{
     group.hidden=!visible;
     toggle.setAttribute("aria-expanded",String(visible));
