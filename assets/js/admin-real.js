@@ -72,11 +72,40 @@ function safeIdEq(a, b) {
 }
 
 // Keep original publication timestamps even when editing previously published CMS rows.
-function confirmCmsQuality(kind,row,rows){
+async function confirmCmsQuality(kind,row,rows){
   const {errors,warnings}=inspectCmsEditorial(kind,row,rows);
-  if(errors.length){alert("Enregistrement refusé :\n"+errors.join("\n"));return false;}
-  if(warnings.length&&!confirm("Avertissements de publication :\n"+warnings.join("\n")+"\n\nEnregistrer malgré ces avertissements ?"))
-    return false;
+  if(row.status==="published"&&["articles","conseils","infos","bonus","bookmakers"].includes(kind)){
+    const parts=[row.image_url,row.og_image,row.website,row.url,row.affiliate_url];
+    const text=String(row.content||"");
+    const matches=text.match(/https?:\/\/[^\s<>\[\]()"'\x60]+/g)||[];
+    const urls=[...new Set([...parts,...matches].filter(x=>typeof x==="string"&&/^https?:\/\//.test(x))
+      .map(x=>x.replace(/[.,;!?]+$/,"")))];
+    if(urls.length>36)warnings.push("Plus de 36 liens : vérifier les liens restants.");
+    const session=(await sb.auth.getSession()).data.session;
+    if(!session?.access_token)errors.push("Session expirée : contrôle des liens impossible.");
+    else for(let i=0;i<Math.min(urls.length,36);i+=12){
+      try{
+        const response=await fetch(supabaseUrl+"/functions/v1/admin-link-check",{
+          method:"POST",headers:{"Authorization":"Bearer "+session.access_token,
+            apikey:supabaseAnonKey,"Content-Type":"application/json"},
+          body:JSON.stringify({urls:urls.slice(i,i+12)})
+        });
+        const checked=await response.json().catch(()=>({}));
+        if(!response.ok)throw Error(checked.error||"HTTP "+response.status);
+        for(const link of checked.results||[]){
+          if(link.status==="broken")
+            errors.push("Lien introuvable (HTTP "+link.http_status+") : "+link.url);
+          else if(["unsafe_or_unresolvable","warning","invalid"].includes(link.status))
+            warnings.push("Lien à vérifier : "+link.url);
+        }
+      }catch(e){warnings.push("Contrôle des liens indisponible : "+String(e?.message||e));}
+    }
+  }
+  if(errors.length){alert("Enregistrement refusé :\n"+errors.slice(0,8).join("\n"));return false;}
+  if(warnings.length&&!confirm("À vérifier avant publication :\n"+
+    warnings.slice(0,6).join("\n")+
+    (warnings.length>6?"\n… et "+(warnings.length-6)+" autres":"")+
+    "\n\nEnregistrer malgré ces avertissements ?"))return false;
   return true;
 }
 
@@ -872,7 +901,7 @@ async function renderCmsArticles() {
     const id = $("a_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("articles",payload,rows))return;
+    if(!(await confirmCmsQuality("articles",payload,rows)))return;
     const { error } = await sb.from("cms_articles").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1020,7 +1049,7 @@ async function renderCmsConseils() {
     const id = $("c_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("conseils",payload,rows))return;
+    if(!(await confirmCmsQuality("conseils",payload,rows)))return;
     const { error } = await sb.from("cms_conseils").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1196,7 +1225,7 @@ async function renderBonus() {
     const id = $("b_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("bonus",payload,bonusRows))return;
+    if(!(await confirmCmsQuality("bonus",payload,bonusRows)))return;
     const { error } = await sb.from("cms_bonus").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1222,7 +1251,7 @@ async function renderBonus() {
     const id = $("bk_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("bookmakers",payload,bookRows))return;
+    if(!(await confirmCmsQuality("bookmakers",payload,bookRows)))return;
     const { error } = await sb.from("cms_bookmakers").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1325,7 +1354,7 @@ async function renderInfos() {
     const id = $("i_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("infos",payload,rows))return;
+    if(!(await confirmCmsQuality("infos",payload,rows)))return;
     const { error } = await sb.from("cms_infos").upsert(payload);
     if (error) return alert(error.message);
 
