@@ -146,24 +146,58 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   function render(){
     list.replaceChildren(...blocks.map((b,i)=>elementFor(b,i)));
   }
-  function refreshPreview(){
-    preview.replaceChildren(node("h3","Prévisualisation — brouillon local"));
+  // Sandbox preview with the same CSS as the public article detail page.
+  // No scripts, forms, or network-origin privileges are granted to authored HTML.
+  let previewMobile=true;
+  const previewToolbar=node("div","","mx-preview-toolbar");
+  const mobileButton=node("button","Mobile 390 px","btn btn-secondary");
+  const desktopButton=node("button","Ordinateur","btn btn-secondary");
+  for(const button of [mobileButton,desktopButton])button.type="button";
+  const frame=node("iframe");frame.title="Aperçu de l'article (non publié)";
+  frame.setAttribute("sandbox","");
+  frame.setAttribute("referrerpolicy","no-referrer");
+  frame.style.cssText="display:block;width:min(100%,390px);height:640px;max-width:100%;margin:12px auto;border:1px solid #526474;border-radius:10px;background:#0d1722";
+  previewToolbar.append(mobileButton,desktopButton);
+  preview.append(previewToolbar,frame);
+  const htmlText=value=>text(value).replace(/[&<>"']/g,char=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[char]));
+  function safePreviewHtml(){
+    const parts=[];
     for(const b of blocks){
-      const v=text(b.value);
-      if(b.type==="image"&&isSafeCmsUrl(b.url,"image")){
-        const img=node("img");img.src=b.url;img.alt=b.alt||"";
-        img.style.maxWidth="100%";preview.appendChild(img);
-      }else if(b.type==="video"&&isSafeCmsUrl(b.url,"image")){
-        const media=node("video");media.controls=true;media.preload="metadata";media.src=b.url;
-        media.style.maxWidth="100%";preview.appendChild(media);
-      }else if(b.type==="link"&&isSafeCmsUrl(b.url,"link")){
-        const a=node("a",v||b.url);a.href=b.url;a.target="_blank";a.rel="noopener noreferrer";preview.appendChild(a);
-      }else{
-        const tag=b.type==="heading"?"h2":b.type==="subheading"?"h3":b.type==="quote"?"blockquote":"p";
-        const element=node(tag,v);element.style.whiteSpace="pre-wrap";preview.appendChild(element);
-      }
+      const value=htmlText(b.value||"");
+      const lines=value.split("\n").join("<br>");
+      if(b.type==="heading")parts.push("<h2>"+lines+"</h2>");
+      else if(b.type==="subheading")parts.push("<h3>"+lines+"</h3>");
+      else if(b.type==="quote")parts.push("<blockquote>"+lines+"</blockquote>");
+      else if(b.type==="bullets")parts.push("<ul>"+value.split("\n").map(v=>"<li>"+v+"</li>").join("")+"</ul>");
+      else if(b.type==="image"&&isSafeCmsUrl(b.url,"image")){
+        parts.push('<figure><img loading="lazy" alt="'+htmlText(b.alt)+'" src="'+htmlText(b.url)+'"><figcaption>'+htmlText(b.alt)+'</figcaption></figure>');
+      } else if(b.type==="video"&&isSafeCmsUrl(b.url,"image")){
+        parts.push('<video controls preload="none" playsinline src="'+htmlText(b.url)+'"></video>');
+      } else if(b.type==="link"&&isSafeCmsUrl(b.url,"link"))
+        parts.push('<p><a href="'+htmlText(b.url)+'">'+(lines||htmlText(b.url))+'</a></p>');
+      else parts.push("<p>"+lines+"</p>");
     }
+    return parts.join("\n");
   }
+  function refreshPreview(){
+    const base=htmlText(new URL(".",location.href).href);
+    const contents=safePreviewHtml();
+    frame.style.width=previewMobile?"min(100%,390px)":"100%";
+    frame.srcdoc='<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+      +'<base href="'+base+'"><link rel="stylesheet" href="assets/css/style.css">'
+      +'<link rel="stylesheet" href="assets/css/article-detail-premium.css">'
+      +'<link rel="stylesheet" href="assets/css/site-typography.css">'
+      +'<style>body{background:#0b1520;color:#edf1f7;padding:20px;margin:0}'
+      +'article{max-width:820px;margin:auto;overflow-wrap:anywhere}img,video{max-width:100%;height:auto}'
+      +'p{line-height:1.7}blockquote{border-left:3px solid #ddb96f;padding:12px;margin:8px 0}'
+      +'</style></head><body class="mx-article-detail-page"><article>'
+      +'<p style="color:#dfbc7d;font-weight:700">Mr XPRONOS · Aperçu non publié</p>'
+      +contents+'</article></body></html>';
+  }
+  mobileButton.onclick=()=>{previewMobile=true;refreshPreview();};
+  desktopButton.onclick=()=>{previewMobile=false;refreshPreview();};
   add.onclick=()=>{
     blocks.push({type:addType.value,value:"",url:"",alt:""});
     render();commit();list.lastElementChild?.querySelector("textarea,input")?.focus();
