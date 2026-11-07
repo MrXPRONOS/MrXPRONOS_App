@@ -3,49 +3,67 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-07",
-  "generated_at": "2026-11-06T13:01:12Z",
+  "generated_at": "2026-11-07T08:57:49Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4826270",
-      "league": "Premier A - Group A",
-      "home": "Santiago",
-      "away": "Halcones Negros",
-      "kickoff_utc": "2026-11-07T00:00:00Z",
-      "score": "2:1",
-      "probability": 0.09669242
+      "id": "sportsapipro:4760386",
+      "league": "Russian First League",
+      "home": "Shinnik Yaroslavl",
+      "away": "FC Ufa",
+      "kickoff_utc": "2026-11-07T14:00:00Z",
+      "score": "1:0",
+      "probability": 0.15623496
     },
     {
-      "id": "sportsapipro:4773235",
-      "league": "Liga Panameña - Apertura - Western Conference",
-      "home": "CD Plaza Amador",
-      "away": "Sporting San Miguelito",
-      "kickoff_utc": "2026-11-07T01:30:00Z",
-      "score": "2:1",
-      "probability": 0.09582842
+      "id": "sportsapipro:4890885",
+      "league": "Ligue 1",
+      "home": "Gorée",
+      "away": "Essamaye FC",
+      "kickoff_utc": "2026-11-07T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.14866626
     },
     {
-      "id": "sportsapipro:4826271",
-      "league": "Premier A - Group A",
-      "home": "ACF Zapotlanejo",
-      "away": "Real Refineros",
-      "kickoff_utc": "2026-11-07T01:00:00Z",
-      "score": "2:1",
-      "probability": 0.09557207
+      "id": "sportsapipro:4883478",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Mombasa United FC",
+      "away": "Shabana",
+      "kickoff_utc": "2026-11-07T11:00:00Z",
+      "score": "1:0",
+      "probability": 0.1444127
+    },
+    {
+      "id": "sportsapipro:4883477",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Mara Sugar",
+      "away": "Migori Youth FC",
+      "kickoff_utc": "2026-11-07T12:00:00Z",
+      "score": "1:0",
+      "probability": 0.13053143
+    },
+    {
+      "id": "sportsapipro:4891118",
+      "league": "Ligue 1",
+      "home": "Olympique Akbou",
+      "away": "JS Kabylie",
+      "kickoff_utc": "2026-11-07T13:00:00Z",
+      "score": "1:0",
+      "probability": 0.12856675
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4826270",
-      "league": "Premier A - Group A",
-      "home": "Santiago",
-      "away": "Halcones Negros",
-      "kickoff_utc": "2026-11-07T00:00:00Z",
-      "score": "2:1",
-      "probability": 0.25694872,
+      "id": "sportsapipro:4760386",
+      "league": "Russian First League",
+      "home": "Shinnik Yaroslavl",
+      "away": "FC Ufa",
+      "kickoff_utc": "2026-11-07T14:00:00Z",
+      "score": "1:0",
+      "probability": 0.35676999,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -54,13 +72,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4826271",
-      "league": "Premier A - Group A",
-      "home": "ACF Zapotlanejo",
-      "away": "Real Refineros",
-      "kickoff_utc": "2026-11-07T01:00:00Z",
-      "score": "2:1",
-      "probability": 0.249833,
+      "id": "sportsapipro:4890885",
+      "league": "Ligue 1",
+      "home": "Gorée",
+      "away": "Essamaye FC",
+      "kickoff_utc": "2026-11-07T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.33942595,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -69,13 +87,43 @@
       ]
     },
     {
-      "id": "sportsapipro:4773235",
-      "league": "Liga Panameña - Apertura - Western Conference",
-      "home": "CD Plaza Amador",
-      "away": "Sporting San Miguelito",
-      "kickoff_utc": "2026-11-07T01:30:00Z",
-      "score": "2:1",
-      "probability": 0.24505365,
+      "id": "sportsapipro:4889306",
+      "league": "Syrian Premier League",
+      "home": "Homs Al Fidaa SC",
+      "away": "Foutoua",
+      "kickoff_utc": "2026-11-07T12:00:00Z",
+      "score": "2:0",
+      "probability": 0.33869719,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4760379",
+      "league": "Russian First League",
+      "home": "Torpedo Moscow",
+      "away": "Neftekhimik",
+      "kickoff_utc": "2026-11-07T14:00:00Z",
+      "score": "1:0",
+      "probability": 0.31664167,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4883478",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Mombasa United FC",
+      "away": "Shabana",
+      "kickoff_utc": "2026-11-07T11:00:00Z",
+      "score": "1:0",
+      "probability": 0.31226376,
       "group": "H_LOW",
       "group_scores": [
         "1:0",

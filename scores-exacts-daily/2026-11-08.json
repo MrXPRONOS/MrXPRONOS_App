@@ -1,0 +1,13 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "unavailable",
+  "date": "2026-11-08",
+  "generated_at": "2026-11-07T08:57:49Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [],
+  "grouped": []
+}
