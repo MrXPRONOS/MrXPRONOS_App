@@ -87,7 +87,7 @@ Deno.serve(async req=>{
  try{
   const provider=await source("/jobs");
   const jobs=(Array.isArray(provider.jobs)?provider.jobs:[]).map(sanitizeJob)
-   .filter(j=>Number.isSafeInteger(j.id)&&j.id>0);
+   .filter((j:any)=>Number.isSafeInteger(j.id)&&j.id>0);
   const stamp=new Date().toISOString();
   await service.from("admin_cron_snapshot").upsert({
     id:1,fetched_at:stamp,status:"ok",jobs,last_error:null,updated_at:stamp
