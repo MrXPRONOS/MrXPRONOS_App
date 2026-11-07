@@ -104,6 +104,11 @@ def check_standard(browser, path, active_label, width, height):
         raise AssertionError(f"{label}: promo button missing")
 
     if width<=700:
+        code_label=promo.locator(".mx-code-label")
+        if code_label.count()!=1 or not code_label.is_visible():
+            raise AssertionError(f"{label}: mobile code promo label is missing")
+        if "code promo" not in (promo.inner_text() or "").lower() or "XPVIP" not in (promo.inner_text() or ""):
+            raise AssertionError(f"{label}: full mobile code promo is missing: {promo.inner_text()!r}")
         logo_box=page.locator(".mx-site-header .logo a").bounding_box()
         promo_box=promo.bounding_box()
         if not logo_box or not promo_box:
