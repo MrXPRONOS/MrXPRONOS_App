@@ -1,106 +1,128 @@
-"""Chronological Over 2.5 threshold experiment for BSD V3.
+"""Chronological Over 2.5 quality-gate experiment for BSD V3.
 
-Candidate thresholds are selected without using October 2026:
-- Jan-Jun 2026: stability check
-- Jul-Sep 2026: threshold selection
+Fixed candidate policies are selected without using October 2026:
+- Jan-Jun 2026: stability veto
+- Jul-Sep 2026: policy selection
 - Oct 2026: held-out diagnostic
 
 No historical bookmaker odds are fabricated.
 """
 from __future__ import annotations
-from collections import defaultdict
 from datetime import timedelta
 from math import sqrt
 from .engine import train_runtime,evaluate_fixture
 from .legacy import fixture_datetime,outcome_scores
 from .policy import V3Policy
-
-THRESHOLDS=(.60,.62,.64,.66,.68,.70,.72,.74,.76)
+from bsd_v2_over_under import features as total_features,fit_total_model
 
 def _stats(rows):
     n=len(rows)
     if not n:
-        return {"n":0,"wins":0,"hit_rate":None,"wilson_low":None,"wilson_95":None,
-                "mean_probability":None,"mean_conservative":None}
+        return {"n":0,"wins":0,"hit_rate":None,"wilson_low":None,"wilson_95":None}
     wins=sum(int(r["won"]) for r in rows)
-    p=wins/n
-    z=1.96;q=z*z
+    p=wins/n;z=1.96;q=z*z
     center=(p+q/(2*n))/(1+q/n)
     half=z*sqrt((p*(1-p)+q/(4*n))/n)/(1+q/n)
     return {"n":n,"wins":wins,"hit_rate":round(p,5),
             "wilson_low":round(max(0,center-half),5),
-            "wilson_95":[round(max(0,center-half),5),round(min(1,center+half),5)],
-            "mean_probability":round(sum(r["p"] for r in rows)/n,5),
-            "mean_conservative":round(sum(r["pc"] for r in rows)/n,5)}
+            "wilson_95":[round(max(0,center-half),5),round(min(1,center+half),5)]}
+
+POLICIES={
+    "base70": lambda r: r["p"]>=.70 and r["pc"]>=.68,
+    "p72": lambda r: r["p"]>=.72 and r["pc"]>=.70,
+    "p74": lambda r: r["p"]>=.74 and r["pc"]>=.72,
+    "p70_total28": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["expected_total"]>=2.8,
+    "p70_total30": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["expected_total"]>=3.0,
+    "p72_total30": lambda r: r["p"]>=.72 and r["pc"]>=.70 and r["expected_total"]>=3.0,
+    "p70_league55": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["league_over"]>=.55,
+    "p70_league58": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["league_over"]>=.58,
+    "p72_league58": lambda r: r["p"]>=.72 and r["pc"]>=.70 and r["league_over"]>=.58,
+    "p70_emp60": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["empirical_over"]>=.60,
+    "p72_emp62": lambda r: r["p"]>=.72 and r["pc"]>=.70 and r["empirical_over"]>=.62,
+    "p70_total28_league55": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["expected_total"]>=2.8 and r["league_over"]>=.55),
+    "p72_total30_league55": lambda r: (r["p"]>=.72 and r["pc"]>=.70
+        and r["expected_total"]>=3.0 and r["league_over"]>=.55),
+    "p70_emp60_league55": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["empirical_over"]>=.60 and r["league_over"]>=.55),
+    "p72_emp62_league55": lambda r: (r["p"]>=.72 and r["pc"]>=.70
+        and r["empirical_over"]>=.62 and r["league_over"]>=.55),
+    "p70_specialist70_gap08": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["specialist_p"]>=.70 and r["model_gap"]<=.08),
+    "p72_specialist72_gap08": lambda r: (r["p"]>=.72 and r["pc"]>=.70
+        and r["specialist_p"]>=.72 and r["model_gap"]<=.08),
+}
 
 def experiment(history):
     runtime=train_runtime(history,challenger=False)
+    total_model,total_fit=fit_total_model(runtime["index"],runtime["rho"])
     periods={"train":[],"validation":[],"test":[]}
     for _,event in runtime["index"].global_games:
         dt=fixture_datetime(event)
         if dt.year!=2026 or dt.month>10 or outcome_scores(event) is None:
             continue
         historical=dict(event,status="notstarted",home_score=None,away_score=None)
-        report=evaluate_fixture(historical,runtime,now=dt-timedelta(minutes=1),
-                                policy=V3Policy())
+        report=evaluate_fixture(historical,runtime,now=dt-timedelta(minutes=1),policy=V3Policy())
         if report.get("status")!="analyzed":
             continue
         row=next((x for x in report["candidates"] if x["key"]=="OVER_25"),None)
-        if row is None:
-            continue
-        # Require the same data-quality eligibility that Pro/VIP uses, but do
-        # not apply the current generic probability threshold because that is
-        # exactly what this experiment is selecting.
-        if row["decision"]["quality_tier"]=="simple":
+        if row is None or row["decision"]["quality_tier"]=="simple":
             continue
         if row.get("market_probability_lift",0)<=0:
             continue
+        feat=total_features(event,runtime["index"])
+        if feat is None:
+            continue
+        spec=total_model.predict_over(event,runtime["index"])
+        if not spec or 2.5 not in spec:
+            continue
+        specialist=float(spec[2.5])
         h,a=outcome_scores(event)
-        item={"event_id":str(event["id"]),"kickoff":dt.isoformat(),
-              "p":float(row["probability"]),
-              "pc":float(row["conservative_probability"]),
-              "won":bool(h+a>2.5)}
+        item={
+            "p":float(row["probability"]),
+            "pc":float(row["conservative_probability"]),
+            "expected_total":float(report["estimated_goals"]["home"])+float(report["estimated_goals"]["away"]),
+            "league_over":float(feat["league_over_rates"][2.5]),
+            "empirical_over":float(feat["empirical_over"][2.5]),
+            "specialist_p":specialist,
+            "model_gap":abs(float(row["probability"])-specialist),
+            "won":bool(h+a>2.5),
+        }
         key="train" if dt.month<=6 else ("validation" if dt.month<=9 else "test")
         periods[key].append(item)
-    tables={}
-    for period,rows in periods.items():
-        tables[period]={}
-        for threshold in THRESHOLDS:
-            # Same two-stage convention as other preferred markets:
-            # conservative floor is two points below the central floor.
-            selected=[r for r in rows if r["p"]>=threshold and r["pc"]>=threshold-.02]
-            tables[period][f"{threshold:.2f}"]=_stats(selected)
 
+    tables={period:{name:_stats([r for r in rows if rule(r)])
+                    for name,rule in POLICIES.items()}
+            for period,rows in periods.items()}
     train=tables["train"];validation=tables["validation"]
+    base_train=train["base70"];base_validation=validation["base70"]
     candidates=[]
-    base_key="0.60"
-    for threshold in THRESHOLDS:
-        key=f"{threshold:.2f}"
-        tr=train[key];va=validation[key]
-        if tr["n"]<80 or va["n"]<40:
-            continue
-        # Do not accept a threshold whose earlier-period accuracy collapses.
-        if tr["hit_rate"] is None or tr["hit_rate"]<.68:
-            continue
-        candidates.append(key)
-    chosen=(max(candidates,key=lambda k:(validation[k]["wilson_low"],
-                                         validation[k]["hit_rate"],
-                                         validation[k]["n"]))
-            if candidates else base_key)
-    accepted=(chosen!=base_key and validation[chosen]["hit_rate"] is not None
-              and validation[chosen]["hit_rate"]>=.74)
-    active=chosen if accepted else base_key
+    for name in POLICIES:
+        if name=="base70":continue
+        tr,va=train[name],validation[name]
+        if tr["n"]<60 or va["n"]<40:continue
+        if tr["hit_rate"] is None or va["hit_rate"] is None:continue
+        # Safety: earlier period must not collapse relative to the simple base.
+        if tr["hit_rate"] < max(.68,base_train["hit_rate"]-.03):continue
+        candidates.append(name)
+    chosen=(max(candidates,key=lambda name:(validation[name]["wilson_low"],
+                                            validation[name]["hit_rate"],
+                                            validation[name]["n"]))
+            if candidates else "base70")
+    accepted=(chosen!="base70" and validation[chosen]["hit_rate"]>=.75
+              and validation[chosen]["hit_rate"]>=base_validation["hit_rate"]+.03)
+    active=chosen if accepted else "base70"
     return {
-        "format":"bsd-v3-over25-threshold-experiment-v1",
+        "format":"bsd-v3-over25-quality-experiment-v2",
         "stability_period":"2026-01 through 2026-06",
         "selection_period":"2026-07 through 2026-09",
         "test_period":"2026-10",
-        "candidate_thresholds":list(THRESHOLDS),
+        "total_model_fit":total_fit,
         "chosen_on_recent_selection":chosen,
         "accepted":accepted,
-        "active_threshold":active,
-        "active_conservative_threshold":round(float(active)-.02,2),
+        "active_policy":active,
         "tables":tables,
-        "october":tables["test"][active],
-        "warning":"Retrospective threshold research. October is not used to choose the threshold; prospective confirmation is still required."
+        "october_base":tables["test"]["base70"],
+        "october_filtered":tables["test"][active],
+        "warning":"Retrospective quality-gate research. October is not used to select the policy; prospective confirmation is still required."
     }
