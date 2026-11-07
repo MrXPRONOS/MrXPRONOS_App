@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-07",
-  "generated_at": "2026-11-07T08:57:49Z",
+  "generated_at": "2026-11-07T11:48:12Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -28,13 +28,22 @@
       "probability": 0.14866626
     },
     {
-      "id": "sportsapipro:4883478",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Mombasa United FC",
-      "away": "Shabana",
-      "kickoff_utc": "2026-11-07T11:00:00Z",
+      "id": "sportsapipro:4890887",
+      "league": "Ligue 1",
+      "home": "Wally Daan",
+      "away": "Ajel",
+      "kickoff_utc": "2026-11-07T17:00:00Z",
       "score": "1:0",
-      "probability": 0.1444127
+      "probability": 0.13085796
+    },
+    {
+      "id": "sportsapipro:4890886",
+      "league": "Ligue 1",
+      "home": "Dakar SC",
+      "away": "AS Pikine",
+      "kickoff_utc": "2026-11-07T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.13078797
     },
     {
       "id": "sportsapipro:4883477",
@@ -44,15 +53,6 @@
       "kickoff_utc": "2026-11-07T12:00:00Z",
       "score": "1:0",
       "probability": 0.13053143
-    },
-    {
-      "id": "sportsapipro:4891118",
-      "league": "Ligue 1",
-      "home": "Olympique Akbou",
-      "away": "JS Kabylie",
-      "kickoff_utc": "2026-11-07T13:00:00Z",
-      "score": "1:0",
-      "probability": 0.12856675
     }
   ],
   "grouped": [
@@ -117,13 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4883478",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Mombasa United FC",
-      "away": "Shabana",
-      "kickoff_utc": "2026-11-07T11:00:00Z",
+      "id": "sportsapipro:4890887",
+      "league": "Ligue 1",
+      "home": "Wally Daan",
+      "away": "Ajel",
+      "kickoff_utc": "2026-11-07T17:00:00Z",
       "score": "1:0",
-      "probability": 0.31226376,
+      "probability": 0.31333361,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
