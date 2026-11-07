@@ -4,9 +4,10 @@ from math import fsum, sqrt
 from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustment, label_candidate
 from .market_priors import attach_market_merit
 
-PREFERRED_KEYS = frozenset({"1", "2", "BTTS_YES", "OVER_15"})
+PREFERRED_KEYS = frozenset({"1", "2", "BTTS_YES", "BTTS_NO", "OVER_15"})
 OVER25_PRIORITY_KEY = "OVER_25"
-PREFERRED_TIE_ORDER = {"1": 0, "2": 1, "BTTS_YES": 2, "OVER_15": 3}
+BTTS_NO_PRIORITY_KEY = "BTTS_NO"
+PREFERRED_TIE_ORDER = {"1": 0, "2": 1, "BTTS_YES": 2, "BTTS_NO": 3, "OVER_15": 4}
 
 
 def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Policy(),
@@ -98,10 +99,16 @@ def select_candidates(rows, score_matrix, policy=V3Policy()):
             if r["key"]==OVER25_PRIORITY_KEY
             and r["decision"]["pro_vip_shadow"]
             and r.get("market_probability_lift",0)>0]
+    btts_no=[r["key"] for r in rows
+             if r["key"]==BTTS_NO_PRIORITY_KEY
+             and r["decision"]["pro_vip_shadow"]
+             and r.get("market_probability_lift",0)>0]
     return {"pro_vip_shadow": [r["key"] for r in selected],
             "preferred_pro_vip_shadow": [r["key"] for r in selected if r["key"] in PREFERRED_KEYS],
             "over25_priority_shadow": over25[:1],
+            "btts_no_priority_shadow": btts_no[:1],
             "value_shadow": [r["key"] for r in value],
-            "priority_policy": {"primary":["1","2","BTTS_YES","OVER_15"],
-                                "dedicated_over25":["OVER_25"]},
+            "priority_policy": {"primary":["1","2","BTTS_YES","BTTS_NO","OVER_15"],
+                                "dedicated_over25":["OVER_25"],
+                                "dedicated_btts_no":["BTTS_NO"]},
             "no_publication": True}

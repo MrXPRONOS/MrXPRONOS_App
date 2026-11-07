@@ -12,7 +12,7 @@ from .legacy import fixture_datetime,outcome_scores,markets_from_matrix,score_ma
 from .policy import V3Policy
 
 _MARKETS={c.key:c for c in markets_from_matrix(score_matrix(1.4,1.2))}
-PREFERRED=frozenset({"1","2","BTTS_YES","OVER_15","OVER_25"})
+PREFERRED=frozenset({"1","2","BTTS_YES","BTTS_NO","OVER_15","OVER_25"})
 
 def _wilson(wins,n,z=1.96):
     if not n:return None
@@ -62,6 +62,7 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
     fallback=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.})
     confidence=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.})
     over25_priority={"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.}
+    btts_no_priority={"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.}
     sample=[]
     for finished in events:
         kickoff=fixture_datetime(finished)
@@ -80,6 +81,7 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
         counters["analyzed"]+=1
         choices=report["selections"]["pro_vip_shadow"]
         over25_choices=report["selections"].get("over25_priority_shadow") or []
+        btts_no_choices=report["selections"].get("btts_no_priority_shadow") or []
         hs,aws=outcome_scores(finished)
         all_rows={row["key"]:row for row in report["candidates"]}
         if over25_choices:
@@ -88,6 +90,12 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
             _observe(over25_priority,row["probability"],won)
             counters["over25_priority_picks"]+=1
             counters["over25_priority_wins"]+=int(won)
+        if btts_no_choices:
+            row=all_rows["BTTS_NO"]
+            won=bool(realized(_MARKETS["BTTS_NO"],hs,aws))
+            _observe(btts_no_priority,row["probability"],won)
+            counters["btts_no_priority_picks"]+=1
+            counters["btts_no_priority_wins"]+=int(won)
         if not choices:
             counters["no_pick"]+=1
             continue
@@ -144,6 +152,7 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
         "all_selections":_finish(overall),
         "primary_picks":_finish(primary_overall),
         "over25_priority_shadow":_finish(over25_priority),
+        "btts_no_priority_shadow":_finish(btts_no_priority),
         "by_market":finalize_table(by_market),
         "primary_by_market":finalize_table(primary_by_market),
         "preferred_markets":finalize_table(preferred),

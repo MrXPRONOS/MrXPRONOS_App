@@ -56,7 +56,7 @@ def monitor(path,*,min_samples=100,max_gap=.06):
     forecasts={x["id"]:x["payload"] for x in canonical.values()}
     sections={name:defaultdict(_empty) for name in
               ("market","family","league_market","probability_band",
-               "pro_vip_shadow","over25_priority_shadow","value_shadow")}
+               "pro_vip_shadow","over25_priority_shadow","btts_no_priority_shadow","value_shadow")}
     total=0
     for record in entries:
         if record["type"]!="settlement":continue
@@ -66,6 +66,7 @@ def monitor(path,*,min_samples=100,max_gap=.06):
         selections=forecast.get("selections") or {}
         pro=set(selections.get("pro_vip_shadow") or [])
         over25=set(selections.get("over25_priority_shadow") or [])
+        btts_no=set(selections.get("btts_no_priority_shadow") or [])
         value=set(selections.get("value_shadow") or [])
         league=str(forecast.get("league_key") or "unknown")
         for key,realized in (record["payload"].get("markets") or {}).items():
@@ -84,6 +85,7 @@ def monitor(path,*,min_samples=100,max_gap=.06):
                 _observe(sections[section][bucket],y,p,price)
             if key in pro:_observe(sections["pro_vip_shadow"][key],y,p,price)
             if key in over25:_observe(sections["over25_priority_shadow"][key],y,p,price)
+            if key in btts_no:_observe(sections["btts_no_priority_shadow"][key],y,p,price)
             if key in value:_observe(sections["value_shadow"][key],y,p,price)
             total+=1
     report={}
