@@ -12,6 +12,7 @@ window.supabase = {
       select: () => chain,
       order: () => chain,
       limit: () => Promise.resolve(records),
+      range: () => Promise.resolve(records),
       eq: () => chain,
       single: () => Promise.resolve({data: {}, error: null}),
       then: (resolve) => Promise.resolve(records).then(resolve)
