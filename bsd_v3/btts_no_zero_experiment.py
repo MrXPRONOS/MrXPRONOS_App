@@ -40,6 +40,23 @@ POLICIES={
         and r["model_gap"]<=.08),
     "zero60_h2h": lambda r: r["zero_no"]>=.60 and r["h2h_no"],
     "dual60_h2h": lambda r: r["v3_no"]>=.60 and r["zero_no"]>=.60 and r["h2h_no"],
+    "v3_60_minlambda70": lambda r: r["v3_no"]>=.60 and r["pc"]>=.58 and r["min_lambda"]<=.70,
+    "v3_60_minlambda60": lambda r: r["v3_no"]>=.60 and r["pc"]>=.58 and r["min_lambda"]<=.60,
+    "v3_60_minlambda50": lambda r: r["v3_no"]>=.60 and r["pc"]>=.58 and r["min_lambda"]<=.50,
+    "v3_60_total220": lambda r: r["v3_no"]>=.60 and r["pc"]>=.58 and r["total_lambda"]<=2.20,
+    "v3_60_total200": lambda r: r["v3_no"]>=.60 and r["pc"]>=.58 and r["total_lambda"]<=2.00,
+    "v3_60_side60": lambda r: r["v3_no"]>=.60 and r["min_side_score"]<=.60,
+    "v3_60_side55": lambda r: r["v3_no"]>=.60 and r["min_side_score"]<=.55,
+    "v3_60_blank45": lambda r: r["v3_no"]>=.60 and r["max_blank"]>=.45,
+    "v3_60_blank50": lambda r: r["v3_no"]>=.60 and r["max_blank"]>=.50,
+    "lambda70_league50": lambda r: (r["v3_no"]>=.60 and r["min_lambda"]<=.70
+        and r["league_btts"]<=.50),
+    "lambda60_league50": lambda r: (r["v3_no"]>=.60 and r["min_lambda"]<=.60
+        and r["league_btts"]<=.50),
+    "side60_league50": lambda r: (r["v3_no"]>=.60 and r["min_side_score"]<=.60
+        and r["league_btts"]<=.50),
+    "side55_league50": lambda r: (r["v3_no"]>=.60 and r["min_side_score"]<=.55
+        and r["league_btts"]<=.50),
 }
 
 def _stats(rows):
@@ -102,6 +119,9 @@ def experiment(history):
             "zero_no":float(zero_no),
             "home_blank":ph,"away_blank":pa,"max_blank":max(ph,pa),
             "team_model_no":1-float(side["home_scores"])*float(side["away_scores"]),
+            "min_side_score":min(float(side["home_scores"]),float(side["away_scores"])),
+            "min_lambda":min(float(expected["home"]),float(expected["away"])),
+            "total_lambda":float(expected["home"])+float(expected["away"]),
             "league_btts":league,"model_gap":abs(float(p_no)-zero_no),
             "h2h_no":bool(h2h_ok),"won":bool(h==0 or a==0),
         }
