@@ -100,6 +100,40 @@ Deno.serve(async req=>{
  if(cronsError||pushError||cronError)return send({
   error:"Watchdog database read failed"},503);
  sourceFlags.supabase="ok";
+ let cronObserved=cronSnapshot;
+ const apiKey=Deno.env.get("CRON_JOB_ORG_API_KEY")||"";
+ if(apiKey&&(!cronObserved?.fetched_at||(ageMin(cronObserved.fetched_at)??Infinity)>=30)){
+  const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),9000);
+  try{
+   const res=await fetch("https://api.cron-job.org/jobs",{
+    method:"GET",signal:ctl.signal,
+    headers:{"Authorization":"Bearer "+apiKey,"Accept":"application/json"}
+   });
+   if(!res.ok)throw Error("API HTTP "+res.status);
+   const provider=await res.json();
+   const cleaned=(Array.isArray(provider.jobs)?provider.jobs:[]).map((job:any)=>{
+     let endpoint="inconnu";
+     try{
+      const target=new URL(String(job.url||""));
+      endpoint=target.hostname.toLowerCase()+target.pathname;
+     }catch{}
+     return {id:Number(job.jobId),title:safeName(job.title),enabled:job.enabled===true,
+      endpoint,last_status:Number(job.lastStatus||0),
+      last_execution:Number(job.lastExecution||0),next_execution:Number(job.nextExecution||0),
+      schedule:{timezone:String(job.schedule?.timezone||"UTC"),
+       hours:Array.isArray(job.schedule?.hours)?job.schedule.hours.slice(0,24):[],
+       minutes:Array.isArray(job.schedule?.minutes)?job.schedule.minutes.slice(0,60):[],
+       wdays:Array.isArray(job.schedule?.wdays)?job.schedule.wdays.slice(0,7):[]}};
+   }).filter((j:any)=>Number.isSafeInteger(j.id)&&j.id>0);
+   await sb.from("admin_cron_snapshot").upsert({
+    id:1,status:"ok",fetched_at:now,jobs:cleaned,last_error:null,updated_at:now
+   },{onConflict:"id"});
+   cronObserved={status:"ok",fetched_at:now,jobs:cleaned};
+  }catch(error){
+   sourceFlags.cron_job_org="fetch_error";
+  }finally{clearTimeout(timer)}
+ }
+ if(!apiKey)sourceFlags.cron_job_org="not_configured";
  for(const entry of crons||[]){
   const key="cron-run:"+safeName(entry.name);
   const stamp=entry.last_run_at,minutes=ageMin(stamp);
@@ -122,11 +156,11 @@ Deno.serve(async req=>{
    action:"Examiner les erreurs par appareil ; ne pas renvoyer si la livraison est incertaine.",
    detail:{campaign_id:entry.id,provider:"Supabase Push"}});
  }
- if(cronSnapshot?.status==="ok"&&Array.isArray(cronSnapshot.jobs)&&
-    (ageMin(cronSnapshot.fetched_at)??Infinity)<180){
+ if(apiKey&&cronObserved?.status==="ok"&&Array.isArray(cronObserved.jobs)&&
+    (ageMin(cronObserved.fetched_at)??Infinity)<180){
   sourceFlags.cron_job_org="ok";
   const jobGroups=new Map();
-  for(const job of cronSnapshot.jobs){
+  for(const job of cronObserved.jobs){
    if(!job.enabled)continue;
    const key="cron-job-org:"+String(job.id);
    if(job.last_status===1){recovered.add(key);}
@@ -148,7 +182,8 @@ Deno.serve(async req=>{
     evidence:ids.join("-"),action:"Vérifier si les tâches sont volontairement redondantes.",
     detail:{provider:"cron-job.org",job_ids:ids,certainty:"configuration_same_not_proven_duplicate"}});
   }
- }else{sourceFlags.cron_job_org=cronSnapshot?.status||"not_connected";}
+ }else{sourceFlags.cron_job_org=sourceFlags.cron_job_org||
+    cronObserved?.status||"not_connected";}
  let escalations=0,changes=0;
  for(const observation of observations.slice(0,100)){
   const {data:prior,error:readError}=await sb.from("admin_incidents")
