@@ -28,7 +28,7 @@ jobs:
           deno-version: v2.5.6
       - name: Typecheck all changed Edge Functions
         run: |
-          deno check supabase/functions/admin-push/index.ts \
+          deno check --node-modules-dir=auto supabase/functions/admin-push/index.ts \
             supabase/functions/admin-list-subscribers/index.ts \
             supabase/functions/admin-media-publish/index.ts \
             supabase/functions/push-notifications/index.ts
