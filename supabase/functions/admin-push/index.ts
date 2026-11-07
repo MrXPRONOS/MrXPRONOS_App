@@ -107,7 +107,7 @@ Deno.serve(async(req)=>{
    });
    const payload=await res.json().catch(()=>({}));
    if(!res.ok)throw Error(String(payload?.error||"Envoi Push refusé"));
-   const summary=summarize(payload);
+   const summary:Record<string,number|boolean>=summarize(payload);
    // Device-level logging is best-effort: an audit failure must never mark
    // a delivered campaign as undelivered, which could provoke a double send.
    try{summary.logged=await persistDeliveryLogs(service,c.id,payload);}
