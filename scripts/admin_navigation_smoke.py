@@ -79,6 +79,15 @@ def run(page, mobile=False):
     assert page.locator(".admin-cms-editor-fields").get_attribute("hidden") is not None
     page.locator(".admin-cms-editor-toggle").click()
     expect(page.locator("#a_title")).to_be_visible()
+    # The draft uses the public reader structure, with a sandboxed preview.
+    page.locator(".mx-block-editor .mx-block-toolbar button", has_text="Prévisualiser").click()
+    preview = page.locator(".mx-block-preview iframe")
+    expect(preview).to_have_attribute("sandbox", "")
+    reader = page.frame_locator(".mx-block-preview iframe").locator("article.mx-reader-article")
+    expect(reader).to_be_visible()
+    public_css = page.frame_locator(".mx-block-preview iframe").locator(
+        'link[href="assets/css/article-detail-premium.css"]')
+    expect(public_css).to_have_count(1)
     if mobile:
         page.locator("#sidebar-open").click()
         page.keyboard.press("Escape")
