@@ -1,4 +1,5 @@
 import {supabaseUrl,supabaseAnonKey} from "./config.js";
+import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
 const $=id=>document.getElementById(id);
 const sb=window.supabase.createClient(supabaseUrl,supabaseAnonKey);
 let channel=null, refreshTimer=null, pending=false, lastRealtime=0;
@@ -91,7 +92,7 @@ async function fetchSnapshot(){
   void refreshVisitorQualityV2();
   void refreshPwaInstallFunnel();
   output("latency",format(Math.round(performance.now()-started))+" ms");
-  output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
+  output("updated",adminSnapshotLabel("Supabase",new Date(),{intervalSeconds:60}));
   notice("");
  }catch(e){notice("Supervision indisponible : "+(e?.message||String(e)));}finally{pending=false;$("refresh").disabled=false}
 }
