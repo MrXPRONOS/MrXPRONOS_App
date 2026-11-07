@@ -195,7 +195,7 @@
   }
   .mx-premium-home .mx-feature-card h2 { font-size:12px!important; }
   .mx-premium-home .mx-data-updated { font-size:11px!important; }
-  .mx-pronos-page .mx-announcement { flex-wrap:wrap; gap:8px; padding:11px 12px; font-size:12px; }
+  .mx-pronos-page .mx-announcement { flex-wrap:wrap; gap:6px; margin:8px 0 5px; padding:8px 10px; font-size:12px; }
   .mx-pronos-page .mx-announcement-action { margin-left:auto; }
   .mx-pronos-page .day-filters .day-btn { min-height:44px!important; font-size:12px!important; }
   .mx-pronos-page .pronostic-category-tabs .tab-btn { min-height:48px!important; font-size:12px!important; }
