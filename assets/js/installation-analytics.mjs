@@ -1,4 +1,5 @@
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
+import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const $ = id => document.getElementById(id);
@@ -58,7 +59,7 @@ async function load() {
       ["surface","cta_visible","cta_click","guide_open"]);
     renderTable("daily", Array.isArray(d.daily) ? d.daily : [],
       ["day","visible","clicks","prompt_accepted","appinstalled","standalone_open"]);
-    label("status", "Données actualisées : " + new Date().toLocaleTimeString("fr-FR"));
+    label("status", adminSnapshotLabel("Installations PWA"));
   } catch (error) {
     label("status", "Statistiques indisponibles : " + String(error?.message || error));
   } finally {
