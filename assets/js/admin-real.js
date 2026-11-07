@@ -563,6 +563,7 @@ async function renderPronosticsReadOnly() {
         <div><label for="pSearch">Recherche</label><input id="pSearch" type="search" placeholder="Équipe ou compétition"></div>
       </div>
       <div id="pStatus" class="muted" role="status" aria-live="polite">Chargement des pronostics…</div>
+      <div id="pDiagnostics" class="muted" role="status" aria-live="polite"></div>
       <div id="pList"></div>
     </div>`;
   let matches = [];
@@ -640,10 +641,19 @@ async function renderPronosticsReadOnly() {
       const data = await response.json();
       if (!Array.isArray(data?.matches)) throw new Error("Format du flux incorrect");
       matches = data.matches;
+      const last=String(data.updated_at||data.generated_at||data.last_updated||"");
+      const time=Date.parse(last);
+      const age=Number.isFinite(time)?Math.max(0,Math.round((Date.now()-time)/60000)):null;
+      const invalid=matches.filter(m=>!["pro","vip"].includes(String(m.category||"").toLowerCase())).length;
+      $("pDiagnostics").textContent="Flux : "+matches.length+" sélection(s) • "
+        +(age==null?"Date de génération non indiquée":age+" min depuis génération")+
+        (age!=null&&age>180?" · Retard possible":"")+
+        (invalid?" · "+invalid+" catégorie(s) inconnue(s)":" · Catégories valides");
       loadFailed = false;
-    } catch {
+    } catch(err) {
       loadFailed = true;
       matches = [];
+      $("pDiagnostics").textContent="Erreur de diagnostic : "+String(err?.message||err);
     }
     render();
   };
