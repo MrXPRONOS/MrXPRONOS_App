@@ -161,3 +161,28 @@ body.admin-shell #supervisionFrame{min-height:720px;height:min(950px,100vh);bord
  body.admin-shell .admin-cms-editor-fields{padding:10px}
  body.admin-shell #supervisionFrame{min-height:680px;height:82vh}
 }
+
+
+/* Consolidated admin review: responsive, understated, readable widgets. */
+body.admin-shell .admin-unified-summary{margin:18px 0 8px}
+body.admin-shell .admin-unified-summary h3{margin:0 0 12px;font-size:clamp(15px,1.7vw,19px)}
+body.admin-shell .admin-unified-chart{display:flex;align-items:end;gap:10px;min-height:118px;overflow:hidden;
+  padding:10px 12px;border:1px solid #34495e;border-radius:12px;background:#0e1b2a;margin:14px 0 6px}
+body.admin-shell .admin-unified-day{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  gap:8px;min-width:0;height:101px}
+body.admin-shell .admin-unified-day small{font-size:10px;color:#b6c1cc}
+body.admin-shell .admin-unified-bar{background:linear-gradient(0deg,#93713b,#e9ce87);
+  border-radius:6px 6px 2px 2px;width:min(100%,50px)}
+body.admin-shell .admin-push-device-log{max-height:300px;overflow:auto;min-width:280px;
+  padding:10px;background:#0d1b28;border:1px solid #344a5f;border-radius:8px;margin-top:8px}
+body.admin-shell .admin-device-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:7px 0;border-bottom:1px solid #324358;overflow-wrap:anywhere}
+body.admin-shell .admin-device-row span{font-size:12px}
+body.admin-shell .admin-device-row button{font-size:11px}
+body.admin-shell .admin-cron-register{max-width:100%;overflow-x:auto}
+@media(max-width:650px){
+ body.admin-shell .admin-unified-summary .admin-overview-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.admin-shell .admin-unified-chart{gap:6px;padding:8px}
+ body.admin-shell .admin-push-device-log{min-width:0}
+ body.admin-shell .admin-device-row{align-items:flex-start;flex-direction:column}
+}
