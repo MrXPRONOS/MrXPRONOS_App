@@ -44,6 +44,14 @@ class PwaInstallPhase2Tests(unittest.TestCase):
         self.assertIn("p.isIOS", pwa)
         self.assertIn('aria-modal="true"', pwa)
 
+    def test_update_notification_is_compact_and_clear(self):
+        pwa = (ROOT / "assets/js/pwa.js").read_text(encoding="utf-8")
+        self.assertIn('toast.className = "mx-pwa-toast mx-pwa-toast--update"', pwa)
+        self.assertIn("Mise à jour · Actualiser ↻", pwa)
+        self.assertIn('toast.addEventListener("click", function () { location.reload(); })', pwa)
+        self.assertIn('bottom:calc(75px + env(safe-area-inset-bottom,0px))', pwa)
+        self.assertIn('setTimeout(function () { toast.remove(); }, 5500);', pwa)
+
     def test_telemetry_is_idempotent_and_private(self):
         pwa = (ROOT / "assets/js/pwa.js").read_text(encoding="utf-8")
         client = (ROOT / "assets/js/pwa-telemetry.mjs").read_text(encoding="utf-8")
