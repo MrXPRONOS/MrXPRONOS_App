@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CMS_PATHS, inspectPublishFiles } from "../supabase/functions/publish/guards.mjs";
+import { CMS_PATHS, inspectPublishFiles, mergeGeneratedMatchArticles } from "../supabase/functions/publish/guards.mjs";
 
 const empty = () => Object.fromEntries(CMS_PATHS.map(path => [path, "[]"]));
 const withRows = (which, rows, base=empty()) => ({...base, [which]:JSON.stringify(rows)});
@@ -51,4 +51,30 @@ test("Preflight inspection must not mutate inputs",()=>{
   const snapshot=JSON.stringify({current,next});
   inspectPublishFiles(next,current);
   assert.equal(JSON.stringify({current,next}),snapshot);
+});
+
+test("Any removal, even partial, requires an explicit publication safeguard",()=>{
+  const before=withRows("articles.json",[
+    {slug:"manual-one",title:"One"}, {slug:"manual-two",title:"Two"}]);
+  const after=withRows("articles.json",[{slug:"manual-one",title:"One changed"}]);
+  const result=inspectPublishFiles(after,before);
+  assert.deepEqual(result.removed_files,["articles.json"]);
+  assert.equal(result.removed_counts["articles.json"],1);
+  assert.deepEqual(result.emptied_files,[]);
+});
+
+test("Automatic match analyses survive CMS publication with no duplicate slugs",()=>{
+  const historic=[
+    {slug:"bsd-match-100",title:"Automated"},
+    {slug:"manual-old",title:"Old manual"}
+  ];
+  const cms=[{slug:"new-editorial",title:"CMS new"}];
+  const merged=mergeGeneratedMatchArticles(cms,historic);
+  assert.deepEqual(merged.map(x=>x.slug),["new-editorial","bsd-match-100"]);
+  assert.equal(merged.some(x=>x.slug==="manual-old"),false);
+  assert.throws(
+    ()=>mergeGeneratedMatchArticles([{slug:"bsd-match-100"}],historic),
+    /moteur/
+  );
+  assert.deepEqual(historic.map(x=>x.slug),["bsd-match-100","manual-old"]);
 });
