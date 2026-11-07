@@ -1,4 +1,4 @@
 BSD V3 on-demand prospective trigger
-requested_at_utc=2026-11-07T05:30:00Z
-policy=prefer_high_confidence_btts_no_79_775_h2h
-source=chat_btts_no_priority
+requested_at_utc=2026-11-07T06:31:00Z
+policy=qualified_btts_no_priority_79_775
+source=chat_btts_no_priority_validation
