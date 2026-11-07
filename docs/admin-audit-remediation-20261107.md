@@ -16,6 +16,22 @@ Légende : **C** = correction implémentée sur la branche avec contrôle automa
 | S4 | Revue exhaustive des fonctions SECURITY DEFINER | P | Fonctions VIP renforcées ; conseiller Supabase signale encore plusieurs SECURITY DEFINER accessibles, dont des fonctions publiques intentionnelles. |
 | S5 | Déduplication des politiques RLS identiques | C | Politiques ciblées sur les tables admin et CMS touchées ; autres tables hors de ce périmètre. |
 
+## Lot 3 — finalisation des 8 points partiels
+
+PR #335 : corrections développées et vérifiées par CI ; ces statuts **C** mesurent
+l'implémentation logicielle, pas l'envoi réel d'une notification ni une activation externe implicite.
+
+**Bilan dans le code : 26/27 corrections complètes, une intégration partielle (clé API cron-job.org).**
+
+- Cron : données en lecture seule, cache côté serveur, domaines uniquement et empreintes HMAC des URL complètes.
+- Croisements GitHub/cron : les déclenchements proches restent qualifiés de possibles, sans arrêt automatique.
+- Push : bilan par appareil anonymisé et réessai unique contrôlé, jamais de rediffusion générale automatique.
+- Incidents : détection/rétablissement automatiques et escalades par GitHub Actions signé.
+- CMS : contrôle d'URL externe et rendu de lecture fondé sur le même moteur Markdown que le site.
+- **Toujours externes :** aucune zone Cloudflare pour héberger l'administration derrière Access, aucune inscription MFA vérifiée,
+  protection Supabase Auth des mots de passe compromis à activer et clé cron-job.org à connecter.
+- Les tests ne publient aucun contenu client et n'envoient aucune vraie notification.
+
 ## Lot 2 — 7 novembre 2026
 
 Ces statuts décrivent le **code implémenté et testé dans la PR #332**, pas une validation automatique de son fonctionnement en production. Les nouveaux modules nécessitent la migration et le déploiement Supabase ainsi que des vérifications après mise en ligne. Les tests n'envoient aucune véritable notification Push et ne modifient aucun contenu client.
@@ -34,25 +50,25 @@ Ces statuts décrivent le **code implémenté et testé dans la PR #332**, pas u
 | 8 | Localiser les statuts CMS | C | Brouillon, Publié, Actif, Désactivé dans les formulaires. |
 | 9 | Conserver la date initiale de publication | C | Fonction commune de préservation appliquée aux cinq formulaires CMS. |
 | 10 | Séparer formulaires et listes | C | Éditeurs rétractables pour Articles, Conseils et Infos. |
-| 11 | Prévisualisation fidèle du site public | P | Aperçu HTML isolé avec CSS publiques et formats téléphone/ordinateur ; test visuel de conformité encore nécessaire. |
-| 12 | Contrôles qualité avant publication | P | Contrôles slug, liens, description SEO et médias privés ; vérification réseau des liens et SEO complet à ajouter. |
+| 11 | Prévisualisation fidèle du site public | C | Même moteur Marked, sanitizer HTML et classes CSS que la page publique, aperçu isolé mobile/ordinateur ; tests navigateur du DOM. |
+| 12 | Contrôles qualité avant publication | C | SEO, slugs, liens, médias privés et vérification réseau authentifiée ; réponses 404/410 bloquantes, autres anomalies signalées. |
 | 13 | Brouillons synchronisés côté serveur | C | Brouillons privés synchronisés avec Supabase, sauvegarde locale de secours et révisions anti-écrasement. |
 | 14 | Bucket privé pour les médias non publiés | C | Nouveaux médias dans cms-drafts privé ; publication explicite vers cms-media. Anciens médias publics conservés. |
 | 15 | Sélection explicite des destinataires Push | C | Aucune audience présélectionnée. |
 | 16 | Prévisualisation et envoi Push de test | C | Prévisualisation et envoi de test ciblé vers un abonné choisi. |
 | 17 | Planification des notifications Push | C | Campagnes programmées, annulation et déclenchement GitHub OIDC toutes les cinq minutes. |
-| 18 | Bilan clair d'envoi Push | P | Historique avec bilan envoyé/échec ; diagnostic complet par appareil et reprise sûre restent à ajouter. |
+| 18 | Bilan clair d'envoi Push | C | Journaux anonymisés par appareil, statut HTTP et réessai ciblé explicite unique, limité aux refus 429/502/503/504 confirmés. |
 | 19 | Pagination des abonnements Push au-delà de 5 000 | C | Liste paginée par 750, moteur Web Push par 1 000 ; plafond de sécurité de 50 000 appareils clairement signalé. |
 | 20 | Protection contre les doubles envois Push | C | Clé UUID d'idempotence, verrou atomique et même clé sur clics répétés, sans renvoi automatique sur échec incertain. |
 | 21 | Réduire la double supervision imbriquée | C | Vue d'ensemble native ; ancienne iframe chargée uniquement sur demande. |
-| 22 | Tableau de bord unifié | P | KPI natifs intégrés ; statistiques spécialisées encore sur des pages séparées. |
-| 23 | Registre central des workflows | P | État Supabase et GitHub centralisé ; cron-job.org externe n'est pas connecté. |
-| 24 | Détection plus fiable des workflows doublés | P | Heuristique GitHub améliorée ; corrélation avec tâches cron externes à terminer. |
-| 25 | Centre d'incidents avec actions proposées | P | Centre d'incidents : gravité, prise en charge, résolution, audit ; détection automatique et escalades à ajouter. |
+| 22 | Tableau de bord unifié | C | Audience, installations, erreurs, incidents et campagnes Push désormais réunis dans la vue principale. |
+| 23 | Registre central des workflows | P | Registre cron-job.org prêt et intégré à Supabase/GitHub ; nécessite la clé CRON_JOB_ORG_API_KEY dans Supabase Edge. |
+| 24 | Détection plus fiable des workflows doublés | C | Détection des doublons GitHub, tâches cron identiques par HMAC et corrélation probable cron-job.org/GitHub ; aucune désactivation automatique. |
+| 25 | Centre d'incidents avec actions proposées | C | Watchdog GitHub OIDC chaque 15 minutes, détection/récupération, suivi des incidents, gravité et escalade via GitHub Actions. |
 | 26 | Rechercher, paginer et exporter le journal d'audit | C | Pagination par 100, filtres locaux, détails et CSV des données chargées. |
-| 27 | Distinguer temps réel et actualisation périodique | P | Présence connectée distincte de la fraîcheur ; vues historiques à harmoniser. |
+| 27 | Distinguer temps réel et actualisation périodique | C | Libellés normalisés sur accueil admin, supervision, audience et installation : source, instantané UTC et actualisation. |
 
-## Vérification production — 7 novembre 2026
+## Vérification antérieure du lot 2 — 7 novembre 2026
 
 - **19/27 corrections fonctionnelles complètes dans le code, 8/27 encore partielles** (voir tableau).
 - PR #332 : 11 workflows de tests réussis sur 11, dont compilation Deno et contrôles navigateur.
