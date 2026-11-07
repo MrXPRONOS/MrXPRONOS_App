@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'bsd_v3/btts_no_experiment.py'
+      - 'bsd_v3/btts_no_zero_experiment.py'
       - '.github/workflows/bsd-v3-btts-no-priority.yml'
   workflow_dispatch:
 
@@ -33,26 +34,27 @@ jobs:
       - run: python -m compileall -q bsd bsd_v3
       - name: Restore encrypted private history
         run: python bsd/bsd_archive.py restore
-      - name: Run chronological BTTS NO experiment
+      - name: Run zero-goal BTTS NO experiment
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           from bsd_archive import _read_json
-          from bsd_v3.btts_no_experiment import experiment
+          from bsd_v3.btts_no_zero_experiment import experiment
           history=_read_json(Path("bsd/all_matches_bsd.json"),None)
           report=experiment(history)
           Path("bsd_v3/artifacts").mkdir(parents=True,exist_ok=True)
           Path("bsd_v3/artifacts/btts_no_experiment.json").write_text(
               json.dumps(report,indent=2),encoding="utf-8")
-          print("BSD_V3_BTTS_NO_EXPERIMENT",json.dumps({
+          chosen=report["active_policy"]
+          print("BSD_V3_BTTS_NO_ZERO_EXPERIMENT",json.dumps({
               "chosen":report["chosen_on_recent_selection"],
               "accepted":report["accepted"],
-              "active":report["active_policy"],
-              "stability":report["tables"]["train"][report["active_policy"]],
-              "validation":report["tables"]["validation"][report["active_policy"]],
-              "october_base":report["october_base"],
-              "october_filtered":report["october_filtered"],
+              "active":chosen,
+              "population":report["population"],
+              "stability":report["tables"]["train"].get(chosen) if chosen else None,
+              "validation":report["tables"]["validation"].get(chosen) if chosen else None,
+              "october":report["october_filtered"],
           }))
           PY
       - if: always()
