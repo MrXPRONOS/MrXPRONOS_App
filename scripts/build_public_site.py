@@ -47,7 +47,7 @@ PUBLIC_JS = {
     "config.js", "scores-exacts.js", "pwa-telemetry.mjs",
     "installation-analytics.mjs",
     "daily-hub.mjs", "daily-utils.mjs", "daily-audience.mjs", "daily-favorite-alerts.mjs",
-    "acquisition-attribution.mjs", "audience-dashboard.mjs",
+    "acquisition-attribution.mjs", "audience-dashboard.mjs", "experiment-ux.mjs",
 }
 PUBLIC_CSS = {
     "style.css", "loading-ui.css", "home-premium.css",
