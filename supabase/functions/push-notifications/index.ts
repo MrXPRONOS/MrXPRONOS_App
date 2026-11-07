@@ -69,11 +69,18 @@ serve(async (req) => {
     webpush.setVapidDetails(subject, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
     // Sélection abonnements
-    let query = supabase.from("push_subscriptions").select("endpoint, keys, user_id");
-    if (user_id) query = query.eq("user_id", user_id);
-
-    const { data: subs, error } = await query;
-    if (error) return json(req, { error: error.message }, 500);
+    const subs:any[]=[];
+    // PostgREST defaults to 1000 records: page explicitly to reach all devices.
+    for(let offset=0;offset<50000;offset+=1000){
+      let query=supabase.from("push_subscriptions").select("id,endpoint,keys,user_id")
+        .order("id",{ascending:true}).range(offset,offset+999);
+      if(user_id)query=query.eq("user_id",user_id);
+      const {data,error}=await query;
+      if(error)return json(req,{error:error.message},500);
+      subs.push(...(data||[]));
+      if((data||[]).length<1000)break;
+      if(offset===49000)return json(req,{error:"Plus de 50 000 appareils : envoi interrompu pour éviter une diffusion partielle"},503);
+    }
 
     // ✅ On inclut tag dans le payload (service-worker l'utilise)
     const payload = JSON.stringify({ title, body: msg, url, tag });
