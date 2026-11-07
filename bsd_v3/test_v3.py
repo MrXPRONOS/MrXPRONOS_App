@@ -320,7 +320,7 @@ class TestV3(unittest.TestCase):
         row["conservative_probability"]=.679
         self.assertFalse(public_candidate(row,quality))
 
-    def test_over25_is_secondary_priority_ahead_of_fallback_but_behind_primary(self):
+    def test_over25_has_dedicated_priority_channel_without_displacing_main_pick(self):
         from bsd_v3.market_priors import attach_market_merit
         matrix,cs=coherent_candidates({"home":1.7,"away":1.4})
         by={x.key:x for x in cs}
@@ -338,12 +338,8 @@ class TestV3(unittest.TestCase):
             rows.append(attach_market_merit(row,priors))
         choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
         self.assertEqual(choices["pro_vip_shadow"][0],"OVER_15")
-        self.assertNotIn("OVER_25",choices["pro_vip_shadow"])  # same goals family
-        # Remove the primary goals market: Over 2.5 must now beat 1X.
-        rows=[r for r in rows if r["key"]!="OVER_15"]
-        choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
-        self.assertEqual(choices["pro_vip_shadow"][0],"OVER_25")
-        self.assertEqual(choices["secondary_preferred_pro_vip_shadow"],["OVER_25"])
+        self.assertNotIn("OVER_25",choices["pro_vip_shadow"])
+        self.assertEqual(choices["over25_priority_shadow"],["OVER_25"])
 
 if __name__=="__main__":
     unittest.main()
