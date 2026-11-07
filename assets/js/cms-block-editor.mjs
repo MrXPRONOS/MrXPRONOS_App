@@ -79,6 +79,12 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   const serverStore=createServerDraftStore(sb,{kind,getIdentity:()=>documentKey,
     onStatus:message=>{status.textContent=message+" (non publié)";}});
   const draftKey=()=>`mx:cms:v2:${kind}:${documentKey}`;
+  const queueDraftRead=key=>{
+    serverQueue=serverQueue.catch(()=>{}).then(()=>serverStore.read(key)).catch(error=>{
+      if(documentKey===key)status.textContent="Brouillons serveur indisponibles : "+String(error?.message||error);
+    });
+  };
+  queueDraftRead(documentKey);
   const commit=()=>{
     textarea.value=serializeCmsBlocks(blocks);
     // Do not emit a synthetic input event here: source mode already listens for input.
@@ -86,17 +92,24 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     status.textContent="Modifications non enregistrées";
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>{
+      const content=textarea.value,expectedKey=documentKey;
+      if(content.length>150000){status.textContent="Brouillon trop long";return;}
+      let localSaved=false;
       try{
-        if(textarea.value.length>150000)return;
-        const content=textarea.value,expectedKey=documentKey;
         localStorage.setItem(draftKey(),JSON.stringify({at:Date.now(),content}));
-        status.textContent="Brouillon local enregistré ; synchronisation serveur…";
-        serverQueue=serverQueue.catch(()=>{}).then(async()=>{
-          if(documentKey!==expectedKey)return;
-          try{await serverStore.save(content);}
-          catch(e){status.textContent="Brouillon local conservé · Sync serveur impossible : "+String(e?.message||e);}
-        });
-      }catch {status.textContent="Stockage local indisponible";}
+        localSaved=true;
+      }catch{ /* Private browsers may deny localStorage; still sync to server. */ }
+      status.textContent=(localSaved?"Brouillon local enregistré":"Stockage local indisponible")+
+        " · Synchronisation serveur…";
+      serverQueue=serverQueue.catch(()=>{}).then(async()=>{
+        if(documentKey!==expectedKey)return;
+        try{await serverStore.save(content,expectedKey);}
+        catch(e){
+          if(documentKey===expectedKey)
+            status.textContent=(localSaved?"Brouillon local conservé":"Brouillon non synchronisé")+
+              " · Erreur serveur : "+String(e?.message||e);
+        }
+      });
     },1200);
   };
   const elementFor=(block,i)=>{
@@ -234,9 +247,7 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
       status.textContent="Brouillons synchronisés si la connexion serveur est disponible";
       // Read revision before first save; a parallel tab will cause a conflict
       // instead of silently replacing a more recent draft.
-      void serverStore.read().catch(e=>{
-        status.textContent="Sauvegarde serveur indisponible : "+String(e?.message||e);
-      });
+      queueDraftRead(documentKey);
     },
     getMarkdown(){return textarea.hidden?serializeCmsBlocks(blocks):textarea.value;},
     destroy(){clearTimeout(saveTimer);editor.remove();}
