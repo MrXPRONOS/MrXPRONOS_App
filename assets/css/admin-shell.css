@@ -113,3 +113,51 @@ body.admin-shell .admin-screen pre{white-space:pre-wrap;word-break:break-word}
 
 body.admin-shell [hidden]{display:none!important}
 body.admin-shell .admin-screen:not([hidden]){display:block}
+
+
+/* Admin audit UX: native operational overview and readable Pro/VIP details. */
+body.admin-shell .admin-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+body.admin-shell .admin-section-heading h3{margin:0}
+body.admin-shell .admin-filter-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;margin:0 0 12px}
+body.admin-shell .admin-pronostics-panel #pStatus{padding:7px 0 12px}
+body.admin-shell .admin-pronostics-table-scroll{max-width:100%;overflow-x:auto}
+body.admin-shell .admin-pronostics-table-scroll table{display:table;min-width:660px}
+body.admin-shell .admin-team-pair{display:flex;align-items:center;gap:6px;white-space:nowrap}
+body.admin-shell .admin-team-pair b{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+body.admin-shell .admin-team-logo{width:27px;height:27px;min-width:27px;object-fit:contain;background:#0c1724;border-radius:6px}
+body.admin-shell .admin-cms-editor-toggle{margin:0 0 14px}
+body.admin-shell .admin-cms-editor-fields{border:1px solid #344c60;background:#101e2e;padding:14px;border-radius:13px;margin:8px 0 16px}
+body.admin-shell .admin-cms-editor-fields[hidden]{display:none!important}
+body.admin-shell #tab-overview{background:transparent;border:0;overflow:visible}
+body.admin-shell #admin-overview-summary{min-width:0}
+body.admin-shell .admin-overview-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+body.admin-shell .admin-kpi{display:flex;flex-direction:column;gap:5px;padding:15px;background:linear-gradient(150deg,#172538,#0f1b2a);border:1px solid #34495e;border-radius:14px}
+body.admin-shell .admin-kpi strong{font-size:clamp(22px,2.3vw,30px);line-height:1.15;color:#efd08b}
+body.admin-shell .admin-kpi small{color:#a9b9c7;font-size:12px}
+body.admin-shell .admin-overview-health{margin:18px 0}
+body.admin-shell .admin-overview-health h3{margin:0 0 10px}
+body.admin-shell .admin-health-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+body.admin-shell .admin-health-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border:1px solid #364a5e;border-radius:12px;background:#101f2e}
+body.admin-shell .admin-health-card b{font-size:12px;font-weight:750}
+body.admin-shell .admin-health-card span{font-size:11px;white-space:nowrap}
+body.admin-shell .admin-health-good{color:#76d1a6}
+body.admin-shell .admin-health-late{color:#f2ad93}
+body.admin-shell .admin-health-unknown{color:#b0bdc9}
+body.admin-shell .admin-overview-links{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 22px}
+body.admin-shell .admin-overview-links a{padding:10px 12px;border:1px solid #39546c;border-radius:10px;background:#162537;font-size:12px}
+body.admin-shell .admin-supervision-details{margin:24px 0 10px;border:1px solid #34495e;border-radius:13px;overflow:hidden;background:#0c1826}
+body.admin-shell .admin-supervision-details summary{cursor:pointer;padding:15px;font-weight:700;color:#e9cb8c}
+body.admin-shell .admin-supervision-details[open] summary{border-bottom:1px solid #34495e}
+body.admin-shell .admin-supervision-details:not([open]) #supervisionFrame{display:none}
+body.admin-shell #supervisionFrame{min-height:720px;height:min(950px,100vh);border:0}
+@media(max-width:760px){
+ body.admin-shell .admin-filter-row{grid-template-columns:1fr 1fr}
+ body.admin-shell .admin-filter-row>div:last-child{grid-column:1 / -1}
+ body.admin-shell .admin-overview-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ body.admin-shell .admin-health-cards{grid-template-columns:1fr}
+ body.admin-shell .admin-kpi{padding:12px}
+ body.admin-shell .admin-kpi strong{font-size:22px}
+ body.admin-shell .admin-kpi small{font-size:11px}
+ body.admin-shell .admin-cms-editor-fields{padding:10px}
+ body.admin-shell #supervisionFrame{min-height:680px;height:82vh}
+}
