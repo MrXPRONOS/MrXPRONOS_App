@@ -69,9 +69,9 @@ serve(async (req) => {
       return json(req, { error: "Unauthorized (invalid session)" }, 401);
     }
 
-    const { data: isAdmin, error: adminErr } = await sbUser.rpc("is_admin");
-    if (adminErr) return json(req, { error: `RPC is_admin error: ${adminErr.message}` }, 500);
-    if (isAdmin !== true) return json(req, { error: "Forbidden (not admin)" }, 403);
+    const { data: allowed, error: adminErr } = await sbUser.rpc("admin_can",{p_permission:"push"});
+    if (adminErr) return json(req, { error: "Authorization check unavailable" }, 503);
+    if (allowed !== true) return json(req, { error: "Forbidden (Push operator required)" }, 403);
 
     // Service role: lire toutes les subscriptions
     const sbService = createClient(SUPABASE_URL, SERVICE_KEY);
