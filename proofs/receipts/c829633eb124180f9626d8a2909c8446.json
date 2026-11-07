@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0d6528c1f44bdff1:UNDER_35",
+    "recorded_at_utc": "2026-11-07T00:19:08+00:00",
+    "kickoff_utc": "2026-11-08T22:15:00+00:00",
+    "fixture": {
+      "home_team": "Ceará",
+      "away_team": "América Mineiro",
+      "league": "Brazilian Serie B"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.9,
+      "odds": 1.327,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "d9624b9984970bccd4e5d876599ac8a85f9897f3fca51b18ec774b0f7dfe9ed6"
+}
