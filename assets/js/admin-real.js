@@ -1,5 +1,6 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
+import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
 import { mountAdminUsers } from "./admin-users.mjs";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsServerSearch } from "./cms-server-search.mjs";
@@ -1411,6 +1412,10 @@ async function renderHealth() {
   ghTable.innerHTML="<thead><tr><th>Workflow</th><th>Exécution</th><th>État</th><th>Déclencheur</th></tr></thead>";
   const ghBody=document.createElement("tbody");ghTable.append(ghBody);
   panel.append(header,info,url,note,table,ghTitle,ghStatus,ghTable);root.appendChild(panel);
+  const externalCronRoot=document.createElement("div");root.append(externalCronRoot);
+  mountCronJobRegister(sb,externalCronRoot,{
+    supabaseUrl,anonKey:supabaseAnonKey
+  });
   const load=async()=>{
     button.disabled=true;note.textContent="Actualisation des tâches…";
     try{
