@@ -1,0 +1,39 @@
+name: Admin Edge Functions typecheck
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/admin-push/**'
+      - 'supabase/functions/admin-list-subscribers/**'
+      - 'supabase/functions/push-notifications/**'
+      - 'supabase/functions/admin-media-publish/**'
+      - 'supabase/functions/publish/**'
+      - 'assets/js/admin-draft-sync.mjs'
+      - 'assets/js/cms-server-search.mjs'
+      - 'assets/js/cms-quality.mjs'
+      - 'assets/js/admin-incidents.mjs'
+      - 'assets/js/admin-users.mjs'
+      - 'tests/admin-phase2-contracts.test.mjs'
+      - '.github/workflows/admin-edge-typecheck.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deno-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.5.6
+      - name: Typecheck all changed Edge Functions
+        run: |
+          deno check supabase/functions/admin-push/index.ts \
+            supabase/functions/admin-list-subscribers/index.ts \
+            supabase/functions/admin-media-publish/index.ts \
+            supabase/functions/push-notifications/index.ts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run application contracts
+        run: node --test tests/admin-phase2-contracts.test.mjs
