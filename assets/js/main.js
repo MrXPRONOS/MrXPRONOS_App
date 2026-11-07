@@ -3461,8 +3461,19 @@ function homePublicOutcome(m) {
 function homeEvaluatedMatches() {
   if (!Array.isArray(allData?.matches)) return [];
   return allData.matches
-    .filter((m) => !m.combo_only && bsdPublicEligible(m) && isFinishedMatch(m))
-    .map((m) => ({ ...m, home_outcome: homePublicOutcome(m) }))
+    .filter((m) => !m.combo_only && isFinishedMatch(m))
+    .flatMap((m) => {
+      const selections = Array.isArray(m.predictions) && m.predictions.length
+        ? m.predictions.slice(0, 2)
+        : [m.prediction || {}];
+      return selections
+        .filter((selection) => bsdPublicEligible(m, selection))
+        .map((selection) => ({
+          ...m,
+          prediction: selection,
+          home_outcome: homePublicOutcome({ ...m, prediction: selection })
+        }));
+    })
     .filter((m) => m.home_outcome !== null);
 }
 
@@ -3528,20 +3539,15 @@ function displayLatestVerified() {
 }
 
 function startWinsSlider() {
-  if (!DOM.winsTrack || !allData?.matches) return;
-
-  const wins = allData.matches
-    .filter((m) => isFinishedMatch(m) && m.verified_double)
+  if (!DOM.winsTrack) return;
+  const wins = homeEvaluatedMatches()
+    .filter((m) => m.home_outcome === true)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
     .slice(0, 10);
-
-  const html = wins
-    .map((m) => {
-      const score = `${m.home_score ?? "-"} - ${m.away_score ?? "-"}`;
-      return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.type || m.prediction?.label || m.prediction?.double_chance || "")}</div>`;
-    })
-    .join("");
-
+  const html = wins.map((m) => {
+    const score = `${m.home_score ?? "-"} - ${m.away_score ?? "-"}`;
+    return `<div class="win-item">✓ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span></div>`;
+  }).join("");
   DOM.winsTrack.innerHTML = html + html;
 }
 
