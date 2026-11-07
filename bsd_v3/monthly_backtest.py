@@ -61,6 +61,7 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
     preferred=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.})
     fallback=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.})
     confidence=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.})
+    over25_priority={"n":0,"wins":0,"sum_p":0.,"brier":0.,"logloss":0.}
     sample=[]
     for finished in events:
         kickoff=fixture_datetime(finished)
@@ -78,13 +79,20 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
             continue
         counters["analyzed"]+=1
         choices=report["selections"]["pro_vip_shadow"]
+        over25_choices=report["selections"].get("over25_priority_shadow") or []
+        hs,aws=outcome_scores(finished)
+        all_rows={row["key"]:row for row in report["candidates"]}
+        if over25_choices:
+            row=all_rows["OVER_25"]
+            won=bool(realized(_MARKETS["OVER_25"],hs,aws))
+            _observe(over25_priority,row["probability"],won)
+            counters["over25_priority_picks"]+=1
+            counters["over25_priority_wins"]+=int(won)
         if not choices:
             counters["no_pick"]+=1
             continue
         counters["fixtures_with_pick"]+=1
-        selected={row["key"]:row for row in report["candidates"]
-                  if row["key"] in choices}
-        hs,aws=outcome_scores(finished)
+        selected={key:all_rows[key] for key in choices}
         fixture_rows=[]
         for position,key in enumerate(choices):
             row=selected[key]
@@ -135,6 +143,7 @@ def monthly_policy_backtest(history, *, year, month, policy=V3Policy(),
         "counts":dict(counters),
         "all_selections":_finish(overall),
         "primary_picks":_finish(primary_overall),
+        "over25_priority_shadow":_finish(over25_priority),
         "by_market":finalize_table(by_market),
         "primary_by_market":finalize_table(primary_by_market),
         "preferred_markets":finalize_table(preferred),
