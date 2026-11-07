@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-06e5a23d64c1b657:1X",
+    "recorded_at_utc": "2026-11-07T17:03:39+00:00",
+    "kickoff_utc": "2026-11-09T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Ikorodu City",
+      "away_team": "Inter Lagos FC",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "92afaa7a453e8601f627609ebabbcecc7bc55e1b9713e0388be820de869e75d4"
+}
