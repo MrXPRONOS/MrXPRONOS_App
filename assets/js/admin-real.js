@@ -1286,14 +1286,15 @@ async function renderVip() {
 
   root.innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">VIP (reset expiration)</h3>
+      <h3 style="margin:0 0 10px;color:#D4AF37">Accès VIP historiques</h3>
+      <p class="muted">Gestion des codes et dates d'accès enregistrés dans Supabase. Les catégories de pronostics Pro et VIP affichées sur le site fonctionnent indépendamment de ce registre.</p>
 
       <div class="row">
         <div><label>User ID (MX-xxxx)</label><input id="v_user" placeholder="MX-..."></div>
         <div><label>IP (optionnel)</label><input id="v_ip" placeholder="1.2.3.4"></div>
       </div>
 
-      <label>Durée (jours)</label><input id="v_days" type="number" min="1" value="30">
+      <label>Durée (jours)</label><input id="v_days" type="number" min="1" max="365" value="30">
 
       <button id="v_reset" class="btn btn-primary" style="margin-top:10px">Créer / Réinitialiser VIP</button>
 
@@ -1319,35 +1320,39 @@ async function renderVip() {
   $("v_reset").addEventListener("click", async () => {
     const uid = $("v_user").value.trim();
     const ip = $("v_ip").value.trim();
-    const days = parseInt($("v_days").value, 10) || 30;
-    if (!uid) return alert("User ID requis");
-
-    const { data, error } = await sb.rpc("admin_reset_vip", {
-      p_user_id: uid,
-      p_ip: ip,
-      p_duration_days: days
-    });
-
-    if (error) return alert(error.message);
-
-    const row = Array.isArray(data) ? data[0] : data;
-    alert(`VIP OK. Code: ${row?.code} / Expire: ${row?.expires_at}`);
-    loadedTabs.delete("vip");
-    await renderVip();
-    loadedTabs.add("vip");
+    const days = Number($("v_days").value);
+    if (!uid) return alert("Identifiant utilisateur requis.");
+    if (!Number.isInteger(days) || days<1 || days>365)
+      return alert("Durée invalide : choisis entre 1 et 365 jours.");
+    if (!confirm("Créer ou réinitialiser cet accès VIP ?\n\nCompte : "+uid+"\nDurée : "+days+" jours")) return;
+    const btn=$("v_reset");btn.disabled=true;
+    try{
+      const { data, error } = await sb.rpc("admin_reset_vip", {
+        p_user_id: uid,p_ip: ip,p_duration_days: days
+      });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      alert(`Accès VIP confirmé. Code : ${row?.code} / Expiration : ${row?.expires_at}`);
+      loadedTabs.delete("vip");
+      await renderVip();
+      loadedTabs.add("vip");
+    }catch(err){alert("Impossible de modifier l'accès VIP : "+String(err?.message||err));}
+    finally{if(btn.isConnected)btn.disabled=false;}
   });
 
   root.querySelectorAll("[data-revoke]").forEach(btn => {
     btn.addEventListener("click", async () => {
       const uid = btn.getAttribute("data-revoke");
-      if (!confirm("Désactiver VIP ?")) return;
-
-      const { error } = await sb.rpc("admin_revoke_vip", { p_user_id: uid });
-      if (error) return alert(error.message);
-
-      loadedTabs.delete("vip");
-      await renderVip();
-      loadedTabs.add("vip");
+      if (!confirm("Désactiver l'accès VIP du compte "+uid+" ?")) return;
+      btn.disabled=true;
+      try{
+        const { error } = await sb.rpc("admin_revoke_vip", { p_user_id: uid });
+        if (error) throw error;
+        loadedTabs.delete("vip");
+        await renderVip();
+        loadedTabs.add("vip");
+      }catch(err){alert("Désactivation impossible : "+String(err?.message||err));}
+      finally{if(btn.isConnected)btn.disabled=false;}
     });
   });
 }
