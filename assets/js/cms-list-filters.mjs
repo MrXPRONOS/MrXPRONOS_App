@@ -65,7 +65,7 @@ export function mountCmsListFilters({root,cards,rows,kind="content",showCategory
     const visible=new Set(matched.map(r=>String(r.id)));
     for(const [id,card] of byId)card.hidden=!visible.has(String(id));
     for(const row of matched){const card=byId.get(String(row.id));if(card)list.appendChild(card);}
-    counter.textContent=`${matched.length} / ${rows.length} résultat(s) parmi les ${rows.length} derniers contenus chargés (limite actuelle : 50).`;
+    counter.textContent=`${matched.length} / ${rows.length} résultat(s) parmi les contenus chargés.`;
   };
   for(const input of [search,status,category,order])input.addEventListener("input",apply);
   apply();
