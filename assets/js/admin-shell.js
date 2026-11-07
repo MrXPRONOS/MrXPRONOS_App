@@ -53,10 +53,8 @@ function handleSection(tabName){
  });
  document.getElementById("btnPublish").hidden=!["articles","conseils","bonus","infos"].includes(tab);
  closeMenu();
- if(tab==="overview"){
-  const frame=document.getElementById("supervisionFrame");
-  if(frame&&!frame.src&&frame.dataset.src)frame.src=frame.dataset.src;
- }
+ // The legacy supervision iframe stays unloaded until explicitly requested.
+ // This avoids two scrollable dashboards and costly duplicate data requests.
 }
 window.addEventListener("mx:admin-tab",event=>handleSection(event.detail?.name));
 nav?.addEventListener("click",event=>{
@@ -66,4 +64,10 @@ nav?.addEventListener("click",event=>{
 });
 document.querySelector(".sidebar-brand")?.addEventListener("click",event=>{
  event.preventDefault();window.MXAdminNavigate?.("overview");
+});
+
+document.getElementById("admin-detailed-supervision")?.addEventListener("toggle",event=>{
+ if(!event.currentTarget.open)return;
+ const frame=document.getElementById("supervisionFrame");
+ if(frame&&!frame.getAttribute("src")&&frame.dataset.src)frame.src=frame.dataset.src;
 });
