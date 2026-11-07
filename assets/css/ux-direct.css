@@ -1,0 +1,259 @@
+/* Mr XPRONOS — parcours direct et lisibilite, 2026-11-07.
+   Charge en dernier pour corriger les petites tailles des anciennes surcharges. */
+:root {
+  --mx-ux-surface: #061a28;
+  --mx-ux-border: #27485d;
+  --mx-ux-gold: #edbf69;
+}
+.mx-premium-home .mx-hero-copy p { max-width: 510px; }
+.mx-premium-home .mx-hero-actions { gap: 11px; }
+.mx-premium-home .mx-hero-actions .mx-pill {
+  min-height: 46px;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 800;
+  white-space: normal;
+}
+.mx-premium-home .mx-hero-actions .mx-pill:focus-visible,
+.mx-premium-home .pick-card:focus-visible,
+.mx-premium-home .mx-feature-card:focus-visible,
+.mx-announcement:focus-visible {
+  outline: 3px solid #fff0bd;
+  outline-offset: 3px;
+}
+.mx-premium-home .mx-home-showcase { margin: 18px 0 16px; gap: 12px; }
+.mx-premium-home .mx-home-showcase-block { padding: 17px; border-radius: 14px; }
+.mx-premium-home .mx-home-showcase-kicker { font-size: 11px; letter-spacing: .11em; }
+.mx-premium-home .mx-home-showcase-head h2 { font-size: clamp(20px, 2.4vw, 26px); }
+.mx-premium-home .mx-home-showcase-head a { font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.mx-premium-home .mx-home-picks { gap: 12px; }
+.mx-premium-home .mx-home-picks>.no-events {
+  min-height: 100px;
+  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mx-premium-home .mx-home-picks .no-events a,
+.mx-pronos-page .no-events a {
+  color: #f6d48b;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mx-premium-home .pick-card {
+  padding: 13px;
+  min-height: 201px;
+  border-radius: 12px;
+}
+.mx-premium-home .pick-badge,
+.mx-premium-home .pick-category {
+  top: 10px;
+  min-height: 25px;
+  font-size: 10px;
+  padding: 5px 8px;
+}
+.mx-premium-home .pick-badge { right: 10px; }
+.mx-premium-home .pick-category { left: 10px; }
+.mx-premium-home .pick-head { margin: 27px 0 10px; }
+.mx-premium-home .pick-league,
+.mx-premium-home .pick-time { font-size: 11px; }
+.mx-premium-home .pick-logo { width: 42px; height: 42px; flex-basis: 42px; }
+.mx-premium-home .pick-team-name { font-size: 12px; line-height: 1.24; }
+.mx-premium-home .pick-teams { grid-template-columns: minmax(0,1fr) 48px minmax(0,1fr); gap: 6px; }
+.mx-premium-home .pick-vs { min-height: 40px; }
+.mx-premium-home .pick-vs strong { font-size: 14px; }
+.mx-premium-home .pick-card--winner .pick-vs strong { font-size: 17px; }
+.mx-premium-home .pick-vs small { font-size: 10px; }
+.mx-premium-home .pick-highlight { min-height: 36px; padding: 6px 8px; gap: 8px; }
+.mx-premium-home .pick-highlight span { font-size: 10px; }
+.mx-premium-home .pick-highlight strong { font-size: 12px; line-height: 1.2; }
+.mx-premium-home .pick-confidence { margin-top: 8px; gap: 8px; }
+.mx-premium-home .pick-confidence>span,
+.mx-premium-home .pick-confidence>b { font-size: 11px; }
+.mx-premium-home .pick-confidence-bar { height: 5px; }
+.mx-premium-home .pick-card--lost {
+  border-color: #965454;
+  background: linear-gradient(180deg,#29181c,#15181e);
+}
+.mx-premium-home .pick-card--lost .pick-badge { border-color: #af5c5c; background: #31181b; color: #ff9c9c; }
+.mx-premium-home .pick-card--lost .pick-vs strong { color: #ff9c9c; }
+.mx-premium-home .pick-card--lost .pick-highlight { border-color: #744449; background: #211519; }
+.mx-premium-home .pick-card--lost .pick-confidence-bar i { background: #d98c89; }
+.mx-premium-home .mx-home-proofbar { min-height: 66px; grid-template-columns: minmax(0,1fr) 138px 118px; }
+.mx-premium-home .mx-home-proofbar-label { font-size: 11px; }
+.mx-premium-home .mx-home-proofbar .win-item { font-size: 11px; }
+.mx-premium-home .mx-home-proof-stat>span { font-size: 20px; }
+.mx-premium-home .mx-home-proof-stat small { font-size: 10px; }
+.mx-premium-home .mx-home-proof-stat .success-bar { height: 4px; }
+.mx-premium-home .mx-feature-analyses {
+  background-image: linear-gradient(110deg,rgba(3,17,29,.50),rgba(5,28,43,.40)),
+  url('../images/home-premium/card-bonus.webp');
+}
+.mx-premium-home .mx-feature-analyses .mx-feature-icon img { filter: saturate(.85); }
+.mx-premium-home .mx-extra-block--testimonials .mx-extra-intro { display:none; }
+.mx-premium-home .mx-data-updated { font-size: 12px; }
+.mx-pronos-page .mx-announcement {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:15px 0 8px;
+  padding:13px 16px;
+  border-radius:12px;
+  border:1px solid #6b5934;
+  background:linear-gradient(110deg,#11232e,#10202a);
+  color:#f8f4ea;
+  text-decoration:none;
+  font-size:14px;
+  line-height:1.3;
+}
+.mx-pronos-page .mx-announcement-label {
+  color:#071725;
+  background:var(--mx-ux-gold);
+  border-radius:6px;
+  padding:5px 8px;
+  font-size:10px;
+  font-weight:900;
+}
+.mx-pronos-page .mx-announcement strong { font-size:14px; font-weight:850; }
+.mx-pronos-page .mx-announcement-action { margin-left:auto; color:#edbf69; font-weight:800; white-space:nowrap; }
+.mx-pronos-page .mx-announcement:hover { border-color:#edbf69; }
+.mx-pronos-page .no-events,
+.mx-pronos-page .error { padding:24px; font-size:14px; line-height:1.6; }
+@media (max-width:700px) {
+  .mx-premium-home .mx-hero,.mx-premium-home .mx-hero-inner {
+    min-height:300px!important; height:auto!important;
+  }
+  .mx-premium-home .mx-hero-copy {
+    width:100%!important; max-width:360px!important; padding:22px 0 25px!important;
+  }
+  .mx-premium-home .mx-hero h1 {
+    max-width:340px!important;
+    font-size:clamp(27px,7.6vw,36px)!important;
+    line-height:1.08!important;
+    margin-bottom:18px!important;
+  }
+  .mx-premium-home .mx-hero-actions {
+    width:min(100%,340px)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:10px!important;
+  }
+  .mx-premium-home .mx-hero-actions .mx-pill {
+    width:100%!important;
+    height:auto!important;
+    min-height:46px!important;
+    padding:10px 13px!important;
+    justify-content:space-between!important;
+    font-size:13px!important;
+    border-radius:10px!important;
+  }
+  .mx-premium-home .mx-hero-player { right:-19%!important; opacity:.28!important; height:260px!important; }
+  .mx-premium-home .mx-home-showcase { margin:12px 0!important; gap:10px!important; }
+  .mx-premium-home .mx-home-showcase-block { padding:12px!important; border-radius:12px!important; }
+  .mx-premium-home .mx-home-showcase-kicker { font-size:10px!important; }
+  .mx-premium-home .mx-home-showcase-head h2 { font-size:20px!important; }
+  .mx-premium-home .mx-home-showcase-head a { font-size:12px!important; }
+  .mx-premium-home .mx-home-picks { gap:10px!important; }
+  .mx-premium-home .mx-home-picks .pick-card {
+    flex:0 0 88%!important;
+    width:88%!important;
+    min-width:0!important;
+    min-height:205px!important;
+    padding:12px!important;
+    border-radius:12px!important;
+  }
+  .mx-premium-home .pick-badge,.mx-premium-home .pick-category {
+    top:9px!important; min-height:24px!important; padding:5px 8px!important;
+    font-size:10px!important;
+  }
+  .mx-premium-home .pick-badge { right:9px!important; }
+  .mx-premium-home .pick-category { left:9px!important; }
+  .mx-premium-home .pick-head { margin:27px 0 10px!important; }
+  .mx-premium-home .pick-league,.mx-premium-home .pick-time { font-size:11px!important; }
+  .mx-premium-home .pick-teams { grid-template-columns:minmax(0,1fr) 46px minmax(0,1fr)!important; }
+  .mx-premium-home .pick-logo { width:40px!important; height:40px!important; flex-basis:40px!important; }
+  .mx-premium-home .pick-team-name { font-size:12px!important; }
+  .mx-premium-home .pick-vs { min-width:42px!important; min-height:37px!important; }
+  .mx-premium-home .pick-vs strong { font-size:14px!important; }
+  .mx-premium-home .pick-card--winner .pick-vs strong { font-size:17px!important; }
+  .mx-premium-home .pick-vs small { font-size:10px!important; }
+  .mx-premium-home .pick-highlight { min-height:36px!important; padding:6px 9px!important; }
+  .mx-premium-home .pick-highlight span { font-size:10px!important; }
+  .mx-premium-home .pick-highlight strong { font-size:12px!important; }
+  .mx-premium-home .pick-confidence>span,.mx-premium-home .pick-confidence>b { font-size:11px!important; }
+  .mx-premium-home .mx-home-proofbar {
+    grid-template-columns:1fr 1fr!important; min-height:65px!important;
+  }
+  .mx-premium-home .mx-home-proofbar-ticker { display:none!important; }
+  .mx-premium-home .mx-home-proof-stat { padding:10px 4px!important; }
+  .mx-premium-home .mx-home-proof-stat>span { font-size:19px!important; }
+  .mx-premium-home .mx-home-proof-stat small { font-size:10px!important; }
+  .mx-premium-home .mx-feature-grid { margin-top:8px!important; }
+  .mx-premium-home .mx-feature-card {
+    min-height:95px!important;
+    padding:8px 5px!important;
+  }
+  .mx-premium-home .mx-feature-card h2 { font-size:12px!important; }
+  .mx-premium-home .mx-data-updated { font-size:11px!important; }
+  .mx-pronos-page .mx-announcement { flex-wrap:wrap; gap:8px; padding:11px 12px; font-size:12px; }
+  .mx-pronos-page .mx-announcement-action { margin-left:auto; }
+  .mx-pronos-page .day-filters .day-btn { min-height:44px!important; font-size:12px!important; }
+  .mx-pronos-page .pronostic-category-tabs .tab-btn { min-height:48px!important; font-size:12px!important; }
+  .mx-pronos-page .search-input { min-height:44px; font-size:13px; }
+}
+@media(max-width:370px){
+  .mx-premium-home .mx-hero h1{font-size:27px!important}
+  .mx-premium-home .mx-feature-card h2{font-size:11px!important}
+  .mx-premium-home .mx-home-picks .pick-card{flex-basis:94%!important;width:94%!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .mx-premium-home .pick-card{transition:none}
+}
+
+/* Composants communs : etats vides, navigation et interactions. */
+body:not(.mx-daily-body) .no-events {
+  padding: 22px 18px;
+  line-height: 1.55;
+  border: 1px dashed #355b70;
+  border-radius: 12px;
+  background: #081b28;
+  color: #d0e1eb;
+  text-align: center;
+  font-size: 14px;
+}
+body:not(.mx-daily-body) .no-events a {
+  color: #f6d48b;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+body:not(.mx-daily-body) .mx-primary-nav a:focus-visible,
+body:not(.mx-daily-body) .mx-nav-more summary:focus-visible,
+body:not(.mx-daily-body) button:focus-visible {
+  outline: 3px solid #ffe1a2;
+  outline-offset: 3px;
+}
+body:not(.mx-daily-body) .mx-primary-nav .mx-nav-more-panel a {
+  min-height: 39px;
+  display: flex;
+  align-items: center;
+}
+@media(max-width:590px) {
+  body:not(.mx-daily-body) .no-events { font-size: 13px; padding: 20px 13px; }
+}
+
+/* Les deux seules categories publiques occupent toute la largeur, meme sur mobile. */
+.mx-pronos-page .pronostic-category-tabs {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%!important;
+}
+.mx-pronos-page .pronostic-category-tabs>.tab-btn {min-width:0!important;}
+@media(max-width:590px) {
+  .mx-pronos-page .pronostic-category-tabs>.tab-btn{
+    min-height:46px!important;
+    height:auto!important;
+    font-size:12px!important;
+  }
+  .mx-pronos-page .pronostic-category-tabs .tab-count{font-size:10px!important;}
+}

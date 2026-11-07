@@ -4,12 +4,9 @@
   const year = document.getElementById('mx-current-year');
   if (year) year.textContent = String(new Date().getFullYear());
 
+  // Les explications secondaires restent facultatives sur desktop et mobile.
   const mobileDetails = document.querySelectorAll('[data-mobile-collapsible]');
-  const isMobile = window.matchMedia('(max-width: 700px)').matches;
-  mobileDetails.forEach((detail) => {
-    if (isMobile) detail.removeAttribute('open');
-    else detail.setAttribute('open', '');
-  });
+  mobileDetails.forEach((detail) => detail.removeAttribute('open'));
   const share = document.querySelector('.mx-share-site');
   if (!share) return;
   share.addEventListener('click', async () => {

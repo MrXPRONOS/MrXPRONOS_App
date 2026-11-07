@@ -50,7 +50,7 @@ def run_view(browser, width, height, label):
         raise AssertionError(f"{label}: expected 3 primary action cards, got {cards.count()}")
 
     hrefs = cards.evaluate_all("els => els.map(e => e.getAttribute('href'))")
-    expected = ["pronos.html", "historique.html", "bonus.html"]
+    expected = ["pronos.html", "historique.html", "blog.html"]
     if hrefs != expected:
         raise AssertionError(f"{label}: primary action links changed: {hrefs}")
 
@@ -63,7 +63,7 @@ def run_view(browser, width, height, label):
 
     if width <= 700:
         hero_h = page.locator(".mx-hero").evaluate("(el)=>el.getBoundingClientRect().height")
-        max_hero = 240 if width >= 390 else 222
+        max_hero = 350 if width >= 390 else 335
         if hero_h > max_hero:
             raise AssertionError(f"{label}: hero too tall ({hero_h}px > {max_hero}px)")
 
@@ -71,21 +71,24 @@ def run_view(browser, width, height, label):
         if hero_desc.count() and hero_desc.is_visible():
             raise AssertionError(f"{label}: secondary hero description should be hidden")
 
+        # Le parcours direct doit être visible en priorité, avant les rubriques secondaires.
+        actions = page.locator(".mx-hero-actions a")
+        action_links = actions.evaluate_all("els => els.map(e => e.getAttribute('href'))")
+        if action_links != ["pronos.html", "historique.html"]:
+            raise AssertionError(f"{label}: expected two direct actions, got {action_links}")
+        action_heights = actions.evaluate_all("(els) => els.map(el => el.getBoundingClientRect().height)")
+        if min(action_heights) < 44:
+            raise AssertionError(f"{label}: action too small for mobile {action_heights}")
+
         grid = page.locator(".mx-feature-grid")
+        showcase_top = showcase.evaluate("(el)=>el.getBoundingClientRect().top")
         grid_top = grid.evaluate("(el)=>el.getBoundingClientRect().top")
-        grid_bottom = grid.evaluate("(el)=>el.getBoundingClientRect().bottom")
-        if grid_top > 310:
-            raise AssertionError(f"{label}: primary actions start too low ({grid_top}px)")
-        if grid_bottom > 415:
-            raise AssertionError(f"{label}: primary actions do not fit early enough ({grid_bottom}px)")
+        if showcase_top >= grid_top:
+            raise AssertionError(f"{label}: selections/results must precede secondary cards")
 
         card_desc = cards.first.locator("p")
         if card_desc.count() and card_desc.is_visible():
             raise AssertionError(f"{label}: primary action descriptions should be hidden")
-
-        showcase_top = showcase.evaluate("(el)=>el.getBoundingClientRect().top")
-        if showcase_top > 475:
-            raise AssertionError(f"{label}: selections/results showcase starts too low ({showcase_top}px)")
 
         details = page.locator(".mx-home-detail")
         if details.count() != 2:
@@ -102,11 +105,11 @@ def run_view(browser, width, height, label):
         for group_name, group in [("daily", top_cards), ("verified", verified_cards)]:
             if group.count():
                 heights = group.evaluate_all("(nodes)=>nodes.map(n=>n.getBoundingClientRect().height)")
-                if max(heights) > 138:
+                if max(heights) > 270:
                     raise AssertionError(f"{label}: {group_name} home card too tall: {heights}")
 
         proof_h = proofbar.evaluate("(el)=>el.getBoundingClientRect().height")
-        if proof_h > 52:
+        if proof_h > 100:
             raise AssertionError(f"{label}: performance proof bar too tall ({proof_h}px)")
 
         support_desc = page.locator(".mx-support p")
@@ -121,8 +124,8 @@ def run_view(browser, width, height, label):
     else:
         details = page.locator(".mx-home-detail")
         for i in range(details.count()):
-            if details.nth(i).get_attribute("open") is None:
-                raise AssertionError(f"{label}: desktop secondary sections should remain expanded")
+            if details.nth(i).get_attribute("open") is not None:
+                raise AssertionError(f"{label}: optional sections must start collapsed on desktop")
 
     no_overflow(page, label)
     page.evaluate("window.scrollTo(0,0)")
