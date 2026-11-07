@@ -223,5 +223,22 @@ class TestV3BTTSQualityGate(unittest.TestCase):
         self.assertEqual(guards["BTTS_YES"],"btts_v3_side_score_below_70")
         self.assertNotIn("BTTS_NO",guards)
 
+
+class TestV3Over25QualityGate(unittest.TestCase):
+    def test_over25_requires_high_league_over25_rate(self):
+        from unittest.mock import patch
+        from bsd_v3.over25_quality import evaluate_over25_quality
+        good={"league_over_rates":{2.5:.61},"form_samples":12,
+              "venue_samples":6,"league_samples":100}
+        with patch("bsd_v3.over25_quality.total_features",return_value=good):
+            passed,evidence=evaluate_over25_quality({},None)
+        self.assertTrue(passed)
+        self.assertEqual(evidence["league_over25_probability"],.61)
+        weak=dict(good,league_over_rates={2.5:.57})
+        with patch("bsd_v3.over25_quality.total_features",return_value=weak):
+            passed,evidence=evaluate_over25_quality({},None)
+        self.assertFalse(passed)
+        self.assertEqual(evidence["reason"],"over25_v3_league_rate_below_58")
+
 if __name__=="__main__":
     unittest.main()
