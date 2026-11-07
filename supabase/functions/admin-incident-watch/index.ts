@@ -59,6 +59,9 @@ Deno.serve(async req=>{
   groups.get(key)!.push(run);
  }
  for(const [name,entries] of groups){
+  // Never let this monitor treat its own alert-triggered failed run as a new
+  // incident; otherwise it could create an infinite escalation feedback loop.
+  if(name.includes("admin-incident-watch.yml")||entries.some((r:any)=>r.name==="Admin incidents — automatic monitoring"))continue;
   const recent=entries.filter((x:any)=>x.status==="completed").sort(
     (a:any,b:any)=>Date.parse(b.created_at)-Date.parse(a.created_at));
   if(!recent.length)continue;
@@ -75,6 +78,7 @@ Deno.serve(async req=>{
  // Duplicate launches require matching workflow, event and SHA. Never claim
  // certainty when external cron-job.org execution cannot be correlated.
  for(const [name,entries] of groups){
+  if(name.includes("admin-incident-watch.yml")||entries.some((r:any)=>r.name==="Admin incidents — automatic monitoring"))continue;
   for(let i=0;i<entries.length;i++)for(let j=i+1;j<entries.length;j++){
    const a=entries[i],b=entries[j];
    if(a.id===b.id||a.event!==b.event||a.head_sha!==b.head_sha||
