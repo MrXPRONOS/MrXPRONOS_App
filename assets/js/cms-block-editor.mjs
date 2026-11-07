@@ -2,6 +2,7 @@
 import {mountCmsMediaPicker} from "./cms-media-library.mjs";
 import {isSafeCmsUrl} from "./cms-url-guard.mjs";
 import {createServerDraftStore} from "./admin-draft-sync.mjs";
+import {renderSafeCmsMarkdown} from "./admin-public-markdown.mjs";
 const TYPES=["paragraph","heading","subheading","bullets","quote","image","video","link","table","raw"];
 const LABELS={paragraph:"Paragraphe",heading:"Titre H2",subheading:"Sous-titre H3",
  bullets:"Liste",quote:"Citation",image:"Image",video:"Vidéo",link:"Lien",table:"Tableau",raw:"Source brute"};
@@ -176,27 +177,18 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[char]));
   function safePreviewHtml(){
-    const parts=[];
-    for(const b of blocks){
-      const value=htmlText(b.value||"");
-      const lines=value.split("\n").join("<br>");
-      if(b.type==="heading")parts.push("<h2>"+lines+"</h2>");
-      else if(b.type==="subheading")parts.push("<h3>"+lines+"</h3>");
-      else if(b.type==="quote")parts.push("<blockquote>"+lines+"</blockquote>");
-      else if(b.type==="bullets")parts.push("<ul>"+value.split("\n").map(v=>"<li>"+v+"</li>").join("")+"</ul>");
-      else if(b.type==="image"&&isSafeCmsUrl(b.url,"image")){
-        parts.push('<figure><img loading="lazy" alt="'+htmlText(b.alt)+'" src="'+htmlText(b.url)+'"><figcaption>'+htmlText(b.alt)+'</figcaption></figure>');
-      } else if(b.type==="video"&&isSafeCmsUrl(b.url,"image")){
-        parts.push('<video controls preload="none" playsinline src="'+htmlText(b.url)+'"></video>');
-      } else if(b.type==="link"&&isSafeCmsUrl(b.url,"link"))
-        parts.push('<p><a href="'+htmlText(b.url)+'">'+(lines||htmlText(b.url))+'</a></p>');
-      else parts.push("<p>"+lines+"</p>");
-    }
-    return parts.join("\n");
+    let markdown="";
+    try{markdown=serializeCmsBlocks(blocks);}
+    catch{markdown=textarea.value||"";}
+    return renderSafeCmsMarkdown(markdown);
   }
   function refreshPreview(){
     const base="https://mrxpronos.github.io/MrXPRONOS_App/";
     const contents=safePreviewHtml();
+    const titleId=kind==="articles"?"a_title":kind==="conseils"?"c_title":
+      kind==="infos"?"i_title":null;
+    const heading=htmlText(titleId?document.getElementById(titleId)?.value||"":"")||
+      "Aperçu de votre article";
     frame.style.width=previewMobile?"min(100%,390px)":"100%";
     frame.srcdoc='<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
       +'<base href="'+base+'"><link rel="stylesheet" href="assets/css/style.css">'
@@ -210,7 +202,7 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
       +'</div></header><main class="container mx-article-detail-main"><div id="blog-post">'
       +'<article class="card article-page-card mx-reader-article">'
       +'<div class="mx-reader-meta"><span>Football</span><span class="mx-reader-preview-label">Non publié</span></div>'
-      +'<h1>Aperçu de votre article</h1><div class="article-content">'
+      +'<h1>'+heading+'</h1><div class="article-content">'
       +contents+'</div><div class="mx-reader-disclaimer">Cette analyse est informative. Les paris comportent un risque de perte.</div>'
       +'</article></div></main></body></html>';
   }
