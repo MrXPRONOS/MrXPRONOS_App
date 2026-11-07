@@ -1,6 +1,7 @@
 // A block authoring layer that keeps the existing Markdown CMS field as its source of truth.
 import {mountCmsMediaPicker} from "./cms-media-library.mjs";
 import {isSafeCmsUrl} from "./cms-url-guard.mjs";
+import {createServerDraftStore} from "./admin-draft-sync.mjs";
 const TYPES=["paragraph","heading","subheading","bullets","quote","image","video","link","table","raw"];
 const LABELS={paragraph:"Paragraphe",heading:"Titre H2",subheading:"Sous-titre H3",
  bullets:"Liste",quote:"Citation",image:"Image",video:"Vidéo",link:"Lien",table:"Tableau",raw:"Source brute"};
@@ -74,6 +75,9 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   let blocks=parseCmsMarkdown(textarea.value),documentKey=String(identity);
   let dragging=-1,selectedBlock=-1,editGeneration=0;
   let saveTimer=null;
+  let serverQueue=Promise.resolve();
+  const serverStore=createServerDraftStore(sb,{kind,getIdentity:()=>documentKey,
+    onStatus:message=>{status.textContent=message+" (non publié)";}});
   const draftKey=()=>`mx:cms:v2:${kind}:${documentKey}`;
   const commit=()=>{
     textarea.value=serializeCmsBlocks(blocks);
@@ -84,8 +88,14 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     saveTimer=setTimeout(()=>{
       try{
         if(textarea.value.length>150000)return;
-        localStorage.setItem(draftKey(),JSON.stringify({at:Date.now(),content:textarea.value}));
-        status.textContent="Brouillon local sauvegardé (non publié)";
+        const content=textarea.value,expectedKey=documentKey;
+        localStorage.setItem(draftKey(),JSON.stringify({at:Date.now(),content}));
+        status.textContent="Brouillon local enregistré ; synchronisation serveur…";
+        serverQueue=serverQueue.catch(()=>{}).then(async()=>{
+          if(documentKey!==expectedKey)return;
+          try{await serverStore.save(content);}
+          catch(e){status.textContent="Brouillon local conservé · Sync serveur impossible : "+String(e?.message||e);}
+        });
       }catch {status.textContent="Stockage local indisponible";}
     },1200);
   };
@@ -165,13 +175,16 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     sourceBtn.textContent=textarea.hidden?"Mode source":"Revenir aux blocs";
     if(textarea.hidden){blocks=parseCmsMarkdown(textarea.value);render();}
   };
-  recover.onclick=()=>{
+  recover.onclick=async()=>{
     try{
-      const draft=JSON.parse(localStorage.getItem(draftKey())||"null");
-      if(!draft?.content){status.textContent="Aucun brouillon local";return;}
-      if(!window.confirm("Remplacer le texte actuellement saisi par le brouillon local ?"))return;
-      textarea.value=draft.content;blocks=parseCmsMarkdown(draft.content);render();status.textContent="Brouillon restauré";
-    }catch {status.textContent="Brouillon impossible à relire";}
+      const server=await serverStore.read();
+      const local=JSON.parse(localStorage.getItem(draftKey())||"null");
+      const draft=server?.content!=null?server:local;
+      if(!draft?.content){status.textContent="Aucun brouillon disponible";return;}
+      if(!window.confirm("Restaurer le brouillon sauvegardé "+(server?"sur le serveur":"localement")+" ?"))return;
+      textarea.value=draft.content;blocks=parseCmsMarkdown(draft.content);render();
+      status.textContent="Brouillon restauré · Modifications non publiées";
+    }catch(e){status.textContent="Impossible de récupérer le brouillon serveur : "+String(e?.message||e);}
   };
   textarea.addEventListener("input",()=>{if(!textarea.hidden){blocks=parseCmsMarkdown(textarea.value);commit();}});
   mountCmsMediaPicker(sb,library,media=>{
@@ -184,7 +197,12 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     setMarkdown(markdown,id="new"){
       documentKey=String(id||"new");clearTimeout(saveTimer);
       textarea.value=text(markdown);blocks=parseCmsMarkdown(textarea.value);render();
-      status.textContent="";
+      status.textContent="Brouillons synchronisés si la connexion serveur est disponible";
+      // Read revision before first save; a parallel tab will cause a conflict
+      // instead of silently replacing a more recent draft.
+      void serverStore.read().catch(e=>{
+        status.textContent="Sauvegarde serveur indisponible : "+String(e?.message||e);
+      });
     },
     getMarkdown(){return textarea.hidden?serializeCmsBlocks(blocks):textarea.value;},
     destroy(){clearTimeout(saveTimer);editor.remove();}
