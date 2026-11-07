@@ -8,8 +8,9 @@ OUT.mkdir(parents=True, exist_ok=True)
 MATCH = {
     "home_team": "Arsenal",
     "away_team": "Chelsea",
-    "home_logo": "assets/images/home.webp",
-    "away_logo": "assets/images/away.webp",
+    # Real, different team crest assets (not the generic home/away placeholders).
+    "home_logo": "assets/images/teams/sd-100-v1.webp",
+    "away_logo": "assets/images/teams/sd-10011-v1.webp",
     "prediction": {
         "type": "Double chance 1X",
         "confidence": 86,
@@ -57,6 +58,14 @@ def run_view(browser, width, height, label):
     main_text = ctx.request.get("http://127.0.0.1:8000/assets/js/main.js").text()
     if "Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)" in main_text:
         raise AssertionError(f"{label}: legacy confirm share chooser still present")
+    # Regression: every real match-card share payload must retain both team logos,
+    # otherwise the preview silently falls back to the generic icons.
+    for expected_source in (
+        "home_logo: m.home_logo || getTeamLogoPath(m.home_team, true)",
+        "away_logo: m.away_logo || getTeamLogoPath(m.away_team, false)",
+    ):
+        if expected_source not in main_text:
+            raise AssertionError(f"{label}: share payload lost logo source {expected_source}")
 
     # System confirm must never be used by pronostic sharing anymore.
     page.evaluate("""() => {
@@ -88,6 +97,16 @@ def run_view(browser, width, height, label):
     for expected in ("Arsenal", "Chelsea", "Double chance 1X", "Confiance 86%"):
         if expected not in text:
             raise AssertionError(f"{label}: missing preview text {expected!r}")
+
+    for team, path in (
+        ("home", MATCH["home_logo"]), ("away", MATCH["away_logo"])
+    ):
+        logo = popup.locator(f"#pronostic-share-{team}-logo")
+        if logo.get_attribute("src") != path:
+            raise AssertionError(f"{label}: {team} crest replaced by a generic image: {logo.get_attribute('src')}")
+        logo.evaluate("""(img) => img.decode()""")
+        if not logo.evaluate("(img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0"):
+            raise AssertionError(f"{label}: {team} team crest failed to load: {path}")
 
     options = popup.locator("[data-share-platform]")
     if options.count() != 2:
