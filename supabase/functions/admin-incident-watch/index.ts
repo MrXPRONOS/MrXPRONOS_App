@@ -26,6 +26,14 @@ const identicalSchedule=(job:any)=>JSON.stringify({
  h:job.schedule?.hours,m:job.schedule?.minutes,
  w:job.schedule?.wdays,tz:job.schedule?.timezone
 });
+function workflowHint(raw:string){
+ try{
+  const url=new URL(raw);
+  if(url.hostname.toLowerCase()!=="api.github.com")return null;
+  const match=url.pathname.match(/^\/repos\/MrXPRONOS\/MrXPRONOS_App\/actions\/workflows\/([\w.-]+)\/dispatches\/?$/);
+  return match?match[1]:null;
+ }catch{return null;}
+}
 async function targetFingerprint(raw:string,secret:string){
  const enc=new TextEncoder();
  const key=await crypto.subtle.importKey("raw",enc.encode(secret),
@@ -130,6 +138,7 @@ Deno.serve(async req=>{
      try{endpoint=new URL(raw).hostname.toLowerCase();}catch{}
      return {id:Number(job.jobId),title:safeName(job.title),enabled:job.enabled===true,
       endpoint,endpoint_fingerprint:await targetFingerprint(raw,apiKey),
+      workflow_hint:workflowHint(raw),
       last_status:Number(job.lastStatus||0),
       last_execution:Number(job.lastExecution||0),next_execution:Number(job.nextExecution||0),
       schedule:{timezone:String(job.schedule?.timezone||"UTC"),
@@ -185,6 +194,30 @@ Deno.serve(async req=>{
    const fingerprint=identicalSchedule(job);
    if(!jobGroups.has(fingerprint))jobGroups.set(fingerprint,[]);
    jobGroups.get(fingerprint).push(job);
+  }
+  // Cross-provider correlation: known cron-job.org dispatch endpoints
+  // targeting a specific GitHub Actions workflow, plus >=2 runs around the
+  // same cron execution with different trigger origins. This is probabilistic,
+  // never auto-disable tasks based on it.
+  for(const job of cronObserved.jobs){
+   if(!job.enabled||!job.workflow_hint||!Number(job.last_execution))continue;
+   const runsNear=runs.filter((run:any)=>{
+    const basename=String(run.path||"").split("/").at(-1);
+    return basename===job.workflow_hint &&
+      Math.abs(Date.parse(run.created_at)-Number(job.last_execution)*1000)<180000;
+   });
+   const sources=new Set(runsNear.map((r:any)=>r.event));
+   if(runsNear.length>=2 && sources.size>=2){
+    const ids=runsNear.map((r:any)=>r.id).sort((a:number,b:number)=>a-b);
+    observations.push({
+     key:"cross-provider:"+job.id+":"+ids.join("-"),source:"cron",severity:"medium",
+     summary:"cron-job.org + GitHub : double déclenchement possible",
+     evidence:ids.join("-"),
+     action:"Comparer l'horaire du cron externe, le schedule GitHub et les journaux ; désactiver uniquement le déclencheur réellement redondant.",
+     detail:{provider:"cron-job.org / GitHub Actions",job_id:job.id,
+      workflow_hint:job.workflow_hint,run_ids:ids,certainty:"possible_not_proven"}
+    });
+   }
   }
   for(const jobs of jobGroups.values()){
    if(jobs.length<2)continue;
