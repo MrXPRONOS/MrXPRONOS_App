@@ -22,9 +22,17 @@ const sanitizeRun=(r:any)=>({
    ?r.html_url:null
 });
 const identicalSchedule=(job:any)=>JSON.stringify({
- endpoint:job.endpoint,h:job.schedule?.hours,m:job.schedule?.minutes,
+ endpoint_fingerprint:job.endpoint_fingerprint||job.endpoint,
+ h:job.schedule?.hours,m:job.schedule?.minutes,
  w:job.schedule?.wdays,tz:job.schedule?.timezone
 });
+async function targetFingerprint(raw:string,secret:string){
+ const enc=new TextEncoder();
+ const key=await crypto.subtle.importKey("raw",enc.encode(secret),
+  {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+ const bytes=await crypto.subtle.sign("HMAC",key,enc.encode(raw));
+ return Array.from(new Uint8Array(bytes)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
 Deno.serve(async req=>{
  if(req.method!=="POST")return send({error:"POST only"},405);
  const bearer=req.headers.get("authorization")||"";
@@ -115,20 +123,20 @@ Deno.serve(async req=>{
    });
    if(!res.ok)throw Error("API HTTP "+res.status);
    const provider=await res.json();
-   const cleaned=(Array.isArray(provider.jobs)?provider.jobs:[]).map((job:any)=>{
+   const cleaned=(await Promise.all((Array.isArray(provider.jobs)?provider.jobs:[])
+    .map(async(job:any)=>{
+     const raw=String(job.url||"");
      let endpoint="inconnu";
-     try{
-      const target=new URL(String(job.url||""));
-      endpoint=target.hostname.toLowerCase()+target.pathname;
-     }catch{}
+     try{endpoint=new URL(raw).hostname.toLowerCase();}catch{}
      return {id:Number(job.jobId),title:safeName(job.title),enabled:job.enabled===true,
-      endpoint,last_status:Number(job.lastStatus||0),
+      endpoint,endpoint_fingerprint:await targetFingerprint(raw,apiKey),
+      last_status:Number(job.lastStatus||0),
       last_execution:Number(job.lastExecution||0),next_execution:Number(job.nextExecution||0),
       schedule:{timezone:String(job.schedule?.timezone||"UTC"),
        hours:Array.isArray(job.schedule?.hours)?job.schedule.hours.slice(0,24):[],
        minutes:Array.isArray(job.schedule?.minutes)?job.schedule.minutes.slice(0,60):[],
        wdays:Array.isArray(job.schedule?.wdays)?job.schedule.wdays.slice(0,7):[]}};
-   }).filter((j:any)=>Number.isSafeInteger(j.id)&&j.id>0);
+    }))).filter((j:any)=>Number.isSafeInteger(j.id)&&j.id>0);
    await sb.from("admin_cron_snapshot").upsert({
     id:1,status:"ok",fetched_at:now,jobs:cleaned,last_error:null,updated_at:now
    },{onConflict:"id"});
