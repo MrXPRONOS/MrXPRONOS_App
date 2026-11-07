@@ -73,9 +73,6 @@ def select_candidates(rows, score_matrix, policy=V3Policy()):
          and r.get("market_probability_lift",0)>0),
         key=lambda r:(
             0 if r["key"] in PREFERRED_KEYS else 1,
-            # Within the goals family, a qualified Over 2.5 is considered
-            # before Over 1.5. Other preferred families remain signal-ranked.
-            0 if r["key"]=="OVER_25" or r["family"]!="goals" else 1,
             -r.get("market_signal_score",-999.),
             PREFERRED_TIE_ORDER.get(r["key"],99),
             -r["conservative_probability"],
