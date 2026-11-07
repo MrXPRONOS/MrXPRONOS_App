@@ -1,0 +1,64 @@
+name: Phase 5 A/B Experience Optimization
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/*experiments_phase5.sql'
+      - 'assets/js/experiment-ux.mjs'
+      - 'assets/js/pwa.js'
+      - 'assets/js/daily-hub.mjs'
+      - 'assets/js/audience-dashboard.mjs'
+      - 'assets/css/audience-analytics.css'
+      - 'statistiques-audience.html'
+      - 'scripts/build_public_site.py'
+      - 'scripts/audience_phase4_browser_smoke.py'
+      - 'scripts/experiment_phase5_public_smoke.py'
+      - 'service-worker.js'
+      - 'confidentialite.html'
+      - 'tests/experiment-phase5.test.mjs'
+      - 'tests/test_experiment_phase5.py'
+      - '.github/workflows/phase5-optimization.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/experiment-ux.mjs'
+      - 'statistiques-audience.html'
+      - 'tests/experiment-phase5.test.mjs'
+      - 'scripts/experiment_phase5_public_smoke.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript and Python syntax
+        run: |
+          node --check assets/js/experiment-ux.mjs
+          node --check assets/js/pwa.js
+          node --check assets/js/daily-hub.mjs
+          node --check assets/js/audience-dashboard.mjs
+          python -m py_compile scripts/experiment_phase5_public_smoke.py scripts/audience_phase4_browser_smoke.py
+      - name: A/B copy, idempotency and privacy unit tests
+        run: node --test tests/experiment-phase5.test.mjs
+      - name: A/B database access and integration contract
+        run: python -m unittest discover -s tests -p 'test_experiment_phase5.py' -v
+
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium Playwright
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Real home and daily A/B UI smoke (mock backend; no production writes)
+        run: python scripts/experiment_phase5_public_smoke.py

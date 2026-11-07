@@ -248,6 +248,7 @@ function addFavorite(event){
   state.favorites=toggleFavorite(state.favorites,kind,canonical);
   safeWrite(STORAGE.favorites,state.favorites);
     window.dispatchEvent(new Event("mx-favorites-updated"));
+  window.dispatchEvent(new Event("mx-experiment-favorite-added"));
   $("daily-favorite-name").value="";
   statusMessage("daily-favorite-message","Favori enregistré : "+canonical);
   renderFavorites();renderFixtures();renderNews();
@@ -624,3 +625,4 @@ function init(){
 init();
 void import("./daily-audience.mjs").then(module=>module.start()).catch(()=>{});
 void import("./daily-favorite-alerts.mjs").then(module=>module.init()).catch(()=>{});
+void import("./experiment-ux.mjs").then(module=>module.startFavorites()).catch(()=>{});

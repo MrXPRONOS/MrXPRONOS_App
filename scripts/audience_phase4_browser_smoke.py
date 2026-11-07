@@ -32,6 +32,28 @@ DATA = {
                "session_events":47,"acquisition_visitor_ids":6,
                "installation_events":8}
 }
+AB = {
+    "period_days":30,
+    "experiments":[
+        {"id":"install_value_v1","label":"Texte du panneau d’installation",
+         "goal":"install_cta_click","enabled":True,
+         "variants":[{"variant":"a","exposed":240,"converted":60,
+                       "matured_exposed":215,"matured_converted":45},
+                     {"variant":"b","exposed":245,"converted":72,
+                       "matured_exposed":220,"matured_converted":60}]},
+        {"id":"favorites_guidance_v1","label":"Présentation des favoris",
+         "goal":"favorite_added","enabled":False,
+         "variants":[{"variant":"a","exposed":15,"converted":2,
+                       "matured_exposed":0,"matured_converted":0},
+                     {"variant":"b","exposed":16,"converted":4,
+                       "matured_exposed":0,"matured_converted":0}]}
+    ],
+    "daily":[{"day":"2026-11-06","experiment":"install_value_v1",
+             "variant":"a","exposed":3,"converted":1},
+            {"day":"2026-11-06","experiment":"install_value_v1",
+             "variant":"b","exposed":5,"converted":2}]
+}
+
 PWA = {
     "platforms":[{"platform":"android","cta_visible":5,
                    "cta_click":2,"standalone_open":2}],
@@ -45,13 +67,20 @@ export function createClient() {
       signInWithPassword:async () => ({error:{message:"CI only: login disabled"}}),
       signOut:async () => ({error:null})
     },
-    rpc: async (name) => {
+    rpc: async (name, params) => {
       if(name==="is_admin")return {data:!!window.__mxAuditAdmin,error:null};
       if(!window.__mxAuditAdmin)return {data:null,error:{message:"Admin required"}};
       if(name==="admin_audience_dashboard_v1")
         return {data:window.__mxDashboardData,error:null};
       if(name==="admin_pwa_install_funnel_v2")
         return {data:window.__mxDashboardPwa,error:null};
+      if(name==="admin_experiment_report_v1")
+        return {data:window.__mxDashboardAb,error:null};
+      if(name==="admin_set_experiment_v1") {
+        const target=window.__mxDashboardAb.experiments.find(e=>e.id===params?.p_experiment);
+        if(target)target.enabled=!!params.p_enabled;
+        return {data:{enabled:!!params?.p_enabled},error:null};
+      }
       return {data:null,error:{message:"Unexpected RPC"}};
     }
   };
@@ -63,7 +92,8 @@ def page_for(browser, allowed: bool, width: int):
     context.add_init_script(
         "window.__mxAuditAdmin="+str(allowed).lower()+";"+
         "window.__mxDashboardData="+json.dumps(DATA)+";"+
-        "window.__mxDashboardPwa="+json.dumps(PWA)+";"
+        "window.__mxDashboardPwa="+json.dumps(PWA)+";"+
+        "window.__mxDashboardAb="+json.dumps(AB)+";"
     )
     page=context.new_page()
     page.route("https://esm.sh/**", lambda route: route.fulfill(
@@ -99,6 +129,15 @@ def main():
             assert page.locator("#ins-clicks").inner_text()=="3"
             page.locator("#tab-retention").click()
             assert "cohorte" in page.locator("#panel-retention").inner_text().lower()
+            page.locator("#tab-experiments").click()
+            assert page.locator("#panel-experiments").is_visible()
+            assert page.locator("#experiment-results tr").count() == 4
+            assert page.locator("#experiment-cards .card").count() == 2
+            assert "Aucune cohorte" not in page.locator("#experiment-results").inner_text()
+            page.once("dialog",lambda dialog: dialog.accept())
+            page.locator("#experiment-cards .experiment-action").first.click()
+            page.locator("#experiment-cards .experiment-action").first.wait_for(state="visible")
+            assert "EN PAUSE" in page.locator("#experiment-cards .card").first.inner_text()
             page.locator("#tab-audience").click()
             with page.expect_download() as download_info:
                 page.locator("#export").click()
