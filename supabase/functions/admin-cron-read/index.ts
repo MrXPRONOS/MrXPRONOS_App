@@ -9,15 +9,21 @@ const responseHeaders=(req:Request)=>({
  "Access-Control-Allow-Methods":"POST,OPTIONS","Content-Type":"application/json","Vary":"Origin"
 });
 const reply=(req:Request,x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers:responseHeaders(req)});
-const safeTarget=(raw:string)=>{
- try{
-  const url=new URL(raw);
-  if(url.protocol!=="https:"&&url.protocol!=="http:")return "autre";
-  // Never return credentials or query/fragment: dispatch URLs may contain tokens.
-  return url.hostname.toLowerCase()+url.pathname;
- }catch{return "inconnu";}
+// Cron targets may contain tokens in PATHS and QUERIES: expose host only.
+// A keyed HMAC of the full URL permits exact duplicate detection without
+// publishing the sensitive target URL or storing it unencrypted.
+const publicHost=(raw:string)=>{
+ try{return new URL(raw).hostname.toLowerCase();}catch{return "inconnu";}
 };
-function sanitizeJob(job:any){
+async function targetFingerprint(raw:string,secret:string){
+ const encoder=new TextEncoder();
+ const key=await crypto.subtle.importKey("raw",encoder.encode(secret),
+   {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+ const bytes=await crypto.subtle.sign("HMAC",key,encoder.encode(raw));
+ return Array.from(new Uint8Array(bytes)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function sanitizeJob(job:any,secret:string){
+ const raw=String(job.url||"");
  const minutes=Array.isArray(job.schedule?.minutes)?job.schedule.minutes.map(Number):[];
  const hours=Array.isArray(job.schedule?.hours)?job.schedule.hours.map(Number):[];
  const schedule={timezone:String(job.schedule?.timezone||"UTC").slice(0,80),
@@ -29,7 +35,7 @@ function sanitizeJob(job:any){
   enabled:job.enabled===true,last_status:Number(job.lastStatus||0),
   last_execution:Number(job.lastExecution||0),next_execution:Number(job.nextExecution||0),
   last_duration_ms:Number(job.lastDuration||0),schedule,
-  endpoint:safeTarget(String(job.url||""))
+  endpoint:publicHost(raw),endpoint_fingerprint:await targetFingerprint(raw,secret)
  };
 }
 Deno.serve(async req=>{
@@ -86,7 +92,8 @@ Deno.serve(async req=>{
   return reply(req,{configured:true,cached:true,status:"ok",fetched_at:cached.fetched_at,jobs:cached.jobs});
  try{
   const provider=await source("/jobs");
-  const jobs=(Array.isArray(provider.jobs)?provider.jobs:[]).map(sanitizeJob)
+  const jobs=(await Promise.all((Array.isArray(provider.jobs)?provider.jobs:[])
+    .map((job:any)=>sanitizeJob(job,providerKey))))
    .filter((j:any)=>Number.isSafeInteger(j.id)&&j.id>0);
   const stamp=new Date().toISOString();
   await service.from("admin_cron_snapshot").upsert({
