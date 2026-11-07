@@ -287,6 +287,7 @@ async function renderPushAdmin(){
       <div><label for="push_tag">Tag (facultatif)</label><input id="push_tag" maxlength="100" placeholder="pronos-matin"></div>
     </div>
     <div class="admin-button-row">
+      <button type="button" id="push_new" class="btn btn-secondary">Nouvelle campagne</button>
       <button type="button" id="push_preview" class="btn btn-secondary">Prévisualiser</button>
       <button type="button" id="push_test" class="btn btn-secondary">Envoyer un test ciblé</button>
       <button type="button" id="push_schedule" class="btn btn-secondary">Programmer</button>
@@ -351,6 +352,13 @@ async function renderPushAdmin(){
   for(const el of root.querySelectorAll("#push_audience,#push_user_id,#push_title,#push_body,#push_url,#push_tag,#push_schedule_at")){
     el.addEventListener("input",()=>{pendingRequestId=null;pendingPayload=null;});
   }
+  $("push_new").addEventListener("click",()=>{
+    pendingRequestId=null;pendingPayload=null;
+    $("push_title").value="";$("push_body").value="";
+    $("push_schedule_at").value="";$("push_tag").value="";
+    setStatus("Nouveau formulaire : une nouvelle campagne pourra être créée.");
+    $("push_results").replaceChildren();$("push_title").focus();
+  });
   $("push_preview").addEventListener("click",preview);
   async function api(payload){
     const session=(await sb.auth.getSession()).data.session;
@@ -391,8 +399,11 @@ async function renderPushAdmin(){
     try{
       const response=await api({...payload,request_id:pendingRequestId});
       result(response);
-      setStatus("Campagne enregistrée. Consulte l'historique pour vérifier sa livraison.");
-      pendingRequestId=null;pendingPayload=null;
+      setStatus(response.reused
+        ? "Cette demande a déjà été enregistrée ; aucun nouvel envoi n'a été déclenché."
+        : "Campagne enregistrée. Consulte l'historique pour vérifier sa livraison.");
+      // Keep the same request ID while the form remains unchanged. A second
+      // click must return the original campaign rather than dispatch again.
       await reloadHistory();
     }catch(e){
       setStatus("Résultat incertain ou échec : "+String(e?.message||e)+
