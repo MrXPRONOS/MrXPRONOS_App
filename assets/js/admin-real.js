@@ -243,279 +243,238 @@ function setBtnDisabled(id, disabled) {
 // + Champs: title/body/url/tag
 // + Bonus: bouton "Lister les abonnés" (Edge Function admin-list-subscribers)
 // -----------------------------
-async function renderPushAdmin() {
-  const root = $("tab-push");
-  if (!root) return;
-
-  root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Envoyer une notification PUSH</h3>
-      <div class="muted" style="margin-bottom:12px;">
-        Notifications reçues uniquement par les utilisateurs <b>abonnés</b> (permission activée).
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Audience</label>
-          <select id="push_audience">
-            <option value="">Choisir les destinataires…</option>
-            <option value="user">Un abonné précis</option>
-            <option value="all">Tous les abonnés</option>
-          </select>
-        </div>
-
-        <div id="push_user_wrap" style="display:none;">
-          <label>User ID (ex: MX-xxxx...)</label>
-          <input id="push_user_id" placeholder="MX-..." />
-          <div class="muted" style="margin-top:6px;">
-            Cliquez sur un abonné dans la liste (en bas) pour remplir automatiquement.
-          </div>
-        </div>
-      </div>
-
-      <label style="margin-top:10px;">Titre</label>
-      <input id="push_title" placeholder="Ex: Nouveaux coupons !" />
-
-      <label>Message</label>
-      <textarea id="push_body" rows="4" placeholder="Ex: Les pronostics du jour sont disponibles."></textarea>
-
-      <label>URL au clic (optionnel)</label>
-      <input id="push_url" placeholder="https://..." value="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html" />
-
-      <div class="row">
-        <div>
-          <label>Tag (optionnel)</label>
-          <input id="push_tag" placeholder="Ex: coupons-matin" />
-        </div>
-        <div>
-          <label>&nbsp;</label>
-          <button id="push_preview" type="button" class="btn btn-secondary">Prévisualiser</button>
-          <button id="push_send" class="btn btn-primary" style="width:100%;">Envoyer</button>
-        </div>
-      </div>
-
-      <div id="push_status" class="muted" role="status" aria-live="polite" style="margin-top:10px;white-space:pre-line"></div>
-      <div id="push_results" style="margin-top:10px"></div>
+async function renderPushAdmin(){
+  const root=$("tab-push");if(!root)return;
+  root.innerHTML=`
+  <div class="card">
+    <h3>Notifications Push</h3>
+    <p class="muted">Prévisualise, teste sur un abonné ou programme une campagne. Aucune audience n'est présélectionnée.</p>
+    <div class="admin-filter-row">
+      <div><label for="push_audience">Destinataires</label>
+        <select id="push_audience"><option value="">Choisir les destinataires…</option>
+          <option value="user">Un abonné précis</option><option value="all">Tous les abonnés</option></select></div>
+      <div id="push_user_wrap" hidden><label for="push_user_id">Identifiant de l'abonné</label>
+        <input id="push_user_id" placeholder="MX-..." autocomplete="off"></div>
+      <div><label for="push_schedule_at">Programmer (heure locale)</label>
+        <input id="push_schedule_at" type="datetime-local"></div>
     </div>
-
-    <div class="card" style="border-color:#2a2a2a;">
-      <div style="display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-        <h3 style="margin:0;color:#D4AF37">Abonnés PUSH</h3>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <input id="subs_search" placeholder="Rechercher un user_id (MX-...)" style="max-width:320px;">
-          <button id="subs_refresh" class="btn btn-secondary">Lister les abonnés</button>
-        </div>
-      </div>
-      <div id="subs_status" class="muted" style="margin-top:10px"></div>
-      <div id="subs_list" class="muted" style="margin-top:10px">Clique sur “Lister les abonnés”.</div>
+    <label for="push_title">Titre</label><input id="push_title" maxlength="110" placeholder="Nouveaux pronostics">
+    <label for="push_body">Message</label><textarea id="push_body" maxlength="700" rows="3" placeholder="Les nouvelles sélections sont disponibles."></textarea>
+    <div class="admin-filter-row">
+      <div><label for="push_url">Lien HTTPS au clic</label>
+        <input id="push_url" type="url" value="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"></div>
+      <div><label for="push_tag">Tag (facultatif)</label><input id="push_tag" maxlength="100" placeholder="pronos-matin"></div>
     </div>
-  `;
-
-  const setStatus = (msg) => {
-    const el = $("push_status");
-    if (el) el.textContent = msg || "";
+    <div class="admin-button-row">
+      <button type="button" id="push_preview" class="btn btn-secondary">Prévisualiser</button>
+      <button type="button" id="push_test" class="btn btn-secondary">Envoyer un test ciblé</button>
+      <button type="button" id="push_schedule" class="btn btn-secondary">Programmer</button>
+      <button type="button" id="push_send" class="btn btn-primary">Envoyer maintenant</button>
+    </div>
+    <div id="push_status" class="muted" role="status" aria-live="polite" style="white-space:pre-line"></div>
+    <div id="push_results" role="region" aria-label="Résultat de la campagne"></div>
+  </div>
+  <div class="card">
+    <div class="admin-section-heading"><h3>Historique des campagnes</h3>
+      <button type="button" id="push_history_refresh" class="btn btn-secondary">Actualiser</button></div>
+    <div id="push_history" class="admin-pronostics-table-scroll" role="region" aria-label="Historique des notifications"></div>
+  </div>
+  <div class="card">
+    <div class="admin-section-heading"><h3>Abonnés Push</h3>
+      <button type="button" id="subs_refresh" class="btn btn-secondary">Rechercher</button></div>
+    <label for="subs_search">Rechercher un identifiant</label>
+    <input id="subs_search" type="search" placeholder="MX-..." autocomplete="off">
+    <p id="subs_status" class="muted" role="status"></p>
+    <div id="subs_list" class="admin-pronostics-table-scroll"></div>
+    <button type="button" id="subs_more" class="btn btn-secondary" hidden>Charger la page suivante</button>
+  </div>`;
+  const setStatus=message=>{$("push_status").textContent=message||"";};
+  let sendingPush=false,pendingRequestId=null,pendingPayload=null;
+  const lock=value=>{
+    sendingPush=value;
+    for(const id of ["push_send","push_test","push_schedule"])$(id).disabled=value;
   };
-
-  const renderResults = (data) => {
-    const el = $("push_results");
-    if (!el) return;
-
-    const results = Array.isArray(data?.results) ? data.results : [];
-    const sent = results.filter(r => r.status === "sent").length;
-    const deleted = results.filter(r => r.status === "deleted_410").length;
-    const failed = results.filter(r => r.status === "failed").length;
-    const skipped = results.filter(r => String(r.status || "").startsWith("skipped")).length;
-
-    el.innerHTML = `
-      <div class="card" style="border-color:#2a2a2a;">
-        <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Résultat</div>
-        <div class="muted">
-          Envoyés: ${sent} • Supprimés (410): ${deleted} • Échecs: ${failed} • Ignorés: ${skipped} • Total: ${results.length}
-        </div>
-        <details style="margin-top:10px;">
-          <summary class="muted" style="cursor:pointer;">Détails (JSON)</summary>
-          <pre class="muted" style="margin-top:10px;">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
-        </details>
-      </div>
-    `;
-  };
-
-  async function callAdminPush(payload) {
-    const session = (await sb.auth.getSession()).data.session;
-    if (!session) throw new Error("Session expirée.");
-
-    const res = await fetch(`${supabaseUrl}/functions/v1/admin-push`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data?.error || `Erreur HTTP ${res.status}`);
+  const getForm=(operation="send",test=false)=>{
+    const mode=$("push_audience").value;
+    const title=$("push_title").value.trim(),body=$("push_body").value.trim();
+    const target=$("push_user_id").value.trim();
+    if(!mode||!title||!body)throw Error("Choisis les destinataires, un titre et un message.");
+    if((mode==="user"||test)&&!target)throw Error("Sélectionne un abonné pour cet envoi ciblé.");
+    const url=$("push_url").value.trim();
+    if(url){
+      let u;
+      try{u=new URL(url);}catch{throw Error("Lien invalide");}
+      if(u.protocol!=="https:"||u.hostname!=="mrxpronos.github.io")throw Error("Lien HTTPS Mr XPRONOS obligatoire.");
+    }
+    const data={operation,title,body,url:url||null,tag:$("push_tag").value.trim()||null,
+      audience:test?"user":mode,user_id:mode==="user"||test?target:null};
+    if(operation==="schedule"){
+      const scheduled=new Date($("push_schedule_at").value);
+      if(!Number.isFinite(scheduled.getTime())||scheduled.getTime()-Date.now()<60000)
+        throw Error("Choisis une date d'au moins une minute dans le futur.");
+      data.scheduled_at=scheduled.toISOString();
+    }
     return data;
-  }
-
-  async function callListSubscribers() {
-    const session = (await sb.auth.getSession()).data.session;
-    if (!session) throw new Error("Session expirée.");
-
-    const res = await fetch(`${supabaseUrl}/functions/v1/admin-list-subscribers`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
-      },
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data?.error || `Erreur HTTP ${res.status}`);
-    return data;
-  }
-
-  // Audience toggle
-  const audienceSel = $("push_audience");
-  const userWrap = $("push_user_wrap");
-  const userInput = $("push_user_id");
-
-  function refreshAudience() {
-    const mode = audienceSel.value;
-    userWrap.style.display = mode === "user" ? "block" : "none";
-  }
-  audienceSel.addEventListener("change", refreshAudience);
-  refreshAudience();
-
-  // Envoi push
-  let sendingPush = false;
-  const pushPreview = () => {
-    const mode = audienceSel.value;
-    const title = $("push_title").value.trim();
-    const body = $("push_body").value.trim();
-    if (!mode || !title || !body) {
-      setStatus("Choisis les destinataires, un titre et un message.");
-      return false;
-    }
-    if (mode === "user" && !userInput.value.trim()) {
-      setStatus("Choisis un abonné dans la liste ou saisis son identifiant.");
-      return false;
-    }
-    setStatus("Aperçu · " + (mode === "all" ? "Tous les abonnés" : userInput.value.trim()) + "\n" + title + "\n" + body);
-    return true;
   };
-  $("push_preview").addEventListener("click", () => { pushPreview(); });
-  $("push_send").addEventListener("click", async () => {
-    if (sendingPush || !pushPreview()) return;
-    const mode = audienceSel.value;
-    const title = $("push_title").value.trim();
-    const body = $("push_body").value.trim();
-    const url = $("push_url").value.trim();
-    const tag = $("push_tag").value.trim();
-    const user_id = mode === "user" ? userInput.value.trim() : "";
-
-    if (!title || !body || !mode) return setStatus("Audience, titre et message requis.");
-    if (mode === "user" && !user_id) return alert("User ID requis pour l'envoi ciblé.");
-
-    const confirmMsg =
-      mode === "all"
-        ? `Envoyer cette notification à TOUS les abonnés ?\n\nTitre: ${title}\nMessage: ${body}`
-        : `Envoyer à l'utilisateur:\n${user_id}\n\nTitre: ${title}\nMessage: ${body}`;
-
-    if (!confirm(confirmMsg)) return;
-
-    sendingPush = true;
-    $("push_send").disabled = true;
-    try {
-      setStatus("Envoi en cours...");
-      const payload = {
-        title,
-        body,
-        url: url || null,
-        tag: tag || null,
-        user_id: mode === "user" ? user_id : null,
-      };
-      const data = await callAdminPush(payload);
-      setStatus("Envoi terminé : consulte le bilan ci-dessous.");
-      renderResults(data);
-    } catch (e) {
-      setStatus("Échec d'envoi : " + String(e?.message || e));
-    } finally {
-      sendingPush = false;
-      $("push_send").disabled = false;
-    }
+  const preview=()=>{
+    try{
+      const x=getForm();
+      setStatus("Aperçu · "+(x.audience==="all"?"Tous les abonnés":x.user_id)+"\n"+x.title+"\n"+x.body);
+      return x;
+    }catch(e){setStatus(String(e.message||e));return null;}
+  };
+  $("push_audience").addEventListener("change",()=>{
+    $("push_user_wrap").hidden=$("push_audience").value!=="user";
   });
-
-  // Liste abonnés
-  let lastSubscribers = [];
-
-  function renderSubscribers(list) {
-    const q = ($("subs_search").value || "").trim().toLowerCase();
-    const filtered = !q
-      ? list
-      : list.filter(x => String(x.user_id || "").toLowerCase().includes(q));
-
-    const el = $("subs_list");
-    if (!el) return;
-
-    if (!filtered.length) {
-      el.innerHTML = `<div class="muted">Aucun abonné trouvé.</div>`;
-      return;
+  // Do not reuse idempotency keys after any user-visible content change.
+  for(const el of root.querySelectorAll("#push_audience,#push_user_id,#push_title,#push_body,#push_url,#push_tag,#push_schedule_at")){
+    el.addEventListener("input",()=>{pendingRequestId=null;pendingPayload=null;});
+  }
+  $("push_preview").addEventListener("click",preview);
+  async function api(payload){
+    const session=(await sb.auth.getSession()).data.session;
+    if(!session)throw Error("Session expirée.");
+    const response=await fetch(supabaseUrl+"/functions/v1/admin-push",{
+      method:"POST",headers:{"Content-Type":"application/json",
+        Authorization:"Bearer "+session.access_token,apikey:supabaseAnonKey},
+      body:JSON.stringify(payload)
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(data.error||"Erreur HTTP "+response.status);
+    return data;
+  }
+  const result=data=>{
+    const box=$("push_results");
+    box.replaceChildren();
+    const message=document.createElement("p");
+    const stats=data?.summary||{};
+    message.textContent=data.status==="queued"?"Campagne programmée · "+new Date(data.scheduled_at).toLocaleString("fr-FR"):
+      data.reused?"Demande déjà reçue : "+data.status:
+      data.status==="sent"?"Envoi terminé · "+Number(stats.sent||0)+" envoyées, "+Number(stats.failed||0)+" échecs, "+Number(stats.skipped||0)+" ignorées.":
+      data.status==="failed"?"Envoi en échec : "+(data.error||"Consulte l'historique"):
+      "État de campagne : "+(data.status||"inconnu");
+    box.append(message);
+  };
+  async function submit(operation,test=false){
+    if(sendingPush)return;
+    let payload;
+    try{payload=getForm(operation,test);}catch(e){setStatus(e.message);return;}
+    const fingerprint=JSON.stringify(payload);
+    if(!pendingRequestId||pendingPayload!==fingerprint){
+      pendingRequestId=crypto.randomUUID();pendingPayload=fingerprint;
     }
-
-    el.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>User ID</th>
-            <th>Appareils</th>
-            <th>Dernier abonnement</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filtered.map(s => `
-            <tr>
-              <td><code>${escapeHtml(s.user_id)}</code></td>
-              <td>${escapeHtml(s.endpoints)}</td>
-              <td>${s.last_subscribed_at ? new Date(s.last_subscribed_at).toLocaleString("fr-FR") : "-"}</td>
-              <td>
-                <button class="btn btn-secondary" data-pick="${escapeHtml(s.user_id)}">Cibler</button>
-              </td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-
-    // Bouton "Cibler" => remplit user_id + switch audience
-    el.querySelectorAll("[data-pick]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const uid = btn.getAttribute("data-pick") || "";
-        $("push_audience").value = "user";
-        refreshAudience();
-        $("push_user_id").value = uid;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+    const name=test?"l'abonné "+payload.user_id:payload.audience==="all"?"TOUS les abonnés":"l'abonné "+payload.user_id;
+    const action=operation==="schedule"?"Programmer pour "+new Date(payload.scheduled_at).toLocaleString("fr-FR"):"Envoyer maintenant à "+name;
+    if(!confirm(action+" ?\n\n"+payload.title+"\n"+payload.body))return;
+    lock(true);setStatus("Enregistrement de la campagne…");
+    try{
+      const response=await api({...payload,request_id:pendingRequestId});
+      result(response);
+      setStatus("Campagne enregistrée. Consulte l'historique pour vérifier sa livraison.");
+      pendingRequestId=null;pendingPayload=null;
+      await reloadHistory();
+    }catch(e){
+      setStatus("Résultat incertain ou échec : "+String(e?.message||e)+
+        ". Vérifie l'historique avant un nouvel envoi ; la clé de demande est conservée.");
+    }finally{lock(false);}
+  }
+  $("push_send").addEventListener("click",()=>void submit("send"));
+  $("push_test").addEventListener("click",()=>void submit("send",true));
+  $("push_schedule").addEventListener("click",()=>void submit("schedule"));
+  async function reloadHistory(){
+    const view=$("push_history");view.textContent="Chargement…";
+    try{
+      const data=await api({operation:"history"});
+      view.replaceChildren();
+      const table=document.createElement("table");
+      table.innerHTML="<thead><tr><th>Date prévue</th><th>Campagne</th><th>Audience</th><th>Statut</th><th>Action</th></tr></thead>";
+      const body=document.createElement("tbody");
+      for(const row of data.campaigns||[]){
+        const tr=document.createElement("tr");
+        for(const value of [new Date(row.scheduled_at).toLocaleString("fr-FR"),
+          row.title,row.recipient_user_id||"Tous",row.status]){
+          const td=document.createElement("td");td.textContent=String(value);tr.append(td);
+        }
+        const td=document.createElement("td");
+        if(row.status==="queued"){
+          const button=document.createElement("button");button.type="button";
+          button.className="btn btn-secondary";button.textContent="Annuler";
+          button.addEventListener("click",async()=>{
+            if(!confirm("Annuler cette notification programmée ?"))return;
+            button.disabled=true;
+            try{await api({operation:"cancel",id:row.id});await reloadHistory();}
+            catch(e){setStatus("Annulation impossible : "+e.message);button.disabled=false;}
+          });td.append(button);
+        }else if(row.summary&&Object.keys(row.summary).length){
+          const summary=document.createElement("small");
+          summary.textContent=Number(row.summary.sent||0)+" envoyées / "+Number(row.summary.failed||0)+" échecs";
+          td.append(summary);
+        }
+        tr.append(td);body.append(tr);
+      }
+      table.append(body);view.append(table);
+    }catch(e){view.textContent="Historique indisponible : "+String(e?.message||e);}
+  }
+  $("push_history_refresh").addEventListener("click",()=>void reloadHistory());
+  let nextPage=0,hasMore=false,lastSubscribers=new Map(),subscriberBusy=false;
+  const renderSubs=()=>{
+    const list=$("subs_list");list.replaceChildren();
+    const rows=[...lastSubscribers.values()].sort((a,b)=>String(b.last_subscribed_at||"").localeCompare(a.last_subscribed_at||""));
+    if(!rows.length){list.textContent="Aucun abonné sur les pages chargées.";return;}
+    const table=document.createElement("table");
+    table.innerHTML="<thead><tr><th>Identifiant</th><th>Appareils</th><th>Dernière inscription</th><th>Action</th></tr></thead>";
+    const body=document.createElement("tbody");
+    for(const row of rows.slice(0,500)){
+      const tr=document.createElement("tr");
+      for(const value of [row.user_id,row.endpoints,row.last_subscribed_at||"—"]){
+        const td=document.createElement("td");td.textContent=String(value);tr.append(td);
+      }
+      const td=document.createElement("td");
+      const choose=document.createElement("button");choose.type="button";
+      choose.className="btn btn-secondary";choose.textContent="Sélectionner";
+      choose.addEventListener("click",()=>{
+        $("push_audience").value="user";$("push_user_wrap").hidden=false;
+        $("push_user_id").value=row.user_id;pendingRequestId=null;
+        setStatus("Abonné sélectionné : "+row.user_id);
       });
-    });
-  }
-
-  $("subs_search").addEventListener("input", () => renderSubscribers(lastSubscribers));
-
-  $("subs_refresh").addEventListener("click", async () => {
-    const st = $("subs_status");
-    if (st) st.textContent = "Chargement...";
-    try {
-      const data = await callListSubscribers();
-      lastSubscribers = Array.isArray(data?.subscribers) ? data.subscribers : [];
-      if (st) st.textContent = `Abonnés: ${data?.count ?? lastSubscribers.length}`;
-      renderSubscribers(lastSubscribers);
-    } catch (e) {
-      if (st) st.textContent = "";
-      alert(e?.message || String(e));
+      td.append(choose);tr.append(td);body.append(tr);
     }
+    table.append(body);list.append(table);
+    $("subs_status").textContent=rows.length+" abonné(s) chargé(s)"
+      +(rows.length>500?" (500 affichés ; affine ta recherche).":"")
+      +(hasMore?" · Il existe une page suivante.":" · Fin de liste.");
+  };
+  async function fetchSubscribers(reset=false){
+    if(subscriberBusy)return;
+    if(reset){nextPage=0;lastSubscribers.clear();hasMore=true;}
+    if(!hasMore)return;
+    subscriberBusy=true;$("subs_more").disabled=true;
+    try{
+      const session=(await sb.auth.getSession()).data.session;
+      if(!session)throw Error("Session expirée.");
+      const params=new URLSearchParams({page:String(nextPage),search:$("subs_search").value.trim()});
+      const response=await fetch(supabaseUrl+"/functions/v1/admin-list-subscribers?"+params,{
+        headers:{"Authorization":"Bearer "+session.access_token,apikey:supabaseAnonKey}});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw Error(data.error||"Échec HTTP "+response.status);
+      for(const row of data.subscribers||[]){
+        const previous=lastSubscribers.get(row.user_id);
+        if(previous){
+          previous.endpoints+=row.endpoints;
+          if(String(row.last_subscribed_at)>String(previous.last_subscribed_at))
+            previous.last_subscribed_at=row.last_subscribed_at;
+        } else lastSubscribers.set(row.user_id,{...row});
+      }
+      hasMore=!!data.has_more;nextPage++;renderSubs();
+    }catch(e){$("subs_status").textContent="Erreur abonnés : "+String(e?.message||e);}
+    finally{subscriberBusy=false;$("subs_more").disabled=false;$("subs_more").hidden=!hasMore;}
+  }
+  $("subs_refresh").addEventListener("click",()=>void fetchSubscribers(true));
+  $("subs_more").addEventListener("click",()=>void fetchSubscribers(false));
+  $("subs_search").addEventListener("keydown",event=>{
+    if(event.key==="Enter"){event.preventDefault();void fetchSubscribers(true);}
   });
+  await reloadHistory();
 }
 
 // -----------------------------
