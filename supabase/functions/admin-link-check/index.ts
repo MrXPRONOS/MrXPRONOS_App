@@ -68,7 +68,7 @@ Deno.serve(async(req)=>{
  if(roleErr||allowed!==true)return response(req,{error:"Droits éditeur requis"},403);
  const body=await req.json().catch(()=>({}));
  const urls=Array.isArray(body?.urls)?body.urls:[];
- if(urls.length>12||urls.some(u=>typeof u!=="string"||u.length>1800))
+ if(urls.length>12||urls.some((u:any)=>typeof u!=="string"||u.length>1800))
   return response(req,{error:"Maximum 12 liens par contrôle, 1800 caractères par lien"},400);
  // Run in batches of three; each request can only fetch a bounded set of URLs.
  const results=[];
