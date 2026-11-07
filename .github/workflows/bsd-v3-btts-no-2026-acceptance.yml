@@ -1,0 +1,118 @@
+name: BSD V3 - BTTS NO 2026 acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd_v3/policy.py'
+      - 'bsd_v3/selection.py'
+      - 'bsd_v3/monitor.py'
+      - 'bsd_v3/monthly_backtest.py'
+      - '.github/workflows/bsd-v3-btts-no-2026-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  month:
+    strategy:
+      fail-fast: false
+      matrix:
+        month: [1,2,3,4,5,6,7,8,9,10,11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: bsd
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python -m pip install requests cryptography pillow
+      - run: python bsd/bsd_archive.py restore
+      - name: Backtest month
+        env:
+          MONTH: ${{ matrix.month }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from bsd_archive import _read_json
+          from bsd_v3.monthly_backtest import monthly_policy_backtest
+          m=int(os.environ["MONTH"])
+          history=_read_json(Path("bsd/all_matches_bsd.json"),None)
+          report=monthly_policy_backtest(history,year=2026,month=m)
+          Path(f"month-{m:02d}.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+          print("BTTS_NO_MONTH",m,json.dumps({
+              "fixtures":report["fixtures_in_archive"],
+              "primary":report["primary_picks"],
+              "btts_no":report["btts_no_priority_shadow"],
+              "primary_btts_no":report["primary_by_market"].get("BTTS_NO"),
+          }))
+          PY
+      - if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: btts-no-month-${{ matrix.month }}
+          path: month-*.json
+          retention-days: 30
+
+  aggregate:
+    needs: month
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: btts-no-month-*
+          path: months
+          merge-multiple: true
+      - name: Aggregate BTTS NO and main performance
+        run: |
+          python - <<'PY'
+          import json,glob
+          def empty():return {"n":0,"wins":0,"sum_p":0.0,"brier":0.0}
+          def add(dst,s):
+              n=(s or {}).get("n",0) or 0
+              if not n:return
+              dst["n"]+=n;dst["wins"]+=(s.get("wins",0) or 0)
+              dst["sum_p"]+=(s.get("mean_probability") or 0)*n
+              dst["brier"]+=(s.get("brier") or 0)*n
+          def finish(x):
+              n=x["n"]
+              return {"n":n,"wins":x["wins"],
+                      "hit_rate":round(x["wins"]/n,5) if n else None,
+                      "mean_probability":round(x["sum_p"]/n,5) if n else None,
+                      "brier":round(x["brier"]/n,6) if n else None}
+          main=empty();btts=empty();primary_btts=empty();months={}
+          fixtures=0
+          for path in sorted(glob.glob("months/month-*.json")):
+              d=json.load(open(path));key=f"2026-{int(d['month']):02d}"
+              fixtures+=d["fixtures_in_archive"]
+              add(main,d["primary_picks"])
+              add(btts,d["btts_no_priority_shadow"])
+              add(primary_btts,d["primary_by_market"].get("BTTS_NO"))
+              months[key]={
+                  "primary":d["primary_picks"],
+                  "btts_no":d["btts_no_priority_shadow"],
+                  "primary_btts_no":d["primary_by_market"].get("BTTS_NO"),
+              }
+          out={"period":"2026-01 through available 2026-11 finished matches",
+               "fixtures":fixtures,"primary_picks":finish(main),
+               "btts_no_priority":finish(btts),
+               "primary_btts_no":finish(primary_btts),
+               "by_month":months,
+               "baseline_main_reference":{"n":9152,"wins":7331,"hit_rate":.8010},
+               "warning":"Retrospective current-policy acceptance; prospective confirmation remains required."}
+          open("btts_no_2026_acceptance.json","w").write(json.dumps(out,indent=2))
+          print("BTTS_NO_2026_ACCEPTANCE",json.dumps(out))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-btts-no-2026-${{ github.run_id }}
+          path: btts_no_2026_acceptance.json
+          retention-days: 90
