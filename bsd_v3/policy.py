@@ -13,6 +13,7 @@ PREFERRED_PUBLIC_THRESHOLDS = {
     "2": (.70, .68),
     "BTTS_YES": (.70, .68),
     "OVER_15": (.82, .80),
+    "OVER_25": (.70, .68),
 }
 
 
