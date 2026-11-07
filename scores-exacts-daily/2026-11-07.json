@@ -3,82 +3,67 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-07",
-  "generated_at": "2026-11-07T11:48:12Z",
+  "generated_at": "2026-11-07T17:46:54Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4760386",
-      "league": "Russian First League",
-      "home": "Shinnik Yaroslavl",
-      "away": "FC Ufa",
-      "kickoff_utc": "2026-11-07T14:00:00Z",
-      "score": "1:0",
-      "probability": 0.15623496
-    },
-    {
-      "id": "sportsapipro:4890885",
+      "id": "sportsapipro:4735212",
       "league": "Ligue 1",
-      "home": "Gorée",
-      "away": "Essamaye FC",
-      "kickoff_utc": "2026-11-07T16:30:00Z",
+      "home": "PSG",
+      "away": "Troyes",
+      "kickoff_utc": "2026-11-07T20:05:00Z",
       "score": "1:0",
-      "probability": 0.14866626
+      "probability": 0.14210656
     },
     {
-      "id": "sportsapipro:4890887",
-      "league": "Ligue 1",
-      "home": "Wally Daan",
-      "away": "Ajel",
-      "kickoff_utc": "2026-11-07T17:00:00Z",
-      "score": "1:0",
-      "probability": 0.13085796
+      "id": "sportsapipro:4874849",
+      "league": "División Profesional",
+      "home": "Always Ready",
+      "away": "Academia del Balompie",
+      "kickoff_utc": "2026-11-07T21:15:00Z",
+      "score": "2:1",
+      "probability": 0.08928563
     },
     {
-      "id": "sportsapipro:4890886",
-      "league": "Ligue 1",
-      "home": "Dakar SC",
-      "away": "AS Pikine",
-      "kickoff_utc": "2026-11-07T17:00:00Z",
-      "score": "1:0",
-      "probability": 0.13078797
+      "id": "sportsapipro:4778364",
+      "league": "Liga Prom - Apertura - Eastern Conference - North Zone",
+      "home": "Sporting Sm Ii",
+      "away": "Academía Costa Del Este",
+      "kickoff_utc": "2026-11-07T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.08703629
     },
     {
-      "id": "sportsapipro:4883477",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Mara Sugar",
-      "away": "Migori Youth FC",
-      "kickoff_utc": "2026-11-07T12:00:00Z",
-      "score": "1:0",
-      "probability": 0.13053143
+      "id": "sportsapipro:4778358",
+      "league": "Liga Prom - Apertura - Western Conference - North Zone",
+      "home": "Veraguas Ii",
+      "away": "Herrera Ii",
+      "kickoff_utc": "2026-11-07T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.08326538
+    },
+    {
+      "id": "sportsapipro:4734534",
+      "league": "Eredivisie",
+      "home": "Excelsior",
+      "away": "Go Ahead Eagles",
+      "kickoff_utc": "2026-11-07T20:00:00Z",
+      "score": "1:2",
+      "probability": 0.079297
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4760386",
-      "league": "Russian First League",
-      "home": "Shinnik Yaroslavl",
-      "away": "FC Ufa",
-      "kickoff_utc": "2026-11-07T14:00:00Z",
-      "score": "1:0",
-      "probability": 0.35676999,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4890885",
+      "id": "sportsapipro:4735212",
       "league": "Ligue 1",
-      "home": "Gorée",
-      "away": "Essamaye FC",
-      "kickoff_utc": "2026-11-07T16:30:00Z",
+      "home": "PSG",
+      "away": "Troyes",
+      "kickoff_utc": "2026-11-07T20:05:00Z",
       "score": "1:0",
-      "probability": 0.33942595,
+      "probability": 0.33417861,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -87,13 +72,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4889306",
-      "league": "Syrian Premier League",
-      "home": "Homs Al Fidaa SC",
-      "away": "Foutoua",
-      "kickoff_utc": "2026-11-07T12:00:00Z",
-      "score": "2:0",
-      "probability": 0.33869719,
+      "id": "sportsapipro:4874849",
+      "league": "División Profesional",
+      "home": "Always Ready",
+      "away": "Academia del Balompie",
+      "kickoff_utc": "2026-11-07T21:15:00Z",
+      "score": "2:1",
+      "probability": 0.21488107,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -102,13 +87,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4760379",
-      "league": "Russian First League",
-      "home": "Torpedo Moscow",
-      "away": "Neftekhimik",
-      "kickoff_utc": "2026-11-07T14:00:00Z",
-      "score": "1:0",
-      "probability": 0.31664167,
+      "id": "sportsapipro:4778364",
+      "league": "Liga Prom - Apertura - Eastern Conference - North Zone",
+      "home": "Sporting Sm Ii",
+      "away": "Academía Costa Del Este",
+      "kickoff_utc": "2026-11-07T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.19769941,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -117,18 +102,33 @@
       ]
     },
     {
-      "id": "sportsapipro:4890887",
-      "league": "Ligue 1",
-      "home": "Wally Daan",
-      "away": "Ajel",
-      "kickoff_utc": "2026-11-07T17:00:00Z",
-      "score": "1:0",
-      "probability": 0.31333361,
+      "id": "sportsapipro:4778358",
+      "league": "Liga Prom - Apertura - Western Conference - North Zone",
+      "home": "Veraguas Ii",
+      "away": "Herrera Ii",
+      "kickoff_utc": "2026-11-07T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.17973866,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
         "2:0",
         "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4734534",
+      "league": "Eredivisie",
+      "home": "Excelsior",
+      "away": "Go Ahead Eagles",
+      "kickoff_utc": "2026-11-07T20:00:00Z",
+      "score": "1:2",
+      "probability": 0.16746924,
+      "group": "A_LOW",
+      "group_scores": [
+        "0:1",
+        "0:2",
+        "1:2"
       ]
     }
   ]
