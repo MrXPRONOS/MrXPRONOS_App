@@ -1,6 +1,7 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
+import { mountCmsServerSearch } from "./cms-server-search.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
 import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
@@ -769,6 +770,10 @@ async function renderCmsArticles() {
 
   attachDuplicateButtons(root,"[data-id]",rows,"articles",setForm,"a_save");
   mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-id]")],rows,kind:"articles"});
+  mountCmsServerSearch({sb,root,kind:"articles",onChoose:row=>{
+    if(!rows.some(x=>safeIdEq(x.id,row.id)))rows.push(row);
+    setForm(row);
+  }});
 
   $("a_save").addEventListener("click", async () => {
     let cmsText;
@@ -914,6 +919,10 @@ async function renderCmsConseils() {
 
   attachDuplicateButtons(root,"[data-id]",rows,"conseils",setForm,"c_save");
   mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-id]")],rows,kind:"conseils"});
+  mountCmsServerSearch({sb,root,kind:"conseils",onChoose:row=>{
+    if(!rows.some(x=>safeIdEq(x.id,row.id)))rows.push(row);
+    setForm(row);
+  }});
 
   $("c_save").addEventListener("click", async () => {
     let cmsText;
@@ -1082,7 +1091,15 @@ async function renderBonus() {
   attachDuplicateButtons(root,"[data-bonus-id]",bonusRows,"bonus",setBonus,"b_save");
   attachDuplicateButtons(root,"[data-book-id]",bookRows,"bookmakers",setBook,"bk_save");
   mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-bonus-id]")],rows:bonusRows,kind:"bonus",showCategory:false});
+  mountCmsServerSearch({sb,root,kind:"bonus",onChoose:row=>{
+    if(!bonusRows.some(x=>safeIdEq(x.id,row.id)))bonusRows.push(row);
+    setBonus(row);
+  }});
   mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-book-id]")],rows:bookRows,kind:"bookmakers",showCategory:false});
+  mountCmsServerSearch({sb,root,kind:"bookmakers",onChoose:row=>{
+    if(!bookRows.some(x=>safeIdEq(x.id,row.id)))bookRows.push(row);
+    setBook(row);
+  }});
 
   $("b_save").addEventListener("click", async () => {
     const row = {
@@ -1210,6 +1227,10 @@ async function renderInfos() {
 
   attachDuplicateButtons(root,"[data-id]",rows,"infos",setForm,"i_save");
   mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-id]")],rows,kind:"informations"});
+  mountCmsServerSearch({sb,root,kind:"infos",onChoose:row=>{
+    if(!rows.some(x=>safeIdEq(x.id,row.id)))rows.push(row);
+    setForm(row);
+  }});
 
   $("i_save").addEventListener("click", async () => {
     let cmsText;
