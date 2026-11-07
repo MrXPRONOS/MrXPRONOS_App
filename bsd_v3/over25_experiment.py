@@ -38,6 +38,12 @@ POLICIES={
     "p70_league55": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["league_over"]>=.55,
     "p70_league58": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["league_over"]>=.58,
     "p72_league58": lambda r: r["p"]>=.72 and r["pc"]>=.70 and r["league_over"]>=.58,
+    "p74_league58": lambda r: r["p"]>=.74 and r["pc"]>=.72 and r["league_over"]>=.58,
+    "p76_league58": lambda r: r["p"]>=.76 and r["pc"]>=.74 and r["league_over"]>=.58,
+    "p78_league58": lambda r: r["p"]>=.78 and r["pc"]>=.76 and r["league_over"]>=.58,
+    "p74_league60": lambda r: r["p"]>=.74 and r["pc"]>=.72 and r["league_over"]>=.60,
+    "p76_league60": lambda r: r["p"]>=.76 and r["pc"]>=.74 and r["league_over"]>=.60,
+    "p78_league60": lambda r: r["p"]>=.78 and r["pc"]>=.76 and r["league_over"]>=.60,
     "p70_emp60": lambda r: r["p"]>=.70 and r["pc"]>=.68 and r["empirical_over"]>=.60,
     "p72_emp62": lambda r: r["p"]>=.72 and r["pc"]>=.70 and r["empirical_over"]>=.62,
     "p70_total28_league55": lambda r: (r["p"]>=.70 and r["pc"]>=.68
