@@ -14,6 +14,7 @@ from .engine import train_runtime,evaluate_fixture
 from .legacy import fixture_datetime,outcome_scores
 from .policy import V3Policy
 from bsd_v2_over_under import features as total_features,fit_total_model
+from bsd_v2_btts_team import team_scoring_probabilities
 
 def _stats(rows):
     n=len(rows)
@@ -51,6 +52,23 @@ POLICIES={
         and r["specialist_p"]>=.70 and r["model_gap"]<=.08),
     "p72_specialist72_gap08": lambda r: (r["p"]>=.72 and r["pc"]>=.70
         and r["specialist_p"]>=.72 and r["model_gap"]<=.08),
+    "p70_league58_side60": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["min_side_score"]>=.60),
+    "p70_league58_side65": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["min_side_score"]>=.65),
+    "p70_league58_side68": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["min_side_score"]>=.68),
+    "p70_league58_side70": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["min_side_score"]>=.70),
+    "p72_league58_side65": lambda r: (r["p"]>=.72 and r["pc"]>=.70
+        and r["league_over"]>=.58 and r["min_side_score"]>=.65),
+    "p70_league58_side65_emp60": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["min_side_score"]>=.65
+        and r["empirical_over"]>=.60),
+    "p70_league58_btts60": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["btts_p"]>=.60),
+    "p70_league58_btts65": lambda r: (r["p"]>=.70 and r["pc"]>=.68
+        and r["league_over"]>=.58 and r["btts_p"]>=.65),
 }
 
 def experiment(history):
@@ -77,6 +95,14 @@ def experiment(history):
         if not spec or 2.5 not in spec:
             continue
         specialist=float(spec[2.5])
+        gate=runtime.get("btts_quality_gate")
+        side=(team_scoring_probabilities(event,runtime["index"],model=gate.team_model)
+              if gate is not None and gate.team_model is not None else None)
+        if side is None:
+            continue
+        btts_row=next((x for x in report["candidates"] if x["key"]=="BTTS_YES"),None)
+        if btts_row is None:
+            continue
         h,a=outcome_scores(event)
         item={
             "p":float(row["probability"]),
@@ -86,6 +112,10 @@ def experiment(history):
             "empirical_over":float(feat["empirical_over"][2.5]),
             "specialist_p":specialist,
             "model_gap":abs(float(row["probability"])-specialist),
+            "home_score_p":float(side["home_scores"]),
+            "away_score_p":float(side["away_scores"]),
+            "min_side_score":min(float(side["home_scores"]),float(side["away_scores"])),
+            "btts_p":float(btts_row["probability"]),
             "won":bool(h+a>2.5),
         }
         key="train" if dt.month<=6 else ("validation" if dt.month<=9 else "test")
