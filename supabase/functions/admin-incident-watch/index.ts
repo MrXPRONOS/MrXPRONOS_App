@@ -1,0 +1,195 @@
+// Cron/GitHub/Push health watchdog. Runs only from the signed workflow on main.
+// Creates actionable incidents, resolves observed recoveries, escalates recurring issues.
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+import {createRemoteJWKSet,jwtVerify} from "https://esm.sh/jose@5.9.6";
+const jwks=createRemoteJWKSet(new URL("https://token.actions.githubusercontent.com/.well-known/jwks"));
+const idPath="MrXPRONOS/MrXPRONOS_App/.github/workflows/admin-incident-watch.yml@refs/heads/main";
+const fallbackOrigin="https://mrxpronos.github.io";
+const send=(data:unknown,status=200)=>new Response(JSON.stringify(data),{
+ status,headers:{"Content-Type":"application/json","Cache-Control":"no-store",
+ "Access-Control-Allow-Origin":fallbackOrigin}});
+type Observation={key:string;source:string;summary:string;severity:"low"|"medium"|"high";
+  evidence:string;action:string;detail?:Record<string,unknown>;repeated?:number};
+const ageMin=(stamp:unknown)=>{const n=Date.parse(String(stamp||""));return Number.isFinite(n)?(Date.now()-n)/60000:null;};
+const safeName=(v:unknown)=>String(v||"").replace(/[\r\n<>]/g,"").slice(0,120);
+const statusOf=(r:any)=>String(r?.conclusion||r?.status||"");
+const sanitizeRun=(r:any)=>({
+ id:Number(r?.id||0),name:safeName(r?.name),path:safeName(r?.path),
+ event:safeName(r?.event),head_sha:safeName(r?.head_sha),
+ created_at:String(r?.created_at||""),status:String(r?.status||""),
+ conclusion:String(r?.conclusion||""),run_attempt:Number(r?.run_attempt||1),
+ html_url:/^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/actions\/runs\/\d+$/.test(String(r?.html_url||""))
+   ?r.html_url:null
+});
+const identicalSchedule=(job:any)=>JSON.stringify({
+ endpoint:job.endpoint,h:job.schedule?.hours,m:job.schedule?.minutes,
+ w:job.schedule?.wdays,tz:job.schedule?.timezone
+});
+Deno.serve(async req=>{
+ if(req.method!=="POST")return send({error:"POST only"},405);
+ const bearer=req.headers.get("authorization")||"";
+ try{
+  if(!bearer.toLowerCase().startsWith("bearer "))return send({error:"Workflow JWT required"},401);
+  const {payload}=await jwtVerify(bearer.slice(7),jwks,{
+   issuer:"https://token.actions.githubusercontent.com",audience:"mrxpronos-admin-watch"
+  });
+  if(payload.repository!=="MrXPRONOS/MrXPRONOS_App" ||
+     payload.ref!=="refs/heads/main" ||
+     payload.workflow_ref!==idPath ||
+     !["schedule","workflow_dispatch"].includes(String(payload.event_name||"")))
+    return send({error:"Workflow identity denied"},403);
+ }catch{return send({error:"Unverified GitHub workflow"},403)}
+ const url=Deno.env.get("SUPABASE_URL")||"",
+       key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
+ if(!url||!key)return send({error:"Backend unavailable"},500);
+ const sb=createClient(url,key);
+ let body:any={};
+ try{body=await req.json()}catch{return send({error:"Invalid JSON"},400)}
+ const runs=(Array.isArray(body?.runs)?body.runs:[]).slice(0,120).map(sanitizeRun)
+  .filter(x=>x.id>0&&x.name&&Date.parse(x.created_at));
+ const now=new Date().toISOString();
+ const observations:Observation[]=[];const recovered=new Set<string>();
+ const sourceFlags:Record<string,string>={github:runs.length?"ok":"no_runs"};
+ // GitHub: only warn when the most recent TWO finished executions of a
+ // workflow failed, not simply because two jobs ran near each other.
+ const groups=new Map<string,typeof runs>();
+ for(const run of runs){
+  const key=run.path||run.name;
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key)!.push(run);
+ }
+ for(const [name,entries] of groups){
+  const recent=entries.filter(x=>x.status==="completed").sort(
+    (a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));
+  if(!recent.length)continue;
+  const issueKey="github:"+name.slice(0,160);
+  if(recent[0].conclusion==="success"){recovered.add(issueKey);continue;}
+  if(recent.length>=2&&recent[0].conclusion==="failure"&&recent[1].conclusion==="failure"){
+   observations.push({key:issueKey,source:"cron",severity:"high",
+    summary:"GitHub : échecs répétés de "+recent[0].name,evidence:String(recent[0].id),
+    repeated:2,action:"Ouvrir les dernières exécutions GitHub et corriger le workflow avant toute relance.",
+    detail:{provider:"GitHub Actions",last_run:recent[0].created_at,
+      latest_run_url:recent[0].html_url,previous_run_id:recent[1].id}});
+  }
+ }
+ // Duplicate launches require matching workflow, event and SHA. Never claim
+ // certainty when external cron-job.org execution cannot be correlated.
+ for(const [name,entries] of groups){
+  for(let i=0;i<entries.length;i++)for(let j=i+1;j<entries.length;j++){
+   const a=entries[i],b=entries[j];
+   if(a.id===b.id||a.event!==b.event||a.head_sha!==b.head_sha||
+     a.run_attempt!==b.run_attempt||Math.abs(Date.parse(a.created_at)-Date.parse(b.created_at))>90000)
+    continue;
+   const ids=[a.id,b.id].sort((x,y)=>x-y);
+   observations.push({key:"github-duplicate:"+ids.join("-"),source:"cron",
+    severity:"medium",summary:"Déclenchements GitHub rapprochés : "+a.name,
+    evidence:ids.join("-"),action:"Comparer les deux exécutions et leur déclencheur avant de désactiver une tâche.",
+    detail:{provider:"GitHub Actions",workflow:name,run_ids:ids,certainty:"possible"}});
+  }
+ }
+ const [
+  {data:crons,error:cronsError},
+  {data:failedPush,error:pushError},
+  {data:cronSnapshot,error:cronError}
+ ]=await Promise.all([
+  sb.from("cron_runs").select("name,last_run_at,last_ok,meta").limit(200),
+  sb.from("admin_push_campaigns").select("id,status,error,completed_at")
+   .eq("status","failed").gte("completed_at",new Date(Date.now()-24*3600000).toISOString()).limit(100),
+  sb.from("admin_cron_snapshot").select("status,jobs,fetched_at").eq("id",1).maybeSingle()
+ ]);
+ if(cronsError||pushError||cronError)return send({
+  error:"Watchdog database read failed"},503);
+ sourceFlags.supabase="ok";
+ for(const entry of crons||[]){
+  const key="cron-run:"+safeName(entry.name);
+  const stamp=entry.last_run_at,minutes=ageMin(stamp);
+  const expected=Number(entry.meta?.expected_interval_minutes||0);
+  if(entry.last_ok===false && minutes!=null && minutes<1440)
+   observations.push({key,source:"cron",severity:"high",
+    summary:"Dernière exécution échouée : "+safeName(entry.name),evidence:String(stamp),
+    action:"Consulter les journaux de la tâche et sa dernière exécution.",
+    detail:{provider:"Supabase cron_runs",last_run:stamp}});
+  else if(expected>0&&minutes!=null&&minutes>Math.max(expected*2,15))
+   observations.push({key,source:"cron",severity:"medium",
+    summary:"Tâche en retard : "+safeName(entry.name),evidence:Math.floor(minutes/Math.max(expected,30)).toString(),
+    action:"Vérifier l'activation du cron et la dernière exécution réelle.",
+    detail:{provider:"Supabase cron_runs",last_run:stamp,expected_interval_minutes:expected}});
+  else if(entry.last_ok===true)recovered.add(key);
+ }
+ for(const entry of failedPush||[]){
+  observations.push({key:"push:"+entry.id,source:"push",severity:"medium",
+   summary:"Campagne Push en échec",evidence:String(entry.id),
+   action:"Examiner les erreurs par appareil ; ne pas renvoyer si la livraison est incertaine.",
+   detail:{campaign_id:entry.id,provider:"Supabase Push"}});
+ }
+ if(cronSnapshot?.status==="ok"&&Array.isArray(cronSnapshot.jobs)&&
+    (ageMin(cronSnapshot.fetched_at)??Infinity)<180){
+  sourceFlags.cron_job_org="ok";
+  const jobGroups=new Map();
+  for(const job of cronSnapshot.jobs){
+   if(!job.enabled)continue;
+   const key="cron-job-org:"+String(job.id);
+   if(job.last_status===1){recovered.add(key);}
+   else if(job.last_status>=2&&job.last_status<=9)
+    observations.push({key,source:"cron",severity:"medium",
+      summary:"cron-job.org en échec : "+safeName(job.title),
+      evidence:String(job.last_execution),action:"Vérifier le statut HTTP et l'historique de cette tâche.",
+      detail:{provider:"cron-job.org",job_id:job.id,last_execution:job.last_execution,
+        last_status:job.last_status}});
+   const fingerprint=identicalSchedule(job);
+   if(!jobGroups.has(fingerprint))jobGroups.set(fingerprint,[]);
+   jobGroups.get(fingerprint).push(job);
+  }
+  for(const jobs of jobGroups.values()){
+   if(jobs.length<2)continue;
+   const ids=jobs.map((x:any)=>x.id).sort((a:number,b:number)=>a-b);
+   observations.push({key:"cron-config:"+ids.join("-"),source:"cron",
+    severity:"medium",summary:"Configuration cron-job.org identique",
+    evidence:ids.join("-"),action:"Vérifier si les tâches sont volontairement redondantes.",
+    detail:{provider:"cron-job.org",job_ids:ids,certainty:"configuration_same_not_proven_duplicate"}});
+  }
+ }else{sourceFlags.cron_job_org=cronSnapshot?.status||"not_connected";}
+ let escalations=0,changes=0;
+ for(const observation of observations.slice(0,100)){
+  const {data:prior,error:readError}=await sb.from("admin_incidents")
+    .select("id,status,detail,failure_count,escalation_level,detected_at")
+    .eq("external_key",observation.key).maybeSingle();
+  if(readError)continue;
+  const changed=prior?.detail?.observation_id!==observation.evidence;
+  const reopened=prior?.status==="resolved"&&changed;
+  const repeat=prior&&!reopened
+    ? (changed?Math.max(prior.failure_count||0,observation.repeated||1)+1:prior.failure_count||1)
+    : (observation.repeated||1);
+  const level=(repeat>=2&&observation.severity==="high")?1:prior?.escalation_level||0;
+  const escalated=level>0&&!(prior?.escalation_level>0);
+  const row={external_key:observation.key,source:observation.source,
+   summary:observation.summary,severity:repeat>=2?"high":observation.severity,
+   status:!prior||reopened?"open":prior.status,
+   detail:{...(observation.detail||{}),observation_id:observation.evidence,
+     action:observation.action},
+   last_seen_at:now,detected_at:!prior||reopened?now:prior.detected_at,
+   failure_count:repeat,escalation_level:level,
+   ...(escalated?{escalated_at:now}:{}),
+   updated_at:now};
+  const {error:writeError}=await sb.from("admin_incidents").upsert(
+    {...row,...(prior?.id?{id:prior.id}:{})},{onConflict:"external_key"});
+  if(!writeError){changes++;if(escalated)escalations++;}
+ }
+ // Resolve only when healthy evidence for the same source is observed.
+ for(const key of recovered){
+  const {data:prior}=await sb.from("admin_incidents").select("id,status")
+    .eq("external_key",key).maybeSingle();
+  if(prior?.id&&prior.status!=="resolved")
+   await sb.from("admin_incidents").update({status:"resolved",resolved_at:now,updated_at:now})
+    .eq("id",prior.id).neq("status","resolved");
+ }
+ const {error:stateError}=await sb.from("admin_monitor_state").upsert({
+  id:1,last_scan_at:now,last_result:escalations?"degraded":"ok",
+  findings:observations.length,escalations,sources:sourceFlags,updated_at:now
+ },{onConflict:"id"});
+ if(stateError)return send({error:"Failed to record watchdog status"},503);
+ // GitHub action fails on true high severity escalations to trigger standard
+ // Actions failure notifications if the repository owner has enabled them.
+ return send({success:true,observations:observations.length,changes,escalations,
+  degraded_sources:Object.entries(sourceFlags).filter(([k,v])=>v!=="ok").map(([k,v])=>({source:k,status:v}))});
+});
