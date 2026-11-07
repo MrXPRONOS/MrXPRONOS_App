@@ -241,3 +241,19 @@ body:not(.mx-daily-body) .mx-primary-nav .mx-nav-more-panel a {
 @media(max-width:590px) {
   body:not(.mx-daily-body) .no-events { font-size: 13px; padding: 20px 13px; }
 }
+
+/* Les deux seules categories publiques occupent toute la largeur, meme sur mobile. */
+.mx-pronos-page .pronostic-category-tabs {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%!important;
+}
+.mx-pronos-page .pronostic-category-tabs>.tab-btn {min-width:0!important;}
+@media(max-width:590px) {
+  .mx-pronos-page .pronostic-category-tabs>.tab-btn{
+    min-height:46px!important;
+    height:auto!important;
+    font-size:12px!important;
+  }
+  .mx-pronos-page .pronostic-category-tabs .tab-count{font-size:10px!important;}
+}
