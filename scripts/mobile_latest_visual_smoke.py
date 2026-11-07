@@ -38,7 +38,7 @@ def run_mobile(browser,width,height,label):
         raise AssertionError(f"{label}: modal should be bottom-sheet anchored {box}")
 
     family=content.locator("h3").evaluate("(el)=>getComputedStyle(el).fontFamily")
-    if "Montserrat" not in family:
+    if "Outfit" not in family:
         raise AssertionError(f"{label}: popup title typography not harmonized: {family}")
 
     cta=page.locator("#article-modal-link")
