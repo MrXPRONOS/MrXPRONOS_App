@@ -55,16 +55,17 @@ def experiment(history):
     runtime=train_runtime(history,challenger=False)
     gate=runtime.get("btts_quality_gate")
     periods={"train":[],"validation":[],"test":[]}
+    from bsd_v2_btts_h2h import btts_h2h_decision
     for _,event in runtime["index"].global_games:
         dt=fixture_datetime(event)
         if dt.year!=2026 or dt.month>10 or outcome_scores(event) is None:
             continue
+        h2h_ok,_,_=btts_h2h_decision(event,runtime["index"],"BTTS_NO")
+        if not h2h_ok:
+            continue
         historical=dict(event,status="notstarted",home_score=None,away_score=None)
         report=evaluate_fixture(historical,runtime,now=dt-timedelta(minutes=1),policy=V3Policy())
         if report.get("status")!="analyzed":
-            continue
-        # Existing last-H2H BTTS NO rule remains mandatory.
-        if "BTTS_NO" in (report.get("market_guards") or {}):
             continue
         row=next((x for x in report["candidates"] if x["key"]=="BTTS_NO"),None)
         if row is None or row["decision"]["quality_tier"]=="simple":
