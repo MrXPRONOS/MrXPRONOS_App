@@ -42,7 +42,7 @@ test("public events are distinct from marketing campaigns and static admin data"
  assert.match(pwa,/startInstall\(\)/);
  assert.match(daily,/startFavorites\(\)/);
  assert.match(daily,/new Event\("mx-experiment-favorite-added"\)/);
- assert.match(source("service-worker.js"),/const VERSION = 'v\\d+/);
+ assert.match(source("service-worker.js"),/const VERSION = 'v\d+/);
  assert.match(source("service-worker.js"),/'\.\/assets\/js\/experiment-ux\.mjs'/);
  assert.match(source("scripts/build_public_site.py"),/experiment-ux\.mjs/);
 });
