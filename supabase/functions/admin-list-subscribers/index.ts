@@ -76,11 +76,18 @@ serve(async (req) => {
     // Service role: lire toutes les subscriptions
     const sbService = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    const { data, error } = await sbService
-      .from("push_subscriptions")
-      .select("user_id, endpoint, created_at")
-      .order("created_at", { ascending: false })
-      .limit(5000);
+    const urlInfo = new URL(req.url);
+    const page = Number(urlInfo.searchParams.get("page") || 0);
+    const pageSize = 750;
+    if (!Number.isSafeInteger(page) || page < 0 || page > 100000)
+      return json(req,{error:"Page invalide"},400);
+    const search = (urlInfo.searchParams.get("search") || "").trim().slice(0,80);
+    let query = sbService.from("push_subscriptions")
+      .select("user_id, created_at", {count:"exact"})
+      .order("created_at", {ascending:false})
+      .order("id", {ascending:false});
+    if(search)query = query.ilike("user_id","%"+search.replace(/[%,_]/g,"")+"%");
+    const {data,error,count} = await query.range(page*pageSize,(page+1)*pageSize-1);
 
     if (error) return json(req, { error: error.message }, 500);
 
@@ -108,7 +115,11 @@ serve(async (req) => {
     const subscribers = Array.from(map.values())
       .sort((a, b) => (b.last_subscribed_at || "").localeCompare(a.last_subscribed_at || ""));
 
-    return json(req, { success: true, count: subscribers.length, subscribers }, 200);
+    return json(req, {
+      success:true,page,page_size:pageSize,total_endpoints:count||0,
+      has_more:(page+1)*pageSize<(count||0),
+      count:subscribers.length,subscribers
+    },200);
   } catch (e) {
     return json(req, { error: String((e as any)?.message ?? e) }, 500);
   }
