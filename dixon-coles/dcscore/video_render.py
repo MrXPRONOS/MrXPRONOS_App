@@ -394,7 +394,7 @@ def render(payload,output,preview=False,allow_partial_preview=False,fps=FPS,full
                     frame=panels[idx][0].copy()
                     left,right=panels[idx][1]
                     entry=ease(u/.34)
-                    shift=int((1-entry)*115)
+                    shift=int((1-entry)*32)
                     frame.alpha_composite(left,(45-shift,350))
                     frame.alpha_composite(right,(371+shift,350))
                     # The score follows the crests in 0.2 s. No percentage or decorative data.
