@@ -1,0 +1,71 @@
+name: Dixon-Coles - top 10 quotidien - préparation vidéo
+
+on:
+  push:
+    paths:
+      - 'dixon-coles/dcscore/daily*.py'
+      - 'dixon-coles/tests/test_daily_pipeline.py'
+      - 'dixon-coles/DAILY_TOP10.md'
+      - '.github/workflows/dixon-coles-daily-top10.yml'
+  schedule:
+    # 21:00 UTC = 21:00 à Lomé (Togo). Sélection du lendemain.
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "tomorrow, today ou YYYY-MM-DD"
+        default: tomorrow
+        required: false
+        type: string
+      source:
+        description: "auto, football-data ou openfootball"
+        default: auto
+        required: false
+        type: choice
+        options: [auto, football-data, openfootball]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dixon-coles-daily-${{ github.event.inputs.day || 'tomorrow' }}
+  cancel-in-progress: false
+
+jobs:
+  top10:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: dixon-coles
+    env:
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      DCSCORE_DAILY_DAY: ${{ inputs.day || 'tomorrow' }}
+      DCSCORE_DAILY_SOURCE: ${{ inputs.source || 'auto' }}
+    steps:
+      - name: Récupérer seulement le moteur indépendant
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles
+          sparse-checkout-cone-mode: true
+      - name: Préparer Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: dixon-coles/pyproject.toml
+      - name: Installer les dépendances
+        run: python -m pip install -e '.[test]'
+      - name: Vérifier les règles de sélection et de date
+        run: python -m pytest -q tests/test_daily_pipeline.py
+      - name: Sélectionner et prédire les matchs admissibles
+        run: python -m dcscore.daily --day "$DCSCORE_DAILY_DAY" --source "$DCSCORE_DAILY_SOURCE" --count 10
+      - name: Déposer les prévisions et le storyboard JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dixon-coles-daily-top10-${{ github.run_id }}
+          path: dixon-coles/results/daily/
+          if-no-files-found: warn
+          retention-days: 90
