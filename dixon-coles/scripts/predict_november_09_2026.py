@@ -107,8 +107,8 @@ def main():
                 data=forecast(model,home_id,away_id,top_n=5)
                 preds[model_name]={
                     "top_5":data["top_scores"],
-                    "goals_expected_home":round(data["lambda_home"],4) if "lambda_home" in data else None,
-                    "goals_expected_away":round(data["lambda_away"],4) if "lambda_away" in data else None,
+                    "goals_expected_home":round(data["expected_home_goals"],4) if "lambda_home" in data else None,
+                    "goals_expected_away":round(data["expected_away_goals"],4) if "lambda_away" in data else None,
                     "p_1x2":data.get("one_x_two",data.get("p_1x2")),
                     "rho":round(model.rho,5),"gamma":round(model.gamma,5),
                 }
