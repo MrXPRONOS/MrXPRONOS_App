@@ -449,15 +449,19 @@ class CompositeProvider:
         if len({p.name for p in providers})!=len(providers):raise ValueError('Provider names must be unique')
         self._by_name={p.name:p for p in providers}
         self._selection={}
+        self.discovery_counts={}
 
     def discover(self,target_date:date,now:datetime):
         found=[];warnings=[]
+        counts={}
         for p in self.providers:
             try:
                 fixtures,issues=p.discover(target_date,now)
                 warnings.extend(f'{p.name}: {msg}' for msg in issues)
+                counts[p.name]=len(fixtures)
                 found.extend(fixtures)
             except (DailySourceError,ValueError) as exc:
+                counts[p.name]=0
                 warnings.append(f'{p.name}: {exc}')
         found.sort(key=lambda f:(self._priority.get(f.source,99),f.kickoff,f.id))
         selected=[];seen=set();blocked_comp=set()
@@ -475,6 +479,7 @@ class CompositeProvider:
                 if g.id not in seen:
                     seen.add(g.id);selected.append(g)
         self._selection={f.id:f.source for f in selected}
+        self.discovery_counts=counts
         return selected,warnings
 
     def history(self,fixture:RankedFixture,now:datetime):

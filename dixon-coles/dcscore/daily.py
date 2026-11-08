@@ -50,11 +50,17 @@ def main(argv:list[str]|None=None)->int:
                          min_games=args.min_games,min_team=args.min_team,
                          min_importance=args.min_importance,
                          max_staleness_days=args.max_staleness_days)
+        if args.source=='auto' and not os.environ.get('FOOTBALL_DATA_TOKEN','').strip():
+            report['warnings'].append('FOOTBALL_DATA_TOKEN absent : calendrier des grands championnats et des coupes accessible uniquement par sources communautaires gratuites.')
+            report['source_access_note']='Le fournisseur football-data.org demande une clé API, et certains championnats/coupes demandent un abonnement.'
         destination=Path(args.output_dir)/day.isoformat()
         save_outputs(report,destination/'predictions.json',destination/'video_payload.json')
         print(json.dumps({'status':report['status'],'date':day.isoformat(),
                           'selected':report['selected_count'],'required':report['required_count'],
                           'provider':report['source_mode'],'ready_for_video':report['ready_for_video'],
+                          'discovered_count':report['count_before_quality_checks'],
+                          'source_discovery_counts':report.get('source_discovery_counts',{}),
+                          'reasons_not_ready':report['reasons_not_ready'],
                           'warnings':report['warnings'][:5],
                           'path':str(destination/'predictions.json')},ensure_ascii=False,indent=2))
         return 0  # PARTIAL/NO_ELIGIBLE is an explicit business state, not fabricated success.

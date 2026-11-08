@@ -98,6 +98,7 @@ def test_composite_prefers_fd_for_same_competition_without_crossmixing():
     matches,errors=multi.discover(TOMORROW,NOW)
     assert not errors
     assert {m.id for m in matches}=={'fd:99','ol:13'}
+    assert multi.discovery_counts=={'football-data.org':1,'openligadb.de':2,'openfootball/football.json':1}
     for m in matches:multi.history(m,NOW)
     assert fd.used==['fd:99'] and ol.used==['ol:13'] and of.used==[]
 
@@ -128,6 +129,7 @@ def test_auto_source_selection_without_secret(monkeypatch):
     def run(provider,**kw):
         used.extend(x.name for x in provider.providers)
         return {'status':'NO_ELIGIBLE_MATCHES','date_local_africa_lome':'2026-11-09',
+                'count_before_quality_checks':0, 'source_discovery_counts':{}, 'reasons_not_ready':[],
                 'selected_count':0,'required_count':10,'source_mode':provider.name,
                 'ready_for_video':False,'warnings':[],'video_payload':{},'selected':[]}
     monkeypatch.setattr(daily,'run_daily',run)
@@ -135,3 +137,17 @@ def test_auto_source_selection_without_secret(monkeypatch):
     monkeypatch.setattr(daily,'save_outputs',lambda *args:None)
     assert daily.main(['--day','tomorrow'])==0
     assert used==['ol','of']
+
+
+def test_zero_fixtures_has_explicit_reason_and_diagnostics():
+    from dcscore.daily_pipeline import run_daily
+    class Empty:
+        name='empty'
+        source_verified=False
+        discovery_counts={'some_source':0}
+        def discover(self,*a):return [],[]
+    result=run_daily(Empty(),day=TOMORROW,as_of=NOW)
+    assert result['status']=='NO_ELIGIBLE_MATCHES'
+    assert not result['ready_for_video']
+    assert 'Aucune rencontre' in ' '.join(result['reasons_not_ready'])
+    assert result['source_discovery_counts']=={'some_source':0}

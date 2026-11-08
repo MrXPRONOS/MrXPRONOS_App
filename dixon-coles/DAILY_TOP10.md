@@ -145,3 +145,16 @@ seulement, avant d'activer les envois automatiques.
 
 Ce système ne prétend pas garantir dix grands matchs **chaque jour** : certains lundis ou trêves
 internationales ne comportent pas dix affiches de ce niveau.
+
+### Diagnostic quand il n'y a pas dix matchs
+
+Dans `predictions.json`, consulter `source_discovery_counts`,
+`count_before_quality_checks`, `rejected` et `reasons_not_ready`.
+Un flux qui fonctionne peut légitimement produire zéro pronostic lorsqu'aucun
+match n'est prévu dans les ligues couvertes ce jour-là. Cela ne signifie pas
+que tous les championnats mondiaux ont été interrogés.
+
+Le mode automatique indique explicitement lorsque `FOOTBALL_DATA_TOKEN` n'est
+pas configuré. Pour enrichir la couverture des grandes affiches internationales
+et des finales, renseigner le secret GitHub Actions en respectant les droits du
+fournisseur. Sans accès à un calendrier confirmé, le workflow reste non publiant.

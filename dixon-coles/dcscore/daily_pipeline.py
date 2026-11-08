@@ -187,10 +187,12 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             ('PARTIAL' if selected else 'NO_ELIGIBLE_MATCHES'),
         'required_count':limit,'selected_count':len(selected),
         'count_before_quality_checks':len(fixtures),
+        'source_discovery_counts':getattr(provider,'discovery_counts',{}),
         'eligible_count':len(eligible),'rejected_count':len(rejected),
         'ready_for_video':eligible_for_video,
         'reasons_not_ready':([] if eligible_for_video else
             ([f'Seulement {len(selected)}/{limit} matchs admissibles'] if not complete else [])+
+            (['Aucune rencontre trouvée à cette date dans les championnats consultés'] if not fixtures else [])+
             (['Calendrier provenant d’une source non confirmée par une API officielle'] if not provider_reported else [])+
             (['Finale : terrain neutre non vérifié'] if neutral_unknown else [])),
         'warnings':sorted(set(source_warnings))[:60],
