@@ -31,6 +31,6 @@ jobs:
         with:
           python-version: '3.12'
       - name: Installer les dependances
-        run: python -m pip install -e '.[test]'
+        run: python -m pip install -e '.[test,video]'
       - name: Executer les tests Dixon-Coles
         run: python -m pytest -q
