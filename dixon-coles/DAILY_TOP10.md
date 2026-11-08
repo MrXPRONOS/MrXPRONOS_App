@@ -21,6 +21,18 @@ publication automatique. Ce sont les étapes suivantes. La simple présence du J
   Les matchs de ce flux ne sont **pas validés comme horaires officiels** et les résultats peuvent être
   anciens. Le système peut fournir une analyse exploratoire, mais **`ready_for_video=false`**
   si les seuls calendriers proviennent de cette source.
+- **Nouveau mode automatique multi-sources :** si la clé est disponible, le programme interroge
+  d’abord football-data.org, puis OpenLigaDB (Bundesliga, 2. Bundesliga, 3. Liga) et OpenFootball.
+  Sans clé, il interroge les deux sources libres. Il choisit une seule source par championnat et par date,
+  sans mélanger leurs équipes ni leurs historiques. Les échecs d'une source ne bloquent pas les autres.
+- **OpenLigaDB :** données de la communauté sous **Open Database License 1.0 (ODbL)**.
+  Attribution : [OpenLigaDB](https://openligadb.de/). API sans clé ; respect des limites
+  d’accès et des obligations de licence pour une réutilisation commerciale. Les écussons des clubs
+  ne sont pas couverts par cette licence. Le calendrier communautaire reste non corroboré,
+  donc il ne suffit pas, à lui seul, à autoriser la création automatique d'une vidéo.
+- **Condition de publication :** sans calendrier fiable et sans 10 matchs admissibles,
+  le système produit un rapport explicatif et bloque `ready_for_video`. Ne jamais fabriquer
+  des matchs ou des probabilités pour arriver à dix.
 - Le programme **n'emprunte aucune donnée ni algorithme** aux anciens moteurs de Mr XPRONOS.
 - Les paramètres de la Premier League calibrés sur la source `of:ENG-PL` ne sont **pas**
   appliqués à d'autres ligues, ni à `fd:PL`. Les autres ligues utilisent actuellement
@@ -84,6 +96,7 @@ cd dixon-coles
 python -m pip install -e '.[test]'
 python -m dcscore.daily --day tomorrow --source auto --count 10
 python -m dcscore.daily --day today --source openfootball --count 10
+python -m dcscore.daily --day tomorrow --source openligadb --count 10
 python -m pytest -q tests/test_daily_pipeline.py
 ```
 

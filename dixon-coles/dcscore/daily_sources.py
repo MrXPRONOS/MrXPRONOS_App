@@ -21,6 +21,7 @@ from .sources import parse_fd_matches
 UTC=timezone.utc
 API_ROOT='https://api.football-data.org/v4'
 OPEN_ROOT='https://raw.githubusercontent.com/openfootball/football.json/master'
+OPENLIGA_ROOT='https://api.openligadb.de'
 OPEN_LEAGUES={
  'en.1':('Premier League','Europe/London'),
  'en.2':('Championship','Europe/London'),
@@ -81,8 +82,8 @@ class HttpClient:
         self.min_api_spacing=min_api_spacing
         self._api_last=None
 
-    def get_json(self, url: str, *, token: str | None=None, params: dict | None=None) -> dict:
-        if not url.startswith((API_ROOT+'/',OPEN_ROOT+'/')):
+    def get_json(self, url: str, *, token: str | None=None, params: dict | None=None, expect_list:bool=False) -> dict | list:
+        if not url.startswith((API_ROOT+'/',OPEN_ROOT+'/',OPENLIGA_ROOT+'/')):
             raise DailySourceError('URL du fournisseur non autorisée.')
         headers={'Accept':'application/json','User-Agent':'DixonColes-Daily-Selector/1.0'}
         if token:headers['X-Auth-Token']=token
@@ -108,7 +109,7 @@ class HttpClient:
                 raise DailySourceError('Réponse anormalement volumineuse.')
             try:
                 data=response.json()
-                if not isinstance(data,dict):raise ValueError('Expected JSON object')
+                if not isinstance(data,list if expect_list else dict):raise ValueError('Unexpected JSON response type')
                 return data
             except ValueError as exc:
                 raise DailySourceError('Réponse JSON invalide.') from exc
@@ -255,3 +256,229 @@ class OpenFootballProvider:
         matches.sort(key=lambda m:m.kickoff)
         self._history[comp]=(matches,issues)
         return matches,issues
+
+
+# OpenLigaDB distributes community-entered results under ODbL 1.0.
+# Both fixtures and historical results are kept within this provider.
+# Club badges / logos are NOT included or sublicensed.
+OPENLIGA_LEAGUES={
+    'bl1': '1. Bundesliga',
+    'bl2': '2. Bundesliga',
+    'bl3': '3. Liga',
+}
+
+
+def _ol_kickoff(item:dict) -> datetime | None:
+    """Require a real timestamp; never fabricate a kickoff at midnight."""
+    utc_raw=item.get('matchDateTimeUTC')
+    if isinstance(utc_raw,str) and utc_raw.strip():
+        try:
+            # API may encode UTC time as an ISO naive string; this field explicitly means UTC.
+            value=utc_raw.strip()
+            day=datetime.fromisoformat(value.replace('Z','+00:00'))
+            if day.tzinfo is None:
+                day=day.replace(tzinfo=UTC)
+            return day.astimezone(UTC)
+        except ValueError:
+            return None
+    raw=item.get('matchDateTime')
+    if not isinstance(raw,str) or not raw.strip():
+        return None
+    try:
+        day=datetime.fromisoformat(raw.strip().replace('Z','+00:00'))
+        if day.tzinfo is None:
+            day=day.replace(tzinfo=ZoneInfo('Europe/Berlin'))
+        return day.astimezone(UTC)
+    except ValueError:
+        return None
+
+
+def _ol_final_score(item:dict) -> tuple[int,int] | None:
+    if item.get('matchIsFinished') is not True:
+        return None
+    matches=item.get('matchResults')
+    if not isinstance(matches,list):
+        return None
+    results=[]
+    for r in matches:
+        if not isinstance(r,dict):
+            continue
+        title=str(r.get('resultName','')).casefold()
+        # Prefer standard after-90-minutes result, not half-time, extra time or penalties.
+        final=(r.get('resultTypeID')==2 or 'endergebnis' in title
+               or 'after90minutes' in title or 'full time' in title)
+        if not final:
+            continue
+        h,a=r.get('pointsTeam1'),r.get('pointsTeam2')
+        if type(h) is int and type(a) is int and min(h,a)>=0:
+            results.append((h,a))
+    return results[-1] if results else None
+
+
+def _ol_stage(group:object) -> str:
+    name=str(group.get('groupName') or '').casefold() if isinstance(group,dict) else ''
+    if 'halbfinale' in name or 'semi-final' in name:
+        return 'SEMI_FINALS'
+    if 'viertelfinale' in name or 'quarter-final' in name:
+        return 'QUARTER_FINALS'
+    if 'achtelfinale' in name or 'round of 16' in name:
+        return 'LAST_16'
+    if name.strip() in ('finale','final','endspiel'):
+        return 'FINAL'
+    return 'REGULAR_SEASON'
+
+
+class OpenLigaDBProvider:
+    """ODbL-compatible German football source; no token; community schedule unverified.
+
+    Fetch at most one current season for discovery and a bounded number of
+    past seasons for the selected league. Keep identifiers source-specific.
+    """
+    name='openligadb.de'
+    source_verified=False
+
+    def __init__(self,*,http:HttpClient|None=None,seasons_back:int=3,
+                 leagues:tuple[str,...]=('bl1','bl2','bl3')):
+        self.http=http or HttpClient()
+        self.seasons_back=seasons_back
+        if not 1<=self.seasons_back<=5:raise DailySourceError('Saisons demandées invalides.')
+        if any(code not in OPENLIGA_LEAGUES for code in leagues):
+            raise DailySourceError('Championnat OpenLigaDB inconnu.')
+        self.leagues=leagues
+        self._cache={}
+        self._history={}
+
+    def _season(self,code:str,year:int)->list[dict]:
+        key=(code,year)
+        if key not in self._cache:
+            data=self.http.get_json(f'{OPENLIGA_ROOT}/getmatchdata/{code}/{year}',expect_list=True)
+            if len(data)>800:
+                raise DailySourceError('OpenLigaDB : nombre inattendu de rencontres.')
+            self._cache[key]=[m for m in data if isinstance(m,dict)]
+        return self._cache[key]
+
+    @staticmethod
+    def _clubs(item:dict):
+        h=item.get('team1') or {};a=item.get('team2') or {}
+        if not isinstance(h,dict) or not isinstance(a,dict):raise ValueError('Invalid team objects')
+        hid,aid=h.get('teamId'),a.get('teamId')
+        if type(hid) is not int or type(aid) is not int or hid==aid:raise ValueError('Invalid team ids')
+        return ('ol:'+str(hid),'ol:'+str(aid),_clean(h.get('teamName')),_clean(a.get('teamName')))
+
+    def discover(self,target_date:date,now:datetime)->tuple[list[RankedFixture],list[str]]:
+        year=target_date.year if target_date.month>=7 else target_date.year-1
+        fixtures=[];issues=[];seen=set()
+        for code in self.leagues:
+            try:records=self._season(code,year)
+            except DailySourceError as exc:
+                issues.append(f'{code}: {exc}');continue
+            for m in records:
+                if m.get('matchIsFinished') is True:continue
+                kick=_ol_kickoff(m)
+                if kick is None or kick<=now or kick.date()!=target_date:continue
+                try:hid,aid,home,away=self._clubs(m)
+                except (ValueError,TypeError):continue
+                if type(m.get('matchID')) is not int:continue
+                fid='ol:'+str(m['matchID'])
+                if fid in seen:continue
+                seen.add(fid)
+                # Only an explicit final stage gets the full final bonus.
+                stage=_ol_stage(m.get('group'))
+                fixtures.append(RankedFixture(
+                    id=fid,competition='OL:'+code.upper(),
+                    competition_name=OPENLIGA_LEAGUES[code],kickoff=kick,
+                    home_id=hid,away_id=aid,home_name=home,away_name=away,
+                    stage=stage,source=self.name,source_verified=False,neutral_venue=None))
+        return fixtures,issues
+
+    def history(self,fixture:RankedFixture,now:datetime)->tuple[list[Match],list[str]]:
+        comp=fixture.competition
+        if comp in self._history:return self._history[comp]
+        code=comp.removeprefix('OL:').lower()
+        if code not in self.leagues:raise DailySourceError('OpenLigaDB competition mismatch')
+        year=fixture.kickoff.year if fixture.kickoff.month>=7 else fixture.kickoff.year-1
+        games=[];issues=[];seen=set()
+        for y in range(year-self.seasons_back+1,year+1):
+            try:records=self._season(code,y)
+            except DailySourceError as exc:
+                issues.append(f'{code}/{y}: {exc}');continue
+            for m in records:
+                if type(m.get('matchID')) is not int:continue
+                kickoff=_ol_kickoff(m)
+                score=_ol_final_score(m)
+                if kickoff is None or kickoff>=now or score is None:continue
+                try:hid,aid,h,a=self._clubs(m)
+                except (ValueError,TypeError):continue
+                mid='ol:'+str(m['matchID'])
+                if mid in seen:continue
+                seen.add(mid)
+                games.append(Match(id=mid,competition=comp,kickoff=kickoff,
+                      home_id=hid,away_id=aid,home_name=h,away_name=a,
+                      status='FINISHED',home_goals=score[0],away_goals=score[1],
+                      season=str(y),source=self.name,result_provenance='community_reported'))
+        games.sort(key=lambda m:m.kickoff)
+        self._history[comp]=(games,issues)
+        return games,issues
+
+
+class CompositeProvider:
+    """Collect independently licensed feeds without mixing results or club IDs.
+
+    Prefer an authenticated match source for a given league/day, then community
+    data. A fallback is used only for other competitions or when no official
+    fixtures were present for that competition on the target day.
+    """
+    name='multiple-sources'
+    source_verified=False
+    _priority={'football-data.org':0,'openligadb.de':1,'openfootball/football.json':2}
+    _canonical={
+        'PL':'ENG-PL','OF:EN.1':'ENG-PL',
+        'PD':'ESP-1','OF:ES.1':'ESP-1',
+        'BL1':'GER-1','OF:DE.1':'GER-1','OL:BL1':'GER-1',
+        'BL2':'GER-2','OL:BL2':'GER-2',
+        'BL3':'GER-3','OL:BL3':'GER-3',
+        'SA':'ITA-1','OF:IT.1':'ITA-1',
+        'FL1':'FRA-1','OF:FR.1':'FRA-1',
+        'DED':'NED-1','OF:NL.1':'NED-1',
+        'PPL':'POR-1','OF:PT.1':'POR-1',
+        'ELC':'ENG-2','OF:EN.2':'ENG-2',
+    }
+    def __init__(self, providers:list):
+        if not providers:raise ValueError('At least one source required.')
+        self.providers=list(providers)
+        if len({p.name for p in providers})!=len(providers):raise ValueError('Provider names must be unique')
+        self._by_name={p.name:p for p in providers}
+        self._selection={}
+
+    def discover(self,target_date:date,now:datetime):
+        found=[];warnings=[]
+        for p in self.providers:
+            try:
+                fixtures,issues=p.discover(target_date,now)
+                warnings.extend(f'{p.name}: {msg}' for msg in issues)
+                found.extend(fixtures)
+            except (DailySourceError,ValueError) as exc:
+                warnings.append(f'{p.name}: {exc}')
+        found.sort(key=lambda f:(self._priority.get(f.source,99),f.kickoff,f.id))
+        selected=[];seen=set();blocked_comp=set()
+        for f in found:
+            key=self._canonical.get(f.competition.upper(),f.competition.upper())
+            # For each canonical league, use exactly one schedule source so
+            # duplicate clubs with differing spellings are never shown twice.
+            if key in blocked_comp:
+                continue
+            blocked_comp.add(key)
+            # Keep *all* fixtures from the chosen provider for that league.
+            first=[g for g in found if self._canonical.get(g.competition.upper(),g.competition.upper())==key
+                   and g.source==f.source]
+            for g in first:
+                if g.id not in seen:
+                    seen.add(g.id);selected.append(g)
+        self._selection={f.id:f.source for f in selected}
+        return selected,warnings
+
+    def history(self,fixture:RankedFixture,now:datetime):
+        src=self._selection.get(fixture.id,fixture.source)
+        provider=self._by_name.get(src)
+        if provider is None:raise DailySourceError('Source de calendrier non reconnue.')
+        return provider.history(fixture,now)

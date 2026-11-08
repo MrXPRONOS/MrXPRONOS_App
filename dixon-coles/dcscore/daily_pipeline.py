@@ -153,6 +153,19 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     provider_reported=all(m['fixture_provider_reported'] for m in selected)
     neutral_unknown=any(x['forecast']['venue_sensitivity'] is not None for x in selected)
     eligible_for_video=complete and provider_reported and not neutral_unknown
+    source_credits={
+        'football-data.org': {
+            'name':'football-data.org','url':'https://www.football-data.org/',
+            'note':'Provider-reported schedules/results; subject to the API service terms.'},
+        'openfootball/football.json': {
+            'name':'OpenFootball','url':'https://github.com/openfootball/football.json',
+            'license':'CC0-1.0','note':'Community-maintained fixture times; independent verification required.'},
+        'openligadb.de': {
+            'name':'OpenLigaDB','url':'https://openligadb.de/',
+            'license':'ODbL-1.0','note':'Community-maintained match data; attribution and database licence obligations apply.'},
+    }
+    credits=[source_credits.get(x, {'name':x,'note':'Rights to be verified'})
+             for x in sorted(sources)]
     clips=[]
     for i,m in enumerate(selected,1):
         p=m['forecast'];pct=p['most_likely_probability']*100
@@ -181,12 +194,14 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             (['Calendrier provenant d’une source non confirmée par une API officielle'] if not provider_reported else [])+
             (['Finale : terrain neutre non vérifié'] if neutral_unknown else [])),
         'warnings':sorted(set(source_warnings))[:60],
+        'sources_used':sorted(sources), 'source_credits':credits,
         'rejected':rejected[:150],'selected':selected,
         'video_payload':{
             'format':'9:16','language':'fr','platforms_planned':['YouTube Shorts','TikTok','Instagram Reels','Facebook Reels'],
             'video_title':f'10 affiches du {day.strftime("%d/%m/%Y")} — scores possibles | Mr XPRONOS',
             'video_not_generated':True,'publishing_not_configured':True,
             'footer':'18+ • Pronostics incertains • Joue responsablement',
+            'source_credits':credits,
             'clips':clips,
         },
         'methodology':{

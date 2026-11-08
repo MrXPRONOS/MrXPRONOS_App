@@ -12,6 +12,7 @@ LEAGUE_WEIGHT = {
     'ELC': 87, 'BSA': 90, 'OF:EN.1': 123, 'OF:ES.1': 122,
     'OF:DE.1': 117, 'OF:IT.1': 117, 'OF:FR.1': 115,
     'OF:PT.1': 108, 'OF:NL.1': 105, 'OF:EN.2': 87,
+    'OL:BL1':117, 'OL:BL2':90, 'OL:BL3':76,
 }
 STAGE_WEIGHT = {
     'FINAL': 225, 'SEMI_FINALS': 105, 'QUARTER_FINALS': 62,

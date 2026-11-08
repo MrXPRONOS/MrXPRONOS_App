@@ -18,11 +18,11 @@ on:
         required: false
         type: string
       source:
-        description: "auto, football-data ou openfootball"
+        description: "auto, football-data, openfootball ou openligadb"
         default: auto
         required: false
         type: choice
-        options: [auto, football-data, openfootball]
+        options: [auto, football-data, openfootball, openligadb]
 
 permissions:
   contents: read
