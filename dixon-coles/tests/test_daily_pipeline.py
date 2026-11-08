@@ -180,3 +180,28 @@ def test_final_neutrality_unknown_requires_human_check():
     assert r['ready_for_video'] is False
     assert any('terrain neutre' in s.lower() for s in r['reasons_not_ready'])
     assert all(x['forecast']['venue_sensitivity'] is not None for x in r['selected'])
+
+
+def test_ten_matches_without_real_crests_must_not_generate_video():
+    from dataclasses import replace
+    rows=[replace(fixture(i),home_logo_url=None) for i in range(10)]
+    result=run_daily(DummyProvider(rows),day=TARGET,as_of=NOW,limit=10)
+    assert result['selected_count']==10
+    assert result['ready_for_video'] is False
+    assert result['status']=='PARTIAL'
+    assert 'Logos' in ' '.join(result['reasons_not_ready'])
+    assert all(c['home_logo_url'] is None for c in result['video_payload']['clips'])
+
+
+def test_provider_forwards_two_real_crest_urls():
+    from dcscore.daily_sources import FootballDataProvider
+    payload={'matches':[{'id':100,'status':'TIMED','utcDate':'2026-11-09T16:00:00Z',
+               'homeTeam':{'id':57,'name':'Arsenal FC','crest':'https://crests.football-data.org/57.png'},
+               'awayTeam':{'id':61,'name':'Chelsea FC','crest':'https://crests.football-data.org/61.png'},
+               'competition':{'code':'PL','name':'Premier League'},'stage':'REGULAR_SEASON'}]}
+    class Mock:
+        def get_json(self,*args,**kwargs):return payload
+    matches,_=FootballDataProvider(token='TEST',http=Mock()).discover(TARGET,NOW)
+    assert len(matches)==1
+    assert matches[0].home_logo_url=='https://crests.football-data.org/57.png'
+    assert matches[0].away_logo_url=='https://crests.football-data.org/61.png'
