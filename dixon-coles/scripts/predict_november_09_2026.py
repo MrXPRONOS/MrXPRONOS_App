@@ -31,7 +31,7 @@ SCHEDULE = [
 # insufficient per-league historical data in our permitted sources.
 NOT_PREDICTED = [
     ("Atlético de Madrid (F)", "FC Badalona (F)", "Liga F", "No validated women's league match history"),
-    ("FC Köln (F)", "RB Leipzig (F)", "Frauen-Bundesliga", "No validated women's league match history"),
+    ("AZ Picerno", "Bari", "Serie C", "No validated Serie C historical match data"),
     ("Universitario", "Deportivo Moquegua", "Peruvian Liga 1", "No verified historical league match data"),
 ]
 
