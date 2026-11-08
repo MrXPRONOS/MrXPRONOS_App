@@ -1,0 +1,35 @@
+name: Dixon-Coles - exploration matches 9 novembre 2026
+
+on:
+  push:
+    paths:
+      - 'dixon-coles/scripts/predict_november_09_2026.py'
+      - '.github/workflows/dixon-coles-predict-nov09-2026.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dixon-coles
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - name: Calculer le modèle sur les matches réellement vérifiés
+        run: python scripts/predict_november_09_2026.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dixon-coles-nov09-2026-independent-forecasts
+          path: dixon-coles/results/forecast_2026_11_09_exploratory.json
+          if-no-files-found: warn
