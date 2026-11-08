@@ -64,6 +64,9 @@ def test_production_blocks_stale_generation_and_started_games():
     with pytest.raises(ValueError,match='Match commencé'):
         validate_payload(p)
     p['clips'][0]['kickoff_utc']=(now+timedelta(hours=3)).isoformat()
+    for c in p['clips']:
+        c['home_logo_url']='https://crests.football-data.org/57.png'
+        c['away_logo_url']='https://crests.football-data.org/61.png'
     assert len(validate_payload(p))==10
 
 
@@ -93,3 +96,40 @@ def test_real_mp4_render_has_h264_and_audio(tmp_path):
     streams=json.loads(probe.stdout)['streams']
     assert any(s.get('codec_name')=='h264' and s.get('width')==W and s.get('height')==H for s in streams)
     assert any(s.get('codec_name')=='aac' for s in streams)
+
+
+def test_logo_url_strict_allowlist():
+    from dcscore.logo_policy import valid_logo_url
+    assert valid_logo_url('https://crests.football-data.org/57.png')
+    assert valid_logo_url('https://upload.wikimedia.org/wikipedia/commons/1/1f/logo.png')
+    assert not valid_logo_url('http://crests.football-data.org/57.png')
+    assert not valid_logo_url('https://crests.football-data.org.evil.org/57.png')
+    assert not valid_logo_url('https://127.0.0.1/a.png')
+    assert not valid_logo_url('file:///etc/passwd')
+    assert not valid_logo_url('https://crests.football-data.org:12345/logo.png')
+
+def test_production_must_have_two_real_crests():
+    p=sample(10)
+    from datetime import datetime,timedelta,timezone
+    now=datetime.now(timezone.utc)
+    p.update(ready_for_video=True,status='READY',selected_count=10,
+             date_local_africa_lome=now.date().isoformat(),
+             generated_at_utc=now.isoformat())
+    for c in p['clips']:c['kickoff_utc']=(now+timedelta(hours=3)).isoformat()
+    with pytest.raises(ValueError,match='Logo officiel'):
+        validate_payload(p)
+
+def test_real_logo_from_local_assets(tmp_path):
+    from PIL import Image
+    from dcscore.video_render import LogoCache
+    img=Image.new('RGBA',(110,90),(45,180,190,255))
+    (tmp_path/'assets').mkdir()
+    img.save(tmp_path/'assets'/'club.png')
+    clip=sample()['clips'][0]
+    clip['home_logo_asset']='assets/club.png'
+    resolver=LogoCache(tmp_path/'cache',asset_root=tmp_path,preview=False)
+    result=resolver.get(clip,'home',1)
+    assert result.real and resolver.real_count==1 and resolver.fallback_count==0
+    clip['away_logo_asset']='../../etc/passwd'
+    with pytest.raises(ValueError,match='Logo réel obligatoire'):
+        resolver.get(clip,'away',1)

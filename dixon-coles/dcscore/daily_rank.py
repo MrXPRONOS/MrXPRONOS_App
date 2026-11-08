@@ -83,6 +83,8 @@ class RankedFixture:
     source: str
     source_verified: bool
     neutral_venue: bool | None = None
+    home_logo_url: str | None = None
+    away_logo_url: str | None = None
     importance: int = 0
     importance_reasons: tuple[str,...] = ()
 

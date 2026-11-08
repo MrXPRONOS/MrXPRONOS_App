@@ -136,6 +136,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'competition_name':f.competition_name,
             'stage':f.stage,'kickoff_utc':iso_date(f.kickoff),
             'home':f.home_name,'away':f.away_name,
+            'home_logo_url':f.home_logo_url,'away_logo_url':f.away_logo_url,
             'importance':f.importance,
             'importance_reasons':list(f.importance_reasons),
             'source':f.source,'fixture_provider_reported':f.source_verified,
@@ -152,7 +153,11 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     complete=len(selected)==limit
     provider_reported=all(m['fixture_provider_reported'] for m in selected)
     neutral_unknown=any(x['forecast']['venue_sensitivity'] is not None for x in selected)
-    eligible_for_video=complete and provider_reported and not neutral_unknown
+    # Production needs genuine provider crest assets for both sides: no fabricated badges.
+    from .logo_policy import valid_logo_url as _valid_logo_url
+    logos_ready=all(_valid_logo_url(m.get('home_logo_url')) and
+                    _valid_logo_url(m.get('away_logo_url')) for m in selected)
+    eligible_for_video=complete and provider_reported and not neutral_unknown and logos_ready
     source_credits={
         'football-data.org': {
             'name':'football-data.org','url':'https://www.football-data.org/',
@@ -172,6 +177,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
         clips.append({
             'order':i,'match_id':m['id'],'headline':f"{m['home']} - {m['away']}",
             'competition':m['competition_name'],'kickoff_utc':m['kickoff_utc'],
+            'home_logo_url':m.get('home_logo_url'),
+            'away_logo_url':m.get('away_logo_url'),
             'display_score':p['most_likely_score'],'display_probability_percent':round(pct,1),
             'narration_fr':(f"{m['home']} contre {m['away']}. D'après le modèle statistique, "
                             f"le score le plus probable est {p['most_likely_score']}, "
@@ -194,7 +201,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             ([f'Seulement {len(selected)}/{limit} matchs admissibles'] if not complete else [])+
             (['Aucune rencontre trouvée à cette date dans les championnats consultés'] if not fixtures else [])+
             (['Calendrier provenant d’une source non confirmée par une API officielle'] if not provider_reported else [])+
-            (['Finale : terrain neutre non vérifié'] if neutral_unknown else [])),
+            (['Finale : terrain neutre non vérifié'] if neutral_unknown else [])+
+            (['Logos des deux équipes manquants ou non autorisés'] if not logos_ready else [])),
         'warnings':sorted(set(source_warnings))[:60],
         'sources_used':sorted(sources), 'source_credits':credits,
         'rejected':rejected[:150],'selected':selected,

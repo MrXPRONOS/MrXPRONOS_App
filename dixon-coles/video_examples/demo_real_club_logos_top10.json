@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "date_local_africa_lome": "2099-01-01",
+  "ready_for_video": false,
+  "status": "PREVIEW_ONLY",
+  "selected_count": 10,
+  "generated_at_utc": "2099-01-01T08:00:00Z",
+  "description": "DEMO! These ten scores are fictional placeholders for motion-graphics review, not predictions.",
+  "clips": [
+    {
+      "order": 1,
+      "headline": "Arsenal - Chelsea",
+      "display_score": "2-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/57.png",
+      "away_logo_url": "https://crests.football-data.org/61.png"
+    },
+    {
+      "order": 2,
+      "headline": "Barcelone - Real Madrid",
+      "display_score": "1-2",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/81.png",
+      "away_logo_url": "https://crests.football-data.org/86.png"
+    },
+    {
+      "order": 3,
+      "headline": "Liverpool - Man. City",
+      "display_score": "1-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/64.png",
+      "away_logo_url": "https://crests.football-data.org/65.png"
+    },
+    {
+      "order": 4,
+      "headline": "Man. United - Tottenham",
+      "display_score": "2-0",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/66.png",
+      "away_logo_url": "https://crests.football-data.org/73.png"
+    },
+    {
+      "order": 5,
+      "headline": "Arsenal - Liverpool",
+      "display_score": "2-2",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/57.png",
+      "away_logo_url": "https://crests.football-data.org/64.png"
+    },
+    {
+      "order": 6,
+      "headline": "Man. City - Real Madrid",
+      "display_score": "1-0",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/65.png",
+      "away_logo_url": "https://crests.football-data.org/86.png"
+    },
+    {
+      "order": 7,
+      "headline": "Chelsea - Barcelone",
+      "display_score": "0-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/61.png",
+      "away_logo_url": "https://crests.football-data.org/81.png"
+    },
+    {
+      "order": 8,
+      "headline": "Man. United - Arsenal",
+      "display_score": "1-2",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/66.png",
+      "away_logo_url": "https://crests.football-data.org/57.png"
+    },
+    {
+      "order": 9,
+      "headline": "Tottenham - Chelsea",
+      "display_score": "1-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/73.png",
+      "away_logo_url": "https://crests.football-data.org/61.png"
+    },
+    {
+      "order": 10,
+      "headline": "Real Madrid - Liverpool",
+      "display_score": "2-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z",
+      "home_logo_url": "https://crests.football-data.org/86.png",
+      "away_logo_url": "https://crests.football-data.org/64.png"
+    }
+  ]
+}

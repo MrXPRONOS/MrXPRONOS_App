@@ -1,11 +1,12 @@
-name: Dixon-Coles - video studio MP4 demo
+name: Dixon-Coles - studio minimaliste logos et 10 scores
 
 on:
   push:
     paths:
       - 'dixon-coles/dcscore/video_render.py'
+      - 'dixon-coles/dcscore/logo_policy.py'
       - 'dixon-coles/tests/test_video_renderer.py'
-      - 'dixon-coles/video_examples/demo_payload.json'
+      - 'dixon-coles/video_examples/**'
       - 'dixon-coles/VIDEO_AUTOMATION.md'
       - '.github/workflows/dixon-coles-video-studio.yml'
   workflow_dispatch:
@@ -16,7 +17,7 @@ permissions:
 jobs:
   preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: dixon-coles
@@ -28,24 +29,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Installer le studio et ffmpeg
+      - name: Installer studio et FFmpeg
         run: |
           python -m pip install -e '.[test,video]'
           command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
-          command -v ffprobe
-      - name: Vérifier les garde-fous et le rendu d'un MP4
+      - name: Tester les logos, les validations et le rendu vidéo
         run: python -m pytest -q tests/test_video_renderer.py
-      - name: Générer une démo 3 matchs 100% fictifs
+      - name: Exporter une démo avec 10 affiches et les écussons réels disponibles
         run: |
+          mkdir -p results/studio_demo
           python -m dcscore.video_render \
-            --payload video_examples/demo_payload.json \
-            --output results/studio_demo/preview_fictif.mp4 \
-            --preview --allow-partial-preview
+            --payload video_examples/demo_real_club_logos_top10.json \
+            --output results/studio_demo/top10_logos_demo.mp4 \
+            --preview --fullhd \
+            | tee results/studio_demo/render_summary.json
           ffprobe -v error -show_entries format=duration \
-            -of default=nw=1 results/studio_demo/preview_fictif.mp4
-      - name: Exporter l'aperçu vidéo
+            -of default=nw=1 results/studio_demo/top10_logos_demo.mp4
+      - name: Publier le MP4 et son rapport en artefact privé
         uses: actions/upload-artifact@v4
         with:
-          name: dixon-coles-video-studio-demo-${{ github.run_id }}
-          path: dixon-coles/results/studio_demo/preview_fictif.mp4
+          name: dixon-coles-logo-score-demo-${{ github.run_id }}
+          path: dixon-coles/results/studio_demo/
           retention-days: 30

@@ -152,7 +152,8 @@ class FootballDataProvider:
                     kickoff=kick,home_id='fd:'+str(home['id']),away_id='fd:'+str(away['id']),
                     home_name=home_name,away_name=away_name,
                     stage=str(item.get('stage') or 'REGULAR_SEASON'),
-                    source=self.name,source_verified=True, neutral_venue=None))
+                    source=self.name,source_verified=True, neutral_venue=None,
+                    home_logo_url=home.get('crest'),away_logo_url=away.get('crest')))
             except (KeyError,ValueError,TypeError) as exc:
                 errors.append('Rencontre officielle écartée : données incomplètes.')
         return out,errors
@@ -215,7 +216,9 @@ class OpenFootballProvider:
                     id=fid,competition='of:'+code.upper(),competition_name=name,
                     kickoff=kick,home_id=f'of:{code}:{_slug(home)}',away_id=f'of:{code}:{_slug(away)}',
                     home_name=home,away_name=away,stage='REGULAR_SEASON',
-                    source=self.name,source_verified=False,neutral_venue=None))
+                    source=self.name,source_verified=False,neutral_venue=None,
+                    home_logo_url=(m.get('team1') or {}).get('teamIconUrl'),
+                    away_logo_url=(m.get('team2') or {}).get('teamIconUrl')))
         return found,errors
 
     def history(self,fixture:RankedFixture,now:datetime)->tuple[list[Match],list[str]]:
@@ -388,7 +391,9 @@ class OpenLigaDBProvider:
                     id=fid,competition='OL:'+code.upper(),
                     competition_name=OPENLIGA_LEAGUES[code],kickoff=kick,
                     home_id=hid,away_id=aid,home_name=home,away_name=away,
-                    stage=stage,source=self.name,source_verified=False,neutral_venue=None))
+                    stage=stage,source=self.name,source_verified=False,neutral_venue=None,
+                    home_logo_url=(m.get('team1') or {}).get('teamIconUrl'),
+                    away_logo_url=(m.get('team2') or {}).get('teamIconUrl')))
         return fixtures,issues
 
     def history(self,fixture:RankedFixture,now:datetime)->tuple[list[Match],list[str]]:

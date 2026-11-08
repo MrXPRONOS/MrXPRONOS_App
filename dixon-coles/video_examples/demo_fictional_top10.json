@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "date_local_africa_lome": "2099-01-01",
+  "ready_for_video": false,
+  "status": "PREVIEW_ONLY",
+  "selected_count": 10,
+  "generated_at_utc": "2099-01-01T08:00:00Z",
+  "description": "DEMO! These ten scores are fictional placeholders for motion-graphics review, not predictions.",
+  "clips": [
+    {
+      "order": 1,
+      "headline": "Atlas FC - Nova United",
+      "display_score": "2-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 2,
+      "headline": "Étoile SC - Olympique Rivage",
+      "display_score": "1-0",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 3,
+      "headline": "Lions FC - Racing Horizon",
+      "display_score": "0-2",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 4,
+      "headline": "Union Capitale - Phoenix Club",
+      "display_score": "2-2",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 5,
+      "headline": "Montagne FC - Tornado Athletic",
+      "display_score": "1-2",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 6,
+      "headline": "Riviera FC - Galaxie Sport",
+      "display_score": "3-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 7,
+      "headline": "Élan Sport - Dynamo Orient",
+      "display_score": "1-0",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 8,
+      "headline": "Cité Rouge - Porto Bleu",
+      "display_score": "2-0",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 9,
+      "headline": "Orion FC - Solar United",
+      "display_score": "1-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    },
+    {
+      "order": 10,
+      "headline": "Inter Boréal - Royal Horizon",
+      "display_score": "0-1",
+      "display_probability_percent": 13.8,
+      "competition": "Exemple fictif",
+      "kickoff_utc": "2099-01-01T12:00:00Z"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ on:
       - 'dixon-coles/dcscore/daily*.py'
       - 'dixon-coles/tests/test_daily_pipeline.py'
       - 'dixon-coles/dcscore/video_render.py'
+      - 'dixon-coles/dcscore/logo_policy.py'
       - 'dixon-coles/tests/test_video_renderer.py'
       - 'dixon-coles/DAILY_TOP10.md'
       - '.github/workflows/dixon-coles-daily-top10.yml'

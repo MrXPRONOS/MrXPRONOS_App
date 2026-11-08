@@ -23,7 +23,9 @@ def fixture(i=0,league='PL',verified=True,home=None,away=None,stage='REGULAR_SEA
         away_id=away or TEAMS[(i+2)%6],home_name=home or TEAMS[i%6],
         away_name=away or TEAMS[(i+2)%6],stage=stage,
         source='football-data.org' if verified else 'openfootball/football.json',
-        source_verified=verified)
+        source_verified=verified,
+        home_logo_url='https://crests.football-data.org/57.png',
+        away_logo_url='https://crests.football-data.org/61.png')
 
 def training(n=126,days_old=1):
     rows=[]

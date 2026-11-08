@@ -1,76 +1,62 @@
-# Mr XPRONOS — Générateur vidéo (version studio)
+# Mr XPRONOS — Vidéo quotidienne minimaliste (V2)
 
-## Fonctionnement
+## Livrable
 
-Le moteur indépendant `dcscore.video_render` transforme **uniquement** les entrées vidéo
-produites par `dcscore.daily` en un MP4 vertical H.264 + AAC, avec textes en français,
-cartes de scores, animations et une bande-son **entièrement synthétisée par le code**.
-Les logos des clubs ne sont pas téléchargés ou utilisés : les monogrammes sont des graphismes originaux.
+Une vidéo verticale de **10 rencontres et 10 scores**, un match par écran. Le seul contenu visuel principal de chaque écran est : **écusson domicile · écusson extérieur · noms des clubs · score calculé**. Pas de probabilité, de statistiques secondaires, de cotes ni de longues explications.
 
-**Le rendu n'est pas une publication sociale.** Les données météo, résultats, équipes,
-probabilités et dates doivent provenir du JSON du pipeline, sans scores fabriqués pour compléter la liste.
+- Intro 1,05 s : « 10 MATCHS / 10 SCORES EXACTS ».
+- 10 matchs × 1,95 s = 19,50 s ; écussons glissant doucement depuis les côtés, puis score qui apparaît ; progression discrète des dix rencontres.
+- Outro 1,35 s : « TU EN VALIDES COMBIEN ? ».
+- Durée totale **21,90 s**, son de synthèse original (sans musique sous droits).
+- Format 9:16, MP4 H.264/AAC, jusqu'à **1080 × 1920**.
 
-### Mode production (strict)
+## Source et logos : aucune invention
 
-La commande refuse : `ready_for_video != true`, état différent de `READY`,
-moins de **10 matchs**, date non égale à aujourd'hui ou demain (UTC/Lomé),
-rapport vieux de plus de 4 heures, coups d'envoi déjà passés, scores invalides.
+La sélection quotidienne continue de classer le prestige des championnats, les affiches reconnues, les finales et derbies, **puis vérifie la disponibilité de l'historique sportif et de deux écussons réels** avant de marquer le rapport `READY`. Les champs `home_logo_url` et `away_logo_url` proviennent, lorsqu'ils existent, des objets `homeTeam.crest` et `awayTeam.crest` fournis par football-data.org. Les logos sont des marques appartenant aux clubs. L'utilisateur doit s'assurer que leur utilisation publique respecte les droits des titulaires et les conditions des fournisseurs.
+
+Le rendu de production refuse :
+
+- Moins de **10** scores calculés, une source non vérifiée, un terrain de finale incertain, une rencontre déjà commencée, ou un rapport expiré ;
+- Des écussons absents, non décodables, trop lourds ou provenant d'URL non autorisées ;
+- Les chemins locaux traversant des dossiers parents (`..`).
+
+URLs de logo permises uniquement depuis `crests.football-data.org` et `upload.wikimedia.org`, en HTTPS et sans redirection vers un domaine tiers. Conversion SVG seulement lorsque nécessaire avec `cairosvg`, en interdisant les références externes et les scripts. Aucune image synthétique de club réel n'est utilisée en production. L'absence de droits ou de licence peut aussi interdire la publication, même lorsque le logo est techniquement accessible.
+
+Le mode **--preview** peut montrer des logos fictifs générés automatiquement, portant obligatoirement la mention « DÉMO · MATCHS ET SCORES FICTIFS ». Le fichier `video_examples/demo_real_club_logos_top10.json` montre 10 affiches fictives de clubs existants, avec URLs d'écussons officiels ; ses scores sont des **exemples inventés**, absolument pas des pronostics ou le calendrier réel.
+
+## Déclenchement GitHub Actions
+
+Chaque soir à **21 h UTC (21 h à Lomé)**, le workflow `.github/workflows/dixon-coles-daily-top10.yml` :
+
+1. Recueille les données et sélectionne les 10 meilleures rencontres éligibles.
+2. Calcule les 10 scores avec le moteur Dixon-Coles, en gardant chaque ligue séparée.
+3. Prépare `results/daily/YYYY-MM-DD/video_payload.json` comprenant les logos.
+4. Génère `top10.mp4` uniquement si `status == "READY"`, `ready_for_video` est vrai, les matchs sont futurs et les dix logos par côté sont valides.
+5. Dépose les fichiers dans l'artefact GitHub Actions. **Il n'y a pas encore de publication automatisée vers les réseaux sociaux.**
+
+En cas de moins de dix matchs éligibles, aucun MP4 de production n'est inventé ni publié. Des sources/clefs supplémentaires sont nécessaires pour garantir une bonne couverture la plupart des jours.
+
+## Prévisualisation sur son PC
+
+Depuis `dixon-coles/` :
 
 ```bash
-python -m pip install -e '.[video]'
-# Installer FFmpeg : ffmpeg et ffprobe doivent être accessibles depuis PATH.
+python -m pip install -e '.[test,video]'
 python -m dcscore.video_render \
-  --payload results/daily/AAAA-MM-JJ/video_payload.json \
-  --output results/daily/AAAA-MM-JJ/top10.mp4
+  --payload video_examples/demo_fictional_top10.json \
+  --output demo_top10.mp4 --preview --fullhd
 ```
 
-Le workflow `dixon-coles-daily-top10.yml` rend automatiquement le MP4 **seulement si**
-`ready_for_video=true`. Le MP4 est conservé comme artefact GitHub, sans upload vers les réseaux.
-Le pipeline de publication TikTok/Meta/YouTube n'est pas activé.
-
-### Prévisualisation du style (données entièrement fictives)
+`ffmpeg` et `ffprobe` doivent être installés. Pour tester les logos de clubs réels dans des **affiches fictives** :
 
 ```bash
 python -m dcscore.video_render \
-  --payload video_examples/demo_payload.json \
-  --output preview-demo.mp4 \
-  --preview --allow-partial-preview
+  --payload video_examples/demo_real_club_logos_top10.json \
+  --output demo_logos_reels.mp4 --preview --fullhd
 ```
 
-En mode preview, un bandeau **DÉMO · MODÈLES NON CALIBRÉS** est incrusté ; aucune
-vidéo de production n'est créée. L'exemple fourni comporte volontairement 3 équipes et
-3 scores inventés : il sert à tester le graphisme, pas la performance statistique.
+L'accès réseau au fournisseur d'écussons est nécessaire ; le mode démo affichera une vignette typographique de remplacement et signalera le nombre de logos non téléchargés. Le mode production, lui, refusera ces remplacements.
 
-### Caractéristiques de réalisation
+## Non encore implémenté
 
-- 9:16, 720 × 1 280, 25 fps (premier profil optimisé pour rendu GitHub Actions).
-- Animation d'introduction (2,7 s), 3,05 s par rencontre, outro (2,75 s).
-- Des scores qui apparaissent puis des probabilités affichées en décalé.
-- Texte principal : « score le plus probable », jamais « score sûr ».
-- Top 3 et pourcentage, rappel 18+, aucun conseil de mise.
-- Musique originale générée localement, sans échantillon tiers.
-- Montages sans image des joueurs et sans logo licencié, ce qui permet de tester
-  la création avec uniquement Python, Pillow et FFmpeg.
-- Personnalisation possible via les couleurs et la police du module.
-
-### Conseils pour la future publication automatique
-
-D'abord collecter des statistiques de visionnage : taux de rétention à 3 secondes,
-5 secondes, complétion et relecture. Une évaluation visuelle humaine ne peut
-pas démontrer qu'un public réel regardera la vidéo jusqu'à la fin.
-Pour l'activation de publication, il faudra ajouter un contrôle des droits des
-sources, les autorisations des plateformes, une empreinte anti-doublon
-(date et contenu), une politique de correction des rencontres reportées,
-un suivi des erreurs, et un mode de validation avant diffusion.
-
-## Dépendances
-
-Python 3.10+, Pillow 10+, numpy 1.26+ et FFmpeg avec libx264 et AAC.
-La police Inter est détectée localement quand présente, sinon DejaVu Sans.
-Ne jamais commiter de fichiers de polices propriétaires dans GitHub.
-
-Pour l'export production, le workflow ajoute `--fullhd` et génère un
-MP4 **1080 × 1920** par suréchantillonnage Lanczos du moteur de motion graphics
-720 × 1280. Les éléments ne sont pas recréés en 1080 natif : ceci est un profil
-d'export, pas une affirmation de résolution native. La prévisualisation rapide reste
-possible en 720 × 1280 sans ce drapeau.
+La publication directe sur TikTok, YouTube Shorts, Facebook Reels et Instagram Reels n'est pas activée. Il reste à vérifier les permissions de l'API de chaque plateforme, les droits sur les écussons, puis tester les uploads et les mécanismes anti-doublon avant d'activer une diffusion sans validation humaine.
