@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "date_local_africa_lome": "2099-01-01",
+  "ready_for_video": false,
+  "status": "PREVIEW_ONLY",
+  "selected_count": 3,
+  "clips": [
+    {
+      "order": 1,
+      "headline": "Club Fictif Alpha - Club Fictif Beta",
+      "competition": "CHAMPIONNAT FICTIF",
+      "display_score": "2-1",
+      "display_probability_percent": 13.9,
+      "top_3": [
+        {"score": "2-1", "probability": 0.139},
+        {"score": "1-1", "probability": 0.128},
+        {"score": "1-0", "probability": 0.111}
+      ]
+    },
+    {
+      "order": 2,
+      "headline": "Club Fictif Gamma - Club Fictif Delta",
+      "competition": "COUPE FICTIVE · FINALE",
+      "display_score": "1-0",
+      "display_probability_percent": 15.7,
+      "top_3": [
+        {"score": "1-0", "probability": 0.157},
+        {"score": "1-1", "probability": 0.138},
+        {"score": "2-0", "probability": 0.124}
+      ]
+    },
+    {
+      "order": 3,
+      "headline": "Club Fictif Epsilon - Club Fictif Zeta",
+      "competition": "CHAMPIONNAT FICTIF",
+      "display_score": "0-2",
+      "display_probability_percent": 12.6,
+      "top_3": [
+        {"score": "0-2", "probability": 0.126},
+        {"score": "1-2", "probability": 0.121},
+        {"score": "0-1", "probability": 0.109}
+      ]
+    }
+  ]
+}
