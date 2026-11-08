@@ -1,5 +1,554 @@
 [
   {
+    "id": "cf0fd3b9b7dfe4ee4d36f0b9",
+    "kind": "article",
+    "title": "Enugu Rangers International vs Kwara United : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604604/",
+    "source_date": "2026-11-08T00:13:09.110837+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-604604-f50413bf-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604604-f50413bf-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604604-f50413bf-social.jpg"
+  },
+  {
+    "id": "fc1f7d6ec5a37ccbef47eb36",
+    "kind": "article",
+    "title": "Boreham Wood vs Wigan Athletic : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-642917/",
+    "source_date": "2026-11-08T00:13:09.110837+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-642917-641b4e69-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-642917-641b4e69-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-642917-641b4e69-social.jpg"
+  },
+  {
+    "id": "aa8cee7faf44d78c7e8e1d1e",
+    "kind": "article",
+    "title": "Ikorodu City vs Inter Lagos FC : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604610/",
+    "source_date": "2026-11-07T17:03:13.641024+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-604610-c8c03361-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604610-c8c03361-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604610-c8c03361-social.jpg"
+  },
+  {
+    "id": "4335ec929407d9f306dbfe93",
+    "kind": "news",
+    "title": "Coupe du Monde 2026 : l’Argentine va saisir le TAS pour les sanctions de la FIFA",
+    "url": "https://www.footmercato.net/a920291794205769004-coupe-du-monde-2026-largentine-va-saisir-le-tas-pour-les-sanctions-de-la-fifa",
+    "source_date": "2026-11-07T22:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e3ecd522b542ef0397bb4ade",
+    "kind": "news",
+    "title": "Liga : Valencia CF - Real Madrid : le résumé vidéo",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-liga-valencia-cf-real-madrid-le-resume-video-545068.html",
+    "source_date": "2026-11-07T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3afc9e5d6ba59353d356bc65",
+    "kind": "news",
+    "title": "Valence - Real Madrid : Maffeo vrille en interview, Rüdiger et Bellingham auraient frappé des agents de sécurité, mi-temps folle à Mestalla",
+    "url": "https://www.onzemondial.com/liga/valence-real-madrid-maffeo-vrille-en-interview-rudiger-et-bellingham-auraient-frappe-des-agents-de-securite-a-la-mi-temps-mi-temps-folle-a-mestalla-1007731",
+    "source_date": "2026-11-07T22:17:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b697b66d4a833676933d03b8",
+    "kind": "news",
+    "title": "Hossam Hassan n’est plus le sélectionneur de l’Égypte",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261107-hossam-hassan-n-est-plus-le-s%C3%A9lectionneur-de-l-%C3%A9gypte",
+    "source_date": "2026-11-07T21:09:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9dbf602518d0b7f5dbd17299",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: le groupe des Super Eagles pour la double confrontation face à la Tanzanie",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261107-%C3%A9liminatoires-can-2027-le-groupe-des-super-eagles-pour-la-double-confrontation-face-%C3%A0-la-tanzanie",
+    "source_date": "2026-11-07T19:06:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c9b2b36768bb5094aca7c60c",
+    "kind": "news",
+    "title": "Ligue des nations : Zinédine Zidane entre surprise et continuité pour sa deuxième liste",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261107-ligue-des-nations-zin%C3%A9dine-zidane-entre-surprise-et-continuit%C3%A9-pour-sa-deuxi%C3%A8me-liste",
+    "source_date": "2026-11-07T13:32:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8b15eecf4536e2da04005e80",
+    "kind": "news",
+    "title": "PSG : Lucas Beraldo réagit à sa 100e sous le maillot parisien",
+    "url": "https://www.footmercato.net/a6432098424315089113-psg-lucas-beraldo-reagit-a-sa-100e-sous-le-maillot-parisien",
+    "source_date": "2026-11-07T23:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ea147fecd7fbeb4970ffbc6f",
+    "kind": "news",
+    "title": "PSG : Luis Enrique vole au secours de Ferran Torres",
+    "url": "https://www.footmercato.net/a1947598674990878166-psg-luis-enrique-vole-au-secours-de-ferran-torres",
+    "source_date": "2026-11-07T23:14:34+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1f875b6b25fdcef71e997f12",
+    "kind": "news",
+    "title": "PSG - Troyes : l’impressionnant retour au premier plan de Senny Mayulu se confirme",
+    "url": "https://www.footmercato.net/a9041688862527560353-psg-troyes-limpressionnant-retour-au-premier-plan-de-senny-mayulu-se-confirme",
+    "source_date": "2026-11-07T23:11:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0691c22ef0df5cae66ee951c",
+    "kind": "news",
+    "title": "Lille : Ancelotti sous le choc après l'énorme suspension infligée à Létang",
+    "url": "https://www.onzemondial.com/ligue-1/lille-ancelotti-sous-le-choc-apres-lenorme-suspension-infligee-a-letang-1007660",
+    "source_date": "2026-11-07T23:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e2b3e2feeee5015baf31f060",
+    "kind": "news",
+    "title": "Espagne : les larmes d’une arbitre lors de l’hommage à Jesús de Miguel",
+    "url": "https://www.footmercato.net/a9102732057461085598-espagne-les-larmes-dune-arbitre-lors-de-lhommage-a-jesus-de-miguel",
+    "source_date": "2026-11-07T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b4f29ab3caee5137cda6703d",
+    "kind": "news",
+    "title": "Real Madrid : \"Mes joueurs sont bien meilleurs que les tiens\" ... L'incroyable punchline de Mourinho pour venir en aide à l'entraîneur de Valence",
+    "url": "https://www.onzemondial.com/liga/real-madrid-mes-joueurs-sont-bien-meilleurs-que-les-tiens-lincroyable-punchline-de-mourinho-pour-venir-en-aide-a-lentraineur-de-valence-1007737",
+    "source_date": "2026-11-07T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b6439cc542e01cf93ecf30c1",
+    "kind": "news",
+    "title": "PSG : Luis Enrique complimente Zinédine Zidane mais refuse de le conseiller",
+    "url": "https://www.footmercato.net/a1478111580319888306-psg-luis-enrique-complimente-zinedine-zidane-mais-refuse-de-le-conseiller",
+    "source_date": "2026-11-07T22:33:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e6c0fc69c1570f58a6339fce",
+    "kind": "news",
+    "title": "PSG - Troyes : \"Moi donner un conseil à Zidane ?\" .... La réponse géniale de Luis Enrique sur l'utilisation de Zaïre-Emery en équipe de France",
+    "url": "https://www.onzemondial.com/ligue-1/psg-troyes-moi-donner-un-conseil-a-zidane-la-reponse-geniale-de-luis-enrique-sur-lutilisation-de-zaire-emery-en-equipe-de-france-1007734",
+    "source_date": "2026-11-07T22:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cdfdc28c1fdfb31cac22abda",
+    "kind": "news",
+    "title": "PSG : Luis Enrique réagit au succès parisien face à l'ESTAC Troyes et refuse de polémiquer avec Zinédine Zidane !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-reagit-au-succes-parisien-face-a-l-estac-troyes-et-refuse-de-polemiquer-avec-zinedine-zidane-545067.html",
+    "source_date": "2026-11-07T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "73c86104d6c9570a2f56a249",
+    "kind": "news",
+    "title": "PSG : Les mots du buteur Illia Zabarnyi après la victoire et le clean-sheet face à l'ESTAC Troyes",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-les-mots-du-buteur-illia-zabarnyi-apres-la-victoire-et-le-clean-sheet-face-a-l-estac-troyes-545065.html",
+    "source_date": "2026-11-07T22:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "066d2ca088d2ae808b2ed763",
+    "kind": "news",
+    "title": "PSG : la réaction d’Ilya Zabarnyi après le succès contre Troyes",
+    "url": "https://www.footmercato.net/a6925169059000882736-psg-la-reaction-dilya-zabarnyi-apres-le-succes-contre-troyes",
+    "source_date": "2026-11-07T22:13:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3ce3cdeadfd4acd0d3a006a4",
+    "kind": "news",
+    "title": "Liga : Le Real Madrid ne fait qu'une bouchée du Valencia CF et met la pression sur le Barça ! (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-liga-le-real-madrid-ne-fait-qu-une-bouchee-du-valencia-cf-et-met-la-pression-sur-le-barca-resume-545064.html",
+    "source_date": "2026-11-07T22:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ad64f65019825a118615efb0",
+    "kind": "news",
+    "title": "Liga : le Real Madrid se balade contre Valence et met la pression sur le Barça et l'Atlético",
+    "url": "https://www.onzemondial.com/liga/liga-le-real-madrid-se-balade-contre-valence-et-met-la-pression-sur-le-barca-et-latletico-1007726",
+    "source_date": "2026-11-07T22:03:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "142396c1eba11f00328e808c",
+    "kind": "news",
+    "title": "Ligue 1 : sans forcer, le PSG s'impose contre Troyes et consolide sa place de leader",
+    "url": "https://www.onzemondial.com/ligue-1/ligue-1-sans-forcer-le-psg-simpose-contre-troyes-et-consolide-sa-place-de-leader-1007728",
+    "source_date": "2026-11-07T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cd531bda571956ad002553e9",
+    "kind": "news",
+    "title": "Liga : le Real Madrid écrase Valence et revient provisoirement à hauteur du Barça",
+    "url": "https://www.footmercato.net/a8136698787135311425-liga-le-real-madrid-ecrase-valence-et-revient-provisoirement-a-hauteur-du-barca",
+    "source_date": "2026-11-07T21:58:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "706f24bfa38a720d81520813",
+    "kind": "news",
+    "title": "Ligue 1 : Service minimum pour le PSG contre Troyes",
+    "url": "https://www.sofoot.com/articles/ligue-1-service-minimum-pour-le-psg-contre-troyes",
+    "source_date": "2026-11-07T21:56:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7b87d2823a2819e4b0bbeee4",
+    "kind": "news",
+    "title": "Le PSG assure le service minimum contre Troyes et signe un septième succès d'affilée en Ligue 1",
+    "url": "https://www.franceinfo.fr/sports/foot/psg/le-psg-assure-le-service-minimum-contre-troyes-et-signe-un-septieme-succes-d-affilee-en-ligue-1_8272742.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-07T21:56:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-08T05:42:57.483034+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "635bbca26c2f1cd528a8106a",
     "kind": "article",
     "title": "Espérance Sportive De Tunis vs US Monastir : analyse du match",
@@ -128,7 +677,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "96623259275611e1941ea5bb",
@@ -149,7 +698,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "15f0867ca7065e0fb2232391",
@@ -170,7 +719,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ec79c6f2110b9e03929c99a1",
@@ -191,7 +740,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "59dd69f9f97ed66e426efb63",
@@ -212,7 +761,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1209e6afcc278f8149ffeb98",
@@ -254,7 +803,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0cbd6bc7fcfd6dfbf5cb3ce2",
@@ -275,7 +824,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4c5b8e4edb232099905c7e43",
@@ -296,7 +845,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "31a6055f7d360f97445e450b",
@@ -443,7 +992,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e0e259dc790d4871d8944c51",
@@ -464,7 +1013,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cdc95beb516243c20db1dfa6",
@@ -485,7 +1034,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "758d95e1ea04ba92ef4f5840",
@@ -506,7 +1055,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "be2a34169a701271487ec996",
@@ -527,7 +1076,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "648f8473ac6be54636cb83f9",
@@ -548,7 +1097,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "931a8b3cc92c708e8561e9c1",
@@ -569,7 +1118,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "989064de937f6aaabecef3c2",
@@ -612,7 +1161,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "01e47d60aed78e040407766c",
@@ -738,7 +1287,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ec26e61d3f6afe94cc5e7cc1",
@@ -759,7 +1308,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0b93de997eb0d2befe021a89",
@@ -780,7 +1329,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1bdfdab3214626041b759df8",
@@ -822,7 +1371,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9bbdebef72153b667b8e1262",
@@ -843,7 +1392,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "43dada624e0d693c37df7cf5",
@@ -864,7 +1413,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a0087870ea857600eb2c68d4",
@@ -885,7 +1434,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8db375c24edaaaf12dda07dd",
