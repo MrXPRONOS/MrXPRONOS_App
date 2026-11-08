@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b84e2d066c8f2d7a:1X",
+    "recorded_at_utc": "2026-11-08T00:13:23+00:00",
+    "kickoff_utc": "2026-11-09T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Real Club Deportivo de A Coruña",
+      "away_team": "Valencia",
+      "league": "Spanish Primera División de la Liga de Fútbol Femenino"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "aa04b7a5c63bcc42703cec0ee96a6ce5247aec3555174fd6655b7f85457561b4"
+}
