@@ -8,9 +8,13 @@ import unicodedata
 from .matching import filename_of
 
 STOP = {"film","movie","video","vf","vostfr","french","fr","hd","full","complet",
-        "complete","mkv","mp4","1080p","720p","2026","2025","2024","partie",
-        "part","episode","ep","saison","titre","nouveau","nouvelle","le","la",
-        "les","un","une","des","de","du","et","en","the","of","a","and"}
+        "complete","mkv","mp4","1080p","720p","480p","360p","2160p","4k",
+        "partie","part","episode","ep","saison","titre","nouveau","nouvelle",
+        "le","la","les","un","une","des","de","du","et","en","the","of","a","and",
+        "sur","dans","avec","pour","streaming","gratuit","lecteur","web","webdl",
+        "webrip","webdub","hdtv","bluray","brrip","dvdrip","hdlight","multi",
+        "x264","x265","h264","h265","hevc","aac","ac3","eac3","extreme","vff",
+        "truefrench","proper","repack","hdr","10bit","www2","tirexo"}
 
 ROMAN_SEQUELS = {"ii": "2", "iii": "3", "iv": "4", "v": "5",
                  "vi": "6", "vii": "7", "viii": "8", "ix": "9"}
@@ -25,7 +29,7 @@ def tokens(text):
     text = re.sub(r"[^a-z0-9]+", " ", text)
     result = set()
     for word in text.split():
-        if word in STOP:
+        if word in STOP or YEAR.fullmatch(word):
             continue
         if word in ROMAN_SEQUELS:
             result.add(ROMAN_SEQUELS[word])
@@ -34,6 +38,26 @@ def tokens(text):
         elif len(word) > 2 and not word.isdigit():
             result.add(word)
     return result
+
+# Technical release tags are metadata, not part of a movie title. Only strip
+# from the first clear marker when at least two meaningful title tokens precede
+# it; this avoids guessing a title from a generic file or a year-only name.
+RELEASE_MARKER = re.compile(
+    r"(?i)\\b(?:19[0-9]{2}|20[0-9]{2}|2160p|1080p|720p|480p|360p|"
+    r"web[ ._-]?dl|web[ ._-]?rip|bluray|brrip|dvdrip|hdtv|hdlight|"
+    r"x264|x265|h264|h265|hevc|ac3|eac3)\\b"
+)
+
+
+def filename_title(value):
+    cleaned = re.sub(r"[._\\[\\](){}]+", " ", str(value or ""))
+    cleaned = re.sub(r"(?i)\\.(?:mp4|mkv|avi|mov|webm)$", "", cleaned).strip()
+    for match in RELEASE_MARKER.finditer(cleaned):
+        prefix = cleaned[:match.start()].strip()
+        if len(tokens(prefix)) >= 2:
+            return prefix
+    return cleaned
+
 
 def title_line(message):
     raw = str(getattr(message,"raw_text","") or "")
@@ -70,7 +94,7 @@ def title_assessment(poster,video):
     # poster. A matching caption must never override a contradictory filename.
     caption = title_line(video)
     filename = filename_of(video)
-    evidence = [tokens(caption), tokens(filename)]
+    evidence = [tokens(caption), tokens(filename_title(filename))]
     evidence = [b for b in evidence if b]
     # Equal titles do not identify the same remake when years conflict.
     poster_years = release_year(title_line(poster))
