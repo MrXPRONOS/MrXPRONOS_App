@@ -124,6 +124,7 @@ def test_auto_source_selection_without_secret(monkeypatch):
     monkeypatch.delenv('FOOTBALL_DATA_TOKEN',raising=False)
     monkeypatch.setattr(daily,'OpenLigaDBProvider',lambda: type('OpenLiga',(),{'name':'ol','discover':lambda *a:([],[]),'history':lambda *a:([],[])})())
     monkeypatch.setattr(daily,'OpenFootballProvider',lambda: type('OpenF',(),{'name':'of','discover':lambda *a:([],[]),'history':lambda *a:([],[])})())
+    monkeypatch.setattr(daily,'ESPNProvider',lambda: type('ESPN',(),{'name':'espn','discover':lambda *a:([],[]),'history':lambda *a:([],[])})())
     # Directly verify constructed composite via injected pipeline, without network.
     used=[]
     def run(provider,**kw):
@@ -136,7 +137,7 @@ def test_auto_source_selection_without_secret(monkeypatch):
     from pathlib import Path
     monkeypatch.setattr(daily,'save_outputs',lambda *args:None)
     assert daily.main(['--day','tomorrow'])==0
-    assert used==['ol','of']
+    assert used==['espn','ol','of']
 
 
 def test_zero_fixtures_has_explicit_reason_and_diagnostics():
