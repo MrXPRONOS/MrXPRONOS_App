@@ -6,6 +6,8 @@ on:
       - 'dixon-coles/dcscore/daily*.py'
       - 'dixon-coles/tests/test_daily_pipeline.py'
       - 'dixon-coles/dcscore/video_render.py'
+      - 'dixon-coles/dcscore/video_grid.py'
+      - 'dixon-coles/tests/test_video_grid.py'
       - 'dixon-coles/dcscore/logo_policy.py'
       - 'dixon-coles/tests/test_video_renderer.py'
       - 'dixon-coles/DAILY_TOP10.md'
@@ -65,10 +67,10 @@ jobs:
           python -m pip install -e '.[video]'
           command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
       - name: Vérifier sélection, date et montage vidéo
-        run: python -m pytest -q tests/test_daily_pipeline.py tests/test_video_renderer.py
+        run: python -m pytest -q tests/test_daily_pipeline.py tests/test_video_renderer.py tests/test_video_grid.py
       - name: Sélectionner et prédire les matchs admissibles
         run: python -m dcscore.daily --day "$DCSCORE_DAILY_DAY" --source "$DCSCORE_DAILY_SOURCE" --count 10
-      - name: Monter les 10 affiches en MP4 seulement si READY
+      - name: Monter les 10 affiches sur un seul écran (aucune intro/outro)
         run: |
           python - <<'PYCODE'
           import json
@@ -84,7 +86,7 @@ jobs:
                   print(f'Vidéo refusée pour {path.parent.name}: {payload.get("status")} (non READY)')
                   continue
               destination=path.parent/'top10.mp4'
-              subprocess.run([sys.executable,'-m','dcscore.video_render',
+              subprocess.run([sys.executable,'-m','dcscore.video_grid',
                               '--payload',str(path),'--output',str(destination),'--fullhd'],check=True)
               print('Vidéo de validation générée :',destination)
           PYCODE
