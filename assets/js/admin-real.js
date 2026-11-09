@@ -1878,7 +1878,7 @@ async function afterLogin() {
     setLoginMsg("Droits de lecture refusés.");
     return;
   }
-  for(const item of document.querySelectorAll(".nav-item.tab[data-tab]")){
+  for(const item of document.querySelectorAll(".nav-item.tab[data-tab], .admin-mobile-nav .tab[data-tab]")){
     const permission=tabPermission[item.dataset.tab];
     item.hidden=!!permission&&!adminPermissions[permission];
   }
