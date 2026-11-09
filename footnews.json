@@ -1,5 +1,41 @@
 [
   {
+    "slug": "ba35da7e7453f1d4",
+    "title": "OM : Bruno Genesio a secoué ses joueurs",
+    "summary": "L’OM a remporté ses cinq derniers matchs de championnat. Une remontée folle qui permet aux Phocéens de remonter jusqu’à la quatrième marche du classement de Ligue 1. Dernière victoire en date, celle à (…)",
+    "summary_short": "L’OM a remporté ses cinq derniers matchs de championnat. Une remontée folle qui permet aux Phocéens de remonter jusqu’à la quatrième marche du classement de Ligue 1. Dernière victoire en date, celle à (…)",
+    "content": "L’OM a remporté ses cinq derniers matchs de championnat. Une remontée folle qui permet aux Phocéens de remonter jusqu’à la quatrième marche du classement de Ligue 1. Dernière victoire en date, celle à (…)",
+    "paragraphs": [
+      "L’OM a remporté ses cinq derniers matchs de championnat. Une remontée folle qui permet aux Phocéens de remonter jusqu’à la quatrième marche du classement de Ligue 1. Dernière victoire en date, celle à (…)"
+    ],
+    "key_points": [
+      "L’OM a remporté ses cinq derniers matchs de championnat.",
+      "Une remontée folle qui permet aux Phocéens de remonter jusqu’à la quatrième marche du classement de Ligue 1.",
+      "Dernière victoire en date, celle à (…)"
+    ],
+    "telegram_summary": "L’OM a remporté ses cinq derniers matchs de championnat. Une remontée folle qui permet aux Phocéens de remonter jusqu’à la quatrième marche du classement de Ligue 1. Dernière victoire en date, celle à (…)",
+    "link": "https://www.footmercato.net/a506686548213104240-om-bruno-genesio-a-secoue-ses-joueurs",
+    "source_url": "https://www.footmercato.net/a506686548213104240-om-bruno-genesio-a-secoue-ses-joueurs",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba35da7e7453f1d4",
+    "published": "2026-11-08T23:06:19+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/genesio-6ad1440998560.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/genesio-6ad1440998560.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "15430c2ca9c50212",
     "title": "Lens : Cahuzac pas inquiet pour son poste",
     "summary": "En seulement neuf matchs dirigés depuis sa prise de fonctions, Yannick Cahuzac a déjà essuyé six défaites à la tête du RC Lens, dont celle face à l'Ol......",
@@ -188,7 +224,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-08T22:56:47.068676+00:00"
+      "checked_at": "2026-11-09T02:43:41.051244+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -371,8 +407,43 @@
     "quality_score": 83
   },
   {
+    "slug": "44ee5db3fcdbfe32",
+    "title": "L'équipe type de L1 - 10e journée",
+    "summary": "Auteur d'une grosse performance contre Troyes, le Parisien Zaïre-Emery est le joueur de la journée. Le Lillois Diaoune, le Brestois Ed...",
+    "summary_short": "Auteur d'une grosse performance contre Troyes, le Parisien Zaïre-Emery est le joueur de la journée. Le Lillois Diaoune, le Brestois Ed...",
+    "content": "Auteur d'une grosse performance contre Troyes, le Parisien Zaïre-Emery est le joueur de la journée. Le Lillois Diaoune, le Brestois Ed...",
+    "paragraphs": [
+      "Auteur d'une grosse performance contre Troyes, le Parisien Zaïre-Emery est le joueur de la journée. Le Lillois Diaoune, le Brestois Ed..."
+    ],
+    "key_points": [
+      "Auteur d'une grosse performance contre Troyes, le Parisien Zaïre-Emery est le joueur de la journée.",
+      "Le Lillois Diaoune, le Brestois Ed..."
+    ],
+    "telegram_summary": "Auteur d'une grosse performance contre Troyes, le Parisien Zaïre-Emery est le joueur de la journée. Le Lillois Diaoune, le Brestois Ed...",
+    "link": "https://m.maxifoot.fr/football/article-66515.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66515.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=44ee5db3fcdbfe32",
+    "published": "2026-11-08T22:56:01+00:00",
+    "image": "https://photo.maxifoot.fr/paris-sg-zaire-emery-41.jpg",
+    "source_image": "https://photo.maxifoot.fr/paris-sg-zaire-emery-41.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
     "slug": "24ea1102a575fa52",
-    "title": "La remontée vertigineuse d’un OM qui a déjà laissé l’OL dans le rétroviseur !",
+    "title": "La remontée vertigineuse d’un OM qui a déjà laissé l’OL dans le rétroviseur",
     "summary": "Largué au classement il y a quelques semaines encore, l’OM poursuit sa remontée avec un joli 5/5 en Ligue 1. Devançant donc plusieurs rivaux comme l’OL, le Stade Rennais ou l’AS Monaco.",
     "summary_short": "Largué au classement il y a quelques semaines encore, l’OM poursuit sa remontée avec un joli 5/5 en Ligue 1. Devançant donc plusieurs rivaux comme l’OL, le Stade Rennais ou l’AS Monaco.",
     "content": "Largué au classement il y a quelques semaines encore, l’OM poursuit sa remontée avec un joli 5/5 en Ligue 1. Devançant donc plusieurs rivaux comme l’OL, le Stade Rennais ou l’AS Monaco. C’était la fin (…)",
@@ -673,11 +744,12 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50425918",
-      "url": "https://www.espn.com/video/clip/_/id/50425918/fermin-lopez-double-barcelona-beat-atletico-madrid",
-      "published": "2026-11-08T22:38:36Z",
-      "score": 0.2,
+      "article_id": "50426411",
+      "url": "https://www.espn.com/soccer/story/_/id/50426411/barca-pass-their-biggest-test-yet-fermin-lopez-sinks-atletico-madrid",
+      "published": "2026-11-08T23:47:36Z",
+      "score": 0.25,
       "matched_terms": [
+        "barca",
         "fermin",
         "lopez"
       ],
@@ -686,13 +758,15 @@
         "Atlético Madrid",
         "Barcelona"
       ],
-      "athletes": [],
+      "athletes": [
+        "Fermín López"
+      ],
       "leagues": [
         "Soccer",
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-08T22:56:47.068676+00:00"
+      "checked_at": "2026-11-09T02:43:41.051244+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -769,39 +843,39 @@
     "quality_score": 80
   },
   {
-    "slug": "1c39b32247f44c67",
-    "title": "De puni à héros, Abdallah fait remonter l'OM à la 4e place ! - Débrief et NOTES des joueurs (Lens 1-2 OM)",
-    "summary": "Sérieux malgré une période délicate dans le premier acte, l'Olympique de Marseille a enchaîné un cinquième succès de rang en championnat en s'imposant à Lens (2-1), ce dimanche, en clôture de la 10e journée de Ligue 1.",
-    "summary_short": "Sérieux malgré une période délicate dans le premier acte, l'Olympique de Marseille a enchaîné un cinquième succès de rang en championnat en s'imposant à Lens (2-1), ce dimanche, en clôture de la 10e journée de Ligue 1.",
-    "content": "Sérieux malgré une période délicate dans le premier acte, l'Olympique de Marseille a enchaîné un cinquième succès de rang en championnat en s'imposant à Lens (2-1), ce dimanche, en clôture de la 10e journée de Ligue 1. L'OM remonte à la 4e place du classement et laisse le RCL dans ses doutes....",
+    "slug": "df673e929ee690e8",
+    "title": "Serie A : la Fiorentina et la Juve dos à dos",
+    "summary": "La Juventus devait l’emporter ce soir pour ne pas laisser filer le wagon européen. En déplacement du côté de la Fiorentina, la Vieille Dame, huitième, devait donc prendre les trois points face à une (…)",
+    "summary_short": "La Juventus devait l’emporter ce soir pour ne pas laisser filer le wagon européen. En déplacement du côté de la Fiorentina, la Vieille Dame, huitième, devait donc prendre les trois points face à une (…)",
+    "content": "La Juventus devait l’emporter ce soir pour ne pas laisser filer le wagon européen. En déplacement du côté de la Fiorentina, la Vieille Dame, huitième, devait donc prendre les trois points face à une (…)",
     "paragraphs": [
-      "Sérieux malgré une période délicate dans le premier acte, l'Olympique de Marseille a enchaîné un cinquième succès de rang en championnat en s'imposant à Lens (2-1), ce dimanche, en clôture de la 10e journée de Ligue 1. L'OM remonte à la 4e place du classement et laisse le RCL dans ses doutes...."
+      "La Juventus devait l’emporter ce soir pour ne pas laisser filer le wagon européen. En déplacement du côté de la Fiorentina, la Vieille Dame, huitième, devait donc prendre les trois points face à une (…)"
     ],
     "key_points": [
-      "Sérieux malgré une période délicate dans le premier acte, l'Olympique de Marseille a enchaîné un cinquième succès de rang en championnat en s'imposant à Lens (2-1), ce dimanche, en clôture de la 10e journée de Ligue 1.",
-      "L'OM remonte à la 4e place du classement et laisse le RCL dans ses doutes...."
+      "La Juventus devait l’emporter ce soir pour ne pas laisser filer le wagon européen.",
+      "En déplacement du côté de la Fiorentina, la Vieille Dame, huitième, devait donc prendre les trois points face à une (…)"
     ],
-    "telegram_summary": "Sérieux malgré une période délicate dans le premier acte, l'Olympique de Marseille a enchaîné un cinquième succès de rang en championnat en s'imposant à Lens (2-1), ce dimanche, en clôture de la 10e journée de Ligue 1.",
-    "link": "https://m.maxifoot.fr/football/article-66514.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66514.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1c39b32247f44c67",
-    "published": "2026-11-08T21:58:03+00:00",
-    "image": "https://photo.maxifoot.fr/marseille-abdallah-1.jpg",
-    "source_image": "https://photo.maxifoot.fr/marseille-abdallah-1.jpg",
+    "telegram_summary": "La Juventus devait l’emporter ce soir pour ne pas laisser filer le wagon européen. En déplacement du côté de la Fiorentina, la Vieille Dame, huitième, devait donc prendre les trois points face à une (…)",
+    "link": "https://www.footmercato.net/a3853593605747623862-serie-a-la-fiorentina-et-la-juve-dos-a-dos",
+    "source_url": "https://www.footmercato.net/a3853593605747623862-serie-a-la-fiorentina-et-la-juve-dos-a-dos",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=df673e929ee690e8",
+    "published": "2026-11-08T22:01:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bremer-2627.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bremer-2627.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
+    "source": "Foot Mercato",
+    "source_priority": 92,
     "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "source_feed": "https://www.footmercato.net/flux-rss",
     "category": "Compétitions",
     "category_emoji": "🏆",
     "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
-      "Maxifoot"
+      "Foot Mercato"
     ],
-    "quality_score": 78
+    "quality_score": 92
   },
   {
     "slug": "bce5d52ec640f1a3",
@@ -941,40 +1015,6 @@
     "quality_score": 80
   },
   {
-    "slug": "0fdb397fd1912fdf",
-    "title": "OM : l’immense joie d’Amine Gouiri",
-    "summary": "Buteur face au Racing Club de Lens, Amine Gouiri a contribué à la victoire de l’Olympique de Marseille à Bollaert (1-2), ce dimanche soir, lors de cette 10e journée de Ligue 1. L’international (…)",
-    "summary_short": "Buteur face au Racing Club de Lens, Amine Gouiri a contribué à la victoire de l’Olympique de Marseille à Bollaert (1-2), ce dimanche soir, lors de cette 10e journée de Ligue 1. L’international (…)",
-    "content": "Buteur face au Racing Club de Lens, Amine Gouiri a contribué à la victoire de l’Olympique de Marseille à Bollaert (1-2), ce dimanche soir, lors de cette 10e journée de Ligue 1. L’international (…)",
-    "paragraphs": [
-      "Buteur face au Racing Club de Lens, Amine Gouiri a contribué à la victoire de l’Olympique de Marseille à Bollaert (1-2), ce dimanche soir, lors de cette 10e journée de Ligue 1. L’international (…)"
-    ],
-    "key_points": [
-      "Buteur face au Racing Club de Lens, Amine Gouiri a contribué à la victoire de l’Olympique de Marseille à Bollaert (1-2), ce dimanche soir, lors de cette 10e journée de Ligue 1."
-    ],
-    "telegram_summary": "Buteur face au Racing Club de Lens, Amine Gouiri a contribué à la victoire de l’Olympique de Marseille à Bollaert (1-2), ce dimanche soir, lors de cette 10e journée de Ligue 1. L’international (…)",
-    "link": "https://www.footmercato.net/a5568311229577218640-om-limmense-joie-damine-gouiri",
-    "source_url": "https://www.footmercato.net/a5568311229577218640-om-limmense-joie-damine-gouiri",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0fdb397fd1912fdf",
-    "published": "2026-11-08T21:53:01+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosten105639.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosten105639.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "e3a31ec62ba94df6",
     "title": "RC Lens : Matthieu Udol accuse le coup après la défaite face à l'OM",
     "summary": "Matthieu Udol a afiché sa déception après la défaite de Lens face à l'OM.",
@@ -1007,41 +1047,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "bdf0723b696cf174",
-    "title": "Lens - OM : les notes du match",
-    "summary": "L’Olympique de Marseille poursuit sa belle série en venant à bout d’un RC Lens toujours marqué par l’humiliation contre Côme (1-9). L’OM remonte au quatrième rang avant la trêve internationale.",
-    "summary_short": "L’Olympique de Marseille poursuit sa belle série en venant à bout d’un RC Lens toujours marqué par l’humiliation contre Côme (1-9). L’OM remonte au quatrième rang avant la trêve internationale.",
-    "content": "L’Olympique de Marseille poursuit sa belle série en venant à bout d’un RC Lens toujours marqué par l’humiliation contre Côme (1-9). L’OM remonte au quatrième rang avant la trêve internationale. « Il (…)",
-    "paragraphs": [
-      "L’Olympique de Marseille poursuit sa belle série en venant à bout d’un RC Lens toujours marqué par l’humiliation contre Côme (1-9). L’OM remonte au quatrième rang avant la trêve internationale. « Il (…)"
-    ],
-    "key_points": [
-      "L’Olympique de Marseille poursuit sa belle série en venant à bout d’un RC Lens toujours marqué par l’humiliation contre Côme (1-9).",
-      "L’OM remonte au quatrième rang avant la trêve internationale."
-    ],
-    "telegram_summary": "L’Olympique de Marseille poursuit sa belle série en venant à bout d’un RC Lens toujours marqué par l’humiliation contre Côme (1-9). L’OM remonte au quatrième rang avant la trêve internationale.",
-    "link": "https://www.footmercato.net/a3326301167732129082-lens-om-les-notes-du-match",
-    "source_url": "https://www.footmercato.net/a3326301167732129082-lens-om-les-notes-du-match",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bdf0723b696cf174",
-    "published": "2026-11-08T21:48:19+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo793994-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo793994-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "a5e3a82eb129377e",
