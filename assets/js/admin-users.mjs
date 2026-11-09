@@ -1,3 +1,4 @@
+import {adminConfirm} from "./admin-phase3.mjs";
 // Administration of delegated staff. Role RLS and owner checks happen server-side.
 const roles={owner:"Propriétaire",editor:"Éditeur",communications:"Communication",viewer:"Lecture seule"};
 export async function mountAdminUsers(sb,root){
@@ -61,7 +62,7 @@ export async function mountAdminUsers(sb,root){
    message("Impossible de désactiver ou rétrograder ton propre compte propriétaire.");return;
   }
   if(!Object.hasOwn(roles,role))return;
-  if(!confirm("Confirmer le rôle "+roles[role]+" pour ce compte ?\n"+uid+
+  if(!await adminConfirm("Confirmer le rôle "+roles[role]+" pour ce compte ?\n"+uid+
     (active?"\nCompte actif":"\nCompte désactivé")))return;
   busy=true;$("role-save").disabled=true;
   try{

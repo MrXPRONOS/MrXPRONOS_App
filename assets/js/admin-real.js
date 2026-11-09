@@ -1,3 +1,4 @@
+import {initAdminFeedback,adminToast,adminConfirm,adminPrompt,adminNotice,enhanceAdminOverview,enhanceHealthDashboard,renderAuditWorkbench} from "./admin-phase3.mjs";
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
 import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
@@ -24,6 +25,7 @@ if (!document.querySelector('link[href*="loading-ui.css"]')) {
 }
 
 const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+initAdminFeedback();
 const $ = (id) => document.getElementById(id);
 
 const premiumAdminLoading = (kind = "admin", count = 3) =>
@@ -102,8 +104,8 @@ async function confirmCmsQuality(kind,row,rows){
       }catch(e){warnings.push("Contrôle des liens indisponible : "+String(e?.message||e));}
     }
   }
-  if(errors.length){alert("Enregistrement refusé :\n"+errors.slice(0,8).join("\n"));return false;}
-  if(warnings.length&&!confirm("À vérifier avant publication :\n"+
+  if(errors.length){adminToast("Enregistrement refusé :\n"+errors.slice(0,8).join("\n"));return false;}
+  if(warnings.length&&!await adminConfirm("À vérifier avant publication :\n"+
     warnings.slice(0,6).join("\n")+
     (warnings.length>6?"\n… et "+(warnings.length-6)+" autres":"")+
     "\n\nEnregistrer malgré ces avertissements ?"))return false;
@@ -210,6 +212,7 @@ async function renderAdminOverview() {
         entry.append(label,status);list.appendChild(entry);
       }
       health.appendChild(list);
+      enhanceAdminOverview(root,m);
       state.textContent=adminSnapshotLabel("Supabase",new Date(),{windowText:"données estimées"});
       void loadAdminHighlights(sb).then(result=>extraWidget?.draw(result)).catch(err=>{
         extra.textContent="Indicateurs complémentaires indisponibles : "+String(err?.message||err);
@@ -270,7 +273,7 @@ async function loadTabIfNeeded(name) {
 async function showTab(name) {
   if (!TAB_NAMES.includes(name)) name="overview";
   if(tabPermission[name]&&!adminPermissions[tabPermission[name]]) {
-    alert("Ton rôle n'autorise pas cette rubrique.");
+    adminToast("Ton rôle n'autorise pas cette rubrique.");
     return;
   }
   showOnlyTab(name);
@@ -431,7 +434,7 @@ async function renderPushAdmin(){
     }
     const name=test?"l'abonné "+payload.user_id:payload.audience==="all"?"TOUS les abonnés":"l'abonné "+payload.user_id;
     const action=operation==="schedule"?"Programmer pour "+new Date(payload.scheduled_at).toLocaleString("fr-FR"):"Envoyer maintenant à "+name;
-    if(!confirm(action+" ?\n\n"+payload.title+"\n"+payload.body))return;
+    if(!await adminConfirm(action+" ?\n\n"+payload.title+"\n"+payload.body))return;
     lock(true);setStatus("Enregistrement de la campagne…");
     try{
       const response=await api({...payload,request_id:pendingRequestId});
@@ -469,7 +472,7 @@ async function renderPushAdmin(){
           const button=document.createElement("button");button.type="button";
           button.className="btn btn-secondary";button.textContent="Annuler";
           button.addEventListener("click",async()=>{
-            if(!confirm("Annuler cette notification programmée ?"))return;
+            if(!await adminConfirm("Annuler cette notification programmée ?"))return;
             button.disabled=true;
             try{await api({operation:"cancel",id:row.id});await reloadHistory();}
             catch(e){setStatus("Annulation impossible : "+e.message);button.disabled=false;}
@@ -506,7 +509,7 @@ async function renderPushAdmin(){
                   const retry=document.createElement("button");retry.className="btn btn-secondary";
                   retry.type="button";retry.textContent="Réessayer uniquement cet appareil";
                   retry.addEventListener("click",async()=>{
-                    if(prompt("Réessai ciblé : une notification peut être reçue en retard.\n"
+                    if(await adminPrompt("Réessai ciblé : une notification peut être reçue en retard.\n"
                       +"Pour confirmer, saisis RENVOYER APPAREIL")!=="RENVOYER APPAREIL")return;
                     retry.disabled=true;
                     try{
@@ -882,7 +885,7 @@ async function renderCmsArticles() {
 
   $("a_save").addEventListener("click", async () => {
     let cmsText;
-    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { adminToast(error.message); return; }
     const row = {
       slug: $("a_slug").value.trim(),
       title: $("a_title").value.trim(),
@@ -897,16 +900,16 @@ async function renderCmsArticles() {
       updated_at: new Date().toISOString(),
       published_at: preservedPublicationDate(rows, $("a_save").dataset.id, $("a_status").value)
     };
-    if (!row.slug || !row.title || !row.content) return alert("Slug/Titre/Contenu requis.");
+    if (!row.slug || !row.title || !row.content) return adminToast("Slug/Titre/Contenu requis.");
 
     const id = $("a_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
     if(!(await confirmCmsQuality("articles",payload,rows)))return;
     const { error } = await sb.from("cms_articles").upsert(payload);
-    if (error) return alert(error.message);
+    if (error) return adminToast(error.message);
 
-    alert("Sauvegardé.");
+    adminToast("Sauvegardé.");
     loadedTabs.delete("articles");
     await renderCmsArticles();
     loadedTabs.add("articles");
@@ -1031,7 +1034,7 @@ async function renderCmsConseils() {
 
   $("c_save").addEventListener("click", async () => {
     let cmsText;
-    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { adminToast(error.message); return; }
     const row = {
       slug: $("c_slug").value.trim(),
       title: $("c_title").value.trim(),
@@ -1045,16 +1048,16 @@ async function renderCmsConseils() {
       updated_at: new Date().toISOString(),
       published_at: preservedPublicationDate(rows, $("c_save").dataset.id, $("c_status").value)
     };
-    if (!row.slug || !row.title || !row.content) return alert("Slug/Titre/Contenu requis.");
+    if (!row.slug || !row.title || !row.content) return adminToast("Slug/Titre/Contenu requis.");
 
     const id = $("c_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
     if(!(await confirmCmsQuality("conseils",payload,rows)))return;
     const { error } = await sb.from("cms_conseils").upsert(payload);
-    if (error) return alert(error.message);
+    if (error) return adminToast(error.message);
 
-    alert("Sauvegardé.");
+    adminToast("Sauvegardé.");
     loadedTabs.delete("conseils");
     await renderCmsConseils();
     loadedTabs.add("conseils");
@@ -1221,16 +1224,16 @@ async function renderBonus() {
       updated_at: new Date().toISOString(),
       published_at: preservedPublicationDate(bonusRows, $("b_save").dataset.id, $("b_status").value)
     };
-    if (!row.bookmaker || !row.title || !row.description) return alert("Bookmaker/Titre/Description requis.");
+    if (!row.bookmaker || !row.title || !row.description) return adminToast("Bookmaker/Titre/Description requis.");
 
     const id = $("b_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
     if(!(await confirmCmsQuality("bonus",payload,bonusRows)))return;
     const { error } = await sb.from("cms_bonus").upsert(payload);
-    if (error) return alert(error.message);
+    if (error) return adminToast(error.message);
 
-    alert("Bonus sauvegardé.");
+    adminToast("Bonus sauvegardé.");
     loadedTabs.delete("bonus");
     await renderBonus();
     loadedTabs.add("bonus");
@@ -1247,16 +1250,16 @@ async function renderBonus() {
       updated_at: new Date().toISOString(),
       published_at: preservedPublicationDate(bookRows, $("bk_save").dataset.id, $("bk_status").value)
     };
-    if (!row.name) return alert("Nom requis.");
+    if (!row.name) return adminToast("Nom requis.");
 
     const id = $("bk_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
     if(!(await confirmCmsQuality("bookmakers",payload,bookRows)))return;
     const { error } = await sb.from("cms_bookmakers").upsert(payload);
-    if (error) return alert(error.message);
+    if (error) return adminToast(error.message);
 
-    alert("Bookmaker sauvegardé.");
+    adminToast("Bookmaker sauvegardé.");
     loadedTabs.delete("bonus");
     await renderBonus();
     loadedTabs.add("bonus");
@@ -1339,7 +1342,7 @@ async function renderInfos() {
 
   $("i_save").addEventListener("click", async () => {
     let cmsText;
-    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { adminToast(error.message); return; }
     const row = {
       title: $("i_title").value.trim(),
       category: $("i_category").value.trim(),
@@ -1350,16 +1353,16 @@ async function renderInfos() {
       updated_at: new Date().toISOString(),
       published_at: preservedPublicationDate(rows, $("i_save").dataset.id, $("i_status").value)
     };
-    if (!row.title || !row.content) return alert("Titre/Contenu requis.");
+    if (!row.title || !row.content) return adminToast("Titre/Contenu requis.");
 
     const id = $("i_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
     if(!(await confirmCmsQuality("infos",payload,rows)))return;
     const { error } = await sb.from("cms_infos").upsert(payload);
-    if (error) return alert(error.message);
+    if (error) return adminToast(error.message);
 
-    alert("Info sauvegardée.");
+    adminToast("Info sauvegardée.");
     loadedTabs.delete("infos");
     await renderInfos();
     loadedTabs.add("infos");
@@ -1435,10 +1438,10 @@ async function renderVip() {
     const uid = $("v_user").value.trim();
     const ip = $("v_ip").value.trim();
     const days = Number($("v_days").value);
-    if (!uid) return alert("Identifiant utilisateur requis.");
+    if (!uid) return adminToast("Identifiant utilisateur requis.");
     if (!Number.isInteger(days) || days<1 || days>365)
-      return alert("Durée invalide : choisis entre 1 et 365 jours.");
-    if (!confirm("Créer ou réinitialiser cet accès VIP ?\n\nCompte : "+uid+"\nDurée : "+days+" jours")) return;
+      return adminToast("Durée invalide : choisis entre 1 et 365 jours.");
+    if (!await adminConfirm("Créer ou réinitialiser cet accès VIP ?\n\nCompte : "+uid+"\nDurée : "+days+" jours")) return;
     const btn=$("v_reset");btn.disabled=true;
     try{
       const { data, error } = await sb.rpc("admin_reset_vip", {
@@ -1446,18 +1449,18 @@ async function renderVip() {
       });
       if (error) throw error;
       const row = Array.isArray(data) ? data[0] : data;
-      alert(`Accès VIP confirmé. Code : ${row?.code} / Expiration : ${row?.expires_at}`);
+      await adminNotice(`Accès VIP confirmé. Code : ${row?.code} / Expiration : ${row?.expires_at}`,"Accès VIP créé");
       loadedTabs.delete("vip");
       await renderVip();
       loadedTabs.add("vip");
-    }catch(err){alert("Impossible de modifier l'accès VIP : "+String(err?.message||err));}
+    }catch(err){adminToast("Impossible de modifier l'accès VIP : "+String(err?.message||err));}
     finally{if(btn.isConnected)btn.disabled=false;}
   });
 
   root.querySelectorAll("[data-revoke]").forEach(btn => {
     btn.addEventListener("click", async () => {
       const uid = btn.getAttribute("data-revoke");
-      if (!confirm("Désactiver l'accès VIP du compte "+uid+" ?")) return;
+      if (!await adminConfirm("Désactiver l'accès VIP du compte "+uid+" ?")) return;
       btn.disabled=true;
       try{
         const { error } = await sb.rpc("admin_revoke_vip", { p_user_id: uid });
@@ -1465,7 +1468,7 @@ async function renderVip() {
         loadedTabs.delete("vip");
         await renderVip();
         loadedTabs.add("vip");
-      }catch(err){alert("Désactivation impossible : "+String(err?.message||err));}
+      }catch(err){adminToast("Désactivation impossible : "+String(err?.message||err));}
       finally{if(btn.isConnected)btn.disabled=false;}
     });
   });
@@ -1523,6 +1526,8 @@ async function renderHealth() {
         const pre=document.createElement("pre");pre.textContent=JSON.stringify(entry.meta||{},null,2);
         details.append(summary,pre);td.append(details);tr.append(td);body.append(tr);
       }
+      const cronEntries=data||[];
+      enhanceHealthDashboard(root,{cron:cronEntries,runs:null});
       note.textContent=(data?.length||0)+" tâche(s) Supabase enregistrée(s) · "+new Date().toLocaleTimeString("fr-FR")+".";
       ghStatus.textContent="Chargement GitHub Actions…";
       try{
@@ -1557,9 +1562,11 @@ async function renderHealth() {
           event.textContent=latest.event||"—";
           tr.append(title,time,state,event);ghBody.append(tr);
         }
+        enhanceHealthDashboard(root,{cron:cronEntries,runs});
         ghStatus.textContent=groups.size+" workflows représentés parmi "+runs.length+
           " exécutions récentes (échantillon GitHub, pas historique exhaustif).";
       }catch(err){
+        enhanceHealthDashboard(root,{cron:cronEntries,runs:null,ghError:String(err?.message||err)});
         ghStatus.textContent="GitHub indisponible : "+String(err?.message||err)+
           ". Les dernières informations Supabase restent consultables.";
       }
@@ -1574,76 +1581,7 @@ async function renderHealth() {
 // AUDIT
 // -----------------------------
 async function renderAudit(){
-  const root=$("tab-audit");if(!root)return;
-  root.replaceChildren();
-  const panel=document.createElement("section");panel.className="card";
-  const head=document.createElement("div");head.className="admin-section-heading";
-  const title=document.createElement("h3");title.textContent="Journal d'audit";
-  const exportButton=document.createElement("button");exportButton.type="button";
-  exportButton.className="btn btn-secondary";exportButton.textContent="Exporter CSV";
-  head.append(title,exportButton);
-  const search=document.createElement("input");search.type="search";
-  search.setAttribute("aria-label","Rechercher les actions du journal");
-  search.placeholder="Rechercher une action ou un administrateur…";
-  const status=document.createElement("p");status.className="muted";status.setAttribute("role","status");
-  const wrap=document.createElement("div");wrap.className="admin-pronostics-table-scroll";
-  const table=document.createElement("table");table.className="admin-audit-table";
-  const thead=document.createElement("thead");thead.innerHTML="<tr><th>Date</th><th>Administrateur</th><th>Action</th><th>Détails</th></tr>";
-  const tbody=document.createElement("tbody");table.append(thead,tbody);wrap.append(table);
-  const more=document.createElement("button");more.type="button";more.className="btn btn-secondary";
-  more.textContent="Charger 100 événements supplémentaires";
-  panel.append(head,search,status,wrap,more);root.appendChild(panel);
-  let rows=[],offset=0,done=false,busy=false;
-  const apply=()=>{
-    tbody.replaceChildren();
-    const q=search.value.trim().toLocaleLowerCase("fr");
-    const filtered=rows.filter(row=>
-      [row.action,row.actor_user_id,JSON.stringify(row.details||{})]
-        .some(value=>String(value||"").toLocaleLowerCase("fr").includes(q)));
-    for(const row of filtered){
-      const tr=document.createElement("tr");
-      const cell=(value)=>{
-        const td=document.createElement("td");td.textContent=String(value??"—");
-        tr.appendChild(td);return td;
-      };
-      cell(row.created_at?new Date(row.created_at).toLocaleString("fr-FR"):"—");
-      cell(row.actor_user_id||"Système");
-      cell(row.action||"—");
-      const detail=document.createElement("td");
-      const summary=document.createElement("details");
-      const trigger=document.createElement("summary");trigger.textContent="Voir";
-      const pre=document.createElement("pre");pre.textContent=JSON.stringify(row.details||{},null,2);
-      summary.append(trigger,pre);detail.append(summary);tr.append(detail);tbody.append(tr);
-    }
-    status.textContent=`${filtered.length} affiché(s) sur ${rows.length} événement(s) chargé(s).`
-      +(done?" Fin de l'historique.":" Charger la suite pour explorer les anciens événements.");
-  };
-  const load=async()=>{
-    if(busy||done)return;
-    busy=true;more.disabled=true;
-    try{
-      const {data,error}=await sb.from("audit_log")
-        .select("created_at,action,details,actor_user_id")
-        .order("created_at",{ascending:false}).range(offset,offset+99);
-      if(error)throw error;
-      const page=data||[];rows.push(...page);offset+=page.length;done=page.length<100;
-      apply();
-    }catch(e){status.textContent="Lecture du journal impossible : "+String(e?.message||e);}
-    finally{busy=false;more.disabled=false;more.hidden=done;}
-  };
-  search.addEventListener("input",apply);
-  more.addEventListener("click",()=>void load());
-  exportButton.addEventListener("click",()=>{
-    const escapeCsv=value=>'"'+String(value??"").replaceAll('"','""')+'"';
-    const lines=[["Date","Administrateur","Action","Détails"].map(escapeCsv).join(","),
-      ...rows.map(x=>[x.created_at,x.actor_user_id,x.action,JSON.stringify(x.details||{})].map(escapeCsv).join(","))];
-    const blob=new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");a.href=url;a.download="mrxpronos-audit-"+new Date().toISOString().slice(0,10)+".csv";
-    a.click();URL.revokeObjectURL(url);
-    status.textContent="Export CSV : "+rows.length+" événement(s) chargé(s).";
-  });
-  await load();
+ return renderAuditWorkbench(sb,$("tab-audit"));
 }
 
 // -----------------------------
@@ -1708,8 +1646,8 @@ async function cmsShowPreview(entry,root) {
     root.appendChild(warning);
     const restore=cmsDom("button","Restaurer cette version","btn btn-secondary");restore.type="button";
     restore.addEventListener("click",async()=>{
-      if(!window.confirm("Créer un nouveau commit qui remplace les cinq JSON par cette version historique ?"))return;
-      if(window.prompt("Confirmation : écris exactement RESTAURER")!=="RESTAURER")return;
+      if(!await adminConfirm("Créer un nouveau commit qui remplace les cinq JSON par cette version historique ?"))return;
+      if(await adminPrompt("Confirmation : écris exactement RESTAURER")!=="RESTAURER")return;
       restore.disabled=true;
       try{
         const result=await cmsAdminRequest("restore",{version_id:p.version_id,expected_head:p.current_head,
@@ -1787,14 +1725,14 @@ async function publishNow() {
       .map(([path,data])=>path+" : "+data.before+" → "+data.after).join("\n");
     panel.textContent="Modifications proposées :\n"+lines;
     panel.style.whiteSpace="pre-line";
-    if(!window.confirm("Publier les modifications suivantes sur le site ?\n\n"+lines)){
+    if(!await adminConfirm("Publier les modifications suivantes sur le site ?\n\n"+lines)){
       panel.textContent="Publication annulée : aucun commit créé.";
       return;
     }
     let acknowledge_empty, acknowledge_removals;
     if(preview.emptied_files?.length){
       const files=preview.emptied_files.join(", ");
-      if(window.prompt("Attention : les fichiers suivants vont être vidés : "+files+
+      if(await adminPrompt("Attention : les fichiers suivants vont être vidés : "+files+
         "\nPour confirmer, tape exactement PUBLIER VIDE")!=="PUBLIER VIDE"){
         panel.textContent="Publication annulée : suppression des contenus non confirmée.";
         return;
@@ -1804,7 +1742,7 @@ async function publishNow() {
     if(preview.removed_files?.length) {
       const summary=preview.removed_files.map(path=>
         path+" : "+(preview.removed_counts?.[path]||0)+" contenu(s) supprimé(s)").join("\n");
-      if(window.prompt("Des contenus existants vont être supprimés :\n"+summary+
+      if(await adminPrompt("Des contenus existants vont être supprimés :\n"+summary+
         "\nPour confirmer, tape exactement PUBLIER SUPPRESSIONS")!=="PUBLIER SUPPRESSIONS") {
         panel.textContent="Publication annulée : les suppressions n'ont pas été autorisées.";
         return;
