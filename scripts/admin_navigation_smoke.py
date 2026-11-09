@@ -51,6 +51,10 @@ def run(page, mobile=False):
     page.locator("#admin-detailed-supervision summary").click()
     assert page.locator(".nav-item.tab").count() == 13  # Incidents + Administrateurs
     assert page.locator('[data-tab="media"]').count() == 1
+    if mobile:
+        expect(page.locator(".admin-mobile-nav")).to_be_visible()
+    else:
+        expect(page.locator("#sidebar-collapse")).to_be_visible()
 
     if mobile:
         expect(page.locator("#sidebar-open")).to_be_visible()
@@ -63,6 +67,8 @@ def run(page, mobile=False):
     expect(page.locator("#push_title")).to_be_visible()
     expect(page.locator("#push_audience")).to_have_value("")
     expect(page.locator("#push_preview")).to_be_visible()
+    expect(page.locator(".mx2-push-device")).to_be_visible()
+    expect(page.locator(".mx2-push-device-title")).to_have_text("Titre de la notification")
     page.locator("#push_preview").click()
     expect(page.locator("#push_status")).to_contain_text("Choisis les destinataires")
     expect(page.locator("#btnPublish")).to_be_hidden()
@@ -70,7 +76,7 @@ def run(page, mobile=False):
     if mobile:
         assert "menu-open" not in (page.locator("#app").get_attribute("class") or "")
         page.locator("#sidebar-open").click()
-    page.locator('[data-tab="articles"]').click()
+    page.locator('.sidebar-nav [data-tab="articles"]').click()
     expect(page.locator("#tab-articles")).to_be_visible()
     expect(page.locator("#tab-push")).to_be_hidden()
     expect(page.locator("#btnPublish")).to_be_visible()
@@ -79,6 +85,9 @@ def run(page, mobile=False):
     assert page.locator(".admin-cms-editor-fields").get_attribute("hidden") is not None
     page.locator(".admin-cms-editor-toggle").click()
     expect(page.locator("#a_title")).to_be_visible()
+    expect(page.locator(".mx2-editor-preview")).to_be_visible()
+    page.locator("#a_title").fill("Un aperçu phase 2")
+    expect(page.locator(".mx2-editor-preview-title")).to_have_text("Un aperçu phase 2")
     # The draft uses the public reader structure, with a sandboxed preview.
     page.locator(".mx-block-editor .mx-block-toolbar button", has_text="Prévisualiser").click()
     preview = page.locator(".mx-block-preview iframe")
