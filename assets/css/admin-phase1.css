@@ -293,3 +293,59 @@ body.admin-shell .mobile-menu-btn{display:none}
   body.admin-shell .workspace-main,
   body.admin-shell :is(.nav-item,.admin-btn,.btn){transition:none!important}
 }
+
+/* Mobile navigation must remain clickable above lengthy editing fields.
+   Drawer backdrop is z-index:50 and sidebar z-index:60, so both still cover it. */
+@media(max-width:640px){
+ body.admin-shell .workspace-content{position:relative;z-index:0}
+ body.admin-shell .admin-mobile-nav{z-index:45;isolation:isolate}
+ body.admin-shell .admin-mobile-nav .mobile-nav-item{position:relative;z-index:1}
+}
+
+/* Final QA: compact topbar actions and history panel instead of broken columns. */
+body.admin-shell .admin-history-panel{
+ width:100%;min-width:0;background:#1b2027;border:1px solid #383d46;
+ padding:16px;border-radius:14px;margin:0 0 16px
+}
+body.admin-shell .admin-history-panel[hidden]{display:none!important}
+@media(max-width:640px){
+ body.admin-shell .workspace-topbar{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;align-items:center
+ }
+ body.admin-shell .topbar-left{min-width:0;gap:8px}
+ body.admin-shell .topbar-actions{
+  display:flex;align-items:center;flex-wrap:nowrap;gap:5px;
+  min-width:0;max-width:max-content
+ }
+ body.admin-shell .topbar-actions #cms-history-btn,
+ body.admin-shell .topbar-actions [data-admin-mfa-setup]{
+  display:grid;place-items:center;flex:0 0 37px;
+  width:37px;min-width:37px;max-width:37px;min-height:37px;
+  height:37px;padding:0!important;white-space:nowrap;
+  overflow:hidden;font-size:0!important;line-height:0!important
+ }
+ body.admin-shell .topbar-actions #cms-history-btn::before{
+  content:"↶";font-size:23px;font-weight:750;line-height:1
+ }
+ body.admin-shell .topbar-actions [data-admin-mfa-setup]::before{
+  content:"MFA";font-size:10px;font-weight:850;line-height:1
+ }
+ body.admin-shell .workspace-topbar #btnLogout,
+ body.admin-shell .workspace-topbar #btnPublish{
+  width:37px;min-width:37px;max-width:37px;min-height:37px;
+  height:37px;padding:7px!important;flex:0 0 37px
+ }
+ body.admin-shell #view-title{font-size:clamp(17px,4.9vw,20px)}
+ body.admin-shell .topbar-path{font-size:8px;letter-spacing:.07em}
+}
+@media(max-width:365px){
+ body.admin-shell .topbar-actions{gap:3px}
+ body.admin-shell .topbar-actions #cms-history-btn,
+ body.admin-shell .topbar-actions [data-admin-mfa-setup],
+ body.admin-shell .workspace-topbar #btnLogout,
+ body.admin-shell .workspace-topbar #btnPublish{
+  width:33px;min-width:33px;max-width:33px;
+  height:35px;min-height:35px;flex-basis:33px
+ }
+}
