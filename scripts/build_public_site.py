@@ -591,14 +591,12 @@ def stage_site(destination: Path, previous: Path | None):
         "bsd", "supabase", ".github", "scripts", "tests", "docs", "config",
         "node_modules", "model_meta.json", "data_backup.json", "logo_cache.json",
         "assets/data/private", "admin-config.template.js", "package-lock.json",
-        "admin.html", "admin-dashboard.html", "admin-supervision.html",
-        "admin-vip.html", "telegram-analytics.html", "threads-callback.html",
+        "telegram-analytics.html", "threads-callback.html",
         "tiktok-callback.html", "live.html", "live-suspended.html",
         "prono-live", "evergreen_topics.json", "historical_scores.json",
-        "assets/js/assistant.js", "assets/js/admin-real.js",
-        "assets/js/admin-supervision.js", "assets/js/live.precompiled.js",
+        "assets/js/assistant.js", "assets/js/live.precompiled.js",
         "assets/js/actu-foot-neon.js", "assets/js/web-vitals-monitor.js",
-        "assets/css/admin-premium.css", "assets/css/live-premium.css",
+        "assets/css/live-premium.css",
     ):
         if (destination / forbidden).exists():
             raise ValueError(f"Private path leaked to public artifact: {forbidden}")
