@@ -1,6 +1,6 @@
 {
   "schema": "bsd-v2-publication-ledger-1",
-  "updated_at": "2026-11-09T00:17:46.026956+00:00",
+  "updated_at": "2026-11-09T21:38:35.016016+00:00",
   "entries": [
     {
       "key": "7282|2026-10-08T22:30:00+00:00",
@@ -13117,7 +13117,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "220877|2026-10-25T11:00:00+00:00",
@@ -13149,7 +13149,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604222|2026-10-25T14:30:00+00:00",
@@ -13181,7 +13181,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "220882|2026-10-25T15:00:00+00:00",
@@ -13213,7 +13213,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "603075|2026-10-25T15:00:00+00:00",
@@ -13245,7 +13245,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "603076|2026-10-25T15:00:00+00:00",
@@ -13277,7 +13277,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604589|2026-10-25T15:00:00+00:00",
@@ -13309,7 +13309,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604590|2026-10-25T15:00:00+00:00",
@@ -13341,7 +13341,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604591|2026-10-25T15:00:00+00:00",
@@ -13373,7 +13373,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "603737|2026-10-25T17:00:00+00:00",
@@ -13405,7 +13405,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "606140|2026-10-25T17:00:00+00:00",
@@ -13437,7 +13437,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "223843|2026-10-25T17:45:00+00:00",
@@ -13469,7 +13469,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T17:16:14.637010+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "220263|2026-10-24T23:05:00+00:00",
@@ -13533,7 +13533,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "223854|2026-10-25T22:15:00+00:00",
@@ -13768,7 +13768,7 @@
         ]
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "212294|2026-10-25T06:00:00+00:00",
@@ -13800,7 +13800,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "375056|2026-10-25T11:00:00+00:00",
@@ -13832,7 +13832,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "210500|2026-10-25T14:00:00+00:00",
@@ -13864,7 +13864,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "219793|2026-10-25T14:00:00+00:00",
@@ -13896,7 +13896,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "375061|2026-10-25T14:00:00+00:00",
@@ -13928,7 +13928,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "212790|2026-10-25T15:00:00+00:00",
@@ -13960,7 +13960,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "210507|2026-10-25T16:15:00+00:00",
@@ -13992,7 +13992,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T00:13:08.983546+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "212791|2026-10-25T17:30:00+00:00",
@@ -14024,7 +14024,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T17:16:14.637010+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "214878|2026-10-25T17:30:00+00:00",
@@ -14056,7 +14056,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T17:16:14.637010+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "207419|2026-10-25T18:15:00+00:00",
@@ -14088,7 +14088,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T17:16:14.637010+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "215553|2026-10-25T20:30:00+00:00",
@@ -14120,7 +14120,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-08T17:16:14.637010+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "220270|2026-10-25T23:10:00+00:00",
@@ -14175,11 +14175,12 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "220271|2026-10-26T01:15:00+00:00",
@@ -14234,7 +14235,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 0,
@@ -14242,7 +14243,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "224702|2026-10-26T20:00:00+00:00",
@@ -14305,7 +14307,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "10199|2026-10-26T23:30:00+00:00",
@@ -14336,7 +14338,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605680|2026-10-27T18:00:00+00:00",
@@ -14367,7 +14369,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605681|2026-10-27T19:00:00+00:00",
@@ -14398,7 +14400,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "588274|2026-10-27T19:45:00+00:00",
@@ -14429,7 +14431,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "223844|2026-10-27T22:00:00+00:00",
@@ -14460,7 +14462,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601989|2026-10-28T16:00:00+00:00",
@@ -14491,7 +14493,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "46506|2026-10-28T18:00:00+00:00",
@@ -14554,7 +14556,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "5379|2026-10-28T23:30:00+00:00",
@@ -14585,7 +14587,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "5389|2026-10-29T00:30:00+00:00",
@@ -14616,7 +14618,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7315|2026-10-29T00:30:00+00:00",
@@ -14647,7 +14649,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7321|2026-10-29T00:30:00+00:00",
@@ -14678,7 +14680,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604464|2026-10-29T11:30:00+00:00",
@@ -14709,7 +14711,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "606225|2026-10-29T13:30:00+00:00",
@@ -14740,7 +14742,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642974|2026-10-29T17:00:00+00:00",
@@ -14771,7 +14773,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "606028|2026-10-29T18:00:00+00:00",
@@ -14834,7 +14836,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605688|2026-10-28T19:00:00+00:00",
@@ -14897,7 +14899,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "210137|2026-10-28T17:30:00+00:00",
@@ -14928,7 +14930,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "220887|2026-10-30T20:00:00+00:00",
@@ -14959,7 +14961,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "223882|2026-10-30T22:00:00+00:00",
@@ -14990,7 +14992,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "224202|2026-10-31T12:30:00+00:00",
@@ -15021,7 +15023,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "209617|2026-10-31T15:00:00+00:00",
@@ -15052,7 +15054,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "224711|2026-10-31T15:00:00+00:00",
@@ -15083,7 +15085,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "375070|2026-10-31T18:00:00+00:00",
@@ -15114,7 +15116,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "5397|2026-10-31T18:00:00+00:00",
@@ -15145,7 +15147,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642977|2026-10-31T18:00:00+00:00",
@@ -15176,7 +15178,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "223879|2026-10-31T20:00:00+00:00",
@@ -15207,7 +15209,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642978|2026-10-31T20:00:00+00:00",
@@ -15238,7 +15240,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "10212|2026-10-31T22:30:00+00:00",
@@ -15269,7 +15271,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "5403|2026-10-31T19:00:00+00:00",
@@ -15300,7 +15302,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "215294|2026-11-01T11:30:00+00:00",
@@ -15331,7 +15333,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605299|2026-11-01T12:00:00+00:00",
@@ -15362,7 +15364,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "46517|2026-11-01T13:00:00+00:00",
@@ -15393,7 +15395,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "606243|2026-11-01T13:30:00+00:00",
@@ -15420,7 +15422,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "606244|2026-11-01T13:30:00+00:00",
@@ -15447,7 +15449,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "603121|2026-11-01T15:00:00+00:00",
@@ -15478,7 +15480,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604596|2026-11-01T15:00:00+00:00",
@@ -15509,7 +15511,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604601|2026-11-01T15:00:00+00:00",
@@ -15540,7 +15542,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601140|2026-11-03T17:45:00+00:00",
@@ -15582,7 +15584,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601163|2026-11-03T17:45:00+00:00",
@@ -15613,7 +15615,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "46516|2026-11-03T18:00:00+00:00",
@@ -15644,7 +15646,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214131|2026-11-03T19:45:00+00:00",
@@ -15675,7 +15677,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214132|2026-11-03T19:45:00+00:00",
@@ -15706,7 +15708,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214133|2026-11-03T19:45:00+00:00",
@@ -15737,7 +15739,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214134|2026-11-03T19:45:00+00:00",
@@ -15768,7 +15770,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214135|2026-11-03T19:45:00+00:00",
@@ -15810,7 +15812,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214136|2026-11-03T19:45:00+00:00",
@@ -15841,7 +15843,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214140|2026-11-03T19:45:00+00:00",
@@ -15872,7 +15874,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "606251|2026-11-03T19:45:00+00:00",
@@ -15914,7 +15916,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214137|2026-11-03T20:00:00+00:00",
@@ -15945,7 +15947,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601025|2026-11-03T20:00:00+00:00",
@@ -15976,7 +15978,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601034|2026-11-03T20:00:00+00:00",
@@ -16018,7 +16020,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601093|2026-11-03T20:00:00+00:00",
@@ -16049,7 +16051,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601097|2026-11-03T20:00:00+00:00",
@@ -16080,7 +16082,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601117|2026-11-03T20:00:00+00:00",
@@ -16111,7 +16113,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642987|2026-11-03T20:30:00+00:00",
@@ -16142,7 +16144,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7329|2026-11-04T00:30:00+00:00",
@@ -16173,7 +16175,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642953|2026-11-04T15:00:00+00:00",
@@ -16215,7 +16217,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601089|2026-11-04T17:45:00+00:00",
@@ -16257,7 +16259,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601098|2026-11-04T17:45:00+00:00",
@@ -16299,7 +16301,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "643010|2026-11-04T19:00:00+00:00",
@@ -16330,7 +16332,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214139|2026-11-04T19:45:00+00:00",
@@ -16361,7 +16363,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "214141|2026-11-04T19:45:00+00:00",
@@ -16392,7 +16394,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "602321|2026-11-04T19:45:00+00:00",
@@ -16423,7 +16425,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601072|2026-11-04T20:00:00+00:00",
@@ -16454,7 +16456,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601087|2026-11-04T20:00:00+00:00",
@@ -16485,7 +16487,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601127|2026-11-04T20:00:00+00:00",
@@ -16516,7 +16518,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642966|2026-11-04T20:00:00+00:00",
@@ -16547,7 +16549,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7324|2026-11-04T22:30:00+00:00",
@@ -16578,7 +16580,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7328|2026-11-04T22:30:00+00:00",
@@ -16620,7 +16622,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "649889|2026-11-04T23:30:00+00:00",
@@ -16651,7 +16653,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7325|2026-11-05T00:30:00+00:00",
@@ -16682,7 +16684,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "7332|2026-11-05T00:30:00+00:00",
@@ -16713,7 +16715,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "222882|2026-11-05T13:25:00+00:00",
@@ -16781,7 +16783,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601179|2026-11-05T17:45:00+00:00",
@@ -16812,7 +16814,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601212|2026-11-05T17:45:00+00:00",
@@ -16854,7 +16856,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601247|2026-11-05T17:45:00+00:00",
@@ -16885,7 +16887,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601250|2026-11-05T17:45:00+00:00",
@@ -16916,7 +16918,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601255|2026-11-05T17:45:00+00:00",
@@ -16947,7 +16949,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601282|2026-11-05T17:45:00+00:00",
@@ -16989,7 +16991,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601285|2026-11-05T17:45:00+00:00",
@@ -17020,7 +17022,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601320|2026-11-05T17:45:00+00:00",
@@ -17051,7 +17053,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601327|2026-11-05T17:45:00+00:00",
@@ -17082,7 +17084,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601347|2026-11-05T17:45:00+00:00",
@@ -17124,7 +17126,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601354|2026-11-05T17:45:00+00:00",
@@ -17166,7 +17168,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601391|2026-11-05T17:45:00+00:00",
@@ -17197,7 +17199,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601393|2026-11-05T17:45:00+00:00",
@@ -17228,7 +17230,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "601423|2026-11-05T17:45:00+00:00",
@@ -17259,7 +17261,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "580572|2026-11-06T19:00:00+00:00",
@@ -17290,7 +17292,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "580573|2026-11-06T19:00:00+00:00",
@@ -17321,7 +17323,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "212322|2026-11-07T05:00:00+00:00",
@@ -17352,7 +17354,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "212315|2026-11-07T06:00:00+00:00",
@@ -17383,7 +17385,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "649890|2026-11-07T13:30:00+00:00",
@@ -17414,7 +17416,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "649892|2026-11-07T13:30:00+00:00",
@@ -17445,7 +17447,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605303|2026-11-07T14:00:00+00:00",
@@ -17476,7 +17478,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604603|2026-11-07T15:00:00+00:00",
@@ -17535,7 +17537,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642926|2026-11-07T15:00:00+00:00",
@@ -17566,7 +17568,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642939|2026-11-07T15:00:00+00:00",
@@ -17597,7 +17599,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642940|2026-11-07T15:00:00+00:00",
@@ -17628,7 +17630,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "580574|2026-11-07T19:00:00+00:00",
@@ -17659,7 +17661,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "223907|2026-11-07T20:30:00+00:00",
@@ -17690,7 +17692,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "5410|2026-11-07T21:00:00+00:00",
@@ -17721,7 +17723,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642946|2026-11-07T21:05:00+00:00",
@@ -17752,7 +17754,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "223914|2026-11-08T01:00:00+00:00",
@@ -17794,7 +17796,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "205920|2026-11-08T07:30:00+00:00",
@@ -17825,7 +17827,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "603152|2026-11-08T11:00:00+00:00",
@@ -17856,7 +17858,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "603812|2026-11-08T13:30:00+00:00",
@@ -17887,7 +17889,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605309|2026-11-08T14:00:00+00:00",
@@ -17918,7 +17920,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "209631|2026-11-07T12:30:00+00:00",
@@ -17981,7 +17983,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "375074|2026-11-06T18:45:00+00:00",
@@ -18012,7 +18014,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "603137|2026-11-08T15:00:00+00:00",
@@ -18071,7 +18073,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604604|2026-11-08T15:00:00+00:00",
@@ -18102,7 +18104,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604609|2026-11-08T15:00:00+00:00",
@@ -18128,12 +18130,12 @@
       "feed_state": "active",
       "settlement": {
         "status": "finished",
-        "home_score": 1,
+        "home_score": 2,
         "away_score": 1,
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604611|2026-11-08T15:00:00+00:00",
@@ -18164,7 +18166,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "207115|2026-11-08T16:00:00+00:00",
@@ -18195,7 +18197,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "605708|2026-11-08T16:15:00+00:00",
@@ -18226,7 +18228,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "642949|2026-11-08T19:00:00+00:00",
@@ -18257,7 +18259,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "10217|2026-11-08T22:15:00+00:00",
@@ -18282,9 +18284,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 1,
+        "primary_won": true,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "604610|2026-11-09T15:00:00+00:00",
@@ -18309,9 +18315,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 2,
+        "primary_won": true,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "215306|2026-11-09T20:00:00+00:00",
@@ -18338,7 +18348,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T21:38:35.016016+00:00"
     },
     {
       "key": "654034|2026-11-10T15:00:00+00:00",
@@ -18361,17 +18371,18 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00"
+      "last_observed_in_feed_at": "2026-11-09T00:17:46.026956+00:00",
+      "withdrawal_reason": "not_upcoming"
     }
   ],
   "last_run": {
     "new": 0,
     "new_settlements": 0,
-    "active": 123,
+    "active": 120,
     "total": 510
   }
 }
