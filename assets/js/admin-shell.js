@@ -4,6 +4,8 @@ const sidebar = document.getElementById("admin-sidebar");
 const openButton = document.getElementById("sidebar-open");
 const closeButton = document.getElementById("sidebar-close");
 const backdrop = document.getElementById("sidebar-backdrop");
+const collapseButton = document.getElementById("sidebar-collapse");
+const mobileMenuButton = document.getElementById("mobile-nav-menu");
 const nav = document.querySelector(".sidebar-nav");
 const screenTitles = {
  overview:["Vue générale","Vue centralisée des visiteurs, signaux et performances.","PILOTAGE"],
@@ -22,25 +24,63 @@ const screenTitles = {
 };
 function closeMenu(){
  workspace?.classList.remove("menu-open");
- backdrop.hidden=true;
+ document.body.classList.remove("admin-menu-visible");
+ if(backdrop)backdrop.hidden=true;
  openButton?.setAttribute("aria-expanded","false");
+ mobileMenuButton?.setAttribute("aria-expanded","false");
 }
 function openMenu(){
+ if(window.matchMedia("(min-width: 821px)").matches)return;
  workspace?.classList.add("menu-open");
- backdrop.hidden=false;
+ document.body.classList.add("admin-menu-visible");
+ if(backdrop)backdrop.hidden=false;
  openButton?.setAttribute("aria-expanded","true");
+ mobileMenuButton?.setAttribute("aria-expanded","true");
  closeButton?.focus();
 }
 openButton?.addEventListener("click",openMenu);
+mobileMenuButton?.addEventListener("click",openMenu);
 closeButton?.addEventListener("click",()=>{closeMenu();openButton?.focus()});
 backdrop?.addEventListener("click",()=>{closeMenu();openButton?.focus()});
 window.addEventListener("keydown",event=>{
- if(event.key==="Escape"&&workspace?.classList.contains("menu-open")){
-  closeMenu();openButton?.focus();
+ if(!workspace?.classList.contains("menu-open"))return;
+ if(event.key==="Escape"){
+  closeMenu();
+  (mobileMenuButton&&window.matchMedia("(max-width: 640px)").matches?mobileMenuButton:openButton)?.focus();
+  return;
  }
+ if(event.key!=="Tab"||!sidebar)return;
+ const tabbables=Array.from(sidebar.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])'))
+  .filter(el=>el.getClientRects().length>0);
+ if(!tabbables.length)return;
+ const first=tabbables[0],last=tabbables[tabbables.length-1];
+ if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+ else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
 });
 const media = window.matchMedia("(min-width: 821px)");
 media.addEventListener?.("change",()=>{if(media.matches)closeMenu()});
+
+// Compact desktop sidebar is a display preference; no Supabase state is changed.
+const collapsePreferenceKey="mx.admin.sidebar.collapsed";
+function applyCollapsed(collapsed,persist=false){
+ const compact=Boolean(collapsed);
+ workspace?.classList.toggle("sidebar-collapsed",compact);
+ collapseButton?.setAttribute("aria-expanded",String(!compact));
+ collapseButton?.setAttribute("aria-label",compact?"Déployer le menu latéral":"Réduire le menu latéral");
+ collapseButton?.setAttribute("title",compact?"Déployer le menu":"Réduire le menu");
+ if(persist){try{localStorage.setItem(collapsePreferenceKey,compact?"1":"0");}catch{}}
+}
+try{applyCollapsed(localStorage.getItem(collapsePreferenceKey)==="1");}catch{applyCollapsed(false);}
+collapseButton?.addEventListener("click",()=>{
+ applyCollapsed(!workspace?.classList.contains("sidebar-collapsed"),true);
+});
+
+// Labels stay understandable to assistive technologies when the sidebar is compact.
+document.querySelectorAll(".sidebar-nav .nav-item").forEach(item=>{
+ const label=item.textContent.trim().replace(/\\s+/g," ");
+ if(label){item.setAttribute("title",label);if(!item.hasAttribute("aria-label"))item.setAttribute("aria-label",label);}
+});
+document.querySelector(".sidebar-external")?.setAttribute("aria-label","Voir le site public");
 function handleSection(tabName){
  const tab = screenTitles[tabName]?tabName:"overview";
  const [title,description,group]=screenTitles[tab];
@@ -52,6 +92,11 @@ function handleSection(tabName){
   const active=button.dataset.tab===tab;
   button.setAttribute("aria-current",active?"page":"false");
   button.classList.toggle("active",active);
+ });
+ document.querySelectorAll(".admin-mobile-nav .tab").forEach(button=>{
+  const active=button.dataset.tab===tab;
+  button.classList.toggle("active",active);
+  button.setAttribute("aria-current",active?"page":"false");
  });
  document.getElementById("btnPublish").hidden=!["articles","conseils","bonus","infos"].includes(tab);
  closeMenu();
