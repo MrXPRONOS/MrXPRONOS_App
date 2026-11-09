@@ -215,6 +215,8 @@ def functional(page,api_calls):
  page.locator("#v_reset").click()
  expect(page.locator(".mx3-dialog")).to_be_visible()
  page.locator(".mx3-dialog [data-admin-dialog-confirm]").click()
+ expect(page.locator(".mx3-dialog")).to_be_visible()
+ page.locator(".mx3-dialog [data-admin-dialog-confirm]").click()
  navigate(page,"push",1440)
  page.locator("#push_audience").select_option("user")
  page.locator("#push_user_id").fill("MX-QA-ONLY")
