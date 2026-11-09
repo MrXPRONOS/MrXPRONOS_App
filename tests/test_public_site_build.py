@@ -141,7 +141,7 @@ class PublicBuildTest(TestCase):
             self.assertNotIn("prono-live/", sitemap)
             self.assertIn("pronos.html", sitemap)
 
-    def test_public_artifact_excludes_admin_telemetry_and_generator_prompts(self):
+    def test_public_artifact_includes_protected_admin_ui_but_excludes_private_data(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
             for name in ("index.html", "pronos.html", "admin.html",
@@ -211,16 +211,19 @@ class PublicBuildTest(TestCase):
             finally:
                 module.ROOT = old_root
             output = root / "_public_site"
-            for name in ("admin.html", "admin-supervision.html", "telegram-analytics.html",
+            for name in ("telegram-analytics.html",
                          "live.html", "threads-callback.html", "evergreen_topics.json",
                          "historical_scores.json"):
                 self.assertFalse((output / name).exists(), name)
-            for name in ("assistant.js", "actu-foot-neon.js", "admin-real.js",
+            for name in ("assistant.js", "actu-foot-neon.js",
                          "web-vitals-monitor.js"):
                 self.assertFalse((output / "assets/js" / name).exists(), name)
+            for name in ("admin.html", "admin-supervision.html"):
+                self.assertTrue((output / name).exists(), name)
+            self.assertTrue((output / "assets/js/admin-real.js").exists())
             self.assertTrue((output / "assets/js/cms-url-guard.mjs").exists())
             self.assertTrue((output / "assets/css/style.css").exists())
-            self.assertFalse((output / "assets/css/admin-premium.css").exists())
+            self.assertTrue((output / "assets/css/admin-premium.css").exists())
             self.assertFalse((output / "assets/css/live-premium.css").exists())
             self.assertNotIn("web-vitals-monitor.js",
                              (output / "index.html").read_text(encoding="utf-8"))
