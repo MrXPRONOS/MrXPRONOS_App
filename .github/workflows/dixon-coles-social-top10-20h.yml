@@ -1,0 +1,119 @@
+name: Dixon-Coles - Social Top10 20h
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        default: preview
+        options: [preview, publish]
+      source:
+        type: choice
+        default: espn
+        options: [espn, auto, football-data, openfootball, openligadb]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dixon-coles-social-top10-20h
+  cancel-in-progress: false
+
+jobs:
+  social:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SOCIAL_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode || 'preview' }}
+      DCSCORE_SOURCE: ${{ inputs.source || 'espn' }}
+      POST_PLATFORMS: facebook,youtube,instagram,threads,bluesky
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_KEY }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
+      META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+      META_PAGE_NAME: ${{ secrets.META_PAGE_NAME }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+      THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+      YOUTUBE_PRIVACY_STATUS: public
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-liberation
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -e 'dixon-coles[test,video]'
+          python -m pip install -r requirements_social.txt
+      - name: Run safety tests
+        run: |
+          python -m py_compile scripts/create_social_exact_score_video.py scripts/publish_social_exact_score_video.py
+          python -m unittest discover -s tests -p test_social_exact_score_video.py -v
+          python -m pytest -q dixon-coles/tests/test_video_grid.py dixon-coles/tests/test_daily_espn.py
+      - name: Generate tomorrow Top10 with safe Telegram CTA
+        id: render
+        shell: bash
+        run: |
+          set +e
+          python scripts/create_social_exact_score_video.py --day tomorrow --source "$DCSCORE_SOURCE" --output-dir social_exact_scores_out
+          CODE=$?
+          set -e
+          if [ "$CODE" -eq 3 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$CODE" -ne 0 ]; then exit "$CODE"; fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - name: Identify target
+        id: target
+        if: steps.render.outputs.ready == 'true'
+        run: |
+          TARGET="$(TZ=Africa/Lome date -d tomorrow +%F)"
+          test -s "social_exact_scores_out/$TARGET/social_exact_scores_10.mp4"
+          echo "day=$TARGET" >> "$GITHUB_OUTPUT"
+          ffprobe -v error -show_entries format=duration,size -of json "social_exact_scores_out/$TARGET/social_exact_scores_10.mp4"
+      - name: Refresh social tokens
+        if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
+        continue-on-error: true
+        run: python scripts/refresh_social_tokens.py --out social_exact_scores_out/refreshed_tokens.json --github-env "$GITHUB_ENV"
+      - name: Publish only on social networks
+        if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
+        run: |
+          TARGET="${{ steps.target.outputs.day }}"
+          python scripts/publish_social_exact_score_video.py --manifest "social_exact_scores_out/$TARGET/social_manifest.json" --video "social_exact_scores_out/$TARGET/social_exact_scores_10.mp4" --platforms "$POST_PLATFORMS" --report social_exact_scores_out/social_post_results.json
+      - name: Verify each provider receipt
+        if: always() && steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
+        run: python scripts/verify_social_publications.py --report social_exact_scores_out/social_post_results.json --expected "$POST_PLATFORMS"
+      - name: Archive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-top10-20h-${{ github.run_id }}
+          path: |
+            social_exact_scores_out/**/social_exact_scores_10.mp4
+            social_exact_scores_out/**/cta_safe_zone.png
+            social_exact_scores_out/**/social_manifest.json
+            social_exact_scores_out/**/skipped.json
+            social_exact_scores_out/social_post_results.json
+          if-no-files-found: warn
+          retention-days: 14
