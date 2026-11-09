@@ -71,7 +71,7 @@ function decisionDialog({message,title="Confirmation",kind="confirm",phrase="",d
   };
   document.addEventListener("keydown",key);
   document.body.append(overlay);
-  (input||cancel.hidden?yes:cancel).focus();
+  (input||(cancel.hidden?yes:cancel)).focus();
  });
 }
 export function adminConfirm(message,options={}){return decisionDialog({message,title:options.title||"Confirmer l'action",kind:"confirm",danger:!!options.danger,phrase:options.phrase||""})}
