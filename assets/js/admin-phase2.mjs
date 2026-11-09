@@ -4,7 +4,9 @@ const byId=id=>document.getElementById(id);
 const elt=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n};
 const formatCount=value=>Number(value||0).toLocaleString("fr-FR");
 const safeImageUrl=value=>{
- try{const url=new URL(String(value),location.href);return url.protocol==="https:"||url.origin===location.origin?url.href:""}catch{return ""}
+ const raw=String(value??"").trim();
+ if(!raw)return "";
+ try{const url=new URL(raw,location.href);return url.protocol==="https:"||url.origin===location.origin?url.href:""}catch{return ""}
 };
 const statusClass=value=>/gagn|succ|réuss|sent|publi|actif|à jour/i.test(value)?"ok":/perd|échou|fail|retard|expir|désactiv|cancel/i.test(value)?"danger":"neutral";
 const pending=new Set();
