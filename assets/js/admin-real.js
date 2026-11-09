@@ -1751,10 +1751,14 @@ function cmsInstallHistory(){
   const area=$("btnPublish")?.parentElement;if(!area)return;
   const button=cmsDom("button","Historique / restaurer","btn btn-secondary");
   button.id="cms-history-btn";button.type="button";
+  button.setAttribute("aria-label","Historique et restauration des publications");
+  button.title="Historique / restaurer";
   const root=cmsDom("div");root.id="cms-history-root";
-  root.style.cssText="width:100%;padding:10px 0";
-  button.addEventListener("click",()=>void cmsLoadHistory(root));
-  area.append(button,root);
+  root.className="admin-history-panel";root.hidden=true;
+  button.addEventListener("click",()=>{root.hidden=false;void cmsLoadHistory(root)});
+  area.append(button);
+  const stack=$("screen-stack");
+  if(stack)stack.prepend(root);else area.append(root);
 }
 
 // PUBLISH (corrigé headers)
