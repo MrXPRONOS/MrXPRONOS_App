@@ -27,7 +27,7 @@ on:
         default: auto
         required: false
         type: choice
-        options: [auto, football-data, openfootball, openligadb]
+        options: [auto, football-data, openfootball, openligadb, espn]
 
 permissions:
   contents: read

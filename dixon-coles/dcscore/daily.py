@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 from .daily_pipeline import run_daily,save_outputs
 from .daily_sources import DailySourceError,FootballDataProvider,OpenFootballProvider,OpenLigaDBProvider,CompositeProvider
+from .daily_espn import ESPNProvider
 
 
 def resolve_day(raw:str,now:datetime)->date:
@@ -23,7 +24,7 @@ def resolve_day(raw:str,now:datetime)->date:
 def main(argv:list[str]|None=None)->int:
     p=argparse.ArgumentParser(description='Sélection quotidienne indépendante des 10 matchs, scores exacts et JSON pour vidéos.')
     p.add_argument('--day',default='tomorrow',help='today, tomorrow ou YYYY-MM-DD ; planifié à 21h UTC pour demain')
-    p.add_argument('--source',choices=['auto','football-data','openfootball','openligadb'],default='auto')
+    p.add_argument('--source',choices=['auto','football-data','openfootball','openligadb','espn'],default='auto')
     p.add_argument('--count',type=int,default=10)
     p.add_argument('--min-games',type=int,default=80)
     p.add_argument('--min-team',type=int,default=6)
@@ -40,11 +41,13 @@ def main(argv:list[str]|None=None)->int:
             provider=OpenFootballProvider()
         elif args.source=='openligadb':
             provider=OpenLigaDBProvider()
+        elif args.source=='espn':
+            provider=ESPNProvider()
         else:
             sources=[]
             if os.environ.get('FOOTBALL_DATA_TOKEN','').strip():
                 sources.append(FootballDataProvider())
-            sources.extend([OpenLigaDBProvider(),OpenFootballProvider()])
+            sources.extend([ESPNProvider(),OpenLigaDBProvider(),OpenFootballProvider()])
             provider=CompositeProvider(sources)
         report=run_daily(provider,day=day,as_of=now,limit=args.count,
                          min_games=args.min_games,min_team=args.min_team,

@@ -165,6 +165,9 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
         'openfootball/football.json': {
             'name':'OpenFootball','url':'https://github.com/openfootball/football.json',
             'license':'CC0-1.0','note':'Community-maintained fixture times; independent verification required.'},
+        'ESPN public scoreboard': {
+            'name':'ESPN', 'url':'https://www.espn.com/soccer/',
+            'note':'Provider-reported third-party fixtures/results; exploratory personal test only, not official UEFA verification; follow ESPN terms.'},
         'openligadb.de': {
             'name':'OpenLigaDB','url':'https://openligadb.de/',
             'license':'ODbL-1.0','note':'Community-maintained match data; attribution and database licence obligations apply.'},

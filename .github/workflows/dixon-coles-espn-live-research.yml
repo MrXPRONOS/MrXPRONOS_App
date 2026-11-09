@@ -1,0 +1,62 @@
+name: Dixon-Coles - vrai programme 10 novembre - recherche ESPN
+on:
+  push:
+    paths:
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/tests/test_daily_espn.py'
+      - '.github/workflows/dixon-coles-espn-live-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dixon-coles
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer le moteur
+        run: python -m pip install -e '.[test]'
+      - name: Tests du fournisseur ESPN
+        run: python -m pytest -q tests/test_daily_espn.py
+      - name: Essayer les 10 meilleures affiches du 10 novembre
+        run: >-
+          python -m dcscore.daily
+          --day 2026-11-10 --source espn --count 10
+          --min-team 4 --min-importance 70 --max-staleness-days 35
+          --output-dir results/espn_live_research
+      - name: Diagnostic des calculs réellement effectués
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('results/espn_live_research/2026-11-10/predictions.json')
+          r=json.loads(p.read_text())
+          print('REAL_DATA_SELECTION',json.dumps({
+            'status':r['status'],'selected':r['selected_count'],
+            'discovered':r['count_before_quality_checks'],
+            'ready_for_video':r['ready_for_video'],
+            'source_discovery_counts':r.get('source_discovery_counts'),
+            'selected_matches':[{'home':m['home'],'away':m['away'],
+               'score':m['forecast']['most_likely_score'],
+               'probability':m['forecast']['most_likely_probability'],
+               'logos':bool(m['home_logo_url'] and m['away_logo_url']),
+               'training':m['training_matches'],
+               'team_history':m['team_history']} for m in r['selected']],
+            'rejected':r['rejected'][:20], 'reasons':r['reasons_not_ready']},ensure_ascii=False))
+          PY
+      - name: Exporter résultats et storyboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dixon-coles-espn-live-research-${{ github.run_id }}
+          path: dixon-coles/results/espn_live_research/
+          if-no-files-found: warn

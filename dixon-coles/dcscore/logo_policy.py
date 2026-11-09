@@ -4,7 +4,7 @@ Avoid importing video libraries when running the forecast-only pipeline.
 """
 from urllib.parse import urlparse
 
-ALLOWED_LOGO_DOMAINS = frozenset({'crests.football-data.org', 'upload.wikimedia.org'})
+ALLOWED_LOGO_DOMAINS = frozenset({'crests.football-data.org', 'upload.wikimedia.org', 'a.espncdn.com'})
 
 
 def valid_logo_url(url: object) -> bool:
