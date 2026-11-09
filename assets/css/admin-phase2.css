@@ -1,0 +1,385 @@
+/* Mr XPRONOS — Admin Phase 2 / unified operator experience.
+   All selectors scoped to admin-shell; no changes to public site. */
+body.admin-shell{
+ --mx2-bg:#11151b;--mx2-card:#1b2027;--mx2-border:#363b43;
+ --mx2-gold:#e4c37d;--mx2-muted:#aeb0bb;
+ --mx2-green:#83d7b4;--mx2-red:#f0aaa5
+}
+body.admin-shell .mx2-eyebrow{
+ color:var(--mx2-muted);font-size:10px;letter-spacing:.13em;
+ font-weight:800;text-transform:uppercase
+}
+body.admin-shell .mx2-pill{
+ display:inline-flex;align-items:center;gap:6px;max-width:100%;
+ border:1px solid #4b5057;border-radius:99px;padding:5px 9px;
+ color:#d5d5db;background:#282e37;font-size:10px;font-weight:750;
+ white-space:normal;line-height:1.3
+}
+body.admin-shell .mx2-pill::before{
+ content:"";display:inline-block;flex:0 0 6px;height:6px;
+ border-radius:50%;background:currentColor
+}
+body.admin-shell .mx2-ok{
+ color:#a4e1c2;border-color:#335948;background:#1e332d
+}
+body.admin-shell .mx2-danger{
+ color:#f1b0aa;border-color:#634544;background:#382829
+}
+body.admin-shell .mx2-neutral{
+ color:#d4d4d9;border-color:#484b53;background:#282c33
+}
+/* Pronostic: match cards are presentation-only; data remains the read-only public feed. */
+body.admin-shell .mx2-pronos-toolbar{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ border-top:1px solid #373b43;margin:18px 0 14px;padding-top:15px
+}
+body.admin-shell .mx2-segment{
+ display:flex;gap:4px;background:#14181e;border:1px solid #373b43;
+ border-radius:12px;padding:4px
+}
+body.admin-shell .mx2-segment-button{
+ background:transparent;color:#a9abb5;border:0;border-radius:9px;
+ min-height:36px;padding:7px 16px;font-size:12px;font-weight:750;cursor:pointer
+}
+body.admin-shell .mx2-segment-button.is-active{
+ color:#211a10;background:linear-gradient(130deg,#f4d79c,#d0a963)
+}
+body.admin-shell .mx2-pronos-cards{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));
+ gap:14px;margin:0 0 12px
+}
+body.admin-shell .mx2-mini-summary{
+ display:flex;flex-wrap:wrap;gap:8px;grid-column:1 / -1;
+ margin-bottom:3px
+}
+body.admin-shell .mx2-match-card{
+ display:flex;flex-direction:column;gap:17px;min-width:0;
+ border:1px solid #3a3d44;background:linear-gradient(155deg,#20242b,#161b21);
+ border-radius:17px;padding:17px;box-shadow:0 8px 23px rgba(0,0,0,.13)
+}
+body.admin-shell .mx2-match-card:hover{border-color:#655638}
+body.admin-shell .mx2-match-top{
+ display:flex;justify-content:space-between;align-items:flex-start;
+ gap:12px;min-width:0
+}
+body.admin-shell .mx2-match-league{
+ color:#a8abb5;font-size:10px;line-height:1.5;overflow-wrap:anywhere;
+ max-width:64%
+}
+body.admin-shell .mx2-match-teams{
+ display:grid;grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);
+ align-items:center;gap:7px;min-height:94px
+}
+body.admin-shell .mx2-team{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:9px;text-align:center;min-width:0
+}
+body.admin-shell .mx2-team-logo{
+ width:44px;height:44px;object-fit:contain;border-radius:11px;
+ padding:5px;background:#151a21
+}
+body.admin-shell .mx2-team-placeholder{
+ display:grid;place-items:center;width:44px;height:44px;
+ border-radius:11px;background:#252c34;font-size:20px
+}
+body.admin-shell .mx2-team-name{
+ font-weight:720;font-size:13px;line-height:1.4;color:#eeecec;
+ overflow-wrap:anywhere;max-width:100%
+}
+body.admin-shell .mx2-versus{
+ display:grid;place-items:center;border-radius:50%;height:31px;width:31px;
+ border:1px solid #444951;background:#171c24;
+ color:#8d909b;font-size:10px;font-weight:850
+}
+body.admin-shell .mx2-match-metrics{
+ display:grid;grid-template-columns:1.3fr 1fr .75fr;
+ gap:0;border-top:1px solid #343841;padding-top:13px
+}
+body.admin-shell .mx2-match-metric{
+ padding:1px 10px;min-width:0;border-right:1px solid #343841
+}
+body.admin-shell .mx2-match-metric:first-child{padding-left:0}
+body.admin-shell .mx2-match-metric:last-child{border:0;padding-right:0}
+body.admin-shell .mx2-match-metric small{
+ display:block;color:#9a9da7;font-size:10px;margin-bottom:5px
+}
+body.admin-shell .mx2-match-metric b{
+ display:block;color:#f2d59c;font-size:13px;overflow-wrap:anywhere;
+ font-variant-numeric:tabular-nums
+}
+/* CMS editor: preserve all native inputs, block editor and revision controls. */
+body.admin-shell .admin-cms-editor-fields:has(.mx2-editor-main){
+ display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);
+ gap:18px;align-items:start;max-width:100%;
+ padding:18px;background:#15191f;border-color:#40424a
+}
+body.admin-shell .admin-cms-editor-fields[hidden]{display:none!important}
+body.admin-shell .mx2-editor-main{min-width:0}
+body.admin-shell .mx2-editor-preview{
+ min-width:0;position:sticky;top:110px;
+ background:#1d2128;border:1px solid #3c4048;
+ border-radius:14px;padding:17px;max-height:calc(100vh - 125px);
+ overflow:auto
+}
+body.admin-shell .mx2-preview-top{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:8px;margin-bottom:13px
+}
+body.admin-shell .mx2-preview-top strong{color:#f4d9a5;font-size:13px}
+body.admin-shell .mx2-editor-cover{
+ display:block;width:100%;height:155px;object-fit:cover;
+ border-radius:10px;background:#242830;margin:0 0 12px
+}
+body.admin-shell .mx2-editor-cover[hidden]{display:none}
+body.admin-shell .mx2-editor-preview-title{
+ color:#f3f0ea!important;font-size:18px!important;line-height:1.3;
+ margin:10px 0;overflow-wrap:anywhere
+}
+body.admin-shell .mx2-preview-meta{
+ color:#9da0ab;margin:0 0 14px;font-size:11px
+}
+body.admin-shell .mx2-rendered-markdown{
+ color:#cfd0d6;font-size:12px;line-height:1.65;
+ overflow-wrap:anywhere;border-top:1px solid #353941;padding-top:12px
+}
+body.admin-shell .mx2-rendered-markdown :is(h1,h2,h3,h4,h5,h6){
+ color:#e8d29e!important;margin:12px 0 6px;letter-spacing:0;font-size:14px
+}
+body.admin-shell .mx2-rendered-markdown p{margin:8px 0}
+body.admin-shell .mx2-rendered-markdown :is(img,video){
+ max-width:100%;height:auto;border-radius:8px
+}
+body.admin-shell .mx2-rendered-markdown :is(table,pre){max-width:100%;overflow-x:auto}
+body.admin-shell .mx2-rendered-markdown a{color:#f1d49b;text-decoration:underline}
+body.admin-shell .mx2-rendered-markdown blockquote{
+ border-left:3px solid #c7a76a;padding:4px 12px;margin:9px 0;background:#24242b
+}
+body.admin-shell .mx2-content-card{
+ border:1px solid #3a3e45!important;background:#1e2228!important;
+ border-radius:12px!important;transition:border-color .15s,background .15s;
+ cursor:pointer;box-shadow:none!important
+}
+body.admin-shell .mx2-content-card:hover,
+body.admin-shell .mx2-content-card:focus-visible{
+ border-color:#d4b575!important;background:#262a2f!important
+}
+body.admin-shell .mx2-content-title{font-weight:750!important;font-size:14px;line-height:1.4}
+body.admin-shell .mx2-content-card .muted{overflow-wrap:anywhere;font-size:11px;margin:5px 0}
+body.admin-shell .mx2-content-metadata{
+ display:flex;flex-wrap:wrap;gap:5px;margin:9px 0 0
+}
+body.admin-shell .mx-block-editor{color:#e3e3e8}
+body.admin-shell .mx-block-toolbar{
+ background:#1d2229;padding:10px;border:1px solid #383c45;
+ border-radius:12px;gap:7px
+}
+body.admin-shell .mx-block-toolbar :is(button,select){
+ background:#292e35;border:1px solid #484d56;
+ color:#f0edf0;border-radius:9px
+}
+body.admin-shell .mx-block-card{
+ background:#20252b;border:1px solid #3f434b;
+ border-radius:12px;padding:14px
+}
+body.admin-shell .mx-block-card :is(input,textarea){
+ background:#10151b;color:#f3f2f1;border-color:#484a52
+}
+/* Push campaigns: form and preview side by side, original buttons retained. */
+body.admin-shell .mx2-push-layout{
+ display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);
+ align-items:start;gap:21px;margin:20px 0
+}
+body.admin-shell .mx2-push-compose{min-width:0}
+body.admin-shell .mx2-push-preview{
+ min-width:0;position:sticky;top:110px;
+ border:1px solid #393e47;border-radius:16px;
+ background:linear-gradient(145deg,#20242b,#14181e);
+ padding:18px
+}
+body.admin-shell .mx2-push-device{
+ max-width:420px;margin:15px 0;
+ background:#30353d;color:#f7f7f8;
+ padding:17px;border:1px solid #555962;border-radius:18px;
+ box-shadow:0 14px 32px rgba(0,0,0,.15);
+ overflow-wrap:anywhere
+}
+body.admin-shell .mx2-push-device-head{
+ font-size:10px;font-weight:800;letter-spacing:.065em;
+ color:#cbb98f;margin-bottom:12px
+}
+body.admin-shell .mx2-push-device-title{
+ display:block;font-size:15px;font-weight:780;color:#fff;margin-bottom:5px
+}
+body.admin-shell .mx2-push-device-text{
+ color:#dcdee3;font-size:12px;line-height:1.65;
+ white-space:pre-wrap;margin:0 0 12px
+}
+body.admin-shell .mx2-push-device-url{font-size:10px;color:#b8bbc6}
+body.admin-shell .mx2-push-preview-note{
+ color:#a6a7b0;font-size:12px;margin:0
+}
+body.admin-shell .mx2-push-preview-note.mx2-important{color:#e6c389}
+body.admin-shell .mx2-push-counters{
+ display:flex;flex-wrap:wrap;gap:12px;
+ justify-content:flex-end;color:#a8abb5;font-size:10px;margin:6px 0
+}
+body.admin-shell .admin-button-row{
+ display:flex;gap:9px;flex-wrap:wrap;margin:17px 0
+}
+body.admin-shell .admin-button-row .btn{flex:0 0 auto}
+body.admin-shell #push_status{
+ padding:12px 0;color:#d7d0c5;min-height:25px
+}
+body.admin-shell #push_results:not(:empty){
+ padding:15px;background:#202a26;border:1px solid #3c5a4b;
+ border-radius:12px;margin:0 0 12px
+}
+body.admin-shell #push_results p{margin:0;color:#b5e2c9}
+/* VIP overview and search. States are computed from the loaded rows only. */
+body.admin-shell .mx2-vip-summary{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;
+ margin:16px 0
+}
+body.admin-shell .mx2-vip-stat{
+ display:flex;flex-direction:column;gap:6px;
+ background:#1e232b;border:1px solid #393e46;
+ border-radius:13px;padding:15px
+}
+body.admin-shell .mx2-vip-stat strong{
+ color:#efcf8f;font-size:27px;line-height:1.1;font-variant-numeric:tabular-nums
+}
+body.admin-shell .mx2-vip-stat small{color:#abb0b9;font-size:11px}
+body.admin-shell .mx2-vip-toolbar{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+ margin:14px 0;padding:14px;border:1px solid #353a43;
+ background:#171d23;border-radius:12px
+}
+body.admin-shell .mx2-vip-toolbar input{flex:2 1 220px;width:auto!important}
+body.admin-shell .mx2-vip-toolbar select{flex:1 1 150px;width:auto!important}
+body.admin-shell .mx2-filter-count{flex-basis:100%;font-size:11px;color:#a4a5af;margin:0}
+body.admin-shell .mx2-vip-table [data-revoke]{white-space:nowrap}
+/* Table polish and mobile card view (retains all actions, including cancel and export). */
+body.admin-shell .mx2-responsive-table{
+ border-collapse:separate;border-spacing:0;width:100%;
+ border:1px solid #393c45;border-radius:12px;
+ background:#1a1e25;display:table
+}
+body.admin-shell .mx2-responsive-table th{
+ background:#262a30;color:#e2c183;
+ border-bottom:1px solid #444750;font-size:11px
+}
+body.admin-shell .mx2-responsive-table tr:last-child td{border-bottom:0}
+body.admin-shell .mx2-responsive-table td{overflow-wrap:anywhere;vertical-align:middle}
+body.admin-shell .mx2-responsive-table tr[hidden]{display:none!important}
+body.admin-shell .mx2-responsive-table :is(button,a){max-width:100%}
+body.admin-shell .mx2-details{
+ max-width:100%;border:1px solid #444953;border-radius:9px;
+ background:#20252d;padding:7px 10px
+}
+body.admin-shell .mx2-details summary{
+ cursor:pointer;color:#dfca9d;font-weight:700;font-size:11px
+}
+body.admin-shell .mx2-details pre{
+ color:#dbdbe1;white-space:pre-wrap;
+ overflow-wrap:anywhere;margin-top:10px;font-size:11px
+}
+body.admin-shell .admin-pronostics-table-scroll{max-width:100%;overflow:auto;border-radius:12px}
+body.admin-shell #tab-health .mx2-responsive-table,
+body.admin-shell #tab-audit .mx2-responsive-table{min-width:650px}
+body.admin-shell .mx2-responsive-table:not([hidden]){margin:9px 0 16px}
+@media(max-width:1250px){
+ body.admin-shell .admin-cms-editor-fields:has(.mx2-editor-main){
+  grid-template-columns:minmax(0,1.1fr) minmax(235px,.9fr)
+ }
+ body.admin-shell .mx2-push-layout{grid-template-columns:1fr minmax(220px,.7fr)}
+}
+@media(max-width:1080px){
+ body.admin-shell .admin-cms-editor-fields:has(.mx2-editor-main),
+ body.admin-shell .mx2-push-layout{grid-template-columns:1fr}
+ body.admin-shell .mx2-editor-preview,body.admin-shell .mx2-push-preview{
+  position:static;max-height:none
+ }
+}
+@media(max-width:760px){
+ body.admin-shell .mx2-pronos-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.admin-shell .mx2-match-card{padding:13px;gap:12px}
+ body.admin-shell .mx2-match-metrics{grid-template-columns:1.2fr 1fr .65fr}
+ body.admin-shell .mx2-match-metric{padding-inline:6px}
+ body.admin-shell .mx2-vip-summary{gap:8px}
+ body.admin-shell .mx2-vip-stat{padding:12px}
+ body.admin-shell .mx2-vip-stat strong{font-size:24px}
+ body.admin-shell .mx2-responsive-table{
+  display:block!important;border:0;background:transparent;
+  overflow:visible!important
+ }
+ body.admin-shell .mx2-responsive-table thead{display:none}
+ body.admin-shell .mx2-responsive-table tbody{display:grid;gap:12px;width:100%}
+ body.admin-shell .mx2-responsive-table tbody tr{
+  display:block;border:1px solid #3b4049;
+  background:#20242b;border-radius:14px;
+  padding:8px 13px;min-width:0
+ }
+ body.admin-shell .mx2-responsive-table tbody td{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;padding:10px 0;min-width:0;min-height:34px;
+  border-bottom:1px solid #373b43!important;text-align:right;
+  width:100%;font-size:12px
+ }
+ body.admin-shell .mx2-responsive-table tbody td:last-child{border:0!important}
+ body.admin-shell .mx2-responsive-table tbody td::before{
+  content:attr(data-label);color:#aaaeb9;text-align:left;
+  flex:0 0 40%;font-size:11px;font-weight:700;line-height:1.5
+ }
+ body.admin-shell .mx2-responsive-table tbody td>*{min-width:0}
+ body.admin-shell #tab-health .mx2-responsive-table,
+ body.admin-shell #tab-audit .mx2-responsive-table{min-width:0}
+ body.admin-shell .mx2-details{max-width:60%}
+ body.admin-shell .mx2-details pre{text-align:left}
+ body.admin-shell .admin-pronostics-table-scroll{border:0;overflow:visible}
+}
+@media(max-width:620px){
+ body.admin-shell .mx2-pronos-cards{grid-template-columns:1fr}
+ body.admin-shell .mx2-match-card{padding:16px}
+ body.admin-shell .mx2-pronos-toolbar{align-items:flex-start;flex-direction:column}
+ body.admin-shell .mx2-pronos-toolbar .mx2-segment{width:100%;display:grid;grid-template-columns:1fr 1fr}
+ body.admin-shell .admin-filter-row{grid-template-columns:1fr!important}
+ body.admin-shell .admin-filter-row>div{grid-column:auto!important}
+ body.admin-shell .mx2-editor-preview{padding:13px}
+ body.admin-shell .mx2-push-preview{padding:15px}
+ body.admin-shell .admin-button-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.admin-shell .admin-button-row button{min-width:0}
+ body.admin-shell .admin-button-row #push_send{grid-column:1 / -1}
+ body.admin-shell .mx2-vip-stat small{font-size:10px}
+ body.admin-shell .mx2-vip-stat strong{font-size:21px}
+ body.admin-shell .mx2-vip-toolbar input,body.admin-shell .mx2-vip-toolbar select{flex-basis:100%}
+}
+@media(max-width:365px){
+ body.admin-shell .mx2-vip-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.admin-shell .mx2-vip-stat{padding:9px}
+ body.admin-shell .mx2-vip-stat strong{font-size:19px}
+ body.admin-shell .mx2-vip-stat small{font-size:9px}
+ body.admin-shell .mx2-match-card{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.admin-shell .mx2-content-card,body.admin-shell .mx2-match-card{transition:none!important}
+}
+
+/* In the explicit "Tableau" mode for pronostics, retain a true scrollable table. */
+@media(max-width:760px){
+ body.admin-shell #tab-pronostics .admin-pronostics-table-scroll{
+  overflow-x:auto;border:1px solid #393e47;background:#171b21
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table{
+  display:table!important;min-width:680px;border-collapse:separate
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table thead{display:table-header-group}
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody{display:table-row-group}
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody tr{
+  display:table-row;border:0;background:transparent;padding:0
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody td{
+  display:table-cell;width:auto;text-align:left;padding:11px 12px;
+  border-bottom:1px solid #353b44!important
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody td::before{display:none}
+}

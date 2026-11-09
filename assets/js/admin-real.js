@@ -1393,7 +1393,7 @@ async function renderVip() {
   if (!root) return;
 
   root.innerHTML = premiumAdminLoading("admin", 3);
-  const { data, error } = await sb.from("vip_access").select("*").order("expires_at",{ascending:false}).limit(50);
+  const { data, error } = await sb.from("vip_access").select("*").order("expires_at",{ascending:false}).limit(200);
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -1418,7 +1418,7 @@ async function renderVip() {
         <thead><tr><th>User</th><th>Code</th><th>Expire</th><th>Actif</th><th>Action</th></tr></thead>
         <tbody>
           ${rows.map(v => `
-            <tr>
+            <tr data-expires="${escapeHtml(v.expires_at||"")}" data-active="${v.active===true?"true":"false"}">
               <td>${escapeHtml(v.user_id)}</td>
               <td>${escapeHtml(v.code)}</td>
               <td>${v.expires_at ? new Date(v.expires_at).toLocaleString("fr-FR") : "-"}</td>
