@@ -2,7 +2,7 @@
 """Phase 1/2 acceptance, screenshots and blocked side effects, using isolated fake Supabase."""
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
@@ -83,15 +83,16 @@ FAKE = r"""
  };
 })();
 """
+TODAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 DATA = {
- "generated_at":"2026-11-09T10:00:00Z",
+ "generated_at": TODAY+"T10:00:00Z",
  "matches":[
-  {"event_date":"2026-11-09T18:00:00Z","home_team":"Arsenal","away_team":"Chelsea",
+  {"event_date":TODAY+"T18:00:00Z","home_team":"Arsenal","away_team":"Chelsea",
    "league":"Premier League","category":"pro","home_score":2,"away_score":1,"status":"won",
    "prediction":{"type":"Double chance","confidence":86}},
-  {"event_date":"2026-11-09T19:00:00Z","home_team":"Paris","away_team":"Lyon",
+  {"event_date":TODAY+"T19:00:00Z","home_team":"Paris","away_team":"Lyon",
    "league":"Ligue 1","category":"pro","status":"pending","prediction":{"type":"1X","confidence":90}},
-  {"event_date":"2026-11-09T20:00:00Z","home_team":"Madrid","away_team":"Valence",
+  {"event_date":TODAY+"T20:00:00Z","home_team":"Madrid","away_team":"Valence",
    "league":"Liga","category":"vip","status":"lost","prediction":{"type":"Over 1.5","confidence":83}}
  ]
 }
@@ -115,8 +116,8 @@ def load(page,role="owner"):
   elif body.get("operation")=="send": payload={"status":"sent","summary":{"sent":1,"failed":0}}
   else:payload={"data":[]}
   route.fulfill(status=200,content_type="application/json",body=json.dumps(payload))
- page.route("**/functions/v1/admin-push",stub_api)
  page.route("**/functions/v1/admin-*",lambda route:route.fulfill(status=200,content_type="application/json",body="{}"))
+ page.route("**/functions/v1/admin-push",stub_api)
  page.goto(BASE+"/admin.html",wait_until="domcontentloaded")
  expect(page.locator("#app")).to_be_visible(timeout=20000)
  return api_calls
