@@ -142,9 +142,9 @@ def visual(page,tag,width):
   elif name in ("articles","conseils"):
    prefix="a" if name=="articles" else "c"
    page.locator("#tab-"+name+" .admin-cms-editor-toggle").click()
-   expect(page.locator(".mx2-editor-preview")).to_be_visible(timeout=12000)
+   expect(page.locator("#tab-"+name+" .mx2-editor-preview")).to_be_visible(timeout=12000)
    page.locator("#"+prefix+"_title").fill("QA "+name)
-   expect(page.locator(".mx2-editor-preview-title")).to_have_text("QA "+name)
+   expect(page.locator("#tab-"+name+" .mx2-editor-preview-title")).to_have_text("QA "+name)
   elif name=="vip":
    expect(page.locator(".mx2-vip-stat")).to_have_count(3)
    page.locator(".mx2-vip-toolbar input").fill("MX-QA-001")
