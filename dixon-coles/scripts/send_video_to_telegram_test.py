@@ -6,7 +6,8 @@ Uses the existing repository's scripts/telegram_test_guard.py to verify
 """
 from __future__ import annotations
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date, timedelta
+from zoneinfo import ZoneInfo
 import json
 import os
 from pathlib import Path
@@ -31,8 +32,13 @@ def verify_assets(payload: dict, video: Path, now: datetime) -> None:
         payload.get('selected_count') != 10 or
         not isinstance(clips, list) or len(clips) != 10):
         raise TestVideoError('Vidéo non certifiée READY avec 10 pronostics')
-    if payload.get('date_local_africa_lome') != '2026-11-10':
-        raise TestVideoError('Date cible du test incorrecte')
+    try:
+        target_day = date.fromisoformat(payload['date_local_africa_lome'])
+    except (KeyError, ValueError, TypeError):
+        raise TestVideoError('Date du storyboard manquante ou incorrecte') from None
+    local_day = now.astimezone(ZoneInfo('Africa/Lome')).date()
+    if not local_day <= target_day <= local_day + timedelta(days=7):
+        raise TestVideoError('Pronostics périmés ou journée trop lointaine')
     scores = []
     for clip in clips:
         if not isinstance(clip, dict) or not clip.get('match_id'):
@@ -71,8 +77,9 @@ def send_video(payload_path: Path, video_path: Path, *, token: str, chat: str,
     # Always verify remote Telegram chat username, type and posting permissions.
     dest = validate_test_channel(chat, token)
     # Unmistakable TEST caption: predictions from an uncalibrated league extension.
+    target_day = date.fromisoformat(payload['date_local_africa_lome'])
     caption = ('🧪 MR XPRONOS — TEST UNIQUEMENT\n'
-        '⚽ 10 SCORES EXACTS DU 10 NOVEMBRE 2026\n'
+        f'⚽ 10 SCORES EXACTS DU {target_day.strftime("%d/%m/%Y")}\n'
         'Scores prévisionnels du modèle Dixon-Coles (non garantis).\n'
         'Source des affiches/résultats historiques : ESPN, fournisseur tiers.\n'
         'Analyse expérimentale, pas une recommandation de pari.')
@@ -82,7 +89,7 @@ def send_video(payload_path: Path, video_path: Path, *, token: str, chat: str,
             response = session.post('https://api.telegram.org/bot'+token+'/sendVideo',
                 data={'chat_id':dest['chat_id'],'caption':caption,
                       'supports_streaming':'true'},
-                files={'video':('mrxpronos_scores_2026-11-10.mp4',handle,'video/mp4')},
+                files={'video':(f'mrxpronos_scores_{target_day.isoformat()}.mp4',handle,'video/mp4')},
                 timeout=(15,120))
         if response.status_code != 200:
             raise TestVideoError(f'Telegram HTTP {response.status_code}; aucun envoi confirmé')
@@ -98,7 +105,7 @@ def send_video(payload_path: Path, video_path: Path, *, token: str, chat: str,
     message_id = result.get('message_id')
     if not isinstance(message_id,int):
         raise TestVideoError('Telegram n’a pas retourné un identifiant de message')
-    return {'destination':'@predict_mrxp','message_id':message_id,
+    return {'destination':'@predict_mrxp','date':target_day.isoformat(),'message_id':message_id,
             'url':f'https://t.me/predict_mrxp/{message_id}',
             'size_bytes':video_path.stat().st_size,
             'match_count':len(payload['clips'])}

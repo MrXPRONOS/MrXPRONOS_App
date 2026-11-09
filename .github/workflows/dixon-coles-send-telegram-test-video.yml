@@ -1,9 +1,5 @@
 name: Mr XPRONOS - video vraie du 10 novembre vers Telegram TEST
 on:
-  push:
-    paths:
-      - 'dixon-coles/scripts/send_video_to_telegram_test.py'
-      - '.github/workflows/dixon-coles-send-telegram-test-video.yml'
   workflow_dispatch:
 permissions:
   contents: read

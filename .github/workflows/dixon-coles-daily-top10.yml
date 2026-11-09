@@ -52,8 +52,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            dixon-coles
-          sparse-checkout-cone-mode: true
+            dixon-coles/
+            scripts/telegram_test_guard.py
+          sparse-checkout-cone-mode: false
       - name: Préparer Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -69,7 +70,7 @@ jobs:
       - name: Vérifier sélection, date et montage vidéo
         run: python -m pytest -q tests/test_daily_pipeline.py tests/test_video_renderer.py tests/test_video_grid.py
       - name: Sélectionner et prédire les matchs admissibles
-        run: python -m dcscore.daily --day "$DCSCORE_DAILY_DAY" --source "$DCSCORE_DAILY_SOURCE" --count 10
+        run: python -m dcscore.daily --day "$DCSCORE_DAILY_DAY" --source "$DCSCORE_DAILY_SOURCE" --count 10 --min-team 4 --min-importance 70 --max-staleness-days 35
       - name: Monter les 10 affiches sur un seul écran (aucune intro/outro)
         run: |
           python - <<'PYCODE'
@@ -89,6 +90,30 @@ jobs:
               subprocess.run([sys.executable,'-m','dcscore.video_grid',
                               '--payload',str(path),'--output',str(destination),'--fullhd'],check=True)
               print('Vidéo de validation générée :',destination)
+          PYCODE
+      - name: Poster sur Telegram TEST si 10 matchs réels et MP4 prêts
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        env:
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+        run: |
+          python - <<'PYCODE'
+          import json,subprocess,sys
+          from pathlib import Path
+          for p in sorted(Path('results/daily').glob('*/video_payload.json')):
+              data=json.loads(p.read_text(encoding='utf-8'))
+              if not data.get('ready_for_video'):
+                  print('Télégram TEST non envoyé: moins de 10 matchs admissibles',p.parent.name)
+                  continue
+              # Le 10/11 a déjà été publié manuellement (message Telegram #1650).
+              if p.parent.name == '2026-11-10':
+                  print('Vidéo du 10/11 déjà envoyée : pas de doublon automatique')
+                  continue
+              movie=p.parent/'top10.mp4'
+              if not movie.is_file():
+                  raise SystemExit('10 scores READY mais vidéo manquante, Telegram bloqué')
+              subprocess.run([sys.executable,'scripts/send_video_to_telegram_test.py',
+                   '--payload',str(p),'--video',str(movie)],check=True)
           PYCODE
       - name: Déposer les prévisions, le storyboard et le MP4 si disponible
         if: always()
