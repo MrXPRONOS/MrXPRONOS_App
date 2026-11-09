@@ -1,0 +1,74 @@
+name: Mr XPRONOS - video vraie du 10 novembre vers Telegram TEST
+on:
+  push:
+    paths:
+      - 'dixon-coles/scripts/send_video_to_telegram_test.py'
+      - '.github/workflows/dixon-coles-send-telegram-test-video.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dixon-coles-telegram-video-test-2026-11-10
+  cancel-in-progress: false
+jobs:
+  render-and-send-to-test-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: dixon-coles
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    steps:
+      - name: Récupérer uniquement le moteur et le garde-fou Telegram du dépôt
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles/
+            scripts/telegram_test_guard.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer le modèle et l'export vidéo
+        run: |
+          python -m pip install -e '.[test,video]'
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
+          command -v ffprobe
+      - name: Vérifier le collecteur ESPN et le rendu sur un écran
+        run: python -m pytest -q tests/test_daily_espn.py tests/test_video_grid.py
+      - name: Sélection et calcul sur les vrais matchs du 10 novembre
+        run: >-
+          python -m dcscore.daily
+          --day 2026-11-10 --source espn --count 10
+          --min-team 4 --min-importance 70 --max-staleness-days 35
+          --output-dir results/telegram_test
+      - name: Bloquer les données incomplètes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          r=json.loads(Path('results/telegram_test/2026-11-10/predictions.json').read_text())
+          print('PREPARED',r['selected_count'],'matched; status',r['status'])
+          if r.get('ready_for_video') is not True or r.get('selected_count')!=10:
+              raise SystemExit('ARRÊT : impossible de publier une vidéo sans 10 matchs réels complets')
+          PY
+      - name: Générer le MP4 final en une seule scène, sans intro/outro
+        run: >-
+          python -m dcscore.video_grid
+          --payload results/telegram_test/2026-11-10/video_payload.json
+          --output results/telegram_test/2026-11-10/top10.mp4 --fullhd
+      - name: Envoyer le MP4 UNIQUEMENT dans @predict_mrxp
+        run: >-
+          python scripts/send_video_to_telegram_test.py
+          --payload results/telegram_test/2026-11-10/video_payload.json
+          --video results/telegram_test/2026-11-10/top10.mp4
+      - name: Conserver les données et la vidéo pour audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mr-xpronos-telegram-test-video-2026-11-10-${{ github.run_id }}
+          path: dixon-coles/results/telegram_test/
+          if-no-files-found: warn
+          retention-days: 21
