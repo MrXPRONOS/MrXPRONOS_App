@@ -363,3 +363,23 @@ body.admin-shell .mx2-responsive-table:not([hidden]){margin:9px 0 16px}
 @media(prefers-reduced-motion:reduce){
  body.admin-shell .mx2-content-card,body.admin-shell .mx2-match-card{transition:none!important}
 }
+
+/* In the explicit "Tableau" mode for pronostics, retain a true scrollable table. */
+@media(max-width:760px){
+ body.admin-shell #tab-pronostics .admin-pronostics-table-scroll{
+  overflow-x:auto;border:1px solid #393e47;background:#171b21
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table{
+  display:table!important;min-width:680px;border-collapse:separate
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table thead{display:table-header-group}
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody{display:table-row-group}
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody tr{
+  display:table-row;border:0;background:transparent;padding:0
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody td{
+  display:table-cell;width:auto;text-align:left;padding:11px 12px;
+  border-bottom:1px solid #353b44!important
+ }
+ body.admin-shell #tab-pronostics .mx2-responsive-table tbody td::before{display:none}
+}
