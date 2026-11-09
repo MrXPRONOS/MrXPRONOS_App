@@ -134,7 +134,13 @@ export function enhanceHealthDashboard(root,{cron=[],runs=null,ghError=null}={})
  if(!panel){panel=make("section","card mx3-health-dashboard");root.prepend(panel)}
  const stateCounts={success:0,error:0,warning:0,progress:0,unknown:0};
  const cronData=(Array.isArray(cron)?cron:[]).map(x=>({name:x.name,kind:"Supabase",state:cronState(x),time:x.last_run_at}));
- const githubData=(Array.isArray(runs)?runs:[]).map(x=>({name:x.name,kind:"GitHub Actions",state:ghState(x),time:x.created_at}));
+ const latestGithub=new Map();
+ for(const run of (Array.isArray(runs)?runs:[])){
+  const name=String(run?.name||"Workflow sans nom");
+  if(!latestGithub.has(name) || Date.parse(run.created_at||"")>Date.parse(latestGithub.get(name).created_at||""))
+   latestGithub.set(name,run);
+ }
+ const githubData=[...latestGithub.values()].map(x=>({name:x.name,kind:"GitHub Actions",state:ghState(x),time:x.created_at}));
  const data=[...cronData,...githubData];
  for(const entry of data)stateCounts[entry.state]++;
  const head=make("div","mx3-heading");
