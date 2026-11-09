@@ -70,7 +70,7 @@ class PwaInstallPhase2Tests(unittest.TestCase):
         self.assertIn('"pwa-telemetry.mjs"', packaging)
         self.assertIn('"confidentialite.html"', packaging)
         self.assertIn('"admin-supervision.html"', packaging)
-        self.assertIn('"assets/js/admin-supervision.js"', packaging)
+        self.assertIn('"admin-supervision.js"', packaging)
         manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["display"], "standalone")
         self.assertEqual(manifest["id"], "./")
