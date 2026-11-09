@@ -1,0 +1,295 @@
+/* Mr XPRONOS — Phase 1 : Design System & responsive shell (2026-11-09)
+   Presentation-only overrides. No authentication, data or workflow behavior. */
+body.admin-shell{
+  --adm-bg:#0b0e13;--adm-side:#101319;--adm-panel:#181c23;
+  --adm-panel2:#20252d;--adm-border:#30343d;
+  --adm-white:#f5f4f1;--adm-muted:#a7a9b2;
+  --adm-gold:#e4c37d;--adm-teal:#82d9b7;
+  --adm-shadow:0 14px 40px rgba(0,0,0,.19);
+  --mx-ink:#0b0e13;--mx-surface:#171b22;--mx-surface-hover:#222730;
+  --mx-stroke:#333840;--mx-soft:#a8aab4;--mx-gold:#e4c37d;
+  --mx-focus:#f8d695;--mx-radius:16px;
+  background:var(--mx-ink);color:var(--adm-white);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body.admin-shell .admin-workspace{isolation:isolate;background:var(--mx-ink)}
+body.admin-shell :is(button,a,input,select,textarea,summary):focus-visible{
+  outline:2px solid var(--mx-focus);outline-offset:3px
+}
+body.admin-shell button{touch-action:manipulation}
+body.admin-shell :is(.login-screen,.workspace-main){background:
+  radial-gradient(ellipse 780px 300px at 90% -110px,rgba(228,195,125,.055),transparent 76%),
+  var(--mx-ink)}
+body.admin-shell .login-screen{background:
+  radial-gradient(ellipse 640px 450px at 50% 4%,rgba(228,195,125,.09),transparent 72%),
+  var(--mx-ink)}
+body.admin-shell .login-panel{
+  background:linear-gradient(155deg,#20232a,#171a20);
+  border:1px solid #383a3e;border-radius:22px;
+  box-shadow:0 22px 70px rgba(0,0,0,.25)
+}
+body.admin-shell .login-panel :is(label,p){color:#c8c7c2}
+body.admin-shell .login-panel input{background:#101319;border-color:#404249;color:#f5f4f1}
+body.admin-shell .login-panel input::placeholder{color:#858791}
+body.admin-shell .login-panel .admin-btn{min-height:48px}
+body.admin-shell .login-mark,body.admin-shell .brand-mark{
+  background:linear-gradient(145deg,#ffdfa0,#c59c56);
+  border-radius:13px;box-shadow:0 7px 18px rgba(0,0,0,.22)
+}
+body.admin-shell .login-foot{color:#8e919a}
+
+/* Desktop navigation and shared structure */
+body.admin-shell .admin-sidebar{
+  width:274px;background:linear-gradient(180deg,#14171d 0%,#0e1117 100%);
+  border-right:1px solid #2c3038;box-shadow:4px 0 36px rgba(0,0,0,.13)
+}
+body.admin-shell .sidebar-head{padding:22px 16px 15px;gap:8px}
+body.admin-shell .sidebar-brand{flex:1;gap:10px}
+body.admin-shell .sidebar-brand strong{font-size:16px;color:#f6f5f3}
+body.admin-shell .sidebar-brand small{color:#94959e}
+body.admin-shell .sidebar-brand em{color:var(--mx-gold)}
+body.admin-shell .workspace-status{
+  background:#1b201e;color:#9fd7bd;border-color:#30443b;
+  margin:0 15px 12px;padding:9px 11px;
+  font-size:9px;white-space:nowrap
+}
+body.admin-shell .sidebar-nav{padding:3px 11px 15px;scrollbar-color:#484951 transparent}
+body.admin-shell .nav-group{padding:10px 0 12px}
+body.admin-shell .nav-group+.nav-group{border-color:#282c33}
+body.admin-shell .nav-heading{padding:5px 12px 9px;color:#898c95;font-size:10px}
+body.admin-shell .nav-item{
+  border-radius:11px;color:#b7b8c0;min-height:45px;
+  padding:10px 12px;font-size:12px;font-weight:680;
+  transition:background .16s ease,color .16s ease,border-color .16s ease
+}
+body.admin-shell .nav-item .nav-icon{color:#9da0ac}
+body.admin-shell .nav-item .nav-icon:last-child{opacity:0;transition:opacity .16s}
+body.admin-shell .nav-item:hover{background:#242932;color:#fff}
+body.admin-shell .nav-item:hover .nav-icon:last-child{opacity:.45}
+body.admin-shell .nav-item.active{
+  background:linear-gradient(90deg,rgba(228,195,125,.17),rgba(228,195,125,.04));
+  border-color:rgba(228,195,125,.32);color:#f4d9a2;
+  box-shadow:inset 3px 0 #e4c37d
+}
+body.admin-shell .nav-item.active .nav-icon{color:#efcd88}
+body.admin-shell .sidebar-footer{padding:13px 12px 15px;border-color:#292d35}
+body.admin-shell .sidebar-external{
+  background:#1d222a;color:#d1d0d1;
+  border:1px solid #363941;border-radius:11px
+}
+body.admin-shell .sidebar-external:hover{background:#2a2b2d;color:#fff}
+body.admin-shell .sidebar-version{padding-top:13px;color:#777983;font-size:9px}
+body.admin-shell .workspace-main{margin-left:274px}
+body.admin-shell .workspace-topbar{
+  position:sticky;top:0;z-index:30;
+  min-height:92px;background:rgba(16,19,24,.94);
+  border-bottom:1px solid #31343b;
+  padding:16px clamp(18px,2.7vw,40px);
+  backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)
+}
+body.admin-shell .topbar-path{color:#c7ac78;font-size:10px;letter-spacing:.15em}
+body.admin-shell #view-title{margin:6px 0 0;font-size:clamp(22px,2.1vw,28px);letter-spacing:-.035em;font-weight:780}
+body.admin-shell .admin-user{
+  color:#bfc0c8;max-width:190px;
+  background:#1a1e24;border:1px solid #30343d;
+  border-radius:30px;padding:7px 12px
+}
+body.admin-shell .workspace-content{max-width:1700px;width:100%;margin-inline:auto;padding:26px clamp(18px,2.7vw,40px) 44px}
+body.admin-shell .view-description{color:#a5a5af;font-size:13px;margin:0 0 23px}
+body.admin-shell .workspace-footer{border-color:#2e323b;color:#8e909b}
+
+/* The same button language in the shell and business screens */
+body.admin-shell .admin-btn{
+  min-height:42px;background:#252a32;border-color:#42464f;
+  color:#ecebf0;border-radius:11px;padding:10px 15px;font-size:12px;
+  transition:background .15s ease,transform .15s ease,border-color .15s ease
+}
+body.admin-shell .admin-btn:hover:not(:disabled){background:#33373e;border-color:#555861}
+body.admin-shell .admin-btn.primary{
+  background:linear-gradient(135deg,#f2d79d,#d5ad65);
+  border-color:#e0bf7d;color:#221a12
+}
+body.admin-shell .admin-btn.primary:hover:not(:disabled){background:linear-gradient(135deg,#ffe5b0,#e3bb74)}
+body.admin-shell .admin-btn:active:not(:disabled){transform:translateY(1px)}
+body.admin-shell .admin-btn[hidden]{display:none!important}
+body.admin-shell .icon-btn{
+  background:#232832;border-color:#41444d;color:#e7e7eb;
+  border-radius:11px
+}
+body.admin-shell .icon-btn:hover{background:#31363e}
+
+/* Harmonise legacy CMS, KPI, charts and forms while keeping the source JS intact */
+body.admin-shell .admin-screen .card,
+body.admin-shell .admin-kpi,
+body.admin-shell .admin-health-card,
+body.admin-shell .admin-supervision-details,
+body.admin-shell .admin-cms-editor-fields{
+  background:linear-gradient(150deg,#1c2027,#161a20);
+  border:1px solid #353941;border-radius:var(--mx-radius);
+  box-shadow:0 8px 28px rgba(0,0,0,.12)
+}
+body.admin-shell .admin-screen .card{padding:clamp(16px,2vw,24px);margin:0 0 16px}
+body.admin-shell .admin-screen .card .card{background:#171b21;border-color:#353940}
+body.admin-shell .admin-screen h3{color:#f0d39a!important;font-size:clamp(17px,1.7vw,21px)}
+body.admin-shell .admin-screen :is(h2,h3,h4){line-height:1.35;letter-spacing:-.02em}
+body.admin-shell .admin-screen .muted{color:#acafb7}
+body.admin-shell .admin-section-heading{margin:0 0 16px}
+body.admin-shell .admin-overview-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+body.admin-shell .admin-kpi{
+  min-height:125px;position:relative;padding:20px;
+  display:flex;flex-direction:column;justify-content:center;gap:8px
+}
+body.admin-shell .admin-kpi strong{
+  color:#f3e0b6;font-size:clamp(25px,2.5vw,37px);
+  line-height:1.1;font-weight:800;font-variant-numeric:tabular-nums
+}
+body.admin-shell .admin-kpi small{color:#bfc0c7;font-size:12px}
+body.admin-shell .admin-health-cards{gap:12px}
+body.admin-shell .admin-health-card{min-height:62px;padding:15px}
+body.admin-shell .admin-overview-links a{
+  border-color:#43464c;background:#20242b;color:#dfdce0;
+  border-radius:10px;transition:background .15s
+}
+body.admin-shell .admin-overview-links a:hover{background:#30343b}
+body.admin-shell .admin-screen label{color:#d4d1d2;font-size:12px}
+body.admin-shell .admin-screen :is(input,select,textarea){
+  background:#10141b;color:#f5f5f7;border:1px solid #464a54;
+  border-radius:11px;padding:12px;min-height:42px;max-width:100%
+}
+body.admin-shell .admin-screen :is(input,textarea)::placeholder{color:#92959e}
+body.admin-shell .admin-screen :is(input,select,textarea):focus{
+  border-color:#c4a56c;outline:0;box-shadow:0 0 0 3px rgba(228,195,125,.12)
+}
+body.admin-shell .admin-screen .btn{
+  min-height:42px;border-radius:10px;padding:10px 14px;
+  transition:background .15s ease,border-color .15s ease
+}
+body.admin-shell .admin-screen .btn-primary{
+  color:#241b12;background:linear-gradient(135deg,#f3d9a2,#d6b16f);
+  border-color:#dfbc7e
+}
+body.admin-shell .admin-screen .btn-secondary{
+  background:#272d35;color:#eeeced;border:1px solid #4b4e55
+}
+body.admin-shell .admin-screen .btn-secondary:hover{background:#323740}
+body.admin-shell .admin-screen table{background:#171b21;border-radius:12px}
+body.admin-shell .admin-screen :is(th,td){
+  border-bottom:1px solid #333741;padding:13px 14px;
+  color:#e3e1e2;font-size:12px;line-height:1.45
+}
+body.admin-shell .admin-screen th{
+  color:#e6c583;background:#22252b;white-space:nowrap;
+  font-size:11px;letter-spacing:.02em
+}
+body.admin-shell .admin-screen tr:hover td{background:rgba(255,255,255,.025)}
+body.admin-shell .admin-screen pre{background:#101319;color:#d7d9de;border-radius:10px;padding:12px;overflow:auto}
+body.admin-shell .admin-supervision-details{background:#161a20;border-color:#373b43}
+body.admin-shell .admin-supervision-details summary{color:#ecd09c}
+body.admin-shell .admin-unified-chart{background:#131820;border-color:#3e4149}
+body.admin-shell .admin-cms-editor-fields{background:#161b20;border-color:#44454b}
+body.admin-shell .admin-pronostics-table-scroll{border:1px solid #363a41;border-radius:12px}
+body.admin-shell .admin-team-logo{background:#1d2128}
+
+/* Desktop can be compact without hiding or detaching any screen. */
+body.admin-shell .desktop-collapse-btn{display:grid;width:34px;height:34px;min-width:34px}
+body.admin-shell .desktop-collapse-btn .nav-icon{width:17px;height:17px}
+@media(min-width:821px){
+  body.admin-shell .admin-sidebar,
+  body.admin-shell .workspace-main{transition:width .22s ease,margin-left .22s ease}
+  body.admin-shell .admin-workspace.sidebar-collapsed .admin-sidebar{width:78px}
+  body.admin-shell .admin-workspace.sidebar-collapsed .workspace-main{margin-left:78px}
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-head{
+    padding:19px 11px 11px;display:flex;flex-direction:column;gap:12px
+  }
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-brand>span:last-child,
+  body.admin-shell .admin-workspace.sidebar-collapsed .workspace-status,
+  body.admin-shell .admin-workspace.sidebar-collapsed .nav-heading,
+  body.admin-shell .admin-workspace.sidebar-collapsed .nav-item>span,
+  body.admin-shell .admin-workspace.sidebar-collapsed .nav-item>.nav-icon:last-child,
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-external>span,
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-external>.nav-icon:last-child,
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-version{display:none!important}
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-nav{padding:9px 8px}
+  body.admin-shell .admin-workspace.sidebar-collapsed .nav-group{padding:6px 0}
+  body.admin-shell .admin-workspace.sidebar-collapsed .nav-item,
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-external{
+    width:52px;min-height:48px;justify-content:center;padding:10px 14px;margin-inline:auto
+  }
+  body.admin-shell .admin-workspace.sidebar-collapsed .nav-item .nav-icon{margin:0}
+  body.admin-shell .admin-workspace.sidebar-collapsed .sidebar-footer{padding:10px 7px 14px}
+  body.admin-shell .admin-workspace.sidebar-collapsed .desktop-collapse-btn{transform:rotate(180deg)}
+}
+body.admin-shell .admin-mobile-nav{display:none}
+body.admin-shell .mobile-menu-btn{display:none}
+
+/* Tablet: one overlay sidebar; the content remains full width. */
+@media(max-width:1100px){
+  body.admin-shell .admin-overview-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:820px){
+  body.admin-shell .admin-sidebar{width:min(320px,88vw)}
+  body.admin-shell .desktop-collapse-btn{display:none}
+  body.admin-shell .workspace-main{margin-left:0}
+  body.admin-shell .workspace-topbar{min-height:72px;padding:12px 17px}
+  body.admin-shell .workspace-content{padding:22px 16px 38px}
+  body.admin-shell .mobile-menu-btn{display:grid}
+  body.admin-shell .sidebar-close{display:grid}
+  body.admin-shell.admin-menu-visible{overflow:hidden}
+  body.admin-shell .admin-workspace.menu-open .admin-sidebar{box-shadow:15px 0 70px rgba(0,0,0,.48)}
+  body.admin-shell .topbar-path{font-size:9px}
+  body.admin-shell #view-title{font-size:23px}
+  body.admin-shell .admin-user{display:none}
+  body.admin-shell .admin-screen .card{padding:17px}
+}
+@media(max-width:640px){
+  body.admin-shell .workspace-topbar{min-height:68px;padding:10px 12px}
+  body.admin-shell #view-title{font-size:20px}
+  body.admin-shell .topbar-actions{gap:7px}
+  body.admin-shell .topbar-actions .admin-btn{width:39px;min-height:39px;padding:8px}
+  body.admin-shell .workspace-content{
+    padding:20px 12px calc(106px + env(safe-area-inset-bottom,0px))
+  }
+  body.admin-shell .view-description{font-size:12px;margin:0 0 17px}
+  body.admin-shell .admin-overview-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  body.admin-shell .admin-kpi{min-height:110px;padding:14px 12px}
+  body.admin-shell .admin-kpi strong{font-size:clamp(21px,6vw,28px)}
+  body.admin-shell .admin-kpi small{font-size:11px}
+  body.admin-shell .admin-screen .card{padding:14px;margin:0 0 12px}
+  body.admin-shell .admin-screen .row{grid-template-columns:1fr}
+  body.admin-shell .admin-filter-row{grid-template-columns:1fr 1fr}
+  body.admin-shell .admin-health-cards{grid-template-columns:1fr}
+  body.admin-shell .admin-mobile-nav{
+    position:fixed;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+    bottom:0;left:0;right:0;z-index:40;gap:3px;
+    padding:7px 6px calc(7px + env(safe-area-inset-bottom,0px));
+    background:rgba(17,20,26,.97);border-top:1px solid #393b41;
+    backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+    box-shadow:0 -12px 32px rgba(0,0,0,.25)
+  }
+  body.admin-shell .admin-mobile-nav .mobile-nav-item{
+    appearance:none;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:4px;background:transparent;border:1px solid transparent;
+    border-radius:10px;min-height:54px;padding:5px 1px;
+    color:#a5a7ae;font-size:10px;font-weight:680;line-height:1.1;cursor:pointer
+  }
+  body.admin-shell .admin-mobile-nav .mobile-nav-item .nav-icon{width:21px;height:21px;min-width:21px}
+  body.admin-shell .admin-mobile-nav .mobile-nav-item.active,
+  body.admin-shell .admin-mobile-nav .mobile-nav-item[aria-current="page"]{
+    background:rgba(228,195,125,.11);color:#f1d399;border-color:rgba(228,195,125,.24)
+  }
+  body.admin-shell .workspace-footer{padding-bottom:14px}
+  body.admin-shell .admin-screen :is(input,select,textarea){font-size:16px}
+}
+@media(max-width:380px){
+  body.admin-shell .admin-mobile-nav .mobile-nav-item{font-size:9px}
+  body.admin-shell .topbar-path{font-size:8px}
+  body.admin-shell .admin-screen .card{padding:12px}
+  body.admin-shell .admin-kpi{min-height:106px;padding:12px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.admin-shell .admin-sidebar,
+  body.admin-shell .workspace-main,
+  body.admin-shell :is(.nav-item,.admin-btn,.btn){transition:none!important}
+}
