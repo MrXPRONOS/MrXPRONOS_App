@@ -15,6 +15,30 @@ def movie(name,caption="",reply_id=None,grouped_id=None):
 
 
 class TitleGuardTests(unittest.TestCase):
+    def test_release_metadata_does_not_override_matching_title(self):
+        self.assertEqual(title_assessment(
+            poster("🎬 La Grande Aventure"),
+            movie("La.Grande.Aventure.2024.1080p.WEB-DL.x265.AC3.mkv")),
+            "verified")
+
+    def test_unrelated_release_metadata_still_rejected(self):
+        self.assertEqual(title_assessment(
+            poster("🎬 Le Secret du Chateau"),
+            movie("Le.Secret.de.la.Foret.2024.1080p.WEB-DL.mkv")),
+            "mismatch")
+
+    def test_conflicting_remake_year_with_release_tags(self):
+        self.assertEqual(title_assessment(
+            poster("🎬 La Grande Aventure 1998"),
+            movie("La.Grande.Aventure.2022.1080p.WEB-DL.mkv")),
+            "mismatch")
+
+    def test_sequel_number_still_checked_with_release_tags(self):
+        self.assertEqual(title_assessment(
+            poster("🎬 Aventure Galactique 2"),
+            movie("Aventure.Galactique.3.2024.1080p.mkv")),
+            "mismatch")
+
     def test_same_movie_title(self):
         self.assertEqual(title_assessment(poster("🎬 La Grande Aventure"),
                                           movie("La.Grande.Aventure.2024.mkv")),"verified")
