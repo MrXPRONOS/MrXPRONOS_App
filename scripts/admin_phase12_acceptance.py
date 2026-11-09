@@ -48,6 +48,7 @@ FAKE = r"""
    range:()=>Promise.resolve({data:dataset[table]||[],error:null}),
    eq:()=>c,gte:()=>c,in:()=>c,
    single:()=>Promise.resolve({data:{},error:null}),
+   maybeSingle:()=>Promise.resolve({data:null,error:null}),
    upsert:async rows=>{window.__qaWrites.push({operation:"upsert",table,rows});return {error:null}},
    insert:async rows=>{window.__qaWrites.push({operation:"insert",table,rows});return {error:null}},
    then:(resolve,reject)=>Promise.resolve({data:dataset[table]||[],error:null}).then(resolve,reject)
