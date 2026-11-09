@@ -56,7 +56,7 @@ class Phase4Contracts(unittest.TestCase):
                      "audience-dashboard.mjs","audience-analytics.css"):
             self.assertIn('"'+name+'"',package)
         self.assertIn('"admin-supervision.html"',package)
-        self.assertIn('"assets/js/admin-supervision.js"',package)
+        self.assertIn('"admin-supervision.js"',package)
         sw=self.load("service-worker.js")
         self.assertIn("const VERSION = ",sw)
         self.assertIn("./assets/js/acquisition-attribution.mjs",sw)
