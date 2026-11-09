@@ -43,15 +43,15 @@ def tokens(text):
 # from the first clear marker when at least two meaningful title tokens precede
 # it; this avoids guessing a title from a generic file or a year-only name.
 RELEASE_MARKER = re.compile(
-    r"(?i)\\b(?:19[0-9]{2}|20[0-9]{2}|2160p|1080p|720p|480p|360p|"
+    r"(?i)\b(?:19[0-9]{2}|20[0-9]{2}|2160p|1080p|720p|480p|360p|"
     r"web[ ._-]?dl|web[ ._-]?rip|bluray|brrip|dvdrip|hdtv|hdlight|"
-    r"x264|x265|h264|h265|hevc|ac3|eac3)\\b"
+    r"x264|x265|h264|h265|hevc|ac3|eac3)\b"
 )
 
 
 def filename_title(value):
-    cleaned = re.sub(r"[._\\[\\](){}]+", " ", str(value or ""))
-    cleaned = re.sub(r"(?i)\\.(?:mp4|mkv|avi|mov|webm)$", "", cleaned).strip()
+    cleaned = re.sub(r"[._\[\](){}]+", " ", str(value or ""))
+    cleaned = re.sub(r"(?i)\.(?:mp4|mkv|avi|mov|webm)$", "", cleaned).strip()
     for match in RELEASE_MARKER.finditer(cleaned):
         prefix = cleaned[:match.start()].strip()
         if len(tokens(prefix)) >= 2:
