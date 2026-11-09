@@ -381,6 +381,14 @@ jobs:
           PYTHONPATH: .
         run: python scripts/verify_published_receipts.py --verify "$RUNNER_TEMP/cinex-before.json"
 
+      - name: Signaler les cycles sans publication réelle
+        if: ${{ always() && steps.telegram_check.outputs.verified_posts == '0' && (github.event_name != 'workflow_dispatch' || inputs.publish) }}
+        shell: bash
+        run: |
+          echo '::warning title=CineX sans nouvelle publication::Aucun nouveau contenu Telegram confirmé. Examiner les sources, les titres rejetés et la complétude des séries.'
+          echo '### ⚠️ CinéX : aucune nouvelle publication confirmée' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Le workflow a pu terminer sans erreur technique, mais aucune publication récente n’a été vérifiée. Vérifier les logs de chaque catégorie.' >> "$GITHUB_STEP_SUMMARY"
+
       # Save ALL checkpoints even if one new category fails. Telegram uploads
       # must not be repeated on the next scheduled run after a partial error.
 
