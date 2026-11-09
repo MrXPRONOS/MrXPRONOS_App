@@ -146,6 +146,10 @@ def main():
     before = json.loads(args.verify.read_text(encoding="utf-8"))
     result = asyncio.run(check_new_posts(before))
     print("Vérification Telegram réelle : " + json.dumps(result, ensure_ascii=False))
+    if os.getenv("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write(f"verified_posts={result['verified_posts']}\n")
+            output.write(f"verification_status={result['status']}\n")
     if os.getenv("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
             out.write("\n### CinéX : vérification réelle de Telegram\n")
