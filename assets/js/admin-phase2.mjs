@@ -83,7 +83,7 @@ function enhancePronos(root){
    const teams=elt("div","mx2-match-teams");
    const pair=cells[0].querySelector(".admin-team-pair");
    const names=pair?[...pair.querySelectorAll("b")].map(n=>n.textContent):[];
-   const logos=pair?[...pair.querySelectorAll("img")]:[];
+   const logos=pair?[...pair.querySelectorAll("b")].map((name,i)=>i===0?(name.previousElementSibling?.tagName==="IMG"?name.previousElementSibling:null):(name.nextElementSibling?.tagName==="IMG"?name.nextElementSibling:null)):[];
    for(let i=0;i<2;i++){
     const side=elt("div","mx2-team");
     const imgUrl=safeImageUrl(logos[i]?.getAttribute("src"));
