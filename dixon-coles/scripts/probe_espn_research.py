@@ -1,8 +1,8 @@
 from __future__ import annotations
 import json, urllib.request, urllib.error, time
 from datetime import datetime
-LEAGUES=['uefa.wchampions','eng.trophy','esp.copa_del_rey','eng.w.1','esp.w.1','uefa.w.eurocup']
-PERIODS=['20261110','20261001-20261108','20250801-20260531','20240801-20250531']
+LEAGUES=['uefa.wchampions','eng.trophy','eng.w.1','esp.w.1']
+PERIODS=['2026','2025','2024','202610','202510','202503','20261020','20251010','20250315','20260114']
 def fetch(league,dates):
  url=f'https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates={dates}&limit=400'
  try:
