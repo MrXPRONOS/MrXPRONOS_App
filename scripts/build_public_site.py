@@ -28,6 +28,9 @@ PUBLIC_HTML = {
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
     "contact.html", "article.html", "conseil.html", "offline.html",
     "scores-exacts.html",
+    # Client-side admin shell only: Supabase auth + server-side role/RLS enforce access.
+    # Publishing the login UI does not publish private datasets or service secrets.
+    "admin.html", "admin-supervision.html", "admin-dashboard.html", "admin-vip.html",
 }
 ROOT_FILES = {
     "robots.txt", "sitemap.xml", "CNAME", "favicon.ico", "manifest.json",
@@ -48,6 +51,14 @@ PUBLIC_JS = {
     "installation-analytics.mjs",
     "daily-hub.mjs", "daily-utils.mjs", "daily-audience.mjs", "daily-favorite-alerts.mjs",
     "acquisition-attribution.mjs", "audience-dashboard.mjs", "experiment-ux.mjs",
+    # Exact, audited client-side dependency closure for protected admin pages.
+    "admin-real.js", "admin-shell.js", "admin-phase2.mjs", "admin-supervision.js",
+    "admin-mfa-ui.mjs", "admin-mfa-flow.mjs", "admin-incidents.mjs",
+    "admin-cron-register.mjs", "admin-unified-highlights.mjs",
+    "admin-data-freshness.mjs", "admin-users.mjs",
+    "cms-quality.mjs", "cms-server-search.mjs", "cms-block-editor.mjs",
+    "cms-revisions.mjs", "cms-duplicate.mjs", "cms-list-filters.mjs",
+    "cms-media-library.mjs", "admin-public-markdown.mjs", "admin-draft-sync.mjs",
 }
 PUBLIC_CSS = {
     "style.css", "loading-ui.css", "home-premium.css",
@@ -58,6 +69,8 @@ PUBLIC_CSS = {
     "mobile-nav-premium.css", "brand-signatures.css", "scores-exacts.css", "daily-hub.css",
     "audience-analytics.css", "ux-direct.css", "daily-ux.css",
     "site-typography.css", "home-compact.css",
+    "admin-premium.css", "admin-shell.css", "admin-phase1.css",
+    "admin-phase2.css", "admin-cms-editor.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
