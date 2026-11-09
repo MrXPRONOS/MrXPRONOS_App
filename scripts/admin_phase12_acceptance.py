@@ -141,7 +141,7 @@ def visual(page,tag,width):
    page.locator('[data-view="cards"]').click()
   elif name in ("articles","conseils"):
    prefix="a" if name=="articles" else "c"
-   page.locator(".admin-cms-editor-toggle").click()
+   page.locator("#tab-"+name+" .admin-cms-editor-toggle").click()
    expect(page.locator(".mx2-editor-preview")).to_be_visible(timeout=12000)
    page.locator("#"+prefix+"_title").fill("QA "+name)
    expect(page.locator(".mx2-editor-preview-title")).to_have_text("QA "+name)
@@ -176,13 +176,13 @@ def visual(page,tag,width):
 def functional(page,api_calls):
  page.on("dialog",lambda dialog:dialog.accept())
  navigate(page,"articles",1440)
- page.locator(".admin-cms-editor-toggle").click()
+ page.locator("#tab-articles .admin-cms-editor-toggle").click()
  page.locator('[data-id="10000000-0000-4000-8000-000000000001"]').click()
  page.locator("#a_title").fill("QA article edited")
  page.locator("#a_save").click()
  expect(page.locator("#tab-articles")).to_be_visible()
  navigate(page,"conseils",1440)
- page.locator(".admin-cms-editor-toggle").click()
+ page.locator("#tab-conseils .admin-cms-editor-toggle").click()
  page.locator('[data-id="10000000-0000-4000-8000-000000000003"]').click()
  page.locator("#c_title").fill("QA conseil edited")
  page.locator("#c_save").click()
