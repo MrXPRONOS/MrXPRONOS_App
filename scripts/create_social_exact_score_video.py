@@ -24,7 +24,7 @@ LOME = ZoneInfo("Africa/Lome")
 SIZE = (1080, 1920)
 # The original grid's last card is at y=1145/1280; after scaling it ends at
 # ~1362, so this panel never covers a score, club crest or team name.
-VIDEO_BOX = (90, 25, 840, 1494)
+VIDEO_BOX = (85, 20, 810, 1440)
 CTA_BOX = (75, 1398, 905, 1567)
 SAFE_RIGHT = 920
 SAFE_BOTTOM = 1570
