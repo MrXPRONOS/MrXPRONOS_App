@@ -173,11 +173,20 @@ def visual(page,tag,width):
    expect(page.locator("#tab-health .mx3-health-dashboard")).to_be_visible()
    expect(page.locator("#tab-health .mx3-stat")).to_have_count(5)
    expect(page.locator("#tab-health .mx3-health-bar")).to_be_visible()
+   page.locator("#tab-health .mx3-health-filters select").select_option("error")
+   expect(page.locator("#tab-health .mx3-automation").first).to_be_visible()
+   page.locator("#tab-health .mx3-health-filters select").select_option("all")
   elif name=="audit":
    expect(page.locator("#tab-audit .mx3-audit-workbench")).to_be_visible()
    expect(page.locator("#tab-audit .mx3-mini-chart-group")).to_have_count(7)
    page.locator("#tab-audit .mx3-audit-filters input").fill("vip_reset")
    expect(page.locator("#tab-audit .mx3-audit-table tbody tr")).to_have_count(1)
+   with page.expect_download() as dl:
+    page.locator("#tab-audit .mx3-audit-actions button").last.click()
+   artifact=dl.value
+   assert artifact.suggested_filename.startswith("mrxpronos-audit-")
+   csv_content=artifact.path().read_text(encoding="utf-8-sig")
+   assert "vip_reset" in csv_content and "cms_publish" not in csv_content
    page.locator("#tab-audit .mx3-audit-filters input").fill("")
   if width>=1000:
    overflow=page.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")
