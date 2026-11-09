@@ -1,0 +1,42 @@
+name: Admin phases 1+2 full responsive and functional acceptance
+on:
+  pull_request:
+    paths:
+      - 'admin.html'
+      - 'assets/js/admin-real.js'
+      - 'assets/js/admin-shell.js'
+      - 'assets/js/admin-phase2.mjs'
+      - 'assets/css/admin-phase1.css'
+      - 'assets/css/admin-phase2.css'
+      - 'assets/js/admin-users.mjs'
+      - 'scripts/admin_phase12_acceptance.py'
+      - '.github/workflows/admin-phase12-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  admin-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium Playwright
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Launch isolated local site
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/mx-phase12-http.log 2>&1 &
+          sleep 2
+      - name: Verify visuals, navigation, CRM/CMS/Push workflows and roles with mocks
+        run: python scripts/admin_phase12_acceptance.py
+      - name: Keep screenshots for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-phase12-qa-screenshots
+          path: artifacts/admin-phase12-acceptance/
+          if-no-files-found: ignore
