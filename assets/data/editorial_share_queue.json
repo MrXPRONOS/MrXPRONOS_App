@@ -1,5 +1,572 @@
 [
   {
+    "id": "c25df8d89d955aa16dd94619",
+    "kind": "news",
+    "title": "OM : Bruno Genesio a secoué ses joueurs",
+    "url": "https://www.footmercato.net/a506686548213104240-om-bruno-genesio-a-secoue-ses-joueurs",
+    "source_date": "2026-11-08T23:06:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "301a60c02d197a54c1e4b208",
+    "kind": "news",
+    "title": "Lens : Cahuzac pas inquiet pour son poste",
+    "url": "https://www.maxifoot.fr/lens/cahuzac-pas-inquiet-pour-son-poste-foot-467387.htm",
+    "source_date": "2026-11-08T22:43:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "224a6edfac03af79e0269043",
+    "kind": "news",
+    "title": "OM : le très beau message de Bruno Genesio à Yannick Cahuzac",
+    "url": "https://www.footmercato.net/a3243129872611168345-om-le-tres-beau-message-de-bruno-genesio-a-yannick-cahuzac",
+    "source_date": "2026-11-08T22:42:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e852bd050ab0ce9024eeed31",
+    "kind": "news",
+    "title": "Le cauchemar continue pour le RC Lens !",
+    "url": "https://www.footmercato.net/a3762014213673804657-le-cauchemar-continue-pour-le-rc-lens",
+    "source_date": "2026-11-08T22:32:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b383ef115bfc72ff9de5341c",
+    "kind": "news",
+    "title": "OM : Bruno Genesio a haussé le ton à la mi-temps du match à Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-a-hausse-le-ton-a-la-mi-temps-du-match-a-lens-545183.html",
+    "source_date": "2026-11-08T22:23:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "07379a2ad6f2122233258beb",
+    "kind": "news",
+    "title": "Liga : le FC Barcelone remporte le choc face à l’Atlético de Madrid grâce à Fermín López !",
+    "url": "https://www.footmercato.net/a4146020579755500783-liga-le-fc-barcelone-remporte-le-choc-face-a-latletico-de-madrid-grace-a-fermin-lopez",
+    "source_date": "2026-11-08T21:56:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5c7c4f3cb176d124638c57af",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: la première liste d’Ali Maher avec l’Égypte",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261108-%C3%A9liminatoires-can-2027-la-premi%C3%A8re-liste-d-ali-maher-avec-l-%C3%A9gypte",
+    "source_date": "2026-11-08T20:42:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bb4742680d5f8b9bf34d9f4a",
+    "kind": "news",
+    "title": "Supercoupe de la CAF: l'USM Alger remporte le trophée pour la deuxième fois de son histoire en battant le Mamelodi Sundowns",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261108-supercoupe-de-la-caf-l-usm-alger-remporte-le-troph%C3%A9e-pour-la-deuxi%C3%A8me-fois-de-son-histoire-en-battant-le-mamelodi-sundowns",
+    "source_date": "2026-11-08T16:02:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d683bb0f967e6f4daec4e1d6",
+    "kind": "news",
+    "title": "L'équipe type de L1 - 10e journée",
+    "url": "https://m.maxifoot.fr/football/article-66515.htm",
+    "source_date": "2026-11-08T22:56:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "49d2fabfe90b1a66701f7d55",
+    "kind": "news",
+    "title": "La remontée vertigineuse d’un OM qui a déjà laissé l’OL dans le rétroviseur",
+    "url": "https://www.footmercato.net/a4469452961327984547-la-remontee-vertigineuse-dun-om-qui-a-deja-laisse-lol-dans-le-retroviseur",
+    "source_date": "2026-11-08T22:52:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "68bb232f5436e96a74f828f7",
+    "kind": "news",
+    "title": "Mercato OL : Carlos Vicens est arrivé à Lyon, signature imminente !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-carlos-vicens-est-arrive-a-lyon-signature-imminente-545188.html",
+    "source_date": "2026-11-08T22:37:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "262932b7bf81d22595a9500e",
+    "kind": "news",
+    "title": "Ligue 1 : Risser, Abdallah, De Lange… Les notes de Lens-Marseille",
+    "url": "https://www.sofoot.com/articles/ligue-1-risser-abdallah-de-lange-les-notes-de-lens-marseille",
+    "source_date": "2026-11-08T22:35:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4419a4d568a1abd05a1a3829",
+    "kind": "news",
+    "title": "RC Lens : La réaction à chaud de Yannick Cahuzac après la défaite contre l'OM",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-la-reaction-a-chaud-de-yannick-cahuzac-apres-la-defaite-contre-l-om-545187.html",
+    "source_date": "2026-11-08T22:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c103ace1efea1049dfc5497a",
+    "kind": "news",
+    "title": "Lens-OM : \"Difficile à expliquer\", Cahuzac ne comprend pas le 1er but concédé après 1 minute",
+    "url": "https://www.onzemondial.com/ligue-1/lens-om-difficile-a-expliquer-cahuzac-ne-comprend-pas-le-1-er-but-concede-apres-1-minute-1007870",
+    "source_date": "2026-11-08T22:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5ea45553c1c19ec7fb4a7f3a",
+    "kind": "news",
+    "title": "Real Madrid : Konaté choqué par la parade de Courtois contre Valence",
+    "url": "https://www.onzemondial.com/liga/real-madrid-konate-choque-par-la-parade-de-courtois-contre-valence-1007879",
+    "source_date": "2026-11-08T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5f82d3c8689206d387a3ea52",
+    "kind": "news",
+    "title": "Lens-OM : Gouiri en patron, Gradit dans le dur, les Tops et les Flops !",
+    "url": "https://www.onzemondial.com/ligue-1/lens-om-les-tops-et-les-flops-1007915",
+    "source_date": "2026-11-08T22:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c0dbfc9b3f2d35cf495b7bce",
+    "kind": "news",
+    "title": "Lens-OM : \"Le plus difficile commence\", le gros avertissement de Genesio après la victoire",
+    "url": "https://www.onzemondial.com/ligue-1/lens-om-le-plus-difficile-commence-le-gros-avertissement-de-genesio-apres-la-victoire-1007865",
+    "source_date": "2026-11-08T22:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a78a351f5f5c6f91e821d796",
+    "kind": "news",
+    "title": "Barça : la réaction du héros Fermin Lopez",
+    "url": "https://www.footmercato.net/a1889001013147041752-barca-la-reaction-du-heros-fermin-lopez",
+    "source_date": "2026-11-08T22:15:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "53bce537b18147dbf89c50a1",
+    "kind": "news",
+    "title": "RC Lens : Les vérités de Florian Sotoca après l'humiliation contre Côme et la défaite face à l'OM",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-les-verites-de-florian-sotoca-apres-l-humiliation-contre-come-et-la-defaite-face-a-l-om-545182.html",
+    "source_date": "2026-11-08T22:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bda7f1c4096b281a7d36811a",
+    "kind": "news",
+    "title": "RC Lens - OM : \"On méritait autre chose\", la grosse frustration de Sotoca après la défaite",
+    "url": "https://www.onzemondial.com/ligue-1/rc-lens-om-on-meritait-autre-chose-la-grosse-frustration-de-sotoca-apres-la-defaite-1007931",
+    "source_date": "2026-11-08T22:06:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "217605b2ee6d0bacbe4784ea",
+    "kind": "news",
+    "title": "Serie A : la Fiorentina et la Juve dos à dos",
+    "url": "https://www.footmercato.net/a3853593605747623862-serie-a-la-fiorentina-et-la-juve-dos-a-dos",
+    "source_date": "2026-11-08T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1aa9d2cf3ccaceae5c9e482d",
+    "kind": "news",
+    "title": "OM : CJ Egan-Riley demande beaucoup d'humilité malgré la série de victoires",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-cj-egan-riley-demande-beaucoup-d-humilite-malgre-la-serie-de-victoires-545181.html",
+    "source_date": "2026-11-08T21:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bcabf4bd109eb9560ccd23ed",
+    "kind": "news",
+    "title": "OM : CJ Egan-Riley veut poursuivre la belle série de victoires",
+    "url": "https://www.footmercato.net/a5466256913471445201-om-cj-egan-riley-veut-poursuivre-la-belle-serie-de-victoires",
+    "source_date": "2026-11-08T21:57:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "51a4e00bbf33828b5ac5652e",
+    "kind": "news",
+    "title": "Liga : Le FC Barcelone renverse l’Atlético de Madrid et reste leader de la Liga",
+    "url": "https://www.sofoot.com/articles/liga-le-fc-barcelone-renverse-latletico-de-madrid-et-reste-leader-de-la-liga",
+    "source_date": "2026-11-08T21:56:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5fce08777b599eba3b43b327",
+    "kind": "news",
+    "title": "VIDÉO/Lens-OM : la communion magnifique des Marseillais et leurs supporters !",
+    "url": "https://www.onzemondial.com/ligue-1/video-lens-om-la-communion-magnifique-des-marseillais-et-leurs-supporters-1007929",
+    "source_date": "2026-11-08T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "211e3607a9320550a55a6455",
+    "kind": "news",
+    "title": "RC Lens : Matthieu Udol accuse le coup après la défaite face à l'OM",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-matthieu-udol-accuse-le-coup-apres-la-defaite-face-a-l-om-545176.html",
+    "source_date": "2026-11-08T21:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "05ebd587a8de98e4c298c3eb",
+    "kind": "news",
+    "title": "OM : La joie d'Amine Gouiri après le succès sur la pelouse du RC Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-la-joie-d-amine-gouiri-apres-le-succes-sur-la-pelouse-du-rc-lens-545175.html",
+    "source_date": "2026-11-08T21:46:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-09T05:42:09.262450+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "cf0fd3b9b7dfe4ee4d36f0b9",
     "kind": "article",
     "title": "Enugu Rangers International vs Kwara United : analyse du match",
@@ -84,7 +651,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e3ecd522b542ef0397bb4ade",
@@ -105,7 +672,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3afc9e5d6ba59353d356bc65",
@@ -126,7 +693,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b697b66d4a833676933d03b8",
@@ -210,7 +777,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ea147fecd7fbeb4970ffbc6f",
@@ -231,7 +798,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1f875b6b25fdcef71e997f12",
@@ -252,7 +819,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0691c22ef0df5cae66ee951c",
@@ -273,7 +840,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e2b3e2feeee5015baf31f060",
@@ -294,7 +861,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b4f29ab3caee5137cda6703d",
@@ -315,7 +882,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b6439cc542e01cf93ecf30c1",
@@ -336,7 +903,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e6c0fc69c1570f58a6339fce",
@@ -357,7 +924,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cdfdc28c1fdfb31cac22abda",
@@ -378,7 +945,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "73c86104d6c9570a2f56a249",
@@ -399,7 +966,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "066d2ca088d2ae808b2ed763",
@@ -420,7 +987,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3ce3cdeadfd4acd0d3a006a4",
@@ -441,7 +1008,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ad64f65019825a118615efb0",
@@ -462,7 +1029,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "142396c1eba11f00328e808c",
@@ -483,7 +1050,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cd531bda571956ad002553e9",
@@ -504,7 +1071,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "706f24bfa38a720d81520813",
@@ -525,7 +1092,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7b87d2823a2819e4b0bbeee4",
@@ -546,7 +1113,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "635bbca26c2f1cd528a8106a",
@@ -782,7 +1349,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "220618cacba331d8c74fdd81",
@@ -866,7 +1433,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d9d1b4e280a6db8c6b293761",
@@ -887,7 +1454,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "520fc5e018819f85ef4f1d2c",
@@ -908,7 +1475,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "561c42dfddc3dcac0a18470a",
@@ -929,7 +1496,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2c0d5e62dbf693db07b8f853",
@@ -950,7 +1517,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "134d0028d57b5f93ab59b17e",
@@ -971,7 +1538,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f30727091c545fcbde1ef09b",
