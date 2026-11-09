@@ -31,8 +31,8 @@ includes(admin,[
   'cmsAdminRequest("preview_restore"',
   'cmsAdminRequest("history"',
   'cmsAdminRequest("status",{commit})',
-  'window.confirm(',
-  'window.prompt(',
+  'await adminConfirm(',
+  'await adminPrompt(',
   'Vérifier le déploiement',
   'Mise en ligne non confirmée',
   'Publication préparée',
@@ -40,6 +40,10 @@ includes(admin,[
   'cmsInstallHistory();'
 ]);
 assert(!admin.includes('alert(`Commit GitHub enregistré'),"Old premature success alert remains");
+const phase3=fs.readFileSync("assets/js/admin-phase3.mjs","utf8");
+assert(phase3.includes("export function adminConfirm("));
+assert(phase3.includes("export function adminPrompt("));
+assert(phase3.includes("aria-modal"),"New confirmation must remain modal and accessible");
 assert(!admin.includes('SUPABASE_SERVICE_ROLE_KEY'),"Service key must not exist in frontend");
 assert(!admin.includes('GITHUB_PAT'),"GitHub token must not exist in frontend");
 const migration=fs.readFileSync("supabase/migrations/20261018212440_secure_legacy_vip_code_rpc.sql","utf8");

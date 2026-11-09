@@ -1,3 +1,4 @@
+import {adminToast} from "./admin-phase3.mjs";
 import {adminMfaStatus,beginAdminTotp,completeAdminTotp} from "./admin-mfa-flow.mjs";
 
 // Non-blocking enrollment: AAL2 server enforcement is enabled only after verified enrollment.
@@ -60,7 +61,7 @@ export async function initAdminMfaControl(sb,container){
       overlay.appendChild(box);document.body.appendChild(overlay);
       (box.querySelector('input')||done).focus();
     }catch(err){
-      window.alert("MFA indisponible : "+String(err?.message||"erreur"));
+      adminToast("MFA indisponible : "+String(err?.message||"erreur"));
       overlay?.remove();
     }finally{button.disabled=false;}
   });

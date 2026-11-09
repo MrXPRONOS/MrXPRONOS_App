@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=path=>readFileSync(path,"utf8");
 const admin=read("assets/js/admin-real.js");
+const phase3=read("assets/js/admin-phase3.mjs");
 const html=read("admin.html");
 const shell=read("assets/js/admin-shell.js");
 const css=read("assets/css/admin-shell.css");
@@ -43,9 +44,12 @@ test("CMS editing preserves original publication date and keeps generated posts"
   assert.match(admin,/PUBLIER SUPPRESSIONS/);
 });
 test("Audit log has pagination, search, CSV export and safe details",()=>{
-  const section=admin.slice(admin.indexOf("async function renderAudit"),admin.indexOf("async function cmsAdminRequest"));
+  assert.match(admin,/renderAuditWorkbench\(sb,\$\("tab-audit"\)\)/);
+  const section=phase3.slice(phase3.indexOf("export async function renderAuditWorkbench"));
   assert.match(section,/range\(offset,offset\+99\)/);
   assert.match(section,/input/);
-  assert.match(section,/textContent=JSON\.stringify/);
+  assert.match(section,/JSON\.stringify\(row\.details/);
   assert.match(section,/text\/csv/);
+  assert.match(section,/createBars\(series/);
+  assert.match(section,/escapeCsv/);
 });

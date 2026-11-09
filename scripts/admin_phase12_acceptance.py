@@ -39,7 +39,14 @@ FAKE = r"""
    {user_id:"MX-QA-002",code:"VIP-QA-002",active:false,expires_at:"2027-01-01T00:00:00Z"},
    {user_id:"MX-QA-003",code:"VIP-QA-003",active:true,expires_at:"2025-01-01T00:00:00Z"}
   ],
-  cron_runs:[],audit_log:[],analytics:[],admin_users:[]
+  cron_runs:[
+   {name:"Scraping LIVE",last_ok:true,last_run_at:"2026-11-09T10:00:00Z",meta:{expected_interval_minutes:30}},
+   {name:"Publication Telegram",last_ok:false,last_run_at:"2026-11-09T09:00:00Z",meta:{expected_interval_minutes:60}}
+  ],
+  audit_log:[
+   {created_at:"2026-11-09T11:00:00Z",action:"vip_reset",actor_user_id:"qa-owner",details:{user_id:"MX-QA-001"}},
+   {created_at:"2026-11-09T10:00:00Z",action:"cms_publish",actor_user_id:"qa-owner",details:{source:"QA"}}
+  ],analytics:[],admin_users:[]
  };
  window.__qaWrites=[];
  const chain=(table)=> {
@@ -119,6 +126,10 @@ def load(page,role="owner"):
   route.fulfill(status=200,content_type="application/json",body=json.dumps(payload))
  page.route("**/functions/v1/admin-*",lambda route:route.fulfill(status=200,content_type="application/json",body="{}"))
  page.route("**/functions/v1/admin-push",stub_api)
+ page.route("https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/actions/runs?*",
+            lambda route:route.fulfill(status=200,content_type="application/json",body=json.dumps({"workflow_runs":[
+             {"name":"Generate pronostics","conclusion":"success","status":"completed","created_at":"2026-11-09T09:00:00Z", "html_url":"https://github.com/MrXPRONOS/MrXPRONOS_App/actions","event":"schedule"},
+             {"name":"Telegram LIVE","conclusion":"failure","status":"completed","created_at":"2026-11-09T08:00:00Z", "html_url":"https://github.com/MrXPRONOS/MrXPRONOS_App/actions","event":"schedule"}]})))
  page.goto(BASE+"/admin.html",wait_until="domcontentloaded")
  expect(page.locator("#app")).to_be_visible(timeout=20000)
  return api_calls
@@ -135,7 +146,9 @@ def navigate(page,name,width):
 def visual(page,tag,width):
  for name in VIEWS:
   navigate(page,name,width)
-  if name=="pronostics":
+  if name=="overview":
+   expect(page.locator(".mx3-service-overview")).to_be_visible()
+  elif name=="pronostics":
    expect(page.locator("#pList .mx2-pronos-cards")).to_be_visible(timeout=10000)
    expect(page.locator("#pList .mx2-match-card")).to_have_count(2)
    page.locator('[data-view="table"]').click()
@@ -157,7 +170,24 @@ def visual(page,tag,width):
    page.locator("#push_title").fill("QA Push")
    expect(page.locator(".mx2-push-device-title")).to_have_text("QA Push")
   elif name=="health":
-   expect(page.locator("#tab-health")).to_be_visible()
+   expect(page.locator("#tab-health .mx3-health-dashboard")).to_be_visible()
+   expect(page.locator("#tab-health .mx3-stat")).to_have_count(5)
+   expect(page.locator("#tab-health .mx3-health-bar")).to_be_visible()
+   page.locator("#tab-health .mx3-health-filters select").select_option("error")
+   expect(page.locator("#tab-health .mx3-automation").first).to_be_visible()
+   page.locator("#tab-health .mx3-health-filters select").select_option("all")
+  elif name=="audit":
+   expect(page.locator("#tab-audit .mx3-audit-workbench")).to_be_visible()
+   expect(page.locator("#tab-audit .mx3-mini-chart-group")).to_have_count(7)
+   page.locator("#tab-audit .mx3-audit-filters input").fill("vip_reset")
+   expect(page.locator("#tab-audit .mx3-audit-table tbody tr")).to_have_count(1)
+   with page.expect_download() as dl:
+    page.locator("#tab-audit .mx3-audit-actions button").last.click()
+   artifact=dl.value
+   assert artifact.suggested_filename.startswith("mrxpronos-audit-")
+   csv_content=artifact.path().read_text(encoding="utf-8-sig")
+   assert "vip_reset" in csv_content and "cms_publish" not in csv_content
+   page.locator("#tab-audit .mx3-audit-filters input").fill("")
   if width>=1000:
    overflow=page.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")
    assert overflow<=3,(tag,name,"global horizontal overflow",overflow)
@@ -192,6 +222,10 @@ def functional(page,api_calls):
  page.locator("#v_user").fill("MX-QA-ONLY")
  page.locator("#v_days").fill("3")
  page.locator("#v_reset").click()
+ expect(page.locator(".mx3-dialog")).to_be_visible()
+ page.locator(".mx3-dialog [data-admin-dialog-confirm]").click()
+ expect(page.locator(".mx3-dialog")).to_be_visible()
+ page.locator(".mx3-dialog [data-admin-dialog-confirm]").click()
  navigate(page,"push",1440)
  page.locator("#push_audience").select_option("user")
  page.locator("#push_user_id").fill("MX-QA-ONLY")
@@ -200,6 +234,8 @@ def functional(page,api_calls):
  at=(datetime.now()+timedelta(days=3)).strftime("%Y-%m-%dT%H:%M")
  page.locator("#push_schedule_at").fill(at)
  page.locator("#push_schedule").click()
+ expect(page.locator(".mx3-dialog")).to_be_visible()
+ page.locator(".mx3-dialog [data-admin-dialog-confirm]").click()
  expect(page.locator("#push_status")).to_contain_text("Campagne enregistrée")
  writes=page.evaluate("window.__qaWrites")
  assert any(x.get("table")=="cms_articles" and x.get("operation")=="upsert" for x in writes),writes
