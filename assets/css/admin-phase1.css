@@ -293,3 +293,11 @@ body.admin-shell .mobile-menu-btn{display:none}
   body.admin-shell .workspace-main,
   body.admin-shell :is(.nav-item,.admin-btn,.btn){transition:none!important}
 }
+
+/* Mobile navigation must remain clickable above lengthy editing fields.
+   Drawer backdrop is z-index:50 and sidebar z-index:60, so both still cover it. */
+@media(max-width:640px){
+ body.admin-shell .workspace-content{position:relative;z-index:0}
+ body.admin-shell .admin-mobile-nav{z-index:45;isolation:isolate}
+ body.admin-shell .admin-mobile-nav .mobile-nav-item{position:relative;z-index:1}
+}
