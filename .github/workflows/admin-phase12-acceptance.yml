@@ -6,8 +6,10 @@ on:
       - 'assets/js/admin-real.js'
       - 'assets/js/admin-shell.js'
       - 'assets/js/admin-phase2.mjs'
+      - 'assets/js/admin-phase3.mjs'
       - 'assets/css/admin-phase1.css'
       - 'assets/css/admin-phase2.css'
+      - 'assets/css/admin-phase3.css'
       - 'assets/js/admin-users.mjs'
       - 'scripts/admin_phase12_acceptance.py'
       - '.github/workflows/admin-phase12-acceptance.yml'
@@ -23,6 +25,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate admin module syntax
+        run: |
+          node --check assets/js/admin-real.js
+          node --check assets/js/admin-phase3.mjs
+          node --check assets/js/admin-users.mjs
+          node --check assets/js/admin-mfa-ui.mjs
       - name: Install Chromium Playwright
         run: |
           pip install playwright==1.60.0
