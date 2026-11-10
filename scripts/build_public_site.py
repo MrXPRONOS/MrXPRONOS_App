@@ -52,7 +52,7 @@ PUBLIC_JS = {
     "daily-hub.mjs", "daily-utils.mjs", "daily-audience.mjs", "daily-favorite-alerts.mjs",
     "acquisition-attribution.mjs", "audience-dashboard.mjs", "experiment-ux.mjs",
     # Exact, audited client-side dependency closure for protected admin pages.
-    "admin-real.js", "admin-shell.js", "admin-phase2.mjs", "admin-phase3.mjs", "admin-supervision.js",
+    "admin-real.js", "admin-shell.js", "admin-home.mjs", "admin-phase2.mjs", "admin-phase3.mjs", "admin-supervision.js",
     "admin-mfa-ui.mjs", "admin-mfa-flow.mjs", "admin-incidents.mjs",
     "admin-cron-register.mjs", "admin-unified-highlights.mjs",
     "admin-data-freshness.mjs", "admin-users.mjs",
@@ -70,7 +70,7 @@ PUBLIC_CSS = {
     "audience-analytics.css", "ux-direct.css", "daily-ux.css",
     "site-typography.css", "home-compact.css",
     "admin-premium.css", "admin-shell.css", "admin-phase1.css",
-    "admin-phase2.css", "admin-phase3.css", "admin-cms-editor.css",
+    "admin-phase2.css", "admin-phase3.css", "admin-home.css", "admin-cms-editor.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
