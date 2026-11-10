@@ -258,3 +258,6 @@ body.admin-shell .mx-home-active .sidebar-nav .mxh-more-tools .nav-item .nav-ico
 @media(max-width:820px){
   body.admin-shell .mx-home-active .mxh-more-tools{margin-bottom:30px}
 }
+
+/* Explicitly hide contents while the advanced disclosure is closed. */
+body.admin-shell .mx-home-active .mxh-more-tools:not([open]) > .mxh-extra-menu{display:none!important}
