@@ -23,7 +23,7 @@ from .video_render import (
 
 HERE = Path(__file__).resolve().parents[1]
 ASSETS = HERE / "assets" / "social_neon"
-STADIUM = ASSETS / "stadium.jpg"
+STADIUM = ASSETS / "stadium.png"
 TITLE = ASSETS / "title.png"
 TELEGRAM = ASSETS / "telegram.png"
 
