@@ -29,9 +29,19 @@ TELEGRAM = ASSETS / "telegram.png"
 
 CARD_X = (23, 368)
 CARD_W = 329
-CARD_Y0 = 235
-CARD_H = 124
-CARD_GAP_Y = 10
+CARD_Y0 = 249  # +14px: clear space below the title
+CARD_H = 120   # preserve two-line club labels, while gaining footer room
+CARD_GAP_Y = 9
+
+# Keep the Telegram artwork centred on the 2x5 grid and off social UI controls.
+TELEGRAM_WIDTH = 500
+TELEGRAM_X = (W - TELEGRAM_WIDTH) // 2
+TELEGRAM_Y = 918
+
+# Compact score badges must stop above all club names (first line at y+87).
+SCORE_CENTER_Y = 51
+SCORE_HALF_WIDTH = 47
+SCORE_HALF_HEIGHT = 21
 FIRST_REVEAL = .62
 REVEAL_INTERVAL = 1.22
 REVEAL_EFFECT = .42
@@ -110,7 +120,7 @@ def base_frame(payload, clips, logos, preview=False):
     draw.rounded_rectangle((9, 220, 710, 917), radius=28, fill=(1, 9, 24, 100))
     _overlay_fit(base, TITLE, width=704, y=0, x=8)
     _draw_calendar_date(base, target)
-    _overlay_fit(base, TELEGRAM, width=630, y=906, x=7)
+    _overlay_fit(base, TELEGRAM, width=TELEGRAM_WIDTH, y=TELEGRAM_Y, x=TELEGRAM_X)
 
     d = ImageDraw.Draw(base, "RGBA")
     for (x, y), clip, pair in zip(positions(len(clips)), clips, logos):
@@ -138,13 +148,14 @@ def base_frame(payload, clips, logos, preview=False):
 def draw_score(frame, clip, x, y, elapsed):
     d = ImageDraw.Draw(frame, "RGBA")
     sx = x + CARD_W // 2
-    sy = y + 59
-    box = (sx - 55, sy - 28, sx + 55, sy + 28)
+    sy = y + SCORE_CENTER_Y
+    box = (sx - SCORE_HALF_WIDTH, sy - SCORE_HALF_HEIGHT,
+           sx + SCORE_HALF_WIDTH, sy + SCORE_HALF_HEIGHT)
     score = str(clip["display_score"]).replace("-", " : ")
     if elapsed < 0:
         d.rounded_rectangle(box, radius=12, fill=(10, 27, 59, 240),
                             outline=(38, 183, 245, 235), width=2)
-        d.text((sx, sy), "— : —", font=font(22, True), fill=PALE, anchor="mm")
+        d.text((sx, sy), "— : —", font=font(19, True), fill=PALE, anchor="mm")
         return
     phase = min(1.0, elapsed / REVEAL_EFFECT)
     if phase < .34:
@@ -162,7 +173,7 @@ def draw_score(frame, clip, x, y, elapsed):
                         fill=(255, 201, 50, 245) if phase >= .7 else (19, 50, 79, 247),
                         outline=(255, 246, 170, 255), width=2)
     text_color = (11, 22, 39, 255) if phase >= .7 else WHITE
-    d.text((sx, sy), current, font=font(23 + int(3*ease(phase)), True),
+    d.text((sx, sy), current, font=font(19 + int(2*ease(phase)), True),
            fill=text_color, anchor="mm")
 
 
