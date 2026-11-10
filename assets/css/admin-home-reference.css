@@ -189,3 +189,22 @@ body.admin-shell .mx-home-active .mxh-bottom{
 @media(prefers-reduced-motion:reduce){
   body.admin-shell .mx-home-active .sidebar-nav .nav-item{transition:none}
 }
+
+/* The Statistics link now has a real SVG icon and actual label.
+   Suppress the provisional pseudo-icon/label introduced in phase 1. */
+body.admin-shell .mx-home-active .sidebar-nav .admin-stats-link{
+  display:flex!important;align-items:center;justify-content:flex-start!important;
+  gap:10px!important;font-size:12px!important;font-weight:690!important;
+  text-align:left!important
+}
+body.admin-shell .mx-home-active .sidebar-nav .admin-stats-link::before,
+body.admin-shell .mx-home-active .sidebar-nav .admin-stats-link::after{
+  content:none!important;display:none!important
+}
+body.admin-shell .mx-home-active .sidebar-nav .admin-stats-link>.nav-icon{
+  width:18px;height:18px;flex:0 0 18px;color:#dbe6f2
+}
+body.admin-shell .mx-home-active .sidebar-nav .admin-stats-link>span{
+  display:inline!important;visibility:visible!important;
+  font-size:12px!important;color:inherit
+}
