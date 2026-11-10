@@ -1,0 +1,111 @@
+name: TEST - nouvelle video Dixon-Coles CTA vers predict_mrxp
+
+on:
+  push:
+    branches: ['test/social-exact-score-telegram']
+    paths: ['config/social_exact_score_telegram_test.trigger']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: social-exact-score-telegram-test-2026-11-10
+  cancel-in-progress: false
+
+jobs:
+  video-test-telegram-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: dixon-coles
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    steps:
+      - name: Checkout isolated test branch without modifying production
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: |
+            dixon-coles/
+            scripts/create_social_exact_score_video.py
+            scripts/telegram_test_guard.py
+            config/social_exact_score_telegram_test.trigger
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install model and video dependencies
+        run: |
+          python -m pip install -e '.[test,video]'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-liberation
+          ffprobe -version | head -n 1
+
+      - name: Verify real ESPN source and score-grid model before any delivery
+        run: |
+          python -m pytest -q tests/test_daily_espn.py tests/test_video_grid.py
+          python -m py_compile ../scripts/create_social_exact_score_video.py scripts/send_video_to_telegram_test.py ../scripts/telegram_test_guard.py
+
+      - name: Generate real prematch Top10 for 10 November 2026 (same test day as previous video)
+        run: |
+          python -m dcscore.daily --day 2026-11-10 --source espn --count 10 --min-team 4 --min-importance 70 --max-staleness-days 35 --output-dir results/social_telegram_test
+
+      - name: Fail closed unless 10 real matches and full authentic logos are confirmed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('results/social_telegram_test/2026-11-10')
+          report=json.loads((p/'predictions.json').read_text(encoding='utf-8'))
+          payload=json.loads((p/'video_payload.json').read_text(encoding='utf-8'))
+          import sys
+          sys.path.insert(0, str(Path.cwd().parent/'scripts'))
+          from create_social_exact_score_video import verify_ready
+          verify_ready(report,payload,'2026-11-10')
+          print('10 vraies rencontres vérifiées - OK')
+          PY
+
+      - name: Render new score video and add Telegram safe-zone CTA
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, str(Path.cwd().parent/'scripts'))
+          from create_social_exact_score_video import make_cta, encode_social
+          from dcscore.video_grid import render
+          path=Path('results/social_telegram_test/2026-11-10')
+          payload=json.loads((path/'video_payload.json').read_text(encoding='utf-8'))
+          source=path/'original_grid.mp4'
+          overlay=path/'cta_safe_zone.png'
+          final=path/'social_exact_scores_10_TEST.mp4'
+          render(payload,source,fullhd=False,asset_root='.')
+          make_cta(overlay)
+          encode_social(source,overlay,final)
+          print('SOCIAL_CTA_VIDEO_READY',final,final.stat().st_size)
+          PY
+          ffprobe -v error -show_entries stream=codec_name,width,height -show_entries format=duration -of json results/social_telegram_test/2026-11-10/social_exact_scores_10_TEST.mp4
+
+      - name: Safely send video ONLY to verified Telegram test channel
+        run: |
+          python scripts/send_video_to_telegram_test.py \
+            --payload results/social_telegram_test/2026-11-10/video_payload.json \
+            --video results/social_telegram_test/2026-11-10/social_exact_scores_10_TEST.mp4
+
+      - name: Archive exact video and safe-zone overlay
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-cta-test-telegram-2026-11-10-${{ github.run_id }}
+          path: |
+            dixon-coles/results/social_telegram_test/2026-11-10/social_exact_scores_10_TEST.mp4
+            dixon-coles/results/social_telegram_test/2026-11-10/cta_safe_zone.png
+            dixon-coles/results/social_telegram_test/2026-11-10/predictions.json
+            dixon-coles/results/social_telegram_test/2026-11-10/video_payload.json
+          if-no-files-found: warn
+          retention-days: 14
