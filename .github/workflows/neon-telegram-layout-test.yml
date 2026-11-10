@@ -92,7 +92,7 @@ jobs:
           else:
               channel=validate_test_channel(chat,token)
               caption=('🧪 MR XPRONOS — TEST VISUEL UNIQUEMENT\\n'
-                       'Nouvel alignement Telegram, marges et scores compacts.\\n'
+                       'V2 : elements reduits et decales a gauche, fond noir retire, scores extra-gras, vrais logos.\\n'
                        '⚠️ Démonstration : affiches et scores repris de la maquette, '
                        'pas des résultats ou des pronostics du jour.\\n'
                        'Son et animation compris.')
