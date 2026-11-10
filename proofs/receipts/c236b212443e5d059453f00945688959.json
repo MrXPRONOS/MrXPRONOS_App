@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-71898f5a302dd8a1:1X",
+    "recorded_at_utc": "2026-11-10T18:51:08+00:00",
+    "kickoff_utc": "2026-11-12T13:00:00+00:00",
+    "fixture": {
+      "home_team": "FC Zürich",
+      "away_team": "SC Austria Lustenau",
+      "league": "International Club Friendly"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "ed4bff48d641de34cb281048bd2c25cfccfd3f42e6531a01dbaec34366d6caf7"
+}
