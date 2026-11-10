@@ -157,8 +157,27 @@ async function openAction(navigate,tab,focus){
  else field.scrollIntoView({behavior:"smooth",block:"center"});
  field.focus({preventScroll:true});
 }
+function ensureHomeShortcuts(navigate,permissions){
+ const list=[
+  {id:"mxh-subs-nav",group:"pilotage",label:"Abonnés",glyph:"users",field:"subs_search"},
+  {id:"mxh-campaign-nav",group:"communication",label:"Campagnes",glyph:"calendar",field:"push_history"}
+ ];
+ for(const shortcut of list){
+  if(document.getElementById(shortcut.id)||!permissions.push)continue;
+  const parent=document.querySelector('.sidebar-nav .nav-group[data-group="'+shortcut.group+'"]');
+  if(!parent)continue;
+  const button=document.createElement("button");
+  button.id=shortcut.id;button.type="button";button.className="nav-item mxh-shortcut";
+  button.setAttribute("aria-label",shortcut.label);
+  button.innerHTML=icon(shortcut.glyph)+"<span></span>";
+  button.querySelector("span").textContent=shortcut.label;
+  button.addEventListener("click",()=>void openAction(navigate,"push",shortcut.field));
+  parent.append(button);
+ }
+}
 export function mountAdminHome(root,{navigate,permissions,refresh}){
  root.innerHTML=markup();
+ ensureHomeShortcuts(navigate,permissions);
  const period=get(root,"#mxh-period");
  const reload=()=>refresh(Number(period.value));
  period.addEventListener("change",reload);
