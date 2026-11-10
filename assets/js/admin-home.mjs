@@ -205,9 +205,29 @@ function setHomeNavigation(enabled){
   node.before(placeholder);menu.appendChild(node);slots.push([placeholder,node]);
  }
  nav.prepend(menu);
+ // Keep essential actions visible and put the seven advanced destinations in a
+ // named, keyboard-accessible disclosure. Move original nodes, not clones.
+ const more=document.createElement("details");
+ more.className="mxh-more-tools";
+ const title=document.createElement("summary");
+ title.innerHTML=icon("layers")+'<span>Paramètres et outils</span>'+icon("chevron");
+ title.setAttribute("aria-label","Afficher les autres rubriques de l’administration");
+ const extras=document.createElement("div");
+ extras.className="mxh-extra-menu";
+ more.append(title,extras);
+ const extraSlots=[];
+ const advanced=['conseils','bonus','media','infos','health','incidents','audit'];
+ for(const name of advanced){
+  const node=nav.querySelector('.nav-item[data-tab="'+name+'"]');
+  if(!node||!node.parentNode)continue;
+  const placeholder=document.createComment("restore advanced admin menu");
+  node.before(placeholder);extras.append(node);extraSlots.push([placeholder,node]);
+ }
+ if(extraSlots.length)menu.after(more);
  homeNavRestore=()=>{
   for(const [placeholder,node] of slots)if(placeholder.isConnected)placeholder.replaceWith(node);
-  menu.remove();
+  for(const [placeholder,node] of extraSlots)if(placeholder.isConnected)placeholder.replaceWith(node);
+  more.remove();menu.remove();
  };
 }
 let homeNavListenerBound=false;
