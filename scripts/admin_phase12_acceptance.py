@@ -155,6 +155,21 @@ def visual(page,tag,width):
    expect(page.locator("#tab-overview .mxh-dashboard")).to_be_visible()
    expect(page.locator("#tab-overview .mxh-kpi")).to_have_count(4)
    expect(page.locator("#mxh-subs")).to_have_text("4")
+   expect(page.locator("#mxh-home-menu, .mxh-home-menu")).to_have_count(1)
+   expect(page.locator(".mxh-home-menu .mxh-menu-details")).to_have_count(2)
+   expect(page.locator(".mxh-profile")).to_be_visible() if width>640 else None
+   assert "admin-home-ball-reference.webp" in page.locator("#admin-sidebar").evaluate(
+      "(el)=>getComputedStyle(el,'::after').backgroundImage"),"Ball illustration missing"
+   assert "admin-home-lights-reference.webp" in page.locator(".mxh-header-lights").evaluate(
+      "(el)=>getComputedStyle(el).backgroundImage"),"Stadium lights missing"
+   for asset in ("admin-home-ball-reference.webp","admin-home-lights-reference.webp"):
+    response=page.request.get(BASE+"/assets/images/"+asset)
+    assert response.status==200,(asset,response.status)
+   if width>820:
+    page.locator(".mxh-home-menu .mxh-menu-details").last.locator("summary").click()
+    expect(page.locator(".mxh-home-menu [data-tab='health']")).to_be_visible()
+    page.locator(".mxh-home-menu .mxh-menu-details").last.locator("summary").click()
+   expect(page.locator("#mxh-subs")).to_have_text("4")
    expect(page.locator("#mxh-sent")).to_have_text("9")
    expect(page.locator("#mxh-rate")).to_have_text("90,0 %")
    expect(page.locator("#mxh-graph svg")).to_be_visible()
