@@ -546,3 +546,32 @@ body.admin-shell .mxh-activity{min-height:290px}
  body.admin-shell .mxh-period{min-height:38px;height:38px}
  body.admin-shell .mxh-activity{min-height:0}
 }
+
+/* Align the sidebar menu order with the approved dashboard screenshot without
+   removing access to any existing (real) administration subsection. */
+body.admin-shell .sidebar-nav .mxh-shortcut{display:none}
+body.admin-shell .mx-home-active .sidebar-nav{display:flex;flex-direction:column;align-items:stretch}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group{display:contents}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item{
+ flex:0 0 auto;order:25;min-width:0
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-shortcut{display:flex;align-items:center;gap:10px}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-shortcut .mxh-icon{
+ width:18px;height:18px;flex:0 0 18px;color:#dae8f3
+}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="overview"]{order:0}
+body.admin-shell .mx-home-active .sidebar-nav a[href="statistiques-audience.html"]{order:1}
+body.admin-shell .mx-home-active .sidebar-nav #mxh-subs-nav{order:2}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="push"]{order:3}
+body.admin-shell .mx-home-active .sidebar-nav #mxh-campaign-nav{order:4}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="pronostics"]{order:5}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="articles"]{order:6}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="vip"]{order:7}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="users"]{order:8}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="conseils"]{order:9}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="bonus"]{order:10}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="infos"]{order:11}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="media"]{order:12}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="health"]{order:13}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="incidents"]{order:14}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="audit"]{order:15}
