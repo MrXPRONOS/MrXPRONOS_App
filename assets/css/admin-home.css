@@ -680,3 +680,11 @@ body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.ht
 body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]::after{
  content:"Statistiques";color:inherit;font-size:12px;font-weight:680
 }
+
+/* Screenshot final review: the Statistics label must sit next to its icon. */
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]{
+ justify-content:flex-start!important;gap:10px!important;text-align:left!important
+}
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]::after{
+ flex:0 0 auto!important;margin-left:0!important;text-align:left!important
+}
