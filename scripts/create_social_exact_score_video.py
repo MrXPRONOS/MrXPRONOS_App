@@ -140,7 +140,7 @@ def build(*, day: str, source: str, output_dir: Path) -> int:
     work.mkdir(parents=True, exist_ok=True)
     sys.path.insert(0, str(DIXON))
     from dcscore.daily import main as daily_main
-    from dcscore.video_grid import render
+    from dcscore.video_grid_neon import render
 
     outcome = daily_main([
         "--day", target, "--source", source, "--count", "10",
@@ -163,12 +163,10 @@ def build(*, day: str, source: str, output_dir: Path) -> int:
         return 3
 
     verify_ready(report, storyboard, target)
-    raw_video = work / "grid_original.mp4"
     final_video = work / "social_exact_scores_10.mp4"
-    overlay = work / "cta_safe_zone.png"
-    render(storyboard, raw_video, fullhd=False, asset_root=str(DIXON))
-    make_cta(overlay)
-    encode_social(raw_video, overlay, final_video)
+    # New user-approved neon background, transparent title and Telegram artwork.
+    # The video renderer retains the real 2x5 matches and original reveal rhythm.
+    render(storyboard, final_video, fullhd=True, asset_root=str(DIXON))
     data = {
         "schema": "mrx-dixon-coles-social-top10-v1",
         "target": target,
