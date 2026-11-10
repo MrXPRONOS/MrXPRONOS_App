@@ -606,3 +606,12 @@ body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] 
 @media(max-width:640px){
  body.admin-shell .mxh-period{height:40px;min-height:40px;align-self:flex-end}
 }
+
+/* Keep the expandable diagnostics reachable above the fixed bottom navigation. */
+@media (max-width:640px){
+ body.admin-shell .mx-home-active #admin-detailed-supervision{
+   margin-bottom:calc(126px + env(safe-area-inset-bottom,0px));
+   scroll-margin-bottom:140px
+ }
+ body.admin-shell .mx-home-active .workspace-content{padding-bottom:50px}
+}
