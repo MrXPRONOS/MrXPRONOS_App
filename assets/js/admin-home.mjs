@@ -44,7 +44,7 @@ function markup(){
  return '<div class="mxh-dashboard">'+
  '<div class="mxh-header-lights" aria-hidden="true"><i></i><i></i><i></i></div>'+
  '<div class="mxh-breadcrumb">'+icon("home")+'<span>Administration</span><span class="mxh-slash">/</span><b>Accueil</b></div>'+
- '<div class="mxh-hero"><div class="mxh-title"><span class="mxh-trophy">'+icon("trophy")+'</span><div><h2>Tableau de bord</h2><p>Vue d’ensemble de votre plateforme Mr XPRONOS.</p></div></div><label class="mxh-period">'+icon("calendar")+'<span class="mxh-visually-hidden">Période</span><select id="mxh-period"><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option></select>'+icon("chevron")+'</label></div>'+
+ '<div class="mxh-hero"><div class="mxh-title"><span class="mxh-trophy">'+icon("trophy")+'</span><div><h2>Tableau de bord</h2><p>Vue d’ensemble de votre plateforme Mr XPRONOS.</p></div></div><label class="mxh-period">'+icon("calendar")+'<span id="mxh-period-text">7 derniers jours</span><select id="mxh-period" aria-label="Période des statistiques"><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option></select>'+icon("chevron")+'</label></div>'+
  '<div class="mxh-kpi-grid">'+kpis+'</div>'+
  '<div class="mxh-content-grid">'+
  '<section class="mxh-panel mxh-visitors"><div class="mxh-panel-title"><span class="mxh-panel-icon">'+icon("chart")+'</span><div><h3>Visiteurs</h3><p>Évolution des visiteurs uniques sur la période.</p></div><span id="mxh-period-label" class="mxh-period-pill">7 jours</span></div><div id="mxh-graph" class="mxh-graph" role="img" aria-label="Graphique de visiteurs en chargement"></div><p id="mxh-graph-source" class="mxh-footnote">Source : Supabase</p></section>'+
@@ -179,7 +179,7 @@ export function mountAdminHome(root,{navigate,permissions,refresh}){
  root.innerHTML=markup();
  ensureHomeShortcuts(navigate,permissions);
  const period=get(root,"#mxh-period");
- const reload=()=>refresh(Number(period.value));
+ const reload=()=>{set(root,"#mxh-period-text",period.value==="30"?"30 derniers jours":"7 derniers jours");refresh(Number(period.value))};
  period.addEventListener("change",reload);
  get(root,"#mxh-refresh").addEventListener("click",reload);
  get(root,"#mxh-audit").addEventListener("click",()=>navigate("audit"));
@@ -204,6 +204,7 @@ export function mountAdminHome(root,{navigate,permissions,refresh}){
    showCampaigns(root,campaigns);showServices(root,snapshot||{});makeGraph(root,audience,days);
    showActivity(root,activity,!!permissions.read);
    period.value=String(days);
+   set(root,"#mxh-period-text",days===30?"30 derniers jours":"7 derniers jours");
    set(root,"#mxh-update-state","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})+(errors.length?" · Données indisponibles : "+errors.join(", "):""));
    get(root,"#mxh-refresh").disabled=false;
   },
