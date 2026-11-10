@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v124-pronostic-share-real-team-logos-20261107';
+const VERSION = 'v125-admin-future-dashboard-no-stale-20261110';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -289,6 +289,20 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return;
 
     const path = url.pathname;
+    // The protected admin interface must always display the latest deployed version.
+    // No app-shell/offline fallback for admin HTML, styles, modules or artwork:
+    // stale PWA caches caused the former dashboard to appear after releases.
+    const isAdminDocument = /\/admin(?:-[a-z0-9-]+)?\.html$/i.test(path);
+    const isAdminAsset = /\/assets\/(?:css|js)\/admin-[a-z0-9.-]+\.(?:css|js|mjs)$/i.test(path)
+        || /\/assets\/images\/admin-home-[a-z0-9.-]+\.(?:svg|webp|png)$/i.test(path);
+    if (isAdminDocument || isAdminAsset) {
+        event.respondWith(fetch(request, { cache: 'no-store' }).catch(() =>
+            new Response('Administration indisponible hors ligne. Reconnectez-vous pour charger la version actuelle.', {
+                status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+            })
+        ));
+        return;
+    }
 
     if (/\/scores-exacts-daily\/\d{4}-\d{2}-\d{2}\.json$/.test(path)) {
         event.respondWith(strategies.networkFirst(request));
