@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'admin.html'
+      - 'service-worker.js'
       - 'assets/js/admin-real.js'
       - 'assets/js/admin-shell.js'
       - 'assets/js/admin-phase2.mjs'
@@ -12,7 +13,10 @@ on:
       - 'assets/css/admin-phase2.css'
       - 'assets/css/admin-phase3.css'
       - 'assets/css/admin-home.css'
+      - 'assets/css/admin-home-reference.css'
       - 'assets/images/admin-home-stadium.svg'
+      - 'assets/images/admin-home-ball-reference.webp'
+      - 'assets/images/admin-home-lights-reference.webp'
       - 'assets/js/admin-users.mjs'
       - 'scripts/admin_phase12_acceptance.py'
       - '.github/workflows/admin-phase12-acceptance.yml'
@@ -32,6 +36,7 @@ jobs:
         run: |
           node --check assets/js/admin-real.js
           node --check assets/js/admin-home.mjs
+          node --check service-worker.js
           node --check assets/js/admin-phase3.mjs
           node --check assets/js/admin-users.mjs
           node --check assets/js/admin-mfa-ui.mjs

@@ -153,6 +153,32 @@ def visual(page,tag,width):
   navigate(page,name,width)
   if name=="overview":
    expect(page.locator("#tab-overview .mxh-dashboard")).to_be_visible()
+   expect(page.locator("body")).to_have_attribute("data-admin-ui","dashboard-premium-v2")
+   expect(page.locator("#tab-overview .mxh-title h2")).to_have_text("Tableau de bord")
+   expect(page.locator(".sidebar-nav .admin-stats-link")).to_have_text("Statistiques")
+   assert page.locator(".sidebar-nav .mxh-more-tools").count()==1, "Advanced menu absent"
+   if width<=820:
+    page.locator("#sidebar-open").click()
+   disclosure=page.locator(".sidebar-nav .mxh-more-tools summary")
+   disclosure.click()
+   expect(page.locator(".sidebar-nav .mxh-extra-menu [data-tab='health']")).to_be_visible()
+   disclosure.click()
+   if width<=820:
+    page.keyboard.press("Escape")
+
+   assert page.evaluate("""() => {
+     const sidebar=document.querySelector(".admin-sidebar");
+     const lights=document.querySelector(".mxh-header-lights");
+     const ball=getComputedStyle(sidebar,"::after").backgroundImage;
+     const beams=getComputedStyle(lights).backgroundImage;
+     return ball.includes("admin-home-ball-reference.webp")
+       && beams.includes("admin-home-lights-reference.webp")
+       && document.querySelector("#app").classList.contains("mx-home-active");
+    }"""), "Premium background artwork missing from the active home screen"
+   for path in ("assets/images/admin-home-ball-reference.webp","assets/images/admin-home-lights-reference.webp"):
+    response=page.request.get(BASE+"/"+path)
+    assert response.ok and len(response.body())>1000,(path,response.status)
+
    expect(page.locator("#tab-overview .mxh-kpi")).to_have_count(4)
    expect(page.locator("#mxh-subs")).to_have_text("4")
    expect(page.locator("#mxh-sent")).to_have_text("9")

@@ -96,7 +96,17 @@ function makeGraph(root,audience,days){
   const points=values.map((value,i)=>({x:L+(n===1?plotW/2:i*plotW/(n-1)),y:T+plotH-value/topValue*plotH,value}));
   const grids=Array.from({length:5},(_,i)=>{const yy=T+i*plotH/4;
    return '<line x1="'+L+'" y1="'+yy+'" x2="'+(w-R)+'" y2="'+yy+'" stroke="#3b5369" opacity=".45"/><text x="'+(L-12)+'" y="'+(yy+4)+'" font-size="12" text-anchor="end" fill="#aebcc9">'+escapeSvg(fmt(topValue*(4-i)/4))+'</text>'}).join("");
-  const path=points.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
+  // Smooth Catmull–Rom-like Bézier segments recreate the approved chart,
+  // while each vertex still corresponds to an actual daily Supabase value.
+  const path=points.map((p,i)=>{
+   const xy=q=>q.x.toFixed(1)+" "+q.y.toFixed(1);
+   if(i===0)return "M"+xy(p);
+   const prev=points[i-1],before=points[Math.max(0,i-2)],next=points[Math.min(points.length-1,i+1)];
+   const dx=p.x-prev.x;
+   const c1x=prev.x+dx/3,c2x=p.x-dx/3;
+   const c1y=prev.y+(p.y-before.y)/6,c2y=p.y-(next.y-prev.y)/6;
+   return " C"+c1x.toFixed(1)+" "+c1y.toFixed(1)+" "+c2x.toFixed(1)+" "+c2y.toFixed(1)+" "+xy(p);
+  }).join(" ");
   const area=path+"L"+points.at(-1).x+" "+(T+plotH)+" L"+points[0].x+" "+(T+plotH)+"Z";
   const labels=daily.map((d,i)=>{
    if(days===30&&i%5!==0&&i!==n-1)return "";
@@ -205,9 +215,29 @@ function setHomeNavigation(enabled){
   node.before(placeholder);menu.appendChild(node);slots.push([placeholder,node]);
  }
  nav.prepend(menu);
+ // Keep essential actions visible and put the seven advanced destinations in a
+ // named, keyboard-accessible disclosure. Move original nodes, not clones.
+ const more=document.createElement("details");
+ more.className="mxh-more-tools";
+ const title=document.createElement("summary");
+ title.innerHTML=icon("layers")+'<span>Paramètres et outils</span>'+icon("chevron");
+ title.setAttribute("aria-label","Afficher les autres rubriques de l’administration");
+ const extras=document.createElement("div");
+ extras.className="mxh-extra-menu";
+ more.append(title,extras);
+ const extraSlots=[];
+ const advanced=['conseils','bonus','media','infos','health','incidents','audit'];
+ for(const name of advanced){
+  const node=nav.querySelector('.nav-item[data-tab="'+name+'"]');
+  if(!node||!node.parentNode)continue;
+  const placeholder=document.createComment("restore advanced admin menu");
+  node.before(placeholder);extras.append(node);extraSlots.push([placeholder,node]);
+ }
+ if(extraSlots.length)menu.after(more);
  homeNavRestore=()=>{
   for(const [placeholder,node] of slots)if(placeholder.isConnected)placeholder.replaceWith(node);
-  menu.remove();
+  for(const [placeholder,node] of extraSlots)if(placeholder.isConnected)placeholder.replaceWith(node);
+  more.remove();menu.remove();
  };
 }
 let homeNavListenerBound=false;

@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v124-pronostic-share-real-team-logos-20261107';
+const VERSION = 'v125-admin-home-reference-fresh-20261110';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -289,6 +289,25 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return;
 
     const path = url.pathname;
+    // Admin pages and their module/style dependencies must NEVER be served from
+    // the public PWA offline cache. Otherwise an earlier dashboard stays visible
+    // after GitHub Pages publishes a new version.
+    const adminPage = /\/admin(?:-[a-z0-9-]+)?\.html$/i.test(path);
+    const adminAsset = /\/assets\/(?:css|js)\/admin-[^/]+\.(?:css|js|mjs)$/i.test(path);
+    const fromAdmin = /\/admin(?:-[a-z0-9-]+)?\.html|\/assets\/js\/(?:admin-|cms-)/i.test(request.referrer || "");
+    if (adminPage || adminAsset ||
+        (fromAdmin && /\/assets\/(?:css|js)\//.test(path))) {
+        event.respondWith(
+            fetch(request, { cache: 'no-store' }).catch(() =>
+                new Response('Administration disponible uniquement en ligne', {
+                    status: 503,
+                    headers: { 'Content-Type': 'text/plain; charset=utf-8',
+                               'Cache-Control': 'no-store' }
+                })
+            )
+        );
+        return;
+    }
 
     if (/\/scores-exacts-daily\/\d{4}-\d{2}-\d{2}\.json$/.test(path)) {
         event.respondWith(strategies.networkFirst(request));

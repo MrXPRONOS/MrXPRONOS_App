@@ -11,7 +11,7 @@ BUILDER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILDER)
 ADMIN_HTML = {"admin.html", "admin-supervision.html", "admin-dashboard.html", "admin-vip.html"}
 ENTRY_JS = {"admin-real.js", "admin-shell.js", "admin-phase2.mjs", "admin-supervision.js"}
-ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-cms-editor.css"}
+ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css"}
 IMPORTS = re.compile(r"(?:\bfrom\s*|\bimport\s*|\bimport\s*\(\s*)['\"](\.[^'\"]+)['\"]")
 
 class AdminPagesPublicationContract(unittest.TestCase):
@@ -42,6 +42,21 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn("admin-phase2.mjs", scanned)
         self.assertIn("admin-public-markdown.mjs", scanned)
         self.assertIn("cms-block-editor.mjs", scanned)
+
+    def test_premium_dashboard_artwork_and_no_stale_worker_cache(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-home-reference.css").read_text(encoding="utf-8")
+        worker = (ROOT / "service-worker.js").read_text(encoding="utf-8")
+        self.assertIn("assets/css/admin-home-reference.css", page)
+        self.assertIn('id="admin-overview-summary"', page)
+        self.assertIn('data-admin-ui="dashboard-premium-v2"', page)
+        for name in ("admin-home-ball-reference.webp", "admin-home-lights-reference.webp"):
+            asset = ROOT / "assets/images" / name
+            self.assertTrue(asset.is_file(), name)
+            self.assertGreater(asset.stat().st_size, 1000, name)
+            self.assertIn(name, css)
+        self.assertIn("fetch(request, { cache: 'no-store' })", worker)
+        self.assertIn("adminPage || adminAsset", worker)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
