@@ -7,9 +7,12 @@ on:
       - 'assets/js/admin-shell.js'
       - 'assets/js/admin-phase2.mjs'
       - 'assets/js/admin-phase3.mjs'
+      - 'assets/js/admin-home.mjs'
       - 'assets/css/admin-phase1.css'
       - 'assets/css/admin-phase2.css'
       - 'assets/css/admin-phase3.css'
+      - 'assets/css/admin-home.css'
+      - 'assets/images/admin-home-stadium.svg'
       - 'assets/js/admin-users.mjs'
       - 'scripts/admin_phase12_acceptance.py'
       - '.github/workflows/admin-phase12-acceptance.yml'
@@ -28,6 +31,7 @@ jobs:
       - name: Validate admin module syntax
         run: |
           node --check assets/js/admin-real.js
+          node --check assets/js/admin-home.mjs
           node --check assets/js/admin-phase3.mjs
           node --check assets/js/admin-users.mjs
           node --check assets/js/admin-mfa-ui.mjs

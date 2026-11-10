@@ -46,7 +46,9 @@ FAKE = r"""
   audit_log:[
    {created_at:"2026-11-09T11:00:00Z",action:"vip_reset",actor_user_id:"qa-owner",details:{user_id:"MX-QA-001"}},
    {created_at:"2026-11-09T10:00:00Z",action:"cms_publish",actor_user_id:"qa-owner",details:{source:"QA"}}
-  ],analytics:[],admin_users:[]
+  ],
+  admin_push_campaigns:[{status:"scheduled",summary:{}},{status:"sent",summary:{sent:9,failed:1}}],
+  analytics:[],admin_users:[]
  };
  window.__qaWrites=[];
  const chain=(table)=> {
@@ -71,6 +73,9 @@ FAKE = r"""
    rpc:async(name,args)=>{
     if(name==="is_admin")return {data:true,error:null};
     if(name==="admin_can")return {data:permissions[role].includes(args?.p_permission),error:null};
+    if(name==="admin_audience_dashboard_v1")return {data:{
+     summary:{visitors_period:19},daily:["2026-11-04","2026-11-05","2026-11-06","2026-11-07","2026-11-08","2026-11-09","2026-11-10"].map((day,i)=>({day,visitors:[3,5,4,7,8,6,9][i]}))
+    },error:null};
     if(name==="admin_monitor_snapshot")return {data:{
      analytics:{visits:26},live:{total:8,wins:3,losses:1},
      telegram:{total:5},push:{subscriptions:4},health:{}},error:null};
@@ -147,7 +152,18 @@ def visual(page,tag,width):
  for name in VIEWS:
   navigate(page,name,width)
   if name=="overview":
-   expect(page.locator(".mx3-service-overview")).to_be_visible()
+   expect(page.locator("#tab-overview .mxh-dashboard")).to_be_visible()
+   expect(page.locator("#tab-overview .mxh-kpi")).to_have_count(4)
+   expect(page.locator("#mxh-subs")).to_have_text("4")
+   expect(page.locator("#mxh-sent")).to_have_text("9")
+   expect(page.locator("#mxh-rate")).to_have_text("90,0 %")
+   expect(page.locator("#mxh-graph svg")).to_be_visible()
+   expect(page.locator("#mxh-service-rows .mxh-service-row")).to_have_count(4)
+   expect(page.locator("#mxh-activity-rows .mxh-activity-row")).to_have_count(2)
+   page.locator("#mxh-period").select_option("30")
+   expect(page.locator("#mxh-period-label")).to_have_text("30 jours")
+   page.locator("#mxh-period").select_option("7")
+   expect(page.locator("#mxh-period-label")).to_have_text("7 jours")
   elif name=="pronostics":
    expect(page.locator("#pList .mx2-pronos-cards")).to_be_visible(timeout=10000)
    expect(page.locator("#pList .mx2-match-card")).to_have_count(2)

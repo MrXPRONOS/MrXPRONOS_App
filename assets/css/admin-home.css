@@ -1,0 +1,690 @@
+/* Mr XPRONOS / HOME ONLY — faithful navy, gold, stadium, glass screenshot.
+   The scoped workspace class prevents changes to all other admin screens. */
+body.admin-shell .mx-home-active{
+ --mxh-ink:#06121f;--mxh-panel:#0b2131;--mxh-blue:#174c74;
+ --mxh-gold:#f4c66d;--mxh-gold-soft:#eedca9;
+ --mxh-soft:#aebcca;--mxh-stroke:rgba(94,150,191,.46);
+ color:#f4f5f7;background:#071523
+}
+body.admin-shell .mx-home-active .workspace-main{
+ position:relative;
+ background:
+  radial-gradient(ellipse 520px 420px at 86% 2%,rgba(28,108,170,.25),transparent 75%),
+  radial-gradient(ellipse 780px 440px at 96% 85%,rgba(11,76,127,.22),transparent 75%),
+  linear-gradient(155deg,#071422 10%,#061321 49%,#081928 100%)
+}
+@media(min-width:821px){
+ body.admin-shell .mx-home-active .admin-sidebar{
+  width:clamp(190px,18vw,242px);
+  background:linear-gradient(174deg,#061321 0%,#071829 63%,#071320 100%);
+  border-right:1px solid #2d5068;box-shadow:8px 0 50px rgba(0,0,0,.24)
+ }
+ body.admin-shell .mx-home-active .workspace-main{margin-left:clamp(190px,18vw,242px)}
+ body.admin-shell .mx-home-active.sidebar-collapsed .admin-sidebar{width:78px}
+ body.admin-shell .mx-home-active.sidebar-collapsed .workspace-main{margin-left:78px}
+}
+body.admin-shell .mx-home-active .admin-sidebar{overflow:hidden}
+body.admin-shell .mx-home-active .admin-sidebar::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ left:0;bottom:-3px;width:100%;height:min(48vh,430px);
+ background:url("../images/admin-home-stadium.svg") center bottom/100% auto no-repeat;
+ opacity:.95
+}
+body.admin-shell .mx-home-active .sidebar-head,
+body.admin-shell .mx-home-active .workspace-status,
+body.admin-shell .mx-home-active .sidebar-nav,
+body.admin-shell .mx-home-active .sidebar-footer{position:relative;z-index:2}
+body.admin-shell .mx-home-active .sidebar-head{
+ padding:23px 15px 17px;border-bottom:1px solid rgba(97,142,169,.22);
+ min-height:94px
+}
+body.admin-shell .mx-home-active .sidebar-brand{gap:8px}
+body.admin-shell .mx-home-active .sidebar-brand::before{
+ content:"♛";display:grid;place-items:center;flex:0 0 28px;
+ font-size:30px;color:#fbd06b;text-shadow:0 0 16px rgba(255,188,61,.68)
+}
+body.admin-shell .mx-home-active .sidebar-brand .brand-mark{display:none}
+body.admin-shell .mx-home-active .sidebar-brand strong{
+ font-size:clamp(14px,1.4vw,18px);letter-spacing:-.045em;
+ color:#fff;white-space:nowrap
+}
+body.admin-shell .mx-home-active .sidebar-brand em{color:#ffc150}
+body.admin-shell .mx-home-active .sidebar-brand small{
+ color:#b5c4d1;letter-spacing:.2em;font-size:8px
+}
+body.admin-shell .mx-home-active .workspace-status{display:none}
+body.admin-shell .mx-home-active .sidebar-nav{
+ scrollbar-color:#3b6174 transparent;padding:11px 7px 40px;
+ mask-image:linear-gradient(to bottom,black 93%,transparent 100%)
+}
+body.admin-shell .mx-home-active .nav-group{padding:0}
+body.admin-shell .mx-home-active .nav-group+.nav-group{border:0}
+body.admin-shell .mx-home-active .nav-heading{display:none}
+body.admin-shell .mx-home-active .nav-item{
+ position:relative;margin:3px 0;min-height:44px;padding:9px 10px;
+ border-radius:11px;border:1px solid transparent;
+ color:#d4dee8;font-weight:650;font-size:12px;
+ background:transparent
+}
+body.admin-shell .mx-home-active .nav-item .nav-icon{color:#dae8f3;width:18px;height:18px;min-width:18px}
+body.admin-shell .mx-home-active .nav-item .nav-icon:last-child{display:none}
+body.admin-shell .mx-home-active .nav-item:hover{background:#153043;border-color:#30546b;color:#fff}
+body.admin-shell .mx-home-active .nav-item.active{
+ color:#ffd46e;background:linear-gradient(95deg,#493c20 0%,rgba(245,195,84,.11) 100%);
+ border:1px solid #e1ac4a;
+ box-shadow:0 0 0 1px rgba(255,202,101,.2),inset 0 0 15px rgba(255,191,82,.12),0 0 17px rgba(243,182,75,.24)
+}
+body.admin-shell .mx-home-active .nav-item.active .nav-icon{color:#ffd36c}
+body.admin-shell .mx-home-active .sidebar-footer{
+ padding:12px 10px 14px;background:linear-gradient(to top,rgba(4,17,29,.89),rgba(4,17,29,.27));
+ border-color:rgba(82,140,173,.23)
+}
+body.admin-shell .mx-home-active .sidebar-external{
+ min-height:39px;border-color:#34516b;background:rgba(10,30,46,.7);
+ color:#d4e2ec;font-size:11px
+}
+body.admin-shell .mx-home-active .sidebar-version{color:#8fa2b4;letter-spacing:.08em;padding:8px 5px 0}
+body.admin-shell .mx-home-active .workspace-topbar{
+ position:absolute;top:0;right:0;left:0;z-index:25;min-height:72px;
+ display:flex;justify-content:flex-end;padding:13px clamp(16px,2vw,28px);
+ border:0;background:transparent;backdrop-filter:none;
+ pointer-events:none
+}
+body.admin-shell .mx-home-active .workspace-topbar .topbar-context{display:none}
+body.admin-shell .mx-home-active .workspace-topbar .topbar-left{display:none}
+body.admin-shell .mx-home-active .workspace-topbar .topbar-actions{
+ pointer-events:auto;gap:7px;flex-wrap:nowrap
+}
+body.admin-shell .mx-home-active .workspace-topbar .admin-user{
+ background:rgba(7,22,35,.83);border-color:#6d5c3c;color:#d6dee7;
+ border-radius:35px;font-size:10px;max-width:175px
+}
+body.admin-shell .mx-home-active .workspace-topbar .admin-btn,
+body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup],
+body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn{
+ border-color:#44647c;background:#122b43;
+ color:#e8eef5;min-height:37px;border-radius:11px
+}
+body.admin-shell .mx-home-active .workspace-content{
+ max-width:1600px;padding:26px clamp(15px,2.1vw,34px) 24px
+}
+body.admin-shell .mx-home-active .view-description{display:none}
+body.admin-shell .mx-home-active #tab-overview{
+ border:0;overflow:visible;background:transparent;padding:0
+}
+body.admin-shell .mx-home-active #admin-overview-summary{min-width:0}
+body.admin-shell .mx-home-active .workspace-footer{display:none}
+body.admin-shell .mx-home-active .admin-supervision-details{
+ max-width:100%;margin-top:24px;border-color:#34506b;
+ background:#0d2130
+}
+body.admin-shell .mx-home-active .admin-supervision-details summary{color:#f0d19a}
+/* Hero and directional stadium floodlights */
+body.admin-shell .mxh-dashboard{position:relative;min-width:0;isolation:isolate}
+body.admin-shell .mxh-dashboard>*:not(.mxh-header-lights){position:relative;z-index:1}
+body.admin-shell .mxh-header-lights{
+ position:absolute;z-index:0;right:-13px;top:-26px;width:min(75%,780px);height:170px;
+ pointer-events:none;overflow:hidden;
+ background:radial-gradient(ellipse at 65% 2%,rgba(109,205,255,.34),transparent 42%),
+  radial-gradient(ellipse at 68% 100%,rgba(238,149,43,.11),transparent 59%)
+}
+body.admin-shell .mxh-header-lights::before{
+ content:"";position:absolute;left:13%;top:29px;width:112%;height:18px;
+ transform:rotate(-11deg);
+ background:repeating-linear-gradient(90deg,#c8eeff 0 6px,#ecfaff 7px 10px,transparent 11px 26px);
+ box-shadow:0 0 23px 10px rgba(103,191,255,.46),0 40px 34px rgba(40,122,189,.28);
+ opacity:.76
+}
+body.admin-shell .mxh-header-lights::after{
+ content:"";position:absolute;top:46px;left:15%;width:100%;height:65px;
+ background:repeating-linear-gradient(90deg,transparent 0 24px,rgba(248,160,43,.73) 24px 26px,transparent 26px 43px);
+ mask-image:linear-gradient(90deg,transparent,black 35%,black 70%,transparent);
+ transform:rotate(-7deg);opacity:.43
+}
+body.admin-shell .mxh-header-lights i{
+ position:absolute;top:10px;height:160px;width:50px;
+ background:linear-gradient(to bottom,rgba(195,232,255,.17),transparent);
+ transform:rotate(22deg);filter:blur(9px)
+}
+body.admin-shell .mxh-header-lights i:nth-child(1){left:40%}
+body.admin-shell .mxh-header-lights i:nth-child(2){left:66%}
+body.admin-shell .mxh-header-lights i:nth-child(3){left:87%}
+body.admin-shell .mxh-breadcrumb{
+ display:flex;align-items:center;gap:12px;margin:7px 0 29px;
+ min-height:20px;color:#c5d1df;font-size:11px;font-weight:650
+}
+body.admin-shell .mxh-breadcrumb .mxh-icon{width:15px;height:15px;color:#e9f2fa}
+body.admin-shell .mxh-breadcrumb b{color:#f4c160}
+body.admin-shell .mxh-slash{color:#66859f}
+body.admin-shell .mxh-hero{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;
+ margin:0 0 28px;min-width:0
+}
+body.admin-shell .mxh-title{display:flex;align-items:center;gap:16px;min-width:0}
+body.admin-shell .mxh-trophy{
+ display:grid;place-items:center;width:62px;height:62px;flex:0 0 62px;
+ border:1px solid #b88d47;border-radius:17px;
+ color:#ffce5c;
+ background:linear-gradient(140deg,rgba(184,135,53,.24),#0d2134 66%);
+ box-shadow:inset 0 0 18px rgba(255,186,80,.05),0 0 18px rgba(227,161,62,.15)
+}
+body.admin-shell .mxh-trophy .mxh-icon{width:34px;height:34px}
+body.admin-shell .mxh-title h2{
+ margin:0 0 4px;font-size:clamp(25px,2.65vw,37px);line-height:1.17;
+ color:#fafcfe;font-weight:850;letter-spacing:-.046em
+}
+body.admin-shell .mxh-title p{margin:0;color:#d0dbe5;font-size:13px;line-height:1.5}
+body.admin-shell .mxh-period{
+ display:flex;align-items:center;gap:8px;flex:0 0 auto;
+ border:1px solid #53708a;background:rgba(8,25,40,.83);
+ border-radius:11px;padding:10px 11px;color:#e8eff6;min-height:42px;
+ position:relative;box-shadow:0 5px 17px rgba(0,0,0,.12)
+}
+body.admin-shell .mxh-period .mxh-icon{width:16px;height:16px;flex:0 0 16px}
+body.admin-shell .mxh-period .mxh-icon:last-child{width:13px;height:13px;pointer-events:none}
+body.admin-shell .mxh-period select{
+ appearance:none;background:transparent;border:0;box-shadow:none;
+ font:inherit;font-size:12px;font-weight:720;color:#f2f5fa;
+ outline:none;min-height:18px;padding:0;cursor:pointer;
+ width:128px;max-width:none
+}
+body.admin-shell .mxh-period select option{background:#10283a;color:#fff}
+body.admin-shell .mxh-visually-hidden{
+ position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)
+}
+/* Four KPI cards */
+body.admin-shell .mxh-kpi-grid{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;
+ margin:0 0 19px
+}
+body.admin-shell .mxh-kpi{
+ position:relative;min-width:0;min-height:138px;overflow:hidden;
+ display:flex;flex-direction:column;justify-content:center;gap:9px;
+ padding:16px 16px 17px;border-radius:16px;
+ background:linear-gradient(143deg,#1b2c3b 0%,#102435 55%,#0b1a29 100%);
+ border:1px solid #355c76;
+ box-shadow:inset 0 1px rgba(255,255,255,.1),0 15px 27px rgba(0,0,0,.12)
+}
+body.admin-shell .mxh-kpi::after{
+ content:"";position:absolute;pointer-events:none;
+ right:-33px;bottom:-33px;width:128px;height:70px;border-radius:50%;
+ filter:blur(14px);opacity:.63
+}
+body.admin-shell .mxh-kpi.mxh-gold{border-color:#d6a951}
+body.admin-shell .mxh-kpi.mxh-gold::after{background:rgba(255,184,49,.35)}
+body.admin-shell .mxh-kpi.mxh-blue{border-color:#3388ba}
+body.admin-shell .mxh-kpi.mxh-blue::after{background:rgba(42,170,236,.32)}
+body.admin-shell .mxh-kpi-label{
+ display:flex;align-items:center;gap:9px;color:#f2f4f8;
+ font-size:12px;font-weight:680;line-height:1.35
+}
+body.admin-shell .mxh-kpi-icon{
+ display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:11px;
+ color:#f7c650;background:rgba(188,135,37,.13);border:1px solid rgba(223,170,67,.34)
+}
+body.admin-shell .mxh-blue .mxh-kpi-icon{
+ color:#d2f0ff;background:rgba(0,132,205,.15);border-color:rgba(41,155,223,.34)
+}
+body.admin-shell .mxh-kpi-icon .mxh-icon{width:22px;height:22px}
+body.admin-shell .mxh-kpi strong{
+ display:block;color:#fff;font-size:clamp(24px,2.7vw,36px);
+ font-weight:860;line-height:1.06;letter-spacing:-.045em;
+ font-variant-numeric:tabular-nums
+}
+body.admin-shell .mxh-kpi small{
+ font-size:10px;line-height:1.4;color:#9ddac5;
+ overflow-wrap:anywhere;min-height:14px
+}
+/* Graph / service / activity / quick actions in same geometry as screenshot */
+body.admin-shell .mxh-content-grid{
+ display:grid;grid-template-columns:minmax(0,1.4fr) minmax(265px,.93fr);
+ gap:18px;align-items:start
+}
+body.admin-shell .mxh-panel{
+ position:relative;min-width:0;overflow:hidden;
+ border:1px solid rgba(66,133,174,.69);
+ border-radius:17px;padding:19px 18px;
+ background:linear-gradient(146deg,rgba(19,45,65,.91),rgba(8,27,44,.92) 74%);
+ box-shadow:inset 0 1px rgba(255,255,255,.06),0 16px 37px rgba(1,9,18,.15)
+}
+body.admin-shell .mxh-panel::after{
+ content:"";position:absolute;right:-55px;bottom:-55px;pointer-events:none;
+ width:170px;height:74px;filter:blur(18px);
+ background:rgba(251,175,59,.15);border-radius:50%
+}
+body.admin-shell .mxh-panel-title{
+ display:flex;align-items:center;gap:11px;min-width:0;margin:0 0 16px
+}
+body.admin-shell .mxh-panel-icon{
+ display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;
+ color:#ffcd61;background:linear-gradient(135deg,#423920,#172b37);
+ border:1px solid #705f40;border-radius:13px
+}
+body.admin-shell .mxh-panel-icon .mxh-icon{width:21px;height:21px}
+body.admin-shell .mxh-panel-title>div{flex:1;min-width:0}
+body.admin-shell .mxh-panel-title h3{
+ color:#f7f7fa!important;margin:0 0 3px;
+ font-size:clamp(15px,1.4vw,18px)!important;font-weight:800;
+ letter-spacing:-.025em
+}
+body.admin-shell .mxh-panel-title p{
+ color:#b8c6d3;font-size:11px;margin:0;line-height:1.4
+}
+body.admin-shell .mxh-period-pill{
+ align-self:flex-start;color:#d9e6ef;font-size:11px;white-space:nowrap;
+ border:1px solid #51728a;border-radius:9px;background:#0d2437;
+ padding:7px 10px;font-weight:690
+}
+body.admin-shell .mxh-visitors{min-height:346px}
+body.admin-shell .mxh-graph{margin:8px -5px 0}
+body.admin-shell .mxh-graph svg{display:block;width:100%;height:auto;max-height:300px;overflow:visible}
+body.admin-shell .mxh-graph .mxh-empty{min-height:245px;display:grid;place-items:center}
+body.admin-shell .mxh-footnote{
+ margin:0;color:#829fb3;font-size:10px
+}
+body.admin-shell .mxh-services{min-height:346px;border-color:#426a8a}
+body.admin-shell .mxh-service-rows{margin-top:5px}
+body.admin-shell .mxh-service-row{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:9px;padding:13px 0;min-height:58px;
+ border-bottom:1px solid rgba(121,162,188,.21)
+}
+body.admin-shell .mxh-service-row:last-child{border-bottom:0}
+body.admin-shell .mxh-service-name{
+ display:flex;align-items:center;gap:10px;min-width:0;color:#e4edf7;
+ font-size:12px;font-weight:670
+}
+body.admin-shell .mxh-service-name .mxh-icon{width:19px;height:19px;flex:0 0 19px}
+body.admin-shell .mxh-pill{
+ display:flex;align-items:center;gap:5px;min-width:0;
+ padding:5px 8px;border-radius:99px;border:1px solid #62656d;
+ font-size:10px;white-space:nowrap;color:#c8d1de;background:#202f3e
+}
+body.admin-shell .mxh-pill i,
+body.admin-shell .mxh-dot,
+body.admin-shell .mxh-live-badge i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 7px}
+body.admin-shell .mxh-pill.mxh-good{color:#9aedc0;background:#123b31;border-color:#39795d}
+body.admin-shell .mxh-pill.mxh-late{color:#ffce83;background:#3a301f;border-color:#9a7140}
+body.admin-shell .mxh-pill.mxh-unknown{color:#bcc8d2;background:#243545;border-color:#47637b}
+body.admin-shell .mxh-activity{min-height:426px;border-color:#6189a0}
+body.admin-shell .mxh-more{
+ border:0;background:none;padding:4px 0;color:#ffcf68;text-decoration:underline;
+ font:inherit;font-size:11px;cursor:pointer;white-space:nowrap;font-weight:720
+}
+body.admin-shell .mxh-more[hidden]{display:none!important}
+body.admin-shell .mxh-activity-row{
+ display:flex;align-items:center;gap:12px;padding:13px 0;
+ border-bottom:1px solid rgba(123,167,191,.24);min-height:65px
+}
+body.admin-shell .mxh-activity-row:last-child{border:0}
+body.admin-shell .mxh-activity-icon{
+ display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;
+ border-radius:12px;background:#133951;border:1px solid #346a88;color:#e5c574
+}
+body.admin-shell .mxh-activity-icon .mxh-icon{width:20px;height:20px}
+body.admin-shell .mxh-activity-row>div{min-width:0;flex:1}
+body.admin-shell .mxh-activity-row strong{
+ display:block;color:#f1f5f9;font-size:12px;font-weight:780;line-height:1.3;overflow-wrap:anywhere
+}
+body.admin-shell .mxh-activity-row small{display:block;color:#adbcca;font-size:10px;margin-top:4px}
+body.admin-shell .mxh-activity-row time{align-self:flex-start;font-size:10px;color:#bdd1e1;white-space:nowrap}
+body.admin-shell .mxh-right-stack{display:grid;gap:18px;min-width:0}
+body.admin-shell .mxh-quick{min-height:209px}
+body.admin-shell .mxh-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+body.admin-shell .mxh-action{
+ display:flex;align-items:center;gap:9px;min-width:0;min-height:68px;padding:10px;
+ background:linear-gradient(140deg,#112b42,#092038);border:1px solid #63829a;
+ border-radius:11px;color:#e4eef8;font:inherit;font-size:11px;
+ font-weight:700;text-align:left;cursor:pointer;
+ transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+ box-shadow:inset 0 1px rgba(255,255,255,.08)
+}
+body.admin-shell .mxh-action>.mxh-icon{width:25px;height:25px;flex:0 0 25px;color:#e0e9f3}
+body.admin-shell .mxh-action span{flex:1;min-width:0}
+body.admin-shell .mxh-action .mxh-action-arrow{width:14px;height:14px;min-width:14px}
+body.admin-shell .mxh-action.mxh-primary{
+ border-color:#efbd59;color:#ffead0;background:linear-gradient(130deg,rgba(183,132,37,.36),rgba(57,44,28,.7));
+ box-shadow:0 0 18px rgba(239,172,52,.2),inset 0 0 16px rgba(255,197,87,.12)
+}
+body.admin-shell .mxh-action.mxh-primary>.mxh-icon{color:#ffcf63}
+body.admin-shell .mxh-action:hover:not(:disabled){transform:translateY(-2px);border-color:#f2cb79}
+body.admin-shell .mxh-action[hidden]{display:none!important}
+body.admin-shell .mxh-performance{min-height:191px}
+body.admin-shell .mxh-live-badge{
+ color:#b6f2d0;display:flex;align-items:center;gap:6px;
+ font-size:9px;white-space:nowrap
+}
+body.admin-shell .mxh-performance-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+body.admin-shell .mxh-performance-cards>div{
+ display:flex;flex-direction:column;align-items:center;text-align:center;
+ gap:7px;min-width:0;padding:12px 5px;
+ border:1px solid #355773;border-radius:11px;
+ background:linear-gradient(140deg,rgba(22,60,84,.63),rgba(8,24,42,.7))
+}
+body.admin-shell .mxh-performance-cards .mxh-icon{width:22px;height:22px;color:#ffd36f}
+body.admin-shell .mxh-performance-cards strong{
+ font-size:clamp(15px,1.6vw,22px);line-height:1;color:#fff;
+ font-variant-numeric:tabular-nums;letter-spacing:-.03em
+}
+body.admin-shell .mxh-performance-cards small{font-size:9px;color:#bbd1df;line-height:1.35}
+body.admin-shell .mxh-empty{margin:0;padding:23px 12px;color:#c1cfdb;font-size:12px}
+body.admin-shell .mxh-update{
+ display:flex;align-items:center;justify-content:space-between;gap:13px;
+ margin:18px 0 8px;color:#90a9bb;font-size:11px
+}
+body.admin-shell .mxh-update button{
+ display:flex;align-items:center;gap:7px;border:1px solid #466781;
+ border-radius:9px;background:#152c3d;color:#deebf3;
+ cursor:pointer;padding:7px 11px;font-size:11px;font-weight:650
+}
+body.admin-shell .mxh-update button .mxh-icon{width:15px;height:15px}
+body.admin-shell .mxh-update button:disabled{opacity:.55;cursor:wait}
+body.admin-shell .mxh-links{display:flex;flex-wrap:wrap;gap:17px;margin:10px 0 18px}
+body.admin-shell .mxh-links a{color:#b9cce0;font-size:10px;text-decoration:none;border-bottom:1px solid #5c7d9c}
+body.admin-shell .mxh-links a:hover{color:#f6d28b}
+body.admin-shell .mxh-bottom{
+ display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+ border-top:1px solid #36546e;margin:11px -8px -6px;padding:14px 8px 8px;
+ color:#cfdfed;font-size:11px
+}
+body.admin-shell .mxh-bottom>span{display:flex;gap:7px;align-items:center;min-width:0}
+body.admin-shell .mxh-bottom .mxh-icon{width:16px;height:16px;color:#efc46b}
+body.admin-shell .mxh-bottom .mxh-dot{background:#5be9a2;color:#5be9a2}
+body.admin-shell .mxh-bottom b{font-weight:720;color:#fff}
+body.admin-shell .mxh-icon{display:block}
+body.admin-shell .mx-home-active :is(.mxh-dashboard button,.mxh-dashboard a,.mxh-dashboard select):focus-visible{
+ outline:2px solid #ffce6a;outline-offset:3px
+}
+@media(max-width:1240px) and (min-width:821px){
+ body.admin-shell .mxh-content-grid{grid-template-columns:minmax(0,1.2fr) minmax(245px,.85fr);gap:13px}
+ body.admin-shell .mxh-kpi-grid{gap:9px}
+ body.admin-shell .mxh-kpi{padding:12px;min-height:123px}
+ body.admin-shell .mxh-kpi-label{font-size:11px}
+ body.admin-shell .mxh-panel{padding:15px 13px}
+ body.admin-shell .mxh-action{gap:6px;padding:8px;min-height:64px;font-size:10px}
+ body.admin-shell .mxh-action>.mxh-icon{width:20px;height:20px;flex-basis:20px}
+}
+@media(max-width:1020px){
+ body.admin-shell .mxh-content-grid{grid-template-columns:minmax(0,1fr)}
+ body.admin-shell .mxh-visitors,body.admin-shell .mxh-services,body.admin-shell .mxh-activity{min-height:0}
+ body.admin-shell .mxh-right-stack{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+ body.admin-shell .mxh-performance-cards{gap:5px}
+ body.admin-shell .mxh-actions{gap:7px}
+}
+@media(max-width:820px){
+ body.admin-shell .mx-home-active .admin-sidebar{background:#081c2d}
+ body.admin-shell .mx-home-active .workspace-topbar{padding:11px 14px}
+ body.admin-shell .mx-home-active .workspace-topbar .topbar-left{
+  display:flex;pointer-events:auto
+ }
+ body.admin-shell .mx-home-active .workspace-content{padding:25px 15px 33px}
+ body.admin-shell .mxh-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.admin-shell .mxh-breadcrumb{margin-bottom:26px}
+ body.admin-shell .mxh-hero{margin-bottom:21px}
+}
+@media(max-width:640px){
+ body.admin-shell .mx-home-active .workspace-topbar{
+  display:flex;justify-content:space-between;grid-template-columns:none;
+  padding:8px 10px;min-height:56px
+ }
+ body.admin-shell .mx-home-active .workspace-topbar .topbar-left{display:flex}
+ body.admin-shell .mx-home-active .workspace-content{padding:58px 11px 25px}
+ body.admin-shell .mxh-breadcrumb{margin:0 0 15px;font-size:10px;gap:7px}
+ body.admin-shell .mxh-hero{align-items:flex-start;flex-direction:column;gap:16px}
+ body.admin-shell .mxh-title{gap:11px}
+ body.admin-shell .mxh-title h2{font-size:26px}
+ body.admin-shell .mxh-title p{font-size:11px}
+ body.admin-shell .mxh-trophy{width:48px;height:48px;flex-basis:48px;border-radius:13px}
+ body.admin-shell .mxh-trophy .mxh-icon{width:28px;height:28px}
+ body.admin-shell .mxh-period{min-height:37px;align-self:flex-end;padding:8px}
+ body.admin-shell .mxh-kpi-grid{gap:9px;margin-bottom:13px}
+ body.admin-shell .mxh-kpi{padding:12px;min-height:118px;gap:8px;border-radius:13px}
+ body.admin-shell .mxh-kpi-label{font-size:10px;gap:6px}
+ body.admin-shell .mxh-kpi-icon{width:30px;height:30px;flex-basis:30px}
+ body.admin-shell .mxh-kpi-icon .mxh-icon{width:17px;height:17px}
+ body.admin-shell .mxh-kpi strong{font-size:25px}
+ body.admin-shell .mxh-kpi small{font-size:9px}
+ body.admin-shell .mxh-content-grid{gap:12px}
+ body.admin-shell .mxh-panel{padding:13px 12px;border-radius:13px}
+ body.admin-shell .mxh-panel-title{gap:8px}
+ body.admin-shell .mxh-panel-title h3{font-size:15px!important}
+ body.admin-shell .mxh-panel-title p{font-size:10px}
+ body.admin-shell .mxh-panel-icon{width:34px;height:34px;flex-basis:34px}
+ body.admin-shell .mxh-panel-icon .mxh-icon{width:19px;height:19px}
+ body.admin-shell .mxh-right-stack{grid-template-columns:1fr;gap:12px}
+ body.admin-shell .mxh-graph{margin-inline:-7px}
+ body.admin-shell .mxh-activity-row{gap:9px}
+ body.admin-shell .mxh-activity-row strong{font-size:11px}
+ body.admin-shell .mxh-action{min-height:60px}
+ body.admin-shell .mxh-bottom{font-size:10px}
+}
+@media(max-width:365px){
+ body.admin-shell .mxh-period-pill{padding:5px;font-size:9px}
+ body.admin-shell .mxh-live-badge{font-size:8px}
+ body.admin-shell .mxh-title h2{font-size:23px}
+ body.admin-shell .mxh-kpi strong{font-size:23px}
+ body.admin-shell .mxh-kpi-label{font-size:9px}
+ body.admin-shell .mxh-action{padding:8px}
+}
+@media(prefers-reduced-motion:reduce){body.admin-shell .mxh-action{transition:none}}
+
+/* Visual QA adjustments from 1440 / 768 / 390 / 320 px browser captures. */
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"]{display:flex;flex-direction:column}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] [data-tab="overview"]{order:0}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] > a.nav-item{
+ order:1;display:flex;align-items:center;gap:10px;font-size:0
+}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] > a.nav-item::before{
+ content:"▥";font-size:19px;line-height:1;color:#dce7ef;
+ display:inline-grid;place-items:center;width:18px
+}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] > a.nav-item::after{
+ content:"Statistiques";font-size:12px;color:inherit;font-weight:680
+}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] [data-tab="pronostics"]{order:2}
+body.admin-shell .mx-home-active .admin-sidebar::after{
+ bottom:-132px;opacity:.78;
+ mask-image:linear-gradient(to bottom,transparent 0%,transparent 25%,black 74%);
+ -webkit-mask-image:linear-gradient(to bottom,transparent 0%,transparent 25%,black 74%)
+}
+body.admin-shell .mxh-header-lights{
+ top:-22px;right:0;width:min(65%,580px);height:145px;opacity:.6;
+ background:radial-gradient(ellipse at 70% 5%,rgba(88,179,234,.31),transparent 55%),
+ radial-gradient(ellipse at 70% 75%,rgba(225,147,39,.09),transparent 65%)
+}
+body.admin-shell .mxh-header-lights::before{
+ left:23%;top:23px;width:77%;height:6px;transform:rotate(-10deg);
+ background:repeating-linear-gradient(90deg,rgba(224,249,255,.93) 0 4px,rgba(114,195,249,.65) 4px 6px,transparent 6px 17px);
+ box-shadow:0 0 11px 5px rgba(108,202,255,.36);
+ opacity:.58
+}
+body.admin-shell .mxh-header-lights::after{
+ top:65px;left:22%;width:76%;height:5px;
+ background:repeating-linear-gradient(90deg,rgba(255,190,72,.75) 0 3px,transparent 3px 16px);
+ transform:rotate(-9deg);opacity:.55;
+ box-shadow:0 0 12px 4px rgba(217,146,49,.2)
+}
+body.admin-shell .mx-home-active .workspace-topbar .topbar-actions{flex-wrap:nowrap;gap:7px}
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout,
+body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn,
+body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup]{
+ display:grid;place-items:center;
+ padding:0!important;width:40px;min-width:40px;max-width:40px;height:40px;min-height:40px;
+ flex:0 0 40px;border-radius:11px;font-size:0!important;white-space:nowrap;overflow:hidden
+}
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout span{display:none!important}
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout .mxh-icon,
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout .nav-icon{width:19px;height:19px}
+body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn::before{
+ content:"↶";font-size:22px;line-height:1
+}
+body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup]::before{
+ content:"MFA";font-size:10px;line-height:1;font-weight:850
+}
+body.admin-shell .mx-home-active .workspace-topbar .admin-user{
+ display:inline-flex;align-items:center;gap:7px;
+ padding:6px 11px;font-size:10px;order:10
+}
+body.admin-shell .mx-home-active .workspace-topbar .admin-user::before{
+ content:"♛";color:#e9bd69;font-size:18px;line-height:1
+}
+body.admin-shell .mxh-period select{
+ height:22px!important;min-height:22px!important;padding:0!important;
+ max-width:none;border:0!important;background:transparent!important;
+ box-shadow:none!important;line-height:22px!important
+}
+body.admin-shell .mxh-activity{min-height:290px}
+@media(max-width:640px){
+ body.admin-shell .mx-home-active .workspace-topbar #btnLogout,
+ body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn,
+ body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup]{
+  width:37px;max-width:37px;min-width:37px;flex-basis:37px;height:37px;min-height:37px
+ }
+ body.admin-shell .mx-home-active .workspace-topbar .admin-user{display:none}
+ body.admin-shell .mxh-header-lights{width:54%;opacity:.35}
+ body.admin-shell .mxh-header-lights::before{top:12px}
+ body.admin-shell .mxh-period{min-height:38px;height:38px}
+ body.admin-shell .mxh-activity{min-height:0}
+}
+
+/* Align the sidebar menu order with the approved dashboard screenshot without
+   removing access to any existing (real) administration subsection. */
+body.admin-shell .sidebar-nav .mxh-shortcut{display:none}
+body.admin-shell .mx-home-active .sidebar-nav{display:flex;flex-direction:column;align-items:stretch}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group{display:contents}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item{
+ flex:0 0 auto;order:25;min-width:0
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-shortcut{display:flex;align-items:center;gap:10px}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-shortcut .mxh-icon{
+ width:18px;height:18px;flex:0 0 18px;color:#dae8f3
+}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="overview"]{order:0}
+body.admin-shell .mx-home-active .sidebar-nav a[href="statistiques-audience.html"]{order:1}
+body.admin-shell .mx-home-active .sidebar-nav #mxh-subs-nav{order:2}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="push"]{order:3}
+body.admin-shell .mx-home-active .sidebar-nav #mxh-campaign-nav{order:4}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="pronostics"]{order:5}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="articles"]{order:6}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="vip"]{order:7}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="users"]{order:8}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="conseils"]{order:9}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="bonus"]{order:10}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="infos"]{order:11}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="media"]{order:12}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="health"]{order:13}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="incidents"]{order:14}
+body.admin-shell .mx-home-active .sidebar-nav [data-tab="audit"]{order:15}
+
+/* Final compact viewport QA: readable native date selector and exact nav order. */
+body.admin-shell .mxh-period{
+ position:relative;white-space:nowrap;justify-content:space-between;
+ gap:9px;height:42px;min-height:42px;padding:8px 12px
+}
+body.admin-shell .mxh-period #mxh-period-text{
+ display:inline-block;white-space:nowrap;color:#edf3fa;
+ font-size:12px;font-weight:760;line-height:20px;pointer-events:none
+}
+body.admin-shell .mxh-period select#mxh-period{
+ position:absolute!important;inset:0!important;width:100%!important;
+ height:100%!important;max-width:100%!important;min-height:0!important;
+ opacity:0!important;cursor:pointer;z-index:2;
+ padding:0!important;margin:0!important;border:0!important
+}
+body.admin-shell .mxh-period:focus-within{
+ outline:2px solid #f3ce82;outline-offset:3px
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] > a.nav-item{
+ justify-content:flex-start!important;gap:10px
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] > a.nav-item::after{
+ flex:0 0 auto;margin-left:0!important
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] [data-tab="pronostics"]{
+ order:5!important
+}
+@media(max-width:640px){
+ body.admin-shell .mxh-period{height:40px;min-height:40px;align-self:flex-end}
+}
+
+/* Keep the expandable diagnostics reachable above the fixed bottom navigation. */
+@media (max-width:640px){
+ body.admin-shell .mx-home-active #admin-detailed-supervision{
+   margin-bottom:calc(126px + env(safe-area-inset-bottom,0px));
+   scroll-margin-bottom:140px
+ }
+ body.admin-shell .mx-home-active .workspace-content{padding-bottom:50px}
+}
+
+/* Sidebar ordering is now accomplished by moving existing nodes (with their
+ * original click handlers), not display:contents: fixes overlapping hit targets. */
+body.admin-shell .mx-home-active .sidebar-nav{
+ display:block!important;
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group,
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"]{
+ display:block!important;
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-home-menu{
+ display:flex;flex-direction:column;align-items:stretch;
+ width:100%;gap:2px;margin-bottom:2px
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-home-menu .nav-item{
+ order:initial!important;flex:0 0 auto;
+ min-height:44px;position:relative
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item[hidden]{
+ display:none!important
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-home-menu .mxh-shortcut{
+ display:flex!important;align-items:center;gap:10px
+}
+@media (max-width:640px){
+ body.admin-shell .mx-home-active .admin-mobile-nav{
+  z-index:45
+ }
+}
+
+/* Final screenshot inspection: center the period control on 320–390px screens.
+   The native select remains fully clickable and accessible as an overlay. */
+body.admin-shell .mx-home-active .mxh-period{
+ display:inline-flex!important;align-items:center!important;
+ justify-content:flex-start!important;flex-wrap:nowrap!important;
+ width:max-content;min-width:178px;max-width:100%;
+ height:43px!important;min-height:43px!important;
+ padding:9px 12px!important;gap:8px!important;
+ box-sizing:border-box
+}
+body.admin-shell .mx-home-active .mxh-period #mxh-period-text{
+ flex:1 0 auto;display:block!important;
+ min-width:0;white-space:nowrap!important;
+ line-height:20px!important;font-size:12px!important;
+ align-self:center;margin:0!important;padding:0!important
+}
+body.admin-shell .mx-home-active .mxh-period>.mxh-icon{
+ flex:0 0 16px;width:16px;height:16px;
+ align-self:center
+}
+body.admin-shell .mx-home-active .mxh-period>.mxh-icon:last-child{
+ flex-basis:13px;width:13px;height:13px
+}
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]{
+ display:flex;align-items:center;gap:10px;
+ font-size:0!important
+}
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]::before{
+ content:"▥";display:inline-grid;place-items:center;
+ color:#dae8f3;font-size:19px;width:18px;height:18px;
+ flex:0 0 18px
+}
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]::after{
+ content:"Statistiques";color:inherit;font-size:12px;font-weight:680
+}
+
+/* Screenshot final review: the Statistics label must sit next to its icon. */
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]{
+ justify-content:flex-start!important;gap:10px!important;text-align:left!important
+}
+body.admin-shell .mx-home-active .mxh-home-menu>a[href="statistiques-audience.html"]::after{
+ flex:0 0 auto!important;margin-left:0!important;text-align:left!important
+}

@@ -40,10 +40,10 @@ def run(page, mobile=False):
         body="<html><body><h2>Supervision intégrée</h2></body></html>"))
     page.goto(BASE + "/admin.html", wait_until="domcontentloaded")
     expect(page.locator("#app")).to_be_visible(timeout=15000)
-    expect(page.locator("#view-title")).to_have_text("Vue générale")
+    expect(page.locator("#view-title")).to_have_text("Tableau de bord")
     expect(page.locator("#tab-overview")).to_be_visible()
     expect(page.locator("#admin-overview-summary")).to_be_visible()
-    expect(page.locator("#admin-overview-summary > .admin-overview-kpis > .admin-kpi")).to_have_count(5)
+    expect(page.locator("#admin-overview-summary .mxh-kpi")).to_have_count(4)
     assert not page.locator("#supervisionFrame").get_attribute("src"), "Details frame must load on demand"
     page.locator("#admin-detailed-supervision summary").click()
     expect(page.locator("#admin-detailed-supervision")).to_have_attribute("open", "")
@@ -59,7 +59,7 @@ def run(page, mobile=False):
     if mobile:
         expect(page.locator("#sidebar-open")).to_be_visible()
         page.locator("#sidebar-open").click()
-        expect(page.locator("#app")).to_have_class("admin-workspace menu-open")
+        assert "menu-open" in (page.locator("#app").get_attribute("class") or "")
     page.locator('[data-tab="push"]').click()
     expect(page.locator("#view-title")).to_have_text("Notifications Push")
     expect(page.locator("#tab-overview")).to_be_hidden()
