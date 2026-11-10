@@ -1774,6 +1774,8 @@ async function afterLogin() {
     }catch{return [permission,false];}
   }));
   adminPermissions=Object.fromEntries(values);
+  const quickPush=$("admin-quick-push");
+  if(quickPush)quickPush.hidden=!adminPermissions.push;
   if(!adminPermissions.read){
     await sb.auth.signOut();
     setLoginMsg("Droits de lecture refusés.");
@@ -1801,6 +1803,7 @@ async function afterLogin() {
 // EVENTS
 // -----------------------------
 tabs().forEach(btn => btn.addEventListener("click", () => void showTab(btn.dataset.tab)));
+$("admin-quick-push")?.addEventListener("click",()=>void showTab("push"));
 window.addEventListener("hashchange",()=>{if($("app").style.display!=="none")void showTab(location.hash.slice(1))});
 
 $("loginForm").addEventListener("submit", async event => {
