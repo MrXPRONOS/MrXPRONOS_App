@@ -47,7 +47,7 @@ class DailyHubPhase3Tests(unittest.TestCase):
         self.assertIn("const VERSION = ",sw)
         self.assertIn("aujourdhui.html",self.read("sitemap.xml"))
         self.assertIn("admin-supervision.html",build)
-        self.assertIn("assets/js/admin-supervision.js",build)
+        self.assertIn('"admin-supervision.js"',build)
 
     def test_no_fake_winners_or_forced_notifications(self):
         frontend=self.read("assets/js/daily-hub.mjs")
