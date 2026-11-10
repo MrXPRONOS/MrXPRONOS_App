@@ -29,8 +29,9 @@ jobs:
           sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-liberation
           python -m pip install --upgrade pip
           python -m pip install -e 'dixon-coles[test,video]'
-      - name: Verify new neon layout, safe zones and score transitions
-        run: python -m pytest -q dixon-coles/tests/test_video_grid_neon.py
+      - name: Verify new neon layout and genuine crest requirements
+        working-directory: dixon-coles
+        run: python -m pytest -q tests/test_video_grid_neon.py tests/test_neon_logo_preview.py
       - name: Obtain real ten-match storyboard when available
         continue-on-error: true
         working-directory: dixon-coles
@@ -43,6 +44,7 @@ jobs:
           from datetime import datetime,timezone,timedelta
           from pathlib import Path
           from dcscore.video_grid_neon import render
+          from scripts.build_neon_logo_preview import make_crest_demo
           today=datetime.now(timezone.utc).date()
           target=(today+timedelta(days=1)).isoformat()
           candidate=Path('results/daily')/target/'video_payload.json'
@@ -58,27 +60,14 @@ jobs:
               except Exception as exc:
                   print('REAL_RENDER_UNAVAILABLE_FALLBACK_TO_LABELED_DEMO',type(exc).__name__,str(exc)[:170],flush=True)
           if status['mode']=='DEMO':
-              # Visual-only preview: references the original user's 10-Nov layout,
-              # NEVER presented as live scores or forecasts.
-              examples=[
-                  ('Paris Saint-Germain','Bayern Munich','1-2'),
-                  ('Real Madrid','Paris FC','2-1'),
-                  ('BK Häcken','Chelsea','0-1'),
-                  ('Huddersfield Town','Liverpool U21','2-0'),
-                  ('Stevenage','Fulham U21','5-0'),
-                  ('Crewe Alexandra','Wigan Athletic','2-0'),
-                  ('Northampton Town','Gillingham','2-1'),
-                  ('Barnet','Leyton Orient','1-0'),
-                  ('Plymouth Argyle','Swindon Town','2-1'),
-                  ('Bristol Rovers','Reading','1-1'),
-              ]
-              storyboard={
-                  'date_local_africa_lome':today.isoformat(),
-                  'clips':[{'headline':home+' - '+away,'display_score':score}
-                           for home,away,score in examples]
-              }
-              status['result']=render(storyboard,output,preview=True,fullhd=True,asset_root='.')
-              print('DEMO_VIDEO_RENDERED_NO_REAL_PREDICTIONS',output,flush=True)
+              # Visual demonstration with AUTHENTIC 20 team crests from ESPN,
+              # no synthesized initials or invented club identities.
+              storyboard=make_crest_demo(today)
+              status['result']=render(storyboard,output,preview=True,
+                                      require_real_logos=True,fullhd=True,asset_root='.')
+              if status['result']['real_logo_instances'] != 20:
+                  raise SystemExit('DEMO REFUSED: genuine crest count < 20')
+              print('DEMO_VIDEO_RENDERED_WITH_20_REAL_CRESTS',output,flush=True)
           Path('telegram_layout_test_status.json').write_text(json.dumps(status,ensure_ascii=False,indent=2),encoding='utf-8')
           print('VIDEO_RENDER_STATUS',status['mode'],status['date'],flush=True)
           PY
