@@ -15,6 +15,17 @@ ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-
 IMPORTS = re.compile(r"(?:\bfrom\s*|\bimport\s*|\bimport\s*\(\s*)['\"](\.[^'\"]+)['\"]")
 
 class AdminPagesPublicationContract(unittest.TestCase):
+    def test_futuristic_home_release_is_packaged_and_never_stale(self):
+        root=ROOT
+        page=(root/"admin.html").read_text(encoding="utf-8")
+        worker=(root/"service-worker.js").read_text(encoding="utf-8")
+        self.assertIn('name="admin-release" content="future-dashboard-v2-20261110"',page)
+        self.assertIn("admin-home.css",page)
+        self.assertIn("isAdminDocument || isAdminAsset",worker)
+        self.assertIn("fetch(request, { cache: 'no-store' })",worker)
+        for asset in ("admin-home-ball-reference.webp","admin-home-lights-reference.webp"):
+            self.assertGreater((root/"assets/images"/asset).stat().st_size,1000)
+
     def test_pages_and_styles_in_allowlist(self):
         self.assertTrue(ADMIN_HTML <= BUILDER.PUBLIC_HTML)
         self.assertTrue(ADMIN_CSS <= BUILDER.PUBLIC_CSS)
