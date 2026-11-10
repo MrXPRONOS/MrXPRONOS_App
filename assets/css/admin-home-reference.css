@@ -261,3 +261,18 @@ body.admin-shell .mx-home-active .sidebar-nav .mxh-more-tools .nav-item .nav-ico
 
 /* Explicitly hide contents while the advanced disclosure is closed. */
 body.admin-shell .mx-home-active .mxh-more-tools:not([open]) > .mxh-extra-menu{display:none!important}
+
+/* Blend the photographic floodlights into the dashboard sky; the crop must
+   never look like a rectangular image inserted behind the page header. */
+body.admin-shell .mx-home-active .mxh-header-lights{
+  mask-image:radial-gradient(ellipse 84% 83% at 79% 22%,#000 30%,rgba(0,0,0,.85) 51%,transparent 99%)!important;
+  -webkit-mask-image:radial-gradient(ellipse 84% 83% at 79% 22%,#000 30%,rgba(0,0,0,.85) 51%,transparent 99%)!important;
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 0 13px rgba(60,151,229,.26));
+}
+@media(max-width:640px){
+ body.admin-shell .mx-home-active .mxh-header-lights{
+  mask-image:radial-gradient(ellipse 90% 82% at 78% 18%,#000 27%,transparent 96%)!important;
+  -webkit-mask-image:radial-gradient(ellipse 90% 82% at 78% 18%,#000 27%,transparent 96%)!important;
+ }
+}
