@@ -1,5 +1,593 @@
 [
   {
+    "id": "41e2e69a0cdd24268f740e69",
+    "kind": "news",
+    "title": "Coupe du Monde U17, Rayan Yaakoubi : «on y va pour atteindre le top»",
+    "url": "https://www.footmercato.net/a2742626084367206485-coupe-du-monde-u17-rayan-yaakoubi-on-y-va-pour-atteindre-le-top",
+    "source_date": "2026-11-09T23:15:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e675daa229302cafa66cc231",
+    "kind": "news",
+    "title": "Mercato OM : La DNCG s'apprête à calmer l'enthousiasme marseillais !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-om-la-dncg-s-apprete-a-calmer-l-enthousiasme-marseillais-545282.html",
+    "source_date": "2026-11-09T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fcf4ce103f05e570ca098099",
+    "kind": "news",
+    "title": "L’Atlético de Madrid prépare un transfert surprise cet hiver",
+    "url": "https://www.footmercato.net/a9172371155066059583-latletico-de-madrid-prepare-un-transfert-surprise-cet-hiver",
+    "source_date": "2026-11-09T22:29:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "078403c28b24f55f1569409d",
+    "kind": "news",
+    "title": "EdF : Pagis impressionné par ses coéquipiers",
+    "url": "https://www.maxifoot.fr/france/pagis-impressionne-par-ses-coequipiers-foot-467436.htm",
+    "source_date": "2026-11-09T21:37:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ab540f8f7f10f88bfc4115e2",
+    "kind": "news",
+    "title": "OM : Bruno Genesio peut être très inquiet pour le mercato hivernal !",
+    "url": "https://www.footmercato.net/a7175285350275715712-om-bruno-genesio-peut-etre-tres-inquiet-pour-le-mercato-hivernal",
+    "source_date": "2026-11-09T21:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "af07c6f547f580c857ee5e4b",
+    "kind": "news",
+    "title": "Equipe de France : Ibrahima Konaté ne craint pas la concurrence",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-ibrahima-konate-ne-craint-pas-la-concurrence-545271.html",
+    "source_date": "2026-11-09T21:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "88bdd047488a5a9928d5ca9b",
+    "kind": "news",
+    "title": "Algérie : deux joueurs forfaits, un petit nouveau appelé en renfort !",
+    "url": "https://www.onzemondial.com/can/algerie-deux-joueurs-forfaits-un-petit-nouveau-appele-en-renfort-1008115",
+    "source_date": "2026-11-09T21:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "732eefdb6d55bd2bb0feb8d5",
+    "kind": "news",
+    "title": "EdF : Konaté agacé par les critiques",
+    "url": "https://www.maxifoot.fr/france/konate-agace-par-les-critiques-foot-467438.htm",
+    "source_date": "2026-11-09T20:59:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0a7d794f89f0c5cd96ec2fbe",
+    "kind": "news",
+    "title": "L'Espagnol Carlos Vicens devient le nouvel entraîneur de l'Olympique lyonnais",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-1/l-espagnol-carlos-vicens-devient-le-nouvel-entraineur-de-l-olympique-lyonnais_8273561.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-09T17:08:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "22823aa38ce09e855cc182c5",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: le programme des 3e et 4e journées",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261109-%C3%A9liminatoires-can-2027-le-programme-des-3e-et-4e-journ%C3%A9es",
+    "source_date": "2026-11-09T15:39:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f503f5cb085d60bd1ff2bbbe",
+    "kind": "news",
+    "title": "Zinédine Zidane convoque Saël Kumbedi, latéral droit en deuxième division allemande, pour pallier le forfait de Pierre Kalulu",
+    "url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/zinedine-zidane-convoque-sael-kumbedi-lateral-droit-en-deuxieme-division-allemande-pour-pallier-le-forfait-de-pierre-kalulu_8274554.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-09T13:23:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "47155f99aa2cb2967eb550eb",
+    "kind": "news",
+    "title": "Un match solidaire organisé pour les 500 jours de détention du journaliste Christophe Gleizes en Algérie",
+    "url": "https://www.franceinfo.fr/sports/foot/un-match-solidaire-organise-pour-les-500-jours-de-detention-du-journaliste-christophe-gleizes-en-algerie_8274302.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-09T10:56:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f4d0e613a4a6a2f6650b49de",
+    "kind": "news",
+    "title": "« Le dictateur est arrivé » : Kylian Mbappé vanné par un enfant à l’entraînement des Bleus",
+    "url": "https://www.footmercato.net/a2233132831885122919-le-dictateur-est-arrive-kylian-mbappe-vanne-par-un-enfant-a-lentrainement-des-bleus",
+    "source_date": "2026-11-09T23:01:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0854c9731dcaf3995c7a9bc2",
+    "kind": "news",
+    "title": "OM : tout le monde est fan de \"Pep Genesio\", la déclaration d'amour de Weah à son coach !",
+    "url": "https://www.onzemondial.com/ligue-1/om-tout-le-monde-est-fan-de-pep-genesio-la-declaration-damour-de-weah-a-son-coach-1008059",
+    "source_date": "2026-11-09T22:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e2717e54a01d49643a47512e",
+    "kind": "news",
+    "title": "Equipe de France : Saël Kumbedi : \"Être entraîné par Zinédine Zidane, c'est formidable\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-sael-kumbedi-etre-entraine-par-zinedine-zidane-c-est-formidable-545272.html",
+    "source_date": "2026-11-09T22:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0aea58b8e12ee14370612220",
+    "kind": "news",
+    "title": "Equipe de France : Warren Zaïre-Emery : \"Milieu ou latéral ? Peu importe, je donnerai toujours tout\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-warren-zaire-emery-milieu-ou-lateral-peu-importe-je-donnerai-toujours-tout-545270.html",
+    "source_date": "2026-11-09T22:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3d61f208adc1ad53034c8e4d",
+    "kind": "news",
+    "title": "Real Madrid : Konaté en mode Van Dijk, le Français dans la forme de sa vie à Madrid ?",
+    "url": "https://www.onzemondial.com/liga/real-madrid-konate-en-mode-van-dijk-le-francais-dans-la-forme-de-sa-vie-a-madrid-1008004",
+    "source_date": "2026-11-09T22:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "20e97bd2d96407dd9869bbdb",
+    "kind": "news",
+    "title": "Manchester United devrait finalement virer Michael Carrick rapidement !",
+    "url": "https://www.footmercato.net/a7437036162590863579-manchester-united-devrait-finalement-virer-michael-carrick-rapidement",
+    "source_date": "2026-11-09T22:28:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "86a192afe858795a21b85e43",
+    "kind": "news",
+    "title": "Le classement des top buteurs européens",
+    "url": "https://www.footmercato.net/a689045135982337320-le-classement-des-top-buteurs-europeens",
+    "source_date": "2026-11-09T22:06:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bb5ab879a5997b84dc0d6677",
+    "kind": "news",
+    "title": "Italie : l’optimisme de Mancini sur le futur choix de Tresoldi",
+    "url": "https://www.footmercato.net/a4819685595929157075-italie-loptimisme-de-mancini-sur-le-futur-choix-de-tresoldi",
+    "source_date": "2026-11-09T22:02:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f22f2c88ccbb906c2ea1f5e4",
+    "kind": "news",
+    "title": "Mercato : l'OM n'est pas tiré d'affaires",
+    "url": "https://m.maxifoot.fr/football/article-66524.htm",
+    "source_date": "2026-11-09T22:02:28+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cafb68494d5dcba41f8f1e76",
+    "kind": "news",
+    "title": "OGC Nice : un ancien coach sur le toit de l'Europe !",
+    "url": "https://www.onzemondial.com/ligue-1/ogc-nice-un-ancien-coach-sur-le-toit-de-leurope-1008124",
+    "source_date": "2026-11-09T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3670d9871c232fdf522f42ea",
+    "kind": "news",
+    "title": "Mercato LOSC : La réaction de Tanguy Nianzou suite à sa prolongation de contrat avec le Lille OSC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-la-reaction-de-tanguy-nianzou-suite-a-sa-prolongation-de-contrat-avec-le-lille-osc-545279.html",
+    "source_date": "2026-11-09T21:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "78a4114188c3b7a1a89b2ecb",
+    "kind": "news",
+    "title": "Mercato LOSC : Hamza Igamane réagit à sa prolongation de contrat avec le Lille OSC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-hamza-igamane-reagit-a-sa-prolongation-de-contrat-avec-le-lille-osc-545274.html",
+    "source_date": "2026-11-09T21:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8eb16b7bbcec24adfc9acfa4",
+    "kind": "news",
+    "title": "Golden Boy 2026 : Honest Ahanor élu meilleur joueur italien de l’année",
+    "url": "https://www.footmercato.net/a3803963511565405194-golden-boy-2026-honest-ahanor-elu-meilleur-joueur-italien-de-lannee",
+    "source_date": "2026-11-09T21:30:28+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8789753afe6b78190aeb8beb",
+    "kind": "news",
+    "title": "Pourquoi il sera impossible de regarder à la TV le match de l'ASSE ou Nantes en Coupe de France !",
+    "url": "https://www.onzemondial.com/coupe-de-france/pourquoi-il-sera-impossible-de-regarder-a-la-tv-le-match-de-lasse-ou-nantes-en-coupe-de-france-1008107",
+    "source_date": "2026-11-09T21:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b6b256bace3b58aa9e184797",
+    "kind": "news",
+    "title": "Mercato LOSC : Olivier Létang commente les prolongations de contrat signées par Tanguy Nianzou et Hamza Igamane",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-olivier-letang-commente-les-prolongations-de-contrat-signees-par-tanguy-nianzou-et-hamza-igamane-545273.html",
+    "source_date": "2026-11-09T21:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0c712336431b53775a369519",
+    "kind": "news",
+    "title": "Braga, États-Unis, Guardiola... ce qu'il faut savoir de Carlos Vicens, le nouvel entraîneur de l'OL",
+    "url": "https://www.onzemondial.com/ligue-1/braga-etats-unis-guardiola-ce-quil-faut-savoir-de-carlos-vicens-le-nouvel-entraineur-de-lol-1008134",
+    "source_date": "2026-11-09T21:08:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-10T05:41:54.194641+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "c25df8d89d955aa16dd94619",
     "kind": "news",
     "title": "OM : Bruno Genesio a secoué ses joueurs",
@@ -18,7 +606,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "301a60c02d197a54c1e4b208",
@@ -39,7 +627,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "224a6edfac03af79e0269043",
@@ -60,7 +648,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e852bd050ab0ce9024eeed31",
@@ -81,7 +669,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b383ef115bfc72ff9de5341c",
@@ -102,7 +690,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "07379a2ad6f2122233258beb",
@@ -123,7 +711,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5c7c4f3cb176d124638c57af",
@@ -186,7 +774,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "49d2fabfe90b1a66701f7d55",
@@ -207,7 +795,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "68bb232f5436e96a74f828f7",
@@ -228,7 +816,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "262932b7bf81d22595a9500e",
@@ -249,7 +837,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4419a4d568a1abd05a1a3829",
@@ -270,7 +858,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c103ace1efea1049dfc5497a",
@@ -291,7 +879,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ea45553c1c19ec7fb4a7f3a",
@@ -312,7 +900,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5f82d3c8689206d387a3ea52",
@@ -333,7 +921,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c0dbfc9b3f2d35cf495b7bce",
@@ -354,7 +942,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a78a351f5f5c6f91e821d796",
@@ -375,7 +963,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "53bce537b18147dbf89c50a1",
@@ -396,7 +984,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bda7f1c4096b281a7d36811a",
@@ -417,7 +1005,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "217605b2ee6d0bacbe4784ea",
@@ -438,7 +1026,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1aa9d2cf3ccaceae5c9e482d",
@@ -459,7 +1047,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bcabf4bd109eb9560ccd23ed",
@@ -480,7 +1068,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "51a4e00bbf33828b5ac5652e",
@@ -501,7 +1089,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5fce08777b599eba3b43b327",
@@ -522,7 +1110,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "211e3607a9320550a55a6455",
@@ -543,7 +1131,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "05ebd587a8de98e4c298c3eb",
@@ -564,7 +1152,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cf0fd3b9b7dfe4ee4d36f0b9",
@@ -714,7 +1302,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9dbf602518d0b7f5dbd17299",
@@ -735,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c9b2b36768bb5094aca7c60c",
@@ -756,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8b15eecf4536e2da04005e80",
