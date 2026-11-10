@@ -13,6 +13,9 @@ on:
       - 'assets/css/admin-phase3.css'
       - 'assets/css/admin-home.css'
       - 'assets/images/admin-home-stadium.svg'
+      - 'assets/images/admin-home-ball-reference.webp'
+      - 'assets/images/admin-home-lights-reference.webp'
+      - 'service-worker.js'
       - 'assets/js/admin-users.mjs'
       - 'scripts/admin_phase12_acceptance.py'
       - '.github/workflows/admin-phase12-acceptance.yml'
@@ -31,6 +34,7 @@ jobs:
       - name: Validate admin module syntax
         run: |
           node --check assets/js/admin-real.js
+          node --check service-worker.js
           node --check assets/js/admin-home.mjs
           node --check assets/js/admin-phase3.mjs
           node --check assets/js/admin-users.mjs
