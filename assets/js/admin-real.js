@@ -1,3 +1,4 @@
+import {mountAdminHome} from "./admin-home.mjs";
 import {initAdminFeedback,adminToast,adminConfirm,adminPrompt,adminNotice,enhanceAdminOverview,enhanceHealthDashboard,renderAuditWorkbench} from "./admin-phase3.mjs";
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
@@ -150,79 +151,37 @@ function organizeCmsEditor(root) {
 }
 
 async function renderAdminOverview() {
-  const root = $("admin-overview-summary");
-  if(!root)return;
-  root.replaceChildren();
-  const toolbar=document.createElement("div");toolbar.className="admin-section-heading";
-  const h=document.createElement("h3");h.textContent="Pilotage en un coup d'œil";
-  const refresh=document.createElement("button");refresh.type="button";refresh.className="btn btn-secondary";
-  refresh.textContent="↻ Actualiser";
-  toolbar.append(h,refresh);root.appendChild(toolbar);
-  const state=document.createElement("p");state.className="muted";state.setAttribute("role","status");
-  state.textContent="Lecture des indicateurs en cours…";root.appendChild(state);
-  const grid=document.createElement("div");grid.className="admin-overview-kpis";root.appendChild(grid);
-  const health=document.createElement("div");health.className="admin-overview-health";root.appendChild(health);
-  const links=document.createElement("nav");links.className="admin-overview-links";
-  links.setAttribute("aria-label","Voir les statistiques spécialisées");
-  for(const [label,url] of [["Audience","statistiques-audience.html"],["Installation","statistiques-installation.html"],["Supervision complète","admin-supervision.html"]]){
-    const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
-    a.textContent=label+" ↗";links.appendChild(a);
+  const root=$("admin-overview-summary");if(!root)return;
+  const home=mountAdminHome(root,{
+    navigate:showTab,
+    permissions:adminPermissions,
+    refresh:days=>void load(days)
+  });
+  let serial=0;
+  async function load(days=7){
+    const token=++serial;
+    home.loading();
+    const [monitor,highlights,selectedAudience,audit]=await Promise.allSettled([
+      sb.rpc("admin_monitor_snapshot",{p_days:days}),
+      loadAdminHighlights(sb),
+      days===7?Promise.resolve(null):sb.rpc("admin_audience_dashboard_v1",{p_days:days}),
+      sb.from("audit_log").select("created_at,action").order("created_at",{ascending:false}).limit(5)
+    ]);
+    if(token!==serial)return;
+    const errors=[];
+    const result=entry=>entry.status==="fulfilled"&&!entry.value?.error?entry.value?.data:null;
+    const snapshot=result(monitor);
+    if(!snapshot)errors.push("supervision");
+    const extra=highlights.status==="fulfilled"?highlights.value:{};
+    const audience=days===7?extra.audience:result(selectedAudience);
+    const campaigns=extra.campaigns??null;
+    if(!audience)errors.push("audience");
+    if(!campaigns)errors.push("campagnes");
+    const activity=result(audit);
+    if(!activity)errors.push("journal d’audit");
+    home.render({snapshot,audience,campaigns,activity,days,errors});
   }
-  root.appendChild(links);
-  const extra=document.createElement("div");root.append(extra);
-  const extraWidget=createAdminHighlightWidget(extra);
-  const metric=(label,value)=>{
-    const card=document.createElement("div");card.className="admin-kpi";
-    const title=document.createElement("small");title.textContent=label;
-    const main=document.createElement("strong");main.textContent=value;
-    card.append(main,title);grid.appendChild(card);
-  };
-  const age=(value)=>{
-    if(!value)return null;
-    const elapsed=(Date.now()-Date.parse(value))/60000;
-    return Number.isFinite(elapsed)?Math.max(0,Math.round(elapsed)):null;
-  };
-  const populate=async()=>{
-    state.textContent="Actualisation…";refresh.disabled=true;
-    try{
-      const {data,error}=await sb.rpc("admin_monitor_snapshot",{p_days:7});
-      if(error)throw error;
-      grid.replaceChildren();health.replaceChildren();
-      const m=data||{},analytics=m.analytics||{},live=m.live||{},telegram=m.telegram||{},push=m.push||{};
-      metric("Visites estimées · 7 j",Number(analytics.visits||0).toLocaleString("fr-FR"));
-      metric("Signaux LIVE · 7 j",Number(live.total||0).toLocaleString("fr-FR"));
-      const resolved=Number(live.wins||0)+Number(live.losses||0);
-      metric("Réussite vérifiée",resolved?(100*Number(live.wins||0)/resolved).toFixed(1)+" %":"—");
-      metric("Publications Telegram",Number(telegram.total||0).toLocaleString("fr-FR"));
-      metric("Abonnements Push",Number(push.subscriptions||0).toLocaleString("fr-FR"));
-      const title=document.createElement("h3");title.textContent="Fraîcheur des services";health.appendChild(title);
-      const list=document.createElement("div");list.className="admin-health-cards";
-      for(const [name,time,threshold] of [
-        ["Scraping LIVE",m.health?.live_scrape_last,5],
-        ["Fusion des données",m.health?.live_merged_last,5],
-        ["Dernier signal LIVE",m.health?.latest_live_prediction,180],
-        ["Actualités Football",m.health?.last_actu_foot_run,120]
-      ]) {
-        const mins=age(time),entry=document.createElement("div");
-        entry.className="admin-health-card";
-        const label=document.createElement("b");label.textContent=name;
-        const status=document.createElement("span");
-        status.className="admin-health-"+(mins==null?"unknown":mins>threshold?"late":"good");
-        status.textContent=mins==null?"Donnée indisponible":mins>threshold?"Retard · "+mins+" min":"À jour · "+mins+" min";
-        entry.append(label,status);list.appendChild(entry);
-      }
-      health.appendChild(list);
-      enhanceAdminOverview(root,m);
-      state.textContent=adminSnapshotLabel("Supabase",new Date(),{windowText:"données estimées"});
-      void loadAdminHighlights(sb).then(result=>extraWidget?.draw(result)).catch(err=>{
-        extra.textContent="Indicateurs complémentaires indisponibles : "+String(err?.message||err);
-      });
-    }catch(err){
-      state.textContent="Supervision indisponible : "+String(err?.message||err)+". Réessaie ou consulte la supervision détaillée.";
-    }finally{refresh.disabled=false;}
-  };
-  refresh.addEventListener("click",()=>void populate());
-  await populate();
+  await load(7);
 }
 
 // -----------------------------
