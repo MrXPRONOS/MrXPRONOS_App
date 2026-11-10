@@ -208,3 +208,53 @@ body.admin-shell .mx-home-active .sidebar-nav .admin-stats-link>span{
   display:inline!important;visibility:visible!important;
   font-size:12px!important;color:inherit
 }
+
+/* The approved sidebar keeps the core destinations visible and presents a
+   clearly labeled disclosure for the advanced modules rather than 16 flat rows. */
+body.admin-shell .mx-home-active .mxh-more-tools{
+  position:relative;z-index:2;display:block;
+  margin:10px 0 18px;padding:0;border-top:1px solid rgba(85,143,177,.38)
+}
+body.admin-shell .mx-home-active .mxh-more-tools>summary{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 12px;margin-top:8px;min-height:44px;
+  border-radius:11px;border:1px solid transparent;
+  color:#dce7f1;background:rgba(5,29,45,.44);
+  font-size:12px;font-weight:730;cursor:pointer;list-style:none
+}
+body.admin-shell .mx-home-active .mxh-more-tools>summary::-webkit-details-marker{display:none}
+body.admin-shell .mx-home-active .mxh-more-tools>summary:focus-visible{
+  outline:2px solid #ffd377;outline-offset:2px
+}
+body.admin-shell .mx-home-active .mxh-more-tools>summary:hover{
+  border-color:rgba(243,198,104,.44);
+  background:rgba(40,59,65,.73)
+}
+body.admin-shell .mx-home-active .mxh-more-tools>summary .mxh-icon{
+  width:17px;height:17px;flex:0 0 17px;color:#f9c76c
+}
+body.admin-shell .mx-home-active .mxh-more-tools>summary .mxh-icon:last-child{
+  width:12px;height:12px;margin-left:auto;flex-basis:12px;
+  transition:transform .15s ease
+}
+body.admin-shell .mx-home-active .mxh-more-tools[open]>summary .mxh-icon:last-child{
+  transform:rotate(180deg)
+}
+body.admin-shell .mx-home-active .mxh-more-tools .mxh-extra-menu{
+  display:flex;flex-direction:column;gap:3px;
+  padding:6px 0 11px 10px;background:linear-gradient(to bottom,rgba(4,25,42,.52),transparent)
+}
+body.admin-shell .mx-home-active .mxh-more-tools .nav-item{
+  min-height:40px;flex:0 0 auto;border-radius:9px;
+  padding-left:11px;font-size:11px
+}
+body.admin-shell .mx-home-active .mxh-more-tools .nav-item[hidden]{display:none!important}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-more-tools .nav-item{
+  display:flex;align-items:center
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-more-tools .nav-item .nav-icon{
+  width:16px;height:16px;flex-basis:16px
+}
+@media(max-width:820px){
+  body.admin-shell .mx-home-active .mxh-more-tools{margin-bottom:30px}
+}
