@@ -1,0 +1,131 @@
+name: Neon layout - one-shot Telegram TEST
+
+on:
+  push:
+    branches:
+      - fix/neon-score-telegram-spacing-20261110
+    paths:
+      - '.github/workflows/neon-telegram-layout-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  telegram-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies and video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-liberation
+          python -m pip install --upgrade pip
+          python -m pip install -e 'dixon-coles[test,video]'
+      - name: Verify new neon layout, safe zones and score transitions
+        run: python -m pytest -q dixon-coles/tests/test_video_grid_neon.py
+      - name: Obtain real ten-match storyboard when available
+        continue-on-error: true
+        working-directory: dixon-coles
+        run: python -m dcscore.daily --day tomorrow --source espn --count 10 --min-team 4 --min-importance 70 --max-staleness-days 35
+      - name: Render corrected neon video with soundtrack
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime,timezone,timedelta
+          from pathlib import Path
+          from dcscore.video_grid_neon import render
+          today=datetime.now(timezone.utc).date()
+          target=(today+timedelta(days=1)).isoformat()
+          candidate=Path('results/daily')/target/'video_payload.json'
+          output=Path('telegram_layout_test.mp4')
+          status={'mode':'DEMO','date':today.isoformat()}
+          if candidate.is_file():
+              try:
+                  real=json.loads(candidate.read_text(encoding='utf-8'))
+                  if real.get('ready_for_video') is True and real.get('status')=='READY' and real.get('selected_count')==10:
+                      result=render(real,output,fullhd=True,asset_root='.')
+                      status={'mode':'REAL','date':target, 'result':result}
+                      print('REAL_READY_VIDEO_RENDERED', output, flush=True)
+              except Exception as exc:
+                  print('REAL_RENDER_UNAVAILABLE_FALLBACK_TO_LABELED_DEMO',type(exc).__name__,str(exc)[:170],flush=True)
+          if status['mode']=='DEMO':
+              # Visual-only preview: references the original user's 10-Nov layout,
+              # NEVER presented as live scores or forecasts.
+              examples=[
+                  ('Paris Saint-Germain','Bayern Munich','1-2'),
+                  ('Real Madrid','Paris FC','2-1'),
+                  ('BK Häcken','Chelsea','0-1'),
+                  ('Huddersfield Town','Liverpool U21','2-0'),
+                  ('Stevenage','Fulham U21','5-0'),
+                  ('Crewe Alexandra','Wigan Athletic','2-0'),
+                  ('Northampton Town','Gillingham','2-1'),
+                  ('Barnet','Leyton Orient','1-0'),
+                  ('Plymouth Argyle','Swindon Town','2-1'),
+                  ('Bristol Rovers','Reading','1-1'),
+              ]
+              storyboard={
+                  'date_local_africa_lome':today.isoformat(),
+                  'clips':[{'headline':home+' - '+away,'display_score':score}
+                           for home,away,score in examples]
+              }
+              status['result']=render(storyboard,output,preview=True,fullhd=True,asset_root='.')
+              print('DEMO_VIDEO_RENDERED_NO_REAL_PREDICTIONS',output,flush=True)
+          Path('telegram_layout_test_status.json').write_text(json.dumps(status,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('VIDEO_RENDER_STATUS',status['mode'],status['date'],flush=True)
+          PY
+      - name: Send video ONLY to verified Telegram TEST channel
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          import json,os,sys
+          from pathlib import Path
+          import requests
+          sys.path.insert(0,str(Path.cwd().parent/'scripts'))
+          from telegram_test_guard import validate_test_channel
+          from scripts.send_video_to_telegram_test import send_video
+          state=json.loads(Path('telegram_layout_test_status.json').read_text(encoding='utf-8'))
+          token=os.environ.get('FOOTBALL_NEWS_BOT_TOKEN','').strip()
+          chat=os.environ.get('TELEGRAM_TEST_CHAT_ID','@predict_mrxp').strip()
+          movie=Path('telegram_layout_test.mp4')
+          if state['mode']=='REAL':
+              source=Path('results/daily')/state['date']/'video_payload.json'
+              receipt=send_video(source,movie,token=token,chat=chat)
+              print('TELEGRAM_LAYOUT_TEST_SENT',json.dumps(receipt,ensure_ascii=False),flush=True)
+          else:
+              channel=validate_test_channel(chat,token)
+              caption=('🧪 MR XPRONOS — TEST VISUEL UNIQUEMENT\\n'
+                       'Nouvel alignement Telegram, marges et scores compacts.\\n'
+                       '⚠️ Démonstration : affiches et scores repris de la maquette, '
+                       'pas des résultats ou des pronostics du jour.\\n'
+                       'Son et animation compris.')
+              with movie.open('rb') as handle:
+                  resp=requests.post('https://api.telegram.org/bot'+token+'/sendVideo',
+                      data={'chat_id':channel['chat_id'],'caption':caption,'supports_streaming':'true'},
+                      files={'video':('mrxpronos_neon_layout_test.mp4',handle,'video/mp4')},
+                      timeout=(15,120))
+              if resp.status_code!=200 or resp.json().get('ok') is not True:
+                  raise SystemExit('Telegram TEST non confirmé (HTTP '+str(resp.status_code)+')')
+              result=resp.json().get('result') or {}
+              mid=result.get('message_id')
+              if not isinstance(mid,int):raise SystemExit('Telegram TEST message id absent')
+              print('TELEGRAM_LAYOUT_TEST_SENT https://t.me/predict_mrxp/'+str(mid),flush=True)
+          PY
+      - name: Archive the corrected preview and outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: neon-layout-telegram-test-${{ github.run_id }}
+          path: |
+            dixon-coles/telegram_layout_test.mp4
+            dixon-coles/telegram_layout_test_status.json
+          if-no-files-found: warn
+          retention-days: 7
