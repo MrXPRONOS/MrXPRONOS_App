@@ -63,3 +63,47 @@ def test_render_frame_before_after_score_reveal():
     neon.draw_score(after, clip, 23, 235, 1)
     assert before.getpixel((23 + neon.CARD_W // 2, 235+59)) != after.getpixel(
         (23 + neon.CARD_W // 2, 235+59))
+
+
+def test_social_buttons_right_safe_zone_and_background_not_scaled():
+    assert 0.80 <= neon.ARTWORK_SCALE <= 0.90
+    assert neon.ARTWORK_X <= 10
+    assert neon.ARTWORK_X + round((neon.CARD_X[1] + neon.CARD_W + 2) * neon.ARTWORK_SCALE) <= 620
+    assert neon.ARTWORK_X + round((8 + 704) * neon.ARTWORK_SCALE) <= 625
+    assert neon.ARTWORK_Y + round((neon.TELEGRAM_Y + 210) * neon.ARTWORK_SCALE) < 1060
+
+    # Stadium must stay full-frame: foreground transparent areas change nothing.
+    clear = Image.new("RGBA", (neon.W, neon.H), (0, 0, 0, 0))
+    output = neon.fit_artwork(clear)
+    stadium = neon.stadium_background()
+    for sample in ((680, 500), (700, 1000), (50, 1200)):
+        assert output.getpixel(sample) == stadium.getpixel(sample)
+
+
+def test_global_dark_rectangle_removed_while_cards_are_separate():
+    from dcscore.video_render import Crest
+    logo = Crest(Image.new("RGBA", (40, 40), (240, 220, 60, 255)), True)
+    clips = [{"headline": "Home Club - Away Club", "display_score": "1-2"} for _ in range(10)]
+    raw = neon.base_frame({"date_local_africa_lome": "2026-11-10"},
+                          clips, [(logo, logo)] * 10, preview=False)
+    assert raw.getpixel((11, 340))[3] == 0, "No large global black panel behind fixtures"
+    assert raw.getpixel((30, neon.CARD_Y0 + 15))[3] > 150
+
+
+def test_real_logo_test_mode_refuses_placeholder_letters(tmp_path):
+    import pytest
+    clips = [{"headline": f"Home {i} - Away {i}", "display_score": "0-0"}
+             for i in range(10)]
+    payload = {"date_local_africa_lome": "2026-11-10", "clips": clips}
+    with pytest.raises(ValueError, match="vrais écussons"):
+        neon.render(payload, tmp_path / "should_not_render.mp4",
+                    preview=True, require_real_logos=True)
+
+
+def test_score_label_is_weighted_for_pale_and_yellow_states():
+    assert neon.SCORE_HALF_WIDTH <= 47
+    before = Image.new("RGBA", (neon.W, neon.H), (0, 0, 0, 0))
+    after = before.copy()
+    neon.draw_score(before, {"display_score": "10-10"}, 23, 235, -1)
+    neon.draw_score(after, {"display_score": "10-10"}, 23, 235, 1.0)
+    assert before.getbbox() is not None and after.getbbox() is not None
