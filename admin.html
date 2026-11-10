@@ -62,7 +62,7 @@
     <p class="login-foot">Mr XPRONOS · Administration privée</p>
   </section>
 
-  <div id="app" class="admin-workspace" style="display:none">
+  <div id="app" class="admin-workspace mx-home-active" style="display:none">
     <div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
     <aside id="admin-sidebar" class="admin-sidebar" aria-label="Menu principal">
       <div class="sidebar-head">
@@ -138,6 +138,17 @@
       <footer class="workspace-footer">Mr XPRONOS · Console d'administration <span>© 2026</span></footer>
     </div>
   </div>
+  <script>
+    // Prompt an existing public-site service worker to adopt the new dashboard
+    // policy; it now fetches every admin resource without stale PWA caches.
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.getRegistration()
+          .then(registration => registration?.update())
+          .catch(() => {});
+      }, {once:true});
+    }
+  </script>
   <script type="module" src="assets/js/admin-shell.js?v=20261110-v2"></script>
   <script type="module" src="assets/js/admin-real.js?v=20261110-v2"></script>
   <script type="module" src="assets/js/admin-phase2.mjs?v=20261109"></script>
