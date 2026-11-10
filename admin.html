@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#090f18">
+  <meta name="theme-color" content="#071523">
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0">
+  <meta name="admin-release" content="future-dashboard-v2-20261110">
   <title>Mr XPRONOS — Administration</title>
   <link rel="icon" href="assets/images/favicon.webp">
   <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-future2">
@@ -16,6 +18,15 @@
   <link rel="stylesheet" href="assets/css/admin-phase2.css?v=20261109">
   <link rel="stylesheet" href="assets/css/admin-phase3.css?v=20261109">
   <link rel="stylesheet" href="assets/css/admin-home.css?v=20261110">
+  <script>
+    // Force installed PWA workers to discover the new release while on admin.html.
+    // No automatic logout or deletion of the public site's offline cache.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.getRegistration().then(reg => reg?.update()).catch(() => {});
+      }, { once: true });
+    }
+  </script>
 </head>
 <body class="admin-shell">
   <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -68,18 +79,18 @@
       </div>
       <div class="workspace-status"><span class="status-pulse"></span> ESPACE ADMINISTRATEUR</div>
       <nav class="sidebar-nav" aria-label="Rubriques">
-        <div class="nav-group" data-group="pilotage"><div class="nav-heading">PILOTAGE</div><a class="nav-item" href="statistiques-audience.html" target="_blank" rel="noopener noreferrer"><span>Audience et fidélisation ↗</span></a><button type="button" class="nav-item tab active" data-tab="overview" aria-current="page"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Accueil</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+        <div class="nav-group" data-group="pilotage"><div class="nav-heading">VUE D’ENSEMBLE</div><a class="nav-item" href="statistiques-audience.html" target="_blank" rel="noopener noreferrer"><span>Statistiques ↗</span></a><button type="button" class="nav-item tab active" data-tab="overview" aria-current="page"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Accueil</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="pronostics" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-target"></use></svg><span>Pronostics</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
 <div class="nav-group" data-group="communication"><div class="nav-heading">COMMUNICATION</div><button type="button" class="nav-item tab" data-tab="push" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-bell"></use></svg><span>Notifications Push</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
-<button type="button" class="nav-item tab" data-tab="vip" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-crown"></use></svg><span>Gestion VIP</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
+<button type="button" class="nav-item tab" data-tab="vip" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-crown"></use></svg><span>Accès VIP</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
 <div class="nav-group" data-group="contenus"><div class="nav-heading">CONTENUS</div><button type="button" class="nav-item tab" data-tab="articles" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-file-text"></use></svg><span>Articles</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="conseils" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-book-open"></use></svg><span>Conseils</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="bonus" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-gift"></use></svg><span>Bonus et bookmakers</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="media" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-image"></use></svg><span>Médiathèque</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="infos" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-newspaper"></use></svg><span>Informations</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
-<div class="nav-group" data-group="systeme"><div class="nav-heading">SYSTÈME</div><button type="button" class="nav-item tab" data-tab="health" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-activity"></use></svg><span>Automatisations</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<div class="nav-group" data-group="systeme"><div class="nav-heading">GESTION ET SÉCURITÉ</div><button type="button" class="nav-item tab" data-tab="health" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-activity"></use></svg><span>Automatisations</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="incidents" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-activity"></use></svg><span>Incidents</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
-<button type="button" class="nav-item tab" data-tab="users" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-shield-check"></use></svg><span>Administrateurs</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="users" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-shield-check"></use></svg><span>Utilisateurs &amp; rôles</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="audit" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-shield-check"></use></svg><span>Journal d’audit</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
       </nav>
       <div class="sidebar-footer">
@@ -92,7 +103,7 @@
       <header class="workspace-topbar">
         <div class="topbar-left">
           <button id="sidebar-open" type="button" class="icon-btn mobile-menu-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="admin-sidebar"><svg class="nav-icon" aria-hidden="true"><use href="#icon-menu"></use></svg></button>
-          <div class="topbar-context"><span class="topbar-path">ADMINISTRATION / <span id="breadcrumb">PILOTAGE</span></span><h1 id="view-title">Vue générale</h1></div>
+          <div class="topbar-context"><span class="topbar-path">ADMINISTRATION / <span id="breadcrumb">PILOTAGE</span></span><h1 id="view-title">Tableau de bord</h1></div>
         </div>
         <div class="topbar-actions">
           <span class="admin-user" id="who" aria-label="Compte connecté"></span>
@@ -102,7 +113,7 @@
       </header>
       <main id="screen-stack" class="workspace-content">
         <p id="view-description" class="view-description">Vue centralisée des visiteurs, signaux et performances.</p>
-        <section id="tab-overview" class="admin-screen active-screen" aria-label="Vue générale">
+        <section id="tab-overview" class="admin-screen active-screen" aria-label="Tableau de bord">
           <div id="admin-overview-summary" role="region" aria-label="Résumé opérationnel"></div>
           <details id="admin-detailed-supervision" class="admin-supervision-details">
             <summary>Supervision détaillée et diagnostics</summary>
