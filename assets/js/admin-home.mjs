@@ -196,13 +196,29 @@ function setHomeNavigation(enabled){
   '[data-tab="vip"]','[data-tab="users"]'
  ];
  const menu=document.createElement("div");menu.className="mxh-home-menu";
- menu.setAttribute("role","group");menu.setAttribute("aria-label","Navigation Accueil");
+ menu.setAttribute("role","group");menu.setAttribute("aria-label","Navigation principale");
  const slots=[];
- for(const selector of selectors){
+ const move=(selector,target)=>{
   const node=nav.querySelector(selector);
-  if(!node||!node.parentNode)continue;
+  if(!node||!node.parentNode||node.closest(".mxh-home-menu"))return;
   const placeholder=document.createComment("restore admin menu");
-  node.before(placeholder);menu.appendChild(node);slots.push([placeholder,node]);
+  node.before(placeholder);target.appendChild(node);slots.push([placeholder,node]);
+ };
+ for(const selector of selectors)move(selector,menu);
+ const extra=[
+  {title:"Contenus & publication",items:['[data-tab="conseils"]','[data-tab="bonus"]','[data-tab="infos"]','[data-tab="media"]']},
+  {title:"Paramètres & outils",items:['[data-tab="health"]','[data-tab="incidents"]','[data-tab="audit"]']}
+ ];
+ for(const group of extra){
+  const details=document.createElement("details");
+  details.className="mxh-menu-details";
+  const summary=document.createElement("summary");
+  summary.textContent=group.title;
+  details.appendChild(summary);
+  const wrap=document.createElement("div");
+  wrap.className="mxh-menu-children";
+  for(const selector of group.items)move(selector,wrap);
+  if(wrap.children.length){details.append(wrap);menu.append(details)}
  }
  nav.prepend(menu);
  homeNavRestore=()=>{
