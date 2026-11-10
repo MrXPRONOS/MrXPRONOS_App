@@ -156,6 +156,16 @@ def visual(page,tag,width):
    expect(page.locator("body")).to_have_attribute("data-admin-ui","dashboard-premium-v2")
    expect(page.locator("#tab-overview .mxh-title h2")).to_have_text("Tableau de bord")
    expect(page.locator(".sidebar-nav .admin-stats-link")).to_have_text("Statistiques")
+   assert page.locator(".sidebar-nav .mxh-more-tools").count()==1, "Advanced menu absent"
+   if width<=820:
+    page.locator("#sidebar-open").click()
+   disclosure=page.locator(".sidebar-nav .mxh-more-tools summary")
+   disclosure.click()
+   expect(page.locator(".sidebar-nav .mxh-extra-menu [data-tab='health']")).to_be_visible()
+   disclosure.click()
+   if width<=820:
+    page.keyboard.press("Escape")
+
    assert page.evaluate("""() => {
      const sidebar=document.querySelector(".admin-sidebar");
      const lights=document.querySelector(".mxh-header-lights");
