@@ -575,3 +575,34 @@ body.admin-shell .mx-home-active .sidebar-nav [data-tab="media"]{order:12}
 body.admin-shell .mx-home-active .sidebar-nav [data-tab="health"]{order:13}
 body.admin-shell .mx-home-active .sidebar-nav [data-tab="incidents"]{order:14}
 body.admin-shell .mx-home-active .sidebar-nav [data-tab="audit"]{order:15}
+
+/* Final compact viewport QA: readable native date selector and exact nav order. */
+body.admin-shell .mxh-period{
+ position:relative;white-space:nowrap;justify-content:space-between;
+ gap:9px;height:42px;min-height:42px;padding:8px 12px
+}
+body.admin-shell .mxh-period #mxh-period-text{
+ display:inline-block;white-space:nowrap;color:#edf3fa;
+ font-size:12px;font-weight:760;line-height:20px;pointer-events:none
+}
+body.admin-shell .mxh-period select#mxh-period{
+ position:absolute!important;inset:0!important;width:100%!important;
+ height:100%!important;max-width:100%!important;min-height:0!important;
+ opacity:0!important;cursor:pointer;z-index:2;
+ padding:0!important;margin:0!important;border:0!important
+}
+body.admin-shell .mxh-period:focus-within{
+ outline:2px solid #f3ce82;outline-offset:3px
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] > a.nav-item{
+ justify-content:flex-start!important;gap:10px
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] > a.nav-item::after{
+ flex:0 0 auto;margin-left:0!important
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] [data-tab="pronostics"]{
+ order:5!important
+}
+@media(max-width:640px){
+ body.admin-shell .mxh-period{height:40px;min-height:40px;align-self:flex-end}
+}
