@@ -1,0 +1,191 @@
+/* Mr XPRONOS — home reference art direction. Scoped to Accueil only.
+   Reference images are compressed derivatives of the approved dashboard mockup. */
+body.admin-shell .mx-home-active{
+  --mxh-gold-bright:#ffdc80;
+  --mxh-blue-bright:#34bfff;
+  --mxh-contrast:#eaf2ff;
+  --mxh-glass:rgba(9,31,50,.9);
+  color:#f5f8ff;
+}
+body.admin-shell .mx-home-active .workspace-main{
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse 52% 28% at 72% 0%,rgba(18,114,174,.30),transparent 79%),
+    radial-gradient(ellipse 55% 32% at 83% 93%,rgba(6,105,178,.18),transparent 82%),
+    linear-gradient(150deg,#03101b,#061c2d 52%,#04111e) !important;
+}
+body.admin-shell .mx-home-active .workspace-main::before{
+  content:"";pointer-events:none;position:absolute;inset:0;z-index:0;
+  background:repeating-linear-gradient(115deg,transparent 0 90px,rgba(60,151,199,.026) 91px 92px,transparent 93px 180px);
+  mask-image:linear-gradient(to bottom,#000,transparent 70%);
+}
+body.admin-shell .mx-home-active .workspace-main > *{position:relative;z-index:1}
+body.admin-shell .mx-home-active .admin-sidebar{
+  background:linear-gradient(180deg,rgba(3,14,25,.98),rgba(4,21,38,.98)) !important;
+  border-right:1px solid rgba(106,163,206,.55) !important;
+}
+/* The actual illuminated ball, crown and stadium from the approved concept. */
+body.admin-shell .mx-home-active .admin-sidebar::after{
+  content:"";display:block;position:absolute;z-index:0;left:0;bottom:-4px;
+  width:100%;height:min(65vh,690px);min-height:450px;
+  pointer-events:none;
+  background-image:linear-gradient(to bottom,#061727 0%,rgba(6,20,35,.65) 16%,rgba(6,20,35,0) 38%),
+                   url("../images/admin-home-ball-reference.webp") !important;
+  background-position:top center,center bottom !important;
+  background-size:100% 100%,100% auto !important;
+  background-repeat:no-repeat !important;
+  opacity:1!important;
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 17%,#000 100%) !important;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 17%,#000 100%) !important;
+}
+body.admin-shell .mx-home-active .sidebar-footer{
+  backdrop-filter:blur(9px);
+  background:linear-gradient(180deg,transparent,rgba(2,13,25,.82)) !important;
+}
+body.admin-shell .mx-home-active .sidebar-nav{
+  overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:rgba(74,123,151,.4) transparent;
+}
+body.admin-shell .mx-home-active .sidebar-brand::before{
+  content:"♛";color:#ffdb71;text-shadow:0 0 7px #e5a22b,0 0 20px rgba(255,186,64,.5);
+}
+body.admin-shell .mx-home-active .sidebar-brand strong{letter-spacing:-.035em}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item{
+  border-radius:12px;
+  transition:background .16s ease,box-shadow .16s ease,border-color .16s ease,transform .16s ease
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item.active{
+  border:1px solid #ffe09b!important;
+  background:linear-gradient(90deg,rgba(161,116,44,.65),rgba(76,53,23,.58),rgba(12,31,42,.75))!important;
+  box-shadow:0 0 0 1px rgba(255,208,101,.17),inset 0 0 17px rgba(244,186,72,.23),
+             0 0 20px rgba(255,189,67,.52)!important;
+  color:#ffe18d!important;
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item:hover:not(.active){
+  background:rgba(30,74,106,.75)!important;transform:translateX(2px)
+}
+/* High-definition photographed stadium lights for the header. */
+body.admin-shell .mx-home-active .mxh-header-lights{
+  top:-21px;right:-1px;width:min(64%,620px);height:175px;opacity:.95!important;
+  background:
+    linear-gradient(90deg,rgba(4,19,33,0) 10%,rgba(4,19,33,.05) 45%,rgba(4,19,33,.02)),
+    url("../images/admin-home-lights-reference.webp") right top/100% auto no-repeat!important;
+  filter:drop-shadow(0 0 15px rgba(36,138,221,.32));
+  mask-image:linear-gradient(to bottom,#000 0%,#000 63%,transparent 100%);
+}
+body.admin-shell .mx-home-active .mxh-header-lights::before,
+body.admin-shell .mx-home-active .mxh-header-lights::after,
+body.admin-shell .mx-home-active .mxh-header-lights>i{display:none!important}
+body.admin-shell .mx-home-active .mxh-title h2{
+  text-shadow:0 2px 20px rgba(0,0,0,.75);
+  letter-spacing:-.05em
+}
+body.admin-shell .mx-home-active .mxh-trophy{
+  background:linear-gradient(140deg,rgba(123,96,37,.48),#102a3a 71%)!important;
+  border-color:rgba(246,194,91,.85)!important;
+  box-shadow:0 0 21px rgba(239,185,71,.28),inset 0 0 17px rgba(247,188,66,.15)!important
+}
+body.admin-shell .mx-home-active .mxh-trophy .mxh-icon{
+  filter:drop-shadow(0 0 7px rgba(255,206,94,.55))
+}
+/* Gold / blue rim-light on alternating KPI cards; cards stay interactive. */
+body.admin-shell .mx-home-active .mxh-kpi{
+  border-radius:17px;min-height:145px;
+  background:
+    radial-gradient(ellipse 100% 60% at 100% 103%,rgba(255,195,71,.10),transparent 76%),
+    linear-gradient(140deg,rgba(31,50,63,.94),rgba(6,25,42,.95))!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 12px 28px rgba(0,7,15,.35)!important;
+}
+body.admin-shell .mx-home-active .mxh-kpi.mxh-blue{
+  background:
+    radial-gradient(ellipse 90% 68% at 100% 103%,rgba(26,181,244,.19),transparent 79%),
+    linear-gradient(140deg,rgba(19,57,77,.92),rgba(5,25,45,.98))!important;
+}
+body.admin-shell .mx-home-active .mxh-kpi::before{
+  content:"";position:absolute;pointer-events:none;z-index:0;
+  left:9%;right:4%;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,201,100,.13) 35%,#ffe083 80%,rgba(255,201,100,.16));
+  filter:drop-shadow(0 0 6px #ffc767);
+}
+body.admin-shell .mx-home-active .mxh-kpi.mxh-blue::before{
+  background:linear-gradient(90deg,transparent,rgba(29,155,255,.15) 35%,#61cfff 80%,rgba(33,181,255,.17));
+  filter:drop-shadow(0 0 8px #0d9dff);
+}
+body.admin-shell .mx-home-active .mxh-kpi::after{
+  right:-20px;bottom:-31px;filter:blur(18px);opacity:.95!important
+}
+body.admin-shell .mx-home-active .mxh-kpi strong{
+  color:#fff;letter-spacing:-.06em;text-shadow:0 3px 10px rgba(0,0,0,.35)
+}
+body.admin-shell .mx-home-active .mxh-panel{
+  background:
+    radial-gradient(ellipse 85% 55% at 88% 108%,rgba(12,106,177,.1),transparent 77%),
+    linear-gradient(145deg,rgba(17,48,67,.92),rgba(5,25,44,.96))!important;
+  border-color:rgba(68,146,202,.82)!important;
+  box-shadow:0 18px 32px rgba(0,8,20,.26),inset 0 1px rgba(255,255,255,.08)!important
+}
+body.admin-shell .mx-home-active .mxh-panel:before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  left:0;bottom:0;height:2px;width:100%;
+  background:linear-gradient(90deg,transparent 10%,rgba(254,188,65,.0),rgba(255,192,78,.43),#eab35b);
+  opacity:.8;
+}
+body.admin-shell .mx-home-active .mxh-panel> *{position:relative;z-index:1}
+body.admin-shell .mx-home-active .mxh-visitors .mxh-graph svg{
+  filter:drop-shadow(0 0 3px rgba(245,177,53,.19))
+}
+body.admin-shell .mx-home-active .mxh-panel-icon{
+  border-color:#9a7840!important;
+  color:#ffdf8c!important;
+  box-shadow:inset 0 0 11px rgba(255,199,79,.12),0 0 13px rgba(255,205,76,.1)
+}
+body.admin-shell .mx-home-active .mxh-activity-icon{
+  background:linear-gradient(135deg,#143c58,#0a2035);
+  border-color:#487ea0
+}
+body.admin-shell .mx-home-active .mxh-action.mxh-primary{
+  border-color:#f5cc77!important;
+  box-shadow:0 0 20px rgba(242,190,78,.36),inset 0 0 18px rgba(255,206,99,.15)!important
+}
+body.admin-shell .mx-home-active .mxh-action:hover{
+  box-shadow:0 0 18px rgba(43,156,229,.2),inset 0 1px rgba(255,255,255,.17)
+}
+body.admin-shell .mx-home-active .workspace-topbar .topbar-actions{
+  margin:0!important;align-items:center;gap:8px
+}
+body.admin-shell .mx-home-active .admin-mobile-nav{
+  background:rgba(3,14,26,.96);
+  border-top:1px solid rgba(100,154,194,.46);
+  box-shadow:0 -7px 22px rgba(1,8,20,.66)
+}
+body.admin-shell .mx-home-active .admin-mobile-nav .mobile-nav-item.active{
+  color:#ffde8d;background:linear-gradient(180deg,rgba(113,89,47,.47),rgba(20,40,51,.53));
+  border:1px solid rgba(255,200,93,.6);
+  box-shadow:0 0 15px rgba(255,185,73,.20)
+}
+body.admin-shell .mx-home-active .mxh-bottom{
+  border-top-color:rgba(106,163,206,.50);
+  box-shadow:0 -10px 28px rgba(15,98,157,.06)
+}
+@media(max-width:1020px){
+  body.admin-shell .mx-home-active .mxh-header-lights{width:min(65%,400px);height:140px;opacity:.69!important}
+}
+@media(max-width:820px){
+  body.admin-shell .mx-home-active .admin-sidebar::after{
+    bottom:-24px;height:520px;min-height:0;background-size:100% 100%,100% auto!important
+  }
+}
+@media(max-width:640px){
+  body.admin-shell .mx-home-active .mxh-header-lights{
+    top:-30px;right:-5px;width:50%;height:95px;opacity:.48!important
+  }
+  body.admin-shell .mx-home-active .mxh-kpi{min-height:123px}
+  body.admin-shell .mx-home-active .mxh-kpi::before{height:1px}
+  body.admin-shell .mx-home-active .mxh-title h2{font-size:clamp(24px,7vw,30px)}
+  body.admin-shell .mx-home-active .mxh-content-grid{gap:14px}
+  body.admin-shell .mx-home-active .mxh-panel{border-radius:15px}
+  body.admin-shell .mx-home-active .workspace-content{padding-bottom:120px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.admin-shell .mx-home-active .sidebar-nav .nav-item{transition:none}
+}
