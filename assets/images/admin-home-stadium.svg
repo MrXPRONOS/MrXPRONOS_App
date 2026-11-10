@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 540" width="250" height="540">
+<defs>
+<radialGradient id="sky"><stop stop-color="#15659a" stop-opacity=".84"/><stop offset="1" stop-color="#061322" stop-opacity="0"/></radialGradient>
+<radialGradient id="ball"><stop stop-color="#fff" offset="0"/><stop offset=".67" stop-color="#dce8ed"/><stop offset="1" stop-color="#3c5870"/></radialGradient>
+<linearGradient id="gold"><stop stop-color="#fff1b7"/><stop offset=".45" stop-color="#ffc55b"/><stop offset="1" stop-color="#ae690c"/></linearGradient>
+<radialGradient id="field"><stop stop-color="#578f45" stop-opacity=".9"/><stop offset="1" stop-color="#17352a" stop-opacity="0"/></radialGradient>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+</defs>
+<ellipse cx="110" cy="250" rx="245" ry="245" fill="url(#sky)"/>
+<g stroke="#2b5873" stroke-width="1" fill="none" opacity=".72">
+<path d="M-30 210Q125 115 270 205M-30 230Q125 136 270 225M-30 252Q125 160 270 248"/>
+<path d="M0 205v170m30-188v172m30-188v168m30-179v182m30-180v182m30-175v182m30-176v179m30-177v170"/>
+</g>
+<g opacity=".85" fill="#dbfaff">
+<circle cx="5" cy="190" r="3"/><circle cx="24" cy="181" r="3"/><circle cx="43" cy="176" r="3"/><circle cx="62" cy="173" r="3"/><circle cx="82" cy="174" r="3"/><circle cx="101" cy="175" r="3"/><circle cx="121" cy="179" r="3"/><circle cx="141" cy="184" r="3"/><circle cx="163" cy="191" r="3"/>
+</g>
+<g opacity=".55" filter="url(#glow)" fill="#b2eaff"><ellipse cx="74" cy="188" rx="112" ry="20"/><ellipse cx="87" cy="207" rx="100" ry="44"/></g>
+<ellipse cx="120" cy="459" rx="160" ry="100" fill="url(#field)"/>
+<path d="M-20 455Q120 397 265 453" stroke="#ffc15e" stroke-width="6" fill="none" filter="url(#glow)"/>
+<path d="M-20 455Q120 397 265 453" stroke="#ffd16e" stroke-width="2" fill="none"/>
+<ellipse cx="106" cy="453" rx="89" ry="16" fill="#e4a83d" opacity=".42" filter="url(#glow)"/>
+<g transform="translate(107 389)">
+<circle r="70" fill="url(#ball)" stroke="#e8f4fa" stroke-width="2"/>
+<path d="m-17-22 22-11 24 18-5 28-30 7-19-19z" fill="#112534"/>
+<path d="m-17-22-22-18 13-19 27 6 4 20m24 18 24-19 14 23-16 23-27 1m-26 7-12 29-31-12-4-31 29-5m12 19 17 29 31-15 9-24" stroke="#536879" stroke-width="3" fill="none"/>
+<circle cx="-25" cy="-38" r="12" fill="#163648" opacity=".88"/><circle cx="45" cy="34" r="10" fill="#2b4456" opacity=".82"/>
+</g>
+<g transform="translate(99 304)">
+<path d="m-44-2-8-40 20 15 21-25 19 25 22-15-7 40z" fill="url(#gold)" stroke="#ffe3a2" stroke-width="2"/>
+<path d="M-43-4h67v10h-67z" fill="#dba33f" stroke="#ffe79c" stroke-width="2"/>
+<circle cx="-52" cy="-42" r="5" fill="#ffeeb7"/><circle cx="-11" cy="-53" r="5" fill="#ffeeb7"/><circle cx="30" cy="-42" r="5" fill="#ffeeb7"/>
+</g>
+<g fill="#f3b75a" opacity=".7"><circle cx="19" cy="347" r="1.5"/><circle cx="220" cy="360" r="2"/><circle cx="29" cy="373" r="2"/><circle cx="230" cy="400" r="2"/></g>
+</svg>
