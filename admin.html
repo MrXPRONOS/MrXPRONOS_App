@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#090f18">
+  <meta name="theme-color" content="#061526">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Mr XPRONOS — Administration</title>
   <link rel="icon" href="assets/images/favicon.webp">
   <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-future2">
@@ -16,8 +19,11 @@
   <link rel="stylesheet" href="assets/css/admin-phase2.css?v=20261109">
   <link rel="stylesheet" href="assets/css/admin-phase3.css?v=20261109">
   <link rel="stylesheet" href="assets/css/admin-home.css?v=20261110">
+  <link rel="stylesheet" href="assets/css/admin-home-reference.css?v=20261110-v2">
+  <link rel="preload" href="assets/images/admin-home-ball-reference.webp" as="image">
+  <link rel="preload" href="assets/images/admin-home-lights-reference.webp" as="image">
 </head>
-<body class="admin-shell">
+<body class="admin-shell" data-admin-ui="dashboard-premium-v2">
   <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
     <symbol id="icon-layout-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></symbol>
     <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
@@ -68,7 +74,7 @@
       </div>
       <div class="workspace-status"><span class="status-pulse"></span> ESPACE ADMINISTRATEUR</div>
       <nav class="sidebar-nav" aria-label="Rubriques">
-        <div class="nav-group" data-group="pilotage"><div class="nav-heading">PILOTAGE</div><a class="nav-item" href="statistiques-audience.html" target="_blank" rel="noopener noreferrer"><span>Audience et fidélisation ↗</span></a><button type="button" class="nav-item tab active" data-tab="overview" aria-current="page"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Accueil</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+        <div class="nav-group" data-group="pilotage"><div class="nav-heading">PILOTAGE</div><a class="nav-item admin-stats-link" href="statistiques-audience.html" target="_blank" rel="noopener noreferrer" aria-label="Statistiques — ouvrir dans un nouvel onglet"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 19V11M10 19V5M16 19v-8M22 19V3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg><span>Statistiques</span></a><button type="button" class="nav-item tab active" data-tab="overview" aria-current="page"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Accueil</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="pronostics" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-target"></use></svg><span>Pronostics</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
 <div class="nav-group" data-group="communication"><div class="nav-heading">COMMUNICATION</div><button type="button" class="nav-item tab" data-tab="push" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-bell"></use></svg><span>Notifications Push</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
 <button type="button" class="nav-item tab" data-tab="vip" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-crown"></use></svg><span>Gestion VIP</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
@@ -92,7 +98,7 @@
       <header class="workspace-topbar">
         <div class="topbar-left">
           <button id="sidebar-open" type="button" class="icon-btn mobile-menu-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="admin-sidebar"><svg class="nav-icon" aria-hidden="true"><use href="#icon-menu"></use></svg></button>
-          <div class="topbar-context"><span class="topbar-path">ADMINISTRATION / <span id="breadcrumb">PILOTAGE</span></span><h1 id="view-title">Vue générale</h1></div>
+          <div class="topbar-context"><span class="topbar-path">ADMINISTRATION / <span id="breadcrumb">PILOTAGE</span></span><h1 id="view-title">Tableau de bord</h1></div>
         </div>
         <div class="topbar-actions">
           <span class="admin-user" id="who" aria-label="Compte connecté"></span>
@@ -102,7 +108,7 @@
       </header>
       <main id="screen-stack" class="workspace-content">
         <p id="view-description" class="view-description">Vue centralisée des visiteurs, signaux et performances.</p>
-        <section id="tab-overview" class="admin-screen active-screen" aria-label="Vue générale">
+        <section id="tab-overview" class="admin-screen active-screen" aria-label="Accueil — Tableau de bord">
           <div id="admin-overview-summary" role="region" aria-label="Résumé opérationnel"></div>
           <details id="admin-detailed-supervision" class="admin-supervision-details">
             <summary>Supervision détaillée et diagnostics</summary>
@@ -123,7 +129,7 @@
       <section id="tab-audit" class="admin-screen" hidden aria-label="Journal d’audit"></section>
       </main>
       <nav class="admin-mobile-nav" aria-label="Navigation rapide mobile">
-        <button type="button" class="mobile-nav-item tab active" data-tab="overview" aria-current="page" aria-label="Vue générale"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Accueil</span></button>
+        <button type="button" class="mobile-nav-item tab active" data-tab="overview" aria-current="page" aria-label="Accueil — Tableau de bord"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Accueil</span></button>
         <button type="button" class="mobile-nav-item tab" data-tab="pronostics" aria-current="false" aria-label="Pronostics"><svg class="nav-icon" aria-hidden="true"><use href="#icon-target"></use></svg><span>Pronos</span></button>
         <button type="button" class="mobile-nav-item tab" data-tab="articles" aria-current="false" aria-label="Articles"><svg class="nav-icon" aria-hidden="true"><use href="#icon-file-text"></use></svg><span>Articles</span></button>
         <button type="button" class="mobile-nav-item tab" data-tab="vip" aria-current="false" aria-label="Gestion VIP"><svg class="nav-icon" aria-hidden="true"><use href="#icon-crown"></use></svg><span>VIP</span></button>
@@ -132,8 +138,8 @@
       <footer class="workspace-footer">Mr XPRONOS · Console d'administration <span>© 2026</span></footer>
     </div>
   </div>
-  <script type="module" src="assets/js/admin-shell.js?v=20261110-home"></script>
-  <script type="module" src="assets/js/admin-real.js?v=20261110-home"></script>
+  <script type="module" src="assets/js/admin-shell.js?v=20261110-v2"></script>
+  <script type="module" src="assets/js/admin-real.js?v=20261110-v2"></script>
   <script type="module" src="assets/js/admin-phase2.mjs?v=20261109"></script>
 </body>
 </html>
