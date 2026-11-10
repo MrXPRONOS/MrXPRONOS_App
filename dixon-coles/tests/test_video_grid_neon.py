@@ -90,8 +90,9 @@ def test_global_dark_rectangle_removed_while_cards_are_separate():
     assert raw.getpixel((30, neon.CARD_Y0 + 15))[3] > 150
 
 
-def test_real_logo_test_mode_refuses_placeholder_letters(tmp_path):
+def test_real_logo_test_mode_refuses_placeholder_letters(tmp_path, monkeypatch):
     import pytest
+    monkeypatch.setattr(neon.shutil, 'which', lambda _: '/usr/bin/ffmpeg')
     clips = [{"headline": f"Home {i} - Away {i}", "display_score": "0-0"}
              for i in range(10)]
     payload = {"date_local_africa_lome": "2026-11-10", "clips": clips}
