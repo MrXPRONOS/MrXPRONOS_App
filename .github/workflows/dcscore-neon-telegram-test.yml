@@ -1,0 +1,98 @@
+name: TEST neon stadium Top10 Telegram TEST only
+
+on:
+  push:
+    branches: ['feat/dcscore-stadium-neon-assets']
+    paths: ['config/dcscore_neon_test.trigger']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dcscore-neon-telegram-test-2026-11-10
+  cancel-in-progress: false
+
+jobs:
+  neon-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - name: Fetch test branch only, never the production posting workflow
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: |
+            dixon-coles/
+            scripts/telegram_test_guard.py
+            config/dcscore_neon_test.trigger
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install FFmpeg, fonts and verified Dixon-Coles code
+        run: |
+          python -m pip install -e '.[test,video]'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-liberation
+
+      - name: Test original renderer and neon assets
+        run: |
+          python -m pytest -q tests/test_video_grid_neon.py tests/test_video_grid.py tests/test_daily_espn.py
+          python -m py_compile dcscore/video_grid_neon.py scripts/send_video_to_telegram_test.py
+
+      - name: Collect ten real 10-Nov fixtures and calculate exact scores
+        run: |
+          python -m dcscore.daily \
+            --day 2026-11-10 --source espn --count 10 \
+            --min-team 4 --min-importance 70 --max-staleness-days 35 \
+            --output-dir results/neon_test
+
+      - name: Stop if any match is unverified or missing
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('results/neon_test/2026-11-10')
+          r=json.loads((root/'predictions.json').read_text())
+          p=json.loads((root/'video_payload.json').read_text())
+          if r.get('ready_for_video') is not True or r.get('selected_count')!=10:
+              raise SystemExit('NEON_STOP: real fixture gate rejected, no test message')
+          if p.get('ready_for_video') is not True or len(p.get('clips') or [])!=10:
+              raise SystemExit('NEON_STOP: storyboard incomplete, no test message')
+          print('NEON_TEN_REAL_FIXTURES_READY')
+          PY
+
+      - name: Render new full-HD stadium and transparent title/footer
+        run: |
+          python -m dcscore.video_grid_neon \
+            --payload results/neon_test/2026-11-10/video_payload.json \
+            --output results/neon_test/2026-11-10/top10_neon_test.mp4 --fullhd
+          ffprobe -v error -show_entries stream=codec_name,width,height \
+            -show_entries format=duration,size -of json \
+            results/neon_test/2026-11-10/top10_neon_test.mp4
+
+      - name: Send ONLY to guarded Telegram test channel
+        run: |
+          python scripts/send_video_to_telegram_test.py \
+            --payload results/neon_test/2026-11-10/video_payload.json \
+            --video results/neon_test/2026-11-10/top10_neon_test.mp4
+
+      - name: Archive new video and design evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dixon-coles-neon-test-${{ github.run_id }}
+          path: |
+            dixon-coles/results/neon_test/2026-11-10/top10_neon_test.mp4
+            dixon-coles/results/neon_test/2026-11-10/video_payload.json
+            dixon-coles/assets/social_neon/
+          if-no-files-found: warn
+          retention-days: 14
