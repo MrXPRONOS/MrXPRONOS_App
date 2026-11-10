@@ -467,3 +467,82 @@ body.admin-shell .mx-home-active :is(.mxh-dashboard button,.mxh-dashboard a,.mxh
  body.admin-shell .mxh-action{padding:8px}
 }
 @media(prefers-reduced-motion:reduce){body.admin-shell .mxh-action{transition:none}}
+
+/* Visual QA adjustments from 1440 / 768 / 390 / 320 px browser captures. */
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"]{display:flex;flex-direction:column}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] [data-tab="overview"]{order:0}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] > a.nav-item{
+ order:1;display:flex;align-items:center;gap:10px;font-size:0
+}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] > a.nav-item::before{
+ content:"▥";font-size:19px;line-height:1;color:#dce7ef;
+ display:inline-grid;place-items:center;width:18px
+}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] > a.nav-item::after{
+ content:"Statistiques";font-size:12px;color:inherit;font-weight:680
+}
+body.admin-shell .mx-home-active .nav-group[data-group="pilotage"] [data-tab="pronostics"]{order:2}
+body.admin-shell .mx-home-active .admin-sidebar::after{
+ bottom:-132px;opacity:.78;
+ mask-image:linear-gradient(to bottom,transparent 0%,transparent 25%,black 74%);
+ -webkit-mask-image:linear-gradient(to bottom,transparent 0%,transparent 25%,black 74%)
+}
+body.admin-shell .mxh-header-lights{
+ top:-22px;right:0;width:min(65%,580px);height:145px;opacity:.6;
+ background:radial-gradient(ellipse at 70% 5%,rgba(88,179,234,.31),transparent 55%),
+ radial-gradient(ellipse at 70% 75%,rgba(225,147,39,.09),transparent 65%)
+}
+body.admin-shell .mxh-header-lights::before{
+ left:23%;top:23px;width:77%;height:6px;transform:rotate(-10deg);
+ background:repeating-linear-gradient(90deg,rgba(224,249,255,.93) 0 4px,rgba(114,195,249,.65) 4px 6px,transparent 6px 17px);
+ box-shadow:0 0 11px 5px rgba(108,202,255,.36);
+ opacity:.58
+}
+body.admin-shell .mxh-header-lights::after{
+ top:65px;left:22%;width:76%;height:5px;
+ background:repeating-linear-gradient(90deg,rgba(255,190,72,.75) 0 3px,transparent 3px 16px);
+ transform:rotate(-9deg);opacity:.55;
+ box-shadow:0 0 12px 4px rgba(217,146,49,.2)
+}
+body.admin-shell .mx-home-active .workspace-topbar .topbar-actions{flex-wrap:nowrap;gap:7px}
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout,
+body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn,
+body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup]{
+ display:grid;place-items:center;
+ padding:0!important;width:40px;min-width:40px;max-width:40px;height:40px;min-height:40px;
+ flex:0 0 40px;border-radius:11px;font-size:0!important;white-space:nowrap;overflow:hidden
+}
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout span{display:none!important}
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout .mxh-icon,
+body.admin-shell .mx-home-active .workspace-topbar #btnLogout .nav-icon{width:19px;height:19px}
+body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn::before{
+ content:"↶";font-size:22px;line-height:1
+}
+body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup]::before{
+ content:"MFA";font-size:10px;line-height:1;font-weight:850
+}
+body.admin-shell .mx-home-active .workspace-topbar .admin-user{
+ display:inline-flex;align-items:center;gap:7px;
+ padding:6px 11px;font-size:10px;order:10
+}
+body.admin-shell .mx-home-active .workspace-topbar .admin-user::before{
+ content:"♛";color:#e9bd69;font-size:18px;line-height:1
+}
+body.admin-shell .mxh-period select{
+ height:22px!important;min-height:22px!important;padding:0!important;
+ max-width:none;border:0!important;background:transparent!important;
+ box-shadow:none!important;line-height:22px!important
+}
+body.admin-shell .mxh-activity{min-height:290px}
+@media(max-width:640px){
+ body.admin-shell .mx-home-active .workspace-topbar #btnLogout,
+ body.admin-shell .mx-home-active .workspace-topbar #cms-history-btn,
+ body.admin-shell .mx-home-active .workspace-topbar [data-admin-mfa-setup]{
+  width:37px;max-width:37px;min-width:37px;flex-basis:37px;height:37px;min-height:37px
+ }
+ body.admin-shell .mx-home-active .workspace-topbar .admin-user{display:none}
+ body.admin-shell .mxh-header-lights{width:54%;opacity:.35}
+ body.admin-shell .mxh-header-lights::before{top:12px}
+ body.admin-shell .mxh-period{min-height:38px;height:38px}
+ body.admin-shell .mxh-activity{min-height:0}
+}
