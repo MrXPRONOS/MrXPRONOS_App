@@ -36,7 +36,7 @@ def test_reject_incomplete_grid():
 def test_dynamic_date_not_stuck_on_11_nov():
     background = Image.new("RGBA", (neon.W, neon.H), (2, 6, 20, 255))
     neon._draw_calendar_date(background, date(2026, 11, 10))
-    assert background.getpixel((120, 164))[0] > 200
+    assert background.getpixel((98, 179))[0] > 200
 
 
 def test_render_frame_before_after_score_reveal():
