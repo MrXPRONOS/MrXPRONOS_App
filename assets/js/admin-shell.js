@@ -8,7 +8,7 @@ const collapseButton = document.getElementById("sidebar-collapse");
 const mobileMenuButton = document.getElementById("mobile-nav-menu");
 const nav = document.querySelector(".sidebar-nav");
 const screenTitles = {
- overview:["Vue générale","Vue centralisée des visiteurs, signaux et performances.","PILOTAGE"],
+ overview:["Tableau de bord","Vue d’ensemble de la plateforme Mr XPRONOS.","ACCUEIL"],
  pronostics:["Pronostics","Consulter les pronostics et leurs résultats.","PILOTAGE"],
  push:["Notifications Push","Diffuser des notifications et gérer les abonnés.","COMMUNICATION"],
  vip:["Gestion VIP","Gérer les accès et les avantages des membres.","COMMUNICATION"],
@@ -84,6 +84,7 @@ document.querySelector(".sidebar-external")?.setAttribute("aria-label","Voir le 
 function handleSection(tabName){
  const tab = screenTitles[tabName]?tabName:"overview";
  const [title,description,group]=screenTitles[tab];
+ workspace?.classList.toggle("mx-home-active",tab==="overview");
  document.getElementById("view-title").textContent=title;
  document.getElementById("view-description").textContent=description;
  document.getElementById("breadcrumb").textContent=group;
