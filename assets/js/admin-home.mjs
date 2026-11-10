@@ -175,9 +175,55 @@ function ensureHomeShortcuts(navigate,permissions){
   parent.append(button);
  }
 }
+
+/* Reorder real nav nodes only while Accueil is open.
+ * CSS display:contents across multiple groups makes Playwright/mobile
+ * hit targets overlap after switching tabs. Moving nodes retains all handlers.
+ */
+let homeNavRestore=null;
+function setHomeNavigation(enabled){
+ const nav=document.querySelector(".sidebar-nav");if(!nav)return;
+ if(!enabled){
+  homeNavRestore?.();
+  homeNavRestore=null;
+  return;
+ }
+ if(homeNavRestore)return;
+ const selectors=[
+  '[data-tab="overview"]','a[href="statistiques-audience.html"]',
+  '#mxh-subs-nav','[data-tab="push"]','#mxh-campaign-nav',
+  '[data-tab="pronostics"]','[data-tab="articles"]',
+  '[data-tab="vip"]','[data-tab="users"]'
+ ];
+ const menu=document.createElement("div");menu.className="mxh-home-menu";
+ menu.setAttribute("role","group");menu.setAttribute("aria-label","Navigation Accueil");
+ const slots=[];
+ for(const selector of selectors){
+  const node=nav.querySelector(selector);
+  if(!node||!node.parentNode)continue;
+  const placeholder=document.createComment("restore admin menu");
+  node.before(placeholder);menu.appendChild(node);slots.push([placeholder,node]);
+ }
+ nav.prepend(menu);
+ homeNavRestore=()=>{
+  for(const [placeholder,node] of slots)if(placeholder.isConnected)placeholder.replaceWith(node);
+  menu.remove();
+ };
+}
+let homeNavListenerBound=false;
+function bindHomeNavigation(){
+ if(!homeNavListenerBound){
+  window.addEventListener("mx:admin-tab",e=>{
+   setHomeNavigation(e.detail?.name==="overview");
+  });
+  homeNavListenerBound=true;
+ }
+ setHomeNavigation(document.getElementById("app")?.classList.contains("mx-home-active"));
+}
 export function mountAdminHome(root,{navigate,permissions,refresh}){
  root.innerHTML=markup();
  ensureHomeShortcuts(navigate,permissions);
+ bindHomeNavigation();
  const period=get(root,"#mxh-period");
  const reload=()=>{set(root,"#mxh-period-text",period.value==="30"?"30 derniers jours":"7 derniers jours");refresh(Number(period.value))};
  period.addEventListener("change",reload);
