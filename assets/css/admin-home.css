@@ -615,3 +615,32 @@ body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"] 
  }
  body.admin-shell .mx-home-active .workspace-content{padding-bottom:50px}
 }
+
+/* Sidebar ordering is now accomplished by moving existing nodes (with their
+ * original click handlers), not display:contents: fixes overlapping hit targets. */
+body.admin-shell .mx-home-active .sidebar-nav{
+ display:block!important;
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-group,
+body.admin-shell .mx-home-active .sidebar-nav .nav-group[data-group="pilotage"]{
+ display:block!important;
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-home-menu{
+ display:flex;flex-direction:column;align-items:stretch;
+ width:100%;gap:2px;margin-bottom:2px
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-home-menu .nav-item{
+ order:initial!important;flex:0 0 auto;
+ min-height:44px;position:relative
+}
+body.admin-shell .mx-home-active .sidebar-nav .nav-item[hidden]{
+ display:none!important
+}
+body.admin-shell .mx-home-active .sidebar-nav .mxh-home-menu .mxh-shortcut{
+ display:flex!important;align-items:center;gap:10px
+}
+@media (max-width:640px){
+ body.admin-shell .mx-home-active .admin-mobile-nav{
+  z-index:45
+ }
+}
