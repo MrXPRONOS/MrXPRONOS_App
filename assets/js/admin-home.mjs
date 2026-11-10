@@ -206,8 +206,8 @@ function setHomeNavigation(enabled){
  };
  for(const selector of selectors)move(selector,menu);
  const extra=[
-  {title:"Contenus & publication",items:['[data-tab="conseils"]','[data-tab="bonus"]','[data-tab="infos"]','[data-tab="media"]']},
-  {title:"Paramètres & outils",items:['[data-tab="health"]','[data-tab="incidents"]','[data-tab="audit"]']}
+  {title:"Contenus",items:['[data-tab="conseils"]','[data-tab="bonus"]','[data-tab="infos"]','[data-tab="media"]']},
+  {title:"Outils système",items:['[data-tab="health"]','[data-tab="incidents"]','[data-tab="audit"]']}
  ];
  for(const group of extra){
   const details=document.createElement("details");
