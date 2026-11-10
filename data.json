@@ -1,195 +1,9 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-11-09T21:27:26.059610+00:00",
+  "generated_at": "2026-11-10T00:06:31.283408+00:00",
   "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
   "matches": [
-    {
-      "id": "bsd:7307",
-      "source": "bsd",
-      "source_event_id": 7307,
-      "date": "2026-10-26",
-      "event_date": "2026-10-26T23:00:00+00:00",
-      "home_team": "Flamengo",
-      "away_team": "Atlético Mineiro",
-      "home_team_id": 160,
-      "away_team_id": 155,
-      "home_logo": "https://sports.bzzoiro.com/img/team/160/?bg=transparent",
-      "away_logo": "https://sports.bzzoiro.com/img/team/155/?bg=transparent",
-      "league_logo": "https://sports.bzzoiro.com/img/league/9/?bg=transparent",
-      "league": "Brazilian Serie A",
-      "league_id": 9,
-      "category": "pro",
-      "badge": "BSD V2",
-      "signal_tier": "INDICATIF",
-      "recommendation_eligible": true,
-      "status": "finished",
-      "is_finished": true,
-      "home_score": 3,
-      "away_score": 2,
-      "verified_prediction": true,
-      "verified_double": true,
-      "prediction": {
-        "type": "1X",
-        "label": "1X",
-        "market": "double_chance",
-        "selection_key": "1X",
-        "market_code": "DC_1X_FT",
-        "outcome": "1X",
-        "line": null,
-        "confidence": 81.6,
-        "model_probability": 81.6,
-        "conservative_probability": 79.5,
-        "double_chance": "1X",
-        "fair_odds": 1.2251,
-        "odds": 1.2,
-        "calibration_samples": 2780,
-        "estimated_value": null,
-        "model_version": "bsd-v2-isolated",
-        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-        "odds_source": "mrxpronos_model",
-        "estimated_odds": true,
-        "odds_method": "hypothese_6pct",
-        "overround_assumption": 0.02093,
-        "odds_updated_at": "2026-10-25T19:03:23.287660+00:00",
-        "signal_tier": "INDICATIF",
-        "recommendation_eligible": true
-      },
-      "model_version": "bsd-v2-isolated",
-      "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-      "model_audit": {
-        "expected_goals_home": 1.35901,
-        "expected_goals_away": 0.76692,
-        "expected_goals_total": 2.12593,
-        "league_samples": 600,
-        "home_recent_matches": 12,
-        "away_recent_matches": 12,
-        "home_venue_matches": 8,
-        "away_venue_matches": 8,
-        "total_model_agreement": {
-          "over_15_baseline_probability": 0.627008,
-          "over_15_specialist_probability": 0.704192,
-          "over_15_probability_gap": 0.077184,
-          "over_15_max_gap": 0.07,
-          "over_15_passed": false
-        },
-        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
-      },
-      "publication_audit": {
-        "selection_reason": "highest_reliability_after_quality_and_guardrails",
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
-      },
-      "final_score": 81.6,
-      "xpronos_score": 81.6,
-      "generated_at": "2026-10-25T19:03:23.287660+00:00",
-      "combo_only": false,
-      "revalidated_at": "2026-10-26T17:23:55.786032+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-      "settlement_watchdog": {
-        "stage": "h4",
-        "settled_at": "2026-10-27T04:20:47.559826+00:00",
-        "pending": false
-      }
-    },
-    {
-      "id": "bsd:10199",
-      "source": "bsd",
-      "source_event_id": 10199,
-      "date": "2026-10-26",
-      "event_date": "2026-10-26T23:30:00+00:00",
-      "home_team": "Juventude",
-      "away_team": "Náutico",
-      "home_team_id": 156,
-      "away_team_id": 928,
-      "home_logo": "https://sports.bzzoiro.com/img/team/156/?bg=transparent",
-      "away_logo": "https://sports.bzzoiro.com/img/team/928/?bg=transparent",
-      "league_logo": "https://sports.bzzoiro.com/img/league/34/?bg=transparent",
-      "league": "Brazilian Serie B",
-      "league_id": 34,
-      "category": "pro",
-      "badge": "BSD V2",
-      "signal_tier": "INDICATIF",
-      "recommendation_eligible": true,
-      "status": "finished",
-      "is_finished": true,
-      "home_score": 4,
-      "away_score": 0,
-      "verified_prediction": true,
-      "verified_double": true,
-      "prediction": {
-        "type": "1X",
-        "label": "1X",
-        "market": "double_chance",
-        "selection_key": "1X",
-        "market_code": "DC_1X_FT",
-        "outcome": "1X",
-        "line": null,
-        "confidence": 81.3,
-        "model_probability": 81.3,
-        "conservative_probability": 79.1,
-        "double_chance": "1X",
-        "fair_odds": 1.2307,
-        "odds": 1.2,
-        "calibration_samples": 2780,
-        "estimated_value": null,
-        "model_version": "bsd-v2-isolated",
-        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-        "odds_source": "mrxpronos_model",
-        "estimated_odds": true,
-        "odds_method": "hypothese_6pct",
-        "overround_assumption": 0.0256,
-        "odds_updated_at": "2026-10-25T19:03:23.287660+00:00",
-        "signal_tier": "INDICATIF",
-        "recommendation_eligible": true
-      },
-      "model_version": "bsd-v2-isolated",
-      "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-      "model_audit": {
-        "expected_goals_home": 1.4968,
-        "expected_goals_away": 0.88969,
-        "expected_goals_total": 2.38649,
-        "league_samples": 600,
-        "home_recent_matches": 12,
-        "away_recent_matches": 12,
-        "home_venue_matches": 8,
-        "away_venue_matches": 8,
-        "total_model_agreement": {
-          "over_15_baseline_probability": 0.688606,
-          "over_15_specialist_probability": 0.700148,
-          "over_15_probability_gap": 0.011542,
-          "over_15_max_gap": 0.07,
-          "over_15_passed": true
-        },
-        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
-      },
-      "publication_audit": {
-        "selection_reason": "highest_reliability_after_quality_and_guardrails",
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
-      },
-      "final_score": 81.3,
-      "xpronos_score": 81.3,
-      "generated_at": "2026-10-25T19:03:23.287660+00:00",
-      "combo_only": false,
-      "revalidated_at": "2026-10-26T17:23:55.786032+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-      "settlement_watchdog": {
-        "stage": "h4",
-        "settled_at": "2026-10-27T04:20:47.559826+00:00",
-        "pending": false
-      }
-    },
     {
       "id": "bsd:605680",
       "source": "bsd",
@@ -13020,10 +12834,10 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -13151,33 +12965,7 @@
         "odds_source": "mrxpronos_model",
         "estimated_odds": true,
         "hypothetical_margin": 0.06,
-        "odds_updated_at": "2026-11-09T21:27:26.059610+00:00",
-        "status": "observation_only",
-        "recommendation_eligible": false,
-        "telegram_eligible": false,
-        "not_an_executable_bookmaker_quote": true
-      },
-      "publication_status": "not_published",
-      "prediction_eligible": false,
-      "do_not_send_to_telegram": true
-    },
-    {
-      "id": "bsd:643032",
-      "home_team": "Junior Barranquilla",
-      "away_team": "Cúcuta Deportivo",
-      "event_date": "2026-11-10T00:00:00+00:00",
-      "rejected_reason": "category_or_confidence_below_79",
-      "market": {
-        "selection_key": "UNDER_35",
-        "market_code": "OU_3.5_UNDER_FT",
-        "model_probability": 0.729067,
-        "conservative_probability": 0.715067,
-        "fair_odds": 1.3716,
-        "odds": 1.294,
-        "odds_source": "mrxpronos_model",
-        "estimated_odds": true,
-        "hypothetical_margin": 0.06,
-        "odds_updated_at": "2026-11-09T21:27:26.059610+00:00",
+        "odds_updated_at": "2026-11-10T00:06:31.283408+00:00",
         "status": "observation_only",
         "recommendation_eligible": false,
         "telegram_eligible": false,
@@ -13203,7 +12991,7 @@
         "odds_source": "mrxpronos_model",
         "estimated_odds": true,
         "hypothetical_margin": 0.06,
-        "odds_updated_at": "2026-11-09T21:27:26.059610+00:00",
+        "odds_updated_at": "2026-11-10T00:06:31.283408+00:00",
         "status": "observation_only",
         "recommendation_eligible": false,
         "telegram_eligible": false,
@@ -13223,13 +13011,13 @@
         "selection_key": "1X",
         "market_code": "DC_1X_FT",
         "model_probability": 0.784546,
-        "conservative_probability": 0.763312,
+        "conservative_probability": 0.759005,
         "fair_odds": 1.2746,
         "odds": 1.202,
         "odds_source": "mrxpronos_model",
         "estimated_odds": true,
         "hypothetical_margin": 0.06,
-        "odds_updated_at": "2026-11-09T21:27:26.059610+00:00",
+        "odds_updated_at": "2026-11-10T00:06:31.283408+00:00",
         "status": "observation_only",
         "recommendation_eligible": false,
         "telegram_eligible": false,
@@ -13240,20 +13028,7 @@
       "do_not_send_to_telegram": true
     }
   ],
-  "retired_predictions": [
-    {
-      "id": "bsd:654034",
-      "source_event_id": 654034,
-      "event_date": "2026-11-10T15:00:00+00:00",
-      "selection_key": "UNDER_35",
-      "original_model_version": "bsd-v2-isolated",
-      "original_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-      "retired_by_policy": true,
-      "retired_at": "2026-11-09T21:27:26.059610+00:00",
-      "retired_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
-      "reason": "not_upcoming"
-    }
-  ],
+  "retired_predictions": [],
   "performance_tracker": {
     "format": "bsd-v2-performance-v1",
     "settled_ids": [
@@ -13696,16 +13471,17 @@
       "bsd:605708:UNDER_35:2026-11-08T16:15:00+00:00",
       "bsd:642949:UNDER_35:2026-11-08T19:00:00+00:00",
       "bsd:10217:UNDER_35:2026-11-08T22:15:00+00:00",
-      "bsd:604610:1X:2026-11-09T15:00:00+00:00"
+      "bsd:604610:1X:2026-11-09T15:00:00+00:00",
+      "bsd:215306:1X:2026-11-09T20:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 169,
+        "n": 170,
         "wins": 135,
-        "sum_pred": 136.04000000000013,
-        "penalty": 0.002818,
-        "hit_rate": 0.798817,
-        "average_predicted": 0.80497
+        "sum_pred": 136.85400000000013,
+        "penalty": 0.005011,
+        "hit_rate": 0.794118,
+        "average_predicted": 0.805024
       },
       "BTTS_YES": {
         "n": 1,
@@ -13758,12 +13534,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 180,
+        "n": 181,
         "wins": 141,
-        "sum_pred": 144.1980000000001,
-        "penalty": 0.008416,
-        "hit_rate": 0.783333,
-        "average_predicted": 0.8011
+        "sum_pred": 145.01200000000009,
+        "penalty": 0.01053,
+        "hit_rate": 0.779006,
+        "average_predicted": 0.801171
       },
       "btts": {
         "n": 1,
@@ -13782,8 +13558,8 @@
         "average_predicted": 0.78488
       }
     },
-    "last_added": 2,
-    "updated_at": "2026-11-09T21:27:26.059610+00:00",
+    "last_added": 1,
+    "updated_at": "2026-11-10T00:06:31.283408+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -14365,12 +14141,12 @@
         "average_predicted": 0.7976
       },
       "Spanish Primera División de la Liga de Fútbol Femenino|1X": {
-        "n": 1,
+        "n": 2,
         "wins": 1,
-        "sum_pred": 0.8170000000000001,
+        "sum_pred": 1.6310000000000002,
         "penalty": 0.0,
-        "hit_rate": 1.0,
-        "average_predicted": 0.817
+        "hit_rate": 0.5,
+        "average_predicted": 0.8155
       },
       "Spanish La Liga|1X": {
         "n": 1,
@@ -14656,276 +14432,15 @@
   },
   "bookmakers": [],
   "diagnostics": {
-    "total": 120,
-    "model_odds_observations_count": 4,
+    "total": 118,
+    "model_odds_observations_count": 3,
     "rejections": {
-      "saved_future_retired_by_policy": 1,
-      "category_or_confidence_below_79": 4,
+      "category_or_confidence_below_79": 3,
       "insufficient_form": 5,
       "no_qualified_market": 1,
       "stale_team_form": 1
     },
     "fixture_details": [
-      {
-        "event_id": "220269",
-        "home_team": "Jaguares de Córdoba",
-        "away_team": "Llaneros FC",
-        "event_date": "2026-10-26T23:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "10194",
-        "home_team": "América Mineiro",
-        "away_team": "Cuiabá",
-        "event_date": "2026-10-26T22:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "7305",
-        "home_team": "Coritiba",
-        "away_team": "Grêmio",
-        "event_date": "2026-10-26T22:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "223850",
-        "home_team": "Club Atlético Unión de Santa Fe",
-        "away_team": "Estudiantes de La Plata",
-        "event_date": "2026-10-26T22:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "375064",
-        "home_team": "Torreense",
-        "away_team": "Amarante FC",
-        "event_date": "2026-10-26T20:45:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "213618",
-        "home_team": "Sevilla",
-        "away_team": "Osasuna",
-        "event_date": "2026-10-26T20:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "642995",
-        "home_team": "Montpellier",
-        "away_team": "Red Star FC",
-        "event_date": "2026-10-26T19:45:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "580558",
-        "home_team": "US Boulogne Côte-d'Opale",
-        "away_team": "Stade de Reims",
-        "event_date": "2026-10-26T19:45:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "606753",
-        "home_team": "FC Crotone",
-        "away_team": "Casarano",
-        "event_date": "2026-10-26T19:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "606752",
-        "home_team": "AZ Picerno",
-        "away_team": "US Salernitana 1919",
-        "event_date": "2026-10-26T19:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "214882",
-        "home_team": "FC Andorra",
-        "away_team": "Burgos Club de Fútbol",
-        "event_date": "2026-10-26T19:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "210504",
-        "home_team": "Paris Saint-Germain",
-        "away_team": "Olympique Lyonnais",
-        "event_date": "2026-10-26T19:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "215552",
-        "home_team": "Santa Clara",
-        "away_team": "Benfica",
-        "event_date": "2026-10-26T18:45:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "216027",
-        "home_team": "Galatasaray",
-        "away_team": "Fenerbahçe",
-        "event_date": "2026-10-26T18:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "638369",
-        "home_team": "Örebro SK",
-        "away_team": "Falkenbergs FF",
-        "event_date": "2026-10-26T18:05:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "221542",
-        "home_team": "FC København",
-        "away_team": "Odense Boldklub",
-        "event_date": "2026-10-26T18:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "214629",
-        "home_team": "Sepsi OSK Sfântu Gheorghe",
-        "away_team": "Universitatea Craiova",
-        "event_date": "2026-10-26T18:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "211729",
-        "home_team": "CSKA Sofia",
-        "away_team": "Ludogorets",
-        "event_date": "2026-10-26T17:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "643228",
-        "home_team": "Mardin 1969 Spor",
-        "away_team": "Manisa FK",
-        "event_date": "2026-10-26T17:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "216032",
-        "home_team": "Çaykur Rizespor",
-        "away_team": "Trabzonspor",
-        "event_date": "2026-10-26T16:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "216025",
-        "home_team": "Beşiktaş JK",
-        "away_team": "Başakşehir FK",
-        "event_date": "2026-10-26T16:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "211623",
-        "home_team": "Club Tijuana",
-        "away_team": "Santos Laguna",
-        "event_date": "2026-10-26T03:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "211622",
-        "home_team": "Querétaro FC",
-        "away_team": "Cruz Azul",
-        "event_date": "2026-10-26T01:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "5378",
-        "home_team": "Los Angeles FC",
-        "away_team": "LA Galaxy",
-        "event_date": "2026-10-26T01:00:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "223849",
-        "home_team": "Central Córdoba",
-        "away_team": "Vélez Sarsfield",
-        "event_date": "2026-10-26T00:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
-      {
-        "event_id": "223846",
-        "home_team": "Barracas Central",
-        "away_team": "Estudiantes de Río Cuarto",
-        "event_date": "2026-10-26T00:30:00+00:00",
-        "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
-      },
       {
         "event_id": "602465",
         "home_team": "Cúcuta Deportivo",
@@ -28252,171 +27767,9 @@
         "away_team": "Cúcuta Deportivo",
         "event_date": "2026-11-10T00:00:00+00:00",
         "quotes": [],
-        "considered": [
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "result": "btts_last_h2h_lost",
-            "last_h2h": {
-              "event_id": 220294,
-              "event_date": "2026-04-24T21:00:00+00:00",
-              "home_team_id": 4635,
-              "away_team_id": 789,
-              "home_score": 1,
-              "away_score": 1,
-              "btts_yes": true
-            }
-          },
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.4195014089049517,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.2728520554782634,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.3076465356167849,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.6923534643832151,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.5804985910950483,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5438856999188422,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_OVER_FT",
-            "probability": 0.745008661010148,
-            "odds": null,
-            "conservative_probability": 0.7310086610101479,
-            "result": "below_publication_conservative_floor"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.25499133898985343,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.49490421115665206,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.5050957888433478,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.2709332410514647,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.7290667589485361,
-            "odds": null,
-            "conservative_probability": 0.7150667589485361,
-            "result": "qualified"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.1301604560295396,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
+        "considered": [],
         "status": "rejected",
-        "reason": "category_or_confidence_below_79",
-        "preprice": {
-          "category": "simple",
-          "selection_key": "UNDER_35",
-          "conservative_probability": 0.715067,
-          "probability": 0.729067,
-          "market_code": "OU_3.5_UNDER_FT",
-          "league_samples": 600,
-          "home_recent_matches": 12,
-          "away_recent_matches": 12,
-          "home_venue_matches": 8,
-          "away_venue_matches": 8
-        }
+        "reason": "outside_upcoming_window"
       },
       {
         "event_id": "649953",
@@ -28662,7 +28015,7 @@
             "market_code": "DC_1X_FT",
             "probability": 0.784545667758723,
             "odds": null,
-            "conservative_probability": 0.7633116677587231,
+            "conservative_probability": 0.759004667758723,
             "result": "qualified"
           },
           {
@@ -28761,7 +28114,7 @@
         "preprice": {
           "category": "simple",
           "selection_key": "1X",
-          "conservative_probability": 0.763312,
+          "conservative_probability": 0.759005,
           "probability": 0.784546,
           "market_code": "DC_1X_FT",
           "league_samples": 600,
@@ -28770,15 +28123,305 @@
           "home_venue_matches": 6,
           "away_venue_matches": 8
         }
+      },
+      {
+        "event_id": "606219",
+        "home_team": "Antigua and Barbuda",
+        "away_team": "Trinidad and Tobago",
+        "event_date": "2026-11-12T23:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "643026",
+        "home_team": "Rionegro Águilas Doradas",
+        "away_team": "Independiente Medellín",
+        "event_date": "2026-11-12T21:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "642950",
+        "home_team": "Millonarios",
+        "away_team": "Alianza Valledupar FC",
+        "event_date": "2026-11-12T21:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "220323",
+        "home_team": "Atlético Bucaramanga",
+        "away_team": "Fortaleza FC",
+        "event_date": "2026-11-12T21:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "606207",
+        "home_team": "Bonaire",
+        "away_team": "Cuba",
+        "event_date": "2026-11-12T20:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "220330",
+        "home_team": "Llaneros FC",
+        "away_team": "Boyacá Chicó FC",
+        "event_date": "2026-11-12T20:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "220329",
+        "home_team": "Internacional de Bogotá",
+        "away_team": "Independiente Santa Fe",
+        "event_date": "2026-11-12T20:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "220326",
+        "home_team": "Deportivo Cali",
+        "away_team": "Deportes Tolima",
+        "event_date": "2026-11-12T20:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212694",
+        "home_team": "Montenegro",
+        "away_team": "Latvia",
+        "event_date": "2026-11-12T19:45:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212693",
+        "home_team": "San Marino",
+        "away_team": "Belarus",
+        "event_date": "2026-11-12T19:45:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212692",
+        "home_team": "Albania",
+        "away_team": "Finland",
+        "event_date": "2026-11-12T19:45:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212691",
+        "home_team": "England",
+        "away_team": "Croatia",
+        "event_date": "2026-11-12T19:45:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212690",
+        "home_team": "Czechia",
+        "away_team": "Spain",
+        "event_date": "2026-11-12T19:45:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212689",
+        "home_team": "Italy",
+        "away_team": "France",
+        "event_date": "2026-11-12T19:45:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "606218",
+        "home_team": "Aruba",
+        "away_team": "Martinique",
+        "event_date": "2026-11-12T19:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "606206",
+        "home_team": "Cayman Islands",
+        "away_team": "Guyana",
+        "event_date": "2026-11-12T19:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "606190",
+        "home_team": "Barbados",
+        "away_team": "Guadeloupe",
+        "event_date": "2026-11-12T19:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "654040",
+        "home_team": "CD Tarancón",
+        "away_team": "Levante UD",
+        "event_date": "2026-11-12T18:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "649804",
+        "home_team": "Chambéry Savoie Foot",
+        "away_team": "Grenoble Foot 38",
+        "event_date": "2026-11-12T18:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "643209",
+        "home_team": "CDA Navalcarnero",
+        "away_team": "Real Betis",
+        "event_date": "2026-11-12T18:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "654039",
+        "home_team": "Calvo Sotelo Puertollano",
+        "away_team": "Albacete Balompié",
+        "event_date": "2026-11-12T17:30:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "649921",
+        "home_team": "Malta",
+        "away_team": "Eswatini",
+        "event_date": "2026-11-12T17:30:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "649920",
+        "home_team": "Lithuania",
+        "away_team": "Suriname",
+        "event_date": "2026-11-12T17:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212688",
+        "home_team": "Armenia",
+        "away_team": "Cyprus",
+        "event_date": "2026-11-12T17:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "212687",
+        "home_team": "Türkiye",
+        "away_team": "Belgium",
+        "event_date": "2026-11-12T17:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "643007",
+        "home_team": "Uzbekistan",
+        "away_team": "Russia",
+        "event_date": "2026-11-12T15:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "654059",
+        "home_team": "VfL Wolfsburg",
+        "away_team": "1. FC Union Berlin",
+        "event_date": "2026-11-12T13:30:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "654192",
+        "home_team": "Myanmar",
+        "away_team": "Bhutan",
+        "event_date": "2026-11-12T12:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
+      },
+      {
+        "event_id": "649919",
+        "home_team": "New Zealand",
+        "away_team": "India",
+        "event_date": "2026-11-12T06:00:00+00:00",
+        "quotes": [],
+        "considered": [],
+        "status": "rejected",
+        "reason": "outside_upcoming_window"
       }
     ],
     "vip_funnel": {
       "scope": "fixtures_not_previously_published_in_this_generation",
-      "examined_fixture_count": 1343,
-      "without_football_qualified_market_or_out_of_scope": 1339,
-      "preprice_classified_total": 4,
+      "examined_fixture_count": 1346,
+      "without_football_qualified_market_or_out_of_scope": 1343,
+      "preprice_classified_total": 3,
       "preprice_category_counts": {
-        "simple": 4,
+        "simple": 3,
         "pro": 0,
         "vip": 0
       },
@@ -28789,7 +28432,7 @@
         "minimum_home_away_matches_per_team": 5
       },
       "progressive_vip_threshold_counts": {
-        "football_market_qualified": 4,
+        "football_market_qualified": 3,
         "conservative_probability_at_least_83pct": 0,
         "plus_league_history_at_least_80": 0,
         "plus_recent_history_at_least_12_each": 0,
@@ -28805,20 +28448,20 @@
       },
       "all_published_by_category_including_history": {
         "simple": 0,
-        "pro": 104,
+        "pro": 102,
         "vip": 16
       },
       "not_classified_reason_counts": {
         "insufficient_form": 5,
         "no_qualified_market": 1,
         "not_upcoming": 2,
-        "outside_upcoming_window": 1330,
+        "outside_upcoming_window": 1334,
         "stale_team_form": 1
       },
       "vip_candidates": []
     },
     "prospective_selection_penalties": {
-      "1X": 0.002818,
+      "1X": 0.005011,
       "BTTS_YES": 0.0,
       "UNDER_35": 0.0,
       "OVER_15": 0.0,
@@ -28827,11 +28470,11 @@
       "12": 0.0
     },
     "prospective_family_penalties": {
-      "double_chance": 0.008416,
+      "double_chance": 0.01053,
       "btts": 0.0,
       "goals": 0.0
     },
-    "retired_predictions_count": 1,
+    "retired_predictions_count": 0,
     "v21_league_market_monitor": {
       "Liga Profesional de Fútbol|UNDER_35": {
         "n": 9,
@@ -29410,12 +29053,12 @@
         "average_predicted": 0.7976
       },
       "Spanish Primera División de la Liga de Fútbol Femenino|1X": {
-        "n": 1,
+        "n": 2,
         "wins": 1,
-        "sum_pred": 0.8170000000000001,
+        "sum_pred": 1.6310000000000002,
         "penalty": 0.0,
-        "hit_rate": 1.0,
-        "average_predicted": 0.817
+        "hit_rate": 0.5,
+        "average_predicted": 0.8155
       },
       "Spanish La Liga|1X": {
         "n": 1,
@@ -29874,10 +29517,10 @@
       "telegram_sent_by_this_step": false,
       "superseded_model_observations": 0,
       "coverage": {
-        "official_league_ids_present": 15,
-        "official_league_ids_resolved": 15,
+        "official_league_ids_present": 10,
+        "official_league_ids_resolved": 10,
         "official_league_directory_pages": 1,
-        "public_fixtures_found": 635,
+        "public_fixtures_found": 619,
         "independent_calendar_confirmed": 0,
         "cc0_confirmed": 0,
         "two_provider_confirmed": 0,
