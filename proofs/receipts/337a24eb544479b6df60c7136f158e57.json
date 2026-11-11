@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-557a422a9b8d0a91:1X",
+    "recorded_at_utc": "2026-11-11T18:50:07+00:00",
+    "kickoff_utc": "2026-11-12T13:30:00+00:00",
+    "fixture": {
+      "home_team": "VfL Wolfsburg",
+      "away_team": "1. FC Union Berlin",
+      "league": "International Club Friendly"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 86.2,
+      "odds": 1.565,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "34b913817355f2b9e9e676ff02c3d40761057047f9894098fd03181e762663fd"
+}
