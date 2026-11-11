@@ -175,7 +175,7 @@ class ESPNProvider:
                 timeout=(8,30))
             if r.status_code!=200:
                 raise DailySourceError(f'ESPN {league} {date_selector}: HTTP {r.status_code}')
-            if len(r.content)>4_000_000:
+            if len(r.content)>8_000_000:
                 raise DailySourceError('ESPN : réponse trop volumineuse')
             data=r.json()
             if not isinstance(data,dict) or not isinstance(data.get('events'),list):
@@ -186,6 +186,8 @@ class ESPNProvider:
             return self._cache[k]
         except requests.RequestException as exc:
             raise DailySourceError(f'ESPN {league}: réseau indisponible ({type(exc).__name__})') from None
+        except DailySourceError:
+            raise
         except ValueError:
             raise DailySourceError('ESPN : réponse illisible') from None
 
