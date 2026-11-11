@@ -126,11 +126,23 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                              'reason':f'equipe_historique_insuffisant_{home_count}_{away_count}',
                              'importance':f.importance})
             continue
-        try:result=_prediction(model,f,calibration=calibration)
+        try:
+            result=_prediction(model,f,calibration=calibration)
         except (ModelError,ValueError) as exc:
-            rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
-                             'reason':f'calcul_invalide: {exc}','importance':f.importance})
-            continue
+            # An optional calibration must never suppress an otherwise valid fixture.
+            if calibration.multiplier != 1.0:
+                safe = GoalCalibration(status='BASELINE_CALIBRATION_FALLBACK',
+                                       reason=f'{type(exc).__name__}: {str(exc)[:90]}')
+                try:
+                    result=_prediction(model,f,calibration=safe)
+                except (ModelError,ValueError) as raw_exc:
+                    rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
+                                     'reason':f'calcul_invalide: {raw_exc}','importance':f.importance})
+                    continue
+            else:
+                rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
+                                 'reason':f'calcul_invalide: {exc}','importance':f.importance})
+                continue
         sources.add(f.source)
         eligible.append({
             'fixture':f,'forecast':result,
