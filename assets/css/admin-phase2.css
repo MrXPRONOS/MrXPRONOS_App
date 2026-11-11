@@ -1523,3 +1523,200 @@ body.admin-shell #tab-articles .mx2-content-card .btn{
  body.admin-shell #tab-articles .admin-cms-editor-toggle{
  transition:none!important;transform:none!important}
 }
+
+/* ADMIN CONSEILS V4 — Premium bleu nuit / or. Visuel uniquement; contrôles CMS inchangés. */
+body.admin-shell #tab-conseils{--art-gold:#f2cb80;--art-blue:#78cbf4;max-width:1470px;min-width:0;margin-inline:auto}
+body.admin-shell #tab-conseils > .card{
+ position:relative;isolation:isolate;overflow:hidden;
+ border:1px solid rgba(104,173,212,.48)!important;border-radius:23px!important;
+ background:radial-gradient(ellipse 53% 35% at 88% 0%,rgba(22,113,176,.23),transparent 85%),
+  linear-gradient(146deg,#071d31,#081c2e 55%,#061524)!important;
+ box-shadow:0 20px 56px rgba(0,8,20,.26),inset 0 1px rgba(250,250,255,.06)!important;
+ margin:0 0 20px!important;padding:clamp(17px,2.5vw,32px)!important}
+body.admin-shell #tab-conseils > .card::before{
+ content:"";position:absolute;top:0;right:0;z-index:-1;pointer-events:none;
+ width:min(67%,700px);height:240px;
+ background:url("../images/admin-home-lights-reference.webp") right top/cover no-repeat;
+ opacity:.19;mask-image:linear-gradient(90deg,transparent,#000 48%);
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 48%)}
+body.admin-shell #tab-conseils > .card > h3{
+ margin:0 0 13px!important;color:#f6faff!important;
+ font-size:clamp(29px,3.1vw,39px);font-weight:850;letter-spacing:-.05em;line-height:1.16}
+body.admin-shell #tab-conseils > .card > h3::before{
+ content:"ACCOMPAGNEMENT / CONSEILS";display:block;margin:0 0 12px;
+ color:#f3ce83;font-size:10px;font-weight:830;letter-spacing:.18em}
+body.admin-shell #tab-conseils > .card > h3::after{
+ content:"";display:block;width:180px;max-width:42%;height:2px;margin:17px 0 0;
+ background:linear-gradient(90deg,#f1c777,#58b5e9,transparent);
+ box-shadow:0 0 14px rgba(241,197,111,.3)}
+body.admin-shell #tab-conseils > .card > p.muted{
+ color:#b4cede;font-size:12px;line-height:1.75;max-width:850px;margin:0 0 20px}
+body.admin-shell #tab-conseils .admin-cms-editor-toggle{
+ display:inline-flex;align-items:center;justify-content:center;min-height:45px;
+ max-width:100%;margin:0 0 22px;padding:11px 18px!important;border-radius:11px;
+ border:1px solid #efca88;background:linear-gradient(120deg,#ffe0a3,#d0a35e)!important;
+ color:#0c2130!important;font-weight:830;font-size:12px;
+ box-shadow:0 8px 22px rgba(243,190,104,.18)}
+body.admin-shell #tab-conseils .admin-cms-editor-toggle[aria-expanded="true"]{
+ background:linear-gradient(125deg,#214b66,#0d3049)!important;
+ color:#ffe3ad!important;border-color:rgba(241,198,113,.66)}
+body.admin-shell #tab-conseils .admin-cms-editor-fields{
+ margin:0 0 23px;border:1px solid rgba(122,180,215,.32)!important;
+ background:linear-gradient(130deg,#0c2b44,#061e33)!important;border-radius:18px;
+ padding:clamp(13px,2vw,22px)!important}
+body.admin-shell #tab-conseils .admin-cms-editor-fields[hidden]{display:none!important}
+body.admin-shell #tab-conseils .admin-cms-editor-fields:has(.mx2-editor-main){
+ display:grid;grid-template-columns:minmax(0,1.24fr) minmax(245px,.76fr);
+ gap:clamp(14px,2vw,24px);align-items:start;max-width:100%}
+body.admin-shell #tab-conseils .mx2-editor-main{min-width:0}
+body.admin-shell #tab-conseils .mx2-editor-main label{
+ display:block;color:#c8ddeb;font-size:11px;font-weight:770;margin:13px 0 8px}
+body.admin-shell #tab-conseils .mx2-editor-main .row{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body.admin-shell #tab-conseils .mx2-editor-main .row>div{min-width:0}
+body.admin-shell #tab-conseils .mx2-editor-main :is(input,select,textarea){
+ width:100%;max-width:100%;min-width:0;min-height:43px;
+ background:#061e32;border:1px solid rgba(120,173,207,.46);
+ border-radius:10px;padding:10px 12px;color:#f1f8ff;font-size:12px}
+body.admin-shell #tab-conseils .mx2-editor-main :is(input,textarea)::placeholder{color:#89a9bd;opacity:1}
+body.admin-shell #tab-conseils .mx2-editor-main :is(input,select,textarea):focus-visible{
+ outline:2px solid #f3ca82;outline-offset:2px;border-color:#f3ca82}
+body.admin-shell #tab-conseils #c_save{
+ min-height:45px;display:inline-flex;justify-content:center;align-items:center;
+ padding:12px 22px;margin-top:17px!important;border-radius:11px;
+ border:1px solid #ebc881;background:linear-gradient(125deg,#ffe5ac,#d2a45c);
+ color:#102033;font-size:12px;font-weight:850;box-shadow:0 8px 23px rgba(238,186,102,.17)}
+body.admin-shell #tab-conseils #c_save:hover:not(:disabled){filter:brightness(1.08)}
+body.admin-shell #tab-conseils .mx2-editor-preview{
+ position:sticky;top:95px;max-height:calc(100vh - 115px);overflow:auto;
+ min-width:0;border:1px solid rgba(122,177,211,.42);
+ border-radius:17px;padding:21px;
+ background:radial-gradient(ellipse at 100% 0%,rgba(40,139,194,.16),transparent 67%),
+  linear-gradient(140deg,#153b56,#082437);
+ box-shadow:inset 0 1px rgba(245,253,255,.07),0 12px 29px rgba(0,6,20,.24)}
+body.admin-shell #tab-conseils .mx2-editor-preview::before{
+ content:"";position:absolute;top:0;left:20px;width:75px;height:2px;
+ background:linear-gradient(90deg,#f2cb82,transparent);box-shadow:0 0 11px rgba(244,195,113,.34)}
+body.admin-shell #tab-conseils .mx2-preview-top strong{color:#ffdf9e;font-size:11px}
+body.admin-shell #tab-conseils .mx2-preview-top .mx2-pill{
+ border-color:rgba(122,182,218,.43);background:#143b55;color:#d9ebf7}
+body.admin-shell #tab-conseils .mx2-editor-cover{
+ border:1px solid rgba(123,178,207,.4);border-radius:12px;
+ background:#072538;height:clamp(130px,15vw,200px)}
+body.admin-shell #tab-conseils .mx2-editor-preview-title{
+ color:#f9fbff!important;font-size:clamp(17px,1.8vw,23px)!important;
+ font-weight:820;letter-spacing:-.035em}
+body.admin-shell #tab-conseils .mx2-preview-meta{color:#9fc5da;font-size:11px}
+body.admin-shell #tab-conseils .mx2-rendered-markdown{
+ color:#d4e7ef;border-top-color:rgba(129,179,206,.27);line-height:1.75}
+body.admin-shell #tab-conseils .mx2-rendered-markdown :is(h1,h2,h3,h4){color:#ffdda0!important}
+body.admin-shell #tab-conseils .mx2-rendered-markdown a{color:#9edbfc}
+body.admin-shell #tab-conseils .mx-block-editor{
+ padding:13px;border-radius:15px;
+ background:rgba(6,28,46,.45);border:1px solid rgba(116,174,204,.24)}
+body.admin-shell #tab-conseils .mx-block-toolbar{
+ padding:12px;gap:7px;border-radius:12px;
+ background:#10344e;border:1px solid rgba(121,172,205,.35)}
+body.admin-shell #tab-conseils .mx-block-toolbar :is(button,select),
+body.admin-shell #tab-conseils .mx-block-card button{
+ min-height:38px;max-width:100%;padding:8px 11px;
+ border:1px solid rgba(121,177,209,.48);border-radius:9px;
+ background:linear-gradient(120deg,#214a65,#123550);color:#dceefa;font-size:11px}
+body.admin-shell #tab-conseils .mx-block-toolbar :is(button,select):hover,
+body.admin-shell #tab-conseils .mx-block-card button:hover{border-color:#f1c879;color:#ffe1a5}
+body.admin-shell #tab-conseils .mx-block-card{
+ padding:15px;border-radius:12px;
+ border:1px solid rgba(119,173,206,.37);background:#102e45}
+body.admin-shell #tab-conseils .mx-block-card :is(textarea,input){
+ border-color:rgba(117,175,203,.41);background:#061e32;color:#f3faff}
+body.admin-shell #tab-conseils .mx-block-preview,
+body.admin-shell #tab-conseils .mx-block-library{
+ background:#0b2b42;border:1px solid rgba(132,182,209,.34);border-radius:12px}
+body.admin-shell #tab-conseils .mx-revision-choice{
+ border-color:rgba(130,184,215,.36);border-radius:10px;
+ background:#123a53;color:#e1ecf7;font-size:11px}
+body.admin-shell #tab-conseils > .card > h4{
+ font-size:clamp(19px,2vw,27px);font-weight:840;color:#f7faff!important;
+ border-top:1px solid rgba(121,178,207,.30);
+ margin:28px 0 18px!important;padding-top:23px;letter-spacing:-.03em}
+body.admin-shell #tab-conseils .mx-cms-list-filters{
+ display:flex;flex-wrap:wrap;gap:9px;align-items:center;
+ padding:15px;margin:8px 0 19px;border-radius:15px;
+ background:linear-gradient(120deg,#10364f,#08263c);
+ border:1px solid rgba(113,178,208,.32)}
+body.admin-shell #tab-conseils .mx-cms-list-filters :is(input,select){
+ min-height:43px;min-width:0;max-width:100%;border-radius:10px;
+ background:#061e32;border:1px solid rgba(114,173,208,.42);
+ color:#f5f9ff;padding:10px 12px;font-size:11px}
+body.admin-shell #tab-conseils .mx-cms-list-filters input[type="search"]{flex:2 1 220px}
+body.admin-shell #tab-conseils .mx-cms-list-filters select{flex:1 1 125px}
+body.admin-shell #tab-conseils .mx-cms-list-filters .mx-filter-count{
+ flex-basis:100%;margin:2px 0 0;color:#afd0df;font-size:11px}
+body.admin-shell #tab-conseils .mx2-content-card{
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:11px 0!important;padding:18px 20px!important;
+ border:1px solid rgba(112,164,199,.34)!important;
+ border-radius:15px!important;
+ background:radial-gradient(ellipse at 98% 100%,rgba(31,108,162,.15),transparent 64%),
+ linear-gradient(132deg,#11324b,#071e33)!important;
+ box-shadow:0 8px 22px rgba(0,8,23,.14)!important;
+ transition:background .15s,border-color .15s,transform .15s}
+body.admin-shell #tab-conseils .mx2-content-card::before{
+ content:"";position:absolute;left:0;top:15px;bottom:15px;width:2px;
+ background:linear-gradient(#f2c680,#59b9e8);box-shadow:0 0 9px rgba(244,188,103,.2)}
+body.admin-shell #tab-conseils .mx2-content-card:hover,
+body.admin-shell #tab-conseils .mx2-content-card:focus-visible{
+ transform:translateY(-1px);border-color:rgba(240,195,115,.72)!important;
+ background:linear-gradient(125deg,#16415c,#0b3048)!important}
+body.admin-shell #tab-conseils .mx2-content-title{
+ color:#f6f9ff;font-size:14px;font-weight:815!important;letter-spacing:-.015em}
+body.admin-shell #tab-conseils .mx2-content-card .muted{
+ color:#a9c4d6;font-size:11px;overflow-wrap:anywhere}
+body.admin-shell #tab-conseils .mx2-content-metadata{
+ display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+body.admin-shell #tab-conseils .mx2-content-metadata .mx2-pill{
+ background:#153d55;border-color:rgba(129,176,202,.39);padding:6px 10px}
+body.admin-shell #tab-conseils .mx2-content-metadata .mx2-pill.mx2-ok{
+ color:#abf0cf;background:#164735;border-color:rgba(108,207,158,.44)}
+body.admin-shell #tab-conseils .mx2-content-metadata .mx2-pill.mx2-danger{
+ color:#ffc1b6;background:#4b3037;border-color:rgba(221,140,127,.43)}
+body.admin-shell #tab-conseils .mx2-content-card .btn{
+ min-height:37px;border-radius:9px;color:#dceef9;
+ background:linear-gradient(130deg,#264e68,#15374f);
+ border:1px solid rgba(126,177,207,.4)}
+@media(max-width:1150px){
+ body.admin-shell #tab-conseils .admin-cms-editor-fields:has(.mx2-editor-main){
+  grid-template-columns:minmax(0,1fr)}
+ body.admin-shell #tab-conseils .mx2-editor-preview{position:static;max-height:none}
+}
+@media(max-width:760px){
+ body.admin-shell #tab-conseils > .card{padding:17px!important}
+ body.admin-shell #tab-conseils > .card::before{width:95%;height:160px;opacity:.12}
+ body.admin-shell #tab-conseils .mx2-editor-main .row{grid-template-columns:1fr}
+ body.admin-shell #tab-conseils .mx2-content-card{padding:15px!important}
+ body.admin-shell #tab-conseils .mx-cms-list-filters :is(input,select){flex:1 1 calc(50% - 9px)}
+ body.admin-shell #tab-conseils .mx-cms-list-filters input[type="search"]{flex-basis:100%}
+}
+@media(max-width:520px){
+ body.admin-shell #tab-conseils .mx-cms-list-filters :is(input,select){flex:1 1 100%;width:100%}
+ body.admin-shell #tab-conseils .admin-cms-editor-fields{padding:12px!important}
+ body.admin-shell #tab-conseils .mx-block-editor{padding:10px}
+ body.admin-shell #tab-conseils .mx-block-toolbar :is(button,select){flex:1 1 calc(50% - 9px);min-width:0}
+}
+@media(max-width:365px){
+ body.admin-shell #tab-conseils > .card{padding:12px!important;border-radius:16px!important}
+ body.admin-shell #tab-conseils .admin-cms-editor-toggle{width:100%;padding:10px 12px!important}
+ body.admin-shell #tab-conseils .mx-cms-list-filters{padding:11px}
+ body.admin-shell #tab-conseils .mx2-editor-preview{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.admin-shell #tab-conseils .mx2-content-card,
+ body.admin-shell #tab-conseils .admin-cms-editor-toggle{
+ transition:none!important;transform:none!important}
+}
+
+/* Conseils-specific difficulty control and content hierarchy. */
+body.admin-shell #tab-conseils .mx2-editor-main #c_level{border-color:rgba(231,185,102,.45);color:#ffe3b1;background:#0d2d45}
+body.admin-shell #tab-conseils .mx2-editor-main #c_level:focus-visible{outline-color:#f1c783;border-color:#f1c783}
+body.admin-shell #tab-conseils .mx2-editor-main #c_content{line-height:1.75}
+body.admin-shell #tab-conseils .mx2-rendered-markdown :is(ul,ol){padding-left:20px;line-height:1.8}
