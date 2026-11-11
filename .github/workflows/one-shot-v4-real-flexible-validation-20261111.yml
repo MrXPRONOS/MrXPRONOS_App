@@ -1,0 +1,151 @@
+name: One-shot V4 flexible real-world validation (safe, 1-9 real fixtures)
+on:
+  push:
+    paths:
+      - '.github/workflows/one-shot-v4-real-flexible-validation-20261111.yml'
+permissions:
+  contents: read
+concurrency:
+  group: dixon-coles-social-top10-20h
+  cancel-in-progress: false
+jobs:
+  validate_and_publish:
+    if: github.event_name == 'push' && github.event.head_commit.message == 'ONE_SHOT_VALIDATE_V4_REAL_FLEXIBLE_20261111'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_KEY }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
+      META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+      THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+      YOUTUBE_PRIVACY_STATUS: public
+      POST_PLATFORMS: facebook,youtube,instagram,threads,bluesky
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install prerequisites
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
+          python -m pip install -e 'dixon-coles[test,video]'
+          python -m pip install -r requirements_social.txt
+      - name: Offline safety gate before real publication
+        run: |
+          python -m unittest discover -s tests -p test_social_exact_score_video.py -v
+          python -m pytest -q dixon-coles/tests/test_daily_top10_v3.py tests/test_social_flexible_e2e.py
+      - name: Generate actual tomorrow forecast from ESPN only
+        id: video
+        shell: bash
+        run: |
+          set +e
+          python scripts/create_social_exact_score_video.py --day tomorrow --source espn --publication-mode flexible --output-dir social_v4_one_shot
+          code=$?
+          set -e
+          if [ "$code" = 3 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "No real eligible matches. Nothing is published."
+            exit 0
+          fi
+          if [ "$code" -ne 0 ]; then
+            exit "$code"
+          fi
+          target="$(TZ=Africa/Lome date -d tomorrow +%F)"
+          manifest="social_v4_one_shot/$target/social_manifest.json"
+          count="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["count"])' "$manifest")"
+          if [ "$count" -ge 10 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Ten-match day: leave publication to existing scheduled STRICT workflow."
+            exit 0
+          fi
+          test "$count" -ge 1
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "Validated $count genuine pre-match fixtures for tomorrow."
+      - name: Preview signed MP4, scores, logos and provider content
+        if: steps.video.outputs.ready == 'true'
+        run: |
+          target="${{ steps.video.outputs.target }}"
+          manifest="social_v4_one_shot/$target/social_manifest.json"
+          video="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["video"])' "$manifest")"
+          python scripts/publish_social_exact_score_video.py --dry-run \
+            --manifest "$manifest" \
+            --video "$video" \
+            --predictions "social_v4_one_shot/model/$target/predictions.json" \
+            --storyboard "social_v4_one_shot/model/$target/video_payload.json" \
+            --platforms "$POST_PLATFORMS"
+      - name: Confirm all service credentials available before any upload
+        if: steps.video.outputs.ready == 'true'
+        run: |
+          python - <<'PY'
+          import os
+          mandatory=['CLOUDFLARE_API_TOKEN','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY',
+                     'META_PAGE_ID','META_PAGE_ACCESS_TOKEN','IG_USER_ID','META_ACCESS_TOKEN',
+                     'THREADS_USER_ID','THREADS_ACCESS_TOKEN','BLUESKY_HANDLE',
+                     'BLUESKY_APP_PASSWORD','YOUTUBE_CLIENT_ID','YOUTUBE_CLIENT_SECRET',
+                     'YOUTUBE_REFRESH_TOKEN']
+          missing=[x for x in mandatory if not os.getenv(x)]
+          if missing:
+              raise SystemExit('Missing production credentials; no publication: '+', '.join(missing))
+          print('CREDENTIAL_PREFLIGHT_PASSED (secret values not printed)')
+          PY
+      - name: Refresh social access tokens (if supported)
+        if: steps.video.outputs.ready == 'true'
+        continue-on-error: true
+        run: python scripts/refresh_social_tokens.py --out social_v4_one_shot/refresh.json --github-env "$GITHUB_ENV"
+      - name: Publish real 1-9 match video on five connected social platforms
+        if: steps.video.outputs.ready == 'true'
+        run: |
+          target="${{ steps.video.outputs.target }}"
+          manifest="social_v4_one_shot/$target/social_manifest.json"
+          video="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["video"])' "$manifest")"
+          python scripts/publish_social_exact_score_video.py \
+            --manifest "$manifest" --video "$video" \
+            --predictions "social_v4_one_shot/model/$target/predictions.json" \
+            --storyboard "social_v4_one_shot/model/$target/video_payload.json" \
+            --platforms "$POST_PLATFORMS" \
+            --report social_v4_one_shot/social_post_results.json
+      - name: Verify individual real provider receipts against MP4 and manifest
+        if: always() && steps.video.outputs.ready == 'true'
+        run: |
+          target="${{ steps.video.outputs.target }}"
+          if [ ! -f social_v4_one_shot/social_post_results.json ]; then
+            echo "No actual post receipts were generated. No success may be claimed."
+            exit 1
+          fi
+          python scripts/verify_social_publications.py \
+            --report social_v4_one_shot/social_post_results.json \
+            --manifest "social_v4_one_shot/$target/social_manifest.json" \
+            --expected "$POST_PLATFORMS"
+      - name: Archive every proof including partial failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: One-shot-V4-real-provider-receipts-${{ github.run_id }}
+          path: |
+            social_v4_one_shot/**/social_manifest.json
+            social_v4_one_shot/**/social_exact_scores_*.mp4
+            social_v4_one_shot/**/skipped.json
+            social_v4_one_shot/model/**/predictions.json
+            social_v4_one_shot/model/**/video_payload.json
+            social_v4_one_shot/social_post_results.json
+          if-no-files-found: warn
+          retention-days: 30
