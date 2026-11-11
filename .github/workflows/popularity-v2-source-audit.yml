@@ -42,3 +42,31 @@ jobs:
           if available < 4:
               raise SystemExit('Principales competitions insuffisamment accessibles')
           PY
+      - name: Verifier la disponibilite des historiques sans utiliser de matchs futurs
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          from types import SimpleNamespace
+          from dcscore.daily_espn import ESPNProvider
+          top = ['uefa.champions','eng.1','esp.1','ger.1','ita.1','fra.1']
+          cutoff = datetime(2026, 10, 24, 20, 0, tzinfo=timezone.utc)
+          p = ESPNProvider(leagues=top)
+          ready = 0
+          for league in top:
+              try:
+                  games, issues = p.history(
+                      SimpleNamespace(competition='ES:'+league.upper()),
+                      now=cutoff)
+                  days_old = (cutoff-games[-1].kickoff).total_seconds()/86400 if games else None
+                  valid = bool(len(games)>=80 and days_old is not None and days_old<=35)
+                  print('POPULARITY_V2_HISTORY',league,'count',len(games),
+                        'age_days',round(days_old,2) if days_old is not None else None,
+                        'usable',valid,'issues',len(issues),flush=True)
+                  ready += int(valid)
+              except Exception as exc:
+                  print('POPULARITY_V2_HISTORY_UNAVAILABLE',league,type(exc).__name__,str(exc)[:130],flush=True)
+          print('POPULARITY_V2_HISTORY_READY_LEAGUES',ready,'/',len(top),flush=True)
+          if ready < 4:
+              raise SystemExit('Historique minimum non disponible pour les grandes competitions')
+          PY
