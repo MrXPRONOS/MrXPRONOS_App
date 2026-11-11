@@ -21,7 +21,7 @@ Finaliser le point encore « partiel » de la V3 : les vidéos peuvent présente
 
 ## Validation qui doit rester distinguée
 
-- [ ] **Réussite bout-en-bout réelle auprès de chaque réseau** : un test avec un véritable compte autorisé est nécessaire pour obtenir les reçus d'API individuels de Facebook, YouTube, Instagram, Threads et Bluesky ; TikTok nécessite le consentement vidéo. Les tests hors réseau, même réussis, ne sauraient être présentés comme des confirmations réelles.
+- [ ] **Réussite bout-en-bout réelle auprès de chaque réseau** : un test avec un véritable compte autorisé est nécessaire pour obtenir les reçus d'API individuels de Facebook, YouTube, Instagram, Threads et Bluesky ; TikTok nécessite le consentement vidéo ET une autorisation Direct Post approuvée (secret GitHub `TIKTOK_DIRECT_POST_APPROVED=true`). Les tests hors réseau, même réussis, ne sauraient être présentés comme des confirmations réelles.
 - [ ] **Prédiction garantie tous les jours** : aucune garantie n'est possible. Le backtest d'octobre V3 n'avait que 28/31 journées avec au moins un pronostic, 14/31 avec dix.
 
 ## Comment publier une vidéo flexible réelle après déploiement
