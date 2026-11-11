@@ -223,8 +223,8 @@ def render(payload, output, *, preview=False, require_real_logos=False,
            allow_partial_production=False):
     clips = validate_payload(payload, preview=preview,
                              allow_partial_production=allow_partial_production)
-    if not 1 <= len(clips) <= 10:
-        raise ValueError("La vidéo sociale réclame entre 1 et 10 rencontres vérifiées")
+    if not 1 <= len(clips) <= 10 or (not allow_partial_production and len(clips)!=10):
+        raise ValueError("L'édition sociale stricte exige exactement dix rencontres vérifiées")
     check_assets()
     if not shutil.which("ffmpeg"):
         raise RuntimeError("ffmpeg absent")
@@ -237,7 +237,7 @@ def render(payload, output, *, preview=False, require_real_logos=False,
         cache = LogoCache(logo_cache or Path(temp)/"logos", asset_root, preview)
         logos = [(cache.get(c, "home", i), cache.get(c, "away", i)) for i, c in enumerate(clips, 1)]
         if require_real_logos and (cache.fallback_count or cache.real_count != 2 * len(clips)):
-            raise ValueError("Écussons authentiques exigés pour toutes les équipes : pas de lettres de remplacement")
+            raise ValueError("Tous les vrais écussons sont exigés pour les équipes : pas de lettres de remplacement")
         base = base_frame(payload, clips, logos, preview)
         soundtrack_file = Path(temp)/"audio.wav"
         soundtrack(soundtrack_file, duration, [0., *starts], volume=.55)
