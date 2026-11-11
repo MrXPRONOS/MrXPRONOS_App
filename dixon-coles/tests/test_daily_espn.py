@@ -142,3 +142,31 @@ def test_optional_espn_catalogue_expansion_only_when_requested():
     explicit=ESPNProvider(session=Session(),leagues=['eng.1'])
     assert explicit.discover_more(date(2026,11,10),NOW)==([],[])
     assert explicit.session.queries==[]
+
+
+
+def test_second_pass_finds_real_international_friendly_from_documented_slug():
+    from dcscore.daily_rank import importance
+    from dcscore.daily_popularity import squad_category
+    from dcscore.daily_espn import CANDIDATES
+    assert 'fifa.friendly' in CANDIDATES
+    def fixture_event():
+        e=event()
+        e["competitions"][0]["competitors"][0]["team"]["displayName"]="France"
+        e["competitions"][0]["competitors"][1]["team"]["displayName"]="Argentina"
+        return e
+    class Response:
+        status_code=200
+        content=b'{}'
+        def __init__(self,items):self.items=items
+        def json(self):return {"events":self.items}
+    class Session:
+        def get(self,url,*,params,headers,timeout):
+            return Response([fixture_event()] if
+                '/fifa.friendly/' in url and params['dates']=='20261110' else [])
+    p=ESPNProvider(session=Session())
+    fixtures,errors=p.discover_more(date(2026,11,10),NOW)
+    assert errors==[] and len(fixtures)==1
+    assert fixtures[0].competition=='ES:FIFA.FRIENDLY'
+    assert squad_category("France",fixtures[0].competition)=="national"
+    assert importance(fixtures[0]).importance>100
