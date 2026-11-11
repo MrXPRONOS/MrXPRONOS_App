@@ -117,24 +117,9 @@ jobs:
           TARGET="$(TZ=Africa/Lome date -d tomorrow +%F)"
           MANIFEST="social_exact_scores_out/$TARGET/social_manifest.json"
           test -s "$MANIFEST"
-          readarray -t META < <(python - "$MANIFEST" "$DCSCORE_PUBLICATION_MODE" <<'PY'
-import json,sys
-manifest=json.load(open(sys.argv[1],encoding="utf-8"))
-mode=sys.argv[2]
-count=manifest.get("count")
-assert manifest.get("publication_mode")==mode, "Wrong production mode"
-assert type(count) is int and 1 <= count <= 10, "Only 1–10 genuine matches may publish"
-assert manifest.get("status")=="READY" and manifest.get("ready_for_video") is True
-if mode=="strict":
-    assert count==10, "Strict mode requires 10"
-assert manifest.get("render_evidence",{}).get("real_logo_instances")==2*count
-assert manifest.get("render_evidence",{}).get("placeholder_logo_instances")==0
-print(manifest["video"])
-print(count)
-PY
-          )
-          VIDEO="${META[0]}"
-          COUNT="${META[1]}"
+          python scripts/check_daily_flexible_manifest.py --manifest "$MANIFEST" --mode "$DCSCORE_PUBLICATION_MODE" --output "$GITHUB_OUTPUT"
+          VIDEO="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["video"])' "$MANIFEST")"
+          COUNT="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["count"])' "$MANIFEST")"
           test -s "$VIDEO"
           echo "day=$TARGET" >> "$GITHUB_OUTPUT"
           echo "video=$VIDEO" >> "$GITHUB_OUTPUT"
