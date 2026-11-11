@@ -153,7 +153,7 @@ def build(*, day: str, source: str, output_dir: Path,
     outcome = daily_main([
         "--day", target, "--source", source, "--count", "10",
         "--min-team", "4", "--min-importance", "70",
-        "--publication-mode", publication_mode,
+        "--publication-mode", publication_mode, "--require-renderable",
         "--max-staleness-days", "35",
         "--output-dir", str(output_dir / "model"),
     ])
