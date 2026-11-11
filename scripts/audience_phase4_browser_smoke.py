@@ -4,6 +4,7 @@ Mock data is ONLY for CI, never production. Backend grants are tested independen
 """
 from __future__ import annotations
 import json
+from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 URL = "http://127.0.0.1:8000/statistiques-audience.html"
@@ -88,7 +89,7 @@ export function createClient() {
 """
 
 def page_for(browser, allowed: bool, width: int):
-    context = browser.new_context(viewport={"width":width,"height":850},accept_downloads=True)
+    context = browser.new_context(viewport={"width":width,"height":{320:720,390:844,768:1024,1440:900}[width]},accept_downloads=True,device_scale_factor=1,is_mobile=width<=390,has_touch=width<=390)
     context.add_init_script(
         "window.__mxAuditAdmin="+str(allowed).lower()+";"+
         "window.__mxDashboardData="+json.dumps(DATA)+";"+
@@ -104,8 +105,8 @@ def page_for(browser, allowed: bool, width: int):
 
 def main():
     with sync_playwright() as p:
-        browser=p.chromium.launch(headless=True)
-        for width in (390,1200):
+        browser=p.chromium.launch(headless=True,channel="chrome",args=["--no-sandbox"])
+        for width in (320,390,768,1440):
             ctx,page=page_for(browser,False,width)
             page.goto(URL,wait_until="domcontentloaded")
             page.locator("#auth-form").wait_for(state="visible",timeout=15000)
@@ -145,9 +146,28 @@ def main():
             assert page.evaluate(
                 "() => document.documentElement.scrollWidth <= window.innerWidth + 3"
             ),"Horizontal page overflow at %d" % width
+            # Validate computed V3 visuals and capture actual desktop/tablet/mobile screenshots.
+            assert page.locator("body").get_attribute("data-admin-ui") == "analytics-premium-v3"
+            assert page.locator(".back-admin").is_visible(), "Back-to-admin shortcut missing"
+            assert page.locator(".intro h1").inner_text().strip().startswith("Statistiques")
+            premium = page.evaluate("""() => {
+                const c = getComputedStyle(document.body);
+                const k = getComputedStyle(document.querySelector(".kpi"));
+                const hero = getComputedStyle(document.querySelector(".intro"));
+                return {background:c.backgroundImage,card:k.backgroundImage,border:k.borderRadius,hero:hero.backgroundImage};
+            }""")
+            assert "gradient" in premium["background"] and "gradient" in premium["card"], premium
+            assert "gradient" in premium["hero"], premium
+            assert page.evaluate(
+                "() => document.documentElement.scrollWidth <= window.innerWidth + 3"
+            ), "V3 horizontal overflow at width %d" % width
+            out = Path("artifacts/audience-phase4-visual")
+            out.mkdir(parents=True, exist_ok=True)
+            page.screenshot(path=str(out/("analytics-v3-%d.png" % width)),
+                            full_page=True,animations="disabled")
             ctx.close()
         browser.close()
-    print("PHASE4_BROWSER_DASHBOARD_AUTH_CHARTS_CSV_MOBILE_OK")
+    print("PHASE4_BROWSER_DASHBOARD_AUTH_CHARTS_CSV_MOBILE_V3_OK")
 
 if __name__=="__main__":
     main()
