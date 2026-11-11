@@ -1,0 +1,106 @@
+name: Flexible Social - offline video and provider contract E2E
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/flexible-social-e2e-ci.yml'
+      - '.github/workflows/dixon-coles-social-top10-20h.yml'
+      - 'scripts/create_social_exact_score_video.py'
+      - 'scripts/publish_social_exact_score_video.py'
+      - 'scripts/verify_social_publications.py'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+      - 'dixon-coles/dcscore/daily.py'
+      - 'dixon-coles/dcscore/video_grid_neon.py'
+      - 'dixon-coles/dcscore/video_render.py'
+      - 'dixon-coles/tests/test_daily_top10_v3.py'
+      - 'tests/test_social_flexible_e2e.py'
+      - 'tests/test_social_exact_score_video.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flexible-social-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install FFmpeg, fonts and test dependencies
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
+          python -m pip install -e 'dixon-coles[test]' 'Pillow>=10,<13'
+          python -m pip install requests
+      - name: Validate source integrity, safety and provider receipts
+        run: |
+          python -m pytest -q \
+            dixon-coles/tests/test_daily_top10_v3.py \
+            dixon-coles/tests/test_video_grid_neon.py \
+            tests/test_social_exact_score_video.py \
+            tests/test_social_flexible_e2e.py
+      - name: Verify security of standalone publishing scripts
+        run: |
+          python -m py_compile scripts/create_social_exact_score_video.py \
+            scripts/publish_social_exact_score_video.py \
+            scripts/verify_social_publications.py
+
+  live_preview:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    # Real ESPN read-only probe. A day without valid matches is an explicit
+    # skipped business outcome, NOT a synthetic/fake successful publication.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install model and real FFmpeg encoder
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
+          python -m pip install -e 'dixon-coles[test]' 'Pillow>=10,<13'
+      - name: Preview tomorrow's real ESPN fixtures without any social upload
+        id: preview
+        shell: bash
+        run: |
+          set +e
+          python scripts/create_social_exact_score_video.py \
+            --day tomorrow --source espn --publication-mode flexible \
+            --output-dir social_flexible_live_preview
+          CODE=$?
+          set -e
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          if [ "$CODE" = 0 ]; then
+            echo "REAL_FLEXIBLE_PREVIEW_READY"
+          elif [ "$CODE" = 3 ]; then
+            echo "REAL_FLEXIBLE_PREVIEW_SKIPPED_UNDERLYING_FIXTURES"
+          else
+            echo "REAL_FLEXIBLE_PREVIEW_FAILED exit_code=$CODE"
+            exit "$CODE"
+          fi
+      - name: Archive genuine preview evidence (not published)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Flexible-V4-real-ESPN-preview-NOT-PUBLISHED
+          path: |
+            social_flexible_live_preview/**/social_exact_scores_*.mp4
+            social_flexible_live_preview/**/social_manifest.json
+            social_flexible_live_preview/**/skipped.json
+            social_flexible_live_preview/model/**/predictions.json
+            social_flexible_live_preview/model/**/video_payload.json
+          if-no-files-found: warn
+          retention-days: 14

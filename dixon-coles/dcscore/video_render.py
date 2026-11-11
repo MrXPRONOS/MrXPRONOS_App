@@ -220,7 +220,14 @@ class LogoCache:
         asset=clip.get(f'{side}_logo_asset')
         url=clip.get(f'{side}_logo_url')
         key=(str(asset),str(url),side,name)
-        if key in self.loaded:return self.loaded[key]
+        if key in self.loaded:
+            # Counters represent requested logo *instances* in the video,
+            # not just distinct downloaded files. A club appearing twice
+            # must not cause a false missing-logo failure.
+            cached=self.loaded[key]
+            if cached.real:self.real_count+=1
+            else:self.fallback_count+=1
+            return cached
         try:
             if asset:
                 p=_asset_path(asset,self.asset_root)

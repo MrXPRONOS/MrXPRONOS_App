@@ -6,7 +6,7 @@ from pathlib import Path
 
 KNOWN = frozenset({"facebook", "instagram", "threads", "tiktok", "youtube", "bluesky"})
 
-def validate(expected_csv, report):
+def validate(expected_csv, report, manifest=None):
     expected = [p.strip().lower() for p in expected_csv.split(",") if p.strip()]
     if not expected or len(expected) != len(set(expected)) or not set(expected) <= KNOWN:
         raise ValueError("Invalid or duplicate expected publishing platforms")
@@ -26,6 +26,18 @@ def validate(expected_csv, report):
     failed=[name for name in expected if rows[name].get("ok") is not True]
     if failed:
         raise ValueError("SOCIAL_PARTIAL_FAILURE: providers failed: "+",".join(failed))
+    if manifest is not None:
+        if not isinstance(manifest,dict) or manifest.get("ready_for_video") is not True:
+            raise ValueError("Publication manifest unavailable or invalid")
+        for name in expected:
+            row=rows[name]
+            for field,source_field in (
+                ("target","target"), ("count","count"),
+                ("publication_mode","publication_mode"),
+                ("video_sha256","sha256"),
+            ):
+                if row.get(field) != manifest.get(source_field):
+                    raise ValueError("SOCIAL_RECEIPT_MANIFEST_MISMATCH: "+name+" "+field)
     for name in expected:
         data=rows[name].get("data")
         if not isinstance(data,dict):
@@ -41,9 +53,12 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--report",default="social_post_results.json")
     p.add_argument("--expected",required=True)
+    p.add_argument("--manifest")
     args=p.parse_args()
     report=json.loads(Path(args.report).read_text(encoding="utf-8"))
-    print("SOCIAL_PUBLICATION_AUDIT",json.dumps(validate(args.expected,report)))
+    manifest=(json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+              if args.manifest else None)
+    print("SOCIAL_PUBLICATION_AUDIT",json.dumps(validate(args.expected,report,manifest)))
     return 0
 
 if __name__=="__main__":

@@ -27,6 +27,8 @@ def main(argv:list[str]|None=None)->int:
     p.add_argument('--source',choices=['auto','football-data','openfootball','openligadb','espn'],default='auto')
     p.add_argument('--count',type=int,default=10)
     p.add_argument('--publication-mode',choices=('strict','flexible'),default='strict')
+    p.add_argument('--require-renderable',action='store_true',
+                   help='Exclure avant classement les matchs sans deux écussons valides, source confirmée, finale sûre')
     p.add_argument('--calibrate-laliga-goals',action='store_true',
                    help='Calibrage temporel conservateur de Liga, uniquement après validation historique')
     p.add_argument('--min-games',type=int,default=80)
@@ -57,7 +59,8 @@ def main(argv:list[str]|None=None)->int:
                          min_importance=args.min_importance,
                          max_staleness_days=args.max_staleness_days,
                          enable_goal_calibration=args.calibrate_laliga_goals,
-                         publication_mode=args.publication_mode)
+                         publication_mode=args.publication_mode,
+                         require_renderable=args.require_renderable)
         if args.source=='auto' and not os.environ.get('FOOTBALL_DATA_TOKEN','').strip():
             report['warnings'].append('FOOTBALL_DATA_TOKEN absent : calendrier des grands championnats et des coupes accessible uniquement par sources communautaires gratuites.')
             report['source_access_note']='Le fournisseur football-data.org demande une clé API, et certains championnats/coupes demandent un abonnement.'
