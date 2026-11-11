@@ -117,7 +117,7 @@ jobs:
           TARGET="$(TZ=Africa/Lome date -d tomorrow +%F)"
           MANIFEST="social_exact_scores_out/$TARGET/social_manifest.json"
           test -s "$MANIFEST"
-          python scripts/check_daily_flexible_manifest.py --manifest "$MANIFEST" --mode "$DCSCORE_PUBLICATION_MODE" --output "$GITHUB_OUTPUT"
+          python scripts/check_daily_flexible_manifest.py --manifest "$MANIFEST" --day "$TARGET" --mode "$DCSCORE_PUBLICATION_MODE" --output "$GITHUB_OUTPUT"
           VIDEO="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["video"])' "$MANIFEST")"
           COUNT="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["count"])' "$MANIFEST")"
           test -s "$VIDEO"
