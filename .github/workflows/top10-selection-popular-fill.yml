@@ -30,7 +30,7 @@ jobs:
             dixon-coles/tests/test_daily_top10_v3.py \
             dixon-coles/tests/test_daily_popularity_v2.py
       - name: Run all independent predictor regression tests
-        run: python -m pytest -q dixon-coles/tests
+        run: cd dixon-coles && python -m pytest -q tests
       - name: Ensure video and social files have NOT been changed
         run: |
           python - <<'PY'
