@@ -170,6 +170,8 @@ def test_full_ffmpeg_flexible_production_smoke_with_offline_demo_assets(tmp_path
     assert proof["count"]==3 and proof["resolution"]=="1080x1920"
     assert proof["real_logo_instances"]==6 and proof["placeholder_logo_instances"]==0
     assert output.stat().st_size>100_000
+    meta=publisher.verify_mp4_metadata(output,3)
+    assert meta["codec"]=="h264" and meta["audio_tracks"]>=1
     manifest=manifest_for(output,report,scene,data["selected"],3,data["date_local_africa_lome"])
     assert publisher.validate_manifest(manifest,output,predictions_path=report,
                                        storyboard_path=scene)==manifest["target"]
@@ -220,6 +222,9 @@ def test_social_provider_receipts_all_five_with_idempotent_d1_claims(tmp_path,mo
         posted.append(platform)
         id=f"at://social.test/{platform}/1" if platform=="bluesky" else f"verified-{platform}-001"
         return SimpleNamespace(ok=True,message="Provider mocked success",data={"id":id})
+    monkeypatch.setattr(publisher,"verify_mp4_metadata",
+                        lambda *args: {"codec":"h264","width":1080,"height":1920,
+                                      "audio_tracks":1,"duration_seconds":7.0})
     monkeypatch.setattr(publisher,"D1Ledger",FakeLedger)
     monkeypatch.setattr(publisher,"public_url",lambda *_:"https://example.invalid/verified-video.mp4")
     monkeypatch.setattr(publisher,"dispatch",fake_dispatch)
