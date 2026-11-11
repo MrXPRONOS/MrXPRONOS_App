@@ -107,7 +107,7 @@ def test_below_ten_no_invented_matches():
 
 
 def test_stale_history_excluded():
-    report=run_daily(DummyProvider([fixture(1)],training(days_old=60)),day=TARGET,as_of=NOW)
+    report=run_daily(DummyProvider([fixture(1)],training(days_old=60)),day=TARGET,as_of=NOW,second_pass=False)
     assert report['selected_count']==0
     assert report['status']=='NO_ELIGIBLE_MATCHES'
     assert report['rejected'][0]['reason'].startswith('resultats_perimes')
@@ -115,7 +115,7 @@ def test_stale_history_excluded():
 
 def test_unseen_team_cannot_be_scored():
     f=[fixture(0,home='Totally Unknown FC')]
-    report=run_daily(DummyProvider(f),day=TARGET,as_of=NOW)
+    report=run_daily(DummyProvider(f),day=TARGET,as_of=NOW,second_pass=False)
     assert report['selected_count']==0
     assert report['rejected'][0]['reason'].startswith('equipe_historique_insuffisant')
 
