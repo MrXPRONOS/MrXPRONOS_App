@@ -26,6 +26,7 @@ def _bounded(value: float, lower: float, upper: float) -> float:
 def cold_start_model(
     fixture: RankedFixture, history: list[Match], *, as_of: datetime,
     xi: float = .0065, trained_model: DCModel | None = None,
+    allow_fit: bool = True,
 ) -> tuple[DCModel, dict]:
     """Forecast all source-identified teams; expose when there is no evidence.
 
@@ -46,7 +47,7 @@ def cold_start_model(
         counts[game.away_id] += 1
     home_n, away_n = counts[fixture.home_id], counts[fixture.away_id]
     model = trained_model
-    if model is None and len(rows) >= 40:
+    if model is None and allow_fit and len(rows) >= 40:
         try:
             model = fit(rows, as_of=cutoff, xi=xi, min_games=40,
                         regularization=.15, maxiter=400)
