@@ -65,3 +65,33 @@ def test_esports_domains_and_bad_urls_not_accepted():
     assert valid_logo_url('https://a.espncdn.com/i/teamlogos/soccer/500/500.png')
     assert not valid_logo_url('http://a.espncdn.com/i/teamlogos/soccer/500/500.png')
     assert not valid_logo_url('https://evil.espncdn.com/i/teamlogos/soccer/500/500.png')
+
+
+def test_large_but_bounded_yearly_scoreboard_is_accepted_for_laliga():
+    class LargeResponse:
+        status_code = 200
+        content = b"x" * 4_750_000
+        def json(self):
+            return {"events": []}
+    class Session:
+        def get(self, url, **kwargs):
+            assert kwargs["params"]["dates"] == "2026"
+            return LargeResponse()
+    provider = ESPNProvider(session=Session(), leagues=["esp.1"])
+    assert provider._fetch("esp.1", "2026") == []
+
+
+def test_oversized_espn_json_is_rejected_without_hiding_reason():
+    import pytest
+    from dcscore.daily_sources import DailySourceError
+    class HugeResponse:
+        status_code = 200
+        content = b"x" * 8_100_000
+        def json(self):
+            raise AssertionError("Never parse oversized JSON")
+    class Session:
+        def get(self, url, **kwargs):
+            return HugeResponse()
+    provider = ESPNProvider(session=Session(), leagues=["esp.1"])
+    with pytest.raises(DailySourceError, match="trop volumineuse"):
+        provider._fetch("esp.1", "2026")
