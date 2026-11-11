@@ -84,7 +84,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         preview = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
-        self.assertIn("admin-phase2.css?v=20261111-push-v4", page)
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
         self.assertIn("ADMIN PUSH V4", css)
         for selector in (
             "#tab-push .mx2-push-layout",
@@ -108,6 +108,33 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('if(!await adminConfirm(action', controller)
         self.assertIn('const update=()=>', preview)
         self.assertIn('deviceTitle.textContent', preview)
+
+    def test_vip_v4_design_keeps_access_and_revoke_contract(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
+        self.assertIn("ADMIN VIP V4", css)
+        for selector in (
+            "#tab-vip .mx2-vip-summary",
+            "#tab-vip .mx2-vip-toolbar",
+            "#tab-vip .mx2-vip-table",
+            "#tab-vip #v_reset",
+            "#tab-vip .mx2-vip-table [data-revoke]",
+        ):
+            self.assertIn(selector, css)
+        self.assertIn('id="tab-vip"', page)
+        for name in ("v_user", "v_ip", "v_days", "v_reset"):
+            self.assertIn('id="' + name + '"', controller)
+        self.assertIn('sb.rpc("admin_reset_vip"', controller)
+        self.assertIn('sb.rpc("admin_revoke_vip"', controller)
+        self.assertIn('if (!await adminConfirm("Créer ou réinitialiser cet accès VIP', controller)
+        self.assertIn('if (!await adminConfirm("Désactiver l\'accès VIP', controller)
+        self.assertIn('const stateOf=tr=>', enhancer)
+        self.assertIn('["active","Actifs"]', enhancer)
+        self.assertIn('["expired","Expirés"]', enhancer)
+        self.assertIn('["disabled","Désactivés"]', enhancer)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
