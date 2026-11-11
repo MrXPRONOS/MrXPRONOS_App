@@ -76,6 +76,18 @@ LEAGUE_WEIGHT = {
     "ES:MYS.1": 81, "ES:IDN.1": 82,
     "ES:SGP.1": 76, "ES:AUS.1": 102,
     "ES:AUS.W.1": 89,
+    # Additional documented secondary competitions, still no senior-club
+    # bonus for academy/reserve teams.
+    "ES:IRL.1": 80, "ES:NOR.1": 88, "ES:SWE.1": 89,
+    "ES:DEN.1": 92, "ES:AUT.1": 100,
+    "ES:GRE.1": 93, "ES:CYP.1": 83, "ES:RUS.1": 97,
+    "ES:ENG.3": 86, "ES:ENG.4": 77, "ES:ENG.5": 71,
+    "ES:ENG.W.1": 114, "ES:ESP.2": 89, "ES:ESP.W.1": 105,
+    "ES:GER.2": 90, "ES:ITA.2": 88, "ES:FRA.2": 85,
+    "ES:FRA.W.1": 96, "ES:NED.2": 82, "ES:NED.3": 73,
+    "ES:USA.W.USL.1": 86, "ES:CAN.W.NSL": 83,
+    "ES:FIFA.U20.FRIENDLY": 65, "ES:FIFA.WWORLDQ.UEFA": 115,
+    "ES:UEFA.W.NATIONS": 107, "ES:NONFIFA": 60,
 }
 STAGE_WEIGHT = {
     "FINAL": 225, "SEMI_FINALS": 105, "QUARTER_FINALS": 62,
@@ -180,9 +192,14 @@ NATIONAL_CODES = frozenset({"ES:FIFA.WORLD", "ES:UEFA.EURO", "ES:CONMEBOL.AMERIC
                             "ES:CAF.NATIONS_QUAL", "ES:FIFA.WORLDQ.AFC",
                             "ES:FIFA.WORLDQ.CONCACAF", "ES:FIFA.WORLDQ.OFC",
                             "ES:FIFA.FRIENDLY_U21", "ES:FIFA.WORLD.U20",
-                            "ES:FIFA.WORLD.U17"})
+                            "ES:FIFA.WORLD.U17", "ES:FIFA.U20.FRIENDLY",
+                            "ES:FIFA.WWORLDQ.UEFA", "ES:UEFA.W.NATIONS",
+                            "ES:NONFIFA"})
 WOMENS_CODES = frozenset({"ES:UEFA.WCHAMPIONS","ES:FIFA.FRIENDLY.W",
-                          "ES:USA.NWSL","ES:AUS.W.1"})
+                          "ES:USA.NWSL","ES:AUS.W.1",
+                          "ES:ENG.W.1","ES:ESP.W.1","ES:FRA.W.1",
+                          "ES:USA.W.USL.1","ES:CAN.W.NSL",
+                          "ES:FIFA.WWORLDQ.UEFA","ES:UEFA.W.NATIONS"})
 DERBIES = (
     frozenset(("real madrid", "barcelona")),
     frozenset(("real madrid", "atletico madrid")),
