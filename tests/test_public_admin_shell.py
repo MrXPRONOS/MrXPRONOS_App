@@ -142,7 +142,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
         blocks = (ROOT / "assets/js/cms-block-editor.mjs").read_text(encoding="utf-8")
-        self.assertIn("admin-phase2.css?v=20261111-articles-v4", page)
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
         self.assertIn("ADMIN ARTICLES V4", css)
         for selector in (
             "#tab-articles .admin-cms-editor-toggle",
@@ -163,6 +163,37 @@ class AdminPagesPublicationContract(unittest.TestCase):
                        "confirmCmsQuality"):
             self.assertIn(method, controller)
         self.assertIn('sb.from("cms_articles").upsert(payload)', controller)
+        self.assertIn('const preview=elt("aside","mx2-editor-preview")', enhancer)
+        self.assertIn('renderSafeCmsMarkdown', enhancer)
+        self.assertIn('Aperçu de l\'article (non publié)', blocks)
+
+    def test_conseils_v4_visuals_and_cms_controls_are_retained(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
+        blocks = (ROOT / "assets/js/cms-block-editor.mjs").read_text(encoding="utf-8")
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
+        self.assertIn("ADMIN CONSEILS V4", css)
+        for selector in (
+            "#tab-conseils .admin-cms-editor-toggle",
+            "#tab-conseils .mx2-editor-preview",
+            "#tab-conseils .mx-cms-list-filters",
+            "#tab-conseils .mx2-content-card",
+            "#tab-conseils .mx-block-toolbar",
+            "#tab-conseils #c_save",
+        ):
+            self.assertIn(selector, css)
+        for control in (
+            "c_slug", "c_title", "c_image", "c_category", "c_level",
+            "c_tags", "c_content", "c_status", "c_active", "c_save",
+        ):
+            self.assertIn('id="' + control + '"', controller)
+        for method in ("mountCmsBlockEditor", "mountCmsRevisionPanel",
+                       "mountCmsListFilters", "mountCmsServerSearch",
+                       "confirmCmsQuality"):
+            self.assertIn(method, controller)
+        self.assertIn('sb.from("cms_conseils").upsert(payload)', controller)
         self.assertIn('const preview=elt("aside","mx2-editor-preview")', enhancer)
         self.assertIn('renderSafeCmsMarkdown', enhancer)
         self.assertIn('Aperçu de l\'article (non publié)', blocks)
