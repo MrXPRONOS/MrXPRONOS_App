@@ -1,0 +1,77 @@
+name: Backtest Popularite V2 - Octobre 2026 (no publishing)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/backtest-popularite-v2-oct2026.yml'
+      - 'dixon-coles/dcscore/backtest_popular_v2.py'
+      - 'dixon-coles/dcscore/combine_backtest_v2.py'
+      - 'dixon-coles/tests/test_backtest_popular_v2.py'
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {start: '2026-10-01', end: '2026-10-07'}
+          - {start: '2026-10-08', end: '2026-10-14'}
+          - {start: '2026-10-15', end: '2026-10-21'}
+          - {start: '2026-10-22', end: '2026-10-28'}
+          - {start: '2026-10-29', end: '2026-10-31'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install production-model and test dependencies
+        run: python -m pip install -e 'dixon-coles[test]'
+      - name: Verify V2 replay only uses preceding results
+        run: python -m pytest -q dixon-coles/tests/test_backtest_popular_v2.py
+      - name: Recreate selected popular forecasts before kickoff
+        working-directory: dixon-coles
+        run: |
+          python -m dcscore.backtest_popular_v2 \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --out results/backtests/oct2026_v2
+      - name: Upload each daily result with score-by-score comparisons
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: popularity-v2-part-${{ matrix.start }}
+          path: |
+            dixon-coles/results/backtests/oct2026_v2/backtest_oct2026_v2.json
+            dixon-coles/results/backtests/oct2026_v2/backtest_oct2026_v2_matches.csv
+          if-no-files-found: warn
+          retention-days: 90
+
+  report:
+    needs: replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install analysis dependencies
+        run: python -m pip install -e 'dixon-coles'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: popularity-v2-part-*
+          path: parts
+          merge-multiple: false
+      - name: Aggregate exactly 31 dates and prevent duplicate fixtures
+        working-directory: dixon-coles
+        run: python -m dcscore.combine_backtest_v2 --parts ../parts --out ../v2_report
+      - name: Upload complete October V2 report and match data
+        uses: actions/upload-artifact@v4
+        with:
+          name: MRXPRONOS-backtest-popularite-V2-octobre-2026
+          path: v2_report/*
+          retention-days: 90
