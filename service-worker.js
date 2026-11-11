@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v125-admin-home-reference-fresh-20261110';
+const VERSION = 'v126-admin-home-reference-live-20261111';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -294,8 +294,9 @@ self.addEventListener('fetch', (event) => {
     // after GitHub Pages publishes a new version.
     const adminPage = /\/admin(?:-[a-z0-9-]+)?\.html$/i.test(path);
     const adminAsset = /\/assets\/(?:css|js)\/admin-[^/]+\.(?:css|js|mjs)$/i.test(path);
+    const adminReferenceArt = /\/assets\/images\/admin-home-(?:ball|lights)-reference\.webp$/i.test(path);
     const fromAdmin = /\/admin(?:-[a-z0-9-]+)?\.html|\/assets\/js\/(?:admin-|cms-)/i.test(request.referrer || "");
-    if (adminPage || adminAsset ||
+    if (adminPage || adminAsset || adminReferenceArt ||
         (fromAdmin && /\/assets\/(?:css|js)\//.test(path))) {
         event.respondWith(
             fetch(request, { cache: 'no-store' }).catch(() =>
