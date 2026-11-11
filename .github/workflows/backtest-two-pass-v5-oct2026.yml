@@ -7,6 +7,8 @@ on:
       - 'dixon-coles/dcscore/backtest_two_pass_v5.py'
       - 'dixon-coles/dcscore/combine_backtest_two_pass_v5.py'
       - 'dixon-coles/dcscore/daily_pipeline.py'
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/dcscore/daily_popularity.py'
       - 'dixon-coles/dcscore/fallback_model.py'
 
 permissions:
