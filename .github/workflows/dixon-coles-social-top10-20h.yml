@@ -9,6 +9,10 @@ on:
         type: choice
         default: preview
         options: [preview, publish]
+      publication_mode:
+        type: choice
+        default: strict
+        options: [strict, flexible]
       source:
         type: choice
         default: espn
@@ -24,10 +28,11 @@ concurrency:
 jobs:
   social:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 65
     env:
       SOCIAL_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode || 'preview' }}
       DCSCORE_SOURCE: ${{ inputs.source || 'espn' }}
+      DCSCORE_PUBLICATION_MODE: ${{ github.event_name == 'schedule' && 'strict' || inputs.publication_mode || 'strict' }}
       POST_PLATFORMS: facebook,youtube,instagram,threads,bluesky
       FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -69,13 +74,13 @@ jobs:
         run: |
           python -m py_compile scripts/create_social_exact_score_video.py scripts/publish_social_exact_score_video.py
           python -m unittest discover -s tests -p test_social_exact_score_video.py -v
-          python -m pytest -q dixon-coles/tests/test_video_grid.py dixon-coles/tests/test_daily_espn.py dixon-coles/tests/test_daily_popularity_v2.py
+          python -m pytest -q dixon-coles/tests/test_video_grid.py dixon-coles/tests/test_daily_espn.py dixon-coles/tests/test_daily_popularity_v2.py dixon-coles/tests/test_daily_top10_v3.py
       - name: Generate tomorrow Top10 with safe Telegram CTA
         id: render
         shell: bash
         run: |
           set +e
-          python scripts/create_social_exact_score_video.py --day tomorrow --source "$DCSCORE_SOURCE" --output-dir social_exact_scores_out
+          python scripts/create_social_exact_score_video.py --day tomorrow --source "$DCSCORE_SOURCE" --publication-mode "$DCSCORE_PUBLICATION_MODE" --output-dir social_exact_scores_out
           CODE=$?
           set -e
           if [ "$CODE" -eq 3 ]; then
@@ -114,6 +119,7 @@ jobs:
             social_exact_scores_out/**/cta_safe_zone.png
             social_exact_scores_out/**/social_manifest.json
             social_exact_scores_out/**/skipped.json
+            social_exact_scores_out/model/**/predictions.json
             social_exact_scores_out/social_post_results.json
           if-no-files-found: warn
           retention-days: 14

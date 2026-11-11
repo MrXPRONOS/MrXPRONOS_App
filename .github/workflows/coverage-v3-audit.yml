@@ -1,0 +1,40 @@
+name: Coverage V3 - candidate football league audit (no publishing)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/coverage-v3-audit.yml'
+      - 'dixon-coles/dcscore/audit_coverage.py'
+      - 'dixon-coles/dcscore/daily_espn.py'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install independent model
+        run: python -m pip install -e 'dixon-coles'
+      - name: Audit real ESPN schedules, historical match volume and team IDs
+        working-directory: dixon-coles
+        run: |
+          python -m dcscore.audit_coverage --shard ${{ matrix.shard }} --shards 4 \
+            --output results/coverage/audit-${{ matrix.shard }}.json
+      - name: Preserve independent evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-v3-shard-${{ matrix.shard }}
+          path: dixon-coles/results/coverage/*
+          if-no-files-found: warn
+          retention-days: 90

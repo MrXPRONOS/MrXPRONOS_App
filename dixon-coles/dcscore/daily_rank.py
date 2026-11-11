@@ -72,3 +72,49 @@ def diverse_ranked(fixtures: list[RankedFixture], limit: int, max_per_league: in
             if len(result) == limit:
                 break
     return result
+
+
+# Editorial grades, not bookmaker-confidence grades.
+# All three levels still require real schedules and separately validated history.
+TIER_A_MIN = 220
+TIER_B_MIN = 145
+TIER_C_MIN = 70
+
+
+def popularity_tier(importance_value: int) -> str:
+    if importance_value >= TIER_A_MIN:
+        return "A"
+    if importance_value >= TIER_B_MIN:
+        return "B"
+    return "C"
+
+
+def select_tiered(fixtures: list[RankedFixture], limit: int,
+                  max_per_league: int = 4) -> list[RankedFixture]:
+    """Prioritize A -> B -> C, maintaining a soft diversity quota.
+
+    First pass respects max_per_league for all tiers. Second pass fills from
+    highest editorial grade without the quota; it never invents fixtures.
+    All fixtures must have already passed historical and source checks.
+    """
+    if not 1 <= limit <= 30:
+        raise ValueError("Nombre de pronostics hors limites")
+    if max_per_league < 1:
+        raise ValueError("Quota de championnat hors limites")
+    ranked = rank_fixtures(fixtures)
+    # rank_fixtures is already monotonic with grades; tie break is deterministic.
+    result: list[RankedFixture] = []
+    seen: set[str] = set()
+    per_league: dict[str, int] = {}
+    for allow_overquota in (False, True):
+        for match in ranked:
+            if match.id in seen:
+                continue
+            if not allow_overquota and per_league.get(match.competition, 0) >= max_per_league:
+                continue
+            result.append(match)
+            seen.add(match.id)
+            per_league[match.competition] = per_league.get(match.competition, 0) + 1
+            if len(result) >= limit:
+                return result
+    return result

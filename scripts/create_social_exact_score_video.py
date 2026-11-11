@@ -84,19 +84,26 @@ def make_cta(output: Path) -> None:
     image.save(output, format="PNG")
 
 
-def verify_ready(report: dict, storyboard: dict, target: str) -> None:
+def verify_ready(report: dict, storyboard: dict, target: str,
+                 publication_mode: str = 'strict') -> None:
+    n = int(report.get('selected_count') or 0)
+    expected = (n if publication_mode == 'flexible' else 10)
+    if publication_mode not in ('strict','flexible') or not 1 <= expected <= 10:
+        raise ValueError('Publication non conforme au mode choisi')
     if (report.get("date_local_africa_lome") != target
             or storyboard.get("date_local_africa_lome") != target
             or report.get("status") != "READY"
             or report.get("ready_for_video") is not True
             or storyboard.get("ready_for_video") is not True
-            or report.get("selected_count") != 10
-            or storyboard.get("selected_count") != 10
-            or len(report.get("selected") or []) != 10
-            or len(storyboard.get("clips") or []) != 10):
+            or report.get("publication_mode","strict") != publication_mode
+            or storyboard.get("publication_mode","strict") != publication_mode
+            or report.get("selected_count") != expected
+            or storyboard.get("selected_count") != expected
+            or len(report.get("selected") or []) != expected
+            or len(storyboard.get("clips") or []) != expected):
         raise ValueError("Pas de vidéo sans 10 affiches réelles prêtes, datées et vérifiées")
     identities = [str(row.get("id") or "") for row in report["selected"]]
-    if not all(identities) or len(set(identities)) != 10:
+    if not all(identities) or len(set(identities)) != expected:
         raise ValueError("Dix identifiants réels et distincts obligatoires")
     if storyboard.get("status") != "READY":
         raise ValueError("Storyboard non validé")
@@ -129,7 +136,8 @@ def encode_social(source: Path, overlay: Path, destination: Path) -> None:
         raise ValueError("Vidéo absente, trop petite ou dépassant 24 Mio")
 
 
-def build(*, day: str, source: str, output_dir: Path) -> int:
+def build(*, day: str, source: str, output_dir: Path,
+          publication_mode: str = 'strict') -> int:
     check_layout()
     now = datetime.now(LOME)
     target = (now.date() + timedelta(days=1)).isoformat() if day == "tomorrow" else day
@@ -145,6 +153,7 @@ def build(*, day: str, source: str, output_dir: Path) -> int:
     outcome = daily_main([
         "--day", target, "--source", source, "--count", "10",
         "--min-team", "4", "--min-importance", "70",
+        "--publication-mode", publication_mode,
         "--max-staleness-days", "35",
         "--output-dir", str(output_dir / "model"),
     ])
@@ -158,19 +167,25 @@ def build(*, day: str, source: str, output_dir: Path) -> int:
             "target": target, "status": report.get("status"),
             "selected": report.get("selected_count"),
             "reasons": report.get("reasons_not_ready", []),
+            "selection_diagnostics": report.get("selection_diagnostics",{}),
+            "publication_mode": publication_mode,
         }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("SOCIAL_EXACT_SCORES_SKIPPED", target, report.get("selected_count"), flush=True)
         return 3
 
-    verify_ready(report, storyboard, target)
+    verify_ready(report, storyboard, target, publication_mode=publication_mode)
     final_video = work / "social_exact_scores_10.mp4"
     # New user-approved neon background, transparent title and Telegram artwork.
     # The video renderer retains the real 2x5 matches and original reveal rhythm.
-    render(storyboard, final_video, fullhd=True, asset_root=str(DIXON))
+    render(storyboard, final_video, fullhd=True, asset_root=str(DIXON),
+           require_real_logos=True,
+           allow_partial_production=(publication_mode=='flexible'))
     data = {
-        "schema": "mrx-dixon-coles-social-top10-v1",
+        "schema": ("mrx-dixon-coles-social-top10-v1" if publication_mode=='strict'
+                   else "mrx-dixon-coles-social-flex-v2"),
+        "publication_mode": publication_mode,
         "target": target,
-        "count": 10,
+        "count": len(storyboard["clips"]),
         "source": report.get("source_mode"),
         "status": "READY",
         "ready_for_video": True,
@@ -182,7 +197,7 @@ def build(*, day: str, source: str, output_dir: Path) -> int:
     (work / "social_manifest.json").write_text(
         json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("SOCIAL_EXACT_SCORES_READY", json.dumps({
-        "target": target, "video": str(final_video), "count": 10,
+        "target": target, "video": str(final_video), "count": len(storyboard["clips"]),
         "bytes": final_video.stat().st_size}, ensure_ascii=False), flush=True)
     return 0
 
@@ -193,13 +208,15 @@ def main() -> int:
     parser.add_argument("--source", default="espn",
                         choices=["auto", "espn", "football-data", "openfootball", "openligadb"])
     parser.add_argument("--output-dir", type=Path, default=Path("social_exact_scores_out"))
+    parser.add_argument("--publication-mode",choices=("strict","flexible"),default="strict")
     parser.add_argument("--cta-preview", type=Path,
                         help="Génère uniquement le calque CTA pour vérification hors réseau")
     args = parser.parse_args()
     if args.cta_preview:
         make_cta(args.cta_preview)
         return 0
-    return build(day=args.day, source=args.source, output_dir=args.output_dir)
+    return build(day=args.day, source=args.source, output_dir=args.output_dir,
+                 publication_mode=args.publication_mode)
 
 
 if __name__ == "__main__":

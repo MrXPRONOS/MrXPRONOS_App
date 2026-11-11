@@ -60,8 +60,8 @@ MONTHS = ("JAN", "FÉV", "MAR", "AVR", "MAI", "JUN", "JUL", "AOÛ", "SEP", "OCT"
 
 
 def positions(n=10):
-    if n != 10:
-        raise ValueError("Édition sociale exige exactement dix affiches")
+    if not 1 <= n <= 10:
+        raise ValueError("L'édition sociale accepte 1 à 10 affiches vérifiées")
     return [(CARD_X[i % 2], CARD_Y0 + (i // 2) * (CARD_H + CARD_GAP_Y)) for i in range(n)]
 
 
@@ -156,6 +156,11 @@ def base_frame(payload, clips, logos, preview=False):
             base.alpha_composite(with_img, (round(cx-with_img.width/2), y+10))
         _team_label(d, x+76, y, home)
         _team_label(d, x+CARD_W-76, y, away)
+    if len(clips) < 10:
+        d.rounded_rectangle((270, 860, 450, 890), radius=9,
+                            fill=(6, 20, 39, 238), outline=GOLD, width=2)
+        d.text((360, 875), f"{len(clips)} MATCHS VÉRIFIÉS",
+               font=font(15, True), fill=GOLD, anchor="mm")
     if preview:
         d.rounded_rectangle((140, 1138, 580, 1172), radius=10, fill=(6, 20, 39, 240))
         d.text((360, 1155), "DÉMONSTRATION · NON OFFICIEL",
@@ -214,23 +219,25 @@ def compose_frame(base, clips, t, *, starts):
 
 
 def render(payload, output, *, preview=False, require_real_logos=False,
-           fullhd=True, asset_root=".", logo_cache=None, fps=FPS):
-    clips = validate_payload(payload, preview=preview)
-    if len(clips) != 10:
-        raise ValueError("La vidéo sociale réclame dix rencontres vérifiées")
+           fullhd=True, asset_root=".", logo_cache=None, fps=FPS,
+           allow_partial_production=False):
+    clips = validate_payload(payload, preview=preview,
+                             allow_partial_production=allow_partial_production)
+    if not 1 <= len(clips) <= 10 or (not allow_partial_production and len(clips)!=10):
+        raise ValueError("L'édition sociale stricte exige exactement dix rencontres vérifiées")
     check_assets()
     if not shutil.which("ffmpeg"):
         raise RuntimeError("ffmpeg absent")
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    starts = [FIRST_REVEAL+i*REVEAL_INTERVAL for i in range(10)]
+    starts = [FIRST_REVEAL+i*REVEAL_INTERVAL for i in range(len(clips))]
     duration = round(starts[-1]+REVEAL_EFFECT+FINAL_HOLD, 3)
     frames = round(duration*fps)
     with tempfile.TemporaryDirectory(prefix="mrx-neon-social-") as temp:
         cache = LogoCache(logo_cache or Path(temp)/"logos", asset_root, preview)
         logos = [(cache.get(c, "home", i), cache.get(c, "away", i)) for i, c in enumerate(clips, 1)]
         if require_real_logos and (cache.fallback_count or cache.real_count != 2 * len(clips)):
-            raise ValueError("Vingt vrais écussons exigés : pas de lettres de remplacement")
+            raise ValueError("Tous les vrais écussons sont exigés pour les équipes : pas de lettres de remplacement")
         base = base_frame(payload, clips, logos, preview)
         soundtrack_file = Path(temp)/"audio.wav"
         soundtrack(soundtrack_file, duration, [0., *starts], volume=.55)

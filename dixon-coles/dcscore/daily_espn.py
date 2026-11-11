@@ -36,7 +36,61 @@ ALLOWED = {
     'eng.trophy': 'EFL Trophy',
     'fifa.world': 'Coupe du monde FIFA',
     'uefa.euro': 'Championnat d’Europe des nations',
+    # Expanded candidate registry; candidates are never silently enabled.
+    'por.1': 'Primeira Liga Portugal',
+    'ned.1': 'Eredivisie Pays-Bas',
+    'tur.1': 'Süper Lig Turquie',
+    'sco.1': 'Premiership Écosse',
+    'bel.1': 'Pro League Belgique',
+    'eng.2': 'Championship Angleterre',
+    'bra.1': 'Série A Brésil',
+    'arg.1': 'Primera División Argentine',
+    'usa.1': 'Major League Soccer',
+    'mex.1': 'Liga MX Mexique',
+    'col.1': 'Primera A Colombie',
+    'jpn.1': 'J1 League Japon',
+    'kor.1': 'K League 1 Corée du Sud',
+    'ksa.1': 'Saudi Pro League',
+    'egy.1': 'Premier League Égypte',
+    'mar.1': 'Botola Maroc',
+    'rsa.1': 'Premiership Afrique du Sud',
+    'uefa.nations': 'Ligue des Nations UEFA',
+    'conmebol.libertadores': 'Copa Libertadores',
+    'conmebol.sudamericana': 'Copa Sudamericana',
+    'concacaf.champions': 'CONCACAF Champions Cup',
+    'caf.champions': 'CAF Champions League',
+    'caf.confederation': 'CAF Confederation Cup',
+    'afc.champions': 'AFC Champions League',
+    'ger.dfb_pokal': 'DFB Pokal',
+    'esp.copa_del_rey': 'Coupe du Roi',
+    'ita.coppa_italia': 'Coupe d’Italie',
+    'fra.coupe_de_france': 'Coupe de France',
+    'fifa.worldq.uefa': 'Qualifications Coupe du Monde Europe',
+    'fifa.worldq.caf': 'Qualifications Coupe du Monde Afrique',
+    'fifa.worldq.conmebol': 'Qualifications Coupe du Monde Amérique du Sud',
+    'conmebol.america': 'Copa América',
+    'caf.nations': 'Coupe d’Afrique des Nations',
+    'concacaf.gold': 'Gold Cup',
 }
+
+# The catalog above is a *candidate* pool, not a claim of coverage.
+# The enabled list retains 14 already tested competitions. New leagues are
+# promoted only after separate historical and crest audits.
+ENABLED = (
+    'uefa.champions', 'uefa.europa', 'uefa.europa.conf',
+    'eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1',
+    'eng.fa', 'eng.league_cup', 'uefa.wchampions', 'eng.trophy',
+    'fifa.world', 'uefa.euro',
+    # Enabled after four-shard V3 audit: >=80 past matches,
+    # >=8 clubs with >=4 games, recent results, valid archived crests,
+    # and no annual result page hitting the 400-event limit.
+    'por.1', 'ned.1', 'tur.1', 'sco.1', 'bel.1',
+    'bra.1', 'mex.1', 'ksa.1', 'jpn.1', 'rsa.1',
+    'conmebol.libertadores', 'conmebol.sudamericana',
+    'caf.champions', 'afc.champions',
+    'ger.dfb_pokal', 'esp.copa_del_rey', 'fra.coupe_de_france',
+)
+CANDIDATES = tuple(code for code in ALLOWED if code not in ENABLED)
 
 
 def _score(value):
@@ -161,8 +215,8 @@ class ESPNProvider:
 
     def __init__(self, *, session=None, leagues=None, years_back=2):
         self.session = session or requests.Session()
-        self.leagues = tuple(leagues or ALLOWED)
-        if not self.leagues or any(k not in ALLOWED for k in self.leagues):
+        self.leagues = tuple(ENABLED if leagues is None else leagues)
+        if not self.leagues or len(set(self.leagues)) != len(self.leagues) or any(k not in ALLOWED for k in self.leagues):
             raise DailySourceError('Compétition ESPN non autorisée')
         if years_back not in (1,2,3):
             raise DailySourceError('Fenêtre de saisons ESPN non valide')
@@ -190,6 +244,10 @@ class ESPNProvider:
                 raise DailySourceError('Réponse ESPN invalide')
             if len(data['events'])>400:
                 raise DailySourceError('ESPN : limite de résultats dépassée; risque historique tronqué')
+            if len(date_selector)==4 and len(data['events'])==400:
+                # ESPN year scoreboards can silently stop at the requested 400
+                # event limit. Never train on an incomplete 400-match sample.
+                raise DailySourceError(f'ESPN {league} {date_selector}: troncature historique possible à 400 matchs')
             self._cache[k]=data['events']
             return self._cache[k]
         except requests.RequestException as exc:
@@ -232,6 +290,10 @@ class ESPNProvider:
                     if m and m.id not in history:history[m.id]=m
             except DailySourceError as exc:
                 errors.append(str(exc))
+        if any('troncature historique' in warning for warning in errors):
+            # A partial annual archive is not safe for fitting Dixon-Coles.
+            self._history[key]=([],errors)
+            return self._history[key]
         rows=sorted(history.values(),key=lambda m:(m.kickoff,m.id))
         self._history[key]=(rows,errors)
         return rows,errors

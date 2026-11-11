@@ -95,3 +95,19 @@ def test_oversized_espn_json_is_rejected_without_hiding_reason():
     provider = ESPNProvider(session=Session(), leagues=["esp.1"])
     with pytest.raises(DailySourceError, match="trop volumineuse"):
         provider._fetch("esp.1", "2026")
+
+
+def test_yearly_400_event_cap_is_never_silently_used_for_training():
+    import pytest
+    from dcscore.daily_sources import DailySourceError
+    class LimitResponse:
+        status_code=200
+        content=b'{}'
+        def json(self):
+            return {'events':[{'id':str(i)} for i in range(400)]}
+    class Session:
+        def get(self, url, **kwargs):
+            return LimitResponse()
+    p=ESPNProvider(session=Session(),leagues=['eng.2'])
+    with pytest.raises(DailySourceError,match="troncature historique"):
+        p._fetch('eng.2','2026')

@@ -312,7 +312,8 @@ def soundtrack(path,duration,starts,volume=.40):
         w.writeframes(pcm.astype('<i2').tobytes())
 
 
-def validate_payload(data,preview=False,allow_partial_preview=False):
+def validate_payload(data,preview=False,allow_partial_preview=False,
+                     allow_partial_production=False):
     if not isinstance(data,dict):raise ValueError('Payload JSON invalide')
     clips=data.get('clips')
     if not isinstance(clips,list) or not 1<=len(clips)<=15:
@@ -320,7 +321,12 @@ def validate_payload(data,preview=False,allow_partial_preview=False):
     if not preview:
         if data.get('ready_for_video') is not True or data.get('status')!='READY':
             raise ValueError('Publication vidéo interdite : payload NOT READY')
-        if int(data.get('selected_count',-1))!=10 or len(clips)!=10:
+        if allow_partial_production:
+            if (data.get('publication_mode')!='flexible'
+                    or not 1 <= len(clips) <= 10
+                    or int(data.get('selected_count',-1))!=len(clips)):
+                raise ValueError('Le mode flexible exige des matchs réels cohérents (1 à 10)')
+        elif int(data.get('selected_count',-1))!=10 or len(clips)!=10:
             raise ValueError('Le mode production exige 10 matchs validés')
         now=datetime.now(timezone.utc)
         from datetime import date

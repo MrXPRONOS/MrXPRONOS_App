@@ -26,6 +26,7 @@ def main(argv:list[str]|None=None)->int:
     p.add_argument('--day',default='tomorrow',help='today, tomorrow ou YYYY-MM-DD ; planifié à 21h UTC pour demain')
     p.add_argument('--source',choices=['auto','football-data','openfootball','openligadb','espn'],default='auto')
     p.add_argument('--count',type=int,default=10)
+    p.add_argument('--publication-mode',choices=('strict','flexible'),default='strict')
     p.add_argument('--calibrate-laliga-goals',action='store_true',
                    help='Calibrage temporel conservateur de Liga, uniquement après validation historique')
     p.add_argument('--min-games',type=int,default=80)
@@ -55,7 +56,8 @@ def main(argv:list[str]|None=None)->int:
                          min_games=args.min_games,min_team=args.min_team,
                          min_importance=args.min_importance,
                          max_staleness_days=args.max_staleness_days,
-                         enable_goal_calibration=args.calibrate_laliga_goals)
+                         enable_goal_calibration=args.calibrate_laliga_goals,
+                         publication_mode=args.publication_mode)
         if args.source=='auto' and not os.environ.get('FOOTBALL_DATA_TOKEN','').strip():
             report['warnings'].append('FOOTBALL_DATA_TOKEN absent : calendrier des grands championnats et des coupes accessible uniquement par sources communautaires gratuites.')
             report['source_access_note']='Le fournisseur football-data.org demande une clé API, et certains championnats/coupes demandent un abonnement.'
@@ -66,6 +68,8 @@ def main(argv:list[str]|None=None)->int:
                           'provider':report['source_mode'],'ready_for_video':report['ready_for_video'],
                           'discovered_count':report['count_before_quality_checks'],
                           'source_discovery_counts':report.get('source_discovery_counts',{}),
+                          'publication_mode':report.get('publication_mode','strict'),
+                          'selection_diagnostics':report.get('selection_diagnostics',{}),
                           'reasons_not_ready':report['reasons_not_ready'],
                           'warnings':report['warnings'][:5],
                           'path':str(destination/'predictions.json')},ensure_ascii=False,indent=2))
