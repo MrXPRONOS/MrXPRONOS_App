@@ -1,4 +1,4 @@
-"""ESPN-reported women's UCL/EFL Trophy scheduled fixtures and completed results.
+"""ESPN-reported fixtures and completed results for priority football competitions.
 
 Experimental personal/test use only. ESPN is an unaffiliated, non-official
 third-party provider and its public endpoint may change; never claim UEFA
@@ -13,11 +13,25 @@ import re
 import requests
 
 from .daily_rank import RankedFixture
+from .daily_popularity import stage_class
 from .daily_sources import DailySourceError
 from .domain import Match, utc_datetime
 
 BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer'
+# A broad editorial discovery pool; no synthetic fixtures and no implicit
+# club-ID mapping across competitions. Each competition is trained separately.
+# Unsupported ESPN leagues fail individually and are reported in warnings.
 ALLOWED = {
+    'uefa.champions': 'Ligue des champions UEFA',
+    'uefa.europa': 'Europa League UEFA',
+    'uefa.europa.conf': 'Conference League UEFA',
+    'eng.1': 'Premier League',
+    'esp.1': 'Liga',
+    'ger.1': 'Bundesliga',
+    'ita.1': 'Serie A',
+    'fra.1': 'Ligue 1',
+    'eng.fa': 'FA Cup',
+    'eng.league_cup': 'Coupe de la Ligue anglaise',
     'uefa.wchampions': 'Ligue des champions féminine',
     'eng.trophy': 'EFL Trophy',
 }
@@ -32,6 +46,43 @@ def _score(value):
         n = int(value)
         return n if n <= 30 else None
     return None
+
+
+def _provider_round(event: dict, competition: dict) -> str:
+    """Extract confirmed competition phase without guessing from scores.
+
+    ESPN stage/round/notes schemas vary by league; accept only recognizable
+    phase strings on structured source fields. Regular-season is the safe fallback.
+    """
+    values = []
+    for source in (event, competition):
+        for key in ("stage", "round", "roundName", "phase"):
+            raw = source.get(key)
+            if isinstance(raw, dict):
+                raw = raw.get("name") or raw.get("displayName") or raw.get("label")
+            if isinstance(raw, str):
+                values.append(raw)
+        for note in source.get("notes") or []:
+            if isinstance(note, dict):
+                title = note.get("headline") or note.get("text")
+                if isinstance(title, str):
+                    values.append(title)
+    for raw in values:
+        t = re.sub(r"\s+", " ", raw.strip()).lower()
+        if re.search(r"\bsemi[\s-]?finals?\b", t):
+            return "SEMI_FINALS"
+        if re.search(r"\bquarter[\s-]?finals?\b", t):
+            return "QUARTER_FINALS"
+        if re.search(r"\b(?:round of 16|last 16|round of sixteen)\b", t):
+            return "LAST_16"
+        if re.search(r"\b(?:final|finale)\b", t):
+            return "FINAL"
+        if re.search(r"\bplay[\s-]?offs?\b", t):
+            return "PLAYOFFS"
+        value = stage_class(t)
+        if value in ("FINAL", "SEMI_FINALS", "QUARTER_FINALS", "LAST_16", "PLAYOFFS"):
+            return value
+    return "REGULAR_SEASON"
 
 
 def parse_event(event, league: str, *, now: datetime):
@@ -85,7 +136,7 @@ def parse_event(event, league: str, *, now: datetime):
             id=f'espn:{league}:{event_id}',competition=key,
             competition_name=ALLOWED[league],kickoff=kickoff,
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
-            home_name=hn,away_name=an,stage='REGULAR_SEASON',
+            home_name=hn,away_name=an,stage=_provider_round(event,comp),
             source='ESPN public scoreboard',source_verified=True,
             neutral_venue=None,home_logo_url=crest(home_team),
             away_logo_url=crest(away_team)) if not completed else None
