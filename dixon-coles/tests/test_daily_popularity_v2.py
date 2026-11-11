@@ -134,3 +134,37 @@ def test_stable_pre_match_editorial_rank_ignores_scores():
     y = importance(fixture)
     assert x.importance == y.importance and x.importance_reasons == y.importance_reasons
     assert len(rank_fixtures([f("Real Madrid", "Barcelona"), fixture])) == 2
+
+
+def test_confirmed_neutral_final_is_preserved_in_fixture():
+    event = {
+        "id": "55555",
+        "date": "2026-11-13T20:00:00Z",
+        "status": {"type": {"completed": False, "name": "STATUS_SCHEDULED"}},
+        "competitions": [{
+            "neutralSite": True,
+            "notes": [{"headline": "Final"}],
+            "competitors": [
+                {"homeAway": "home", "team": {"id": "1", "displayName": "Real Madrid"}},
+                {"homeAway": "away", "team": {"id": "2", "displayName": "Chelsea"}},
+            ],
+        }],
+    }
+    _, fixture = parse_event(event, "uefa.champions", now=NOW)
+    assert fixture.stage == "FINAL"
+    assert fixture.neutral_venue is True
+    assert importance(fixture).importance > 300
+
+
+def test_world_cup_is_classed_as_national_teams():
+    assert "fifa.world" in ALLOWED and "uefa.euro" in ALLOWED
+    match = importance(f("France", "Argentina", "ES:FIFA.WORLD",
+                         "Coupe du monde", "FINAL"))
+    assert match.importance > 400
+    assert "tour_final=225" in match.importance_reasons
+
+
+def test_round_of_32_requires_explicit_phase_field():
+    assert _provider_round({"round": "Round of 32"}, {"notes": []}) == "LAST_32"
+    assert "tour_last_32=18" in importance(
+        f("Arsenal", "Chelsea", "ES:ENG.FA", "FA Cup", "LAST_32")).importance_reasons
