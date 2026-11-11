@@ -163,7 +163,7 @@ def statistics(matches: list[dict], days: list[dict]) -> dict:
         "by_competition": by_competition,
         "by_team_category": dict(by_team_category),
         "by_tier": dict(by_tier),
-        "days_with_flexible_possible": sum(d["flexible_video_possible"] for d in days),
+        "days_with_flexible_possible": sum(bool(d.get("flexible_video_possible", False)) for d in days),
         "days_with_any_selected": sum(d["selected"] > 0 for d in days),
         "top1_exact_hits": sum(x["top1_hit"] for x in observed),
         "top1_exact_hit_rate_percent": rate("top1_hit"),
