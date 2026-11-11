@@ -230,8 +230,16 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                 strict_cache=cache.get(f.competition)
                 fitted=(strict_cache[1] if strict_cache
                         and strict_cache[0]=='ok' else prior_models.get(f.competition))
-                rows,issues=provider.history(f,now)
-                source_warnings.extend(issues)
+                try:
+                    rows,issues=provider.history(f,now)
+                    source_warnings.extend(issues)
+                except (DailySourceError,ValueError) as err:
+                    # A genuine source-reported future fixture still exists
+                    # when its history endpoint is unavailable. We may issue
+                    # an explicitly untrained prior; no training is invented.
+                    rows=[]
+                    source_warnings.append(
+                        'Historique absent pour '+f.competition+': '+str(err)[:120])
                 model,proof=cold_start_model(
                     f,rows,as_of=now,xi=xi,trained_model=fitted,
                     allow_fit=f.competition not in failed_fits,
