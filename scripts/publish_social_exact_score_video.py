@@ -36,12 +36,17 @@ def validate_manifest(manifest: dict, video: Path, now: datetime | None = None) 
         raise ValueError("Date cible invalide") from error
     if parsed != now.date() + timedelta(days=1):
         raise ValueError("Publication limitée aux pronostics de demain à Lomé")
-    if (manifest.get("schema") != "mrx-dixon-coles-social-top10-v1"
+    mode = manifest.get("publication_mode","strict")
+    n = manifest.get("count")
+    strict = (mode=="strict" and manifest.get("schema")=="mrx-dixon-coles-social-top10-v1"
+              and type(n) is int and n==10)
+    flexible = (mode=="flexible" and manifest.get("schema")=="mrx-dixon-coles-social-flex-v2"
+                and type(n) is int and 1 <= n <= 10)
+    if (not (strict or flexible)
             or manifest.get("status") != "READY"
             or manifest.get("ready_for_video") is not True
-            or manifest.get("count") != 10
             or manifest.get("telegram_username") != "@mr_xpronos"):
-        raise ValueError("Manifeste Top10 incomplet ou non conforme")
+        raise ValueError("Manifeste social incomplet ou non conforme")
     if video.suffix.lower() != ".mp4" or not video.is_file():
         raise ValueError("MP4 social manquant")
     size = video.stat().st_size
@@ -53,16 +58,18 @@ def validate_manifest(manifest: dict, video: Path, now: datetime | None = None) 
     return target
 
 
-def build_copy(target: str) -> tuple[str, str, str]:
+def build_copy(target: str, count: int = 10) -> tuple[str, str, str]:
+    if not 1 <= count <= 10:
+        raise ValueError('Nombre de matchs invalide')
     day = date.fromisoformat(target).strftime("%d/%m/%Y")
-    title = f"10 scores exacts possibles pour le {day} | Mr XPRONOS"
+    title = f"{count} scores exacts possibles pour le {day} | Mr XPRONOS"
     description = (
-        f"10 rencontres du {day}, prévisions statistiques Dixon-Coles "
+        f"{count} rencontres du {day}, prévisions statistiques Dixon-Coles "
         "(scores possibles, jamais garantis). "
         "Telegram : @mr_xpronos. 18+ • Joue responsablement. #Shorts"
     )
     caption = (
-        f"⚽ 10 scores exacts possibles pour demain ({day})\n"
+        f"⚽ {count} scores exacts possibles pour demain ({day})\n"
         "📲 Rejoins-nous sur Telegram pour plus de coupons\n"
         "Compte Telegram : Mr XPRONOS • @mr_xpronos\n"
         "Prévisions statistiques, pas de résultat garanti. 18+ • Joue responsablement.\n"
@@ -164,7 +171,7 @@ def main() -> int:
     platforms = social.parse_platforms(args.platforms)
     if not platforms:
         raise ValueError("Aucun réseau social demandé")
-    title, description, caption = build_copy(target)
+    title, description, caption = build_copy(target, int(manifest['count']))
     if args.dry_run:
         print("SOCIAL_EXACT_SCORE_PREVIEW", json.dumps({
             "target": target, "platforms": platforms, "title": title,
