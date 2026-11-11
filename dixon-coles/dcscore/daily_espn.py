@@ -71,6 +71,75 @@ ALLOWED = {
     'conmebol.america': 'Copa América',
     'caf.nations': 'Coupe d’Afrique des Nations',
     'concacaf.gold': 'Gold Cup',
+    # Additional documented ESPN scoreboard slugs. Discovery ONLY in fallback.
+    # Slugs may return HTTP 404 or 0 fixtures; we never invent a game.
+    'fifa.friendly': 'Matchs amicaux internationaux',
+    'fifa.friendly.w': 'Matchs amicaux internationaux féminins',
+    'fifa.friendly_u21': 'Matchs amicaux internationaux U21',
+    'club.friendly': 'Matchs amicaux de clubs',
+    'concacaf.nations.league': 'CONCACAF Ligue des Nations',
+    'caf.nations_qual': 'Qualifications CAN',
+    'fifa.worldq.afc': 'Qualifications Coupe du Monde AFC',
+    'fifa.worldq.concacaf': 'Qualifications Coupe du Monde CONCACAF',
+    'fifa.worldq.ofc': 'Qualifications Coupe du Monde OFC',
+    'fifa.world.u20': 'Coupe du monde U20',
+    'fifa.world.u17': 'Coupe du monde U17',
+    'usa.nwsl': 'NWSL féminine',
+    'usa.usl.1': 'USL Championship',
+    'usa.usl.l1': 'USL League One',
+    'usa.open': 'US Open Cup',
+    'mex.2': 'Liga Expansión MX',
+    'bra.2': 'Série B Brésil',
+    'chi.1': 'Première division Chili',
+    'uru.1': 'Première division Uruguay',
+    'per.1': 'Liga 1 Pérou',
+    'par.1': 'Première division Paraguay',
+    'bol.1': 'Première division Bolivie',
+    'ecu.1': 'LigaPro Équateur',
+    'ven.1': 'Première division Venezuela',
+    'arg.copa': 'Coupe Argentine',
+    'nga.1': 'Premier League Nigeria',
+    'gha.1': 'Premier League Ghana',
+    'afc.cup': 'AFC Champions League Two',
+    'chn.1': 'Chinese Super League',
+    'ind.1': 'Indian Super League',
+    'tha.1': 'Thai League 1',
+    'mys.1': 'Super League Malaisie',
+    'idn.1': 'Super League Indonésie',
+    'sgp.1': 'Premier League Singapour',
+    'aus.1': 'A-League Australie',
+    'aus.w.1': 'A-League féminine Australie',
+    # Further ESPN league slugs confirmed in public community documentation.
+    # These do NOT become part of the first-pass audited ENABLED list.
+    'irl.1': 'Première division Irlande',
+    'nor.1': 'Eliteserien Norvège',
+    'swe.1': 'Allsvenskan Suède',
+    'den.1': 'Superliga Danemark',
+    'aut.1': 'Bundesliga Autriche',
+    'gre.1': 'Super League Grèce',
+    'cyp.1': 'Première division Chypre',
+    'rus.1': 'Premier League Russie',
+    'eng.3': 'League One Angleterre',
+    'eng.4': 'League Two Angleterre',
+    'eng.5': 'National League Angleterre',
+    'eng.w.1': 'Women Super League Angleterre',
+    'esp.2': 'La Liga 2 Espagne',
+    'esp.w.1': 'Liga F féminine Espagne',
+    'ger.2': '2. Bundesliga Allemagne',
+    'ita.2': 'Serie B Italie',
+    'fra.2': 'Ligue 2 France',
+    'fra.w.1': 'Première Ligue féminine France',
+    'ned.2': 'Eerste Divisie Pays-Bas',
+    'ned.3': 'Tweede Divisie Pays-Bas',
+    'usa.w.usl.1': 'USL Super League féminine',
+    'can.w.nsl': 'Northern Super League Canada',
+    'fifa.u20.friendly': 'Amicaux internationaux U20',
+    'fifa.wworldq.uefa': 'Qualifications Coupe du monde féminine UEFA',
+    'uefa.w.nations': 'Ligue des nations féminine UEFA',
+    'nonfifa': 'Matchs amicaux hors FIFA',
+    # ESPN's broad soccer scoreboard is a last-resort *discovery feed*,
+    # NOT a league that may be pooled into one Dixon-Coles training sample.
+    'all': 'Autres rencontres de football ESPN',
 }
 
 # The catalog above is a *candidate* pool, not a claim of coverage.
@@ -195,9 +264,18 @@ def parse_event(event, league: str, *, now: datetime):
             home_name=hn,away_name=an,status='FINISHED',home_goals=hs,
             away_goals=as_,neutral_venue=neutral is True,source='espn-reported',result_provenance='provider_reported',
             season=str(kickoff.year))) if completed else None
+        label=ALLOWED[league]
+        if league=='all':
+            season=(event.get('season') or {})
+            slug=str(season.get('slug') or '').casefold()
+            # Readable category, never falsely assign a league to an event.
+            if 'ncaa' in slug and 'women' in slug:
+                label='NCAA football féminin (calendrier ESPN)'
+            elif 'ncaa' in slug:
+                label='NCAA football universitaire (calendrier ESPN)'
         f = RankedFixture(
             id=f'espn:{league}:{event_id}',competition=key,
-            competition_name=ALLOWED[league],kickoff=kickoff,
+            competition_name=label,kickoff=kickoff,
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
             home_name=hn,away_name=an,stage=_provider_round(event,comp),
             source='ESPN public scoreboard',source_verified=True,
@@ -216,6 +294,10 @@ class ESPNProvider:
     def __init__(self, *, session=None, leagues=None, years_back=2):
         self.session = session or requests.Session()
         self.leagues = tuple(ENABLED if leagues is None else leagues)
+        # Only the default broad discovery may inspect catalogued alternatives.
+        # Explicit test/custom league selections stay strict and deterministic.
+        self.fallback_leagues = CANDIDATES if leagues is None else ()
+        self._secondary_enabled: set[str] = set()
         if not self.leagues or len(set(self.leagues)) != len(self.leagues) or any(k not in ALLOWED for k in self.leagues):
             raise DailySourceError('Compétition ESPN non autorisée')
         if years_back not in (1,2,3):
@@ -274,12 +356,44 @@ class ESPNProvider:
                 self.discovery_counts[f'ESPN/{league}']=0
         return out,errors
 
+    def discover_more(self, target_date:date, now:datetime):
+        """Second-pass discovery only when the core pools cannot fill ten.
+
+        A genuine ESPN event must still include the provider's scheduled match,
+        two distinct team IDs and a future kickoff; no speculative fixtures.
+        Source errors never silently create matches.
+        """
+        now=utc_datetime(now)
+        found=[];errors=[]
+        for league in self.fallback_leagues:
+            try:
+                records=self._fetch(league,target_date.strftime('%Y%m%d'))
+                n=0
+                for event in records:
+                    _past,fixture=parse_event(event,league,now=now)
+                    if fixture and fixture.kickoff.date()==target_date:
+                        found.append(fixture)
+                        self._secondary_enabled.add(league)
+                        n+=1
+                self.discovery_counts[f'ESPN/fallback/{league}']=n
+            except DailySourceError as exc:
+                errors.append(str(exc))
+                self.discovery_counts[f'ESPN/fallback/{league}']=0
+        return found,errors
+
     def history(self, fixture:RankedFixture,now:datetime):
         now=utc_datetime(now)
         key=fixture.competition
         if key in self._history:return self._history[key]
         league=key.removeprefix('ES:').lower()
-        if league not in self.leagues:
+        if league=='all':
+            # NEVER fit one model across all the world's unrelated leagues.
+            # No annual all-league history can be used as a single cohort.
+            self._history[key]=([],[
+                'ESPN all : calendrier inter-compétitions ; '
+                'aucun historique inter-ligues ne sera entraîné.'])
+            return self._history[key]
+        if league not in self.leagues and league not in self._secondary_enabled:
             raise DailySourceError('Compétition ESPN non configurée')
         history={};errors=[]
         # Calendar years: time-censored, no tomorrow/future results.

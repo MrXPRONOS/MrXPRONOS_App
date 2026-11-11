@@ -1,0 +1,55 @@
+name: Dixon-Coles V5 two-pass selection and cold-start tests (no publishing)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/dc-two-pass-v5-tests.yml'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/dcscore/daily_sources.py'
+      - 'dixon-coles/dcscore/fallback_model.py'
+      - 'dixon-coles/tests/test_daily_two_pass.py'
+      - 'dixon-coles/tests/test_backtest_two_pass_v5.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-only and model test dependencies
+        run: python -m pip install -e 'dixon-coles[test,video]'
+      - name: Confirm genuine fixtures, explicit fallback, history cutoffs
+        run: |
+          cd dixon-coles
+          python -m pytest -q \
+            tests/test_daily_two_pass.py \
+            tests/test_backtest_two_pass_v5.py \
+            tests/test_daily_top10_v3.py \
+            tests/test_daily_espn.py
+      - name: All standalone Dixon-Coles tests
+        run: cd dixon-coles && python -m pytest -q tests
+      - name: Enforce zero modifications to video/render/social publication
+        run: |
+          python - <<'PY'
+          import subprocess
+          files=subprocess.check_output(
+              ['git','diff','--name-only','origin/main...HEAD'],text=True).splitlines()
+          forbidden=[f for f in files if
+                     any(x in f for x in (
+                         'video_grid','video_render','create_social_exact',
+                         'publish_social','verify_social_publications',
+                         '.github/workflows/dixon-coles-social-top10'))]
+          print('CHANGED_FILES',files)
+          if forbidden:
+              raise SystemExit('V5 ranking-only contract violated: '+', '.join(forbidden))
+          PY

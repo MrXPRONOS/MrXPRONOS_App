@@ -1,0 +1,78 @@
+name: Backtest V5 - strict then second pass 31+17 pools October 2026
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/backtest-two-pass-v5-oct2026.yml'
+      - 'dixon-coles/dcscore/backtest_two_pass_v5.py'
+      - 'dixon-coles/dcscore/combine_backtest_two_pass_v5.py'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/dcscore/daily_popularity.py'
+      - 'dixon-coles/dcscore/fallback_model.py'
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {start: '2026-10-01', end: '2026-10-07'}
+          - {start: '2026-10-08', end: '2026-10-14'}
+          - {start: '2026-10-15', end: '2026-10-21'}
+          - {start: '2026-10-22', end: '2026-10-28'}
+          - {start: '2026-10-29', end: '2026-10-31'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install predictor and tests
+        run: python -m pip install -e 'dixon-coles[test]'
+      - name: Test zero lookahead and second-pass contract
+        run: |
+          cd dixon-coles
+          python -m pytest -q tests/test_daily_two_pass.py tests/test_backtest_two_pass_v5.py
+      - name: Reconstruct past matches at 20h the preceding evening
+        working-directory: dixon-coles
+        run: |
+          python -m dcscore.backtest_two_pass_v5 \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --out results/backtests/oct2026_v5
+      - name: Preserve auditable observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: V5-second-pass-${{ matrix.start }}
+          path: dixon-coles/results/backtests/oct2026_v5/*
+          retention-days: 90
+          if-no-files-found: warn
+
+  report:
+    needs: replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e 'dixon-coles'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: V5-second-pass-*
+          path: parts
+      - name: Validate 31 days and independently recompute statistics
+        working-directory: dixon-coles
+        run: python -m dcscore.combine_backtest_two_pass_v5 --parts ../parts --out ../report_v5
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MRXPRONOS-two-pass-V5-octobre-2026
+          path: report_v5/*
+          if-no-files-found: error
+          retention-days: 90

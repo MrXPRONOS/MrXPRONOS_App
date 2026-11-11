@@ -111,3 +111,98 @@ def test_yearly_400_event_cap_is_never_silently_used_for_training():
     p=ESPNProvider(session=Session(),leagues=['eng.2'])
     with pytest.raises(DailySourceError,match="troncature historique"):
         p._fetch('eng.2','2026')
+
+
+def test_optional_espn_catalogue_expansion_only_when_requested():
+    """Default 31 pools may expand; explicit league selection cannot."""
+    from dcscore.daily_espn import CANDIDATES, ENABLED
+    assert len(ENABLED) == 31 and CANDIDATES
+    class Response:
+        status_code=200
+        content=b'{}'
+        def __init__(self,items):self.items=items
+        def json(self):return {'events':self.items}
+    class Session:
+        def __init__(self):self.queries=[]
+        def get(self,url,*,params,headers,timeout):
+            self.queries.append((url,params['dates']))
+            if '/eng.2/' in url and params['dates']=='20261110':
+                return Response([event()])
+            return Response([])
+    session=Session()
+    provider=ESPNProvider(session=session)
+    assert not session.queries
+    fixtures,warnings=provider.discover_more(date(2026,11,10),NOW)
+    assert not warnings and len(fixtures)==1
+    assert fixtures[0].competition=='ES:ENG.2'
+    assert 'eng.2' in provider._secondary_enabled
+    assert provider.discovery_counts['ESPN/fallback/eng.2']==1
+    provider.history(fixtures[0],NOW)
+    assert any(d=='2026' for _,d in session.queries)
+    explicit=ESPNProvider(session=Session(),leagues=['eng.1'])
+    assert explicit.discover_more(date(2026,11,10),NOW)==([],[])
+    assert explicit.session.queries==[]
+
+
+
+def test_second_pass_finds_real_international_friendly_from_documented_slug():
+    from dcscore.daily_rank import importance
+    from dcscore.daily_popularity import squad_category
+    from dcscore.daily_espn import CANDIDATES
+    assert 'fifa.friendly' in CANDIDATES
+    def fixture_event():
+        e=event()
+        e["competitions"][0]["competitors"][0]["team"]["displayName"]="France"
+        e["competitions"][0]["competitors"][1]["team"]["displayName"]="Argentina"
+        return e
+    class Response:
+        status_code=200
+        content=b'{}'
+        def __init__(self,items):self.items=items
+        def json(self):return {"events":self.items}
+    class Session:
+        def get(self,url,*,params,headers,timeout):
+            return Response([fixture_event()] if
+                '/fifa.friendly/' in url and params['dates']=='20261110' else [])
+    p=ESPNProvider(session=Session())
+    fixtures,errors=p.discover_more(date(2026,11,10),NOW)
+    assert errors==[] and len(fixtures)==1
+    assert fixtures[0].competition=='ES:FIFA.FRIENDLY'
+    assert squad_category("France",fixtures[0].competition)=="national"
+    assert importance(fixtures[0]).importance>100
+
+
+
+def test_all_leagues_fallback_produces_real_fixture_but_never_trains_all_leagues():
+    """Use genuine ESPN event identities without pooling unrelated results."""
+    from dcscore.daily_espn import CANDIDATES
+    assert 'all' in CANDIDATES
+    football=event()
+    football["season"]={"slug":"2026-ncaa-division-i-women"}
+    class Response:
+        status_code=200
+        content=b'{}'
+        def __init__(self,events):self.events=events
+        def json(self):return {"events":self.events}
+    class Session:
+        def __init__(self):self.calls=[]
+        def get(self,url,*,params,headers,timeout):
+            self.calls.append((url,params["dates"]))
+            if "/all/" in url and params["dates"]=="20261110":
+                return Response([football])
+            if "/all/" in url and params["dates"].isdigit() and len(params["dates"])==4:
+                raise AssertionError("All-league historical fitting is forbidden")
+            return Response([])
+    session=Session()
+    provider=ESPNProvider(session=session)
+    matches,errors=provider.discover_more(date(2026,11,10),NOW)
+    assert not errors
+    assert len(matches)==1
+    game=matches[0]
+    assert game.id=="espn:all:12345"
+    assert game.source_verified and game.competition=="ES:ALL"
+    assert game.competition_name=="NCAA football féminin (calendrier ESPN)"
+    assert valid_logo_url(game.home_logo_url)
+    rows,notes=provider.history(game,NOW)
+    assert rows==[] and "aucun historique" in notes[0]
+    assert all(not ("/all/" in u and len(d)==4) for u,d in session.calls)

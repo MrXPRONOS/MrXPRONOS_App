@@ -273,9 +273,12 @@ def test_filling_never_bypasses_minimum_history_or_fakes_matches(monkeypatch):
     popular=[f(i,"Arsenal","Chelsea") for i in range(4)]
     other=[f(i+10,"Small Town","Village United",league="ES:ENG.TROPHY")
            for i in range(6)]
+    # Isolate the legacy strict-only path: the V5 completion pass is
+    # intentionally able to return an UNTRAINED prior on these real fixtures.
     result=run_daily(MissingHistory(popular+other),day=DAY,as_of=NOW,
                      limit=10,min_importance=70,min_team=4,
-                     max_staleness_days=35,publication_mode="strict")
+                     max_staleness_days=35,publication_mode="strict",
+                     second_pass=False)
     assert result["selected_count"]==4
     assert result["status"]=="PARTIAL" and not result["ready_for_video"]
     assert result["daily_shortfall"]==6
