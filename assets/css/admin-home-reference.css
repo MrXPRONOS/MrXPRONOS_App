@@ -276,3 +276,141 @@ body.admin-shell .mx-home-active .mxh-header-lights{
   -webkit-mask-image:radial-gradient(ellipse 90% 82% at 78% 18%,#000 27%,transparent 96%)!important;
  }
 }
+
+
+/* === ACCUEIL • final fidelity pass, 2026-11-11 ===
+ * These effects intentionally mirror the approved UI preview. Other tabs are unaffected.
+ * Decorative images are shipped with the site and contain no sample metrics.
+ */
+body.admin-shell .mx-home-active .workspace-main{
+ background:
+  radial-gradient(ellipse 620px 190px at 83% 2%,rgba(19,112,181,.30),transparent 79%),
+  radial-gradient(ellipse 750px 440px at 80% 90%,rgba(8,91,160,.18),transparent 75%),
+  linear-gradient(145deg,#04121f 3%,#061829 49%,#061421 100%)!important;
+}
+body.admin-shell .mx-home-active .admin-sidebar{
+ border-right-color:rgba(117,164,205,.47)!important;
+ box-shadow:12px 0 38px rgba(0,0,0,.24);
+}
+body.admin-shell .mx-home-active .admin-sidebar::after{
+ /* Approved screenshot artwork: actual glowing crowned football and stadium. */
+ bottom:-3px!important;height:min(72vh,720px)!important;
+ background-position:top center,center bottom!important;
+ background-size:100% 100%,100% auto!important;
+ opacity:1!important;
+}
+body.admin-shell .mx-home-active .mxh-header-lights{
+ /* Approved photographic floodlights, softly feathered into the dark dashboard sky. */
+ right:-6px!important;top:-23px!important;
+ width:min(67%,690px)!important;height:180px!important;
+ background-image:
+   linear-gradient(90deg,rgba(3,15,26,.08),rgba(3,15,26,0) 32%,rgba(3,15,26,.04)),
+   url("../images/admin-home-lights-reference.webp")!important;
+ background-size:100% 100%,100% auto!important;
+ background-repeat:no-repeat!important;
+ background-position:center,top right!important;
+ opacity:1!important;mix-blend-mode:screen;
+ filter:drop-shadow(0 0 23px rgba(64,165,249,.27))!important;
+}
+body.admin-shell .mx-home-active .mxh-hero{
+ margin-bottom:26px;
+}
+body.admin-shell .mx-home-active .mxh-hero .mxh-title h2{
+ font-weight:860!important;
+ font-size:clamp(28px,3vw,40px);
+ line-height:1.07;
+ letter-spacing:-.045em;
+ text-shadow:0 3px 18px rgba(0,0,0,.74);
+}
+body.admin-shell .mx-home-active .mxh-trophy{
+ background:radial-gradient(circle at 27% 20%,rgba(247,191,62,.19),transparent 60%),#0b2032!important;
+ border:1px solid #e6b251!important;
+ box-shadow:inset 0 1px 0 rgba(255,221,148,.45),0 0 22px rgba(255,169,51,.22)!important;
+}
+body.admin-shell .mx-home-active .mxh-kpi{
+ border-width:1.2px!important;
+ border-radius:17px!important;
+ min-height:154px!important;
+ padding:18px 17px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 17px 31px rgba(0,8,19,.29)!important;
+}
+body.admin-shell .mx-home-active .mxh-kpi.mxh-gold{
+ border-color:#d4a34a!important;
+ background:
+  radial-gradient(ellipse 95% 56% at 96% 105%,rgba(255,194,65,.27),transparent 75%),
+  linear-gradient(145deg,#243543 0%,#0a2032 65%,#091e31 100%)!important;
+}
+body.admin-shell .mx-home-active .mxh-kpi.mxh-blue{
+ border-color:#389bd2!important;
+ background:
+  radial-gradient(ellipse 95% 56% at 98% 105%,rgba(27,168,236,.27),transparent 76%),
+  linear-gradient(145deg,#14354c 0%,#09283c 65%,#09243b 100%)!important;
+}
+body.admin-shell .mx-home-active .mxh-kpi strong{
+ font-size:clamp(26px,2.9vw,39px)!important;font-weight:850!important;
+}
+body.admin-shell .mx-home-active .mxh-panel{
+ border-radius:17px!important;
+ background:
+  radial-gradient(ellipse 90% 47% at 78% 102%,rgba(33,122,189,.10),transparent 75%),
+  linear-gradient(140deg,rgba(16,43,61,.98),rgba(5,28,48,.98))!important;
+}
+body.admin-shell .mx-home-active .mxh-panel::before{
+ height:2px!important;
+ box-shadow:0 0 13px rgba(246,182,76,.29);
+}
+body.admin-shell .mx-home-active .mxh-chart-panel .mxh-graph svg,
+body.admin-shell .mx-home-active .mxh-visitors .mxh-graph svg{
+ filter:drop-shadow(0 0 4px rgba(247,187,67,.25));
+}
+body.admin-shell .mx-home-active .mxh-service-row{
+ padding-block:15px!important;
+}
+body.admin-shell .mx-home-active .mxh-service-row .mxh-pill.mxh-good{
+ color:#b1ffe2;background:rgba(23,92,62,.54);border:1px solid #3b9c73;
+ box-shadow:inset 0 0 9px rgba(65,227,160,.12);
+}
+body.admin-shell .mx-home-active .mxh-action.mxh-primary{
+ background:
+  radial-gradient(ellipse at 72% 105%,rgba(255,198,67,.32),transparent 81%),
+  linear-gradient(135deg,rgba(139,102,36,.56),rgba(39,40,39,.89))!important;
+ border:1px solid #ffdc81!important;
+ box-shadow:0 0 22px rgba(237,182,66,.27),inset 0 0 14px rgba(249,187,67,.17)!important;
+}
+body.admin-shell .mx-home-active .mxh-performance::after{
+ background:linear-gradient(105deg,transparent,rgba(48,187,238,.19),rgba(244,185,74,.17));
+ width:92%;height:5px;bottom:7px;right:4%;filter:blur(4px);
+}
+body.admin-shell .mx-home-active .sidebar-brand{
+ text-decoration:none!important;
+}
+body.admin-shell .mx-home-active .sidebar-brand em{
+ color:#f6b848;text-shadow:0 0 11px rgba(252,190,64,.22);
+}
+body.admin-shell .mx-home-active .mxh-bottom{
+ background:linear-gradient(to right,rgba(2,17,29,.25),rgba(14,43,64,.29),rgba(2,17,29,.25));
+ border-top:1px solid rgba(98,155,197,.43);
+}
+@media(max-width:820px){
+ body.admin-shell .mx-home-active .admin-sidebar::after{
+  min-height:0!important;height:min(66vh,640px)!important;
+ }
+ body.admin-shell .mx-home-active .mxh-header-lights{
+  top:-22px!important;width:min(63%,410px)!important;height:132px!important;
+ }
+ body.admin-shell .mx-home-active .mxh-kpi{min-height:132px!important;padding:13px 12px!important}
+ body.admin-shell .mx-home-active .mxh-kpi strong{font-size:clamp(23px,5vw,33px)!important}
+}
+@media(max-width:640px){
+ body.admin-shell .mx-home-active .mxh-header-lights{
+  top:-18px!important;right:0!important;width:57%!important;height:92px!important;
+  opacity:.55!important;
+ }
+ body.admin-shell .mx-home-active .mxh-hero .mxh-title h2{font-size:clamp(24px,7vw,30px)!important}
+ body.admin-shell .mx-home-active .mxh-kpi{min-height:126px!important}
+ body.admin-shell .mx-home-active .mxh-activity{min-height:0!important}
+ body.admin-shell .mx-home-active .mxh-bottom{padding-bottom:9px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.admin-shell .mx-home-active .mxh-action{transition:none!important}
+}
