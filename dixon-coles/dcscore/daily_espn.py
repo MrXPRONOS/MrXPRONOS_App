@@ -81,6 +81,14 @@ ENABLED = (
     'eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1',
     'eng.fa', 'eng.league_cup', 'uefa.wchampions', 'eng.trophy',
     'fifa.world', 'uefa.euro',
+    # Enabled after four-shard V3 audit: >=80 past matches,
+    # >=8 clubs with >=4 games, recent results, valid archived crests,
+    # and no annual result page hitting the 400-event limit.
+    'por.1', 'ned.1', 'tur.1', 'sco.1', 'bel.1',
+    'bra.1', 'mex.1', 'ksa.1', 'jpn.1', 'rsa.1',
+    'conmebol.libertadores', 'conmebol.sudamericana',
+    'caf.champions', 'afc.champions',
+    'ger.dfb_pokal', 'esp.copa_del_rey', 'fra.coupe_de_france',
 )
 CANDIDATES = tuple(code for code in ALLOWED if code not in ENABLED)
 
