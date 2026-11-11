@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import Protocol
 import json
 
-from .daily_rank import RankedFixture, rank_fixtures, diverse_ranked, squad_category
+from .daily_rank import (RankedFixture, rank_fixtures, diverse_ranked, squad_category,
+                         select_tiered, popularity_tier)
 from .daily_sources import DailySourceError
 from .domain import Match, iso_date, utc_datetime
 from .model import fit, forecast, ModelError
@@ -71,11 +72,14 @@ def _prediction(model,fixture:RankedFixture, *, calibration:GoalCalibration|None
 def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
               limit:int=10, min_games:int=80, min_team:int=6,
               max_staleness_days:float=21, xi:float=.0065,
-              min_importance:int=105, max_candidates:int=150,
+              min_importance:int=105, max_candidates:int=500,
               max_per_league:int=4,
-              enable_goal_calibration:bool=False) -> dict:
+              enable_goal_calibration:bool=False,
+              publication_mode:str='strict') -> dict:
     """Run immediately, no background work; deterministic for fixed provider and cutoff."""
     now=utc_datetime(as_of)
+    if publication_mode not in ('strict','flexible'):
+        raise ValueError('Mode attendu : strict ou flexible')
     if not 1<=limit<=30:raise ValueError('limit doit être entre 1 et 30')
     if min_games<40 or min_team<1:raise ValueError('Historique minimum incorrect.')
     if not 0<=xi<=.3:raise ValueError('xi non valide.')
@@ -85,6 +89,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
         raise ValueError('Date trop éloignée : horaires de matchs non fiables (maximum 7 jours).')
     fixtures,source_warnings=provider.discover(day,now)
     ranked=rank_fixtures(fixtures)
+    ignored_overflow = max(0, len(ranked)-max_candidates)
     if len(ranked)>max_candidates:ranked=ranked[:max_candidates]
     eligible=[];rejected=[];sources=set(); cache={}
     for f in ranked:
@@ -150,7 +155,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'history_days_old':round(age,2),
             'teams_history':{'home':home_count,'away':away_count},
         })
-    chosen_ids={f.id for f in diverse_ranked([item['fixture'] for item in eligible],
+    chosen_ids={f.id for f in select_tiered([item['fixture'] for item in eligible],
                                              limit,max_per_league=max_per_league)}
     selected=[]
     for item in eligible:
@@ -164,6 +169,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'home_logo_url':f.home_logo_url,'away_logo_url':f.away_logo_url,
             'importance':f.importance,
             'importance_reasons':list(f.importance_reasons),
+            'popularity_tier':popularity_tier(f.importance),
             'popularity_class':('exceptional' if f.importance >= 300 else
                                 'major' if f.importance >= 220 else
                                 'notable' if f.importance >= 145 else 'local'),
@@ -185,13 +191,14 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
         })
     selected.sort(key=lambda r:(-r['importance'],r['kickoff_utc'],r['id']))
     complete=len(selected)==limit
+    enough = complete if publication_mode=='strict' else bool(selected)
     provider_reported=all(m['fixture_provider_reported'] for m in selected)
     neutral_unknown=any(x['forecast']['venue_sensitivity'] is not None for x in selected)
     # Production needs genuine provider crest assets for both sides: no fabricated badges.
     from .logo_policy import valid_logo_url as _valid_logo_url
     logos_ready=all(_valid_logo_url(m.get('home_logo_url')) and
                     _valid_logo_url(m.get('away_logo_url')) for m in selected)
-    eligible_for_video=complete and provider_reported and not neutral_unknown and logos_ready
+    eligible_for_video=enough and provider_reported and not neutral_unknown and logos_ready
     source_credits={
         'football-data.org': {
             'name':'football-data.org','url':'https://www.football-data.org/',
@@ -224,18 +231,42 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'top_3':p['top_5'][:3],
             'warning':p['warning'],
         })
+    rejected_by_reason=dict(sorted(Counter(
+        (reason.get('reason','unknown').split(':',1)[0].split('_depuis_',1)[0]
+         if reason.get('reason','').startswith('resultats_perimes') else
+         reason.get('reason','').split(':',1)[0].split('_matchs',1)[0])
+        for reason in rejected).items(), key=lambda p:(-p[1],p[0])))
+    eligibility_by_tier=dict(Counter(popularity_tier(item['fixture'].importance)
+                                     for item in eligible))
+    selection_by_tier=dict(Counter(row['popularity_tier'] for row in selected))
+    selection_by_league=dict(sorted(Counter(row['competition_name'] for row in selected).items()))
     return {
         'schema_version':1,'project':'Mr XPRONOS / Dixon-Coles independent',
         'date_local_africa_lome':_date_str(day),'generated_at_utc':iso_date(now),
         'source_mode':provider.name,'status':'READY' if eligible_for_video else
             ('PARTIAL' if selected else 'NO_ELIGIBLE_MATCHES'),
         'required_count':limit,'selected_count':len(selected),
+        'publication_mode':publication_mode,
+        'daily_target_reached':complete,
+        'daily_shortfall':max(0,limit-len(selected)),
         'count_before_quality_checks':len(fixtures),
         'source_discovery_counts':getattr(provider,'discovery_counts',{}),
         'eligible_count':len(eligible),'rejected_count':len(rejected),
+        'selection_diagnostics':{
+            'found':len(fixtures), 'evaluated':len(ranked),
+            'not_evaluated_due_to_candidate_limit':ignored_overflow,
+            'eligible':len(eligible), 'selected':len(selected),
+            'shortfall':max(0,limit-len(selected)),
+            'rejected_by_reason':rejected_by_reason,
+            'eligible_by_tier':{t:eligibility_by_tier.get(t,0) for t in ('A','B','C')},
+            'selected_by_tier':{t:selection_by_tier.get(t,0) for t in ('A','B','C')},
+            'selected_by_competition':selection_by_league,
+            'source_warnings_count':len(source_warnings),
+            'source_warnings_examples':sorted(set(source_warnings))[:8],
+        },
         'ready_for_video':eligible_for_video,
         'reasons_not_ready':([] if eligible_for_video else
-            ([f'Seulement {len(selected)}/{limit} matchs admissibles'] if not complete else [])+
+            ([f'Seulement {len(selected)}/{limit} matchs admissibles'] if not enough else [])+
             (['Aucune rencontre trouvée à cette date dans les championnats consultés'] if not fixtures else [])+
             (['Calendrier provenant d’une source non confirmée par une API officielle'] if not provider_reported else [])+
             (['Finale : terrain neutre non vérifié'] if neutral_unknown else [])+
@@ -245,7 +276,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
         'rejected':rejected[:150],'selected':selected,
         'video_payload':{
             'format':'9:16','language':'fr','platforms_planned':['YouTube Shorts','TikTok','Instagram Reels','Facebook Reels'],
-            'video_title':f'10 affiches du {day.strftime("%d/%m/%Y")} — scores possibles | Mr XPRONOS',
+            'video_title':f'{len(selected)} affiches du {day.strftime("%d/%m/%Y")} — scores possibles | Mr XPRONOS',
             'video_not_generated':True,'publishing_not_configured':True,
             'footer':'18+ • Pronostics incertains • Joue responsablement',
             'source_credits':credits,
@@ -255,6 +286,11 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'ranking':'V2 editorial: competition, exact club identity and team category, two major opponents, structured knockout round, known rivalry',
             'importance_not_measured_audience':True,
             'youth_squads_do_not_inherit_senior_club_weight':True,
+            'selection_levels':{
+                'A':'importance >= 220','B':'145 <= importance < 220',
+                'C':'70 <= importance < 145',
+            },
+            'publication_mode':publication_mode,
             'probabilities':'Dixon-Coles weighted time-decayed Poisson, rho fitted per competition',
             'historical_xi':xi,'training_scope':'same league + same source only',
             'no_fabricated_scores':True,
@@ -275,6 +311,7 @@ def save_outputs(report:dict,output:Path,video_output:Path|None=None)->None:
             'ready_for_video':report['ready_for_video'],
             'status':report['status'],'selected_count':report['selected_count'],
             'source':report['source_mode'],'generated_at_utc':report['generated_at_utc'],
+            'publication_mode':report.get('publication_mode','strict'),
             **report['video_payload'],
         }
         video_output.write_text(json.dumps(envelope,ensure_ascii=False,indent=2,allow_nan=False)+'\n',encoding='utf-8')
