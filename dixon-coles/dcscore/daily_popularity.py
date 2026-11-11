@@ -54,6 +54,28 @@ LEAGUE_WEIGHT = {
     "ES:FIFA.WORLD": 185, "ES:UEFA.EURO": 166,
     "ES:CONMEBOL.AMERICA": 157, "ES:CAF.NATIONS": 149,
     "ES:CONCACAF.GOLD": 116,
+    # Only for catalogued fallback fixtures; editorial prominence, not audience.
+    "ES:FIFA.FRIENDLY": 96, "ES:FIFA.FRIENDLY.W": 84,
+    "ES:FIFA.FRIENDLY_U21": 66, "ES:CLUB.FRIENDLY": 71,
+    "ES:CONCACAF.NATIONS.LEAGUE": 115,
+    "ES:CAF.NATIONS_QUAL": 120,
+    "ES:FIFA.WORLDQ.AFC": 122,
+    "ES:FIFA.WORLDQ.CONCACAF": 124,
+    "ES:FIFA.WORLDQ.OFC": 110,
+    "ES:FIFA.WORLD.U20": 87, "ES:FIFA.WORLD.U17": 82,
+    "ES:USA.NWSL": 94, "ES:USA.USL.1": 77,
+    "ES:USA.USL.L1": 69, "ES:USA.OPEN": 91,
+    "ES:MEX.2": 76, "ES:BRA.2": 79,
+    "ES:CHI.1": 88, "ES:URU.1": 89,
+    "ES:PER.1": 85, "ES:PAR.1": 81, "ES:BOL.1": 78,
+    "ES:ECU.1": 85, "ES:VEN.1": 77,
+    "ES:ARG.COPA": 100,
+    "ES:NGA.1": 82, "ES:GHA.1": 82,
+    "ES:AFC.CUP": 113, "ES:CHN.1": 96,
+    "ES:IND.1": 82, "ES:THA.1": 85,
+    "ES:MYS.1": 81, "ES:IDN.1": 82,
+    "ES:SGP.1": 76, "ES:AUS.1": 102,
+    "ES:AUS.W.1": 89,
 }
 STAGE_WEIGHT = {
     "FINAL": 225, "SEMI_FINALS": 105, "QUARTER_FINALS": 62,
@@ -153,8 +175,14 @@ NATIONS = {
 NATIONAL_CODES = frozenset({"ES:FIFA.WORLD", "ES:UEFA.EURO", "ES:CONMEBOL.AMERICA",
                             "ES:CAF.NATIONS", "ES:CONCACAF.GOLD", "ES:UEFA.NATIONS",
                             "ES:FIFA.WORLDQ.UEFA", "ES:FIFA.WORLDQ.CAF",
-                            "ES:FIFA.WORLDQ.CONMEBOL"})
-WOMENS_CODES = frozenset({"ES:UEFA.WCHAMPIONS"})
+                            "ES:FIFA.WORLDQ.CONMEBOL", "ES:FIFA.FRIENDLY",
+                            "ES:FIFA.FRIENDLY.W", "ES:CONCACAF.NATIONS.LEAGUE",
+                            "ES:CAF.NATIONS_QUAL", "ES:FIFA.WORLDQ.AFC",
+                            "ES:FIFA.WORLDQ.CONCACAF", "ES:FIFA.WORLDQ.OFC",
+                            "ES:FIFA.FRIENDLY_U21", "ES:FIFA.WORLD.U20",
+                            "ES:FIFA.WORLD.U17"})
+WOMENS_CODES = frozenset({"ES:UEFA.WCHAMPIONS","ES:FIFA.FRIENDLY.W",
+                          "ES:USA.NWSL","ES:AUS.W.1"})
 DERBIES = (
     frozenset(("real madrid", "barcelona")),
     frozenset(("real madrid", "atletico madrid")),
