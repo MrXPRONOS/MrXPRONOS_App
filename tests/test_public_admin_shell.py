@@ -234,7 +234,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         library = (ROOT / "assets/js/cms-media-library.mjs").read_text(encoding="utf-8")
-        self.assertIn("admin-phase2.css?v=20261111-media-v4", page)
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
         self.assertIn("admin-real.js?v=20261111-media-v4", page)
         self.assertIn("ADMIN MEDIATHEQUE V4", css)
         for selector in (
@@ -256,6 +256,39 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('status.setAttribute("role","status")', library)
         self.assertIn('isSafeCmsUrl(m.thumbUrl||m.url,"image")', library)
         self.assertIn('file.type="file";file.accept=', library)
+
+    def test_informations_v4_visuals_and_cms_controls_are_retained(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-phase2.css?v=20261111-infos-v4", page)
+        self.assertIn("admin-phase2.mjs?v=20261111-infos-v4", page)
+        self.assertIn("ADMIN INFOS V4", css)
+        for selector in (
+            "#tab-infos .admin-cms-editor-toggle",
+            "#tab-infos .mx2-editor-preview",
+            "#tab-infos .mx-cms-list-filters",
+            "#tab-infos .mx2-content-card",
+            "#tab-infos .mx-block-toolbar",
+            "#tab-infos #i_save",
+        ):
+            self.assertIn(selector, css)
+        for control in (
+            "i_title", "i_category", "i_image", "i_content",
+            "i_status", "i_active", "i_save",
+        ):
+            self.assertIn('id="' + control + '"', controller)
+        for method in (
+            "mountCmsBlockEditor", "mountCmsRevisionPanel",
+            "mountCmsListFilters", "mountCmsServerSearch",
+            "mountCmsMediaFieldPicker", "confirmCmsQuality",
+        ):
+            self.assertIn(method, controller)
+        self.assertIn('sb.from("cms_infos").upsert(payload)', controller)
+        self.assertIn('else if(name==="infos")enhanceCms(root,"i");', enhancer)
+        self.assertIn('const preview=elt("aside","mx2-editor-preview")', enhancer)
+        self.assertIn('renderSafeCmsMarkdown', enhancer)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
