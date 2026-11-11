@@ -305,6 +305,7 @@ function enhance(name){
  if(name==="pronostics")enhancePronos(root);
  else if(name==="articles")enhanceCms(root,"a");
  else if(name==="conseils")enhanceCms(root,"c");
+ else if(name==="infos")enhanceCms(root,"i");
  else if(name==="push")enhancePush(root);
  else if(name==="vip")enhanceVip(root);
  else if(name==="health")enhanceHealth(root);
