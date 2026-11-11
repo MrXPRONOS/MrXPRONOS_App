@@ -1720,3 +1720,218 @@ body.admin-shell #tab-conseils .mx2-editor-main #c_level{border-color:rgba(231,1
 body.admin-shell #tab-conseils .mx2-editor-main #c_level:focus-visible{outline-color:#f1c783;border-color:#f1c783}
 body.admin-shell #tab-conseils .mx2-editor-main #c_content{line-height:1.75}
 body.admin-shell #tab-conseils .mx2-rendered-markdown :is(ul,ol){padding-left:20px;line-height:1.8}
+
+
+/* ADMIN BONUS BOOKMAKERS V4 • Mr XPRONOS
+   Strictly scoped visual refresh. Saving, filters, CMS permissions and source data are unchanged. */
+body.admin-shell #tab-bonus{
+ --mxbb-gold:#f5cc82;--mxbb-blue:#70c1ee;--mxbb-border:rgba(106,168,207,.36);
+ max-width:1480px;min-width:0;margin-inline:auto
+}
+body.admin-shell #tab-bonus > .card{
+ position:relative;isolation:isolate;overflow:hidden;
+ border-radius:23px!important;border:1px solid rgba(105,167,209,.43)!important;
+ background:radial-gradient(ellipse 51% 37% at 87% 0%,rgba(21,111,170,.23),transparent 85%),
+  linear-gradient(148deg,#071d31 0%,#091e31 52%,#051523 100%)!important;
+ box-shadow:0 20px 56px rgba(0,8,20,.26),inset 0 1px 0 rgba(239,249,255,.065)!important;
+ margin:0 0 23px!important;padding:clamp(18px,2.6vw,32px)!important
+}
+body.admin-shell #tab-bonus > .card::before{
+ content:"";position:absolute;z-index:-1;pointer-events:none;
+ right:0;top:0;width:min(65%,690px);height:235px;
+ background:url("../images/admin-home-lights-reference.webp") center right/cover no-repeat;
+ opacity:.19;mask-image:linear-gradient(to right,transparent,#000 48%);
+ -webkit-mask-image:linear-gradient(to right,transparent,#000 48%)
+}
+body.admin-shell #tab-bonus > .card:nth-child(2){
+ border-color:rgba(110,164,205,.4)!important;
+ background:radial-gradient(ellipse 48% 40% at 88% 0%,rgba(36,101,152,.18),transparent 80%),
+  linear-gradient(148deg,#081d31,#0a2337 55%,#061725)!important
+}
+body.admin-shell #tab-bonus > .card > h3{
+ color:#f7faff!important;letter-spacing:-.052em;
+ font-size:clamp(27px,3vw,39px);font-weight:850;line-height:1.2;
+ margin:0 0 20px!important;max-width:780px
+}
+body.admin-shell #tab-bonus > .card > h3::before{
+ display:block;margin-bottom:12px;
+ color:var(--mxbb-gold);font-size:10px;font-weight:835;
+ letter-spacing:.19em;line-height:1.45;
+ content:"PARTENARIATS / OFFRES"
+}
+body.admin-shell #tab-bonus > .card:nth-child(2) > h3::before{
+ content:"PARTENARIATS / OPÉRATEURS"
+}
+body.admin-shell #tab-bonus > .card > h3::after{
+ content:"";display:block;margin:17px 0 0;
+ width:min(160px,45%);height:2px;
+ background:linear-gradient(90deg,#f1c780,#5bb7e8,transparent);
+ box-shadow:0 0 12px rgba(241,198,113,.3)
+}
+body.admin-shell #tab-bonus > .card > .row{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:start;gap:13px
+}
+body.admin-shell #tab-bonus > .card > .row > div{min-width:0}
+body.admin-shell #tab-bonus > .card label{
+ color:#c6dbeb;font-size:11px;font-weight:775;letter-spacing:.02em;
+ margin:14px 0 8px
+}
+body.admin-shell #tab-bonus > .card :is(input,select,textarea){
+ width:100%;max-width:100%;min-width:0;min-height:44px;
+ padding:11px 13px;border:1px solid rgba(118,171,208,.43);
+ border-radius:11px;color:#f2f8ff;font-size:12px;
+ background:rgba(4,21,37,.9);
+ box-shadow:inset 0 2px 3px rgba(0,0,0,.1)
+}
+body.admin-shell #tab-bonus > .card textarea{
+ min-height:115px;resize:vertical;line-height:1.7
+}
+body.admin-shell #tab-bonus > .card :is(input,textarea)::placeholder{
+ color:#8baabc;opacity:1
+}
+body.admin-shell #tab-bonus > .card :is(input,select,textarea):focus-visible{
+ outline:2px solid #f4cb83;outline-offset:2px;border-color:#f4cb83
+}
+body.admin-shell #tab-bonus > .card :is(#b_status,#b_active,#bk_status,#bk_active){
+ border-color:rgba(224,187,113,.38);background:#0a293f
+}
+body.admin-shell #tab-bonus > .card :is(#b_save,#bk_save){
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:45px;max-width:100%;
+ border-radius:11px;padding:12px 20px;margin:18px 0 6px!important;
+ border:1px solid #efc87f;
+ background:linear-gradient(125deg,#ffe2a4,#d3a35e);
+ box-shadow:0 8px 22px rgba(237,184,91,.16);
+ color:#081c2d;font-size:12px;font-weight:830;
+ transition:filter .16s,transform .16s,box-shadow .16s
+}
+body.admin-shell #tab-bonus > .card :is(#b_save,#bk_save):hover:not(:disabled){
+ transform:translateY(-1px);filter:brightness(1.06);
+ box-shadow:0 11px 24px rgba(238,193,107,.24)
+}
+body.admin-shell #tab-bonus > .card :is(#b_save,#bk_save):disabled{
+ opacity:.55;cursor:wait;transform:none
+}
+body.admin-shell #tab-bonus > .card:nth-child(2) #bk_save{
+ border-color:rgba(172,215,238,.7);
+ background:linear-gradient(125deg,#d5ebf9,#82b8d5);
+ color:#0a2638;box-shadow:0 8px 20px rgba(99,166,207,.15)
+}
+body.admin-shell #tab-bonus > .card > h4{
+ font-weight:835;letter-spacing:-.035em;line-height:1.3;
+ font-size:clamp(19px,2vw,27px);color:#f4f8ff!important;
+ border-top:1px solid rgba(115,174,203,.28);
+ margin:28px 0 18px!important;padding-top:23px;position:relative
+}
+body.admin-shell #tab-bonus > .card > h4::after{
+ content:"";position:absolute;top:-1px;left:0;
+ width:145px;height:2px;
+ background:linear-gradient(90deg,#edc575,#59b5e9,transparent);
+ box-shadow:0 0 13px rgba(239,192,112,.25)
+}
+body.admin-shell #tab-bonus .mx-cms-list-filters{
+ display:flex;align-items:center;flex-wrap:wrap;gap:9px;
+ padding:15px;margin:9px 0 17px;border-radius:14px;
+ border:1px solid rgba(113,167,203,.3);
+ background:linear-gradient(110deg,rgba(15,49,74,.9),rgba(7,31,52,.92))
+}
+body.admin-shell #tab-bonus .mx-cms-list-filters :is(input,select){
+ min-width:0;max-width:100%;min-height:43px;
+ padding:10px 12px;color:#f4faff;font-size:11px;
+ border-radius:10px;border:1px solid rgba(114,169,202,.42);
+ background:#071f34
+}
+body.admin-shell #tab-bonus .mx-cms-list-filters input[type="search"]{
+ flex:2 1 220px
+}
+body.admin-shell #tab-bonus .mx-cms-list-filters select{flex:1 1 145px}
+body.admin-shell #tab-bonus .mx-cms-list-filters .mx-filter-count{
+ flex:1 0 100%;color:#a8cbdc;margin:2px 0 0;font-size:11px;
+ line-height:1.5
+}
+body.admin-shell #tab-bonus .mx-cms-list-filters :is(input,select):focus-visible{
+ outline:2px solid #f0cd83;outline-offset:2px;border-color:#f0cd83
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]){
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:11px 0!important;padding:17px 20px!important;
+ border:1px solid rgba(104,162,201,.36)!important;
+ border-radius:15px!important;
+ background:radial-gradient(ellipse at 95% 100%,rgba(21,107,161,.16),transparent 65%),
+  linear-gradient(145deg,#12344c,#081d32)!important;
+ box-shadow:0 8px 20px rgba(0,9,21,.12)!important;
+ cursor:pointer;transition:transform .16s,border-color .16s,background .16s;
+ min-width:0
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id])::before{
+ content:"";pointer-events:none;
+ position:absolute;left:0;top:12px;bottom:12px;width:2px;
+ background:linear-gradient(#f2cb80,#60bde9);
+ box-shadow:0 0 11px rgba(243,196,107,.23)
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]):hover,
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]):focus-visible{
+ transform:translateY(-1px);
+ border-color:rgba(236,189,112,.74)!important;
+ background:linear-gradient(135deg,#18425d,#0a2c44)!important
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id])>div:first-child{
+ color:#f6faff;letter-spacing:-.02em;font-weight:820!important;
+ line-height:1.45;font-size:14px;overflow-wrap:anywhere
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id])>.muted{
+ color:#a8c4d6!important;font-size:11px;line-height:1.6;
+ overflow-wrap:anywhere;margin-top:7px
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]) .btn{
+ min-height:36px;padding:8px 12px;
+ border-radius:10px;font-size:11px;font-weight:765;
+ background:#183d58;color:#e0eff8;
+ border:1px solid rgba(120,178,208,.41)
+}
+body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]) .btn:hover{
+ color:#ffe2a6;border-color:rgba(238,194,121,.76)
+}
+body.admin-shell #tab-bonus .mx-cms-library{
+ min-width:0;max-width:100%;border-radius:13px;
+ background:#0c2b43;border-color:rgba(117,169,201,.3)
+}
+body.admin-shell #tab-bonus .mx-revision-choice{
+ background:#0f334d;color:#dcebf5;border-color:rgba(123,169,206,.4)
+}
+@media(max-width:900px){
+ body.admin-shell #tab-bonus > .card{
+  padding:clamp(16px,3vw,22px)!important
+ }
+ body.admin-shell #tab-bonus > .card::before{opacity:.13;width:90%}
+}
+@media(max-width:620px){
+ body.admin-shell #tab-bonus > .card{padding:16px!important}
+ body.admin-shell #tab-bonus > .card > .row{
+  grid-template-columns:minmax(0,1fr);gap:0
+ }
+ body.admin-shell #tab-bonus .mx-cms-list-filters :is(input,select){
+  flex:1 1 100%;width:100%
+ }
+ body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]){
+  padding:15px!important
+ }
+ body.admin-shell #tab-bonus > .card :is(#b_save,#bk_save){width:100%}
+}
+@media(max-width:380px){
+ body.admin-shell #tab-bonus > .card{
+  padding:12px!important;border-radius:16px!important
+ }
+ body.admin-shell #tab-bonus > .card > h3{font-size:28px}
+ body.admin-shell #tab-bonus .mx-cms-list-filters{padding:11px}
+ body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]){
+  padding:12px!important;border-radius:12px!important
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.admin-shell #tab-bonus :is([data-bonus-id],[data-book-id]),
+ body.admin-shell #tab-bonus > .card :is(#b_save,#bk_save){
+  transition:none!important;transform:none!important
+ }
+}
