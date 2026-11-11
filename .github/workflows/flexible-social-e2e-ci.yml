@@ -6,6 +6,7 @@ on:
       - '.github/workflows/flexible-social-e2e-ci.yml'
       - '.github/workflows/dixon-coles-social-top10-20h.yml'
       - 'scripts/create_social_exact_score_video.py'
+      - 'scripts/check_daily_flexible_manifest.py'
       - 'scripts/publish_social_exact_score_video.py'
       - 'scripts/verify_social_publications.py'
       - 'dixon-coles/dcscore/daily_pipeline.py'
@@ -14,6 +15,8 @@ on:
       - 'dixon-coles/dcscore/video_render.py'
       - 'dixon-coles/tests/test_daily_top10_v3.py'
       - 'tests/test_social_flexible_e2e.py'
+      - 'tests/test_daily_flexible_production.py'
+      - 'dixon-coles/tests/test_video_grid_neon.py'
       - 'tests/test_social_exact_score_video.py'
   workflow_dispatch:
 
@@ -47,10 +50,12 @@ jobs:
             dixon-coles/tests/test_daily_top10_v3.py \
             dixon-coles/tests/test_video_grid_neon.py \
             tests/test_social_exact_score_video.py \
-            tests/test_social_flexible_e2e.py
+            tests/test_social_flexible_e2e.py \
+            tests/test_daily_flexible_production.py
       - name: Verify security of standalone publishing scripts
         run: |
-          python -m py_compile scripts/create_social_exact_score_video.py \
+          python -m py_compile scripts/check_daily_flexible_manifest.py \
+            scripts/create_social_exact_score_video.py \
             scripts/publish_social_exact_score_video.py \
             scripts/verify_social_publications.py
 
