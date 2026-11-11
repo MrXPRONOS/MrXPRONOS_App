@@ -66,7 +66,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
-        self.assertRegex(page, r"admin-phase2\\.css\\?v=[^\\\"]+")
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
         self.assertIn("ADMIN PRONOSTICS V4", css)
         self.assertIn("body.admin-shell #tab-pronostics .mx2-match-card", css)
         self.assertIn("body.admin-shell #tab-pronostics .admin-filter-row", css)
