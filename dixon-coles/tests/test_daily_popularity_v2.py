@@ -108,7 +108,7 @@ def test_espn_structured_final_stage_without_guessing():
     for note, expected in (
         ("Final", "FINAL"), ("Semifinals", "SEMI_FINALS"),
         ("Quarterfinals", "QUARTER_FINALS"), ("Round of 16", "LAST_16"),
-        ("Final round of league phase", "FINAL"),
+        ("Final round of league phase", "REGULAR_SEASON"),
     ):
         _, item = parse_event(event(note), "uefa.champions", now=NOW)
         assert item.stage == expected
