@@ -104,7 +104,23 @@ def verify_ready(report: dict, storyboard: dict, target: str,
         raise ValueError("Pas de vidéo sans 10 affiches réelles prêtes, datées et vérifiées")
     identities = [str(row.get("id") or "") for row in report["selected"]]
     if not all(identities) or len(set(identities)) != expected:
-        raise ValueError("Dix identifiants réels et distincts obligatoires")
+        raise ValueError("Identifiants de matchs réels et distincts obligatoires")
+    clips=storyboard["clips"]
+    if [str(c.get("match_id") or "") for c in clips] != identities:
+        raise ValueError("Ordre ou identité des matchs différents entre prédictions et storyboard")
+    for match,clip in zip(report["selected"],clips):
+        # Match the statistical output and real clubs to the actual frames.
+        forecast=match.get("forecast") or {}
+        checks=(
+            ("display_score",forecast.get("most_likely_score")),
+            ("headline",f"{match['home']} - {match['away']}" if "home" in match and "away" in match else None),
+            ("kickoff_utc",match.get("kickoff_utc")),
+            ("home_logo_url",match.get("home_logo_url")),
+            ("away_logo_url",match.get("away_logo_url")),
+        )
+        for field,actual in checks:
+            if actual is not None and clip.get(field)!=actual:
+                raise ValueError(f"Prédictions et storyboard incohérents : {field}")
     if storyboard.get("status") != "READY":
         raise ValueError("Storyboard non validé")
 
@@ -174,18 +190,34 @@ def build(*, day: str, source: str, output_dir: Path,
         return 3
 
     verify_ready(report, storyboard, target, publication_mode=publication_mode)
-    final_video = work / "social_exact_scores_10.mp4"
+    count=len(storyboard["clips"])
+    final_video = work / f"social_exact_scores_{count}.mp4"
     # New user-approved neon background, transparent title and Telegram artwork.
     # The video renderer retains the real 2x5 matches and original reveal rhythm.
-    render(storyboard, final_video, fullhd=True, asset_root=str(DIXON),
-           require_real_logos=True,
-           allow_partial_production=(publication_mode=='flexible'))
+    render_info=render(storyboard, final_video, fullhd=True, asset_root=str(DIXON),
+                       require_real_logos=True,
+                       allow_partial_production=(publication_mode=='flexible'))
+    if (render_info.get("real_logo_instances") != 2*count
+            or render_info.get("placeholder_logo_instances") != 0
+            or render_info.get("resolution") != "1080x1920"
+            or render_info.get("count") != count):
+        final_video.unlink(missing_ok=True)
+        raise ValueError("Le rendu social ne prouve pas les deux logos réels de chaque match")
     data = {
         "schema": ("mrx-dixon-coles-social-top10-v1" if publication_mode=='strict'
-                   else "mrx-dixon-coles-social-flex-v2"),
+                   else "mrx-dixon-coles-social-flex-v3"),
         "publication_mode": publication_mode,
         "target": target,
-        "count": len(storyboard["clips"]),
+        "count": count,
+        "match_ids": [str(m["id"]) for m in report["selected"]],
+        "predictions_sha256": hashlib.sha256((base / "predictions.json").read_bytes()).hexdigest(),
+        "storyboard_sha256": hashlib.sha256((base / "video_payload.json").read_bytes()).hexdigest(),
+        "render_evidence": {
+            "real_logo_instances":render_info["real_logo_instances"],
+            "placeholder_logo_instances":render_info["placeholder_logo_instances"],
+            "resolution":render_info["resolution"],
+            "duration_seconds":render_info["duration_seconds"],
+        },
         "source": report.get("source_mode"),
         "status": "READY",
         "ready_for_video": True,
