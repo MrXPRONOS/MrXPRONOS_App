@@ -198,6 +198,36 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('renderSafeCmsMarkdown', enhancer)
         self.assertIn('Aperçu de l\'article (non publié)', blocks)
 
+    def test_bonus_bookmakers_v4_design_and_cms_controls_are_retained(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
+        self.assertIn("ADMIN BONUS BOOKMAKERS V4", css)
+        for selector in (
+            "#tab-bonus > .card",
+            "#tab-bonus .mx-cms-list-filters",
+            "#tab-bonus :is([data-bonus-id],[data-book-id])",
+            "#tab-bonus > .card :is(#b_save,#bk_save)",
+        ):
+            self.assertIn(selector, css)
+        for control in (
+            "b_bookmaker", "b_title", "b_description", "b_image", "b_link",
+            "b_footer", "b_status", "b_start", "b_end", "b_active", "b_save",
+            "bk_name", "bk_logo", "bk_url", "bk_description", "bk_status",
+            "bk_active", "bk_save",
+        ):
+            self.assertIn('id="' + control + '"', controller)
+        for method in (
+            "mountCmsMediaFieldPicker", "mountCmsListFilters", "mountCmsServerSearch",
+            "attachDuplicateButtons", "confirmCmsQuality",
+        ):
+            self.assertIn(method, controller)
+        self.assertIn('sb.from("cms_bonus").upsert(payload)', controller)
+        self.assertIn('sb.from("cms_bookmakers").upsert(payload)', controller)
+        self.assertIn('loadCmsRows("cms_bonus")', controller)
+        self.assertIn('loadCmsRows("cms_bookmakers")', controller)
+
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
