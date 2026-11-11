@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 from pathlib import Path
 import sys
 from urllib.parse import quote, urlsplit
@@ -109,6 +110,30 @@ def validate_manifest(manifest: dict, video: Path, now: datetime | None = None,
                     or game.get("away_logo_url")!=clip.get("away_logo_url")):
                 raise ValueError("Score, clubs ou écussons incohérents avec la prévision")
     return target
+
+
+def verify_mp4_metadata(video: Path, expected_count: int) -> dict:
+    """Check actual codec, audio, 9:16 resolution and Shorts length pre-upload."""
+    try:
+        output=subprocess.check_output(
+            ["ffprobe","-v","error","-show_entries",
+             "stream=codec_type,codec_name,width,height:format=duration",
+             "-of","json",str(video)],
+            text=True,timeout=35)
+        data=json.loads(output)
+        streams=data.get("streams") or []
+        videos=[s for s in streams if s.get("codec_type")=="video"]
+        audio=[s for s in streams if s.get("codec_type")=="audio"]
+        duration=float((data.get("format") or {}).get("duration",0))
+    except (OSError,subprocess.CalledProcessError,subprocess.TimeoutExpired,ValueError,TypeError) as exc:
+        raise ValueError("MP4 impossible à vérifier avant publication") from exc
+    if (len(videos)!=1 or videos[0].get("codec_name")!="h264"
+            or (videos[0].get("width"),videos[0].get("height"))!=(1080,1920)
+            or len(audio)<1 or not 2<=duration<=60
+            or type(expected_count) is not int or not 1<=expected_count<=10):
+        raise ValueError("MP4 invalide : H.264, 1080x1920, audio et durée Shorts obligatoires")
+    return {"width":1080,"height":1920,"codec":"h264",
+            "audio_tracks":len(audio),"duration_seconds":round(duration,2)}
 
 
 def build_copy(target: str, count: int = 10) -> tuple[str, str, str]:
@@ -225,6 +250,7 @@ def main() -> int:
     target = validate_manifest(manifest, args.video,
                                predictions_path=args.predictions,
                                storyboard_path=args.storyboard)
+    video_integrity=verify_mp4_metadata(args.video,manifest["count"])
     platforms = social.parse_platforms(args.platforms)
     if not platforms:
         raise ValueError("Aucun réseau social demandé")
@@ -232,7 +258,8 @@ def main() -> int:
     if args.dry_run:
         print("SOCIAL_EXACT_SCORE_PREVIEW", json.dumps({
             "target": target, "platforms": platforms, "title": title,
-            "description": description, "caption": caption}, ensure_ascii=False))
+            "description": description, "caption": caption,
+            "video_integrity":video_integrity}, ensure_ascii=False))
         return 0
 
     # Persistent claims must be available before performing ANY social upload.
