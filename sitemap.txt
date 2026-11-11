@@ -1,4 +1,5 @@
 https://mrxpronos.github.io/MrXPRONOS_App/
+https://mrxpronos.github.io/MrXPRONOS_App/aujourdhui.html
 https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
 https://mrxpronos.github.io/MrXPRONOS_App/historique.html
 https://mrxpronos.github.io/MrXPRONOS_App/blog.html

@@ -220,7 +220,7 @@ function setHomeNavigation(enabled){
  const more=document.createElement("details");
  more.className="mxh-more-tools";
  const title=document.createElement("summary");
- title.innerHTML=icon("layers")+'<span>Paramètres et outils</span>'+icon("chevron");
+ title.innerHTML=icon("layers")+'<span>Paramètres</span>'+icon("chevron");
  title.setAttribute("aria-label","Afficher les autres rubriques de l’administration");
  const extras=document.createElement("div");
  extras.className="mxh-extra-menu";

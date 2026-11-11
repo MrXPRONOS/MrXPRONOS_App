@@ -153,7 +153,7 @@ def visual(page,tag,width):
   navigate(page,name,width)
   if name=="overview":
    expect(page.locator("#tab-overview .mxh-dashboard")).to_be_visible()
-   expect(page.locator("body")).to_have_attribute("data-admin-ui","dashboard-premium-v2")
+   expect(page.locator("body")).to_have_attribute("data-admin-ui","dashboard-premium-v3")
    expect(page.locator("#tab-overview .mxh-title h2")).to_have_text("Tableau de bord")
    expect(page.locator(".sidebar-nav .admin-stats-link")).to_have_text("Statistiques")
    assert page.locator(".sidebar-nav .mxh-more-tools").count()==1, "Advanced menu absent"

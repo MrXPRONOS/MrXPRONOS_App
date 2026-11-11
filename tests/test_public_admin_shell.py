@@ -36,9 +36,9 @@ class AdminPagesPublicationContract(unittest.TestCase):
             self.assertTrue(file.is_file(), name)
             text = file.read_text(encoding="utf-8")
             for child in IMPORTS.findall(text):
-                relative = (file.parent / child).resolve()
+                relative = (file.parent / child.split("?")[0].split("#")[0]).resolve()
                 self.assertTrue(relative.is_relative_to((ROOT / "assets" / "js").resolve()), child)
-                queue.append(relative.name)
+                queue.append(relative.name.split("?")[0].split("#")[0])
         self.assertIn("admin-phase2.mjs", scanned)
         self.assertIn("admin-public-markdown.mjs", scanned)
         self.assertIn("cms-block-editor.mjs", scanned)
@@ -49,7 +49,10 @@ class AdminPagesPublicationContract(unittest.TestCase):
         worker = (ROOT / "service-worker.js").read_text(encoding="utf-8")
         self.assertIn("assets/css/admin-home-reference.css", page)
         self.assertIn('id="admin-overview-summary"', page)
-        self.assertIn('data-admin-ui="dashboard-premium-v2"', page)
+        self.assertIn('data-admin-ui="dashboard-premium-v3"', page)
+        self.assertIn("admin-home-20261111-v3", page)
+        self.assertIn("cache: 'no-store'", worker)
+        self.assertIn("adminReferenceArt", worker)
         for name in ("admin-home-ball-reference.webp", "admin-home-lights-reference.webp"):
             asset = ROOT / "assets/images" / name
             self.assertTrue(asset.is_file(), name)
