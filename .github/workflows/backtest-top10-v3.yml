@@ -1,0 +1,76 @@
+name: Backtest V3 - October 2026 strict and flexible coverage
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/backtest-top10-v3.yml'
+      - 'dixon-coles/dcscore/backtest_top10_v3.py'
+      - 'dixon-coles/dcscore/combine_backtest_v3.py'
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/dcscore/daily_rank.py'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {start: '2026-10-01', end: '2026-10-07'}
+          - {start: '2026-10-08', end: '2026-10-14'}
+          - {start: '2026-10-15', end: '2026-10-21'}
+          - {start: '2026-10-22', end: '2026-10-28'}
+          - {start: '2026-10-29', end: '2026-10-31'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install predictor and isolated tests
+        run: python -m pip install -e 'dixon-coles[test]'
+      - name: Verify no lookahead in predictions
+        run: python -m pytest -q dixon-coles/tests/test_backtest_top10_v3.py
+      - name: Replay exact October V3 selections as of previous day at 20h
+        working-directory: dixon-coles
+        run: |
+          python -m dcscore.backtest_top10_v3 \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --out results/backtests/oct2026_v3
+      - name: Save match-by-match and source audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: V3-backtest-${{ matrix.start }}
+          path: dixon-coles/results/backtests/oct2026_v3/*
+          if-no-files-found: warn
+          retention-days: 90
+
+  report:
+    needs: replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e 'dixon-coles'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: V3-backtest-*
+          path: parts
+          merge-multiple: false
+      - name: Verify 31 dates and aggregate actual selected matches
+        working-directory: dixon-coles
+        run: python -m dcscore.combine_backtest_v3 --parts ../parts --out ../report_v3
+      - name: Archive audited complete result and summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: MRXPRONOS-backtest-coverage-V3-octobre-2026
+          path: report_v3/*
+          retention-days: 90
