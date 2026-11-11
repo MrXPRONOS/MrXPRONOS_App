@@ -68,8 +68,8 @@ def main(argv:list[str]|None=None)->int:
                           'provider':report['source_mode'],'ready_for_video':report['ready_for_video'],
                           'discovered_count':report['count_before_quality_checks'],
                           'source_discovery_counts':report.get('source_discovery_counts',{}),
-                          'publication_mode':report['publication_mode'],
-                          'selection_diagnostics':report['selection_diagnostics'],
+                          'publication_mode':report.get('publication_mode','strict'),
+                          'selection_diagnostics':report.get('selection_diagnostics',{}),
                           'reasons_not_ready':report['reasons_not_ready'],
                           'warnings':report['warnings'][:5],
                           'path':str(destination/'predictions.json')},ensure_ascii=False,indent=2))
