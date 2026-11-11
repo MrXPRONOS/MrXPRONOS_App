@@ -259,3 +259,10 @@ def test_tiktok_requires_explicit_app_approval_and_per_video_consent(monkeypatch
     monkeypatch.setenv("TIKTOK_DIRECT_POST_ENABLED","true")
     denied=publisher.social.post_tiktok(video,"test")
     assert denied.ok is False and "Consentement" in denied.message
+
+
+def test_one_match_caption_uses_singular_words():
+    title,description,caption=publisher.build_copy("2026-11-12",1)
+    assert "1 score exact possible" in title
+    assert "1 rencontre" in description
+    assert "1 score exact possible" in caption
