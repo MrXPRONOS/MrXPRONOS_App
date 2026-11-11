@@ -55,6 +55,7 @@ jobs:
             scripts/verify_social_publications.py
 
   live_preview:
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 40
     # Real ESPN read-only probe. A day without valid matches is an explicit
