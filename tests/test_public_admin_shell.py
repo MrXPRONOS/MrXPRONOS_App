@@ -136,6 +136,37 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('["expired","Expirés"]', enhancer)
         self.assertIn('["disabled","Désactivés"]', enhancer)
 
+    def test_articles_v4_visuals_and_cms_controls_are_retained(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
+        blocks = (ROOT / "assets/js/cms-block-editor.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-phase2.css?v=20261111-articles-v4", page)
+        self.assertIn("ADMIN ARTICLES V4", css)
+        for selector in (
+            "#tab-articles .admin-cms-editor-toggle",
+            "#tab-articles .mx2-editor-preview",
+            "#tab-articles .mx-cms-list-filters",
+            "#tab-articles .mx2-content-card",
+            "#tab-articles .mx-block-toolbar",
+            "#tab-articles #a_save",
+        ):
+            self.assertIn(selector, css)
+        for control in (
+            "a_slug", "a_title", "a_image", "a_meta", "a_category",
+            "a_tags", "a_content", "a_status", "a_active", "a_save",
+        ):
+            self.assertIn('id="' + control + '"', controller)
+        for method in ("mountCmsBlockEditor", "mountCmsRevisionPanel",
+                       "mountCmsListFilters", "mountCmsServerSearch",
+                       "confirmCmsQuality"):
+            self.assertIn(method, controller)
+        self.assertIn('sb.from("cms_articles").upsert(payload)', controller)
+        self.assertIn('const preview=elt("aside","mx2-editor-preview")', enhancer)
+        self.assertIn('renderSafeCmsMarkdown', enhancer)
+        self.assertIn('Aperçu de l\'article (non publié)', blocks)
+
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
