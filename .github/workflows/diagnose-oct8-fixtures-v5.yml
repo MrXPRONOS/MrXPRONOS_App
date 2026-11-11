@@ -23,6 +23,33 @@ jobs:
           python-version: '3.12'
       - name: Install independent model
         run: python -m pip install -e 'dixon-coles[test]'
+      - name: Check ESPN all-league scoreboard for unseen genuine fixtures
+        run: |
+          python - <<'PY'
+          import json,requests
+          url="https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
+          try:
+              r=requests.get(url,params={"dates":"20261008","limit":400},
+                             headers={"Accept":"application/json"},
+                             timeout=(8,30))
+              print("ESPN_ALL_HTTP",r.status_code,"response_bytes",len(r.content))
+              if r.ok:
+                  events=r.json().get("events",[])
+                  summary=[]
+                  for e in events:
+                      sides=(e.get("competitions") or [{}])[0].get("competitors") or []
+                      teams=[x.get("team",{}).get("displayName") for x in sides]
+                      summary.append({
+                          "id":e.get("id"),"date":e.get("date"),
+                          "season":(e.get("season") or {}).get("slug"),
+                          "teams":teams,
+                          "competition":(e.get("competitions") or [{}])[0].get("type",{}),
+                      })
+                  print("ESPN_ALL_SOURCE_AUDIT",json.dumps({
+                      "events":len(events),"matches":summary[:30]},ensure_ascii=False))
+          except (ValueError,requests.RequestException) as exc:
+              print("ESPN_ALL_SOURCE_UNAVAILABLE",type(exc).__name__,str(exc)[:200])
+          PY
       - name: Unit tests including anti-duplicate and source validation
         run: cd dixon-coles && python -m pytest -q tests/test_daily_two_pass.py tests/test_daily_espn.py tests/test_backtest_two_pass_v5.py
       - name: Retrospective October 8 real fixtures only
