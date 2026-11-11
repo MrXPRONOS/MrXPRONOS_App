@@ -135,10 +135,14 @@ def test_ranked_storyboard_mismatch_fails_before_render(tmp_path):
                              publication_mode="flexible")
 
 
-def test_odd_flexible_video_has_single_centered_last_row():
-    for n in (1,3,9):
-        slot=positions(n)[-1]
-        assert slot[0]==round((23+368)/2)
+def test_partial_videos_leave_unoccupied_fixed_grid_positions_blank():
+    # The requested 2x5 grid stays fixed: for odd N, the right-hand
+    # position in the last occupied row remains empty, not recentered.
+    full=positions(10)
+    for n in range(1,11):
+        assert positions(n)==full[:n]
+        assert len(positions(n))==n
+    assert positions(9)[-1][0]==23
     assert positions(8)[-1][0]==368
 
 
