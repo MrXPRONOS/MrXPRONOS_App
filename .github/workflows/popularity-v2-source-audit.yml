@@ -1,0 +1,92 @@
+name: Popularite V2 - audit des sources (aucune publication)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/popularity-v2-source-audit.yml'
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/dcscore/daily_popularity.py'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dependances
+        run: python -m pip install -e 'dixon-coles'
+      - name: Verifier les nouvelles competitions ESPN sur un jour historique
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          import json
+          from dcscore.daily_espn import ESPNProvider, ALLOWED
+          provider = ESPNProvider()
+          checks = {}
+          for code, title in ALLOWED.items():
+              try:
+                  events = provider._fetch(code, '20261025')
+                  checks[code] = {'status':'OK', 'events':len(events), 'league':title}
+              except Exception as e:
+                  checks[code] = {'status':'UNAVAILABLE', 'error':type(e).__name__}
+          print('POPULARITY_V2_SOURCE_AUDIT',json.dumps(checks, ensure_ascii=False))
+          top = ['uefa.champions','eng.1','esp.1','ger.1','ita.1','fra.1']
+          available = sum(checks[c]['status']=='OK' for c in top)
+          print('POPULARITY_V2_MAJOR_SOURCE_AVAILABILITY',available,'/',len(top))
+          if available < 4:
+              raise SystemExit('Principales competitions insuffisamment accessibles')
+          PY
+      - name: Verifier la disponibilite des historiques sans utiliser de matchs futurs
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          from types import SimpleNamespace
+          from dcscore.daily_espn import ESPNProvider
+          top = ['uefa.champions','eng.1','esp.1','ger.1','ita.1','fra.1']
+          cutoff = datetime(2026, 10, 24, 20, 0, tzinfo=timezone.utc)
+          p = ESPNProvider(leagues=top)
+          ready = 0
+          for league in top:
+              try:
+                  games, issues = p.history(
+                      SimpleNamespace(competition='ES:'+league.upper()),
+                      now=cutoff)
+                  days_old = (cutoff-games[-1].kickoff).total_seconds()/86400 if games else None
+                  valid = bool(len(games)>=80 and days_old is not None and days_old<=35)
+                  print('POPULARITY_V2_HISTORY',league,'count',len(games),
+                        'age_days',round(days_old,2) if days_old is not None else None,
+                        'usable',valid,'issues',issues[:3],flush=True)
+                  ready += int(valid)
+              except Exception as exc:
+                  print('POPULARITY_V2_HISTORY_UNAVAILABLE',league,type(exc).__name__,str(exc)[:130],flush=True)
+          print('POPULARITY_V2_HISTORY_READY_LEAGUES',ready,'/',len(top),flush=True)
+          if ready < 4:
+              raise SystemExit('Historique minimum non disponible pour les grandes competitions')
+          PY
+      - name: Diagnostiquer les plages historiques ESPN quand un an depasse 400 matchs
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          import requests
+          from dcscore.daily_espn import BASE
+          for selector in ('2026', '20260901-20260930', '20261001-20261024', '20261025'):
+              response = requests.get(BASE+'/esp.1/scoreboard',
+                params={'dates':selector,'limit':400},
+                headers={'Accept':'application/json','User-Agent':'MrXPRONOS-Independent-ScoreResearch/1.0'},
+                timeout=(8,30))
+              try:
+                  body=response.json()
+                  events=body.get('events') or []
+                  title=body.get('leagues') or []
+              except ValueError:
+                  events=[];title=[]
+              print('POPULARITY_V2_LALIGA_SELECTOR',selector,'http',response.status_code,
+                    'count',len(events),'bytes',len(response.content),flush=True)
+          PY

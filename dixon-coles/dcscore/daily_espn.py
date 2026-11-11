@@ -1,4 +1,4 @@
-"""ESPN-reported women's UCL/EFL Trophy scheduled fixtures and completed results.
+"""ESPN-reported fixtures and completed results for priority football competitions.
 
 Experimental personal/test use only. ESPN is an unaffiliated, non-official
 third-party provider and its public endpoint may change; never claim UEFA
@@ -13,13 +13,29 @@ import re
 import requests
 
 from .daily_rank import RankedFixture
+from .daily_popularity import stage_class
 from .daily_sources import DailySourceError
 from .domain import Match, utc_datetime
 
 BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer'
+# A broad editorial discovery pool; no synthetic fixtures and no implicit
+# club-ID mapping across competitions. Each competition is trained separately.
+# Unsupported ESPN leagues fail individually and are reported in warnings.
 ALLOWED = {
+    'uefa.champions': 'Ligue des champions UEFA',
+    'uefa.europa': 'Europa League UEFA',
+    'uefa.europa.conf': 'Conference League UEFA',
+    'eng.1': 'Premier League',
+    'esp.1': 'Liga',
+    'ger.1': 'Bundesliga',
+    'ita.1': 'Serie A',
+    'fra.1': 'Ligue 1',
+    'eng.fa': 'FA Cup',
+    'eng.league_cup': 'Coupe de la Ligue anglaise',
     'uefa.wchampions': 'Ligue des champions féminine',
     'eng.trophy': 'EFL Trophy',
+    'fifa.world': 'Coupe du monde FIFA',
+    'uefa.euro': 'Championnat d’Europe des nations',
 }
 
 
@@ -32,6 +48,47 @@ def _score(value):
         n = int(value)
         return n if n <= 30 else None
     return None
+
+
+def _provider_round(event: dict, competition: dict) -> str:
+    """Extract confirmed competition phase without guessing from scores.
+
+    ESPN stage/round/notes schemas vary by league; accept only recognizable
+    phase strings on structured source fields. Regular-season is the safe fallback.
+    """
+    values = []
+    for source in (event, competition):
+        for key in ("stage", "round", "roundName", "phase"):
+            raw = source.get(key)
+            if isinstance(raw, dict):
+                raw = raw.get("name") or raw.get("displayName") or raw.get("label")
+            if isinstance(raw, str):
+                values.append(raw)
+        for note in source.get("notes") or []:
+            if isinstance(note, dict):
+                title = note.get("headline") or note.get("text")
+                if isinstance(title, str):
+                    values.append(title)
+    for raw in values:
+        t = re.sub(r"\s+", " ", raw.strip()).lower()
+        if re.search(r"\bsemi[\s-]?finals?\b", t):
+            return "SEMI_FINALS"
+        if re.search(r"\bquarter[\s-]?finals?\b", t):
+            return "QUARTER_FINALS"
+        if re.search(r"\b(?:round of 16|last 16|round of sixteen)\b", t):
+            return "LAST_16"
+        if (re.search(r"\b(?:final|finale)\b", t)
+                and not re.search(r"\bfinal (?:round|matchday|day)\b", t)):
+            return "FINAL"
+        if re.search(r"\bplay[\s-]?offs?\b", t):
+            return "PLAYOFFS"
+        if re.search(r"\b(?:round of 32|last 32)\b", t):
+            return "LAST_32"
+        value = stage_class(t)
+        if value in ("FINAL", "SEMI_FINALS", "QUARTER_FINALS", "LAST_16",
+                     "LAST_32", "PLAYOFFS", "CHAMPIONSHIP_ROUND", "CHAMPIONSHIP"):
+            return value
+    return "REGULAR_SEASON"
 
 
 def parse_event(event, league: str, *, now: datetime):
@@ -74,20 +131,23 @@ def parse_event(event, league: str, *, now: datetime):
                 images = team.get('logos') or []
                 u = images[0].get('href') if images and isinstance(images[0],dict) else None
             return u
+        neutral = comp.get('neutralSite')
+        if type(neutral) is not bool:
+            neutral = None
         key = f'ES:{league.upper()}'
         match = (Match(
             id=f'espn:{league}:{event_id}',competition=key,kickoff=kickoff,
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
             home_name=hn,away_name=an,status='FINISHED',home_goals=hs,
-            away_goals=as_,source='espn-reported',result_provenance='provider_reported',
+            away_goals=as_,neutral_venue=neutral is True,source='espn-reported',result_provenance='provider_reported',
             season=str(kickoff.year))) if completed else None
         f = RankedFixture(
             id=f'espn:{league}:{event_id}',competition=key,
             competition_name=ALLOWED[league],kickoff=kickoff,
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
-            home_name=hn,away_name=an,stage='REGULAR_SEASON',
+            home_name=hn,away_name=an,stage=_provider_round(event,comp),
             source='ESPN public scoreboard',source_verified=True,
-            neutral_venue=None,home_logo_url=crest(home_team),
+            neutral_venue=neutral,home_logo_url=crest(home_team),
             away_logo_url=crest(away_team)) if not completed else None
         return match, f
     except (KeyError, IndexError, StopIteration, TypeError, ValueError, AttributeError):
@@ -123,7 +183,7 @@ class ESPNProvider:
                 timeout=(8,30))
             if r.status_code!=200:
                 raise DailySourceError(f'ESPN {league} {date_selector}: HTTP {r.status_code}')
-            if len(r.content)>4_000_000:
+            if len(r.content)>8_000_000:
                 raise DailySourceError('ESPN : réponse trop volumineuse')
             data=r.json()
             if not isinstance(data,dict) or not isinstance(data.get('events'),list):
@@ -134,6 +194,8 @@ class ESPNProvider:
             return self._cache[k]
         except requests.RequestException as exc:
             raise DailySourceError(f'ESPN {league}: réseau indisponible ({type(exc).__name__})') from None
+        except DailySourceError:
+            raise
         except ValueError:
             raise DailySourceError('ESPN : réponse illisible') from None
 
