@@ -330,7 +330,13 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'training_last_result':item['training_last_result'],
             'result_age_days':item['history_days_old'],
             'team_history':item['teams_history'],
-            'model':'dixon_coles_unvalidated_cross_league',
+            'model':('dixon_coles_unvalidated_cross_league'
+                     if item.get('selection_pass')!='fallback'
+                     else ('dixon_coles_rho_zero_cold_start'
+                           if item.get('prediction_basis')=='COLD_START_ON_FITTED_LEAGUE'
+                           else ('dixon_coles_relaxed_fit'
+                                 if item.get('prediction_basis')=='RELAXED_DIXON_COLES_FITTED'
+                                 else 'untrained_poisson_prior_rho_zero'))),
             'forecast':item['forecast'],
             'goal_calibration_status':item['forecast']['goal_calibration']['status'],
             'goal_multiplier':item['forecast']['goal_calibration']['multiplier'],
@@ -421,6 +427,12 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'second_pass_accepted':second_pass_accepted,
             'second_pass_selected':selected_fallback,
             'second_pass_bases':dict(second_pass_modes),
+            'catalogue_fixtures_found':len(fixtures)+second_pass_discovered,
+            'day_has_ten_real_fixtures_discovered':(
+                len({f.id for f in all_ranked})+len({
+                    f.id for f in secondary if f.id not in {g.id for g in all_ranked}
+                })>=limit if second_pass and first_pass_eligible<limit
+                else len({f.id for f in all_ranked})>=limit),
             'popular_selected':len(selected)-selected_complements,
             'rejected_by_reason':rejected_by_reason,
             'eligible_by_tier':{
