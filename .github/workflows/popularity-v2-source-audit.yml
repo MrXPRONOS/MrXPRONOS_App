@@ -1,0 +1,44 @@
+name: Popularite V2 - audit des sources (aucune publication)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/popularity-v2-source-audit.yml'
+      - 'dixon-coles/dcscore/daily_espn.py'
+      - 'dixon-coles/dcscore/daily_popularity.py'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dependances
+        run: python -m pip install -e 'dixon-coles'
+      - name: Verifier les nouvelles competitions ESPN sur un jour historique
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          import json
+          from dcscore.daily_espn import ESPNProvider, ALLOWED
+          provider = ESPNProvider()
+          checks = {}
+          for code, title in ALLOWED.items():
+              try:
+                  events = provider._fetch(code, '20261025')
+                  checks[code] = {'status':'OK', 'events':len(events), 'league':title}
+              except Exception as e:
+                  checks[code] = {'status':'UNAVAILABLE', 'error':type(e).__name__}
+          print('POPULARITY_V2_SOURCE_AUDIT',json.dumps(checks, ensure_ascii=False))
+          top = ['uefa.champions','eng.1','esp.1','ger.1','ita.1','fra.1']
+          available = sum(checks[c]['status']=='OK' for c in top)
+          print('POPULARITY_V2_MAJOR_SOURCE_AVAILABILITY',available,'/',len(top))
+          if available < 4:
+              raise SystemExit('Principales competitions insuffisamment accessibles')
+          PY
