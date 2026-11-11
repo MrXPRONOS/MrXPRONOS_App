@@ -62,7 +62,11 @@ MONTHS = ("JAN", "FÉV", "MAR", "AVR", "MAI", "JUN", "JUL", "AOÛ", "SEP", "OCT"
 def positions(n=10):
     if not 1 <= n <= 10:
         raise ValueError("L'édition sociale accepte 1 à 10 affiches vérifiées")
-    return [(CARD_X[i % 2], CARD_Y0 + (i // 2) * (CARD_H + CARD_GAP_Y)) for i in range(n)]
+    slots = [(CARD_X[i % 2], CARD_Y0 + (i // 2) * (CARD_H + CARD_GAP_Y)) for i in range(n)]
+    if n % 2:
+        # Center an isolated last match; never leave the last row lopsided.
+        slots[-1] = (round((CARD_X[0] + CARD_X[1]) / 2), slots[-1][1])
+    return slots
 
 
 def check_assets():
@@ -156,10 +160,12 @@ def base_frame(payload, clips, logos, preview=False):
             base.alpha_composite(with_img, (round(cx-with_img.width/2), y+10))
         _team_label(d, x+76, y, home)
         _team_label(d, x+CARD_W-76, y, away)
-    if len(clips) < 10:
+    # Below four rows the small count label fits; with nine fixtures it
+    # would cover the fifth-row club names, so leave it to the caption.
+    if len(clips) <= 8:
         d.rounded_rectangle((270, 860, 450, 890), radius=9,
                             fill=(6, 20, 39, 238), outline=GOLD, width=2)
-        d.text((360, 875), f"{len(clips)} MATCHS VÉRIFIÉS",
+        d.text((360, 875), f"{len(clips)} MATCHS EN VIDÉO",
                font=font(15, True), fill=GOLD, anchor="mm")
     if preview:
         d.rounded_rectangle((140, 1138, 580, 1172), radius=10, fill=(6, 20, 39, 240))
