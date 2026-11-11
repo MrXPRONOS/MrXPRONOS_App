@@ -66,17 +66,19 @@ def _metrics(observations, multiplier: float) -> tuple[float, float]:
 
 
 def select_goal_multiplier(rows: list[Match], *, as_of: datetime,
-                           min_training: int = 80, min_calibration: int = 18,
+                           min_training: int = 80, min_calibration: int = 40,
                            min_validation: int = 18,
                            maxiter: int = 350) -> GoalCalibration:
-    """Train (-120 days), calibrate (-120 to -60), validate (-60 to cutoff).
+    """Train (< -240 days), calibrate (-240 to -60), validate (-60 to cutoff).
 
     Both calibration and validation predictions are from earlier-time models,
     never from fits containing their own eventual outcomes. The rolling
     production forecast is fitted separately on all pre-cutoff history.
     """
     cutoff = utc_datetime(as_of)
-    calibration_start = cutoff - timedelta(days=120)
+    # Use a 180-day learning window to span the summer off-season safely.
+    # A short 60-day learn window contains zero fixtures for early October.
+    calibration_start = cutoff - timedelta(days=240)
     validation_start = cutoff - timedelta(days=60)
     previous = sorted((m for m in rows if m.status == "FINISHED"
                        and m.kickoff < cutoff), key=lambda m: (m.kickoff, m.id))
