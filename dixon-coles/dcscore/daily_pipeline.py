@@ -17,6 +17,7 @@ from .model import fit, forecast, ModelError
 from .goal_calibration import GoalCalibration, select_goal_multiplier
 from .logo_policy import valid_logo_url as _valid_logo_url
 from .fallback_model import cold_start_model
+from .daily_popularity import normalize
 
 class FixtureProvider(Protocol):
     name: str
@@ -27,6 +28,15 @@ class FixtureProvider(Protocol):
 
 def _date_str(v:date)->str:
     return v.isoformat()
+
+
+def _fixture_dedup_keys(f:RankedFixture)->set[tuple]:
+    """Match identity independent of competition labels, without using scores."""
+    result={('teams_time',normalize(f.home_name),normalize(f.away_name),
+             iso_date(f.kickoff))}
+    if f.source=='ESPN public scoreboard' and f.id.startswith('espn:'):
+        result.add(('espn_event',f.id.rsplit(':',1)[-1]))
+    return result
 
 
 def _prediction(model,fixture:RankedFixture, *, calibration:GoalCalibration|None=None)->dict:
@@ -212,11 +222,17 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                 original[f.id]=f
         prior_models={}
         failed_fits=set()
+        seen_games=set()
+        for item in eligible:
+            seen_games.update(_fixture_dedup_keys(item['fixture']))
         # The new pools are not claimed to have a valid league training set.
         for f in rank_fixtures(list(original.values())):
             if len(eligible)>=limit:
                 break
             second_pass_considered+=1
+            identity=_fixture_dedup_keys(f)
+            if not seen_games.isdisjoint(identity):
+                continue
             if not f.source_verified or f.kickoff<=now or f.kickoff.date()!=day:
                 continue
             if require_renderable and (
@@ -281,6 +297,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                     'away':proof['away_team_games']},
             })
             sources.add(f.source)
+            seen_games.update(identity)
             second_pass_accepted+=1
             second_pass_modes[proof['basis']]+=1
     # Only earlier-time historical coverage breaks ties between equally
