@@ -487,6 +487,26 @@ class CompositeProvider:
         self.discovery_counts=counts
         return selected,warnings
 
+    def discover_more(self,target_date:date,now:datetime):
+        """Query optional second-pass pools without replacing first-pass games."""
+        found=[];warnings=[];seen=set(self._selection)
+        for provider in self.providers:
+            extra=getattr(provider,'discover_more',None)
+            if not callable(extra):
+                continue
+            try:
+                matches,issues=extra(target_date,now)
+                warnings.extend(f'{provider.name}: {msg}' for msg in issues)
+                for f in matches:
+                    if f.id in seen:
+                        continue
+                    seen.add(f.id)
+                    self._selection[f.id]=provider.name
+                    found.append(f)
+            except (DailySourceError,ValueError) as exc:
+                warnings.append(f'{provider.name} fallback: {exc}')
+        return found,warnings
+
     def history(self,fixture:RankedFixture,now:datetime):
         src=self._selection.get(fixture.id,fixture.source)
         provider=self._by_name.get(src)
