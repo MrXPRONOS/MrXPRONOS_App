@@ -7,7 +7,7 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
-from .backtest_popular_v3 import statistics
+from .backtest_top10_v3 import statistics
 
 
 def combine(folder: Path, destination: Path):
