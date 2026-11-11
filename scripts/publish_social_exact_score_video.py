@@ -140,14 +140,16 @@ def build_copy(target: str, count: int = 10) -> tuple[str, str, str]:
     if not 1 <= count <= 10:
         raise ValueError('Nombre de matchs invalide')
     day = date.fromisoformat(target).strftime("%d/%m/%Y")
-    title = f"{count} scores exacts possibles pour le {day} | Mr XPRONOS"
+    score_label = f"{count} score exact possible" if count==1 else f"{count} scores exacts possibles"
+    matches_label = f"{count} rencontre" if count==1 else f"{count} rencontres"
+    title = f"{score_label} pour le {day} | Mr XPRONOS"
     description = (
-        f"{count} rencontres du {day}, prévisions statistiques Dixon-Coles "
+        f"{matches_label} du {day}, prévisions statistiques Dixon-Coles "
         "(scores possibles, jamais garantis). "
         "Telegram : @mr_xpronos. 18+ • Joue responsablement. #Shorts"
     )
     caption = (
-        f"⚽ {count} scores exacts possibles pour demain ({day})\n"
+        f"⚽ {score_label} pour demain ({day})\n"
         "📲 Rejoins-nous sur Telegram pour plus de coupons\n"
         "Compte Telegram : Mr XPRONOS • @mr_xpronos\n"
         "Prévisions statistiques, pas de résultat garanti. 18+ • Joue responsablement.\n"
