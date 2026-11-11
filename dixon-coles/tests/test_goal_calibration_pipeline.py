@@ -34,7 +34,7 @@ class Provider:
             source="ESPN public scoreboard",source_verified=True,
             neutral_venue=False,
             home_logo_url="https://a.espncdn.com/i/teamlogos/soccer/500/111.png",
-            away_logo_url="https://a.espncdn.com/i/teamlogos/soccer/500/222.png"), []
+            away_logo_url="https://a.espncdn.com/i/teamlogos/soccer/500/222.png")], []
     def history(self, fixture, now):
         return _history(), []
 
