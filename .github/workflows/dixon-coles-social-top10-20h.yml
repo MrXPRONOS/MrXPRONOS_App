@@ -13,6 +13,18 @@ on:
         type: choice
         default: strict
         options: [strict, flexible]
+      publish_platforms:
+        type: string
+        description: 'Plateformes séparées par des virgules. TikTok nécessite le consentement ci-dessous.'
+        default: facebook,youtube,instagram,threads,bluesky
+      tiktok_consent:
+        type: boolean
+        description: "Autoriser explicitement CETTE publication TikTok (jamais pour la tâche automatique)"
+        default: false
+      tiktok_privacy:
+        type: choice
+        default: SELF_ONLY
+        options: [SELF_ONLY, MUTUAL_FOLLOW_FRIENDS, FOLLOWER_OF_CREATOR, PUBLIC_TO_EVERYONE]
       source:
         type: choice
         default: espn
@@ -33,7 +45,13 @@ jobs:
       SOCIAL_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode || 'preview' }}
       DCSCORE_SOURCE: ${{ inputs.source || 'espn' }}
       DCSCORE_PUBLICATION_MODE: ${{ github.event_name == 'schedule' && 'strict' || inputs.publication_mode || 'strict' }}
-      POST_PLATFORMS: facebook,youtube,instagram,threads,bluesky
+      POST_PLATFORMS: ${{ github.event_name == 'schedule' && 'facebook,youtube,instagram,threads,bluesky' || inputs.publish_platforms || 'facebook,youtube,instagram,threads,bluesky' }}
+      TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+      TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+      TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+      TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+      TIKTOK_PER_VIDEO_CONSENT: ${{ github.event_name == 'workflow_dispatch' && inputs.tiktok_consent && 'true' || 'false' }}
+      TIKTOK_PRIVACY_LEVEL: ${{ inputs.tiktok_privacy || 'SELF_ONLY' }}
       FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_KEY }}
@@ -94,9 +112,23 @@ jobs:
         if: steps.render.outputs.ready == 'true'
         run: |
           TARGET="$(TZ=Africa/Lome date -d tomorrow +%F)"
-          test -s "social_exact_scores_out/$TARGET/social_exact_scores_10.mp4"
+          MANIFEST="social_exact_scores_out/$TARGET/social_manifest.json"
+          test -s "$MANIFEST"
+          VIDEO="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["video"])' "$MANIFEST")"
+          test -s "$VIDEO"
           echo "day=$TARGET" >> "$GITHUB_OUTPUT"
-          ffprobe -v error -show_entries format=duration,size -of json "social_exact_scores_out/$TARGET/social_exact_scores_10.mp4"
+          echo "video=$VIDEO" >> "$GITHUB_OUTPUT"
+          ffprobe -v error -show_entries stream=width,height,codec_name -show_entries format=duration,size -of json "$VIDEO"
+      - name: Validate preview and provider routing without public upload
+        if: steps.render.outputs.ready == 'true'
+        run: |
+          TARGET="${{ steps.target.outputs.day }}"
+          python scripts/publish_social_exact_score_video.py --dry-run \
+            --manifest "social_exact_scores_out/$TARGET/social_manifest.json" \
+            --predictions "social_exact_scores_out/model/$TARGET/predictions.json" \
+            --storyboard "social_exact_scores_out/model/$TARGET/video_payload.json" \
+            --video "${{ steps.target.outputs.video }}" \
+            --platforms "$POST_PLATFORMS"
       - name: Refresh social tokens
         if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
         continue-on-error: true
@@ -105,21 +137,33 @@ jobs:
         if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
         run: |
           TARGET="${{ steps.target.outputs.day }}"
-          python scripts/publish_social_exact_score_video.py --manifest "social_exact_scores_out/$TARGET/social_manifest.json" --video "social_exact_scores_out/$TARGET/social_exact_scores_10.mp4" --platforms "$POST_PLATFORMS" --report social_exact_scores_out/social_post_results.json
+          python scripts/publish_social_exact_score_video.py \
+            --manifest "social_exact_scores_out/$TARGET/social_manifest.json" \
+            --predictions "social_exact_scores_out/model/$TARGET/predictions.json" \
+            --storyboard "social_exact_scores_out/model/$TARGET/video_payload.json" \
+            --video "${{ steps.target.outputs.video }}" \
+            --platforms "$POST_PLATFORMS" \
+            --report social_exact_scores_out/social_post_results.json
       - name: Verify each provider receipt
         if: always() && steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
-        run: python scripts/verify_social_publications.py --report social_exact_scores_out/social_post_results.json --expected "$POST_PLATFORMS"
+        run: |
+          TARGET="${{ steps.target.outputs.day }}"
+          python scripts/verify_social_publications.py \
+            --report social_exact_scores_out/social_post_results.json \
+            --expected "$POST_PLATFORMS" \
+            --manifest "social_exact_scores_out/$TARGET/social_manifest.json"
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: social-top10-20h-${{ github.run_id }}
           path: |
-            social_exact_scores_out/**/social_exact_scores_10.mp4
+            social_exact_scores_out/**/social_exact_scores_*.mp4
             social_exact_scores_out/**/cta_safe_zone.png
             social_exact_scores_out/**/social_manifest.json
             social_exact_scores_out/**/skipped.json
             social_exact_scores_out/model/**/predictions.json
+            social_exact_scores_out/model/**/video_payload.json
             social_exact_scores_out/social_post_results.json
           if-no-files-found: warn
           retention-days: 14
