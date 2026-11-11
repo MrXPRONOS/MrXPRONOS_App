@@ -11,8 +11,9 @@ on:
         options: [preview, publish]
       publication_mode:
         type: choice
-        default: strict
-        options: [strict, flexible]
+        description: 'flexible: publier 1 à 10 vrais matchs ; strict: bloquer si moins de 10'
+        default: flexible
+        options: [flexible, strict]
       publish_platforms:
         type: string
         description: 'Plateformes séparées par des virgules. TikTok nécessite le consentement ci-dessous.'
@@ -44,7 +45,7 @@ jobs:
     env:
       SOCIAL_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode || 'preview' }}
       DCSCORE_SOURCE: ${{ inputs.source || 'espn' }}
-      DCSCORE_PUBLICATION_MODE: ${{ github.event_name == 'schedule' && 'strict' || inputs.publication_mode || 'strict' }}
+      DCSCORE_PUBLICATION_MODE: ${{ github.event_name == 'schedule' && 'flexible' || inputs.publication_mode || 'flexible' }}
       POST_PLATFORMS: ${{ github.event_name == 'schedule' && 'facebook,youtube,instagram,threads,bluesky' || inputs.publish_platforms || 'facebook,youtube,instagram,threads,bluesky' }}
       TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
       TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
@@ -94,7 +95,7 @@ jobs:
           python -m py_compile scripts/create_social_exact_score_video.py scripts/publish_social_exact_score_video.py
           python -m unittest discover -s tests -p test_social_exact_score_video.py -v
           python -m pytest -q dixon-coles/tests/test_video_grid.py dixon-coles/tests/test_daily_espn.py dixon-coles/tests/test_daily_popularity_v2.py dixon-coles/tests/test_daily_top10_v3.py
-      - name: Generate tomorrow Top10 with safe Telegram CTA
+      - name: Generate up to 10 verified matches (publish partial 1-9 in flexible mode)
         id: render
         shell: bash
         run: |
@@ -108,6 +109,7 @@ jobs:
           fi
           if [ "$CODE" -ne 0 ]; then exit "$CODE"; fi
           echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "Daily flexible: render only real, verified fixtures (1 to 10)."
       - name: Identify target
         id: target
         if: steps.render.outputs.ready == 'true'
@@ -115,11 +117,38 @@ jobs:
           TARGET="$(TZ=Africa/Lome date -d tomorrow +%F)"
           MANIFEST="social_exact_scores_out/$TARGET/social_manifest.json"
           test -s "$MANIFEST"
-          VIDEO="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["video"])' "$MANIFEST")"
+          readarray -t META < <(python - "$MANIFEST" "$DCSCORE_PUBLICATION_MODE" <<'PY'
+import json,sys
+manifest=json.load(open(sys.argv[1],encoding="utf-8"))
+mode=sys.argv[2]
+count=manifest.get("count")
+assert manifest.get("publication_mode")==mode, "Wrong production mode"
+assert type(count) is int and 1 <= count <= 10, "Only 1–10 genuine matches may publish"
+assert manifest.get("status")=="READY" and manifest.get("ready_for_video") is True
+if mode=="strict":
+    assert count==10, "Strict mode requires 10"
+assert manifest.get("render_evidence",{}).get("real_logo_instances")==2*count
+assert manifest.get("render_evidence",{}).get("placeholder_logo_instances")==0
+print(manifest["video"])
+print(count)
+PY
+          )
+          VIDEO="${META[0]}"
+          COUNT="${META[1]}"
           test -s "$VIDEO"
           echo "day=$TARGET" >> "$GITHUB_OUTPUT"
           echo "video=$VIDEO" >> "$GITHUB_OUTPUT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Confirmed social video: $COUNT real matches; $(($COUNT*2)) verified crests"
           ffprobe -v error -show_entries stream=width,height,codec_name -show_entries format=duration,size -of json "$VIDEO"
+          {
+            echo "### Mr XPRONOS — publication quotidienne"
+            echo "- Date des matchs : $TARGET"
+            echo "- Mode : $DCSCORE_PUBLICATION_MODE"
+            echo "- Scores affichés : $COUNT / 10"
+            echo "- Espaces inutilisés : sans carte ni score factice"
+            echo "- Réseaux : $POST_PLATFORMS"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Validate preview and provider routing without public upload
         if: steps.render.outputs.ready == 'true'
         run: |
