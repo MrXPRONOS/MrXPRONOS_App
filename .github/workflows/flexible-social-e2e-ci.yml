@@ -1,0 +1,49 @@
+name: Flexible Social - offline video and provider contract E2E
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/flexible-social-e2e-ci.yml'
+      - '.github/workflows/dixon-coles-social-top10-20h.yml'
+      - 'scripts/create_social_exact_score_video.py'
+      - 'scripts/publish_social_exact_score_video.py'
+      - 'scripts/verify_social_publications.py'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+      - 'dixon-coles/dcscore/daily.py'
+      - 'dixon-coles/dcscore/video_grid_neon.py'
+      - 'dixon-coles/dcscore/video_render.py'
+      - 'dixon-coles/tests/test_daily_top10_v3.py'
+      - 'tests/test_social_flexible_e2e.py'
+      - 'tests/test_social_exact_score_video.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install FFmpeg, fonts and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install -e 'dixon-coles[test,video]'
+          python -m pip install -r requirements_social.txt
+      - name: Validate source integrity, safety and provider receipts
+        run: |
+          python -m pytest -q \
+            dixon-coles/tests/test_daily_top10_v3.py \
+            dixon-coles/tests/test_video_grid_neon.py \
+            tests/test_social_exact_score_video.py \
+            tests/test_social_flexible_e2e.py
+      - name: Verify security of standalone publishing scripts
+        run: |
+          python -m py_compile scripts/create_social_exact_score_video.py \
+            scripts/publish_social_exact_score_video.py \
+            scripts/verify_social_publications.py
