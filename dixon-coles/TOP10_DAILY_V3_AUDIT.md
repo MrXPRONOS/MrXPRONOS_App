@@ -9,7 +9,7 @@
 - [x] **3 — Modes** : strict=10, flexible=1–10 ; CLI, filtre `run_daily`, rendu néon, validateur, manifeste et légende adaptés. Le mode flexible est **opt-in manuel**, et la tâche planifiée de 20 h utilise **strict**. Les tests de données et validateurs sont prévus ; validation audiovisuelle finale sur chaque réseau social : **partielle**.
 - [x] **4 — Filtres de fiabilité** : 80 matchs/compétition, 4 par équipe, historique 35 jours, résultat antérieur au cutoff, URLs de logos authentiques ; rejet des archives annuelles de 400 matchs possiblement tronquées ; pas de match inventé, pas d'initiales si un logo échoue en rendu.
 - [x] **5 — Diagnostic** : `selection_diagnostics` donne découverts, examinés, éligibles, retenus, manquants, raisons des exclusions, répartition A/B/C, par championnat et avertissements ; `skipped.json` et `predictions.json` archivés à chaque GitHub Action.
-- [x] **6 — Backtest codé** : simulation d'octobre 2026 sur les ligues activées, en 5 blocs GitHub Actions, scores réels isolés des prédictions, rapport par jour, par championnat et éligibilité stricte/flexible. **Le résultat chiffré ne doit pas être déclaré tant que le job de 31 jours et son agrégation n'ont pas réussi.**
+- [x] **6 — Backtest codé** : simulation d'octobre 2026 sur les ligues activées, en 5 blocs GitHub Actions, scores réels isolés des prédictions, rapport par jour, par championnat et éligibilité stricte/flexible. **Résultat du backtest indépendant : 31 jours/31 et cinq segments réussis ; 14/31 journées à 10 matchs, 28/31 journées compatibles avec le mode flexible.**
 
 ## Ligues validées et activées (17 ajouts)
 
@@ -34,3 +34,31 @@ Les compétitions peuvent être réévaluées lors d'une autre période de saiso
 ## Limites obligatoires
 
 Un score de popularité n'est pas une mesure d'audience. La présence de 31 compétitions n'assure pas que 10 matchs ont lieu le même jour avec des historiques exploitables. ESPN n'est pas une validation officielle des championnats, et les droits d'usage commercial doivent être vérifiés. Le backtest rejoue les calendriers ESPN connus aujourd'hui : ce ne sont pas des enregistrements immuables de prévisions réellement publiées la veille. Sans cotes, aucun ROI ne peut être affirmé.
+
+## Backtest V3 d'octobre (31 ligues actives)
+
+Les cinq segments historiques ont été exécutés avec la branche V3 (sans scores futurs dans les entrées du modèle). Une agrégation indépendante a contrôlé les 31 jours sans doublons et créé les fichiers JSON/CSV.
+
+| Mesure | V2 (14 ligues) | V3 (31 ligues) |
+|---|---:|---:|
+| Matchs détectés | 340 | 759 |
+| Matchs admissibles | 205 | 497 |
+| Pronostics sélectionnés | 131 | 202 |
+| Journées à 10 matchs | 8 | 14 |
+| Journées compatibles vidéo flexible | Non mesuré | 28 |
+| Scores exacts Top 1 | 16 / 131 (12,21 %) | 22 / 202 (10,89 %) |
+| Résultats 1N2 | 79 / 131 (60,31 %) | 127 / 202 (62,87 %) |
+
+Le nombre de jours à 10 augmente de **6**, mais le taux de scores exacts diminue. Les cohortes sont différentes, ce qui interdit d'attribuer un changement de précision au classement éditorial seul. Sur V3, un score 1-1 systématique aurait trouvé 23/202 contre 22/202 pour le score modal de Dixon-Coles : il faut encore améliorer la qualité du score exact avant de prétendre à un avantage.
+
+**Décisions** :
+- [x] Activer les 17 ligues avec preuve historique : **31 sources active(s)** dans la branche V3.
+- [x] Conserver la planification **stricte à 10** plutôt que de publier des matchs fictifs.
+- [x] Exposer l'option flexible en dispatch manuel ; ce n'est pas une garantie d'envoi sur chaque réseau.
+- [x] Sauvegarder les rapports JSON/CSV et la ventilation des rejets.
+- [x] Backtest complet sur 31 jours (les cinq blocs ont réussi et les fichiers ont été réunis indépendamment).
+- [ ] Prouver 10 pronostics **chaque jour** : impossible sur ce mois avec ces sources / seuils (seulement 14/31).
+- [ ] Valider l'envoi effectif de vidéos flexibles sur toutes les plateformes : non fait.
+- [ ] Démontrer un gain robuste de précision du score exact : non établi.
+
+Liens des vérifications : tests GitHub et workflow `backtest-top10-v3.yml`. Les données historiques ESPN sont reconstruites et ne constituent pas des journaux de pronostics pré-enregistrés.
