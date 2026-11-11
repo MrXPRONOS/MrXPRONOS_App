@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Protocol
 import json
 
-from .daily_rank import RankedFixture, rank_fixtures, diverse_ranked
+from .daily_rank import RankedFixture, rank_fixtures, diverse_ranked, squad_category
 from .daily_sources import DailySourceError
 from .domain import Match, iso_date, utc_datetime
 from .model import fit, forecast, ModelError
@@ -139,6 +139,13 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'home_logo_url':f.home_logo_url,'away_logo_url':f.away_logo_url,
             'importance':f.importance,
             'importance_reasons':list(f.importance_reasons),
+            'popularity_class':('exceptional' if f.importance >= 300 else
+                                'major' if f.importance >= 220 else
+                                'notable' if f.importance >= 145 else 'local'),
+            'home_team_category':squad_category(
+                f.home_name, f.competition, f.competition_name),
+            'away_team_category':squad_category(
+                f.away_name, f.competition, f.competition_name),
             'source':f.source,'fixture_provider_reported':f.source_verified,
             'neutral_venue':f.neutral_venue,
             'training_matches':item['training_n'],
@@ -218,7 +225,9 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'clips':clips,
         },
         'methodology':{
-            'ranking':'league prestige + club editorial weight + documented final/round + known derbies',
+            'ranking':'V2 editorial: competition, exact club identity and team category, two major opponents, structured knockout round, known rivalry',
+            'importance_not_measured_audience':True,
+            'youth_squads_do_not_inherit_senior_club_weight':True,
             'probabilities':'Dixon-Coles weighted time-decayed Poisson, rho fitted per competition',
             'historical_xi':xi,'training_scope':'same league + same source only',
             'no_fabricated_scores':True,
