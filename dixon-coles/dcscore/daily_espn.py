@@ -137,6 +137,9 @@ ALLOWED = {
     'fifa.wworldq.uefa': 'Qualifications Coupe du monde féminine UEFA',
     'uefa.w.nations': 'Ligue des nations féminine UEFA',
     'nonfifa': 'Matchs amicaux hors FIFA',
+    # ESPN's broad soccer scoreboard is a last-resort *discovery feed*,
+    # NOT a league that may be pooled into one Dixon-Coles training sample.
+    'all': 'Autres rencontres de football ESPN',
 }
 
 # The catalog above is a *candidate* pool, not a claim of coverage.
@@ -261,9 +264,18 @@ def parse_event(event, league: str, *, now: datetime):
             home_name=hn,away_name=an,status='FINISHED',home_goals=hs,
             away_goals=as_,neutral_venue=neutral is True,source='espn-reported',result_provenance='provider_reported',
             season=str(kickoff.year))) if completed else None
+        label=ALLOWED[league]
+        if league=='all':
+            season=(event.get('season') or {})
+            slug=str(season.get('slug') or '').casefold()
+            # Readable category, never falsely assign a league to an event.
+            if 'ncaa' in slug and 'women' in slug:
+                label='NCAA football féminin (calendrier ESPN)'
+            elif 'ncaa' in slug:
+                label='NCAA football universitaire (calendrier ESPN)'
         f = RankedFixture(
             id=f'espn:{league}:{event_id}',competition=key,
-            competition_name=ALLOWED[league],kickoff=kickoff,
+            competition_name=label,kickoff=kickoff,
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
             home_name=hn,away_name=an,stage=_provider_round(event,comp),
             source='ESPN public scoreboard',source_verified=True,
@@ -374,6 +386,13 @@ class ESPNProvider:
         key=fixture.competition
         if key in self._history:return self._history[key]
         league=key.removeprefix('ES:').lower()
+        if league=='all':
+            # NEVER fit one model across all the world's unrelated leagues.
+            # No annual all-league history can be used as a single cohort.
+            self._history[key]=([],[
+                'ESPN all : calendrier inter-compétitions ; '
+                'aucun historique inter-ligues ne sera entraîné.'])
+            return self._history[key]
         if league not in self.leagues and league not in self._secondary_enabled:
             raise DailySourceError('Compétition ESPN non configurée')
         history={};errors=[]
