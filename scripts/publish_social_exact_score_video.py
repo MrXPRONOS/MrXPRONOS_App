@@ -256,6 +256,12 @@ def main() -> int:
     platforms = social.parse_platforms(args.platforms)
     if not platforms:
         raise ValueError("Aucun réseau social demandé")
+    # Fail before posting to OTHER networks when TikTok approval/consent is
+    # missing; never create an avoidable partial public campaign.
+    if "tiktok" in platforms and (
+            os.getenv("TIKTOK_PER_VIDEO_CONSENT","false").lower()!="true"
+            or os.getenv("TIKTOK_DIRECT_POST_ENABLED","false").lower()!="true"):
+        raise ValueError("TikTok exige un consentement individuel et un accès Direct Post approuvé")
     title, description, caption = build_copy(target, int(manifest['count']))
     if args.dry_run:
         print("SOCIAL_EXACT_SCORE_PREVIEW", json.dumps({
