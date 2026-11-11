@@ -170,3 +170,39 @@ def test_second_pass_finds_real_international_friendly_from_documented_slug():
     assert fixtures[0].competition=='ES:FIFA.FRIENDLY'
     assert squad_category("France",fixtures[0].competition)=="national"
     assert importance(fixtures[0]).importance>100
+
+
+
+def test_all_leagues_fallback_produces_real_fixture_but_never_trains_all_leagues():
+    """Use genuine ESPN event identities without pooling unrelated results."""
+    from dcscore.daily_espn import CANDIDATES
+    assert 'all' in CANDIDATES
+    football=event()
+    football["season"]={"slug":"2026-ncaa-division-i-women"}
+    class Response:
+        status_code=200
+        content=b'{}'
+        def __init__(self,events):self.events=events
+        def json(self):return {"events":self.events}
+    class Session:
+        def __init__(self):self.calls=[]
+        def get(self,url,*,params,headers,timeout):
+            self.calls.append((url,params["dates"]))
+            if "/all/" in url and params["dates"]=="20261110":
+                return Response([football])
+            if "/all/" in url and params["dates"].isdigit() and len(params["dates"])==4:
+                raise AssertionError("All-league historical fitting is forbidden")
+            return Response([])
+    session=Session()
+    provider=ESPNProvider(session=session)
+    matches,errors=provider.discover_more(date(2026,11,10),NOW)
+    assert not errors
+    assert len(matches)==1
+    game=matches[0]
+    assert game.id=="espn:all:12345"
+    assert game.source_verified and game.competition=="ES:ALL"
+    assert game.competition_name=="NCAA football féminin (calendrier ESPN)"
+    assert valid_logo_url(game.home_logo_url)
+    rows,notes=provider.history(game,NOW)
+    assert rows==[] and "aucun historique" in notes[0]
+    assert all(not ("/all/" in u and len(d)==4) for u,d in session.calls)
