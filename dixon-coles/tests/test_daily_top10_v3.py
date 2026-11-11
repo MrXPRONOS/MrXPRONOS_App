@@ -188,3 +188,96 @@ def test_renderable_gate_fills_with_next_valid_fixture(monkeypatch):
         day=DAY,as_of=NOW,limit=10,min_importance=70,min_team=4,
         max_staleness_days=35,publication_mode="flexible")
     assert legacy["selected_count"]==4 and legacy["ready_for_video"] is False
+
+
+
+def test_unpopular_teams_fill_only_unoccupied_top10_slots(monkeypatch):
+    """Four major derbies plus six genuinely modelled lesser-known teams."""
+    monkeypatch.setattr("dcscore.daily_pipeline.fit",fake_fit)
+    leaders=[f(i, "Arsenal", "Chelsea") for i in range(4)]
+    complements=[f(i+10, "Small Town", "Village United", league="ES:ENG.TROPHY")
+                 for i in range(6)]
+    report=run_daily(Provider(leaders+complements),day=DAY,as_of=NOW,
+                     limit=10,min_importance=70,min_team=4,
+                     max_staleness_days=35,publication_mode="strict",
+                     require_renderable=True)
+    assert report["status"]=="READY"
+    assert report["ready_for_video"] is True
+    assert report["selected_count"]==10
+    assert report["daily_shortfall"]==0
+    assert [r["id"] for r in report["selected"][:4]]==[x.id for x in leaders]
+    assert all(r["selection_role"]=="popular_priority" for r in report["selected"][:4])
+    assert all(r["selection_role"]=="complement" for r in report["selected"][4:])
+    assert report["selection_diagnostics"]["popular_selected"]==4
+    assert report["selection_diagnostics"]["complement_selected"]==6
+    assert report["selection_diagnostics"]["selected_by_tier"]["D"]==6
+    # Rendering code is untouched; its existing clip contract remains intact.
+    assert len(report["video_payload"]["clips"])==10
+    assert report["video_payload"]["format"]=="9:16"
+    assert [x["match_id"] for x in report["video_payload"]["clips"]]==[
+        x["id"] for x in report["selected"]]
+    assert all(x["display_score"]==y["forecast"]["most_likely_score"]
+               for x,y in zip(report["video_payload"]["clips"], report["selected"]))
+
+
+def test_popular_tier_always_precedes_less_popular_even_above_quota():
+    # Prior behavior could choose an ordinary other-league match over the
+    # fifth major derby, because the global 4-per-league soft quota came first.
+    premier=[f(i,"Arsenal","Chelsea") for i in range(6)]
+    ordinary=f(22,"Small Town","Village United",league="ES:GER.1")
+    chosen=select_tiered(premier+[ordinary],limit=5,max_per_league=4)
+    assert len(chosen)==5
+    assert all(m.competition=="ES:ENG.1" for m in chosen)
+    assert all(popularity_tier(m.importance)=="A" for m in chosen)
+
+
+def test_unknown_clubs_are_ranked_by_prematch_history_at_equal_prestige():
+    first=f(15,"Small Town","Village United",league="ES:ENG.TROPHY")
+    second=f(16,"River Town","Mountain FC",league="ES:ENG.TROPHY")
+    fixtures=[first,second]
+    chosen=select_tiered(fixtures,limit=1,max_per_league=4,
+                         history_strength={first.id:4,second.id:22})
+    assert chosen[0].id==second.id
+    assert popularity_tier(importance(chosen[0]).importance)=="D"
+
+
+def test_no_lower_tier_needed_when_ten_popular_fixtures_qualify(monkeypatch):
+    monkeypatch.setattr("dcscore.daily_pipeline.fit",fake_fit)
+    class CountProvider(Provider):
+        def __init__(self,fixtures):
+            super().__init__(fixtures)
+            self.fallback_history_requests=0
+        def history(self,fixture,now):
+            if fixture.competition=="ES:ENG.TROPHY":
+                self.fallback_history_requests+=1
+            return super().history(fixture,now)
+    source=CountProvider([f(i,"Arsenal","Chelsea") for i in range(10)]
+                         +[f(50,"Small Town","Village United",
+                             league="ES:ENG.TROPHY")])
+    report=run_daily(source,day=DAY,as_of=NOW,limit=10,
+                     min_importance=70,min_team=4,max_staleness_days=35,
+                     publication_mode="strict")
+    assert report["selected_count"]==10
+    assert source.fallback_history_requests==0
+    assert report["selection_diagnostics"]["complement_selected"]==0
+    assert report["selection_diagnostics"]["complement_candidates_not_checked"]==1
+
+
+def test_filling_never_bypasses_minimum_history_or_fakes_matches(monkeypatch):
+    monkeypatch.setattr("dcscore.daily_pipeline.fit",fake_fit)
+    class MissingHistory(Provider):
+        def history(self,fixture,now):
+            if fixture.competition=="ES:ENG.TROPHY":
+                return [],[]
+            return super().history(fixture,now)
+    popular=[f(i,"Arsenal","Chelsea") for i in range(4)]
+    other=[f(i+10,"Small Town","Village United",league="ES:ENG.TROPHY")
+           for i in range(6)]
+    result=run_daily(MissingHistory(popular+other),day=DAY,as_of=NOW,
+                     limit=10,min_importance=70,min_team=4,
+                     max_staleness_days=35,publication_mode="strict")
+    assert result["selected_count"]==4
+    assert result["status"]=="PARTIAL" and not result["ready_for_video"]
+    assert result["daily_shortfall"]==6
+    assert result["selection_diagnostics"]["complement_selected"]==0
+    assert any(r["reason"]=="historique_absent" for r in result["rejected"])
