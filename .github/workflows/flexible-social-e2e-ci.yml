@@ -31,8 +31,10 @@ jobs:
           python-version: '3.12'
       - name: Install FFmpeg, fonts and test dependencies
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
           python -m pip install -e 'dixon-coles[test,video]'
           python -m pip install requests
       - name: Validate source integrity, safety and provider receipts
@@ -60,8 +62,10 @@ jobs:
           python-version: '3.12'
       - name: Install model and real FFmpeg encoder
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
           python -m pip install -e 'dixon-coles[test,video]'
       - name: Preview tomorrow's real ESPN fixtures without any social upload
         id: preview
