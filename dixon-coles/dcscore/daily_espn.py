@@ -36,7 +36,53 @@ ALLOWED = {
     'eng.trophy': 'EFL Trophy',
     'fifa.world': 'Coupe du monde FIFA',
     'uefa.euro': 'Championnat d’Europe des nations',
+    # Expanded candidate registry; candidates are never silently enabled.
+    'por.1': 'Primeira Liga Portugal',
+    'ned.1': 'Eredivisie Pays-Bas',
+    'tur.1': 'Süper Lig Turquie',
+    'sco.1': 'Premiership Écosse',
+    'bel.1': 'Pro League Belgique',
+    'eng.2': 'Championship Angleterre',
+    'bra.1': 'Série A Brésil',
+    'arg.1': 'Primera División Argentine',
+    'usa.1': 'Major League Soccer',
+    'mex.1': 'Liga MX Mexique',
+    'col.1': 'Primera A Colombie',
+    'jpn.1': 'J1 League Japon',
+    'kor.1': 'K League 1 Corée du Sud',
+    'ksa.1': 'Saudi Pro League',
+    'egy.1': 'Premier League Égypte',
+    'mar.1': 'Botola Maroc',
+    'rsa.1': 'Premiership Afrique du Sud',
+    'uefa.nations': 'Ligue des Nations UEFA',
+    'conmebol.libertadores': 'Copa Libertadores',
+    'conmebol.sudamericana': 'Copa Sudamericana',
+    'concacaf.champions': 'CONCACAF Champions Cup',
+    'caf.champions': 'CAF Champions League',
+    'caf.confederation': 'CAF Confederation Cup',
+    'afc.champions': 'AFC Champions League',
+    'ger.dfb_pokal': 'DFB Pokal',
+    'esp.copa_del_rey': 'Coupe du Roi',
+    'ita.coppa_italia': 'Coupe d’Italie',
+    'fra.coupe_de_france': 'Coupe de France',
+    'fifa.worldq.uefa': 'Qualifications Coupe du Monde Europe',
+    'fifa.worldq.caf': 'Qualifications Coupe du Monde Afrique',
+    'fifa.worldq.conmebol': 'Qualifications Coupe du Monde Amérique du Sud',
+    'conmebol.america': 'Copa América',
+    'caf.nations': 'Coupe d’Afrique des Nations',
+    'concacaf.gold': 'Gold Cup',
 }
+
+# The catalog above is a *candidate* pool, not a claim of coverage.
+# The enabled list retains 14 already tested competitions. New leagues are
+# promoted only after separate historical and crest audits.
+ENABLED = (
+    'uefa.champions', 'uefa.europa', 'uefa.europa.conf',
+    'eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1',
+    'eng.fa', 'eng.league_cup', 'uefa.wchampions', 'eng.trophy',
+    'fifa.world', 'uefa.euro',
+)
+CANDIDATES = tuple(code for code in ALLOWED if code not in ENABLED)
 
 
 def _score(value):
@@ -161,8 +207,8 @@ class ESPNProvider:
 
     def __init__(self, *, session=None, leagues=None, years_back=2):
         self.session = session or requests.Session()
-        self.leagues = tuple(leagues or ALLOWED)
-        if not self.leagues or any(k not in ALLOWED for k in self.leagues):
+        self.leagues = tuple(ENABLED if leagues is None else leagues)
+        if not self.leagues or len(set(self.leagues)) != len(self.leagues) or any(k not in ALLOWED for k in self.leagues):
             raise DailySourceError('Compétition ESPN non autorisée')
         if years_back not in (1,2,3):
             raise DailySourceError('Fenêtre de saisons ESPN non valide')
