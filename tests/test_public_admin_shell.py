@@ -61,6 +61,24 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn("fetch(request, { cache: 'no-store' })", worker)
         self.assertIn("adminPage || adminAsset", worker)
 
+    def test_pronostics_v4_theme_and_read_only_controls(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-phase2.css?v=20261111-pronos-v4", page)
+        self.assertIn("ADMIN PRONOSTICS V4", css)
+        self.assertIn("body.admin-shell #tab-pronostics .mx2-match-card", css)
+        self.assertIn("body.admin-shell #tab-pronostics .admin-filter-row", css)
+        self.assertIn("body.admin-shell #tab-pronostics .admin-pronostics-table-scroll", css)
+        self.assertIn("body.admin-shell #tab-pronostics .mx2-segment-button.is-active", css)
+        self.assertIn("body.admin-shell #tab-pronostics .mx2-team-logo", css)
+        self.assertIn("renderPronosticsReadOnly", controller)
+        for control in ("pDay", "pCat", "pSearch", "pRefresh", "pList"):
+            self.assertIn('id="' + control + '"', controller)
+        self.assertIn('["cards","Fiches"]', enhancer)
+        self.assertIn('["table","Tableau"]', enhancer)
+
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
