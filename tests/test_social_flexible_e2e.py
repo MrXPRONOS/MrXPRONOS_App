@@ -245,3 +245,17 @@ def test_social_provider_receipts_all_five_with_idempotent_d1_claims(tmp_path,mo
     receipts[0]["count"]=10
     with pytest.raises(ValueError,match="MISMATCH"):
         verifier.validate(PROVIDERS,receipts,manifest)
+
+
+def test_tiktok_requires_explicit_app_approval_and_per_video_consent(monkeypatch,tmp_path):
+    # The adapter must fail BEFORE any network access without approved
+    # Direct Post rights and the creator's per-video permission.
+    video=tmp_path/"clip.mp4"
+    video.write_bytes(b"x"*100100)
+    monkeypatch.setenv("TIKTOK_DIRECT_POST_ENABLED","false")
+    monkeypatch.setenv("TIKTOK_PER_VIDEO_CONSENT","false")
+    denied=publisher.social.post_tiktok(video,"test")
+    assert denied.ok is False and "désactivée" in denied.message
+    monkeypatch.setenv("TIKTOK_DIRECT_POST_ENABLED","true")
+    denied=publisher.social.post_tiktok(video,"test")
+    assert denied.ok is False and "Consentement" in denied.message
