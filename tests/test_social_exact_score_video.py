@@ -64,6 +64,53 @@ class SocialExactVideoTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.render.verify_ready(report, storyboard, "2026-11-10")
 
+    def test_flexible_manifest_and_caption_use_actual_count(self):
+        import hashlib
+        from datetime import timedelta
+        with tempfile.TemporaryDirectory() as folder:
+            video=Path(folder)/"video.mp4"
+            video.write_bytes(b"V"*100100)
+            now=datetime(2026,11,11,20,tzinfo=ZoneInfo("Africa/Lome"))
+            manifest={
+                "schema":"mrx-dixon-coles-social-flex-v2",
+                "publication_mode":"flexible","status":"READY",
+                "ready_for_video":True,"target":"2026-11-12",
+                "count":4,"telegram_username":"@mr_xpronos",
+                "sha256":hashlib.sha256(video.read_bytes()).hexdigest(),
+            }
+            self.assertEqual(self.publish.validate_manifest(manifest,video,now),
+                             "2026-11-12")
+            title,desc,caption=self.publish.build_copy("2026-11-12",4)
+            self.assertIn("4 scores exacts",title)
+            self.assertIn("4 rencontres",desc)
+            self.assertIn("4 scores exacts",caption)
+            manifest["publication_mode"]="strict"
+            with self.assertRaises(ValueError):
+                self.publish.validate_manifest(manifest,video,now)
+            manifest["publication_mode"]="flexible"
+            manifest["count"]=11
+            with self.assertRaises(ValueError):
+                self.publish.validate_manifest(manifest,video,now)
+
+    def test_flexible_renderer_verifier_refuses_mismatched_clip_counts(self):
+        report={"date_local_africa_lome":"2026-11-12","status":"READY",
+                "ready_for_video":True,"selected_count":4,
+                "publication_mode":"flexible",
+                "selected":[{"id":str(i)} for i in range(4)]}
+        video={"date_local_africa_lome":"2026-11-12","status":"READY",
+               "ready_for_video":True,"selected_count":4,
+               "publication_mode":"flexible",
+               "clips":[{"match_id":str(i)} for i in range(4)]}
+        self.render.verify_ready(report,video,"2026-11-12",
+                                 publication_mode="flexible")
+        with self.assertRaises(ValueError):
+            self.render.verify_ready(report,video,"2026-11-12",
+                                     publication_mode="strict")
+        video["clips"].pop()
+        with self.assertRaises(ValueError):
+            self.render.verify_ready(report,video,"2026-11-12",
+                                     publication_mode="flexible")
+
     def test_publisher_refuses_wrong_day_or_video_hash(self):
         import hashlib
         with tempfile.TemporaryDirectory() as t:
