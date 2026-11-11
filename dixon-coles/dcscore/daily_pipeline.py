@@ -13,6 +13,7 @@ from .daily_rank import RankedFixture, rank_fixtures, diverse_ranked, squad_cate
 from .daily_sources import DailySourceError
 from .domain import Match, iso_date, utc_datetime
 from .model import fit, forecast, ModelError
+from .goal_calibration import GoalCalibration, select_goal_multiplier
 
 class FixtureProvider(Protocol):
     name: str
@@ -25,16 +26,19 @@ def _date_str(v:date)->str:
     return v.isoformat()
 
 
-def _prediction(model,fixture:RankedFixture)->dict:
+def _prediction(model,fixture:RankedFixture, *, calibration:GoalCalibration|None=None)->dict:
+    calibration = calibration or GoalCalibration(status='BASELINE_CALIBRATION_DISABLED')
     prediction=forecast(model,fixture.home_id,fixture.away_id,top_n=5,
-                        neutral_venue=fixture.neutral_venue is True)
+                        neutral_venue=fixture.neutral_venue is True,
+                        goal_multiplier=calibration.multiplier)
     top=prediction['top_scores']
     gap=float(100*(top[0]['probability']-top[1]['probability']))
     risk=('score_presque_ex_aequo' if gap<1.0 else
           'faible_probabilite_de_score_exact' if top[0]['probability']<.15 else 'incertitude_normale')
     venue_sensitivity=None
     if fixture.stage.upper()=='FINAL' and fixture.neutral_venue is None:
-        neutral=forecast(model,fixture.home_id,fixture.away_id,top_n=3,neutral_venue=True)
+        neutral=forecast(model,fixture.home_id,fixture.away_id,top_n=3,neutral_venue=True,
+                         goal_multiplier=calibration.multiplier)
         venue_sensitivity={
             'venue_unverified':True,
             'home_advantage_scenario_score':top[0]['score'],
@@ -51,6 +55,11 @@ def _prediction(model,fixture:RankedFixture)->dict:
         'expected_goals':{
             'home':round(prediction['expected_home_goals'],3),
             'away':round(prediction['expected_away_goals'],3)},
+        'uncalibrated_expected_goals':{
+            'home':round(prediction['raw_expected_home_goals'],3),
+            'away':round(prediction['raw_expected_away_goals'],3)},
+        'score_1_1_probability':round(prediction['score_1_1_probability'],6),
+        'goal_calibration':calibration.as_json(),
         'outcomes_1x2':{x:round(v,6) for x,v in prediction['one_x_two'].items()},
         'rho':round(model.rho,6),'xi':model.xi,
         'warning':risk,'venue_sensitivity':venue_sensitivity,
@@ -63,7 +72,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
               limit:int=10, min_games:int=80, min_team:int=6,
               max_staleness_days:float=21, xi:float=.0065,
               min_importance:int=105, max_candidates:int=150,
-              max_per_league:int=4) -> dict:
+              max_per_league:int=4,
+              enable_goal_calibration:bool=False) -> dict:
     """Run immediately, no background work; deterministic for fixed provider and cutoff."""
     now=utc_datetime(as_of)
     if not 1<=limit<=30:raise ValueError('limit doit être entre 1 et 30')
@@ -96,7 +106,10 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                         cache[f.competition]=('error',f'historique_insuffisant_{len(rows)}_matchs')
                     else:
                         fitted=fit(rows,as_of=now,xi=xi,regularization=.15,min_games=min_games,maxiter=650)
-                        cache[f.competition]=('ok',fitted,rows,age,warnings)
+                        calibration = (select_goal_multiplier(rows,as_of=now)
+                                       if enable_goal_calibration and f.competition=='ES:ESP.1'
+                                       else GoalCalibration(status='BASELINE_CALIBRATION_DISABLED'))
+                        cache[f.competition]=('ok',fitted,rows,age,warnings,calibration)
                 source_warnings.extend(warnings)
             except (ModelError,DailySourceError,ValueError) as exc:
                 cache[f.competition]=('error',f'modele_ou_source_indisponible: {exc}')
@@ -105,7 +118,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
                              'reason':item[1],'importance':f.importance})
             continue
-        model,rows,age,_issues=item[1:]
+        model,rows,age,_issues,calibration=item[1:]
         home_count=sum(m.home_id==f.home_id or m.away_id==f.home_id for m in rows)
         away_count=sum(m.home_id==f.away_id or m.away_id==f.away_id for m in rows)
         if min(home_count,away_count)<min_team:
@@ -113,11 +126,23 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                              'reason':f'equipe_historique_insuffisant_{home_count}_{away_count}',
                              'importance':f.importance})
             continue
-        try:result=_prediction(model,f)
+        try:
+            result=_prediction(model,f,calibration=calibration)
         except (ModelError,ValueError) as exc:
-            rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
-                             'reason':f'calcul_invalide: {exc}','importance':f.importance})
-            continue
+            # An optional calibration must never suppress an otherwise valid fixture.
+            if calibration.multiplier != 1.0:
+                safe = GoalCalibration(status='BASELINE_CALIBRATION_FALLBACK',
+                                       reason=f'{type(exc).__name__}: {str(exc)[:90]}')
+                try:
+                    result=_prediction(model,f,calibration=safe)
+                except (ModelError,ValueError) as raw_exc:
+                    rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
+                                     'reason':f'calcul_invalide: {raw_exc}','importance':f.importance})
+                    continue
+            else:
+                rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
+                                 'reason':f'calcul_invalide: {exc}','importance':f.importance})
+                continue
         sources.add(f.source)
         eligible.append({
             'fixture':f,'forecast':result,
@@ -154,6 +179,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'team_history':item['teams_history'],
             'model':'dixon_coles_unvalidated_cross_league',
             'forecast':item['forecast'],
+            'goal_calibration_status':item['forecast']['goal_calibration']['status'],
+            'goal_multiplier':item['forecast']['goal_calibration']['multiplier'],
             'disclaimer':'Score exact modal, aucune garantie ni conseil de mise.'
         })
     selected.sort(key=lambda r:(-r['importance'],r['kickoff_utc'],r['id']))
