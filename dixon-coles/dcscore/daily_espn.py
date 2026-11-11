@@ -244,6 +244,10 @@ class ESPNProvider:
                 raise DailySourceError('Réponse ESPN invalide')
             if len(data['events'])>400:
                 raise DailySourceError('ESPN : limite de résultats dépassée; risque historique tronqué')
+            if len(date_selector)==4 and len(data['events'])==400:
+                # ESPN year scoreboards can silently stop at the requested 400
+                # event limit. Never train on an incomplete 400-match sample.
+                raise DailySourceError(f'ESPN {league} {date_selector}: troncature historique possible à 400 matchs')
             self._cache[k]=data['events']
             return self._cache[k]
         except requests.RequestException as exc:
@@ -286,6 +290,10 @@ class ESPNProvider:
                     if m and m.id not in history:history[m.id]=m
             except DailySourceError as exc:
                 errors.append(str(exc))
+        if any('troncature historique' in warning for warning in errors):
+            # A partial annual archive is not safe for fitting Dixon-Coles.
+            self._history[key]=([],errors)
+            return self._history[key]
         rows=sorted(history.values(),key=lambda m:(m.kickoff,m.id))
         self._history[key]=(rows,errors)
         return rows,errors
