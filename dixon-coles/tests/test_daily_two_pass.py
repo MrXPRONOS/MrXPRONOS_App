@@ -25,7 +25,7 @@ def fixture(i, comp="ES:ENG.1", home="Arsenal", away="Chelsea"):
     return RankedFixture(
         id=f"{comp}:{i}",competition=comp,
         competition_name="First division" if comp=="ES:ENG.1" else "EFL Trophy",
-        kickoff=NOW+timedelta(days=1,hours=i%6),home_id=TEAMS[i%4],
+        kickoff=NOW+timedelta(days=1,hours=i%4),home_id=TEAMS[i%4],
         away_id=TEAMS[(i+1)%4],home_name=home,away_name=away,
         stage="REGULAR_SEASON",source="ESPN public scoreboard",
         source_verified=True,neutral_venue=False,
