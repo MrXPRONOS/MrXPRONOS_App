@@ -8,6 +8,10 @@ on:
       - 'dixon-coles/dcscore/diagnose_laliga_oct2026.py'
       - 'dixon-coles/dcscore/model.py'
       - 'dixon-coles/tests/test_goal_calibration.py'
+      - 'dixon-coles/tests/test_goal_calibration_pipeline.py'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+      - 'dixon-coles/dcscore/daily.py'
+      - 'dixon-coles/dcscore/diagnose_laliga_nov2026.py'
 
 permissions:
   contents: read
@@ -24,7 +28,7 @@ jobs:
       - name: Install Dixon-Coles and pytest
         run: python -m pip install -e 'dixon-coles[test]'
       - name: Test no-leakage, calibration validation, and unchanged default score
-        run: python -m pytest -q dixon-coles/tests/test_goal_calibration.py
+        run: python -m pytest -q dixon-coles/tests/test_goal_calibration.py dixon-coles/tests/test_goal_calibration_pipeline.py
       - name: Reproduce all 25 Liga exact-score predictions with fair Oct holdout
         working-directory: dixon-coles
         run: python -m dcscore.diagnose_laliga_oct2026 --out results/diagnostics/laliga_oct2026
