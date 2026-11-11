@@ -107,7 +107,7 @@ def run(browser,width):
     ctx.close()
 
 with sync_playwright() as p:
-    browser=p.chromium.launch(headless=True)
+    browser=p.chromium.launch(headless=True,channel="chrome",args=["--no-sandbox"])
     for width in (390,1200):run(browser,width)
     browser.close()
 print("PHASE5_PUBLIC_AB_COPY_EXPOSURE_TRUE_CLICK_FAVORITE_MOBILE_OK")
