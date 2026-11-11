@@ -15,6 +15,7 @@ from .daily_sources import DailySourceError
 from .domain import Match, iso_date, utc_datetime
 from .model import fit, forecast, ModelError
 from .goal_calibration import GoalCalibration, select_goal_multiplier
+from .logo_policy import valid_logo_url as _valid_logo_url
 
 class FixtureProvider(Protocol):
     name: str
@@ -75,7 +76,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
               min_importance:int=105, max_candidates:int=500,
               max_per_league:int=4,
               enable_goal_calibration:bool=False,
-              publication_mode:str='strict') -> dict:
+              publication_mode:str='strict',
+              require_renderable:bool=False) -> dict:
     """Run immediately, no background work; deterministic for fixed provider and cutoff."""
     now=utc_datetime(as_of)
     if publication_mode not in ('strict','flexible'):
@@ -93,6 +95,21 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     if len(ranked)>max_candidates:ranked=ranked[:max_candidates]
     eligible=[];rejected=[];sources=set(); cache={}
     for f in ranked:
+        # Video-only gate: skip unsafe top-ranked candidates BEFORE the model
+        # fit, and replace them with another valid match rather than cancelling
+        # the entire 1–10 clip publication. Historical model backtests retain
+        # their original selection unless the flag is explicitly enabled.
+        if require_renderable:
+            reason = (
+                'calendrier_non_verifie' if not f.source_verified else
+                'terrain_finale_non_confirme' if f.stage.upper()=='FINAL' and f.neutral_venue is None else
+                'logos_invalides' if not (_valid_logo_url(f.home_logo_url)
+                                          and _valid_logo_url(f.away_logo_url)) else None
+            )
+            if reason:
+                rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
+                                 'reason':reason,'importance':f.importance})
+                continue
         if f.importance<min_importance:
             rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
                              'reason':'prestige_insuffisant','importance':f.importance})
@@ -195,7 +212,6 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     provider_reported=all(m['fixture_provider_reported'] for m in selected)
     neutral_unknown=any(x['forecast']['venue_sensitivity'] is not None for x in selected)
     # Production needs genuine provider crest assets for both sides: no fabricated badges.
-    from .logo_policy import valid_logo_url as _valid_logo_url
     logos_ready=all(_valid_logo_url(m.get('home_logo_url')) and
                     _valid_logo_url(m.get('away_logo_url')) for m in selected)
     eligible_for_video=enough and provider_reported and not neutral_unknown and logos_ready
@@ -247,6 +263,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             ('PARTIAL' if selected else 'NO_ELIGIBLE_MATCHES'),
         'required_count':limit,'selected_count':len(selected),
         'publication_mode':publication_mode,
+        'require_renderable':require_renderable,
         'daily_target_reached':complete,
         'daily_shortfall':max(0,limit-len(selected)),
         'count_before_quality_checks':len(fixtures),
