@@ -35,10 +35,13 @@ def test_five_rows_two_columns_with_safe_footer():
     assert (neon.TELEGRAM_X + neon.TELEGRAM_WIDTH) * 1.5 <= 920
 
 
-def test_reject_incomplete_grid():
+def test_reject_invalid_grid_count_but_allow_flexible_positions():
     import pytest
     with pytest.raises(ValueError):
-        neon.positions(9)
+        neon.positions(0)
+    with pytest.raises(ValueError):
+        neon.positions(11)
+    assert len(neon.positions(9)) == 9
 
 
 def test_dynamic_date_not_stuck_on_11_nov():
