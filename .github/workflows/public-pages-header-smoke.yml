@@ -51,7 +51,8 @@ jobs:
       - name: Install Chromium automation
         run: |
           pip install playwright==1.60.0
-          python -m playwright install --with-deps chromium
+          command -v google-chrome
+          google-chrome --version
       - name: Start local site
         run: |
           python -m http.server 8000 --bind 127.0.0.1 > /tmp/public-pages-http.log 2>&1 &
