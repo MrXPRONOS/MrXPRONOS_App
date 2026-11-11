@@ -79,6 +79,36 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('["cards","Fiches"]', enhancer)
         self.assertIn('["table","Tableau"]', enhancer)
 
+    def test_push_v4_styles_preserve_confirmed_send_flow(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        preview = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-phase2.css?v=20261111-push-v4", page)
+        self.assertIn("ADMIN PUSH V4", css)
+        for selector in (
+            "#tab-push .mx2-push-layout",
+            "#tab-push .mx2-push-preview",
+            "#tab-push .mx2-push-compose",
+            "#tab-push #push_send",
+            "#tab-push #push_test",
+            "#tab-push #push_schedule",
+            "#tab-push .admin-pronostics-table-scroll",
+        ):
+            self.assertIn(selector, css)
+        for control in (
+            "push_audience", "push_user_wrap", "push_user_id",
+            "push_schedule_at", "push_title", "push_body",
+            "push_url", "push_tag", "push_new", "push_preview",
+            "push_test", "push_schedule", "push_send",
+            "push_history", "subs_list",
+        ):
+            self.assertIn('id="' + control + '"', controller)
+        self.assertIn('option value="">Choisir les destinataires', controller)
+        self.assertIn('if(!await adminConfirm(action', controller)
+        self.assertIn('const update=()=>', preview)
+        self.assertIn('deviceTitle.textContent', preview)
+
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
