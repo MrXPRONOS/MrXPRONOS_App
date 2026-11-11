@@ -111,3 +111,29 @@ def test_score_label_is_weighted_for_pale_and_yellow_states():
     neon.draw_score(before, {"display_score": "10-10"}, 23, 235, -1)
     neon.draw_score(after, {"display_score": "10-10"}, 23, 235, 1.0)
     assert before.getbbox() is not None and after.getbbox() is not None
+
+
+
+def test_flexible_1_to_9_draws_only_real_match_cards_and_leaves_unused_slots_blank():
+    """Do not create support rectangles, fake scores or count badges in gaps."""
+    from dcscore.video_render import Crest
+    crest=Crest(Image.new("RGBA",(40,40),(230,220,50,255)),True)
+    planned=neon.positions(10)
+    assert len(planned)==10 and len(set(planned))==10
+    for count in range(1,10):
+        assert neon.positions(count)==planned[:count]
+        clips=[{"headline":f"Home {i} - Away {i}","display_score":"1-0"}
+               for i in range(count)]
+        frame=neon.base_frame(
+            {"date_local_africa_lome":"2026-11-12"},
+            clips,[(crest,crest)]*count,preview=False)
+        for x,y in planned[:count]:
+            assert frame.getpixel((x+5,y+5))[3]>0, (
+                count, "Missing expected real match card",x,y)
+        for x,y in planned[count:]:
+            # The unused bottom and right support-card slots stay transparent,
+            # revealing only the existing stadium when the artwork is composed.
+            assert frame.getpixel((x+5,y+5))[3]==0, (
+                count, "Unwanted empty rectangle",x,y)
+            assert frame.getpixel((x+neon.CARD_W//2,y+neon.CARD_H//2))[3]==0, (
+                count, "Unwanted support background or badge",x,y)
