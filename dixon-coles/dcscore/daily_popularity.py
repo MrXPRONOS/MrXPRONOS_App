@@ -26,6 +26,30 @@ LEAGUE_WEIGHT = {
     "ELC": 87, "OF:EN.2": 87, "ES:ENG.2": 87,
     "OL:BL2": 90, "OL:BL3": 76,
     "ES:ENG.TROPHY": 65,
+    # Wider V3 editorial pool; these are prestige weights, NOT observed audiences.
+    "ES:POR.1": 115, "ES:NED.1": 112, "ES:TUR.1": 106,
+    "ES:SCO.1": 104, "ES:BEL.1": 105, "ES:ENG.2": 90,
+    "ES:BRA.1": 114, "ES:ARG.1": 112, "ES:USA.1": 107,
+    "ES:MEX.1": 104, "ES:COL.1": 95, "ES:JPN.1": 100,
+    "ES:KOR.1": 95, "ES:KSA.1": 103,
+    "ES:EGY.1": 97, "ES:MAR.1": 93, "ES:RSA.1": 94,
+    "ES:UEFA.NATIONS": 125,
+    "ES:CONMEBOL.LIBERTADORES": 148,
+    "ES:CONMEBOL.SUDAMERICANA": 116,
+    "ES:CONCACAF.CHAMPIONS": 125,
+    "ES:CAF.CHAMPIONS": 130,
+    "ES:CAF.CONFEDERATION": 105,
+    "ES:AFC.CHAMPIONS": 126,
+    "ES:GER.DFB_POKAL": 119,
+    "ES:ESP.COPA_DEL_REY": 119,
+    "ES:ITA.COPPA_ITALIA": 116,
+    "ES:FRA.COUPE_DE_FRANCE": 115,
+    "ES:FIFA.WORLDQ.UEFA": 123,
+    "ES:FIFA.WORLDQ.CAF": 120,
+    "ES:FIFA.WORLDQ.CONMEBOL": 125,
+    "ES:CONMEBOL.AMERICA": 158,
+    "ES:CAF.NATIONS": 150,
+    "ES:CONCACAF.GOLD": 116,
     # International competitions: only used when their source is explicitly enabled.
     "ES:FIFA.WORLD": 185, "ES:UEFA.EURO": 166,
     "ES:CONMEBOL.AMERICA": 157, "ES:CAF.NATIONS": 149,
@@ -127,7 +151,9 @@ NATIONS = {
     "usa": 29, "mexico": 29, "togo": 19,
 }
 NATIONAL_CODES = frozenset({"ES:FIFA.WORLD", "ES:UEFA.EURO", "ES:CONMEBOL.AMERICA",
-                            "ES:CAF.NATIONS", "ES:CONCACAF.GOLD"})
+                            "ES:CAF.NATIONS", "ES:CONCACAF.GOLD", "ES:UEFA.NATIONS",
+                            "ES:FIFA.WORLDQ.UEFA", "ES:FIFA.WORLDQ.CAF",
+                            "ES:FIFA.WORLDQ.CONMEBOL"})
 WOMENS_CODES = frozenset({"ES:UEFA.WCHAMPIONS"})
 DERBIES = (
     frozenset(("real madrid", "barcelona")),
