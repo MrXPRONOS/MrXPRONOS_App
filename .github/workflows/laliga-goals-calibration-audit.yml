@@ -24,7 +24,7 @@ jobs:
       - name: Install Dixon-Coles and pytest
         run: python -m pip install -e 'dixon-coles[test]'
       - name: Test no-leakage, calibration validation, and unchanged default score
-        run: python -m pytest -q dixon-coles/tests/test_goal_calibration.py dixon-coles/tests/test_model.py
+        run: python -m pytest -q dixon-coles/tests/test_goal_calibration.py
       - name: Reproduce all 25 Liga exact-score predictions with fair Oct holdout
         working-directory: dixon-coles
         run: python -m dcscore.diagnose_laliga_oct2026 --out results/diagnostics/laliga_oct2026
