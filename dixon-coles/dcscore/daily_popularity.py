@@ -288,6 +288,11 @@ def importance_score(fixture) -> tuple[int, tuple[str, ...]]:
     comp = fixture.competition.upper()
     stage = stage_class(fixture.stage)
     total = LEAGUE_WEIGHT.get(comp, 60)
+    # ESPN's aggregate source has no reliable league mapping in each event.
+    # Explicitly labelled college matches rank AFTER unspecified ordinary
+    # competition fixtures. This is editorial priority, not outcome quality.
+    if comp == "ES:ALL" and "ncaa" in normalize(fixture.competition_name):
+        total = 28
     reasons = [f"competition={total}"]
     hkey, hweight, htype = club_class(fixture.home_name, competition=comp,
                                       competition_name=fixture.competition_name)
