@@ -299,6 +299,11 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                               history_strength=strength)
     chosen_ids={f.id for f in chosen}
     chosen_order={f.id:i for i,f in enumerate(chosen)}
+    # A fixture recovered by a lower-confidence second pass is no longer
+    # considered finally rejected. Preserve this as its own audit count.
+    recovered_from_first_pass=len({
+        r['id'] for r in rejected if r['id'] in chosen_ids})
+    rejected=[r for r in rejected if r['id'] not in chosen_ids]
     selected=[]
     for item in eligible:
         f=item['fixture']
@@ -426,6 +431,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'second_pass_considered':second_pass_considered,
             'second_pass_accepted':second_pass_accepted,
             'second_pass_selected':selected_fallback,
+            'first_pass_rejections_recovered':recovered_from_first_pass,
             'second_pass_bases':dict(second_pass_modes),
             'catalogue_fixtures_found':len(fixtures)+second_pass_discovered,
             'day_has_ten_real_fixtures_discovered':(
