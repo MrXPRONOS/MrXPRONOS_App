@@ -895,3 +895,439 @@ body.admin-shell #tab-push .admin-push-device-log{
     transition:none!important;transform:none!important
   }
 }
+
+
+/* ADMIN VIP V4 — MR XPRONOS | bleu nuit / or.
+   Design only: access duration, statuses, read-only data, reset/revoke RPCs and confirmation remain unchanged. */
+body.admin-shell #tab-vip{
+  --mxvip-gold:#f2cb82;
+  --mxvip-blue:#71c9f2;
+  --mxvip-line:rgba(110,169,205,.34);
+  min-width:0;
+  max-width:1460px;
+  margin-inline:auto;
+}
+body.admin-shell #tab-vip > .card{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:clamp(19px,2.8vw,34px)!important;
+  margin:0 0 20px!important;
+  border:1px solid rgba(101,166,208,.48)!important;
+  border-radius:23px!important;
+  background:
+    radial-gradient(ellipse 55% 35% at 90% 0%,rgba(31,115,173,.23),transparent 85%),
+    linear-gradient(145deg,#071d30 0%,#081d30 52%,#061424 100%)!important;
+  box-shadow:0 20px 52px rgba(0,8,20,.27),inset 0 1px 0 rgba(239,247,255,.065)!important;
+}
+body.admin-shell #tab-vip > .card::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  right:0;top:0;
+  width:min(65%,680px);
+  height:250px;
+  pointer-events:none;
+  background:url("../images/admin-home-lights-reference.webp") center right/cover no-repeat;
+  opacity:.2;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 50%);
+  mask-image:linear-gradient(to right,transparent,#000 50%);
+}
+body.admin-shell #tab-vip > .card::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  pointer-events:none;
+  right:-78px;bottom:-112px;
+  width:240px;height:250px;border-radius:50%;
+  background:rgba(34,132,192,.14);
+  filter:blur(55px);
+}
+body.admin-shell #tab-vip > .card > h3{
+  display:block;
+  position:relative;
+  max-width:850px;
+  font-size:clamp(26px,3vw,38px);
+  line-height:1.13;
+  font-weight:860;
+  color:#f6faff!important;
+  letter-spacing:-.05em;
+  margin:0 0 13px!important;
+}
+body.admin-shell #tab-vip > .card > h3::before{
+  content:"GESTION DES ABONNEMENTS";
+  display:block;
+  color:var(--mxvip-gold);
+  font-size:10px;
+  letter-spacing:.19em;
+  line-height:1.5;
+  font-weight:850;
+  margin:0 0 12px;
+}
+body.admin-shell #tab-vip > .card > h3::after{
+  content:"";
+  display:block;
+  height:2px;width:min(155px,40%);
+  margin:15px 0 0;
+  background:linear-gradient(90deg,#f5cb7f,#5bb9ec,transparent);
+  box-shadow:0 0 10px rgba(239,192,104,.35);
+}
+body.admin-shell #tab-vip > .card > p.muted{
+  max-width:800px;
+  color:#aec8da;
+  font-size:12px;
+  line-height:1.78;
+  margin:0 0 23px;
+}
+body.admin-shell #tab-vip > .card > .row{
+  padding:19px;
+  border:1px solid rgba(119,175,208,.28);
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(18,56,82,.7),rgba(7,30,49,.84));
+  box-shadow:inset 0 1px 0 rgba(229,244,255,.025);
+  gap:16px;
+}
+body.admin-shell #tab-vip > .card > .row > div{min-width:0}
+body.admin-shell #tab-vip > .card label{
+  display:block;
+  margin:10px 0 8px;
+  color:#d2e1ec;
+  font-size:11px;
+  font-weight:790;
+  letter-spacing:.02em;
+}
+body.admin-shell #tab-vip > .card > .row label{margin:0 0 9px}
+body.admin-shell #tab-vip > .card :is(#v_user,#v_ip,#v_days),
+body.admin-shell #tab-vip .mx2-vip-toolbar :is(input,select){
+  display:block;
+  min-height:45px;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  padding:11px 13px;
+  font-size:12px;
+  color:#f5fbff;
+  background:rgba(4,22,40,.96);
+  border:1px solid rgba(113,171,208,.43);
+  border-radius:11px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.13);
+}
+body.admin-shell #tab-vip > .card :is(#v_user,#v_ip,#v_days):focus-visible,
+body.admin-shell #tab-vip .mx2-vip-toolbar :is(input,select):focus-visible{
+  outline:2px solid #f1cb83;
+  outline-offset:2px;
+  border-color:#f1cb83;
+}
+body.admin-shell #tab-vip > .card input::placeholder,
+body.admin-shell #tab-vip .mx2-vip-toolbar input::placeholder{
+  color:#89a7b9;
+  opacity:1;
+}
+body.admin-shell #tab-vip #v_days{
+  width:min(200px,100%);
+  font-variant-numeric:tabular-nums;
+}
+body.admin-shell #tab-vip #v_reset{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:45px;
+  max-width:100%;
+  margin-top:17px!important;
+  padding:12px 20px;
+  color:#091f2e;
+  background:linear-gradient(125deg,#ffe3a8,#d2a25e);
+  border:1px solid #f4d18a;
+  border-radius:12px;
+  font-weight:840;
+  font-size:12px;
+  letter-spacing:.005em;
+  box-shadow:0 8px 24px rgba(237,184,98,.15),inset 0 1px 0 rgba(255,247,216,.35);
+  transition:transform .18s,filter .18s,box-shadow .18s;
+}
+body.admin-shell #tab-vip #v_reset:hover:not(:disabled){
+  transform:translateY(-1px);
+  filter:brightness(1.04);
+  box-shadow:0 11px 29px rgba(239,191,105,.24);
+}
+body.admin-shell #tab-vip #v_reset:disabled{opacity:.54;cursor:wait;transform:none}
+body.admin-shell #tab-vip > .card > h4{
+  position:relative;
+  margin:31px 0 17px!important;
+  padding-top:21px;
+  border-top:1px solid rgba(121,171,202,.29);
+  color:#f4f8ff!important;
+  font-size:clamp(17px,2vw,23px);
+  line-height:1.35;
+  letter-spacing:-.025em;
+  font-weight:825;
+}
+body.admin-shell #tab-vip > .card > h4::after{
+  content:"";
+  position:absolute;
+  top:-1px;left:0;
+  height:2px;width:min(155px,35%);
+  background:linear-gradient(to right,#f2c676,#62bde9,transparent);
+  box-shadow:0 0 11px rgba(243,197,112,.36);
+}
+body.admin-shell #tab-vip .mx2-vip-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+  margin:17px 0 20px;
+}
+body.admin-shell #tab-vip .mx2-vip-stat{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:9px;
+  min-width:0;
+  min-height:118px;
+  padding:20px 22px;
+  border:1px solid rgba(102,163,203,.42);
+  border-radius:17px;
+  background:
+    radial-gradient(ellipse at 96% 92%,rgba(21,114,169,.19),transparent 62%),
+    linear-gradient(145deg,rgba(18,54,77,.97),rgba(7,27,46,.98));
+  box-shadow:inset 0 1px rgba(238,248,255,.045),0 10px 25px rgba(0,7,18,.16);
+}
+body.admin-shell #tab-vip .mx2-vip-stat::before{
+  content:"";
+  position:absolute;left:18px;top:0;
+  width:67px;height:2px;
+  background:linear-gradient(90deg,#f4ca79,transparent);
+  box-shadow:0 0 13px rgba(241,189,97,.4);
+}
+body.admin-shell #tab-vip .mx2-vip-stat:nth-child(2){
+  border-color:rgba(197,113,104,.38);
+  background:linear-gradient(145deg,rgba(70,42,52,.34),rgba(13,30,46,.98));
+}
+body.admin-shell #tab-vip .mx2-vip-stat:nth-child(2)::before{
+  background:linear-gradient(90deg,#ffab96,transparent);
+  box-shadow:0 0 12px rgba(246,130,118,.32);
+}
+body.admin-shell #tab-vip .mx2-vip-stat:nth-child(3)::before{
+  background:linear-gradient(90deg,#69bdea,transparent);
+  box-shadow:0 0 13px rgba(75,180,237,.37);
+}
+body.admin-shell #tab-vip .mx2-vip-stat strong{
+  color:#fff;
+  font-size:clamp(26px,3.3vw,40px);
+  font-weight:865;
+  line-height:1.15;
+  letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 2px 14px rgba(74,165,229,.12);
+}
+body.admin-shell #tab-vip .mx2-vip-stat small{
+  font-size:11px;
+  color:#b6ccdb;
+  font-weight:765;
+  letter-spacing:.03em;
+}
+body.admin-shell #tab-vip .mx2-vip-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(0,.95fr);
+  gap:11px 14px;
+  align-items:center;
+  margin:14px 0 20px;
+  padding:16px;
+  border:1px solid rgba(107,165,203,.32);
+  border-radius:15px;
+  background:linear-gradient(130deg,rgba(17,48,72,.92),rgba(7,29,48,.91));
+}
+body.admin-shell #tab-vip .mx2-vip-toolbar input,
+body.admin-shell #tab-vip .mx2-vip-toolbar select{
+  flex:none;
+  width:100%!important;
+  min-width:0;
+  margin:0;
+}
+body.admin-shell #tab-vip .mx2-filter-count{
+  grid-column:1 / -1;
+  margin:0;
+  color:#a7c6da;
+  font-size:11px;
+  line-height:1.6;
+  font-variant-numeric:tabular-nums;
+}
+body.admin-shell #tab-vip .mx2-vip-table{
+  max-width:100%;
+  width:100%;
+  border:1px solid rgba(121,168,195,.33);
+  background:rgba(6,25,43,.86);
+  border-radius:14px;
+  overflow:hidden;
+  border-collapse:separate;
+  border-spacing:0;
+}
+body.admin-shell #tab-vip .mx2-vip-table thead{
+  background:#113449;
+}
+body.admin-shell #tab-vip .mx2-vip-table th{
+  padding:15px 12px;
+  color:#f4cf8b;
+  background:rgba(14,51,75,.99);
+  border-bottom:1px solid rgba(129,172,199,.23);
+  font-size:11px;
+  letter-spacing:.02em;
+  white-space:nowrap;
+  font-weight:800;
+}
+body.admin-shell #tab-vip .mx2-vip-table td{
+  padding:14px 12px;
+  color:#d8e9f3;
+  background:transparent;
+  border-bottom:1px solid rgba(110,164,197,.18);
+  font-size:12px;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+  vertical-align:middle;
+}
+body.admin-shell #tab-vip .mx2-vip-table tbody tr:nth-child(even){background:rgba(26,71,97,.12)}
+body.admin-shell #tab-vip .mx2-vip-table tbody tr:hover:not([hidden]){background:rgba(45,110,150,.20)}
+body.admin-shell #tab-vip .mx2-vip-table td:nth-child(2){font-variant-numeric:tabular-nums}
+body.admin-shell #tab-vip .mx2-vip-table .mx2-pill{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:7px 10px;
+  color:#e3e8ec;
+  background:rgba(34,66,85,.52);
+  border:1px solid rgba(137,170,192,.39);
+  border-radius:99px;
+  font-size:10px;
+  font-weight:790;
+}
+body.admin-shell #tab-vip .mx2-vip-table .mx2-pill.mx2-ok{
+  color:#a9f1cb;
+  background:rgba(17,91,61,.4);
+  border-color:rgba(97,209,153,.37);
+}
+body.admin-shell #tab-vip .mx2-vip-table .mx2-pill.mx2-danger{
+  color:#ffb8a6;
+  background:rgba(107,46,46,.29);
+  border-color:rgba(231,135,125,.39);
+}
+body.admin-shell #tab-vip .mx2-vip-table [data-revoke]{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  max-width:100%;
+  min-height:38px;
+  padding:9px 14px;
+  white-space:normal;
+  border:1px solid rgba(238,145,133,.52);
+  border-radius:10px;
+  color:#ffd0c7;
+  background:linear-gradient(135deg,rgba(108,46,47,.48),rgba(66,35,43,.4));
+  font-size:11px;
+  font-weight:790;
+  transition:border-color .15s,background .15s;
+}
+body.admin-shell #tab-vip .mx2-vip-table [data-revoke]:hover:not(:disabled){
+  color:#fff4f0;
+  border-color:rgba(255,168,150,.88);
+  background:rgba(130,58,58,.62);
+}
+body.admin-shell #tab-vip .mx2-vip-table [data-revoke]:disabled{
+  opacity:.5;
+  cursor:wait;
+}
+@media(max-width:1020px){
+  body.admin-shell #tab-vip .mx2-vip-stat{padding:17px}
+  body.admin-shell #tab-vip .mx2-vip-summary{gap:11px}
+}
+@media(max-width:760px){
+  body.admin-shell #tab-vip > .card{padding:18px!important}
+  body.admin-shell #tab-vip > .card::before{width:100%;height:190px;opacity:.13}
+  body.admin-shell #tab-vip .mx2-vip-table{
+    display:block!important;
+    border:0;
+    background:transparent;
+    overflow:visible!important;
+  }
+  body.admin-shell #tab-vip .mx2-vip-table tbody{
+    display:grid;
+    gap:12px;
+    width:100%;
+  }
+  body.admin-shell #tab-vip .mx2-vip-table tbody tr{
+    display:block;
+    padding:8px 14px;
+    border:1px solid rgba(103,164,205,.38);
+    border-radius:14px;
+    background:linear-gradient(135deg,rgba(19,55,78,.97),rgba(7,30,49,.99));
+  }
+  body.admin-shell #tab-vip .mx2-vip-table tbody tr:nth-child(even){
+    background:linear-gradient(135deg,rgba(13,49,72,.97),rgba(6,27,46,.99));
+  }
+  body.admin-shell #tab-vip .mx2-vip-table td{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    width:100%;
+    padding:12px 0;
+    border-bottom:1px solid rgba(130,169,193,.18)!important;
+    font-size:11px;
+    min-width:0;
+    text-align:right;
+  }
+  body.admin-shell #tab-vip .mx2-vip-table td:last-child{border:0!important}
+  body.admin-shell #tab-vip .mx2-vip-table td::before{
+    content:attr(data-label);
+    text-align:left;
+    flex:0 0 38%;
+    color:#a4bfd0;
+    font-size:11px;
+    font-weight:750;
+    overflow-wrap:anywhere;
+  }
+  body.admin-shell #tab-vip .mx2-vip-table td>*{min-width:0}
+}
+@media(max-width:640px){
+  body.admin-shell #tab-vip > .card{padding:15px!important}
+  body.admin-shell #tab-vip > .card > .row{
+    grid-template-columns:1fr;
+    padding:14px;
+    gap:12px;
+  }
+  body.admin-shell #tab-vip .mx2-vip-toolbar{
+    grid-template-columns:1fr;
+    gap:10px;
+    padding:13px;
+  }
+  body.admin-shell #tab-vip .mx2-filter-count{grid-column:auto}
+  body.admin-shell #tab-vip #v_days{width:100%}
+  body.admin-shell #tab-vip #v_reset{width:100%}
+  body.admin-shell #tab-vip .mx2-vip-summary{
+    gap:8px;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  body.admin-shell #tab-vip .mx2-vip-stat{
+    min-height:100px;
+    padding:13px 11px;
+    border-radius:13px;
+  }
+  body.admin-shell #tab-vip .mx2-vip-stat strong{font-size:clamp(22px,5.9vw,30px)}
+  body.admin-shell #tab-vip .mx2-vip-stat small{font-size:10px}
+}
+@media(max-width:370px){
+  body.admin-shell #tab-vip > .card{padding:13px!important;border-radius:17px!important}
+  body.admin-shell #tab-vip > .card > h3{font-size:26px}
+  body.admin-shell #tab-vip .mx2-vip-stat{padding:12px 8px;min-height:96px}
+  body.admin-shell #tab-vip .mx2-vip-stat strong{font-size:23px}
+  body.admin-shell #tab-vip .mx2-vip-stat small{font-size:9px;letter-spacing:0}
+  body.admin-shell #tab-vip .mx2-vip-table tbody tr{padding:7px 10px}
+  body.admin-shell #tab-vip .mx2-vip-table [data-revoke]{padding:8px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.admin-shell #tab-vip :is(#v_reset,.mx2-vip-table [data-revoke]){
+    transform:none!important;transition:none!important;
+  }
+}
