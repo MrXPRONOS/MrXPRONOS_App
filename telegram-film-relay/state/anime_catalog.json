@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-10T20:04:48.620755+00:00",
+    "checked_at": "2026-11-11T06:49:14.420533+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -604,7 +604,7 @@
         "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2411,
+    "not_yet_indexed_total": 2433,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,9 +650,9 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2598,
-    "source_episode_numbers_observed": 2510,
-    "source_numbering_gap_seasons": 63,
+    "scanned_episode_candidates": 2574,
+    "source_episode_numbers_observed": 2532,
+    "source_numbering_gap_seasons": 64,
     "source_numbering_gaps": [
       {
         "not_observed_between_known": [
@@ -1015,7 +1015,8 @@
       {
         "not_observed_between_known": [
           13,
-          14
+          14,
+          18
         ],
         "season": "1",
         "series": "red-river",
@@ -1281,10 +1282,21 @@
         "season": "1",
         "series": "wistoria-wand-and-sword",
         "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "season": "1",
+        "series": "my-wife-is-the-student-council-president-the-student-co",
+        "truncated": false
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 395
+    "unnumbered_videos_skipped": 415
   },
   "scans": {
     "-1001787980027": {
@@ -3794,6 +3806,27 @@
         ]
       }
     },
+    "chitose-is-in-the-ramune-bottle-2nd-cour": {
+      "1": {
+        "5": [
+          "-1002069851953:65717"
+        ]
+      }
+    },
+    "chitose-is-in-the-ramune-bottle-2nd-cour-360p": {
+      "1": {
+        "5": [
+          "-1002069851953:65715"
+        ]
+      }
+    },
+    "chitose-is-in-the-ramune-bottle-2nd-cour-480p": {
+      "1": {
+        "5": [
+          "-1002069851953:65716"
+        ]
+      }
+    },
     "chitose-is-in-the-ramune-bottle-partie-2": {
       "1": {
         "1": [
@@ -4135,7 +4168,22 @@
           "-1002069851953:65216"
         ],
         "5": [
-          "-1002069851953:65218"
+          "-1002069851953:65218",
+          "-1002069851953:65753"
+        ]
+      }
+    },
+    "dark-machine-the-animation-360p": {
+      "1": {
+        "5": [
+          "-1002069851953:65752"
+        ]
+      }
+    },
+    "dark-machine-the-animation-480p": {
+      "1": {
+        "5": [
+          "-1002069851953:65754"
         ]
       }
     },
@@ -9661,6 +9709,82 @@
         ]
       }
     },
+    "my-wife-is-the-student-council-president-making-up-with": {
+      "1": {
+        "5": [
+          "-1002069851953:65726"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-more-of-the-pr": {
+      "1": {
+        "12": [
+          "-1002069851953:65733"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-president-brib": {
+      "1": {
+        "9": [
+          "-1002069851953:65730"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-sawatari-sans-": {
+      "1": {
+        "10": [
+          "-1002069851953:65731"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-shelter-from-t": {
+      "1": {
+        "4": [
+          "-1002069851953:65725"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-sneaky-student": {
+      "1": {
+        "7": [
+          "-1002069851953:65728"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-student-counci": {
+      "1": {
+        "2": [
+          "-1002069851953:65723"
+        ],
+        "3": [
+          "-1002069851953:65724"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-the-president-": {
+      "1": {
+        "11": [
+          "-1002069851953:65732"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-the-student-co": {
+      "1": {
+        "1": [
+          "-1002069851953:65722"
+        ],
+        "6": [
+          "-1002069851953:65727"
+        ]
+      }
+    },
+    "my-wife-is-the-student-council-president-the-vice-presi": {
+      "1": {
+        "8": [
+          "-1002069851953:65729"
+        ]
+      }
+    },
     "nanatsu-no-taizai": {
       "3": {
         "10": [
@@ -10272,6 +10396,9 @@
         "17": [
           "-1002294192868:11194",
           "-1002294192868:11195"
+        ],
+        "19": [
+          "-1002069851953:65742"
         ]
       }
     },
@@ -10294,6 +10421,20 @@
         ],
         "19": [
           "-1002069851953:65209"
+        ]
+      }
+    },
+    "red-river-360p": {
+      "1": {
+        "19": [
+          "-1002069851953:65740"
+        ]
+      }
+    },
+    "red-river-480p": {
+      "1": {
+        "19": [
+          "-1002069851953:65741"
         ]
       }
     },
@@ -11593,6 +11734,13 @@
           "-1002069851953:65186",
           "-1002069851953:65187",
           "-1002069851953:65188"
+        ],
+        "6": [
+          "-1002069851953:65705",
+          "-1002069851953:65706",
+          "-1002069851953:65707",
+          "-1002069851953:65708",
+          "-1002069851953:65709"
         ]
       }
     },
@@ -12077,6 +12225,13 @@
       "1": {
         "17": [
           "-1002069851953:64852"
+        ]
+      }
+    },
+    "un-petit-extrait": {
+      "1": {
+        "5": [
+          "-1002069851953:65736"
         ]
       }
     },
