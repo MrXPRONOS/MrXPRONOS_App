@@ -22,6 +22,8 @@ TEAMS=tuple(f"t{i}" for i in range(4))
 
 
 def fixture(i, comp="ES:ENG.1", home="Arsenal", away="Chelsea"):
+    if comp=="ES:ENG.TROPHY" and home=="Arsenal" and away=="Chelsea":
+        home,away=f"Local {i} FC",f"Visitors {i} FC"
     return RankedFixture(
         id=f"{comp}:{i}",competition=comp,
         competition_name="First division" if comp=="ES:ENG.1" else "EFL Trophy",
@@ -82,7 +84,7 @@ def execute(monkeypatch,source,**kw):
 
 def test_second_pass_reaches_ten_when_older_minimums_are_only_blocker(monkeypatch):
     main=[fixture(i) for i in range(3)]
-    unknown=[fixture(i+10,"ES:ENG.TROPHY",home="Local East",away="Local West")
+    unknown=[fixture(i+10,"ES:ENG.TROPHY",home=f"Local East {i}",away=f"Local West {i}")
              for i in range(12)]
     provider=Provider(main+unknown)
     result=execute(monkeypatch,provider)
@@ -104,7 +106,7 @@ def test_second_pass_reaches_ten_when_older_minimums_are_only_blocker(monkeypatc
 
 def test_extra_league_lookup_only_when_strict_fails_and_keeps_order(monkeypatch):
     popular=[fixture(i) for i in range(3)]
-    other=[fixture(i+200,"ES:ENG.TROPHY",home="Town",away="Village")
+    other=[fixture(i+200,"ES:ENG.TROPHY",home=f"Town {i}",away=f"Village {i}")
            for i in range(12)]
     provider=Provider(popular,other)
     result=execute(monkeypatch,provider)
@@ -183,3 +185,17 @@ def test_second_pass_can_be_disabled_for_legacy_comparison(monkeypatch):
     assert result["selected_count"]==3
     assert not result["ready_for_video"]
     assert provider.expansions==0
+
+
+
+def test_one_real_match_is_not_counted_twice_across_espn_competitions(monkeypatch):
+    provider=Provider([fixture(i) for i in range(3)])
+    duplicate=replace(provider.main[0],id="ES:EXTRA:dup",competition="ES:EXTRA",
+                      competition_name="Other scoreboard")
+    extras=[fixture(130+i,"ES:ENG.TROPHY") for i in range(7)]
+    provider.extra=[duplicate]+extras
+    result=execute(monkeypatch,provider)
+    assert result["selected_count"]==10
+    assert not any(x["id"]==duplicate.id for x in result["selected"])
+    keys={(x["home"],x["away"],x["kickoff_utc"]) for x in result["selected"]}
+    assert len(keys)==10
