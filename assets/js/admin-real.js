@@ -12,7 +12,7 @@ import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
 import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
 import { mountCmsListFilters } from "./cms-list-filters.mjs";
-import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
+import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs?v=20261111-media-v4";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
 
@@ -1338,7 +1338,7 @@ async function renderMediaTab(){
   intro.className="card";
   const h=document.createElement("h3");h.textContent="Médiathèque";
   const p=document.createElement("p");p.className="muted";
-  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Attention : les fichiers sont hébergés dans un bucket public ; toute personne possédant leur URL peut les consulter, même avant publication. Les brouillons CMS, eux, ne sont pas publiés automatiquement.";
+  p.textContent="Importe, recherche et réutilise les photos ou vidéos dans les publications. À l’import, les fichiers restent privés. Utilise « Publier ce média » pour rendre le fichier accessible par son URL publique. Les brouillons CMS ne sont pas publiés automatiquement.";
   const selected=document.createElement("p");selected.setAttribute("role","status");
   intro.append(h,p,selected);root.appendChild(intro);
   mountCmsMediaPicker(sb,intro,media=>{

@@ -228,6 +228,35 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('loadCmsRows("cms_bonus")', controller)
         self.assertIn('loadCmsRows("cms_bookmakers")', controller)
 
+
+    def test_media_v4_visual_contract_and_private_publish_workflow(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        library = (ROOT / "assets/js/cms-media-library.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-phase2.css?v=20261111-media-v4", page)
+        self.assertIn("admin-real.js?v=20261111-media-v4", page)
+        self.assertIn("ADMIN MEDIATHEQUE V4", css)
+        for selector in (
+            "#tab-media > .card",
+            "#tab-media .mx-cms-library",
+            "#tab-media .mx-media-filters",
+            "#tab-media .mx-media-grid",
+            "#tab-media .mx-media-item-wrap",
+        ):
+            self.assertIn(selector, css)
+        self.assertIn('id="tab-media"', page)
+        self.assertIn('mountCmsMediaPicker(sb,intro,media=>', controller)
+        self.assertIn('les fichiers restent privés', controller)
+        self.assertIn('const PRIVATE_BUCKET="cms-drafts"', library)
+        self.assertIn("await bucket.upload(path,transformed.file,opts)", library)
+        self.assertIn('publishCmsMedia(sb,m.id)', library)
+        self.assertIn('if(!confirm("Rendre ce média public', library)
+        self.assertIn('wrapper.dataset.mediaState=m.is_private?"private":"published"', library)
+        self.assertIn('status.setAttribute("role","status")', library)
+        self.assertIn('isSafeCmsUrl(m.thumbUrl||m.url,"image")', library)
+        self.assertIn('file.type="file";file.accept=', library)
+
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")

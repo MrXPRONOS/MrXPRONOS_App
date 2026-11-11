@@ -139,6 +139,9 @@ export function mountCmsMediaPicker(sb,container,onSelect,{defaultKind="all"}={}
   let loaded=[],hasMore=false,loading=false,generation=0;
   alt.placeholder="Description de l’image (obligatoire)";
   alt.setAttribute("aria-label","Texte alternatif");
+  caption.setAttribute("aria-label","Légende du média");
+  file.setAttribute("aria-label","Fichier image ou vidéo");
+  status.setAttribute("role","status");status.setAttribute("aria-live","polite");
   caption.placeholder="Légende facultative";
   file.type="file";file.accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm";
   search.type="search";search.placeholder="Rechercher parmi les médias chargés";
@@ -158,7 +161,9 @@ export function mountCmsMediaPicker(sb,container,onSelect,{defaultKind="all"}={}
     grid.replaceChildren();
     for(const m of filtered){
       const wrapper=el("div","","mx-media-item-wrap");
+      wrapper.dataset.mediaState=m.is_private?"private":"published";
       const item=el("button","","mx-media-item");item.type="button";
+      item.setAttribute("aria-label",(m.is_private?"Média privé : ":"Sélectionner le média publié : ")+(m.caption||m.original_name||"média"));
       if(m.kind==="image"&&isSafeCmsUrl(m.thumbUrl||m.url,"image")){
         const img=document.createElement("img");img.src=m.thumbUrl||m.url;
         img.alt=m.alt_text||m.original_name;img.loading="lazy";item.appendChild(img);
