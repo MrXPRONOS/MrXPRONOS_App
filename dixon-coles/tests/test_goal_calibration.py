@@ -45,7 +45,7 @@ def test_out_of_bounds_or_nan_multiplier_fails_closed():
             forecast(model,"a","b",goal_multiplier=bad)
 
 
-def _sample_history(validation_home=2, validation_away=2):
+def _sample_history(validation_home=2, validation_away=1):
     rows=[]
     for day in range(500,0,-1):
         when=CUTOFF-timedelta(days=day)
@@ -75,6 +75,7 @@ def test_calibration_is_accepted_only_after_disjoint_later_validation(monkeypatc
     assert result.status=="VALIDATED_ADJUSTMENT"
     assert 1.0 < result.multiplier <= 1.2
     assert result.validation_candidate_nll < result.validation_baseline_nll
+    assert result.validation_candidate_1x2_nll < result.validation_baseline_1x2_nll
     assert len(seen)==2
     assert seen[0][0] == CUTOFF-timedelta(days=240)
     assert seen[1][0] == CUTOFF-timedelta(days=60)
