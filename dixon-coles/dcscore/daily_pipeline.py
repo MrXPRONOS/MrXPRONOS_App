@@ -94,7 +94,17 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     ignored_overflow = max(0, len(ranked)-max_candidates)
     if len(ranked)>max_candidates:ranked=ranked[:max_candidates]
     eligible=[];rejected=[];sources=set(); cache={}
+    # Prestige is a priority threshold, not a ban: first use popular matches,
+    # then evaluate lesser-known clubs only if fewer than 'limit' survive.
+    weaker_candidates=sum(f.importance < min_importance for f in ranked)
+    complement_checked=0
+    complement_not_checked=0
     for f in ranked:
+        if f.importance < min_importance:
+            if len(eligible) >= limit:
+                complement_not_checked += 1
+                continue
+            complement_checked += 1
         # Video-only gate: skip unsafe top-ranked candidates BEFORE the model
         # fit, and replace them with another valid match rather than cancelling
         # the entire 1–10 clip publication. Historical model backtests retain
@@ -110,10 +120,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                 rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
                                  'reason':reason,'importance':f.importance})
                 continue
-        if f.importance<min_importance:
-            rejected.append({'id':f.id,'match':f'{f.home_name} - {f.away_name}',
-                             'reason':'prestige_insuffisant','importance':f.importance})
-            continue
+        # The same source, historical and modelling checks also protect
+        # the complementary less-famous matches. Nothing is fabricated.
         if f.competition not in cache:
             try:
                 rows,warnings=provider.history(f,now)
@@ -172,8 +180,15 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'history_days_old':round(age,2),
             'teams_history':{'home':home_count,'away':away_count},
         })
-    chosen_ids={f.id for f in select_tiered([item['fixture'] for item in eligible],
-                                             limit,max_per_league=max_per_league)}
+    # Only earlier-time historical coverage breaks ties between equally
+    # ranked lesser-known clubs, never an outcome or betting-odds estimate.
+    strength={item['fixture'].id:min(item['teams_history'].values())
+              for item in eligible}
+    chosen=select_tiered([item['fixture'] for item in eligible],limit,
+                         max_per_league=max_per_league,
+                         history_strength=strength)
+    chosen_ids={f.id for f in chosen}
+    chosen_order={f.id:i for i,f in enumerate(chosen)}
     selected=[]
     for item in eligible:
         f=item['fixture']
@@ -187,6 +202,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'importance':f.importance,
             'importance_reasons':list(f.importance_reasons),
             'popularity_tier':popularity_tier(f.importance),
+            'selection_role':('complement' if f.importance < min_importance
+                              else 'popular_priority'),
             'popularity_class':('exceptional' if f.importance >= 300 else
                                 'major' if f.importance >= 220 else
                                 'notable' if f.importance >= 145 else 'local'),
@@ -206,7 +223,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'goal_multiplier':item['forecast']['goal_calibration']['multiplier'],
             'disclaimer':'Score exact modal, aucune garantie ni conseil de mise.'
         })
-    selected.sort(key=lambda r:(-r['importance'],r['kickoff_utc'],r['id']))
+    selected.sort(key=lambda r:chosen_order[r['id']])
     complete=len(selected)==limit
     enough = complete if publication_mode=='strict' else bool(selected)
     provider_reported=all(m['fixture_provider_reported'] for m in selected)
@@ -255,6 +272,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     eligibility_by_tier=dict(Counter(popularity_tier(item['fixture'].importance)
                                      for item in eligible))
     selection_by_tier=dict(Counter(row['popularity_tier'] for row in selected))
+    selected_complements=sum(row['selection_role']=='complement' for row in selected)
     selection_by_league=dict(sorted(Counter(row['competition_name'] for row in selected).items()))
     return {
         'schema_version':1,'project':'Mr XPRONOS / Dixon-Coles independent',
@@ -274,9 +292,21 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'not_evaluated_due_to_candidate_limit':ignored_overflow,
             'eligible':len(eligible), 'selected':len(selected),
             'shortfall':max(0,limit-len(selected)),
+            'popular_priority_threshold':min_importance,
+            'candidates_below_priority_threshold':weaker_candidates,
+            'complement_candidates_checked':complement_checked,
+            'complement_candidates_not_checked':complement_not_checked,
+            'complement_selected':selected_complements,
+            'popular_selected':len(selected)-selected_complements,
             'rejected_by_reason':rejected_by_reason,
-            'eligible_by_tier':{t:eligibility_by_tier.get(t,0) for t in ('A','B','C')},
-            'selected_by_tier':{t:selection_by_tier.get(t,0) for t in ('A','B','C')},
+            'eligible_by_tier':{
+                **{t:eligibility_by_tier.get(t,0) for t in ('A','B','C')},
+                **({'D':eligibility_by_tier['D']} if eligibility_by_tier.get('D') else {}),
+            },
+            'selected_by_tier':{
+                **{t:selection_by_tier.get(t,0) for t in ('A','B','C')},
+                **({'D':selection_by_tier['D']} if selection_by_tier.get('D') else {}),
+            },
             'selected_by_competition':selection_by_league,
             'source_warnings_count':len(source_warnings),
             'source_warnings_examples':sorted(set(source_warnings))[:8],
@@ -300,13 +330,16 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'clips':clips,
         },
         'methodology':{
-            'ranking':'V2 editorial: competition, exact club identity and team category, two major opponents, structured knockout round, known rivalry',
+            'ranking':'Popular fixtures first, then lesser-known eligible clubs only to fill remaining slots; historical team coverage breaks ties',
             'importance_not_measured_audience':True,
             'youth_squads_do_not_inherit_senior_club_weight':True,
             'selection_levels':{
                 'A':'importance >= 220','B':'145 <= importance < 220',
                 'C':'70 <= importance < 145',
+                'D':'importance < 70, used only for complements',
             },
+            'popularity_floor_is_priority_not_quality_gate':True,
+            'complements_keep_all_model_quality_gates':True,
             'publication_mode':publication_mode,
             'probabilities':'Dixon-Coles weighted time-decayed Poisson, rho fitted per competition',
             'historical_xi':xi,'training_scope':'same league + same source only',

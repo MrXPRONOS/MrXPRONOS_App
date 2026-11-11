@@ -86,35 +86,48 @@ def popularity_tier(importance_value: int) -> str:
         return "A"
     if importance_value >= TIER_B_MIN:
         return "B"
-    return "C"
+    if importance_value >= TIER_C_MIN:
+        return "C"
+    return "D"
 
 
 def select_tiered(fixtures: list[RankedFixture], limit: int,
-                  max_per_league: int = 4) -> list[RankedFixture]:
-    """Prioritize A -> B -> C, maintaining a soft diversity quota.
+                  max_per_league: int = 4,
+                  history_strength: dict[str, int] | None = None
+                  ) -> list[RankedFixture]:
+    """Fill up to limit with real eligible fixtures in A, B, C, D order.
 
-    First pass respects max_per_league for all tiers. Second pass fills from
-    highest editorial grade without the quota; it never invents fixtures.
-    All fixtures must have already passed historical and source checks.
+    A/B/C are the popularity-first selections; D includes otherwise eligible
+    less-famous clubs and leagues and is used strictly as a fallback. Never
+    sacrifice an A fixture to enforce the per-league quota on a lower tier.
+
+    History counts are a *tie-breaker only* for equally ranked fixtures: they
+    do not manufacture club popularity or weaken any pre-match quality gate.
+    All fixtures must have passed provider, history and model checks upstream.
     """
     if not 1 <= limit <= 30:
         raise ValueError("Nombre de pronostics hors limites")
     if max_per_league < 1:
         raise ValueError("Quota de championnat hors limites")
-    ranked = rank_fixtures(fixtures)
-    # rank_fixtures is already monotonic with grades; tie break is deterministic.
+    strength = history_strength or {}
+    ranked = sorted(rank_fixtures(fixtures),
+                    key=lambda f: (-f.importance, -max(0, strength.get(f.id, 0)),
+                                   f.kickoff, f.id))
     result: list[RankedFixture] = []
     seen: set[str] = set()
     per_league: dict[str, int] = {}
-    for allow_overquota in (False, True):
-        for match in ranked:
-            if match.id in seen:
-                continue
-            if not allow_overquota and per_league.get(match.competition, 0) >= max_per_league:
-                continue
-            result.append(match)
-            seen.add(match.id)
-            per_league[match.competition] = per_league.get(match.competition, 0) + 1
-            if len(result) >= limit:
-                return result
+    for tier in ("A", "B", "C", "D"):
+        # Diversity is soft *within the same priority tier*, not across tiers.
+        # A fifth prestigious match beats any B/C/D candidate, for example.
+        for allow_overquota in (False, True):
+            for match in ranked:
+                if match.id in seen or popularity_tier(match.importance) != tier:
+                    continue
+                if not allow_overquota and per_league.get(match.competition, 0) >= max_per_league:
+                    continue
+                result.append(match)
+                seen.add(match.id)
+                per_league[match.competition] = per_league.get(match.competition, 0) + 1
+                if len(result) >= limit:
+                    return result
     return result
