@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-11T06:49:14.420533+00:00",
+    "checked_at": "2026-11-11T19:56:24.829278+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -77,6 +77,12 @@
       },
       {
         "episode": 5,
+        "season": "2",
+        "series": "a-returner-s-magic-should-be-special-2nd-season",
+        "source_instances": 4
+      },
+      {
+        "episode": 6,
         "season": "2",
         "series": "a-returner-s-magic-should-be-special-2nd-season",
         "source_instances": 4
@@ -596,15 +602,9 @@
         "season": "1",
         "series": "animeisekaic-goblin-slayer",
         "source_instances": 1
-      },
-      {
-        "episode": 9,
-        "season": "1",
-        "series": "animeisekaic-goblin-slayer",
-        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2433,
+    "not_yet_indexed_total": 2449,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,8 +650,8 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2574,
-    "source_episode_numbers_observed": 2532,
+    "scanned_episode_candidates": 2585,
+    "source_episode_numbers_observed": 2548,
     "source_numbering_gap_seasons": 64,
     "source_numbering_gaps": [
       {
@@ -930,6 +930,17 @@
         ],
         "season": "3",
         "series": "mangas-tv-konosuba",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "season": "1",
+        "series": "my-wife-is-the-student-council-president-the-student-co",
         "truncated": false
       },
       {
@@ -1282,21 +1293,10 @@
         "season": "1",
         "series": "wistoria-wand-and-sword",
         "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          2,
-          3,
-          4,
-          5
-        ],
-        "season": "1",
-        "series": "my-wife-is-the-student-council-president-the-student-co",
-        "truncated": false
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 415
+    "unnumbered_videos_skipped": 416
   },
   "scans": {
     "-1001787980027": {
@@ -2084,6 +2084,12 @@
           "-1002069851953:65298",
           "-1002069851953:65299",
           "-1002069851953:65300"
+        ],
+        "6": [
+          "-1002069851953:65855",
+          "-1002069851953:65856",
+          "-1002069851953:65857",
+          "-1002069851953:65858"
         ]
       }
     },
@@ -3401,6 +3407,11 @@
           "-1002069851953:65290",
           "-1002069851953:65291",
           "-1002069851953:65292"
+        ],
+        "6": [
+          "-1002069851953:65848",
+          "-1002069851953:65849",
+          "-1002069851953:65850"
         ]
       }
     },
@@ -3544,7 +3555,9 @@
         ],
         "3": [
           "-1003225149330:5631",
-          "-1002294192868:10745"
+          "-1002294192868:10745",
+          "-1003225149330:6097",
+          "-1003225149330:6098"
         ],
         "4": [
           "-1003225149330:5777",
@@ -3568,7 +3581,9 @@
           "-1002069851953:65466",
           "-1002069851953:65462",
           "-1002069851953:65463",
-          "-1002069851953:65464"
+          "-1002069851953:65464",
+          "-1003225149330:6095",
+          "-1003225149330:6096"
         ]
       }
     },
@@ -5908,6 +5923,23 @@
           "-1002069851953:65268",
           "-1002069851953:65269",
           "-1002069851953:65270"
+        ],
+        "6": [
+          "-1002069851953:65829"
+        ]
+      }
+    },
+    "magic-knight-rayearth-2026-360p": {
+      "1": {
+        "6": [
+          "-1002069851953:65827"
+        ]
+      }
+    },
+    "magic-knight-rayearth-2026-480p": {
+      "1": {
+        "6": [
+          "-1002069851953:65828"
         ]
       }
     },
@@ -10461,6 +10493,23 @@
           "-1002069851953:65277",
           "-1002069851953:65275",
           "-1002069851953:65276"
+        ],
+        "7": [
+          "-1002069851953:65836"
+        ]
+      }
+    },
+    "reincarnated-as-a-sword-360p": {
+      "2": {
+        "7": [
+          "-1002069851953:65834"
+        ]
+      }
+    },
+    "reincarnated-as-a-sword-480p": {
+      "2": {
+        "7": [
+          "-1002069851953:65835"
         ]
       }
     },
@@ -10814,6 +10863,27 @@
         ]
       }
     },
+    "sasaki-and-peeps": {
+      "2": {
+        "6": [
+          "-1002069851953:65808"
+        ]
+      }
+    },
+    "sasaki-and-peeps-360p": {
+      "2": {
+        "6": [
+          "-1002069851953:65806"
+        ]
+      }
+    },
+    "sasaki-and-peeps-480p": {
+      "2": {
+        "6": [
+          "-1002069851953:65807"
+        ]
+      }
+    },
     "sasaki-to-pii-chan": {
       "2": {
         "2": [
@@ -10956,6 +11026,11 @@
           "-1002069851953:65243",
           "-1002069851953:65244",
           "-1002069851953:65245"
+        ],
+        "6": [
+          "-1002069851953:65813",
+          "-1002069851953:65814",
+          "-1002069851953:65815"
         ]
       }
     },
@@ -11624,6 +11699,23 @@
           "-1002069851953:65260",
           "-1002069851953:65261",
           "-1002069851953:65262"
+        ],
+        "6": [
+          "-1002069851953:65822"
+        ]
+      }
+    },
+    "the-detective-is-already-dead-360p": {
+      "2": {
+        "6": [
+          "-1002069851953:65820"
+        ]
+      }
+    },
+    "the-detective-is-already-dead-480p": {
+      "2": {
+        "6": [
+          "-1002069851953:65821"
         ]
       }
     },
@@ -11822,6 +11914,15 @@
       "1": {
         "12": [
           "-1001822847344:1868"
+        ]
+      }
+    },
+    "the-prince-of-tennis-ii-u-17-world-cup-final-member-sel": {
+      "1": {
+        "7": [
+          "-1002069851953:65842",
+          "-1002069851953:65843",
+          "-1002069851953:65841"
         ]
       }
     },
