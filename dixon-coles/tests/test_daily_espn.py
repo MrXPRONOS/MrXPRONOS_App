@@ -111,3 +111,34 @@ def test_yearly_400_event_cap_is_never_silently_used_for_training():
     p=ESPNProvider(session=Session(),leagues=['eng.2'])
     with pytest.raises(DailySourceError,match="troncature historique"):
         p._fetch('eng.2','2026')
+
+
+def test_optional_espn_catalogue_expansion_only_when_requested():
+    """Default 31 pools may expand; explicit league selection cannot."""
+    from dcscore.daily_espn import CANDIDATES, ENABLED
+    assert len(ENABLED) == 31 and CANDIDATES
+    class Response:
+        status_code=200
+        content=b'{}'
+        def __init__(self,items):self.items=items
+        def json(self):return {'events':self.items}
+    class Session:
+        def __init__(self):self.queries=[]
+        def get(self,url,*,params,headers,timeout):
+            self.queries.append((url,params['dates']))
+            if '/eng.2/' in url and params['dates']=='20261110':
+                return Response([event()])
+            return Response([])
+    session=Session()
+    provider=ESPNProvider(session=session)
+    assert not session.queries
+    fixtures,warnings=provider.discover_more(date(2026,11,10),NOW)
+    assert not warnings and len(fixtures)==1
+    assert fixtures[0].competition=='ES:ENG.2'
+    assert 'eng.2' in provider._secondary_enabled
+    assert provider.discovery_counts['ESPN/fallback/eng.2']==1
+    provider.history(fixtures[0],NOW)
+    assert any(d=='2026' for _,d in session.queries)
+    explicit=ESPNProvider(session=Session(),leagues=['eng.1'])
+    assert explicit.discover_more(date(2026,11,10),NOW)==([],[])
+    assert explicit.session.queries==[]
