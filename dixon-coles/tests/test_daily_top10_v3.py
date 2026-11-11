@@ -58,9 +58,12 @@ def fake_fit(rows, *, as_of, **kw):
 
 def test_candidate_catalog_not_mistaken_for_enabled_competitions():
     assert len(ALLOWED)>=45
-    assert len(CANDIDATES)>=30
-    assert len(ENABLED)==14
+    assert len(CANDIDATES)>=15
+    assert len(ENABLED)==31
     assert not (set(CANDIDATES)&set(ENABLED))
+    assert 'eng.2' in CANDIDATES  # annual scoreboards were capped at 400
+    assert 'por.1' in ENABLED and 'bra.1' in ENABLED
+    assert 'egy.1' not in ENABLED
     assert ESPNProvider().leagues==ENABLED
     assert ESPNProvider(leagues=["por.1"]).leagues==("por.1",)
 
