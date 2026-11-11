@@ -163,3 +163,28 @@ def test_flexible_production_validator_checks_date_and_counts():
 def test_invalid_publishing_mode_is_rejected_before_network():
     with pytest.raises(ValueError,match="strict ou flexible"):
         run_daily(Provider([]),day=DAY,as_of=NOW,publication_mode="always")
+
+
+def test_renderable_gate_fills_with_next_valid_fixture(monkeypatch):
+    from dataclasses import replace
+    monkeypatch.setattr("dcscore.daily_pipeline.fit",fake_fit)
+    # These top-ranked events have an invalid crest or unverified provider.
+    first=replace(f(0),home_logo_url=None)
+    second=replace(f(1),source_verified=False)
+    third=replace(f(2),stage="FINAL",neutral_venue=None)
+    fallback=f(3,"Arsenal","Small Town")
+    result=run_daily(Provider([first,second,third,fallback]),
+        day=DAY,as_of=NOW,limit=10,min_importance=70,min_team=4,
+        max_staleness_days=35,publication_mode="flexible",
+        require_renderable=True)
+    assert result["selected_count"]==1
+    assert result["selected"][0]["id"]==fallback.id
+    assert result["ready_for_video"] is True
+    assert result["selection_diagnostics"]["rejected_by_reason"]["logos_invalides"]==1
+    assert result["selection_diagnostics"]["rejected_by_reason"]["calendrier_non_verifie"]==1
+    assert result["selection_diagnostics"]["rejected_by_reason"]["terrain_finale_non_confirme"]==1
+    # Original predictor functionality is unmodified unless explicitly requested.
+    legacy=run_daily(Provider([first,second,third,fallback]),
+        day=DAY,as_of=NOW,limit=10,min_importance=70,min_team=4,
+        max_staleness_days=35,publication_mode="flexible")
+    assert legacy["selected_count"]==4 and legacy["ready_for_video"] is False
