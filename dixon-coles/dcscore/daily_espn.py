@@ -216,6 +216,10 @@ class ESPNProvider:
     def __init__(self, *, session=None, leagues=None, years_back=2):
         self.session = session or requests.Session()
         self.leagues = tuple(ENABLED if leagues is None else leagues)
+        # Only the default broad discovery may inspect catalogued alternatives.
+        # Explicit test/custom league selections stay strict and deterministic.
+        self.fallback_leagues = CANDIDATES if leagues is None else ()
+        self._secondary_enabled: set[str] = set()
         if not self.leagues or len(set(self.leagues)) != len(self.leagues) or any(k not in ALLOWED for k in self.leagues):
             raise DailySourceError('Compétition ESPN non autorisée')
         if years_back not in (1,2,3):
@@ -274,12 +278,37 @@ class ESPNProvider:
                 self.discovery_counts[f'ESPN/{league}']=0
         return out,errors
 
+    def discover_more(self, target_date:date, now:datetime):
+        """Second-pass discovery only when the core pools cannot fill ten.
+
+        A genuine ESPN event must still include the provider's scheduled match,
+        two distinct team IDs and a future kickoff; no speculative fixtures.
+        Source errors never silently create matches.
+        """
+        now=utc_datetime(now)
+        found=[];errors=[]
+        for league in self.fallback_leagues:
+            try:
+                records=self._fetch(league,target_date.strftime('%Y%m%d'))
+                n=0
+                for event in records:
+                    _past,fixture=parse_event(event,league,now=now)
+                    if fixture and fixture.kickoff.date()==target_date:
+                        found.append(fixture)
+                        self._secondary_enabled.add(league)
+                        n+=1
+                self.discovery_counts[f'ESPN/fallback/{league}']=n
+            except DailySourceError as exc:
+                errors.append(str(exc))
+                self.discovery_counts[f'ESPN/fallback/{league}']=0
+        return found,errors
+
     def history(self, fixture:RankedFixture,now:datetime):
         now=utc_datetime(now)
         key=fixture.competition
         if key in self._history:return self._history[key]
         league=key.removeprefix('ES:').lower()
-        if league not in self.leagues:
+        if league not in self.leagues and league not in self._secondary_enabled:
             raise DailySourceError('Compétition ESPN non configurée')
         history={};errors=[]
         # Calendar years: time-censored, no tomorrow/future results.
