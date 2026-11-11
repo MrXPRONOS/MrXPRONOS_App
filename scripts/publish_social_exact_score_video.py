@@ -12,6 +12,7 @@ from datetime import date, datetime, timedelta
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import sys
 from urllib.parse import quote, urlsplit
@@ -27,7 +28,9 @@ DEFAULT_PLATFORMS = "facebook,youtube,instagram,threads,bluesky"
 PUBLIC_BUCKET = "videos"
 
 
-def validate_manifest(manifest: dict, video: Path, now: datetime | None = None) -> str:
+def validate_manifest(manifest: dict, video: Path, now: datetime | None = None,
+                      *, predictions_path: Path | None = None,
+                      storyboard_path: Path | None = None) -> str:
     now = now or datetime.now(LOME)
     target = str(manifest.get("target") or "")
     try:
@@ -40,7 +43,9 @@ def validate_manifest(manifest: dict, video: Path, now: datetime | None = None) 
     n = manifest.get("count")
     strict = (mode=="strict" and manifest.get("schema")=="mrx-dixon-coles-social-top10-v1"
               and type(n) is int and n==10)
-    flexible = (mode=="flexible" and manifest.get("schema")=="mrx-dixon-coles-social-flex-v2"
+    flexible = (mode=="flexible"
+                and manifest.get("schema") in ("mrx-dixon-coles-social-flex-v2",
+                                               "mrx-dixon-coles-social-flex-v3")
                 and type(n) is int and 1 <= n <= 10)
     if (not (strict or flexible)
             or manifest.get("status") != "READY"
@@ -55,6 +60,54 @@ def validate_manifest(manifest: dict, video: Path, now: datetime | None = None) 
     digest = hashlib.sha256(video.read_bytes()).hexdigest()
     if digest != manifest.get("sha256"):
         raise ValueError("Le MP4 ne correspond pas au manifeste vérifié")
+
+    # New V3 posts are cryptographically tied to the *actual* selection and
+    # storyboard, making an incorrect 1-9-match caption fail before any upload.
+    if manifest.get("schema")=="mrx-dixon-coles-social-flex-v3":
+        match_ids=manifest.get("match_ids")
+        if (not isinstance(match_ids,list) or len(match_ids)!=n
+                or not all(isinstance(mid,str) and mid for mid in match_ids)
+                or len(set(match_ids))!=n):
+            raise ValueError("Identifiants de matchs V3 manquants, répétés ou incohérents")
+        proof=manifest.get("render_evidence")
+        if (not isinstance(proof,dict)
+                or proof.get("real_logo_instances")!=2*n
+                or proof.get("placeholder_logo_instances")!=0
+                or proof.get("resolution")!="1080x1920"):
+            raise ValueError("Preuve de rendu vidéo V3 invalide")
+        if predictions_path is None or storyboard_path is None:
+            raise ValueError("Fichiers de preuve nécessaires avant publication flexible V3")
+        for path,field in ((predictions_path,"predictions_sha256"),
+                           (storyboard_path,"storyboard_sha256")):
+            value=manifest.get(field)
+            if not isinstance(value,str) or not re.fullmatch(r"[0-9a-f]{64}",value):
+                raise ValueError("Empreinte de source invalide")
+            if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=value:
+                raise ValueError("Données du pronostic altérées après rendu")
+        prediction=json.loads(predictions_path.read_text(encoding="utf-8"))
+        storyboard=json.loads(storyboard_path.read_text(encoding="utf-8"))
+        if (prediction.get("date_local_africa_lome")!=target
+                or storyboard.get("date_local_africa_lome")!=target
+                or prediction.get("publication_mode")!="flexible"
+                or storyboard.get("publication_mode")!="flexible"
+                or prediction.get("ready_for_video") is not True
+                or storyboard.get("ready_for_video") is not True
+                or prediction.get("selected_count")!=n
+                or storyboard.get("selected_count")!=n):
+            raise ValueError("Preuves de sélection V3 incohérentes")
+        games=prediction.get("selected") or []
+        clips=storyboard.get("clips") or []
+        if (len(games)!=n or len(clips)!=n
+                or [str(g.get("id")) for g in games]!=match_ids
+                or [str(c.get("match_id")) for c in clips]!=match_ids):
+            raise ValueError("Identité des rencontres du manifeste incorrecte")
+        for game,clip in zip(games,clips):
+            if (game.get("forecast",{}).get("most_likely_score")!=clip.get("display_score")
+                    or f"{game.get('home')} - {game.get('away')}"!=clip.get("headline")
+                    or game.get("kickoff_utc")!=clip.get("kickoff_utc")
+                    or game.get("home_logo_url")!=clip.get("home_logo_url")
+                    or game.get("away_logo_url")!=clip.get("away_logo_url")):
+                raise ValueError("Score, clubs ou écussons incohérents avec la prévision")
     return target
 
 
@@ -162,12 +215,16 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--video", type=Path, required=True)
     p.add_argument("--manifest", type=Path, required=True)
+    p.add_argument("--predictions", type=Path)
+    p.add_argument("--storyboard", type=Path)
     p.add_argument("--platforms", default=os.getenv("POST_PLATFORMS", DEFAULT_PLATFORMS))
     p.add_argument("--report", type=Path, default=Path("social_exact_scores_out/social_post_results.json"))
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-    target = validate_manifest(manifest, args.video)
+    target = validate_manifest(manifest, args.video,
+                               predictions_path=args.predictions,
+                               storyboard_path=args.storyboard)
     platforms = social.parse_platforms(args.platforms)
     if not platforms:
         raise ValueError("Aucun réseau social demandé")
@@ -194,7 +251,10 @@ def main() -> int:
     args.report.parent.mkdir(parents=True, exist_ok=True)
     for platform in platforms:
         kind = "dcscore_social_top10_" + platform
-        row = {"platform": platform, "ok": False, "message": "", "data": {}}
+        row = {"platform": platform, "ok": False, "message": "", "data": {},
+               "target":target, "count":manifest["count"],
+               "publication_mode":manifest.get("publication_mode","strict"),
+               "video_sha256":manifest["sha256"]}
         try:
             existing = recorded_receipt(ledger, kind, ref, target)
             if existing and existing["status"] == "sent":
