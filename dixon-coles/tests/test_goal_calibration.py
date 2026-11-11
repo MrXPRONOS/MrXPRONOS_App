@@ -16,7 +16,7 @@ def _toy_model():
         alpha={"a":1.0,"b":1.0,"c":1.0,"d":1.0},
         beta={"a":1.0,"b":1.0,"c":1.0,"d":1.0},
         gamma=1.0, rho=0.0, xi=0.0065, trained_at=CUTOFF,
-        first_game=CUTOFF-timedelta(days=300),
+        first_game=CUTOFF-timedelta(days=500),
         last_game=CUTOFF-timedelta(days=1),
         n_games=100, log_likelihood=-100.0, optimizer_message="test")
 
@@ -47,9 +47,9 @@ def test_out_of_bounds_or_nan_multiplier_fails_closed():
 
 def _sample_history(validation_home=2, validation_away=2):
     rows=[]
-    for day in range(300,0,-1):
+    for day in range(500,0,-1):
         when=CUTOFF-timedelta(days=day)
-        if day>120:
+        if day>240:
             h,a=1,1
         elif day>60:
             h,a=2,2
@@ -76,7 +76,7 @@ def test_calibration_is_accepted_only_after_disjoint_later_validation(monkeypatc
     assert 1.0 < result.multiplier <= 1.2
     assert result.validation_candidate_nll < result.validation_baseline_nll
     assert len(seen)==2
-    assert seen[0][0] == CUTOFF-timedelta(days=120)
+    assert seen[0][0] == CUTOFF-timedelta(days=240)
     assert seen[1][0] == CUTOFF-timedelta(days=60)
     assert len(seen[0][1] & seen[1][1])==len(seen[0][1])
 
