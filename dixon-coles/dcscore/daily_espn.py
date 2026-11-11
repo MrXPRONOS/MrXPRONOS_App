@@ -34,6 +34,8 @@ ALLOWED = {
     'eng.league_cup': 'Coupe de la Ligue anglaise',
     'uefa.wchampions': 'Ligue des champions féminine',
     'eng.trophy': 'EFL Trophy',
+    'fifa.world': 'Coupe du monde FIFA',
+    'uefa.euro': 'Championnat d’Europe des nations',
 }
 
 
@@ -80,8 +82,11 @@ def _provider_round(event: dict, competition: dict) -> str:
             return "FINAL"
         if re.search(r"\bplay[\s-]?offs?\b", t):
             return "PLAYOFFS"
+        if re.search(r"\b(?:round of 32|last 32)\b", t):
+            return "LAST_32"
         value = stage_class(t)
-        if value in ("FINAL", "SEMI_FINALS", "QUARTER_FINALS", "LAST_16", "PLAYOFFS"):
+        if value in ("FINAL", "SEMI_FINALS", "QUARTER_FINALS", "LAST_16",
+                     "LAST_32", "PLAYOFFS", "CHAMPIONSHIP_ROUND", "CHAMPIONSHIP"):
             return value
     return "REGULAR_SEASON"
 
@@ -126,12 +131,15 @@ def parse_event(event, league: str, *, now: datetime):
                 images = team.get('logos') or []
                 u = images[0].get('href') if images and isinstance(images[0],dict) else None
             return u
+        neutral = comp.get('neutralSite')
+        if type(neutral) is not bool:
+            neutral = None
         key = f'ES:{league.upper()}'
         match = (Match(
             id=f'espn:{league}:{event_id}',competition=key,kickoff=kickoff,
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
             home_name=hn,away_name=an,status='FINISHED',home_goals=hs,
-            away_goals=as_,source='espn-reported',result_provenance='provider_reported',
+            away_goals=as_,neutral_venue=neutral is True,source='espn-reported',result_provenance='provider_reported',
             season=str(kickoff.year))) if completed else None
         f = RankedFixture(
             id=f'espn:{league}:{event_id}',competition=key,
@@ -139,7 +147,7 @@ def parse_event(event, league: str, *, now: datetime):
             home_id=f'espn:{league}:{hid}',away_id=f'espn:{league}:{aid}',
             home_name=hn,away_name=an,stage=_provider_round(event,comp),
             source='ESPN public scoreboard',source_verified=True,
-            neutral_venue=None,home_logo_url=crest(home_team),
+            neutral_venue=neutral,home_logo_url=crest(home_team),
             away_logo_url=crest(away_team)) if not completed else None
         return match, f
     except (KeyError, IndexError, StopIteration, TypeError, ValueError, AttributeError):
