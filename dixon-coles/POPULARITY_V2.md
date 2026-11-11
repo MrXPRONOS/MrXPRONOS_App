@@ -23,7 +23,7 @@ L'ordre s'effectue par `importance` décroissante, puis coup d'envoi, puis ID st
 
 ## Sources
 
-Le mode social `--source espn` découvre désormais 12 compétitions configurées : UEFA Champions League, Europa League, Conference League, Premier League, Liga, Bundesliga, Serie A, Ligue 1, FA Cup, League Cup, Women's Champions League, EFL Trophy.
+Le mode social `--source espn` découvre désormais 14 compétitions configurées : UEFA Champions League, Europa League, Conference League, Premier League, Liga, Bundesliga, Serie A, Ligue 1, FA Cup, League Cup, Women's Champions League, EFL Trophy, FIFA World Cup, Euro.
 
 La disponibilité de chaque compétition **doit être vérifiée dans les exécutions réelles** : les endpoints publics ESPN sont des données tierces, susceptibles de manquer de résultats complets, de modifier leur format et soumises aux conditions d'utilisation du fournisseur. Un championnat dont les données sont absentes, incohérentes ou insuffisantes ne produit aucun pronostic. Aucun score fictif n'est utilisé pour remplacer l'historique.
 
