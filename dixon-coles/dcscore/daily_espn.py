@@ -75,7 +75,7 @@ def _provider_round(event: dict, competition: dict) -> str:
             return "QUARTER_FINALS"
         if re.search(r"\b(?:round of 16|last 16|round of sixteen)\b", t):
             return "LAST_16"
-        if re.search(r"\b(?:final|finale)\b", t):
+        if (re.search(r"\b(?:final|finale)\b", t)\n                and not re.search(r"\bfinal (?:round|matchday|day)\b", t)):
             return "FINAL"
         if re.search(r"\bplay[\s-]?offs?\b", t):
             return "PLAYOFFS"
