@@ -383,3 +383,233 @@ body.admin-shell .mx2-responsive-table:not([hidden]){margin:9px 0 16px}
  }
  body.admin-shell #tab-pronostics .mx2-responsive-table tbody td::before{display:none}
 }
+
+
+/* ADMIN PRONOSTICS V4 — isolated navy/gold refinement, presentation only.
+   Read-only data, category/date/search filters and table interactions are unchanged. */
+body.admin-shell #tab-pronostics{
+  --mxp-gold:#f4cc83;--mxp-blue:#5bc3f7;--mxp-line:rgba(105,163,203,.33);
+  min-width:0;max-width:1480px;margin-inline:auto
+}
+body.admin-shell #tab-pronostics .admin-pronostics-panel{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:radial-gradient(ellipse 55% 43% at 92% 0%,rgba(17,109,165,.24),transparent 84%),
+    linear-gradient(145deg,#071b2d,#081b2d 49%,#051321)!important;
+  border:1px solid rgba(93,162,208,.52)!important;border-radius:23px;
+  padding:clamp(19px,2.5vw,32px)!important;
+  box-shadow:0 20px 55px rgba(0,7,18,.27),inset 0 1px rgba(228,241,255,.07)!important
+}
+body.admin-shell #tab-pronostics .admin-pronostics-panel::before{
+  content:"";position:absolute;pointer-events:none;right:0;top:0;z-index:-1;
+  width:min(59%,670px);height:230px;
+  background:url("../images/admin-home-lights-reference.webp") center right/cover no-repeat;
+  opacity:.26;mask-image:linear-gradient(90deg,transparent,#000 45%);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 45%)
+}
+body.admin-shell #tab-pronostics .admin-section-heading{
+  position:relative;align-items:center;gap:17px;
+  margin:0 0 20px;padding:9px 0 22px;
+  border-bottom:1px solid rgba(114,174,211,.27)
+}
+body.admin-shell #tab-pronostics .admin-section-heading::after{
+  content:"";position:absolute;bottom:-1px;left:0;width:min(280px,44%);height:2px;
+  background:linear-gradient(90deg,#f5cc7f,rgba(77,164,219,.4),transparent);
+  box-shadow:0 0 13px rgba(247,196,110,.35)
+}
+body.admin-shell #tab-pronostics .admin-section-heading h3{
+  font-size:clamp(23px,2.6vw,33px);line-height:1.15;font-weight:850;
+  color:#f6f8ff!important;letter-spacing:-.055em;margin:0 0 8px
+}
+body.admin-shell #tab-pronostics .admin-section-heading h3::before{
+  content:"CENTRE DE PRONOSTICS";display:block;color:var(--mxp-gold);
+  font-size:10px;letter-spacing:.18em;font-weight:830;margin-bottom:9px
+}
+body.admin-shell #tab-pronostics .admin-section-heading .muted{
+  color:#a7c0d1;font-size:12px;line-height:1.65
+}
+body.admin-shell #tab-pronostics #pRefresh{
+  min-height:42px;border-radius:11px;padding:10px 17px;
+  border:1px solid rgba(245,206,132,.76);
+  background:linear-gradient(120deg,rgba(211,160,68,.24),rgba(18,52,73,.89));
+  color:#ffe2a6;box-shadow:0 0 19px rgba(223,173,84,.12);
+  font-weight:780;transition:background .16s,transform .16s,border-color .16s
+}
+body.admin-shell #tab-pronostics #pRefresh:hover{
+  background:linear-gradient(120deg,rgba(233,180,85,.32),rgba(34,78,107,.94));
+  transform:translateY(-1px)
+}
+body.admin-shell #tab-pronostics .admin-filter-row{
+  display:grid;grid-template-columns:1fr 1fr minmax(180px,1.55fr);gap:13px;
+  padding:18px;border:1px solid rgba(95,153,192,.3);border-radius:16px;
+  background:linear-gradient(120deg,rgba(12,42,63,.84),rgba(8,28,47,.88));
+  margin-bottom:17px
+}
+body.admin-shell #tab-pronostics .admin-filter-row > div{min-width:0}
+body.admin-shell #tab-pronostics .admin-filter-row label{
+  color:#b6d0e1;font-size:11px;letter-spacing:.025em;font-weight:770;margin:0 0 9px
+}
+body.admin-shell #tab-pronostics .admin-filter-row :is(input,select){
+  min-width:0;min-height:45px;width:100%;
+  background:rgba(4,20,36,.93);border:1px solid rgba(105,159,198,.46);
+  border-radius:11px;padding:10px 13px;color:#f4f7ff;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.14)
+}
+body.admin-shell #tab-pronostics .admin-filter-row input::placeholder{color:#7898af;opacity:1}
+body.admin-shell #tab-pronostics .admin-filter-row :is(input,select):focus-visible{
+  outline:2px solid #f6d48e;outline-offset:2px;border-color:#f6d48e
+}
+body.admin-shell #tab-pronostics #pStatus{
+  display:block;width:fit-content;max-width:100%;
+  margin:0 0 10px;padding:9px 12px;
+  background:rgba(17,66,88,.45);border:1px solid rgba(108,177,207,.26);
+  border-radius:10px;color:#bee4f8;font-size:11px;font-weight:735;overflow-wrap:anywhere
+}
+body.admin-shell #tab-pronostics #pDiagnostics{
+  color:#9bb5c6;line-height:1.6;font-size:11px;
+  max-width:100%;overflow-wrap:anywhere
+}
+body.admin-shell #tab-pronostics .mx2-pronos-toolbar{
+  margin:16px 0 20px;padding:15px 0 0;
+  border-top:1px solid rgba(101,157,192,.28)
+}
+body.admin-shell #tab-pronostics .mx2-pronos-toolbar .mx2-eyebrow{
+  font-size:10px;letter-spacing:.14em;color:#9eb9cc
+}
+body.admin-shell #tab-pronostics .mx2-segment{
+  background:rgba(2,16,31,.81);border:1px solid rgba(116,171,203,.37);
+  padding:5px;border-radius:12px;gap:4px
+}
+body.admin-shell #tab-pronostics .mx2-segment-button{
+  color:#b7d2e4;min-height:38px;border-radius:9px
+}
+body.admin-shell #tab-pronostics .mx2-segment-button:hover{color:#fff;background:rgba(51,110,149,.28)}
+body.admin-shell #tab-pronostics .mx2-segment-button.is-active{
+  background:linear-gradient(125deg,#ffe3a1,#c99a51);color:#0a1b2b;
+  box-shadow:0 4px 15px rgba(236,189,108,.18)
+}
+body.admin-shell #tab-pronostics .mx2-pronos-cards{gap:16px;margin-bottom:8px}
+body.admin-shell #tab-pronostics .mx2-mini-summary{gap:8px;margin-bottom:5px}
+body.admin-shell #tab-pronostics .mx2-mini-summary .mx2-pill{
+  padding:8px 12px;border-color:rgba(124,176,203,.33);
+  background:rgba(12,45,67,.79);font-size:11px
+}
+body.admin-shell #tab-pronostics .mx2-mini-summary .mx2-pill.mx2-ok{
+  color:#a5efcb;border-color:rgba(98,198,146,.41);background:rgba(26,100,69,.22)
+}
+body.admin-shell #tab-pronostics .mx2-mini-summary .mx2-pill.mx2-danger{
+  color:#ffb7aa;border-color:rgba(221,115,102,.38);background:rgba(121,47,43,.19)
+}
+body.admin-shell #tab-pronostics .mx2-match-card{
+  position:relative;overflow:hidden;gap:17px;
+  background:radial-gradient(ellipse at 90% 100%,rgba(17,89,142,.18),transparent 64%),
+    linear-gradient(145deg,rgba(17,48,71,.97),rgba(5,25,43,.98));
+  border:1px solid rgba(90,157,203,.39);border-radius:18px;padding:19px;
+  box-shadow:inset 0 1px rgba(234,246,255,.035),0 12px 28px rgba(0,6,18,.18);
+  transition:transform .18s,border-color .18s,box-shadow .18s
+}
+body.admin-shell #tab-pronostics .mx2-match-card::before{
+  content:"";position:absolute;left:20px;top:0;width:68px;height:2px;
+  background:linear-gradient(90deg,#f3c576,transparent);
+  box-shadow:0 0 10px rgba(249,192,92,.45)
+}
+body.admin-shell #tab-pronostics .mx2-match-card:hover{
+  transform:translateY(-2px);border-color:rgba(235,190,105,.62);
+  box-shadow:0 15px 30px rgba(0,8,22,.3),0 0 20px rgba(213,169,89,.06)
+}
+body.admin-shell #tab-pronostics .mx2-match-league{
+  color:#aac6d8;font-size:11px;max-width:58%;line-height:1.6;font-weight:730
+}
+body.admin-shell #tab-pronostics .mx2-match-top .mx2-pill{
+  flex:none;max-width:43%;padding:7px 10px;
+  font-weight:780;border-color:rgba(135,181,208,.33);background:#122b3e
+}
+body.admin-shell #tab-pronostics .mx2-match-top .mx2-pill.mx2-ok{
+  color:#a1e8c0;border-color:rgba(103,211,155,.45);background:rgba(24,93,58,.35)
+}
+body.admin-shell #tab-pronostics .mx2-match-top .mx2-pill.mx2-danger{
+  color:#ffb6ae;border-color:rgba(242,135,133,.38);background:rgba(102,38,40,.35)
+}
+body.admin-shell #tab-pronostics .mx2-team-logo,
+body.admin-shell #tab-pronostics .mx2-team-placeholder{
+  width:54px;height:54px;border-radius:13px;
+  background:linear-gradient(135deg,rgba(17,50,75,.97),rgba(8,24,42,.99));
+  border:1px solid rgba(131,166,195,.23);
+  box-shadow:0 3px 13px rgba(0,0,0,.16)
+}
+body.admin-shell #tab-pronostics .mx2-team-logo{object-fit:contain;padding:8px}
+body.admin-shell #tab-pronostics .mx2-team-name{
+  color:#f2f7ff;font-size:13px;line-height:1.4;font-weight:790
+}
+body.admin-shell #tab-pronostics .mx2-versus{
+  color:#ffdb94;border:1px solid rgba(245,199,112,.48);
+  background:rgba(102,74,42,.23);box-shadow:0 0 16px rgba(235,180,91,.09)
+}
+body.admin-shell #tab-pronostics .mx2-match-metrics{
+  border-top:1px solid rgba(131,178,201,.22);
+  grid-template-columns:minmax(0,1.3fr) minmax(0,.85fr) minmax(0,.65fr);
+  padding-top:16px;gap:0
+}
+body.admin-shell #tab-pronostics .mx2-match-metric{border-color:rgba(131,178,201,.18)}
+body.admin-shell #tab-pronostics .mx2-match-metric small{
+  color:#9bb9cc;font-size:10px;letter-spacing:.025em
+}
+body.admin-shell #tab-pronostics .mx2-match-metric b{
+  color:#ffe1a3;font-size:12px;font-weight:800;line-height:1.55;
+  overflow-wrap:anywhere
+}
+body.admin-shell #tab-pronostics .admin-pronostics-table-scroll{
+  overflow-x:auto;border-radius:14px;
+  border:1px solid rgba(109,163,196,.29);
+  background:rgba(8,27,45,.9);
+  scrollbar-width:thin;scrollbar-color:#4a7b95 #0c2031
+}
+body.admin-shell #tab-pronostics .admin-pronostics-table-scroll table{
+  width:100%;min-width:690px;border-collapse:collapse
+}
+body.admin-shell #tab-pronostics .admin-pronostics-table-scroll thead{
+  background:linear-gradient(90deg,#10344e,#09243b)
+}
+body.admin-shell #tab-pronostics .admin-pronostics-table-scroll th{
+  color:#f3ce89;font-size:11px;white-space:nowrap;padding:14px 12px
+}
+body.admin-shell #tab-pronostics .admin-pronostics-table-scroll td{
+  color:#d5e6f1;border-bottom:1px solid rgba(129,177,207,.16);
+  font-size:11px;padding:13px 12px
+}
+body.admin-shell #tab-pronostics .admin-pronostics-table-scroll tbody tr:hover{
+  background:rgba(43,99,135,.20)
+}
+@media(max-width:1020px){
+  body.admin-shell #tab-pronostics .admin-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body.admin-shell #tab-pronostics .admin-filter-row > div:last-child{grid-column:1 / -1}
+}
+@media(max-width:760px){
+  body.admin-shell #tab-pronostics .admin-pronostics-panel{padding:19px!important}
+  body.admin-shell #tab-pronostics .admin-pronostics-panel::before{width:100%;height:150px;opacity:.17}
+  body.admin-shell #tab-pronostics .mx2-match-card{padding:16px}
+  body.admin-shell #tab-pronostics .mx2-team-logo,
+  body.admin-shell #tab-pronostics .mx2-team-placeholder{width:45px;height:45px}
+}
+@media(max-width:620px){
+  body.admin-shell #tab-pronostics .admin-section-heading{align-items:flex-start}
+  body.admin-shell #tab-pronostics .admin-section-heading #pRefresh{width:100%;justify-content:center}
+  body.admin-shell #tab-pronostics .admin-filter-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px}
+  body.admin-shell #tab-pronostics .admin-filter-row > div:last-child{grid-column:1 / -1}
+  body.admin-shell #tab-pronostics .mx2-pronos-toolbar .mx2-segment{width:100%}
+  body.admin-shell #tab-pronostics .mx2-match-card{padding:16px}
+  body.admin-shell #tab-pronostics .mx2-match-teams{gap:5px}
+}
+@media(max-width:370px){
+  body.admin-shell #tab-pronostics .admin-pronostics-panel{padding:13px!important;border-radius:16px}
+  body.admin-shell #tab-pronostics .admin-filter-row{grid-template-columns:1fr}
+  body.admin-shell #tab-pronostics .admin-filter-row > div:last-child{grid-column:auto}
+  body.admin-shell #tab-pronostics .mx2-match-card{padding:13px}
+  body.admin-shell #tab-pronostics .mx2-match-top{gap:7px}
+  body.admin-shell #tab-pronostics .mx2-match-metric{padding-inline:5px}
+  body.admin-shell #tab-pronostics .mx2-match-metric b{font-size:11px}
+  body.admin-shell #tab-pronostics .mx2-mini-summary .mx2-pill{font-size:10px;padding:7px 8px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.admin-shell #tab-pronostics .mx2-match-card,
+  body.admin-shell #tab-pronostics #pRefresh{transform:none!important;transition:none!important}
+}
