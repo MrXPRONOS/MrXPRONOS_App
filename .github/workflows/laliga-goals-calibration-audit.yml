@@ -28,11 +28,14 @@ jobs:
       - name: Reproduce all 25 Liga exact-score predictions with fair Oct holdout
         working-directory: dixon-coles
         run: python -m dcscore.diagnose_laliga_oct2026 --out results/diagnostics/laliga_oct2026
+      - name: Test additional previously-uninspected November 2026 fixtures
+        working-directory: dixon-coles
+        run: python -m dcscore.diagnose_laliga_nov2026
       - name: Archive goal-intensity and probability diagnosis
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: MRXPRONOS-Liga-Oct-25-goal-calibration
-          path: dixon-coles/results/diagnostics/laliga_oct2026/*
+          path: dixon-coles/results/diagnostics/**/*
           if-no-files-found: warn
           retention-days: 90
