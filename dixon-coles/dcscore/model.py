@@ -207,8 +207,19 @@ def one_x_two(lam: float, mu: float, rho: float) -> dict[str,float]:
     return {"home":p1,"draw":px,"away":p2}
 
 
-def forecast(model: DCModel, home_id: str, away_id: str, *, top_n: int=5, neutral_venue: bool = False) -> dict:
-    lam,mu=model.expected_goals(home_id,away_id,neutral_venue=neutral_venue)
+def forecast(model: DCModel, home_id: str, away_id: str, *, top_n: int=5,
+             neutral_venue: bool = False, goal_multiplier: float = 1.0) -> dict:
+    """Return coherent exact-score and 1X2 probabilities after validated scaling.
+
+    Multiplier defaults to the *identical* unmodified production model.
+    No arbitrary score-specific bias: all score cells and 1X2 use the same
+    scaled goal intensities.
+    """
+    if not np.isfinite(goal_multiplier) or not 0.85 <= goal_multiplier <= 1.20:
+        raise ModelError("Facteur de calibration hors des bornes sécurisées (0,85 à 1,20).")
+    raw_lam, raw_mu = model.expected_goals(home_id, away_id, neutral_venue=neutral_venue)
+    lam, mu = raw_lam * goal_multiplier, raw_mu * goal_multiplier
+    validate_tau(lam, mu, model.rho)
     cap=8
     while cap<30 and float(poisson.cdf(cap,lam)*poisson.cdf(cap,mu))<0.9999999:
         cap+=2
@@ -235,6 +246,9 @@ def forecast(model: DCModel, home_id: str, away_id: str, *, top_n: int=5, neutra
         'score_1_1_without_rho':p11_poisson_at_dc_means,
         'rho_effect_on_p_1_1_percent':100.0*(p11/p11_poisson_at_dc_means-1),
         "expected_home_goals":lam, "expected_away_goals":mu,
+        "raw_expected_home_goals": raw_lam,
+        "raw_expected_away_goals": raw_mu,
+        "goal_multiplier": goal_multiplier,
         "home_attack":model.alpha[home_id],"home_defensive_weakness":model.beta[home_id],
         "away_attack":model.alpha[away_id],"away_defensive_weakness":model.beta[away_id],
         "home_advantage":model.gamma,"rho":model.rho,"xi_per_half_week":model.xi,
