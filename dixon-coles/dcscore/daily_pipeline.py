@@ -16,6 +16,7 @@ from .domain import Match, iso_date, utc_datetime
 from .model import fit, forecast, ModelError
 from .goal_calibration import GoalCalibration, select_goal_multiplier
 from .logo_policy import valid_logo_url as _valid_logo_url
+from .fallback_model import cold_start_model
 
 class FixtureProvider(Protocol):
     name: str
@@ -77,7 +78,8 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
               max_per_league:int=4,
               enable_goal_calibration:bool=False,
               publication_mode:str='strict',
-              require_renderable:bool=False) -> dict:
+              require_renderable:bool=False,
+              second_pass:bool=True) -> dict:
     """Run immediately, no background work; deterministic for fixed provider and cutoff."""
     now=utc_datetime(as_of)
     if publication_mode not in ('strict','flexible'):
@@ -90,9 +92,9 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
     if day>now.date() and (day-now.date()).days>7:
         raise ValueError('Date trop éloignée : horaires de matchs non fiables (maximum 7 jours).')
     fixtures,source_warnings=provider.discover(day,now)
-    ranked=rank_fixtures(fixtures)
-    ignored_overflow = max(0, len(ranked)-max_candidates)
-    if len(ranked)>max_candidates:ranked=ranked[:max_candidates]
+    all_ranked=rank_fixtures(fixtures)
+    ranked=all_ranked[:max_candidates]
+    ignored_overflow=max(0,len(all_ranked)-len(ranked))
     eligible=[];rejected=[];sources=set(); cache={}
     # Prestige is a priority threshold, not a ban: first use popular matches,
     # then evaluate lesser-known clubs only if fewer than 'limit' survive.
@@ -180,13 +182,113 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'history_days_old':round(age,2),
             'teams_history':{'home':home_count,'away':away_count},
         })
+    # Second pass: the user explicitly requests a Top10 even when some
+    # original arbitrary thresholds eliminate genuine football fixtures.
+    # Preserve the first-pass choices. Broaden ESPN discovery and use a
+    # mathematically valid, explicitly labelled cold-start score calculation
+    # for every remaining real fixture, without fabricating club statistics.
+    first_pass_eligible=len(eligible)
+    second_pass_discovered=0
+    second_pass_considered=0
+    second_pass_accepted=0
+    second_pass_modes=Counter()
+    if second_pass and first_pass_eligible < limit:
+        secondary=[]
+        discover_more=getattr(provider,'discover_more',None)
+        if callable(discover_more):
+            try:
+                more,errors=discover_more(day,now)
+                secondary=more
+                source_warnings.extend(errors)
+            except (DailySourceError,ValueError) as exc:
+                source_warnings.append('Deuxième découverte indisponible: '+str(exc))
+        second_pass_discovered=len(secondary)
+        # All original strict rejects, including candidates beyond the
+        # initial computation cap, become eligible for a fresh second look.
+        previously_eligible={i['fixture'].id for i in eligible}
+        original={f.id:f for f in all_ranked if f.id not in previously_eligible}
+        for f in secondary:
+            if f.id not in previously_eligible and f.id not in original:
+                original[f.id]=f
+        prior_models={}
+        failed_fits=set()
+        # The new pools are not claimed to have a valid league training set.
+        for f in rank_fixtures(list(original.values())):
+            if len(eligible)>=limit:
+                break
+            second_pass_considered+=1
+            if not f.source_verified or f.kickoff<=now or f.kickoff.date()!=day:
+                continue
+            if require_renderable and (
+                    not _valid_logo_url(f.home_logo_url) or
+                    not _valid_logo_url(f.away_logo_url) or
+                    (f.stage.upper()=='FINAL' and f.neutral_venue is None)):
+                continue
+            try:
+                # Do not reuse a strict *rejection* as a forbidden decision.
+                # Only reuse a genuine fitted model if we already have it.
+                strict_cache=cache.get(f.competition)
+                fitted=(strict_cache[1] if strict_cache
+                        and strict_cache[0]=='ok' else prior_models.get(f.competition))
+                rows,issues=provider.history(f,now)
+                source_warnings.extend(issues)
+                model,proof=cold_start_model(
+                    f,rows,as_of=now,xi=xi,trained_model=fitted,
+                    allow_fit=f.competition not in failed_fits,
+                )
+                if proof['basis']=='EMPIRICAL_POISSON_PRIOR' and len(rows)>=40:
+                    failed_fits.add(f.competition)
+                if proof['basis']=='RELAXED_DIXON_COLES_FITTED':
+                    prior_models[f.competition]=model
+                # The same forecasting function and JSON video clip contract.
+                prediction=_prediction(
+                    model,f,calibration=GoalCalibration(
+                        status='BASELINE_CALIBRATION_DISABLED'))
+            except (DailySourceError,ModelError,ValueError,TypeError,OverflowError) as exc:
+                rejected.append({
+                    'id':f.id,'match':f'{f.home_name} - {f.away_name}',
+                    'reason':'second_pass_calcul_indisponible: '+str(exc)[:120],
+                    'importance':f.importance,
+                })
+                continue
+            prediction['prediction_basis']=proof['basis']
+            prediction['model_evidence']=proof['explanation']
+            prediction['warning']='historique_reduit_score_indicatif'
+            prediction['recommendation_status']='UNCALIBRATED_SECOND_PASS'
+            prediction['note']=(
+                'Prévision de secours moins fiable ; ni garantie ni '
+                'probabilité validée. '+proof['explanation'])
+            past=[m for m in rows if m.status=='FINISHED'
+                  and m.kickoff<now and m.competition==f.competition]
+            last=max((m.kickoff for m in past),default=None)
+            eligible.append({
+                'fixture':f,'forecast':prediction,'selection_pass':'fallback',
+                'prediction_basis':proof['basis'],
+                'training_n':len(past),
+                'training_last_result':iso_date(last) if last else None,
+                'history_days_old':(round((now-last).total_seconds()/86400,2)
+                                    if last else None),
+                'teams_history':{
+                    'home':proof['home_team_games'],
+                    'away':proof['away_team_games']},
+            })
+            sources.add(f.source)
+            second_pass_accepted+=1
+            second_pass_modes[proof['basis']]+=1
     # Only earlier-time historical coverage breaks ties between equally
     # ranked lesser-known clubs, never an outcome or betting-odds estimate.
     strength={item['fixture'].id:min(item['teams_history'].values())
               for item in eligible}
-    chosen=select_tiered([item['fixture'] for item in eligible],limit,
-                         max_per_league=max_per_league,
+    strict_items=[item['fixture'] for item in eligible
+                  if item.get('selection_pass')!='fallback']
+    fallback_items=[item['fixture'] for item in eligible
+                    if item.get('selection_pass')=='fallback']
+    chosen=select_tiered(strict_items,limit,max_per_league=max_per_league,
                          history_strength=strength)
+    if len(chosen)<limit and fallback_items:
+        chosen+=select_tiered(fallback_items,limit-len(chosen),
+                              max_per_league=max_per_league,
+                              history_strength=strength)
     chosen_ids={f.id for f in chosen}
     chosen_order={f.id:i for i,f in enumerate(chosen)}
     selected=[]
@@ -204,6 +306,9 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'popularity_tier':popularity_tier(f.importance),
             'selection_role':('complement' if f.importance < min_importance
                               else 'popular_priority'),
+            'selection_pass':item.get('selection_pass','strict'),
+            'prediction_basis':item.get('prediction_basis',
+                                      'FITTED_DIXON_COLES'),
             'popularity_class':('exceptional' if f.importance >= 300 else
                                 'major' if f.importance >= 220 else
                                 'notable' if f.importance >= 145 else 'local'),
@@ -221,6 +326,9 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'forecast':item['forecast'],
             'goal_calibration_status':item['forecast']['goal_calibration']['status'],
             'goal_multiplier':item['forecast']['goal_calibration']['multiplier'],
+            'evidence_status':('ESTIMATE_FROM_SPARSE_DATA'
+                               if item.get('selection_pass')=='fallback'
+                               else 'STANDARD_MODEL'),
             'disclaimer':'Score exact modal, aucune garantie ni conseil de mise.'
         })
     selected.sort(key=lambda r:chosen_order[r['id']])
@@ -273,6 +381,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                                      for item in eligible))
     selection_by_tier=dict(Counter(row['popularity_tier'] for row in selected))
     selected_complements=sum(row['selection_role']=='complement' for row in selected)
+    selected_fallback=sum(row['selection_pass']=='fallback' for row in selected)
     selection_by_league=dict(sorted(Counter(row['competition_name'] for row in selected).items()))
     return {
         'schema_version':1,'project':'Mr XPRONOS / Dixon-Coles independent',
@@ -282,6 +391,7 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
         'required_count':limit,'selected_count':len(selected),
         'publication_mode':publication_mode,
         'require_renderable':require_renderable,
+        'second_pass_enabled':second_pass,
         'daily_target_reached':complete,
         'daily_shortfall':max(0,limit-len(selected)),
         'count_before_quality_checks':len(fixtures),
@@ -297,6 +407,12 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
             'complement_candidates_checked':complement_checked,
             'complement_candidates_not_checked':complement_not_checked,
             'complement_selected':selected_complements,
+            'first_pass_eligible':first_pass_eligible,
+            'second_pass_extra_competition_fixtures':second_pass_discovered,
+            'second_pass_considered':second_pass_considered,
+            'second_pass_accepted':second_pass_accepted,
+            'second_pass_selected':selected_fallback,
+            'second_pass_bases':dict(second_pass_modes),
             'popular_selected':len(selected)-selected_complements,
             'rejected_by_reason':rejected_by_reason,
             'eligible_by_tier':{
@@ -339,6 +455,10 @@ def run_daily(provider:FixtureProvider, *, day:date, as_of:datetime,
                 'D':'importance < 70, used only for complements',
             },
             'popularity_floor_is_priority_not_quality_gate':True,
+            'two_pass_selection':True,
+            'first_pass_model_untouched':True,
+            'second_pass_can_use_cold_start_prior':True,
+            'second_pass_not_calibrated':True,
             'complements_keep_all_model_quality_gates':True,
             'publication_mode':publication_mode,
             'probabilities':'Dixon-Coles weighted time-decayed Poisson, rho fitted per competition',
