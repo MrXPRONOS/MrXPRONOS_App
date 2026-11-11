@@ -26,6 +26,8 @@ class GoalCalibration:
     validation_count: int = 0
     validation_baseline_nll: float | None = None
     validation_candidate_nll: float | None = None
+    validation_baseline_1x2_nll: float | None = None
+    validation_candidate_1x2_nll: float | None = None
     validation_baseline_goal_mae: float | None = None
     validation_candidate_goal_mae: float | None = None
     estimate: float = 1.0
@@ -51,9 +53,9 @@ def _observations(model: DCModel, rows: list[Match]):
     return out
 
 
-def _metrics(observations, multiplier: float) -> tuple[float, float]:
-    """Mean exact-score negative log likelihood and goal-sum MAE."""
-    nll, mae = 0., 0.
+def _metrics(observations, multiplier: float) -> tuple[float, float, float]:
+    """Mean exact-score NLL, goal-sum MAE and 1X2 negative log-likelihood."""
+    nll, mae, nll_1x2 = 0., 0., 0.
     for lam, mu, rho, home, away in observations:
         a, b = lam * multiplier, mu * multiplier
         validate_tau(a, b, rho)
@@ -62,7 +64,14 @@ def _metrics(observations, multiplier: float) -> tuple[float, float]:
             raise ModelError("Score likelihood nonpositive or invalid")
         nll -= log(likelihood)
         mae += abs((home + away) - (a + b))
-    return nll / len(observations), mae / len(observations)
+        p_1x2 = one_x_two(a, b, rho)
+        outcome = "home" if home > away else "away" if home < away else "draw"
+        probability = p_1x2[outcome]
+        if probability <= 0 or not isfinite(probability):
+            raise ModelError("1X2 likelihood nonpositive or invalid")
+        nll_1x2 -= log(probability)
+    n = len(observations)
+    return nll / n, mae / n, nll_1x2 / n
 
 
 def select_goal_multiplier(rows: list[Match], *, as_of: datetime,
@@ -115,11 +124,12 @@ def select_goal_multiplier(rows: list[Match], *, as_of: datetime,
             return GoalCalibration(status="BASELINE_INSUFFICIENT_VALIDATION",
                 train_count=len(early), calibration_count=len(o_cal),
                 validation_count=len(o_valid), estimate=round(candidate, 4))
-        base_nll, base_mae = _metrics(o_valid, 1.0)
-        new_nll, new_mae = _metrics(o_valid, candidate)
+        base_nll, base_mae, base_1x2 = _metrics(o_valid, 1.0)
+        new_nll, new_mae, new_1x2 = _metrics(o_valid, candidate)
         # The score likelihood must meaningfully improve on true held-out data.
         # Goal MAE cannot substantially degrade. These gates are fixed in advance.
         accept = (new_nll + .005 < base_nll and new_mae <= base_mae + .03
+                  and new_1x2 <= base_1x2 + .005
                   and abs(candidate-1.) >= .012)
         return GoalCalibration(
             multiplier=round(candidate, 4) if accept else 1.0,
@@ -129,6 +139,8 @@ def select_goal_multiplier(rows: list[Match], *, as_of: datetime,
             validation_count=len(o_valid),
             validation_baseline_nll=round(base_nll, 6),
             validation_candidate_nll=round(new_nll, 6),
+            validation_baseline_1x2_nll=round(base_1x2, 6),
+            validation_candidate_1x2_nll=round(new_1x2, 6),
             validation_baseline_goal_mae=round(base_mae, 6),
             validation_candidate_goal_mae=round(new_mae, 6),
             reason="Independent pre-cutoff validation; no in-sample acceptance",
