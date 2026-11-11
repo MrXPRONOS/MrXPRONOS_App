@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install independent forecaster and tests
-        run: python -m pip install -e 'dixon-coles[test]'
+        run: python -m pip install -e 'dixon-coles[test]' 'Pillow>=10,<13'
       - name: Validate historical score isolation, paired samples and reporting
         run: |
           python -m pytest -q \
