@@ -19,6 +19,7 @@ BASE_URL = "https://mrxpronos.github.io/MrXPRONOS_App/"
 
 STATIC_PAGES = {
     "": {"priority": "1.0", "freq": "daily"},
+    "aujourdhui.html": {"priority": "0.98", "freq": "daily"},
     "pronos.html": {"priority": "0.95", "freq": "daily"},
     "historique.html": {"priority": "0.85", "freq": "daily"},
     "blog.html": {"priority": "0.80", "freq": "daily"},
