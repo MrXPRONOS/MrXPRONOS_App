@@ -59,6 +59,7 @@ jobs:
       - name: Install Chromium Playwright
         run: |
           pip install playwright==1.60.0
-          python -m playwright install --with-deps chromium
+          command -v google-chrome
+          google-chrome --version
       - name: Real home and daily A/B UI smoke (mock backend; no production writes)
         run: python scripts/experiment_phase5_public_smoke.py
