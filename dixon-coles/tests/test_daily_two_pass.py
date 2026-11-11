@@ -165,7 +165,11 @@ def test_partial_source_errors_cannot_generate_synthetic_fixtures(monkeypatch):
     postponed=replace(additional[2],kickoff=NOW-timedelta(minutes=10))
     provider=Provider(main,[invalid,fake,postponed]+additional[3:])
     report=execute(monkeypatch,provider)
-    assert report["selected_count"]==10
+    assert report["selected_count"]==10, {
+        "diagnostics":report["selection_diagnostics"],
+        "rejected":report["rejected"][:15],
+        "selected_ids":[row["id"] for row in report["selected"]],
+    }
     assert all(m["fixture_provider_reported"] for m in report["selected"])
     assert all(m["home_logo_url"] for m in report["selected"])
     assert all(m["kickoff_utc"]>NOW.isoformat().replace("+00:00","Z")
