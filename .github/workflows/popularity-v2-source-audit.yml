@@ -62,11 +62,31 @@ jobs:
                   valid = bool(len(games)>=80 and days_old is not None and days_old<=35)
                   print('POPULARITY_V2_HISTORY',league,'count',len(games),
                         'age_days',round(days_old,2) if days_old is not None else None,
-                        'usable',valid,'issues',len(issues),flush=True)
+                        'usable',valid,'issues',issues[:3],flush=True)
                   ready += int(valid)
               except Exception as exc:
                   print('POPULARITY_V2_HISTORY_UNAVAILABLE',league,type(exc).__name__,str(exc)[:130],flush=True)
           print('POPULARITY_V2_HISTORY_READY_LEAGUES',ready,'/',len(top),flush=True)
           if ready < 4:
               raise SystemExit('Historique minimum non disponible pour les grandes competitions')
+          PY
+      - name: Diagnostiquer les plages historiques ESPN quand un an depasse 400 matchs
+        working-directory: dixon-coles
+        run: |
+          python - <<'PY'
+          import requests
+          from dcscore.daily_espn import BASE
+          for selector in ('2026', '20260901-20260930', '20261001-20261024', '20261025'):
+              response = requests.get(BASE+'/esp.1/scoreboard',
+                params={'dates':selector,'limit':400},
+                headers={'Accept':'application/json','User-Agent':'MrXPRONOS-Independent-ScoreResearch/1.0'},
+                timeout=(8,30))
+              try:
+                  body=response.json()
+                  events=body.get('events') or []
+                  title=body.get('leagues') or []
+              except ValueError:
+                  events=[];title=[]
+              print('POPULARITY_V2_LALIGA_SELECTOR',selector,'http',response.status_code,
+                    'count',len(events),'bytes',len(response.content),flush=True)
           PY
