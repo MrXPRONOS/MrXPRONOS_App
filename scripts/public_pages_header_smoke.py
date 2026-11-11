@@ -140,7 +140,7 @@ def check_standard(browser, path, active_label, width, height):
     print("PASS",label)
 
 with sync_playwright() as p:
-    browser=p.chromium.launch(headless=True)
+    browser=p.chromium.launch(headless=True,channel="chrome",args=["--no-sandbox"])
     for width,height in [(1024,900),(390,844),(320,720)]:
         for path,label in STANDARD:
             check_standard(browser,path,label,width,height)
