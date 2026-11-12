@@ -8,6 +8,8 @@ from __future__ import annotations
 import re
 import unicodedata
 
+from .club_registry_world import recognize_club, WORLD_CLUBS
+
 # ESPN codes are prefixed ES:; community providers retain their own namespaces.
 LEAGUE_WEIGHT = {
     "CL": 168, "ES:UEFA.CHAMPIONS": 168,
@@ -184,6 +186,43 @@ NATIONS = {
     "japan": 29, "south korea": 29, "united states": 29,
     "usa": 29, "mexico": 29, "togo": 19,
 }
+# Editorial country recognition for competitions all over the world. These
+# are relative attention labels, never FIFA rankings, results or match odds.
+NATIONS.update({
+    "uruguay":29,"colombia":30,"chile":27,"peru":24,"ecuador":27,
+    "paraguay":25,"bolivia":20,"venezuela":19,"costa rica":23,
+    "panama":23,"jamaica":21,"canada":28,"haiti":19,"honduras":19,
+    "el salvador":17,"guatemala":18,"trinidad and tobago":19,
+    "cuba":16,"dominican republic":17,"curacao":20,
+    "united arab emirates":21,"saudi arabia":26,"qatar":24,
+    "iran":27,"iraq":24,"jordan":23,"oman":20,"bahrain":18,
+    "kuwait":18,"uzbekistan":23,"tajikistan":18,
+    "australia":28,"new zealand":23,"china":24,"chinese taipei":16,
+    "thailand":22,"vietnam":22,"indonesia":24,"malaysia":21,
+    "singapore":18,"india":22,"philippines":20,"lebanon":17,
+    "syria":18,"palestine":19,"hong kong":16,
+    "sweden":29,"norway":30,"denmark":29,"finland":21,
+    "iceland":24,"ireland":23,"northern ireland":20,
+    "scotland":27,"wales":25,"switzerland":27,"austria":26,
+    "poland":27,"ukraine":27,"czech republic":26,"czechia":26,
+    "slovakia":23,"slovenia":24,"croatia":31,"serbia":27,
+    "bosnia and herzegovina":22,"montenegro":19,
+    "north macedonia":20,"albania":22,"kosovo":23,
+    "romania":24,"hungary":24,"greece":26,"turkey":28,
+    "georgia":24,"armenia":18,"azerbaijan":18,"cyprus":19,
+    "israel":20,"belarus":17,"moldova":17,
+    "tunisia":28,"south africa":27,"dr congo":26,
+    "democratic republic of congo":26,"guinea":23,"mali":26,
+    "burkina faso":25,"benin":20,"uganda":20,"kenya":21,
+    "tanzania":21,"zambia":23,"zimbabwe":19,
+    "angola":25,"mozambique":21,"cape verde":25,
+    "cabo verde":25,"guinea bissau":21,"gabon":22,
+    "equatorial guinea":22,"sudan":20,"south sudan":16,
+    "mauritania":21,"libya":18,"niger":19,
+    "madagascar":20,"comoros":22,"rwanda":20,
+    "ethiopia":20,"sierra leone":19,"liberia":18,
+})
+
 NATIONAL_CODES = frozenset({"ES:FIFA.WORLD", "ES:UEFA.EURO", "ES:CONMEBOL.AMERICA",
                             "ES:CAF.NATIONS", "ES:CONCACAF.GOLD", "ES:UEFA.NATIONS",
                             "ES:FIFA.WORLDQ.UEFA", "ES:FIFA.WORLDQ.CAF",
@@ -242,7 +281,9 @@ def squad_category(name: str, competition: str = "", competition_name: str = "")
     # Youth/reserves supersede a women's category: the senior brand is not inherited.
     if (re.search(r"\b(?:u(?:17|18|19|20|21|23)|under (?:17|18|19|20|21|23)|"
                   r"academy|youth|reserves?|development|primavera|castilla)\b", n)
-            or re.search(r"\s(?:ii|b)$", n)):
+            or re.search(r"\s(?:ii|b)$", n)
+            or c in {"ES:FIFA.WORLD.U20","ES:FIFA.WORLD.U17",
+                     "ES:FIFA.U20.FRIENDLY","ES:FIFA.FRIENDLY_U21"}):
         return "youth_reserve"
     if (re.search(r"\b(?:women|womens|wfc|ladies|feminin|feminine|femenino|"
                   r"femenina|frauen|damen)\b", n)
@@ -263,14 +304,45 @@ def club_class(name: str, *, competition: str = "", competition_name: str = "") 
         cleaned = re.sub(r"\s+(?:women|womens|wfc|ladies|feminine|feminin|"
                          r"femenino|femenina|frauen|damen)$", "", cleaned)
         cleaned = normalize_club(cleaned)
+    # A national-team competition is distinct from club competitions even
+    # for women's teams. Senior country popularity must not be inherited
+    # by U17/U20 teams (guarded above), and women's priority is separate.
+    if str(competition).upper() in NATIONAL_CODES:
+        value = NATIONS.get(cleaned, 0)
+        return cleaned, round(value * .72) if category == "women" else value, category
     if category == "national":
         return cleaned, NATIONS.get(cleaned, 0), category
+    # Preserve meaningful literal suffixes when they uniquely identify a
+    # different club: "Barcelona SC" (Ecuador) must not become FC Barcelona
+    # when the scorer removes a generic "SC" designation.
+    literal=normalize(name)
+    if literal != cleaned:
+        exact=recognize_club(literal, competition,
+                             normalize=normalize, women=category=="women")
+        if exact is not None:
+            return exact[0], exact[1], category
+    # First use the exact club identity in its own championship. Promoted and
+    # relegated teams may inherit recognition within the same country. In
+    # international tournaments, only aliases unique across the worldwide
+    # catalogue receive a club weight.
+    club = recognize_club(cleaned, competition,
+                          normalize=normalize_club, women=category=="women",
+                          local_only=True)
+    if club is not None:
+        return club[0], club[1], category
+    # The previously curated worldwide brands retain their precedence in
+    # neutral/continental contexts, avoiding deceptive alias collisions
+    # between FC Barcelona and Ecuador's Barcelona SC.
     for canonical, (value, aliases) in CLUBS.items():
         if cleaned in {normalize_club(a) for a in aliases}:
             # Female teams have their own editorial tier, not senior full credit.
             if category == "women":
                 return canonical, round(value * .72), category
             return canonical, value, category
+    club = recognize_club(cleaned, competition,
+                          normalize=normalize_club, women=category=="women")
+    if club is not None:
+        return club[0], club[1], category
     return "", 0, category
 
 

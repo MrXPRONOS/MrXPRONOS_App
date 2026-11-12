@@ -1,0 +1,49 @@
+name: Worldwide club popularity - complete league registry and regression tests
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/world-club-popularity-ci.yml'
+      - 'dixon-coles/dcscore/club_registry_world.py'
+      - 'dixon-coles/dcscore/daily_popularity.py'
+      - 'dixon-coles/tests/test_club_registry_world.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clubs_and_regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances Dixon-Coles
+        run: python -m pip install -e 'dixon-coles[test,video]'
+      - name: Tester les 66 championnats et toutes les identités de clubs
+        run: |
+          cd dixon-coles
+          python -m pytest -q tests/test_club_registry_world.py tests/test_daily_popularity_v2.py tests/test_daily_top10_v3.py
+      - name: Vérifier tous les tests de pronostics, y compris la V5
+        run: cd dixon-coles && python -m pytest -q tests
+      - name: Assurer que les changements ne modifient pas les pronostics ou vidéos
+        run: |
+          python - <<'PY'
+          import subprocess
+          changed=subprocess.check_output(
+              ['git','diff','--name-only','origin/main...HEAD'],text=True).splitlines()
+          allowed={
+              '.github/workflows/world-club-popularity-ci.yml',
+              'dixon-coles/dcscore/club_registry_world.py',
+              'dixon-coles/dcscore/daily_popularity.py',
+              'dixon-coles/tests/test_club_registry_world.py',
+          }
+          unexpected=sorted(set(changed)-allowed)
+          print("WORLD_POPULARITY_CHANGED_FILES",changed)
+          if unexpected:
+              raise SystemExit("Fichiers hors sélection modifiés: "+', '.join(unexpected))
+          PY
