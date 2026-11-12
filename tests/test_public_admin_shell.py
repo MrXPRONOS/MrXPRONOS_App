@@ -11,7 +11,7 @@ BUILDER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILDER)
 ADMIN_HTML = {"admin.html", "admin-supervision.html", "admin-dashboard.html", "admin-vip.html"}
 ENTRY_JS = {"admin-real.js", "admin-shell.js", "admin-phase2.mjs", "admin-supervision.js"}
-ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css", "admin-health-v4.css"}
+ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css", "admin-health-v4.css", "admin-audit-v4.css"}
 IMPORTS = re.compile(r"(?:\bfrom\s*|\bimport\s*|\bimport\s*\(\s*)['\"](\.[^'\"]+)['\"]")
 
 class AdminPagesPublicationContract(unittest.TestCase):
@@ -379,6 +379,38 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('readCronJobs(sb,config)', cron)
         self.assertIn('detectCronDuplicateConfigs(jobs)', cron)
         self.assertIn('cron-job.org indisponible : ', cron)
+
+
+    def test_audit_v4_visuals_readonly_pagination_and_csv_contract(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-audit-v4.css").read_text(encoding="utf-8")
+        dashboard = (ROOT / "assets/js/admin-phase3.mjs").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        self.assertIn("admin-audit-v4.css?v=20261112-audit-v4", page)
+        self.assertIn("ADMIN AUDIT V4", css)
+        self.assertIn('id="tab-audit"', page)
+        for selector in (
+            "#tab-audit .mx3-audit-workbench",
+            "#tab-audit .mx3-stats",
+            "#tab-audit .mx3-audit-timeline",
+            "#tab-audit .mx3-audit-filters",
+            "#tab-audit .mx3-audit-table",
+            "#tab-audit .mx3-audit-details",
+        ):
+            self.assertIn(selector, css)
+        self.assertIn('renderAuditWorkbench(sb,$("tab-audit"))', controller)
+        self.assertIn('sb.from("audit_log").select("created_at,action,details,actor_user_id")', dashboard)
+        self.assertIn('.range(offset,offset+99)', dashboard)
+        self.assertIn('["1","Dernières 24 h"]', dashboard)
+        self.assertIn('["7","7 jours"]', dashboard)
+        self.assertIn('const escapeCsv=x=>', dashboard)
+        self.assertIn('records.map(r=>[r.created_at,r.actor_user_id,r.action,JSON.stringify(r.details||{})]', dashboard)
+        self.assertIn('const reveal=make("details","mx3-audit-details")', dashboard)
+        self.assertIn('const ts=Date.parse(row.created_at||"")', dashboard)
+        self.assertIn('const lastDay=shown.filter(', dashboard)
+        self.assertIn('setAttribute("aria-live","polite")', dashboard)
+        self.assertNotIn('sb.from("audit_log").delete(', dashboard)
+        self.assertNotIn('sb.from("audit_log").update(', dashboard)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")

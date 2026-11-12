@@ -1,0 +1,311 @@
+/* ADMIN AUDIT V4 — Mr XPRONOS. Scoped premium navy/gold presentation.
+   Read-only audit data, RLS, search, pagination and CSV safety logic stay unchanged. */
+body.admin-shell #tab-audit{
+ --mxa-gold:#f3cb82;--mxa-blue:#83c5ee;
+ max-width:1490px;min-width:0;margin-inline:auto;color:#e8f4fb
+}
+body.admin-shell #tab-audit .mx3-audit-workbench{
+ position:relative;isolation:isolate;overflow:hidden;
+ padding:clamp(18px,2.7vw,34px)!important;
+ margin:0 0 20px!important;border-radius:23px!important;
+ border:1px solid rgba(114,169,207,.47)!important;
+ background:radial-gradient(ellipse 56% 33% at 92% 0%,rgba(28,104,164,.22),transparent 88%),
+  linear-gradient(146deg,#071d31,#0a2238 56%,#061525)!important;
+ box-shadow:0 20px 55px rgba(0,8,23,.27),inset 0 1px rgba(246,254,255,.06)!important
+}
+body.admin-shell #tab-audit .mx3-audit-workbench::before{
+ content:"";z-index:-1;position:absolute;top:0;right:0;
+ width:min(66%,740px);height:235px;pointer-events:none;opacity:.17;
+ background:url("../images/admin-home-lights-reference.webp") right top/cover no-repeat;
+ mask-image:linear-gradient(90deg,transparent,#000 49%);
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 49%)
+}
+body.admin-shell #tab-audit .admin-section-heading{
+ position:relative;display:flex;align-items:flex-start;
+ justify-content:space-between;gap:16px;flex-wrap:wrap;
+ margin:0 0 16px;padding:5px 0 21px;
+ border-bottom:1px solid rgba(127,178,211,.28)
+}
+body.admin-shell #tab-audit .admin-section-heading::after{
+ content:"";position:absolute;left:0;bottom:-1px;
+ height:2px;width:185px;max-width:46%;
+ background:linear-gradient(90deg,#f5d18b,#66baeb,transparent);
+ box-shadow:0 0 12px rgba(239,194,101,.33)
+}
+body.admin-shell #tab-audit .admin-section-heading h3{
+ color:#fafcff!important;font-weight:860;letter-spacing:-.05em;
+ font-size:clamp(29px,3vw,40px);line-height:1.14;
+ margin:0!important;max-width:850px
+}
+body.admin-shell #tab-audit .admin-section-heading h3::before{
+ content:"GOUVERNANCE / TRAÇABILITÉ";display:block;
+ color:var(--mxa-gold);font-size:10px;letter-spacing:.18em;
+ font-weight:840;margin:0 0 11px;line-height:1.35
+}
+body.admin-shell #tab-audit .mx3-audit-actions{
+ display:flex;flex-wrap:wrap;justify-content:flex-end;
+ gap:10px;min-width:0;max-width:100%
+}
+body.admin-shell #tab-audit .mx3-audit-actions .btn,
+body.admin-shell #tab-audit .mx3-audit-workbench>.btn{
+ min-height:43px;display:inline-flex;align-items:center;
+ justify-content:center;gap:8px;
+ padding:11px 16px;border-radius:11px;
+ border:1px solid rgba(130,181,211,.51);
+ background:linear-gradient(125deg,#244e69,#12354e);
+ color:#dfedf8;font-size:11px;font-weight:810;
+ transition:filter .16s,border-color .16s,transform .16s
+}
+body.admin-shell #tab-audit .mx3-audit-actions .btn:nth-child(2){
+ border-color:rgba(245,205,135,.8);
+ background:linear-gradient(125deg,#ffe3a8,#cda15c);
+ color:#0b2131;box-shadow:0 8px 21px rgba(241,184,86,.13)
+}
+body.admin-shell #tab-audit .mx3-audit-actions .btn:hover:not(:disabled),
+body.admin-shell #tab-audit .mx3-audit-workbench>.btn:hover:not(:disabled){
+ transform:translateY(-1px);border-color:#f5d493;filter:brightness(1.06)
+}
+body.admin-shell #tab-audit .mx3-audit-actions .btn:disabled,
+body.admin-shell #tab-audit .mx3-audit-workbench>.btn:disabled{
+ opacity:.53;cursor:wait;transform:none
+}
+body.admin-shell #tab-audit .mx3-audit-workbench>.mx3-panel-note{
+ color:#b6cfdf;font-size:12px;line-height:1.73;
+ max-width:930px;margin:5px 0 20px
+}
+body.admin-shell #tab-audit .mx3-stats{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:13px;min-width:0;margin:17px 0 23px
+}
+body.admin-shell #tab-audit .mx3-stat{
+ position:relative;min-width:0;min-height:119px;overflow:hidden;
+ display:flex;flex-direction:column;justify-content:center;gap:10px;
+ padding:20px 21px;border:1px solid rgba(117,175,208,.41);
+ border-radius:16px;background:radial-gradient(ellipse at 98% 96%,rgba(36,117,162,.14),transparent 67%),
+  linear-gradient(137deg,#143a53,#09253c);
+ box-shadow:0 9px 23px rgba(0,7,19,.14)
+}
+body.admin-shell #tab-audit .mx3-stat::before{
+ content:"";position:absolute;top:0;left:20px;width:74px;height:2px;
+ background:linear-gradient(90deg,#f4ce85,transparent)
+}
+body.admin-shell #tab-audit .mx3-stat:nth-child(2)::before{
+ background:linear-gradient(90deg,#82c8ed,transparent)
+}
+body.admin-shell #tab-audit .mx3-stat:nth-child(3)::before{
+ background:linear-gradient(90deg,#91dfb4,transparent)
+}
+body.admin-shell #tab-audit .mx3-stat-label{
+ color:#b5ccdc;font-size:11px;font-weight:780;
+ line-height:1.4;min-height:0
+}
+body.admin-shell #tab-audit .mx3-stat-number{
+ color:#fafcff;letter-spacing:-.05em;
+ font-size:clamp(27px,3.1vw,42px);font-weight:860;
+ line-height:1;font-variant-numeric:tabular-nums
+}
+body.admin-shell #tab-audit .mx3-audit-timeline{
+ padding:19px 21px;margin:18px 0 22px;
+ border-radius:17px;border:1px solid rgba(120,175,206,.39);
+ background:radial-gradient(ellipse at 94% 0%,rgba(34,101,150,.15),transparent 67%),
+  linear-gradient(140deg,#10334d,#082238);
+ box-shadow:inset 0 1px rgba(245,252,255,.05)
+}
+body.admin-shell #tab-audit .mx3-audit-timeline .mx3-panel-note{
+ margin:0 0 19px;color:#c6ddec;
+ font-size:11px;font-weight:770;line-height:1.6
+}
+body.admin-shell #tab-audit .mx3-mini-chart{
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+ align-items:end;gap:clamp(5px,1.35vw,17px);
+ height:165px;min-width:0;overflow:hidden
+}
+body.admin-shell #tab-audit .mx3-mini-chart-group{
+ min-width:0;display:flex;flex-direction:column;
+ align-items:center;justify-content:flex-end;gap:8px;height:100%
+}
+body.admin-shell #tab-audit .mx3-mini-chart-group small{
+ color:#accbde;font-size:10px;white-space:nowrap
+}
+body.admin-shell #tab-audit .mx3-mini-chart-value{
+ color:#fce2b0;font-size:11px;font-weight:830;
+ font-variant-numeric:tabular-nums
+}
+body.admin-shell #tab-audit .mx3-mini-chart-bar{
+ width:min(100%,46px);border-radius:8px 8px 3px 3px;
+ background:linear-gradient(0deg,#ad8252,#f7db98);
+ box-shadow:0 0 14px rgba(230,173,91,.13);
+ min-height:2px
+}
+body.admin-shell #tab-audit .mx3-audit-filters{
+ display:grid;grid-template-columns:minmax(0,1.7fr) minmax(135px,.85fr) minmax(145px,.8fr);
+ align-items:center;gap:12px;
+ padding:17px;margin:0 0 15px;
+ border-radius:15px;border:1px solid rgba(112,175,209,.32);
+ background:linear-gradient(135deg,rgba(16,52,77,.94),rgba(7,29,47,.94))
+}
+body.admin-shell #tab-audit .mx3-audit-filters :is(input,select){
+ width:100%;max-width:100%;min-width:0;min-height:46px;
+ padding:11px 13px;border:1px solid rgba(115,175,207,.48);
+ border-radius:11px;background:#051e32;color:#eff7ff;
+ font-size:12px;line-height:1.45
+}
+body.admin-shell #tab-audit .mx3-audit-filters input::placeholder{color:#93b4c7;opacity:1}
+body.admin-shell #tab-audit .mx3-audit-filters :is(input,select):focus-visible{
+ outline:2px solid #f3cf8c;outline-offset:2px;border-color:#f3cf8c
+}
+body.admin-shell #tab-audit .mx3-audit-filters + [role="status"]{
+ min-height:27px;max-width:100%;margin:0 0 17px;
+ color:#afd0df;font-size:11px;line-height:1.55;
+ overflow-wrap:anywhere;font-variant-numeric:tabular-nums
+}
+body.admin-shell #tab-audit .admin-pronostics-table-scroll{
+ max-width:100%;overflow-x:auto;
+ border-radius:15px;border:1px solid rgba(113,176,208,.34);
+ background:rgba(7,27,45,.83);
+ scrollbar-width:thin;scrollbar-color:#436e89 #0b2d46
+}
+body.admin-shell #tab-audit .mx3-audit-table{
+ width:100%;min-width:680px;display:table;
+ border:0;border-collapse:separate;border-spacing:0;
+ background:transparent;margin:0!important
+}
+body.admin-shell #tab-audit .mx3-audit-table th{
+ background:linear-gradient(120deg,#113a54,#0b2d47);
+ color:#f5ce88;border-bottom:1px solid rgba(132,185,214,.31);
+ padding:15px 12px;white-space:nowrap;
+ font-size:11px;font-weight:830
+}
+body.admin-shell #tab-audit .mx3-audit-table td{
+ padding:14px 12px;color:#dcecf6;font-size:11px;
+ line-height:1.56;vertical-align:middle;
+ border-bottom:1px solid rgba(123,173,201,.18);
+ overflow-wrap:anywhere
+}
+body.admin-shell #tab-audit .mx3-audit-table td:nth-child(2){
+ max-width:240px;overflow-wrap:anywhere;color:#b4d7eb
+}
+body.admin-shell #tab-audit .mx3-audit-table tbody tr:hover{
+ background:rgba(48,115,150,.16)
+}
+body.admin-shell #tab-audit .mx3-audit-table .mx3-badge{
+ display:inline-flex;align-items:center;max-width:100%;
+ padding:6px 11px;border-radius:999px;font-size:10px;
+ line-height:1.45;font-weight:830;
+ overflow-wrap:anywhere;white-space:normal
+}
+body.admin-shell #tab-audit .mx3-audit-details{
+ display:block;max-width:100%;min-width:0;
+ padding:9px 11px;border:1px solid rgba(125,179,209,.37);
+ border-radius:11px;background:rgba(17,49,70,.73);
+ color:#d1e6f0
+}
+body.admin-shell #tab-audit .mx3-audit-details[open]{
+ border-color:rgba(236,199,129,.67);background:rgba(23,60,81,.83)
+}
+body.admin-shell #tab-audit .mx3-audit-details summary{
+ color:#ffe2ab;font-size:11px;font-weight:790;
+ cursor:pointer;line-height:1.5;white-space:normal
+}
+body.admin-shell #tab-audit .mx3-audit-details summary:focus-visible{
+ outline:2px solid #f3ce82;outline-offset:3px;border-radius:3px
+}
+body.admin-shell #tab-audit .mx3-audit-details pre{
+ display:block;max-width:min(100%,540px);max-height:310px;min-width:0;
+ margin:11px 0 0;padding:13px;
+ overflow:auto;border-radius:9px;
+ background:#061b2c;color:#e3f2f8;
+ font-size:11px;line-height:1.56;
+ white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word
+}
+body.admin-shell #tab-audit .mx3-audit-workbench>.btn{
+ display:flex;width:max-content;max-width:100%;min-height:44px;
+ margin:18px auto 0;padding-inline:19px
+}
+body.admin-shell #tab-audit .mx3-audit-workbench>.btn[hidden]{
+ display:none!important
+}
+body.admin-shell #tab-audit .mx3-audit-table .mx3-empty{
+ text-align:center;color:#b6d1e0!important;
+ background:rgba(12,39,61,.64);border:1px dashed rgba(114,170,207,.35);
+ border-radius:11px;padding:19px!important
+}
+@media(max-width:1180px){
+ body.admin-shell #tab-audit .mx3-audit-actions{justify-content:flex-start}
+ body.admin-shell #tab-audit .mx3-audit-filters{
+  grid-template-columns:minmax(0,1.5fr) minmax(125px,1fr)
+ }
+ body.admin-shell #tab-audit .mx3-audit-filters input{grid-column:1/-1}
+}
+@media(max-width:810px){
+ body.admin-shell #tab-audit .mx3-audit-workbench{padding:18px!important}
+ body.admin-shell #tab-audit .mx3-stats{gap:9px}
+ body.admin-shell #tab-audit .mx3-stat{padding:15px;min-height:106px}
+ body.admin-shell #tab-audit .mx3-audit-timeline{padding:14px}
+ body.admin-shell #tab-audit .mx3-mini-chart{height:143px;gap:6px}
+}
+@media(max-width:760px){
+ body.admin-shell #tab-audit .admin-pronostics-table-scroll{
+  border:0;background:transparent;overflow:visible
+ }
+ body.admin-shell #tab-audit .mx3-audit-table{
+  display:block!important;min-width:0;width:100%;border:0;background:transparent
+ }
+ body.admin-shell #tab-audit .mx3-audit-table thead{display:none}
+ body.admin-shell #tab-audit .mx3-audit-table tbody{
+  display:grid;gap:11px;width:100%
+ }
+ body.admin-shell #tab-audit .mx3-audit-table tbody tr{
+  display:block;min-width:0;
+  padding:9px 13px;border-radius:14px;
+  border:1px solid rgba(119,172,209,.38);
+  background:linear-gradient(135deg,#10374f,#092338)
+ }
+ body.admin-shell #tab-audit .mx3-audit-table tbody td{
+  width:100%;min-width:0;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:12px;
+  padding:11px 0;border-bottom:1px solid rgba(127,180,205,.19)!important;
+  text-align:right
+ }
+ body.admin-shell #tab-audit .mx3-audit-table tbody td:last-child{border-bottom:0!important}
+ body.admin-shell #tab-audit .mx3-audit-table tbody td::before{
+  content:attr(data-label);flex:0 0 35%;
+  color:#a9cada;text-align:left;font-weight:770;font-size:11px
+ }
+ body.admin-shell #tab-audit .mx3-audit-table tbody .mx3-empty{
+  display:block;text-align:center
+ }
+ body.admin-shell #tab-audit .mx3-audit-table tbody .mx3-empty::before{display:none}
+ body.admin-shell #tab-audit .mx3-audit-details{
+  flex:1;min-width:0;max-width:62%
+ }
+ body.admin-shell #tab-audit .mx3-audit-details pre{max-width:100%}
+}
+@media(max-width:570px){
+ body.admin-shell #tab-audit .mx3-audit-workbench{padding:14px!important}
+ body.admin-shell #tab-audit .mx3-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.admin-shell #tab-audit .mx3-stat{min-height:103px;padding:13px}
+ body.admin-shell #tab-audit .mx3-stat-number{font-size:clamp(25px,5vw,35px)}
+ body.admin-shell #tab-audit .mx3-audit-filters{
+  grid-template-columns:minmax(0,1fr);padding:12px
+ }
+ body.admin-shell #tab-audit .mx3-audit-filters input{grid-column:auto}
+ body.admin-shell #tab-audit .mx3-audit-actions{width:100%}
+ body.admin-shell #tab-audit .mx3-audit-actions .btn{flex:1 1 150px}
+ body.admin-shell #tab-audit .mx3-audit-workbench>.btn{width:100%}
+}
+@media(max-width:375px){
+ body.admin-shell #tab-audit .mx3-audit-workbench{
+  padding:11px!important;border-radius:16px!important
+ }
+ body.admin-shell #tab-audit .mx3-stat{min-height:92px;padding:10px}
+ body.admin-shell #tab-audit .mx3-stat-number{font-size:24px}
+ body.admin-shell #tab-audit .mx3-stat-label{font-size:10px}
+ body.admin-shell #tab-audit .mx3-mini-chart{gap:3px}
+ body.admin-shell #tab-audit .mx3-mini-chart-group small{font-size:9px}
+ body.admin-shell #tab-audit .mx3-audit-table tbody tr{padding:9px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.admin-shell #tab-audit .mx3-audit-actions .btn,
+ body.admin-shell #tab-audit .mx3-audit-workbench>.btn{transition:none!important;transform:none!important}
+}
