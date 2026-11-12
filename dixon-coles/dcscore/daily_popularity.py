@@ -312,6 +312,15 @@ def club_class(name: str, *, competition: str = "", competition_name: str = "") 
         return cleaned, round(value * .72) if category == "women" else value, category
     if category == "national":
         return cleaned, NATIONS.get(cleaned, 0), category
+    # Preserve meaningful literal suffixes when they uniquely identify a
+    # different club: "Barcelona SC" (Ecuador) must not become FC Barcelona
+    # when the scorer removes a generic "SC" designation.
+    literal=normalize(name)
+    if literal != cleaned:
+        exact=recognize_club(literal, competition,
+                             normalize=normalize, women=category=="women")
+        if exact is not None:
+            return exact[0], exact[1], category
     # First use the exact club identity in its own championship. Promoted and
     # relegated teams may inherit recognition within the same country. In
     # international tournaments, only aliases unique across the worldwide
