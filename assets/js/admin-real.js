@@ -1,7 +1,7 @@
 import {mountAdminHome} from "./admin-home.mjs?v=20261111-v3";
 import {initAdminFeedback,adminToast,adminConfirm,adminPrompt,adminNotice,enhanceAdminOverview,enhanceHealthDashboard,renderAuditWorkbench} from "./admin-phase3.mjs";
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
-import { mountIncidentCenter } from "./admin-incidents.mjs";
+import { mountIncidentCenter } from "./admin-incidents.mjs?v=20261112-incidents-v4";
 import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
 import { createAdminHighlightWidget,loadAdminHighlights } from "./admin-unified-highlights.mjs";
 import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
