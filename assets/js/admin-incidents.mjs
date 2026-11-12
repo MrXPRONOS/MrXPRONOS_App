@@ -14,6 +14,13 @@ export async function mountIncidentCenter(sb,root){
  const panel=document.createElement("section");panel.className="card";
  panel.innerHTML=`<div class="admin-section-heading"><h3>Centre d'incidents</h3>
   <button id="incident-refresh" class="btn btn-secondary" type="button">Actualiser</button></div>
+ <p class="incidents-v4-intro">Suivi des incidents techniques : gravité, diagnostics et résolution.</p>
+ <div class="incidents-v4-summary" role="group" aria-label="Synthèse des incidents chargés">
+  <div><strong id="incidents-v4-open">0</strong><span>Ouverts</span></div>
+  <div><strong id="incidents-v4-ack">0</strong><span>Pris en charge</span></div>
+  <div><strong id="incidents-v4-resolved">0</strong><span>Résolus</span></div>
+  <div><strong id="incidents-v4-escalated">0</strong><span>Escaladés</span></div>
+ </div>
  <div class="admin-filter-row">
   <div><label for="incident-source">Service</label><select id="incident-source">
    <option value="pronostics">Pronostics</option><option value="telegram">Telegram</option>
@@ -33,7 +40,14 @@ export async function mountIncidentCenter(sb,root){
  <p id="incident-advice" class="muted"></p>
  <button type="button" id="incident-create" class="btn btn-primary">Créer un incident</button>
  <p id="incident-status" class="muted" role="status" aria-live="polite"></p>
- <div class="admin-pronostics-table-scroll"><table id="incident-table">
+ <div class="incidents-v4-toolbar" role="group" aria-label="Filtres des incidents">
+  <div><label for="incidents-v4-search">Rechercher</label><input type="search" id="incidents-v4-search" placeholder="Service ou description" autocomplete="off"></div>
+  <div><label for="incidents-v4-severity">Gravité affichée</label><select id="incidents-v4-severity">
+   <option value="all">Toutes les gravités</option><option value="low">Faible</option>
+   <option value="medium">Modérée</option><option value="high">Élevée</option></select></div>
+  <p id="incidents-v4-count" role="status" aria-live="polite"></p>
+ </div>
+ <div class="admin-pronostics-table-scroll incidents-v4-scroll"><table id="incident-table" class="incidents-v4-table">
  <thead><tr><th>Service</th><th>Incident</th><th>État</th><th>Créé</th><th>Action</th></tr></thead>
  <tbody></tbody></table></div>
  <button id="incident-more" type="button" class="btn btn-secondary" hidden>Charger les incidents suivants</button>`;
@@ -66,12 +80,31 @@ export async function mountIncidentCenter(sb,root){
  const render=()=>{
   const tbody=$("incident-table").querySelector("tbody");tbody.replaceChildren();
   const filter=$("incident-filter").value;
-  for(const row of rows.filter(x=>filter==="all"||x.status===filter)){
+  const severity=$("incidents-v4-severity").value;
+  const query=$("incidents-v4-search").value.trim().toLocaleLowerCase("fr");
+  for(const [id,state] of [["incidents-v4-open","open"],["incidents-v4-ack","acknowledged"],["incidents-v4-resolved","resolved"]])
+   $(id).textContent=String(rows.filter(x=>x.status===state).length);
+  $("incidents-v4-escalated").textContent=String(rows.filter(x=>Number(x.escalation_level)>0).length);
+  const visible=rows.filter(x=>(filter==="all"||x.status===filter)&&
+   (severity==="all"||x.severity===severity)&&
+   (!query||[x.source,x.summary,statusNames[x.status]].filter(Boolean).join(" ").toLocaleLowerCase("fr").includes(query)));
+  $("incidents-v4-count").textContent=visible.length+" / "+rows.length+
+    " incident(s) affiché(s) parmi ceux chargés.";
+  for(const row of visible){
    const tr=document.createElement("tr");
-   for(const content of [row.source,row.summary,
+   tr.dataset.incidentState=row.status||"open";
+   for(const [index,content] of [row.source,row.summary,
      (statusNames[row.status]||row.status)+(row.escalation_level>0?" · Escaladé":""),
-     row.created_at?new Date(row.created_at).toLocaleString("fr-FR"):"—"]){
-    const td=document.createElement("td");td.textContent=String(content);tr.append(td);
+     row.created_at?new Date(row.created_at).toLocaleString("fr-FR"):"—"].entries()){
+    const td=document.createElement("td");td.textContent=String(content);
+    td.dataset.label=["Service","Incident","État","Créé"][index];
+    if(index===1){
+     const badge=document.createElement("span");badge.className="incidents-v4-severity";
+     badge.dataset.severity=row.severity||"medium";
+     badge.textContent=({low:"Faible",medium:"Modérée",high:"Élevée"})[row.severity]||"Non précisée";
+     td.append(badge);
+    }
+    tr.append(td);
    }
    if(row.detail?.action){
     const details=document.createElement("details");
@@ -83,7 +116,7 @@ export async function mountIncidentCenter(sb,root){
     details.append(summary,advice,observed);
     tr.children[1].append(details);
    }
-   const action=document.createElement("td");
+   const action=document.createElement("td");action.dataset.label="Action";
    if(row.status!=="resolved"){
     const next=row.status==="open"?"acknowledged":"resolved";
     const button=document.createElement("button");button.className="btn btn-secondary";button.type="button";
@@ -104,6 +137,12 @@ export async function mountIncidentCenter(sb,root){
    }
    tr.append(action);tbody.append(tr);
   }
+  if(!visible.length){
+   const tr=document.createElement("tr");tr.className="incidents-v4-empty";
+   const td=document.createElement("td");td.colSpan=5;
+   td.textContent="Aucun incident ne correspond aux filtres sélectionnés.";
+   tr.append(td);tbody.append(tr);
+  }
  };
  $("incident-create").addEventListener("click",async()=>{
   const source=$("incident-source").value,summary=$("incident-summary").value.trim();
@@ -122,5 +161,7 @@ export async function mountIncidentCenter(sb,root){
  $("incident-refresh").addEventListener("click",()=>void load(true));
  $("incident-more").addEventListener("click",()=>void load(false));
  $("incident-filter").addEventListener("change",render);
+ $("incidents-v4-search").addEventListener("input",render);
+ $("incidents-v4-severity").addEventListener("change",render);
  await load(true);
 }

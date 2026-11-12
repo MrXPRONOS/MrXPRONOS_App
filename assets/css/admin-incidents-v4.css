@@ -1,0 +1,54 @@
+/* ADMIN INCIDENTS V4 — Mr XPRONOS. Présentation uniquement ; RLS et opérations inchangées. */
+body.admin-shell #tab-incidents{--inc-gold:#f2cb80;max-width:1480px;min-width:0;margin:auto}
+body.admin-shell #tab-incidents>.card{position:relative;isolation:isolate;overflow:hidden;padding:clamp(18px,2.8vw,34px)!important;border:1px solid rgba(115,176,214,.49)!important;border-radius:22px!important;background:radial-gradient(ellipse at 90% 0%,rgba(26,107,168,.23),transparent 56%),linear-gradient(144deg,#071d30,#092036 58%,#061626)!important;box-shadow:0 20px 56px rgba(0,9,23,.26)!important}
+body.admin-shell #tab-incidents>.card::before{content:"";position:absolute;z-index:-1;right:0;top:0;width:min(64%,690px);height:230px;pointer-events:none;background:url("../images/admin-home-lights-reference.webp") right top/cover no-repeat;opacity:.17;mask-image:linear-gradient(90deg,transparent,#000 48%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 48%)}
+body.admin-shell #tab-incidents .admin-section-heading{position:relative;margin:0 0 12px;padding:6px 0 20px;border-bottom:1px solid rgba(116,173,209,.31)}
+body.admin-shell #tab-incidents .admin-section-heading:after{content:"";position:absolute;bottom:-1px;left:0;height:2px;width:170px;background:linear-gradient(90deg,#f3cc85,#5bb6e6,transparent)}
+body.admin-shell #tab-incidents .admin-section-heading h3{margin:0!important;color:#f8faff!important;font-size:clamp(26px,3vw,38px);font-weight:850;letter-spacing:-.05em}
+body.admin-shell #tab-incidents .admin-section-heading h3:before{content:"SURVEILLANCE / PRODUCTION";display:block;margin:0 0 12px;color:var(--inc-gold);font-size:10px;font-weight:830;letter-spacing:.18em}
+body.admin-shell #tab-incidents .incidents-v4-intro{color:#b6d1e0;font-size:12px;line-height:1.65;margin:0 0 20px}
+body.admin-shell #tab-incidents .incidents-v4-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0 23px}
+body.admin-shell #tab-incidents .incidents-v4-summary>div{position:relative;overflow:hidden;min-height:112px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:9px;padding:18px;border:1px solid rgba(117,175,207,.4);border-radius:16px;background:linear-gradient(140deg,#12364e,#08243b);box-shadow:0 9px 22px rgba(0,7,21,.15)}
+body.admin-shell #tab-incidents .incidents-v4-summary>div:before{content:"";position:absolute;top:0;left:18px;width:73px;height:2px;background:linear-gradient(90deg,#f4c981,transparent)}
+body.admin-shell #tab-incidents .incidents-v4-summary>div:nth-child(2):before{background:linear-gradient(90deg,#8cd0f7,transparent)}
+body.admin-shell #tab-incidents .incidents-v4-summary>div:nth-child(3):before{background:linear-gradient(90deg,#8de1b3,transparent)}
+body.admin-shell #tab-incidents .incidents-v4-summary>div:nth-child(4):before{background:linear-gradient(90deg,#ffb49e,transparent)}
+body.admin-shell #tab-incidents .incidents-v4-summary strong{color:#fff;font-size:clamp(26px,3vw,41px);font-weight:850;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums}
+body.admin-shell #tab-incidents .incidents-v4-summary span{color:#b5cedf;font-size:11px;font-weight:760}
+body.admin-shell #tab-incidents .admin-filter-row,body.admin-shell #tab-incidents .incidents-v4-toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px;margin:0 0 16px;border:1px solid rgba(114,169,202,.32);border-radius:15px;background:linear-gradient(120deg,rgba(16,52,75,.9),rgba(6,30,49,.92));align-items:end}
+body.admin-shell #tab-incidents .admin-filter-row>div,body.admin-shell #tab-incidents .incidents-v4-toolbar>div{min-width:0;grid-column:auto}
+body.admin-shell #tab-incidents label{display:block;color:#c9ddea;font-weight:775;font-size:11px;margin:11px 0 8px}
+body.admin-shell #tab-incidents .admin-filter-row label,body.admin-shell #tab-incidents .incidents-v4-toolbar label{margin:0 0 8px}
+body.admin-shell #tab-incidents :is(input,select){width:100%;min-width:0;max-width:100%;min-height:45px;padding:10px 12px;border:1px solid rgba(117,175,211,.44);border-radius:11px;background:#061e31;color:#f4f9ff;font-size:12px}
+body.admin-shell #tab-incidents :is(input,select):focus-visible{outline:2px solid #f4d28f;outline-offset:2px;border-color:#f4d28f}
+body.admin-shell #tab-incidents input::placeholder{color:#8faabd;opacity:1}
+body.admin-shell #tab-incidents #incident-summary{margin-bottom:12px}
+body.admin-shell #tab-incidents #incident-advice{padding:12px 14px;background:rgba(14,55,78,.45);border:1px solid rgba(125,178,205,.28);border-radius:11px;color:#bad6e6;font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+body.admin-shell #tab-incidents #incident-create{min-height:45px;padding:11px 18px;border:1px solid #f3cb84;border-radius:11px;background:linear-gradient(125deg,#ffe7b4,#d3a25e);color:#092335;font-size:12px;font-weight:830}
+body.admin-shell #tab-incidents #incident-create:disabled{opacity:.55;cursor:wait}
+body.admin-shell #tab-incidents #incident-refresh,body.admin-shell #tab-incidents #incident-more{min-height:42px;padding:10px 15px;border:1px solid rgba(135,187,214,.49);border-radius:11px;background:linear-gradient(125deg,#224b64,#14384f);color:#deeffa;font-size:11px;font-weight:790}
+body.admin-shell #tab-incidents #incident-status{display:block;min-height:29px;color:#add3e8;font-size:11px;line-height:1.65;overflow-wrap:anywhere;margin:12px 0 18px}
+body.admin-shell #tab-incidents .incidents-v4-toolbar{grid-template-columns:minmax(0,1.4fr) minmax(180px,.8fr)}
+body.admin-shell #tab-incidents #incidents-v4-count{grid-column:1/-1;margin:0;font-size:11px;color:#afd0e0}
+body.admin-shell #tab-incidents .incidents-v4-scroll{border:1px solid rgba(116,169,206,.33);border-radius:14px;max-width:100%;overflow-x:auto;background:rgba(7,28,48,.85)}
+body.admin-shell #tab-incidents #incident-table{display:table;min-width:720px;width:100%;border:0;border-collapse:separate;border-spacing:0;background:transparent;margin:0!important}
+body.admin-shell #tab-incidents #incident-table th{background:linear-gradient(100deg,#113a53,#092940);color:#f2d08f;font-size:11px;padding:14px 12px;font-weight:830;white-space:nowrap}
+body.admin-shell #tab-incidents #incident-table td{font-size:11px;padding:14px 12px;color:#dbeaf4;border-bottom:1px solid rgba(111,169,207,.17);overflow-wrap:anywhere;line-height:1.6}
+body.admin-shell #tab-incidents #incident-table tr[data-incident-state="open"] td:nth-child(3){color:#f5d398;font-weight:775}
+body.admin-shell #tab-incidents #incident-table tr[data-incident-state="acknowledged"] td:nth-child(3){color:#ade0fc;font-weight:775}
+body.admin-shell #tab-incidents #incident-table tr[data-incident-state="resolved"] td:nth-child(3){color:#a8eccb;font-weight:775}
+body.admin-shell #tab-incidents .incidents-v4-severity{display:table;padding:5px 9px;margin-top:7px;border:1px solid rgba(119,184,212,.38);border-radius:999px;background:rgba(24,69,94,.43);color:#c8e5f1;font-size:10px;font-weight:780}
+body.admin-shell #tab-incidents .incidents-v4-severity[data-severity="high"]{color:#ffbdb0;border-color:rgba(244,141,125,.45);background:rgba(108,43,43,.37)}
+body.admin-shell #tab-incidents .incidents-v4-severity[data-severity="low"]{color:#abeacb;border-color:rgba(106,208,154,.4);background:rgba(35,97,67,.34)}
+body.admin-shell #tab-incidents #incident-table details{margin-top:9px;padding:8px 10px;border-radius:9px;border:1px solid rgba(120,177,208,.34);background:rgba(11,45,67,.47)}
+body.admin-shell #tab-incidents #incident-table summary{cursor:pointer;color:#ffdfa3;font-size:11px;font-weight:775}
+body.admin-shell #tab-incidents #incident-table details p{color:#cde4f1;font-size:11px;line-height:1.6}
+body.admin-shell #tab-incidents #incident-table button{min-height:38px;padding:9px 13px;border:1px solid rgba(126,180,212,.47);border-radius:10px;background:linear-gradient(125deg,#234a65,#10344e);color:#e1eef8;font-size:11px;font-weight:785;white-space:normal}
+body.admin-shell #tab-incidents #incident-table button:disabled{opacity:.5;cursor:wait}
+body.admin-shell #tab-incidents #incident-more{display:block;margin:16px auto 0}
+body.admin-shell #tab-incidents #incident-more[hidden]{display:none!important}
+body.admin-shell #tab-incidents .incidents-v4-empty td{text-align:center;padding:24px!important;color:#aec9db!important}
+@media(max-width:1050px){body.admin-shell #tab-incidents .incidents-v4-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){body.admin-shell #tab-incidents>.card{padding:16px!important}body.admin-shell #tab-incidents .incidents-v4-scroll{overflow:visible;border:0;background:transparent}body.admin-shell #tab-incidents #incident-table{display:block!important;min-width:0}body.admin-shell #tab-incidents #incident-table tbody{display:grid;gap:11px;width:100%}body.admin-shell #tab-incidents #incident-table tbody tr:not(.incidents-v4-empty){display:block;padding:9px 13px;border:1px solid rgba(107,168,205,.4);border-radius:14px;background:linear-gradient(130deg,#11374f,#071f34)}body.admin-shell #tab-incidents #incident-table tbody td{display:flex;justify-content:space-between;align-items:flex-start;gap:11px;width:100%;text-align:right;padding:11px 0;border-bottom:1px solid rgba(117,169,204,.19)!important}body.admin-shell #tab-incidents #incident-table tbody td:last-child{border-bottom:0!important}body.admin-shell #tab-incidents #incident-table tbody td:before{content:attr(data-label);flex:0 0 36%;text-align:left;color:#a8c9d9;font-weight:775}body.admin-shell #tab-incidents #incident-table .incidents-v4-empty td{display:block}body.admin-shell #tab-incidents #incident-table .incidents-v4-empty td:before{display:none}}
+@media(max-width:620px){body.admin-shell #tab-incidents>.card{padding:13px!important}body.admin-shell #tab-incidents .admin-filter-row,body.admin-shell #tab-incidents .incidents-v4-toolbar{grid-template-columns:1fr!important;padding:12px}body.admin-shell #tab-incidents .admin-filter-row>div,body.admin-shell #tab-incidents .incidents-v4-toolbar>div{grid-column:auto!important}body.admin-shell #tab-incidents #incidents-v4-count{grid-column:auto}body.admin-shell #tab-incidents #incident-create,body.admin-shell #tab-incidents #incident-refresh{width:100%}}
+@media(max-width:380px){body.admin-shell #tab-incidents>.card{padding:11px!important;border-radius:16px!important}body.admin-shell #tab-incidents .incidents-v4-summary{gap:8px}body.admin-shell #tab-incidents .incidents-v4-summary>div{min-height:97px;padding:12px 10px}body.admin-shell #tab-incidents .incidents-v4-summary strong{font-size:25px}}
