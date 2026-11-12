@@ -235,7 +235,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         library = (ROOT / "assets/js/cms-media-library.mjs").read_text(encoding="utf-8")
         self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
-        self.assertIn("admin-real.js?v=20261111-media-v4", page)
+        self.assertRegex(page, r'admin-real\.js\?v=[^"]+')
         self.assertIn("ADMIN MEDIATHEQUE V4", css)
         for selector in (
             "#tab-media > .card",
@@ -262,7 +262,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         enhancer = (ROOT / "assets/js/admin-phase2.mjs").read_text(encoding="utf-8")
-        self.assertIn("admin-phase2.css?v=20261111-infos-v4", page)
+        self.assertRegex(page, r'admin-phase2\.css\?v=[^"]+')
         self.assertIn("admin-phase2.mjs?v=20261111-infos-v4", page)
         self.assertIn("ADMIN INFOS V4", css)
         for selector in (
@@ -289,6 +289,36 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('else if(name==="infos")enhanceCms(root,"i");', enhancer)
         self.assertIn('const preview=elt("aside","mx2-editor-preview")', enhancer)
         self.assertIn('renderSafeCmsMarkdown', enhancer)
+
+
+    def test_users_v4_visuals_and_role_permissions(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-phase2.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        users = (ROOT / "assets/js/admin-users.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-phase2.css?v=20261111-users-v4", page)
+        self.assertIn("admin-real.js?v=20261111-users-v4", page)
+        self.assertIn("ADMIN UTILISATEURS V4", css)
+        for selector in (
+            "#tab-users .users-v4-summary", "#tab-users .users-v4-toolbar",
+            "#tab-users #role-table", "#tab-users #role-save",
+        ):
+            self.assertIn(selector, css)
+        for control in (
+            "role-user-id", "role-kind", "role-active", "role-save", "role-table",
+            "users-v4-search", "users-v4-role", "users-v4-state",
+            "users-v4-total", "users-v4-active", "users-v4-disabled", "users-v4-counter",
+        ):
+            self.assertIn('id="' + control + '"', users)
+        self.assertIn('import { mountAdminUsers } from "./admin-users.mjs?v=20261111-users-v4";', controller)
+        self.assertIn('users:"users"', controller)
+        self.assertIn('if(uid===self&&(!active||role!=="owner"))', users)
+        self.assertIn('if(!await adminConfirm("Confirmer le rôle ', users)
+        self.assertIn('sb.from("admin_users").upsert({', users)
+        self.assertIn('sb.from("audit_log").insert({', users)
+        self.assertIn('.limit(250)', users)
+        self.assertIn('tr.dataset.userRole=row.access_role||"viewer"', users)
+        self.assertIn('row.hidden=!visible;', users)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")

@@ -5,7 +5,7 @@ import { mountIncidentCenter } from "./admin-incidents.mjs";
 import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
 import { createAdminHighlightWidget,loadAdminHighlights } from "./admin-unified-highlights.mjs";
 import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
-import { mountAdminUsers } from "./admin-users.mjs";
+import { mountAdminUsers } from "./admin-users.mjs?v=20261111-users-v4";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsServerSearch } from "./cms-server-search.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
