@@ -1,0 +1,26 @@
+name: Six Model Consensus Future Predictor Tests
+on:
+  push:
+    branches: [research/exact-score-backtest-2026]
+    paths:
+      - 'research/predict_consensus.py'
+      - 'research/test_consensus_pipeline.py'
+      - '.github/workflows/exact-score-consensus-predictor-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-six-engine-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline model dependencies
+        run: python -m pip install numpy scipy scikit-learn
+      - name: Unit-test consensus selection and abstention
+        run: python research/predict_consensus.py --self-test-only
+      - name: Test all 6 engines and no same-day/future leakage
+        run: PYTHONPATH=research python research/test_consensus_pipeline.py

@@ -1,0 +1,29 @@
+name: Research Diagnose SportData Oct20 Football Filters
+on:
+  push:
+    branches: [research/exact-score-backtest-2026]
+    paths:
+      - 'research/probe_oct20_sports.py'
+      - '.github/workflows/diagnose-oct20-sports.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests
+      - name: Sample SportData game identity and sport metadata
+        env:
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+        run: PYTHONPATH=. python research/probe_oct20_sports.py
