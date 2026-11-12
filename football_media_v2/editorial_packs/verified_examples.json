@@ -1,0 +1,97 @@
+{
+  "_notice": "Dossier d'exemple historique vérifié manuellement depuis FIFA.com. Données factuelles uniquement, jamais le droit de réutiliser les images/vidéos FIFA. Non prévu pour une publication autonome.",
+  "stories": [
+    {
+      "id": "fifa-world-cup-2022-final-argentina-france",
+      "format": "story",
+      "angle": "hat_trick_no_title",
+      "reviewed": true,
+      "event_date": "2022-12-18",
+      "subject": "Argentine – France",
+      "competition": "Finale de la Coupe du monde 2022",
+      "licensed_media_count": 0,
+      "facts": [
+        {
+          "id": "halftime",
+          "value": "L'Argentine menait la France 2-0 à la mi-temps.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "goal80",
+          "value": "Kylian Mbappé a marqué sur penalty à la 80e minute.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "goal81",
+          "value": "Kylian Mbappé a égalisé à la 81e minute.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "goal108",
+          "value": "Lionel Messi a marqué à la 108e minute.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "goal118",
+          "value": "Kylian Mbappé a égalisé à la 118e minute sur penalty.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "finalscore",
+          "value": "Score 3-3 après prolongation.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "penalties",
+          "value": "L'Argentine a remporté les tirs au but 4-2.",
+          "source_url": "https://www.fifa.com/fr/tournaments/mens/worldcup/articles/argentine-france-messi-mbappe-qatar-2022"
+        },
+        {
+          "id": "hat_trick",
+          "value": "Kylian Mbappé a inscrit un triplé en finale sans remporter la Coupe du monde.",
+          "source_url": "https://www.fifa.com/fr/member-associations/france/articles/resume-argentine-france-finale-championne-du-monde-coupe-du-monde-qatar-2022"
+        }
+      ],
+      "script_data": {
+        "template": "comeback_final",
+        "half_time_leader": "Argentine",
+        "half_time_score": "2-0",
+        "winner": "Argentine",
+        "penalty_score": "4-2",
+        "final_score": "3-3",
+        "goals": [
+          {
+            "minute": 80,
+            "player": "Kylian Mbappé",
+            "side": "France",
+            "fact_id": "goal80"
+          },
+          {
+            "minute": 81,
+            "player": "Kylian Mbappé",
+            "side": "France",
+            "fact_id": "goal81"
+          },
+          {
+            "minute": 108,
+            "player": "Lionel Messi",
+            "side": "Argentine",
+            "fact_id": "goal108"
+          },
+          {
+            "minute": 118,
+            "player": "Kylian Mbappé",
+            "side": "France",
+            "fact_id": "goal118"
+          }
+        ],
+        "focus_player": "Kylian Mbappé",
+        "first_penalty": true,
+        "team_speech": {
+          "Argentine": "l'Argentine",
+          "France": "la France"
+        }
+      }
+    }
+  ]
+}
