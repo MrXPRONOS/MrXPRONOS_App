@@ -342,12 +342,15 @@ class TestV3(unittest.TestCase):
         self.assertEqual(choices["over25_priority_shadow"],["OVER_25"])
 
 
-    def test_btts_no_keeps_high_confidence_floor(self):
+    def test_btts_no_experimental_75_70_floors(self):
         quality={"level":"full","league_games":90,"recent_games":12,"venue_games":6}
-        row={"key":"BTTS_NO","family":"btts","probability":.79,
-             "conservative_probability":.775}
+        row={"key":"BTTS_NO","family":"btts","probability":.75,
+             "conservative_probability":.70}
         self.assertTrue(public_candidate(row,quality))
-        row["conservative_probability"]=.7749
+        row["conservative_probability"]=.6999
+        self.assertFalse(public_candidate(row,quality))
+        row["conservative_probability"]=.70
+        row["probability"]=.7499
         self.assertFalse(public_candidate(row,quality))
 
     def test_high_confidence_btts_no_is_preferred_and_dedicated(self):
