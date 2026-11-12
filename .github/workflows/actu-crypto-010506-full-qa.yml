@@ -1,0 +1,125 @@
+name: Actu Crypto - 01 05 06 complete visual correction QA
+
+on:
+  push:
+    branches: [fix/crypto-poster-01-05-06-full-audit]
+    paths:
+      - 'crypto/test_channel_premium.py'
+      - 'crypto/qa_poster_010506_fixture.py'
+      - 'crypto/test_poster_010506_v3.py'
+      - 'crypto/production_seed_v1.py'
+      - 'scripts/render_crypto_market_v2.mjs'
+      - 'scripts/render_crypto_fear_v2.mjs'
+      - 'scripts/render_crypto_dominance_v2.mjs'
+      - '.github/workflows/actu-crypto-010506-full-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-premium-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install graphics and API dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Regression tests and renderer compilation, no Telegram
+        run: |
+          python -m compileall -q crypto
+          python -m unittest crypto.test_poster_010506_v3 crypto.test_fear_v2 crypto.test_dominance_v2 -v
+          node --check scripts/render_crypto_market_v2.mjs
+          node --check scripts/render_crypto_fear_v2.mjs
+          node --check scripts/render_crypto_dominance_v2.mjs
+          node scripts/test_crypto_poster_format.mjs
+      - name: Create visibly fictional #01 and native #05/#06 demo datasets
+        run: |
+          python -m crypto.qa_poster_010506_fixture
+          python -m crypto.export_fear_v2 --demo
+          python -m crypto.export_dominance_v2 --demo
+      - name: Render three premium QA posters
+        run: |
+          node scripts/render_crypto_market_v2.mjs
+          mv crypto/generated/test/prices_v2.png crypto/generated/test/prices_v2_QA.png
+          node scripts/render_crypto_fear_v2.mjs --demo
+          node scripts/render_crypto_dominance_v2.mjs --demo
+      - name: Verify three QA PNGs and source evidence
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          import json
+          from pathlib import Path
+          root=Path("crypto/generated/test")
+          for f in ("prices_v2_QA.png","fear_v2_demo.png","dominance_v2_demo.png"):
+            path=root/f
+            assert path.exists() and path.stat().st_size>10000, (f,"missing")
+            with Image.open(path) as im:
+              assert im.format=="PNG" and im.size==(1080,1350), (f,im.size)
+              im.verify()
+            print("PREMIUM_010506_QA_VERIFIED",f,path.stat().st_size)
+          data=json.loads((root/"market_design_data.json").read_text())
+          assert data["provider"]=="QA_SIMULATION"
+          assert len(data["rows"])==5
+          assert all(r["sparkline_source"] in ("Coinbase","CryptoCompare") for r in data["rows"])
+          assert all(len(r["sparkline"])==49 for r in data["rows"])
+          assert all(r["change"]>0 for r in data["rows"])
+          assert any(r["sparkline"][-1]<r["sparkline"][0] for r in data["rows"])
+          print("PREMIUM_01_TEST_48H_VERSUS_24H_DISCREPANCY_EXPLAINED")
+          PY
+      - name: Attempt read-only live price data #01
+        id: actual
+        continue-on-error: true
+        run: |
+          python -m crypto.test_channel_premium --export-design-json
+          node scripts/render_crypto_market_v2.mjs
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          p=Path("crypto/generated/test/prices_v2.png")
+          with Image.open(p) as im: assert im.size==(1080,1350)
+          assert p.stat().st_size>10000
+          print("PREMIUM_01_REAL_CURRENT_DATA_VERIFIED",p.stat().st_size)
+          PY
+      - name: Attempt read-only live Fear and Dominance #05/#06
+        continue-on-error: true
+        run: |
+          python -m crypto.export_fear_v2
+          node scripts/render_crypto_fear_v2.mjs
+          python -m crypto.export_dominance_v2
+          node scripts/render_crypto_dominance_v2.mjs
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          for name in ("fear_v2.png","dominance_v2.png"):
+            p=Path("crypto/generated/test")/name
+            assert p.stat().st_size>10000
+            with Image.open(p) as im: assert im.size==(1080,1350)
+            print("PREMIUM_REAL_CURRENT_DATA_VERIFIED",name)
+          PY
+      - name: Archive original JSON and six image proofs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-010506-corrections-qa-and-live-no-telegram
+          path: |
+            crypto/generated/test/market_design_data.json
+            crypto/generated/test/prices_v2_QA.png
+            crypto/generated/test/prices_v2.png
+            crypto/generated/test/fear_v2_demo.png
+            crypto/generated/test/fear_v2.png
+            crypto/generated/test/dominance_v2_demo.png
+            crypto/generated/test/dominance_v2.png
+            crypto/generated/test/fear_v2_data.json
+            crypto/generated/test/dominance_v2_data.json
+          retention-days: 21
+          if-no-files-found: warn

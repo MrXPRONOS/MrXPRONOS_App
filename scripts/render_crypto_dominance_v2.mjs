@@ -19,7 +19,10 @@ validateGlobalUsd(d.market_cap_usd,d.volume_24h_usd);
 const stamp=new Date(d.source_updated_at || d.collected_at);
 if(Number.isNaN(stamp.getTime())) throw Error('Date invalide');
 const when=stamp.toLocaleString('fr-FR',{timeZone:'UTC',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-const stampLabel=d.source_updated_at?'MESURÉ LE':'CONSULTÉ LE';
+const stampLabel=d.source_updated_at?'DERNIÈRE MESURE FOURNIE :':'COLLECTÉ LE :';
+const measurementNote=d.source_updated_at?
+ 'Heure de mesure fournie par '+d.provider+' · Données indicatives':
+ 'Heure exacte de mesure non précisée par '+d.provider+' · Données indicatives';
 const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const btc=d.btc_dominance_pct;
 const change=d.market_cap_change_24h_pct;
@@ -55,13 +58,13 @@ body{color:#f7faff;font-family:Arial,Helvetica,sans-serif;background:radial-grad
 .donut{position:absolute;left:19px;top:59px;width:445px;height:425px;filter:drop-shadow(0 13px 11px #0008)}
 .panel{position:absolute;left:484px;top:112px;right:30px}
 .panel-title{font-size:16px;font-weight:800;letter-spacing:1.5px;color:#b5cde4}
-.panel-lead{margin-top:12px;font-size:36px;line-height:1.14;font-weight:900}
+.panel-lead{margin-top:12px;font-size:32px;line-height:1.16;font-weight:900}
 .panel-lead span{color:#f3c780}
 .rule{height:1px;background:#486a8b;margin:24px 0}
 .legend{display:flex;align-items:center;gap:15px;color:#e5eefb;font-size:22px;margin-top:18px;font-weight:700}
 .dot{width:14px;height:14px;flex:none;border-radius:50%;box-shadow:0 0 15px #F4CB8855}
 .percent{margin-left:auto;font-size:23px;font-weight:900}
-.source-line{position:absolute;bottom:20px;right:31px;font-size:15px;color:#b2c9e0}
+.source-line{position:absolute;bottom:20px;right:31px;font-size:14px;color:#c3d8e9}
 .metrics{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:22px}
 .metric{height:174px;padding:24px 27px;border-radius:24px;background:linear-gradient(145deg,#193d62dc,#0b1d38);border:1px solid #3c678d;box-shadow:0 12px 22px #0005,inset 0 1px #ffffff1b}
 .metric-label{font-size:17px;letter-spacing:1.2px;color:#b7cce3;font-weight:900}
@@ -75,7 +78,7 @@ body{color:#f7faff;font-family:Arial,Helvetica,sans-serif;background:radial-grad
 <h1 class="title">LE POIDS DU <em>BITCOIN</em><br/>SUR LE MARCHÉ CRYPTO</h1>
 <div class="subtitle">Dominance BTC &amp; capitalisation globale • Rapport #06</div>
 <section class="hero"><div class="hero-label">RÉPARTITION DE LA CAPITALISATION MONDIALE</div>${svg}
-<div class="panel"><div class="panel-title">LE BITCOIN REPRÉSENTE</div><div class="panel-lead"><span>${num(btc,1)} %</span> DE LA<br/>VALEUR DU<br/>MARCHÉ</div><div class="rule"></div>
+<div class="panel"><div class="panel-title">LECTURE DE LA DOMINANCE</div><div class="panel-lead">PART DU BITCOIN<br/>DANS LE MARCHÉ<br/>MONDIAL</div><div class="rule"></div>
 <div class="legend"><i class="dot" style="background:#f2c27d"></i> Bitcoin <b class="percent">${num(btc,1)} %</b></div>
 <div class="legend"><i class="dot" style="background:#406a92"></i> Autres cryptos <b class="percent">${num(d.other_dominance_pct,1)} %</b></div></div>
 <div class="source-line">${stampLabel} ${esc(when)} UTC</div></section>
@@ -85,7 +88,7 @@ body{color:#f7faff;font-family:Arial,Helvetica,sans-serif;background:radial-grad
 <div class="metric"><div class="metric-label">VOLUME TOTAL SUR 24 H</div><div class="metric-value">${esc(big(d.volume_24h_usd))}</div><div class="metric-note">Échanges estimés en dollars US</div></div>
 <div class="metric"><div class="metric-label">CRYPTOMONNAIES SUIVIES</div><div class="metric-value">${num(d.cryptocurrencies_number,0)}</div><div class="metric-note">Couverture de ${esc(d.provider)}</div></div></section>
 <div class="footer"><span>Source : <b>${esc(d.provider)}</b></span><span>DOMINANCE BTC • RAPPORT QUOTIDIEN</span></div>
-<div class="caution">Données indicatives selon la couverture du fournisseur • Pas un conseil en investissement.</div>
+<div class="caution">${esc(measurementNote)} • Pas un conseil en investissement.</div>
 ${demo?'<div class="demo">SIMULATION — DONNÉES FICTIVES • NON PUBLIABLE</div>':''}
 </main></body></html>`;
 
