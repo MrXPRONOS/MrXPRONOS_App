@@ -76,7 +76,10 @@ def _indexes(normalize):
                         raise ValueError(f"Conflicting club alias {code}: {name}")
                     local[code][name]=(canonical,score)
                     entry=(canonical,score,code)
-                    all_names.setdefault(name,set()).add(entry)
+                    if gender=="senior":
+                        # Do not classify Arsenal's senior Champions League
+                        # fixture using Arsenal Women's editorial club row.
+                        all_names.setdefault(name,set()).add(entry)
                     countries.setdefault((gender,code.split(".",1)[0],name),set()).add(entry)
                     if gender=="women":
                         women_names.setdefault(name,set()).add(entry)
