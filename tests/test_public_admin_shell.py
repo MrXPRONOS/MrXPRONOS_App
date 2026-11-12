@@ -11,7 +11,7 @@ BUILDER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILDER)
 ADMIN_HTML = {"admin.html", "admin-supervision.html", "admin-dashboard.html", "admin-vip.html"}
 ENTRY_JS = {"admin-real.js", "admin-shell.js", "admin-phase2.mjs", "admin-supervision.js"}
-ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css"}
+ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css"}
 IMPORTS = re.compile(r"(?:\bfrom\s*|\bimport\s*|\bimport\s*\(\s*)['\"](\.[^'\"]+)['\"]")
 
 class AdminPagesPublicationContract(unittest.TestCase):
@@ -297,7 +297,7 @@ class AdminPagesPublicationContract(unittest.TestCase):
         controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
         users = (ROOT / "assets/js/admin-users.mjs").read_text(encoding="utf-8")
         self.assertIn("admin-phase2.css?v=20261111-users-v4", page)
-        self.assertIn("admin-real.js?v=20261111-users-v4", page)
+        self.assertRegex(page, r'admin-real\.js\?v=[^"]+')
         self.assertIn("ADMIN UTILISATEURS V4", css)
         for selector in (
             "#tab-users .users-v4-summary", "#tab-users .users-v4-toolbar",
@@ -319,6 +319,40 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('.limit(250)', users)
         self.assertIn('tr.dataset.userRole=row.access_role||"viewer"', users)
         self.assertIn('row.hidden=!visible;', users)
+
+
+    def test_incidents_v4_visuals_filters_and_status_contract(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-incidents-v4.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        incidents = (ROOT / "assets/js/admin-incidents.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-incidents-v4.css?v=20261112-incidents-v4", page)
+        self.assertIn("admin-real.js?v=20261112-incidents-v4", page)
+        self.assertIn("ADMIN INCIDENTS V4", css)
+        for selector in (
+            "#tab-incidents .incidents-v4-summary",
+            "#tab-incidents .incidents-v4-toolbar",
+            "#tab-incidents #incident-table",
+            "#tab-incidents #incident-create",
+        ):
+            self.assertIn(selector, css)
+        for field in (
+            "incident-source", "incident-severity", "incident-filter", "incident-summary",
+            "incident-create", "incident-refresh", "incident-more", "incident-table",
+            "incidents-v4-open", "incidents-v4-ack", "incidents-v4-resolved",
+            "incidents-v4-escalated", "incidents-v4-search",
+            "incidents-v4-severity", "incidents-v4-count",
+        ):
+            self.assertIn('id="' + field + '"', incidents)
+        self.assertIn('import { mountIncidentCenter } from "./admin-incidents.mjs?v=20261112-incidents-v4";', controller)
+        self.assertIn('sb.from("admin_incidents").insert({', incidents)
+        self.assertIn('sb.from("admin_incidents").update({', incidents)
+        self.assertIn('sb.from("audit_log").insert({', incidents)
+        self.assertIn('.range(offset,offset+99)', incidents)
+        self.assertIn('tr.dataset.incidentState=row.status||"open"', incidents)
+        self.assertIn('const visible=rows.filter(', incidents)
+        self.assertIn('maybeSingle()', incidents)
+        self.assertIn('role="status" aria-live="polite"', incidents)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")
