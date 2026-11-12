@@ -1,4 +1,4 @@
-/* Mr XPRONOS — Centre d'incidents V4. Interface uniquement ; RLS et opérations inchangées. */
+/* ADMIN INCIDENTS V4 — Mr XPRONOS. Présentation uniquement ; RLS et opérations inchangées. */
 body.admin-shell #tab-incidents{--inc-gold:#f2cb80;max-width:1480px;min-width:0;margin:auto}
 body.admin-shell #tab-incidents>.card{position:relative;isolation:isolate;overflow:hidden;padding:clamp(18px,2.8vw,34px)!important;border:1px solid rgba(115,176,214,.49)!important;border-radius:22px!important;background:radial-gradient(ellipse at 90% 0%,rgba(26,107,168,.23),transparent 56%),linear-gradient(144deg,#071d30,#092036 58%,#061626)!important;box-shadow:0 20px 56px rgba(0,9,23,.26)!important}
 body.admin-shell #tab-incidents>.card::before{content:"";position:absolute;z-index:-1;right:0;top:0;width:min(64%,690px);height:230px;pointer-events:none;background:url("../images/admin-home-lights-reference.webp") right top/cover no-repeat;opacity:.17;mask-image:linear-gradient(90deg,transparent,#000 48%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 48%)}
