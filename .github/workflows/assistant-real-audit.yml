@@ -1,0 +1,29 @@
+name: Assistant Real Audit
+on:
+  push:
+    branches: [assistant-real-audit-oct2026]
+    paths:
+      - 'tests/assistant_audit_runner.mjs'
+      - 'tests/assistant_audit_cases.json'
+      - '.github/workflows/assistant-real-audit.yml'
+  workflow_dispatch:
+jobs:
+  real-assistant-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax
+        run: node --check tests/assistant_audit_runner.mjs
+      - name: Run non-destructive live checks
+        run: node tests/assistant_audit_runner.mjs
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assistant-real-audit-results
+          path: assistant-audit-results/results.json
+          retention-days: 7

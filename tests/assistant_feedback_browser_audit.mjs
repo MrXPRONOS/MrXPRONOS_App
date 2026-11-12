@@ -1,0 +1,14 @@
+import {chromium} from 'playwright';
+const browser=await chromium.launch();
+const page=await browser.newPage({viewport:{width:390,height:844}});
+await page.addInitScript(()=>localStorage.setItem('assistant_user_id','assistant_audit_feedback_e2e_20261013'));
+await page.goto('https://mrxpronos.github.io/MrXPRONOS_App/',{waitUntil:'domcontentloaded'});
+await page.locator('.assistant-button').click();
+await page.locator('#assistant-input').fill('Que signifie BTTS ?');
+await page.locator('#assistant-input').press('Enter');
+await page.waitForFunction(()=>document.querySelectorAll('.message.assistant .feedback-btn.like').length>0,{timeout:20000});
+const btn=page.locator('.message.assistant .feedback-btn.like').last();
+await btn.click();
+await page.waitForTimeout(900);
+console.log('FEEDBACK_BROWSER',JSON.stringify({button:await btn.textContent(),disabled:await btn.isDisabled(),messageCount:await page.locator('.message.assistant').count()}));
+await browser.close();

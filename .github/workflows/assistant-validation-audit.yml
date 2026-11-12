@@ -1,0 +1,16 @@
+name: Assistant API Validation
+on:
+  push:
+    branches: [assistant-real-audit-oct2026]
+    paths:
+      - 'tests/assistant_validation_audit.mjs'
+      - '.github/workflows/assistant-validation-audit.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/assistant_validation_audit.mjs

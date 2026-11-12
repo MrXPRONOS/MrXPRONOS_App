@@ -1,0 +1,24 @@
+name: Assistant Extended Answers Audit
+on:
+  push:
+    branches: [assistant-real-audit-oct2026]
+    paths:
+      - 'tests/assistant_extended_runner.mjs'
+      - 'tests/assistant_extended_cases.json'
+      - '.github/workflows/assistant-extended-audit.yml'
+jobs:
+  extended-answers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/assistant_extended_runner.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: assistant-extended-results
+          path: assistant-extended-out/answers.json
+          retention-days: 7
