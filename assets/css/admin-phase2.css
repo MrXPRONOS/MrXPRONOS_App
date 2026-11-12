@@ -2386,3 +2386,166 @@ body.admin-shell #tab-infos .mx2-content-card .btn{
 body.admin-shell #tab-infos .mx2-editor-main #i_content{line-height:1.75;min-height:110px}
 body.admin-shell #tab-infos .mx2-editor-main #i_category{border-color:rgba(242,193,105,.45)}
 body.admin-shell #tab-infos .mx2-editor-main #i_status{color:#ffe2ac}
+
+
+
+/* ADMIN UTILISATEURS V4 — scoped navy/gold design, no permission changes */
+body.admin-shell #tab-users{max-width:1470px;min-width:0;margin:auto;--user-gold:#f3cd84}
+body.admin-shell #tab-users>.card{
+ position:relative;isolation:isolate;overflow:hidden;
+ padding:clamp(18px,2.6vw,32px)!important;border-radius:22px!important;
+ border:1px solid rgba(107,171,209,.46)!important;
+ background:radial-gradient(ellipse at 90% 0%,rgba(29,107,169,.19),transparent 55%),
+ linear-gradient(145deg,#071e31,#092036 58%,#061625)!important;
+ box-shadow:0 20px 50px rgba(0,9,20,.26)!important
+}
+body.admin-shell #tab-users>.card::before{
+ content:"";position:absolute;z-index:-1;right:0;top:0;pointer-events:none;
+ width:min(65%,670px);height:220px;
+ background:url("../images/admin-home-lights-reference.webp") right top/cover no-repeat;
+ opacity:.18;mask-image:linear-gradient(90deg,transparent,#000 48%);
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 48%)
+}
+body.admin-shell #tab-users>.card>h3{
+ color:#f6faff!important;font-size:clamp(27px,3vw,38px);
+ font-weight:850;letter-spacing:-.05em;line-height:1.2;margin:0 0 13px
+}
+body.admin-shell #tab-users>.card>h3::before{
+ content:"GESTION DES ACCÈS";display:block;font-size:10px;letter-spacing:.18em;
+ color:var(--user-gold);font-weight:850;margin:0 0 13px
+}
+body.admin-shell #tab-users>.card>h3::after{
+ content:"";display:block;height:2px;width:165px;max-width:45%;margin:17px 0 0;
+ background:linear-gradient(90deg,#f5ca81,#67bce7,transparent)
+}
+body.admin-shell #tab-users>.card>.muted{
+ max-width:850px;color:#b6cddd;font-size:12px;line-height:1.75;margin:0 0 21px
+}
+body.admin-shell #tab-users .users-v4-summary{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:13px;margin:16px 0 21px
+}
+body.admin-shell #tab-users .users-v4-summary>div{
+ position:relative;overflow:hidden;min-width:0;min-height:112px;
+ display:flex;flex-direction:column;justify-content:center;gap:9px;
+ padding:19px 20px;border:1px solid rgba(109,170,207,.4);border-radius:16px;
+ background:linear-gradient(135deg,#143953,#09263d);
+ box-shadow:0 9px 22px rgba(0,9,22,.14)
+}
+body.admin-shell #tab-users .users-v4-summary>div::before{
+ content:"";position:absolute;top:0;left:20px;width:70px;height:2px;
+ background:linear-gradient(90deg,#f1c97c,transparent)
+}
+body.admin-shell #tab-users .users-v4-summary>div:nth-child(2)::before{background:linear-gradient(90deg,#88dcaf,transparent)}
+body.admin-shell #tab-users .users-v4-summary>div:nth-child(3)::before{background:linear-gradient(90deg,#ffa69a,transparent)}
+body.admin-shell #tab-users .users-v4-summary strong{
+ font-size:clamp(25px,3vw,40px);color:#fff;line-height:1;
+ font-weight:850;letter-spacing:-.04em;font-variant-numeric:tabular-nums
+}
+body.admin-shell #tab-users .users-v4-summary span{color:#adcbdd;font-size:11px;font-weight:770}
+body.admin-shell #tab-users .admin-filter-row,
+body.admin-shell #tab-users .users-v4-toolbar{
+ display:grid;grid-template-columns:minmax(0,1.5fr) repeat(2,minmax(0,.8fr));
+ gap:12px;align-items:end;max-width:100%;padding:17px;margin:0 0 15px;
+ background:linear-gradient(125deg,rgba(16,51,73,.93),rgba(6,29,48,.93));
+ border:1px solid rgba(110,172,207,.33);border-radius:15px
+}
+body.admin-shell #tab-users .admin-filter-row>div,
+body.admin-shell #tab-users .users-v4-toolbar>div{min-width:0;grid-column:auto}
+body.admin-shell #tab-users :is(.admin-filter-row,.users-v4-toolbar) label{
+ display:block;margin:0 0 9px;color:#c9deec;font-size:11px;font-weight:770
+}
+body.admin-shell #tab-users :is(.admin-filter-row,.users-v4-toolbar) :is(input,select){
+ width:100%;max-width:100%;min-width:0;min-height:45px;padding:11px 13px;
+ border:1px solid rgba(112,169,207,.46);border-radius:11px;
+ background:#061e32;color:#f2f9ff;font-size:12px
+}
+body.admin-shell #tab-users :is(.admin-filter-row,.users-v4-toolbar) :is(input,select):focus-visible{
+ outline:2px solid #f4d394;outline-offset:2px;border-color:#f4d394
+}
+body.admin-shell #tab-users :is(.admin-filter-row,.users-v4-toolbar) input::placeholder{color:#91b0c4;opacity:1}
+body.admin-shell #tab-users #role-save{
+ min-height:45px;max-width:100%;padding:11px 19px;margin:5px 0 12px;
+ border-radius:11px;border:1px solid #f2ca84;
+ background:linear-gradient(125deg,#ffe5ad,#d0a15c);color:#0c2130;
+ font-size:12px;font-weight:830;box-shadow:0 8px 20px rgba(237,187,98,.16)
+}
+body.admin-shell #tab-users #role-save:hover:not(:disabled){filter:brightness(1.07)}
+body.admin-shell #tab-users #role-save:disabled{opacity:.55;cursor:wait}
+body.admin-shell #tab-users #role-status{
+ display:block;max-width:100%;min-height:28px;margin:0 0 14px;
+ color:#acd6eb;font-size:11px;line-height:1.6;overflow-wrap:anywhere
+}
+body.admin-shell #tab-users .users-v4-counter{
+ grid-column:1/-1;color:#b7d1e0;font-size:11px;line-height:1.5;
+ margin:3px 0 0;font-variant-numeric:tabular-nums
+}
+body.admin-shell #tab-users .users-v4-scroll{
+ border:1px solid rgba(115,172,205,.34);border-radius:14px;
+ background:rgba(7,28,48,.79);overflow-x:auto;max-width:100%
+}
+body.admin-shell #tab-users #role-table{
+ width:100%;min-width:680px;margin:0!important;
+ display:table;border:0;border-collapse:separate;border-spacing:0;background:transparent
+}
+body.admin-shell #tab-users #role-table th{
+ padding:14px 12px;white-space:nowrap;
+ background:linear-gradient(100deg,#143a52,#092b43);
+ color:#f3d092;font-size:11px;font-weight:830
+}
+body.admin-shell #tab-users #role-table td{
+ padding:14px 12px;border-bottom:1px solid rgba(113,175,207,.17);
+ color:#dcecf6;font-size:12px;line-height:1.5;overflow-wrap:anywhere
+}
+body.admin-shell #tab-users #role-table tr[data-user-state="active"] td:nth-child(3){color:#a9edce;font-weight:770}
+body.admin-shell #tab-users #role-table tr[data-user-state="disabled"] td:nth-child(3){color:#ffb9ab;font-weight:770}
+body.admin-shell #tab-users #role-table tr[hidden]{display:none!important}
+body.admin-shell #tab-users #role-table tbody tr:hover:not([hidden]){background:rgba(40,103,143,.17)}
+body.admin-shell #tab-users #role-table button{
+ min-height:39px;padding:9px 14px;border-radius:10px;
+ border:1px solid rgba(126,178,210,.5);
+ background:linear-gradient(125deg,#244b65,#12344d);
+ color:#e3eff7;font-size:11px;font-weight:790
+}
+body.admin-shell #tab-users #role-table button:hover{border-color:#f3ce8a;color:#ffe0a5}
+@media(max-width:1000px){
+ body.admin-shell #tab-users .admin-filter-row,
+ body.admin-shell #tab-users .users-v4-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.admin-shell #tab-users .admin-filter-row>div:first-child,
+ body.admin-shell #tab-users .users-v4-toolbar>div:first-child{grid-column:1/-1}
+}
+@media(max-width:760px){
+ body.admin-shell #tab-users>.card{padding:17px!important}
+ body.admin-shell #tab-users .users-v4-summary{gap:8px}
+ body.admin-shell #tab-users .users-v4-summary>div{min-height:100px;padding:12px 10px}
+ body.admin-shell #tab-users .users-v4-summary strong{font-size:clamp(24px,5vw,34px)}
+ body.admin-shell #tab-users .users-v4-scroll{border:0;background:transparent;overflow:visible}
+ body.admin-shell #tab-users #role-table{min-width:0;display:block!important}
+ body.admin-shell #tab-users #role-table tbody tr{
+  border:1px solid rgba(110,171,207,.38);border-radius:14px;
+  background:linear-gradient(135deg,#12354d,#071e33);padding:9px 13px
+ }
+ body.admin-shell #tab-users #role-table tbody td{
+  padding:11px 0;border-bottom:1px solid rgba(122,174,205,.19)!important
+ }
+ body.admin-shell #tab-users #role-table tbody td:last-child{border-bottom:0!important}
+ body.admin-shell #tab-users #role-table tbody td::before{color:#a9c8d9}
+}
+@media(max-width:580px){
+ body.admin-shell #tab-users>.card{padding:13px!important}
+ body.admin-shell #tab-users .admin-filter-row,
+ body.admin-shell #tab-users .users-v4-toolbar{grid-template-columns:1fr;padding:12px}
+ body.admin-shell #tab-users .admin-filter-row>div:first-child,
+ body.admin-shell #tab-users .users-v4-toolbar>div:first-child{grid-column:auto}
+ body.admin-shell #tab-users .users-v4-summary>div{padding:10px 8px}
+ body.admin-shell #tab-users .users-v4-summary span{font-size:10px}
+ body.admin-shell #tab-users #role-save{width:100%}
+ body.admin-shell #tab-users .users-v4-counter{grid-column:auto}
+}
+@media(max-width:370px){
+ body.admin-shell #tab-users>.card{padding:12px!important;border-radius:16px!important}
+ body.admin-shell #tab-users .users-v4-summary>div{padding:10px 6px;min-height:91px}
+ body.admin-shell #tab-users .users-v4-summary strong{font-size:23px}
+ body.admin-shell #tab-users .users-v4-summary span{font-size:9px}
+ body.admin-shell #tab-users #role-table tbody tr{padding:8px 10px}
+}
