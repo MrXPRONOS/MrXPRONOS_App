@@ -1,0 +1,82 @@
+name: Single exact score - fast isolated checks
+
+on:
+  push:
+    branches: [feature/single-exact-score-v1-20261020]
+    paths:
+      - 'bsd/single_exact_score_*.py'
+      - 'bsd/test_single_exact_score.py'
+      - '.github/workflows/single-exact-score-fast-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-single-score-fast-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install minimal test dependencies
+        run: python -m pip install requests cryptography
+      - name: Compile advanced research modules
+        run: python -m py_compile bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_context_model.py bsd/single_exact_score_context_observations.py bsd/single_exact_score_research.py bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_snapshot_replay.py bsd/single_exact_score_debias_study.py
+      - name: Run single-score unit tests
+        run: python -m unittest bsd/test_single_exact_score.py bsd/test_single_exact_score_debias.py -v
+
+  capped-historical-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install minimal research dependencies
+        run: python -m pip install requests cryptography
+      - name: Restore encrypted private history without uploading records
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Exercise new learned model on point-in-time matches
+        run: |
+          python bsd/single_exact_score_backtest.py --year 2025 --cap 120 --output tmp/single-exact-score/2025-smoke.json
+          python bsd/single_exact_score_backtest.py --year 2026 --cap 120 --output tmp/single-exact-score/2026-smoke.json
+          python bsd/single_exact_score_snapshot_replay.py --year 2025 --cap 120 --output tmp/single-exact-score/2025-clock.json
+          python bsd/single_exact_score_snapshot_replay.py --year 2026 --cap 120 --output tmp/single-exact-score/2026-clock.json
+          python - <<'PY'
+          import json
+          for year in (2025,2026):
+              d=json.load(open(f"tmp/single-exact-score/{year}-smoke.json"))
+              assert d["finished"]>50
+              assert d["advanced_training"]["fitted_on"]=="2024 only"
+              assert d["advanced_training"]["diagnostic"]["eligible_2024"]>=100
+              assert d["advanced_training"]["diagnostic"]["goal_train"]>=80
+              assert d["advanced_training"]["diagnostic"]["goal_valid"]>=60
+              assert len(d["advanced_training"]["model_fingerprint_sha256"])==64
+              advanced=d["research_diagnostics"]["models"]["advanced_2024"]
+              assert advanced["summary"]["matches"]==d["eligible"]
+              assert 0<=advanced["summary"]["wins"]<=d["eligible"]
+              replay=json.load(open(f"tmp/single-exact-score/{year}-clock.json"))
+              assert replay["history_as_of_bound"] and replay["h2h_as_of_bound"]
+              assert replay["real_prematch_forecasts"] is False
+              assert replay["finished"]>=replay["eligible"]
+              print("EXPERIMENTAL_ADVANCED_SMOKE_OK",year,d["eligible"],advanced["summary"]["wins"])
+          PY
+      - name: Remove decrypted match history and capped reports
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/single-exact-score/*-smoke.json tmp/single-exact-score/*-clock.json
