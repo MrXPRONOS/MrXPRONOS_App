@@ -11,7 +11,7 @@ BUILDER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILDER)
 ADMIN_HTML = {"admin.html", "admin-supervision.html", "admin-dashboard.html", "admin-vip.html"}
 ENTRY_JS = {"admin-real.js", "admin-shell.js", "admin-phase2.mjs", "admin-supervision.js"}
-ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css"}
+ADMIN_CSS = {"admin-premium.css", "admin-shell.css", "admin-phase1.css", "admin-phase2.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css", "admin-health-v4.css"}
 IMPORTS = re.compile(r"(?:\bfrom\s*|\bimport\s*|\bimport\s*\(\s*)['\"](\.[^'\"]+)['\"]")
 
 class AdminPagesPublicationContract(unittest.TestCase):
@@ -353,6 +353,32 @@ class AdminPagesPublicationContract(unittest.TestCase):
         self.assertIn('const visible=rows.filter(', incidents)
         self.assertIn('maybeSingle()', incidents)
         self.assertIn('role="status" aria-live="polite"', incidents)
+
+
+    def test_health_v4_monitoring_styles_and_sources_are_preserved(self):
+        page = (ROOT / "admin.html").read_text(encoding="utf-8")
+        css = (ROOT / "assets/css/admin-health-v4.css").read_text(encoding="utf-8")
+        controller = (ROOT / "assets/js/admin-real.js").read_text(encoding="utf-8")
+        dashboard = (ROOT / "assets/js/admin-phase3.mjs").read_text(encoding="utf-8")
+        cron = (ROOT / "assets/js/admin-cron-register.mjs").read_text(encoding="utf-8")
+        self.assertIn("admin-health-v4.css?v=20261112-health-v4", page)
+        self.assertIn("ADMIN HEALTH V4", css)
+        for selector in (
+            "#tab-health .mx3-stats", "#tab-health .mx3-automation-list",
+            "#tab-health .mx3-health-filters", "#tab-health .mx2-responsive-table",
+        ):
+            self.assertIn(selector, css)
+        self.assertIn('id="tab-health"', page)
+        self.assertIn('sb.from("cron_runs").select("name,last_run_at,last_ok,meta")', controller)
+        self.assertIn('enhanceHealthDashboard(root,{cron:cronEntries,runs});', controller)
+        self.assertIn('mountCronJobRegister(sb,externalCronRoot,{', controller)
+        self.assertIn('https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/actions/runs', controller)
+        self.assertIn('const cronState=item=>', dashboard)
+        self.assertIn('const ghState=item=>', dashboard)
+        self.assertIn('new Map()', dashboard)
+        self.assertIn('readCronJobs(sb,config)', cron)
+        self.assertIn('detectCronDuplicateConfigs(jobs)', cron)
+        self.assertIn('cron-job.org indisponible : ', cron)
 
     def test_admin_pages_have_role_gate_and_no_embedded_secrets(self):
         page = (ROOT / "admin.html").read_text(encoding="utf-8")

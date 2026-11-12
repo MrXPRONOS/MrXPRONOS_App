@@ -70,7 +70,7 @@ PUBLIC_CSS = {
     "audience-analytics.css", "ux-direct.css", "daily-ux.css",
     "site-typography.css", "home-compact.css",
     "admin-premium.css", "admin-shell.css", "admin-phase1.css",
-    "admin-phase2.css", "admin-phase3.css", "admin-home.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css",
+    "admin-phase2.css", "admin-phase3.css", "admin-home.css", "admin-home-reference.css", "admin-cms-editor.css", "admin-incidents-v4.css", "admin-health-v4.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
