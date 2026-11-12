@@ -1,0 +1,131 @@
+name: Actu Crypto - 11 AFRIQUE REGLEMENTATION PREMIUM TEST ONLY
+# One-time deliberately marked demo test delivery; absolutely no production route.
+
+on:
+  push:
+    branches: [feature/actu-crypto-11-afrique-test]
+    paths:
+      - 'crypto/export_regulation_11.py'
+      - 'crypto/test_regulation_11.py'
+      - 'crypto/quality_regulation_11_real_fixture.py'
+      - 'crypto/send_regulation_11_test.py'
+      - 'crypto/edit_regulation_11_test_photo.py'
+      - 'scripts/render_crypto_regulation_11.mjs'
+      - '.github/workflows/actu-crypto-reg11-test.yml'
+  workflow_dispatch:
+    inputs:
+      send_demo_test_channel:
+        type: boolean
+        default: false
+        required: true
+        description: 'Send one visibly fictional premium #11 poster to @predict_mrxp?'
+      send_real_test_channel:
+        type: boolean
+        default: false
+        required: true
+        description: 'Send ONLY if real Africa regulatory media article is eligible'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crypto-reg11-africa-test-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  africa-news-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free RSS and poster libraries
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'feedparser>=6.0,<7' 'Pillow>=10,<12'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Check #11 data rules and JS syntax
+        run: |
+          python -m compileall -q crypto/export_regulation_11.py crypto/test_regulation_11.py crypto/send_regulation_11_test.py
+          python -m unittest crypto.test_regulation_11 -v
+          node --check scripts/render_crypto_regulation_11.mjs
+      - name: Generate explicitly fictitious visual QA data
+        run: python -m crypto.export_regulation_11 --demo
+      - name: Render premium African #11 DEMO PNG
+        run: node scripts/render_crypto_regulation_11.mjs --demo
+      - name: Verify DEMO dimensions and fictional status
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          d=json.loads(Path('crypto/generated/test/regulation_11_demo.json').read_text())
+          p=Path('crypto/generated/test/regulation_11_demo.png')
+          assert d['is_demo'] is True and d['status']=='demo' and p.stat().st_size>10000
+          with Image.open(p) as im: assert im.size==(1080,1350)
+          print('REG11_PREMIUM_DEMO_VERIFIED_1080X1350')
+          PY
+      - name: Verify REAL-layout styling with entirely fictitious QA source
+        run: |
+          python -m crypto.quality_regulation_11_real_fixture
+          node scripts/render_crypto_regulation_11.mjs --qa-real
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          p=Path('crypto/generated/test/regulation_11_real_fixture_QA.png')
+          with Image.open(p) as img:
+              assert img.size==(1080,1350) and img.format=='PNG'
+          assert p.stat().st_size>10_000
+          print('REG11_REAL_LAYOUT_QA_WATERMARKED_VERIFIED')
+          PY
+      - name: Archive DEMO without production publication
+        uses: actions/upload-artifact@v4
+        with:
+          name: MrXPRONOS-Crypto-11-Afrique-DEMO-not-real
+          path: |
+            crypto/generated/test/regulation_11_demo.json
+            crypto/generated/test/regulation_11_demo.png
+            crypto/generated/test/regulation_11_real_fixture.json
+            crypto/generated/test/regulation_11_real_fixture_QA.png
+          retention-days: 30
+          if-no-files-found: error
+      - name: Replace historic #11 photo 1549 in TEST channel only (explicit commit opt-in)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[reg11-preview-edit]')
+        run: python -m crypto.edit_regulation_11_test_photo
+      - name: Collect current Africa regulation news from eight free RSS
+        id: news
+        shell: bash
+        run: |
+          python -m crypto.export_regulation_11
+          if test -s crypto/generated/test/regulation_11_data.json; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No qualifying current African regulation story; no invented news."
+          fi
+      - name: Render REAL #11 image for QA only
+        if: steps.news.outputs.found == 'true'
+        run: node scripts/render_crypto_regulation_11.mjs
+      - name: Archive REAL source and poster if any
+        if: steps.news.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MrXPRONOS-Crypto-11-Afrique-REAL-test-only
+          path: |
+            crypto/generated/test/regulation_11_data.json
+            crypto/generated/test/regulation_11.png
+          retention-days: 14
+          if-no-files-found: error
+      - name: Send DEMO to verified @predict_mrxp ONLY
+        if: (github.event_name == 'workflow_dispatch' && inputs.send_demo_test_channel == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[reg11-demo-send]'))
+        run: python -m crypto.send_regulation_11_test --demo
+      - name: Send REAL current article to verified @predict_mrxp ONLY
+        if: github.event_name == 'workflow_dispatch' && inputs.send_real_test_channel == true && steps.news.outputs.found == 'true'
+        run: python -m crypto.send_regulation_11_test --real
