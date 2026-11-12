@@ -174,3 +174,13 @@ def test_recognition_does_not_use_results_or_change_model_evidence():
     assert importance(match).importance==first.importance
     assert all("club_" in s or "competition" in s or "deux_grands" in s
                for s in first.importance_reasons)
+
+
+def test_distinct_barcelona_clubs_not_confused_in_international_cup():
+    spanish=club_class("FC Barcelona",competition="ES:UEFA.CHAMPIONS")
+    ecuadorian=club_class("Barcelona SC",competition="ES:CONMEBOL.LIBERTADORES")
+    domestic=club_class("Barcelona SC",competition="ES:ECU.1")
+    assert spanish==("barcelona",43,"senior")
+    assert ecuadorian==("barcelona sc guayaquil",29,"senior")
+    assert domestic==ecuadorian
+    assert spanish!=ecuadorian
