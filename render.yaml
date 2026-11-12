@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: mrxpronos-1win-probe
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: diagnostic/bookmaker-odds
+    dockerfilePath: ./render/onewin/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: RUN_TOKEN
+        generateValue: true
+      - key: RENDER_REGION
+        value: frankfurt

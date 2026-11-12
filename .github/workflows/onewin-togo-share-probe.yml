@@ -1,0 +1,39 @@
+name: 1win Togo share-bet probe
+on:
+  push:
+    branches: [diagnostic/bookmaker-odds]
+    paths:
+      - "tools/odds_diagnostic/onewin_togo_share_probe.py"
+      - ".github/workflows/onewin-togo-share-probe.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/odds_diagnostic/onewin_togo_share_probe.py"
+      - ".github/workflows/onewin-togo-share-probe.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install browser
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Run 1win share-bet probe
+        run: python tools/odds_diagnostic/onewin_togo_share_probe.py
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onewin-togo-share-probe
+          path: |
+            odds_diagnostic_results/onewin_togo_share_probe.json
+            odds_diagnostic_results/onewin_togo_share_probe.png
+          if-no-files-found: warn
