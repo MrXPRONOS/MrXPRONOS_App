@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-45894cf87b5a794c:1X",
+    "recorded_at_utc": "2026-11-12T19:08:00+00:00",
+    "kickoff_utc": "2026-11-14T10:30:00+00:00",
+    "fixture": {
+      "home_team": "Legia Warszawa",
+      "away_team": "Pogoń Grodzisk Mazowiecki",
+      "league": "International Club Friendly"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "857ebc8c6a421ea12c5b33904be09df613c206bbca0faa755d7a53688d82000a"
+}

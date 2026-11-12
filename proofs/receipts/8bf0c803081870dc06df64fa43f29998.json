@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-2ea9bea4840cf9d2:1X",
+    "recorded_at_utc": "2026-11-12T19:08:00+00:00",
+    "kickoff_utc": "2026-11-12T23:00:00+00:00",
+    "fixture": {
+      "home_team": "Antigua and Barbuda",
+      "away_team": "Trinidad and Tobago",
+      "league": "CONCACAF Nations League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 85.3,
+      "odds": 3.062,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "f407dd2026b41808c85886167be6ed8644f0fb72b704ea9a72676df9157f9ad7"
+}

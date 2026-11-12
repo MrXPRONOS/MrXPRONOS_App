@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-4ee4a858e3f45991:1X",
+    "recorded_at_utc": "2026-11-12T19:08:00+00:00",
+    "kickoff_utc": "2026-11-14T00:00:00+00:00",
+    "fixture": {
+      "home_team": "Montserrat",
+      "away_team": "Nicaragua",
+      "league": "CONCACAF Nations League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 91.7,
+      "odds": 3.732,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "3fd8b0e020571549afe5d24d94170658cc403a36f8f4fefe72e15d92eb88c014"
+}
