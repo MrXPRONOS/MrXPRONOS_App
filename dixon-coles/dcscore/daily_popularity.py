@@ -317,15 +317,23 @@ def club_class(name: str, *, competition: str = "", competition_name: str = "") 
     # international tournaments, only aliases unique across the worldwide
     # catalogue receive a club weight.
     club = recognize_club(cleaned, competition,
-                          normalize=normalize_club, women=category=="women")
+                          normalize=normalize_club, women=category=="women",
+                          local_only=True)
     if club is not None:
         return club[0], club[1], category
+    # The previously curated worldwide brands retain their precedence in
+    # neutral/continental contexts, avoiding deceptive alias collisions
+    # between FC Barcelona and Ecuador's Barcelona SC.
     for canonical, (value, aliases) in CLUBS.items():
         if cleaned in {normalize_club(a) for a in aliases}:
             # Female teams have their own editorial tier, not senior full credit.
             if category == "women":
                 return canonical, round(value * .72), category
             return canonical, value, category
+    club = recognize_club(cleaned, competition,
+                          normalize=normalize_club, women=category=="women")
+    if club is not None:
+        return club[0], club[1], category
     return "", 0, category
 
 
