@@ -1,5 +1,636 @@
 [
   {
+    "id": "0890c6f4d234b5a6aaa52efb",
+    "kind": "article",
+    "title": "Andorra vs Gibraltar : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-212701/",
+    "source_date": "2026-11-12T00:15:22.701431+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-social.jpg"
+  },
+  {
+    "id": "2dbc21925acd8cf2aed5cb2c",
+    "kind": "news",
+    "title": "LdC (F) : l’OL Lyonnes humilie la Juventus sur le score de 6-0",
+    "url": "https://www.footmercato.net/a800778765528355692-ldc-f-lol-lyonnes-humilie-la-juventus-sur-le-score-de-6-0",
+    "source_date": "2026-11-11T21:58:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "06352aedd37e81e171a1d671",
+    "kind": "news",
+    "title": "Équipe de France : Zinedine Zidane justifie son choix pour Senny Mayulu",
+    "url": "https://www.footmercato.net/a539411556794846198-equipe-de-france-zinedine-zidane-justifie-son-choix-pour-senny-mayulu",
+    "source_date": "2026-11-11T21:28:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0e86e4b323ec9453c48d875d",
+    "kind": "news",
+    "title": "Equipe de France : La détresse de Zinédine Zidane sur les nombreux blessés chez les Bleus",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-la-detresse-de-zinedine-zidane-sur-les-nombreux-blesses-chez-les-bleus-545443.html",
+    "source_date": "2026-11-11T21:04:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "53db75810ff2b036ad9a6f3c",
+    "kind": "news",
+    "title": "Italie : qui est Riccardo Cassano, la surprise de Roberto Mancini à 0 match en professionnel",
+    "url": "https://www.footmercato.net/a413149735273385939-italie-qui-est-riccardo-cassano-la-surprise-de-roberto-mancini-a-0-match-en-professionnel",
+    "source_date": "2026-11-11T21:00:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7ae0b1f6b38173ee04cf41f2",
+    "kind": "news",
+    "title": "Equipe de France : Upamecano l'avoue, Kroupi a directement bluffé tout le monde",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-upamecano-l-avoue-kroupi-a-directement-bluffe-tout-le-monde-1008441",
+    "source_date": "2026-11-11T20:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1936b6cc6e814a79b91f5d62",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2026: Cédric Bakambu vers le record de buts avec la RDC?",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261111-%C3%A9liminatoires-can-2026-c%C3%A9dric-bakambu-vers-le-record-de-buts-avec-la-rdc",
+    "source_date": "2026-11-11T16:27:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d86835fcf5b5ecd42b56ea6b",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : qui peut se qualifier, qui doit réagir ? Le point par groupe",
+    "url": "https://www.france24.com/fr/sports/20261111-eliminatoires-can-2027-point-par-groupe",
+    "source_date": "2026-11-11T15:29:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e22f7bc866052055d99d378e",
+    "kind": "news",
+    "title": "500 jours de détention pour Christophe Gleizes: «Pour notre grand-mère de 102 ans, l’espoir de revoir Christophe s’amenuise»",
+    "url": "https://www.rfi.fr/fr/podcasts/invit%C3%A9-afrique-midi/20261111-500-jours-de-d%C3%A9tention-pour-christophe-gleizes-pour-notre-grand-m%C3%A8re-de-102-ans-l-espoir-de-revoir-christophe-s-amenuise",
+    "source_date": "2026-11-11T15:20:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f9eb6d067891955c14656849",
+    "kind": "news",
+    "title": "Senny Mayulu renforce aussi l'équipe de France à la veille d'Italie-France",
+    "url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/senny-mayulu-renforce-aussi-l-equipe-de-france-a-la-veille-d-italie-france_8277791.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-11T13:03:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "541df57e760a8ce8722b6716",
+    "kind": "news",
+    "title": "Kylian Mbappé est incertain avec les Bleus pour le match contre l'Italie jeudi soir",
+    "url": "https://www.franceinfo.fr/sports/foot/kylian-mbappe/kylian-mbappe-est-incertain-avec-les-bleus-pour-le-match-contre-l-italie-jeudi-soir_8277800.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-11T12:51:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6177d37a54b3a7bfe9084dfb",
+    "kind": "news",
+    "title": "Un match solidaire pour la libération de Christophe Gleizes, détenu depuis 500 jours",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261111-un-match-solidaire-pour-la-lib%C3%A9ration-de-christophe-gleizes-d%C3%A9tenu-depuis-500-jours",
+    "source_date": "2026-11-11T12:07:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cbceba681c170c49d695db36",
+    "kind": "news",
+    "title": "Football : Éli-Junior Kroupi appelé pour la première fois en équipe de France",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261111-football-%C3%A9li-junior-kroupi-appel%C3%A9-pour-la-premi%C3%A8re-fois-en-%C3%A9quipe-de-france",
+    "source_date": "2026-11-11T09:27:57+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0a7f5929e9a600d69d273f1b",
+    "kind": "news",
+    "title": "Blessé aux adducteurs, le milieu Aurélien Tchouameni est forfait pour les deux prochains matchs de l'équipe de France en Ligue des nations",
+    "url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/blesse-aux-adducteurs-le-milieu-aurelien-tchouameni-est-forfait-pour-les-deux-prochains-matchs-de-l-equipe-de-france-en-ligue-des-nations_8277497.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-11T09:04:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2a7b8deea82880bc119cc43f",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027 : programme, horaires et résultats des 3e et 4e journées",
+    "url": "https://www.france24.com/fr/sports/20261111-eliminatoires-can-2027-qualification-programme-horaires-resultats-3e-4e-journee",
+    "source_date": "2026-11-11T08:22:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "65950b5fda515a0c13e23f44",
+    "kind": "news",
+    "title": "Christophe Gleizes: de Zidane à Infantino, la mobilisation continue après 500 jours de détention",
+    "url": "https://www.rfi.fr/fr/afrique/20261111-de-zidane-%C3%A0-infantino-la-mobilisation-continue-pour-christophe-gleizes-apr%C3%A8s-500-jours-de-d%C3%A9tention",
+    "source_date": "2026-11-11T03:45:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b1eafd6024b12326e12a6be2",
+    "kind": "news",
+    "title": "FC Barcelone : des supporters décédés vont pouvoir reposer au Camp Nou",
+    "url": "https://www.footmercato.net/a5247965766985378976-fc-barcelone-des-supporters-decedes-vont-pouvoir-reposer-au-camp-nou",
+    "source_date": "2026-11-11T23:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ef6a78ee34bb35fcf61db924",
+    "kind": "news",
+    "title": "Grosse frayeur pour Robert Sanchez, victime d'un impressionnant accident de la route",
+    "url": "https://www.onzemondial.com/serie-a/grosse-frayeur-pour-robert-sanchez-victime-dun-impressionnant-accident-de-la-route-1008474",
+    "source_date": "2026-11-11T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "be5130ea9b27a7f35e44e345",
+    "kind": "news",
+    "title": "OM : la demande d’Eric Di Meco à Frank McCourt pour le mercato",
+    "url": "https://www.footmercato.net/a5110895953586269008-om-la-demande-deric-di-meco-a-frank-mccourt-pour-le-mercato",
+    "source_date": "2026-11-11T22:27:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "763632f6c7ec18e99e815234",
+    "kind": "news",
+    "title": "PSG : \"J'ai dit, il est en train de faire quelque chose\" ... Henry était convaincu de la réussite de Luis Enrique",
+    "url": "https://www.onzemondial.com/ligue-des-champions/psg-jai-dit-il-est-en-train-de-faire-quelque-chose-henry-etait-convaincu-de-la-reussite-de-luis-enrique-1008469",
+    "source_date": "2026-11-11T22:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cdff8bcfe3728f0ea2e0c7c6",
+    "kind": "news",
+    "title": "WCL : OL Lyonnes écrase la Juventus Turin",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-wcl-ol-lyonnes-ecrase-la-juventus-turin-545456.html",
+    "source_date": "2026-11-11T22:23:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ff8d432656431abc62532022",
+    "kind": "news",
+    "title": "Mauricio Pochettino, le bon choix pour Manchester United ?",
+    "url": "https://www.footmercato.net/a7010364332892638654-mauricio-pochettino-le-bon-choix-pour-manchester-united",
+    "source_date": "2026-11-11T22:01:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a2607aa0dbb429868b5be835",
+    "kind": "news",
+    "title": "Michael Olise Ballon d'Or, Harry Kane prend les paris",
+    "url": "https://www.onzemondial.com/bundesliga/michael-olise-ballon-dor-harry-kane-prend-les-paris-1008448",
+    "source_date": "2026-11-11T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "48421c75498c6d99a2eb8ec6",
+    "kind": "news",
+    "title": "Equipe de France : Rayan Cherki au milieu, Désiré Doué en pointe... La compo probable des Bleus face à l'Italie",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-rayan-cherki-au-milieu-desire-doue-en-pointe-la-compo-probable-des-bleus-face-a-l-italie-545453.html",
+    "source_date": "2026-11-11T21:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b621ffc9b4f70738681cef88",
+    "kind": "news",
+    "title": "Équipe de France : Cyril Hanouna révèle une grosse information sur Kylian Mbappé et Zinedine Zidane",
+    "url": "https://www.footmercato.net/a2189488159193665111-equipe-de-france-cyril-hanouna-revele-une-grosse-information-sur-kylian-mbappe-et-zinedine-zidane",
+    "source_date": "2026-11-11T21:56:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bd4eeb71d511206d325bfa18",
+    "kind": "news",
+    "title": "Italie : Riccardo Calafiori : \"Ça reste un match très difficile sans Kylian Mbappé\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-italie-riccardo-calafiori-ca-reste-un-match-tres-difficile-sans-kylian-mbappe-545448.html",
+    "source_date": "2026-11-11T21:34:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ab761df6e0bad15d8e570ed0",
+    "kind": "news",
+    "title": "Le Barça meilleur que le PSG, un joueur des Blaugranas l'affirme",
+    "url": "https://www.onzemondial.com/ligue-des-champions/le-barca-meilleur-que-le-psg-un-joueur-des-blaugranas-laffirme-1008462",
+    "source_date": "2026-11-11T21:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1eaf12a80da4556492067cb8",
+    "kind": "news",
+    "title": "Equipe de France : Dayot Upamecano sur Jérémy Jacquet : \"Ses premières sélections m'ont impressionné\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-dayot-upamecano-sur-jeremy-jacquet-ses-premieres-selections-m-ont-impressionne-545450.html",
+    "source_date": "2026-11-11T21:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3533de6889af07e356d0066e",
+    "kind": "news",
+    "title": "Espagne : Luis de la Fuente justifie le forfait de Lamine Yamal",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-espagne-luis-de-la-fuente-justifie-le-forfait-de-lamine-yamal-545444.html",
+    "source_date": "2026-11-11T21:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "66c3c8292d410db813af2dc9",
+    "kind": "news",
+    "title": "Paul Scholes annonce le prochain club d’Erling Haaland",
+    "url": "https://www.footmercato.net/a3233946584617828097-paul-scholes-annonce-le-prochain-club-derling-haaland",
+    "source_date": "2026-11-11T21:08:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-12T05:42:11.781531+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "1b0ee2d5bc2ea448add9b192",
     "kind": "news",
     "title": "Équipe de France : Rothen attaque violemment Zidane sur Kumbedi",
@@ -18,7 +649,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bf755bd7b8ee51ac59cd1ab3",
@@ -39,7 +670,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8e8695591f59ba478953ecdf",
@@ -60,7 +691,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0dd6b4ccd44b132abb2ae3da",
@@ -102,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4f8bbb99d8a51c83195b56c5",
@@ -123,7 +754,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "324fa241d931c67255d4e193",
@@ -144,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c128e4b70938f442f85fbd56",
@@ -165,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "500a8cd0d5f2532ee29da246",
@@ -186,7 +817,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e090429c214e8be3dc211ad1",
@@ -207,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2438f45daf732478e55c88b5",
@@ -228,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f134d2930dfcd5a21a35bcb5",
@@ -249,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e042f3d6e3af5c8ca1b574f4",
@@ -270,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d4470b589363c4a0d5b10129",
@@ -291,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1be8a06b229b67f3269a6599",
@@ -312,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fea63637d9ab443af8f5b959",
@@ -333,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "202ee520a8fd2ae3597cee13",
@@ -354,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "68dc21245cefe1b00ef833d2",
@@ -375,7 +1006,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9eee099cab42adc1c51d1565",
@@ -396,7 +1027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "696ba81480915d9cea9ed76b",
@@ -417,7 +1048,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5cfdb5ca57ab43f6aa07e803",
@@ -438,7 +1069,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "75fe53840b9286aabe0a2ff7",
@@ -459,7 +1090,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a0fa91a6897991bb96f3a277",
@@ -480,7 +1111,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d72b8b7db14d45c5771a0e8d",
@@ -501,7 +1132,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5d44b4ac21a7beb7f651e0d2",
@@ -522,7 +1153,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "32601cfd3967fff854300fc5",
@@ -543,7 +1174,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f2d8b3b2e99f0a8fb63981f8",
@@ -564,7 +1195,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ec5cd077aad59a85a123e6d3",
@@ -585,7 +1216,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b06a23bea530b49c04d0a4f7",
@@ -606,7 +1237,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "41e2e69a0cdd24268f740e69",
@@ -816,7 +1447,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f503f5cb085d60bd1ff2bbbe",

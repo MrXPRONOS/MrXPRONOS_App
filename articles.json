@@ -22,7 +22,15 @@
     ],
     "editorial_role": "match_du_jour",
     "home_logo": "https://sports.bzzoiro.com/img/team/701/?bg=transparent",
-    "away_logo": "https://sports.bzzoiro.com/img/team/2219/?bg=transparent"
+    "away_logo": "https://sports.bzzoiro.com/img/team/2219/?bg=transparent",
+    "visual_variant": "v1",
+    "visual_hash": "e9cc00d9",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-212701-e9cc00d9-ab.webp"
   },
   {
     "slug": "bsd-match-604604",
