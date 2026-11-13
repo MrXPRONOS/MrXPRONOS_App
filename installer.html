@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#05080d">
+  <meta name="description" content="Installe gratuitement Mr XPRONOS. Retrouve les pronostics football du jour, les derniers résultats et notre canal Telegram.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Mr XPRONOS — Tes pronostics à portée de main">
+  <meta property="og:description" content="Installe Mr XPRONOS ou accède au site et au canal Telegram.">
+  <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/installer.html">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Installer Mr XPRONOS — Pronostics football</title>
+  <link rel="icon" href="assets/images/mrxpronos-mark.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+  :root{color-scheme:dark;--black:#05080d;--navy:#0a1420;--gold:#ffd34f;--gold2:#e4a924;--gold3:#b37e16;--white:#fcfcfd;--muted:#cad0da;--green:#66ea4e}
+  *{box-sizing:border-box}
+  html{background:var(--black);scroll-behavior:smooth}
+  body{margin:0;min-width:300px;min-height:100vh;min-height:100dvh;overflow-x:hidden;color:var(--white);font:500 14px/1.4 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;background:
+    radial-gradient(ellipse 92% 29% at 50% 4%,#14222c 0%,#080e16 57%,transparent 100%),
+    radial-gradient(ellipse 80% 40% at 50% 92%,rgba(117,72,16,.22),transparent 76%),
+    linear-gradient(180deg,#05090c 0%,#03060a 53%,#090906 100%)}
+  a{color:inherit}button{font:inherit}
+  .mx-atmosphere{position:absolute;z-index:0;top:0;left:0;right:0;height:600px;pointer-events:none;overflow:hidden}
+  .mx-atmosphere::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(ellipse 48% 17% at -4% 25%,rgba(249,195,64,.20),transparent 80%),
+    radial-gradient(ellipse 48% 17% at 104% 25%,rgba(249,195,64,.20),transparent 80%),
+    radial-gradient(ellipse 50% 24% at 50% 55%,rgba(123,81,21,.13),transparent 88%);opacity:.85}
+  .mx-floodlights{position:absolute;width:190px;height:96px;top:66px;filter:drop-shadow(0 0 19px rgba(255,192,80,.65));opacity:.9}
+  .mx-floodlights--left{left:-65px;transform:rotate(22deg)}
+  .mx-floodlights--right{right:-65px;transform:scaleX(-1) rotate(22deg)}
+  .mx-floodlights::before{content:"";display:block;width:16px;height:16px;border-radius:50%;background:#fff9df;box-shadow:
+     24px 0 0 #fff2c2,48px 0 0 #fff9ed,72px 0 0 #fff4ca,96px 0 0 #fff7de,120px 0 0 #fff0bd,
+     -1px 24px 0 #fff4cf,23px 24px 0 #fffef0,47px 24px 0 #fff2c8,71px 24px 0 #fff9df,95px 24px 0 #fff6d1,119px 24px 0 #fffef5,
+     -2px 48px 0 #fff6d4,22px 48px 0 #fff3c3,46px 48px 0 #fff8de,70px 48px 0 #fff2c6,94px 48px 0 #fff7d8}
+  .mx-football{position:absolute;right:-46px;top:205px;width:min(40vw,215px);height:min(40vw,215px);object-fit:contain;opacity:.29;filter:drop-shadow(0 0 21px rgba(247,171,53,.4));-webkit-mask-image:radial-gradient(circle,#000 41%,transparent 77%);mask-image:radial-gradient(circle,#000 41%,transparent 77%)}
+  .mx-sparks{position:absolute;inset:0;background-image:
+    radial-gradient(circle at 5% 34%,#dba944 0 1px,transparent 3px),radial-gradient(circle at 11% 42%,#bd8a37 0 1px,transparent 3px),
+    radial-gradient(circle at 91% 32%,#dba944 0 1px,transparent 3px),radial-gradient(circle at 96% 45%,#bd8a37 0 1px,transparent 3px);
+    opacity:.8}
+  .mx-shell{position:relative;z-index:1;width:min(100%,620px);min-height:100vh;min-height:100dvh;padding:calc(env(safe-area-inset-top,0px) + 10px) 13px calc(env(safe-area-inset-bottom,0px) + 15px);margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .mx-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-height:125px}
+  .mx-crown{width:63px;height:43px;margin-bottom:-9px;position:relative;z-index:2;filter:drop-shadow(0 2px 8px rgba(255,202,54,.6))}
+  .mx-brand-main{width:100%;display:flex;align-items:center;justify-content:center;gap:3px}
+  .mx-brand-main img{display:block;width:min(64vw,282px);max-height:76px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(208,157,27,.35))}
+  .mx-laurel{width:42px;height:70px;flex-shrink:0;filter:drop-shadow(0 0 5px rgba(249,185,49,.24))}
+  .mx-laurel--right{transform:scaleX(-1)}
+  .mx-brand-subline{font:700 clamp(10px,2.9vw,13px)/1.3 Outfit,Manrope,sans-serif;letter-spacing:.04em;color:#f6f6f6;text-align:center}
+  .mx-brand-subline b{color:var(--gold)}
+  .mx-hero{text-align:center;position:relative}
+  .mx-hero h1{font:900 clamp(26px,6.8vw,38px)/1.13 Outfit,Manrope,sans-serif;letter-spacing:-.033em;margin:1px auto 7px;max-width:550px;text-wrap:balance;text-shadow:0 2px 7px #0009}
+  .mx-hero h1 span{display:block;color:var(--gold);text-shadow:0 0 15px rgba(245,196,46,.18)}
+  .mx-hero-rule{width:112px;height:3px;margin:0 auto 9px;border-radius:60%;background:linear-gradient(90deg,transparent,#ffdf5c 26%,#ffc425 72%,transparent);box-shadow:0 0 10px #e9ac3288}
+  .mx-hero p{max-width:450px;margin:0 auto;color:#f2f2f2;font-size:clamp(11px,3vw,13px);line-height:1.46;text-shadow:0 1px 4px #000}
+  .mx-hero-desc-icon{display:inline-block;color:var(--gold);font-size:16px;margin-right:5px;vertical-align:middle}
+  .mx-actions{display:grid;gap:8px;width:100%;max-width:545px;margin:0 auto}
+  .mx-action{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;min-height:49px;padding:8px 18px;border-radius:18px;text-decoration:none;font:800 clamp(13px,3.8vw,17px)/1.1 Outfit,Manrope,sans-serif;white-space:normal;text-align:center;cursor:pointer;transition:transform .15s,filter .15s}
+  .mx-action:active{transform:translateY(1px)}
+  .mx-action:focus-visible,.mx-feature:focus-visible,.mx-row-link:focus-visible,.mx-panel-title a:focus-visible,.mx-ios-help a:focus-visible{outline:3px solid #ffe882;outline-offset:3px}
+  .mx-action--install{overflow:hidden;color:#101013;background:linear-gradient(160deg,#fff18d 0%,#ffd550 39%,#efaa13 100%);border:2px solid #ffe990;box-shadow:inset 0 1px 3px #ffffc6aa,inset 0 -6px 9px #ac6f2360,0 0 22px rgba(255,193,46,.35);min-height:54px}
+  .mx-action--install[hidden],.mx-open-installed[hidden]{display:none!important}
+  .mx-free-ribbon{position:absolute;right:-22px;top:7px;width:98px;padding:3px 0;transform:rotate(28deg);background:linear-gradient(#f03b39,#ad0000);border:1px solid #ff7769;color:white;box-shadow:0 3px 9px #58000066;font:900 10px/1 Outfit,sans-serif}
+  .mx-action-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .mx-action-icon svg{width:22px;height:22px}
+  .mx-action-chevron{font-size:23px;line-height:1;margin-left:3px}
+  .mx-action--site{min-height:46px;border:1.5px solid #efc44d;background:linear-gradient(110deg,#222831 0%,#070c13 100%);box-shadow:inset 0 0 14px #ffffff12,0 0 10px #d09b1745}
+  .mx-action--telegram{min-height:44px;border:1.5px solid #36d8ff;color:white;background:linear-gradient(180deg,#12bdff,#036ac2 94%);box-shadow:inset 0 1px 3px #ffffff88,0 0 12px #00aeff40}
+  .mx-action--telegram img{display:block;width:24px;height:24px;object-fit:contain;filter:brightness(0) invert(1)}
+  .mx-install-hint{min-height:12px;margin:0;color:#d6d9df;font:600 10px/1.25 Manrope,sans-serif;text-align:center}
+  .mx-highlights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #4b4d50;background:linear-gradient(180deg,rgba(35,42,49,.92),rgba(13,17,21,.95));border-radius:16px;box-shadow:inset 0 1px 0 #ffffff21,0 7px 22px #0007;padding:10px 4px}
+  .mx-feature{display:flex;align-items:center;flex-direction:column;gap:4px;text-align:center;min-width:0;min-height:53px;padding:2px 3px;justify-content:center}
+  .mx-feature+.mx-feature{border-left:1px solid #40464c}
+  .mx-feature svg{width:25px;height:25px;color:var(--gold);fill:none;stroke:currentColor;stroke-width:2.3;stroke-linejoin:round;stroke-linecap:round}
+  .mx-feature span{font:700 clamp(8px,2.25vw,11px)/1.16 Outfit,Manrope,sans-serif;letter-spacing:-.01em}
+  .mx-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
+  .mx-panel{min-width:0;padding:10px 7px 9px;background:linear-gradient(135deg,#19222b 0%,#071019 94%);border:1px solid #56626a;border-radius:15px;box-shadow:inset 0 1px 3px #ffffff16,0 5px 16px #0007}
+  .mx-panel--wins{background:linear-gradient(138deg,#112721 0%,#091617 86%);border-color:#398b2b;box-shadow:inset 0 1px 3px #ffffff14,0 0 12px rgba(67,215,58,.12)}
+  .mx-panel-title{display:flex;align-items:center;gap:5px;min-height:24px;margin-bottom:7px}
+  .mx-panel-title svg{flex:0 0 21px;width:21px;height:21px;color:var(--gold)}
+  .mx-panel--wins .mx-panel-title svg{color:var(--green)}
+  .mx-panel-title h2{min-width:0;margin:0;font:800 clamp(12px,3.2vw,16px)/1.15 Outfit,Manrope,sans-serif;color:var(--gold);letter-spacing:-.018em}
+  .mx-panel--wins .mx-panel-title h2{color:var(--green)}
+  .mx-panel-title a{margin-left:auto;font-size:9px;line-height:1.1;text-decoration:none;color:#f8db80;white-space:nowrap}
+  .mx-panel--wins .mx-panel-title a{color:#8df08b}
+  .mx-panel-list{display:grid;gap:4px}
+  .mx-row-link{display:flex;min-width:0;min-height:56px;align-items:center;gap:5px;padding:6px 5px;border-radius:10px;background:linear-gradient(135deg,#2a3139 0%,#141b22 95%);border:1px solid #343c43;text-decoration:none}
+  .mx-panel--wins .mx-row-link{background:linear-gradient(130deg,#21312d,#111d1a)}
+  .mx-row-icon{width:22px;height:22px;flex-shrink:0;display:grid;place-items:center;border:1px solid #5c6672;border-radius:50%;background:#222e36;color:#ffcd4b;font-size:13px;line-height:1}
+  .mx-panel--wins .mx-row-icon{background:linear-gradient(#3deb51,#159c25);border-color:#39bf2b;color:#fff;font-size:14px;box-shadow:0 0 8px #34d52755}
+  .mx-row-main{flex:1 1 0;min-width:0}
+  .mx-match{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 clamp(9.5px,2.35vw,12px)/1.18 Outfit,Manrope,sans-serif}
+  .mx-match .mx-vs{color:#c3c8cb;font-weight:500}
+  .mx-row-detail{display:flex;align-items:center;gap:4px;margin-top:4px;min-width:0}
+  .mx-pick-pill{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:3px 6px;border-radius:13px;background:linear-gradient(#ffe46c,#efb324);color:#18140b;font:800 clamp(8px,2vw,10px)/1.15 Outfit,Manrope,sans-serif}
+  .mx-row-side{flex:0 0 auto;text-align:right;max-width:50px}
+  .mx-odd{display:block;border:1px solid #bf8f1b;border-radius:13px;padding:3px 5px;color:var(--gold);font:800 10px/1.2 Outfit,sans-serif}
+  .mx-win-status{display:block;background:#078e1b;border:1px solid #30d249;border-radius:10px;padding:3px 4px;color:#fff;font:800 8px/1 Outfit,sans-serif}
+  .mx-score{display:block;margin-bottom:4px;font:700 9px/1.2 Outfit,sans-serif;color:#d9e8dd}
+  .mx-empty{display:flex;align-items:center;justify-content:center;min-height:118px;padding:8px;border-radius:9px;border:1px solid #38444b;background:#16212a;color:#cfd7dd;font-size:10px;text-align:center}
+  .mx-ios-help{display:flex;align-items:center;gap:10px;padding:12px 13px;border:2px solid #ecc346;border-radius:17px;background:linear-gradient(120deg,rgba(39,37,29,.95),#050a0d 85%);box-shadow:inset 0 1px 0 #ffe79742,0 0 15px #e6b83250}
+  .mx-ios-phone{width:35px;height:43px;color:#f6d771;flex:0 0 auto}
+  .mx-ios-help-copy{flex:1;min-width:0}
+  .mx-ios-help h2{font:800 17px/1.05 Outfit,sans-serif;margin:0 0 3px}
+  .mx-ios-help p{font:600 10px/1.36 Manrope,sans-serif;color:#edf0f4;margin:0}
+  .mx-ios-help p strong{color:#fff}
+  .mx-ios-share{width:22px;height:22px;flex:0 0 auto;color:#fff}
+  .mx-ios-help--android .mx-ios-share{display:none}
+  .mx-footer{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:11px;padding-top:2px;color:#e4e4e5;font:500 11px/1.25 Outfit,Manrope,sans-serif}
+  .mx-age{width:27px;height:27px;display:grid;place-items:center;border:2px solid #f33a38;border-radius:50%;color:white;font-weight:800}
+  .mx-footer-sep{height:23px;border-left:1px solid #8a8d8c}
+  .mx-footer a{text-decoration:none;color:inherit}
+  .mx-action:hover,.mx-row-link:hover{filter:brightness(1.12)}
+  @media(min-width:700px){.mx-shell{padding-top:16px;gap:17px}.mx-brand{min-height:140px}.mx-crown{width:73px;height:49px}.mx-brand-main img{max-height:83px}.mx-hero h1{font-size:39px}.mx-actions{gap:10px}.mx-action{min-height:56px}.mx-action--install{min-height:62px}.mx-results{gap:13px}.mx-panel{padding:14px}.mx-row-link{min-height:65px}.mx-match{font-size:14px}.mx-odd{font-size:12px}.mx-ios-help p{font-size:12px}.mx-football{right:calc(50% - 390px)}}
+  @media(max-width:380px){.mx-shell{gap:9px;padding-left:10px;padding-right:10px}.mx-brand{min-height:112px}.mx-crown{height:35px;width:53px}.mx-brand-main img{max-height:63px}.mx-laurel{height:59px;width:33px}.mx-hero h1{font-size:25px}.mx-panel{padding:8px 5px}.mx-panel-title h2{font-size:12px}.mx-row-icon{width:18px;height:18px;font-size:10px}.mx-row-link{padding:5px 4px;gap:4px}.mx-row-side{max-width:42px}.mx-odd{padding:2px 3px;font-size:9px}.mx-win-status{font-size:7px}.mx-action{min-height:43px}.mx-action--install{min-height:48px}.mx-feature{min-height:49px}.mx-ios-help{padding:9px 11px}.mx-ios-help h2{font-size:15px}}
+  @media(max-height:760px){.mx-shell{gap:8px;padding-top:6px;padding-bottom:8px}.mx-brand{min-height:98px}.mx-crown{width:48px;height:31px;margin-bottom:-7px}.mx-brand-main img{max-height:57px}.mx-laurel{width:32px;height:56px}.mx-hero h1{font-size:clamp(23px,6.2vw,32px);margin-bottom:4px}.mx-hero-rule{margin-bottom:5px}.mx-hero p{font-size:11px}.mx-actions{gap:5px}.mx-action{min-height:39px;border-radius:13px}.mx-action--install{min-height:45px}.mx-highlights{padding:6px 3px}.mx-feature{min-height:45px}.mx-feature svg{width:20px;height:20px}.mx-row-link{min-height:49px;padding:4px}.mx-panel-title{margin-bottom:4px}.mx-panel{padding:7px 6px}.mx-ios-help{padding:8px 11px}.mx-ios-phone{height:35px}.mx-footer{font-size:10px}.mx-age{width:23px;height:23px}}
+  @media(prefers-reduced-motion:reduce){.mx-action{transition:none}html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <div class="mx-atmosphere" aria-hidden="true">
+    <div class="mx-floodlights mx-floodlights--left"></div>
+    <div class="mx-floodlights mx-floodlights--right"></div>
+    <div class="mx-sparks"></div>
+    <img class="mx-football" src="assets/images/blog-hero-ball.webp" alt="" loading="lazy">
+  </div>
+  <main class="mx-shell">
+    <header class="mx-brand" aria-label="Mr XPRONOS">
+      <svg class="mx-crown" viewBox="0 0 115 72" aria-hidden="true">
+        <defs><linearGradient id="mx-crown-gold" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff49d"/><stop offset=".46" stop-color="#f9cc37"/><stop offset="1" stop-color="#ad6610"/></linearGradient></defs>
+        <path d="M9 53 4 18 35 37 56 5 81 37 111 17 106 53Z" fill="url(#mx-crown-gold)" stroke="#ffd65b" stroke-width="2"/>
+        <circle cx="4" cy="16" r="5" fill="#ffda50"/><circle cx="56" cy="5" r="5" fill="#fff2a0"/><circle cx="111" cy="16" r="5" fill="#ffd347"/>
+        <path d="M12 56H103V64H12Z" rx="3" fill="url(#mx-crown-gold)" stroke="#e3aa1a" stroke-width="2"/>
+        <circle cx="57" cy="46" r="6" fill="#763c12" stroke="#fff3b0" stroke-width="2"/>
+      </svg>
+      <div class="mx-brand-main">
+        <svg class="mx-laurel" viewBox="0 0 42 86" aria-hidden="true"><path d="M36 83Q3 56 23 5" fill="none" stroke="#ffd44c" stroke-width="2.6"/><g fill="#e9b62c"><ellipse cx="11" cy="15" rx="5" ry="12" transform="rotate(38 11 15)"/><ellipse cx="27" cy="26" rx="5" ry="11" transform="rotate(-32 27 26)"/><ellipse cx="8" cy="38" rx="5" ry="11" transform="rotate(50 8 38)"/><ellipse cx="22" cy="48" rx="5" ry="10" transform="rotate(-35 22 48)"/><ellipse cx="12" cy="62" rx="5" ry="10" transform="rotate(55 12 62)"/><ellipse cx="27" cy="71" rx="5" ry="10" transform="rotate(-35 27 71)"/></g></svg>
+        <img src="assets/images/mrxpronos-horizontal.webp" alt="Mr XPRONOS" width="282" height="124">
+        <svg class="mx-laurel mx-laurel--right" viewBox="0 0 42 86" aria-hidden="true"><path d="M36 83Q3 56 23 5" fill="none" stroke="#ffd44c" stroke-width="2.6"/><g fill="#e9b62c"><ellipse cx="11" cy="15" rx="5" ry="12" transform="rotate(38 11 15)"/><ellipse cx="27" cy="26" rx="5" ry="11" transform="rotate(-32 27 26)"/><ellipse cx="8" cy="38" rx="5" ry="11" transform="rotate(50 8 38)"/><ellipse cx="22" cy="48" rx="5" ry="10" transform="rotate(-35 22 48)"/><ellipse cx="12" cy="62" rx="5" ry="10" transform="rotate(55 12 62)"/><ellipse cx="27" cy="71" rx="5" ry="10" transform="rotate(-35 27 71)"/></g></svg>
+      </div>
+      <div class="mx-brand-subline">Pronostics <b>•</b> Coupons <b>•</b> Résultats</div>
+    </header>
+
+    <section class="mx-hero" aria-labelledby="mx-install-title">
+      <h1 id="mx-install-title">Tes pronostics, toujours <span>à portée de main !</span></h1>
+      <div class="mx-hero-rule" aria-hidden="true"></div>
+      <p><span class="mx-hero-desc-icon" aria-hidden="true">▣</span> Installe gratuitement Mr XPRONOS et retrouve chaque jour nos coupons et analyses football.</p>
+    </section>
+
+    <div class="mx-actions" aria-label="Accéder à Mr XPRONOS">
+      <button class="mx-action mx-action--install" type="button" data-mx-install-trigger data-mx-install-surface="landing">
+        <span class="mx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/></svg></span>
+        <span data-mx-install-label>Installer l’application</span><span class="mx-action-chevron" aria-hidden="true">›</span>
+        <span class="mx-free-ribbon">GRATUIT</span>
+      </button>
+      <a class="mx-action mx-action--install mx-open-installed" href="index.html" id="mx-open-installed" hidden>✓ Ouvrir Mr XPRONOS</a>
+      <a class="mx-action mx-action--site" href="index.html"><span class="mx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 4-5 14 0 18M12 3c5 4 5 14 0 18"/></svg></span>Continuer sur le site<span class="mx-action-chevron" aria-hidden="true">›</span></a>
+      <a class="mx-action mx-action--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer"><img src="assets/images/telegram.webp" alt="" width="24" height="24">Rejoindre le canal Telegram<span aria-hidden="true">↗</span></a>
+      <p id="mx-install-hint" class="mx-install-hint" aria-live="polite">Gratuit • Sans Play Store</p>
+    </div>
+
+    <section class="mx-highlights" aria-label="Les avantages de Mr XPRONOS">
+      <div class="mx-feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 5 14h7l-1 8 9-13h-7z" fill="currentColor" stroke="none"/></svg><span>Coupons quotidiens</span></div>
+      <div class="mx-feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-5h4v5H4zM10 20V9h4v11h-4zM16 20V4h4v16h-4z" fill="currentColor" stroke="none"/></svg><span>Analyses football</span></div>
+      <div class="mx-feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9zM10 21h4"/></svg><span>Alertes disponibles</span></div>
+      <div class="mx-feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8 8 13 12 5 16 13 21 8l-2 11H5L3 8z" fill="currentColor" stroke="none"/></svg><span>Résultats vérifiés</span></div>
+    </section>
+
+    <div class="mx-results">
+      <section class="mx-panel" aria-labelledby="mx-today-label">
+        <div class="mx-panel-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 11h18"/></svg><h2 id="mx-today-label">Coupons du jour</h2></div>
+        <div id="mx-install-upcoming" class="mx-panel-list" aria-live="polite"><div class="mx-empty">Chargement des coupons…</div></div>
+      </section>
+      <section class="mx-panel mx-panel--wins" aria-labelledby="mx-wins-label">
+        <div class="mx-panel-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7 12 3.4 3.4L17.5 8"/></svg><h2 id="mx-wins-label">Derniers coupons validés</h2></div>
+        <div id="mx-install-winners" class="mx-panel-list" aria-live="polite"><div class="mx-empty">Chargement des résultats…</div></div>
+      </section>
+    </div>
+
+    <aside class="mx-ios-help" aria-label="Installation iPhone">
+      <svg class="mx-ios-phone" viewBox="0 0 40 50" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="6" y="2" width="28" height="46" rx="5"/><path d="M16 6h8M17 43h6"/></svg>
+      <div class="mx-ios-help-copy">
+        <h2>Sur iPhone ?</h2>
+        <p>Ouvre cette page dans <strong>Safari</strong>, appuie sur <strong>Partager</strong>, puis <strong>« Sur l’écran d’accueil »</strong> et <strong>« Ajouter »</strong>.</p>
+      </div>
+      <svg class="mx-ios-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 16V2m-5 5 5-5 5 5M4 12v9h16v-9"/></svg>
+    </aside>
+
+    <footer class="mx-footer"><span class="mx-age">18+</span><span class="mx-footer-sep" aria-hidden="true"></span><span>Joue responsablement</span></footer>
+  </main>
+
+  <script>
+  (function(){
+    "use strict";
+    var upcomingNode=document.getElementById("mx-install-upcoming");
+    var winnersNode=document.getElementById("mx-install-winners");
+    var hint=document.getElementById("mx-install-hint");
+    var installBtn=document.querySelector("[data-mx-install-trigger]");
+    var openBtn=document.getElementById("mx-open-installed");
+    function installed(){try{return navigator.standalone===true||matchMedia("(display-mode:standalone)").matches}catch(_){return navigator.standalone===true}}
+    function syncInstall(){
+      var yes=installed()||!!(window.MrXPWA&&window.MrXPWA.isInstalled());
+      installBtn.hidden=yes;openBtn.hidden=!yes;
+      var ua=navigator.userAgent.toLowerCase();
+      hint.textContent=yes?"Application installée ✓":/whatsapp|instagram|fb_iab|fban|fbav|telegram|tiktok/.test(ua)?"Depuis WhatsApp : ouvre la page dans Chrome ou Safari pour installer.":/iphone|ipad|ipod/.test(ua)||navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1?"Sur iPhone : utilise Partager → Sur l’écran d’accueil.":"Gratuit • Installation rapide • Sans Play Store";
+    }
+    window.addEventListener("mrx-pwa-state-change",syncInstall);
+    window.addEventListener("appinstalled",syncInstall);
+    syncInstall();
+    function el(t,cls,txt){var n=document.createElement(t);if(cls)n.className=cls;if(txt!==undefined)n.textContent=String(txt);return n;}
+    function localDay(date){var d=date instanceof Date?date:new Date(date);if(!Number.isFinite(d.getTime()))return "";return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+    function matchDay(m){var explicit=String(m.date||"").slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(explicit)?explicit:localDay(m.event_date);}
+    function finished(m){return m.is_finished===true||/finished|fulltime|full_time|terminé|ended|^ft$/.test(String(m.status||"").toLowerCase());}
+    function eligible(m,p){if(!m||!["pro","vip"].includes(String(m.category||"").toLowerCase())||m.combo_only===true)return false;var v=Number((p||m.prediction||{}).confidence);if(!Number.isFinite(v)||v<=0)return false;v=v<=1?v*100:v;return v>=79&&v<=100;}
+    function outcome(m,p){
+      if(m.home_score==null||m.away_score==null)return null;
+      var h=Number(m.home_score),a=Number(m.away_score);if(!Number.isInteger(h)||!Number.isInteger(a)||h<0||a<0)return null;
+      var k=String(p.selection_key||"");
+      if(k==="1")return h>a;if(k==="X")return h===a;if(k==="2")return a>h;
+      if(k==="1X")return h>=a;if(k==="X2")return a>=h;if(k==="12")return h!==a;
+      if(k==="BTTS_YES")return h>0&&a>0;if(k==="BTTS_NO")return h===0||a===0;
+      var g=k.match(/^(OVER|UNDER)_(15|25|35|45)$/);if(!g)return null;
+      var line=Number(g[2])/10;return g[1]==="OVER"?h+a>line:h+a<line;
+    }
+    function label(p){
+      var s=String(p.type||p.label||p.double_chance||"Pronostic").trim();
+      if(/\b(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?\b|\b(?:mrxpronos_model|debug|diagnostic|pipeline|snapshot)\b/i.test(s))return "Pronostic";
+      return s.slice(0,100);
+    }
+    function textTeams(m){
+      var a=String(m.home_team||"Équipe 1"),b=String(m.away_team||"Équipe 2");
+      return a+" vs "+b;
+    }
+    function createRow(m,p,win){
+      var link=el("a","mx-row-link");
+      var day=matchDay(m),today=localDay(new Date());
+      link.href=win?"historique.html":"pronos.html?day="+(day===today?"today":"tomorrow");
+      link.title=textTeams(m)+" — "+label(p);
+      var icon=el("span","mx-row-icon",win?"✓":"⚽");
+      icon.setAttribute("aria-hidden","true");
+      var body=el("span","mx-row-main");
+      var match=el("span","mx-match",textTeams(m));
+      var detail=el("span","mx-row-detail");
+      var pick=el("span","mx-pick-pill",label(p));pick.title=label(p);
+      detail.appendChild(pick);
+      body.append(match,detail);
+      var side=el("span","mx-row-side");
+      if(win){
+        side.append(el("span","mx-score",String(m.home_score)+"–"+String(m.away_score)),el("span","mx-win-status","✓ GAGNÉ"));
+      }else{
+        var odds=Number(p.odds);
+        var tag=Number.isFinite(odds)&&odds>1?odds.toFixed(2):"À venir";
+        var odd=el("span","mx-odd",tag);
+        if(p.estimated_odds===true)odd.title="Cote indicative";
+        side.appendChild(odd);
+      }
+      link.append(icon,body,side);
+      return link;
+    }
+    function empty(node,msg){node.replaceChildren(el("div","mx-empty",msg));}
+    function render(data){
+      if(!data||!Array.isArray(data.matches))throw Error("Flux de coupons invalide");
+      var matches=data.matches,now=new Date(),today=localDay(now),tomorrow=new Date(now);
+      tomorrow.setDate(tomorrow.getDate()+1);var next=localDay(tomorrow);
+      function rank(m){var r=Number(m.display_rank);return Number.isFinite(r)&&r>0?r:1e9;}
+      function priority(a,b){return rank(a)-rank(b)||Number(b.prediction.confidence)-Number(a.prediction.confidence);}
+      var all=matches.filter(function(m){
+        return eligible(m)&&m.recommendation_eligible===true&&!finished(m)&&!["settlement_pending","postponed","cancelled","canceled"].includes(String(m.status||"").toLowerCase());
+      });
+      var selected=all.filter(function(m){return matchDay(m)===today}).sort(priority).slice(0,3);
+      if(selected.length<3)selected.push.apply(selected,all.filter(function(m){return matchDay(m)===next}).sort(priority).slice(0,3-selected.length));
+      if(selected.length)upcomingNode.replaceChildren.apply(upcomingNode,selected.map(function(m){return createRow(m,m.prediction,false)}));
+      else empty(upcomingNode,"Pas de sélection à venir pour le moment.");
+      var won=[];
+      matches.forEach(function(m){
+        if(!finished(m)||m.combo_only===true)return;
+        var preds=Array.isArray(m.predictions)&&m.predictions.length?m.predictions.slice(0,2):[m.prediction||{}];
+        preds.forEach(function(p){if(eligible(m,p)&&outcome(m,p)===true)won.push({match:m,pick:p})});
+      });
+      won.sort(function(a,b){return new Date(b.match.event_date||0)-new Date(a.match.event_date||0)});
+      won=won.slice(0,3);
+      if(won.length)winnersNode.replaceChildren.apply(winnersNode,won.map(function(r){return createRow(r.match,r.pick,true)}));
+      else empty(winnersNode,"Aucun résultat gagnant vérifié à afficher.");
+    }
+    async function load(){
+      var controller=new AbortController();var timeout=setTimeout(function(){controller.abort()},10000);
+      try{
+        var response=await fetch("data.json?install="+Date.now(),{cache:"no-store",signal:controller.signal});
+        if(!response.ok)throw Error("Flux indisponible");
+        var data=await response.json();
+        render(data);
+      }catch(_){
+        try{
+          var saved=JSON.parse(localStorage.getItem("cachedData")||"null");
+          if(saved&&Array.isArray(saved.matches)){render(saved);hint.textContent+=" • Données en cache";return;}
+        }catch(_){}
+        empty(upcomingNode,"Coupons indisponibles. Voir les pronostics sur le site.");
+        empty(winnersNode,"Résultats indisponibles. Consulter l’historique.");
+      }finally{clearTimeout(timeout)}
+    }
+    void load();
+  })();
+  </script>
+  <script defer src="assets/js/pwa.js?v=1b8e36770bf6"></script>
+</body>
+</html>
