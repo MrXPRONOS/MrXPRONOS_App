@@ -14,12 +14,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: bsd-v2-settlement-watchdog
+  group: bsd-v2-data-writer
   cancel-in-progress: false
 
 jobs:
   settle:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/bsd
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +44,7 @@ jobs:
       - name: Validate and commit settlement-only changes
         id: settlement_commit
         run: |
+          set -euo pipefail
           python - <<'PY'
           import json
           data=json.load(open("data.json",encoding="utf-8"))
@@ -49,8 +52,13 @@ jobs:
           assert data["model_version"]=="bsd-v2-isolated"
           for row in data.get("matches",[]):
               if row.get("settlement_pending"):
-                  assert not row.get("is_finished")
-                  assert row.get("status")=="settlement_pending"
+                  assert row.get("is_finished") is not True, (
+                      "Contradictory pending/finished match: " + str(row.get("id")))
+                  assert row.get("status")=="settlement_pending", (
+                      "Invalid pending status for match: " + str(row.get("id")))
+              if row.get("is_finished") is True:
+                  assert row.get("settlement_pending") is not True, (
+                      "Finished match still marked pending: " + str(row.get("id")))
           print("BSD_SETTLEMENT_WATCHDOG_OK",data.get("settlement_watchdog",{}))
           PY
           git config user.name "github-actions[bot]"
