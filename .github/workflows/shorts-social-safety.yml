@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install isolated social SDK test dependencies
-        run: python -m pip install --disable-pip-version-check requests atproto
+        run: python -m pip install --disable-pip-version-check requests atproto PyYAML
       - name: Validate actual scripts and Worker JavaScript
         run: |
           python -m py_compile scripts/post_shorts_video.py scripts/bluesky_video_processed.py scripts/cloudflare_public_media.py
