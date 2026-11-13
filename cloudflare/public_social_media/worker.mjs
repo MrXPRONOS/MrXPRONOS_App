@@ -5,6 +5,7 @@ const ISSUER = "https://token.actions.githubusercontent.com";
 const REPO = "MrXPRONOS/MrXPRONOS_App";
 const ALLOWED_WORKFLOWS = new Set([
   ".github/workflows/shorts-coupons-production.yml",
+  ".github/workflows/shorts-coupons-production-validation.yml",
   ".github/workflows/accumulator-photo-production.yml"
 ]);
 const DAYS = 45;
