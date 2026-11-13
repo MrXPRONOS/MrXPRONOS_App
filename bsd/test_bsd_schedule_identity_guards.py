@@ -25,6 +25,8 @@ class BsdSchedulerSafetyTests(unittest.TestCase):
         self.assertNotIn("\n  schedule:", text)
         self.assertIn("\n  workflow_dispatch:", text)
         self.assertIn("group: bsd-v2-telegram-wins", text)
+        self.assertIn("if: github.event_name != 'push'", text)
+        self.assertIn("if: github.event_name == 'push'", text)
 
     def test_generator_watchdog_share_writer_lock(self):
         generation = workflow("bsd-v2-production.yml")
