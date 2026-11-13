@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-fd027d37f2341825:1X",
+    "recorded_at_utc": "2026-11-13T00:13:27+00:00",
+    "kickoff_utc": "2026-11-14T20:30:00+00:00",
+    "fixture": {
+      "home_team": "Deportivo Cali",
+      "away_team": "Deportes Tolima",
+      "league": "Categoría Primera A"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 83.8,
+      "odds": 1.29,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "604ed960ae6c2dbd052d87b78c0465a75f0182316ac95e96ff7f0086e972eb63"
+}

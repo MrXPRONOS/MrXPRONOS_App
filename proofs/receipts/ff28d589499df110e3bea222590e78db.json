@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-fbb8b6913f62673f:1X",
+    "recorded_at_utc": "2026-11-13T00:13:27+00:00",
+    "kickoff_utc": "2026-11-14T20:30:00+00:00",
+    "fixture": {
+      "home_team": "Cúcuta Deportivo",
+      "away_team": "Jaguares de Córdoba",
+      "league": "Categoría Primera A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "32967f8a39fa96a594bad09fbe36a2cd94f89b75dcab1430abbdb4f44d5c9c9b"
+}

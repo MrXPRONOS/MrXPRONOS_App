@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-01d2cd2ac4400953:1X",
+    "recorded_at_utc": "2026-11-13T00:13:27+00:00",
+    "kickoff_utc": "2026-11-14T19:30:00+00:00",
+    "fixture": {
+      "home_team": "Atlético Goianiense",
+      "away_team": "Cuiabá",
+      "league": "Brazilian Serie B"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "5b98c56c4de5bb941436bc893a257290084e0acd971e0104b8408f57c5280d7a"
+}

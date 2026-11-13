@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-01d2cd2ac4400953:UNDER_35",
+    "recorded_at_utc": "2026-11-13T00:13:27+00:00",
+    "kickoff_utc": "2026-11-14T19:30:00+00:00",
+    "fixture": {
+      "home_team": "Atlético Goianiense",
+      "away_team": "Cuiabá",
+      "league": "Brazilian Serie B"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.1,
+      "odds": 1.303,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "30f56841e69134169808492bf9607f29b3f62492bdf2b6ffb6677b557c8b7f4d"
+}

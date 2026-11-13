@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-f262e67655900a09:UNDER_35",
+    "recorded_at_utc": "2026-11-13T00:13:27+00:00",
+    "kickoff_utc": "2026-11-14T19:30:00+00:00",
+    "fixture": {
+      "home_team": "América Mineiro",
+      "away_team": "Avaí",
+      "league": "Brazilian Serie B"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 84.1,
+      "odds": 1.311,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "76c26c3f5d4c10b3eb298d3dba0c8737626f81e6143a1c9fab03c1224ca801eb"
+}
