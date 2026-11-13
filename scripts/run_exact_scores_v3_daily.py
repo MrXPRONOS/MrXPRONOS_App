@@ -20,6 +20,8 @@ import tempfile
 import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from collections import defaultdict
+from dataclasses import replace
 
 BASE_CUTOFF = date(2026, 10, 24)
 DAILY_HISTORY_SUBDIR = Path("research/score_v3_encrypted_daily")
@@ -43,6 +45,69 @@ def sportdata_source_identity(value):
     return "src_sportsapipro_v1_allscores_" + raw
 
 REPLAY_WARMUP_DAYS = 65
+
+
+def quarantine_conflicting_provider_identities(matches, *, normalizer):
+    """Use global provider IDs only when they identify exactly ONE club/league.
+
+    The frozen 2024-Oct-24 cohort already strips unsafe IDs internally.
+    Later certified daily SportData rows can reuse previously-safe IDs for
+    different clubs. Validate the *combined* chronological cohort before
+    the native V3 opponent-state training starts.
+
+    Each ambiguous ID is removed from the ephemeral dataclass copies only.
+    All matches, scores, dates, feature code and sealed archives remain intact.
+    With no verified global ID the native model uses its competition-local
+    team key, so unrelated clubs can never share a rating history.
+    """
+    matches = list(matches)
+    names_by_id = defaultdict(set)
+    leagues_by_id = defaultdict(set)
+    for match in matches:
+        for side in ("home", "away"):
+            value = getattr(match, side + "_id", None)
+            if value is not None:
+                names_by_id[str(value)].add(
+                    normalizer(getattr(match, side)))
+        competition_id = getattr(match, "competition_id", None)
+        if competition_id is not None:
+            leagues_by_id[str(competition_id)].add(normalizer(match.league))
+    bad_clubs = {key for key, names in names_by_id.items() if len(names) > 1}
+    bad_leagues = {key for key, names in leagues_by_id.items() if len(names) > 1}
+    sanitized = []
+    affected = 0
+    club_fields = 0
+    league_fields = 0
+    for match in matches:
+        changes = {}
+        for side in ("home", "away"):
+            name = side + "_id"
+            identifier = getattr(match, name, None)
+            if identifier is not None and str(identifier) in bad_clubs:
+                changes[name] = None
+                club_fields += 1
+        competition_id = getattr(match, "competition_id", None)
+        if competition_id is not None and str(competition_id) in bad_leagues:
+            changes["competition_id"] = None
+            league_fields += 1
+        if changes:
+            affected += 1
+            sanitized.append(replace(match, **changes))
+        else:
+            sanitized.append(match)
+    audit = {
+        "total_matches": len(matches),
+        "ambiguous_club_ids": len(bad_clubs),
+        "ambiguous_competition_ids": len(bad_leagues),
+        "matches_using_local_fallback": affected,
+        "club_id_occurrences_quarantined": club_fields,
+        "competition_id_occurrences_quarantined": league_fields,
+        "match_records_removed": 0,
+        "source_archives_changed": False,
+        "raw_provider_ids_logged": False,
+    }
+    print("V3_CROSS_COHORT_IDENTITY_SAFETY", json.dumps(audit, sort_keys=True), flush=True)
+    return sanitized, audit
 
 
 def install_research_modules(model_root: Path):
@@ -218,6 +283,7 @@ def produce(site_root,model_root,*,out_path=None,now=None):
         from single_ml_v2_multisource import certified_rows,check_ml_loader
         from single_ml_v2_data import day_snapshot,utc_dt
         from single_ml_v2 import load_matches,backtest
+        from single_ml_v2_opponents import canonical_name
         site_scripts=site_root/"scripts"
         sys.path.insert(0,str(site_scripts))
         from publish_exact_scores import build_feed
@@ -279,6 +345,10 @@ def produce(site_root,model_root,*,out_path=None,now=None):
             all_matches=training_matches
         if not all_matches or all_matches[-1].day!=yesterday:
             raise RuntimeError("Latest historical football day not fully covered")
+        # Cross-cohort IDs must be vetted AFTER joining the frozen audited
+        # archive to the later authenticated daily snapshots.
+        all_matches, _identity_audit = quarantine_conflicting_provider_identities(
+            all_matches, normalizer=canonical_name)
 
         # The source-trained V3's own historical backtest replays all form
         # history. Last 65 days are true OOS chronological V3 forecasts, for
