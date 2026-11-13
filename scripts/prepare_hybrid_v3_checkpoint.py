@@ -16,7 +16,7 @@ from pathlib import Path
 
 from run_exact_scores_v3_daily import (
     BASE_CUTOFF, DAILY_HISTORY_SUBDIR, historical_daily_rows,
-    install_research_modules)
+    install_research_modules, quarantine_conflicting_provider_identities)
 CHECKPOINT_SUBDIR = Path("research/score_v3_model_checkpoints")
 
 
@@ -38,6 +38,7 @@ def prepare(site_root, model_root, *, now=None):
         from single_ml_v2_multisource import certified_rows, check_ml_loader
         from single_ml_v2_data import day_snapshot
         from single_ml_v2 import load_matches, backtest
+        from single_ml_v2_opponents import canonical_name
         from single_ml_v3_checkpoint import load_checkpoint
         now = now or datetime.now(timezone.utc)
         if now.tzinfo is None or now.utcoffset() != timedelta(0):
@@ -74,6 +75,12 @@ def prepare(site_root, model_root, *, now=None):
             history = sorted([*history, *extra], key=lambda m: (m.day, m.key))
         if not history or history[-1].day != yesterday:
             raise RuntimeError("Latest certified day not fully covered")
+        # Frozen provider IDs were validated before Oct 25, but cannot be
+        # presumed unique against later authenticated SportData snapshots.
+        # The native opponent-state module handles missing IDs by using
+        # (competition, local club name), preventing cross-team Elo leakage.
+        history, identity_audit = quarantine_conflicting_provider_identities(
+            history, normalizer=canonical_name)
         start = max(yesterday - timedelta(days=65), datetime(2026, 10, 1, tzinfo=timezone.utc).date())
         step = time.monotonic()
         with tempfile.TemporaryDirectory(prefix="mrx-v3-train-") as tmp:
@@ -86,6 +93,8 @@ def prepare(site_root, model_root, *, now=None):
         print("V3_PREPARE_COMPLETE", json.dumps({
             "cutoff": str(yesterday), "checkpoint": str(path.relative_to(site_root)),
             "incremental_days": len(day_counts),
+            "identity_quarantined_clubs": identity_audit["ambiguous_club_ids"],
+            "identity_quarantined_competitions": identity_audit["ambiguous_competition_ids"],
             "duration_seconds": round(time.monotonic() - began, 2)
         }), flush=True)
         return path

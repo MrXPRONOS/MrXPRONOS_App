@@ -5,11 +5,12 @@ import os
 import tempfile
 import unittest
 from datetime import datetime,date,timedelta,timezone
+from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
 
 from scripts.run_exact_scores_v3_daily import (
-    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity, save_verified_day, resolve_public_target
+    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity, save_verified_day, resolve_public_target, quarantine_conflicting_provider_identities
 )
 
 
@@ -43,6 +44,32 @@ def match(day,i):
     }
 
 
+@dataclass(frozen=True)
+class TrainingMatch:
+    key: str
+    home: str
+    away: str
+    league: str
+    home_id: str | None
+    away_id: str | None
+    competition_id: str | None
+
+
+def validate_training_identities(matches):
+    # Strictly the same identity guarantee as the native opponent-state
+    # _preview() check: no global ID may refer to multiple club names.
+    seen = {}
+    for match in matches:
+        for side in ("home", "away"):
+            raw_id = getattr(match, side + "_id")
+            if raw_id is None:
+                continue
+            club = getattr(match, side).casefold()
+            if raw_id in seen and seen[raw_id] != club:
+                raise ValueError("Conflicting provider ID associated to different club names")
+            seen[raw_id] = club
+
+
 class TestExactDailyPipeline(unittest.TestCase):
     def test_public_output_path_is_stable_when_model_changes_cwd(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -63,6 +90,47 @@ class TestExactDailyPipeline(unittest.TestCase):
                 self.assertNotEqual(named.parent, model)
             finally:
                 os.chdir(original)
+
+    def test_cross_cohort_provider_id_collision_uses_local_team_fallback(self):
+        frozen=TrainingMatch("base","Club A","Club B","League 1",
+                             "src_sportsapipro_v1_allscores_40","src_sportsapipro_v1_allscores_59",
+                             "src_sportsapipro_v1_allscores_11")
+        daily=TrainingMatch("daily","Club C","Club D","League 2",
+                            "src_sportsapipro_v1_allscores_40","src_sportsapipro_v1_allscores_60",
+                            "src_sportsapipro_v1_allscores_11")
+        # Previously observed production exception reproduced offline.
+        with self.assertRaisesRegex(ValueError,"Conflicting provider ID"):
+            validate_training_identities([frozen,daily])
+        cleaned, audit = quarantine_conflicting_provider_identities(
+            [frozen,daily],normalizer=str.casefold)
+        self.assertEqual(len(cleaned),2)
+        self.assertEqual([m.key for m in cleaned],["base","daily"])
+        self.assertEqual(audit["ambiguous_club_ids"],1)
+        self.assertEqual(audit["ambiguous_competition_ids"],1)
+        self.assertEqual(audit["matches_using_local_fallback"],2)
+        self.assertEqual(audit["match_records_removed"],0)
+        self.assertTrue(audit["source_archives_changed"] is False)
+        self.assertIsNone(cleaned[0].home_id)
+        self.assertIsNone(cleaned[1].home_id)
+        self.assertIsNone(cleaned[0].competition_id)
+        self.assertIsNone(cleaned[1].competition_id)
+        self.assertEqual(cleaned[0].away_id,frozen.away_id)
+        self.assertEqual(cleaned[1].away_id,daily.away_id)
+        validate_training_identities(cleaned)
+        # Frozen dataclass originals and user-facing team names are immutable.
+        self.assertEqual(frozen.home_id,"src_sportsapipro_v1_allscores_40")
+        self.assertEqual(daily.home_id,"src_sportsapipro_v1_allscores_40")
+        self.assertEqual(cleaned[0].home,"Club A")
+        self.assertEqual(cleaned[1].home,"Club C")
+
+    def test_cross_cohort_identical_names_do_not_disable_verified_ids(self):
+        a=TrainingMatch("a","Club A","Club B","League 1","same","b","league")
+        b=TrainingMatch("b","Club A","Club C","League 1","same","c","league")
+        cleaned,audit=quarantine_conflicting_provider_identities([a,b],normalizer=str.casefold)
+        self.assertEqual(cleaned,[a,b])
+        self.assertEqual(audit["matches_using_local_fallback"],0)
+        self.assertEqual(audit["ambiguous_club_ids"],0)
+        self.assertEqual(audit["ambiguous_competition_ids"],0)
 
     def test_upcoming_only_certified_utc_day(self):
         now=utc_dt("2026-11-03T15:00:00Z")
