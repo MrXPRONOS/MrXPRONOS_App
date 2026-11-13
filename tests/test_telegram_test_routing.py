@@ -22,14 +22,20 @@ class TelegramTestRoutingTests(unittest.TestCase):
         self.assertIn("workflow_dispatch", text)
         self.assertIn("telegram_test_guard.py", text)
 
-    def test_production_workflow_has_separate_test_state_and_supabase_news_path(self):
+    def test_production_workflow_separates_test_and_production_routes(self):
         text=self.read(".github/workflows/football-production.yml")
-        self.assertIn(".state/mrxpronos-football-test.json",text)
-        self.assertIn(".state/mrxpronos-football.json",text)
-        self.assertIn('default: "test"',text)
-        self.assertIn("TELEGRAM_TEST_CHAT_ID manquant",text)
-        self.assertIn("SUPABASE_URL", text)
-        self.assertIn("SUPABASE_SERVICE_ROLE_KEY", text)
+        # New Actu Foot independent pipeline uses one Cloudflare D1 ledger.
+        # Telegram destinations are selected explicitly; push is forced dry-run.
+        self.assertIn("CLOUDFLARE_API_TOKEN", text)
+        self.assertIn("PROD_FOOTBALL_NEWS_CHAT_ID", text)
+        self.assertIn("TELEGRAM_TEST_CHAT_ID", text)
+        self.assertIn("group: mrxpronos-football-production-telegram", text)
+        self.assertIn("cancel-in-progress: false", text)
+        self.assertIn('if [ "$GITHUB_EVENT_NAME" = "push" ]; then', text)
+        self.assertIn("DEST=dry-run", text)
+        self.assertIn("destination:", text)
+        self.assertIn("default: test", text)
+        self.assertIn("options: [test, dry-run, production]", text)
         self.assertNotIn("git add footnews.json", text)
         self.assertNotIn("git push origin HEAD:main", text)
 
