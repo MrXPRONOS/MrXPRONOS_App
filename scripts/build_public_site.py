@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # social OAuth callbacks, paused LIVE pages, telemetry, experimental scripts or
 # internal content-generation prompts in the GitHub Pages artifact.
 PUBLIC_HTML = {
-    "index.html", "pronos.html", "historique.html", "blog.html",
+    "index.html", "installer.html", "pronos.html", "historique.html", "blog.html",
     "aujourdhui.html",
     "confidentialite.html", "statistiques-installation.html", "statistiques-audience.html",
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
