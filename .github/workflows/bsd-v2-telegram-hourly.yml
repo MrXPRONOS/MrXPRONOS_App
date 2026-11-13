@@ -8,8 +8,7 @@ on:
       - 'bsd/bsd_v2_telegram.py'
       - 'scripts/telegram_ledger_gateway.py'
       - '.github/workflows/bsd-v2-telegram-hourly.yml'
-  schedule:
-    - cron: '*/15 * * * *'
+  # cron-job.org is the sole recurring scheduler; keep manual dispatch.
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -67,7 +66,7 @@ jobs:
         run: |
           set -euo pipefail
           DEST="$MANUAL_DESTINATION"
-          if [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "push" ] || [ "$TRIGGER_SOURCE" = "schedule" ]; then
+          if [ "$TRIGGER_SOURCE" = "cron-job.org" ]; then
             DEST="production"
           fi
           if [ "$DEST" = "production" ]; then
@@ -96,5 +95,13 @@ jobs:
       - name: Send single picks and combinations around one hour before kickoff
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        run: python bsd/bsd_v2_telegram.py --data data.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            echo "BSD_RELEASE_DRY_RUN: never post to Telegram on source push"
+            python bsd/bsd_v2_telegram.py --data data.json --dry-run
+          else
+            python bsd/bsd_v2_telegram.py --data data.json
+          fi
 
