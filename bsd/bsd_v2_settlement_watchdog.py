@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from bsd_api import BSDClient
-from bsd_h2h import _utc
+from bsd_h2h import _utc, _valid_score
 from bsd_v2_guardrails import update_performance_tracker
 from bsd_v2_publish import update_settlement
 
@@ -56,6 +56,44 @@ def unresolved_published(matches, now):
         if age >= timedelta(hours=FIRST_RETRY_HOURS) and retry_due(row, now):
             rows.append((row, kickoff, age))
     return rows
+
+
+def reconcile_finished_state(data):
+    """Repair only demonstrably finished scores with stale pending metadata.
+
+    Never guess a result, outcome, prediction or market price.
+    """
+    repaired = 0
+    rows = []
+    for original in data.get("matches", []):
+        if not isinstance(original, dict):
+            rows.append(original)
+            continue
+        finished = (original.get("is_finished") is True
+                    and str(original.get("status") or "").lower() == "finished")
+        verified_score = (_valid_score(original.get("home_score")) is not None
+                          and _valid_score(original.get("away_score")) is not None)
+        watchdog = original.get("settlement_watchdog")
+        stale = (original.get("settlement_pending") is True
+                 or (isinstance(watchdog, dict) and watchdog.get("pending") is True))
+        if not (finished and verified_score and stale):
+            rows.append(original)
+            continue
+        match = dict(original)
+        match.pop("settlement_pending", None)
+        match.pop("settlement_checked_at", None)
+        if isinstance(watchdog, dict):
+            wd = dict(watchdog)
+            wd["pending"] = False
+            wd.pop("next_retry_after", None)
+            match["settlement_watchdog"] = wd
+        rows.append(match)
+        repaired += 1
+    if not repaired:
+        return data, 0
+    output = dict(data)
+    output["matches"] = rows
+    return output, repaired
 
 
 def settlement_stage(age):
@@ -158,26 +196,34 @@ def main():
         raise RuntimeError("Le feed actif n'est pas BSD V2")
 
     now = datetime.now(timezone.utc)
+    data, reconciled = reconcile_finished_state(data)
     pending = unresolved_published(data.get("matches", []), now)
-    if not pending:
+    if not pending and not reconciled:
         print("BSD_SETTLEMENT_WATCHDOG:", json.dumps({"checked": 0, "reason": "nothing_due"}))
         return
 
-    client = BSDClient(max_requests=args.max_requests)
-    days = sorted({kickoff.date() for _, kickoff, _ in pending})
-    events = {}
-    for day in days:
-        page = client.list_events(day, day, max_pages=15, ttl=0)
-        if not page.complete:
-            raise RuntimeError("BSD incomplete settlement page for %s" % day)
-        for event in page.events:
-            if isinstance(event, dict) and event.get("id") is not None:
-                events[str(event["id"])] = event
+    client = None
+    if pending:
+        client = BSDClient(max_requests=args.max_requests)
+        days = sorted({kickoff.date() for _, kickoff, _ in pending})
+        events = {}
+        for day in days:
+            page = client.list_events(day, day, max_pages=15, ttl=0)
+            if not page.complete:
+                raise RuntimeError("BSD incomplete settlement page for %s" % day)
+            for event in page.events:
+                if isinstance(event, dict) and event.get("id") is not None:
+                    events[str(event["id"])] = event
 
-    def detail_fetcher(event_id):
-        return client.get_json("/events/%s/" % int(event_id), ttl=0)
+        def detail_fetcher(event_id):
+            return client.get_json("/events/%s/" % int(event_id), ttl=0)
 
-    updated = apply_watchdog(data, events, now=now, detail_fetcher=detail_fetcher)
+        updated = apply_watchdog(data, events, now=now, detail_fetcher=detail_fetcher)
+    else:
+        updated = dict(data)
+        updated["settlement_watchdog"] = {"updated_at": now.isoformat(),
+                                           "checked": 0, "settled": 0, "pending": 0}
+    updated["settlement_watchdog"]["reconciled_finished"] = reconciled
     temp = path.with_suffix(".settlement.tmp")
     temp.write_text(json.dumps(updated, ensure_ascii=False, indent=2), encoding="utf-8")
     temp.replace(path)
@@ -188,7 +234,7 @@ def main():
                 retired=updated.get("retired_predictions") or [])
     print("BSD_SETTLEMENT_WATCHDOG:", json.dumps({
         **updated["settlement_watchdog"],
-        "api_calls": client.requests_made,
+        "api_calls": client.requests_made if client is not None else 0,
     }))
 
 
