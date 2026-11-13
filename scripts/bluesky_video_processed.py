@@ -8,6 +8,7 @@ No retries after a potentially successful post; caller owns D1 dedup claims.
 from __future__ import annotations
 
 import time
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -38,6 +39,40 @@ def pds_host(did_doc):
             return parsed.hostname
     raise BlueskyVideoError("Service PDS introuvable dans le document DID")
 
+
+
+def resolve_did_document(client, login_result, *, session):
+    """Read the PDS service without relying on removed SDK did_doc fields.
+
+    Older atproto-client sessions carried did_doc; recent versions expose
+    only DID. First try the trusted authenticated repo description, then the
+    fixed public PLC resolver for did:plc identities (never arbitrary URLs).
+    The document is resolved *before* claiming a video upload in D1.
+    """
+    did = str(getattr(login_result, "did", "") or "")
+    if not did.startswith("did:"):
+        raise BlueskyVideoError("Identité DID Bluesky absente")
+    document = getattr(login_result, "did_doc", None)
+    if document:
+        return document
+    try:
+        described = client.com.atproto.repo.describe_repo({"repo": did})
+        document = getattr(described, "did_doc", None)
+        if document:
+            return document
+    except Exception:
+        pass
+    if not re.fullmatch(r"did:plc:[a-z2-7]+", did):
+        raise BlueskyVideoError("Sans document DID fiable, seuls les DID PLC sont pris en charge")
+    try:
+        response = session.get("https://plc.directory/" + did, timeout=20)
+        response.raise_for_status()
+        document = response.json()
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        raise BlueskyVideoError("Résolution officielle DID PLC indisponible; aucun envoi") from exc
+    if not isinstance(document, dict) or document.get("id") != did:
+        raise BlueskyVideoError("Document DID PLC non concordant; aucun envoi")
+    return document
 
 def job_details(payload):
     """Upload returns either JobStatus directly or an envelope; polling wraps it."""
@@ -114,19 +149,14 @@ def wait_for_processed_video(session, token, did, filename, video, *, max_wait=T
     raise BlueskyVideoError("Video non traitee apres cinq minutes : publication abandonnee")
 
 
-def publish_processed_video(client, login_result, video, filename, caption, alt, *, session=None):
+def publish_processed_video(client, login_result, video, filename, caption, alt, *, session=None, did_doc=None):
     """Create a Bluesky post only once the transcoding service confirms playback data."""
     from atproto import models
     from atproto_client.models.blob_ref import BlobRef
 
     session = session or requests.Session()
     did = str(login_result.did)
-    doc = login_result.did_doc
-    if not doc:
-        # The PDS session should normally include didDoc. This read-only
-        # fallback supports older session implementations and self-hosted PDS.
-        lookup = client.com.atproto.repo.describe_repo({"repo": did})
-        doc = lookup.did_doc
+    doc = did_doc or resolve_did_document(client, login_result, session=session)
     host = pds_host(doc)
     grant = client.com.atproto.server.get_service_auth({
         "aud": "did:web:" + host,
