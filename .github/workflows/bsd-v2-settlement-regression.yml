@@ -1,0 +1,38 @@
+name: BSD V2 - Settlement safety regression
+on:
+  pull_request:
+    paths:
+      - 'bsd/bsd_v2_settlement_watchdog.py'
+      - 'bsd/bsd_v2_publish.py'
+      - 'bsd/test_bsd_settlement_pending_regression.py'
+      - '.github/workflows/bsd-v2-settlement-watchdog.yml'
+      - '.github/workflows/bsd-v2-production.yml'
+      - '.github/workflows/bsd-v2-settlement-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'bsd/bsd_v2_settlement_watchdog.py'
+      - 'bsd/bsd_v2_publish.py'
+      - 'bsd/test_bsd_settlement_pending_regression.py'
+      - '.github/workflows/bsd-v2-settlement-watchdog.yml'
+      - '.github/workflows/bsd-v2-production.yml'
+      - '.github/workflows/bsd-v2-settlement-regression.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/bsd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Installer les dépendances BSD sans secret API
+        run: python -m pip install --disable-pip-version-check requests cryptography Pillow 'lightgbm>=4.4,<5' scikit-learn
+      - name: Compilation Python
+        run: python -m py_compile bsd/bsd_v2_publish.py bsd/bsd_v2_settlement_watchdog.py bsd/test_bsd_settlement_pending_regression.py
+      - name: Régressions offline du règlement BSD
+        run: python -m unittest bsd.test_bsd_settlement_pending_regression -v

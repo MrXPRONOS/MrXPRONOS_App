@@ -246,6 +246,16 @@ def update_settlement(row,event):
     row.update({"status":"finished","is_finished":True,"home_score":h,
                 "away_score":a,"verified_prediction":correct,
                 "verified_double":correct})
+    # A verified final score ends the watchdog's pending state as well.
+    # Without this, old 'settlement_pending=True' survives a later settlement
+    # and production's consistency assertion fails even after a valid result.
+    row.pop("settlement_pending", None)
+    row.pop("settlement_checked_at", None)
+    if isinstance(row.get("settlement_watchdog"), dict):
+        watchdog = dict(row["settlement_watchdog"])
+        watchdog["pending"] = False
+        watchdog.pop("next_retry_after", None)
+        row["settlement_watchdog"] = watchdog
     return row
 
 
