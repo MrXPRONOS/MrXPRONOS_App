@@ -22,7 +22,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: mrxpronos-football-production-${{ github.event_name == 'push' && 'ci' || (inputs.mode || 'full') }}
+  group: mrxpronos-football-production-telegram
   cancel-in-progress: false
 jobs:
   publish:
@@ -40,6 +40,7 @@ jobs:
       FOOTBALL_CANONICAL_EVENTS: '0'
       FOOTBALL_RUN_METRICS: '0'
       FOOTBALL_ESPN_REQUEST_BUDGET: '12'
+      # The D1 ledger is shared across full and lifecycle; serialize both.
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
