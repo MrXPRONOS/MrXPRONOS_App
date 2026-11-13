@@ -1,2 +1,2 @@
-audit trigger 2026-10-21T16:26:00Z
-Purpose: read-only inspection of cron schedules and Bluesky dispatch settings.
+audit trigger 2026-11-13
+Purpose: verify production cron-job.org BSD generation, settlement watchdog, Telegram dispatch, CC0 canary schedules; read-only.
