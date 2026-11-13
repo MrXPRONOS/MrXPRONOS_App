@@ -63,6 +63,11 @@ def classify_send_failure(ledger, kind, key, day, exc):
             ledger.set_status(kind, key, day, "rejected")
             print("ACTUFOOT_TELEGRAM_REJECTED", kind, key, exc.response.status_code)
             return "rejected"
+    # Validation and rendering exceptions occur before any Telegram POST.
+    if isinstance(exc, (ValueError, FileNotFoundError)):
+        ledger.set_status(kind, key, day, "failed")
+        print("ACTUFOOT_PREPARATION_FAILED", kind, key, type(exc).__name__, str(exc)[:180])
+        return "failed"
     ledger.set_status(kind, key, day, "uncertain")
     print("ACTUFOOT_TELEGRAM_UNCERTAIN", kind, key, type(exc).__name__)
     return "uncertain"
