@@ -27,6 +27,20 @@ SECOND_RETRY_HOURS = 8
 FALLBACK_HOURS = 12
 
 
+def retry_due(row, now):
+    """Respect persisted 4-hour backoff, without modifying historical picks."""
+    watchdog = row.get("settlement_watchdog")
+    if not isinstance(watchdog, dict) or watchdog.get("pending") is not True:
+        return True
+    retry_at = watchdog.get("next_retry_after")
+    if not retry_at:
+        return True
+    try:
+        return now >= _utc(str(retry_at))
+    except (ValueError, TypeError):
+        return True
+
+
 def unresolved_published(matches, now):
     rows = []
     for row in matches or []:
@@ -39,7 +53,7 @@ def unresolved_published(matches, now):
         except (ValueError, TypeError):
             continue
         age = now - kickoff
-        if age >= timedelta(hours=FIRST_RETRY_HOURS):
+        if age >= timedelta(hours=FIRST_RETRY_HOURS) and retry_due(row, now):
             rows.append((row, kickoff, age))
     return rows
 
@@ -63,7 +77,7 @@ def apply_watchdog(data, events_by_id, *, now, detail_fetcher=None):
     }
     for original in output.get("matches", []):
         row = original
-        if not isinstance(original, dict):
+        if not isinstance(original, dict) or str(original.get("source") or "").lower() != "bsd":
             matches.append(original)
             continue
         try:
@@ -74,7 +88,8 @@ def apply_watchdog(data, events_by_id, *, now, detail_fetcher=None):
         age = now - kickoff
         if (original.get("is_finished") or
                 str(original.get("status", "")).lower() == "finished" or
-                age < timedelta(hours=FIRST_RETRY_HOURS)):
+                age < timedelta(hours=FIRST_RETRY_HOURS) or
+                not retry_due(original, now)):
             matches.append(original)
             continue
 
@@ -97,6 +112,8 @@ def apply_watchdog(data, events_by_id, *, now, detail_fetcher=None):
         updated = update_settlement(original, event) if isinstance(event, dict) else original
         if updated is not original and updated.get("is_finished"):
             updated = dict(updated)
+            updated.pop("settlement_pending", None)
+            updated.pop("settlement_checked_at", None)
             updated["settlement_watchdog"] = {
                 "stage": stage,
                 "settled_at": now.isoformat(),
