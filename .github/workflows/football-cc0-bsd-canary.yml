@@ -49,6 +49,10 @@ jobs:
     needs: offline_qa
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # Executing a file by path otherwise adds only scripts/ to sys.path;
+      # bsd is a top-level namespace package and cannot be imported.
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/bsd
     permissions:
       contents: read
     steps:
@@ -67,7 +71,7 @@ jobs:
         run: |
           set -euo pipefail
           before="$(sha256sum data.json | cut -d' ' -f1)"
-          python scripts/football_cc0_bsd_canary.py
+          python -m scripts.football_cc0_bsd_canary
           after="$(sha256sum data.json | cut -d' ' -f1)"
           test "$before" = "$after"
           test -z "$(git status --porcelain -- data.json bsd/publication_ledger.json bsd/quality_report.json)"
