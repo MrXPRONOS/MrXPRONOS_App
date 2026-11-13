@@ -105,10 +105,11 @@ class TestActuFootIndependent(unittest.TestCase):
     def test_programme_reserved_blocks_republication(self):
         ledger=MagicMock()
         ledger.rows.return_value=[{"delivery_status":"reserved"}]
+        ledger.reconcile.return_value="uncertain"
         sender=MagicMock(chat="@channel")
-        with self.assertRaisesRegex(RuntimeError,"UNCERTAIN_DELIVERY"):
-            mod.programme_cycle(NOW,sender,ledger,False)
+        mod.programme_cycle(NOW,sender,ledger,False)
         sender.send.assert_not_called()
+        ledger.reconcile.assert_called_once_with(mod.PROGRAMME_KIND,"@channel","2026-10-29")
 
     def test_programme_espn_unavailable_is_error(self):
         ledger=MagicMock()
@@ -237,10 +238,10 @@ class TestActuFootIndependent(unittest.TestCase):
     def test_uncertain_delivery_never_resends(self):
         ledger=MagicMock()
         ledger.claim.return_value=False
-        ledger.rows.return_value=[{"delivery_status":"reserved"}]
+        ledger.reconcile.return_value="uncertain"
         sender=MagicMock(chat="@test")
-        with self.assertRaisesRegex(RuntimeError,"UNCERTAIN_DELIVERY"):
-            mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False)
+        self.assertFalse(mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False))
+        ledger.reconcile.assert_called_once_with(mod.EVENT_KIND,"@test:goal:x","2026-10-29")
         sender.send.assert_not_called()
 
     def test_explicit_429_releases_claim(self):
@@ -250,18 +251,56 @@ class TestActuFootIndependent(unittest.TestCase):
         response.status_code=429
         sender=MagicMock(chat="@test")
         sender.send.side_effect=requests.HTTPError("429",response=response)
-        with self.assertRaises(requests.HTTPError):
-            mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False)
-        ledger.release.assert_called_once_with(mod.EVENT_KIND,"@test:goal:x","2026-10-29")
+        self.assertFalse(mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False))
+        ledger.set_status.assert_called_once_with(mod.EVENT_KIND,"@test:goal:x","2026-10-29","rejected")
 
     def test_timeout_keeps_claim(self):
         ledger=MagicMock()
         ledger.claim.return_value=True
         sender=MagicMock(chat="@test")
         sender.send.side_effect=requests.Timeout()
-        with self.assertRaises(requests.Timeout):
-            mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False)
+        self.assertFalse(mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False))
+        ledger.set_status.assert_called_once_with(mod.EVENT_KIND,"@test:goal:x","2026-10-29","uncertain")
         ledger.release.assert_not_called()
+
+    def test_missing_telegram_message_id_is_not_success(self):
+        ledger=MagicMock()
+        ledger.claim.return_value=True
+        sender=MagicMock(chat="@test")
+        sender.send.return_value=None
+        self.assertFalse(mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False))
+        ledger.mark.assert_not_called()
+        ledger.set_status.assert_called_once_with(mod.EVENT_KIND,"@test:goal:x","2026-10-29","uncertain")
+
+    def test_existing_claim_with_verified_message_id_reconciles(self):
+        ledger=MagicMock()
+        ledger.claim.return_value=False
+        ledger.reconcile.return_value="sent"
+        sender=MagicMock(chat="@test")
+        self.assertTrue(mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False))
+        sender.send.assert_not_called()
+
+    def test_quarantined_event_does_not_abort_other_signals(self):
+        ledger=MagicMock()
+        sender=MagicMock(chat="@test")
+        plan=[row()]
+        ledger.query.return_value={"results":[{"ref_id":"@test:goal:one",
+            "delivery_status":"uncertain","telegram_message_id":None,
+            "sent_at":"2026-10-29T06:00:00+00:00"}]}
+        ledger.reconcile.return_value="uncertain"
+        first={"key":"goal:one","kind":"goal"}
+        second={"key":"goal:two","kind":"goal"}
+        with patch.object(mod,"get_plan",side_effect=[(plan,json.dumps(plan)),([],None)]), \
+             patch.object(mod,"fetch_espn_summary",return_value={"summary":True}), \
+             patch.object(mod,"normalize_espn_summary",side_effect=lambda x:x), \
+             patch.object(mod,"parse_espn_summary_match",return_value=live_info()), \
+             patch.object(mod,"live_signals",return_value=[first,second]), \
+             patch.object(mod,"score_transition",return_value=({},None)), \
+             patch.object(mod.channel,"lifecycle_publication",return_value=MagicMock()), \
+             patch.object(mod,"confirmed_message",return_value=True) as publish:
+            mod.lifecycle_cycle(NOW,sender,ledger,False)
+        publish.assert_called_once()
+        self.assertEqual(publish.call_args.args[3],"goal:two")
 
     def test_first_score_is_baseline_not_ghost_goal(self):
         fields, signal=mod.score_transition(row(),live_info(hs=0,aws=0),NOW,False)
