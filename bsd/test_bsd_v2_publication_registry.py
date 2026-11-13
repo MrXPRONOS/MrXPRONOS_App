@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from bsd_v2_publish import assemble,historical_publication_ids
+from bsd_v2_publish import assemble,historical_publication_ids,unique_native_fixtures
 from bsd_v2_audit import update_ledger
 
 TIME=datetime(2026,10,15,10,tzinfo=timezone.utc)
@@ -65,6 +65,31 @@ class HistoricalPublicationGuardTests(unittest.TestCase):
         self.assertEqual(pick.call_count,1)
         self.assertEqual(out["diagnostics"]["fixture_details"][0]["event_id"],"5678")
         self.assertEqual(out["diagnostics"]["v21_new_picks"],0)
+
+    def test_exact_native_duplicate_is_suppressed(self):
+        unique, report = unique_native_fixtures([fixture(), fixture()])
+        self.assertEqual(len(unique), 1)
+        self.assertEqual(report["duplicate_exact_records_suppressed"], 1)
+        self.assertEqual(report["conflicting_native_ids_quarantined"], 0)
+
+    def test_conflicting_native_id_is_quarantined_before_selection(self):
+        different = fixture()
+        different["away_team"] = {"id": 999, "name": "Other Club"}
+        unique, report = unique_native_fixtures([fixture(), different, fixture(5678)])
+        self.assertEqual([row["id"] for row in unique], [5678])
+        self.assertEqual(report["conflicting_native_ids_quarantined"], 1)
+        with patch("bsd_v2_publish.predict_v2",return_value=(None,"no_qualified_market")) as pick:
+            out = assemble({"source":"bsd","matches":[]},
+                [fixture(), different, fixture(5678)], [], now=TIME,
+                calibration=None,policy=None,rho=0,odds_fetcher=None,
+                historical_published_ids=set())
+        self.assertEqual(pick.call_count, 1)
+        self.assertEqual(out["diagnostics"]["rejections"]["conflicting_native_ids_quarantined"], 1)
+
+    def test_duplicate_published_feed_identity_fails_closed(self):
+        ledger=update_ledger({},[sample()],observed_at="2026-10-15T08:00:00+00:00")
+        with self.assertRaisesRegex(ValueError,"Duplicate native BSD event"):
+            historical_publication_ids(ledger,{"source":"bsd","matches":[sample(),sample()]})
 
     def test_bad_published_ids_cannot_disable_guard(self):
         with self.assertRaises(ValueError):
