@@ -1,0 +1,32 @@
+name: Actu Foot delivery ledger regression
+on:
+  pull_request:
+    paths:
+      - 'scripts/actu_foot_independent.py'
+      - 'scripts/d1_publication_ledger.py'
+      - 'tests_football_channel/test_actu_foot_independent.py'
+      - '.github/workflows/actufoot-delivery-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/actu_foot_independent.py'
+      - 'scripts/d1_publication_ledger.py'
+      - 'tests_football_channel/test_actu_foot_independent.py'
+      - '.github/workflows/actufoot-delivery-regression.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline dependencies
+        run: python -m pip install --disable-pip-version-check requests Pillow 'cryptography>=43,<47'
+      - name: Syntax validation
+        run: python -m py_compile scripts/actu_foot_independent.py scripts/d1_publication_ledger.py
+      - name: Offline delivery, lifecycle and deduplication tests
+        run: python -m unittest tests_football_channel.test_actu_foot_independent -v
