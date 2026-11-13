@@ -1,0 +1,63 @@
+name: Hybrid V3 — cross-cohort identity safety
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/run_exact_scores_v3_daily.py'
+      - 'scripts/prepare_hybrid_v3_checkpoint.py'
+      - 'tests/test_exact_scores_daily_v3.py'
+      - 'tests/hybrid_v3_provider_identity_contract.py'
+      - '.github/workflows/hybrid-v3-identity-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/run_exact_scores_v3_daily.py'
+      - 'scripts/prepare_hybrid_v3_checkpoint.py'
+      - 'tests/test_exact_scores_daily_v3.py'
+      - 'tests/hybrid_v3_provider_identity_contract.py'
+      - '.github/workflows/hybrid-v3-identity-regression.yml'
+permissions:
+  contents: read
+concurrency:
+  group: hybrid-v3-provider-identity-tests-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-model-identity-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          path: model
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install local V3 model dependencies, without production secrets
+        run: python -m pip install numpy scipy scikit-learn requests cryptography
+      - name: Syntax and daily predictor regression tests
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/run_exact_scores_v3_daily.py scripts/prepare_hybrid_v3_checkpoint.py
+          python -m unittest tests.test_exact_scores_daily_v3 tests.test_exact_scores_tab -v
+      - name: Execute REAL native opponent-state collision regression
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/model/research
+        run: python -m unittest tests.hybrid_v3_provider_identity_contract -v
+      - name: Confirm production pipelines never fall back to fake results
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          prep=Path('scripts/prepare_hybrid_v3_checkpoint.py').read_text()
+          run=Path('scripts/run_exact_scores_v3_daily.py').read_text()
+          assert 'quarantine_conflicting_provider_identities(' in prep
+          assert 'quarantine_conflicting_provider_identities(' in run
+          assert 'checkpoint_key=key' in prep and 'production_v3_only=True' in prep
+          assert 'fast_produce' in run and 'load_checkpoint(path, key, expected_day=yesterday)' in run
+          assert 'No future fixtures to score; preserving previous published feed' in run
+          print('V3_HISTORICAL_DATA_INTEGRITY_GUARDS_OK')
+          PY
