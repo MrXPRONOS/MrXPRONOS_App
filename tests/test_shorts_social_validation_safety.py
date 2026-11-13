@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+import yaml
 from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -40,6 +41,22 @@ class ValidationSocialSafetyTests(unittest.TestCase):
             self.assertEqual({p["platform"] for p in report},{"instagram","threads"})
             self.assertTrue(all("no provider upload" in p["message"] for p in report))
             self.assertTrue(all(p["ok"] is False for p in report))
+
+    def test_github_validation_workflow_is_valid_yaml_with_single_post_loop(self):
+        path=ROOT/".github/workflows/shorts-coupons-production-validation.yml"
+        text=path.read_text(encoding="utf-8")
+        workflow=yaml.safe_load(text)
+        self.assertIsInstance(workflow, dict)
+        self.assertEqual(workflow["name"],"Shorts Coupons - Production Validation")
+        self.assertIn("settle", workflow["jobs"])
+        job=workflow["jobs"]["settle"]
+        self.assertTrue(any(step.get("name") ==
+            "Publish ready validation videos to social platforms"
+            for step in job["steps"]))
+        self.assertEqual(text.count("while IFS="),1)
+        self.assertEqual(text.count('--validation-ref "$SLOT:$TARGET"'),1)
+        self.assertEqual(text.count("retention-days: 7"),1)
+        self.assertNotIn("--validation-ref \"$VALIDATION_REF\"",text)
 
     def test_workflow_includes_strict_oidc_and_unique_per_batch_refs(self):
         text=(ROOT/".github/workflows/shorts-coupons-production-validation.yml").read_text()
