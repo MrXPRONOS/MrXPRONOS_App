@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-14",
+  "generated_at": "2026-11-13T20:00:34Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4823655",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Aps Bomet",
+      "away": "Bandari",
+      "kickoff_utc": "2026-11-14T12:00:00Z",
+      "score": "1:0",
+      "probability": 0.14014047
+    },
+    {
+      "id": "sportsapipro:4891258",
+      "league": "Division 2 - Regular Season",
+      "home": "Béni-Khalled",
+      "away": "Stade Soussien",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.13290817
+    },
+    {
+      "id": "sportsapipro:4891278",
+      "league": "Botola 2",
+      "home": "Mouloudia Oujda",
+      "away": "Stade Marocain",
+      "kickoff_utc": "2026-11-14T15:00:00Z",
+      "score": "1:0",
+      "probability": 0.12554738
+    },
+    {
+      "id": "sportsapipro:4799659",
+      "league": "Serie C",
+      "home": "Renate",
+      "away": "Desenzano",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.12388961
+    },
+    {
+      "id": "sportsapipro:4891274",
+      "league": "Botola 2",
+      "home": "Olympique Dcheira",
+      "away": "JSM Laayoune",
+      "kickoff_utc": "2026-11-14T15:00:00Z",
+      "score": "1:0",
+      "probability": 0.12194223
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4823655",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Aps Bomet",
+      "away": "Bandari",
+      "kickoff_utc": "2026-11-14T12:00:00Z",
+      "score": "1:0",
+      "probability": 0.32250218,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4891258",
+      "league": "Division 2 - Regular Season",
+      "home": "Béni-Khalled",
+      "away": "Stade Soussien",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.31013658,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4799659",
+      "league": "Serie C",
+      "home": "Renate",
+      "away": "Desenzano",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.30965874,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4891274",
+      "league": "Botola 2",
+      "home": "Olympique Dcheira",
+      "away": "JSM Laayoune",
+      "kickoff_utc": "2026-11-14T15:00:00Z",
+      "score": "1:0",
+      "probability": 0.30955076,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4739868",
+      "league": "J2 League",
+      "home": "Oita Trinita",
+      "away": "Tochigi City",
+      "kickoff_utc": "2026-11-14T05:00:00Z",
+      "score": "1:0",
+      "probability": 0.30819543,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
+}
