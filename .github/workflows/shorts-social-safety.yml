@@ -1,0 +1,63 @@
+name: Shorts - Social validation safety and public media
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/shorts-coupons-production-validation.yml'
+      - '.github/workflows/shorts-social-safety.yml'
+      - 'scripts/post_shorts_video.py'
+      - 'scripts/bluesky_video_processed.py'
+      - 'cloudflare/public_social_media/worker.mjs'
+      - 'tests/test_bluesky_video_processed.py'
+      - 'tests/test_shorts_social_validation_safety.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/shorts-coupons-production-validation.yml'
+      - '.github/workflows/shorts-social-safety.yml'
+      - 'scripts/post_shorts_video.py'
+      - 'scripts/bluesky_video_processed.py'
+      - 'cloudflare/public_social_media/worker.mjs'
+      - 'tests/test_bluesky_video_processed.py'
+      - 'tests/test_shorts_social_validation_safety.py'
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated social SDK test dependencies
+        run: python -m pip install --disable-pip-version-check requests atproto
+      - name: Validate actual scripts and Worker JavaScript
+        run: |
+          python -m py_compile scripts/post_shorts_video.py scripts/bluesky_video_processed.py scripts/cloudflare_public_media.py
+          node --check cloudflare/public_social_media/worker.mjs
+      - name: Offline regression without secrets or publishing
+        run: |
+          python -m unittest -v \
+            tests.test_bluesky_video_processed \
+            tests.test_shorts_social_validation_safety \
+            tests.test_cloudflare_public_media
+      - name: Confirm the production workflow is the only OIDC upload identity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          flow=Path('.github/workflows/shorts-coupons-production-validation.yml').read_text()
+          worker=Path('cloudflare/public_social_media/worker.mjs').read_text()
+          assert 'id-token: write' in flow
+          assert '".github/workflows/shorts-coupons-production-validation.yml"' in worker
+          assert "claims.repository !== REPO" in worker
+          assert 'claims.ref !== "refs/heads/main"' in worker
+          assert "Bluesky" in Path('scripts/bluesky_video_processed.py').read_text()
+          print("SHORTS_CLOUDFLARE_AUTHORIZED_MAIN_ONLY")
+          PY

@@ -553,11 +553,15 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
     ident = ("bsd_v2_bluesky_video", handle + ":sha256:" + sha256, ref_date)
 
     from atproto import Client
-    from bluesky_video_processed import publish_processed_video
+    from bluesky_video_processed import publish_processed_video, resolve_did_document, pds_host
     from d1_publication_ledger import D1Ledger
 
     client = Client()
     login_result = client.login(handle, password)  # Verify auth BEFORE creating a dedup reservation.
+    # Preflight DID/PDS verification BEFORE claiming D1, so SDK changes or
+    # malformed DID documents never leave a spurious uncertain upload claim.
+    did_document = resolve_did_document(client, login_result, session=requests.Session())
+    pds_host(did_document)
     ledger = D1Ledger()
     if not ledger.claim(*ident):
         # The existing claim could represent a prior successful upload OR an
@@ -573,6 +577,7 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
         response = publish_processed_video(
             client, login_result, data, video_path.name,
             text, (title or "Vidéo de football Mr XPRONOS")[:900],
+            did_doc=did_document,
         )
         uri = str(response.uri)
         if not uri.startswith("at://"):
@@ -623,6 +628,16 @@ def main() -> int:
     parser.add_argument("--strict", action="store_true", help="Échoue immédiatement à la première erreur")
     parser.add_argument("--require-all", action="store_true", help="Tente toutes les plateformes, puis échoue si l'une manque ou échoue")
     args = parser.parse_args()
+    if args.validation_ref is not None:
+        # Never silently downgrade a validation run to the non-D1 path.
+        slot, separator, day = args.validation_ref.partition(":")
+        try:
+            parsed_day = datetime.fromisoformat(day).date()
+        except (ValueError, TypeError):
+            parsed_day = None
+        if (separator != ":" or slot not in ("morning", "evening")
+                or parsed_day is None or parsed_day.isoformat() != day):
+            parser.error("Validation reference must be morning:YYYY-MM-DD or evening:YYYY-MM-DD")
 
     video_path = absolute_path(args.video)
     if not video_path.exists():
@@ -665,6 +680,11 @@ def main() -> int:
     }
 
     def attempt(platform: str) -> PublishResult:
+        if platform in ("instagram", "threads") and not public_url:
+            # The media gateway failed BEFORE any Instagram/Threads POST.
+            # Do not reserve D1 for something that was never attempted.
+            return PublishResult(platform, False,
+                "Cloudflare public MP4 URL unavailable; no provider upload attempted")
         if not args.validation_ref:
             try:
                 return dispatch[platform]()
