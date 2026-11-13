@@ -227,7 +227,7 @@ class TestActuFootIndependent(unittest.TestCase):
     def test_duplicate_suppression(self):
         ledger=MagicMock()
         ledger.claim.side_effect=[True,False]
-        ledger.rows.return_value=[{"delivery_status":"sent"}]
+        ledger.reconcile.return_value="sent"
         sender=MagicMock(chat="@test")
         sender.send.return_value=99
         post=MagicMock(category="goal")
