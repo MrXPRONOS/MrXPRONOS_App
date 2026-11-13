@@ -31,12 +31,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: bsd-v2-daily-generation
+  group: bsd-v2-data-writer
   cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/bsd
     timeout-minutes: 90
     steps:
       - name: Journaliser la source
