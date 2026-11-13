@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-dc7f0d5ab4cecd61:UNDER_35",
+    "recorded_at_utc": "2026-11-13T18:09:10+00:00",
+    "kickoff_utc": "2026-11-15T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Kwara United",
+      "away_team": "Rivers United",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "ffaf500b24a2a2d9e9049d2b59bd60e308feb19e92873d9464c114ad7363f0d1"
+}

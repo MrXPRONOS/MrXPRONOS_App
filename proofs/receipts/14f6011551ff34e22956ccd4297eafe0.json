@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-2217a9b2c8cf9cf2:UNDER_35",
+    "recorded_at_utc": "2026-11-13T18:09:10+00:00",
+    "kickoff_utc": "2026-11-15T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Niger Tornadoes",
+      "away_team": "Enugu Rangers International",
+      "league": "Nigeria Premier League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "fe08c50547ff55226e75244c533a6dcd8dbf10d031b9529c89b9b48dd8370085"
+}

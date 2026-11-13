@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7cd57faf146c0bd0:UNDER_35",
+    "recorded_at_utc": "2026-11-13T18:09:10+00:00",
+    "kickoff_utc": "2026-11-15T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Warri Wolves FC",
+      "away_team": "Sporting Lagos FC",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "7522926d6b7a06616888e80917ae3f83ba440ae612142c8bed9eedea939e9be5"
+}

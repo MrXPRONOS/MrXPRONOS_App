@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-677d3347136c7dd2:X2",
+    "recorded_at_utc": "2026-11-13T18:09:10+00:00",
+    "kickoff_utc": "2026-11-15T17:00:00+00:00",
+    "fixture": {
+      "home_team": "Real Club Deportivo de A Coruña",
+      "away_team": "Fútbol Club Barcelona",
+      "league": "Spanish Primera División de la Liga de Fútbol Femenino"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "X2",
+      "type": "X2",
+      "confidence": 82.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "b8b3524efc2ab8e952dc82329559aaf7981481302f91fe570bdd589263beb176"
+}
