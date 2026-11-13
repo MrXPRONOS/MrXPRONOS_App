@@ -97,15 +97,20 @@ def native_record(row, now):
 
 def candidate_leagues(calendar, native, *, at):
     by_pair = defaultdict(set)
+    occurrences = Counter()
     for day, h, a, code in calendar:
-        by_pair[(day, h, a)].add(code)
+        key = (day, h, a)
+        by_pair[key].add(code)
+        occurrences[key] += 1
     result = set()
     for row in native:
         value = native_record(row, at)
         if value is None:
             continue
         _, league_id, day, h, a = value
-        if len(by_pair.get((day, h, a), ())) == 1:
+        # Duplicated calendar lines must not authorize native metadata lookup.
+        key = (day, h, a)
+        if occurrences[key] == 1 and len(by_pair.get(key, ())) == 1:
             result.add(league_id)
     return sorted(result)
 
@@ -114,8 +119,11 @@ def corroborate(calendar, native, names, *, at):
     if at.tzinfo is None:
         raise ValueError("Timezone-aware clock required")
     by_pair = defaultdict(set)
+    calendar_occurrences = Counter()
     for day, home, away, league_code in calendar:
-        by_pair[(day, home, away)].add(league_code)
+        key = (day, home, away)
+        by_pair[key].add(league_code)
+        calendar_occurrences[key] += 1
     pairs = defaultdict(set)
     counts = Counter()
     id_occurrences = Counter(record[0] for item in native
@@ -131,7 +139,13 @@ def corroborate(calendar, native, names, *, at):
             counts["duplicate_native_id"] += 1
             continue
         seen_native.add(bid)
-        leagues = by_pair.get((day, home, away), set())
+        key = (day, home, away)
+        leagues = by_pair.get(key, set())
+        if calendar_occurrences[key] > 1:
+            # Same fixture appearing twice, even within the SAME calendar, is
+            # ambiguous: the old set-based check silently accepted it.
+            counts["duplicate_cc0_fixture_rows"] += 1
+            continue
         if len(leagues) != 1:
             counts["not_unique_in_cc0_calendar"] += 1
             continue
