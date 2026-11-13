@@ -259,6 +259,48 @@ def update_settlement(row,event):
     return row
 
 
+def unique_native_fixtures(fixtures):
+    """Deduplicate identical official BSD IDs; quarantine conflicting records.
+
+    We never select a winner among two incompatible representations of the
+    same native match ID. Such an ID must not produce or settle a coupon until
+    the next consistent BSD refresh.
+    """
+    unique = {}
+    fingerprints = {}
+    conflicts = set()
+    exact_repeats = 0
+    for row in fixtures or []:
+        if not isinstance(row, dict) or row.get("id") is None:
+            continue
+        eid = str(row["id"])
+        def team_value(side):
+            value = row.get(side + "_team")
+            if isinstance(value, dict):
+                return (str(value.get("id") or ""), str(value.get("name") or "").casefold())
+            return (str(row.get(side + "_team_id") or ""), str(value or "").casefold())
+        try:
+            kickoff = _utc(row["event_date"]).isoformat()
+        except (KeyError, TypeError, ValueError):
+            kickoff = str(row.get("event_date") or "")
+        fingerprint = (kickoff, team_value("home"), team_value("away"),
+                       str(row.get("league_id") or ""), str(row.get("status") or "").lower(),
+                       str(row.get("home_score")), str(row.get("away_score")))
+        if eid not in unique:
+            unique[eid] = row
+            fingerprints[eid] = fingerprint
+        elif fingerprints[eid] == fingerprint:
+            exact_repeats += 1
+        else:
+            conflicts.add(eid)
+    for eid in conflicts:
+        unique.pop(eid, None)
+    return list(unique.values()), {
+        "duplicate_exact_records_suppressed": exact_repeats,
+        "conflicting_native_ids_quarantined": len(conflicts),
+    }
+
+
 def historical_publication_ids(ledger, feed):
     """Immutable first-observed ledger is authoritative even if feed omits a pick.
 
@@ -281,9 +323,14 @@ def historical_publication_ids(ledger, feed):
             raise ValueError("Previous published event or market absent")
         previously.add(event_id)
         original[entry["key"]]=str(selection)
+    seen_feed_ids = set()
     for row in (feed.get("matches") or []) if isinstance(feed,dict) else []:
         if not isinstance(row,dict) or row.get("source")!="bsd":
             continue
+        eid=str(row.get("source_event_id") or str(row.get("id","")).removeprefix("bsd:"))
+        if eid in seen_feed_ids:
+            raise ValueError("Duplicate native BSD event identity in published feed")
+        seen_feed_ids.add(eid)
         if not row.get("prediction",{}).get("selection_key"):
             continue
         dt=_utc(row["event_date"]).isoformat()
@@ -311,7 +358,9 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
            and eligible_feed_match(row)}
     index=V2History(history)
     stats=Counter()
-    by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
+    fixtures, identity_stats = unique_native_fixtures(fixtures)
+    stats.update(identity_stats)
+    by_id={str(f["id"]):f for f in fixtures}
     result=[]
     detailed=[]
     # Do not rewrite the immutable ledger; record removals separately.
