@@ -121,12 +121,16 @@ def publish_processed_video(client, login_result, video, filename, caption, alt,
 
     session = session or requests.Session()
     did = str(login_result.did)
-    doc = login_result.did_doc
+    # The SDK login response does not consistently expose did_doc across
+    # atproto-client versions. Never access it as a mandatory attribute.
+    doc = getattr(login_result, "did_doc", None)
     if not doc:
-        # The PDS session should normally include didDoc. This read-only
-        # fallback supports older session implementations and self-hosted PDS.
+        # describeRepo is a read-only, authenticated PDS lookup and returns
+        # the DID document even when createSession omits didDoc.
         lookup = client.com.atproto.repo.describe_repo({"repo": did})
-        doc = lookup.did_doc
+        doc = getattr(lookup, "did_doc", None)
+    if not doc:
+        raise BlueskyVideoError("Document DID Bluesky introuvable apres connexion et describeRepo")
     host = pds_host(doc)
     grant = client.com.atproto.server.get_service_auth({
         "aud": "did:web:" + host,
