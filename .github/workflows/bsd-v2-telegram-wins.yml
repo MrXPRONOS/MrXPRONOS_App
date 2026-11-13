@@ -7,8 +7,7 @@ on:
     paths:
       - 'bsd/bsd_v2_verify_telegram.py'
       - '.github/workflows/bsd-v2-telegram-wins.yml'
-  schedule:
-    - cron: '17 * * * *'
+  # cron-job.org is the sole recurring scheduler; keep manual dispatch.
   workflow_dispatch:
     inputs:
       trigger_source:
