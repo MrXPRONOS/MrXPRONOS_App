@@ -34,6 +34,10 @@
     .mx-action{width:100%;min-height:44px;display:flex;gap:8px;align-items:center;justify-content:center;text-align:center;border-radius:11px;text-decoration:none;font-size:14px;line-height:1.2;font-weight:800;cursor:pointer;touch-action:manipulation}
     .mx-action--install{background:linear-gradient(110deg,#edc781,#cda058);border:1px solid #ffe0a2;color:#101a22;box-shadow:0 5px 20px #d9aa6240}
     .mx-action--web{border:1px solid #60738b;background:#142536;color:var(--white)}
+    .mx-action--telegram{min-height:37px;border:1px solid #4d9ec4;background:#103953;color:var(--white);font-size:12px}
+    .mx-action--telegram img{display:block;width:17px;height:17px;object-fit:contain;flex-shrink:0}
+    .mx-action--telegram:hover{background:#145173}
+    @media(max-height:720px){.mx-action--telegram{min-height:34px}}
     .mx-action:focus-visible,.mx-coupon:focus-visible,.mx-section-head a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     .mx-action[hidden]{display:none!important}
     .mx-install-hint{font-size:11px;line-height:1.35;color:#c6d2dc;text-align:center;min-height:15px;margin:-2px 0 0}
@@ -84,6 +88,7 @@
       <button class="mx-action mx-action--install" type="button" data-mx-install-trigger data-mx-install-surface="landing"><span aria-hidden="true">↓</span><span data-mx-install-label>Installer l’application</span></button>
       <a id="mx-open-installed" class="mx-action mx-action--install" href="index.html" hidden>✓ Ouvrir Mr XPRONOS</a>
       <a class="mx-action mx-action--web" href="index.html">Continuer sur le site →</a>
+      <a class="mx-action mx-action--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer" aria-label="Rejoindre le canal Telegram Mr XPRONOS"><img src="assets/images/telegram.webp" width="17" height="17" alt="" loading="lazy"> Rejoindre le canal Telegram ↗</a>
     </div>
     <p id="mx-install-hint" class="mx-install-hint" aria-live="polite">Gratuit • Sans Play Store</p>
 
