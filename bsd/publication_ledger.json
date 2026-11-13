@@ -1,6 +1,6 @@
 {
   "schema": "bsd-v2-publication-ledger-1",
-  "updated_at": "2026-11-13T16:21:58.762439+00:00",
+  "updated_at": "2026-11-13T18:08:55.915993+00:00",
   "entries": [
     {
       "key": "7282|2026-10-08T22:30:00+00:00",
@@ -14788,7 +14788,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-11-12T00:15:22.565740+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "606028|2026-10-29T18:00:00+00:00",
@@ -14820,7 +14820,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604599|2026-10-30T14:00:00+00:00",
@@ -14843,7 +14843,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 0,
@@ -14851,7 +14851,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "605688|2026-10-28T19:00:00+00:00",
@@ -14906,7 +14907,7 @@
         "odds_verified": true
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 1,
@@ -14914,7 +14915,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "210137|2026-10-28T17:30:00+00:00",
@@ -14977,7 +14979,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "223882|2026-10-30T22:00:00+00:00",
@@ -15008,7 +15010,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "224202|2026-10-31T12:30:00+00:00",
@@ -15039,7 +15041,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "209617|2026-10-31T15:00:00+00:00",
@@ -15070,7 +15072,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "224711|2026-10-31T15:00:00+00:00",
@@ -15101,7 +15103,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "375070|2026-10-31T18:00:00+00:00",
@@ -15132,7 +15134,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "5397|2026-10-31T18:00:00+00:00",
@@ -15163,7 +15165,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642977|2026-10-31T18:00:00+00:00",
@@ -15194,7 +15196,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "223879|2026-10-31T20:00:00+00:00",
@@ -15225,7 +15227,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642978|2026-10-31T20:00:00+00:00",
@@ -15256,7 +15258,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "10212|2026-10-31T22:30:00+00:00",
@@ -15287,7 +15289,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "5403|2026-10-31T19:00:00+00:00",
@@ -15318,7 +15320,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "215294|2026-11-01T11:30:00+00:00",
@@ -15349,7 +15351,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "605299|2026-11-01T12:00:00+00:00",
@@ -15380,7 +15382,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "46517|2026-11-01T13:00:00+00:00",
@@ -15411,7 +15413,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "606243|2026-11-01T13:30:00+00:00",
@@ -15438,7 +15440,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "606244|2026-11-01T13:30:00+00:00",
@@ -15465,7 +15467,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "603121|2026-11-01T15:00:00+00:00",
@@ -15496,7 +15498,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604596|2026-11-01T15:00:00+00:00",
@@ -15527,7 +15529,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604601|2026-11-01T15:00:00+00:00",
@@ -15558,7 +15560,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601140|2026-11-03T17:45:00+00:00",
@@ -15600,7 +15602,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601163|2026-11-03T17:45:00+00:00",
@@ -15631,7 +15633,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "46516|2026-11-03T18:00:00+00:00",
@@ -15662,7 +15664,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214131|2026-11-03T19:45:00+00:00",
@@ -15693,7 +15695,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214132|2026-11-03T19:45:00+00:00",
@@ -15724,7 +15726,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214133|2026-11-03T19:45:00+00:00",
@@ -15755,7 +15757,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214134|2026-11-03T19:45:00+00:00",
@@ -15786,7 +15788,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214135|2026-11-03T19:45:00+00:00",
@@ -15828,7 +15830,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214136|2026-11-03T19:45:00+00:00",
@@ -15859,7 +15861,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214140|2026-11-03T19:45:00+00:00",
@@ -15890,7 +15892,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "606251|2026-11-03T19:45:00+00:00",
@@ -15932,7 +15934,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214137|2026-11-03T20:00:00+00:00",
@@ -15963,7 +15965,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601025|2026-11-03T20:00:00+00:00",
@@ -15994,7 +15996,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601034|2026-11-03T20:00:00+00:00",
@@ -16036,7 +16038,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601093|2026-11-03T20:00:00+00:00",
@@ -16067,7 +16069,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601097|2026-11-03T20:00:00+00:00",
@@ -16098,7 +16100,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601117|2026-11-03T20:00:00+00:00",
@@ -16129,7 +16131,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642987|2026-11-03T20:30:00+00:00",
@@ -16160,7 +16162,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "7329|2026-11-04T00:30:00+00:00",
@@ -16191,7 +16193,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642953|2026-11-04T15:00:00+00:00",
@@ -16233,7 +16235,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601089|2026-11-04T17:45:00+00:00",
@@ -16275,7 +16277,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601098|2026-11-04T17:45:00+00:00",
@@ -16317,7 +16319,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "643010|2026-11-04T19:00:00+00:00",
@@ -16348,7 +16350,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214139|2026-11-04T19:45:00+00:00",
@@ -16379,7 +16381,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "214141|2026-11-04T19:45:00+00:00",
@@ -16410,7 +16412,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "602321|2026-11-04T19:45:00+00:00",
@@ -16441,7 +16443,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601072|2026-11-04T20:00:00+00:00",
@@ -16472,7 +16474,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601087|2026-11-04T20:00:00+00:00",
@@ -16503,7 +16505,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601127|2026-11-04T20:00:00+00:00",
@@ -16534,7 +16536,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642966|2026-11-04T20:00:00+00:00",
@@ -16565,7 +16567,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "7324|2026-11-04T22:30:00+00:00",
@@ -16596,7 +16598,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "7328|2026-11-04T22:30:00+00:00",
@@ -16638,7 +16640,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "649889|2026-11-04T23:30:00+00:00",
@@ -16669,7 +16671,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "7325|2026-11-05T00:30:00+00:00",
@@ -16700,7 +16702,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "7332|2026-11-05T00:30:00+00:00",
@@ -16731,7 +16733,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "222882|2026-11-05T13:25:00+00:00",
@@ -16799,7 +16801,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601179|2026-11-05T17:45:00+00:00",
@@ -16830,7 +16832,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601212|2026-11-05T17:45:00+00:00",
@@ -16872,7 +16874,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601247|2026-11-05T17:45:00+00:00",
@@ -16903,7 +16905,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601250|2026-11-05T17:45:00+00:00",
@@ -16934,7 +16936,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601255|2026-11-05T17:45:00+00:00",
@@ -16965,7 +16967,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601282|2026-11-05T17:45:00+00:00",
@@ -17007,7 +17009,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601285|2026-11-05T17:45:00+00:00",
@@ -17038,7 +17040,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601320|2026-11-05T17:45:00+00:00",
@@ -17069,7 +17071,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601327|2026-11-05T17:45:00+00:00",
@@ -17100,7 +17102,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601347|2026-11-05T17:45:00+00:00",
@@ -17142,7 +17144,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601354|2026-11-05T17:45:00+00:00",
@@ -17184,7 +17186,7 @@
           null
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601391|2026-11-05T17:45:00+00:00",
@@ -17215,7 +17217,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601393|2026-11-05T17:45:00+00:00",
@@ -17246,7 +17248,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "601423|2026-11-05T17:45:00+00:00",
@@ -17277,7 +17279,7 @@
         "primary_won": null,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "580572|2026-11-06T19:00:00+00:00",
@@ -17308,7 +17310,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "580573|2026-11-06T19:00:00+00:00",
@@ -17339,7 +17341,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "212322|2026-11-07T05:00:00+00:00",
@@ -17370,7 +17372,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "212315|2026-11-07T06:00:00+00:00",
@@ -17401,7 +17403,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "649890|2026-11-07T13:30:00+00:00",
@@ -17432,7 +17434,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "649892|2026-11-07T13:30:00+00:00",
@@ -17463,7 +17465,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "605303|2026-11-07T14:00:00+00:00",
@@ -17494,7 +17496,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604603|2026-11-07T15:00:00+00:00",
@@ -17553,7 +17555,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642926|2026-11-07T15:00:00+00:00",
@@ -17584,7 +17586,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642939|2026-11-07T15:00:00+00:00",
@@ -17615,7 +17617,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642940|2026-11-07T15:00:00+00:00",
@@ -17646,7 +17648,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "580574|2026-11-07T19:00:00+00:00",
@@ -17677,7 +17679,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "223907|2026-11-07T20:30:00+00:00",
@@ -17708,7 +17710,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "5410|2026-11-07T21:00:00+00:00",
@@ -17739,7 +17741,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642946|2026-11-07T21:05:00+00:00",
@@ -17770,7 +17772,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "223914|2026-11-08T01:00:00+00:00",
@@ -17812,7 +17814,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "205920|2026-11-08T07:30:00+00:00",
@@ -17843,7 +17845,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "603152|2026-11-08T11:00:00+00:00",
@@ -17874,7 +17876,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "603812|2026-11-08T13:30:00+00:00",
@@ -17905,7 +17907,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "605309|2026-11-08T14:00:00+00:00",
@@ -17936,7 +17938,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "209631|2026-11-07T12:30:00+00:00",
@@ -17999,7 +18001,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "375074|2026-11-06T18:45:00+00:00",
@@ -18030,7 +18032,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "603137|2026-11-08T15:00:00+00:00",
@@ -18089,7 +18091,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604604|2026-11-08T15:00:00+00:00",
@@ -18120,7 +18122,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604609|2026-11-08T15:00:00+00:00",
@@ -18151,7 +18153,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604611|2026-11-08T15:00:00+00:00",
@@ -18182,7 +18184,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "207115|2026-11-08T16:00:00+00:00",
@@ -18213,7 +18215,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "605708|2026-11-08T16:15:00+00:00",
@@ -18244,7 +18246,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "642949|2026-11-08T19:00:00+00:00",
@@ -18275,7 +18277,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "10217|2026-11-08T22:15:00+00:00",
@@ -18306,7 +18308,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "604610|2026-11-09T15:00:00+00:00",
@@ -18337,7 +18339,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "215306|2026-11-09T20:00:00+00:00",
@@ -18368,7 +18370,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "654034|2026-11-10T15:00:00+00:00",
@@ -18423,7 +18425,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "654059|2026-11-12T13:30:00+00:00",
@@ -18454,7 +18456,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "212701|2026-11-13T19:45:00+00:00",
@@ -18481,7 +18483,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "606219|2026-11-12T23:00:00+00:00",
@@ -18512,7 +18514,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "606229|2026-11-14T00:00:00+00:00",
@@ -18539,7 +18541,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "654431|2026-11-14T10:30:00+00:00",
@@ -18566,7 +18568,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "10224|2026-11-14T19:30:00+00:00",
@@ -18593,7 +18595,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "10225|2026-11-14T19:30:00+00:00",
@@ -18629,7 +18631,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "654339|2026-11-14T20:30:00+00:00",
@@ -18656,7 +18658,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     },
     {
       "key": "654341|2026-11-14T20:30:00+00:00",
@@ -18683,13 +18685,148 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-13T16:21:58.762439+00:00"
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
+    },
+    {
+      "key": "606228|2026-11-13T23:00:00+00:00",
+      "id": "bsd:606228",
+      "source_event_id": "606228",
+      "event_date": "2026-11-13T23:00:00+00:00",
+      "first_observed_at": "2026-11-13T17:57:34.318431+00:00",
+      "origin": "site_feed",
+      "home_team": "Saint Martin",
+      "away_team": "El Salvador",
+      "league": "CONCACAF Nations League",
+      "category_original": "vip",
+      "signal_tier_original": "PREMIUM",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.873,
+        "odds": 2.902,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
+    },
+    {
+      "key": "604614|2026-11-15T15:00:00+00:00",
+      "id": "bsd:604614",
+      "source_event_id": "604614",
+      "event_date": "2026-11-15T15:00:00+00:00",
+      "first_observed_at": "2026-11-13T17:57:34.318431+00:00",
+      "origin": "site_feed",
+      "home_team": "Kwara United",
+      "away_team": "Rivers United",
+      "league": "Nigeria Premier League",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.8190000000000001,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
+    },
+    {
+      "key": "604617|2026-11-15T15:00:00+00:00",
+      "id": "bsd:604617",
+      "source_event_id": "604617",
+      "event_date": "2026-11-15T15:00:00+00:00",
+      "first_observed_at": "2026-11-13T17:57:34.318431+00:00",
+      "origin": "site_feed",
+      "home_team": "Niger Tornadoes",
+      "away_team": "Enugu Rangers International",
+      "league": "Nigeria Premier League",
+      "category_original": "vip",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.825,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
+    },
+    {
+      "key": "604622|2026-11-15T15:00:00+00:00",
+      "id": "bsd:604622",
+      "source_event_id": "604622",
+      "event_date": "2026-11-15T15:00:00+00:00",
+      "first_observed_at": "2026-11-13T17:57:34.318431+00:00",
+      "origin": "site_feed",
+      "home_team": "Warri Wolves FC",
+      "away_team": "Sporting Lagos FC",
+      "league": "Nigeria Premier League",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.816,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
+    },
+    {
+      "key": "215311|2026-11-15T17:00:00+00:00",
+      "id": "bsd:215311",
+      "source_event_id": "215311",
+      "event_date": "2026-11-15T17:00:00+00:00",
+      "first_observed_at": "2026-11-13T17:57:34.318431+00:00",
+      "origin": "site_feed",
+      "home_team": "Real Club Deportivo de A Coruña",
+      "away_team": "Fútbol Club Barcelona",
+      "league": "Spanish Primera División de la Liga de Fútbol Femenino",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "X2",
+        "market": "double_chance",
+        "confidence": 0.823,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-13T18:08:55.915993+00:00"
     }
   ],
   "last_run": {
     "new": 0,
     "new_settlements": 0,
-    "active": 114,
-    "total": 520
+    "active": 117,
+    "total": 525
   }
 }
