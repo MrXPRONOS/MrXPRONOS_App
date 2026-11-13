@@ -41,6 +41,39 @@ MAX_LIVE_HOURS = 5
 DEFINITIVE_REJECTION_CODES = {400, 401, 403, 404, 429}
 
 
+def delivery_identity(message_id):
+    """Only a positive Telegram message_id is proof of successful delivery."""
+    try:
+        candidate = int(message_id)
+    except (TypeError, ValueError):
+        raise channel.DeliveryUncertainError("Telegram response has no valid message_id")
+    if candidate <= 0:
+        raise channel.DeliveryUncertainError("Telegram response has no valid message_id")
+    return candidate
+
+
+def classify_send_failure(ledger, kind, key, day, exc):
+    """Terminal refusals are distinct from ambiguous Telegram responses.
+
+    Status is committed fail-closed: a D1 failure propagates. No automatic
+    retries for unknown delivery (including a local exception during send).
+    """
+    if isinstance(exc, requests.HTTPError) and exc.response is not None:
+        if exc.response.status_code in DEFINITIVE_REJECTION_CODES:
+            ledger.set_status(kind, key, day, "rejected")
+            print("ACTUFOOT_TELEGRAM_REJECTED", kind, key, exc.response.status_code)
+            return "rejected"
+    # Validation and rendering exceptions occur before any Telegram POST.
+    if isinstance(exc, (ValueError, FileNotFoundError)):
+        ledger.set_status(kind, key, day, "failed")
+        print("ACTUFOOT_PREPARATION_FAILED", kind, key, type(exc).__name__, str(exc)[:180])
+        return "failed"
+    ledger.set_status(kind, key, day, "uncertain")
+    print("ACTUFOOT_TELEGRAM_UNCERTAIN", kind, key, type(exc).__name__)
+    return "uncertain"
+
+
+
 def day_key(now: datetime) -> str:
     return now.astimezone(channel.TZ).date().isoformat()
 
@@ -228,19 +261,20 @@ def confirmed_message(ledger: D1Ledger, sender: channel.Sender,
         return False
     key = sender.chat + ":" + ref
     if not ledger.claim(EVENT_KIND, key, day):
-        rows = ledger.rows(EVENT_KIND, day, ref_id=key)
-        if rows and rows[0].get("delivery_status") == "sent":
+        status = ledger.reconcile(EVENT_KIND, key, day)
+        if status == "sent":
             return True
-        # Ne jamais considérer une réservation incertaine comme un envoi réussi.
-        raise RuntimeError("ACTUFOOT_EVENT_UNCERTAIN_DELIVERY " + ref)
+        if status == "missing":
+            raise RuntimeError("ACTUFOOT_LEDGER_RACE " + ref)
+        print("ACTUFOOT_EVENT_QUARANTINED", ref, status)
+        return False
     try:
-        message_id = sender.send(post)
-    except requests.HTTPError as exc:
-        code = exc.response.status_code if exc.response is not None else None
-        if code in DEFINITIVE_REJECTION_CODES:
-            ledger.release(EVENT_KIND, key, day)
-        raise
-    # L'état 'reserved' reste intact en cas de timeout ou de réponse ambiguë.
+        message_id = delivery_identity(sender.send(post))
+    except Exception as exc:
+        classify_send_failure(ledger, EVENT_KIND, key, day, exc)
+        return False
+    # Marking can fail after Telegram confirmed: the reservation stays locked.
+    # The id cannot be recovered from an ambiguous ledger write; never resend.
     ledger.mark(EVENT_KIND, key, day, message_id=message_id)
     print("ACTUFOOT_SENT", post.category, ref, "message_id", message_id)
     return True
@@ -261,7 +295,12 @@ def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | No
                     raise RuntimeError("ACTUFOOT_PROGRAMME_SENT_EMPTY_PLAN")
                 print("ACTUFOOT_PROGRAMME_ALREADY_HANDLED", today, len(plan))
                 return
-            raise RuntimeError("ACTUFOOT_PROGRAMME_UNCERTAIN_DELIVERY " + today)
+            status = ledger.reconcile(PROGRAMME_KIND, sender.chat, today)
+            if status == "sent":
+                print("ACTUFOOT_PROGRAMME_RECONCILED", today)
+            else:
+                print("ACTUFOOT_PROGRAMME_QUARANTINED", today, status)
+            return
     events = fetch_espn_day(sender.session, now.astimezone(channel.TZ).date(), force=True)
     if not events:
         raise RuntimeError("ACTUFOOT_ESPN_DAY_EMPTY_OR_UNAVAILABLE " + today)
@@ -276,14 +315,14 @@ def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | No
     # Tester les autorisations du bot AVANT de réserver le programme.
     sender.verify_discussion()
     if not reserve_programme(ledger, sender.chat, today, selected):
-        raise RuntimeError("ACTUFOOT_PROGRAMME_CONCURRENT_RESERVATION")
+        status = ledger.reconcile(PROGRAMME_KIND, sender.chat, today)
+        print("ACTUFOOT_PROGRAMME_CONCURRENT_CLAIM", today, status)
+        return
     try:
-        message_id = sender.send(post)
-    except requests.HTTPError as exc:
-        code = exc.response.status_code if exc.response is not None else None
-        if code in DEFINITIVE_REJECTION_CODES:
-            ledger.release(PROGRAMME_KIND, sender.chat, today)
-        raise
+        message_id = delivery_identity(sender.send(post))
+    except Exception as exc:
+        classify_send_failure(ledger, PROGRAMME_KIND, sender.chat, today, exc)
+        return
     ledger.mark(PROGRAMME_KIND, sender.chat, today, message_id=message_id)
     print("ACTUFOOT_PROGRAMME_SENT", today, len(selected), "message_id", message_id)
 
@@ -618,11 +657,23 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
         # Ne consulter ni Telegram ni les événements D1 quand aucun match n'est actif.
         sender.verify_discussion()
         previous = ledger.query(
-            "SELECT ref_id,delivery_status FROM telegram_sent "
-            "WHERE kind=? AND ref_date=? AND ref_id GLOB ? LIMIT 400",
+            "SELECT ref_id,delivery_status,telegram_message_id,sent_at FROM telegram_sent "
+            "WHERE kind=? AND ref_date=? AND ref_id GLOB ? LIMIT 1000",
             (EVENT_KIND, day, sender.chat + ":*"),
         ).get("results") or []
         known = {str(item["ref_id"]): item["delivery_status"] for item in previous}
+        counters = {"sent": 0, "quarantined": 0, "pending": 0, "rejected": 0}
+        # Reconciliation does not call Telegram's send API and never deletes a claim.
+        for item in previous:
+            key = str(item["ref_id"])
+            if item.get("delivery_status") in ("reserved", "uncertain"):
+                known[key] = ledger.reconcile(EVENT_KIND, key, day)
+            if known[key] == "sent":
+                counters["sent"] += 1
+            elif known[key] in ("reserved", "uncertain", "failed", "rejected"):
+                counters["quarantined" if known[key] == "uncertain" else
+                         "pending" if known[key] == "reserved" else "rejected"] += 1
+        print("ACTUFOOT_DELIVERY_RECONCILIATION", day, json.dumps(counters, sort_keys=True))
         for row in active[:max(0, MAX_CALLS_PER_CYCLE - checked)]:
             checked += 1
             summary = fetch_espn_summary(sender.session, str(row["id"]), force=True)
@@ -659,7 +710,8 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
                     continue
                 if key in known:
                     if known[key] != "sent":
-                        raise RuntimeError("ACTUFOOT_UNCERTAIN_DELIVERY " + ref)
+                        print("ACTUFOOT_SIGNAL_BLOCKED", ref, "status", known[key])
+                        continue
                     was_sent = True
                 else:
                     if signal["kind"] == "resultat_final":
@@ -677,6 +729,9 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
                     )
                     if was_sent:
                         known[key] = "sent"
+                    else:
+                        # The claim remains durable and permanently blocks blind retries.
+                        known[key] = "uncertain"
                 if was_sent and signal is fallback:
                     fallback_ok = True
                 if was_sent and signal["kind"] == "resultat_final":
@@ -703,6 +758,7 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
                     ledger, sender.chat, day, raw, plan, str(row["id"])
                 )
     print("ACTUFOOT_LIVE_MONITORED", checked)
+    print("ACTUFOOT_MONITORING_CATEGORY lifecycle=completed; publication_issues_are_logged_separately")
 
 
 def main():
