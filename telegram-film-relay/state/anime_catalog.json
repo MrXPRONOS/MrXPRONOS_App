@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-13T07:08:17.578965+00:00",
+    "checked_at": "2026-11-13T20:05:35.270240+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -26,6 +26,12 @@
         "season": "1",
         "series": "a-certain-dark-item",
         "source_instances": 3
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "a-certain-dark-item",
+        "source_instances": 1
       },
       {
         "episode": 12,
@@ -596,15 +602,9 @@
         "season": "1",
         "series": "animeisekaic-goblin-slayer",
         "source_instances": 1
-      },
-      {
-        "episode": 8,
-        "season": "1",
-        "series": "animeisekaic-goblin-slayer",
-        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2505,
+    "not_yet_indexed_total": 2575,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,9 +650,9 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2598,
-    "source_episode_numbers_observed": 2604,
-    "source_numbering_gap_seasons": 65,
+    "scanned_episode_candidates": 2578,
+    "source_episode_numbers_observed": 2674,
+    "source_numbering_gap_seasons": 67,
     "source_numbering_gaps": [
       {
         "not_observed_between_known": [
@@ -1207,6 +1207,14 @@
       },
       {
         "not_observed_between_known": [
+          6
+        ],
+        "season": "3",
+        "series": "the-apothecary-diaries",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
           6,
           7,
           8
@@ -1283,6 +1291,14 @@
       },
       {
         "not_observed_between_known": [
+          6
+        ],
+        "season": "2",
+        "series": "tougen-anki-nikko-kegon-falls-arc",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
           4,
           8
         ],
@@ -1308,7 +1324,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 420
+    "unnumbered_videos_skipped": 419
   },
   "scans": {
     "-1001787980027": {
@@ -2046,6 +2062,23 @@
           "-1002069851953:65378",
           "-1002069851953:65379",
           "-1002069851953:65380"
+        ],
+        "6": [
+          "-1002069851953:65975"
+        ]
+      }
+    },
+    "a-certain-dark-item-360p": {
+      "1": {
+        "6": [
+          "-1002069851953:65973"
+        ]
+      }
+    },
+    "a-certain-dark-item-480p": {
+      "1": {
+        "6": [
+          "-1002069851953:65974"
         ]
       }
     },
@@ -4735,6 +4768,28 @@
         ]
       }
     },
+    "firefly-wedding": {
+      "1": {
+        "6": [
+          "-1002069851953:65983"
+        ]
+      }
+    },
+    "firefly-wedding-360p": {
+      "1": {
+        "6": [
+          "-1002069851953:65980"
+        ]
+      }
+    },
+    "firefly-wedding-480p": {
+      "1": {
+        "6": [
+          "-1002069851953:65981",
+          "-1002069851953:65982"
+        ]
+      }
+    },
     "flaming-dodgeball-girl-danko": {
       "1": {
         "12": [
@@ -6303,6 +6358,145 @@
         ]
       }
     },
+    "mangas-fv-dorohedoro-ep01": {
+      "1": {
+        "1": [
+          "-1001595907308:14839"
+        ]
+      },
+      "2": {
+        "1": [
+          "-1001595907308:14852"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep02": {
+      "1": {
+        "2": [
+          "-1001595907308:14840"
+        ]
+      },
+      "2": {
+        "2": [
+          "-1001595907308:14853"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep03": {
+      "1": {
+        "3": [
+          "-1001595907308:14841"
+        ]
+      },
+      "2": {
+        "3": [
+          "-1001595907308:14854"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep04": {
+      "1": {
+        "4": [
+          "-1001595907308:14842"
+        ]
+      },
+      "2": {
+        "4": [
+          "-1001595907308:14855"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep05": {
+      "1": {
+        "5": [
+          "-1001595907308:14843"
+        ]
+      },
+      "2": {
+        "5": [
+          "-1001595907308:14856"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep06": {
+      "1": {
+        "6": [
+          "-1001595907308:14844"
+        ]
+      },
+      "2": {
+        "6": [
+          "-1001595907308:14857"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep07": {
+      "1": {
+        "7": [
+          "-1001595907308:14845"
+        ]
+      },
+      "2": {
+        "7": [
+          "-1001595907308:14858"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep08": {
+      "1": {
+        "8": [
+          "-1001595907308:14846"
+        ]
+      },
+      "2": {
+        "8": [
+          "-1001595907308:14859"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep09": {
+      "1": {
+        "9": [
+          "-1001595907308:14847"
+        ]
+      },
+      "2": {
+        "9": [
+          "-1001595907308:14860"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep10": {
+      "1": {
+        "10": [
+          "-1001595907308:14848"
+        ]
+      },
+      "2": {
+        "10": [
+          "-1001595907308:14861"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep11": {
+      "1": {
+        "11": [
+          "-1001595907308:14849"
+        ]
+      },
+      "2": {
+        "11": [
+          "-1001595907308:14862"
+        ]
+      }
+    },
+    "mangas-fv-dorohedoro-ep12": {
+      "1": {
+        "12": [
+          "-1001595907308:14850"
+        ]
+      }
+    },
     "mangas-fv-dragon-quest": {
       "1": {
         "1": [
@@ -7858,6 +8052,83 @@
         ]
       }
     },
+    "mangas-fv-sakamoto-days-ep12": {
+      "1": {
+        "12": [
+          "-1001595907308:14822"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep13": {
+      "1": {
+        "13": [
+          "-1001595907308:14823"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep14": {
+      "1": {
+        "14": [
+          "-1001595907308:14824"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep15": {
+      "1": {
+        "15": [
+          "-1001595907308:14825"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep16": {
+      "1": {
+        "16": [
+          "-1001595907308:14826"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep17": {
+      "1": {
+        "17": [
+          "-1001595907308:14827"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep18": {
+      "1": {
+        "18": [
+          "-1001595907308:14828"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep19": {
+      "1": {
+        "19": [
+          "-1001595907308:14829"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep20": {
+      "1": {
+        "20": [
+          "-1001595907308:14830"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep21": {
+      "1": {
+        "21": [
+          "-1001595907308:14831"
+        ]
+      }
+    },
+    "mangas-fv-sakamoto-days-ep22": {
+      "1": {
+        "22": [
+          "-1001595907308:14832"
+        ]
+      }
+    },
     "mangas-fv-the-darwin-incident-ep01": {
       "1": {
         "1": [
@@ -7946,6 +8217,160 @@
       "1": {
         "13": [
           "-1001595907308:13210"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep02": {
+      "1": {
+        "2": [
+          "-1001595907308:14868"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep04": {
+      "1": {
+        "4": [
+          "-1001595907308:14870"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep05": {
+      "1": {
+        "5": [
+          "-1001595907308:14871"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep06": {
+      "1": {
+        "6": [
+          "-1001595907308:14872"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep07": {
+      "1": {
+        "7": [
+          "-1001595907308:14873"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep08": {
+      "1": {
+        "8": [
+          "-1001595907308:14874"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep09": {
+      "1": {
+        "9": [
+          "-1001595907308:14875"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep10": {
+      "1": {
+        "10": [
+          "-1001595907308:14876"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep11": {
+      "1": {
+        "11": [
+          "-1001595907308:14877"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep12": {
+      "1": {
+        "12": [
+          "-1001595907308:14878"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep13": {
+      "1": {
+        "13": [
+          "-1001595907308:14879"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep14": {
+      "1": {
+        "14": [
+          "-1001595907308:14880"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep15": {
+      "1": {
+        "15": [
+          "-1001595907308:14881"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep16": {
+      "1": {
+        "16": [
+          "-1001595907308:14882"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep17": {
+      "1": {
+        "17": [
+          "-1001595907308:14883"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep18": {
+      "1": {
+        "18": [
+          "-1001595907308:14884"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep19": {
+      "1": {
+        "19": [
+          "-1001595907308:14885"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep20": {
+      "1": {
+        "20": [
+          "-1001595907308:14886"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep21": {
+      "1": {
+        "21": [
+          "-1001595907308:14887"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep22": {
+      "1": {
+        "22": [
+          "-1001595907308:14888"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep23": {
+      "1": {
+        "23": [
+          "-1001595907308:14889"
+        ]
+      }
+    },
+    "mangas-fv-the-drops-of-god-ep24-fin": {
+      "1": {
+        "24": [
+          "-1001595907308:14890"
         ]
       }
     },
@@ -10498,6 +10923,20 @@
         ]
       }
     },
+    "please-excuse-my-younger-brothers-360p": {
+      "1": {
+        "19": [
+          "-1002069851953:65998"
+        ]
+      }
+    },
+    "please-excuse-my-younger-brothers-480p": {
+      "1": {
+        "19": [
+          "-1002069851953:65999"
+        ]
+      }
+    },
     "psyren": {
       "1": {
         "2": [
@@ -11874,6 +12313,27 @@
         "5": [
           "-1002294192868:11305",
           "-1002294192868:11306"
+        ],
+        "7": [
+          "-1002069851953:65962",
+          "-1002069851953:65963",
+          "-1002069851953:65966",
+          "-1002069851953:65967",
+          "-1002069851953:65968"
+        ]
+      }
+    },
+    "the-apothecary-diaries-360p": {
+      "3": {
+        "7": [
+          "-1002069851953:65964"
+        ]
+      }
+    },
+    "the-apothecary-diaries-480p": {
+      "3": {
+        "7": [
+          "-1002069851953:65965"
         ]
       }
     },
@@ -12573,6 +13033,26 @@
         "5": [
           "-1002294192868:11321",
           "-1002294192868:11322"
+        ],
+        "7": [
+          "-1002069851953:65988",
+          "-1002069851953:65989",
+          "-1002069851953:65990",
+          "-1002069851953:65991"
+        ]
+      }
+    },
+    "tougen-anki-nikko-kegon-falls-arc-360p": {
+      "2": {
+        "7": [
+          "-1002069851953:65992"
+        ]
+      }
+    },
+    "tougen-anki-nikko-kegon-falls-arc-480p": {
+      "2": {
+        "7": [
+          "-1002069851953:65993"
         ]
       }
     },
