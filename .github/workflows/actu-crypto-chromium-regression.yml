@@ -1,0 +1,105 @@
+name: Actu Crypto - Chromium production renderer regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/actu-crypto-production-live.yml'
+      - '.github/workflows/actu-crypto-chromium-regression.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/render_crypto_*.mjs'
+      - 'scripts/crypto_poster_format.mjs'
+      - 'scripts/test_crypto_poster_format.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/actu-crypto-production-live.yml'
+      - '.github/workflows/actu-crypto-chromium-regression.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    name: Exercise actual poster browser without Telegram
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate production environment compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          source /etc/os-release
+          test "$VERSION_ID" = '24.04'
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/actu-crypto-production-live.yml').read_text()
+          assert 'runs-on: ubuntu-24.04' in text
+          assert 'npm ci --no-audit --no-fund' in text
+          assert 'Verify real Chromium renderer before any publication' in text
+          assert 'CRYPTO_CHROMIUM_SMOKE_OK' in text
+          print('CRYPTO_RUNNER_VERSION_GUARD_OK')
+          PY
+      - name: Install identical production dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Browser launch, screenshot and JS rendering smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright';
+          import {readFileSync} from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          try {
+            const page = await browser.newPage({viewport:{width:960,height:540}});
+            await page.setContent('<html><body><h1>CRYPTO_RENDER_TEST</h1></body></html>');
+            const title = await page.locator('h1').textContent();
+            if (title !== 'CRYPTO_RENDER_TEST') throw new Error('DOM render failed');
+            await page.screenshot({path:'/tmp/crypto-browser-smoke.png'});
+            const png=readFileSync('/tmp/crypto-browser-smoke.png');
+            if (!png.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) {
+              throw new Error('Chromium did not render PNG');
+            }
+            console.log('CRYPTO_CHROMIUM_RENDER_AND_SCREENSHOT_OK',browser.version());
+          } finally {
+            await browser.close();
+          }
+          JS
+      - name: Full safe production preflight, no publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q crypto
+          python -m unittest \
+            crypto.test_final_live_v2 \
+            crypto.test_quality_audit_10 \
+            crypto.test_publish_crypto_1_5 \
+            crypto.test_losers_v2 \
+            crypto.test_alerts_v2 \
+            crypto.test_fear_v2 \
+            crypto.test_dominance_v2 \
+            crypto.test_weekly_v2 \
+            crypto.test_breaking_v2 \
+            crypto.test_exchanges_v2 \
+            crypto.test_regulation_v2 \
+            crypto.test_regulation_10_auto \
+            crypto.test_production_live_v1 -v
+          node scripts/test_crypto_poster_format.mjs
+          echo CRYPTO_PRODUCTION_PREFLIGHT_OK

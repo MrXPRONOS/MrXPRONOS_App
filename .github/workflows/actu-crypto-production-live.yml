@@ -33,7 +33,10 @@ concurrency:
 jobs:
   crypto-publish:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.confirm_real_production == true)
-    runs-on: ubuntu-latest
+    # Playwright 1.60's bundled Chromium cannot install on Ubuntu 26.04.
+    # Pin a supported runner until the poster renderer is explicitly tested
+    # against a Playwright upgrade; do not rely on ubuntu-latest migration.
+    runs-on: ubuntu-24.04
     timeout-minutes: 18
     env:
       ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
@@ -80,8 +83,25 @@ jobs:
       - name: Install public-data and premium-poster dependencies
         run: |
           python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: Verify real Chromium renderer before any publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless: true});
+          try {
+            const page = await browser.newPage({viewport:{width:960,height:540}});
+            await page.goto('about:blank');
+            const title = await page.evaluate(() => document.title);
+            if (title !== '') throw new Error('Unexpected smoke page');
+            console.log('CRYPTO_CHROMIUM_SMOKE_OK', browser.version());
+          } finally {
+            await browser.close();
+          }
+          JS
       - name: Mandatory crypto regression safety preflight
         run: |
           python -m compileall -q crypto
