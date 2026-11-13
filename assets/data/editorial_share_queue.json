@@ -1,5 +1,614 @@
 [
   {
+    "id": "2e8bbcc7b48929c1119bd954",
+    "kind": "news",
+    "title": "Italie-France : revivez la première défaite de Zinédine Zidane à la tête des Bleus qui devront encore attendre pour la qualification en quarts de Ligue des nations",
+    "url": "https://www.franceinfo.fr/sports/directs/direct-italie-france-qualification-en-vue-pour-les-quarts-de-ligue-des-nations-suivez-et-commentez-le-match-avec-nous_8276066.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-12T23:40:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "189a6311fbac24d2e4172e4f",
+    "kind": "news",
+    "title": "Équipe de France : la soirée cauchemardesque de Malo Gusto !",
+    "url": "https://www.footmercato.net/a2792893882911352753-equipe-de-france-la-soiree-cauchemardesque-de-malo-gusto",
+    "source_date": "2026-11-12T22:43:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "08dc27da22ef2b814beef00f",
+    "kind": "news",
+    "title": "Équipe de France : Jérémy Jacquet veut \"vite tourner la page\" après le revers des Bleus en Italie",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-jeremy-jacquet-veut-vite-tourner-la-page-apres-le-revers-des-bleus-en-italie-545571.html",
+    "source_date": "2026-11-12T22:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9f019eed1845160bfa3ca4dd",
+    "kind": "news",
+    "title": "EdF : Zidane explique le couac",
+    "url": "https://www.maxifoot.fr/france/zidane-explique-le-couac-foot-467600.htm",
+    "source_date": "2026-11-12T22:25:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e95dd937545139e00e728912",
+    "kind": "news",
+    "title": "« On a été moins bien défensivement » : Zinédine Zidane donne les raisons de sa première défaite avec l’équipe de France",
+    "url": "https://www.footmercato.net/a5978849198137677540-on-a-ete-moins-bien-defensivement-zinedine-zidane-donne-les-raisons-de-sa-premiere-defaite-avec-lequipe-de-france",
+    "source_date": "2026-11-12T22:24:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e2dedca50bc745fd50cdaa9e",
+    "kind": "news",
+    "title": "Italie - France : Zidane espère compter sur Mbappé contre la Turquie et confirme un problème de dent pour Doué",
+    "url": "https://www.onzemondial.com/equipe-de-france/italie-france-zidane-espere-compter-sur-mbappe-contre-la-turquie-et-confirme-un-probleme-de-dent-pour-doue-1008656",
+    "source_date": "2026-11-12T22:19:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "42e6cdc76e6e1c182cf17841",
+    "kind": "news",
+    "title": "Équipe de France : \"Ce n'est pas un non-match\", Zinédine Zidane loin d'être alarmiste après sa première défaite sur le banc des Bleus",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-ce-n-est-pas-un-non-match-zinedine-zidane-loin-d-etre-alarmiste-apres-sa-premiere-defaite-sur-le-banc-des-bleus-545569.html",
+    "source_date": "2026-11-12T22:17:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "dff80076972ae39544a2a53a",
+    "kind": "news",
+    "title": "Italie : la réaction de Roberto Mancini après la victoire renversante face à la France",
+    "url": "https://www.footmercato.net/a5440246923589771135-italie-la-reaction-de-roberto-mancini-apres-la-victoire-renversante-face-a-la-france",
+    "source_date": "2026-11-12T22:08:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "24723c737ca9a35b198d33c4",
+    "kind": "news",
+    "title": "Équipe de France : \"On ne joue pas assez vite\", Rayan Cherki très frustré après la première défaite de l'ère Zinédine Zidane face à l'Italie",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-on-ne-joue-pas-assez-vite-rayan-cherki-tres-frustre-apres-la-premiere-defaite-de-l-ere-zinedine-zidane-face-a-l-italie-545562.html",
+    "source_date": "2026-11-12T22:08:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7be0e39403026f8eb8517984",
+    "kind": "news",
+    "title": "Ligue des nations: la France de Zidane battue par l’Italie à San Siro",
+    "url": "https://www.rfi.fr/fr/sports/20261112-ligue-des-nations-la-france-de-zidane-battue-par-l-italie-%C3%A0-san-siro",
+    "source_date": "2026-11-12T22:06:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "57b9604d5559b6a8d9e7db07",
+    "kind": "news",
+    "title": "Équipe de France : Cherki dévoile ce qui n’a pas fonctionné",
+    "url": "https://www.footmercato.net/a1267838756746927378-equipe-de-france-cherki-devoile-ce-qui-na-pas-fonctionne",
+    "source_date": "2026-11-12T22:05:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0907cd4aedf031069c0c344c",
+    "kind": "news",
+    "title": "Équipe de France : Jérémy Jacquet analyse la défaite contre l’Italie",
+    "url": "https://www.footmercato.net/a1311470507391099515-equipe-de-france-jeremy-jacquet-analyse-la-defaite-contre-litalie",
+    "source_date": "2026-11-12T22:05:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4e4d1671b13cd9ce109c4802",
+    "kind": "news",
+    "title": "Équipe de France : Andy Diouf pointe les failles des Bleus après la défaite face à l'Italie",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-andy-diouf-pointe-les-failles-des-bleus-apres-la-defaite-face-a-l-italie-545559.html",
+    "source_date": "2026-11-12T21:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "91a6f889a2d3ff15483338a5",
+    "kind": "news",
+    "title": "L'équipe de France battue par l'Italie en Ligue des nations, la première défaite de l'ère Zinédine Zidane",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-nations/l-equipe-de-france-battue-par-l-italie-en-ligue-des-nations-la-premiere-defaite-de-l-ere-zinedine-zidane_8280092.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-12T21:53:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f227f7753613ac781094be08",
+    "kind": "news",
+    "title": "Ligue des nations : l'Espagne continue son sans faute, l'Angleterre qualifiée pour les quarts de finale",
+    "url": "https://www.onzemondial.com/euro/ligue-des-nations-lespagne-continue-son-sans-faute-langleterre-qualifiee-pour-les-quarts-de-finale-1008683",
+    "source_date": "2026-11-12T21:48:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "93554edf7142d99413c67b05",
+    "kind": "news",
+    "title": "Première défaite pour les Bleus de Zidane contre l'Italie, la qualification n'est pas encore actée",
+    "url": "https://www.onzemondial.com/equipe-de-france/premiere-defaite-pour-les-bleus-de-zidane-contre-litalie-la-qualification-nest-pas-encore-actee-1008682",
+    "source_date": "2026-11-12T21:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f2d35893495ae6b5ed949ff5",
+    "kind": "news",
+    "title": "Ligue des nations : la France renversée par l'Italie, la qualification en danger",
+    "url": "https://www.france24.com/fr/sports/20261112-ligue-nations-france-renversee-italie-qualification",
+    "source_date": "2026-11-12T21:40:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b3b6625242db08211fc0cf32",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: La Côte d’Ivoire et le Cameroun assurent, le Sénégal s’amuse",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261112-%C3%A9liminatoires-can-2027-la-c%C3%B4te-d-ivoire-et-le-cameroun-assurent-le-s%C3%A9n%C3%A9gal-s-amuse",
+    "source_date": "2026-11-12T21:11:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "05b5830569778df00894eebb",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : le Sénégal, le Cameroun et la Côte d'Ivoire déroulent",
+    "url": "https://www.france24.com/fr/sports/20261112-eliminatoires-can-2027-senegal-cameroun-cote-ivoire",
+    "source_date": "2026-11-12T20:57:52+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1b9afe90d52cbffee0866078",
+    "kind": "news",
+    "title": "Valérien Ismaël nommé nouvel entraîneur du Havre, lanterne rouge de Ligue 1",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-1/valerien-ismael-nomme-nouvel-entraineur-du-havre-lanterne-rouge-de-ligue-1_8279981.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-12T20:21:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d254a83f5dea09abd798e1fc",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: Le Ghana ouvre enfin son compteur, la RD Congo impériale",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261112-%C3%A9liminatoires-can-2027-le-ghana-ouvre-enfin-son-compteur-la-rd-congo-imp%C3%A9riale",
+    "source_date": "2026-11-12T18:58:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0f21bb8f2840cc386a317e44",
+    "kind": "news",
+    "title": "CAN 2027 : après une démonstration à domicile, la RD Congo a déjà un pied en Afrique de l'Est",
+    "url": "https://www.france24.com/fr/sports/20261112-can-2027-apr%C3%A8s-une-d%C3%A9monstration-%C3%A0-domicile-la-rd-congo-a-d%C3%A9j%C3%A0-un-pied-en-afrique-de-l-est",
+    "source_date": "2026-11-12T17:54:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fae03f8d8d874aa3f40b13c4",
+    "kind": "news",
+    "title": "CAN 2027 : au pied du mur, le Ghana et la Guinée font le travail pour se relancer",
+    "url": "https://www.france24.com/fr/sports/20261112-can-2027-au-pied-du-mur-le-ghana-fait-le-travail",
+    "source_date": "2026-11-12T17:00:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "50ac8e9416d06c8b326322cd",
+    "kind": "news",
+    "title": "Ligue des Nations : la France affronte l'Italie sans Kylian Mbappé",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261112-ligue-des-nations-la-france-affronte-l-italie-sans-kylian-mbapp%C3%A9",
+    "source_date": "2026-11-12T12:01:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8b78bb3e78e5d5759ca56a96",
+    "kind": "news",
+    "title": "Une quarantaine de personnalités ont participé à un match de football symbolique pour demander la libération du journaliste Christophe Gleizes en Algérie",
+    "url": "https://www.franceinfo.fr/culture/livres/emprisonnement-du-journaliste-christophe-gleizes-en-algerie/une-quarantaine-de-personnalites-ont-participe-a-un-match-de-football-symbolique-pour-demander-la-liberation-du-journaliste-christophe-gleizes-en-algerie_8278931.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-12T10:36:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c9cc4364321fff42d358930f",
+    "kind": "news",
+    "title": "Manchester United : Michael Carrick sur la sellette?",
+    "url": "https://www.rfi.fr/fr/podcasts/appels-sur-l-actualit%C3%A9/20261112-manchester-united-michael-carrick-sur-la-sellette",
+    "source_date": "2026-11-12T10:20:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c7befa3e8a1c65d6990fbba2",
+    "kind": "news",
+    "title": "Un match de foot réunit des célébrités en solidarité avec le journaliste incarcéré Christophe Gleizes",
+    "url": "https://www.rfi.fr/fr/podcasts/reportage-france/20261112-un-match-de-foot-r%C3%A9unit-des-c%C3%A9l%C3%A9brit%C3%A9s-en-solidarit%C3%A9-avec-le-journaliste-incarc%C3%A9r%C3%A9-christophe-gleizes",
+    "source_date": "2026-11-12T08:31:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f22c3e519c8efd9ab2a21828",
+    "kind": "news",
+    "title": "PODCAST. La solidarité se \"mérite\", des noms retrouvés chez Kevin Tessier et des Bleus absents : ça dit quoi ce 12 novembre ?",
+    "url": "https://www.franceinfo.fr/replay-radio/ca-dit-quoi/podcast-la-solidarite-se-merite-des-noms-retrouves-chez-kevin-tessier-et-des-bleus-absents-ca-dit-quoi-ce-12-novembre_8269919.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-12T08:26:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5dd79a43a313a3ee76ec5ff4",
+    "kind": "news",
+    "title": "Kylian Mbappé finalement absent contre l’Italie jeudi en Ligue des nations",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261112-kylian-mbapp%C3%A9-finalement-absent-contre-italie-jeudi-ligue-des-nations",
+    "source_date": "2026-11-12T06:28:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-13T05:42:00.402302+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "0890c6f4d234b5a6aaa52efb",
     "kind": "article",
     "title": "Andorra vs Gibraltar : analyse du match",
@@ -40,7 +649,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "06352aedd37e81e171a1d671",
@@ -61,7 +670,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0e86e4b323ec9453c48d875d",
@@ -82,7 +691,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "53db75810ff2b036ad9a6f3c",
@@ -103,7 +712,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7ae0b1f6b38173ee04cf41f2",
@@ -124,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1936b6cc6e814a79b91f5d62",
@@ -166,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e22f7bc866052055d99d378e",
@@ -187,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f9eb6d067891955c14656849",
@@ -208,7 +817,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "541df57e760a8ce8722b6716",
@@ -229,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6177d37a54b3a7bfe9084dfb",
@@ -250,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cbceba681c170c49d695db36",
@@ -271,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0a7f5929e9a600d69d273f1b",
@@ -292,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2a7b8deea82880bc119cc43f",
@@ -313,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "65950b5fda515a0c13e23f44",
@@ -334,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b1eafd6024b12326e12a6be2",
@@ -355,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ef6a78ee34bb35fcf61db924",
@@ -376,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "be5130ea9b27a7f35e44e345",
@@ -397,7 +1006,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "763632f6c7ec18e99e815234",
@@ -418,7 +1027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cdff8bcfe3728f0ea2e0c7c6",
@@ -439,7 +1048,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ff8d432656431abc62532022",
@@ -460,7 +1069,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a2607aa0dbb429868b5be835",
@@ -481,7 +1090,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "48421c75498c6d99a2eb8ec6",
@@ -502,7 +1111,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b621ffc9b4f70738681cef88",
@@ -523,7 +1132,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bd4eeb71d511206d325bfa18",
@@ -544,7 +1153,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ab761df6e0bad15d8e570ed0",
@@ -565,7 +1174,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1eaf12a80da4556492067cb8",
@@ -586,7 +1195,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3533de6889af07e356d0066e",
@@ -607,7 +1216,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "66c3c8292d410db813af2dc9",
@@ -628,7 +1237,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1b0ee2d5bc2ea448add9b192",
@@ -712,7 +1321,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c9b00b80c2e1fc04d7b98177",
