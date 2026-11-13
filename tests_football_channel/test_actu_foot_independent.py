@@ -263,6 +263,15 @@ class TestActuFootIndependent(unittest.TestCase):
         ledger.set_status.assert_called_once_with(mod.EVENT_KIND,"@test:goal:x","2026-10-29","uncertain")
         ledger.release.assert_not_called()
 
+    def test_local_render_failure_is_not_delivery_uncertainty(self):
+        ledger=MagicMock()
+        ledger.claim.return_value=True
+        sender=MagicMock(chat="@test")
+        sender.send.side_effect=ValueError("Composition officielle incomplète")
+        self.assertFalse(mod.confirmed_message(ledger,sender,"2026-10-29","composition:x",MagicMock(),dry_run=False))
+        ledger.set_status.assert_called_once_with(mod.EVENT_KIND,"@test:composition:x","2026-10-29","failed")
+        ledger.mark.assert_not_called()
+
     def test_missing_telegram_message_id_is_not_success(self):
         ledger=MagicMock()
         ledger.claim.return_value=True
