@@ -54,6 +54,21 @@ class BSDCC0CanaryTests(unittest.TestCase):
         self.assertEqual(conflicting["officially_corroborated_unique_native_matches"],0)
         self.assertEqual(conflicting["duplicate_native_fixture_conflicts"],1)
 
+    def test_duplicate_calendar_rows_in_same_league_are_quarantined(self):
+        duplicated = calendar() + calendar()
+        self.assertEqual(candidate_leagues(duplicated, [event()], at=AT), [])
+        report = corroborate(duplicated, [event()], {44:"Premier League"}, at=AT)
+        self.assertEqual(report["officially_corroborated_unique_native_matches"], 0)
+        self.assertEqual(report["rejections"].get("duplicate_cc0_fixture_rows"), 1)
+        self.assertFalse(report["production_publication_enabled"])
+
+    def test_calendar_duplicate_across_competitions_is_quarantined(self):
+        repeated = calendar() + extract_calendar({"matches":[
+            {"date":"2026-10-16","team1":"Arsenal","team2":"Chelsea"}]}, "en.2")
+        report = corroborate(repeated, [event()], {44:"Premier League"}, at=AT)
+        self.assertEqual(report["officially_corroborated_unique_native_matches"], 0)
+        self.assertEqual(report["rejections"].get("duplicate_cc0_fixture_rows"), 1)
+
     def test_invalid_status_or_nonfuture_no_matches(self):
         old=event(time="2026-10-14T19:00:00Z")
         live=event()
