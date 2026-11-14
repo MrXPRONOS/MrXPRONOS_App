@@ -757,3 +757,39 @@
   .mx-scores-page .mx-score-teamname{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.mx-scores-page .mx-scores-cta,.mx-scores-page .mx-score-card{transition:none!important}}
+
+
+/* Screenshot navigation: five equal mobile stations, gold Scores exacts active. */
+@media(max-width:780px){
+  .mx-scores-page #bottom-nav{
+    background:linear-gradient(170deg,rgba(17,25,34,.98),rgba(3,8,14,.99))!important;
+    border-top:1px solid rgba(226,176,77,.54)!important;
+    border-radius:22px 22px 0 0;
+    box-shadow:0 -8px 31px rgba(0,0,0,.76)!important;
+  }
+  .mx-scores-page #bottom-nav .inner{
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    width:100%;max-width:620px!important;
+    gap:2px!important;
+    padding:5px 5px max(5px,env(safe-area-inset-bottom))!important;
+  }
+  .mx-scores-page #bottom-nav .bottom-nav-item{
+    min-height:63px!important;min-width:0;
+    padding:7px 1px 4px!important;
+    border-radius:11px!important;
+    font:700 clamp(8px,2.5vw,12px)/1.1 Outfit,Manrope,sans-serif!important;
+    color:#f3f5f7!important;
+    gap:3px!important;
+  }
+  .mx-scores-page #bottom-nav .bottom-nav-item.active{
+    color:#fff3be!important;
+    background:linear-gradient(145deg,#795119,#38240a)!important;
+    border:1px solid #bc8730!important;
+    box-shadow:inset 0 1px 0 #e5b95055,0 0 13px #c18a2540!important;
+  }
+  .mx-scores-page #bottom-nav .bottom-nav-icon-wrap{width:28px;height:28px}
+  .mx-scores-page #bottom-nav .bottom-nav-icon{width:27px;height:27px;object-fit:contain}
+  .mx-scores-page #bottom-nav .bottom-nav-label{font-size:inherit!important;line-height:1.14!important}
+  .mx-scores-page #bottom-nav .bottom-nav-item.active::before{display:none!important}
+}
