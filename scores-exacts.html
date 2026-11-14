@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/pronos-premium.css">
-  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261114-dixon-top10">
+  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261114-scores-premium-v3">
   <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/css/ux-direct.css?v=20261107-v1">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -59,9 +59,28 @@
 <main id="score-main" class="mx-scores-main">
   <section class="mx-scores-hero" aria-labelledby="scores-title">
     <div class="container">
+      <div class="mx-scores-hero-emblem" aria-hidden="true">
+        <svg viewBox="0 0 64 52" width="43" height="35" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 16l14 11L32 5l13 22 14-11-5 28H10L5 16Z" fill="url(#mxScoreGold)" stroke="#ffe492" stroke-width="2.5"/>
+          <path d="M10 46h44" stroke="#ffc945" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="5" cy="13" r="3" fill="#fff2b0"/><circle cx="32" cy="5" r="3" fill="#fff2b0"/><circle cx="59" cy="13" r="3" fill="#fff2b0"/>
+          <defs><linearGradient id="mxScoreGold" x1="8" y1="7" x2="54" y2="49"><stop stop-color="#fff7a7"/><stop offset=".48" stop-color="#ffd352"/><stop offset="1" stop-color="#bd7517"/></linearGradient></defs>
+        </svg>
+      </div>
       <span class="mx-scores-kicker"><span class="mx-scores-kicker-dot" aria-hidden="true"></span> ANALYSE FOOTBALL · DIXON-COLES</span>
       <h1 id="scores-title">Scores exacts <span>Top 10</span></h1>
+      <div class="mx-scores-hero-rule" aria-hidden="true"></div>
       <p>Les scores exacts possibles du modèle Dixon-Coles, identiques aux sélections préparées pour nos vidéos quotidiennes. Jusqu’à dix rencontres réelles par journée, pour hier, aujourd’hui et demain.</p>
+      <div class="mx-scores-hero-actions">
+        <a class="mx-scores-cta mx-scores-cta--install" href="installer.html" aria-label="Installer l'application Mr XPRONOS">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg>
+          <span>Installer l'application</span>
+        </a>
+        <a class="mx-scores-cta mx-scores-cta--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer" aria-label="Rejoindre le canal Telegram Mr XPRONOS">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M21.45 4.2 18.2 19.5c-.25 1.08-.89 1.35-1.79.83l-4.82-3.55-2.33 2.23c-.28.29-.52.53-1.04.53l.36-4.93 8.96-8.09c.39-.34-.09-.54-.6-.2l-11.1 6.99-4.74-1.48c-1.03-.33-1.05-1.04.22-1.54l18.55-7.16c.86-.32 1.61.19 1.33 1.07Z"/></svg>
+          <span>Rejoindre Telegram</span>
+        </a>
+      </div>
       <div class="mx-scores-hero-meta">
         <span class="mx-scores-date" id="scores-date">Sélections du jour</span>
         <span class="mx-scores-updated" id="scores-updated">Dernière publication : non disponible</span>
