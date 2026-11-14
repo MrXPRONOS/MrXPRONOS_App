@@ -1,8 +1,13 @@
 name: Telegram - Accueil vers Messages enregistres
 run-name: "Accueil Telegram - Messages enregistres (${{ github.event_name }})"
 
-# Pas de push automatique : les messages ne sont plus publiés dans le canal test.
+# Test unique de migration vers la session Telegram CineX existante.
+# Après validation, conserver uniquement workflow_dispatch.
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-welcome-test.yml'
   workflow_dispatch:
     inputs:
       source_message_id:
@@ -15,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: telegram-welcome-saved-messages
+  group: mrx-telegram-personal-account
   cancel-in-progress: false
 
 jobs:
@@ -23,10 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     env:
-      TELEGRAM_USER_API_ID: ${{ secrets.TELEGRAM_USER_API_ID }}
-      TELEGRAM_USER_API_HASH: ${{ secrets.TELEGRAM_USER_API_HASH }}
-      TELEGRAM_USER_SESSION: ${{ secrets.TELEGRAM_USER_SESSION }}
-      TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,16 +41,16 @@ jobs:
       - name: Install Telethon and requests
         run: python -m pip install "telethon>=1.38,<2" "requests>=2.31,<3"
       - name: Valider le contenu sans publier
-        run: python scripts/telegram_saved_welcome.py --check --source-message-id "${{ inputs.source_message_id }}"
+        run: python scripts/telegram_saved_welcome.py --check --source-message-id "${{ inputs.source_message_id || '1675' }}"
       - name: Verifier la configuration de la session personnelle
         shell: bash
         run: |
           set -euo pipefail
-          for secret_name in TELEGRAM_USER_API_ID TELEGRAM_USER_API_HASH TELEGRAM_USER_SESSION TELEGRAM_USER_ID; do
+          for secret_name in TG_API_ID TG_API_HASH TG_STRING_SESSION; do
             if [ -z "${!secret_name:-}" ]; then
               echo "::error::Secret GitHub manquant : $secret_name"
               exit 1
             fi
           done
       - name: Transferer vers Messages enregistres et verifier boutons
-        run: python scripts/telegram_saved_welcome.py --send --source-message-id "${{ inputs.source_message_id }}"
+        run: python scripts/telegram_saved_welcome.py --send --source-message-id "${{ inputs.source_message_id || '1675' }}"
