@@ -532,10 +532,52 @@
     }
     .mx-actions > .mx-action{transition:none}
   }
+
+  /* V7 — stade avec ballon XXL sur la droite (photo officielle blog-hero-ball). */
+  .mx-atmosphere{background-image:
+      linear-gradient(180deg,rgba(0,6,13,.39) 0%,rgba(1,8,15,.37) 43%,rgba(2,9,16,.70) 78%,#05080d 100%),
+      url("assets/images/home-premium/hero-stadium.webp")}
+  .mx-hero-ball{
+    position:absolute;top:24px;right:max(-8px,calc((100vw - 730px)/2));
+    width:min(70vw,370px);height:330px;
+    background:url("assets/images/blog-hero-ball.webp") right center/auto 100% no-repeat;
+    opacity:.94;pointer-events:none;
+    -webkit-mask-image:radial-gradient(ellipse 78% 73% at 70% 64%,#000 30%,rgba(0,0,0,.83) 53%,transparent 100%);
+    mask-image:radial-gradient(ellipse 78% 73% at 70% 64%,#000 30%,rgba(0,0,0,.83) 53%,transparent 100%);
+  }
+  .mx-hero h1{position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.95),0 0 17px rgba(0,0,0,.55)}
+  .mx-browser-help[hidden]{display:none!important}
+  .mx-browser-help{
+    display:grid;gap:6px;margin:0 auto;width:100%;max-width:545px;
+    padding:10px 11px;border:1px solid #4c8eb7;border-radius:12px;
+    background:linear-gradient(130deg,#102d40,#071a2c);color:#f7f8fb;
+    box-shadow:0 5px 18px #0007;
+  }
+  .mx-browser-help strong{font:800 13px/1.18 Outfit,Manrope,sans-serif;color:#ffe39b}
+  .mx-browser-help p{margin:0;font-size:11px;line-height:1.38;color:#e4ecf5}
+  .mx-browser-choices{display:flex;flex-wrap:wrap;gap:5px}
+  .mx-browser-choices a{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:31px;padding:6px 9px;border:1px solid #64acd6;
+    border-radius:8px;text-decoration:none;font:750 11px/1.1 Manrope,sans-serif;
+    color:#fff;background:#0e4367;
+  }
+  .mx-browser-choices a:first-child{background:#1d6eac;border-color:#77bce8}
+  .mx-browser-choices a:focus-visible{outline:3px solid #f6ca69;outline-offset:2px}
+  .mx-browser-help small{color:#c9d8e5;font-size:10px;line-height:1.3}
+  @media(max-width:768px){
+    .mx-atmosphere{background-image:
+      linear-gradient(180deg,rgba(0,6,13,.45) 0%,rgba(1,8,15,.41) 44%,rgba(2,9,16,.71) 78%,#05080d 100%),
+      url("assets/images/home-premium/hero-stadium.webp")}
+    .mx-hero-ball{top:28px;right:-10px;width:70vw;height:310px;opacity:.88}
+  }
+  @media(max-width:380px){.mx-hero-ball{top:26px;width:74vw;height:282px}}
+  @media(prefers-reduced-motion:reduce){.mx-browser-choices a{transition:none}}
   </style>
 </head>
 <body>
   <div class="mx-atmosphere" aria-hidden="true">
+    <div class="mx-hero-ball"></div>
   </div>
   <main class="mx-shell">
     <header class="mx-brand" aria-label="Mr XPRONOS">
@@ -571,6 +613,16 @@
       <a class="mx-action mx-action--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer"><span class="mx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.45 4.2 18.2 19.5c-.25 1.08-.89 1.35-1.79.83l-4.82-3.55-2.33 2.23c-.28.29-.52.53-1.04.53l.36-4.93 8.96-8.09c.39-.34-.09-.54-.6-.2l-11.1 6.99-4.74-1.48c-1.03-.33-1.05-1.04.22-1.54l18.55-7.16c.86-.32 1.61.19 1.33 1.07Z"/></svg></span>Rejoindre le canal Telegram<span aria-hidden="true">↗</span></a>
       <p id="mx-install-hint" class="mx-install-hint" aria-live="polite">Gratuit • Sans Play Store</p>
     </div>
+    <aside id="mx-browser-help" class="mx-browser-help" hidden aria-label="Ouvrir Mr XPRONOS dans un navigateur compatible">
+      <strong>Installer depuis un navigateur intégré</strong>
+      <p>Appuie sur Chrome ou Firefox pour ouvrir cette page directement dans le navigateur choisi, puis touche « Installer l’application ».</p>
+      <div class="mx-browser-choices">
+        <a id="mx-browser-chrome" href="#" aria-label="Essayer d’ouvrir Mr XPRONOS dans Chrome">Ouvrir Chrome</a>
+        <a id="mx-browser-firefox" href="#" aria-label="Essayer d’ouvrir Mr XPRONOS dans Firefox">Ouvrir Firefox</a>
+        <a id="mx-browser-choice" href="#" aria-label="Choisir un navigateur Android">Autre navigateur</a>
+      </div>
+      <small>Si Android bloque ces liens : menu ⋮ ou ⋯ de cette fenêtre → « Ouvrir dans le navigateur ». Aucun copier-coller nécessaire.</small>
+    </aside>
 
     <section class="mx-highlights" aria-label="Les avantages de Mr XPRONOS">
       <div class="mx-feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 5 14h7l-1 8 9-13h-7z" fill="currentColor" stroke="none"/></svg><span>Coupons quotidiens</span></div>
@@ -617,19 +669,64 @@
       var ua=(navigator.userAgent||"").toLowerCase();
       var isIOS=fromPWA?fromPWA.isIOS:/iphone|ipad|ipod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
       var isAndroid=fromPWA?fromPWA.isAndroid:/android/.test(ua);
-      var inApp=fromPWA?fromPWA.inApp:/whatsapp|instagram|fb_iab|fban|fbav|telegram|tiktok|messenger/.test(ua);
+      var inApp=(fromPWA&&fromPWA.inApp)||/chatgpt|openai|oai[-_]?webview|whatsapp|instagram|fb_iab|fban|fbav|telegram|tiktok|messenger|;[ ]?wv[);]/.test(ua);
       var yes=installed()||!!(window.MrXPWA&&window.MrXPWA.isInstalled());
       document.documentElement.classList.toggle("mx-device-ios",!!isIOS);
       document.documentElement.classList.toggle("mx-device-android",!!isAndroid);
       installBtn.hidden=yes;openBtn.hidden=!yes;
       var text=installBtn.querySelector("[data-mx-install-label]");
-      if(text)text.textContent=isIOS?(inApp?"Guide pour iPhone":"Ajouter sur iPhone"):"Installer l’application";
+      if(text)text.textContent=isIOS?(inApp?"Guide pour iPhone":"Ajouter sur iPhone"):
+        (isAndroid&&inApp?"Ouvrir Chrome pour installer":"Installer l’application");
       installBtn.setAttribute("aria-label",isIOS?"Voir comment ajouter Mr XPRONOS sur iPhone":"Installer l’application Mr XPRONOS");
       hint.textContent=yes?"Application ouverte en mode installé ✓":isIOS?
         (inApp?"Ouvre dans Safari, puis ajoute à l’écran d’accueil.":"Sur iPhone : Safari → Partager → Sur l’écran d’accueil."):
-        inApp?"Ouvre dans Chrome pour installer l’application.":
+        inApp?"Navigateur intégré : touche le bouton pour essayer Chrome, ou choisis Firefox.":
         "Gratuit • Installation rapide • Sans Play Store";
     }
+
+    /* Ouverture Android : un lien intent: ne fonctionne que si le navigateur hôte
+       l'autorise, après un geste utilisateur. Aucun accès à la liste des apps installées. */
+    var browserHelp=document.getElementById("mx-browser-help");
+    var browserChrome=document.getElementById("mx-browser-chrome");
+    var browserFirefox=document.getElementById("mx-browser-firefox");
+    var browserChoice=document.getElementById("mx-browser-choice");
+    function isAndroidDevice(){return /android/i.test(navigator.userAgent||"");}
+    function isEmbeddedAndroid(){
+      var ua=(navigator.userAgent||"").toLowerCase();
+      var p=window.MrXPWA&&window.MrXPWA.getPlatform?window.MrXPWA.getPlatform():null;
+      return isAndroidDevice()&&(
+        !!(p&&p.inApp)||
+        /chatgpt|openai|oai[-_]?webview|whatsapp|instagram|fb_iab|fban|fbav|telegram|tiktok|messenger|;[ ]?wv[);]/.test(ua)||
+        !/chrome\/|crios\/|firefox\/|fennec\/|samsungbrowser\/|edg(?:a|ios)?\/|opr\/|opera\/|vivaldi\//.test(ua)
+      );
+    }
+    function buildBrowserIntent(pkg){
+      var dest=new URL("installer.html?from=external",location.href);
+      var fallback=new URL("installer.html?browser_fallback=1",location.href);
+      if(dest.protocol!=="https:")return dest.href;
+      return "intent://"+dest.host+dest.pathname+dest.search+"#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;"+
+        (pkg?"package="+pkg+";":"")+"S.browser_fallback_url="+encodeURIComponent(fallback.href)+";end";
+    }
+    function revealBrowserGuide(){
+      if(!isAndroidDevice())return;
+      browserHelp.hidden=false;
+      installBtn.setAttribute("aria-expanded","true");
+    }
+    if(isAndroidDevice()){
+      browserChrome.href=buildBrowserIntent("com.android.chrome");
+      browserFirefox.href=buildBrowserIntent("org.mozilla.firefox");
+      browserChoice.href=buildBrowserIntent("");
+      if(new URLSearchParams(location.search).has("browser_fallback"))revealBrowserGuide();
+    }
+    // Interception en phase de capture : le bouton déjà relié au moteur PWA
+    // ne doit pas déclencher simultanément son guide et l'intent Android.
+    installBtn.addEventListener("click",function(event){
+      if(!isEmbeddedAndroid()||installed())return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      revealBrowserGuide();
+      try{location.assign(browserChrome.href);}catch(_){/* Guide déjà visible */ }
+    },true);
     window.addEventListener("mrx-pwa-state-change",syncInstall);
     window.addEventListener("appinstalled",syncInstall);
     syncInstall();
