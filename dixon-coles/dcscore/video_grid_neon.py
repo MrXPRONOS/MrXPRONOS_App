@@ -218,6 +218,75 @@ def compose_frame(base, clips, t, *, starts):
     return fit_artwork(frame)
 
 
+def centered_teaser_frame(artwork: Image.Image) -> Image.Image:
+    """Center the SAME neon video artwork instead of its social safe-zone offset.
+
+    The stadium remains full bleed. Transparency is measured before placing
+    the title, two-column match grid and Telegram artwork together at center.
+    Nothing is redrawn with an independent Telegram template.
+    """
+    bounds = artwork.getbbox()
+    if bounds is None:
+        raise ValueError("Le template vidéo ne contient aucun élément à centrer")
+    tile = artwork.crop(bounds).convert("RGBA")
+    margin_x, margin_y = 28, 54
+    scale = min((W - 2 * margin_x) / tile.width,
+                (H - 2 * margin_y) / tile.height, 1.0)
+    width = max(1, round(tile.width * scale))
+    height = max(1, round(tile.height * scale))
+    tile = tile.resize((width, height), Image.Resampling.LANCZOS)
+    background = stadium_background().copy()
+    background.alpha_composite(tile, ((W - width) // 2, (H - height) // 2))
+    return background
+
+
+def render_teaser_still(payload, output, *, asset_root=".", logo_cache=None,
+                        require_real_logos=True, archived=False):
+    """Render a Telegram PNG from the FIRST video frame, BEFORE score reveal.
+
+    Shares base_frame() + draw_score() with the video; all score badges are
+    rendered with the initial '— : —' placeholder. Unlike the social video,
+    the artwork is centered on both axes with no side safe zone.
+
+    archived permits replay of a verified past video storyboard for a Telegram
+    TEST ONLY. The caller must independently verify the publication manifest,
+    selection identities and SHA-256 of the source storyboard.
+    """
+    clips = validate_payload(
+        payload, preview=archived, allow_partial_preview=archived,
+        allow_partial_production=(not archived and
+                                  payload.get("publication_mode") == "flexible"))
+    if not 1 <= len(clips) <= 10:
+        raise ValueError("1 à 10 matchs réels obligatoires pour l'image Telegram")
+    if archived and (payload.get("status") != "READY"
+                     or payload.get("ready_for_video") is not True
+                     or payload.get("selected_count") != len(clips)):
+        raise ValueError("Storyboard historique non vérifié")
+    check_assets()
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="mrx-neon-teaser-") as tmp:
+        cache = LogoCache(logo_cache or Path(tmp) / "logos", asset_root,
+                          preview=False)
+        logos = [(cache.get(c, "home", i), cache.get(c, "away", i))
+                 for i, c in enumerate(clips, 1)]
+        if require_real_logos and (cache.fallback_count or
+                                   cache.real_count != 2 * len(clips)):
+            raise ValueError("Le teaser exige les vrais logos des équipes")
+        # This is the VIDEO TEMPLATE at t=0. Scores are not displayed yet.
+        still = base_frame(payload, clips, logos, preview=False)
+        for clip, (x, y) in zip(clips, positions(len(clips))):
+            draw_score(still, clip, x, y, -FIRST_REVEAL)
+        centered = centered_teaser_frame(still)
+        image = centered.convert("RGB").resize(
+            (1080, 1920), Image.Resampling.LANCZOS)
+        image.save(output, "PNG", optimize=True)
+    return {"output": str(output), "resolution": "1080x1920",
+            "source": "video_grid_neon_first_frame_t0",
+            "layout": "telegram_centered", "scores_visible": False,
+            "count": len(clips), "real_logo_instances": cache.real_count}
+
+
 def render(payload, output, *, preview=False, require_real_logos=False,
            fullhd=True, asset_root=".", logo_cache=None, fps=FPS,
            allow_partial_production=False):
