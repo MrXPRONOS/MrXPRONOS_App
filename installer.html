@@ -573,6 +573,41 @@
   }
   @media(max-width:380px){.mx-hero-ball{top:26px;width:74vw;height:282px}}
   @media(prefers-reduced-motion:reduce){.mx-browser-choices a{transition:none}}
+
+  /* V8 — respiration / double battement de cœur sur les CTA prioritaires.
+     Animation transform uniquement : aucune modification de hauteur ni de flux. */
+  .mx-actions > .mx-action--install:not([hidden]){
+    transform-origin:center;
+    animation:mxGoldGlow 5.5s ease-in-out infinite,
+              mxBreathingPulse 3.0s ease-in-out infinite;
+    will-change:transform,box-shadow;
+  }
+  .mx-actions > .mx-action--telegram{
+    transform-origin:center;
+    animation:mxTelegramGlow 6.5s ease-in-out infinite,
+              mxBreathingPulse 3.2s ease-in-out infinite .55s;
+    will-change:transform,box-shadow;
+  }
+  @keyframes mxBreathingPulse{
+    0%,100%{transform:scale(1)}
+    22%{transform:scale(1.028)}
+    37%{transform:scale(1.006)}
+    51%{transform:scale(1.018)}
+    70%{transform:scale(1)}
+  }
+  .mx-actions > .mx-action--install:not([hidden]):active,
+  .mx-actions > .mx-action--telegram:active{
+    animation:none!important;
+    transform:scale(.985);
+  }
+  @media(prefers-reduced-motion:reduce){
+    .mx-actions > .mx-action--install:not([hidden]),
+    .mx-actions > .mx-action--telegram{
+      animation:none!important;
+      transform:none;
+      will-change:auto;
+    }
+  }
   </style>
 </head>
 <body>
@@ -854,6 +889,6 @@
     void load();
   })();
   </script>
-  <script defer src="assets/js/pwa.js?v=fc5d91f80b6b"></script>
+  <script defer src="assets/js/pwa.js"></script>
 </body>
 </html>
