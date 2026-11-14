@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install pillow requests
+      - run: python -m pip install pillow requests numpy
       - name: Run local visual, safety and links tests (never posts anything)
         run: |
           python -m py_compile scripts/social_exact_score_telegram_teaser.py
