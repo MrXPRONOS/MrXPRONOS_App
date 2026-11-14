@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-14",
-  "generated_at": "2026-11-14T09:06:26Z",
+  "generated_at": "2026-11-14T12:17:22Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -37,15 +37,6 @@
       "probability": 0.14606817
     },
     {
-      "id": "sportsapipro:4823655",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Aps Bomet",
-      "away": "Bandari",
-      "kickoff_utc": "2026-11-14T12:00:00Z",
-      "score": "1:0",
-      "probability": 0.14017978
-    },
-    {
       "id": "sportsapipro:4891258",
       "league": "Division 2 - Regular Season",
       "home": "Béni-Khalled",
@@ -53,6 +44,15 @@
       "kickoff_utc": "2026-11-14T13:30:00Z",
       "score": "1:0",
       "probability": 0.13294528
+    },
+    {
+      "id": "sportsapipro:4752229",
+      "league": "Primera Division RFEF",
+      "home": "Juventud Torremolinos",
+      "away": "SD Huesca",
+      "kickoff_utc": "2026-11-14T17:45:00Z",
+      "score": "1:0",
+      "probability": 0.12739691
     }
   ],
   "grouped": [
@@ -87,21 +87,6 @@
       ]
     },
     {
-      "id": "sportsapipro:4823655",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Aps Bomet",
-      "away": "Bandari",
-      "kickoff_utc": "2026-11-14T12:00:00Z",
-      "score": "1:0",
-      "probability": 0.32259425,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
       "id": "sportsapipro:4752229",
       "league": "Primera Division RFEF",
       "home": "Juventud Torremolinos",
@@ -124,6 +109,21 @@
       "kickoff_utc": "2026-11-14T13:30:00Z",
       "score": "1:0",
       "probability": 0.31296685,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4891258",
+      "league": "Division 2 - Regular Season",
+      "home": "Béni-Khalled",
+      "away": "Stade Soussien",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.31022544,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
