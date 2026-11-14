@@ -285,17 +285,17 @@ def _no_pick(date, reason, *, checked=0, shortlisted=0, reviewed=0):
 def choose_with_nim(feed, ledger, *, now=None, archive=None, api_key=None, reviewer=None):
     """NIM can veto/rank existing qualified picks, never introduce or relabel bets."""
     now = now or datetime.now(timezone.utc)
-    baseline, unchanged = choose(feed, ledger, now=now)
+    baseline, _proposed = choose(feed, ledger, now=now)
     date = now.astimezone(timezone.utc).date().isoformat()
     if baseline.get('frozen'):
-        return baseline, unchanged
+        return baseline, ledger
     if baseline['status'] != 'selected':
         baseline['nim'] = {'status': 'not_called_no_baseline_pick', 'model': NIM_MODEL}
-        return baseline, unchanged
+        return baseline, ledger
     if not api_key and reviewer is None:
-        return _no_pick(date, 'missing_nvidia_api_key'), unchanged
+        return _no_pick(date, 'missing_nvidia_api_key'), ledger
     if not isinstance(archive, list):
-        return _no_pick(date, 'missing_private_bsd_history'), unchanged
+        return _no_pick(date, 'missing_private_bsd_history'), ledger
 
     now = now.astimezone(timezone.utc)
     candidates = []
@@ -313,10 +313,10 @@ def choose_with_nim(feed, ledger, *, now=None, archive=None, api_key=None, revie
     payload = build_nim_payload(shortlist, feed, archive, now=now)
     if not payload:
         return _no_pick(date, 'insufficient_verified_historical_context',
-                        checked=original_count), unchanged
+                        checked=original_count), ledger
     idset = {row['candidate_id'] for row in payload}
     if len(idset) != len(payload):
-        return _no_pick(date, 'duplicate_nim_candidate_id', checked=original_count), unchanged
+        return _no_pick(date, 'duplicate_nim_candidate_id', checked=original_count), ledger
     try:
         output = reviewer(payload) if reviewer is not None else nvidia_review(payload, api_key=api_key)
         review_map = _validate_reviews(output, idset)
@@ -324,7 +324,7 @@ def choose_with_nim(feed, ledger, *, now=None, archive=None, api_key=None, revie
             HTTPError, URLError, TimeoutError, OSError) as error:
         # Never leak NIM credentials, raw provider responses or private history.
         return _no_pick(date, 'nim_review_failed_' + type(error).__name__,
-                        checked=original_count, shortlisted=len(payload)), unchanged
+                        checked=original_count, shortlisted=len(payload)), ledger
 
     approved = [c for c in shortlist
                 if _candidate_id(c) in review_map
@@ -343,7 +343,7 @@ def choose_with_nim(feed, ledger, *, now=None, archive=None, api_key=None, revie
         out = _no_pick(date, 'nim_no_approved_candidate', checked=original_count,
                        shortlisted=len(shortlist), reviewed=len(payload))
         out['nim'] = nim_diag
-        return out, unchanged
+        return out, ledger
 
     # Keep only NIM-approved markets in a COPY; never modify canonical BSD feed.
     # For a fixture with multiple approved options, choose deterministic BSD score.
@@ -366,7 +366,7 @@ def choose_with_nim(feed, ledger, *, now=None, archive=None, api_key=None, revie
                                     'predictions': [original_pick]})
     result, updated = choose(filtered, ledger, now=now)
     if result['status'] != 'selected':
-        return _no_pick(date, 'post_nim_selection_failed', checked=original_count), unchanged
+        return _no_pick(date, 'post_nim_selection_failed', checked=original_count), ledger
     selected = result['selection']
     review = review_map[_candidate_id(selected)]
     selected['nim_review'] = {
