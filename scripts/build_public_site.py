@@ -474,17 +474,10 @@ def copy_public_exact_scores(destination: Path):
     if not source.is_dir():
         return
     out = destination / "scores-exacts-daily"
-    for source in sources:
-        if not source.is_dir():
-            continue
-        for file in sorted(source.glob("*.json")):
-            copy_verified_dixon_receipt(file, output, allowed, row_allowed, logo_domains)
-
-
-def copy_verified_dixon_receipt(file: Path, output: Path, allowed: set, row_allowed: set, logo_domains: set):
-    """Validate each dated receipt before exposing it on public GitHub Pages."""
-    from urllib.parse import urlsplit
-    if True:
+    for file in (
+        file for source in sources if source.is_dir()
+        for file in sorted(source.glob("*.json"))
+    ):
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.json", file.name):
             raise ValueError("Unexpected exact-score daily JSON filename")
         doc = json.loads(file.read_text(encoding="utf8"))
