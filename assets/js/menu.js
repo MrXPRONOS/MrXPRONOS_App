@@ -153,7 +153,12 @@
     const primaryFiles = new Set(['index.html', 'pronos.html', 'historique.html', 'scores-exacts.html', 'bonus.html']);
     const secondaryPage = !primaryFiles.has(section);
 
-    inner.innerHTML = bottomItems.map(item => {
+    // Use the approved mockup ordering ONLY on the Scores exacts page.
+    // Reuse the existing routes; do not invent a non-existent ranking page.
+    const visibleItems = section === 'scores-exacts.html'
+      ? [bottomItems[0], bottomItems[3], bottomItems[1], bottomItems[2], bottomItems[4]]
+      : bottomItems;
+    inner.innerHTML = visibleItems.map(item => {
       const isMenu = item.action === 'menu';
       const isActive = isMenu ? secondaryPage : isCurrentPage(item.url);
       const common = `class="bottom-nav-item ${isActive ? 'active' : ''} ${item.live ? 'live' : ''} ${isMenu ? 'bottom-nav-menu' : ''}"`;
