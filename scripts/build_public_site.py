@@ -47,7 +47,7 @@ PUBLIC_JS = {
     "bonus-catalogue.js", "bonus-offers.js",
     # Browser push notifications and opt-in services currently use a
     # Supabase publishable (not privileged/service-role) key.
-    "config.js", "scores-exacts.js", "pwa-telemetry.mjs",
+    "config.js", "scores-exacts.js", "dixon-score-alerts.mjs", "pwa-telemetry.mjs",
     "installation-analytics.mjs",
     "daily-hub.mjs", "daily-utils.mjs", "daily-audience.mjs", "daily-favorite-alerts.mjs",
     "acquisition-attribution.mjs", "audience-dashboard.mjs", "experiment-ux.mjs",
