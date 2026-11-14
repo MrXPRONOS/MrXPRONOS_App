@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-abc195a7426bdf05:1X",
+    "recorded_at_utc": "2026-11-14T17:20:07+00:00",
+    "kickoff_utc": "2026-11-16T17:00:00+00:00",
+    "fixture": {
+      "home_team": "Estonia",
+      "away_team": "Bulgaria",
+      "league": "UEFA Nations League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "3d15a0cf89a558a5f45f81b70acaa0121556094fc76f9fd6b6ea345890fb40bc"
+}
