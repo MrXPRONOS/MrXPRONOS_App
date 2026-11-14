@@ -32,7 +32,7 @@ on:
         options: [espn, auto, football-data, openfootball, openligadb]
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: dixon-coles-social-top10-20h
@@ -144,6 +144,44 @@ jobs:
             --storyboard "social_exact_scores_out/model/$TARGET/video_payload.json" \
             --video "${{ steps.target.outputs.video }}" \
             --platforms "$POST_PLATFORMS"
+      - name: Publish verified Dixon-Coles video scores to public website
+        if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TARGET="${{ steps.target.outputs.day }}"
+          mkdir -p "_dixon_site_export"
+          PUBLIC_FILE="_dixon_site_export/$TARGET.json"
+          python scripts/export_dixon_scores_site.py \
+            --manifest "social_exact_scores_out/$TARGET/social_manifest.json" \
+            --predictions "social_exact_scores_out/model/$TARGET/predictions.json" \
+            --storyboard "social_exact_scores_out/model/$TARGET/video_payload.json" \
+            --video "${{ steps.target.outputs.video }}" \
+            --out "$PUBLIC_FILE"
+          DEST="/repos/${GITHUB_REPOSITORY}/contents/dixon-scores-daily/${TARGET}.json"
+          EXISTING="$(gh api "${DEST}?ref=gh-pages" --jq '.sha' 2>/dev/null || true)"
+          CONTENT="$(base64 -w0 "$PUBLIC_FILE")"
+          if [ -n "$EXISTING" ]; then
+            gh api -X PUT "$DEST" \
+              -f branch=gh-pages \
+              -f sha="$EXISTING" \
+              -f message="data(scores): verified Dixon-Coles video for ${TARGET}" \
+              -f content="$CONTENT" >/dev/null
+          else
+            gh api -X PUT "$DEST" \
+              -f branch=gh-pages \
+              -f message="data(scores): verified Dixon-Coles video for ${TARGET}" \
+              -f content="$CONTENT" >/dev/null
+          fi
+          REMOTE="$(gh api "${DEST}?ref=gh-pages" --jq '.content' | tr -d '\n' | base64 -d)"
+          if [ "$REMOTE" != "$(cat "$PUBLIC_FILE")" ]; then
+            echo "::error::Verified Dixon-Coles score feed not published intact"
+            exit 1
+          fi
+          echo "DIXON_COLES_VIDEO_SCORES_PAGES_CONFIRMED $TARGET"
+          echo "- Site Scores exacts : ${TARGET} · ${{ steps.target.outputs.count }} sélections vérifiées" >> "$GITHUB_STEP_SUMMARY"
       - name: Refresh social tokens
         if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
         continue-on-error: true
