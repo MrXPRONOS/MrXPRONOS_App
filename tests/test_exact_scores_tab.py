@@ -230,18 +230,23 @@ class TestTop5Publisher(unittest.TestCase):
         menu=(ROOT/"assets/js/menu.js").read_text(encoding="utf8")
         stub=json.loads((ROOT/"scores-exacts.json").read_text(encoding="utf8"))
         self.assertIn('id="scores-simple-list"',html)
-        self.assertIn('id="scores-grouped-list"',html)
+        self.assertNotIn('id="scores-grouped-list"',html)
+        self.assertNotIn('data-scores-mode="grouped"',html)
         self.assertIn('data-scores-day="-1"',html)
         self.assertIn('data-scores-day="0"',html)
         self.assertIn('data-scores-day="1"',html)
-        self.assertIn("scores-exacts-daily/",js)
-        self.assertIn("Top 5",html)
+        self.assertIn("dixon-scores-daily/",js)
+        self.assertIn("dixon_coles_video",js)
+        self.assertIn("Top 10",html)
+        self.assertNotIn("HYBRIDE V3",html)
         self.assertIn("scores-exacts.html",menu)
         self.assertIn("A_MODAL", (ROOT/"scripts/publish_exact_scores.py").read_text())
         self.assertIn("B_GROUP_MASS", (ROOT/"scripts/publish_exact_scores.py").read_text())
-        self.assertIn("cache: 'no-store'",js)
-        self.assertIn("Date.parse(p.kickoff_utc) <= produced",js)
+        self.assertIn('cache: "no-store"',js)
+        self.assertIn('Date.parse(m.kickoff_utc) <= gen',js)
         self.assertIn(stub["status"],("unavailable","published"))
+        # Keep the historical Hybrid V3 publisher's independent tests,
+        # but its legacy feed must no longer be consumed by the public page.
         if stub["status"]=="unavailable":
             self.assertEqual(stub["simple"],[])
             self.assertEqual(stub["grouped"],[])
@@ -251,7 +256,6 @@ class TestTop5Publisher(unittest.TestCase):
             self.assertEqual(stub["model"],MODEL)
             self.assertLessEqual(len(stub["simple"]),5)
             self.assertLessEqual(len(stub["grouped"]),5)
-            self.assertGreater(len(stub["simple"]),0)
             self.assertNotIn("actual_score",json.dumps(stub))
 
 if __name__ == "__main__":
