@@ -534,6 +534,93 @@ def copy_public_exact_scores(destination: Path):
         shutil.copy2(file,out/file.name)
 
 
+
+def copy_public_dixon_scores(destination: Path, previous: Path | None):
+    """Keep only minimal verified video receipts previously published to Pages.
+
+    The social publisher has already verified the rendered MP4 digest and matched
+    all 1-10 score cards. This secondary gate prevents private/invalid material
+    being republished across site deployments.
+    """
+    if previous is None:
+        return
+    source = previous / "dixon-scores-daily"
+    if not source.is_dir():
+        return
+    output = destination / "dixon-scores-daily"
+    allowed = {
+        "schema_version", "model", "origin", "status", "date", "generated_at",
+        "video_sha256", "count", "matches"
+    }
+    row_allowed = {
+        "id", "league", "home", "away", "home_logo", "away_logo",
+        "kickoff_utc", "score", "probability"
+    }
+    logo_domains = {"crests.football-data.org", "upload.wikimedia.org", "a.espncdn.com"}
+    from urllib.parse import urlsplit
+
+    for file in sorted(source.glob("*.json")):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.json", file.name) or file.is_symlink():
+            continue
+        try:
+            doc = json.loads(file.read_text(encoding="utf-8"))
+            if not isinstance(doc, dict) or set(doc) != allowed:
+                continue
+            if (doc.get("schema_version") != "mrx-dixon-coles-video-scores-v1"
+                    or doc.get("model") != "dixon_coles_video"
+                    or doc.get("origin") != "verified_social_video_render"
+                    or doc.get("status") != "published" or doc.get("date") != file.stem
+                    or not isinstance(doc.get("video_sha256"), str)
+                    or not re.fullmatch(r"[a-f0-9]{64}", doc["video_sha256"])):
+                continue
+            target = date.fromisoformat(file.stem)
+            gen_raw = doc.get("generated_at")
+            if not isinstance(gen_raw, str) or not gen_raw.endswith("Z"):
+                continue
+            generated = datetime.fromisoformat(gen_raw.replace("Z", "+00:00"))
+            if generated.utcoffset() != timedelta(0) or generated.date() not in (target, target - timedelta(days=1)):
+                continue
+            count = doc.get("count")
+            rows = doc.get("matches")
+            if type(count) is not int or not 1 <= count <= 10 or not isinstance(rows, list) or len(rows) != count:
+                continue
+            seen = set()
+            for m in rows:
+                if not isinstance(m, dict) or set(m) != row_allowed:
+                    raise ValueError("Unexpected public score match keys")
+                ident = m.get("id")
+                if not isinstance(ident, str) or not ident or ident in seen:
+                    raise ValueError("Duplicate or missing match")
+                seen.add(ident)
+                if not all(isinstance(m.get(k), str) and 1 <= len(m[k]) <= 120 for k in ("home", "away")):
+                    raise ValueError("Missing clubs")
+                if not isinstance(m.get("league"), str) or len(m["league"]) > 140:
+                    raise ValueError("Invalid competition")
+                if not isinstance(m.get("score"), str) or not re.fullmatch(r"(?:10|[0-9]):(?:10|[0-9])", m["score"]):
+                    raise ValueError("Invalid score")
+                kickoff_raw = m.get("kickoff_utc")
+                if not isinstance(kickoff_raw, str) or not kickoff_raw.endswith("Z"):
+                    raise ValueError("Bad kickoff")
+                kickoff = datetime.fromisoformat(kickoff_raw.replace("Z", "+00:00"))
+                if kickoff.date() != target or kickoff <= generated:
+                    raise ValueError("Not an original prematch forecast")
+                probability = m.get("probability")
+                if type(probability) not in (float, int) or not 0 < probability <= 1:
+                    raise ValueError("Invalid probability")
+                for side in ("home_logo", "away_logo"):
+                    logo = m.get(side)
+                    if not isinstance(logo, str) or len(logo) > 500:
+                        raise ValueError("Invalid logo")
+                    parsed = urlsplit(logo)
+                    if (parsed.scheme != "https" or parsed.hostname not in logo_domains
+                            or parsed.username or parsed.password
+                            or parsed.port not in (None, 443) or parsed.query or parsed.fragment):
+                        raise ValueError("Unknown logo host")
+        except (ValueError, TypeError, OSError, json.JSONDecodeError):
+            continue
+        output.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(file, output / file.name)
+
 def stage_site(destination: Path, previous: Path | None):
     if destination.exists():
         shutil.rmtree(destination)
@@ -561,6 +648,7 @@ def stage_site(destination: Path, previous: Path | None):
                         shutil.copy2(file, target)
 
     copy_public_exact_scores(destination)
+    copy_public_dixon_scores(destination, previous)
 
     prepare_public_editorial_media(destination)
     prepare_public_articles(destination)
