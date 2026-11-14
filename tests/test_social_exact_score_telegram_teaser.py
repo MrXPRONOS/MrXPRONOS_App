@@ -1,5 +1,7 @@
 """Checks for the social exact-score Telegram teaser; no network, secrets or posts."""
 import sys
+import json
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -45,18 +47,38 @@ class TeaserTests(unittest.TestCase):
         self.assertIsNone(teaser.safe_link("bluesky", "https://bsky.app/profile/me"))
         self.assertIsNotNone(teaser.safe_link("facebook", "https://www.facebook.com/watch/?v=123456"))
 
-    @patch.object(teaser, "logo_image", return_value=None)
-    def test_masked_image_does_not_include_prediction_text(self, _):
+    def test_masked_telegram_uses_original_video_renderer(self):
         m, p, r = fixture()
-        p["selected"][0]["forecast"]["most_likely_score"] = "SECRET_9_8"
+        clips = []
+        for row in p["selected"]:
+            score = row["forecast"]["most_likely_score"]
+            clips.append({"match_id": row["id"],
+                          "headline": row["home"] + " - " + row["away"],
+                          "display_score": score,
+                          "home_logo_url": None, "away_logo_url": None})
+        storyboard = {"date_local_africa_lome": m["target"], "selected_count": 2,
+                      "ready_for_video": True, "status": "READY", "clips": clips}
+        raw = json.dumps(storyboard).encode("utf-8")
+        m["storyboard_sha256"] = hashlib.sha256(raw).hexdigest()
         with tempfile.TemporaryDirectory() as folder:
-            path = teaser.render(Path(folder) / "teaser.png", m, p, test=True)
-            from PIL import Image
-            image = Image.open(path)
-            self.assertEqual(image.size, (1200, 1600))
-            self.assertGreater(path.stat().st_size, 10_000)
-        caption = teaser.make_caption(m, {"youtube": "https://youtube.com/shorts/aBcdEfGh123"}, test=True)
-        self.assertNotIn("SECRET_9_8", caption)
+            base = Path(folder)
+            path = base / "video_payload.json"
+            path.write_bytes(raw)
+            target = base / "teaser.png"
+            # No alternate designs: the imported video renderer MUST create the image.
+            with patch("dcscore.video_grid_neon.render_teaser_still") as original:
+                original.return_value = {"count": 2, "scores_visible": False}
+                teaser.render(target, m, p, storyboard=storyboard,
+                              storyboard_path=path, test=True)
+                args, kwargs = original.call_args
+                self.assertEqual(args[0], storyboard)
+                self.assertEqual(args[1], target)
+                self.assertTrue(kwargs["require_real_logos"])
+            m["storyboard_sha256"] = "f" * 64
+            with self.assertRaises(ValueError):
+                teaser.render(target, m, p, storyboard=storyboard,
+                              storyboard_path=path, test=True)
+        caption = teaser.make_caption(m, {}, test=True)
         self.assertNotIn("2:1", caption)
 
     def test_refuse_mismatched_ids(self):
