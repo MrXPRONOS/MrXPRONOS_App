@@ -1,0 +1,116 @@
+name: Telegram exact-score teaser TEST (verified prior social run)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-exact-scores-social-teaser-test.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: telegram-exact-score-teaser-test
+  cancel-in-progress: false
+
+jobs:
+  teaser-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pillow requests
+      - name: Run local visual, safety and links tests (never posts anything)
+        run: |
+          python -m py_compile scripts/social_exact_score_telegram_teaser.py
+          python -m unittest discover -s tests -p test_social_exact_score_telegram_teaser.py -v
+      - name: Retrieve prior REAL social publication receipts
+        id: evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p teaser_prior
+          ready=false
+          for run in $(gh run list -R "$GITHUB_REPOSITORY" \
+            --workflow dixon-coles-social-top10-20h.yml \
+            --json databaseId,status --limit 12 --jq '.[] | select(.status=="completed") | .databaseId'); do
+            rm -rf teaser_prior/*
+            if gh run download "$run" -R "$GITHUB_REPOSITORY" \
+                --pattern 'social-top10-20h-*' -D teaser_prior >/dev/null 2>&1 \
+                && find teaser_prior -name social_manifest.json | grep -q . \
+                && find teaser_prior -name social_post_results.json | grep -q .; then
+              ready=true
+              echo "source_run=$run" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          if [ "$ready" != true ]; then
+            echo "Aucun rapport de publications reelles disponible : aucun message Telegram artificiel."
+            echo "### TEST Telegram — aucun reçu de publication réutilisable" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Match REAL prediction, manifest and social receipts
+        if: steps.evidence.outputs.ready == 'true'
+        id: files
+        run: |
+          python - <<'PY'
+          import glob, json, os
+          from pathlib import Path
+          root=Path("teaser_prior")
+          reports=list(root.rglob("social_post_results.json"))
+          manifests=list(root.rglob("social_manifest.json"))
+          for man in manifests:
+            try:
+              payload=json.loads(man.read_text(encoding="utf8"))
+              target=payload["target"]
+              pred_candidates=list(root.rglob("predictions.json"))
+              pred=next((p for p in pred_candidates if p.parent.name==target),None)
+              report=next((p for p in reports if any(
+                row.get("target")==target and row.get("ok") is True
+                for row in json.loads(p.read_text(encoding="utf8")))),None)
+              if pred is None or report is None: continue
+              with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+                f.write("ready=true\n")
+                f.write(f"manifest={man}\n")
+                f.write(f"predictions={pred}\n")
+                f.write(f"report={report}\n")
+              print("Verified artifact target:",target)
+              break
+            except (ValueError,KeyError,TypeError,OSError):
+              continue
+          else:
+            with open(os.environ["GITHUB_OUTPUT"],"a") as f:f.write("ready=false\n")
+            print("Aucun reçu social valide associable aux pronostics.")
+          PY
+      - name: Generate REAL match preview and send ONLY to @predict_mrxp
+        if: steps.files.outputs.ready == 'true'
+        run: |
+          python scripts/social_exact_score_telegram_teaser.py \
+            --manifest "${{ steps.files.outputs.manifest }}" \
+            --predictions "${{ steps.files.outputs.predictions }}" \
+            --report "${{ steps.files.outputs.report }}" \
+            --image "telegram_teaser_test/preview.png" \
+            --receipt "telegram_teaser_test/sent_receipt.json" \
+            --dedupe
+      - name: Archive preview and send evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-teaser-test-${{ github.run_id }}
+          path: telegram_teaser_test/
+          if-no-files-found: warn
+          retention-days: 14
