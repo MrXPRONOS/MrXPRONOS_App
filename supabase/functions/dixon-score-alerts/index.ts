@@ -40,9 +40,18 @@ Deno.serve(async(req)=>{
    const day=String(body?.date||""),sha=String(body?.video_sha256||""),count=body?.count;
    if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day!==tomorrow()||!/^[a-f0-9]{64}$/.test(sha)||!Number.isInteger(count)||count<1||count>10)
      return respond(req,{error:"Invalid next-day video manifest"},400);
-   const proof=await fetch(BASE+"/dixon-scores-daily/"+day+".json?proof="+Date.now(),{cache:"no-store"});
-   if(!proof.ok)return respond(req,{error:"Published scores unavailable"},409);
-   const receipt=await proof.json();
+   // GitHub Pages' CDN can lag behind gh-pages after a successful commit.
+   // Verify the canonical, already committed GitHub file instead.
+   const proofURL="https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/contents/dixon-scores-daily/"+
+     encodeURIComponent(day)+".json?ref=gh-pages";
+   const proof=await fetch(proofURL,{cache:"no-store",headers:{
+     "Accept":"application/vnd.github.raw+json","User-Agent":"MrXPRONOS-Dixon-Alerts"
+   }});
+   if(!proof.ok)return respond(req,{error:"Verified score commit unavailable"},409);
+   let receipt=await proof.json();
+   if(receipt?.encoding==="base64" && typeof receipt.content==="string"){
+     receipt=JSON.parse(atob(receipt.content.replace(/\s+/g,"")));
+   }
    if(receipt.schema_version!=="mrx-dixon-coles-video-scores-v1"||
       receipt.origin!=="verified_social_video_render"||receipt.status!=="published"||
       receipt.date!==day||receipt.video_sha256!==sha||receipt.count!==count||
