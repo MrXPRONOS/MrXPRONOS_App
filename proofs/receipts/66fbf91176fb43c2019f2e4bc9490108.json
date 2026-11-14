@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-1a84ea178dbb436d:UNDER_35",
+    "recorded_at_utc": "2026-11-14T18:45:09+00:00",
+    "kickoff_utc": "2026-11-16T18:00:00+00:00",
+    "fixture": {
+      "home_team": "Andorra",
+      "away_team": "Azerbaijan",
+      "league": "International Friendly"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "1b4780736fe5889be824d5eb5e1c29d9fd669ba7dae2e4f14b667278d8df4b88"
+}
