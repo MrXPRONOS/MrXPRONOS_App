@@ -7,6 +7,7 @@ on:
       - "scripts/post_shorts_video.py"
       - "scripts/share_latest_video_bluesky.py"
       - "tests/test_bluesky_video_processed.py"
+      - "requirements_social.txt"
       - ".github/workflows/bluesky-video-ci.yml"
   workflow_dispatch:
 
@@ -23,7 +24,24 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install Bluesky SDK and request dependencies
-        run: python -m pip install "atproto>=0.0.60,<1" "requests>=2.31.0"
+        run: python -m pip install "atproto==0.0.73" "requests>=2.31.0"
+      - name: Verify production-pinned SDK APIs offline
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          from atproto import Client, models
+          from atproto_client.models.blob_ref import BlobRef
+          assert version("atproto") == "0.0.73", version("atproto")
+          for symbol in (Client, models.ComAtprotoServerCreateSession.Data,
+                         models.AppBskyEmbedDefs.AspectRatio,
+                         models.AppBskyEmbedVideo.Main, BlobRef.model_validate):
+              assert callable(symbol), "Bluesky SDK callable API missing"
+          client = Client()
+          for symbol in (client.login, client.com.atproto.repo.describe_repo,
+                         client.com.atproto.server.get_service_auth, client.send_post):
+              assert callable(symbol), "Bluesky client callable API missing"
+          print("BLUESKY_SDK_PINNED_API_OK", version("atproto"))
+          PY
       - name: Check syntax
         run: |
           python -m py_compile scripts/bluesky_video_processed.py scripts/post_shorts_video.py scripts/share_latest_video_bluesky.py tests/test_bluesky_video_processed.py
