@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import os
-import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -80,34 +79,30 @@ async def save_message(source_message_id: int) -> int:
     from telethon import TelegramClient
     from telethon.sessions import StringSession
 
-    required = (
-        "TELEGRAM_USER_API_ID",
-        "TELEGRAM_USER_API_HASH",
-        "TELEGRAM_USER_SESSION",
-        "TELEGRAM_USER_ID",
-    )
+    # Réutilise les MÊMES secrets et la même session que les workflows CineX
+    # et Telegram discovery existants, sans demander de nouveaux identifiants.
+    required = ("TG_API_ID", "TG_API_HASH", "TG_STRING_SESSION")
     missing = [name for name in required if not os.getenv(name, "").strip()]
     if missing:
-        raise ValueError("Secrets GitHub manquants : " + ", ".join(missing))
+        raise ValueError("Secrets Telegram déjà utilisés par CineX manquants : " + ", ".join(missing))
 
     try:
-        api_id = int(os.environ["TELEGRAM_USER_API_ID"])
-        account_id = int(os.environ["TELEGRAM_USER_ID"])
+        api_id = int(os.environ["TG_API_ID"])
     except ValueError as exc:
-        raise ValueError("API_ID ou USER_ID incorrect (entiers requis)") from exc
-    if api_id <= 0 or account_id <= 0:
-        raise ValueError("API_ID et USER_ID doivent être positifs")
+        raise ValueError("TG_API_ID doit être un entier") from exc
+    if api_id <= 0:
+        raise ValueError("TG_API_ID doit être positif")
 
     async with TelegramClient(
-        StringSession(os.environ["TELEGRAM_USER_SESSION"].strip()),
+        StringSession(os.environ["TG_STRING_SESSION"].strip()),
         api_id,
-        os.environ["TELEGRAM_USER_API_HASH"].strip(),
+        os.environ["TG_API_HASH"].strip(),
     ) as client:
         self_user = await client.get_me()
-        if not self_user or self_user.bot or int(self_user.id) != account_id:
-            raise ValueError(
-                "Session Telegram refusée : elle ne correspond pas au compte personnel attendu"
-            )
+        if not self_user or getattr(self_user, "bot", False):
+            raise ValueError("La session existante ne correspond pas à un compte personnel Telegram")
+        # Destination « me » : seuls les Messages enregistrés du compte
+        # authentifié avec la session existante peuvent être atteints.
 
         source = await client.get_entity("@" + SOURCE_CHANNEL)
         if str(getattr(source, "username", "")).casefold() != SOURCE_CHANNEL:
