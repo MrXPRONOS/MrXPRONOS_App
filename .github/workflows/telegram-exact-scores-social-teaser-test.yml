@@ -102,6 +102,7 @@ jobs:
           python scripts/social_exact_score_telegram_teaser.py \
             --manifest "${{ steps.files.outputs.manifest }}" \
             --predictions "${{ steps.files.outputs.predictions }}" \
+            --storyboard "$(dirname "${{ steps.files.outputs.predictions }}")/video_payload.json" \
             --report "${{ steps.files.outputs.report }}" \
             --image "telegram_teaser_test/preview.png" \
             --receipt "telegram_teaser_test/sent_receipt.json" \
