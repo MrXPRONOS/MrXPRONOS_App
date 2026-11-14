@@ -6,9 +6,9 @@
   "frozen": false,
   "policy": "bsd-v2-montante-daily-1",
   "rejections": {
-    "non_bsd_or_combo_or_finished": 57,
+    "non_bsd_or_combo_or_finished": 58,
     "match_started": 60,
-    "wrong_day_or_too_late": 6,
+    "wrong_day_or_too_late": 5,
     "unverified_or_low_odds": 3,
     "stale_quote": 3
   },
