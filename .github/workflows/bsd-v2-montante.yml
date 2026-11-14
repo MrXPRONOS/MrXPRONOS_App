@@ -1,0 +1,74 @@
+name: BSD V2 - Montante quotidienne
+
+on:
+  # Recalcul après la production, avec une vérification supplémentaire en journée.
+  workflow_run:
+    workflows: ['BSD V2 - Generation quotidienne']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '35 6,12,18 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd/bsd_v2_montante.py'
+      - 'bsd/test_bsd_v2_montante.py'
+      - '.github/workflows/bsd-v2-montante.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bsd-v2-montante-daily
+  cancel-in-progress: false
+
+jobs:
+  select:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Tester la sélection et ses garde-fous
+        run: |
+          python -m compileall -q bsd/bsd_v2_montante.py bsd/test_bsd_v2_montante.py
+          python -m unittest bsd.test_bsd_v2_montante -v
+      - name: Choisir une seule sélection de la journée (ou aucune)
+        if: github.event_name != 'pull_request'
+        run: python -m bsd.bsd_v2_montante --feed data.json
+      - name: Archiver les sorties non sensibles
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: montante-daily-${{ github.run_id }}
+          path: |
+            montante/daily.json
+            montante/du-jour.md
+          retention-days: 30
+      - name: Sauvegarder la décision immuable du jour
+        if: github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add montante/ledger.json montante/daily.json montante/du-jour.md
+          if git diff --cached --quiet; then
+            echo 'Aucune nouvelle décision à enregistrer'
+            exit 0
+          fi
+          git commit -m 'chore(montante): enregistrer sélection BSD V2 du jour'
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((attempt * 2))"
+          done
+          echo 'Impossible de sauvegarder la décision sans conflit' >&2
+          exit 1
