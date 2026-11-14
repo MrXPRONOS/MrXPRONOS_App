@@ -92,9 +92,9 @@
       ]
     },
     {
-      "name": "Top 5 Scores exacts",
+      "name": "Top 10 Scores exacts",
       "short_name": "Scores exacts",
-      "description": "Voir les scores simples et les paris groupés du jour",
+      "description": "Scores exacts Dixon-Coles issus des vidéos, sans paris groupés",
       "url": "./scores-exacts.html",
       "icons": [
         {
@@ -116,7 +116,7 @@
       ]
     }
   ],
-  "version": "2026.11.06.daily-hub-v1",
+  "version": "2026.11.14.dixon-premium-v4",
   "id": "./",
   "categories": [
     "sports",
