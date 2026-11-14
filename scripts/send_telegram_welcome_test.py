@@ -36,8 +36,8 @@ WELCOME_HTML = """👋 <b><i>Bienvenue chez Mr XPRONOS !</i></b> ⚽👑
 # Ils s'affichent directement sous le texte, pas comme de simples URL.
 WELCOME_BUTTONS = {
     "inline_keyboard": [
-        [{"text": "📲 Rejoindre le canal Telegram", "url": "https://t.me/mrxpronosfr"}],
-        [{"text": "📱 Installer l’application", "url": "https://mrxpronos.github.io/MrXPRONOS_App/installer.html"}],
+        [{"text": "📲 Rejoindre le canal Telegram", "url": "https://t.me/mrxpronosfr", "style": "primary"}],
+        [{"text": "📱 Installer l’application", "url": "https://mrxpronos.github.io/MrXPRONOS_App/installer.html", "style": "success"}],
     ],
 }
 
@@ -75,14 +75,14 @@ def check_message() -> None:
         if required not in WELCOME_HTML:
             raise ValueError("Élément du message d'accueil manquant")
     expected = [
-        ("📲 Rejoindre le canal Telegram", "https://t.me/mrxpronosfr"),
-        ("📱 Installer l’application", "https://mrxpronos.github.io/MrXPRONOS_App/installer.html"),
+        ("📲 Rejoindre le canal Telegram", "https://t.me/mrxpronosfr", "primary"),
+        ("📱 Installer l’application", "https://mrxpronos.github.io/MrXPRONOS_App/installer.html", "success"),
     ]
     rows = WELCOME_BUTTONS.get("inline_keyboard")
     if not isinstance(rows, list) or len(rows) != len(expected):
         raise ValueError("Les deux boutons Telegram sont requis")
-    for row, (label, url) in zip(rows, expected):
-        if not isinstance(row, list) or row != [{"text": label, "url": url}]:
+    for row, (label, url, style) in zip(rows, expected):
+        if not isinstance(row, list) or row != [{"text": label, "url": url, "style": style}]:
             raise ValueError("Bouton Telegram invalide")
         if url in WELCOME_HTML:
             raise ValueError("Les URL doivent être des boutons, pas du texte visible")
@@ -149,7 +149,7 @@ def main() -> int:
         print(f"::error::Message d'accueil invalide : {exc}")
         return 1
     if args.check:
-        print("Message d'accueil OK : HTML, 2 boutons URL natifs et mention 18+ vérifiés. Aucun envoi.")
+        print("Message d'accueil OK : HTML, bouton Telegram bleu (primary), bouton application vert (success), mention 18+ vérifiés. Aucun envoi.")
         return 0
     return send()
 
