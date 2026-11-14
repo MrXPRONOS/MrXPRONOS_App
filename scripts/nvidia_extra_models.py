@@ -10,8 +10,6 @@ import base64
 from io import BytesIO
 import re
 import time
-import uuid
-
 import requests
 
 API = "https://ai.api.nvidia.com/v1/genai/"
