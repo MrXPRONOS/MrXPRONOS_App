@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Regression tests for D1-only production Shorts validation (no network calls)."""
 import unittest
+import json
+import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import Mock, patch
+import scripts.settle_short_production_batches as settlement
 from scripts.settle_short_production_batches import (
     KIND, VALIDATION_KIND, canonical_ref, mark_rows, pending_rows,
     social_complete, validation_identity, validation_state,
@@ -66,6 +72,41 @@ class ValidationLedgerTests(unittest.TestCase):
         self.assertIn("kind=?", sql)
         self.assertIn("validation_sent=0", sql)
         self.assertEqual(params, ("validated", "some-id", KIND))
+
+
+    def test_legacy_sent_groups_do_not_consume_render_slots_or_repost(self):
+        rows = [
+            {"id": "new", "ref_id": "morning:bsd:900", "ref_date": "2026-11-14", "validation_sent": 0},
+            {"id": "old_13", "ref_id": "morning:bsd:901", "ref_date": "2026-11-13", "validation_sent": 1},
+            {"id": "old_08", "ref_id": "morning:bsd:902", "ref_date": "2026-11-08", "validation_sent": 1},
+        ]
+        ledger = Mock()
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(sys, "argv", ["settle_short_production_batches.py", "--no-send", "--work-dir", tmp]), \
+                patch.object(settlement, "D1Ledger", return_value=ledger), \
+                patch.object(settlement, "pending_rows", return_value=rows), \
+                patch.object(settlement, "restore_matches", return_value={"bsd:900": {"id": "bsd:900"}}), \
+                patch.object(settlement, "validation_state", side_effect=lambda _ledger, _slot, day:
+                             "sent" if day <= "2026-11-13" else None), \
+                patch.object(settlement, "social_complete", return_value=False), \
+                patch.object(settlement, "official_events_for_day", return_value=({"900": {"id": "900"}}, 1)) as fetch, \
+                patch.object(settlement, "_leg_verdict", return_value=(True, 2, 1)), \
+                patch.object(settlement, "render_exact_validated_cards", return_value=(["card.png"], "pack")), \
+                patch.object(settlement, "build_video") as render, \
+                patch.object(settlement, "send_video") as send:
+            settlement.main()
+            manifest = json.loads((Path(tmp) / "manifest.json").read_text(encoding="utf-8"))
+        statuses = {group["target"]: group["status"] for group in manifest["groups"]}
+        self.assertEqual(statuses["2026-11-14"], "ready")
+        self.assertEqual(statuses["2026-11-13"], "legacy_social_reconciliation_required")
+        self.assertEqual(statuses["2026-11-08"], "legacy_social_reconciliation_required")
+        self.assertEqual(len(manifest["published"]), 1)
+        self.assertEqual(manifest["published"][0]["target"], "2026-11-14")
+        render.assert_called_once()
+        fetch.assert_called_once_with("2026-11-14")
+        send.assert_not_called()
+        ledger.claim.assert_not_called()
+        ledger.mark.assert_not_called()
 
 
 if __name__ == "__main__":

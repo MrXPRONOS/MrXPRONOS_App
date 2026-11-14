@@ -69,6 +69,10 @@ def mark_rows(ledger, row_ids, *, status):
 
 
 VALIDATION_KIND = "shorts_video_validation"
+# Before 2026-11-14, social receipts may be missing even after actual posting.
+# Once Telegram validation was sent, never rebuild these historical clips for
+# automatic social distribution; reconcile provider posts manually instead.
+LEGACY_SOCIAL_CUTOFF = date(2026, 11, 13)
 
 
 def validation_identity(slot, target):
@@ -205,12 +209,21 @@ def main():
     # Process newest settled batches first; cap video work to avoid Actions timeouts.
     videos_built = 0
     for (slot, target), group_rows in sorted(groups.items(), key=lambda x: (x[0][1], x[0][0]), reverse=True):
+        existing_state = validation_state(ledger, slot, target)
+        if existing_state == "sent":
+            if social_complete(ledger, slot, target):
+                report["groups"].append({"slot": slot, "target": target, "status": "all_platforms_confirmed"})
+                continue
+            if date.fromisoformat(target) <= LEGACY_SOCIAL_CUTOFF:
+                # Historical post receipts are incomplete: DO NOT re-render,
+                # consume today's rendering quota or queue an unsafe repost.
+                report["groups"].append({
+                    "slot": slot, "target": target,
+                    "status": "legacy_social_reconciliation_required",
+                })
+                continue
         if videos_built >= 2:
             report["groups"].append({"slot": slot, "target": target, "status": "deferred_capacity"})
-            continue
-        existing_state = validation_state(ledger, slot, target)
-        if existing_state == "sent" and social_complete(ledger, slot, target):
-            report["groups"].append({"slot": slot, "target": target, "status": "all_platforms_confirmed"})
             continue
         if existing_state is None and all(bool(row.get("validation_sent")) for row in group_rows):
             continue
