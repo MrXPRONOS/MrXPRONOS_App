@@ -102,13 +102,13 @@ class TeaserTests(unittest.TestCase):
         with patch("telegram_test_guard.validate_test_channel",
                    return_value=dest), patch.object(
                    Path, "open", mock_open(read_data=b"png")), patch.object(
-                   teaser.requests, "post", return_value=sent):
+                   teaser.requests, "post", return_value=sent) as post_mock:
             msg = teaser.send_test(Path("test.png"),
                                    "<b>TOP 10 SCORES EXACTS SUR NOS RÉSEAUX SOCIAUX</b>",
                                    {"youtube": "https://www.youtube.com/shorts/aBcdEfGh123"},
                                    token=token, chat="@predict_mrxp")
+            args, kwargs = post_mock.call_args
         self.assertEqual(msg["message_id"], 1720)
-        args, kwargs = teaser.requests.post.call_args
         self.assertEqual(kwargs["data"]["parse_mode"], "HTML")
         self.assertEqual(kwargs["data"]["caption"],
                          "<b>TOP 10 SCORES EXACTS SUR NOS RÉSEAUX SOCIAUX</b>")
