@@ -1,48 +1,78 @@
-# Test des modèles NVIDIA — Mr XPRONOS
+# Test NVIDIA NIM — Mr XPRONOS (v2, multimodal)
 
-## 1. Configurer la clé
+## Configuration
 
-Dans le dépôt GitHub : **Settings → Secrets and variables → Actions → New repository secret**
+Créer dans **Settings → Secrets and variables → Actions → New repository secret** :
 
-- **Name** : `NVIDIA_API_KEY`
-- **Secret** : votre clé API obtenue sur [build.nvidia.com](https://build.nvidia.com/)
+- **Name** : \`NVIDIA_API_KEY\`
+- **Secret** : clé NVIDIA Build (jamais dans les fichiers GitHub)
 
-Ne jamais placer la clé dans un fichier du dépôt, une URL ou un message.
+## Exécution
 
-## 2. Lancer les tests
+Ouvir **Actions → NVIDIA - test all AI models → Run workflow** avec :
 
-Dans **Actions → NVIDIA - test all AI models → Run workflow** :
+- \`category=all\`, \`repeats=1\`, \`limit=0\`, \`models\` vide : contrôle de toutes les entrées inventoriées.
+- \`category=image\`, \`video\`, \`document\`, \`vision\` ou \`audio\` pour cibler un usage.
+- \`repeats=2/3\` pour comparer les temps (engendre plus de requêtes et potentiellement plus de coûts).
+- \`models\` : liste d'IDs exacts séparés par des virgules, même absents de \`/v1/models\`.
 
-- `category=all` : tous les modèles recensés par l'API.
-- `repeats=1` : premier contrôle peu coûteux ; augmenter à 3 pour mesurer une tendance.
-- `limit=0` : pas de limite de modèles.
-- `models` vide : discovery automatique via `GET https://integrate.api.nvidia.com/v1/models`.
-- `models` peut contenir une liste d'identifiants exacts séparés par une virgule ; cette liste est testée même si certains IDs n'apparaissent plus au catalogue.
+**Inventaire à deux sources** :
 
-Un inventaire peut être incomplet pour les API spécialisées non exposées par ce point d'accès. Les modèles de type image, audio et vision spécialisée sont signalés **api_specialisee_non_testee**, et non déclarés en panne. Les classificateurs de capacité sont des heuristiques.
+1. \`GET https://integrate.api.nvidia.com/v1/models\` : tous les IDs renvoyés par cet endpoint pour le compte.
+2. \`scripts/nvidia_extra_models.py\` : registre complémentaire d'IDs documentés et de leurs **vrais endpoints** pour images, vidéo, voix et analyse de documents.
 
-## 3. Lire les résultats
+Le registre complémentaire est une liste entretenue manuellement, **pas une preuve que tous les modèles du catalogue Build ont été découverts**. Les NIM purement téléchargeables ou demandant une autorisation distincte / un service déployé ne sont pas tous invocables avec cette seule clé.
 
-Ouvrir l'exécution du workflow ; les résultats apparaissent dans **Summary**. En bas de l'exécution, télécharger l'archive **rapport-modeles-nvidia-...** contenant :
+## Couverture réelle
 
-- `rapport.md` : tableau ordonné des modèles qui répondent le plus vite.
-- `results.csv` : statut, code HTTP, moyenne/min/max/médiane en secondes, tokens.
-- `results.json` : mêmes données pour une exploitation par des scripts.
+| Type | Méthode |
+|---|---|
+| Texte, code, raisonnement, sécurité, traduction textuelle | API chat/completions |
+| Embedding | API embeddings et repli approprié |
+| Reranking | Endpoints dédiés de classement |
+| Images (FLUX.1, FLUX.2, FLUX.3, SD3, SDXL) | Endpoints NVIDIA /v1/genai spécifiques avec prompts |
+| Génération vidéo (Stable Video Diffusion) | Endpoint spécifique et image synthétique d'entrée |
+| Analyse de documents (Nemotron Parse) | API chat avec une page PNG créée localement |
+| Raisonnement visuel (Cosmos Reason2) | API chat avec image synthétique |
+| Audio (Magpie TTS Multilingual) | Endpoint HTTP de synthèse vocale avec texte de test |
 
-**Interprétation des erreurs :** `ok` = HTTP 200 et sortie non vide ; `reponse_vide` = HTTP 200 sans sortie exploitable ; `cle_invalide` = HTTP 401 ; `acces_refuse` = HTTP 403 ; `limite_atteinte` = HTTP 429 ; `introuvable` = HTTP 404 ; `timeout` = aucune réponse dans le délai alloué. Un HTTP 403 ne prouve pas que le modèle est arrêté : le compte peut simplement ne pas avoir l'autorisation.
+Certains modèles utilisent gRPC, un autre schéma JSON ou nécessitent des entrées particulières, voire leur propre déploiement. Pour les catégories spéciales inconnues, une sonde standard est tentée et un **problème de schéma** est distingué d'un modèle réellement retiré.
 
-Le temps rapporté est la **durée totale de la requête non-streaming**, pas le temps de premier token. Des tests consécutifs avec `repeats=3` permettent de comparer médianes et dispersion ; les réponses peuvent varier selon la charge et le quota. Les modèles ne sont pas classés par qualité de raisonnement : le test vérifie la capacité à répondre.
+Les réponses valides doivent inclure du texte, un embedding, une liste de classement ou un véritable artefact média. Les images/vidéos/audio produits ne sont **pas sauvegardés**, afin d'éviter les gros fichiers et des données potentiellement sensibles.
 
-Le workflow est **manuel** et n'altère ni les pronostics, ni les données du site, ni les autres automatisations. Chaque lancement consomme éventuellement des crédits NVIDIA et, selon le nombre de modèles, peut prendre du temps. Les artefacts sont conservés 30 jours.
+En cas de HTTP 202, la sonde essaie de suivre l'exécution via l'API NVIDIA NVCF si elle dispose d'un request ID. Une tâche restée pendante est indiquée comme telle, **jamais comme réussie**.
 
-## 4. Test en local
+## Rapports
 
-```bash
-python -m pip install requests
-export NVIDIA_API_KEY="VOTRE_CLE" # Linux/macOS, seulement dans votre terminal privé
-python scripts/test_nvidia_models.py --category chat --limit 5 --repeats 1
-```
+Sur la page de chaque exécution :
 
-Pour évaluer tous les modèles du catalogue : `python scripts/test_nvidia_models.py --category all --limit 0`.
+- **Summary** : tableau consolidé des modèles.
+- **Artifacts → rapport-modeles-nvidia-...** : une archive ZIP contenant \`rapport.md\`, \`results.csv\` et \`results.json\`.
+- \`status=ok\` : sortie exploitable avec HTTP 200.
+- \`introuvable\` : HTTP 404 à l'endpoint essayé ; **pas forcément** « modèle supprimé ».
+- \`limite_atteinte\` : HTTP 429 ; \`acces_refuse\` : HTTP 403.
+- \`schema_specialise_inconnu\` : sonde générique incompatible, endpoint spécifique encore nécessaire.
+- \`timeout\`, \`async_timeout\`, \`reponse_vide\` : résultat non confirmé.
 
-Le fichier est **un outil de diagnostic**, pas un système de remplacement automatique des modèles en production.
+Les secondes mesurent la durée totale de la requête ; ce n'est ni la latence du premier token ni une mesure fiable de la qualité des réponses. Les modèles aux tâches différentes **ne sont pas directement comparables** en vitesse.
+
+## Historique
+
+Le premier test du **14 novembre 2026** se trouve sur : https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/43540499516
+
+- 83 modèles découverts.
+- 16 réponses valides, 53 réponses 404, 5 timeouts, 5 modèles non testés, 2 HTTP 500, 2 réponses 200 sans texte.
+
+Le test complet multimodal a été déclenché une fois à l'adresse : https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/43542251576
+
+Le workflow est ensuite revenu en **mode manuel**, pour ne pas dépenser des crédits à chaque push.
+
+## Exécution locale
+
+\`\`\`bash
+python -m pip install requests Pillow
+export NVIDIA_API_KEY="VOTRE_CLE_PRIVEE"
+python scripts/test_nvidia_models.py --category all --limit 0 --repeats 1
+\`\`\`
+
+La clé ne figure jamais dans les rapports. Le benchmark est isolé des fichiers utilisés pour les pronostics en production.
