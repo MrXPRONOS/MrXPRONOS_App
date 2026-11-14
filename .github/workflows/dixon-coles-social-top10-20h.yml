@@ -243,6 +243,27 @@ jobs:
             --report social_exact_scores_out/social_post_results.json \
             --expected "$POST_PLATFORMS" \
             --manifest "social_exact_scores_out/$TARGET/social_manifest.json"
+      - name: Telegram TEST teaser with masked scores and verified social links
+        if: ${{ always() && steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish' }}
+        continue-on-error: true
+        env:
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+        run: |
+          TARGET="${{ steps.target.outputs.day }}"
+          REPORT="social_exact_scores_out/social_post_results.json"
+          if [ ! -s "$REPORT" ]; then
+            echo "TEASER_SKIPPED social report missing"
+            exit 0
+          fi
+          python scripts/social_exact_score_telegram_teaser.py \
+            --manifest "social_exact_scores_out/$TARGET/social_manifest.json" \
+            --predictions "social_exact_scores_out/model/$TARGET/predictions.json" \
+            --report "$REPORT" \
+            --image "social_exact_scores_out/$TARGET/telegram_teaser.png" \
+            --receipt "social_exact_scores_out/$TARGET/telegram_teaser_receipt.json" \
+            --dedupe
+
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -256,5 +277,7 @@ jobs:
             social_exact_scores_out/model/**/predictions.json
             social_exact_scores_out/model/**/video_payload.json
             social_exact_scores_out/social_post_results.json
+            social_exact_scores_out/**/telegram_teaser.png
+            social_exact_scores_out/**/telegram_teaser_receipt.json
           if-no-files-found: warn
           retention-days: 14
