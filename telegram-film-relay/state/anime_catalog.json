@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-13T20:05:35.270240+00:00",
+    "checked_at": "2026-11-14T06:48:33.863821+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -31,6 +31,18 @@
         "episode": 6,
         "season": "1",
         "series": "a-certain-dark-item",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "a-certain-dark-item-360p",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "a-certain-dark-item-480p",
         "source_instances": 1
       },
       {
@@ -587,18 +599,6 @@
       },
       {
         "episode": 5,
-        "season": "1",
-        "series": "animeisekaic-goblin-slayer",
-        "source_instances": 1
-      },
-      {
-        "episode": 6,
-        "season": "1",
-        "series": "animeisekaic-goblin-slayer",
-        "source_instances": 1
-      },
-      {
-        "episode": 7,
         "season": "1",
         "series": "animeisekaic-goblin-slayer",
         "source_instances": 1
