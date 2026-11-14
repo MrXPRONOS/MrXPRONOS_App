@@ -134,15 +134,30 @@ def fit_artwork(artwork):
     return frame
 
 
+def _draw_telegram_call_to_action(draw):
+    """Only lower-page Telegram text: a compact CTA pointing at inline buttons."""
+    center = W // 2
+    draw.text((center, 946), "À CONSULTER SUR NOS",
+              font=font(27, True), fill=WHITE, anchor="mm")
+    draw.text((center, 981), "RÉSEAUX SOCIAUX",
+              font=font(31, True), fill=GOLD, anchor="mm")
+    # Solid downward gold arrow toward Telegram's button row underneath photo.
+    draw.rounded_rectangle((center-6, 1010, center+6, 1065),
+                           radius=6, fill=GOLD)
+    draw.polygon(((center-30, 1056), (center+30, 1056),
+                  (center, 1090)), fill=GOLD)
+
+
 def base_frame(payload, clips, logos, preview=False, *, telegram_minimal=False):
     check_assets()
     target = date.fromisoformat(payload["date_local_africa_lome"])
-    # Reuse the VIDEO's original 2x5 cards; Telegram gets only matches,
-    # team crests/names and masked score slots, without marketing overlays.
+    # Reuse the VIDEO's original title and 2x5 cards; Telegram adds only a
+    # compact call-to-action and hides the old bottom promotional banner.
     base = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    # The original "Scores exacts" title artwork stays in BOTH layouts.
+    _overlay_fit(base, TITLE, width=704, y=0, x=8)
+    _draw_calendar_date(base, target)
     if not telegram_minimal:
-        _overlay_fit(base, TITLE, width=704, y=0, x=8)
-        _draw_calendar_date(base, target)
         _overlay_fit(base, TELEGRAM, width=TELEGRAM_WIDTH, y=TELEGRAM_Y, x=TELEGRAM_X)
 
     d = ImageDraw.Draw(base, "RGBA")
@@ -163,6 +178,8 @@ def base_frame(payload, clips, logos, preview=False, *, telegram_minimal=False):
         _team_label(d, x+CARD_W-76, y, away)
     # Do not draw badges, filler rectangles or placeholder scores in empty
     # slots. The actual count is already displayed in the social caption.
+    if telegram_minimal:
+        _draw_telegram_call_to_action(d)
     if preview:
         d.rounded_rectangle((140, 1138, 580, 1172), radius=10, fill=(6, 20, 39, 240))
         d.text((360, 1155), "DÉMONSTRATION · NON OFFICIEL",

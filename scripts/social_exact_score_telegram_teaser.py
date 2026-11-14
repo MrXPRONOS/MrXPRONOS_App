@@ -34,15 +34,16 @@ LABELS = {
     "bluesky": "Bluesky",
 }
 # Telegram Bot API 9.4+: danger=red, primary=blue, success=green.
-# Instagram has no native gradient: use the closest warm (red) style.
+# Telegram only offers red, blue and green, not Instagram's gradient.
 # Older clients can show an unstyled button; labels remain plain.
 BUTTON_STYLES = {
     "youtube": "danger",
     "facebook": "primary",
-    "instagram": "danger",
+    "instagram": "success",
+    "threads": "success",
     "bluesky": "primary",
 }
-TEASER_VERSION = "telegram_centered_neon_v3_plain_buttons"
+TEASER_VERSION = "telegram_centered_neon_v4_title_cta_green"
 ORDER = tuple(LABELS)
 CANVAS = (1200, 1600)
 BG = (7, 17, 34)
@@ -285,19 +286,10 @@ def render(image_path: Path, manifest: dict, predictions: dict, *,
 
 
 def make_caption(manifest, links, *, test=False):
-    """Exact public channel copy, even during a test: no test watermark."""
+    """Single visible Telegram sentence; HTML bold is parsed by sendPhoto."""
     count = manifest["count"]
-    target = date_label(manifest["target"])
-    title = (f"LES {count} SCORES EXACTS POSSIBLES DE DEMAIN"
-             if count > 1 else "LE SCORE EXACT POSSIBLE DE DEMAIN")
-    return (
-        f"{title}\n\n"
-        f"Voici les {count} rencontres sélectionnées pour le {target}.\n"
-        "Les scores exacts sont volontairement masqués sur l’image.\n\n"
-        "Pour découvrir nos pronostics, ouvre la vidéo sur le réseau "
-        "social de ton choix avec les boutons ci-dessous.\n\n"
-        "Prévisions statistiques, jamais garanties. 18+ • Joue responsablement."
-    )
+    word = "SCORE EXACT" if count == 1 else "SCORES EXACTS"
+    return f"<b>TOP {count} {word} SUR NOS RÉSEAUX SOCIAUX</b>"
 
 
 def send_test(image: Path, caption: str, links: dict, *, token: str, chat: str):
@@ -308,6 +300,7 @@ def send_test(image: Path, caption: str, links: dict, *, token: str, chat: str):
             response = requests.post(
                 "https://api.telegram.org/bot" + token + "/sendPhoto",
                 data={"chat_id": dest["chat_id"], "caption": caption,
+                      "parse_mode": "HTML",
                       "reply_markup": json.dumps(keyboard(links), ensure_ascii=False)},
                 files={"photo": (image.name, stream, "image/png")}, timeout=(10, 100))
         except requests.RequestException:

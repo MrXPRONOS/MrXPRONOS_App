@@ -54,8 +54,8 @@ class TeaserTests(unittest.TestCase):
         buttons = {b["text"]: b for row in rows for b in row}
         self.assertEqual(buttons["YouTube"]["style"], "danger")
         self.assertEqual(buttons["Facebook"]["style"], "primary")
-        self.assertEqual(buttons["Instagram"]["style"], "danger")
-        self.assertNotIn("style", buttons["Threads"])
+        self.assertEqual(buttons["Instagram"]["style"], "success")
+        self.assertEqual(buttons["Threads"]["style"], "success")
         for name in links:
             self.assertEqual(buttons[teaser.LABELS[name]]["url"], links[name])
 
@@ -63,13 +63,13 @@ class TeaserTests(unittest.TestCase):
         m, p, _ = fixture()
         copy = teaser.make_caption(m, {}, test=True)
         self.assertEqual(copy, teaser.make_caption(m, {}, test=False))
-        self.assertIn("15 novembre 2026", copy)
-        self.assertIn("LES 2 SCORES EXACTS POSSIBLES DE DEMAIN", copy)
-        self.assertIn("Prévisions statistiques", copy)
+        self.assertEqual(copy, "<b>TOP 2 SCORES EXACTS SUR NOS RÉSEAUX SOCIAUX</b>")
         self.assertNotIn("TEST VISUEL", copy)
         self.assertNotIn("2:1", copy)
+        self.assertEqual(teaser.make_caption({"count": 1}, {}),
+                         "<b>TOP 1 SCORE EXACT SUR NOS RÉSEAUX SOCIAUX</b>")
 
-    def test_video_template_minimal_telegram_keeps_cards_no_promo(self):
+    def test_video_template_telegram_restores_title_and_cta_without_old_banner(self):
         from PIL import Image
         from dcscore import video_grid_neon as neon
         from dcscore.video_render import Crest
@@ -80,10 +80,38 @@ class TeaserTests(unittest.TestCase):
         minimal = neon.base_frame(data, clips, [(crest, crest)], False,
                                   telegram_minimal=True)
         self.assertGreater(original.getpixel((360, 45))[3], 0)
-        self.assertEqual(minimal.getpixel((360, 45))[3], 0)
-        self.assertEqual(minimal.getpixel((360, neon.TELEGRAM_Y + 35))[3], 0)
+        # Both stills share the title artwork from the original video.
+        self.assertEqual(minimal.getpixel((360, 45)), original.getpixel((360, 45)))
+        self.assertGreater(minimal.getpixel((360, 45))[3], 0)
+        # No old Telegram promo banner; only the new golden CTA/arrow.
+        self.assertEqual(minimal.getpixel((360, 1078))[:3], neon.GOLD[:3])
+        self.assertEqual(minimal.getpixel((360, 1135))[3], 0)
         self.assertGreater(minimal.getpixel((neon.CARD_X[0] + 8,
                                              neon.CARD_Y0 + 8))[3], 0)
+
+    def test_caption_html_enabled_for_real_telegram_photo(self):
+        from pathlib import Path
+        from unittest.mock import patch, Mock, mock_open
+        import json
+        token = "secret"
+        dest = {"chat_id": -100987654321, "username": "predict_mrxp"}
+        confirmation = {"ok": True, "result": {
+            "message_id": 1720, "chat": {"id": dest["chat_id"]}}}
+        sent = Mock(status_code=200)
+        sent.json.return_value = confirmation
+        with patch("telegram_test_guard.validate_test_channel",
+                   return_value=dest), patch.object(
+                   Path, "open", mock_open(read_data=b"png")), patch.object(
+                   teaser.requests, "post", return_value=sent):
+            msg = teaser.send_test(Path("test.png"),
+                                   "<b>TOP 10 SCORES EXACTS SUR NOS RÉSEAUX SOCIAUX</b>",
+                                   {"youtube": "https://www.youtube.com/shorts/aBcdEfGh123"},
+                                   token=token, chat="@predict_mrxp")
+        self.assertEqual(msg["message_id"], 1720)
+        args, kwargs = teaser.requests.post.call_args
+        self.assertEqual(kwargs["data"]["parse_mode"], "HTML")
+        self.assertEqual(kwargs["data"]["caption"],
+                         "<b>TOP 10 SCORES EXACTS SUR NOS RÉSEAUX SOCIAUX</b>")
 
     def test_same_dedupe_key_for_claim_and_mark(self):
         import inspect
