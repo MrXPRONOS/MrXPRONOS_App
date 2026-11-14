@@ -7,6 +7,7 @@ on:
       - 'scores-exacts.html'
       - 'scores-exacts.json'
       - 'assets/js/scores-exacts.js'
+      - 'scripts/export_dixon_scores_site.py'
       - 'assets/css/scores-exacts.css'
       - 'assets/js/menu.js'
       - 'scripts/publish_exact_scores.py'
@@ -47,7 +48,7 @@ jobs:
           node-version: '22'
       - name: Compile and validate genuine prospective score feed publisher
         run: |
-          python -m py_compile scripts/publish_exact_scores.py tests/test_exact_scores_tab.py
+          python -m py_compile scripts/publish_exact_scores.py scripts/export_dixon_scores_site.py tests/test_exact_scores_tab.py
           python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
           python -m unittest discover -s tests -p 'test_exact_scores_daily_v3.py' -v
           python -m unittest discover -s tests -p 'test_public_scores_exact_days.py' -v
@@ -70,16 +71,18 @@ jobs:
                       self.ids.add(d["id"])
                   if tag=="a" and "href" in d:self.links.add(d["href"])
           h=Checker();h.feed(Path("scores-exacts.html").read_text())
-          for key in ("scores-simple-list","scores-grouped-list","scores-status","scores-date"):
+          for key in ("scores-simple-list","scores-status","scores-date"):
               assert key in h.ids, key
           for page in ("index.html","pronos.html","scores-exacts.html"):
               assert "scores-exacts.html" in Path(page).read_text()
           assert "scores-exacts.html" in h.links
+          assert "scores-grouped-list" not in h.ids
+          assert "Top 10" in h_source
           h_source=Path("scores-exacts.html").read_text()
           for offset in (-1,0,1):
               assert 'data-scores-day="' + str(offset) + '"' in h_source
           builder=Path("scripts/build_public_site.py").read_text()
-          for public_path in ("scores-exacts.html","scores-exacts.json","scores-exacts.js","scores-exacts.css","scores-exacts-daily"):
+          for public_path in ("scores-exacts.html","scores-exacts.json","scores-exacts.js","scores-exacts.css","scores-exacts-daily","dixon-scores-daily"):
               assert public_path in builder, public_path
           sw=Path("service-worker.js").read_text()
           assert "'./scores-exacts.json'" in sw and "'./scores-exacts.html'" in sw
