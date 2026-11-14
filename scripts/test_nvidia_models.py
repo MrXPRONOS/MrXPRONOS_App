@@ -112,7 +112,7 @@ def success_from_json(kind: str, body: dict) -> tuple[bool, str]:
     """HTTP 200 ne suffit pas à déclarer une réponse exploitable."""
     if not isinstance(body, dict):
         return False, ""
-    if kind == "chat":
+    if kind in ("chat", "specialized"):
         choices = body.get("choices", [])
         if not isinstance(choices, list) or not choices:
             return False, ""
