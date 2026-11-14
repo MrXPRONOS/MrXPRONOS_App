@@ -1,0 +1,8 @@
+# Mr XPRONOS — controlled manual Dixon-Coles generation
+# Event: GitHub Actions push to main on this file only
+# Mode: site_only (generate verified MP4 and publish tomorrow's scores to gh-pages)
+# Social network posting: disabled for this manual run
+requested_match_date=2026-11-15
+request=manual-generation-from-chat-2026-11-14
+generation_source=espn
+publication_mode=flexible
