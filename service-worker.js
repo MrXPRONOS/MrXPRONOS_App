@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v129-dixon-scores-alerts-20261114';
+const VERSION = 'v130-scores-auto-tomorrow-20261114';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -229,7 +229,7 @@ const strategies = {
         }
     },
 
-    networkFirst: async (request) => {
+    networkFirst: async (request, options = {}) => {
         const cache = await caches.open(DYNAMIC_CACHE);
         const stableUrl = new URL(request.url);
         stableUrl.search = '';
@@ -242,6 +242,10 @@ const strategies = {
                 await cache.put(stableRequest, networkResponse.clone());
                 return networkResponse;
             }
+            // A missing dated Dixon feed must remain a 404 so the scores page
+            // can discover the next published day, instead of receiving a
+            // synthetic offline 503 from this cache layer.
+            if (networkResponse?.status === 404 && options.preserve404) return networkResponse;
             throw new Error(`HTTP ${networkResponse?.status || 0}`);
         } catch (error) {
             log('📴 Réseau indisponible, tentative cache stable:', stableUrl.toString(), error?.message || error);
@@ -312,7 +316,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (/\/(?:scores-exacts-daily|dixon-scores-daily)\/\d{4}-\d{2}-\d{2}\.json$/.test(path)) {
-        event.respondWith(strategies.networkFirst(request));
+        event.respondWith(strategies.networkFirst(request, { preserve404: true }));
         return;
     }
 
