@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v128-scores-mockup-20261114';
+const VERSION = 'v129-dixon-scores-alerts-20261114';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -60,6 +60,7 @@ const STATIC_ASSETS = [
     './assets/js/pwa-telemetry.mjs',
     './assets/js/menu.js',
     './assets/js/scores-exacts.js',
+    './assets/js/dixon-score-alerts.mjs',
     './assets/js/back-to-top.js',
     './assets/images/default-logo.webp',
     './assets/images/1xbet.webp',
