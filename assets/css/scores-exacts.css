@@ -98,3 +98,27 @@
 .mx-score-time.is-started{border-color:#67583c;color:#dbcbaf}
 .mx-score-foot-label.is-archive{color:#e4c384}
 @media(max-width:740px){.mx-scores-days{gap:5px;margin-bottom:12px}.mx-scores-day{font-size:11px;padding:8px 5px;min-height:40px}}
+
+/* Dixon-Coles video Top10: full-width verified score cards. */
+.mx-scores-columns{display:block;max-width:1050px;margin-inline:auto}
+.mx-scores-section{width:100%}
+.mx-scores-section-head{align-items:center}
+.mx-scores-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}
+.mx-score-card{border:1px solid rgba(94,138,159,.36);border-radius:13px;padding:15px;min-width:0;background:linear-gradient(155deg,rgba(17,44,58,.8),rgba(6,19,28,.7))}
+.mx-score-card:last-child{border-bottom:1px solid rgba(94,138,159,.36)}
+.mx-score-card-top{flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.mx-score-league{text-align:left}
+.mx-score-match{gap:6px}
+.mx-score-crest{display:block;width:45px;height:45px;max-width:90%;object-fit:contain;border-radius:6px}
+.mx-score-team{gap:6px}
+.mx-score-teamname{overflow-wrap:anywhere}
+.mx-scores-modebar{display:none!important}
+@media(max-width:740px){
+  .mx-scores-columns{display:block}
+  .mx-scores-list{grid-template-columns:1fr;padding:12px;gap:8px}
+  .mx-score-card{padding:12px}
+  .mx-score-crest{width:39px;height:39px}
+}
+@media(min-width:741px) and (max-width:950px){
+  .mx-scores-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
