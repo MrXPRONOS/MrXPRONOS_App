@@ -23,6 +23,12 @@ class NvidiaBenchmarkTests(unittest.TestCase):
                 self.assertTrue(payload.get("prompt") or payload.get("text_prompts"))
                 self.assertEqual(category_for(model), "image")
 
+    def test_audio_endpoint_uses_documented_contract(self):
+        url, payload = request_for("nvidia/magpie-tts-multilingual")
+        self.assertIn(".invocation.api.nvcf.nvidia.com/v1/audio/synthesize", url)
+        self.assertEqual(payload["language"], "en-US")
+        self.assertEqual(category_for("nvidia/magpie-tts-multilingual"), "audio")
+
     def test_video_uses_synthetic_input(self):
         url, payload = request_for("stabilityai/stable-video-diffusion")
         self.assertIn("stable-video-diffusion", url)
