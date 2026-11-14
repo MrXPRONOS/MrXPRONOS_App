@@ -3,6 +3,10 @@ name: Dixon-Coles - Social Top10 20h
 on:
   schedule:
     - cron: '0 20 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'config/dixon-score-manual-run.txt'
   workflow_dispatch:
     inputs:
       mode:
@@ -43,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 65
     env:
-      SOCIAL_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode || 'preview' }}
+      SOCIAL_MODE: ${{ github.event_name == 'schedule' && 'publish' || github.event_name == 'push' && 'site_only' || inputs.mode || 'preview' }}
       DCSCORE_SOURCE: ${{ inputs.source || 'espn' }}
       DCSCORE_PUBLICATION_MODE: ${{ github.event_name == 'schedule' && 'flexible' || inputs.publication_mode || 'flexible' }}
       POST_PLATFORMS: ${{ github.event_name == 'schedule' && 'facebook,youtube,instagram,threads,bluesky' || inputs.publish_platforms || 'facebook,youtube,instagram,threads,bluesky' }}
@@ -145,7 +149,7 @@ jobs:
             --video "${{ steps.target.outputs.video }}" \
             --platforms "$POST_PLATFORMS"
       - name: Publish verified Dixon-Coles video scores to public website
-        if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
+        if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE != 'preview'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -182,6 +186,36 @@ jobs:
           fi
           echo "DIXON_COLES_VIDEO_SCORES_PAGES_CONFIRMED $TARGET"
           echo "- Site Scores exacts : ${TARGET} · ${{ steps.target.outputs.count }} sélections vérifiées" >> "$GITHUB_STEP_SUMMARY"
+      - name: Notify opted-in users about new exact scores
+        if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE != 'preview'
+        continue-on-error: true
+        shell: bash
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          TARGET="${{ steps.target.outputs.day }}"
+          SCORE_FILE="_dixon_site_export/${TARGET}.json"
+          test -s "$SCORE_FILE"
+          python -c 'import json,sys; d=json.load(open(sys.argv[1])); print("Verified scores published:",d["date"],d["count"])' "$SCORE_FILE"
+          python - "$SCORE_FILE" > _dixon_site_export/push-payload.json <<'PY'
+          import json,sys
+          obj=json.load(open(sys.argv[1],encoding="utf8"))
+          print(json.dumps({"action":"publish","date":obj["date"],"video_sha256":obj["video_sha256"],"count":obj["count"]}))
+          PY
+          HTTP_CODE="$(curl --silent --show-error --output _dixon_site_export/push-response.json --write-out '%{http_code}' \
+            --retry 3 --retry-delay 5 --retry-all-errors \
+            -X POST "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/dixon-score-alerts" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --data-binary @_dixon_site_export/push-payload.json)"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::warning::Notification scores exacts non confirmée (HTTP $HTTP_CODE)"
+            cat _dixon_site_export/push-response.json
+            exit 1
+          fi
+          cat _dixon_site_export/push-response.json
+
       - name: Refresh social tokens
         if: steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish'
         continue-on-error: true
