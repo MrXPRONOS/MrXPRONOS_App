@@ -252,6 +252,139 @@
     .mx-panel{padding:6px 5px}
     .mx-row-link{min-height:49px}
   }
+
+  /* V4 — Terrain visible derrière le titre ; même photo officielle que l’accueil. */
+  .mx-atmosphere{
+    top:0;
+    height:540px;
+    background-image:
+      linear-gradient(180deg,rgba(1,8,15,.24) 0%,rgba(1,8,15,.31) 42%,rgba(2,9,16,.69) 78%,#05080d 100%),
+      url("assets/images/home-premium/hero-stadium.webp");
+    background-size:100% 100%, cover;
+    background-position:center,center 70%;
+    background-repeat:no-repeat;
+  }
+  .mx-atmosphere::after{
+    background:linear-gradient(90deg,rgba(0,0,0,.12),transparent 25%,transparent 75%,rgba(0,0,0,.12));
+  }
+  .mx-results{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px}
+  .mx-panel{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    min-height:0;
+  }
+  .mx-panel-title{
+    height:38px;
+    min-height:38px;
+    display:flex;
+    align-items:center;
+    margin:0 0 6px;
+  }
+  .mx-panel-list{
+    display:grid;
+    grid-template-rows:repeat(3,minmax(112px,1fr));
+    gap:6px;
+    flex:1 1 auto;
+    min-height:0;
+  }
+  .mx-row-link{
+    display:grid;
+    height:100%;
+    min-height:112px;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:minmax(0,1fr) auto;
+    grid-template-areas:"match match" "pick status";
+    padding:7px 6px 6px;
+    row-gap:5px;
+    align-items:center;
+    align-content:stretch;
+    min-width:0;
+  }
+  .mx-match{
+    display:grid;
+    grid-area:match;
+    grid-template-columns:minmax(0,1fr);
+    grid-auto-rows:auto;
+    align-content:center;
+    gap:2px;
+    width:100%;
+    min-width:0;
+    overflow:visible;
+  }
+  .mx-team-label{
+    display:grid;
+    grid-template-columns:19px minmax(0,1fr);
+    align-items:center;
+    gap:5px;
+    min-height:21px;
+    min-width:0;
+    width:100%;
+    max-width:100%;
+    margin:0;
+    padding:2px 2px 2px 4px;
+    border-left:2px solid transparent;
+    border-radius:4px;
+    background:rgba(255,255,255,.025);
+  }
+  .mx-team-label--home{border-left-color:#e9b950}
+  .mx-team-label--away{border-left-color:#7dabc5}
+  .mx-team-logo{
+    display:block;
+    width:19px;height:19px;min-width:0;max-width:100%;
+    object-fit:contain;object-position:center;
+    border-radius:3px;
+    flex-shrink:0;
+    background:transparent;
+  }
+  .mx-team-name{
+    display:block;
+    min-width:0;
+    max-width:100%;
+    font-size:clamp(9px,2.45vw,12px);
+    font-weight:800;
+    line-height:1.12;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+  .mx-vs-divider{
+    display:flex;align-items:center;justify-content:center;
+    justify-self:center;
+    gap:7px;
+    min-height:11px;
+    width:68%;
+    max-width:102px;
+    color:#f7c75e;
+    font:900 9px/1 Outfit,Manrope,sans-serif;
+    letter-spacing:.09em;
+  }
+  .mx-vs-divider::before,.mx-vs-divider::after{
+    content:"";height:1px;flex:1;
+    background:linear-gradient(90deg,transparent,rgba(238,183,66,.64));
+  }
+  .mx-vs-divider::after{transform:rotate(180deg)}
+  .mx-row-detail{grid-area:pick;margin:0;min-width:0}
+  .mx-row-side{grid-area:status;min-width:0;max-width:none}
+  .mx-empty{grid-row:1/-1}
+  @media(max-width:768px){
+    .mx-atmosphere{
+      height:clamp(410px,65dvh,530px);
+      background-image:
+        linear-gradient(180deg,rgba(1,8,15,.22) 0%,rgba(1,8,15,.29) 40%,rgba(2,9,16,.68) 78%,#05080d 100%),
+        url("assets/images/home-premium/hero-stadium.webp");
+      background-size:100% 100%,auto 130%;
+      background-position:center,center bottom;
+    }
+  }
+  @media(max-width:380px){
+    .mx-panel-title{height:37px;min-height:37px}
+    .mx-panel-list{grid-template-rows:repeat(3,minmax(110px,1fr));gap:5px}
+    .mx-row-link{min-height:110px;padding:6px 4px}
+    .mx-team-label{grid-template-columns:17px minmax(0,1fr);gap:4px;padding-left:3px}
+    .mx-team-logo{width:17px;height:17px}
+    .mx-team-name{font-size:9.5px}
+  }
   </style>
 </head>
 <body>
@@ -382,8 +515,8 @@
       if(/^https:\/\//i.test(url)||/^assets\/images\/[a-z0-9_./-]+\.(?:png|webp|jpg|jpeg|svg)(?:\?[^#]*)?$/i.test(url))return url;
       return fallback;
     }
-    function teamWithLogo(name, logo, fallback){
-      var line=el("span","mx-team-label");
+    function teamWithLogo(name, logo, fallback, kind){
+      var line=el("span","mx-team-label mx-team-label--"+(kind==="away"?"away":"home"));
       var image=el("img","mx-team-logo");
       image.src=logoSrc(logo,fallback);
       image.alt="";
@@ -396,6 +529,7 @@
         this.src=fallback;
       };
       var text=el("span","mx-team-name",name||"Équipe");
+      line.setAttribute("aria-label",(kind==="away"?"Extérieur : ":"Domicile : ")+(name||"Équipe"));
       line.append(image,text);
       return line;
     }
@@ -408,9 +542,12 @@
       icon.setAttribute("aria-hidden","true");
       var body=el("span","mx-row-main");
       var match=el("span","mx-match");
+      var vs=el("span","mx-vs-divider","VS");
+      vs.setAttribute("aria-hidden","true");
       match.append(
-        teamWithLogo(m.home_team,m.home_logo,"assets/images/home.webp"),
-        teamWithLogo(m.away_team,m.away_logo,"assets/images/away.webp")
+        teamWithLogo(m.home_team,m.home_logo,"assets/images/home.webp","home"),
+        vs,
+        teamWithLogo(m.away_team,m.away_logo,"assets/images/away.webp","away")
       );
       var detail=el("span","mx-row-detail");
       var pick=el("span","mx-pick-pill",label(p));pick.title=label(p);
@@ -473,6 +610,6 @@
     void load();
   })();
   </script>
-  <script defer src="assets/js/pwa.js?v=d31e35705487"></script>
+  <script defer src="assets/js/pwa.js"></script>
 </body>
 </html>
