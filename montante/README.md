@@ -27,8 +27,14 @@ Le premier choix est figé par date UTC dans `montante/ledger.json`. Les sorties
 
 Dans **Settings → Secrets and variables → Actions** du dépôt GitHub, configurer `NVIDIA_API_KEY` obtenu sur <https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b> et vérifier l'existence de `BSD_HISTORY_KEY`. Ne jamais stocker les clés dans le code ni dans un fichier publié.
 
-Une fois la PR fusionnée, le workflow `.github/workflows/bsd-v2-montante.yml` se déclenche après la production BSD V2 réussie et à 06:35, 12:35 et 18:35 UTC, ou manuellement. Sur les PR, seuls les tests **sans réseau ni secrets** sont exécutés.
+Le workflow `.github/workflows/bsd-v2-montante.yml` se déclenche après chaque production BSD V2 réussie, à 00:35, 04:35, 08:35, 12:35, 16:35 et 20:35 UTC (Togo = UTC), ou manuellement. Son module `bsd/bsd_v2_montante_refresh.py` recherche une **nouvelle cote BSD réelle, horodatée, pour exactement le même événement et le même marché publié**, et ne modifie que la copie du flux utilisée pendant l'analyse. Il ne change pas les pronostics du site ni ne fabrique de cote. Maximum 16 matchs sondés et 80 requêtes API BSD par exécution, compteur d'audit `tmp/montante-quote-refresh.json` conservé en artefact GitHub. La recherche des cotes a lieu avant l'avis de NVIDIA NIM. Les cotes restent à vérifier directement chez le bookmaker. Sur les PR, seuls les tests **sans réseau ni secrets** sont exécutés.
 
 ## Limites
 
 NIM n'est pas un modèle spécifiquement entraîné et calibré sur la réussite des paris football : son avis est **une revue qualitative**, non une probabilité validée. Le modèle et le prix du marché peuvent être tous les deux erronés. Les cotes consensus ne sont pas des offres fermes chez 1xBet/Melbet. Vérifier la même sélection et la cote réelle chez le bookmaker avant toute mise. L'API hébergée nécessite des crédits/quota et sa disponibilité doit être testée avec une clé fonctionnelle.
+
+## Fréquence et fiabilité (14 novembre 2026)
+
+La meilleure façon d'augmenter la probabilité de trouver un candidat est de chercher **avant les rencontres** et de rafraîchir les cotes exactes. Une cote déjà enregistrée dans `data.json` et vieille de plus de six heures ne prouve pas la disponibilité d'un prix actuel. Le nouveau module retente la cotation uniquement sur les marchés que BSD V2 a déjà qualifiés. Il exclut les matchs commencés, rejette les prix sans provenance ou horodatage probant et respecte le plafond d'appels.
+
+**Objectif opérationnel :** au plus un pari suffisamment qualifié par jour, avec suivi du nombre de jours sans candidat. **Ce n'est pas une garantie d'un pari quotidien :** si aucune vraie cote ou preuve statistique n'est disponible, `no_pick` est la seule conclusion justifiée. Pour fournir malgré tout un contenu chaque jour, publier séparément une *observation informative* sans la présenter comme un pari validé et sans la jouer automatiquement.
