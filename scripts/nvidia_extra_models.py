@@ -208,7 +208,9 @@ def probe_special(session: requests.Session, model_id: str, timeout: float, sani
         url, payload = request_for(model_id)
         request_timeout = max(timeout, 90) if kind.startswith(("image_", "video_")) else timeout
         if kind == "audio_tts":
-            response = session.post(url, data=payload, timeout=request_timeout, allow_redirects=False)
+            # NVIDIA TTS expects multipart/form-data (-F in official cURL), not urlencoded data.
+            multipart = {key: (None, str(value)) for key, value in payload.items()}
+            response = session.post(url, files=multipart, timeout=request_timeout, allow_redirects=False)
         else:
             response = session.post(url, json=payload, timeout=request_timeout, allow_redirects=False)
         async_status = ""
