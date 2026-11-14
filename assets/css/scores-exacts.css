@@ -793,3 +793,35 @@
   .mx-scores-page #bottom-nav .bottom-nav-label{font-size:inherit!important;line-height:1.14!important}
   .mx-scores-page #bottom-nav .bottom-nav-item.active::before{display:none!important}
 }
+
+
+/* V5 header cleanup: the brand stays centred with no left menu or dead space. */
+.mx-scores-page .mx-scores-main{padding-top:0!important;margin-top:0!important}
+.mx-scores-page .mx-scores-hero{margin-top:0!important}
+.mx-scores-mock-top{grid-template-columns:54px minmax(0,1fr) 54px;padding-top:5px}
+.mx-scores-mock-top::before{content:"";grid-column:1;grid-row:1}
+.mx-scores-mock-top .mx-scores-mock-brand{grid-column:2;grid-row:1}
+.mx-scores-mock-top #mx-scores-enable-alerts{grid-column:3;grid-row:1;justify-self:end}
+.mx-scores-top-icon.mx-scores-bell-enabled{
+  color:#16110b;border-color:#ffe39b;background:linear-gradient(150deg,#fff0a1,#eab031);
+  box-shadow:0 0 14px #edb9448a;
+}
+.mx-scores-top-icon:focus-visible{outline:3px solid #ffdc74;outline-offset:2px}
+.mx-scores-top-icon:disabled{opacity:.62;cursor:progress}
+.mx-scores-notice{
+  margin:4px auto 10px;
+  padding:9px 12px;
+  max-width:690px;
+  border:1px solid #cfa351;
+  border-radius:10px;
+  background:linear-gradient(110deg,#172734,#0b1927);
+  color:#f7e8bb;
+  text-align:center;
+  font:650 12px/1.4 Manrope,sans-serif;
+}
+.mx-scores-notice[hidden]{display:none!important}
+@media(max-width:740px){
+ .mx-scores-mock-top{grid-template-columns:42px minmax(0,1fr) 42px;padding-top:2px}
+ .mx-scores-mock-brand img{height:66px}
+ .mx-scores-page .mx-scores-hero h1{margin-top:5px}
+}
