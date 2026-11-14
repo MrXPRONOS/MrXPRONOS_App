@@ -259,6 +259,7 @@ jobs:
           python scripts/social_exact_score_telegram_teaser.py \
             --manifest "social_exact_scores_out/$TARGET/social_manifest.json" \
             --predictions "social_exact_scores_out/model/$TARGET/predictions.json" \
+            --storyboard "social_exact_scores_out/model/$TARGET/video_payload.json" \
             --report "$REPORT" \
             --image "social_exact_scores_out/$TARGET/telegram_teaser.png" \
             --receipt "social_exact_scores_out/$TARGET/telegram_teaser_receipt.json" \
