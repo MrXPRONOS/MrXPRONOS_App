@@ -25,8 +25,8 @@ WELCOME_HTML = """👋 <b><i>Bienvenue chez Mr XPRONOS !</i></b> ⚽👑
 📲 <b>Sur Telegram :</b>
 <i>Rejoins notre canal en cliquant sur le bouton ci-dessous.</i>
 
-📱 <b>Pas de Telegram ?</b>
-<i>Installe gratuitement notre application</i> ou consulte directement le site avec le deuxième bouton.
+📱 <b>Garde Mr XPRONOS à portée de main !</b>
+<i>Installe notre application sur ton téléphone pour retrouver facilement les pronostics et suivre nos nouveautés, en un seul geste.</i>
 
 ✅ <b>Enregistre mon numéro</b> pour suivre mes statuts WhatsApp !
 
