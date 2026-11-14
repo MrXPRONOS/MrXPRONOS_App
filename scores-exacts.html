@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#020a11">
+  <meta name="theme-color" content="#020812">
   <meta name="description" content="Mr XPRONOS : jusqu’à dix scores exacts pré-match du modèle Dixon-Coles, issus du même fichier vérifié que la vidéo quotidienne.">
   <meta name="robots" content="index,follow">
   <title>Scores exacts Dixon-Coles — Top 10 | Mr XPRONOS</title>
@@ -18,11 +18,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/pronos-premium.css">
-  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261114-scores-premium-v3">
+  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261114-mockup-v4">
   <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/css/ux-direct.css?v=20261107-v1">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site-typography.css?v=20261107-fonts1">
+  <script>(function(){try{if(navigator.standalone===true||matchMedia("(display-mode: standalone)").matches){document.documentElement.classList.add("mx-scores-app-installed");}}catch(_){}})();</script>
 </head>
 <body class="mx-pronos-page mx-scores-page">
 <header class="mx-site-header mx-pronos-header">
@@ -58,6 +59,18 @@
     </header>
 <main id="score-main" class="mx-scores-main">
   <section class="mx-scores-hero" aria-labelledby="scores-title">
+    <div class="mx-scores-mock-top" aria-label="En-tête scores exacts">
+      <button id="mx-scores-open-menu" type="button" class="mx-scores-top-icon" aria-label="Ouvrir le menu de navigation" aria-controls="burger-overlay" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a class="mx-scores-mock-brand" href="index.html" aria-label="Mr XPRONOS, accueil">
+        <span class="mx-scores-brand-crown" aria-hidden="true">♛</span>
+        <img src="assets/images/mrxpronos-horizontal.webp" width="245" height="100" alt="Mr XPRONOS">
+      </a>
+      <a class="mx-scores-top-icon" href="aujourdhui.html" aria-label="Voir les informations et alertes football">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9zM10 21h4"/></svg>
+      </a>
+    </div>
     <div class="container">
       <div class="mx-scores-hero-emblem" aria-hidden="true">
         <svg viewBox="0 0 64 52" width="43" height="35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -67,18 +80,18 @@
           <defs><linearGradient id="mxScoreGold" x1="8" y1="7" x2="54" y2="49"><stop stop-color="#fff7a7"/><stop offset=".48" stop-color="#ffd352"/><stop offset="1" stop-color="#bd7517"/></linearGradient></defs>
         </svg>
       </div>
-      <span class="mx-scores-kicker"><span class="mx-scores-kicker-dot" aria-hidden="true"></span> ANALYSE FOOTBALL · DIXON-COLES</span>
+      <span class="mx-scores-kicker"><span class="mx-scores-kicker-dot" aria-hidden="true"></span> PRÉDICTIONS FOOTBALL PREMIUM</span>
       <h1 id="scores-title">Scores exacts <span>Top 10</span></h1>
       <div class="mx-scores-hero-rule" aria-hidden="true"></div>
-      <p>Les scores exacts possibles du modèle Dixon-Coles, identiques aux sélections préparées pour nos vidéos quotidiennes. Jusqu’à dix rencontres réelles par journée, pour hier, aujourd’hui et demain.</p>
+      <p>Prédictions de scores exacts <strong>(modèle Dixon-Coles)</strong><span class="mx-scores-hero-clarifier">Jusqu’à dix matchs vérifiés, présentés dans nos vidéos.</span></p>
       <div class="mx-scores-hero-actions">
-        <a class="mx-scores-cta mx-scores-cta--install" href="installer.html" aria-label="Installer l'application Mr XPRONOS">
+        <a class="mx-scores-cta mx-scores-cta--install" href="installer.html" id="mx-scores-install-cta" aria-label="Installer l'application Mr XPRONOS">
           <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg>
-          <span>Installer l'application</span>
+          <span class="mx-scores-cta-label"><b>Installer l’app</b><small>Mr XPRONOS</small></span>
         </a>
         <a class="mx-scores-cta mx-scores-cta--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer" aria-label="Rejoindre le canal Telegram Mr XPRONOS">
           <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M21.45 4.2 18.2 19.5c-.25 1.08-.89 1.35-1.79.83l-4.82-3.55-2.33 2.23c-.28.29-.52.53-1.04.53l.36-4.93 8.96-8.09c.39-.34-.09-.54-.6-.2l-11.1 6.99-4.74-1.48c-1.03-.33-1.05-1.04.22-1.54l18.55-7.16c.86-.32 1.61.19 1.33 1.07Z"/></svg>
-          <span>Rejoindre Telegram</span>
+          <span class="mx-scores-cta-label"><b>Telegram</b><small>Rejoindre le canal</small></span>
         </a>
       </div>
       <div class="mx-scores-hero-meta">
@@ -89,9 +102,9 @@
   </section>
   <div class="container mx-scores-content">
     <nav class="mx-scores-days" aria-label="Choisir la journée des scores exacts">
-      <button type="button" class="mx-scores-day" data-scores-day="-1" aria-pressed="false">Hier</button>
-      <button type="button" class="mx-scores-day is-active" data-scores-day="0" aria-pressed="true">Aujourd’hui</button>
-      <button type="button" class="mx-scores-day" data-scores-day="1" aria-pressed="false">Demain</button>
+      <button type="button" class="mx-scores-day" data-scores-day="-1" aria-pressed="false"><span aria-hidden="true">▣</span> Hier</button>
+      <button type="button" class="mx-scores-day is-active" data-scores-day="0" aria-pressed="true"><span aria-hidden="true">▣</span> Aujourd’hui</button>
+      <button type="button" class="mx-scores-day" data-scores-day="1" aria-pressed="false"><span aria-hidden="true">▣</span> Demain</button>
     </nav>
     <div id="scores-status" class="mx-scores-status" role="status" aria-live="polite">
       Recherche des scores exacts Dixon-Coles vérifiés…
@@ -99,12 +112,12 @@
     <div class="mx-scores-columns">
       <section id="panel-scores-simple" class="mx-scores-section is-active" aria-labelledby="simple-title">
         <div class="mx-scores-section-head">
-          <span class="mx-scores-number">10</span>
-          <div><span class="mx-scores-section-eyebrow">LES SCORES DE NOS VIDÉOS · DIXON-COLES</span>
-            <h2 id="simple-title">Top 10 <span>scores exacts</span></h2>
-            <p>Une prévision par match, issue des données ayant servi à produire la vidéo du jour. Aucune sélection inventée.</p>
+          <span class="mx-scores-number" aria-hidden="true">🏆</span>
+          <div><span class="mx-scores-section-eyebrow">NOTRE SÉLECTION FOOTBALL DU JOUR</span>
+            <h2 id="simple-title"><span>Top 10</span> – Scores exacts</h2>
           </div>
-          <span class="mx-scores-counter" id="simple-count">0 / 10</span>
+          <span class="mx-scores-model-pill">▥ <span>Modèle Dixon-Coles</span></span>
+          <span class="mx-scores-counter" id="simple-count" aria-label="Nombre de scores disponibles">0 / 10</span>
         </div>
         <div class="mx-scores-list" id="scores-simple-list" aria-live="polite">
           <p class="mx-scores-empty">Chargement des scores exacts…</p>
@@ -147,7 +160,7 @@
   </div>
 </footer>
 <script defer src="assets/js/menu.js"></script>
-<script defer src="assets/js/scores-exacts.js?v=20261114-dixon-top10-r2"></script>
+<script defer src="assets/js/scores-exacts.js?v=20261114-mockup-v4"></script>
 <script defer src="assets/js/back-to-top.js"></script>
 <script defer src="assets/js/pwa.js"></script>
 </body>
