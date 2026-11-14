@@ -1,10 +1,453 @@
 [
   {
+    "id": "86a9db1f0e4cc4091830ea5f",
+    "kind": "article",
+    "title": "Real Club Deportivo de A Coruña vs Fútbol Club Barcelona : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-215311/",
+    "source_date": "2026-11-13T18:08:56.084291+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-215311-645643b7-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-215311-645643b7-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-215311-645643b7-social.jpg"
+  },
+  {
+    "id": "00e0dc13d05eb9413c2e9aba",
+    "kind": "article",
+    "title": "Niger Tornadoes vs Enugu Rangers International : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604617/",
+    "source_date": "2026-11-13T18:08:56.084291+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-604617-8e8b212e-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604617-8e8b212e-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604617-8e8b212e-social.jpg"
+  },
+  {
+    "id": "bf470d179a3a7651b51226e9",
+    "kind": "news",
+    "title": "Mort de Jesús de Miguel: le gardien d'Andorre Jesús Owono suspendu 12 matches",
+    "url": "https://www.rfi.fr/fr/sports/20261113-mort-de-jes%C3%BAs-de-miguel-le-gardien-d-andorre-jes%C3%BAs-owono-suspendu-12-matches",
+    "source_date": "2026-11-13T22:31:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "83daed9a229c73dbcf38e71b",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: le Mali renverse le Rwanda, le Maroc domine le Niger avec un doublé d'Hakimi",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261113-%C3%A9liminatoires-can-2027-le-mali-renverse-le-rwanda-le-maroc-domine-le-niger-avec-un-doubl%C3%A9-d-hakimi",
+    "source_date": "2026-11-13T22:11:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e079d205041479f2e50992d2",
+    "kind": "news",
+    "title": "Le Maroc écrase le Niger avec un doublé d’Hakimi",
+    "url": "https://www.footmercato.net/a1020760531155136646-le-maroc-ecrase-le-niger-avec-un-double-dhakimi",
+    "source_date": "2026-11-13T22:05:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f3377cb1def022ba475c7f98",
+    "kind": "news",
+    "title": "Qualifs CAN 2027 : Porté par un grand Achraf Hakimi, le Maroc s'impose facilement face au Niger (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-qualifs-can-2027-porte-par-un-grand-achraf-hakimi-le-maroc-s-impose-facilement-face-au-niger-resume-545692.html",
+    "source_date": "2026-11-13T22:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "aaa56dae645eb60d839273f3",
+    "kind": "news",
+    "title": "Ligue des Nations : les Pays-Bas collent un 7-0 humiliant à la Grèce, l’Allemagne domine la Serbie",
+    "url": "https://www.footmercato.net/a2864853972855162880-ligue-des-nations-les-pays-bas-collent-un-7-0-humiliant-a-la-grece-lallemagne-domine-la-serbie",
+    "source_date": "2026-11-13T21:52:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9c7a2a1720b069bba56631d4",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN : le Maroc s'impose tranquillement, l'Égypte écrase le Malawi, le Mali se donne de l'air",
+    "url": "https://www.onzemondial.com/can/eliminatoires-de-la-can-le-maroc-simpose-tranquillement-legypte-ecrase-le-malawi-le-mali-se-donne-de-lair-1008871",
+    "source_date": "2026-11-13T21:51:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "45b683e7809b820ef003d828",
+    "kind": "news",
+    "title": "Cyril Hanouna fait des révélations explosives sur Zinédine Zidane et les Bleus",
+    "url": "https://www.footmercato.net/a425185795107256178-cyril-hanouna-fait-des-revelations-explosives-sur-zinedine-zidane-et-les-bleus",
+    "source_date": "2026-11-13T21:46:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "112363e19346c3937a2f90e1",
+    "kind": "news",
+    "title": "Mercato Lens : Immense surprise, le RC Lens nomme un entraîneur inattendu pour succéder à Yannick Cahuzac ! (officiel)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-lens-immense-surprise-le-rc-lens-nomme-un-entraineur-inattendu-pour-succeder-a-yannick-cahuzac-officiel-545677.html",
+    "source_date": "2026-11-13T21:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "acd6414031e1b3ebf65de255",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : le Mali arrache la victoire au Rwanda et prend déjà une option",
+    "url": "https://www.france24.com/fr/sports/20261113-eliminatoires-can-2027-mali-rwanda-groupe-k",
+    "source_date": "2026-11-13T20:59:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3a1493e39ba5df19ce217b85",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: le Burkina Faso gagne sur le fil, le Gabon enchaîne, la Tunisie s'enfonce",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261113-%C3%A9liminatoires-can-2027-le-burkina-faso-gagne-sur-le-fil-le-gabon-encha%C3%AEne-la-tunisie-s-enfonce",
+    "source_date": "2026-11-13T18:20:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "261f327154f1f476251650fd",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : le Nigeria se relance, la Tunisie chute et se met en danger",
+    "url": "https://www.france24.com/fr/sports/20261113-eliminatoires-can-2027-nigeria-relance-tunisie",
+    "source_date": "2026-11-13T18:01:57+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b66246c17ee3bd29fb84c113",
+    "kind": "news",
+    "title": "\"On a été moins bons, parfois trop naïfs\", regrette Adrien Rabiot après la défaite de la France en Italie",
+    "url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/on-a-ete-moins-bons-parfois-trop-naifs-regrette-adrien-rabiot-apres-la-defaite-de-la-france-en-italie_8280683.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-13T08:39:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6d4626bba183f07801114e50",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027 : Sénégal, Cameroun, Côte d'Ivoire... les cadors à la fête",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261113-%C3%A9liminatoires-can-2027-s%C3%A9n%C3%A9gal-cameroun-c%C3%B4te-ivoire-cadors-f%C3%AAte",
+    "source_date": "2026-11-13T07:18:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f93ae7e9063493efa730b7d7",
+    "kind": "news",
+    "title": "États-Unis : l'immense émotion de Pochettino, en larmes après son départ pour Manchester United",
+    "url": "https://www.onzemondial.com/premier-league/etats-unis-limmense-emotion-de-pochettino-en-larmes-apres-son-depart-pour-manchester-united-1008858",
+    "source_date": "2026-11-13T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8aa1de22ae2f2cd07a4c0937",
+    "kind": "news",
+    "title": "Coupe du Monde 2030 : le président de la RFEF en remet une couche sur la finale",
+    "url": "https://www.footmercato.net/a2105694562144431218-coupe-du-monde-2030-le-president-de-la-rfef-en-remet-une-couche-sur-la-finale",
+    "source_date": "2026-11-13T22:52:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "317f1ed44b8544c76b120b63",
+    "kind": "news",
+    "title": "Ligue 1: Lens mise sur la surprise Didier Digard pour son poste d'entraîneur",
+    "url": "https://www.rfi.fr/fr/sports/20261113-ligue-1-lens-mise-sur-la-surprise-didier-digard-pour-son-poste-d-entra%C3%AEneur",
+    "source_date": "2026-11-13T22:33:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "77a0b2ca86c6ef9182e47cc2",
+    "kind": "news",
+    "title": "Paris FC : des tensions avec le PSG et Al-Khelaïfi pour Arnault ?",
+    "url": "https://www.onzemondial.com/ligue-1/paris-fc-des-tensions-avec-le-psg-et-al-khelaifi-pour-arnault-1008848",
+    "source_date": "2026-11-13T22:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e7f469007d6629664c055fea",
+    "kind": "news",
+    "title": "Rui Costa climatise le PSG dans le dossier Prestianni",
+    "url": "https://www.footmercato.net/a1886323304276710843-rui-costa-climatise-le-psg-dans-le-dossier-prestianni",
+    "source_date": "2026-11-13T22:26:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e913cfbd56a02b07f21be392",
+    "kind": "news",
+    "title": "OFFICIEL : Digard remplace Cahuzac sur le banc du RC Lens !",
+    "url": "https://www.onzemondial.com/ligue-1/officiel-digard-remplace-cahuzac-sur-le-banc-du-rc-lens-1008875",
+    "source_date": "2026-11-13T22:07:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-14T05:42:13.532224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "2e8bbcc7b48929c1119bd954",
     "kind": "news",
     "title": "Italie-France : revivez la première défaite de Zinédine Zidane à la tête des Bleus qui devront encore attendre pour la qualification en quarts de Ligue des nations",
     "url": "https://www.franceinfo.fr/sports/directs/direct-italie-france-qualification-en-vue-pour-les-quarts-de-ligue-des-nations-suivez-et-commentez-le-match-avec-nous_8276066.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
-    "source_date": "2026-11-12T23:40:01+00:00",
+    "source_date": "2026-11-14T02:25:08+00:00",
     "visual_variant": "legacy",
     "image": "",
     "story_image": "",
@@ -39,7 +482,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "08dc27da22ef2b814beef00f",
@@ -60,7 +503,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9f019eed1845160bfa3ca4dd",
@@ -81,7 +524,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e95dd937545139e00e728912",
@@ -102,7 +545,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e2dedca50bc745fd50cdaa9e",
@@ -123,7 +566,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "42e6cdc76e6e1c182cf17841",
@@ -144,7 +587,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "dff80076972ae39544a2a53a",
@@ -165,7 +608,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "24723c737ca9a35b198d33c4",
@@ -186,7 +629,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7be0e39403026f8eb8517984",
@@ -228,7 +671,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0907cd4aedf031069c0c344c",
@@ -249,7 +692,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4e4d1671b13cd9ce109c4802",
@@ -270,7 +713,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "91a6f889a2d3ff15483338a5",
@@ -312,7 +755,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "93554edf7142d99413c67b05",
@@ -333,7 +776,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f2d35893495ae6b5ed949ff5",
@@ -501,7 +944,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8b78bb3e78e5d5759ca56a96",
@@ -522,7 +965,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c9cc4364321fff42d358930f",
@@ -564,7 +1007,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f22c3e519c8efd9ab2a21828",
@@ -585,7 +1028,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5dd79a43a313a3ee76ec5ff4",
@@ -606,7 +1049,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0890c6f4d234b5a6aaa52efb",
@@ -754,7 +1197,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d86835fcf5b5ecd42b56ea6b",
