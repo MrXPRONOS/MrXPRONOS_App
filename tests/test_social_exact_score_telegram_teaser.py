@@ -83,8 +83,17 @@ class TeaserTests(unittest.TestCase):
         # Both stills share the title artwork from the original video.
         self.assertEqual(minimal.getpixel((360, 45)), original.getpixel((360, 45)))
         self.assertGreater(minimal.getpixel((360, 45))[3], 0)
-        # No old Telegram promo banner; only the new golden CTA/arrow.
-        self.assertEqual(minimal.getpixel((360, 1078))[:3], neon.GOLD[:3])
+        # A near-opaque navy card protects both text lines from the stadium.
+        self.assertEqual(minimal.getpixel((120, 1035)),
+                         neon.TELEGRAM_PANEL_BG)
+        self.assertNotEqual(neon.TELEGRAM_CTA_TOP, neon.WHITE)
+        self.assertNotEqual(neon.TELEGRAM_CTA_BOTTOM, neon.GOLD)
+        # Coral-orange arrow has a strong contrast against the navy card.
+        self.assertEqual(minimal.getpixel((360, 1078))[:3],
+                         neon.TELEGRAM_ARROW[:3])
+        self.assertGreater(sum(neon.TELEGRAM_ARROW[:3]) -
+                           sum(neon.TELEGRAM_PANEL_BG[:3]), 250)
+        # The old lower marketing/banner area remains unused.
         self.assertEqual(minimal.getpixel((360, 1135))[3], 0)
         self.assertGreater(minimal.getpixel((neon.CARD_X[0] + 8,
                                              neon.CARD_Y0 + 8))[3], 0)

@@ -134,18 +134,36 @@ def fit_artwork(artwork):
     return frame
 
 
+# Dedicated high-contrast palette for the still only; the video remains intact.
+# Stadium grass/spotlights can be bright behind the lower CTA, so the
+# nearly-opaque navy panel ensures consistent readability on every match day.
+TELEGRAM_PANEL_BG = (4, 13, 35, 248)
+TELEGRAM_PANEL_BORDER = (90, 226, 245, 245)
+TELEGRAM_CTA_TOP = (255, 228, 137, 255)  # warm light amber (not white)
+TELEGRAM_CTA_BOTTOM = (112, 243, 255, 255)  # luminous sky cyan (not gold)
+TELEGRAM_ARROW = (255, 119, 65, 255)  # bright coral-orange, distinct from text
+
+
 def _draw_telegram_call_to_action(draw):
-    """Only lower-page Telegram text: a compact CTA pointing at inline buttons."""
+    """High-contrast CTA for Telegram preview; links are buttons below photo."""
     center = W // 2
-    draw.text((center, 946), "À CONSULTER SUR NOS",
-              font=font(27, True), fill=WHITE, anchor="mm")
-    draw.text((center, 981), "RÉSEAUX SOCIAUX",
-              font=font(31, True), fill=GOLD, anchor="mm")
-    # Solid downward gold arrow toward Telegram's button row underneath photo.
-    draw.rounded_rectangle((center-6, 1010, center+6, 1065),
-                           radius=6, fill=GOLD)
-    draw.polygon(((center-30, 1056), (center+30, 1056),
-                  (center, 1090)), fill=GOLD)
+    # Keep a clear interval after the final score cards (bottom <= 885px).
+    draw.rounded_rectangle((91, 907, 629, 1123), radius=28,
+                           fill=TELEGRAM_PANEL_BG,
+                           outline=TELEGRAM_PANEL_BORDER, width=3)
+    draw.rounded_rectangle((102, 918, 618, 1112), radius=23,
+                           outline=(37, 93, 124, 175), width=2)
+    draw.text((center, 949), "À CONSULTER SUR NOS",
+              font=font(27, True), fill=TELEGRAM_CTA_TOP, anchor="mm",
+              stroke_width=2, stroke_fill=(0, 10, 26, 255))
+    draw.text((center, 987), "RÉSEAUX SOCIAUX",
+              font=font(31, True), fill=TELEGRAM_CTA_BOTTOM, anchor="mm",
+              stroke_width=2, stroke_fill=(0, 10, 26, 255))
+    # Orange arrow sits against its own dark panel, never directly on stadium.
+    draw.rounded_rectangle((center-6, 1025, center+6, 1067),
+                           radius=6, fill=TELEGRAM_ARROW)
+    draw.polygon(((center-31, 1061), (center+31, 1061),
+                  (center, 1098)), fill=TELEGRAM_ARROW)
 
 
 def base_frame(payload, clips, logos, preview=False, *, telegram_minimal=False):

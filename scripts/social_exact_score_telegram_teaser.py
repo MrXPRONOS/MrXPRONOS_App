@@ -43,7 +43,7 @@ BUTTON_STYLES = {
     "threads": "success",
     "bluesky": "primary",
 }
-TEASER_VERSION = "telegram_centered_neon_v4_title_cta_green"
+TEASER_VERSION = "telegram_centered_neon_v5_contrast_cta"
 ORDER = tuple(LABELS)
 CANVAS = (1200, 1600)
 BG = (7, 17, 34)
