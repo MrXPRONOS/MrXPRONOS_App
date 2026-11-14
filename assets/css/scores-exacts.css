@@ -825,3 +825,24 @@
  .mx-scores-mock-brand img{height:66px}
  .mx-scores-page .mx-scores-hero h1{margin-top:5px}
 }
+
+
+/* V6: Old pronos header reserves 76px for a bar hidden on Scores exacts.
+   Remove BOTH the global body offset and the page-specific header offset. */
+html body.mx-pronos-page.mx-scores-page {
+  --header-offset: 0px;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+html body.mx-scores-page > main.mx-scores-main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+html body.mx-scores-page .mx-scores-mock-top {
+  padding-top: 0 !important;
+}
+@media (max-width: 740px) {
+  html body.mx-scores-page .mx-scores-mock-top {
+    padding-top: 0 !important;
+  }
+}
