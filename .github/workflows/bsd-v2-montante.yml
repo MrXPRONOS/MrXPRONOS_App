@@ -33,6 +33,15 @@ jobs:
         with:
           ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
           fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            bsd/bsd_v2_montante.py
+            bsd/test_bsd_v2_montante.py
+            bsd/bsd_v2_guardrails.py
+            bsd/bsd_v2_publication_policy.py
+            data.json
+            montante
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
