@@ -30,6 +30,7 @@ SPECIAL_MODELS = {
     "nvidia/nemotron-parse": "document_vision",
     "nvidia/nemotron-parse-2.0": "document_vision",
     "nvidia/cosmos-reason2-8b": "vision_chat",
+    "nvidia/magpie-tts-multilingual": "audio_tts",
 }
 
 IMAGE_URLS = {
@@ -55,6 +56,8 @@ def category_for(model_id: str) -> str | None:
         return "image"
     if kind and kind.startswith("video_"):
         return "video"
+    if kind == "audio_tts":
+        return "audio"
     if kind == "document_vision":
         return "document"
     if kind == "vision_chat":
@@ -111,6 +114,10 @@ def request_for(model_id: str) -> tuple[str, dict]:
             "image": make_document_image(1024, 576),
             "seed": 1, "cfg_scale": 1.8, "motion_bucket_id": 127,
         }
+    elif kind == "audio_tts":
+        payload = {"text": "This is an NVIDIA API test.", "language": "en-US",
+                   "voice": "Magpie-Multilingual.EN-US.Aria",
+                   "encoding": "LINEAR_PCM", "sample_rate_hz": "44100"}
     elif kind == "document_vision":
         payload = {
             "model": model_id,
@@ -130,6 +137,8 @@ def request_for(model_id: str) -> tuple[str, dict]:
         }
     else:
         raise ValueError("No documented specialized contract: " + model_id)
+    if kind == "audio_tts":
+        return ("https://877104f7-e885-42b9-8de8-f6e4c6303969.invocation.api.nvcf.nvidia.com/v1/audio/synthesize", payload)
     return IMAGE_URLS.get(kind, CHAT), payload
 
 
@@ -137,6 +146,10 @@ def valid_output(kind: str, response: requests.Response) -> bool:
     if not response.content:
         return False
     content_type = response.headers.get("Content-Type", "").lower()
+    if any(t in content_type for t in ("image/", "video/", "audio/", "application/octet-stream")):
+        return len(response.content) > 256
+    if kind == "audio_tts":
+        return response.content.startswith(b"RIFF") or response.content.startswith(b"OggS") or response.content.startswith(b"ID3")
     if "image/" in content_type or "video/" in content_type:
         return len(response.content) > 256
     try:
@@ -195,11 +208,15 @@ def probe_special(session: requests.Session, model_id: str, timeout: float, sani
     start = time.perf_counter()
     try:
         url, payload = request_for(model_id)
-        response = session.post(url, json=payload, timeout=timeout, allow_redirects=False)
+        request_timeout = max(timeout, 90) if kind.startswith(("image_", "video_")) else timeout
+        if kind == "audio_tts":
+            response = session.post(url, data=payload, timeout=request_timeout, allow_redirects=False)
+        else:
+            response = session.post(url, json=payload, timeout=request_timeout, allow_redirects=False)
         async_status = ""
         if response.status_code == 202:
             response, async_status = poll_if_async(
-                session, response, time.monotonic() + timeout, timeout)
+                session, response, time.monotonic() + request_timeout, request_timeout)
         elapsed = round(time.perf_counter() - start, 3)
         if async_status:
             state = async_status
