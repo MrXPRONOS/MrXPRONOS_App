@@ -321,12 +321,13 @@ def main():
     storyboard = json.loads(args.storyboard.read_text(encoding="utf8"))
     report = json.loads(args.report.read_text(encoding="utf8"))
     rows = check_inputs(manifest, predictions)
-    links = links_from_receipts(report, manifest)
-    if not links:
-        print("TEASER_SKIPPED no verified video permalink; no Telegram message")
-        return 0
     render(args.image, manifest, predictions, storyboard=storyboard,
            storyboard_path=args.storyboard, test=True)
+    # Preserve authentic first-frame preview for inspection even when links fail.
+    links = links_from_receipts(report, manifest)
+    if not links:
+        print("TEASER_PREVIEW_ONLY no verified video permalink; Telegram send skipped")
+        return 0
     caption = make_caption(manifest, links, test=True)
     print("TEASER_READY", json.dumps({"target": manifest["target"], "matches": len(rows),
             "buttons": list(links), "image": str(args.image), "mode": args.mode}))
