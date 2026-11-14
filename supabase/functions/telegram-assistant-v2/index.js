@@ -260,7 +260,6 @@ export async function handleUpdate(update) {
   await logMessage(key,'assistant',answer);
   await markHandled(id);
 }
-export 
 /**
  * Configure the new assistant Telegram bot entirely from Supabase Dashboard > Edge Functions > Test.
  * POST {"action":"setup_webhook"} with header x-mx-setup-secret = Supabase webhook secret.
