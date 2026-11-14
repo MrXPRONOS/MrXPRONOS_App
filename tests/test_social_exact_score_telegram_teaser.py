@@ -127,8 +127,10 @@ class TeaserTests(unittest.TestCase):
     def test_same_dedupe_key_for_claim_and_mark(self):
         import inspect
         source = inspect.getsource(teaser.main)
-        self.assertIn("ledger.claim(\"dcscore_social_teaser_test\", TEASER_VERSION", source)
-        self.assertIn("ledger.mark(\"dcscore_social_teaser_test\", TEASER_VERSION", source)
+        self.assertIn('kind, reference = "dcscore_social_teaser_test", TEASER_VERSION', source)
+        self.assertIn("kind, reference = PRODUCTION_KIND, PRODUCTION_REF", source)
+        self.assertIn('ledger.claim(kind, reference, manifest["target"])', source)
+        self.assertIn('ledger.mark(kind, reference, manifest["target"]', source)
 
     def test_no_profile_or_unsafe_redirect(self):
         self.assertIsNone(teaser.safe_link("youtube", "https://youtube.com/@mrxpronos"))
