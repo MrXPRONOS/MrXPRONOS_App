@@ -121,20 +121,31 @@
   @media(min-width:700px){.mx-shell{padding-top:16px;gap:17px}.mx-brand{min-height:140px}.mx-crown{width:73px;height:49px}.mx-brand-main img{max-height:83px}.mx-hero h1{font-size:39px}.mx-actions{gap:10px}.mx-action{min-height:56px}.mx-action--install{min-height:62px}.mx-results{gap:13px}.mx-panel{padding:14px}.mx-row-link{min-height:65px}.mx-match{font-size:14px}.mx-odd{font-size:12px}.mx-ios-help p{font-size:12px}.mx-football{right:calc(50% - 390px)}}
   @media(max-width:380px){.mx-shell{gap:9px;padding-left:10px;padding-right:10px}.mx-brand{min-height:112px}.mx-crown{height:35px;width:53px}.mx-brand-main img{max-height:63px}.mx-laurel{height:59px;width:33px}.mx-hero h1{font-size:25px}.mx-panel{padding:8px 5px}.mx-panel-title h2{font-size:12px}.mx-row-icon{width:18px;height:18px;font-size:10px}.mx-row-link{padding:5px 4px;gap:4px}.mx-row-side{max-width:42px}.mx-odd{padding:2px 3px;font-size:9px}.mx-win-status{font-size:7px}.mx-action{min-height:43px}.mx-action--install{min-height:48px}.mx-feature{min-height:49px}.mx-ios-help{padding:9px 11px}.mx-ios-help h2{font-size:15px}}
   @media(max-height:760px){.mx-shell{gap:8px;padding-top:6px;padding-bottom:8px}.mx-brand{min-height:98px}.mx-crown{width:48px;height:31px;margin-bottom:-7px}.mx-brand-main img{max-height:57px}.mx-laurel{width:32px;height:56px}.mx-hero h1{font-size:clamp(23px,6.2vw,32px);margin-bottom:4px}.mx-hero-rule{margin-bottom:5px}.mx-hero p{font-size:11px}.mx-actions{gap:5px}.mx-action{min-height:39px;border-radius:13px}.mx-action--install{min-height:45px}.mx-highlights{padding:6px 3px}.mx-feature{min-height:45px}.mx-feature svg{width:20px;height:20px}.mx-row-link{min-height:49px;padding:4px}.mx-panel-title{margin-bottom:4px}.mx-panel{padding:7px 6px}.mx-ios-help{padding:8px 11px}.mx-ios-phone{height:35px}.mx-footer{font-size:10px}.mx-age{width:23px;height:23px}}
+  /* Logos des deux clubs issus du flux de matchs (mêmes URLs que le site). */
+  .mx-match{display:grid;grid-template-columns:minmax(0,1fr);gap:3px}
+  .mx-team-label{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%}
+  .mx-team-logo{width:18px;height:18px;min-width:18px;object-fit:contain;flex-shrink:0;
+    border-radius:4px;background:rgba(255,255,255,.07)}
+  .mx-team-name{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:normal;
+    line-height:1.16;font-weight:800;font-size:inherit}
+  @media(max-width:380px){
+    .mx-team-label{gap:4px}
+    .mx-team-logo{width:16px;height:16px;min-width:16px}
+  }
   @media(prefers-reduced-motion:reduce){.mx-action{transition:none}html{scroll-behavior:auto}}
 
   /* V2 mobile : couleurs et photo du hero officiel du site, sans faux projecteurs. */
   .mx-atmosphere{
-    height: min(500px,83vh);
+    height: min(700px,100vh);
     background:
-      linear-gradient(180deg,rgba(2,8,15,.78) 0%,rgba(2,9,17,.68) 36%,rgba(2,8,15,.85) 74%,#05080d 100%),
+      linear-gradient(180deg,rgba(2,8,15,.30) 0%,rgba(2,9,17,.30) 36%,rgba(2,8,15,.46) 74%,rgba(5,8,13,.88) 100%),
       url("assets/images/home-premium/hero-stadium.webp") center 44%/cover no-repeat;
   }
   .mx-atmosphere::before{content:none}
   .mx-floodlights,.mx-sparks,.mx-laurel,.mx-football{display:none!important}
   .mx-atmosphere::after{
     content:"";position:absolute;inset:0;
-    background:radial-gradient(ellipse 84% 58% at 50% 41%,transparent 24%,rgba(0,0,0,.42) 100%);
+    background:radial-gradient(ellipse 100% 80% at 50% 41%,transparent 40%,rgba(0,0,0,.14) 100%);
   }
   .mx-shell{gap:8px;padding-top:calc(env(safe-area-inset-top,0px) + 6px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 11px)}
   .mx-brand{min-height:92px}
@@ -212,8 +223,8 @@
   @media(max-width:768px){
     .mx-atmosphere{
       background:
-        linear-gradient(180deg,rgba(2,8,15,.76) 0%,rgba(3,10,18,.68) 44%,rgba(3,8,14,.92) 86%,#05080d 100%),
-        url("assets/images/home-premium/hero-mobile.webp") center 41%/cover no-repeat;
+        linear-gradient(180deg,rgba(2,8,15,.24) 0%,rgba(3,10,18,.33) 44%,rgba(3,8,14,.54) 85%,rgba(5,8,13,.89) 100%),
+        url("assets/images/home-premium/hero-mobile.webp") center 36%/cover no-repeat;
     }
   }
   @media(max-width:380px){
@@ -366,6 +377,28 @@
       var a=String(m.home_team||"Équipe 1"),b=String(m.away_team||"Équipe 2");
       return a+" vs "+b;
     }
+    function logoSrc(value, fallback){
+      var url=String(value||"").trim();
+      if(/^https:\/\//i.test(url)||/^assets\/images\/[a-z0-9_./-]+\.(?:png|webp|jpg|jpeg|svg)(?:\?[^#]*)?$/i.test(url))return url;
+      return fallback;
+    }
+    function teamWithLogo(name, logo, fallback){
+      var line=el("span","mx-team-label");
+      var image=el("img","mx-team-logo");
+      image.src=logoSrc(logo,fallback);
+      image.alt="";
+      image.loading="lazy";
+      image.decoding="async";
+      image.referrerPolicy="no-referrer";
+      image.onerror=function(){
+        if(this.dataset.fallback==="1")return;
+        this.dataset.fallback="1";
+        this.src=fallback;
+      };
+      var text=el("span","mx-team-name",name||"Équipe");
+      line.append(image,text);
+      return line;
+    }
     function createRow(m,p,win){
       var link=el("a","mx-row-link");
       var day=matchDay(m),today=localDay(new Date());
@@ -374,7 +407,11 @@
       var icon=el("span","mx-row-icon",win?"✓":"⚽");
       icon.setAttribute("aria-hidden","true");
       var body=el("span","mx-row-main");
-      var match=el("span","mx-match",textTeams(m));
+      var match=el("span","mx-match");
+      match.append(
+        teamWithLogo(m.home_team,m.home_logo,"assets/images/home.webp"),
+        teamWithLogo(m.away_team,m.away_logo,"assets/images/away.webp")
+      );
       var detail=el("span","mx-row-detail");
       var pick=el("span","mx-pick-pill",label(p));pick.title=label(p);
       detail.appendChild(pick);
@@ -436,6 +473,6 @@
     void load();
   })();
   </script>
-  <script defer src="assets/js/pwa.js?v=79d41c98557e"></script>
+  <script defer src="assets/js/pwa.js"></script>
 </body>
 </html>
