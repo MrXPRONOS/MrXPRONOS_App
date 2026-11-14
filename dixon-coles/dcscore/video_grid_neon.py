@@ -134,14 +134,16 @@ def fit_artwork(artwork):
     return frame
 
 
-def base_frame(payload, clips, logos, preview=False):
+def base_frame(payload, clips, logos, preview=False, *, telegram_minimal=False):
     check_assets()
     target = date.fromisoformat(payload["date_local_africa_lome"])
-    # No global dark rounded rectangle: cards keep their own dark backing.
+    # Reuse the VIDEO's original 2x5 cards; Telegram gets only matches,
+    # team crests/names and masked score slots, without marketing overlays.
     base = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    _overlay_fit(base, TITLE, width=704, y=0, x=8)
-    _draw_calendar_date(base, target)
-    _overlay_fit(base, TELEGRAM, width=TELEGRAM_WIDTH, y=TELEGRAM_Y, x=TELEGRAM_X)
+    if not telegram_minimal:
+        _overlay_fit(base, TITLE, width=704, y=0, x=8)
+        _draw_calendar_date(base, target)
+        _overlay_fit(base, TELEGRAM, width=TELEGRAM_WIDTH, y=TELEGRAM_Y, x=TELEGRAM_X)
 
     d = ImageDraw.Draw(base, "RGBA")
     for (x, y), clip, pair in zip(positions(len(clips)), clips, logos):
@@ -222,7 +224,7 @@ def centered_teaser_frame(artwork: Image.Image) -> Image.Image:
     """Center the SAME neon video artwork instead of its social safe-zone offset.
 
     The stadium remains full bleed. Transparency is measured before placing
-    the title, two-column match grid and Telegram artwork together at center.
+    the original two-column match grid at center.
     Nothing is redrawn with an independent Telegram template.
     """
     bounds = artwork.getbbox()
@@ -274,7 +276,8 @@ def render_teaser_still(payload, output, *, asset_root=".", logo_cache=None,
                                    cache.real_count != 2 * len(clips)):
             raise ValueError("Le teaser exige les vrais logos des équipes")
         # This is the VIDEO TEMPLATE at t=0. Scores are not displayed yet.
-        still = base_frame(payload, clips, logos, preview=False)
+        still = base_frame(payload, clips, logos, preview=False,
+                           telegram_minimal=True)
         for clip, (x, y) in zip(clips, positions(len(clips))):
             draw_score(still, clip, x, y, -FIRST_REVEAL)
         centered = centered_teaser_frame(still)

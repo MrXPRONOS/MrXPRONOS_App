@@ -40,6 +40,57 @@ class TeaserTests(unittest.TestCase):
         r[0]["video_sha256"] = "wrong"
         self.assertEqual(teaser.links_from_receipts(r, m), {})
 
+    def test_plain_colored_network_buttons(self):
+        links = {
+            "youtube": "https://www.youtube.com/shorts/aBcdEfGh123",
+            "facebook": "https://www.facebook.com/watch/?v=123456",
+            "instagram": "https://www.instagram.com/reel/abc123/",
+            "threads": "https://www.threads.net/@brand/post/abc123",
+        }
+        rows = teaser.keyboard(links)["inline_keyboard"]
+        self.assertEqual([b["text"] for row in rows for b in row],
+                         ["YouTube", "Facebook", "Instagram", "Threads"])
+        self.assertEqual(len(rows), 2)
+        buttons = {b["text"]: b for row in rows for b in row}
+        self.assertEqual(buttons["YouTube"]["style"], "danger")
+        self.assertEqual(buttons["Facebook"]["style"], "primary")
+        self.assertEqual(buttons["Instagram"]["style"], "danger")
+        self.assertNotIn("style", buttons["Threads"])
+        for name in links:
+            self.assertEqual(buttons[teaser.LABELS[name]]["url"], links[name])
+
+    def test_test_caption_is_exact_public_caption(self):
+        m, p, _ = fixture()
+        copy = teaser.make_caption(m, {}, test=True)
+        self.assertEqual(copy, teaser.make_caption(m, {}, test=False))
+        self.assertIn("15 novembre 2026", copy)
+        self.assertIn("LES 2 SCORES EXACTS POSSIBLES DE DEMAIN", copy)
+        self.assertIn("Prévisions statistiques", copy)
+        self.assertNotIn("TEST VISUEL", copy)
+        self.assertNotIn("2:1", copy)
+
+    def test_video_template_minimal_telegram_keeps_cards_no_promo(self):
+        from PIL import Image
+        from dcscore import video_grid_neon as neon
+        from dcscore.video_render import Crest
+        crest = Crest(Image.new("RGBA", (38, 38), (240, 220, 70, 255)), True)
+        clips = [{"headline": "Home - Away", "display_score": "2-1"}]
+        data = {"date_local_africa_lome": "2026-11-15"}
+        original = neon.base_frame(data, clips, [(crest, crest)], False)
+        minimal = neon.base_frame(data, clips, [(crest, crest)], False,
+                                  telegram_minimal=True)
+        self.assertGreater(original.getpixel((360, 45))[3], 0)
+        self.assertEqual(minimal.getpixel((360, 45))[3], 0)
+        self.assertEqual(minimal.getpixel((360, neon.TELEGRAM_Y + 35))[3], 0)
+        self.assertGreater(minimal.getpixel((neon.CARD_X[0] + 8,
+                                             neon.CARD_Y0 + 8))[3], 0)
+
+    def test_same_dedupe_key_for_claim_and_mark(self):
+        import inspect
+        source = inspect.getsource(teaser.main)
+        self.assertIn("ledger.claim(\"dcscore_social_teaser_test\", TEASER_VERSION", source)
+        self.assertIn("ledger.mark(\"dcscore_social_teaser_test\", TEASER_VERSION", source)
+
     def test_no_profile_or_unsafe_redirect(self):
         self.assertIsNone(teaser.safe_link("youtube", "https://youtube.com/@mrxpronos"))
         self.assertIsNone(teaser.safe_link("youtube", "http://youtube.com/shorts/aBcdEfGh123"))

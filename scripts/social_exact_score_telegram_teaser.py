@@ -27,10 +27,22 @@ sys.path.insert(0, str(ROOT / "scripts"))
 LOME = ZoneInfo("Africa/Lome")
 TEST_CHANNEL = "@predict_mrxp"
 LABELS = {
-    "youtube": "▶️ YouTube", "facebook": "📘 Facebook",
-    "instagram": "📸 Instagram", "threads": "🧵 Threads",
-    "bluesky": "🦋 Bluesky",
+    "youtube": "YouTube",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "threads": "Threads",
+    "bluesky": "Bluesky",
 }
+# Telegram Bot API 9.4+: danger=red, primary=blue, success=green.
+# Instagram has no native gradient: use the closest warm (red) style.
+# Older clients can show an unstyled button; labels remain plain.
+BUTTON_STYLES = {
+    "youtube": "danger",
+    "facebook": "primary",
+    "instagram": "danger",
+    "bluesky": "primary",
+}
+TEASER_VERSION = "telegram_centered_neon_v3_plain_buttons"
 ORDER = tuple(LABELS)
 CANVAS = (1200, 1600)
 BG = (7, 17, 34)
@@ -182,7 +194,14 @@ def links_from_receipts(report: list, manifest: dict) -> dict:
 
 
 def keyboard(links: dict) -> dict:
-    items = [{"text": LABELS[name], "url": links[name]} for name in ORDER if name in links]
+    items = []
+    for name in ORDER:
+        if name not in links:
+            continue
+        button = {"text": LABELS[name], "url": links[name]}
+        if name in BUTTON_STYLES:
+            button["style"] = BUTTON_STYLES[name]
+        items.append(button)
     return {"inline_keyboard": [items[i:i + 2] for i in range(0, len(items), 2)]}
 
 
@@ -266,19 +285,19 @@ def render(image_path: Path, manifest: dict, predictions: dict, *,
 
 
 def make_caption(manifest, links, *, test=False):
-    n = manifest["count"]
-    day = date_label(manifest["target"])
-    if test:
-        return ("🧪 TEST VISUEL — Mr XPRONOS\n"
-                f"⚽ Aperçu de {n} rencontre(s) du {day}, scores masqués.\n"
-                "🔎 Vérifie le visuel et les boutons ci-dessous. "
-                "Les liens disponibles ouvrent les vidéos déjà publiées.\n"
-                "18+ · Joue responsablement.")
-    return (f"⚽ LES {n} SCORES EXACTS POSSIBLES DE DEMAIN — {day}\n\n"
-            "👀 Découvre les matchs sélectionnés sur l'image. "
-            "Les pronostics sont volontairement masqués !\n\n"
-            "🎬 Clique sur un bouton ci-dessous pour voir les scores dans nos vidéos.\n"
-            "📊 Prévisions statistiques, jamais garanties. 18+ · Joue responsablement.")
+    """Exact public channel copy, even during a test: no test watermark."""
+    count = manifest["count"]
+    target = date_label(manifest["target"])
+    title = (f"LES {count} SCORES EXACTS POSSIBLES DE DEMAIN"
+             if count > 1 else "LE SCORE EXACT POSSIBLE DE DEMAIN")
+    return (
+        f"{title}\n\n"
+        f"Voici les {count} rencontres sélectionnées pour le {target}.\n"
+        "Les scores exacts sont volontairement masqués sur l’image.\n\n"
+        "Pour découvrir nos pronostics, ouvre la vidéo sur le réseau "
+        "social de ton choix avec les boutons ci-dessous.\n\n"
+        "Prévisions statistiques, jamais garanties. 18+ • Joue responsablement."
+    )
 
 
 def send_test(image: Path, caption: str, links: dict, *, token: str, chat: str):
@@ -345,17 +364,19 @@ def main():
     if args.dedupe:
         from d1_publication_ledger import D1Ledger
         ledger = D1Ledger()
-        if not ledger.claim("dcscore_social_teaser_test", "telegram_centered_neon_v2", manifest["target"]):
+        if not ledger.claim("dcscore_social_teaser_test", TEASER_VERSION, manifest["target"]):
             print("TEASER_ALREADY_SENT", manifest["target"])
             return 0
     receipt = send_test(args.image, caption, links, token=token, chat=chat)
-    if ledger:
-        ledger.mark("dcscore_social_teaser_test", "tomorrow-social-video",
-                    manifest["target"], message_id=receipt["message_id"])
+    # Save Telegram's confirmed message_id BEFORE D1 logging, so a D1 failure
+    # never erases proof that Telegram has already received the picture.
     if args.receipt:
         args.receipt.parent.mkdir(parents=True, exist_ok=True)
         args.receipt.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
-    print("TEASER_TEST_SENT", json.dumps(receipt, ensure_ascii=False))
+    print("TEASER_TEST_SENT", json.dumps(receipt, ensure_ascii=False), flush=True)
+    if ledger:
+        ledger.mark("dcscore_social_teaser_test", TEASER_VERSION,
+                    manifest["target"], message_id=receipt["message_id"])
     return 0
 
 
