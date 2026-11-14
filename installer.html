@@ -122,14 +122,129 @@
   @media(max-width:380px){.mx-shell{gap:9px;padding-left:10px;padding-right:10px}.mx-brand{min-height:112px}.mx-crown{height:35px;width:53px}.mx-brand-main img{max-height:63px}.mx-laurel{height:59px;width:33px}.mx-hero h1{font-size:25px}.mx-panel{padding:8px 5px}.mx-panel-title h2{font-size:12px}.mx-row-icon{width:18px;height:18px;font-size:10px}.mx-row-link{padding:5px 4px;gap:4px}.mx-row-side{max-width:42px}.mx-odd{padding:2px 3px;font-size:9px}.mx-win-status{font-size:7px}.mx-action{min-height:43px}.mx-action--install{min-height:48px}.mx-feature{min-height:49px}.mx-ios-help{padding:9px 11px}.mx-ios-help h2{font-size:15px}}
   @media(max-height:760px){.mx-shell{gap:8px;padding-top:6px;padding-bottom:8px}.mx-brand{min-height:98px}.mx-crown{width:48px;height:31px;margin-bottom:-7px}.mx-brand-main img{max-height:57px}.mx-laurel{width:32px;height:56px}.mx-hero h1{font-size:clamp(23px,6.2vw,32px);margin-bottom:4px}.mx-hero-rule{margin-bottom:5px}.mx-hero p{font-size:11px}.mx-actions{gap:5px}.mx-action{min-height:39px;border-radius:13px}.mx-action--install{min-height:45px}.mx-highlights{padding:6px 3px}.mx-feature{min-height:45px}.mx-feature svg{width:20px;height:20px}.mx-row-link{min-height:49px;padding:4px}.mx-panel-title{margin-bottom:4px}.mx-panel{padding:7px 6px}.mx-ios-help{padding:8px 11px}.mx-ios-phone{height:35px}.mx-footer{font-size:10px}.mx-age{width:23px;height:23px}}
   @media(prefers-reduced-motion:reduce){.mx-action{transition:none}html{scroll-behavior:auto}}
+
+  /* V2 mobile : couleurs et photo du hero officiel du site, sans faux projecteurs. */
+  .mx-atmosphere{
+    height: min(500px,83vh);
+    background:
+      linear-gradient(180deg,rgba(2,8,15,.78) 0%,rgba(2,9,17,.68) 36%,rgba(2,8,15,.85) 74%,#05080d 100%),
+      url("assets/images/home-premium/hero-stadium.webp") center 44%/cover no-repeat;
+  }
+  .mx-atmosphere::before{content:none}
+  .mx-floodlights,.mx-sparks,.mx-laurel,.mx-football{display:none!important}
+  .mx-atmosphere::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse 84% 58% at 50% 41%,transparent 24%,rgba(0,0,0,.42) 100%);
+  }
+  .mx-shell{gap:8px;padding-top:calc(env(safe-area-inset-top,0px) + 6px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 11px)}
+  .mx-brand{min-height:92px}
+  .mx-crown{width:51px;height:34px;margin-bottom:-7px}
+  .mx-brand-main img{width:min(77vw,310px);max-height:65px}
+  .mx-brand-subline{font-size:clamp(10px,2.7vw,12px)}
+  .mx-hero h1{font-size:clamp(25px,6.1vw,35px);line-height:1.09;margin:0 auto 5px}
+  .mx-hero-rule{margin-bottom:6px}
+  .mx-hero p{font-size:clamp(11px,2.8vw,12px);line-height:1.35}
+  .mx-actions{gap:6px}
+  .mx-action{min-height:42px;padding:5px 12px;border-radius:14px;font-size:clamp(12px,3.5vw,15px)}
+  .mx-action--install{min-height:47px}
+  .mx-action--site{min-height:43px}
+  .mx-action--telegram{min-height:42px}
+  .mx-action-icon svg{width:19px;height:19px}
+  .mx-action-chevron{font-size:19px}
+  .mx-free-ribbon{width:84px;right:-19px;top:6px;padding:2px 0;font-size:8.5px}
+  .mx-install-hint{font-size:10px;line-height:1.2}
+  .mx-highlights{padding:5px 2px;border-radius:13px}
+  .mx-feature{min-height:39px;gap:2px;padding:1px 2px}
+  .mx-feature svg{width:20px;height:20px}
+  .mx-feature span{font-size:clamp(8px,2.1vw,10px);line-height:1.13}
+  .mx-panel{padding:8px 6px 7px}
+  .mx-panel-title{margin-bottom:5px;min-height:21px;gap:4px}
+  .mx-panel-title svg{width:18px;height:18px;flex-basis:18px}
+  .mx-panel-title h2{font-size:clamp(11px,2.9vw,15px);line-height:1.12}
+  .mx-panel-list{gap:4px}
+  /* Match sur toute la largeur de chaque carte : retour automatique à la ligne,
+     zéro ellipsis même pour les longs noms ou marchés. */
+  .mx-row-link{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"match match" "pick status";
+    align-content:center;
+    column-gap:4px;
+    row-gap:3px;
+    min-height:54px;
+    padding:5px 6px;
+  }
+  .mx-row-icon{display:none}
+  .mx-row-main{display:contents}
+  .mx-match{
+    grid-area:match;
+    display:block;
+    width:100%;
+    max-width:none;
+    white-space:normal;
+    text-overflow:clip;
+    overflow:visible;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    font-size:clamp(10px,2.5vw,12px);
+    line-height:1.2;
+  }
+  .mx-row-detail{grid-area:pick;min-width:0;margin:0;align-self:center}
+  .mx-pick-pill{
+    max-width:100%;
+    white-space:normal;
+    text-overflow:clip;
+    overflow:visible;
+    overflow-wrap:anywhere;
+    padding:2px 5px;
+    font-size:clamp(8px,2.05vw,10px);
+    line-height:1.12;
+    border-radius:8px;
+  }
+  .mx-row-side{grid-area:status;align-self:center;max-width:none;text-align:right}
+  .mx-odd{font-size:10px;padding:3px 5px}
+  .mx-score{font-size:9px;margin-bottom:3px}
+  .mx-win-status{font-size:8px;padding:3px 4px}
+  .mx-ios-help{display:none}
+  html.mx-device-ios .mx-ios-help{display:flex}
+  html.mx-device-ios .mx-free-ribbon{display:none}
+  html.mx-device-ios .mx-action--install{font-size:clamp(12px,3.5vw,15px)}
+  @media(max-width:768px){
+    .mx-atmosphere{
+      background:
+        linear-gradient(180deg,rgba(2,8,15,.76) 0%,rgba(3,10,18,.68) 44%,rgba(3,8,14,.92) 86%,#05080d 100%),
+        url("assets/images/home-premium/hero-mobile.webp") center 41%/cover no-repeat;
+    }
+  }
+  @media(max-width:380px){
+    .mx-shell{gap:7px}
+    .mx-brand{min-height:82px}
+    .mx-crown{width:43px;height:29px}
+    .mx-brand-main img{max-height:59px}
+    .mx-action{min-height:40px;border-radius:12px}
+    .mx-action--install{min-height:44px}
+    .mx-highlights{padding:4px 2px}
+    .mx-feature{min-height:35px}
+    .mx-feature svg{width:18px;height:18px}
+    .mx-row-link{min-height:52px;padding:5px 4px}
+    .mx-match{font-size:10px}
+    .mx-pick-pill{font-size:8px}
+  }
+  @media(max-height:760px){
+    .mx-shell{gap:6px}
+    .mx-brand{min-height:77px}
+    .mx-action{min-height:37px}
+    .mx-action--install{min-height:41px}
+    .mx-action--site{min-height:38px}
+    .mx-action--telegram{min-height:38px}
+    .mx-feature{min-height:34px}
+    .mx-panel{padding:6px 5px}
+    .mx-row-link{min-height:49px}
+  }
   </style>
 </head>
 <body>
   <div class="mx-atmosphere" aria-hidden="true">
-    <div class="mx-floodlights mx-floodlights--left"></div>
-    <div class="mx-floodlights mx-floodlights--right"></div>
-    <div class="mx-sparks"></div>
-    <img class="mx-football" src="assets/images/blog-hero-ball.webp" alt="" loading="lazy">
   </div>
   <main class="mx-shell">
     <header class="mx-brand" aria-label="Mr XPRONOS">
@@ -141,9 +256,9 @@
         <circle cx="57" cy="46" r="6" fill="#763c12" stroke="#fff3b0" stroke-width="2"/>
       </svg>
       <div class="mx-brand-main">
-        <svg class="mx-laurel" viewBox="0 0 42 86" aria-hidden="true"><path d="M36 83Q3 56 23 5" fill="none" stroke="#ffd44c" stroke-width="2.6"/><g fill="#e9b62c"><ellipse cx="11" cy="15" rx="5" ry="12" transform="rotate(38 11 15)"/><ellipse cx="27" cy="26" rx="5" ry="11" transform="rotate(-32 27 26)"/><ellipse cx="8" cy="38" rx="5" ry="11" transform="rotate(50 8 38)"/><ellipse cx="22" cy="48" rx="5" ry="10" transform="rotate(-35 22 48)"/><ellipse cx="12" cy="62" rx="5" ry="10" transform="rotate(55 12 62)"/><ellipse cx="27" cy="71" rx="5" ry="10" transform="rotate(-35 27 71)"/></g></svg>
+        
         <img src="assets/images/mrxpronos-horizontal.webp" alt="Mr XPRONOS" width="282" height="124">
-        <svg class="mx-laurel mx-laurel--right" viewBox="0 0 42 86" aria-hidden="true"><path d="M36 83Q3 56 23 5" fill="none" stroke="#ffd44c" stroke-width="2.6"/><g fill="#e9b62c"><ellipse cx="11" cy="15" rx="5" ry="12" transform="rotate(38 11 15)"/><ellipse cx="27" cy="26" rx="5" ry="11" transform="rotate(-32 27 26)"/><ellipse cx="8" cy="38" rx="5" ry="11" transform="rotate(50 8 38)"/><ellipse cx="22" cy="48" rx="5" ry="10" transform="rotate(-35 22 48)"/><ellipse cx="12" cy="62" rx="5" ry="10" transform="rotate(55 12 62)"/><ellipse cx="27" cy="71" rx="5" ry="10" transform="rotate(-35 27 71)"/></g></svg>
+        
       </div>
       <div class="mx-brand-subline">Pronostics <b>•</b> Coupons <b>•</b> Résultats</div>
     </header>
@@ -162,7 +277,7 @@
       </button>
       <a class="mx-action mx-action--install mx-open-installed" href="index.html" id="mx-open-installed" hidden>✓ Ouvrir Mr XPRONOS</a>
       <a class="mx-action mx-action--site" href="index.html"><span class="mx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 4-5 14 0 18M12 3c5 4 5 14 0 18"/></svg></span>Continuer sur le site<span class="mx-action-chevron" aria-hidden="true">›</span></a>
-      <a class="mx-action mx-action--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer"><img src="assets/images/telegram.webp" alt="" width="24" height="24">Rejoindre le canal Telegram<span aria-hidden="true">↗</span></a>
+      <a class="mx-action mx-action--telegram" href="https://t.me/mrxpronosfr" target="_blank" rel="noopener noreferrer"><span class="mx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.45 4.2 18.2 19.5c-.25 1.08-.89 1.35-1.79.83l-4.82-3.55-2.33 2.23c-.28.29-.52.53-1.04.53l.36-4.93 8.96-8.09c.39-.34-.09-.54-.6-.2l-11.1 6.99-4.74-1.48c-1.03-.33-1.05-1.04.22-1.54l18.55-7.16c.86-.32 1.61.19 1.33 1.07Z"/></svg></span>Rejoindre le canal Telegram<span aria-hidden="true">↗</span></a>
       <p id="mx-install-hint" class="mx-install-hint" aria-live="polite">Gratuit • Sans Play Store</p>
     </div>
 
@@ -206,10 +321,23 @@
     var openBtn=document.getElementById("mx-open-installed");
     function installed(){try{return navigator.standalone===true||matchMedia("(display-mode:standalone)").matches}catch(_){return navigator.standalone===true}}
     function syncInstall(){
+      var fromPWA=window.MrXPWA&&typeof window.MrXPWA.getPlatform==="function"
+        ? window.MrXPWA.getPlatform() : null;
+      var ua=(navigator.userAgent||"").toLowerCase();
+      var isIOS=fromPWA?fromPWA.isIOS:/iphone|ipad|ipod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+      var isAndroid=fromPWA?fromPWA.isAndroid:/android/.test(ua);
+      var inApp=fromPWA?fromPWA.inApp:/whatsapp|instagram|fb_iab|fban|fbav|telegram|tiktok|messenger/.test(ua);
       var yes=installed()||!!(window.MrXPWA&&window.MrXPWA.isInstalled());
+      document.documentElement.classList.toggle("mx-device-ios",!!isIOS);
+      document.documentElement.classList.toggle("mx-device-android",!!isAndroid);
       installBtn.hidden=yes;openBtn.hidden=!yes;
-      var ua=navigator.userAgent.toLowerCase();
-      hint.textContent=yes?"Application installée ✓":/whatsapp|instagram|fb_iab|fban|fbav|telegram|tiktok/.test(ua)?"Depuis WhatsApp : ouvre la page dans Chrome ou Safari pour installer.":/iphone|ipad|ipod/.test(ua)||navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1?"Sur iPhone : utilise Partager → Sur l’écran d’accueil.":"Gratuit • Installation rapide • Sans Play Store";
+      var text=installBtn.querySelector("[data-mx-install-label]");
+      if(text)text.textContent=isIOS?(inApp?"Guide pour iPhone":"Ajouter sur iPhone"):"Installer l’application";
+      installBtn.setAttribute("aria-label",isIOS?"Voir comment ajouter Mr XPRONOS sur iPhone":"Installer l’application Mr XPRONOS");
+      hint.textContent=yes?"Application ouverte en mode installé ✓":isIOS?
+        (inApp?"Ouvre dans Safari, puis ajoute à l’écran d’accueil.":"Sur iPhone : Safari → Partager → Sur l’écran d’accueil."):
+        inApp?"Ouvre dans Chrome pour installer l’application.":
+        "Gratuit • Installation rapide • Sans Play Store";
     }
     window.addEventListener("mrx-pwa-state-change",syncInstall);
     window.addEventListener("appinstalled",syncInstall);
@@ -308,6 +436,6 @@
     void load();
   })();
   </script>
-  <script defer src="assets/js/pwa.js?v=74e3c629e31d"></script>
+  <script defer src="assets/js/pwa.js"></script>
 </body>
 </html>
