@@ -20,6 +20,8 @@ from urllib.parse import quote
 
 import requests
 
+from nvidia_extra_models import SPECIAL_MODELS, category_for, probe_special
+
 BASE = "https://integrate.api.nvidia.com/v1"
 RETRIEVAL = "https://ai.api.nvidia.com/v1/retrieval/nvidia"
 FIELDS = [
@@ -31,6 +33,9 @@ FIELDS = [
 
 def model_type(model_id: str) -> str:
     """Type probable : le catalogue /models ne fournit pas toujours la capacité."""
+    override = category_for(model_id)
+    if override:
+        return override
     name = model_id.lower()
     if "rerank" in name or "reranking" in name:
         return "rerank"
@@ -93,6 +98,13 @@ def requests_for(model: str, kind: str, max_tokens: int):
             ("https://ai.api.nvidia.com/v1/retrieval/" + model_path + "/reranking", payload),
             (BASE + "/reranking", payload),
         ]
+    # Generic fallback: attempt at least one call for an unknown specialist.
+    # HTTP 400/404 here cannot establish the model is unavailable: its real API may differ.
+    if kind == "specialized":
+        return [(BASE + "/chat/completions", {
+            "model": model, "messages": [{"role": "user", "content": "Réponds OK."}],
+            "max_tokens": max_tokens, "stream": False,
+        })]
     return []
 
 
@@ -130,6 +142,8 @@ def status_for(http_code: int) -> str:
 
 def probe(session: requests.Session, model: str, kind: str,
           timeout: float, max_tokens: int) -> dict:
+    if model in SPECIAL_MODELS:
+        return probe_special(session, model, timeout, sanitize)
     endpoints = requests_for(model, kind, max_tokens)
     if not endpoints:
         return {"status": "api_specialisee_non_testee", "http_status": None,
@@ -153,11 +167,14 @@ def probe(session: requests.Session, model: str, kind: str,
                     "http_status": 200, "elapsed": elapsed,
                     "input_tokens": int(usage.get("prompt_tokens") or 0),
                     "output_tokens": int(usage.get("completion_tokens") or 0),
-                    "error": "" if valid else "HTTP 200 mais aucune sortie exploitable",
+                    "error": "" if valid else "HTTP 200 mais aucune sortie exploitable (éventuels tokens de raisonnement uniquement)",
                     "preview": preview,
                 }
             detail = body.get("detail") or body.get("error") or body.get("message") or ""
-            last = {"status": status_for(response.status_code),
+            classification = status_for(response.status_code)
+            if kind == "specialized" and response.status_code in (400, 404, 405, 422):
+                classification = "schema_specialise_inconnu"
+            last = {"status": classification,
                     "http_status": response.status_code, "elapsed": elapsed,
                     "input_tokens": 0, "output_tokens": 0,
                     "error": sanitize(detail) or ("HTTP " + str(response.status_code)),
@@ -263,9 +280,10 @@ def main(argv=None) -> int:
     parser.add_argument("--repeats", type=int, default=1, choices=(1, 2, 3))
     parser.add_argument("--delay", type=float, default=2.0)
     parser.add_argument("--timeout", type=float, default=35)
-    parser.add_argument("--max-tokens", type=int, default=100)
+    parser.add_argument("--max-tokens", type=int, default=256)
     parser.add_argument("--limit", type=int, default=0, help="0 = tous")
-    parser.add_argument("--category", choices=("all", "chat", "embedding", "rerank", "specialized"), default="all")
+    parser.add_argument("--category", choices=("all", "chat", "embedding", "rerank", "image", "video", "vision", "document", "specialized"), default="all")
+    parser.add_argument("--catalog-only", action="store_true", help="Ne pas ajouter les modèles spécialisés documentés")
     parser.add_argument("--models", default="", help="IDs exacts séparés par des virgules")
     parser.add_argument("--out", default="reports/nvidia-models")
     args = parser.parse_args(argv)
@@ -282,7 +300,11 @@ def main(argv=None) -> int:
     except (requests.RequestException, ValueError, RuntimeError) as exc:
         print("Erreur de découverte : " + sanitize(exc), file=sys.stderr)
         return 2
+    listed = len(models)
+    if not args.catalog_only and not args.models.strip():
+        models = sorted(set(models) | set(SPECIAL_MODELS))
     discovered = len(models)
+    print(f"Catalogue API: {listed} modèles ; catalogue spécialisé: {len(SPECIAL_MODELS)} IDs connus ; union: {discovered}.", flush=True)
     if args.models.strip():
         # Les IDs demandés peuvent être absents du catalogue : les tester quand même.
         models = sorted({m.strip() for m in args.models.split(",") if m.strip()})
