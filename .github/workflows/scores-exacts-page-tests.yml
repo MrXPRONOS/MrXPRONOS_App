@@ -77,8 +77,8 @@ jobs:
               assert "scores-exacts.html" in Path(page).read_text()
           assert "scores-exacts.html" in h.links
           assert "scores-grouped-list" not in h.ids
-          assert "Top 10" in h_source
           h_source=Path("scores-exacts.html").read_text()
+          assert "Top 10" in h_source
           for offset in (-1,0,1):
               assert 'data-scores-day="' + str(offset) + '"' in h_source
           builder=Path("scripts/build_public_site.py").read_text()
