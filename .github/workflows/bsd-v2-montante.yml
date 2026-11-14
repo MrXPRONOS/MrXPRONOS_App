@@ -1,6 +1,12 @@
 name: BSD V2 - Montante quotidienne
 
 on:
+  # Premier contrôle complet au moment de l'intégration sur main.
+  # Les commits de données montante/ledger.json ne relancent pas ce workflow.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bsd-v2-montante.yml'
   # Relecture strictement après génération BSD V2 achevée avec succès.
   workflow_run:
     workflows: ['BSD V2 - Generation quotidienne']
