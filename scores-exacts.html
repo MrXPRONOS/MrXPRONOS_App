@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/pronos-premium.css">
-  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261114-mockup-v4">
+  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261114-scores-alerts-v5">
   <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/css/ux-direct.css?v=20261107-v1">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -60,16 +60,14 @@
 <main id="score-main" class="mx-scores-main">
   <section class="mx-scores-hero" aria-labelledby="scores-title">
     <div class="mx-scores-mock-top" aria-label="En-tête scores exacts">
-      <button id="mx-scores-open-menu" type="button" class="mx-scores-top-icon" aria-label="Ouvrir le menu de navigation" aria-controls="burger-overlay" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+
       <a class="mx-scores-mock-brand" href="index.html" aria-label="Mr XPRONOS, accueil">
         <span class="mx-scores-brand-crown" aria-hidden="true">♛</span>
         <img src="assets/images/mrxpronos-horizontal.webp" width="245" height="100" alt="Mr XPRONOS">
       </a>
-      <a class="mx-scores-top-icon" href="aujourdhui.html" aria-label="Voir les informations et alertes football">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9zM10 21h4"/></svg>
-      </a>
+      <button id="mx-scores-enable-alerts" class="mx-scores-top-icon" type="button" aria-label="Activer les notifications de nouveaux scores exacts" aria-pressed="false" aria-describedby="mx-scores-notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9zM10 21h4"/></svg>
+      </button>
     </div>
     <div class="container">
       <div class="mx-scores-hero-emblem" aria-hidden="true">
@@ -101,6 +99,7 @@
     </div>
   </section>
   <div class="container mx-scores-content">
+    <p id="mx-scores-notice" class="mx-scores-notice" role="status" aria-live="polite" hidden></p>
     <nav class="mx-scores-days" aria-label="Choisir la journée des scores exacts">
       <button type="button" class="mx-scores-day" data-scores-day="-1" aria-pressed="false"><span aria-hidden="true">▣</span> Hier</button>
       <button type="button" class="mx-scores-day is-active" data-scores-day="0" aria-pressed="true"><span aria-hidden="true">▣</span> Aujourd’hui</button>
@@ -160,7 +159,8 @@
   </div>
 </footer>
 <script defer src="assets/js/menu.js?v=20261114-scores-mockup-v4"></script>
-<script defer src="assets/js/scores-exacts.js?v=20261114-mockup-v4"></script>
+<script defer src="assets/js/scores-exacts.js?v=20261114-scores-alerts-v5"></script>
+<script type="module" src="assets/js/dixon-score-alerts.mjs?v=20261114-v1"></script>
 <script defer src="assets/js/back-to-top.js"></script>
 <script defer src="assets/js/pwa.js"></script>
 </body>
