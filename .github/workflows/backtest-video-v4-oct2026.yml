@@ -1,0 +1,82 @@
+name: Backtest V4 - paired strict/flexible October 2026 (no publishing)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/backtest-video-v4-oct2026.yml'
+      - 'dixon-coles/dcscore/backtest_video_v4.py'
+      - 'dixon-coles/dcscore/combine_backtest_video_v4.py'
+      - 'dixon-coles/tests/test_backtest_video_v4.py'
+      - 'dixon-coles/dcscore/daily_pipeline.py'
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {start: '2026-10-01', end: '2026-10-07'}
+          - {start: '2026-10-08', end: '2026-10-14'}
+          - {start: '2026-10-15', end: '2026-10-21'}
+          - {start: '2026-10-22', end: '2026-10-28'}
+          - {start: '2026-10-29', end: '2026-10-31'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install independent forecaster and tests
+        run: python -m pip install -e 'dixon-coles[test]' 'Pillow>=10,<13'
+      - name: Validate historical score isolation, paired samples and reporting
+        run: |
+          python -m pytest -q \
+            dixon-coles/tests/test_backtest_video_v4.py \
+            dixon-coles/tests/test_backtest_top10_v3.py \
+            dixon-coles/tests/test_daily_top10_v3.py
+      - name: Reconstruct both V3 and V4 as of 20h day before kickoff
+        working-directory: dixon-coles
+        run: |
+          python -m dcscore.backtest_video_v4 \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --out results/backtests/oct2026_v4
+      - name: Preserve paired prediction rows and per-date eligibility diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: V4-paired-backtest-${{ matrix.start }}
+          path: |
+            dixon-coles/results/backtests/oct2026_v4/*
+          if-no-files-found: warn
+          retention-days: 90
+
+  report:
+    needs: replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e 'dixon-coles'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: V4-paired-backtest-*
+          path: parts
+          merge-multiple: false
+      - name: Verify all 31 days and both V3/V4 match cohorts
+        working-directory: dixon-coles
+        run: python -m dcscore.combine_backtest_video_v4 --parts ../parts --out ../report_v4
+      - name: Publish paired October V4 report artifact ONLY (not social)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MRXPRONOS-backtest-V4-flexible-octobre-2026
+          path: report_v4/*
+          if-no-files-found: warn
+          retention-days: 90
