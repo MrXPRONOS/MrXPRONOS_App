@@ -52,6 +52,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
           python -m unittest discover -s tests -p 'test_exact_scores_daily_v3.py' -v
           python -m unittest discover -s tests -p 'test_public_scores_exact_days.py' -v
+          python -m unittest discover -s tests -p 'test_dixon_scores_site.py' -v
       - name: JavaScript syntax and HTML navigation checks
         run: |
           node --check assets/js/scores-exacts.js
