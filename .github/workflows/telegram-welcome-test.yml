@@ -1,13 +1,8 @@
 name: Telegram - Accueil vers Messages enregistres
 run-name: "Accueil Telegram - Messages enregistres (${{ github.event_name }})"
 
-# Test unique de migration vers la session Telegram CineX existante.
-# Après validation, conserver uniquement workflow_dispatch.
+# Exécution uniquement sur demande : aucun envoi automatique indésirable.
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/telegram-welcome-test.yml'
   workflow_dispatch:
     inputs:
       source_message_id:
