@@ -177,9 +177,11 @@
     return root;
   }
 
-  // Open the appropriate day directly when a score-alert push is clicked.
-  let offset = new URLSearchParams(location.search).get("day")==="tomorrow" ? 1 :
-    new URLSearchParams(location.search).get("day")==="yesterday" ? -1 : 0;
+  // Preserve explicit day links. On an unfiltered visit, prefer today's
+  // published video, but show tomorrow's verified picks when today is absent.
+  const requestedDay = new URLSearchParams(location.search).get("day");
+  let offset = requestedDay==="tomorrow" ? 1 : requestedDay==="yesterday" ? -1 : 0;
+  let allowInitialTomorrowFallback = !requestedDay;
   let serial = 0;
   let active = null;
   const buttons = [...document.querySelectorAll("[data-scores-day]")];
@@ -199,20 +201,44 @@
   }
   async function load() {
     const request = ++serial;
-    const day = offsetDay(offset);
+    const initialOffset = offset;
+    let day = offsetDay(offset);
     dayLabel.textContent = "Sélections du " + formatDate(day);
     setStatus("Vérification des scores Dixon-Coles…", "loading");
     try {
-      const res = await fetch("dixon-scores-daily/" + day + ".json?t=" + Date.now(), {
+      let res = await fetch("dixon-scores-daily/" + day + ".json?t=" + Date.now(), {
         cache: "no-store", headers: {Accept: "application/json"}
       });
       if (request !== serial) return;
+      // Only a 404 means "no video for this date". Never bypass a malformed
+      // or unverified feed. This automatic discovery runs once per visit.
+      const tryTomorrow = allowInitialTomorrowFallback && initialOffset === 0 && res.status === 404;
+      allowInitialTomorrowFallback = false;
+      if (tryTomorrow) {
+        day = offsetDay(1);
+        res = await fetch("dixon-scores-daily/" + day + ".json?t=" + Date.now(), {
+          cache: "no-store", headers: {Accept: "application/json"}
+        });
+        if (request !== serial) return;
+        if (res.ok) {
+          offset = 1;
+          buttons.forEach(btn => {
+            const chosen = Number(btn.dataset.scoresDay) === 1;
+            btn.classList.toggle("is-active", chosen);
+            btn.setAttribute("aria-pressed", String(chosen));
+          });
+          dayLabel.textContent = "Sélections de demain · " + formatDate(day);
+        }
+      }
       if (!res.ok) throw Error("No verified video feed");
       const payload = verify(await res.json(), day);
       if (request !== serial) return;
       if (!payload) throw Error("Invalid video provenance");
       active = payload;
       paint(payload);
+      if (tryTomorrow) {
+        setStatus(payload.count + " score(s) exact(s) pour demain disponibles · prévisions pré-match Dixon-Coles", "ready");
+      }
     } catch (_) {
       if (request !== serial) return;
       active = null;
@@ -226,6 +252,7 @@
     btn.setAttribute("aria-pressed",String(chosen));
   });
   buttons.forEach(btn => btn.addEventListener("click", () => {
+    allowInitialTomorrowFallback = false;
     offset = Number(btn.dataset.scoresDay);
     buttons.forEach(b => {
       b.classList.toggle("is-active", b === btn);
