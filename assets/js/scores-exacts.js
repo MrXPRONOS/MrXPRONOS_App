@@ -10,6 +10,48 @@
   const dayLabel = document.getElementById("scores-date");
   if (!status || !list || !count || !stamp || !dayLabel) return;
 
+  // The installation action is never shown inside the installed standalone app.
+  // A regular browser cannot universally query other browsers' installed PWAs.
+  function isRunningAsApp() {
+    try {
+      return navigator.standalone === true ||
+        matchMedia("(display-mode: standalone)").matches ||
+        matchMedia("(display-mode: fullscreen)").matches ||
+        matchMedia("(display-mode: minimal-ui)").matches;
+    } catch (_) { return navigator.standalone === true; }
+  }
+  const installationCTA = document.getElementById("mx-scores-install-cta");
+  function syncInstallCTA() {
+    const runningApp = isRunningAsApp() ||
+      !!(window.MrXPWA && window.MrXPWA.isInstalled && window.MrXPWA.isInstalled());
+    document.documentElement.classList.toggle("mx-scores-app-installed", runningApp);
+    if (installationCTA) {
+      installationCTA.hidden = runningApp;
+      installationCTA.setAttribute("aria-hidden", runningApp ? "true" : "false");
+      installationCTA.tabIndex = runningApp ? -1 : 0;
+    }
+    const actions = document.querySelector(".mx-scores-hero-actions");
+    if (actions) actions.classList.toggle("mx-scores-telegram-only", runningApp);
+  }
+  window.addEventListener("appinstalled", syncInstallCTA);
+  window.addEventListener("mrx-pwa-state-change", syncInstallCTA);
+  window.addEventListener("pageshow", syncInstallCTA);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) syncInstallCTA(); });
+  syncInstallCTA();
+
+  // Connect the mockup's top-left hamburger with the site's existing menu drawer.
+  const mockupMenu = document.getElementById("mx-scores-open-menu");
+  mockupMenu?.addEventListener("click", () => {
+    const bottomMenu = document.getElementById("bottom-nav-menu");
+    if (bottomMenu) {
+      bottomMenu.click();
+      mockupMenu.setAttribute("aria-expanded", String(bottomMenu.getAttribute("aria-expanded") === "true"));
+    } else {
+      const legacy = document.getElementById("burger-btn");
+      if (legacy) legacy.click();
+    }
+  });
+
   const today = () => {
     const parts = new Intl.DateTimeFormat("en-GB", {
       timeZone: "Africa/Lome", year: "numeric", month: "2-digit", day: "2-digit"
@@ -108,10 +150,11 @@
   function card(p, index) {
     const root = element("article", "mx-score-card");
     const top = element("div", "mx-score-card-top");
-    top.append(
-      element("span", "mx-score-rank", "#" + index),
-      element("span", "mx-score-league", p.league || "Football")
-    );
+    const league = element("span", "mx-score-league", p.league || "Football");
+    const rank = element("span", "mx-score-rank", String(index));
+    const leagueStrip = element("span", "mx-score-league-strip");
+    leagueStrip.append(league);
+    top.append(rank, leagueStrip);
     const time = element("time", "mx-score-time", clock(p.kickoff_utc) + " GMT");
     time.dateTime = p.kickoff_utc;
     top.append(time);
@@ -120,13 +163,13 @@
     const match = element("div", "mx-score-match");
     const center = element("div", "mx-score-score");
     center.append(
-      element("strong", "", p.score.replace(":", " : ")),
+      element("strong", "", p.score.replace(":", " – ")),
       element("small", "", "Score exact")
     );
     match.append(club(p.home, p.home_logo), center, club(p.away, p.away_logo));
     const foot = element("div", "mx-score-foot");
     foot.append(
-      element("span", "mx-score-foot-label", "Probabilité statistique"),
+      element("span", "mx-score-foot-label", "◎ Probabilité :"),
       element("strong", "mx-score-probability",
         (p.probability * 100).toLocaleString("fr-FR", {maximumFractionDigits:1,minimumFractionDigits:1}) + " %")
     );
