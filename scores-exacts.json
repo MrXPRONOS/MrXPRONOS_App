@@ -1,13 +1,135 @@
 {
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
-  "status": "unavailable",
-  "date": "2026-11-13",
-  "generated_at": "2026-11-13T20:00:34Z",
+  "status": "published",
+  "date": "2026-11-14",
+  "generated_at": "2026-11-14T09:06:26Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
-  "simple": [],
-  "grouped": []
+  "simple": [
+    {
+      "id": "sportsapipro:4893158",
+      "league": "Ligue 1",
+      "home": "Ajel",
+      "away": "Dakar SC",
+      "kickoff_utc": "2026-11-14T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.1592949
+    },
+    {
+      "id": "sportsapipro:4893156",
+      "league": "Ligue 1",
+      "home": "Essamaye FC",
+      "away": "Guédiawaye Fc",
+      "kickoff_utc": "2026-11-14T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.15870538
+    },
+    {
+      "id": "sportsapipro:4893155",
+      "league": "Ligue 1",
+      "home": "Génération Foot",
+      "away": "Wally Daan",
+      "kickoff_utc": "2026-11-14T16:00:00Z",
+      "score": "1:0",
+      "probability": 0.14606817
+    },
+    {
+      "id": "sportsapipro:4823655",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Aps Bomet",
+      "away": "Bandari",
+      "kickoff_utc": "2026-11-14T12:00:00Z",
+      "score": "1:0",
+      "probability": 0.14017978
+    },
+    {
+      "id": "sportsapipro:4891258",
+      "league": "Division 2 - Regular Season",
+      "home": "Béni-Khalled",
+      "away": "Stade Soussien",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.13294528
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4893156",
+      "league": "Ligue 1",
+      "home": "Essamaye FC",
+      "away": "Guédiawaye Fc",
+      "kickoff_utc": "2026-11-14T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.32629184,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4893158",
+      "league": "Ligue 1",
+      "home": "Ajel",
+      "away": "Dakar SC",
+      "kickoff_utc": "2026-11-14T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.32426852,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4823655",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Aps Bomet",
+      "away": "Bandari",
+      "kickoff_utc": "2026-11-14T12:00:00Z",
+      "score": "1:0",
+      "probability": 0.32259425,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4752229",
+      "league": "Primera Division RFEF",
+      "home": "Juventud Torremolinos",
+      "away": "SD Huesca",
+      "kickoff_utc": "2026-11-14T17:45:00Z",
+      "score": "1:0",
+      "probability": 0.31367467,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4799659",
+      "league": "Serie C",
+      "home": "Renate",
+      "away": "Desenzano",
+      "kickoff_utc": "2026-11-14T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.31296685,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
 }
