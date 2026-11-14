@@ -81,18 +81,18 @@ class ValidationLedgerTests(unittest.TestCase):
             {"id": "old_08", "ref_id": "morning:bsd:902", "ref_date": "2026-11-08", "validation_sent": 1},
         ]
         ledger = Mock()
-        with tempfile.TemporaryDirectory() as tmp, \\
-                patch.object(sys, "argv", ["settle_short_production_batches.py", "--no-send", "--work-dir", tmp]), \\
-                patch.object(settlement, "D1Ledger", return_value=ledger), \\
-                patch.object(settlement, "pending_rows", return_value=rows), \\
-                patch.object(settlement, "restore_matches", return_value={"bsd:900": {"id": "bsd:900"}}), \\
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(sys, "argv", ["settle_short_production_batches.py", "--no-send", "--work-dir", tmp]), \
+                patch.object(settlement, "D1Ledger", return_value=ledger), \
+                patch.object(settlement, "pending_rows", return_value=rows), \
+                patch.object(settlement, "restore_matches", return_value={"bsd:900": {"id": "bsd:900"}}), \
                 patch.object(settlement, "validation_state", side_effect=lambda _ledger, _slot, day:
-                             "sent" if day <= "2026-11-13" else None), \\
-                patch.object(settlement, "social_complete", return_value=False), \\
-                patch.object(settlement, "official_events_for_day", return_value=({"900": {"id": "900"}}, 1)) as fetch, \\
-                patch.object(settlement, "_leg_verdict", return_value=(True, 2, 1)), \\
-                patch.object(settlement, "render_exact_validated_cards", return_value=(["card.png"], "pack")), \\
-                patch.object(settlement, "build_video") as render, \\
+                             "sent" if day <= "2026-11-13" else None), \
+                patch.object(settlement, "social_complete", return_value=False), \
+                patch.object(settlement, "official_events_for_day", return_value=({"900": {"id": "900"}}, 1)) as fetch, \
+                patch.object(settlement, "_leg_verdict", return_value=(True, 2, 1)), \
+                patch.object(settlement, "render_exact_validated_cards", return_value=(["card.png"], "pack")), \
+                patch.object(settlement, "build_video") as render, \
                 patch.object(settlement, "send_video") as send:
             settlement.main()
             manifest = json.loads((Path(tmp) / "manifest.json").read_text(encoding="utf-8"))
