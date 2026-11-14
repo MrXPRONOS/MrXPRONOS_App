@@ -200,6 +200,20 @@ jobs:
                 -f content="$CONTENT" >/dev/null
             fi
           fi
+          # Also version the exact verified public receipt on main. Rebuilding
+          # gh-pages from a previous snapshot must never delete today's picks.
+          MAIN_SHA="$(gh api "${DEST}?ref=main" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$MAIN_SHA" ]; then
+            gh api -X PUT "$DEST" \
+              -f branch=main -f sha="$MAIN_SHA" \
+              -f message="data(dixon): keep verified pre-match scores ${TARGET} for safe redeploy" \
+              -f content="$CONTENT" >/dev/null
+          else
+            gh api -X PUT "$DEST" \
+              -f branch=main \
+              -f message="data(dixon): archive verified pre-match scores ${TARGET} for safe redeploy" \
+              -f content="$CONTENT" >/dev/null
+          fi
           echo "DIXON_COLES_VIDEO_SCORES_PAGES_CONFIRMED $TARGET"
           echo "- Site Scores exacts : ${TARGET} · ${{ steps.target.outputs.count }} sélections vérifiées" >> "$GITHUB_STEP_SUMMARY"
       - name: Notify opted-in users about new exact scores
