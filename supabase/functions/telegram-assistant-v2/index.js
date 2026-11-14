@@ -16,6 +16,9 @@ const channelUrl = () => {
   const url = env('MX_ASSISTANT_COUPONS_CHANNEL_URL').trim();
   return /^https:\/\/t\.me\/[a-zA-Z0-9_+\/-]+$/.test(url) ? url : '';
 };
+// Les messages Business restent désactivés tant que le propriétaire n'a pas choisi les discussions autorisées.
+const businessModeEnabled = () => env('MX_ASSISTANT_ENABLE_BUSINESS').trim().toLowerCase() === 'true';
+const businessOwnerId = () => Number(env('MX_ASSISTANT_BUSINESS_OWNER_ID') || env('MX_ASSISTANT_ADMIN_ID'));
 const nvidiaModel = () => env('MX_ASSISTANT_NVIDIA_MODEL') || 'mistralai/mistral-large-4-1t-a52b';
 const supabaseUrl = () => env('SUPABASE_URL');
 const supabaseKey = () => env('SUPABASE_SERVICE_ROLE_KEY') || (() => {try {return JSON.parse(env('SUPABASE_SECRET_KEYS') || '{}').default || '';}catch{return '';}})();
@@ -27,10 +30,11 @@ const allowed = (url) => Object.values(LINKS).includes(url) || (channelUrl() && 
 export function intentFor(input) {
   const text = norm(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
-  if (/^\/(pronos|coupons|scores|canaux|resultats)(\s|$)/.test(text)) return text.split(/\s|@/)[0].slice(1);
+  if (/^\/(pronos|coupons|scores|canaux|resultats|conseils)(\s|$)/.test(text)) {const cmd=text.split(/\s|@/)[0].slice(1);return cmd==='coupons'?'pronos':cmd==='conseils'?'conseil':cmd;}
   if (/(parler a (un |une )?(humain|responsable|personne)|un conseiller|reclamation|partenariat|collaboration|proposition commerciale|remboursement|je veux te parler)/.test(text)) return 'human';
   if (/(je suis mineur|j.ai 1[0-7] ans|j.ai perdu tout|endette|me refaire|argent du loyer)/.test(text)) return 'safety';
   if (/(score exact|scores exacts|scores-exacts)/.test(text)) return 'scores';
+  if (/(conseil|comment analyser|comment parier|gestion de (budget|bankroll)|debuter dans les paris|debutant en pari|quel risque|comment eviter de perdre)/.test(text)) return 'conseil';
   if (/(prono|pronostic|coupon|selections? du jour|pari pour|match a jouer)/.test(text)) return 'pronos';
   if (/(rejoindre|integrer|abonner|lien du canal|groupe telegram|chaine telegram|canaux|canal telegram)/.test(text)) return 'canaux';
   if (/(historique|resultat|gagne|perdu|preuves)/.test(text)) return 'resultats';
@@ -76,7 +80,21 @@ export function exactScorePicks(payload, now=new Date()) {
 }
 const formatPromo = () => 'Le code promotionnel affiché sur le site est XPVIP. Les conditions dépendent de chaque partenaire : vérifie toujours les détails de l’offre avant toute inscription.\n'+LINKS.bonus;
 const channelLine = () => channelUrl() ? `📢 Canal des coupons : ${channelUrl()}` : `📢 Consulte les coupons officiels ici : ${LINKS.pronos}\nLien du canal des coupons à confirmer par l’administrateur.`;
-const intro = () => `Salut 👋 Je suis l’assistant virtuel de Mr XPRONOS. Je peux t’aider avec les pronostics, coupons, résultats, analyses football et liens officiels.\n\n${LINKS.pronos}\n${channelLine()}\n\nLes paris sont réservés aux adultes et comportent des risques.`;
+const intro = () => `Salut 👋 Je suis l’assistant automatique de Mr XPRONOS. Je peux t’aider avec les pronostics, coupons, résultats, analyses football et liens officiels.\n\n${LINKS.pronos}\n${channelLine()}\n\nLes paris sont réservés aux adultes et comportent des risques.`;
+const adviceMessage = () => '⚽ Pour analyser un match : vérifie la forme récente, les absences, le calendrier et les cotes. Aucun pronostic n’est garanti. Fixe un budget que tu peux perdre, évite de poursuivre tes pertes et ne parie jamais avec de l’argent essentiel.\n\nGuides : '+LINKS.conseils+'\nHistorique : '+LINKS.historique+'\n🔞 Réservé aux adultes.';
+
+/** Vérifications de sécurité avant de répondre au nom du compte personnel connecté. */
+export function eligibleBusinessMessage(message,connection,ownerId,nowMs=Date.now()) {
+  const date=Number(message?.date);
+  return !!(message?.business_connection_id && connection?.id===message.business_connection_id &&
+    connection?.is_enabled===true && connection?.rights?.can_reply===true &&
+    Number.isSafeInteger(ownerId) && ownerId>0 && Number(connection?.user?.id)===ownerId &&
+    message?.chat?.type==='private' && message?.from?.id != null &&
+    message.from.is_bot!==true && Number(message.from.id)!==ownerId && !message.sender_business_bot &&
+    Number.isSafeInteger(date) && date>0 && date*1000<=nowMs+300000 &&
+    nowMs-date*1000<24*60*60*1000);
+}
+
 async function publicJson(url) {
   try {
     const response=await fetch(url,{headers:{accept:'application/json'},signal:AbortSignal.timeout(6500)});
@@ -164,7 +182,7 @@ async function adminCommand(msg) {
   const match=text.match(/^\/(reply|pause|resume|chats|status)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
-  if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
+  if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. Réponses compte Business : ${businessModeEnabled()?'activées':'désactivées'}. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
   if(cmd==='chats') {
     const rows=await db('mx_telegram_assistant_chats?select=chat_key,nickname,paused&order=last_message_at.desc&limit=8');
     return say(msg.chat.id,rows?.length?rows.map(x=>`${x.paused?'⏸':'✅'} ${x.chat_key} — ${x.nickname||'Utilisateur'}`).join('\n'):'Aucune conversation reçue.');
@@ -185,14 +203,27 @@ async function adminCommand(msg) {
   return say(msg.chat.id,cmd==='pause'?'⏸ Assistant suspendu pour ce chat.':'✅ Assistant réactivé pour ce chat.');
 }
 export async function handleUpdate(update) {
-  const msg=update?.message || update?.business_message;
+  // Les événements de connexion ne sont pas des messages. Les permissions sont revérifiées à chaque DM.
+  if(update?.business_connection) return;
+  const isBusiness=!!update?.business_message;
+  const msg=isBusiness ? update.business_message : update?.message;
   if(!msg || msg.chat?.type!=='private' || msg.from?.is_bot) return;
   if(typeof msg.text!=='string') return;
   const text=msg.text.trim();if(!text) return;
   const id=Number(update.update_id);
   if(!Number.isSafeInteger(id)||id<0) return;
+  if(isBusiness) {
+    if(!businessModeEnabled()) return;
+    // Ne jamais répondre si le lien a été révoqué, si le droit de réponse manque ou si le compte n'est pas le nôtre.
+    const businessId=msg.business_connection_id;
+    if(!businessId) return;
+    let connection;
+    try { connection=await tg('getBusinessConnection',{business_connection_id:businessId}); }
+    catch(error) { console.warn('business_connection_unavailable',String(error)); return; }
+    if(!eligibleBusinessMessage(msg,connection,businessOwnerId())) return;
+  }
   if(await wasHandled(id)) return;
-  const isOwner=Number(msg.from?.id)===adminId();
+  const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
   if(isOwner && /^\/(reply|pause|resume|chats|status)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
@@ -206,6 +237,7 @@ export async function handleUpdate(update) {
   if(intent==='welcome') answer=intro();
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
+  else if(intent==='conseil') answer=adviceMessage();
   else if(intent==='canaux') answer=`Pour recevoir les coupons, suis les publications officielles.\n${channelLine()}\nSite : ${LINKS.accueil}`;
   else if(intent==='resultats') answer=`Tu peux consulter les résultats gagnés, perdus et en attente sur l'historique officiel :\n${LINKS.historique}`;
   else if(intent==='bonus') answer=formatPromo();
@@ -222,6 +254,7 @@ export async function handleUpdate(update) {
     try{answer=await askNvidia(text,history)||'';}catch(e){console.warn('nvidia_error',String(e));}
     if(!answer) answer=`Je peux t'aider sur les pronostics, les analyses et le site Mr XPRONOS.\n${LINKS.accueil}\nPour une demande spécifique, écris « parler à un responsable ».`;
   }
+  if(!previous && intent!=='welcome') answer=`Bienvenue chez Mr XPRONOS 👋 Je suis l’assistant automatique.\n\n${answer}`;
   await say(msg.chat.id,answer,msg.business_connection_id||'');
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
@@ -250,7 +283,7 @@ async function telegramSetup(req) {
       const installed=await tg('setWebhook',{
         url:target,
         secret_token:secret,
-        allowed_updates:['message','business_message'],
+        allowed_updates:['message','business_connection','business_message'],
         drop_pending_updates:false,
         max_connections:10
       });
@@ -270,7 +303,7 @@ async function telegramSetup(req) {
       bot:{id:identity?.id,username:identity?.username},
       webhook:{url:info?.url||'',pending_update_count:info?.pending_update_count||0,
         last_error_message:info?.last_error_message||null,allowed_updates:info?.allowed_updates||[]},
-      configured:{nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:!!adminId(),channel:!!channelUrl()}
+      configured:{nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:!!adminId(),channel:!!channelUrl(),business_enabled:businessModeEnabled(),business_owner:!!businessOwnerId()}
     });
   }catch(e){
     console.error('telegram_assistant_setup_failed',String(e));
@@ -278,9 +311,9 @@ async function telegramSetup(req) {
   }
 }
 
-async function handleRequest(req) {
+export async function handleRequest(req) {
   if(req.method==='POST' && req.headers.has('x-mx-setup-secret')) return telegramSetup(req);
-  if(req.method==='GET') return json({service:'mr-xpronos-telegram-assistant-v2',mode:'staging',configured:{telegram:!!botToken(),nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:Number.isSafeInteger(adminId())&&adminId()>0,webhook_secret:!!env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET'),channel:!!channelUrl(),database:!!supabaseUrl()&&!!supabaseKey()}});
+  if(req.method==='GET') return json({service:'mr-xpronos-telegram-assistant-v2',mode:'staging',configured:{telegram:!!botToken(),nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:Number.isSafeInteger(adminId())&&adminId()>0,webhook_secret:!!env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET'),channel:!!channelUrl(),business_enabled:businessModeEnabled(),business_owner:!!businessOwnerId(),database:!!supabaseUrl()&&!!supabaseKey()}});
   if(req.method!=='POST') return json({error:'method_not_allowed'},405);
   const secret=env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET');
   if(!secret || !botToken() || !supabaseKey()) return json({error:'not_configured'},503);
