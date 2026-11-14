@@ -12244,10 +12244,10 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 2,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -12361,7 +12361,12 @@
       "generated_at": "2026-11-12T18:56:33.035847+00:00",
       "combo_only": false,
       "revalidated_at": "2026-11-13T18:32:49.574796+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-11-14T04:20:54.246828+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:654431",
@@ -15976,16 +15981,17 @@
       "bsd:654059:1X:2026-11-12T13:30:00+00:00",
       "bsd:606219:1X:2026-11-12T23:00:00+00:00",
       "bsd:212701:UNDER_35:2026-11-13T19:45:00+00:00",
-      "bsd:606228:1X:2026-11-13T23:00:00+00:00"
+      "bsd:606228:1X:2026-11-13T23:00:00+00:00",
+      "bsd:606229:1X:2026-11-14T00:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 173,
+        "n": 174,
         "wins": 136,
-        "sum_pred": 139.44200000000012,
-        "penalty": 0.009228,
-        "hit_rate": 0.786127,
-        "average_predicted": 0.806023
+        "sum_pred": 140.35900000000012,
+        "penalty": 0.011655,
+        "hit_rate": 0.781609,
+        "average_predicted": 0.806661
       },
       "BTTS_YES": {
         "n": 1,
@@ -16038,12 +16044,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 184,
+        "n": 185,
         "wins": 142,
-        "sum_pred": 147.60000000000008,
-        "penalty": 0.014583,
-        "hit_rate": 0.771739,
-        "average_predicted": 0.802174
+        "sum_pred": 148.51700000000008,
+        "penalty": 0.016927,
+        "hit_rate": 0.767568,
+        "average_predicted": 0.802795
       },
       "btts": {
         "n": 1,
@@ -16063,7 +16069,7 @@
       }
     },
     "last_added": 1,
-    "updated_at": "2026-11-14T01:31:54.967512+00:00",
+    "updated_at": "2026-11-14T04:20:54.246828+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -16941,12 +16947,12 @@
         "average_predicted": 0.862
       },
       "CONCACAF Nations League|1X": {
-        "n": 2,
+        "n": 3,
         "wins": 0,
-        "sum_pred": 1.726,
+        "sum_pred": 2.643,
         "penalty": 0.0,
         "hit_rate": 0.0,
-        "average_predicted": 0.863
+        "average_predicted": 0.881
       },
       "UEFA Nations League|UNDER_35": {
         "n": 1,
@@ -52672,5 +52678,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-14T04:20:54.246828+00:00",
+    "checked": 1,
+    "settled": 1,
+    "pending": 0,
+    "h4": 1,
+    "h8": 0,
+    "fallback": 0,
+    "detail_hits": 0,
+    "reconciled_finished": 0
   }
 }
