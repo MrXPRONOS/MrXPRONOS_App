@@ -1,0 +1,124 @@
+name: Activate PRODUCTION Telegram exact-score teaser (verified video receipts)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-exact-scores-social-teaser-activate.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: telegram-score-teaser-production-activation
+  cancel-in-progress: false
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TG_VIDEO_PRIMARY_CHANNEL: ${{ secrets.TG_VIDEO_PRIMARY_CHANNEL || '@mrxpronosfr' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the image renderer's dependencies
+        run: python -m pip install pillow requests numpy
+      - name: Test masked-score image, links and strict production safety
+        run: |
+          python -m py_compile scripts/social_exact_score_telegram_teaser.py scripts/telegram_production_guard.py
+          python -m unittest discover -s tests -p test_social_exact_score_telegram_teaser.py -v
+          python -m unittest discover -s tests -p test_social_exact_score_telegram_production.py -v
+      - name: Retrieve verified receipts of an EXISTING social publication (never repost video)
+        id: evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p teaser_prior
+          ready=false
+          for run in $(gh run list -R "$GITHUB_REPOSITORY" \
+            --workflow dixon-coles-social-top10-20h.yml \
+            --json databaseId,status --limit 20 --jq '.[] | select(.status=="completed") | .databaseId'); do
+            rm -rf teaser_prior/*
+            if gh run download "$run" -R "$GITHUB_REPOSITORY" \
+                --pattern 'social-top10-20h-*' -D teaser_prior >/dev/null 2>&1 \
+                && find teaser_prior -name social_manifest.json | grep -q . \
+                && find teaser_prior -name social_post_results.json | grep -q .; then
+              ready=true
+              echo "source_run=$run" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          if [ "$ready" != true ]; then
+            echo "No published social video receipt available; no production Telegram send."
+          fi
+      - name: Pair ready manifest, storyboard, model and actual publication receipts
+        id: data
+        if: steps.evidence.outputs.ready == 'true'
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from datetime import datetime,timedelta
+          from zoneinfo import ZoneInfo
+          root=Path("teaser_prior")
+          tomorrow=(datetime.now(ZoneInfo("Africa/Lome")).date()+timedelta(days=1)).isoformat()
+          candidates=list(root.rglob("social_manifest.json"))
+          reports=list(root.rglob("social_post_results.json"))
+          for man in candidates:
+            try:
+              meta=json.loads(man.read_text(encoding="utf8"))
+              if meta.get("target")!=tomorrow or meta.get("status")!="READY" or meta.get("ready_for_video") is not True:
+                continue
+              target=meta["target"]
+              pred=next((p for p in root.rglob("predictions.json") if p.parent.name==target),None)
+              story=next((p for p in root.rglob("video_payload.json") if p.parent.name==target),None)
+              report=next((p for p in reports if any(
+                v.get("target")==target and v.get("ok") is True and v.get("video_sha256")==meta.get("sha256")
+                for v in json.loads(p.read_text(encoding="utf8")))),None)
+              if pred is None or story is None or report is None: continue
+              with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf8") as f:
+                for k,v in (("ready","true"),("manifest",man),("predictions",pred),("storyboard",story),("report",report)):
+                  f.write(f"{k}={v}\n")
+              print("PRODUCTION_ACTIVATION_VERIFIED",target,"social source run exists")
+              break
+            except (ValueError,TypeError,KeyError,OSError):
+              continue
+          else:
+            with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf8") as f:
+              f.write("ready=false\n")
+            print("No READY tomorrow video with verified receipt; production send skipped.")
+          PY
+      - name: Send original masked-score design to MAIN Telegram channel, once per day
+        if: steps.data.outputs.ready == 'true'
+        run: |
+          python scripts/social_exact_score_telegram_teaser.py \
+            --manifest "${{ steps.data.outputs.manifest }}" \
+            --predictions "${{ steps.data.outputs.predictions }}" \
+            --storyboard "${{ steps.data.outputs.storyboard }}" \
+            --report "${{ steps.data.outputs.report }}" \
+            --image "telegram_teaser_production/preview.png" \
+            --receipt "telegram_teaser_production/sent_receipt.json" \
+            --mode production --dedupe
+      - name: Archive production evidence even if D1 bookkeeping fails after send
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-teaser-production-${{ github.run_id }}
+          path: telegram_teaser_production/
+          if-no-files-found: warn
+          retention-days: 30
