@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Dependencies
-        run: python -m pip install 'atproto>=0.0.60,<1' requests pillow
+        run: python -m pip install 'atproto==0.0.73' requests pillow
       - name: Verify program syntax
         run: python -m compileall -q bsd/bsd_v2_bluesky.py
       - name: Publish or diagnose BSD V2
