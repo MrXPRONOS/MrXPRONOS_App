@@ -474,7 +474,17 @@ def copy_public_exact_scores(destination: Path):
     if not source.is_dir():
         return
     out = destination / "scores-exacts-daily"
-    for file in sorted(source.glob("*.json")):
+    for source in sources:
+        if not source.is_dir():
+            continue
+        for file in sorted(source.glob("*.json")):
+            copy_verified_dixon_receipt(file, output, allowed, row_allowed, logo_domains)
+
+
+def copy_verified_dixon_receipt(file: Path, output: Path, allowed: set, row_allowed: set, logo_domains: set):
+    """Validate each dated receipt before exposing it on public GitHub Pages."""
+    from urllib.parse import urlsplit
+    if True:
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.json", file.name):
             raise ValueError("Unexpected exact-score daily JSON filename")
         doc = json.loads(file.read_text(encoding="utf8"))
@@ -542,11 +552,12 @@ def copy_public_dixon_scores(destination: Path, previous: Path | None):
     all 1-10 score cards. This secondary gate prevents private/invalid material
     being republished across site deployments.
     """
-    if previous is None:
-        return
-    source = previous / "dixon-scores-daily"
-    if not source.is_dir():
-        return
+    # A deploy can start before the video workflow finishes writing gh-pages.
+    # Preserve receipts from BOTH the previous public branch and the audited
+    # main source folder. The source-controlled receipt wins on collision.
+    sources = ([previous / "dixon-scores-daily"] if previous else []) + [
+        ROOT / "dixon-scores-daily"
+    ]
     output = destination / "dixon-scores-daily"
     allowed = {
         "schema_version", "model", "origin", "status", "date", "generated_at",
