@@ -23,15 +23,23 @@ WELCOME_HTML = """👋 <b><i>Bienvenue chez Mr XPRONOS !</i></b> ⚽👑
 🎯 <b>Reçois nos pronostics et coupons chaque jour !</b>
 
 📲 <b>Sur Telegram :</b>
-👉 https://t.me/mrxpronosfr
+<i>Rejoins notre canal en cliquant sur le bouton ci-dessous.</i>
 
 📱 <b>Pas de Telegram ?</b>
-<i>Installe gratuitement notre application</i> ou consulte directement le site :
-👉 https://mrxpronos.github.io/MrXPRONOS_App/installer.html
+<i>Installe gratuitement notre application</i> ou consulte directement le site avec le deuxième bouton.
 
 ✅ <b>Enregistre mon numéro</b> pour suivre mes statuts WhatsApp !
 
 🔞 <i>18+ • Joue responsablement.</i>"""
+
+# Ces boutons sont attachés au même message via reply_markup (inline_keyboard).
+# Ils s'affichent directement sous le texte, pas comme de simples URL.
+WELCOME_BUTTONS = {
+    "inline_keyboard": [
+        [{"text": "📲 Rejoindre le canal Telegram", "url": "https://t.me/mrxpronosfr"}],
+        [{"text": "📱 Installer l’application", "url": "https://mrxpronos.github.io/MrXPRONOS_App/installer.html"}],
+    ],
+}
 
 
 class WelcomeHTMLValidator(HTMLParser):
@@ -61,13 +69,23 @@ def check_message() -> None:
         raise ValueError("Message Telegram trop long")
     for required in (
         "<b><i>Bienvenue chez Mr XPRONOS !</i></b>",
-        "https://t.me/mrxpronosfr",
-        "https://mrxpronos.github.io/MrXPRONOS_App/installer.html",
         "Enregistre mon numéro",
         "18+ • Joue responsablement.",
     ):
         if required not in WELCOME_HTML:
             raise ValueError("Élément du message d'accueil manquant")
+    expected = [
+        ("📲 Rejoindre le canal Telegram", "https://t.me/mrxpronosfr"),
+        ("📱 Installer l’application", "https://mrxpronos.github.io/MrXPRONOS_App/installer.html"),
+    ]
+    rows = WELCOME_BUTTONS.get("inline_keyboard")
+    if not isinstance(rows, list) or len(rows) != len(expected):
+        raise ValueError("Les deux boutons Telegram sont requis")
+    for row, (label, url) in zip(rows, expected):
+        if not isinstance(row, list) or row != [{"text": label, "url": url}]:
+            raise ValueError("Bouton Telegram invalide")
+        if url in WELCOME_HTML:
+            raise ValueError("Les URL doivent être des boutons, pas du texte visible")
 
 
 def send() -> int:
@@ -89,6 +107,7 @@ def send() -> int:
                 "chat_id": verified["chat_id"],
                 "text": WELCOME_HTML,
                 "parse_mode": "HTML",
+                "reply_markup": WELCOME_BUTTONS,
                 "disable_web_page_preview": True,
                 "protect_content": False,  # autorise le transfert du message à un nouvel abonné
             },
@@ -112,8 +131,8 @@ def send() -> int:
         Path(summary_path).open("a", encoding="utf-8").write(
             f"### Message d'accueil Telegram publié\n\n"
             f"[Ouvrir le message de test]({url})\n\n"
-            "Le message utilise le format HTML de Telegram (gras et italique). "
-            "Pour réutiliser le style, transférez le message dans Telegram.\n"
+            "Le message utilise le format HTML et deux boutons Telegram natifs. "
+            "Attention : le transfert manuel peut retirer les boutons.\n"
         )
     return 0
 
@@ -130,7 +149,7 @@ def main() -> int:
         print(f"::error::Message d'accueil invalide : {exc}")
         return 1
     if args.check:
-        print("Message d'accueil OK : gras + italique, liens et mention 18+ vérifiés. Aucun envoi.")
+        print("Message d'accueil OK : HTML, 2 boutons URL natifs et mention 18+ vérifiés. Aucun envoi.")
         return 0
     return send()
 
