@@ -1,9 +1,6 @@
 name: NVIDIA - test all AI models
 
 on:
-  push:
-    paths:
-      - "scripts/nvidia_extra_models.py"
   workflow_dispatch:
     inputs:
       category:
