@@ -4,7 +4,8 @@
 
 AUCUN score n'est dessine dans l'image ou la legende. Les liens directs ne
 proviennent que de recus sociaux confirmes, jamais de pages de profil.
-En mode test, l'unique canal autorise est @predict_mrxp.
+Le test reste limité à @predict_mrxp. Le mode production ne publie
+que sur le canal principal vérifié @mrxpronosfr.
 """
 from __future__ import annotations
 
@@ -44,6 +45,9 @@ BUTTON_STYLES = {
     "bluesky": "primary",
 }
 TEASER_VERSION = "telegram_centered_neon_v6_white_gold_panel"
+PRODUCTION_KIND = "dcscore_social_teaser_production"
+PRODUCTION_REF = "social-video-daily"  # constant across design versions
+PRODUCTION_CHANNEL = "@mrxpronosfr"
 ORDER = tuple(LABELS)
 CANVAS = (1200, 1600)
 BG = (7, 17, 34)
@@ -272,11 +276,11 @@ def render(image_path: Path, manifest: dict, predictions: dict, *,
     from dcscore.video_grid_neon import render_teaser_still
     # The exact SAME cards, stadium, date and visual elements as video first frame.
     # Archived social artifacts may be replayed ONLY for the test channel.
-    # Existing social receipts are archived evidence even if their target is
-    # still tomorrow: generation may have happened many hours earlier.
-    # We do not republish those predictions; use preview validation for layout,
-    # while SHA, real fixture IDs, original score/logo identity remain mandatory.
-    archived = bool(test) or date.fromisoformat(manifest["target"]) != datetime.now(LOME).date() + timedelta(days=1)
+    # A teaser always reuses an immutable READY storyboard. The model may
+    # have been calculated earlier today: preview validation avoids wrongly
+    # rejecting its timestamp. Production separately demands TOMORROW's
+    # fixtures and is bound to the manifest SHA / actual match identities.
+    archived = True
     result = render_teaser_still(storyboard, image_path,
                                  asset_root=str(ROOT / "dixon-coles"),
                                  require_real_logos=True, archived=archived)
@@ -292,9 +296,8 @@ def make_caption(manifest, links, *, test=False):
     return f"<b>TOP {count} {word} SUR NOS RÉSEAUX SOCIAUX</b>"
 
 
-def send_test(image: Path, caption: str, links: dict, *, token: str, chat: str):
-    from telegram_test_guard import validate_test_channel
-    dest = validate_test_channel(chat, token)
+def _send_photo(image: Path, caption: str, links: dict, *, token: str, dest: dict):
+    """Use a verified channel (test or main) and require Telegram confirmation."""
     with image.open("rb") as stream:
         try:
             response = requests.post(
@@ -304,19 +307,33 @@ def send_test(image: Path, caption: str, links: dict, *, token: str, chat: str):
                       "reply_markup": json.dumps(keyboard(links), ensure_ascii=False)},
                 files={"photo": (image.name, stream, "image/png")}, timeout=(10, 100))
         except requests.RequestException:
-            raise RuntimeError("Envoi Telegram incertain, ne pas relancer automatiquement") from None
+            raise RuntimeError("Envoi Telegram incertain; ne jamais relancer automatiquement") from None
     try:
         payload = response.json()
     except ValueError:
-        raise RuntimeError("Réponse Telegram non JSON") from None
+        raise RuntimeError("Reponse Telegram non JSON") from None
     message = payload.get("result") or {}
     if (response.status_code != 200 or payload.get("ok") is not True
             or not isinstance(message.get("message_id"), int)
             or (message.get("chat") or {}).get("id") != dest["chat_id"]):
-        raise RuntimeError("Telegram n'a pas confirme l'envoi dans le canal de test")
+        raise RuntimeError("Telegram n'a pas confirme l'envoi dans le canal attendu")
     return {"message_id": message["message_id"],
-            "url": "https://t.me/predict_mrxp/" + str(message["message_id"]),
+            "url": "https://t.me/" + dest["username"] + "/" + str(message["message_id"]),
             "buttons": list(links), "target": dest["username"]}
+
+
+def send_test(image: Path, caption: str, links: dict, *, token: str, chat: str):
+    from telegram_test_guard import validate_test_channel
+    return _send_photo(image, caption, links, token=token,
+                       dest=validate_test_channel(chat, token))
+
+
+def send_production(image: Path, caption: str, links: dict, *, token: str, chat: str):
+    """Fail closed if the production bot cannot post to the verified MAIN channel."""
+    from telegram_production_guard import validate_production_channel
+    return _send_photo(image, caption, links, token=token,
+                       dest=validate_production_channel(chat, token))
+
 
 
 def main():
@@ -327,7 +344,7 @@ def main():
     p.add_argument("--report", type=Path, required=True)
     p.add_argument("--image", type=Path, required=True)
     p.add_argument("--receipt", type=Path)
-    p.add_argument("--mode", choices=("test",), default="test")
+    p.add_argument("--mode", choices=("test", "production"), default="test")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--dedupe", action="store_true",
                    help="Reserve one Telegram teaser per target day in the existing D1 ledger")
@@ -337,39 +354,67 @@ def main():
     storyboard = json.loads(args.storyboard.read_text(encoding="utf8"))
     report = json.loads(args.report.read_text(encoding="utf8"))
     rows = check_inputs(manifest, predictions)
+    if args.mode == "production":
+        if date.fromisoformat(manifest["target"]) != datetime.now(LOME).date() + timedelta(days=1):
+            raise ValueError("Production réservée aux matchs de demain à Lomé")
+        # Never post a teaser for already-started, unverifiable fixtures.
+        for clip in storyboard.get("clips") or []:
+            try:
+                kickoff = datetime.fromisoformat(
+                    str(clip["kickoff_utc"]).replace("Z", "+00:00"))
+                if kickoff.tzinfo is None or kickoff <= datetime.now(LOME):
+                    raise ValueError("Rencontre déjà commencée ou heure invalide")
+            except (KeyError, TypeError, AttributeError) as error:
+                raise ValueError("Heure de match obligatoire en production") from error
     render(args.image, manifest, predictions, storyboard=storyboard,
-           storyboard_path=args.storyboard, test=True)
+           storyboard_path=args.storyboard, test=args.mode == "test")
     # Preserve authentic first-frame preview for inspection even when links fail.
     links = links_from_receipts(report, manifest)
     if not links:
         print("TEASER_PREVIEW_ONLY no verified video permalink; Telegram send skipped")
         return 0
-    caption = make_caption(manifest, links, test=True)
+    caption = make_caption(manifest, links, test=args.mode == "test")
     print("TEASER_READY", json.dumps({"target": manifest["target"], "matches": len(rows),
             "buttons": list(links), "image": str(args.image), "mode": args.mode}))
     if args.dry_run:
         return 0
-    token = (os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
-    chat = (os.getenv("TELEGRAM_TEST_CHAT_ID") or TEST_CHANNEL).strip()
+    if args.mode == "production":
+        token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+        chat = (os.getenv("TG_VIDEO_PRIMARY_CHANNEL") or PRODUCTION_CHANNEL).strip()
+        kind, reference = PRODUCTION_KIND, PRODUCTION_REF
+    else:
+        token = (os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
+        chat = (os.getenv("TELEGRAM_TEST_CHAT_ID") or TEST_CHANNEL).strip()
+        kind, reference = "dcscore_social_teaser_test", TEASER_VERSION
     if not token:
-        raise RuntimeError("FOOTBALL_NEWS_BOT_TOKEN manquant")
+        raise RuntimeError("Bot Telegram manquant pour le mode " + args.mode)
+    # Validate the target BEFORE obtaining the D1 reservation, so a config
+    # issue cannot block a later legitimate production publish.
+    if args.mode == "production":
+        from telegram_production_guard import validate_production_channel
+        validate_production_channel(chat, token)
     ledger = None
     if args.dedupe:
         from d1_publication_ledger import D1Ledger
         ledger = D1Ledger()
-        if not ledger.claim("dcscore_social_teaser_test", TEASER_VERSION, manifest["target"]):
-            print("TEASER_ALREADY_SENT", manifest["target"])
+        if not ledger.claim(kind, reference, manifest["target"]):
+            print("TEASER_ALREADY_SENT", json.dumps(
+                {"target": manifest["target"], "mode": args.mode}))
             return 0
-    receipt = send_test(args.image, caption, links, token=token, chat=chat)
-    # Save Telegram's confirmed message_id BEFORE D1 logging, so a D1 failure
-    # never erases proof that Telegram has already received the picture.
+    if args.mode == "production":
+        receipt = send_production(args.image, caption, links, token=token, chat=chat)
+    else:
+        receipt = send_test(args.image, caption, links, token=token, chat=chat)
+    # Telegram receipt is written before D1 accounting, preventing loss of a
+    # real message_id if D1 has a temporary failure after the send.
     if args.receipt:
         args.receipt.parent.mkdir(parents=True, exist_ok=True)
         args.receipt.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
-    print("TEASER_TEST_SENT", json.dumps(receipt, ensure_ascii=False), flush=True)
+    print("TEASER_" + args.mode.upper() + "_SENT",
+          json.dumps(receipt, ensure_ascii=False), flush=True)
     if ledger:
-        ledger.mark("dcscore_social_teaser_test", TEASER_VERSION,
-                    manifest["target"], message_id=receipt["message_id"])
+        ledger.mark(kind, reference, manifest["target"],
+                    message_id=receipt["message_id"])
     return 0
 
 

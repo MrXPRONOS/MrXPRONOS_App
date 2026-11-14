@@ -96,7 +96,8 @@ jobs:
           python -m pip install -r requirements_social.txt
       - name: Run safety tests
         run: |
-          python -m py_compile scripts/create_social_exact_score_video.py scripts/publish_social_exact_score_video.py
+          python -m py_compile scripts/create_social_exact_score_video.py scripts/publish_social_exact_score_video.py scripts/social_exact_score_telegram_teaser.py scripts/telegram_production_guard.py
+          python -m unittest discover -s tests -p test_social_exact_score_telegram_teaser.py -v
           python -m unittest discover -s tests -p test_social_exact_score_video.py -v
           python -m pytest -q dixon-coles/tests/test_video_grid.py dixon-coles/tests/test_daily_espn.py dixon-coles/tests/test_daily_popularity_v2.py dixon-coles/tests/test_daily_top10_v3.py
       - name: Generate up to 10 verified matches (publish partial 1-9 in flexible mode)
@@ -273,12 +274,12 @@ jobs:
             --report social_exact_scores_out/social_post_results.json \
             --expected "$POST_PLATFORMS" \
             --manifest "social_exact_scores_out/$TARGET/social_manifest.json"
-      - name: Telegram TEST teaser with masked scores and verified social links
+      - name: Telegram PRODUCTION teaser after social video publication
         if: ${{ always() && steps.render.outputs.ready == 'true' && env.SOCIAL_MODE == 'publish' }}
         continue-on-error: true
         env:
-          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
-          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_VIDEO_PRIMARY_CHANNEL: ${{ secrets.TG_VIDEO_PRIMARY_CHANNEL || '@mrxpronosfr' }}
         run: |
           TARGET="${{ steps.target.outputs.day }}"
           REPORT="social_exact_scores_out/social_post_results.json"
@@ -293,6 +294,7 @@ jobs:
             --report "$REPORT" \
             --image "social_exact_scores_out/$TARGET/telegram_teaser.png" \
             --receipt "social_exact_scores_out/$TARGET/telegram_teaser_receipt.json" \
+            --mode production \
             --dedupe
 
       - name: Archive evidence
