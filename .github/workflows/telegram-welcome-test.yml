@@ -1,0 +1,40 @@
+name: Telegram - Message accueil formaté (canal TEST)
+run-name: "Telegram accueil formaté - ${{ github.event_name }}"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-welcome-test.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-welcome-test
+  cancel-in-progress: false
+
+jobs:
+  send-welcome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install requests
+      - name: Valider les balises HTML, liens et avertissement
+        run: python scripts/send_telegram_welcome_test.py --check
+      - name: Contrôler le canal TEST et les droits du bot avant envoi
+        run: python scripts/telegram_test_guard.py
+      - name: Envoyer le message formaté uniquement dans @predict_mrxp
+        run: python scripts/send_telegram_welcome_test.py --send
