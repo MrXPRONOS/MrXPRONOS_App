@@ -439,6 +439,99 @@
     }
     .mx-actions > .mx-action--install{font-size:13px}
   }
+
+  /* V6 — Microanimations premium des deux actions prioritaires.
+     Pas de JS/timer : fluidité GPU, animations douces et respect du mouvement réduit. */
+  .mx-actions > .mx-action--install:not([hidden]){
+    isolation:isolate;
+    animation:mxGoldGlow 5.5s ease-in-out infinite;
+    will-change:box-shadow;
+  }
+  .mx-actions > .mx-action--install:not([hidden])::before{
+    content:"";
+    position:absolute;
+    z-index:0;
+    inset:-60% auto -60% 0;
+    width:28%;
+    transform:translateX(-260%) skewX(-25deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.40),transparent);
+    pointer-events:none;
+    animation:mxGoldSweep 7s ease-in-out infinite;
+  }
+  .mx-actions > .mx-action--telegram{
+    position:relative;
+    overflow:hidden;
+    isolation:isolate;
+    animation:mxTelegramGlow 6.5s ease-in-out infinite;
+    will-change:box-shadow;
+  }
+  .mx-actions > .mx-action--telegram::before{
+    content:"";
+    position:absolute;
+    inset:-60% auto -60% 0;
+    width:27%;
+    transform:translateX(-260%) skewX(-25deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.27),transparent);
+    pointer-events:none;
+    animation:mxTelegramSweep 8s ease-in-out infinite;
+  }
+  .mx-actions > .mx-action--install .mx-action-icon,
+  .mx-actions > .mx-action--install [data-mx-install-label],
+  .mx-actions > .mx-action--install .mx-action-chevron,
+  .mx-actions > .mx-action--telegram .mx-action-icon,
+  .mx-actions > .mx-action--telegram > span:last-child{
+    position:relative;
+    z-index:1;
+  }
+  .mx-actions .mx-free-ribbon{
+    z-index:2;
+    top:5px;
+    right:-18px;
+    width:80px;
+    padding:2px 0;
+    font-size:8.5px;
+    letter-spacing:.035em;
+    text-align:center;
+    transform:rotate(28deg);
+    background:linear-gradient(180deg,#f74747 0%,#cb151b 58%,#970909 100%);
+    border:1px solid rgba(255,182,174,.9);
+    box-shadow:0 2px 7px rgba(100,0,0,.43);
+    text-shadow:0 1px 1px rgba(0,0,0,.3);
+  }
+  .mx-actions > .mx-action--install:hover,
+  .mx-actions > .mx-action--telegram:hover{
+    filter:brightness(1.10);
+  }
+  .mx-actions > .mx-action--install:active,
+  .mx-actions > .mx-action--telegram:active{
+    transform:scale(.99);
+  }
+  @keyframes mxGoldGlow{
+    0%,100%{box-shadow:inset 0 1px 3px #ffffc6aa,inset 0 -5px 8px #ac6f2350,0 0 8px rgba(255,193,46,.16)}
+    50%{box-shadow:inset 0 1px 3px #ffffc6aa,inset 0 -5px 8px #ac6f2350,0 0 18px rgba(255,193,46,.38)}
+  }
+  @keyframes mxTelegramGlow{
+    0%,100%{box-shadow:inset 0 1px 3px #ffffff70,0 0 7px rgba(0,174,255,.17)}
+    50%{box-shadow:inset 0 1px 3px #ffffff70,0 0 16px rgba(0,174,255,.34)}
+  }
+  @keyframes mxGoldSweep{
+    0%,6%{transform:translateX(-260%) skewX(-25deg)}
+    22%,100%{transform:translateX(680%) skewX(-25deg)}
+  }
+  @keyframes mxTelegramSweep{
+    0%,10%{transform:translateX(-260%) skewX(-25deg)}
+    27%,100%{transform:translateX(680%) skewX(-25deg)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .mx-actions > .mx-action--install:not([hidden]),
+    .mx-actions > .mx-action--telegram,
+    .mx-actions > .mx-action--install::before,
+    .mx-actions > .mx-action--telegram::before{
+      animation:none!important;
+      will-change:auto;
+    }
+    .mx-actions > .mx-action{transition:none}
+  }
   </style>
 </head>
 <body>
