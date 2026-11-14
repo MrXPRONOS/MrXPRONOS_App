@@ -98,6 +98,7 @@ jobs:
         run: |
           python -m py_compile scripts/create_social_exact_score_video.py scripts/publish_social_exact_score_video.py scripts/social_exact_score_telegram_teaser.py scripts/telegram_production_guard.py
           python -m unittest discover -s tests -p test_social_exact_score_telegram_teaser.py -v
+          python -m unittest discover -s tests -p test_social_exact_score_telegram_production.py -v
           python -m unittest discover -s tests -p test_social_exact_score_video.py -v
           python -m pytest -q dixon-coles/tests/test_video_grid.py dixon-coles/tests/test_daily_espn.py dixon-coles/tests/test_daily_popularity_v2.py dixon-coles/tests/test_daily_top10_v3.py
       - name: Generate up to 10 verified matches (publish partial 1-9 in flexible mode)
