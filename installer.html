@@ -385,6 +385,60 @@
     .mx-team-logo{width:17px;height:17px}
     .mx-team-name{font-size:9.5px}
   }
+  /* CTA V5 — compactes par rapport au texte : la hauteur est définie par le
+     contenu, sans les anciens min-height des règles mobile/desktop. */
+  .mx-actions{
+    gap:4px;
+    max-width:545px;
+  }
+  .mx-actions > .mx-action{
+    height:auto;
+    min-height:32px;
+    padding:5px 11px;
+    gap:7px;
+    border-radius:12px;
+    font-size:clamp(12px,3.35vw,14px);
+    line-height:1.14;
+  }
+  .mx-actions > .mx-action--install{
+    min-height:35px;
+    padding-block:6px;
+    font-size:clamp(13px,3.55vw,15px);
+  }
+  .mx-actions > .mx-action--site,
+  .mx-actions > .mx-action--telegram{
+    min-height:32px;
+    padding-block:5px;
+  }
+  .mx-actions > .mx-action .mx-action-icon svg{
+    width:17px;
+    height:17px;
+  }
+  .mx-actions > .mx-action .mx-action-chevron{
+    font-size:17px;
+    margin-left:1px;
+  }
+  .mx-actions .mx-free-ribbon{
+    width:76px;
+    right:-19px;
+    top:5px;
+    padding:2px 0;
+    font-size:8px;
+  }
+  .mx-actions > .mx-install-hint{
+    margin:0;
+    min-height:0;
+    padding:1px 0 0;
+    line-height:1.15;
+  }
+  @media(max-width:380px){
+    .mx-actions > .mx-action{
+      padding-inline:7px;
+      gap:5px;
+      font-size:12px;
+    }
+    .mx-actions > .mx-action--install{font-size:13px}
+  }
   </style>
 </head>
 <body>
@@ -610,6 +664,6 @@
     void load();
   })();
   </script>
-  <script defer src="assets/js/pwa.js?v=cac856472022"></script>
+  <script defer src="assets/js/pwa.js"></script>
 </body>
 </html>
