@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/telegram-exact-scores-social-teaser-test.yml'
+      - 'scripts/social_exact_score_telegram_teaser.py'
+      - 'dixon-coles/dcscore/video_grid_neon.py'
+      - 'tests/test_social_exact_score_telegram_teaser.py'
 
 permissions:
   contents: read
