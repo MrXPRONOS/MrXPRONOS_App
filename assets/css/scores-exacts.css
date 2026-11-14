@@ -500,3 +500,260 @@
 @media(prefers-reduced-motion:reduce){
   .mx-score-card,.mx-scores-cta,.mx-scores-day{transition:none!important;transform:none!important}
 }
+
+
+/* ================================================================
+   V4 APPROVED SCREENSHOT — one-to-one visual proportions.
+   Site remains data-driven; reference illustration's sample results
+   are NOT copied. Scoped to score page only.
+   ================================================================ */
+.mx-scores-page{--mx-shot-gold:#ffd35d;--mx-shot-glow:#f3bb45;background:#030a12;color:#fff;font-family:Outfit,Manrope,system-ui,sans-serif}
+.mx-scores-page .mx-site-header{display:none!important}
+.mx-scores-page .mx-scores-main{background:linear-gradient(#071421,#030913)}
+.mx-scores-page .mx-scores-hero{
+  padding:0 0 24px;min-height:0;
+  background:
+    linear-gradient(180deg,rgba(0,7,16,.69) 0%,rgba(0,6,13,.22) 27%,rgba(0,8,14,.11) 56%,rgba(1,10,17,.86) 93%,#06101b 100%),
+    url("../images/home-premium/hero-stadium.webp") center 51%/cover no-repeat;
+  border-bottom:1px solid rgba(248,193,71,.32);
+  box-shadow:inset 0 -22px 38px rgba(0,0,0,.58);
+}
+.mx-scores-page .mx-scores-hero::before{
+  width:min(43vw,420px);height:74%;top:18%;right:0;
+  background:url("../images/blog-hero-ball.webp") right center/auto 100% no-repeat;
+  opacity:.79;filter:saturate(1.13) contrast(1.13);
+  -webkit-mask-image:radial-gradient(ellipse 83% 70% at 68% 49%,black 48%,transparent 100%);
+  mask-image:radial-gradient(ellipse 83% 70% at 68% 49%,black 48%,transparent 100%);
+}
+.mx-scores-page .mx-scores-hero::after{background:linear-gradient(180deg,transparent 72%,rgba(1,9,17,.96) 100%)}
+.mx-scores-mock-top{
+  position:relative;z-index:3;
+  display:grid;grid-template-columns:54px minmax(0,1fr) 54px;
+  align-items:center;gap:7px;
+  width:min(100% - 30px,940px);
+  margin:0 auto;
+  padding:14px 0 1px;
+}
+.mx-scores-top-icon{
+  width:45px;height:45px;display:grid;place-items:center;
+  color:#f7d782;border:1px solid #8a7044;border-radius:12px;
+  background:linear-gradient(145deg,#172535,#07121d);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 7px 12px rgba(0,0,0,.5);
+  cursor:pointer;text-decoration:none;
+}
+.mx-scores-top-icon svg{width:24px;height:24px}
+.mx-scores-mock-brand{display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;min-width:0;text-decoration:none}
+.mx-scores-mock-brand img{width:min(44vw,268px);height:79px;object-fit:contain;filter:drop-shadow(0 2px 8px #000b)}
+.mx-scores-brand-crown{
+  display:none;
+}
+.mx-scores-page .mx-scores-hero .container{position:relative;z-index:1;max-width:940px;text-align:center}
+.mx-scores-page .mx-scores-hero-emblem{display:none}
+.mx-scores-page .mx-scores-kicker{
+  justify-content:center;text-align:center;letter-spacing:.25em;
+  color:#f7f4ef;font-size:clamp(10px,1.5vw,14px);line-height:1.2;
+  font-weight:650;word-spacing:.13em;text-shadow:0 2px 8px #000;
+}
+.mx-scores-page .mx-scores-kicker-dot{display:none}
+.mx-scores-page .mx-scores-hero h1{
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  margin:11px auto 8px;text-align:center;
+  font:900 clamp(39px,7.9vw,81px)/1.03 Outfit,Manrope,sans-serif;
+  letter-spacing:-.043em;color:#fff;
+  text-shadow:0 5px 6px #000,0 1px 0 rgba(255,255,255,.3);
+}
+.mx-scores-page .mx-scores-hero h1 span{
+  display:inline-block;margin-top:4px;padding:0 27px 5px;
+  transform:skewX(-6deg);
+  border-radius:12px;color:#100d09;
+  background:linear-gradient(155deg,#fff5a8 0%,#fbd554 29%,#daa22c 64%,#ffd86e 100%);
+  border:2px solid #fff0a2;
+  box-shadow:inset 0 2px 5px #fff8ce9e,inset 0 -6px 5px #9b6b175c,0 5px 19px #e5b45088;
+  text-shadow:0 1px rgba(255,255,255,.22);
+}
+.mx-scores-page .mx-scores-hero-rule{display:none}
+.mx-scores-page .mx-scores-hero p{
+  max-width:720px;margin:8px auto 0;
+  text-align:center;color:#f6f3ea;
+  font:450 clamp(13px,2vw,21px)/1.35 Outfit,Manrope,sans-serif;
+  text-shadow:0 2px 7px #000;
+}
+.mx-scores-hero-clarifier{
+  display:block;margin:5px auto 0;max-width:95%;
+  color:#e0e4e8;font-size:.77em;letter-spacing:.01em;
+}
+.mx-scores-page .mx-scores-hero-actions{
+  display:flex;justify-content:center;
+  flex-wrap:wrap;max-width:850px;margin:18px auto 0;gap:11px;
+}
+.mx-scores-page .mx-scores-cta{
+  flex:1 1 0;max-width:380px;min-height:53px;
+  padding:8px 18px;border-radius:13px;
+  font:800 clamp(13px,2.65vw,22px)/1.13 Outfit,Manrope,sans-serif;
+  box-shadow:0 0 16px rgba(249,187,58,.17);
+}
+.mx-scores-cta-label{display:flex;flex-direction:column;gap:3px;text-align:left;min-width:0}
+.mx-scores-cta-label b{font-size:1em;white-space:nowrap}
+.mx-scores-cta-label small{font-size:.7em;font-weight:500}
+.mx-scores-page .mx-scores-cta--install{background:linear-gradient(160deg,#ffed98,#ffce46 67%,#d39819);color:#16120a;border:2px solid #ffea9d;box-shadow:0 0 19px #df9d3560}
+.mx-scores-page .mx-scores-cta--telegram{background:linear-gradient(170deg,#12c9ff,#0574bd 75%,#063d79);border:1.5px solid #4ed0ff;box-shadow:0 0 16px #0da7ec69}
+.mx-scores-page .mx-scores-hero-meta{justify-content:center;gap:7px;margin:12px auto 0}
+.mx-scores-page .mx-scores-date{background:#0a1b2b;border-color:#7d6b45;color:#ebd5a4;padding:5px 10px;font-size:11px}
+.mx-scores-page .mx-scores-updated{font-size:10px;color:#ddd}
+.mx-scores-app-installed #mx-scores-install-cta,
+.mx-scores-page #mx-scores-install-cta[hidden]{display:none!important}
+.mx-scores-page .mx-scores-hero-actions.mx-scores-telegram-only .mx-scores-cta--telegram{flex:0 1 370px;width:min(100%,370px)}
+.mx-scores-page .mx-scores-content{max-width:1020px;padding-top:7px}
+.mx-scores-page .mx-scores-days{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;max-width:950px;margin:0 auto 15px;padding:0;
+  background:none;border:0;box-shadow:none;
+}
+.mx-scores-page .mx-scores-day{
+  display:flex;gap:9px;align-items:center;justify-content:center;
+  padding:10px 6px;min-height:47px;
+  font:750 clamp(12px,2vw,19px)/1.15 Outfit,Manrope,sans-serif;
+  border-radius:999px;color:#f9fafc;
+  border:1px solid #778590;
+  background:linear-gradient(155deg,rgba(12,24,36,.94),rgba(1,9,17,.97));
+  box-shadow:inset 0 1px 2px #ffffff12;
+}
+.mx-scores-page .mx-scores-day span{font-size:1.2em;font-weight:500}
+.mx-scores-page .mx-scores-day.is-active{color:#15100a;background:linear-gradient(160deg,#fff3ae,#ffcb44,#dba02b);border-color:#fff4b9;box-shadow:0 0 22px #efb94279,inset 0 1px 3px #fff6c8}
+.mx-scores-page .mx-scores-status{background:transparent;border:0;color:#d4dfeb;text-align:center;padding:5px 7px;margin-bottom:6px}
+.mx-scores-page .mx-scores-status[data-state="ready"],.mx-scores-page .mx-scores-status[data-state="archive"]{padding:7px}
+.mx-scores-page .mx-scores-columns{max-width:100%}
+.mx-scores-page .mx-scores-section{
+  border:0;border-top:1px solid #b7934b;border-radius:0;
+  background:none;box-shadow:none;
+}
+.mx-scores-page .mx-scores-section-head{
+  min-height:64px;padding:12px 13px 11px;
+  gap:9px;align-items:center;
+  background:radial-gradient(ellipse 35% 80% at 50% 0%,rgba(193,131,22,.16),transparent 100%);
+  border-bottom:0;
+}
+.mx-scores-page .mx-scores-section-head .mx-scores-number{
+  flex:0 0 35px;width:35px;height:35px;font-size:28px;
+  border:0;background:none;color:#ffd061;box-shadow:none;
+}
+.mx-scores-page .mx-scores-section-eyebrow{display:none}
+.mx-scores-page .mx-scores-section h2{margin:0;font:850 clamp(17px,2.85vw,27px)/1.2 Outfit,Manrope,sans-serif}
+.mx-scores-page .mx-scores-section h2 span{color:#ffd15f}
+.mx-scores-model-pill{
+  display:flex;align-items:center;gap:7px;flex:0 0 auto;
+  padding:5px 10px;border-radius:999px;border:1px solid #6d7e88;
+  background:linear-gradient(#212b37,#0c1520);
+  color:#f0f2f3;font-size:11px;font-weight:550;
+}
+.mx-scores-page .mx-scores-counter{margin-left:auto;border:1px solid #987a3e;background:#0c1721;color:#ffe5a6;padding:5px 7px;font-size:10px}
+.mx-scores-page .mx-scores-list{
+  display:grid;grid-template-columns:1fr;
+  gap:9px;padding:8px 2px 17px;
+}
+.mx-scores-page .mx-score-card{
+  display:flex;flex-direction:column;position:relative;
+  min-height:115px;padding:9px 13px 10px 48px;
+  border:1px solid #6a6b70!important;border-radius:14px;
+  background:linear-gradient(115deg,#1d2935 0%,#080f19 32%,#111923 100%);
+  box-shadow:inset 0 1px 2px #ffffff18,0 2px 9px #0007;
+}
+.mx-scores-page .mx-score-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:75px;
+  background:linear-gradient(118deg,#ffffff15 0%,#ffffff08 45%,transparent 45%);
+  pointer-events:none;
+}
+.mx-scores-page .mx-score-card-top{display:flex;align-items:center;justify-content:flex-start;gap:9px;margin:0 0 5px}
+.mx-scores-page .mx-score-rank{
+  position:absolute;left:7px;top:50%;transform:translateY(-50%);
+  width:33px;min-height:37px;display:grid;place-items:center;
+  border-radius:6px 3px 8px 3px;background:linear-gradient(145deg,#fff7ab,#d89a28);
+  color:#161109;font-size:19px;font-style:italic;
+}
+.mx-score-league-strip{display:flex;align-items:center;gap:5px;min-width:0;flex:1}
+.mx-scores-page .mx-score-league{
+  color:#f7f5ee;font-size:clamp(12px,2.3vw,16px);font-weight:750;
+  overflow:visible;white-space:normal;text-overflow:clip;line-height:1.17
+}
+.mx-scores-page .mx-score-time{
+  background:none;border:0;padding:0;color:#c3d1de;
+  font-size:11px;
+}
+.mx-scores-page .mx-score-match{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center}
+.mx-scores-page .mx-score-team{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:7px;min-width:0;text-align:left}
+.mx-scores-page .mx-score-team:last-child{flex-direction:row-reverse;text-align:right}
+.mx-scores-page .mx-score-crest{display:block;flex:0 0 auto;width:37px;height:37px;object-fit:contain}
+.mx-scores-page .mx-score-teamname{color:#f8fafb;font-size:clamp(12px,2.1vw,17px);line-height:1.17;overflow-wrap:anywhere;text-wrap:pretty}
+.mx-scores-page .mx-score-score{
+  display:flex;align-items:center;justify-content:center;
+  flex:none;min-width:89px;max-width:115px;
+  padding:4px 10px;border-radius:11px;
+  background:linear-gradient(180deg,#301f0e,#080d12);
+  border:1px solid #f6c45d;box-shadow:0 0 12px #e7b44266,inset 0 0 9px #f5c95d28;
+}
+.mx-scores-page .mx-score-score strong{
+  font:900 clamp(21px,3.6vw,31px)/1 Outfit,Manrope,sans-serif;
+  color:#ffdf78;white-space:nowrap;
+}
+.mx-scores-page .mx-score-score small{display:none}
+.mx-scores-page .mx-score-foot{
+  display:flex;justify-content:center;align-items:center;
+  margin:5px 0 0;padding:0;border:0;gap:4px;
+}
+.mx-scores-page .mx-score-foot-label,.mx-scores-page .mx-score-probability{
+  background:#071018;font-size:clamp(11px,1.8vw,14px);line-height:1.2;
+}
+.mx-scores-page .mx-score-foot-label{color:#edf0f3}
+.mx-scores-page .mx-score-probability{color:#ffe17e;font-weight:850}
+.mx-scores-page .mx-scores-explainer{margin-top:13px;border-radius:14px}
+.mx-scores-page .mx-score-card:focus-within{outline:2px solid #ffe493}
+@media(max-width:740px){
+  .mx-scores-page .mx-scores-hero{padding:0 0 20px;min-height:0;background:
+    linear-gradient(180deg,rgba(0,7,16,.68),rgba(0,7,16,.16) 31%,rgba(0,9,16,.22) 56%,#06101b 97%),
+    url("../images/home-premium/hero-stadium.webp") center 54%/cover no-repeat}
+  .mx-scores-page .mx-scores-hero::before{top:26%;right:-7%;height:55%;width:46vw;opacity:.79;background-size:auto 100%}
+  .mx-scores-mock-top{grid-template-columns:42px minmax(0,1fr) 42px;width:calc(100% - 26px);padding-top:8px}
+  .mx-scores-top-icon{width:40px;height:40px;border-radius:10px}
+  .mx-scores-top-icon svg{width:22px;height:22px}
+  .mx-scores-mock-brand img{width:min(55vw,265px);height:74px}
+  .mx-scores-page .mx-scores-kicker{font-size:clamp(8px,2.2vw,11px);letter-spacing:.21em}
+  .mx-scores-page .mx-scores-hero h1{font-size:clamp(37px,9.9vw,63px);margin:11px auto 7px}
+  .mx-scores-page .mx-scores-hero h1 span{border-radius:11px;padding:0 22px 5px}
+  .mx-scores-page .mx-scores-hero p{font-size:clamp(12px,3.25vw,17px);line-height:1.3;margin-top:9px}
+  .mx-scores-page .mx-scores-hero-actions{gap:8px;margin:14px auto 0;flex-wrap:nowrap}
+  .mx-scores-page .mx-scores-cta{min-height:43px;padding:5px 8px;gap:6px;border-radius:11px;font-size:clamp(10px,3.2vw,14px)}
+  .mx-scores-page .mx-scores-cta svg{width:21px;height:21px}
+  .mx-scores-page .mx-scores-hero-meta{margin-top:10px}
+  .mx-scores-page .mx-scores-content{padding-top:4px;padding-bottom:85px}
+  .mx-scores-page .mx-scores-days{gap:6px;margin-bottom:9px}
+  .mx-scores-page .mx-scores-day{min-height:42px;padding:8px 4px;font-size:clamp(11px,3.1vw,15px)}
+  .mx-scores-page .mx-scores-status{font-size:10px;padding:3px 7px;margin-bottom:6px}
+  .mx-scores-page .mx-scores-section-head{padding:8px 2px 9px;gap:5px;min-height:55px}
+  .mx-scores-page .mx-scores-section h2{font-size:clamp(15px,4vw,21px)}
+  .mx-scores-model-pill{font-size:9px;padding:4px 6px}
+  .mx-scores-page .mx-scores-counter{font-size:9px;padding:4px 5px}
+  .mx-scores-page .mx-scores-list{gap:7px;padding:3px 0 13px}
+  .mx-scores-page .mx-score-card{padding:7px 9px 8px 37px;min-height:100px;border-radius:11px}
+  .mx-scores-page .mx-score-rank{left:5px;width:28px;min-height:32px;font-size:16px}
+  .mx-scores-page .mx-score-card-top{margin-bottom:5px}
+  .mx-scores-page .mx-score-league{font-size:clamp(11px,2.6vw,14px)}
+  .mx-scores-page .mx-score-time{font-size:9px}
+  .mx-scores-page .mx-score-team{gap:4px}
+  .mx-scores-page .mx-score-teamname{font-size:clamp(10px,2.55vw,13px)}
+  .mx-scores-page .mx-score-crest{width:30px;height:30px}
+  .mx-scores-page .mx-score-score{min-width:66px;padding:3px 5px;border-radius:8px}
+  .mx-scores-page .mx-score-score strong{font-size:clamp(19px,5vw,26px)}
+  .mx-scores-page .mx-score-foot{margin-top:4px}
+  .mx-scores-page .mx-score-foot-label,.mx-scores-page .mx-score-probability{font-size:10px}
+}
+@media(max-width:390px){
+  .mx-scores-page .mx-scores-hero h1{font-size:clamp(34px,9.3vw,40px)}
+  .mx-scores-page .mx-scores-section h2{font-size:16px}
+  .mx-scores-page .mx-scores-section-head .mx-scores-number{font-size:20px;width:25px;flex-basis:25px}
+  .mx-scores-model-pill{font-size:8px}
+  .mx-scores-page .mx-score-crest{width:25px;height:25px}
+  .mx-scores-page .mx-score-score{min-width:55px}
+  .mx-scores-page .mx-score-score strong{font-size:18px}
+  .mx-scores-page .mx-score-teamname{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.mx-scores-page .mx-scores-cta,.mx-scores-page .mx-score-card{transition:none!important}}
