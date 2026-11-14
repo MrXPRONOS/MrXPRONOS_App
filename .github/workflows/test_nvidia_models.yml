@@ -1,6 +1,9 @@
 name: NVIDIA - test all AI models
 
 on:
+  push:
+    paths:
+      - "scripts/nvidia_extra_models.py"
   workflow_dispatch:
     inputs:
       category:
@@ -16,6 +19,7 @@ on:
           - specialized
           - image
           - video
+          - audio
           - vision
           - document
       repeats:
@@ -75,10 +79,10 @@ jobs:
           echo "::add-mask::$NVIDIA_API_KEY"
       - name: Tester tous les modèles sélectionnés
         env:
-          TEST_CATEGORY: ${{ inputs.category }}
-          TEST_REPEATS: ${{ inputs.repeats }}
-          TEST_LIMIT: ${{ inputs.limit }}
-          TEST_MODELS: ${{ inputs.models }}
+          TEST_CATEGORY: ${{ inputs.category || 'all' }}
+          TEST_REPEATS: ${{ inputs.repeats || '1' }}
+          TEST_LIMIT: ${{ inputs.limit || '0' }}
+          TEST_MODELS: ${{ inputs.models || '' }}
         shell: bash
         run: |
           python scripts/test_nvidia_models.py \
