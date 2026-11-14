@@ -13,13 +13,15 @@ on:
     types: [completed]
     branches: [main]
   schedule:
-    - cron: '35 6,12,18 * * *'
+    - cron: '35 0,4,8,12,16,20 * * *'
   workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
       - 'bsd/bsd_v2_montante.py'
       - 'bsd/bsd_v2_montante_nim.py'
+      - 'bsd/bsd_v2_montante_refresh.py'
+      - 'bsd/test_bsd_v2_montante_refresh.py'
       - 'bsd/test_bsd_v2_montante.py'
       - 'bsd/test_bsd_v2_montante_nim.py'
       - '.github/workflows/bsd-v2-montante.yml'
@@ -36,7 +38,9 @@ jobs:
   select:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 18
+    env:
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/bsd
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,6 +50,13 @@ jobs:
           sparse-checkout: |
             bsd/bsd_v2_montante.py
             bsd/bsd_v2_montante_nim.py
+            bsd/bsd_v2_montante_refresh.py
+            bsd/test_bsd_v2_montante_refresh.py
+            bsd/bsd_api.py
+            bsd/bsd_v2_odds.py
+            bsd/bsd_h2h.py
+            bsd/bsd_markets.py
+            bsd/free_football_sources.py
             bsd/test_bsd_v2_montante.py
             bsd/test_bsd_v2_montante_nim.py
             bsd/bsd_v2_guardrails.py
@@ -60,8 +71,8 @@ jobs:
           python-version: '3.11'
       - name: Tester le sélecteur déterministe et la relecture IA (sans appels payants)
         run: |
-          python -m compileall -q bsd/bsd_v2_montante.py bsd/bsd_v2_montante_nim.py bsd/test_bsd_v2_montante.py bsd/test_bsd_v2_montante_nim.py
-          python -m unittest bsd.test_bsd_v2_montante bsd.test_bsd_v2_montante_nim -v
+          python -m compileall -q bsd/bsd_v2_montante.py bsd/bsd_v2_montante_nim.py bsd/bsd_v2_montante_refresh.py bsd/test_bsd_v2_montante.py bsd/test_bsd_v2_montante_nim.py bsd/test_bsd_v2_montante_refresh.py
+          python -m unittest bsd.test_bsd_v2_montante bsd.test_bsd_v2_montante_nim bsd.test_bsd_v2_montante_refresh -v
       - name: Vérifier le contrat JSON réel de Nemotron après intégration
         if: github.event_name == 'push'
         env:
@@ -101,16 +112,24 @@ jobs:
             umask 077
             python bsd/bsd_archive.py restore
           fi
+      - name: Rafraîchir les cotes réellement observées pour chaque marché publié
+        if: github.event_name != 'pull_request'
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          python -m pip install 'requests>=2.31,<3'
+          python -m bsd.bsd_v2_montante_refresh --feed data.json
       - name: Examiner les candidats via NVIDIA NIM, ou s'abstenir
         if: github.event_name != 'pull_request'
         env:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
         run: |
           set -euo pipefail
-          python -m bsd.bsd_v2_montante_nim --feed data.json
+          python -m bsd.bsd_v2_montante_nim --feed tmp/montante-refreshed-feed.json
       - name: Supprimer l'historique en clair du runner
         if: always()
-        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/montante-refreshed-feed.json
       - name: Archiver UNIQUEMENT la décision et les diagnostics publics
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
@@ -119,6 +138,7 @@ jobs:
           path: |
             montante/daily.json
             montante/du-jour.md
+            tmp/montante-quote-refresh.json
           retention-days: 30
       - name: Sauvegarder une sélection immuable et ses rapports
         if: github.event_name != 'pull_request'
