@@ -86,9 +86,11 @@ class TeaserTests(unittest.TestCase):
         # A near-opaque navy card protects both text lines from the stadium.
         self.assertEqual(minimal.getpixel((120, 1035)),
                          neon.TELEGRAM_PANEL_BG)
-        self.assertNotEqual(neon.TELEGRAM_CTA_TOP, neon.WHITE)
-        self.assertNotEqual(neon.TELEGRAM_CTA_BOTTOM, neon.GOLD)
-        # Coral-orange arrow has a strong contrast against the navy card.
+        self.assertEqual(neon.TELEGRAM_CTA_TOP, neon.WHITE)
+        self.assertEqual(neon.TELEGRAM_CTA_BOTTOM, neon.GOLD)
+        self.assertEqual(neon.TELEGRAM_PANEL_BORDER, neon.GOLD)
+        self.assertEqual(neon.TELEGRAM_ARROW, neon.GOLD)
+        # Restored gold arrow has contrast against the navy card.
         self.assertEqual(minimal.getpixel((360, 1078))[:3],
                          neon.TELEGRAM_ARROW[:3])
         self.assertGreater(sum(neon.TELEGRAM_ARROW[:3]) -
