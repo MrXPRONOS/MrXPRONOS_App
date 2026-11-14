@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v126-admin-home-reference-live-20261111';
+const VERSION = 'v127-dixon-coles-top10-20261114';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -310,7 +310,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    if (/\/scores-exacts-daily\/\d{4}-\d{2}-\d{2}\.json$/.test(path)) {
+    if (/\/(?:scores-exacts-daily|dixon-scores-daily)\/\d{4}-\d{2}-\d{2}\.json$/.test(path)) {
         event.respondWith(strategies.networkFirst(request));
         return;
     }
