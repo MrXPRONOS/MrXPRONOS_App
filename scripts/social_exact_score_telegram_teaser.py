@@ -252,7 +252,11 @@ def render(image_path: Path, manifest: dict, predictions: dict, *,
     from dcscore.video_grid_neon import render_teaser_still
     # The exact SAME cards, stadium, date and visual elements as video first frame.
     # Archived social artifacts may be replayed ONLY for the test channel.
-    archived = date.fromisoformat(manifest["target"]) != datetime.now(LOME).date() + timedelta(days=1)
+    # Existing social receipts are archived evidence even if their target is
+    # still tomorrow: generation may have happened many hours earlier.
+    # We do not republish those predictions; use preview validation for layout,
+    # while SHA, real fixture IDs, original score/logo identity remain mandatory.
+    archived = bool(test) or date.fromisoformat(manifest["target"]) != datetime.now(LOME).date() + timedelta(days=1)
     result = render_teaser_still(storyboard, image_path,
                                  asset_root=str(ROOT / "dixon-coles"),
                                  require_real_logos=True, archived=archived)
@@ -341,7 +345,7 @@ def main():
     if args.dedupe:
         from d1_publication_ledger import D1Ledger
         ledger = D1Ledger()
-        if not ledger.claim("dcscore_social_teaser_test", "tomorrow-social-video", manifest["target"]):
+        if not ledger.claim("dcscore_social_teaser_test", "telegram_centered_neon_v2", manifest["target"]):
             print("TEASER_ALREADY_SENT", manifest["target"])
             return 0
     receipt = send_test(args.image, caption, links, token=token, chat=chat)
