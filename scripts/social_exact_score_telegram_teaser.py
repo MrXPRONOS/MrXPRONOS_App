@@ -221,52 +221,43 @@ def draw_logo(image, d, logo_url, x, y, team):
         d.text((x + 33, y + 33), initials, font=font(18), fill=WHITE, anchor="mm")
 
 
-def render(image_path: Path, manifest: dict, predictions: dict, *, test=False) -> Path:
-    rows = check_inputs(manifest, predictions)
-    target = manifest["target"]
-    n = len(rows)
-    image = Image.new("RGB", CANVAS, BG)
-    d = ImageDraw.Draw(image)
-    # Neon brand, inspired by the existing Dixon-Coles social render.
-    d.rounded_rectangle((38, 37, 1162, 110), radius=27, fill=(16, 39, 58))
-    d.text((67, 73), "Mr XPRONOS", font=font(40), fill=WHITE, anchor="lm")
-    d.text((1137, 74), "EXACT SCORE", font=font(22), fill=TEAL, anchor="rm")
-    if test:
-        heading = "APERÇU TEST — SCORES MASQUÉS"
-    else:
-        heading = "LES TOP SCORES EXACTS DE DEMAIN"
-    d.text((40, 158), heading, font=font(41), fill=WHITE)
-    d.text((42, 226), f"{n} MATCH{'S' if n > 1 else ''} · {date_label(target).upper()}",
-           font=font(30), fill=TEAL)
-    d.text((42, 282), "Les rencontres sont ici. Les scores sont dans les vidéos.",
-           font=font(26, False), fill=SUBTLE)
-    top = 357
-    for i, match in enumerate(rows):
-        col, row = i % 2, i // 2
-        x = 40 + col * 574
-        y = top + row * 220
-        d.rounded_rectangle((x, y, x + 542, y + 206), radius=24, fill=(17, 35, 55),
-                            outline=(36, 77, 87), width=2)
-        d.text((x + 22, y + 29), f"{i + 1:02d}", font=font(26), fill=TEAL, anchor="lm")
-        league = trim(d, match.get("league") or "Football", font(21, False), 418)
-        d.text((x + 88, y + 29), league, font=font(21, False), fill=SUBTLE, anchor="lm")
-        for j, (side, name_key) in enumerate((("home", "home_logo_url"), ("away", "away_logo_url"))):
-            yy = y + 57 + j * 69
-            team = str(match.get(side) or "")
-            draw_logo(image, d, match.get(name_key), x + 24, yy, team)
-            face = font(27)
-            d.text((x + 107, yy + 33), trim(d, team, face, 405), font=face,
-                   fill=WHITE, anchor="lm")
-        d.rounded_rectangle((x + 392, y + 161, x + 521, y + 194),
-                            radius=10, fill=(35, 74, 80))
-        d.text((x + 457, y + 178), "—  :  —", font=font(23), fill=TEAL, anchor="mm")
-    d.line((42, 1498, 1158, 1498), fill=(39, 96, 102), width=2)
-    d.text((600, 1537), "DÉCOUVRE LES SCORES SUR NOS RÉSEAUX SOCIAUX",
-           font=font(23), fill=WHITE, anchor="mm")
-    d.text((600, 1574), "Pronostics statistiques, jamais garantis · 18+ · Joue responsablement",
-           font=font(17, False), fill=SUBTLE, anchor="mm")
-    image_path.parent.mkdir(parents=True, exist_ok=True)
-    image.save(image_path, "PNG", optimize=True)
+def render(image_path: Path, manifest: dict, predictions: dict, *,
+           storyboard: dict, storyboard_path: Path, test=False) -> Path:
+    """Exact first frame of the social video, with score placeholders and centered layout."""
+    import hashlib
+    check_inputs(manifest, predictions)
+    if (not isinstance(storyboard, dict) or
+            storyboard.get("date_local_africa_lome") != manifest["target"] or
+            storyboard.get("selected_count") != manifest["count"] or
+            storyboard.get("ready_for_video") is not True or
+            storyboard.get("status") != "READY"):
+        raise ValueError("Storyboard de la video non conforme aux vrais matchs")
+    if (manifest.get("storyboard_sha256") !=
+            hashlib.sha256(storyboard_path.read_bytes()).hexdigest()):
+        raise ValueError("Le storyboard n'est pas celui du manifeste social")
+    rows = predictions["selected"]
+    clips = storyboard.get("clips")
+    if (not isinstance(clips, list) or len(clips) != len(rows) or
+            [str(c.get("match_id") or "") for c in clips] !=
+            [str(m.get("id") or "") for m in rows]):
+        raise ValueError("Matchs video et pronostics differents")
+    for match, clip in zip(rows, clips):
+        if (clip.get("headline") != f"{match['home']} - {match['away']}" or
+                clip.get("display_score") !=
+                (match.get("forecast") or {}).get("most_likely_score") or
+                clip.get("home_logo_url") != match.get("home_logo_url") or
+                clip.get("away_logo_url") != match.get("away_logo_url")):
+            raise ValueError("Donnees video et selection incompatibles")
+    sys.path.insert(0, str(ROOT / "dixon-coles"))
+    from dcscore.video_grid_neon import render_teaser_still
+    # The exact SAME cards, stadium, date and visual elements as video first frame.
+    # Archived social artifacts may be replayed ONLY for the test channel.
+    archived = date.fromisoformat(manifest["target"]) != datetime.now(LOME).date() + timedelta(days=1)
+    result = render_teaser_still(storyboard, image_path,
+                                 asset_root=str(ROOT / "dixon-coles"),
+                                 require_real_logos=True, archived=archived)
+    if result["count"] != manifest["count"] or result["scores_visible"]:
+        raise ValueError("Image Telegram non conforme au format de la video")
     return image_path
 
 
@@ -316,6 +307,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--manifest", type=Path, required=True)
     p.add_argument("--predictions", type=Path, required=True)
+    p.add_argument("--storyboard", type=Path, required=True)
     p.add_argument("--report", type=Path, required=True)
     p.add_argument("--image", type=Path, required=True)
     p.add_argument("--receipt", type=Path)
@@ -326,13 +318,15 @@ def main():
     args = p.parse_args()
     manifest = json.loads(args.manifest.read_text(encoding="utf8"))
     predictions = json.loads(args.predictions.read_text(encoding="utf8"))
+    storyboard = json.loads(args.storyboard.read_text(encoding="utf8"))
     report = json.loads(args.report.read_text(encoding="utf8"))
     rows = check_inputs(manifest, predictions)
     links = links_from_receipts(report, manifest)
     if not links:
         print("TEASER_SKIPPED no verified video permalink; no Telegram message")
         return 0
-    render(args.image, manifest, predictions, test=True)
+    render(args.image, manifest, predictions, storyboard=storyboard,
+           storyboard_path=args.storyboard, test=True)
     caption = make_caption(manifest, links, test=True)
     print("TEASER_READY", json.dumps({"target": manifest["target"], "matches": len(rows),
             "buttons": list(links), "image": str(args.image), "mode": args.mode}))
