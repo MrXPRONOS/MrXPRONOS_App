@@ -82,6 +82,28 @@ class TeaserTests(unittest.TestCase):
         caption = teaser.make_caption(m, {}, test=True)
         self.assertNotIn("2:1", caption)
 
+    def test_centering_uses_same_stadium_without_social_safe_zone(self):
+        from PIL import Image, ImageDraw
+        from dcscore import video_grid_neon as neon
+        frame = Image.new("RGBA", (neon.W, neon.H), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(frame)
+        draw.rectangle((23, 249, 699, 880), fill=(255, 20, 50, 255))
+        out = neon.centered_teaser_frame(frame)
+        self.assertEqual(out.size, (neon.W, neon.H))
+        # The visible coloured rectangle is horizontally centered instead of
+        # following ARTWORK_X/ARTWORK_SCALE (the social-video safe zone).
+        points = []
+        for y in range(neon.H):
+            for x in range(neon.W):
+                rr, gg, bb, aa = out.getpixel((x, y))
+                if rr > 240 and gg < 60 and bb < 90:
+                    points.append((x, y))
+        self.assertTrue(points)
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        self.assertLessEqual(abs((min(xs) + max(xs)) / 2 - neon.W / 2), 1)
+        self.assertLessEqual(abs((min(ys) + max(ys)) / 2 - neon.H / 2), 1)
+
     def test_refuse_mismatched_ids(self):
         m, p, _ = fixture()
         m["match_ids"] = ["m2", "m1"]
