@@ -25,19 +25,19 @@
     },
     "BTC": {
       "direction": "down",
-      "level": 0
+      "level": 5
     },
     "ETH": {
       "direction": "down",
-      "level": 0
+      "level": 5
     },
     "SOL": {
       "direction": "down",
-      "level": 5
+      "level": 10
     },
     "XRP": {
       "direction": "down",
-      "level": 0
+      "level": 5
     }
   },
   "alert_rearmed": {
