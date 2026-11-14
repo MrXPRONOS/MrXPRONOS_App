@@ -184,6 +184,22 @@ jobs:
             echo "::error::Verified Dixon-Coles score feed not published intact"
             exit 1
           fi
+          # Persist the verified public receipt on main as well. Deploys
+          # may overwrite gh-pages; the site builder retains this vetted copy.
+          MAIN_PATH="/repos/${GITHUB_REPOSITORY}/contents/dixon-scores-daily/${TARGET}.json"
+          MAIN_SHA="$(gh api "${MAIN_PATH}?ref=main" --jq '.sha' 2>/dev/null || true)"
+          MAIN_CONTENT="$(gh api -H "Accept: application/vnd.github.raw+json" "${MAIN_PATH}?ref=main" 2>/dev/null || true)"
+          if [ "$MAIN_CONTENT" != "$(cat "$PUBLIC_FILE")" ]; then
+            if [ -n "$MAIN_SHA" ]; then
+              gh api -X PUT "$MAIN_PATH" -f branch=main -f sha="$MAIN_SHA" \
+                -f message="data(dixon): retain published video scores ${TARGET}" \
+                -f content="$CONTENT" >/dev/null
+            else
+              gh api -X PUT "$MAIN_PATH" -f branch=main \
+                -f message="data(dixon): retain published video scores ${TARGET}" \
+                -f content="$CONTENT" >/dev/null
+            fi
+          fi
           echo "DIXON_COLES_VIDEO_SCORES_PAGES_CONFIRMED $TARGET"
           echo "- Site Scores exacts : ${TARGET} · ${{ steps.target.outputs.count }} sélections vérifiées" >> "$GITHUB_STEP_SUMMARY"
       - name: Notify opted-in users about new exact scores
