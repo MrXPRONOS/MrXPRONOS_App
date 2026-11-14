@@ -846,17 +846,3 @@ html body.mx-scores-page .mx-scores-mock-top {
     padding-top: 0 !important;
   }
 }
-
-/* V6: Remove legacy 76px header reservation on scores page. */
-html body.mx-pronos-page.mx-scores-page {
-  --header-offset:0px;
-  padding-top:0!important;
-  margin-top:0!important;
-}
-html body.mx-scores-page > main.mx-scores-main {
-  margin-top:0!important;
-  padding-top:0!important;
-}
-html body.mx-scores-page .mx-scores-mock-top {
-  padding-top:0!important;
-}
