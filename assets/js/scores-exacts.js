@@ -177,7 +177,9 @@
     return root;
   }
 
-  let offset = 0;
+  // Open the appropriate day directly when a score-alert push is clicked.
+  let offset = new URLSearchParams(location.search).get("day")==="tomorrow" ? 1 :
+    new URLSearchParams(location.search).get("day")==="yesterday" ? -1 : 0;
   let serial = 0;
   let active = null;
   const buttons = [...document.querySelectorAll("[data-scores-day]")];
@@ -218,6 +220,11 @@
         formatDate(day) + ".", "unavailable");
     }
   }
+  buttons.forEach(btn => {
+    const chosen=Number(btn.dataset.scoresDay)===offset;
+    btn.classList.toggle("is-active",chosen);
+    btn.setAttribute("aria-pressed",String(chosen));
+  });
   buttons.forEach(btn => btn.addEventListener("click", () => {
     offset = Number(btn.dataset.scoresDay);
     buttons.forEach(b => {
