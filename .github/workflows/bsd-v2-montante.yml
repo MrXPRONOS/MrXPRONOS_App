@@ -62,6 +62,32 @@ jobs:
         run: |
           python -m compileall -q bsd/bsd_v2_montante.py bsd/bsd_v2_montante_nim.py bsd/test_bsd_v2_montante.py bsd/test_bsd_v2_montante_nim.py
           python -m unittest bsd.test_bsd_v2_montante bsd.test_bsd_v2_montante_nim -v
+      - name: Vérifier le contrat JSON réel de Nemotron après intégration
+        if: github.event_name == 'push'
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          from bsd.bsd_v2_montante_nim import nvidia_review, _validate_reviews
+          key=os.environ.get('NVIDIA_API_KEY','').strip()
+          if not key:
+              raise SystemExit('NIM_STRUCTURED_PROBE: secret manquant')
+          test_id='bsd:synthetic-test|OVER_15'
+          example=[{
+              'candidate_id':test_id,
+              'match':{'home':'Equipe Alpha (fictive)','away':'Equipe Beta (fictive)','competition':'Test synthétique','kickoff_utc':'2027-01-10T18:00:00+00:00'},
+              'market':{'selection_key':'OVER_15','label':'Plus de 1,5 but','observed_odds':1.31,'conservative_model_probability_percent':0.86*100,'implied_market_probability_percent':100/1.31},
+              'verified_historical_aggregates':{
+                  'home_last_8':{'matches':8,'wins':5,'draws':2,'losses':1,'avg_scored':1.8,'avg_conceded':0.9,'over_1_5':7,'over_2_5':5,'btts':5},
+                  'away_last_8':{'matches':8,'wins':4,'draws':1,'losses':3,'avg_scored':1.4,'avg_conceded':1.2,'over_1_5':6,'over_2_5':4,'btts':5},
+                  'head_to_head_last_5':{'matches':0,'scores_from_current_home_view':[]},
+                  'bsd_v2_model_audit':{'expected_goals_total':2.5},
+                  'missing_inputs':['verified_starting_lineups','verified_injuries','verified_suspensions','live_team_news']}}]
+          answer=nvidia_review(example, api_key=key, timeout=110)
+          result=_validate_reviews(answer, {test_id})[test_id]
+          print('NIM_STRUCTURED_PROBE: OK format valide, verdict=' + result['verdict'] + ', risk=' + result['risk_level'])
+          PY
       - name: Restaurer temporairement l'historique chiffré BSD
         if: github.event_name != 'pull_request'
         env:
