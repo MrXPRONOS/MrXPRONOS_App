@@ -203,12 +203,16 @@ jobs:
           obj=json.load(open(sys.argv[1],encoding="utf8"))
           print(json.dumps({"action":"publish","date":obj["date"],"video_sha256":obj["video_sha256"],"count":obj["count"]}))
           PY
-          HTTP_CODE="$(curl --silent --show-error --output _dixon_site_export/push-response.json --write-out '%{http_code}' \
+          HTTP_CODE="$(curl --silent --show-error --fail-with-body --output _dixon_site_export/push-response.json --write-out '%{http_code}' \
             --retry 12 --retry-delay 10 --retry-max-time 180 --retry-all-errors \
             -X POST "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/dixon-score-alerts" \
             -H "Authorization: Bearer $CRON_SECRET" \
             -H "Content-Type: application/json" \
-            --data-binary @_dixon_site_export/push-payload.json)"
+            --data-binary @_dixon_site_export/push-payload.json)" || {
+            echo "::warning::Notification non confirmée après les nouvelles tentatives."
+            test -f _dixon_site_export/push-response.json && cat _dixon_site_export/push-response.json || true
+            exit 1
+          }
           if [ "$HTTP_CODE" != "200" ]; then
             echo "::warning::Notification scores exacts non confirmée (HTTP $HTTP_CODE)"
             cat _dixon_site_export/push-response.json
