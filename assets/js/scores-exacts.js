@@ -10,9 +10,13 @@
   const dayLabel = document.getElementById("scores-date");
   if (!status || !list || !count || !stamp || !dayLabel) return;
 
-  const today = () => new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Lome", year: "numeric", month: "2-digit", day: "2-digit"
-  }).format(new Date());
+  const today = () => {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Lome", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date());
+    const fields = Object.fromEntries(parts.map(p => [p.type, p.value]));
+    return fields.year + "-" + fields.month + "-" + fields.day;
+  };
   const offsetDay = n => {
     const d = new Date(today() + "T12:00:00Z");
     d.setUTCDate(d.getUTCDate() + n);
