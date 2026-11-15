@@ -21,6 +21,27 @@ class FakeResponse:
 
 
 class VideoProcessingTest(unittest.TestCase):
+
+    def test_sdk_non_callable_model_dump_falls_back_to_official_plc(self):
+        did = "did:plc:abcdefgh2345"
+        malformed_sdk = SimpleNamespace(model_dump=None)
+        login = SimpleNamespace(did=did, did_doc=malformed_sdk)
+        repo = SimpleNamespace(describe_repo=Mock(return_value=SimpleNamespace(
+            did_doc=malformed_sdk)))
+        client = SimpleNamespace(com=SimpleNamespace(atproto=SimpleNamespace(repo=repo)))
+        session = Mock()
+        official = {"id": did, "service": [{"id": "#atproto_pds",
+                    "serviceEndpoint": "https://north.us-east.host.bsky.network"}]}
+        session.get.return_value = FakeResponse(payload=official)
+        resolved = resolve_did_document(client, login, session=session)
+        self.assertEqual(resolved, official)
+        self.assertEqual(pds_host(resolved), "north.us-east.host.bsky.network")
+        session.get.assert_called_once_with("https://plc.directory/" + did, timeout=20)
+
+    def test_non_callable_model_dump_yields_safe_validation_error(self):
+        with self.assertRaisesRegex(BlueskyVideoError, "non interpretable"):
+            pds_host(SimpleNamespace(model_dump=None))
+
     def test_new_sdk_session_without_did_doc_uses_official_plc(self):
         did="did:plc:abcdefgh2345"
         login=SimpleNamespace(did=did)  # current SDK ProfileViewDetailed has no did_doc
