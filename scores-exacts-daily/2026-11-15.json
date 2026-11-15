@@ -1,13 +1,135 @@
 {
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
-  "status": "unavailable",
+  "status": "published",
   "date": "2026-11-15",
-  "generated_at": "2026-11-14T18:19:56Z",
+  "generated_at": "2026-11-15T09:36:33Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
-  "simple": [],
-  "grouped": []
+  "simple": [
+    {
+      "id": "sportsapipro:4893161",
+      "league": "Ligue 1",
+      "home": "AS Pikine",
+      "away": "Us Ouakam",
+      "kickoff_utc": "2026-11-15T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.15358524
+    },
+    {
+      "id": "sportsapipro:4891259",
+      "league": "Division 2 - Regular Season",
+      "home": "Sportif de Korba",
+      "away": "JS Kairouan",
+      "kickoff_utc": "2026-11-15T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.14453225
+    },
+    {
+      "id": "sportsapipro:4893162",
+      "league": "Ligue 1",
+      "home": "Jaraaf",
+      "away": "Teungueth",
+      "kickoff_utc": "2026-11-15T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.14334187
+    },
+    {
+      "id": "sportsapipro:4893160",
+      "league": "Ligue 1",
+      "home": "ASC Linguère",
+      "away": "Casa Sport",
+      "kickoff_utc": "2026-11-15T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.14317902
+    },
+    {
+      "id": "sportsapipro:4825727",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Police",
+      "away": "Posta Rangers FC",
+      "kickoff_utc": "2026-11-15T10:45:00Z",
+      "score": "1:0",
+      "probability": 0.14035371
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4893161",
+      "league": "Ligue 1",
+      "home": "AS Pikine",
+      "away": "Us Ouakam",
+      "kickoff_utc": "2026-11-15T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.33369824,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4891264",
+      "league": "Division 2 - Regular Season",
+      "home": "EGS Gafsa",
+      "away": "Bouchamma",
+      "kickoff_utc": "2026-11-15T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.32980727,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4893162",
+      "league": "Ligue 1",
+      "home": "Jaraaf",
+      "away": "Teungueth",
+      "kickoff_utc": "2026-11-15T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.32332073,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4891279",
+      "league": "Botola 2",
+      "home": "Wydad Fes",
+      "away": "Chabab Khénifra",
+      "kickoff_utc": "2026-11-15T15:00:00Z",
+      "score": "1:0",
+      "probability": 0.32188375,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4891262",
+      "league": "Division 2 - Regular Season",
+      "home": "Us Ksour Essef",
+      "away": "Stade Gabèsien",
+      "kickoff_utc": "2026-11-15T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.32132593,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
 }

@@ -2,68 +2,68 @@
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
   "status": "published",
-  "date": "2026-11-14",
-  "generated_at": "2026-11-14T18:19:56Z",
+  "date": "2026-11-15",
+  "generated_at": "2026-11-15T09:36:33Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4731355",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Millonarios",
-      "away": "Alianza FC",
-      "kickoff_utc": "2026-11-14T20:30:00Z",
+      "id": "sportsapipro:4893161",
+      "league": "Ligue 1",
+      "home": "AS Pikine",
+      "away": "Us Ouakam",
+      "kickoff_utc": "2026-11-15T16:30:00Z",
       "score": "1:0",
-      "probability": 0.13158735
+      "probability": 0.15358524
     },
     {
-      "id": "sportsapipro:4731354",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Cucuta Deportivo",
-      "away": "Jaguares de Córdoba",
-      "kickoff_utc": "2026-11-14T20:30:00Z",
+      "id": "sportsapipro:4891259",
+      "league": "Division 2 - Regular Season",
+      "home": "Sportif de Korba",
+      "away": "JS Kairouan",
+      "kickoff_utc": "2026-11-15T13:30:00Z",
       "score": "1:0",
-      "probability": 0.13134488
+      "probability": 0.14453225
     },
     {
-      "id": "sportsapipro:4744230",
-      "league": "Liga Nacional - Apertura",
-      "home": "Club Xelaju",
-      "away": "Guastatoya",
-      "kickoff_utc": "2026-11-14T21:00:00Z",
+      "id": "sportsapipro:4893162",
+      "league": "Ligue 1",
+      "home": "Jaraaf",
+      "away": "Teungueth",
+      "kickoff_utc": "2026-11-15T17:00:00Z",
       "score": "1:0",
-      "probability": 0.13096618
+      "probability": 0.14334187
     },
     {
-      "id": "sportsapipro:4731357",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Águilas Doradas",
-      "away": "Independiente Medellin",
-      "kickoff_utc": "2026-11-14T20:30:00Z",
+      "id": "sportsapipro:4893160",
+      "league": "Ligue 1",
+      "home": "ASC Linguère",
+      "away": "Casa Sport",
+      "kickoff_utc": "2026-11-15T16:30:00Z",
       "score": "1:0",
-      "probability": 0.11814499
+      "probability": 0.14317902
     },
     {
-      "id": "sportsapipro:4886558",
-      "league": "Fares Lopes",
-      "home": "Icasa",
-      "away": "Quixadá-CE",
-      "kickoff_utc": "2026-11-14T20:00:00Z",
-      "score": "2:1",
-      "probability": 0.09544071
+      "id": "sportsapipro:4825727",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Police",
+      "away": "Posta Rangers FC",
+      "kickoff_utc": "2026-11-15T10:45:00Z",
+      "score": "1:0",
+      "probability": 0.14035371
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4731355",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Millonarios",
-      "away": "Alianza FC",
-      "kickoff_utc": "2026-11-14T20:30:00Z",
+      "id": "sportsapipro:4893161",
+      "league": "Ligue 1",
+      "home": "AS Pikine",
+      "away": "Us Ouakam",
+      "kickoff_utc": "2026-11-15T16:30:00Z",
       "score": "1:0",
-      "probability": 0.31532444,
+      "probability": 0.33369824,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -72,13 +72,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4731354",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Cucuta Deportivo",
-      "away": "Jaguares de Córdoba",
-      "kickoff_utc": "2026-11-14T20:30:00Z",
+      "id": "sportsapipro:4891264",
+      "league": "Division 2 - Regular Season",
+      "home": "EGS Gafsa",
+      "away": "Bouchamma",
+      "kickoff_utc": "2026-11-15T13:30:00Z",
       "score": "1:0",
-      "probability": 0.31206277,
+      "probability": 0.32980727,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -87,13 +87,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4744230",
-      "league": "Liga Nacional - Apertura",
-      "home": "Club Xelaju",
-      "away": "Guastatoya",
-      "kickoff_utc": "2026-11-14T21:00:00Z",
+      "id": "sportsapipro:4893162",
+      "league": "Ligue 1",
+      "home": "Jaraaf",
+      "away": "Teungueth",
+      "kickoff_utc": "2026-11-15T17:00:00Z",
       "score": "1:0",
-      "probability": 0.30960232,
+      "probability": 0.32332073,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -102,13 +102,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4731357",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Águilas Doradas",
-      "away": "Independiente Medellin",
-      "kickoff_utc": "2026-11-14T20:30:00Z",
+      "id": "sportsapipro:4891279",
+      "league": "Botola 2",
+      "home": "Wydad Fes",
+      "away": "Chabab Khénifra",
+      "kickoff_utc": "2026-11-15T15:00:00Z",
       "score": "1:0",
-      "probability": 0.30903642,
+      "probability": 0.32188375,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -117,13 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4886558",
-      "league": "Fares Lopes",
-      "home": "Icasa",
-      "away": "Quixadá-CE",
-      "kickoff_utc": "2026-11-14T20:00:00Z",
-      "score": "2:1",
-      "probability": 0.25835407,
+      "id": "sportsapipro:4891262",
+      "league": "Division 2 - Regular Season",
+      "home": "Us Ksour Essef",
+      "away": "Stade Gabèsien",
+      "kickoff_utc": "2026-11-15T13:30:00Z",
+      "score": "1:0",
+      "probability": 0.32132593,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
