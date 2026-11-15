@@ -5,11 +5,12 @@ import tempfile
 import unittest
 from pathlib import Path
 import yaml
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
 import post_shorts_video as social
+import d1_publication_ledger
 
 
 class ValidationSocialSafetyTests(unittest.TestCase):
@@ -41,6 +42,56 @@ class ValidationSocialSafetyTests(unittest.TestCase):
             self.assertEqual({p["platform"] for p in report},{"instagram","threads"})
             self.assertTrue(all("no provider upload" in p["message"] for p in report))
             self.assertTrue(all(p["ok"] is False for p in report))
+
+
+    def test_bluesky_auth_failure_never_claims_validation_receipt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder=Path(tmp)
+            movie=folder/"test.mp4"
+            movie.write_bytes(b"x"*150000)
+            ledger=Mock()
+            ledger.query.return_value={"results":[]}
+            with patch.object(social,"ROOT_DIR",folder), \
+                 patch.object(sys,"argv",[
+                     "post_shorts_video.py","--validation-ref","morning:2026-11-15",
+                     "--platforms","bluesky","--require-all","--video",str(movie)]), \
+                 patch.object(d1_publication_ledger,"D1Ledger",return_value=ledger), \
+                 patch.object(social,"preflight_bluesky_video",
+                              side_effect=TypeError("'NoneType' object is not callable")) as preflight, \
+                 patch.object(social,"post_bluesky_video") as post:
+                result=social.main()
+            self.assertEqual(result,1)
+            preflight.assert_called_once_with(movie)
+            ledger.claim.assert_not_called()
+            post.assert_not_called()
+            report=json.loads((folder/"social_post_results.json").read_text())
+            self.assertIn("Preflight Bluesky sans envoi",report[0]["message"])
+
+    def test_bluesky_preflight_passed_to_single_post_after_claim(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder=Path(tmp)
+            movie=folder/"test.mp4"
+            movie.write_bytes(b"x"*150000)
+            ledger=Mock()
+            ledger.query.side_effect=[{"results":[]},{"meta":{"changes":1}}]
+            ledger.claim.return_value=True
+            verified=object()
+            with patch.object(social,"ROOT_DIR",folder), \
+                 patch.object(sys,"argv",[
+                     "post_shorts_video.py","--validation-ref","morning:2026-11-15",
+                     "--platforms","bluesky","--require-all","--video",str(movie)]), \
+                 patch.object(d1_publication_ledger,"D1Ledger",return_value=ledger), \
+                 patch.object(social,"preflight_bluesky_video",return_value=verified), \
+                 patch.object(social,"post_bluesky_video",
+                              return_value=social.PublishResult("bluesky",True,"ok",{
+                                  "id":"at://did:plc:example/app.bsky.feed.post/abc"})) as post:
+                result=social.main()
+            self.assertEqual(result,0)
+            post.assert_called_once_with(movie,social.DEFAULT_CAPTION,
+                                         social.DEFAULT_TITLE,preflight=verified)
+            ledger.claim.assert_called_once_with(
+                "shorts_validation_social_bluesky","morning:2026-11-15",
+                "2026-11-15")
 
     def test_github_validation_workflow_is_valid_yaml_with_single_post_loop(self):
         path=ROOT/".github/workflows/shorts-coupons-production-validation.yml"

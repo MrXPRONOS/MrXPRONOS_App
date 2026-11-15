@@ -534,38 +534,49 @@ def post_youtube(video_path: Path, title: str, description: str) -> PublishResul
 # =====================================================
 # BLUESKY - native video in the same social publishing batch
 # =====================================================
-def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishResult:
-    platform = "bluesky"
+def preflight_bluesky_video(video_path: Path):
+    """Authenticate and resolve the DID/PDS before claiming any validation D1 row.
+
+    This stage never uploads a video or creates a Bluesky post. A failure here
+    must not reserve the per-platform receipt and block legitimate new clips.
+    """
     handle = (env("BLUESKY_HANDLE") or "").lstrip("@").lower()
     password = env("BLUESKY_APP_PASSWORD")
     if not all((handle, password)):
-        return PublishResult(platform, False, "Identifiants Bluesky absents")
-
+        raise ValueError("Identifiants Bluesky absents")
     size = video_path.stat().st_size
     if not 100_000 <= size <= 50_000_000 or video_path.suffix.lower() != ".mp4":
-        return PublishResult(platform, False, "Vidéo MP4 absente ou hors limites Bluesky (100 Ko à 50 Mo)")
+        raise ValueError("Vidéo MP4 absente ou hors limites Bluesky (100 Ko à 50 Mo)")
 
-    # Content hash guarantees a retry cannot upload the same MP4 twice in one day.
-    # Different validation clips from the same GitHub run get different keys.
+    from atproto import Client
+    from bluesky_video_processed import resolve_did_document, pds_host
+    client = Client()
+    login_result = client.login(handle, password)
+    document = resolve_did_document(client, login_result, session=requests.Session())
+    pds_host(document)
+    return handle, client, login_result, document
+
+
+def post_bluesky_video(video_path: Path, caption: str, title: str, *, preflight=None) -> PublishResult:
+    platform = "bluesky"
+    if preflight is None:
+        try:
+            preflight = preflight_bluesky_video(video_path)
+        except ValueError as e:
+            return PublishResult(platform, False, str(e))
+    handle, client, login_result, did_document = preflight
+
+    # A claim is made ONLY after authentication / DID and PDS checks. Once a
+    # service upload may have begun, an uncertain result must remain reserved.
     data = video_path.read_bytes()
     sha256 = hashlib.sha256(data).hexdigest()
     ref_date = datetime.now(timezone.utc).date().isoformat()
     ident = ("bsd_v2_bluesky_video", handle + ":sha256:" + sha256, ref_date)
 
-    from atproto import Client
-    from bluesky_video_processed import publish_processed_video, resolve_did_document, pds_host
+    from bluesky_video_processed import publish_processed_video
     from d1_publication_ledger import D1Ledger
-
-    client = Client()
-    login_result = client.login(handle, password)  # Verify auth BEFORE creating a dedup reservation.
-    # Preflight DID/PDS verification BEFORE claiming D1, so SDK changes or
-    # malformed DID documents never leave a spurious uncertain upload claim.
-    did_document = resolve_did_document(client, login_result, session=requests.Session())
-    pds_host(did_document)
     ledger = D1Ledger()
     if not ledger.claim(*ident):
-        # The existing claim could represent a prior successful upload OR an
-        # ambiguous timeout: do not claim unverified publication success.
         return PublishResult(platform, False,
                              "Vidéo déjà réservée sur Bluesky (anti-doublon). Vérifier le post précédent.",
                              {"status": "already_claimed"})
@@ -583,8 +594,6 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
         if not uri.startswith("at://"):
             raise RuntimeError("Réponse Bluesky sans URI de publication")
     except Exception:
-        # Keep reservation after an ambiguous network/upload failure: never
-        # automatically send a second video that might already exist.
         if not upload_started:
             ledger.release(*ident)
         raise
@@ -718,10 +727,22 @@ def main() -> int:
                         return PublishResult(platform, True, "Publication deja confirmee dans D1", receipt)
                 return PublishResult(platform, False,
                     "Envoi reserve ou recu incomplet; verification manuelle requise pour eviter un doublon")
+            bluesky_preflight = None
+            if platform == "bluesky":
+                # The SDK login/DID preflight is read-only w.r.t. publication.
+                # Do it before the OUTER validation receipt claim as well as
+                # before the inner hash claim in post_bluesky_video().
+                try:
+                    bluesky_preflight = preflight_bluesky_video(video_path)
+                except Exception as e:
+                    return PublishResult(platform, False,
+                        "Preflight Bluesky sans envoi: " + type(e).__name__)
             if not ledger.claim(kind, ref, day):
                 return PublishResult(platform, False, "Reservation D1 concurrente; aucun nouvel envoi")
             try:
-                result = dispatch[platform]()
+                result = (post_bluesky_video(video_path, caption, title,
+                                            preflight=bluesky_preflight)
+                          if platform == "bluesky" else dispatch[platform]())
             except Exception as e:
                 # The external action may have happened before its response failed.
                 return PublishResult(platform, False, f"Envoi incertain: {type(e).__name__}")
