@@ -23,9 +23,13 @@ class BlueskyVideoError(RuntimeError):
 
 
 def pds_host(did_doc):
-    """Resolve the server audience from the account's DID document."""
-    if hasattr(did_doc, "model_dump"):
-        did_doc = did_doc.model_dump(by_alias=True)
+    """Resolve the server audience from a normalized DID document."""
+    if not isinstance(did_doc, dict):
+        model_dump = getattr(did_doc, "model_dump", None)
+        # Some SDK result objects expose model_dump=None. Never call it.
+        if not callable(model_dump):
+            raise BlueskyVideoError("Document DID Bluesky non interpretable")
+        did_doc = model_dump(by_alias=True)
     if not isinstance(did_doc, dict):
         raise BlueskyVideoError("Document DID Bluesky indisponible")
     for entry in did_doc.get("service") or []:
@@ -41,6 +45,34 @@ def pds_host(did_doc):
 
 
 
+def normalized_did_document(candidate, expected_did):
+    """Accept a trusted DID doc only if its shape and PDS are usable.
+
+    SDK dynamically generated attributes may be present but non-callable
+    (notably model_dump=None). In that case the official PLC fallback is
+    safer than trying to use an incomplete SDK result.
+    """
+    if candidate is None:
+        return None
+    if not isinstance(candidate, dict):
+        model_dump = getattr(candidate, "model_dump", None)
+        if not callable(model_dump):
+            return None
+        try:
+            candidate = model_dump(by_alias=True)
+        except (TypeError, ValueError, AttributeError):
+            return None
+    if not isinstance(candidate, dict):
+        return None
+    if candidate.get("id") and candidate["id"] != expected_did:
+        return None
+    try:
+        pds_host(candidate)
+    except (BlueskyVideoError, ValueError):
+        return None
+    return candidate
+
+
 def resolve_did_document(client, login_result, *, session):
     """Read the PDS service without relying on removed SDK did_doc fields.
 
@@ -52,12 +84,12 @@ def resolve_did_document(client, login_result, *, session):
     did = str(getattr(login_result, "did", "") or "")
     if not did.startswith("did:"):
         raise BlueskyVideoError("Identité DID Bluesky absente")
-    document = getattr(login_result, "did_doc", None)
+    document = normalized_did_document(getattr(login_result, "did_doc", None), did)
     if document:
         return document
     try:
         described = client.com.atproto.repo.describe_repo({"repo": did})
-        document = getattr(described, "did_doc", None)
+        document = normalized_did_document(getattr(described, "did_doc", None), did)
         if document:
             return document
     except Exception:
@@ -72,7 +104,10 @@ def resolve_did_document(client, login_result, *, session):
         raise BlueskyVideoError("Résolution officielle DID PLC indisponible; aucun envoi") from exc
     if not isinstance(document, dict) or document.get("id") != did:
         raise BlueskyVideoError("Document DID PLC non concordant; aucun envoi")
-    return document
+    verified = normalized_did_document(document, did)
+    if verified is None:
+        raise BlueskyVideoError("Document DID PLC sans PDS valide; aucun envoi")
+    return verified
 
 def job_details(payload):
     """Upload returns either JobStatus directly or an envelope; polling wraps it."""
