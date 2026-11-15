@@ -47,10 +47,22 @@ def audit(handle, password):
         did_doc = call_stage("resolve_DID", lambda: resolve_did_document(
             client, login_result, session=Session()
         ))
-        call_stage("validate_PDS", lambda: pds_host(did_doc))
+        host = call_stage("validate_PDS", lambda: pds_host(did_doc))
+        # Requesting an auth assertion is read-only: no video upload, no post.
+        import time
+        authorization = call_stage("service_auth_token", lambda:
+            client.com.atproto.server.get_service_auth({
+                "aud": "did:web:" + host,
+                "lxm": "com.atproto.repo.uploadBlob",
+                "exp": int(time.time()) + 1800,
+            })
+        )
+        if not getattr(authorization, "token", None):
+            print("BLUESKY_DIAG_FAIL stage=service_auth_token type=MissingToken", flush=True)
+            return 7
     except Exception:
         return 6
-    print("BLUESKY_DIAG_PREFLIGHT_OK (no upload, no post, no D1 write)", flush=True)
+    print("BLUESKY_DIAG_AUTH_OK (no upload, no post, no D1 write)", flush=True)
     return 0
 
 
