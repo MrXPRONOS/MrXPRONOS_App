@@ -1,0 +1,64 @@
+name: Shorts Validation - Telegram 504 Read-Only Audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/shorts-telegram-504-audit.yml'
+      - 'scripts/audit_telegram_validation_20261114.py'
+      - 'tests/test_short_validation_telegram_audit.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/shorts-telegram-504-audit.yml'
+      - 'scripts/audit_telegram_validation_20261114.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorts-validation-telegram-504-readonly-audit
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline audit safety tests without any credentials
+        run: |
+          python -m py_compile scripts/audit_telegram_validation_20261114.py tests/test_short_validation_telegram_audit.py
+          python -m unittest -v tests.test_short_validation_telegram_audit
+  audit:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      VALIDATION_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install read-only Telegram client
+        run: python -m pip install --disable-pip-version-check 'telethon>=1.36,<2'
+      - name: Verify audit syntax and offline matching
+        run: |
+          python -m py_compile scripts/audit_telegram_validation_20261114.py tests/test_short_validation_telegram_audit.py
+          python -m unittest -v tests.test_short_validation_telegram_audit
+      - name: Inspect destination Telegram channel without changing anything
+        run: python scripts/audit_telegram_validation_20261114.py
