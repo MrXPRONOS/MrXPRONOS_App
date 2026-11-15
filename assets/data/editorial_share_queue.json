@@ -1,5 +1,510 @@
 [
   {
+    "id": "9d7db4774ebc8d1bdc87c3c9",
+    "kind": "article",
+    "title": "Estonia vs Bulgaria : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-212723/",
+    "source_date": "2026-11-14T17:19:51.196494+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-212723-69266276-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-212723-69266276-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-212723-69266276-social.jpg"
+  },
+  {
+    "id": "05bda27085de0204fa3c2225",
+    "kind": "news",
+    "title": "\"Lens n'arrivait pas à répondre\", Lucas Da Cunha revient sur la gifle 9-1 avec Côme",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lens-narrivait-pas-a-repondre-lucas-da-cunha-revient-sur-la-gifle-9-1-avec-come-1009026",
+    "source_date": "2026-11-14T22:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "64301c186adb7e6d72251d84",
+    "kind": "news",
+    "title": "Medhi Benatia revient sur sa relation avec Adrien Rabiot",
+    "url": "https://www.footmercato.net/a5585606918696392131-medhi-benatia-revient-sur-sa-relation-avec-adrien-rabiot",
+    "source_date": "2026-11-14T22:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "522ec245b8877cf90e38d544",
+    "kind": "news",
+    "title": "Portugal : Jorge Jesus furieux après la défaite",
+    "url": "https://www.footmercato.net/a4112841216912966378-portugal-jorge-jesus-furieux-apres-la-defaite",
+    "source_date": "2026-11-14T22:19:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "62caa5b8115cf13baf1a3e70",
+    "kind": "news",
+    "title": "« Personne ne peut oublier ses 23 années » : Jorge Jesus soutient l’hommage à CR7",
+    "url": "https://www.footmercato.net/a4643128349447448177-personne-ne-peut-oublier-ses-23-annees-jorge-jesus-soutient-lhommage-a-cr7",
+    "source_date": "2026-11-14T22:17:28+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ed60f5a265a954776894114d",
+    "kind": "news",
+    "title": "EdF : Cherki, Zidane persiste et signe",
+    "url": "https://www.maxifoot.fr/france/cherki-zidane-persiste-et-signe-foot-467703.htm",
+    "source_date": "2026-11-14T22:01:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b0a73e2425c954b514dbda6c",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: l'Algérie se fait peur mais l'emporte contre le Togo",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261114-%C3%A9liminatoires-can-2027-l-alg%C3%A9rie-se-fait-peur-mais-l-emporte-contre-le-togo",
+    "source_date": "2026-11-14T21:18:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8f26fe9e907f42723bf72dcc",
+    "kind": "news",
+    "title": "Qualifs CAN 2027 : L'Algérie s'impose d'une courte tête face au Togo (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-qualifs-can-2027-l-algerie-s-impose-d-une-courte-tete-face-au-togo-resume-545803.html",
+    "source_date": "2026-11-14T21:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6e662830425f456c5b12f6e1",
+    "kind": "news",
+    "title": "L'Algérie bat le Togo grâce à Bensebaini et conforte sa première place des éliminatoires pour la CAN 2027",
+    "url": "https://www.onzemondial.com/can/lalgerie-bat-le-togo-grace-a-bensebaini-et-conforte-sa-premiere-place-des-eliminatoires-pour-la-can-2027-1009029",
+    "source_date": "2026-11-14T21:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "aed0f40cbf027500bc7e5cc1",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : l'Algérie s'impose de peu contre le Togo et conforte sa première place",
+    "url": "https://www.france24.com/fr/sports/20261114-%C3%A9liminatoires-de-la-can-2027-l-alg%C3%A9rie-cale-contre-le-togo-mais-reste-en-t%C3%AAte-de-son-groupe",
+    "source_date": "2026-11-14T20:58:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f5b29fcff80258cb1a88fb54",
+    "kind": "news",
+    "title": "Qualifications CAN 2027 : l’Algérie s’impose dans la douleur face au Togo et conforte sa première place",
+    "url": "https://www.footmercato.net/a8750941422328460738-qualifications-can-2027-lalgerie-simpose-dans-la-douleur-face-au-togo-et-conforte-sa-premiere-place",
+    "source_date": "2026-11-14T20:57:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ee0fecf42315fab75172e774",
+    "kind": "news",
+    "title": "CAN 2027 : Bensebaini fait gagner l'Algérie",
+    "url": "https://www.maxifoot.fr/can-2027/bensebaini-fait-gagner-l-algerie-foot-467707.htm",
+    "source_date": "2026-11-14T20:55:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7ba9b02a3d89f7b8e29a8301",
+    "kind": "news",
+    "title": "Équipe de France : premier couac pour Zidane !",
+    "url": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261114-%C3%A9quipe-france-premier-couac-pour-zidane",
+    "source_date": "2026-11-14T12:59:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b5eadf1994afb9de247a337c",
+    "kind": "news",
+    "title": "Les Bleus battent les Springboks à Paris pour la première fois depuis 21 ans",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261114-bleus-battent-springboks-paris-pour-premi%C3%A8re-fois-depuis-21-ans",
+    "source_date": "2026-11-14T10:27:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3c3917388d868c73e0261aa3",
+    "kind": "news",
+    "title": "Arkema (F) : le PSG remporte le Classique contre l’OM",
+    "url": "https://www.footmercato.net/a3867755568245931567-arkema-f-le-psg-remporte-le-classique-contre-lom",
+    "source_date": "2026-11-14T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cea1c472c0349639b4d33ae4",
+    "kind": "news",
+    "title": "Turquie : Berke Özer : \"On va tout faire pour arrêter Kylian Mbappé et Michael Olise\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-turquie-berke-ozer-on-va-tout-faire-pour-arreter-kylian-mbappe-et-michael-olise-545815.html",
+    "source_date": "2026-11-14T22:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ffe78aeef6b7dad81cbd5e9b",
+    "kind": "news",
+    "title": "Girondins : Zinédine Zidane espère revoir les Girondins de Bordeaux \"tout en haut\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-girondins-zinedine-zidane-espere-revoir-les-girondins-de-bordeaux-tout-en-haut-545808.html",
+    "source_date": "2026-11-14T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "baa0f875e0e00ebba8265cc9",
+    "kind": "news",
+    "title": "Équipe de France : Désiré Doué bien présent à l'entraînement... avec un protège-dent !",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-desire-doue-bien-present-a-lentrainement-avec-un-protege-dent-1009037",
+    "source_date": "2026-11-14T22:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "226ea743304e1eca454ef91f",
+    "kind": "news",
+    "title": "Equipe de France : Lucas Da Cunha : \"Kylian Mbappé a une grande faim\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-lucas-da-cunha-kylian-mbappe-a-une-grande-faim-545809.html",
+    "source_date": "2026-11-14T22:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "130c15c4a08d889559862112",
+    "kind": "news",
+    "title": "Ligue des Nations : Un sérieux concurrent à la France se positionne pour l'organisation du prochain Final Four de la Ligue des Nations",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-des-nations-un-serieux-concurrent-a-la-france-se-positionne-pour-l-organisation-du-prochain-final-four-de-la-ligue-des-nations-545814.html",
+    "source_date": "2026-11-14T22:07:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "54505c001b7aaccce7162a69",
+    "kind": "news",
+    "title": "Ligue des Nations : Le Portugal se fait humilier par le Danemark pour le premier match de l'après CR7, l'Autriche et la Suède montent en Ligue A : le récap' de la soirée",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-des-nations-le-portugal-se-fait-humilier-par-le-danemark-pour-le-premier-match-de-l-apres-cr7-l-autriche-et-la-suede-montent-en-ligue-a-le-recap-de-la-soiree-545806.html",
+    "source_date": "2026-11-14T22:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a44bae343c05d38f2b0a9469",
+    "kind": "news",
+    "title": "PSG : « Vous ne trouverez pas quelqu’un de meilleur que lui », la scène géniale entre Kvaratskhelia et Hakimi",
+    "url": "https://www.onzemondial.com/ligue-1/psg-vous-ne-trouverez-pas-quelquun-de-meilleur-que-lui-la-scene-geniale-entre-kvaratskhelia-et-hakimi-1009014",
+    "source_date": "2026-11-14T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e14cef5d712a2e90a4406a6c",
+    "kind": "news",
+    "title": "Liga : la presse catalane dénonce un arbitrage largement favorable au Real Madrid",
+    "url": "https://www.footmercato.net/a5201267446288098216-liga-la-presse-catalane-denonce-un-arbitrage-largement-favorable-au-real-madrid",
+    "source_date": "2026-11-14T21:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ce3c8fd49db7d176113099ca",
+    "kind": "news",
+    "title": "Comment la Chine fait-elle plier les grandes marques ?",
+    "url": "https://www.franceinfo.fr/replay-jt/france-2/20-heures/comment-la-chine-fait-elle-plier-les-grandes-marques_8282879.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-14T21:53:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-15T05:42:18.938386+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "86a9db1f0e4cc4091830ea5f",
     "kind": "article",
     "title": "Real Club Deportivo de A Coruña vs Fútbol Club Barcelona : analyse du match",
@@ -104,7 +609,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f3377cb1def022ba475c7f98",
@@ -125,7 +630,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aaa56dae645eb60d839273f3",
@@ -146,7 +651,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c7a2a1720b069bba56631d4",
@@ -167,7 +672,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "45b683e7809b820ef003d828",
@@ -188,7 +693,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "112363e19346c3937a2f90e1",
@@ -209,7 +714,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "acd6414031e1b3ebf65de255",
@@ -335,7 +840,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8aa1de22ae2f2cd07a4c0937",
@@ -356,7 +861,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "317f1ed44b8544c76b120b63",
@@ -377,7 +882,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "77a0b2ca86c6ef9182e47cc2",
@@ -398,7 +903,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e7f469007d6629664c055fea",
@@ -419,7 +924,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e913cfbd56a02b07f21be392",
@@ -440,7 +945,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2e8bbcc7b48929c1119bd954",
@@ -461,7 +966,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "189a6311fbac24d2e4172e4f",
@@ -650,7 +1155,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "57b9604d5559b6a8d9e7db07",
@@ -734,7 +1239,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f227f7753613ac781094be08",
@@ -797,7 +1302,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b3b6625242db08211fc0cf32",
@@ -818,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "05b5830569778df00894eebb",
@@ -839,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1b9afe90d52cbffee0866078",
@@ -860,7 +1365,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d254a83f5dea09abd798e1fc",
@@ -881,7 +1386,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0f21bb8f2840cc386a317e44",
@@ -902,7 +1407,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fae03f8d8d874aa3f40b13c4",
@@ -923,7 +1428,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "50ac8e9416d06c8b326322cd",
@@ -986,7 +1491,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c7befa3e8a1c65d6990fbba2",
