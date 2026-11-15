@@ -7,18 +7,17 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 31,
+          "matching_pairs": 6,
           "patterns": [
-            "photo_caption_video",
             "photo_text_video",
             "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            408,
-            414,
-            436
+            66107,
+            66118,
+            66125
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -27,10 +26,10 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "Animé World VF/Vostfr",
+          "title": "ANIMES VF/VOSTFR",
           "transfer_restricted": false,
-          "url": "https://t.me/AnimeWvostfr",
-          "username": "AnimeWvostfr",
+          "url": "https://t.me/ANIMES_VF_VOSFR",
+          "username": "ANIMES_VF_VOSFR",
           "verification_method": "public_message_structure"
         },
         {
@@ -38,17 +37,17 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 5,
+          "matching_pairs": 3,
           "patterns": [
             "photo_caption_video",
-            "photo_text_video"
+            "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            535,
-            539,
-            560
+            14927,
+            14932,
+            14859
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -57,10 +56,40 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "🌀🌀",
+          "title": "MANGAS TV VF 🇫🇷",
           "transfer_restricted": false,
-          "url": "https://t.me/Anime_VOSTFR",
-          "username": "Anime_VOSTFR",
+          "url": "https://t.me/MANGAS_ANIME_EN_FRANCAIS",
+          "username": "MANGAS_ANIME_EN_FRANCAIS",
+          "verification_method": "public_message_structure"
+        },
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 12,
+          "patterns": [
+            "photo_caption_video",
+            "standalone_mkv"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            16689,
+            16703,
+            16718
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "ANIME SAMA VF",
+          "transfer_restricted": false,
+          "url": "https://t.me/ANIME_SAMA_VF_HD",
+          "username": "ANIME_SAMA_VF_HD",
           "verification_method": "public_message_structure"
         }
       ],
@@ -68,12 +97,12 @@
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 14,
+        "next_candidate_offset": 3,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 2
+        "strict_rejected": 1
       }
     },
     "comedie": {
@@ -82,7 +111,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 8,
-        "next_candidate_offset": 2,
+        "next_candidate_offset": 6,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -97,74 +126,16 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 7,
-          "patterns": [
-            "photo_caption_video"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 3,
-          "sample_post_ids": [
-            6,
-            9,
-            13
-          ],
-          "sampled_messages": 42,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "FILM EROTIQUE😍",
-          "transfer_restricted": false,
-          "url": "https://t.me/Paff_Erotique",
-          "username": "Paff_Erotique",
-          "verification_method": "public_message_structure"
-        },
-        {
-          "category": "desir",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 4,
-          "patterns": [
-            "photo_caption_video"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 1,
-          "sample_post_ids": [
-            676,
-            695,
-            758
-          ],
-          "sampled_messages": 23,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "ÉROTIQUE",
-          "transfer_restricted": false,
-          "url": "https://t.me/Filmromatique",
-          "username": "Filmromatique",
-          "verification_method": "public_message_structure"
-        },
-        {
-          "category": "desir",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 13,
+          "matching_pairs": 12,
           "patterns": [
             "photo_caption_video"
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            45,
-            48,
-            51
+            9108,
+            9110,
+            9112
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -173,10 +144,39 @@
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "Films Romantiques",
+          "title": "💞 MOVIE and SÉRIES _ ROMANTIQUES",
           "transfer_restricted": false,
-          "url": "https://t.me/cineromances",
-          "username": "cineromances",
+          "url": "https://t.me/filmsromantiques",
+          "username": "filmsromantiques",
+          "verification_method": "public_message_structure"
+        },
+        {
+          "category": "desir",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 8,
+          "patterns": [
+            "photo_caption_video"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            258,
+            260,
+            262
+          ],
+          "sampled_messages": 21,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "💖💖FILMS ROMANTIQUES💖💖",
+          "transfer_restricted": false,
+          "url": "https://t.me/filmsromatique",
+          "username": "filmsromatique",
           "verification_method": "public_message_structure"
         }
       ],
@@ -184,26 +184,57 @@
         "attempted": 4,
         "checked": 4,
         "found": 14,
-        "next_candidate_offset": 1,
+        "next_candidate_offset": 5,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
         "rate_limited": false,
-        "strict_rejected": 1
+        "strict_rejected": 2
       }
     },
     "films": {
-      "channels": [],
+      "channels": [
+        {
+          "category": "films",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 3,
+          "patterns": [
+            "photo_caption_video",
+            "standalone_mkv"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            7,
+            3,
+            6
+          ],
+          "sampled_messages": 17,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "Film complet en français",
+          "transfer_restricted": false,
+          "url": "https://t.me/film_complet_vf",
+          "username": "film_complet_vf",
+          "verification_method": "public_message_structure"
+        }
+      ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 7,
+        "next_candidate_offset": 11,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 4
+        "strict_rejected": 3
       }
     },
     "series": {
@@ -219,48 +250,21 @@
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
-          "sample_post_ids": [],
-          "sampled_messages": 9,
+          "sample_post_ids": [
+            6
+          ],
+          "sampled_messages": 7,
           "source_status": "pending_review",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 70,
             "min_video_minutes": 20
           },
-          "title": "𝗦𝗘́𝗥𝗜𝗘𝗦 𝗧𝗩 𝗩𝗙 🇨🇵",
+          "title": "SÉRIE & FILM VF_🇲🇫",
           "transfer_restricted": false,
-          "url": "https://t.me/series_tv_vf_fr",
-          "username": "series_tv_vf_fr",
+          "url": "https://t.me/SERIE_TV_VF",
+          "username": "SERIE_TV_VF",
           "verification_method": "strict_caption_video"
-        },
-        {
-          "category": "series",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 22,
-          "patterns": [
-            "photo_caption_video"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 18,
-          "sample_post_ids": [
-            303,
-            308,
-            311
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 70,
-            "min_video_minutes": 20
-          },
-          "title": "Séries et Films TV. VF🇫🇷",
-          "transfer_restricted": false,
-          "url": "https://t.me/Film_et_serie_TV",
-          "username": "Film_et_serie_TV",
-          "verification_method": "public_message_structure"
         },
         {
           "category": "series",
@@ -269,22 +273,24 @@
           "joined_by_tool": false,
           "matching_pairs": 1,
           "patterns": [
-            "photo_caption_video"
+            "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
-          "sample_post_ids": [],
-          "sampled_messages": 43,
+          "sample_post_ids": [
+            14
+          ],
+          "sampled_messages": 55,
           "source_status": "pending_review",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 70,
             "min_video_minutes": 20
           },
-          "title": "🎬𝐒𝐞́𝐫𝐢𝐞 𝐓𝐕 𝐕𝐅🇨🇵 𝐍𝐨𝐥𝐥𝐲𝐰𝐨𝐨𝐝",
+          "title": "Séries Tv vf",
           "transfer_restricted": false,
-          "url": "https://t.me/vfnolly",
-          "username": "vfnolly",
+          "url": "https://t.me/Series_tv_vf",
+          "username": "Series_tv_vf",
           "verification_method": "strict_caption_video"
         }
       ],
@@ -292,12 +298,12 @@
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 5,
+        "next_candidate_offset": 9,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 3
+        "strict_rejected": 4
       }
     }
   },
@@ -354,13 +360,13 @@
     "vfnolly",
     "voir_drama_tv"
   ],
-  "last_notification_day": "2026-11-14",
-  "last_scan": "2026-11-14T14:33:31.950638+00:00",
+  "last_notification_day": "2026-11-15",
+  "last_scan": "2026-11-15T15:03:30.729720+00:00",
   "offsets": {
-    "anime": 14,
-    "comedie": 2,
-    "desir": 1,
-    "films": 7,
-    "series": 5
+    "anime": 3,
+    "comedie": 6,
+    "desir": 5,
+    "films": 11,
+    "series": 9
   }
 }
