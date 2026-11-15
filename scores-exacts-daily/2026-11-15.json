@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-15",
-  "generated_at": "2026-11-15T09:36:33Z",
+  "generated_at": "2026-11-15T12:50:21Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -46,13 +46,13 @@
       "probability": 0.14317902
     },
     {
-      "id": "sportsapipro:4825727",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Police",
-      "away": "Posta Rangers FC",
-      "kickoff_utc": "2026-11-15T10:45:00Z",
+      "id": "sportsapipro:4893703",
+      "league": "Primera B - Quadrangular",
+      "home": "Envigado FC",
+      "away": "Union Magdalena",
+      "kickoff_utc": "2026-11-15T20:50:00Z",
       "score": "1:0",
-      "probability": 0.14035371
+      "probability": 0.13803455
     }
   ],
   "grouped": [
