@@ -1,0 +1,51 @@
+name: Bluesky - Read-only Connection Diagnostic
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/bluesky-readonly-diagnostic.yml'
+      - 'scripts/bluesky_readonly_diagnostic.py'
+      - 'tests/test_bluesky_readonly_diagnostic.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bluesky-readonly-diagnostic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bluesky-readonly-diagnostic
+  cancel-in-progress: false
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check diagnostic safety without credentials
+        run: |
+          python -m py_compile scripts/bluesky_readonly_diagnostic.py tests/test_bluesky_readonly_diagnostic.py
+          python -m unittest -v tests.test_bluesky_readonly_diagnostic
+  preflight:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exactly production Bluesky SDK
+        run: python -m pip install --disable-pip-version-check atproto==0.0.73 requests
+      - name: Diagnose SDK, login, and DID without publishing
+        run: python scripts/bluesky_readonly_diagnostic.py
