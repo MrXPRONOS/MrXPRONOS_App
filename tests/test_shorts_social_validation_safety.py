@@ -6,11 +6,11 @@ import unittest
 from pathlib import Path
 import yaml
 from unittest.mock import patch, Mock
-import d1_publication_ledger
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
 import post_shorts_video as social
+import d1_publication_ledger
 
 
 class ValidationSocialSafetyTests(unittest.TestCase):
@@ -51,13 +51,13 @@ class ValidationSocialSafetyTests(unittest.TestCase):
             movie.write_bytes(b"x"*150000)
             ledger=Mock()
             ledger.query.return_value={"results":[]}
-            with patch.object(social,"ROOT_DIR",folder), \\
+            with patch.object(social,"ROOT_DIR",folder), \
                  patch.object(sys,"argv",[
                      "post_shorts_video.py","--validation-ref","morning:2026-11-15",
-                     "--platforms","bluesky","--require-all","--video",str(movie)]), \\
-                 patch.object(d1_publication_ledger,"D1Ledger",return_value=ledger), \\
+                     "--platforms","bluesky","--require-all","--video",str(movie)]), \
+                 patch.object(d1_publication_ledger,"D1Ledger",return_value=ledger), \
                  patch.object(social,"preflight_bluesky_video",
-                              side_effect=TypeError("'NoneType' object is not callable")) as preflight, \\
+                              side_effect=TypeError("'NoneType' object is not callable")) as preflight, \
                  patch.object(social,"post_bluesky_video") as post:
                 result=social.main()
             self.assertEqual(result,1)
@@ -76,12 +76,12 @@ class ValidationSocialSafetyTests(unittest.TestCase):
             ledger.query.side_effect=[{"results":[]},{"meta":{"changes":1}}]
             ledger.claim.return_value=True
             verified=object()
-            with patch.object(social,"ROOT_DIR",folder), \\
+            with patch.object(social,"ROOT_DIR",folder), \
                  patch.object(sys,"argv",[
                      "post_shorts_video.py","--validation-ref","morning:2026-11-15",
-                     "--platforms","bluesky","--require-all","--video",str(movie)]), \\
-                 patch.object(d1_publication_ledger,"D1Ledger",return_value=ledger), \\
-                 patch.object(social,"preflight_bluesky_video",return_value=verified), \\
+                     "--platforms","bluesky","--require-all","--video",str(movie)]), \
+                 patch.object(d1_publication_ledger,"D1Ledger",return_value=ledger), \
+                 patch.object(social,"preflight_bluesky_video",return_value=verified), \
                  patch.object(social,"post_bluesky_video",
                               return_value=social.PublishResult("bluesky",True,"ok",{
                                   "id":"at://did:plc:example/app.bsky.feed.post/abc"})) as post:
