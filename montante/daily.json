@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-14",
+  "date": "2026-11-15",
   "status": "no_pick",
   "selection": null,
   "reason": "no_qualified_real_quote",
@@ -8,9 +8,8 @@
   "rejections": {
     "non_bsd_or_combo_or_finished": 54,
     "match_started": 60,
-    "wrong_day_or_too_late": 9,
-    "weak_conservative_probability": 1,
-    "unverified_or_low_odds": 1
+    "wrong_day_or_too_late": 7,
+    "unverified_or_low_odds": 4
   },
   "eligible_count": 0,
   "nim": {
