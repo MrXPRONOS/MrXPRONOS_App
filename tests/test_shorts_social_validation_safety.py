@@ -44,6 +44,29 @@ class ValidationSocialSafetyTests(unittest.TestCase):
             self.assertTrue(all(p["ok"] is False for p in report))
 
 
+
+    def test_unverified_bluesky_email_is_refused_before_video_claim(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as tmp:
+            video=Path(tmp)/"validation.mp4"
+            video.write_bytes(b"x"*150000)
+            client=Mock()
+            client.login.return_value=SimpleNamespace(did="did:plc:example")
+            client.com.atproto.server.get_session.return_value=SimpleNamespace(
+                email_confirmed=False)
+            with patch("atproto.Client",return_value=client), \
+                 patch.object(social,"env",side_effect=lambda name,default=None:
+                              "mrxpronos.bsky.social" if name=="BLUESKY_HANDLE" else
+                              "fake-app-password" if name=="BLUESKY_APP_PASSWORD" else default), \
+                 patch("bluesky_video_processed.resolve_did_document",
+                       return_value={"service":[{"id":"#atproto_pds",
+                                      "serviceEndpoint":"https://pds.example"}]}), \
+                 patch("bluesky_video_processed.pds_host",
+                       return_value="pds.example"):
+                with self.assertRaisesRegex(ValueError,"non verifiee"):
+                    social.preflight_bluesky_video(video)
+            client.com.atproto.server.get_session.assert_called_once_with()
+
     def test_bluesky_auth_failure_never_claims_validation_receipt(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder=Path(tmp)
