@@ -1,0 +1,89 @@
+name: Bluesky - One-shot Recovery for Validated Nov 14
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/bluesky-20261114-one-shot.yml'
+      - 'scripts/bluesky_20261114_recovery_guard.py'
+      - 'tests/test_bluesky_20261114_recovery_guard.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bluesky-20261114-one-shot.yml'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: bluesky-validated-20261114-one-shot
+  cancel-in-progress: false
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate one-shot guard without any secrets
+        run: |
+          python -m py_compile scripts/bluesky_20261114_recovery_guard.py tests/test_bluesky_20261114_recovery_guard.py
+          python -m unittest -v tests.test_bluesky_20261114_recovery_guard
+  recovery:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      RECOVERY_ARTIFACT_DIR: recovered
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore only validated November 14 media from known source run
+        uses: actions/download-artifact@v4
+        with:
+          name: shorts-production-validations
+          run-id: 43700709144
+          github-token: ${{ github.token }}
+          path: recovered
+      - name: Install pinned social SDK and D1 client
+        run: python -m pip install --disable-pip-version-check -r requirements_social.txt
+      - name: Verify media, Telegram, four social receipts and all Bluesky hash claims
+        id: guard
+        run: python scripts/bluesky_20261114_recovery_guard.py
+      - name: Publish the missing video to Bluesky only, exactly once
+        if: ${{ steps.guard.outputs.status == 'ready' }}
+        run: |
+          python scripts/post_shorts_video.py \
+            --validation-ref morning:2026-11-14 \
+            --require-all \
+            --video "${{ steps.guard.outputs.video }}" \
+            --platforms bluesky \
+            --title "Résultats 2026-11-14 - Mr XPRONOS" \
+            --caption "Résultats Mr XPRONOS ✅\n4/4 VALIDÉS · AUCUN PERDU\n18+ • Joue responsablement.\n\n#football #pronostic #resultats #mrxpronos"
+      - name: Confirm provider receipt exists in D1
+        if: ${{ steps.guard.outputs.status == 'ready' }}
+        run: |
+          python - <<'PY'
+          import json
+          from scripts.d1_publication_ledger import D1Ledger
+          rows=D1Ledger().query(
+              "SELECT delivery_status,validation_details FROM telegram_sent "
+              "WHERE kind=? AND ref_id=? AND ref_date=?",
+              ("shorts_validation_social_bluesky","morning:2026-11-14","2026-11-14")
+          ).get("results") or []
+          if len(rows)!=1 or rows[0]["delivery_status"]!="sent":
+              raise RuntimeError("Bluesky has no confirmed D1 sent receipt")
+          uri=json.loads(rows[0]["validation_details"]).get("id","")
+          if not str(uri).startswith("at://"):
+              raise RuntimeError("Bluesky D1 receipt lacks a confirmed AT URI")
+          print("BLUESKY_REAL_PUBLICATION_CONFIRMED",uri)
+          PY
