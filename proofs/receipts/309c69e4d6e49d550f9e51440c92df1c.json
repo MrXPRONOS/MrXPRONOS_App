@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-c487f41e88b36dd6:1X",
+    "recorded_at_utc": "2026-11-15T00:12:43+00:00",
+    "kickoff_utc": "2026-11-16T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Cuba",
+      "away_team": "Grenada",
+      "league": "CONCACAF Nations League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 83.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "dc1088c005e664d03ecf0fcaf3e67e65588cbedf6260e6b43cd7ab0077db91b1"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-33528f42470e0a2f:1X",
+    "recorded_at_utc": "2026-11-15T00:12:43+00:00",
+    "kickoff_utc": "2026-11-16T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Guadeloupe",
+      "away_team": "Bermuda",
+      "league": "CONCACAF Nations League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2acc2c54efa7912f50bdc44ab8b7f1de2675ee30dcd25fc402a3f7e2fac7ef13"
+}
