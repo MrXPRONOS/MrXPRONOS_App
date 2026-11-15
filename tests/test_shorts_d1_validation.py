@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Regression tests for D1-only production Shorts validation (no network calls)."""
 import unittest
+import os
+import requests
 import json
 import sys
 import tempfile
@@ -108,6 +110,81 @@ class ValidationLedgerTests(unittest.TestCase):
         ledger.claim.assert_not_called()
         ledger.mark.assert_not_called()
 
+
+    def test_unconfirmed_provider_response_never_returns_a_delivery_id(self):
+        session = Mock()
+        session.post.return_value.json.return_value = {"ok": True, "result": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            video = Path(tmp) / "validated.mp4"
+            video.write_bytes(b"fake clip")
+            with self.assertRaisesRegex(RuntimeError, "without a valid message_id"):
+                settlement.send_video(session, "fake-token", "@fake-channel",
+                                      video, "2026-11-14", "morning", "test")
+
+    def test_telegram_504_is_quarantined_without_marking_sent_or_retrying(self):
+        rows = [{"id": "new", "ref_id": "morning:bsd:900",
+                 "ref_date": "2026-11-14", "validation_sent": 0}]
+        ledger = Mock()
+        ledger.claim.return_value = True
+        ledger.set_status.return_value = True
+        with tempfile.TemporaryDirectory() as tmp:
+            with (
+                patch.dict(os.environ, {"TELEGRAM_BOT_TOKEN": "fake",
+                                        "TELEGRAM_CHAT_ID": "@fake"}),
+                patch.object(sys, "argv", ["settle_short_production_batches.py",
+                                           "--work-dir", tmp]),
+                patch.object(settlement, "D1Ledger", return_value=ledger),
+                patch.object(settlement, "pending_rows", return_value=rows),
+                patch.object(settlement, "restore_matches",
+                             return_value={"bsd:900": {"id": "bsd:900"}}),
+                patch.object(settlement, "validation_state", return_value=None),
+                patch.object(settlement, "official_events_for_day",
+                             return_value=({"900": {"id": "900"}}, 1)),
+                patch.object(settlement, "_leg_verdict",
+                             return_value=(True, 2, 1)),
+                patch.object(settlement, "render_exact_validated_cards",
+                             return_value=(["card.png"], "pack")),
+                patch.object(settlement, "build_video"),
+                patch.object(settlement, "send_video",
+                             side_effect=requests.HTTPError("504 Gateway Timeout")) as send,
+            ):
+                with self.assertRaisesRegex(RuntimeError,
+                                            "SHORTS_VALIDATION_TELEGRAM_UNCERTAIN"):
+                    settlement.main()
+        ledger.claim.assert_called_once_with("shorts_video_validation",
+                                             "morning:2026-11-14", "2026-11-14")
+        ledger.set_status.assert_called_once_with("shorts_video_validation",
+                                                  "morning:2026-11-14",
+                                                  "2026-11-14", "uncertain")
+        ledger.mark.assert_not_called()
+        send.assert_called_once()
+
+    def test_existing_uncertain_claim_never_sends_or_renders(self):
+        rows = [{"id": "new", "ref_id": "morning:bsd:900",
+                 "ref_date": "2026-11-14", "validation_sent": 0}]
+        ledger = Mock()
+        with tempfile.TemporaryDirectory() as tmp:
+            with (
+                patch.object(sys, "argv", ["settle_short_production_batches.py",
+                                           "--no-send", "--work-dir", tmp]),
+                patch.object(settlement, "D1Ledger", return_value=ledger),
+                patch.object(settlement, "pending_rows", return_value=rows),
+                patch.object(settlement, "restore_matches", return_value={}),
+                patch.object(settlement, "validation_state",
+                             return_value="uncertain"),
+                patch.object(settlement, "official_events_for_day") as fetch,
+                patch.object(settlement, "build_video") as render,
+                patch.object(settlement, "send_video") as send,
+            ):
+                settlement.main()
+                manifest = json.loads((Path(tmp) / "manifest.json").read_text())
+        self.assertEqual(manifest["groups"][0]["status"],
+                         "telegram_delivery_review_required")
+        self.assertEqual(manifest["groups"][0]["delivery_status"], "uncertain")
+        fetch.assert_not_called()
+        render.assert_not_called()
+        send.assert_not_called()
+        ledger.claim.assert_not_called()
 
 if __name__ == "__main__":
     unittest.main()

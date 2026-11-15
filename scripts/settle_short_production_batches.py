@@ -167,7 +167,12 @@ def send_video(session, token, chat, video: Path, target: str, slot: str, summar
     body = r.json()
     if body.get("ok") is not True:
         raise RuntimeError("Telegram a refusé la vidéo de validation")
-    return (body.get("result") or {}).get("message_id")
+    result = body.get("result")
+    message_id = result.get("message_id") if isinstance(result, dict) else None
+    if type(message_id) is not int or message_id <= 0:
+        # A response without a provider receipt is ambiguous, not success.
+        raise RuntimeError("Telegram returned success without a valid message_id")
+    return message_id
 
 
 def main():
@@ -222,14 +227,21 @@ def main():
                     "status": "legacy_social_reconciliation_required",
                 })
                 continue
+        if existing_state in ("reserved", "uncertain"):
+            # 504/timeouts can mean Telegram posted despite reporting failure.
+            # Never retry while the first request lacks a verified message_id.
+            print(f"::warning::SHORTS_VALIDATION_TELEGRAM_REVIEW_REQUIRED "
+                  f"{slot}:{target} status={existing_state}", file=sys.stderr)
+            report["groups"].append({
+                "slot": slot, "target": target,
+                "status": "telegram_delivery_review_required",
+                "delivery_status": existing_state,
+            })
+            continue
         if videos_built >= 2:
             report["groups"].append({"slot": slot, "target": target, "status": "deferred_capacity"})
             continue
         if existing_state is None and all(bool(row.get("validation_sent")) for row in group_rows):
-            continue
-        if existing_state == "reserved":
-            # Ambiguous external delivery: never post a duplicate to Telegram.
-            report["groups"].append({"slot": slot, "target": target, "status": "reserved_review_required"})
             continue
         wanted = [row["match_id"] for row in group_rows]
         definitions = {ident: historical_definitions[ident]
@@ -304,8 +316,24 @@ def main():
             if existing_state != "sent":
                 if not ledger.claim(*identity):
                     raise D1LedgerError("Batch validation claimed concurrently; delivery blocked")
-                # A failed/uncertain Telegram API response keeps the reservation.
-                message_id = send_video(session, token, chat, video, target, slot, summary)
+                try:
+                    message_id = send_video(session, token, chat, video, target, slot, summary)
+                except (requests.RequestException, RuntimeError, ValueError) as exc:
+                    # Telegram 504/timeouts and malformed acknowledgements are
+                    # ambiguous: preserve the unique claim, quarantine instead
+                    # of automatically retrying. A failed D1 update leaves
+                    # the existing reserved claim in place, also fail-closed.
+                    if not ledger.set_status(*identity, "uncertain"):
+                        raise D1LedgerError(
+                            "Telegram ambiguous; D1 reservation could not be quarantined"
+                        ) from exc
+                    print(f"::error::SHORTS_VALIDATION_TELEGRAM_UNCERTAIN "
+                          f"{slot}:{target}; provider confirmation required",
+                          file=sys.stderr)
+                    raise RuntimeError(
+                        f"SHORTS_VALIDATION_TELEGRAM_UNCERTAIN {slot}:{target}; "
+                        "do not retry until provider message_id is verified"
+                    ) from exc
                 ledger.mark(*identity, message_id=message_id)
             mark_rows(ledger, row_ids, status="validated")
 
