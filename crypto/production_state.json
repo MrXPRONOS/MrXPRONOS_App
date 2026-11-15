@@ -392,6 +392,12 @@
       "sent_at": "2026-11-14T18:16:41.426858+00:00",
       "source": "CoinPaprika"
     },
+    "daily:02:2026-11-15:default": {
+      "message_id": 109,
+      "number": 2,
+      "sent_at": "2026-11-15T18:58:27.204172+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:03:2026-10-22:default": {
       "message_id": 27,
       "number": 3,
@@ -456,6 +462,12 @@
       "message_id": 104,
       "number": 3,
       "sent_at": "2026-11-14T18:17:04.179878+00:00",
+      "source": "CoinPaprika"
+    },
+    "daily:03:2026-11-15:default": {
+      "message_id": 110,
+      "number": 3,
+      "sent_at": "2026-11-15T18:58:37.100922+00:00",
       "source": "CoinPaprika"
     },
     "daily:05:2026-10-19:default": {
