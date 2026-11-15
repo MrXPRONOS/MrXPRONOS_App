@@ -60,9 +60,27 @@ def audit(handle, password):
         if not getattr(authorization, "token", None):
             print("BLUESKY_DIAG_FAIL stage=service_auth_token type=MissingToken", flush=True)
             return 7
+        account = call_stage("get_session", lambda:
+            client.com.atproto.server.get_session()
+        )
+        confirmed = getattr(account, "email_confirmed", None)
+        print("BLUESKY_DIAG_EMAIL_VERIFIED",
+              "yes" if confirmed is True else "no" if confirmed is False else "unknown",
+              flush=True)
+        limits = call_stage("get_video_upload_limits", lambda:
+            client.app.bsky.video.get_upload_limits()
+        )
+        can_upload = getattr(limits, "can_upload", None)
+        daily_videos = getattr(limits, "remaining_daily_videos", None)
+        daily_bytes = getattr(limits, "remaining_daily_bytes", None)
+        print("BLUESKY_DIAG_VIDEO_LIMITS",
+              "can_upload="+("yes" if can_upload is True else "no" if can_upload is False else "unknown"),
+              "remaining_daily_videos="+str(daily_videos if isinstance(daily_videos,int) else "unknown"),
+              "remaining_daily_bytes="+str(daily_bytes if isinstance(daily_bytes,int) else "unknown"),
+              flush=True)
     except Exception:
         return 6
-    print("BLUESKY_DIAG_AUTH_OK (no upload, no post, no D1 write)", flush=True)
+    print("BLUESKY_DIAG_AUTH_AND_LIMITS_OK (no upload, no post, no D1 write)", flush=True)
     return 0
 
 
