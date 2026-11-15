@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/bluesky-readonly-diagnostic.yml'
+      - 'scripts/bluesky_video_processed.py'
   workflow_dispatch:
 permissions:
   contents: read
