@@ -314,6 +314,12 @@
       "sent_at": "2026-11-14T14:04:59.790256+00:00",
       "source": "CoinPaprika"
     },
+    "daily:01:2026-11-15:evening": {
+      "message_id": 112,
+      "number": 1,
+      "sent_at": "2026-11-15T23:02:23.117405+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:01:2026-11-15:morning": {
       "message_id": 106,
       "number": 1,
