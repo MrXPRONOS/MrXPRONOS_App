@@ -554,6 +554,11 @@ def preflight_bluesky_video(video_path: Path):
     login_result = client.login(handle, password)
     document = resolve_did_document(client, login_result, session=requests.Session())
     pds_host(document)
+    # Bluesky video uploads require a verified account email. Check this
+    # before either per-validation or per-video D1 reservation is created.
+    account_session = client.com.atproto.server.get_session()
+    if getattr(account_session, "email_confirmed", None) is not True:
+        raise ValueError("Adresse e-mail Bluesky non verifiee: verifier le compte avant toute video")
     return handle, client, login_result, document
 
 
