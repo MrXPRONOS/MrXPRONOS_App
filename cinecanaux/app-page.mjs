@@ -138,6 +138,58 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 .v2-helper{color:#a3b8d8;font-size:11px;line-height:1.4}
 .v2-rating-inline{color:#e5bb66;font-size:11px;font-weight:700}
 @media(max-width:390px){.v2-tools{gap:6px}.v2-tools select,.v2-tools button{padding:8px;font-size:11px}}
+
+/* Cine Radar Experience v3: accessible, clean, mobile first */
+.hero{height:clamp(145px,32vw,210px);border-color:#49639a;background:linear-gradient(105deg,#07152c,#16294e 57%,#2a245a)!important}
+.hero:before{background:linear-gradient(90deg,#07152dfb 0%,#0a1e3cf2 38%,#0a1c3844 85%)!important}
+.hero-art{width:62%;right:0;top:0;height:100%;opacity:.95}
+.hero-art svg{display:none!important}
+.hero-art:before{content:"";position:absolute;inset:-30%;background:repeating-linear-gradient(119deg,transparent 0 33px,#ffffff12 34px 36px,transparent 37px 93px),radial-gradient(ellipse at 60% 40%,#7360ce 0%,transparent 46%),linear-gradient(130deg,#1d3873,#0e183a);transform:rotate(-8deg)}
+.hero-art:after{content:"▶";display:grid;place-items:center;position:absolute;right:22%;top:20%;width:74px;height:74px;border-radius:50%;border:9px dotted #ffffff55;box-shadow:0 0 0 12px #334f9a44,0 0 55px #5978ff88;background:#10264bc9;color:white;font-size:27px}
+.hero-copy{max-width:74%}
+.hero-copy h2{font-size:clamp(22px,5vw,34px)}
+.tabs{margin-bottom:12px}
+.search{height:50px;margin-bottom:11px;border-color:#5474a5;background:#162c4c}
+.search:focus-within{border-color:#8dadff;box-shadow:0 0 0 3px #729bff29}
+.search input{font-size:14px}
+.cards{gap:13px}
+.card{border-radius:16px;border-color:#345077;background:linear-gradient(160deg,#12263f,#0d1b30);box-shadow:0 4px 20px #0005}
+.card-cover{height:clamp(92px,26vw,160px);background:linear-gradient(145deg,#193b68,#172346)!important}
+.card[data-type="animes"] .card-cover{background:linear-gradient(145deg,#303b74,#462d61)!important}
+.card[data-type="series"] .card-cover{background:linear-gradient(145deg,#173d57,#243058)!important}
+.card-cover:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 68% 25%,#dbeeff19,transparent 55%),repeating-linear-gradient(90deg,transparent 0 34px,#ffffff08 35px 36px)}
+.card-cover .cover-illustration{display:none!important}
+.card-cover img.channel-profile-img{width:76px!important;height:76px!important;max-width:58%;border:3px solid #d9e6fcbe;box-shadow:0 8px 22px #0008}
+.card-body{padding:12px}
+.card h4{font-size:clamp(12px,2.7vw,15px);min-height:35px}
+.card-kind{margin:4px 0 6px}
+.card-rating{color:#e2bd69}
+.card-rating.cine-unrated{color:#96a9c6;font-weight:500}
+.card-actions button{height:38px;font-size:clamp(10px,2.4vw,12px)}
+.cine-actions{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 11px}
+.cine-actions button,.cine-chips button{cursor:pointer;color:#d9e9ff;background:#152943;border:1px solid #35557e;border-radius:100px;padding:9px 12px;font-size:12px;font-weight:650}
+.cine-actions button[aria-pressed="true"],.cine-chips button[aria-pressed="true"]{background:#5048b7;border-color:#919fff;color:white}
+.cine-chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px}
+.cine-chips button{flex:none;white-space:nowrap}
+.cine-feature{margin:12px 0 18px;padding:13px;border-radius:15px;background:#101f36;border:1px solid #324869}
+.cine-feature-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.cine-feature-head h3{margin:0 0 4px;font-size:15px}
+.cine-feature-head small{color:#99b2d2;font-size:11px}
+.cine-feature-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.cine-feature-item{min-width:0;min-height:83px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;border-radius:10px;border:1px solid #3c547b;background:linear-gradient(140deg,#1c3760,#14243e);padding:10px;color:#f6f9ff}
+.cine-feature-item strong{font-size:11px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cine-feature-item small{font-size:10px;color:#afc6ea}
+.cine-save{margin-top:8px;width:100%;height:30px;background:transparent;border:1px solid #38517b;color:#b8cbec;border-radius:8px;font-size:11px}
+.cine-save[aria-pressed="true"]{color:#ffcf74;border-color:#98784c;background:#48392244}
+.cine-genre{display:inline-block;font-size:10px;color:#c3dbff;margin:0 0 7px}
+.cine-hint{color:#9fbbdf;font-size:11px;margin:0 0 10px}
+.cine-empty{padding:23px 14px;border:1px dashed #52719f;border-radius:12px;text-align:center;color:#b4c8e8}
+.cine-meta{font-size:12px;color:#b6c9e9;background:#142943;padding:12px;border:1px solid #304f79;border-radius:10px;line-height:1.8}
+.cine-meta strong{color:#f7fbff}
+@media(min-width:700px){.cine-feature-items{grid-template-columns:repeat(3,1fr)}.card-cover img.channel-profile-img{width:98px!important;height:98px!important}.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:350px){.cine-feature-items{grid-template-columns:1fr 1fr}.cine-feature-item:last-child{display:none}.cine-actions button{padding:8px}}
+@media(prefers-reduced-motion:reduce){.card,.hero-art{transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -272,7 +324,7 @@ function buildCard(c,i){
 }
 function render(){
  const root=$("cards");root.textContent="";
- $("count").textContent=channels.length+" canal"+(channels.length>1?"aux":"");
+ $("count").textContent=channels.length+" cana"+(channels.length===1?"l":"ux");
  $("heading").textContent=query.trim()?"Résultats de recherche":"Les canaux";
  if(!channels.length){
   const empty=node("div","empty");empty.append(node("strong",null,"Aucun canal trouvé"),document.createTextNode("Essaie une autre recherche ou une autre catégorie."));
@@ -453,6 +505,140 @@ if(Array.isArray(PRELOADED_CATALOG)&&PRELOADED_CATALOG.length){
  allChannels=PRELOADED_CATALOG;lastFetch=Date.now();applyFilters();
 }
 load();
+})();
+</script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const safeStorage=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||"null");return Array.isArray(v)?v:fallback}catch{return fallback}};
+let favorites=safeStorage("cine-radar-favorites-v3",[]).map(Number).filter(Number.isSafeInteger).slice(0,400);
+let history=safeStorage("cine-radar-history-v3",[]).map(Number).filter(Number.isSafeInteger).slice(0,80);
+let mode="all",featuredReady=false,metadata=new Map(),lastSearch="";
+function store(){try{localStorage.setItem("cine-radar-favorites-v3",JSON.stringify(favorites));localStorage.setItem("cine-radar-history-v3",JSON.stringify(history))}catch{}}
+function putHistory(id){if(!history.includes(id)){try{fetch("/api/engagement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({event:"open",id:id}),keepalive:true}).catch(()=>{})}catch{}}history=[id,...history.filter(x=>x!==id)].slice(0,50);store();refreshButtons()}
+function chip(text,value){
+ const b=document.createElement("button");b.type="button";b.textContent=text;b.dataset.cineQuery=value;
+ b.addEventListener("click",()=>{mode="all";setMode();const q=$("search");if(q){q.value=value;q.dispatchEvent(new Event("input",{bubbles:true}));q.focus()}});
+ return b;
+}
+function makeButton(label,name){
+ const b=document.createElement("button");b.type="button";b.dataset.cineMode=name;b.textContent=label;
+ b.onclick=()=>{mode=mode===name?"all":name;setMode();if(mode!=="all"){const all=document.querySelector('.tabs [data-type="all"]');if(all&&!all.classList.contains("active"))all.click();const q=$("search");if(q&&q.value){q.value="";q.dispatchEvent(new Event("input",{bubbles:true}))}}};
+ return b;
+}
+function setMode(){
+ document.querySelectorAll("[data-cine-mode]").forEach(b=>b.setAttribute("aria-pressed",String(mode===b.dataset.cineMode)));
+ refreshButtons();
+}
+function save(id){
+ favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[id,...favorites].slice(0,400);
+ store();refreshButtons();
+}
+function refreshButtons(){
+ const cards=[...document.querySelectorAll("#cards article[data-channel-id]")];
+ let visible=0;
+ for(const c of cards){
+  const id=Number(c.dataset.channelId);
+  const active=favorites.includes(id);
+  const b=c.querySelector(".cine-save");
+  if(b){b.setAttribute("aria-pressed",String(active));b.textContent=active?"★ Enregistré":"☆ Favoris"}
+  const yes=mode==="all"||(mode==="favorites"?active:history.includes(id));
+  c.hidden=!yes;if(yes)visible++;
+ }
+ const count=$("count");if(count&&mode!=="all")count.textContent=visible+" cana"+(visible===1?"l":"ux");
+ const empty=$("cine-private-empty");
+ if(empty)empty.hidden=mode==="all"||visible>0;
+}
+function decorateCards(){
+ const root=$("cards");if(!root)return;
+ const cards=root.querySelectorAll("article[data-channel-id]");
+ cards.forEach(card=>{
+  if(card.querySelector(".cine-save"))return;
+  const id=Number(card.dataset.channelId);
+  const c=metadata.get(id);
+  const kind=card.querySelector(".card-kind");
+  if(c&&kind&&c.genre&&c.genre!=="general"){
+   const tag=document.createElement("span");tag.className="cine-genre";tag.textContent=" · "+c.genre;kind.append(tag);
+  }
+  const rating=card.querySelector(".card-rating");
+  if(rating&&!c?.review_count){rating.textContent="À découvrir";rating.classList.add("cine-unrated")}
+  const target=card.querySelector(".card-body");
+  if(!target)return;
+  const b=document.createElement("button");b.type="button";b.className="cine-save";b.setAttribute("aria-label","Ajouter ou retirer des favoris");
+  b.addEventListener("click",()=>save(id));target.append(b);
+  const open=card.querySelector(".open");
+  if(open)open.addEventListener("click",()=>putHistory(id),{capture:true});
+ });
+ refreshButtons();
+}
+function updateFeatured(){
+ if(featuredReady)return;
+ const area=$("cine-feature-items");if(!area)return;
+ const all=[...document.querySelectorAll("#cards article[data-channel-id]")];
+ if(all.length<2)return;
+ const used=new Set(),chosen=[];
+ for(const type of ["films","series","animes"]){const c=all.find(el=>el.dataset.type===type&&!used.has(el.dataset.channelId));if(c){used.add(c.dataset.channelId);chosen.push(c)}}
+ for(const c of chosen){const b=document.createElement("button");b.type="button";b.className="cine-feature-item";
+  const title=c.querySelector("h4")?.textContent||"Découvrir";const type=c.querySelector(".card-kind")?.firstChild?.textContent||"Canal";
+  const strong=document.createElement("strong");strong.textContent=title;const small=document.createElement("small");small.textContent=type;
+  b.append(strong,small);b.onclick=()=>c.querySelector(".view")?.click();area.append(b);
+ }
+ featuredReady=chosen.length>0;
+}
+function enhancePreview(){
+ const sheet=$("sheet");if(!sheet||!sheet.firstElementChild)return;
+ const detail=sheet.querySelector(".sheet-detail");
+ if(!detail||detail.querySelector(".cine-meta"))return;
+ const open=detail.querySelector(".sheet-open");if(!open)return;
+ const title=detail.querySelector(".sheet-name h3")?.textContent||"";
+ const match=[...metadata.values()].find(x=>x.title===title);
+ if(!match)return;
+ const details=document.createElement("div");details.className="cine-meta";
+ const attrs=[];
+ if(match.genre&&match.genre!=="general")attrs.push("Genre : "+match.genre);
+ if(match.language)attrs.push("Langue annoncée : "+match.language);
+ if(match.review_count)attrs.push("Avis : "+match.review_count+" · "+Number(match.rating).toFixed(1)+"/5");
+ if(match.link_status==="reachable")attrs.push("Lien contrôlé : accessible");
+ if(match.link_status==="unknown")attrs.push("Lien : vérification en attente");
+ if(match.last_post_at){const t=Date.parse(match.last_post_at);if(Number.isFinite(t))attrs.push("Dernière activité connue : "+new Date(t).toLocaleDateString("fr-FR"))}
+ if(!attrs.length)attrs.push("Consulte le canal pour connaître les dernières publications.");
+ for(const x of attrs){const line=document.createElement("div");line.textContent=x;details.append(line)}
+ detail.insertBefore(details,open);
+ const id=Number(match.id);
+ open.addEventListener("click",()=>putHistory(id),{capture:true,once:true});
+}
+async function getCatalog(){
+ try{const r=await fetch("/api/catalog?limit=80",{cache:"no-store"});if(!r.ok)return;const j=await r.json();for(const c of j.channels||[])metadata.set(Number(c.id),c);decorateCards();updateFeatured();enhancePreview()}
+ catch(e){console.warn("cine_enhancement_catalog_unavailable")}
+}
+function initialize(){
+ const hero=document.querySelector(".hero");const nav=$("tabs");
+ if(hero){const title=hero.querySelector(".hero-copy h2");if(title)title.innerHTML="Le cinéma,<span class='accent'>à ta portée.</span>";
+ const p=hero.querySelector(".hero-copy p");if(p)p.textContent="Trouve des canaux Telegram selon tes envies, en quelques secondes."}
+ const search=document.querySelector("label.search");
+ if(search&&nav){nav.parentNode.insertBefore(search,nav);const input=$("search");if(input){input.placeholder="Action, romance, animés VF, séries…";input.setAttribute("aria-label","Chercher des canaux par nom, catégorie ou genre")}}
+ if(nav){const chips=document.createElement("div");chips.className="cine-chips";chips.setAttribute("aria-label","Recherches suggérées");for(const [label,q] of [["Action","action"],["Romance","romance"],["Comédie","comedie"],["Animés VF","animes vf"],["Séries","series"],["Films africains","africain"]])chips.append(chip(label,q));nav.insertAdjacentElement("afterend",chips)}
+ const tools=document.querySelector(".v2-tools");
+ if(tools){
+  const actions=document.createElement("nav");actions.className="cine-actions";actions.setAttribute("aria-label","Ma sélection");
+  actions.append(makeButton("★ Mes favoris","favorites"),makeButton("◷ Consultés récemment","recent"));
+  tools.insertAdjacentElement("afterend",actions);
+  const feature=document.createElement("section");feature.className="cine-feature";
+  const head=document.createElement("div");head.className="cine-feature-head";
+  const h=document.createElement("h3");h.textContent="À explorer";
+  const small=document.createElement("small");small.textContent="Un canal par univers";head.append(h,small);
+  const items=document.createElement("div");items.className="cine-feature-items";items.id="cine-feature-items";feature.append(head,items);
+  actions.insertAdjacentElement("afterend",feature);
+ }
+ const listing=$("cards");if(listing){
+  const empty=document.createElement("div");empty.id="cine-private-empty";empty.className="cine-empty";empty.textContent="Aucun canal ici pour l'instant. Explore l'annuaire puis enregistre tes favoris.";empty.hidden=true;listing.insertAdjacentElement("afterend",empty);
+  const watcher=new MutationObserver(()=>{decorateCards();updateFeatured()});watcher.observe(listing,{childList:true});
+ }
+ const sheet=$("sheet");if(sheet){new MutationObserver(()=>enhancePreview()).observe(sheet,{childList:true,subtree:false})}
+ decorateCards();updateFeatured();getCatalog();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initialize,{once:true});else initialize();
 })();
 </script>
 </body>
