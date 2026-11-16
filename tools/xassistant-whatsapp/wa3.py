@@ -326,7 +326,8 @@ def reply_ai(chat, agent='mrx-support'):
         answer=answer or result.get('final') or obj.get('final')
         if not isinstance(answer,str):return None
         answer=answer.strip().strip('"')
-        if not answer or answer.upper()=='SKIP' or len(answer)>420:return None
+        if answer.upper()=='SKIP':return '__SKIP__'
+        if not answer or len(answer)>420:return None
         if re.search(r'@mr_xpronos\b',answer,re.I):return None
         if 'http' in answer and CHANNEL not in answer and \
                 'mrxpronos.github.io' not in answer:return None
@@ -514,11 +515,14 @@ def run(preview_only=False, limit=4):
                         report['voices_transcribed']+=1
                     report['attempted_ai']+=1
                     answer=reply_ai(c)
-                    if not answer:
+                    if answer=='__SKIP__':
                         ledger[c['fingerprint']]={'name':name,
                             'status':'skip','date':dt.date.today().isoformat()}
                         atomic(LEDGER,ledger)
                         event('AI_SKIP '+name[:35])
+                        continue
+                    if not answer:
+                        event('AI_NO_RESPONSE_RETRY_LATER '+name[:35])
                         continue
                     if deliver_current(page,c,answer,ledger):
                         report['sent']+=1
