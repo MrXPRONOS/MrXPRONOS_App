@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-11-14T06:18:09.066921+00:00",
+  "generated_at": "2026-11-16T06:17:52.888669+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 0,
   "promo_copy_actions": 0,
@@ -15,7 +15,7 @@
       "kind": "article",
       "slug": "analyse-premium-test",
       "variant": "a",
-      "impressions": 6,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -49,6 +49,24 @@
     },
     {
       "kind": "article",
+      "slug": "bsd-match-212701",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-212701",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
       "slug": "bsd-match-215282",
       "variant": "a",
       "impressions": 0,
@@ -63,6 +81,24 @@
       "impressions": 1,
       "opens": 0,
       "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-215311",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-215311",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
       "status": "insufficient_data"
     },
     {
@@ -87,7 +123,7 @@
       "kind": "article",
       "slug": "bsd-match-223907",
       "variant": "a",
-      "impressions": 1,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -159,7 +195,7 @@
       "kind": "article",
       "slug": "bsd-match-601347",
       "variant": "a",
-      "impressions": 1,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -222,7 +258,7 @@
       "kind": "article",
       "slug": "bsd-match-604604",
       "variant": "b",
-      "impressions": 1,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -240,7 +276,25 @@
       "kind": "article",
       "slug": "bsd-match-604610",
       "variant": "b",
-      "impressions": 2,
+      "impressions": 3,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-604617",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-604617",
+      "variant": "b",
+      "impressions": 1,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -276,7 +330,7 @@
       "kind": "article",
       "slug": "bsd-match-642917",
       "variant": "b",
-      "impressions": 1,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -285,7 +339,7 @@
       "kind": "article",
       "slug": "bsd-match-649890",
       "variant": "a",
-      "impressions": 1,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -321,7 +375,7 @@
       "kind": "conseil",
       "slug": "comprendre-value",
       "variant": "a",
-      "impressions": 136,
+      "impressions": 128,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -339,7 +393,7 @@
       "kind": "conseil",
       "slug": "conseil-premium-test",
       "variant": "a",
-      "impressions": 9,
+      "impressions": 3,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -357,7 +411,7 @@
       "kind": "conseil",
       "slug": "erreurs-tilt",
       "variant": "a",
-      "impressions": 102,
+      "impressions": 96,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -375,7 +429,7 @@
       "kind": "conseil",
       "slug": "gerer-bankroll",
       "variant": "a",
-      "impressions": 136,
+      "impressions": 128,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
