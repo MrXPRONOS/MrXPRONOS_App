@@ -105,6 +105,27 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 @media(min-width:850px){.cards{grid-template-columns:repeat(4,minmax(0,1fr))}.card-cover{height:170px}.card-body{padding:12px}.card-actions button{height:34px}.page{padding-top:30px}}
 @media(max-width:335px){.tabs button{font-size:10px}.tabs button .icon{width:11px;height:11px}.card-actions button{font-size:9px}.card-actions button .icon{width:11px;height:11px}.hero-copy h2{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.loading{animation:none}html{scroll-behavior:auto}.card,.hero-art,.tabs button{transition:none}}
+
+/* V2 — minimal mobile-first controls; descriptions remain in detail sheets. */
+.v2-tools{display:flex;align-items:center;gap:8px;margin:-9px 0 18px;flex-wrap:wrap}
+.v2-tools select,.v2-tools button{background:#162944;border:1px solid #344f78;color:#d7e6ff;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;min-height:38px}
+.v2-tools button{margin-left:auto}
+.tabs button.active{background:linear-gradient(120deg,#6f4df1,#398aff)}
+.card-rating{color:#f5c86a;font-weight:750;font-size:11px;min-height:16px;margin-bottom:6px}
+.v2-feedback{border-top:1px solid #34476b;margin-top:16px;padding-top:16px;display:flex;flex-direction:column;gap:12px}
+.v2-feedback label{display:block;font-size:12px;color:#dae7ff}
+.v2-feedback textarea,.v2-feedback select,.v2-feedback input{background:#12243c;border:1px solid #3d5780;color:#f6f9ff;border-radius:9px;font:inherit;padding:10px;width:100%;max-width:100%}
+.v2-feedback textarea{min-height:56px;resize:vertical}
+.v2-stars{display:flex;gap:7px}
+.v2-stars button{border:0;background:#24334c;color:#90a6c8;font-size:24px;border-radius:9px;height:38px;width:40px}
+.v2-stars button.selected{color:#ffc85c;background:#3c364d}
+.v2-segment{display:flex;gap:5px}
+.v2-segment button{flex:1;font-size:11px;border-radius:8px;padding:9px 3px;border:1px solid #3b5379;background:#13253d;color:#dce9ff}
+.v2-segment button.selected{background:#3e65ca;color:#fff}
+.v2-submit{background:linear-gradient(100deg,#7a4ff0,#387fff);border:0;border-radius:9px;padding:11px;color:white;font-weight:750}
+.v2-helper{color:#a3b8d8;font-size:11px;line-height:1.4}
+.v2-rating-inline{color:#e5bb66;font-size:11px;font-weight:700}
+@media(max-width:390px){.v2-tools{gap:6px}.v2-tools select,.v2-tools button{padding:8px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -161,6 +182,7 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
  <button type="button" data-type="animes" aria-pressed="false"><span class="icon" data-icon="gamepad"></span>Animés</button>
 </nav>
 <label class="search" for="search"><span class="icon" data-icon="search"></span><input id="search" type="search" autocomplete="off" placeholder="Rechercher un canal…" aria-label="Rechercher un canal"><button class="search-clear" type="button" id="searchClear" aria-label="Effacer la recherche" hidden><span class="icon" data-icon="x"></span></button></label>
+<div class="v2-tools"><select id="sort" aria-label="Trier les canaux"><option value="relevant">Pertinents</option><option value="rated">Mieux notés</option><option value="recent">Récents</option><option value="new">Nouveaux</option></select><button type="button" id="suggest">＋ Proposer un canal</button></div>
 <div class="heading"><h3 id="heading">Les canaux</h3><span class="count" id="count">—</span></div>
 <section class="cards" id="cards" aria-live="polite"><div class="empty loading">Chargement des canaux…</div></section>
 <footer class="footer"><strong>Ciné Radar</strong> · Annuaire public</footer>
@@ -192,6 +214,7 @@ const icons={
 function ico(key){const holder=document.createElement("span");holder.className="icon";holder.setAttribute("aria-hidden","true");holder.innerHTML='<svg viewBox="0 0 24 24">'+(icons[key]||icons.film)+'</svg>';return holder;}
 document.querySelectorAll("[data-icon]").forEach(x=>x.replaceWith(ico(x.dataset.icon)));
 let type="all",query="",channels=[],allChannels=[],lastFetch=0,fetchPending=null,images=new Map(),inFlight=new Map(),previewToken=0,thumbQueue=[],thumbActive=0;
+const selectedTypes=new Set();let searchDelay=null;
 const MAX_THUMB_FETCH=2;
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 function button(text,cls,callback,icon){
@@ -227,6 +250,7 @@ function buildCard(c,i){
  if(photoHost(c.photo)){const img=node("img");img.alt="Photo publique du canal "+c.title;img.loading="lazy";img.decoding="async";img.onerror=()=>img.remove();img.src=c.photo;cover.append(img);}
  const body=node("div","card-body");body.append(node("h4",null,c.title));
  body.append(node("div","card-kind",typeLabel(c.type)));
+ if(c.review_count){body.append(node("div","card-rating","★ "+Number(c.rating).toFixed(1)+" · "+c.review_count+" avis"));}else{body.append(node("div","card-rating","Pas encore noté"));}
  const actions=node("div","card-actions");
  actions.append(button("Aperçu","view",()=>showPreview(c),"eye"),button("Ouvrir","open",()=>openTelegram(c.link),"external"));
  body.append(actions);card.append(cover,body);
@@ -278,22 +302,93 @@ function enqueueVisiblePhotos(){
  pumpThumbs();
 }
 function applyFilters(){
- const key=query.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().trim();
- channels=allChannels.filter(c=>(type==="all"||c.type===type)&&(!key||(String(c.title)+" "+String(c.genre||"")).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().includes(key)));
+ channels=allChannels.filter(c=>!selectedTypes.size||selectedTypes.has(c.type));
  render();enqueueVisiblePhotos();
 }
 async function load(force=false){
- if(allChannels.length)applyFilters();
  if(fetchPending)return fetchPending;
- if(!force&&allChannels.length&&Date.now()-lastFetch<120000)return;
- if(!allChannels.length){$("count").textContent="…";$("cards").textContent="";$("cards").append(node("div","empty loading","Chargement des canaux…"));}
+ if(!force&&allChannels.length&&Date.now()-lastFetch<120000){applyFilters();return;}
+ const requested=query+'|'+Array.from(selectedTypes).sort().join(',')+'|'+$("sort").value;
+ const url="/api/search?q="+encodeURIComponent(query)+"&types="+encodeURIComponent(Array.from(selectedTypes).join(','))+"&sort="+encodeURIComponent($("sort").value)+"&limit=80";
+ if(!allChannels.length){$("count").textContent="…";$("cards").textContent="";$("cards").append(node("div","empty loading","Recherche en cours…"));}
  fetchPending=(async()=>{
-  try{const result=await api("/api/catalog");allChannels=result.channels||[];lastFetch=Date.now();applyFilters();}
-  catch{if(!allChannels.length){$("cards").textContent="";const error=node("div","empty");error.append(node("strong",null,"Connexion momentanément indisponible"),document.createTextNode("Choisis une catégorie pour réessayer."));$("cards").append(error);}}
-  finally{fetchPending=null;}
+  try{const result=await api(url);if(result&&Array.isArray(result.channels)){allChannels=result.channels;lastFetch=Date.now();applyFilters();}}
+  catch{if(!allChannels.length){$("cards").textContent="";$("cards").append(node("div","empty","Connexion momentanément indisponible."));}}
+  finally{fetchPending=null;const current=query+'|'+Array.from(selectedTypes).sort().join(',')+'|'+$("sort").value;if(current!==requested)load(true);}
  })();
  return fetchPending;
 }
+
+async function postV2(path,data){
+ const init=telegram()?.initData||"";
+ if(!init)throw Error("Ouvre Ciné Radar depuis Telegram pour participer.");
+ const response=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","X-Telegram-Init-Data":init},body:JSON.stringify(data)});
+ let result;try{result=await response.json();}catch{result={};}
+ if(!response.ok)throw Error(result.error||"Envoi impossible. Réessaie.");
+ return result;
+}
+function statusLine(parent,message){
+ let existing=parent.querySelector(".v2-result");
+ if(!existing){existing=node("div","v2-helper v2-result");existing.setAttribute("role","status");parent.append(existing);}
+ existing.textContent=message;
+}
+function createFeedback(c){
+ const area=node("section","v2-feedback");
+ const heading=node("strong",null,"Ton avis");area.append(heading);
+ const help=node("div","v2-helper","As-tu trouvé ce que tu cherchais ?");
+ area.append(help);
+ const stars=node("div","v2-stars");let rating=0;
+ for(let n=1;n<=5;n++){
+  const b=button("★",null,()=>{rating=n;for(const item of stars.children)item.classList.toggle("selected",Number(item.dataset.rate)<=n);});
+  b.dataset.rate=String(n);b.setAttribute("aria-label",n+" étoiles");stars.append(b);
+ }area.append(stars);
+ const row=node("div","v2-segment");let accuracy="yes";
+ for(const [key,label] of [["yes","Oui"],["part","En partie"],["no","Non"]]){
+  const b=button(label,key==="yes"?"selected":"",()=>{accuracy=key;for(const other of row.children)other.classList.toggle("selected",other.dataset.match===key);});
+  b.dataset.match=key;row.append(b);
+ }
+ area.append(row);
+ const comment=node("textarea");comment.maxLength=500;comment.placeholder="Commentaire (facultatif)";comment.setAttribute("aria-label","Commentaire");area.append(comment);
+ area.append(button("Publier mon avis","v2-submit",async()=>{
+  if(!rating){statusLine(area,"Choisis de 1 à 5 étoiles.");return;}
+  try{await postV2("/api/channels/"+c.id+"/reviews",{rating,matches_description:accuracy,comment:comment.value});statusLine(area,"Avis enregistré. Merci !");load(true);}
+  catch(e){statusLine(area,String(e.message||e));}
+ }));
+ const flag=node("select");flag.setAttribute("aria-label","Motif du signalement");
+ for(const [key,label] of [["","Signaler un problème…"],["wrong_category","Mauvaise catégorie"],["misleading","Description trompeuse"],["dead_link","Lien inutilisable"],["spam","Spam"],["copyright","Contenu non autorisé"],["other","Autre"]]){const o=node("option");o.value=key;o.textContent=label;flag.append(o);}
+ area.append(flag);
+ area.append(button("Envoyer le signalement","v2-submit",async()=>{
+  if(!flag.value){statusLine(area,"Choisis un motif.");return;}
+  try{await postV2("/api/reports",{channel_id:c.id,reason:flag.value});statusLine(area,"Signalement reçu.");}
+  catch(e){statusLine(area,String(e.message||e));}
+ }));
+ const comments=node("div","v2-helper");comments.textContent="Avis de la communauté";area.append(comments);
+ api("/api/channels/"+c.id+"/reviews").then(data=>{
+  if(!area.isConnected)return;
+  const count=data.summary?.count||0;comments.textContent=count?count+" avis · "+Number(data.summary.rating).toFixed(1)+"/5":"Aucun avis pour le moment";
+  for(const item of (data.reviews||[]).slice(0,3)){
+   const el=node("div","v2-helper","★ "+item.rating+" · "+item.comment);area.append(el);
+  }
+ }).catch(()=>{});
+ return area;
+}
+function showSuggestion(){
+ previewToken++;$("overlay").hidden=false;document.body.style.overflow="hidden";
+ const sheet=$("sheet");sheet.textContent="";
+ const head=node("div","sheet-head");
+ head.append(button("Retour","sheet-back",close,"back"),node("span",null,"Proposer un canal"));sheet.append(head);
+ const detail=node("div","sheet-detail");detail.append(node("h3",null,"Ajouter un canal"));
+ const area=node("section","v2-feedback");
+ const link=node("input");link.type="url";link.placeholder="https://t.me/nomducanal";link.setAttribute("aria-label","Lien Telegram public");area.append(link);
+ const kind=node("select");kind.setAttribute("aria-label","Catégorie du canal");
+ for(const [key,label] of [["films","Films"],["series","Séries"],["animes","Animés"]]){const o=node("option");o.value=key;o.textContent=label;kind.append(o);}area.append(kind);
+ area.append(button("Proposer","v2-submit",async()=>{
+  try{const reply=await postV2("/api/suggestions",{link:link.value.trim(),category:kind.value});statusLine(area,reply.status==="already_listed"?"Ce canal est déjà référencé.":"Merci ! Le lien sera vérifié automatiquement.");}
+  catch(e){statusLine(area,String(e.message||e));}
+ }));
+ area.append(node("div","v2-helper","Seuls les liens des canaux publics sont référencés."));detail.append(area);sheet.append(detail);
+}
+
 function fillPreview(c,p){
  const sheet=$("sheet");sheet.textContent="";
  const bar=node("div","sheet-head");const back=button("Retour","sheet-back",close,"back");
@@ -312,6 +407,7 @@ function fillPreview(c,p){
   "Canal public classé dans « "+typeLabel(c.type)+" ». Consulte ses publications directement sur Telegram.";
  detail.append(node("p","sheet-description",usefulBio));
  detail.append(button("Ouvrir le canal","sheet-open",()=>openTelegram(c.link),"send"));
+ detail.append(createFeedback(c));
  sheet.append(detail);
 }
 function showPreview(c){
@@ -322,17 +418,20 @@ function showPreview(c){
  getPreview(c.id).then(p=>{if(token===previewToken&&!$("overlay").hidden)fillPreview(c,p);}).catch(()=>{});
 }
 for(const b of document.querySelectorAll("[data-type]"))b.onclick=()=>{
- type=b.dataset.type;
+ const chosen=b.dataset.type;
+ if(chosen==="all"){selectedTypes.clear();type="all";}
+ else{if(selectedTypes.has(chosen))selectedTypes.delete(chosen);else selectedTypes.add(chosen);type=selectedTypes.size===1?Array.from(selectedTypes)[0]:"all";}
  document.documentElement.dataset.scene=type;
- for(const x of document.querySelectorAll("[data-type]")){const active=x===b;x.classList.toggle("active",active);x.setAttribute("aria-pressed",String(active));}
- if(allChannels.length)applyFilters();else load();
+ for(const x of document.querySelectorAll("[data-type]")){const active=x.dataset.type==="all"?!selectedTypes.size:selectedTypes.has(x.dataset.type);x.classList.toggle("active",active);x.setAttribute("aria-pressed",String(active));}
+ applyFilters();load(true);
 };
 $("search").oninput=e=>{
- query=e.target.value.slice(0,70);
- $("searchClear").hidden=!query.length;
- if(allChannels.length)applyFilters();
+ query=e.target.value.slice(0,120);$("searchClear").hidden=!query.length;
+ clearTimeout(searchDelay);searchDelay=setTimeout(()=>load(true),230);
 };
-$("searchClear").onclick=()=>{$("search").value="";query="";$("searchClear").hidden=true;applyFilters();$("search").focus();};
+$("searchClear").onclick=()=>{$("search").value="";query="";$("searchClear").hidden=true;load(true);$("search").focus();};
+$("sort").onchange=()=>load(true);
+$("suggest").onclick=showSuggestion;
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-lastFetch>120000)load(true);});
 $("overlay").onclick=e=>{if(e.target===$("overlay"))close();};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("overlay").hidden)close();});
