@@ -63,6 +63,9 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 .card-cover{height:clamp(107px,31vw,178px);position:relative;overflow:hidden;background:linear-gradient(140deg,#182b50,#3b2b6f);display:flex;align-items:center;justify-content:center}
 .card-cover:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,#040b196e);pointer-events:none}
 .card-cover img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;z-index:2}
+.card-cover img.channel-profile-img{width:58%;height:auto;aspect-ratio:1;object-fit:cover;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);border-radius:50%;border:4px solid rgba(203,221,255,.85);box-shadow:0 9px 28px rgba(0,0,0,.5);z-index:3}
+.card-cover:has(img.channel-profile-img){background:radial-gradient(circle at 50% 43%,#4059b3 0%,#152646 70%)}
+.card-cover:has(img.channel-profile-img) .cover-illustration{opacity:.18}
 .cover-illustration{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .cover-illustration svg{width:100%;height:100%;display:block}
 .card[data-type="series"] .card-cover{background:linear-gradient(145deg,#182858,#3f255b)}
@@ -206,7 +209,7 @@ const telegram=()=>window.Telegram?.WebApp||null;
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
 const validLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""));
-const photoHost=url=>/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
+const photoHost=url=>/^\/assets\/channel-avatar\/[a-z][a-z0-9_]{4,31}\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
 const icons={
  sparkle:'<path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/><path d="m19 18 .5 1.5L21 20l-1.5.5L19 22l-.5-1.5L17 20l1.5-.5L19 18Z"/>',
  film:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M7 5l3 5M14 5l3 5M7 14h10"/>',
@@ -256,7 +259,8 @@ function makeArt(t,id){const art=node("div","cover-illustration");art.innerHTML=
 function buildCard(c,i){
  const card=node("article","card");card.dataset.channelId=String(c.id);card.dataset.type=c.type;
  const cover=node("div","card-cover");cover.append(makeArt(c.type,c.id));
- if(photoHost(c.photo)){const img=node("img");img.alt="Photo publique du canal "+c.title;img.loading="lazy";img.decoding="async";img.onerror=()=>img.remove();img.src=c.photo;cover.append(img);}
+ const directAvatar=photoHost(c.avatar)?c.avatar:photoHost(c.photo)?c.photo:null;
+ if(directAvatar){const img=node("img",photoHost(c.avatar)?"channel-profile-img":null);img.alt="Photo de profil du canal "+c.title;img.loading="lazy";img.decoding="async";img.onerror=()=>{if(img.src!==c.photo&&photoHost(c.photo)){img.classList.remove("channel-profile-img");img.src=c.photo;}else img.remove();};img.src=directAvatar;cover.append(img);}
  const body=node("div","card-body");body.append(node("h4",null,c.title));
  body.append(node("div","card-kind",typeLabel(c.type)));
  if(c.review_count){body.append(node("div","card-rating","★ "+Number(c.rating).toFixed(1)+" · "+c.review_count+" avis"));}else{body.append(node("div","card-rating","Pas encore noté"));}
@@ -282,12 +286,12 @@ function updatePreviewThumb(id,p){
  images.set(id,p);
  const source=allChannels.find(x=>x.id===id);
  if(!source)return;
- const url=[p.post_image,p.photo].find(photoHost);
+ const url=[source.avatar,p.photo,p.post_image].find(photoHost);
  if(!url)return;
  source.photo=url;
  const cover=Array.from($("cards").children).find(x=>Number(x.dataset.channelId)===id)?.querySelector(".card-cover");
  if(cover&&!cover.querySelector("img")){
-  const img=node("img");img.alt="Photo publique du canal "+source.title;img.loading="lazy";img.decoding="async";img.onerror=()=>img.remove();img.src=url;cover.append(img);
+  const img=node("img",url===source.avatar?"channel-profile-img":null);img.alt="Photo du canal "+source.title;img.loading="lazy";img.decoding="async";img.onerror=()=>img.remove();img.src=url;cover.append(img);
  }
 }
 async function getPreview(id){
@@ -403,13 +407,14 @@ function fillPreview(c,p){
  const bar=node("div","sheet-head");const back=button("Retour","sheet-back",close,"back");
  bar.append(back,node("span",null,"Ciné Radar · Aperçu"));sheet.append(bar);
  const visual=node("div","sheet-visual");visual.append(makeArt(c.type,"preview-"+c.id));
- const url=[p?.post_image,p?.photo,c.photo].find(photoHost);
+ const url=[p?.post_image,p?.photo,c.avatar,c.photo].find(photoHost);
  if(url){const img=node("img");img.alt="Image publique du canal "+c.title;img.decoding="async";img.onerror=()=>img.remove();img.src=url;visual.append(img);}
  sheet.append(visual);
  const detail=node("div","sheet-detail");
  const profile=node("div","sheet-profile");
  const avatar=node("div","sheet-avatar");avatar.append(ico(c.type==="series"?"tv":c.type==="animes"?"gamepad":"film"));
- if(photoHost(p?.photo)){avatar.textContent="";const img=node("img");img.alt="Photo du canal";img.src=p.photo;img.onerror=()=>{avatar.textContent="";avatar.append(ico("film"));};avatar.append(img);}
+ const profilePhoto=[c.avatar,p?.photo,c.photo].find(photoHost);
+ if(profilePhoto){avatar.textContent="";const img=node("img");img.alt="Photo de profil du canal";img.src=profilePhoto;img.onerror=()=>{if(img.src!==p?.photo&&photoHost(p?.photo)){img.src=p.photo;}else{avatar.textContent="";avatar.append(ico("film"));}};avatar.append(img);}
  const names=node("div","sheet-name");names.append(node("h3",null,p?.title||c.title),node("small",null,"Canal public Telegram"));
  const tag=node("div","genre-tag",typeLabel(c.type));names.append(tag);profile.append(avatar,names);detail.append(profile);
  const usefulBio=p?.description&&!p.description.startsWith("Canal Telegram public")?p.description:

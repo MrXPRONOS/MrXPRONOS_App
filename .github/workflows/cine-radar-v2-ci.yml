@@ -36,7 +36,7 @@ jobs:
           node --check cinecanaux/channel-identity.mjs
           node --check cinecanaux/job-log.mjs
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs
 
       - name: Staging Worker smoke (non-production)
         timeout-minutes: 2

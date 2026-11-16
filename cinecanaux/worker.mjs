@@ -157,6 +157,19 @@ export default {
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
+  const avatarMatch=new RegExp("^/assets/channel-avatar/([A-Za-z][A-Za-z0-9_]{4,31})[.]jpg$").exec(u.pathname);
+  if(request.method==="GET"&&avatarMatch){
+   const handle=avatarMatch[1].toLowerCase();
+   const indexed=await env.DB.prepare("SELECT id FROM channels WHERE LOWER(link)=? AND status='approved'").bind('https://t.me/'+handle).first();
+   if(!indexed)return new Response("Not found",{status:404,headers:{"cache-control":"public,max-age=300"}});
+   const base="https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/avatars/";
+   try{
+    const image=await fetch(base+encodeURIComponent(handle)+".jpg",{signal:AbortSignal.timeout(6000),cf:{cacheEverything:true,cacheTtl:3600}});
+    const type=String(image.headers.get("content-type")||"");
+    if(!image.ok||!type.toLowerCase().includes("image/"))return new Response("No public avatar",{status:404,headers:{"cache-control":"public,max-age=300"}});
+    return new Response(image.body,{headers:{"content-type":"image/jpeg","cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
+   }catch(e){console.warn("cineradar_avatar_unavailable",String(e).slice(0,90));return new Response("Avatar temporarily unavailable",{status:503,headers:{"cache-control":"no-store"}});}
+  }
   if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
    const name=u.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
