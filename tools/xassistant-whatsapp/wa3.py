@@ -352,7 +352,8 @@ def open_by_search(page, name):
         search.fill(name,timeout=5000)
         page.wait_for_timeout(650)
         result=click_chat(page,name)
-        search.fill('',timeout=4000)
+        try:search.fill('',timeout=4000)
+        except Exception:pass
         return result
     except Exception:
         try:search.fill('',timeout=4000)
@@ -409,7 +410,7 @@ def run(preview_only=False, limit=7):
         page=pages[0]
         if page.locator('#pane-side').count()!=1:
             raise RuntimeError('WhatsApp Web non connecté ou liste indisponible')
-        entries=scan(page,max_chats=120,max_scroll=55)
+        entries=scan(page,max_chats=70,max_scroll=55)
         ins=sum(1 for c in entries if (c.get('last') or {}).get('direction')=='in'
                 and (c.get('last') or {}).get('proof')!='none')
         outs=sum(1 for c in entries if (c.get('last') or {}).get('direction')=='out'
@@ -500,8 +501,8 @@ After=openclaw-gateway.service xassistant-browser-watch.service
 Type=oneshot
 Environment=PATH=%s:/usr/local/bin:/usr/bin:/bin
 Environment=OPENCLAW_BIN=%s
-ExecStart=%s %s --once
-TimeoutStartSec=420
+ExecStart=%s %s --once --limit 4
+TimeoutStartSec=480
 """ % (str(Path(node).parent),openclaw,py,SCRIPT)
     timer="""[Unit]
 Description=Mr XPRONOS WhatsApp Web support checks
