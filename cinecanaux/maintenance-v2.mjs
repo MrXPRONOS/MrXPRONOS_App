@@ -8,6 +8,7 @@ async function verify(env,username,stableId=null){
  if(!URL_RE.test(username))return {outcome:'not_found',reason:'invalid_username'};
  const identity=await canonicalForChat(env,username,stableId);
  if(identity.state==='mismatch')return {outcome:'unverifiable',reason:'identity_mismatch'};
+ if(stableId&&identity.state!=='verified')return {outcome:'unverifiable',reason:'stable_identity_unavailable'};
  const publicUsername=identity.state==='verified'?identity.chat.username:username;
  const urls=['https://t.me/'+publicUsername,'https://t.me/s/'+publicUsername],results=[];
  for(const url of urls){
