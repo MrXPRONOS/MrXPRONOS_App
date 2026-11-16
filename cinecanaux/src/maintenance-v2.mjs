@@ -47,14 +47,16 @@ export async function addIfPublic(env,username,category){
 }
 export async function integrateDiscoveredCandidates(env,limit=15){
  const rows=(await env.DB.prepare(`SELECT d.username,d.content_type,d.genre FROM discovery_candidates d
+ LEFT JOIN discovery_attempts a ON a.username=d.username
  WHERE d.technical_status='qualified' AND d.rights_status NOT IN ('link_dead','rejected')
  AND NOT EXISTS(SELECT 1 FROM channel_exclusions e WHERE e.username=d.username)
  AND NOT EXISTS(SELECT 1 FROM channels c WHERE LOWER(c.link)=LOWER(d.link))
- ORDER BY d.last_seen DESC LIMIT ?`).bind(limit).all()).results||[];
+ ORDER BY COALESCE(a.last_attempt_at,'1970-01-01') ASC,d.last_seen DESC LIMIT ?`).bind(limit).all()).results||[];
  let inserted=0,unverifiable=0;
  for(const row of rows){
   try{
    const result=await addIfPublic(env,row.username,row.content_type);
+   await env.DB.prepare("INSERT INTO discovery_attempts(username,attempts,last_outcome) VALUES(?,1,?) ON CONFLICT(username) DO UPDATE SET attempts=attempts+1,last_outcome=excluded.last_outcome,last_attempt_at=CURRENT_TIMESTAMP").bind(row.username,result.status).run();
    if(result.status==='listed'){
     inserted++;
     if(row.genre&&row.genre!=='general')await env.DB.prepare('INSERT OR IGNORE INTO channel_categories(channel_id,category) VALUES(?,?)').bind(result.id,row.genre).run();
