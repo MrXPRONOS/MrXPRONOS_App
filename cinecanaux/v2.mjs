@@ -177,7 +177,14 @@ export async function v2API(env,request){
   const query=String(u.searchParams.get('q')||'').slice(0,120);
   const types=String(u.searchParams.get('types')||(path==='/api/catalog'?u.searchParams.get('type')||'':'' )).replace(/^all$/,'').slice(0,60);
   const sort=String(u.searchParams.get('sort')||'relevant');
-  return json(await getCatalog(env,{query,types,sort,limit,offset}));
+  const result=await getCatalog(env,{query,types,sort,limit,offset});
+  if(norm(query).length>=3){
+   // Store aggregated category demand only; never store the search text or user identity.
+   const category=(types.split(',').filter(t=>TYPES.has(t)).sort().join('+')||'all').slice(0,50);
+   try{await env.DB.prepare("INSERT INTO search_daily_stats(date_utc,category,searches,empty_results) VALUES(date('now'),?,1,?) ON CONFLICT(date_utc,category) DO UPDATE SET searches=searches+1,empty_results=empty_results+excluded.empty_results").bind(category,result.total===0?1:0).run();}
+   catch(e){console.warn('search_metric_unavailable',String(e).slice(0,60));}
+  }
+  return json(result);
  }
  const m=/^\/api\/channels\/(\d+)\/reviews$/.exec(path);
  if(method==='GET'&&m){const id=Number(m[1]);if(!Number.isSafeInteger(id))return json({error:'ID invalide'},400);return json(await reviews(env,id));}
