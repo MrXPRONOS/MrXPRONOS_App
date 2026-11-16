@@ -24,7 +24,7 @@ async function identity(request,env){
  if(!raw||raw.length>5000||!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET)return null;
  const params=new URLSearchParams(raw),hash=params.get('hash')||'',auth=Number(params.get('auth_date')||0);
  if(!auth||Math.abs(Date.now()/1000-auth)>86400)return null;
- const signed=Array.from(params.entries()).filter(([k])=>k!=='hash'&&k!=='signature').sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>k+'='+v).join('\n');
+ const signed=Array.from(params.entries()).filter(([k])=>k!=='hash'&&k!=='signature').sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\n');
  const secret=await hmac('WebAppData',env.TELEGRAM_TOKEN);
  const signedHash=hex(await hmac(secret,signed));
  if(!equalHex(hash.toLowerCase(),signedHash))return null;
