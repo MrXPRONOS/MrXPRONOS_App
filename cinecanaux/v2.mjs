@@ -65,6 +65,9 @@ function tokenize(query){
   if(['serie','series','tv','television'].includes(t))return 'series';
   if(['anime','animes','animation','manga'].includes(t))return 'animes';
   if(['vf','francais','french'].includes(t))return 'vf';
+  if(['africains','africaine','africaines','afrique','african'].includes(t))return 'africain';
+  if(['romantique','romantiques','romantic'].includes(t))return 'romance';
+  if(['comedies','comedy','comedie'].includes(t))return 'comedie';
   return t;
  });
 }
@@ -80,7 +83,9 @@ function matchToken(token,c){
  const name=norm(c.title),description=norm(c.description),username=norm(c.link.split('/').pop());
  const kinds=[c.content_type,...String(c.tags||'').split(',')].map(norm);
  if(token==='films'||token==='series'||token==='animes')return kinds.includes(token)?12:0;
- if(token==='vf')return (norm(c.language)==='vf'||norm(c.language)==='fr'||norm(c.language)==='francais')?5:0;
+ if(token==='vf')return (norm(c.language).includes('vf')||norm(c.title).includes('vf'))?5:0;
+ if(token==='africain')return /nigerian|nigerien|africain|afrique|nollywood/.test(name)?8:0;
+ if(token==='romance')return norm(c.genre).includes('romance')||/romanti|romance/.test(name)?8:0;
  if(name.includes(token)||username.includes(token))return 10;
  if(norm(c.genre).includes(token)||kinds.some(k=>k.includes(token)))return 7;
  if(description.includes(token))return 3;
@@ -124,7 +129,7 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  else if(sort==='recent')ranked.sort((a,b)=>(Date.parse(b.c.last_post_at)||0)-(Date.parse(a.c.last_post_at)||0)||b.score-a.score);
  else if(sort==='new')ranked.sort((a,b)=>b.c.id-a.c.id);
  else ranked.sort((a,b)=>b.score-a.score||Number(b.c.review_count)-Number(a.c.review_count)||a.c.id-b.c.id);
- return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,photo:c.photo||null,avatar:'/assets/channel-avatar/'+linkUsername(c.link)+'.jpg',rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
+ return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,tags:c.tags||'',description:c.description||'',photo:c.photo||null,avatar:'/assets/channel-avatar/'+linkUsername(c.link)+'.jpg',rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
 }
 async function reviews(env,channelId){
  const info=await env.DB.prepare("SELECT COUNT(*) AS total,ROUND(AVG(rating),2) AS rating,ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) AS accuracy FROM channel_reviews WHERE channel_id=? AND visibility='visible'").bind(channelId).first();
