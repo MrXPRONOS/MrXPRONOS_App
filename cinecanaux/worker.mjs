@@ -209,6 +209,18 @@ export default {
   if(u.pathname==="/api/catalog"||u.pathname==="/api/search"||u.pathname==="/api/reports"||u.pathname==="/api/suggestions"||/^\/api\/channels\/\d+\/reviews$/.test(u.pathname))return v2API(env,request);
   if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
   if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
+  if(u.pathname==="/api/engagement"&&request.method==="POST"){
+    const origin=request.headers.get("origin");
+    if(origin&&origin!==u.origin)return Response.json({error:"Origin denied"},{status:403});
+    if(Number(request.headers.get("content-length")||0)>256)return Response.json({error:"Too large"},{status:413});
+    let payload;try{payload=await request.json()}catch{return Response.json({error:"Invalid request"},{status:400})}
+    const id=payload?.id;
+    if(payload?.event!=="open"||!Number.isSafeInteger(id)||id<1)return Response.json({error:"Invalid event"},{status:400});
+    const active=await env.DB.prepare("SELECT c.id FROM channels c LEFT JOIN channel_index_meta m ON m.channel_id=c.id WHERE c.id=? AND c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'").bind(id).first();
+    if(!active)return Response.json({error:"Channel unavailable"},{status:404});
+    await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=opens+1").bind(id).run();
+    return Response.json({ok:true},{headers:{"Cache-Control":"no-store"}});
+  }
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
