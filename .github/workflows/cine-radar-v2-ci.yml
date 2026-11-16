@@ -50,3 +50,7 @@ jobs:
           grep -q "Ciné Radar" /tmp/cineradar-app.html
           status=$(curl --silent --show-error --max-time 15 -o /dev/null -w "%{http_code}" "$URL/api/admin/overview")
           test "$status" = "403"
+
+      - name: Production V2 smoke (read-only)
+        timeout-minutes: 3
+        run: node cinecanaux/tests/live-smoke.mjs
