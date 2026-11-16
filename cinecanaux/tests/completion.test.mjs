@@ -75,3 +75,25 @@ test('daily checker still returns at most 10 entries',async()=>{
  assert.equal(result.checked,0);
  assert.equal(store.writes.length,1);
 });
+
+test('identity metadata uses canonical username when original handle changed',async()=>{
+ const {addIfPublic}=await import('../maintenance-v2.mjs');
+ const old=globalThis.fetch, db2=db();
+ db2.prepare=(sql)=>{
+  let params=[];
+  return {bind(...v){params=v;return this;},async first(){if(sql.includes('FROM channel_exclusions'))return null;if(sql.includes('FROM channels'))return null;return null;},
+   async run(){db2.writes.push({sql,params});return {meta:{changes:1,last_row_id:1}};},
+   async all(){return {results:[]}}};
+ };
+ let seenUrls=[];
+ globalThis.fetch=async(url,opts={})=>{
+  if(String(url).includes('api.telegram.org'))return Response.json({ok:true,result:{id:-100321,type:'channel',username:'Canonical_News_2026',title:'Films 2026'}});
+  seenUrls.push(String(url));
+  return new Response('<meta property="og:title" content="Films 2026 | Telegram">',{status:200,headers:{'content-type':'text/html'}});
+ };
+ try{
+  await addIfPublic({DB:db2,TELEGRAM_TOKEN:'fake_token'},'oldfilms2026','films');
+  assert.ok(seenUrls.length>0);
+  assert.ok(seenUrls.every(x=>x.includes('canonical_news_2026')));
+ }finally{globalThis.fetch=old;}
+});
