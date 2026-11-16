@@ -33,6 +33,30 @@ PINNED_HTML = (
 )
 
 
+def reaction_entities():
+    """Explicit MTProto entities guarantee a real Telegram blockquote.
+
+    Telethon's HTML parser and Telegram Bot API do not necessarily support
+    the same tags. Telegram offsets use UTF-16 code units, not Python indices.
+    """
+    from telethon.tl.types import (
+        MessageEntityBold, MessageEntityItalic, MessageEntityBlockquote,
+    )
+
+    def units(value):
+        return len(value.encode("utf-16-le")) // 2
+
+    a, b, quote = REACTION_PARTS
+    second = units(a + "\\n")
+    third = units(a + "\\n" + b + "\\n")
+    return [
+        MessageEntityBold(offset=0, length=units(a)),
+        MessageEntityBold(offset=second, length=units(b)),
+        MessageEntityItalic(offset=second, length=units(b)),
+        MessageEntityBlockquote(offset=third, length=units(quote), collapsed=False),
+    ]
+
+
 async def send_after_film(client, bot, channel, anchor_id, state, key, *, audience):
     if audience not in ("private", "public"):
         raise ValueError("Audience invalide")
@@ -64,7 +88,7 @@ async def send_after_film(client, bot, channel, anchor_id, state, key, *, audien
                 reply_to_message_id=int(anchor_id))
         else:
             sent = await client.send_message(
-                channel, REACTION_HTML, parse_mode="html",
+                channel, REACTION_TEXT, formatting_entities=reaction_entities(),
                 reply_to=int(anchor_id))
         receipts[receipt_key] = int(sent.id)
         state.save()
