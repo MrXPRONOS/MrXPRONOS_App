@@ -21,6 +21,8 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 <p id="status" role="status">Vérification de l’accès…</p>
 <div id="private" hidden>
 <section class="stats" id="stats"></section>
+<h2>Automatisations</h2>
+<div class="item"><div class="actions"><button id="runChecks">Vérifier 10 canaux</button><button id="refreshJobs">Actualiser</button></div></div><section id="jobs"></section>
 <h2>Signalements</h2><section id="reports"></section>
 <h2>Avis des utilisateurs</h2><section id="reviews"></section>
 <h2>Canaux proposés</h2><section id="suggestions"></section>
@@ -49,13 +51,21 @@ function addButton(parent,text,handler,cls){
 }
 async function manage(id,action){await api("/api/admin/channels/"+id,{action});status("Canal mis à jour.");await load();}
 async function load(){
- const [overview,reportData,suggestionData,reviewData]=await Promise.all([
-  api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews")]);
+ const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
+  api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
  $("private").hidden=false;status("");
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
  }
+ const jobs=$("jobs");jobs.textContent="";
+ for(const item of (jobData.jobs||[]).slice(0,12)){
+  const entry=el("div","item");
+  entry.append(el("div","name",item.job_name+" · "+item.status),
+   el("div","muted",item.started_at+" · "+item.examined+" contrôles · "+item.errors+" erreur(s)"));
+  jobs.append(entry);
+ }
+ if(!jobs.children.length)jobs.append(el("p","muted","Aucune exécution enregistrée."));
  const reports=$("reports");reports.textContent="";
  for(const item of reportData.reports||[]){
   const card=el("article","item");card.append(el("div","name",item.title+" · #"+item.channel_id),el("div","muted",item.reason+" · "+item.status),el("p",null,item.details||"Aucun détail"));
@@ -84,6 +94,12 @@ async function load(){
  }
  if(!suggestions.children.length)suggestions.append(el("p","muted","Aucune suggestion."));
 }
+$("runChecks").onclick=async()=>{
+ const btn=$("runChecks");btn.disabled=true;status("Contrôle des liens en cours…");
+ try{const result=await api("/api/admin/run-check",{count:10});status(result.checked+" canaux examinés.");await load();}
+ catch(e){status(String(e.message||e));}finally{btn.disabled=false;}
+};
+$("refreshJobs").onclick=()=>load().catch(e=>status(String(e.message||e)));
 for(const action of ["hide","show","exclude"])$(action).onclick=async()=>{
  const id=Number($("channelId").value);if(!Number.isSafeInteger(id)||id<1){status("Identifiant invalide.");return;}
  if(action==="exclude"&&!confirm("Exclure durablement ce canal ?"))return;

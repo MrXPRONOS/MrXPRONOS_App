@@ -111,9 +111,9 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  c.last_post_at,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') AS photo,
  COALESCE(m.listing_status,'listed') AS listing_status,COALESCE(m.link_status,'unknown') AS link_status,
  COALESCE((SELECT group_concat(category,',') FROM channel_categories cc WHERE cc.channel_id=c.id),'') AS tags,
- (SELECT COUNT(*) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility IN ('visible','held')) AS review_count,
- (SELECT ROUND(AVG(rating),2) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility IN ('visible','held')) AS rating,
- (SELECT ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility IN ('visible','held')) AS accuracy
+ (SELECT COUNT(*) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility='visible') AS review_count,
+ (SELECT ROUND(AVG(rating),2) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility='visible') AS rating,
+ (SELECT ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility='visible') AS accuracy
  FROM channels c LEFT JOIN channel_profile_cache p ON p.channel_id=c.id
  LEFT JOIN channel_index_meta m ON m.channel_id=c.id
  WHERE c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'
@@ -127,7 +127,7 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,photo:c.photo||null,rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
 }
 async function reviews(env,channelId){
- const info=await env.DB.prepare("SELECT COUNT(*) AS total,ROUND(AVG(rating),2) AS rating,ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) AS accuracy FROM channel_reviews WHERE channel_id=? AND visibility IN ('visible','held')").bind(channelId).first();
+ const info=await env.DB.prepare("SELECT COUNT(*) AS total,ROUND(AVG(rating),2) AS rating,ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) AS accuracy FROM channel_reviews WHERE channel_id=? AND visibility='visible'").bind(channelId).first();
  const data=await env.DB.prepare("SELECT rating,matches_description,comment,created_at FROM channel_reviews WHERE channel_id=? AND visibility='visible' AND comment<>'' ORDER BY created_at DESC LIMIT 20").bind(channelId).all();
  return {summary:{count:Number(info?.total||0),rating:info?.rating==null?null:Number(info.rating),accuracy:info?.accuracy==null?null:Number(info.accuracy)},reviews:data.results||[]};
 }
