@@ -1,0 +1,28 @@
+name: Verify X-Assistant WhatsApp Service
+on:
+  push:
+    branches:
+      - tools/xassistant-whatsapp-service-v3
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax check
+        run: python3 -m py_compile tools/xassistant-whatsapp/wa3.py
+      - name: CLI smoke test
+        run: |
+          python3 tools/xassistant-whatsapp/wa3.py --help
+          python3 tools/xassistant-whatsapp/wa3.py --status
+      - name: Verify browser script strings
+        run: |
+          python3 - <<'PY'
+          import ast, pathlib
+          p = pathlib.Path("tools/xassistant-whatsapp/wa3.py")
+          tree=ast.parse(p.read_text())
+          names={n.targets[0].id for n in tree.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)}
+          assert 'EXTRACT' in names and 'AUDIO' in names
+          assert 'CDP' in names
+          print("Reader and voice modules present")
+          PY
