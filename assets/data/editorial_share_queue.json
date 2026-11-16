@@ -1,5 +1,551 @@
 [
   {
+    "id": "d45828f19f1b431070699968",
+    "kind": "news",
+    "title": "France-Turquie : revivez la victoire dans la douleur des Bleus qui se qualifient pour les quarts de finale de la Ligue des nations",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-nations/direct-france-turquie-les-bleus-visent-la-qualification-pour-les-quarts-de-finale-suivez-le-dernier-match-de-phase-de-poules-de-ligue-des-nations_8282633.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-16T02:12:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f561c104dc897142aad84250",
+    "kind": "news",
+    "title": "Espagne : Luis de la Fuente remercie ses joueurs malgré la défaite",
+    "url": "https://www.footmercato.net/a4438811788308996722-espagne-luis-de-la-fuente-remercie-ses-joueurs-malgre-la-defaite",
+    "source_date": "2026-11-15T23:26:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5167e7c981ae5ca3098f0418",
+    "kind": "news",
+    "title": "Ligue des nations : Zinédine Zidane donne des nouvelles de Mike Maignan, sorti à la mi-temps de France-Turquie",
+    "url": "https://www.sofoot.com/breves/ligue-des-nations-zidane-donne-des-nouvelles-de-mike-maignan-sorti-a-la-mi-temps-de-france-turquie",
+    "source_date": "2026-11-15T23:02:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "366244026b4a521d70ed4975",
+    "kind": "news",
+    "title": "Espagne : De la Fuente met en valeur la série",
+    "url": "https://www.maxifoot.fr/espagne/de-la-fuente-met-en-valeur-la-serie-foot-467775.htm",
+    "source_date": "2026-11-15T23:01:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "dba61cc4cf1ee182de25e45d",
+    "kind": "news",
+    "title": "\"Je n'étais pas content\" et \"on peut être un peu perplexe\" : l'analyse lucide de Zinédine Zidane après la timide victoire de la France contre la Turquie",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-nations/je-n-etais-pas-content-et-on-peut-etre-un-peu-perplexe-l-analyse-lucide-de-zinedine-zidane-apres-la-timide-victoire-de-la-france-contre-la-turquie_8283977.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-15T22:54:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8566b884b7011c87bae03c25",
+    "kind": "news",
+    "title": "Ligue des Nations : l’Italie évite les barrages et pense déjà à l’Euro 2028",
+    "url": "https://www.footmercato.net/a8702059489969769867-ligue-des-nations-litalie-evite-les-barrages-et-pense-deja-a-leuro-2028",
+    "source_date": "2026-11-15T22:47:23+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3c8d68eba19fe099640b0005",
+    "kind": "news",
+    "title": "L'Angleterre fait tomber l'Espagne championne du monde après 43 matchs sans défaite",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-nations/l-angleterre-fait-tomber-l-espagne-championne-du-monde-apres-44-matchs-sans-defaite_8283968.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-15T22:40:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2b095484f6d2869fb7f37229",
+    "kind": "news",
+    "title": "Ligue des nations : la France souffre contre la Turquie mais arrache sa qualification en quarts",
+    "url": "https://www.france24.com/fr/sports/20261115-ligue-des-nations-la-france-se-qualifie-dans-la-douleur-contre-la-turquie",
+    "source_date": "2026-11-15T22:40:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "eb224bd67b236a3679e69a66",
+    "kind": "news",
+    "title": "Espagne : l’Angleterre a mis fin à une série espagnole de 525 jours",
+    "url": "https://www.footmercato.net/a647097672422482470-espagne-langleterre-a-mis-fin-a-une-serie-de-525-jours",
+    "source_date": "2026-11-15T22:34:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "66bdd3b72d427a1ba46658e4",
+    "kind": "news",
+    "title": "L'équipe de France domine la Turquie, non sans mal, et poursuit sa route en Ligue des nations",
+    "url": "https://www.rfi.fr/fr/sports/20261115-l-%C3%A9quipe-de-france-domine-la-turquie-non-sans-mal-et-poursuit-sa-route-en-ligue-des-nations",
+    "source_date": "2026-11-15T21:39:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "480602b1c2cd7a71ed588435",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : qui peut se qualifier, qui est en danger ? Le point sur la 4e journée",
+    "url": "https://www.france24.com/fr/sports/20261115-%C3%A9liminatoires-de-la-can-2027-qui-peut-se-qualifier-qui-est-en-danger-le-point-par-groupe",
+    "source_date": "2026-11-15T18:00:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d222050af16153a2bbfdfc39",
+    "kind": "news",
+    "title": "Ligue des champions féminine CAF: l'AS FAR remporte le titre et venge son équipe masculine contre le Mamelodi Sundowns",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261115-ligue-des-champions-f%C3%A9minine-caf-l-as-far-remporte-le-titre-et-venge-son-%C3%A9quipe-masculine-contre-le-mamelodi-sundowns",
+    "source_date": "2026-11-15T17:18:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "27cf839a99cb3d4f66efcf97",
+    "kind": "news",
+    "title": "Ligue des nations : revivez la victoire et la qualification des Bleus face à la Turquie",
+    "url": "https://www.france24.com/fr/sports/20261115-ligue-des-nations-suivez-en-direct-le-match-de-la-qualification-pour-la-france-contre-la-turquie",
+    "source_date": "2026-11-15T17:00:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "09bed9cbec673773fa3f85ea",
+    "kind": "news",
+    "title": "La relation Mbappé-Zidane, l'autre enjeu du match des Bleus contre la Turquie",
+    "url": "https://www.rfi.fr/fr/sports/20261115-la-relation-mbapp%C3%A9-zidane-l-autre-enjeu-du-match-des-bleus-contre-la-turquie",
+    "source_date": "2026-11-15T12:02:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0f585a7beab2acd1579400da",
+    "kind": "news",
+    "title": "Endrick a agressé un arbitre !",
+    "url": "https://www.footmercato.net/a2924909689575013179-endrick-a-agresse-un-arbitre",
+    "source_date": "2026-11-16T00:01:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "61c24e718dcb92fefa44fa14",
+    "kind": "news",
+    "title": "Ligue des nations : Faut-il s’inquiéter de la prestation défensive de l’équipe de France contre la Turquie ?",
+    "url": "https://www.sofoot.com/articles/ligue-des-nations-faut-il-sinquieter-de-la-prestation-defensive-de-lequipe-de-france-contre-la-turquie",
+    "source_date": "2026-11-15T23:45:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8d484cea9b2389ae0e69ed77",
+    "kind": "news",
+    "title": "Zinédine Zidane n’a pas été surpris par le niveau de la Turquie lors du match de Ligue des Nations contre la France",
+    "url": "https://www.sofoot.com/breves/zinedine-zidane-na-pas-ete-surpris-par-le-niveau-de-la-turquie-lors-du-match-de-ligue-des-nations-contre-la-france",
+    "source_date": "2026-11-15T23:29:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c266f1e822d52a7b3ae93af7",
+    "kind": "news",
+    "title": "France-Turquie en Ligue des nations : Éli Junior Kroupi réagit à son premier but avec les Bleus",
+    "url": "https://www.sofoot.com/breves/france-turquie-en-ligue-des-nations-eli-junior-kroupi-reagit-a-son-premier-but-avec-les-bleus",
+    "source_date": "2026-11-15T23:18:23+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a1638f4ac008e5809ef66166",
+    "kind": "news",
+    "title": "Équipe de France : Kylian Mbappé est passé à côté pour son grand retour !",
+    "url": "https://www.footmercato.net/a4450439188561704795-equipe-de-france-kylian-mbappe-a-completement-manque-son-grand-retour",
+    "source_date": "2026-11-15T23:12:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5cc7f0cc4b075406e7ea7e2a",
+    "kind": "news",
+    "title": "Équipe de France : Éli Junior Kroupi aux anges après son but contre la Turquie et fait une magnifique déclaration",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-eli-junior-kroupi-aux-anges-apres-son-but-contre-la-turquie-et-fait-une-magnifique-declaration-545936.html",
+    "source_date": "2026-11-15T23:09:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "335973fb46ef6a583f39bfe1",
+    "kind": "news",
+    "title": "Ligue des Nations : La Belgique élimine l'Italie, l'Angleterre chipe la première place à l'Espagne : le récap de la soirée",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-des-nations-la-belgique-elimine-l-italie-l-angleterre-chipe-la-premiere-place-a-l-espagne-le-recap-de-la-soiree-545935.html",
+    "source_date": "2026-11-15T23:03:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "86bfffa17f7f9872e809ee30",
+    "kind": "news",
+    "title": "Équipe de France : Michel Platini dépassé dans les statistiques par les buts contre son camp",
+    "url": "https://www.sofoot.com/breves/equipe-de-france-michel-platini-depasse-dans-les-statistiques-par-les-buts-contre-son-camp",
+    "source_date": "2026-11-15T23:00:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "76928b21c66c5495f1671124",
+    "kind": "news",
+    "title": "Équipe de France : la FFF donne des nouvelles de Mike Maignan",
+    "url": "https://www.footmercato.net/a7389770827573402052-equipe-de-france-la-fff-donne-des-nouvelles-de-mike-maignan",
+    "source_date": "2026-11-15T22:52:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "17f0313355c1caabe300a0bd",
+    "kind": "news",
+    "title": "Ligue des nations : Zidane n’a vraiment pas aimé la première période de l’équipe de France contre la Turquie",
+    "url": "https://www.sofoot.com/breves/ligue-des-nations-zidane-na-vraiment-pas-aime-la-premiere-periode-de-lequipe-de-france-contre-la-turquie",
+    "source_date": "2026-11-15T22:52:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8d98aef4d9b722398a59c6a5",
+    "kind": "news",
+    "title": "France - Espagne en ligne de mire... après la qualification en quart de finale de Ligue des nations, quand aura lieu le tirage au sort ?",
+    "url": "https://www.onzemondial.com/equipe-de-france/france-espagne-en-ligne-de-mire-apres-la-qualification-en-quart-de-finale-de-ligue-des-nations-quand-aura-lieu-le-tirage-au-sort-1009225",
+    "source_date": "2026-11-15T22:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6ac033c16dffdea182285e63",
+    "kind": "news",
+    "title": "Équipe de France : Zinédine Zidane donne des nouvelles de Mike Maignan après sa sortie sur blessure contre la Turquie",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-zinedine-zidane-donne-des-nouvelles-de-mike-maignan-apres-sa-sortie-sur-blessure-contre-la-turquie-545934.html",
+    "source_date": "2026-11-15T22:44:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-16T05:42:05.818859+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "9d7db4774ebc8d1bdc87c3c9",
     "kind": "article",
     "title": "Estonia vs Bulgaria : analyse du match",
@@ -40,7 +586,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "64301c186adb7e6d72251d84",
@@ -61,7 +607,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "522ec245b8877cf90e38d544",
@@ -82,7 +628,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "62caa5b8115cf13baf1a3e70",
@@ -103,7 +649,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ed60f5a265a954776894114d",
@@ -124,7 +670,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b0a73e2425c954b514dbda6c",
@@ -166,7 +712,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6e662830425f456c5b12f6e1",
@@ -187,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aed0f40cbf027500bc7e5cc1",
@@ -229,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ee0fecf42315fab75172e774",
@@ -250,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7ba9b02a3d89f7b8e29a8301",
@@ -313,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cea1c472c0349639b4d33ae4",
@@ -334,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ffe78aeef6b7dad81cbd5e9b",
@@ -355,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "baa0f875e0e00ebba8265cc9",
@@ -376,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "226ea743304e1eca454ef91f",
@@ -397,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "130c15c4a08d889559862112",
@@ -418,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "54505c001b7aaccce7162a69",
@@ -439,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a44bae343c05d38f2b0a9469",
@@ -460,7 +1006,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e14cef5d712a2e90a4406a6c",
@@ -481,7 +1027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ce3c8fd49db7d176113099ca",
@@ -502,7 +1048,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "86a9db1f0e4cc4091830ea5f",
@@ -567,7 +1113,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "83daed9a229c73dbcf38e71b",
@@ -588,7 +1134,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e079d205041479f2e50992d2",
@@ -735,7 +1281,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3a1493e39ba5df19ce217b85",
@@ -756,7 +1302,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "261f327154f1f476251650fd",
@@ -777,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b66246c17ee3bd29fb84c113",
@@ -798,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6d4626bba183f07801114e50",
@@ -819,7 +1365,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f93ae7e9063493efa730b7d7",
