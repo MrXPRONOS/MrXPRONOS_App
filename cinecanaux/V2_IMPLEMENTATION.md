@@ -32,13 +32,14 @@
 | Recherche dans tous les messages Telegram | **Non implémenté** | Hors périmètre de l'annuaire de liens publics |
 | Statistiques sans historique personnel | Intégré | Agrégats journaliers par catégorie |
 | Interface mobile à peu de texte | Intégrée | Vérification syntaxique et tests ; recette visuelle sur téléphone nécessaire |
-| Publication en production | À valider | Ne pas appliquer avant migration, tests et sauvegarde |
+| Publication en production | Déployée | Code présent sur le Worker public ; tests fonctionnels complets à finaliser |
 
 ## Migrations D1 (ordre impératif)
 
 1. `cinecanaux/migrations/001_v2.sql`
 2. `cinecanaux/migrations/002_discovery_attempts.sql`
 3. `cinecanaux/migrations/003_anonymous_search_stats.sql`
+4. `cinecanaux/migrations/004_admin_hide.sql`
 
 Ces migrations sont additives et préservent les 40 fiches existantes. Les déclencheurs de production ne doivent pas être modifiés avant qu'elles aient toutes été appliquées et vérifiées.
 
@@ -59,3 +60,15 @@ Ces migrations sont additives et préservent les 40 fiches existantes. Les décl
 5. Le changement automatique d'un lien requiert une preuve de continuité d'identité, pas seulement une ressemblance de nom.
 6. L'accès aux API de participation exige des données d'authentification Telegram valides. Les API administratives exigent en plus un rôle autorisé.
 7. Les statistiques de recherche sont agrégées et ne stockent ni identité, ni terme saisi.
+
+## État vérifié le 16 novembre 2026
+
+- La V2 est réellement présente dans le Worker de production `cinecanaux-bot`.
+- La migration additive `004_admin_hide.sql` est appliquée sur la D1 de production.
+- La PR [#392](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/392) a réussi la CI, puis a été fusionnée dans `main` (commit `f6a2492be90e336d6348c0e9041aa489d8f48718`).
+- Le Worker a été redéployé via Cloudflare en héritant strictement de ses trois bindings : `DB`, `TELEGRAM_TOKEN` et `TELEGRAM_WEBHOOK_SECRET`. Leur présence a été contrôlée après le déploiement.
+- L'existence des trois déclencheurs a été confirmée : `0 3 * * *` (10 contrôles de liens par passage), `0 */4 * * *` (découverte), `15 */6 * * *` (entretien).
+- La base de production contient **40 canaux référencés**, **0 avis** et **0 contrôle enregistré** au moment du constat. Le fonctionnement de l'exécution quotidienne doit être vérifié après le prochain déclenchement réel.
+- Les vérifications de code, la migration D1 de test, les tests GitHub Actions et l'acceptation du Worker par Cloudflare ont réussi. En revanche, la recette manuelle sur téléphone, la soumission d'un véritable avis Telegram et une exécution Cron complète en production restent non vérifiées.
+- L'identification automatique du **nouveau lien d'un canal déplacé** demeure partielle : il faut une preuve de continuité d'identité. Le système masque une ancienne URL invalidée plutôt que de deviner une redirection.
+- La recherche dans l'intégralité des publications de Telegram n'est pas incluse : Ciné Radar reste un annuaire de liens publics et de métadonnées.
