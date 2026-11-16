@@ -166,9 +166,38 @@ export default {
    try{
     const image=await fetch(base+encodeURIComponent(handle)+".jpg",{signal:AbortSignal.timeout(6000),cf:{cacheEverything:true,cacheTtl:3600}});
     const type=String(image.headers.get("content-type")||"");
-    if(!image.ok||!type.toLowerCase().includes("image/"))return new Response("No public avatar",{status:404,headers:{"cache-control":"public,max-age=300"}});
-    return new Response(image.body,{headers:{"content-type":"image/jpeg","cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
-   }catch(e){console.warn("cineradar_avatar_unavailable",String(e).slice(0,90));return new Response("Avatar temporarily unavailable",{status:503,headers:{"cache-control":"no-store"}});}
+    if(image.ok&&type.toLowerCase().startsWith("image/"))return new Response(image.body,{headers:{"content-type":"image/jpeg","cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
+   }catch(e){console.warn("cineradar_avatar_repository_unavailable",String(e).slice(0,90));}
+   // Fallback for newly indexed channels: fetch the public channel photo with the server-side Bot API.
+   // The Telegram token and getFile URL are never sent to the browser.
+   if(env.TELEGRAM_TOKEN){
+    try{
+     const base="https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/";
+     const chatResponse=await fetch(base+"getChat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat_id:"@"+handle}),signal:AbortSignal.timeout(5500)});
+     if(chatResponse.ok){
+      const chat=await chatResponse.json();
+      const photoId=chat.ok&&chat.result?.type==="channel"?chat.result?.photo?.big_file_id:null;
+      if(typeof photoId==="string"&&photoId.length<500){
+       const fileResponse=await fetch(base+"getFile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({file_id:photoId}),signal:AbortSignal.timeout(5500)});
+       if(fileResponse.ok){
+        const file=await fileResponse.json();
+        const path=file.ok?file.result?.file_path:null;
+        if(typeof path==="string"&&/^[a-zA-Z0-9_./-]{1,350}$/.test(path)&&!path.includes("..")){
+         const imageResponse=await fetch("https://api.telegram.org/file/bot"+env.TELEGRAM_TOKEN+"/"+path,{signal:AbortSignal.timeout(6000)});
+         const contentType=String(imageResponse.headers.get("content-type")||"").toLowerCase();
+         if(imageResponse.ok&&contentType.startsWith("image/")){
+          const bytes=await imageResponse.arrayBuffer();
+          if(bytes.byteLength>0&&bytes.byteLength<=2097152){
+           return new Response(bytes,{headers:{"content-type":contentType,"cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
+          }
+         }
+        }
+       }
+      }
+     }
+    }catch(e){console.warn("cineradar_avatar_bot_fallback_unavailable",String(e).slice(0,90));}
+   }
+   return new Response("No accessible public avatar",{status:404,headers:{"cache-control":"public,max-age=300"}});
   }
   if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
