@@ -33,6 +33,10 @@ export async function adminAPI(env,request){
   const r=await env.DB.prepare("SELECT r.id,r.channel_id,c.title,c.link,r.reason,r.details,r.status,r.created_at FROM channel_reports r JOIN channels c ON c.id=r.channel_id WHERE r.status IN ('open','reviewing') ORDER BY r.created_at DESC LIMIT 60").all();
   return json({reports:r.results||[]});
  }
+ if(request.method==='GET'&&path==='/api/admin/reviews'){
+  const result=await env.DB.prepare("SELECT r.id,r.channel_id,c.title,r.rating,r.matches_description,r.comment,r.visibility,r.created_at FROM channel_reviews r JOIN channels c ON c.id=r.channel_id ORDER BY r.created_at DESC LIMIT 60").all();
+  return json({reviews:result.results||[]});
+ }
  if(request.method==='GET'&&path==='/api/admin/suggestions'){
   const r=await env.DB.prepare("SELECT id,username,link,suggested_category,status,created_at FROM channel_suggestions ORDER BY updated_at DESC LIMIT 80").all();
   return json({suggestions:r.results||[]});
@@ -40,6 +44,13 @@ export async function adminAPI(env,request){
  if(request.method!=='POST')return json({error:'Méthode inconnue'},405);
  try{
   const data=await parseBody(request);
+  const rev=/^\/api\/admin\/reviews\/(\d+)$/.exec(path);
+  if(rev){
+   const id=Number(rev[1]),visibility=String(data.visibility||'');
+   if(!Number.isSafeInteger(id)||id<1||!['visible','held','hidden'].includes(visibility))return json({error:'Avis invalide'},400);
+   await env.DB.prepare('UPDATE channel_reviews SET visibility=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(visibility,id).run();
+   return json({ok:true});
+  }
   const rm=/^\/api\/admin\/reports\/(\d+)$/.exec(path);
   if(rm){
    const id=Number(rm[1]),status=String(data.status||'');
