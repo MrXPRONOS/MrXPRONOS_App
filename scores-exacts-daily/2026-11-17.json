@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-17",
+  "generated_at": "2026-11-16T09:56:39Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4891585",
+      "league": "Azadegan League",
+      "home": "Havadar",
+      "away": "Mes Kerman",
+      "kickoff_utc": "2026-11-17T10:30:00Z",
+      "score": "1:0",
+      "probability": 0.13613519
+    },
+    {
+      "id": "sportsapipro:4886054",
+      "league": "Friendly International",
+      "home": "Kuwait",
+      "away": "Honduras",
+      "kickoff_utc": "2026-11-17T16:30:00Z",
+      "score": "2:1",
+      "probability": 0.09885564
+    },
+    {
+      "id": "sportsapipro:4887276",
+      "league": "Friendly International",
+      "home": "UAE",
+      "away": "Syria",
+      "kickoff_utc": "2026-11-17T14:10:00Z",
+      "score": "2:1",
+      "probability": 0.09773919
+    },
+    {
+      "id": "sportsapipro:4766445",
+      "league": "National League N/S - Regular Season",
+      "home": "South Shields",
+      "away": "Harborough Town",
+      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "score": "2:1",
+      "probability": 0.09630541
+    },
+    {
+      "id": "sportsapipro:4883918",
+      "league": "Non League Premier",
+      "home": "Ramsgate",
+      "away": "Cray Wanderers",
+      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "score": "2:1",
+      "probability": 0.0962671
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4891585",
+      "league": "Azadegan League",
+      "home": "Havadar",
+      "away": "Mes Kerman",
+      "kickoff_utc": "2026-11-17T10:30:00Z",
+      "score": "1:0",
+      "probability": 0.30407761,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4886054",
+      "league": "Friendly International",
+      "home": "Kuwait",
+      "away": "Honduras",
+      "kickoff_utc": "2026-11-17T16:30:00Z",
+      "score": "2:1",
+      "probability": 0.28632583,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4887276",
+      "league": "Friendly International",
+      "home": "UAE",
+      "away": "Syria",
+      "kickoff_utc": "2026-11-17T14:10:00Z",
+      "score": "2:1",
+      "probability": 0.27816674,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4883918",
+      "league": "Non League Premier",
+      "home": "Ramsgate",
+      "away": "Cray Wanderers",
+      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "score": "2:1",
+      "probability": 0.24570294,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4766445",
+      "league": "National League N/S - Regular Season",
+      "home": "South Shields",
+      "away": "Harborough Town",
+      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "score": "2:1",
+      "probability": 0.24560372,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
+}
