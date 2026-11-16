@@ -360,18 +360,48 @@ def open_by_search(page, name):
         except Exception:pass
         return False
 
-def deliver(page, chat, answer, ledger):
-    # Reopen chat by exact title and recheck message immediately before send.
-    if not open_by_search(page,chat['name']):
-        event('SEND_SKIP cannot_reopen '+chat['name'][:35]);return False
-    now=read_chat(page,chat['name'],chat['is_group'])
-    if now['status'] not in ('inbound_text','voice_pending'):
+def recent_message(last, max_days=9):
+    """Ignore older, future and undated messages: no unsolicited old replies."""
+    raw=(last or {}).get('pre') or ''
+    m=re.search(r'\d{1,2}:\d{2}(?:\s*[AP]M)?,\s*(\d{1,2}/\d{1,2}/\d{4})',raw,re.I)
+    if not m:
+        m=re.search(r'\b(\d{1,2}/\d{1,2}/\d{4})\b',raw)
+    if not m:
         return False
-    if now['fingerprint']!=chat['fingerprint']:return False
+    try:
+        msg_date=dt.datetime.strptime(m.group(1),'%d/%m/%Y').date()
+        age=(dt.datetime.now(dt.timezone.utc).date()-msg_date).days
+        return 0 <= age <= max_days
+    except ValueError:
+        return False
+
+
+def deliver_current(page, chat, answer, ledger):
+    """The chat is ALREADY OPEN. Recheck sender and message before pressing Enter."""
+    now=read_chat(page,chat['name'],chat['is_group'])
+    if now.get('status') not in ('inbound_text','voice_pending'):
+        event('SEND_SKIP last_not_inbound '+chat['name'][:35])
+        return False
+    if now.get('fingerprint')!=chat['fingerprint']:
+        event('SEND_SKIP changed_last_message '+chat['name'][:35])
+        return False
+    if (now.get('last') or {}).get('proof') not in (
+        'tail-in','id-false','class-in','pre-sender'
+    ):
+        event('SEND_SKIP sender_uncertain '+chat['name'][:35])
+        return False
+    if not recent_message(now.get('last')):
+        event('SEND_SKIP old_or_undated '+chat['name'][:35])
+        return False
+    if chat.get('is_group'):
+        return False
     editor=page.locator('#main footer [contenteditable="true"]')
-    if editor.count()!=1:return False
+    if editor.count()!=1:
+        event('SEND_SKIP editor_missing '+chat['name'][:35])
+        return False
     finger=chat['fingerprint']
-    if finger in ledger:return False
+    if finger in ledger:
+        return False
     ledger[finger]={'name':chat['name'],'status':'pending',
       'date':dt.date.today().isoformat(),
       'at':dt.datetime.now(dt.timezone.utc).isoformat()}
@@ -379,14 +409,14 @@ def deliver(page, chat, answer, ledger):
     try:
         editor.fill(answer,timeout=5000)
         editor.press('Enter',timeout=5000)
-        page.wait_for_timeout(900)
+        page.wait_for_timeout(850)
         latest=page.evaluate(EXTRACT).get('last') or {}
         verified=(latest.get('direction')=='out' and
-            answer[:65] in latest.get('text',''))
+                  answer[:65] in latest.get('text',''))
         ledger[finger]['status']='sent' if verified else 'uncertain'
         atomic(LEDGER,ledger)
         event(('SENT ' if verified else 'UNCERTAIN_NO_RETRY ')+
-             chat['name'][:45])
+              chat['name'][:45])
         return verified
     except Exception as exc:
         ledger[finger]['status']='uncertain'
@@ -394,76 +424,126 @@ def deliver(page, chat, answer, ledger):
         event('SEND_ERROR_NO_RETRY '+type(exc).__name__)
         return False
 
-def run(preview_only=False, limit=7):
+
+def run(preview_only=False, limit=4):
+    """Scan AND respond while each chat is open; never reopen by search."""
     from playwright.sync_api import sync_playwright
     cfg=read(CONFIG,{'enabled':False})
     ledger=state_ledgers()
     report={'at':dt.datetime.now(dt.timezone.utc).isoformat(),
             'preview_only':preview_only,'chats':[],
-            'sent':0,'candidates':0,'voices_transcribed':0}
+            'sent':0,'candidates':0,'voices_transcribed':0,
+            'attempted_ai':0,'incoming':0,'outgoing':0}
+    scanned=set()
     with sync_playwright() as pw:
         browser=pw.chromium.connect_over_cdp(CDP,timeout=16000)
         pages=[tab for ctx in browser.contexts for tab in ctx.pages
               if tab.url.startswith(SITE)]
-        if len(pages)!=1:raise RuntimeError(
-            'Il faut exactement un onglet WhatsApp Web connecté dans xassistant-native')
+        if len(pages)!=1:
+            raise RuntimeError('Un seul onglet WhatsApp Web connecté est nécessaire.')
         page=pages[0]
         if page.locator('#pane-side').count()!=1:
-            raise RuntimeError('WhatsApp Web non connecté ou liste indisponible')
-        entries=scan(page,max_chats=70,max_scroll=55)
-        ins=sum(1 for c in entries if (c.get('last') or {}).get('direction')=='in'
-                and (c.get('last') or {}).get('proof')!='none')
-        outs=sum(1 for c in entries if (c.get('last') or {}).get('direction')=='out'
-                and (c.get('last') or {}).get('proof')!='none')
-        # Confirm positive real examples of both directions before any automatic sends.
-        qualified=ins>=1 and outs>=1
-        event('SCAN chats='+str(len(entries))+' incoming='+str(ins)+
-              ' outgoing='+str(outs)+' classification_verified='+str(qualified))
-        report['class_verified']=qualified
-        for c in entries:
-            last=c.get('last')
-            record={k:c.get(k) for k in ('name','status','fingerprint')}
-            record['proof']=(last or {}).get('proof')
-            report['chats'].append(record)
-        # Review all even if previously marked read. Old state JSON is used for
-        # prioritisation only, never as proof a message was answered.
-        older=read(HOME/'.local/state/xassistant/whatsapp-backlog.json',{})
-        names={c.get('name') for c in older.get('chats',[]) if
-              c.get('status') not in ('skip_outgoing','no_visible_message')}
-        entries.sort(key=lambda x:(x['name'] not in names,x['status']!='voice_pending'))
-        for c in entries:
-            if report['sent']>=limit:break
-            if not qualified or not cfg.get('enabled') or preview_only:break
-            if c['status'] not in ('inbound_text','voice_pending'):continue
-            if c['fingerprint'] in ledger or c['is_group']:continue
-            if not can_send_today(ledger):break
-            report['candidates']+=1
-            if c['status']=='voice_pending':
-                if not open_by_search(page,c['name']):continue
-                fresh=read_chat(page,c['name'],c['is_group'])
-                if fresh['fingerprint']!=c['fingerprint'] or fresh['status']!='voice_pending':
+            raise RuntimeError('WhatsApp Web non connecté ou liste indisponible.')
+        scroll(page,True)
+        page.wait_for_timeout(450)
+        for step in range(55):
+            items=listrows(page)
+            for item in items:
+                name=item['name']
+                if name in scanned or len(report['chats'])>=80:
                     continue
-                raw=audio_bytes(page,fresh['last']['key'])
-                if raw is None:
-                    event('VOICE_NOT_AVAILABLE '+c['name'][:40]);continue
-                transcript=transcribe(raw)
-                if not transcript:continue
-                c['last']['text']=transcript
-                c['last']['audio_transcribed']=True
-                c['messages'][-1]['text']=transcript
-                report['voices_transcribed']+=1
-            answer=reply_ai(c)
-            if not answer:
-                # Don't repeatedly ask the model about an unchanged spam/OK message.
-                ledger[c['fingerprint']]={'name':c['name'],'status':'skip',
-                  'date':dt.date.today().isoformat()}
-                atomic(LEDGER,ledger)
-                continue
-            if deliver(page,c,answer,ledger):report['sent']+=1
+                scanned.add(name)
+                try:
+                    if not click_chat(page,name):
+                        report['chats'].append({'name':name,'status':'cannot_open'})
+                        continue
+                    c=read_chat(page,name,item['group'])
+                    last=c.get('last') or {}
+                    direction=last.get('direction')
+                    if direction=='in':report['incoming']+=1
+                    if direction=='out':report['outgoing']+=1
+                    report['chats'].append({
+                        'name':name,'status':c.get('status'),
+                        'proof':last.get('proof'),
+                        'fingerprint':c.get('fingerprint')
+                    })
+                    atomic(REPORT,report)
+                    if preview_only or not cfg.get('enabled'):
+                        continue
+                    if report['attempted_ai']>=limit:
+                        continue
+                    if c.get('status') not in ('inbound_text','voice_pending'):
+                        continue
+                    if last.get('proof') not in (
+                        'tail-in','id-false','class-in','pre-sender'
+                    ):
+                        continue
+                    if c.get('is_group') or c.get('fingerprint') in ledger:
+                        continue
+                    if not can_send_today(ledger):
+                        continue
+                    if not recent_message(last):
+                        event('SKIP old_or_undated '+name[:35])
+                        continue
+                    text_in=(last.get('text') or '').strip()
+                    if c['status']=='inbound_text' and (
+                       re.fullmatch(r'(?i)(ok|okay|oui|merci|d.accord|bien|👍|👌)[.! ]*',
+                                    text_in) or
+                       re.search(r'https?://|www\.',text_in,re.I)
+                    ):
+                        ledger[c['fingerprint']]={'name':name,
+                           'status':'skip','date':dt.date.today().isoformat()}
+                        atomic(LEDGER,ledger)
+                        continue
+                    report['candidates']+=1
+                    if c['status']=='voice_pending':
+                        raw=audio_bytes(page,last['key'])
+                        if raw is None:
+                            event('VOICE_NOT_AVAILABLE '+name[:35])
+                            continue
+                        transcript=transcribe(raw)
+                        if not transcript:
+                            event('VOICE_NO_TRANSCRIPT '+name[:35])
+                            continue
+                        # Mark that audio actually was transcribed;
+                        # do not claim success on an unavailable voice note.
+                        c['last']['text']=transcript
+                        c['last']['audio_transcribed']=True
+                        if c['messages']:
+                            c['messages'][-1]['text']=transcript
+                        report['voices_transcribed']+=1
+                    report['attempted_ai']+=1
+                    answer=reply_ai(c)
+                    if not answer:
+                        ledger[c['fingerprint']]={'name':name,
+                            'status':'skip','date':dt.date.today().isoformat()}
+                        atomic(LEDGER,ledger)
+                        event('AI_SKIP '+name[:35])
+                        continue
+                    if deliver_current(page,c,answer,ledger):
+                        report['sent']+=1
+                    atomic(REPORT,report)
+                except Exception as exc:
+                    event('CHAT_ERROR '+type(exc).__name__+' '+name[:35])
+                if len(report['chats'])>=80:
+                    break
+            if len(report['chats'])>=80:
+                break
+            state=scroll(page)
+            if not state or state['to']<=state['from']:
+                break
+            page.wait_for_timeout(370)
+        report['class_verified']=(
+            report['incoming']>0 and report['outgoing']>0)
         atomic(REPORT,report)
-        event('DONE sent='+str(report['sent'])+
+        event('DONE chats='+str(len(report['chats']))+
+              ' incoming='+str(report['incoming'])+
+              ' outgoing='+str(report['outgoing'])+
+              ' candidates='+str(report['candidates'])+
+              ' attempted_ai='+str(report['attempted_ai'])+
+              ' sent='+str(report['sent'])+
               ' transcribed='+str(report['voices_transcribed'])+
-              ' preview='+str(preview_only)+' auto='+str(cfg.get('enabled')))
+              ' auto='+str(cfg.get('enabled')))
 
 def install():
     if os.geteuid()==0:raise SystemExit('Ne pas installer avec sudo.')
