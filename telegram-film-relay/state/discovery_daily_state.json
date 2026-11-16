@@ -7,17 +7,18 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 6,
+          "matching_pairs": 14,
           "patterns": [
+            "photo_caption_video",
             "photo_text_video",
             "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 1,
           "sample_post_ids": [
-            66107,
-            66118,
-            66125
+            5802,
+            5856,
+            5919
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -26,10 +27,10 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "ANIMES VF/VOSTFR",
+          "title": "ANIMÉ 卂 MOMENT VF",
           "transfer_restricted": false,
-          "url": "https://t.me/ANIMES_VF_VOSFR",
-          "username": "ANIMES_VF_VOSFR",
+          "url": "https://t.me/ANIMEISEKAIC",
+          "username": "ANIMEISEKAIC",
           "verification_method": "public_message_structure"
         },
         {
@@ -37,17 +38,16 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 3,
+          "matching_pairs": 52,
           "patterns": [
-            "photo_caption_video",
             "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            14927,
-            14932,
-            14859
+            91223,
+            91224,
+            91225
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -56,10 +56,10 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "MANGAS TV VF 🇫🇷",
+          "title": "Anime et Serie Animation VF",
           "transfer_restricted": false,
-          "url": "https://t.me/MANGAS_ANIME_EN_FRANCAIS",
-          "username": "MANGAS_ANIME_EN_FRANCAIS",
+          "url": "https://t.me/Anime_VF",
+          "username": "Anime_VF",
           "verification_method": "public_message_structure"
         },
         {
@@ -67,17 +67,18 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 12,
+          "matching_pairs": 7,
           "patterns": [
             "photo_caption_video",
+            "photo_text_video",
             "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 1,
           "sample_post_ids": [
-            16689,
-            16703,
-            16718
+            383,
+            397,
+            403
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -86,10 +87,10 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "ANIME SAMA VF",
+          "title": "Anime Canal Vf👍✨",
           "transfer_restricted": false,
-          "url": "https://t.me/ANIME_SAMA_VF_HD",
-          "username": "ANIME_SAMA_VF_HD",
+          "url": "https://t.me/anime2_vf",
+          "username": "anime2_vf",
           "verification_method": "public_message_structure"
         }
       ],
@@ -97,7 +98,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 3,
+        "next_candidate_offset": 7,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -111,7 +112,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 8,
-        "next_candidate_offset": 6,
+        "next_candidate_offset": 2,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -126,57 +127,29 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 12,
+          "matching_pairs": 5,
           "patterns": [
-            "photo_caption_video"
+            "photo_text_video",
+            "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 1,
           "sample_post_ids": [
-            9108,
-            9110,
-            9112
+            3,
+            6,
+            7
           ],
-          "sampled_messages": 55,
+          "sampled_messages": 18,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "💞 MOVIE and SÉRIES _ ROMANTIQUES",
+          "title": "College romance 1,2(Cinemax Original)",
           "transfer_restricted": false,
-          "url": "https://t.me/filmsromantiques",
-          "username": "filmsromantiques",
-          "verification_method": "public_message_structure"
-        },
-        {
-          "category": "desir",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 8,
-          "patterns": [
-            "photo_caption_video"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            258,
-            260,
-            262
-          ],
-          "sampled_messages": 21,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "💖💖FILMS ROMANTIQUES💖💖",
-          "transfer_restricted": false,
-          "url": "https://t.me/filmsromatique",
-          "username": "filmsromatique",
+          "url": "https://t.me/Collegeromanceallseason",
+          "username": "Collegeromanceallseason",
           "verification_method": "public_message_structure"
         }
       ],
@@ -184,61 +157,61 @@
         "attempted": 4,
         "checked": 4,
         "found": 14,
-        "next_candidate_offset": 5,
+        "next_candidate_offset": 9,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
         "rate_limited": false,
-        "strict_rejected": 2
+        "strict_rejected": 3
       }
     },
     "films": {
+      "channels": [],
+      "statistics": {
+        "attempted": 4,
+        "checked": 4,
+        "found": 16,
+        "next_candidate_offset": 15,
+        "not_readable": 0,
+        "protected": 0,
+        "queries": 2,
+        "rate_limited": false,
+        "strict_rejected": 4
+      }
+    },
+    "series": {
       "channels": [
         {
-          "category": "films",
+          "category": "series",
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 3,
+          "matching_pairs": 27,
           "patterns": [
             "photo_caption_video",
+            "photo_text_video",
             "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            7,
-            3,
-            6
+            137,
+            152,
+            163
           ],
-          "sampled_messages": 17,
+          "sampled_messages": 55,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
+            "min_video_megabytes": 70,
+            "min_video_minutes": 20
           },
-          "title": "Film complet en français",
+          "title": "MY HERO ACADEMIA HD (VOSTFR/VF)",
           "transfer_restricted": false,
-          "url": "https://t.me/film_complet_vf",
-          "username": "film_complet_vf",
+          "url": "https://t.me/orak_series",
+          "username": "orak_series",
           "verification_method": "public_message_structure"
-        }
-      ],
-      "statistics": {
-        "attempted": 4,
-        "checked": 4,
-        "found": 15,
-        "next_candidate_offset": 11,
-        "not_readable": 0,
-        "protected": 0,
-        "queries": 2,
-        "rate_limited": false,
-        "strict_rejected": 3
-      }
-    },
-    "series": {
-      "channels": [
+        },
         {
           "category": "series",
           "format": "non_verifie",
@@ -251,46 +224,19 @@
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            6
+            15
           ],
-          "sampled_messages": 7,
+          "sampled_messages": 20,
           "source_status": "pending_review",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 70,
             "min_video_minutes": 20
           },
-          "title": "SÉRIE & FILM VF_🇲🇫",
+          "title": "amateur de séries turques en vostfr",
           "transfer_restricted": false,
-          "url": "https://t.me/SERIE_TV_VF",
-          "username": "SERIE_TV_VF",
-          "verification_method": "strict_caption_video"
-        },
-        {
-          "category": "series",
-          "format": "non_verifie",
-          "format_verified": false,
-          "joined_by_tool": false,
-          "matching_pairs": 1,
-          "patterns": [
-            "standalone_mkv"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            14
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_review",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 70,
-            "min_video_minutes": 20
-          },
-          "title": "Séries Tv vf",
-          "transfer_restricted": false,
-          "url": "https://t.me/Series_tv_vf",
-          "username": "Series_tv_vf",
+          "url": "https://t.me/series_turques",
+          "username": "series_turques",
           "verification_method": "strict_caption_video"
         }
       ],
@@ -298,12 +244,12 @@
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 9,
+        "next_candidate_offset": 13,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 4
+        "strict_rejected": 3
       }
     }
   },
@@ -360,13 +306,13 @@
     "vfnolly",
     "voir_drama_tv"
   ],
-  "last_notification_day": "2026-11-15",
-  "last_scan": "2026-11-15T15:03:30.729720+00:00",
+  "last_notification_day": "2026-11-16",
+  "last_scan": "2026-11-16T17:27:55.602500+00:00",
   "offsets": {
-    "anime": 3,
-    "comedie": 6,
-    "desir": 5,
-    "films": 11,
-    "series": 9
+    "anime": 7,
+    "comedie": 2,
+    "desir": 9,
+    "films": 15,
+    "series": 13
   }
 }
