@@ -207,8 +207,6 @@ export default {
    return new Response(image.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public,max-age=86400"}});
   }
   if(u.pathname==="/api/catalog"||u.pathname==="/api/search"||u.pathname==="/api/reports"||u.pathname==="/api/suggestions"||/^\/api\/channels\/\d+\/reviews$/.test(u.pathname))return v2API(env,request);
-  if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
-  if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
   if(u.pathname==="/api/engagement"&&request.method==="POST"){
     const origin=request.headers.get("origin");
     if(origin&&origin!==u.origin)return Response.json({error:"Origin denied"},{status:403});
@@ -221,6 +219,8 @@ export default {
     await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=opens+1").bind(id).run();
     return Response.json({ok:true},{headers:{"Cache-Control":"no-store"}});
   }
+  if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
+  if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
