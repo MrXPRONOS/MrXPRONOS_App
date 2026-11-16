@@ -107,6 +107,15 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 @media(prefers-reduced-motion:reduce){.loading{animation:none}html{scroll-behavior:auto}.card,.hero-art,.tabs button{transition:none}}
 
 /* V2 — minimal mobile-first controls; descriptions remain in detail sheets. */
+.tabs button{height:68px;flex-direction:column;justify-content:center;gap:5px;font-size:clamp(10px,2.6vw,12px);border-radius:14px}
+.tabs button .icon{width:23px;height:23px;color:#b7ceff}
+.tabs button.active .icon{color:#fff}
+.tabs button[data-type="films"]{background:linear-gradient(155deg,#16294e,#243965)}
+.tabs button[data-type="series"]{background:linear-gradient(155deg,#1c2650,#34285c)}
+.tabs button[data-type="animes"]{background:linear-gradient(155deg,#302854,#4c2a55)}
+.tabs button.active{background:linear-gradient(135deg,#7753e4,#366fff)}
+@media(max-width:360px){.tabs{gap:4px}.tabs button{height:64px;padding:0 1px;font-size:10px}.tabs button .icon{width:21px;height:21px}}
+
 .v2-tools{display:flex;align-items:center;gap:8px;margin:-9px 0 18px;flex-wrap:wrap}
 .v2-tools select,.v2-tools button{background:#162944;border:1px solid #344f78;color:#d7e6ff;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;min-height:38px}
 .v2-tools button{margin-left:auto}
