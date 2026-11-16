@@ -46,12 +46,12 @@ for(const route of ["/api/favorite","/api/profile","/api/preferences"]){
 console.log("PASS old personal APIs removed");
 
 
-// Speed behavior: all categories/search must be filtered from one fetched catalog.
+// V2: filters can be combined and searched from the server, with fast client rendering.
 assert.ok(app.body.includes("function applyFilters()"));
-assert.ok(app.body.includes('api("/api/catalog")'));
-assert.ok(!app.body.includes('api("/api/catalog?'));
+assert.ok(app.body.includes('"/api/search?q="'));
+assert.ok(app.body.includes("selectedTypes"));
 assert.ok(app.body.includes("fillPreview(c,images.get(c.id))"));
-console.log("PASS instant client-side category/search and immediate preview shell");
+console.log("PASS V2 multi-category search and immediate preview shell");
 assert.ok(app.body.includes("const PRELOADED_CATALOG=["),
   "Production HTML should include real channels; no second fetch necessary on first paint");
 assert.ok(app.body.includes('<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>'),
@@ -67,3 +67,24 @@ for(const type of ["films","series","animes"]){
 }
 
 // Production check: minimal Ciné Radar release V6, verified after performance deployment.
+
+const search=await get("/api/search?q=film");
+assert.equal(search.status,200);
+assert.ok(search.body.total>0,"Film keyword must return indexed film channels");
+assert.ok(search.body.channels.every(x=>x.type==="films"));
+console.log("PASS live search by category keyword");
+const multi=await get("/api/search?types=films,animes&q=film%3Banime");
+assert.equal(multi.status,200);
+assert.ok(multi.body.channels.some(x=>x.type==="films"));
+assert.ok(multi.body.channels.some(x=>x.type==="animes"));
+console.log("PASS multi-phrase multi-category live search");
+const reviews=await get("/api/channels/"+first.id+"/reviews");
+assert.equal(reviews.status,200);
+assert.ok(Object.hasOwn(reviews.body,"summary"));
+console.log("PASS public aggregate ratings");
+const admin=await get("/api/admin/overview");
+assert.equal(admin.status,403,"Admin access must not be possible anonymously");
+console.log("PASS admin endpoint authentication boundary");
+const blocked=await fetch(base+"/api/channels/"+first.id+"/reviews",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({rating:5,matches_description:"yes"})});
+assert.equal(blocked.status,401);
+console.log("PASS unsigned review rejected");
