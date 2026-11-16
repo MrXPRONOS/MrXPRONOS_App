@@ -35,3 +35,18 @@ jobs:
           node --check cinecanaux/admin-page.mjs
       - name: Run isolated Telegram and Mini App tests
         run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs
+
+      - name: Staging Worker smoke (non-production)
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://cinecanaux-v2-staging.cinecanaux-xpronos.workers.dev"
+          curl --fail --silent --show-error --retry 2 --max-time 15 "$URL/health" -o /tmp/cineradar-health.json
+          node -e "const x=require('/tmp/cineradar-health.json');if(x.service!=='cine-radar'||x.database!==true)process.exit(1);"
+          curl --fail --silent --show-error --retry 2 --max-time 15 "$URL/api/search?q=film" -o /tmp/cineradar-search.json
+          node -e "const x=require('/tmp/cineradar-search.json');if(!Array.isArray(x.channels)||x.channels.length<1)process.exit(1);"
+          curl --fail --silent --show-error --retry 2 --max-time 15 "$URL/app" -o /tmp/cineradar-app.html
+          grep -q "Ciné Radar" /tmp/cineradar-app.html
+          status=$(curl --silent --show-error --max-time 15 -o /dev/null -w "%{http_code}" "$URL/api/admin/overview")
+          test "$status" = "403"
