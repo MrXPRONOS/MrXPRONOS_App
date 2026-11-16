@@ -87,9 +87,15 @@ function matchToken(token,c){
  if(name.split(/\W+/).some(w=>distanceOne(token,w)))return 2;
  return 0;
 }
-function rank(row,tokens){
- let match=0;
- for(const token of tokens){const value=matchToken(token,row);if(!value)return null;match+=value;}
+function rank(row,groups){
+ const groupScores=[];
+ for(const tokens of groups){
+  let match=0,valid=true;
+  for(const token of tokens){const value=matchToken(token,row);if(!value){valid=false;break;}match+=value;}
+  if(valid)groupScores.push(match);
+ }
+ if(!groupScores.length)return null;
+ const match=Math.max(...groupScores);
  const count=Number(row.review_count||0),rating=Number(row.rating||0);
  const quality=count?Math.min(1,count/5)*rating:0;
  const activity=row.last_post_at&&Date.now()-Date.parse(row.last_post_at)<30*86400000?1:0;
@@ -98,7 +104,8 @@ function rank(row,tokens){
 }
 async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset=0}={}){
  const selected=String(types||'').split(',').filter(t=>TYPES.has(t));
- const tokens=tokenize(query);
+ const groups=String(query||"").split(/[;|]/).slice(0,4).map(tokenize).filter(x=>x.length);
+ if(!groups.length)groups.push([]);
  // A single bounded query for a medium directory; later expand with FTS/pagination if needed.
  const result=await env.DB.prepare(`SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,
  c.last_post_at,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') AS photo,
@@ -112,7 +119,7 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  WHERE c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'
  ORDER BY c.updated_at DESC LIMIT 2500`).all();
  const rows=(result.results||[]).filter(c=>linkUsername(c.link)&&(!selected.length||selected.includes(c.content_type)||String(c.tags||'').split(',').some(t=>selected.includes(t))));
- const ranked=rows.map(c=>({c,score:rank(c,tokens)})).filter(x=>x.score!==null);
+ const ranked=rows.map(c=>({c,score:rank(c,groups)})).filter(x=>x.score!==null);
  if(sort==='rated')ranked.sort((a,b)=>(Number(b.c.review_count)>=3?Number(b.c.rating):0)-(Number(a.c.review_count)>=3?Number(a.c.rating):0)||b.score-a.score);
  else if(sort==='recent')ranked.sort((a,b)=>(Date.parse(b.c.last_post_at)||0)-(Date.parse(a.c.last_post_at)||0)||b.score-a.score);
  else if(sort==='new')ranked.sort((a,b)=>b.c.id-a.c.id);
