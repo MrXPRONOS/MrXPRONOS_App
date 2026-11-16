@@ -111,3 +111,31 @@ test('daily check does not delete a channel after one negative result',async()=>
   assert.ok(checkDB.commands.every(x=>!x.sql.includes('DELETE FROM channels')));
  }finally{globalThis.fetch=oldFetch;}
 });
+
+test('verified admin can access the dashboard without exposing user identity',async()=>{
+ const {adminAPI}=await import('../admin-v2.mjs');
+ const db=fakeDB();const prepare=db.prepare.bind(db);
+ db.prepare=function(sql){
+  if(sql.includes('SELECT role FROM admin_users'))return {bind(){return this;},async first(){return {role:'admin'}}};
+  return prepare(sql);
+ };
+ const request=new Request('https://example.org/api/admin/overview',{headers:{'X-Telegram-Init-Data':signedData()}});
+ const response=await adminAPI({...env,DB:db},request);
+ assert.equal(response.status,200);
+ const result=await response.json();
+ assert.equal(result.error,undefined);
+});
+test('admin action hides a channel without deleting its review history',async()=>{
+ const {adminAPI}=await import('../admin-v2.mjs');
+ const db=fakeDB(),base=db.prepare.bind(db);
+ db.prepare=function(sql){
+  if(sql.includes('SELECT role FROM admin_users'))return {bind(){return this;},async first(){return {role:'admin'}}};
+  if(sql.includes('SELECT id,link FROM channels'))return {bind(){return this;},async first(){return {id:1,link:'https://t.me/FilmsParis75'}}};
+  return base(sql);
+ };
+ const request=new Request('https://example.org/api/admin/channels/1',{method:'POST',headers:{'X-Telegram-Init-Data':signedData(),'Content-Type':'application/json'},body:JSON.stringify({action:'hide'})});
+ const response=await adminAPI({...env,DB:db},request);
+ assert.equal(response.status,200,await response.clone().text());
+ assert.ok(db.writes.some(x=>x.sql.includes('listing_status')));
+ assert.ok(db.writes.every(x=>!x.sql.includes('DELETE FROM channels')));
+});
