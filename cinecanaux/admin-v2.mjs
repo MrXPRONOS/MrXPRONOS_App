@@ -1,6 +1,8 @@
 // Private Ciné Radar moderation API. All requests require valid Telegram Mini App initData
 // AND a matching Telegram user ID in the existing admin_users table.
 import {verifiedIdentity,linkUsername} from './v2.mjs';
+import {checkDailyLinks} from './maintenance-v2.mjs';
+import {runLoggedJob} from './job-log.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -29,6 +31,10 @@ export async function adminAPI(env,request){
   (SELECT COALESCE(SUM(empty_results),0) FROM search_daily_stats WHERE date_utc=date('now')) AS empty_searches_today`).first();
   return json(items||{});
  }
+ if(request.method==='GET'&&path==='/api/admin/jobs'){
+  const r=await env.DB.prepare("SELECT id,job_name,started_at,finished_at,status,examined,inserted,updated,errors,details FROM automated_job_runs ORDER BY id DESC LIMIT 35").all();
+  return json({jobs:r.results||[]});
+ }
  if(request.method==='GET'&&path==='/api/admin/reports'){
   const r=await env.DB.prepare("SELECT r.id,r.channel_id,c.title,c.link,r.reason,r.details,r.status,r.created_at FROM channel_reports r JOIN channels c ON c.id=r.channel_id WHERE r.status IN ('open','reviewing') ORDER BY r.created_at DESC LIMIT 60").all();
   return json({reports:r.results||[]});
@@ -44,6 +50,13 @@ export async function adminAPI(env,request){
  if(request.method!=='POST')return json({error:'Méthode inconnue'},405);
  try{
   const data=await parseBody(request);
+  if(path==='/api/admin/run-check'){
+   const active=await env.DB.prepare("SELECT id FROM automated_job_runs WHERE job_name='link_check' AND started_at>datetime('now','-15 minutes') LIMIT 1").first();
+   if(active)return json({error:'Contrôle déjà exécuté récemment'},429);
+   const count=Number(data.count||10);
+   if(!Number.isInteger(count)||count<1||count>10)return json({error:'Nombre invalide'},400);
+   return json(await runLoggedJob(env,'link_check',()=>checkDailyLinks(env,count)));
+  }
   const rev=/^\/api\/admin\/reviews\/(\d+)$/.exec(path);
   if(rev){
    const id=Number(rev[1]),visibility=String(data.visibility||'');
