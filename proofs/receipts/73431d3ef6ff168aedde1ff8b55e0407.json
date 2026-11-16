@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-178b97a21005d63c:UNDER_35",
+    "recorded_at_utc": "2026-11-16T21:12:38+00:00",
+    "kickoff_utc": "2026-11-18T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Sporting Lagos FC",
+      "away_team": "Rivers United",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "dd094e96d14ac88e4267b67efef0359c4cc565bc1005e2953b8648522f27b022"
+}

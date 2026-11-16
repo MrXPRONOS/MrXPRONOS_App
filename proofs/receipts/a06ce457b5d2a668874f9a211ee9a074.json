@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-6e9fe69860db3a3b:1X",
+    "recorded_at_utc": "2026-11-16T21:12:38+00:00",
+    "kickoff_utc": "2026-11-17T16:30:00+00:00",
+    "fixture": {
+      "home_team": "Kuwait",
+      "away_team": "Honduras",
+      "league": "International Friendly"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.7,
+      "odds": 1.925,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "4c230ea9e9df0abb1c1f159e9da2fb37db618bb934309235de26816c2e2e0025"
+}
