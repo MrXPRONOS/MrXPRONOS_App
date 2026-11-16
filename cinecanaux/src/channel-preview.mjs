@@ -130,5 +130,3 @@ async function loadChannelPreview(env,id){
  ).bind(c.id,final.title,final.description||"",final.avatar_url||"",final.post_image_url||"",final.last_post_at||null,final.preview_status).run();
  return {status:200,data:final};
 }
-
---48250980b63ab60bfe45b2e63afdb23910226ca9ae27e6a7390e79f859bf
