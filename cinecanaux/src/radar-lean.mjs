@@ -46,6 +46,13 @@ async function processBotUpdate(env,update){
  if(!chat)return;
  const value=String(cb?.data||"");
  const text=String(update.message?.text||"").trim();
+ if(/^\\/admin(?:@[A-Za-z0-9_]+)?$/i.test(text)){
+  const uid=update.message?.from?.id;
+  const admin=Number.isSafeInteger(uid)?await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(uid).first():null;
+  if(!admin){await display(env,chat,cb,"Accès réservé.",homeButtons());return;}
+  await display(env,chat,cb,"🔐 <b>Ciné Radar — administration</b>",keyboard([[{text:"Ouvrir l'administration",web_app:{url:BASE+"/admin"}}]]));
+  return;
+ }
  if(value==="home"||/^\/(start|menu|aide|help|profil|favoris|parrainage|preferences)(?:@[A-Za-z0-9_]+)?(?:\s+.*)?$/i.test(text)||(!value&&!text)){
   await display(env,chat,cb,"🎬 <b>CINÉ RADAR</b>\n\nChoisis une catégorie 👇",homeButtons());return;
  }
