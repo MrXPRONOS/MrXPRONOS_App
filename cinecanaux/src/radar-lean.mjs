@@ -156,5 +156,3 @@ export async function cleanup(env){
  await env.DB.prepare("DELETE FROM channel_profile_cache WHERE channel_id NOT IN (SELECT id FROM channels)").run();
  await env.DB.prepare("DELETE FROM discovery_candidates WHERE technical_status='rejected_format' AND updated_at < datetime('now','-120 days')").run();
 }
-
---48250980b63ab60bfe45b2e63afdb23910226ca9ae27e6a7390e79f859bf
