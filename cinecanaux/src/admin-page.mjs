@@ -52,7 +52,7 @@ async function load(){
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions")]);
  $("private").hidden=false;status("");
  const stats=$("stats");stats.textContent="";
- for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"]]){
+ for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
  }
  const reports=$("reports");reports.textContent="";
