@@ -129,7 +129,8 @@ async function syncGitHubDiscovery(env) {
 
 // Public-directory indexing; validates technical metadata, does not mirror media.
 export async function indexQualifiedChannels(env){
- return integrateDiscoveredCandidates(env,15);
+ const result=await integrateDiscoveredCandidates(env,15);
+ return {...result,indexed:result.inserted};
 }
 
 export default {
