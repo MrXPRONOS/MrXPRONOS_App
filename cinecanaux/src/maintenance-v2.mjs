@@ -25,7 +25,7 @@ async function verify(username){
 async function excluded(env,username){
  return !!await env.DB.prepare('SELECT username FROM channel_exclusions WHERE username=?').bind(username).first();
 }
-async function addIfPublic(env,username,category){
+export async function addIfPublic(env,username,category){
  if(!URL_RE.test(username)||await excluded(env,username))return {status:'excluded'};
  const url='https://t.me/'+username;
  const found=await env.DB.prepare('SELECT id FROM channels WHERE link=?').bind(url).first();
@@ -44,6 +44,24 @@ async function addIfPublic(env,username,category){
   env.DB.prepare('INSERT OR IGNORE INTO channel_categories(channel_id,category) VALUES(?,?)').bind(row.id,type)
  ]);
  return {status:'listed',id:row.id};
+}
+export async function integrateDiscoveredCandidates(env,limit=15){
+ const rows=(await env.DB.prepare(`SELECT d.username,d.content_type,d.genre FROM discovery_candidates d
+ WHERE d.technical_status='qualified' AND d.rights_status NOT IN ('link_dead','rejected')
+ AND NOT EXISTS(SELECT 1 FROM channel_exclusions e WHERE e.username=d.username)
+ AND NOT EXISTS(SELECT 1 FROM channels c WHERE LOWER(c.link)=LOWER(d.link))
+ ORDER BY d.last_seen DESC LIMIT ?`).bind(limit).all()).results||[];
+ let inserted=0,unverifiable=0;
+ for(const row of rows){
+  try{
+   const result=await addIfPublic(env,row.username,row.content_type);
+   if(result.status==='listed'){
+    inserted++;
+    if(row.genre&&row.genre!=='general')await env.DB.prepare('INSERT OR IGNORE INTO channel_categories(channel_id,category) VALUES(?,?)').bind(result.id,row.genre).run();
+   }else unverifiable++;
+  }catch(e){unverifiable++;console.warn('candidate_index_error',String(e).slice(0,80));}
+ }
+ return {inspected:rows.length,inserted,unverifiable};
 }
 export async function integrateSuggestions(env,limit=12){
  const rows=(await env.DB.prepare("SELECT username,suggested_category FROM channel_suggestions WHERE status IN ('pending','unverifiable') ORDER BY updated_at ASC LIMIT ?").bind(limit).all()).results||[];
