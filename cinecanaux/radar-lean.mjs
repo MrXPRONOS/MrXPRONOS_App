@@ -11,13 +11,13 @@ export function invalidateDirectoryCache(){categoryCache.clear();catalogCache=nu
 async function categoryRows(env,kind){
  const now=Date.now(),saved=categoryCache.get(kind);
  if(saved&&saved.expires>now)return saved.value;
- const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND content_type=? ORDER BY updated_at DESC LIMIT 160").bind(kind).all().then(x=>x.results||[]);
+ const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND content_type=? AND NOT EXISTS (SELECT 1 FROM channel_index_meta m WHERE m.channel_id=channels.id AND m.listing_status<>'listed') ORDER BY updated_at DESC LIMIT 160").bind(kind).all().then(x=>x.results||[]);
  categoryCache.set(kind,{expires:now+60000,value:pending});
  try{return await pending;}catch(e){categoryCache.delete(kind);throw e;}
 }
 async function catalogRows(env){
  if(catalogCache&&catalogCache.expires>Date.now())return catalogCache.value;
- const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
+ const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' AND NOT EXISTS (SELECT 1 FROM channel_index_meta m WHERE m.channel_id=c.id AND m.listing_status<>'listed') ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
  catalogCache={expires:Date.now()+90000,value:pending};
  try{return await pending;}catch(e){catalogCache=null;throw e;}
 }
