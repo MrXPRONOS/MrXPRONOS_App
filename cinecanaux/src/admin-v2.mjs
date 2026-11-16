@@ -69,13 +69,13 @@ export async function adminAPI(env,request){
     if(!username)return json({error:'Lien du canal invalide'},400);
     await env.DB.batch([
      env.DB.prepare("INSERT INTO channel_exclusions(username,reason) VALUES(?,'admin_excluded') ON CONFLICT(username) DO NOTHING").bind(username),
-     env.DB.prepare("INSERT INTO channel_index_meta(channel_id,listing_status) VALUES(?,'excluded') ON CONFLICT(channel_id) DO UPDATE SET listing_status='excluded',updated_at=CURRENT_TIMESTAMP").bind(id)
+     env.DB.prepare("INSERT INTO channel_index_meta(channel_id,listing_status,admin_hidden) VALUES(?,'excluded',1) ON CONFLICT(channel_id) DO UPDATE SET listing_status='excluded',admin_hidden=1,updated_at=CURRENT_TIMESTAMP").bind(id)
     ]);
    }else{
     // 'show' never overrides an explicit exclusion.
     const check=await env.DB.prepare('SELECT listing_status FROM channel_index_meta WHERE channel_id=?').bind(id).first();
     if(action==='show'&&check?.listing_status==='excluded')return json({error:'Exclusion permanente : demande de révision nécessaire'},409);
-    await env.DB.prepare("INSERT INTO channel_index_meta(channel_id,listing_status) VALUES(?,?) ON CONFLICT(channel_id) DO UPDATE SET listing_status=excluded.listing_status,updated_at=CURRENT_TIMESTAMP").bind(id,action==='show'?'listed':'hidden').run();
+    await env.DB.prepare("INSERT INTO channel_index_meta(channel_id,listing_status,admin_hidden) VALUES(?,?,?) ON CONFLICT(channel_id) DO UPDATE SET listing_status=excluded.listing_status,admin_hidden=excluded.admin_hidden,updated_at=CURRENT_TIMESTAMP").bind(id,action==='show'?'listed':'hidden',action==='show'?0:1).run();
    }
    return json({ok:true});
   }
