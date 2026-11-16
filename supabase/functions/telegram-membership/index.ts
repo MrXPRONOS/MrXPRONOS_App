@@ -61,6 +61,7 @@ function channelLabel(request: any) {
     LIVE: "Pronos Live",
     COUPONS: "Coupons du jour",
     ACTU_FOOT: "Actu Foot",
+    CINEX: "CinéX Films",
   };
   return labels[key] || request?.chat?.title || "Mr XPRONOS";
 }
@@ -112,6 +113,7 @@ serve(async (req) => {
   }
 
   const label = channelLabel(request);
+  const isCinema = inviteName === `${LINK_PREFIX}CINEX`;
   const name = displayName(request)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -129,8 +131,18 @@ serve(async (req) => {
         chat_id: userChatId,
         parse_mode: "HTML",
         disable_web_page_preview: true,
-        text:
-          "👑 <b>BIENVENUE CHEZ MR XPRONOS</b>\n\n" +
+        text: isCinema
+          ? (
+            "🎬 <b>BIENVENUE SUR CINÉX</b>\n\n" +
+            `Salut <b>${name}</b> 👋\n\n` +
+            "✅ Ta demande d'abonnement facultatif à <b>CinéX Films</b> a été reçue.\n\n" +
+            "Tu peux continuer à parcourir les publications publiques sans obligation de rejoindre le canal. " +
+            "En t'abonnant, tu retrouveras plus facilement nos prochaines sorties.\n\n" +
+            "🔔 Pense à activer les notifications si tu souhaites être averti des nouveautés.\n\n" +
+            "<i>Merci de découvrir CinéX 🍿</i>"
+          )
+          : (
+            "👑 <b>BIENVENUE CHEZ MR XPRONOS</b>\n\n" +
           `<i>Salut <b>${name}</b> 👋</i>\n\n` +
           `<blockquote>✅ Ta demande pour <b>${safeLabel}</b> a bien été reçue.</blockquote>\n\n` +
           "<b>Ton accès est en cours de validation.</b>\n\n" +
@@ -139,7 +151,8 @@ serve(async (req) => {
           "• consulte les dernières publications\n" +
           "• reste attentif aux nouvelles alertes\n\n" +
           "<blockquote>⚡ Le bon contenu, au bon moment.</blockquote>\n\n" +
-          "<i>Merci de rejoindre la communauté Mr XPRONOS.</i>",
+          "<i>Merci de rejoindre la communauté Mr XPRONOS.</i>"
+          ),
       });
     } catch (error) {
       // Une erreur de DM ne doit pas empêcher l'adhésion.
