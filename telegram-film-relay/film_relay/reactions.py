@@ -47,8 +47,8 @@ def reaction_entities():
         return len(value.encode("utf-16-le")) // 2
 
     a, b, quote = REACTION_PARTS
-    second = units(a + "\\n")
-    third = units(a + "\\n" + b + "\\n")
+    second = units(a + "\n")
+    third = units(a + "\n" + b + "\n")
     return [
         MessageEntityBold(offset=0, length=units(a)),
         MessageEntityBold(offset=second, length=units(b)),
