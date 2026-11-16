@@ -157,7 +157,7 @@ export default {
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
-  const avatarMatch=/^\\/assets\\/channel-avatar\\/([A-Za-z][A-Za-z0-9_]{4,31})\\.jpg$/.exec(u.pathname);
+  const avatarMatch=new RegExp("^/assets/channel-avatar/([A-Za-z][A-Za-z0-9_]{4,31})[.]jpg$").exec(u.pathname);
   if(request.method==="GET"&&avatarMatch){
    const handle=avatarMatch[1].toLowerCase();
    const indexed=await env.DB.prepare("SELECT id FROM channels WHERE LOWER(link)=? AND status='approved'").bind('https://t.me/'+handle).first();
