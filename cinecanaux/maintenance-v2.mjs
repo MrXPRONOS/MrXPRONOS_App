@@ -79,12 +79,12 @@ export async function integrateSuggestions(env,limit=12){
 async function checkOne(env,c){
  const username=linkUsername(c.link);
  const result=username?await verify(username):{outcome:'not_found',reason:'invalid_url'};
- const current=await env.DB.prepare('SELECT consecutive_failures,first_failure_at,listing_status FROM channel_index_meta WHERE channel_id=?').bind(c.id).first();
+ const current=await env.DB.prepare('SELECT consecutive_failures,first_failure_at,listing_status,admin_hidden FROM channel_index_meta WHERE channel_id=?').bind(c.id).first();
  const fail=result.outcome==='not_found';
  const failures=fail?Number(current?.consecutive_failures||0)+1:0;
  const first=fail?(current?.first_failure_at||new Date().toISOString()):null;
  const eligible=fail&&failures>=2&&Date.now()-Date.parse(String(first).includes('T')?String(first):String(first).replace(' ','T')+'Z')>=23*3600000;
- const listing=eligible?'hidden':result.outcome==='reachable'?'listed':current?.listing_status||'listed';
+ const listing=current?.listing_status==='excluded'?'excluded':Number(current?.admin_hidden||0)===1?'hidden':eligible?'hidden':result.outcome==='reachable'?'listed':current?.listing_status||'listed';
  // A 404 cannot establish a moved Telegram username; never guess a replacement URL.
  const jobs=[
   env.DB.prepare(`INSERT INTO channel_index_meta(channel_id,listing_status,link_status,last_checked_at,next_check_at,consecutive_failures,first_failure_at,last_healthy_at,updated_at)
