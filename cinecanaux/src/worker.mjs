@@ -1,6 +1,8 @@
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
+import {v2API,getCatalog} from "./v2.mjs";
+import {checkDailyLinks,integrateSuggestions,syncCategoryTags} from "./maintenance-v2.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
  const x=new TextEncoder().encode(String(a||"")),y=new TextEncoder().encode(String(b||""));
@@ -129,7 +131,7 @@ export async function indexQualifiedChannels(env){
  const sql="INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) "+
  "SELECT d.title,d.link,'Canal Telegram public',d.content_type,d.genre,'approved',0,'VF',CURRENT_TIMESTAMP "+
  "FROM discovery_candidates d WHERE d.technical_status='qualified' AND d.matching_pairs>=2 AND d.rights_status NOT IN ('link_dead','rejected') "+
- "AND d.link GLOB 'https://t.me/*' "+
+ "AND d.link GLOB 'https://t.me/*' AND NOT EXISTS (SELECT 1 FROM channel_exclusions e WHERE LOWER(d.username)=LOWER(e.username)) "+
  "ON CONFLICT(link) DO UPDATE SET title=excluded.title,content_type=excluded.content_type,genre=excluded.genre "+
  "WHERE channels.title<>excluded.title OR channels.content_type<>excluded.content_type OR channels.genre<>excluded.genre";
  const result=await env.DB.prepare(sql).run();
@@ -145,7 +147,7 @@ export default {
    try{
     // Send the full public listing with the HTML: no second network RTT on first open.
     // Escape HTML-breaking characters: titles come from third-party channels.
-    const data=JSON.stringify(await listPublicChannels(env))
+    const data=JSON.stringify((await getCatalog(env,{limit:80})).channels)
      .replace(/[<>&\u2028\u2029]/g,c=>({"<":"\\u003c",">":"\\u003e","&":"\\u0026","\u2028":"\\u2028","\u2029":"\\u2029"}[c]));
     html=APP_HTML.replace("const PRELOADED_CATALOG=null;","const PRELOADED_CATALOG="+data+";");
    }catch(e){
@@ -161,6 +163,7 @@ export default {
    if(!image.ok)return new Response("Image indisponible",{status:503});
    return new Response(image.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public,max-age=86400"}});
   }
+  if(u.pathname==="/api/catalog"||u.pathname==="/api/search"||u.pathname==="/api/reports"||u.pathname==="/api/suggestions"||/^\/api\/channels\/\d+\/reviews$/.test(u.pathname))return v2API(env,request);
   if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
   if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
   if(request.method==="GET"&&u.pathname==="/health"){
@@ -174,8 +177,11 @@ export default {
   if(controller.cron==="0 */4 * * *")ctx.waitUntil((async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
    await indexQualifiedChannels(env);
+   await syncCategoryTags(env);
+   await integrateSuggestions(env,12);
    await cleanup(env);
   })());
-  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),maintenance(env)]));
+  else if(controller.cron==="0 3 * * *")ctx.waitUntil(checkDailyLinks(env,10));
+  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]));
  }
 };
