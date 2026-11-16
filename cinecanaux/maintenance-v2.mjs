@@ -8,13 +8,14 @@ async function verify(env,username,stableId=null){
  if(!URL_RE.test(username))return {outcome:'not_found',reason:'invalid_username'};
  const identity=await canonicalForChat(env,username,stableId);
  if(identity.state==='mismatch')return {outcome:'unverifiable',reason:'identity_mismatch'};
- const urls=['https://t.me/'+username,'https://t.me/s/'+username],results=[];
+ const publicUsername=identity.state==='verified'?identity.chat.username:username;
+ const urls=['https://t.me/'+publicUsername,'https://t.me/s/'+publicUsername],results=[];
  for(const url of urls){
   try{
    const response=await fetch(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(5500),headers:{'accept':'text/html','user-agent':'CineRadarDirectoryMonitor/2.0'}});
    let parsed=null;
    if(response.ok&&String(response.headers.get('content-type')||'').includes('text/html')){
-    parsed=parseTelegramPublicProfile((await response.text()).slice(0,180000),username);
+    parsed=parseTelegramPublicProfile((await response.text()).slice(0,180000),publicUsername);
    }
    results.push({status:response.status,parsed});
   }catch(e){results.push({status:0,error:String(e).slice(0,70)})}
@@ -38,16 +39,21 @@ export async function addIfPublic(env,username,category){
  if(found)return {status:'listed',id:found.id};
  const checked=await verify(env,username);
  if(checked.outcome!=='reachable')return {status:checked.outcome};
+ const canonical=checked.canonical_username||username;
+ if(await excluded(env,canonical))return {status:'excluded'};
  if(checked.telegram_chat_id){
   const existing=await env.DB.prepare('SELECT channel_id AS id FROM channel_index_meta WHERE telegram_chat_id=?').bind(checked.telegram_chat_id).first();
   if(existing)return {status:'listed',id:existing.id};
  }
+ const correctLink='https://t.me/'+canonical;
+ const alreadyCanonical=await env.DB.prepare('SELECT id FROM channels WHERE LOWER(link)=LOWER(?)').bind(correctLink).first();
+ if(alreadyCanonical)return {status:'listed',id:alreadyCanonical.id};
  const type=['films','series','animes'].includes(category)?category:'films';
  const title=String(checked.profile?.title||username).slice(0,120);
  const description=String(checked.profile?.description||'Canal Telegram public').slice(0,450);
  // No manual approval is required for a technically accessible public directory entry.
- await env.DB.prepare("INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) VALUES(?,?,?,?,'general','approved',0,'unknown',CURRENT_TIMESTAMP) ON CONFLICT(link) DO NOTHING").bind(title,url,description,type).run();
- const row=await env.DB.prepare('SELECT id FROM channels WHERE link=?').bind(url).first();
+ await env.DB.prepare("INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) VALUES(?,?,?,?,'general','approved',0,'unknown',CURRENT_TIMESTAMP) ON CONFLICT(link) DO NOTHING").bind(title,correctLink,description,type).run();
+ const row=await env.DB.prepare('SELECT id FROM channels WHERE link=?').bind(correctLink).first();
  if(!row)return {status:'unverifiable'};
  await env.DB.batch([
   env.DB.prepare("INSERT OR IGNORE INTO channel_index_meta(channel_id,listing_status,link_status,last_checked_at,last_healthy_at) VALUES(?,'listed','reachable',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)").bind(row.id),
