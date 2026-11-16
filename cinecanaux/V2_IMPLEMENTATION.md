@@ -40,6 +40,7 @@
 2. `cinecanaux/migrations/002_discovery_attempts.sql`
 3. `cinecanaux/migrations/003_anonymous_search_stats.sql`
 4. `cinecanaux/migrations/004_admin_hide.sql`
+5. `cinecanaux/migrations/005_monitoring_and_identity.sql`
 
 Ces migrations sont additives et préservent les 40 fiches existantes. Les déclencheurs de production ne doivent pas être modifiés avant qu'elles aient toutes été appliquées et vérifiées.
 
@@ -72,3 +73,26 @@ Ces migrations sont additives et préservent les 40 fiches existantes. Les décl
 - Les vérifications de code, la migration D1 de test, les tests GitHub Actions et l'acceptation du Worker par Cloudflare ont réussi. En revanche, la recette manuelle sur téléphone, la soumission d'un véritable avis Telegram et une exécution Cron complète en production restent non vérifiées.
 - L'identification automatique du **nouveau lien d'un canal déplacé** demeure partielle : il faut une preuve de continuité d'identité. Le système masque une ancienne URL invalidée plutôt que de deviner une redirection.
 - La recherche dans l'intégralité des publications de Telegram n'est pas incluse : Ciné Radar reste un annuaire de liens publics et de métadonnées.
+
+## Complétion V2 — audit du 16 novembre 2026
+
+Les PR [#393](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/393) et [#394](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/394) ont été fusionnées après réussite de la CI. Le Worker `cinecanaux-bot` a été redéployé avec dix modules. Ses secrets et bindings D1 ont été préservés et contrôlés.
+
+### Fonctionnalités supplémentaires effectivement codées
+- Récupération de l'identifiant stable d'un canal public via la méthode Telegram Bot API `getChat` lorsque celle-ci est accessible.
+- Réconciliation des changements d'adresse `t.me/username` seulement si le nouvel identifiant correspond au canal enregistré ; jamais d'inférence sur les simples noms.
+- Conservation des anciens noms en alias lors d'un changement vérifié ; prévention des collisions de liens.
+- Exécution de vérifications des liens avec une limite de dix par cycle et trois contrôles concurrents maximum.
+- Table `automated_job_runs` pour conserver les résultats des Cron : succès, partiel, erreur, éléments examinés, liens actualisés.
+- Tableau d'administration privé : historique des exécutions et déclenchement contrôlé de 1 à 10 vérifications.
+- Requêtes du bot Telegram cohérentes avec les fiches masquées/exclues sur le site.
+- Les notes en attente de modération ne participent plus à la note publique.
+
+### Preuves et limites de validation
+- Les tests automatisés de la branche #393 ont réussi, y compris les tests de l'identité stable et de sécurité, les contrôles d'interface et les smoke tests en lecture de production.
+- La migration SQL 005 a réussi sur D1 de test, puis en production (sauvegarde de type bookmark D1 vérifiée avant migration).
+- Le Worker de production contient le nouveau code et les trois bindings requis ; les horaires Cron restent `0 3 * * *`, `0 */4 * * *`, `15 */6 * * *`.
+- Au moment de la dernière lecture, la base de production contient **40 canaux**, **0 avis**, **0 exécution enregistrée dans automated_job_runs**, **0 contrôle de lien**, **0 identifiant Telegram stable enregistré**. Le nouveau suivi ne peut prouver le fonctionnement d'un Cron tant qu'il n'a pas été déclenché.
+- Les avis réels et les autorisations Telegram de l'administrateur ne peuvent être testés qu'avec un compte Telegram authentifié. Aucun faux utilisateur ni faux avis n'a été ajouté à la base publique.
+- La réparation d'une ancienne URL n'est possible que si le stable ID avait été capturé et reste récupérable : ce cas est techniquement implémenté mais dépend de l'API Telegram ; les changements impossibles à prouver sont laissés en attente, sans redirection inventée.
+- L'interface mobile a fait l'objet de tests de syntaxe et d'intégration, mais pas encore d'une validation visuelle manuelle sur chaque téléphone réel.
