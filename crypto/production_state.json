@@ -20,7 +20,7 @@
   },
   "alert_levels": {
     "BNB": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "BTC": {
@@ -28,16 +28,16 @@
       "level": 0
     },
     "ETH": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "SOL": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "XRP": {
-      "direction": "up",
-      "level": 5
+      "direction": "down",
+      "level": 0
     }
   },
   "alert_rearmed": {
@@ -45,7 +45,7 @@
     "BTC": true,
     "ETH": true,
     "SOL": true,
-    "XRP": false
+    "XRP": true
   },
   "news_fingerprints": {
     "2335b3e2185996ff59c95c5e": {
