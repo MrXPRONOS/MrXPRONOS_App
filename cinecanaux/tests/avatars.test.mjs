@@ -58,3 +58,38 @@ test('missing avatar safely falls back to illustration',async()=>{
   assert.equal(response.status,404);
  }finally{globalThis.fetch=old}
 });
+
+test('server-side Telegram Bot API photo fallback returns image without leaking token',async()=>{
+ const previous=globalThis.fetch,visited=[];
+ globalThis.fetch=async(url,options)=>{
+  const target=String(url);visited.push(target);
+  if(target.includes('raw.githubusercontent.com/'))return new Response('Not Found',{status:404});
+  if(target.endsWith('/getChat'))return Response.json({ok:true,result:{type:'channel',photo:{big_file_id:'real-avatar-file-id'}}});
+  if(target.endsWith('/getFile'))return Response.json({ok:true,result:{file_path:'photos/avatar_123.jpg'}});
+  if(target.includes('/file/bot'))return new Response(new Uint8Array([255,216,255,217]),{headers:{'content-type':'image/jpeg'}});
+  throw Error('Unexpected upstream');
+ };
+ try{
+  const response=await worker.fetch(new Request('https://test.local/assets/channel-avatar/PublicFilms2026.jpg'),{DB:fixtureDatabase(true),TELEGRAM_TOKEN:'secret_token_for_test'});
+  assert.equal(response.status,200);
+  assert.equal(response.headers.get('content-type'),'image/jpeg');
+  assert.ok(visited.some(x=>x.endsWith('/getChat')));
+  assert.ok(visited.some(x=>x.endsWith('/getFile')));
+  assert.ok(!(await response.text()).includes('secret_token_for_test'));
+ }finally{globalThis.fetch=previous}
+});
+test('invalid Telegram file paths are rejected safely',async()=>{
+ const previous=globalThis.fetch,visited=[];
+ globalThis.fetch=async(url)=>{
+  const target=String(url);visited.push(target);
+  if(target.includes('raw.githubusercontent.com/'))return new Response('Not Found',{status:404});
+  if(target.endsWith('/getChat'))return Response.json({ok:true,result:{type:'channel',photo:{big_file_id:'valid'}}});
+  if(target.endsWith('/getFile'))return Response.json({ok:true,result:{file_path:'../outside'}}); 
+  throw Error('Unexpected upstream');
+ };
+ try{
+  const response=await worker.fetch(new Request('https://test.local/assets/channel-avatar/PublicFilms2026.jpg'),{DB:fixtureDatabase(true),TELEGRAM_TOKEN:'test_secret'});
+  assert.equal(response.status,404);
+  assert.equal(visited.length,3);
+ }finally{globalThis.fetch=previous}
+});
