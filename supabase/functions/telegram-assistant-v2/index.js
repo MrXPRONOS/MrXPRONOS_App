@@ -41,6 +41,7 @@ export function intentFor(input) {
   if (/(live|en direct|temps reel)/.test(text)) return 'live';
   if (/(code promo|xpvip|bonus|promotion)/.test(text)) return 'bonus';
   if (/(site|application|installer|page officiel|lien officiel)/.test(text)) return 'site';
+  if (/(tu fais quoi|tu peux faire quoi|que peux tu faire|a quoi tu sers|quels sont tes services|qui es tu|comment tu fonctionnes|c.est quoi ce bot)/.test(text)) return 'capabilities';
   if (/^(cc|coucou|salut|bonjour|bonsoir|hello|hey|bjr|slt)[!?. ]*$/.test(text)) return 'welcome';
   return 'general';
 }
@@ -194,6 +195,7 @@ async function adminCommand(msg) {
   if(cmd==='reply') {
     const body=words.join(' ').trim();
     if(!body) return say(msg.chat.id,'Utilisation : /reply <chat> <message>');
+    if(Number(row.chat_id)===adminId() && !row.business_connection_id) return say(msg.chat.id,'⚠️ Ce chat est celui de l’administrateur. Pour tester /reply, envoie un message au bot depuis un second compte Telegram. Utilise /resume pour réactiver ta discussion actuelle.');
     await say(row.chat_id,body,row.business_connection_id||'');
     await setPause(key,true);
     await logMessage(key,'human',body);
@@ -230,7 +232,11 @@ export async function handleUpdate(update) {
   const key=chatKey(msg);
   const previous=await getChat(key);
   await updateChat({chat_key:key,chat_id:msg.chat.id,business_connection_id:msg.business_connection_id||null,user_id:msg.from?.id||null,nickname:cut([msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'',100),last_message_at:new Date().toISOString()});
-  if(previous?.paused) {await notifyAdmin(key,previous.nickname||'Client',text);await logMessage(key,'user',text);await markHandled(id);return;}
+  if(previous?.paused) {
+    // En essai, le propriétaire ne doit pas recevoir sa propre notification de reprise en boucle.
+    if(!isOwner) await notifyAdmin(key,previous.nickname||'Client',text);
+    await logMessage(key,'user',text);await markHandled(id);return;
+  }
   const name=[msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'Client';
   const intent=intentFor(text);
   let answer='';
@@ -238,6 +244,7 @@ export async function handleUpdate(update) {
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
   else if(intent==='conseil') answer=adviceMessage();
+  else if(intent==='capabilities') answer=`Je suis l’assistant automatique de Mr XPRONOS 👋 Je peux t’aider à consulter les pronostics et scores publiés, trouver le canal officiel, expliquer les rubriques du site et partager des conseils de prudence. Si ta demande exige un suivi personnel, écris « parler à un responsable ».\n\nPronostics : ${LINKS.pronos}\nConseils : ${LINKS.conseils}`;
   else if(intent==='canaux') answer=`Pour recevoir les coupons, suis les publications officielles.\n${channelLine()}\nSite : ${LINKS.accueil}`;
   else if(intent==='resultats') answer=`Tu peux consulter les résultats gagnés, perdus et en attente sur l'historique officiel :\n${LINKS.historique}`;
   else if(intent==='bonus') answer=formatPromo();
@@ -245,14 +252,18 @@ export async function handleUpdate(update) {
   else if(intent==='site') answer=`Site officiel : ${LINKS.accueil}\nAnalyses : ${LINKS.analyses}\nInfos foot : ${LINKS.infos}\nConseils : ${LINKS.conseils}`;
   else if(intent==='safety') answer='Si les paris te mettent en difficulté, évite de chercher à récupérer tes pertes. Nous ne proposons aucun gain garanti. Il vaut mieux arrêter et demander de l’aide à une personne de confiance.';
   else if(intent==='human') {
-    const notified=await notifyAdmin(key,name,text,msg.business_connection_id||'');
-    answer=notified?'Merci pour ton message. Je viens de prévenir un responsable qui pourra reprendre cette conversation.':'Merci pour ton message. Un responsable doit traiter cette demande ; tu peux aussi utiliser la page de contact officielle : '+LINKS.contact;
-    if(notified) await setPause(key,true);
+    if(isOwner) {
+      answer='Tu testes actuellement depuis le compte administrateur. Pour vérifier la reprise humaine, écris au bot depuis un autre compte Telegram, puis reviens ici pour utiliser /chats et /reply <chat> <message>. Je ne suspends pas ta discussion de test.';
+    } else {
+      const notified=await notifyAdmin(key,name,text,msg.business_connection_id||'');
+      answer=notified?'Merci pour ton message. Je viens de prévenir un responsable qui pourra reprendre cette conversation.':'Merci pour ton message. Un responsable doit traiter cette demande ; tu peux aussi utiliser la page de contact officielle : '+LINKS.contact;
+      if(notified) await setPause(key,true);
+    }
   } else {
     let history=[];
     try{history=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
     try{answer=await askNvidia(text,history)||'';}catch(e){console.warn('nvidia_error',String(e));}
-    if(!answer) answer=`Je peux t'aider sur les pronostics, les analyses et le site Mr XPRONOS.\n${LINKS.accueil}\nPour une demande spécifique, écris « parler à un responsable ».`;
+    if(!answer) answer=`Je n’ai pas réussi à traiter précisément ta question pour le moment. Je peux cependant te guider vers les pronostics, les conseils et les informations officielles : ${LINKS.accueil}\nPour une demande personnalisée, écris « parler à un responsable ».`;
   }
   if(!previous && intent!=='welcome') answer=`Bienvenue chez Mr XPRONOS 👋 Je suis l’assistant automatique.\n\n${answer}`;
   await say(msg.chat.id,answer,msg.business_connection_id||'');
