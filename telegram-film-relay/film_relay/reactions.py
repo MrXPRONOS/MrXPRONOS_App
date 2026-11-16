@@ -2,8 +2,35 @@
 import logging
 
 LOG = logging.getLogger("cinex_reactions")
-REACTION_TEXT = "❤️ Ne restez pas spectateurs ! Laissez un cœur et réagissez si vous avez aimé le film ! 🍿"
-PINNED_TEXT = "🎬 Ne restez pas spectateurs ! Abonnez-vous à CinéX et soutenez nos films avec un ❤️ !"
+REACTION_PARTS = (
+    "❤️ Ne restez pas spectateurs !",
+    "🍿 Laissez un cœur et réagissez si vous avez aimé ce film !",
+    "💬 Votre avis compte !",
+)
+# Telegram stores formatted messages as plain raw_text, without HTML tags.
+REACTION_TEXT = "\n".join(REACTION_PARTS)
+REACTION_HTML = (
+    f"<b>{REACTION_PARTS[0]}</b>\n"
+    f"<b><i>{REACTION_PARTS[1]}</i></b>\n"
+    f"<blockquote>{REACTION_PARTS[2]}</blockquote>"
+)
+LEGACY_REACTION_TEXT = (
+    "❤️ Ne restez pas spectateurs ! Laissez un cœur et réagissez si vous avez aimé le film ! 🍿"
+)
+
+PINNED_PARTS = (
+    "🎬 Ne restez pas spectateurs !",
+    "❤️ Abonnez-vous à CinéX et soutenez nos films !",
+    "🍿 Vos réactions font vivre la communauté.",
+)
+# Copy-friendly one-line text; the actual formatted version has three short lines
+# because Telegram renders a blockquote on a separate line.
+PINNED_TEXT = " ".join(PINNED_PARTS)
+PINNED_HTML = (
+    f"<b>{PINNED_PARTS[0]}</b>\n"
+    f"<b><i>{PINNED_PARTS[1]}</i></b>\n"
+    f"<blockquote>{PINNED_PARTS[2]}</blockquote>"
+)
 
 
 async def send_after_film(client, bot, channel, anchor_id, state, key, *, audience):
@@ -16,8 +43,13 @@ async def send_after_film(client, bot, channel, anchor_id, state, key, *, audien
     try:
         async for msg in client.iter_messages(channel, limit=70):
             reply_id = getattr(getattr(msg, "reply_to", None), "reply_to_msg_id", None)
-            if (str(getattr(msg, "raw_text", "") or "").strip() == REACTION_TEXT
-                    and int(reply_id or 0) == int(anchor_id)):
+            if (
+                " ".join(str(getattr(msg, "raw_text", "") or "").split()) in {
+                    " ".join(REACTION_TEXT.split()),
+                    " ".join(LEGACY_REACTION_TEXT.split()),
+                }
+                and int(reply_id or 0) == int(anchor_id)
+            ):
                 receipts[receipt_key] = int(msg.id)
                 state.save()
                 return False
@@ -28,10 +60,12 @@ async def send_after_film(client, bot, channel, anchor_id, state, key, *, audien
     try:
         if audience == "public":
             sent = await bot.send_message(
-                channel, REACTION_TEXT, reply_to_message_id=int(anchor_id))
+                channel, REACTION_HTML, parse_mode="html",
+                reply_to_message_id=int(anchor_id))
         else:
             sent = await client.send_message(
-                channel, REACTION_TEXT, reply_to=int(anchor_id))
+                channel, REACTION_HTML, parse_mode="html",
+                reply_to=int(anchor_id))
         receipts[receipt_key] = int(sent.id)
         state.save()
         return True
