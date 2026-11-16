@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-555ceab9dd6596b4:1X",
+    "recorded_at_utc": "2026-11-16T00:14:13+00:00",
+    "kickoff_utc": "2026-11-18T00:00:00+00:00",
+    "fixture": {
+      "home_team": "USA",
+      "away_team": "Haiti",
+      "league": "CONCACAF Nations League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 86.9,
+      "odds": 3.376,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "b881814652e2a7d41fdf9d923d4f97d50716ee6a31957bd5dfe99d282c383621"
+}
