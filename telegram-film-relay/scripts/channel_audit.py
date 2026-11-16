@@ -44,8 +44,9 @@ def requested_channels():
         "public": os.getenv("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr"),
     }, os.getenv("DESIR_BOT_TOKEN") or os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
     for name in ("comedie", "anime"):
+        token_var = "COMEDIE_BOT_TOKEN" if name == "comedie" else "CINEX_CATEGORY_BOT_TOKEN"
         entries.append((name, category_config(name),
-                        os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
+                        os.getenv(token_var, "")))
     return entries
 
 
