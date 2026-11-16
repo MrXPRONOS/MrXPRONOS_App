@@ -328,7 +328,7 @@ function render(){
  $("heading").textContent=query.trim()?"Résultats de recherche":"Les canaux";
  if(!channels.length){
   const empty=node("div","empty");empty.append(node("strong",null,"Aucun canal trouvé"),document.createTextNode("Essaie une autre recherche ou une autre catégorie."));
-  root.append(empty);return;
+  const suggestions=document.createElement("div");suggestions.className="cine-no-results";suggestions.style.marginTop="14px";for(const [word,term] of [["Films","films"],["Séries","series"],["Animés","animes"]]){const b=document.createElement("button");b.type="button";b.textContent=word;b.style.cssText="margin:4px;padding:9px 13px;border-radius:100px;background:#24416a;color:#f1f7ff;border:1px solid #5071a2";b.onclick=()=>{const search=$("search");search.value=term;search.dispatchEvent(new Event("input",{bubbles:true}));};suggestions.append(b);}empty.append(suggestions);root.append(empty);return;
  }
  const fragment=document.createDocumentFragment();
  channels.forEach((c,i)=>fragment.append(buildCard(c,i)));
@@ -597,7 +597,7 @@ function enhancePreview(){
  const details=document.createElement("div");details.className="cine-meta";
  const attrs=[];
  if(match.genre&&match.genre!=="general")attrs.push("Genre : "+match.genre);
- if(match.language)attrs.push("Langue annoncée : "+match.language);
+ if(match.language)attrs.push("Langue indiquée dans l’annuaire : "+match.language);
  if(match.review_count)attrs.push("Avis : "+match.review_count+" · "+Number(match.rating).toFixed(1)+"/5");
  if(match.link_status==="reachable")attrs.push("Lien contrôlé : accessible");
  if(match.link_status==="unknown")attrs.push("Lien : vérification en attente");
@@ -609,7 +609,7 @@ function enhancePreview(){
  open.addEventListener("click",()=>putHistory(id),{capture:true,once:true});
 }
 async function getCatalog(){
- try{const r=await fetch("/api/catalog?limit=80",{cache:"no-store"});if(!r.ok)return;const j=await r.json();for(const c of j.channels||[])metadata.set(Number(c.id),c);decorateCards();updateFeatured();enhancePreview()}
+ try{const r=await fetch("/api/catalog?limit=80",{cache:"no-store"});if(!r.ok)return;const j=await r.json();for(const c of j.channels||[])metadata.set(Number(c.id),c);decorateCards();updateFeatured();enhancePreview();const ratingOption=document.querySelector("#sort option[value=\"rated\"]");if(ratingOption){const rated=[...metadata.values()].some(c=>Number(c.review_count)>0);ratingOption.disabled=!rated;ratingOption.textContent=rated?"Mieux notés":"Notes à venir";}}
  catch(e){console.warn("cine_enhancement_catalog_unavailable")}
 }
 function initialize(){
