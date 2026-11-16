@@ -63,7 +63,7 @@ async function checkOne(env,c){
  const fail=result.outcome==='not_found';
  const failures=fail?Number(current?.consecutive_failures||0)+1:0;
  const first=fail?(current?.first_failure_at||new Date().toISOString()):null;
- const eligible=fail&&failures>=2&&Date.now()-Date.parse(String(first).replace(' ','T')+'Z')>=23*3600000;
+ const eligible=fail&&failures>=2&&Date.now()-Date.parse(String(first).includes('T')?String(first):String(first).replace(' ','T')+'Z')>=23*3600000;
  const listing=eligible?'hidden':result.outcome==='reachable'?'listed':current?.listing_status||'listed';
  // A 404 cannot establish a moved Telegram username; never guess a replacement URL.
  const jobs=[
