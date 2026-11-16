@@ -14,6 +14,7 @@ from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, film_folder_url,
                           send_public_poster_with_buttons)
 from .state import State
+from .reactions import send_after_film
 from .source_channels import source_list
 from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
                        existing_native_forwards)
@@ -526,6 +527,10 @@ async def execute() -> int:
                             text, url, invitation
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id))
+                        await send_after_film(client, bot_client, destination_private,
+                                              private_post_id, state, pair_id, audience="private")
+                        await send_after_film(client, bot_client, destination_public,
+                                              int(public_post.id), state, pair_id, audience="public")
                         if mirror_destination is not None and not flag('CINEX_DEFER_MIRROR', False):
                             try:
                                 copied_id = await forward_public_message(
