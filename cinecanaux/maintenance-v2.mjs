@@ -95,6 +95,8 @@ async function checkOne(env,c){
   env.DB.prepare('INSERT INTO channel_checks(channel_id,outcome,old_link,details) VALUES(?,?,?,?)').bind(c.id,result.outcome,c.link,String(result.reason||'').slice(0,80))
  ];
  if(result.outcome==='reachable'&&result.profile?.title){
+  // Update public metadata, not the channel link. Telegram usernames are not stable proof of identity.
+  jobs.push(env.DB.prepare("UPDATE channels SET title=?,description=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='approved'").bind(String(result.profile.title).slice(0,120),String(result.profile.description||'Canal Telegram public').slice(0,450),c.id));
   jobs.push(env.DB.prepare("INSERT INTO channel_profile_cache(channel_id,title,description,avatar_url,post_image_url,last_post_at,preview_status) VALUES(?,?,?,?,?,?,'available') ON CONFLICT(channel_id) DO UPDATE SET title=excluded.title,description=excluded.description,avatar_url=excluded.avatar_url,post_image_url=excluded.post_image_url,last_post_at=excluded.last_post_at,checked_at=CURRENT_TIMESTAMP,preview_status='available'").bind(c.id,result.profile.title,result.profile.description||'',result.profile.avatar_url||'',result.profile.post_image_url||'',result.profile.last_post_at||null));
  }
  await env.DB.batch(jobs);
