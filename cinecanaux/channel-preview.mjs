@@ -81,7 +81,8 @@ async function loadChannelPreview(env,id){
   "p.last_post_at AS cached_last_post_at,p.checked_at AS cached_checked_at,"+
   "p.preview_status AS cached_preview_status "+
   "FROM channels c LEFT JOIN channel_profile_cache p ON p.channel_id=c.id "+
-  "WHERE c.id=? AND c.status='approved'"
+  "LEFT JOIN channel_index_meta m ON m.channel_id=c.id "+
+  "WHERE c.id=? AND c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'"
  ).bind(id).first();
  if(!c)return {status:404,error:"Canal non disponible"};
  const match=PUBLIC_LINK.exec(c.link||"");
