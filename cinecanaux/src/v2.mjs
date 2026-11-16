@@ -154,7 +154,7 @@ async function postSuggestion(request,env,uid){
 }
 export async function v2API(env,request){
  const u=new URL(request.url),path=u.pathname,method=request.method;
- if(method==='GET'&&path==='/api/search'){
+ if(method==='GET'&&(path==='/api/search'||path==='/api/catalog')){
   const limit=Math.min(80,Math.max(1,Number(u.searchParams.get('limit'))||60));
   const offset=Math.min(10000,Math.max(0,Number(u.searchParams.get('offset'))||0));
   const query=String(u.searchParams.get('q')||'').slice(0,120);
