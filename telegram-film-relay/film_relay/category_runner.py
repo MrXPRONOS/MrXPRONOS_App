@@ -25,6 +25,7 @@ from .recovery import snapshot_telegram_posts
 from .runner import resolve_peer
 from .text import private_message_link
 from .source_channels import source_list
+from .reactions import send_after_film
 
 LOG = logging.getLogger("cinex_categories")
 CATEGORIES = {
@@ -342,6 +343,10 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 bot, client, bot_public, item, title, video_url, ""
             )
             state.complete(key, private_video_id, public_post.id)
+            await send_after_film(client, bot, private, private_video_id,
+                                  state, key, audience="private")
+            await send_after_film(client, bot, public, public_post.id,
+                                  state, key, audience="public")
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             mirrored_id = None
             if mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):

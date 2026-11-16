@@ -20,6 +20,7 @@ from .matching import document_key
 from .runner import resolve_peer
 from .text import private_message_link
 from .source_channels import source_list
+from .reactions import send_after_film
 from .publication import (rich_caption, rich_video_title, url_button_rows,
                           film_folder_url, send_public_poster_with_buttons)
 from .recovery import snapshot_telegram_posts, existing_native_forwards
@@ -433,6 +434,10 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
             public_post = await post_public(bot, client, bot_public, item, title, video_url, link)
             state.complete(key, private_video_id, public_post.id)
+            await send_after_film(client, bot, library, private_video_id,
+                                  state, key, audience="private")
+            await send_after_film(client, bot, public_user, public_post.id,
+                                  state, key, audience="public")
             # Only forward the public bot-authored poster/link, NEVER the private video.
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             forwarded_id = None
