@@ -1,6 +1,8 @@
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
+import {ADMIN_HTML} from "./admin-page.mjs";
+import {adminAPI} from "./admin-v2.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
@@ -150,6 +152,10 @@ export default {
    }
    return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
+  if(request.method==="GET"&&u.pathname==="/admin"){
+   return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
+  }
+  if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
   if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
    const name=u.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
