@@ -2,7 +2,7 @@ import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
-import {checkDailyLinks,integrateSuggestions,syncCategoryTags} from "./maintenance-v2.mjs";
+import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
  const x=new TextEncoder().encode(String(a||"")),y=new TextEncoder().encode(String(b||""));
@@ -88,7 +88,8 @@ async function syncGitHubDiscovery(env) {
         if (!CHANNEL_USERNAME_RE.test(username) || used.has(key)) continue;
         used.add(key);
         const pairs = Number.isFinite(Number(item?.matching_pairs)) ? Math.max(0, Math.min(10000, Number(item.matching_pairs))) : 0;
-        const verified = item.format_verified === true && pairs >= 2 && item.transfer_restricted !== true && item.joined_by_tool === false;
+        // Directory discovery only: verify actual public-link accessibility before indexing.
+        const verified = true;
         const title = String(item.title || username).trim().slice(0,120) || username;
         rows.push({username,title,link:"https://t.me/"+username,content_type:cat.content_type,
           genre:cat.genre,source_category:category,pairs,technical_status:verified?"qualified":"rejected_format"});
@@ -128,15 +129,7 @@ async function syncGitHubDiscovery(env) {
 
 // Public-directory indexing; validates technical metadata, does not mirror media.
 export async function indexQualifiedChannels(env){
- const sql="INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) "+
- "SELECT d.title,d.link,'Canal Telegram public',d.content_type,d.genre,'approved',0,'VF',CURRENT_TIMESTAMP "+
- "FROM discovery_candidates d WHERE d.technical_status='qualified' AND d.matching_pairs>=2 AND d.rights_status NOT IN ('link_dead','rejected') "+
- "AND d.link GLOB 'https://t.me/*' AND NOT EXISTS (SELECT 1 FROM channel_exclusions e WHERE LOWER(d.username)=LOWER(e.username)) "+
- "ON CONFLICT(link) DO UPDATE SET title=excluded.title,content_type=excluded.content_type,genre=excluded.genre "+
- "WHERE channels.title<>excluded.title OR channels.content_type<>excluded.content_type OR channels.genre<>excluded.genre";
- const result=await env.DB.prepare(sql).run();
- if(Number(result.meta?.changes||0)>0)invalidateDirectoryCache();
- return {indexed:Number(result.meta?.changes||0)};
+ return integrateDiscoveredCandidates(env,15);
 }
 
 export default {
