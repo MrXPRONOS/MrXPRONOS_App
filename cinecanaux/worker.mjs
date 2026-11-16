@@ -3,6 +3,7 @@ import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,inva
 import {APP_HTML} from "./app-page.mjs";
 import {ADMIN_HTML} from "./admin-page.mjs";
 import {adminAPI} from "./admin-v2.mjs";
+import {runLoggedJob} from "./job-log.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
@@ -174,14 +175,18 @@ export default {
   return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  if(controller.cron==="0 */4 * * *")ctx.waitUntil((async()=>{
+  if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
-   await indexQualifiedChannels(env);
+   const discovered=await indexQualifiedChannels(env);
    await syncCategoryTags(env);
-   await integrateSuggestions(env,12);
+   const suggested=await integrateSuggestions(env,12);
    await cleanup(env);
-  })());
-  else if(controller.cron==="0 3 * * *")ctx.waitUntil(checkDailyLinks(env,10));
-  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]));
+   return {inspected:discovered.inspected||0,inserted:(discovered.inserted||0)+(suggested.indexed||0),errors:discovered.unverifiable||0};
+  }));
+  else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
+  else ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
+   const result=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]);
+   return {errors:result.filter(x=>x.status==='rejected').length};
+  }));
  }
 };
