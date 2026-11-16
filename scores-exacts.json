@@ -3,39 +3,12 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-16",
-  "generated_at": "2026-11-16T09:56:39Z",
+  "generated_at": "2026-11-16T13:46:28Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
-    {
-      "id": "sportsapipro:4892049",
-      "league": "Azadegan League",
-      "home": "Be'sat Kermanshah",
-      "away": "Kara Gostar SC",
-      "kickoff_utc": "2026-11-16T11:30:00Z",
-      "score": "1:0",
-      "probability": 0.13996345
-    },
-    {
-      "id": "sportsapipro:4891588",
-      "league": "Azadegan League",
-      "home": "Mes Rafsanjan",
-      "away": "Shahin Bandar Anzali",
-      "kickoff_utc": "2026-11-16T11:30:00Z",
-      "score": "1:0",
-      "probability": 0.13957815
-    },
-    {
-      "id": "sportsapipro:4892050",
-      "league": "Azadegan League",
-      "home": "Pars Jonoubi Jam",
-      "away": "Foolad Khuzestan",
-      "kickoff_utc": "2026-11-16T13:00:00Z",
-      "score": "1:0",
-      "probability": 0.13390787
-    },
     {
       "id": "sportsapipro:4892128",
       "league": "Premiere Division",
@@ -46,76 +19,34 @@
       "probability": 0.13309972
     },
     {
-      "id": "sportsapipro:4891587",
-      "league": "Azadegan League",
-      "home": "Naft Gachsaran",
-      "away": "Niroye Zamini",
-      "kickoff_utc": "2026-11-16T12:15:00Z",
+      "id": "sportsapipro:4893709",
+      "league": "U20 Friendly International",
+      "home": "Brazil U20",
+      "away": "Peru U20",
+      "kickoff_utc": "2026-11-16T23:00:00Z",
       "score": "1:0",
-      "probability": 0.12682362
+      "probability": 0.1044419
+    },
+    {
+      "id": "sportsapipro:4775890",
+      "league": "Frauen Bundesliga",
+      "home": "Stuttgart (W)",
+      "away": "Bayer Leverkusen (W)",
+      "kickoff_utc": "2026-11-16T17:00:00Z",
+      "score": "2:1",
+      "probability": 0.09037542
+    },
+    {
+      "id": "sportsapipro:4672274",
+      "league": "UEFA Nations League - League A - Group 2",
+      "home": "Greece",
+      "away": "Serbia",
+      "kickoff_utc": "2026-11-16T19:45:00Z",
+      "score": "1:2",
+      "probability": 0.07264005
     }
   ],
   "grouped": [
-    {
-      "id": "sportsapipro:4892050",
-      "league": "Azadegan League",
-      "home": "Pars Jonoubi Jam",
-      "away": "Foolad Khuzestan",
-      "kickoff_utc": "2026-11-16T13:00:00Z",
-      "score": "1:0",
-      "probability": 0.31509224,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4891587",
-      "league": "Azadegan League",
-      "home": "Naft Gachsaran",
-      "away": "Niroye Zamini",
-      "kickoff_utc": "2026-11-16T12:15:00Z",
-      "score": "1:0",
-      "probability": 0.31050056,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4892049",
-      "league": "Azadegan League",
-      "home": "Be'sat Kermanshah",
-      "away": "Kara Gostar SC",
-      "kickoff_utc": "2026-11-16T11:30:00Z",
-      "score": "1:0",
-      "probability": 0.30563902,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4891588",
-      "league": "Azadegan League",
-      "home": "Mes Rafsanjan",
-      "away": "Shahin Bandar Anzali",
-      "kickoff_utc": "2026-11-16T11:30:00Z",
-      "score": "1:0",
-      "probability": 0.30458685,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
     {
       "id": "sportsapipro:4893709",
       "league": "U20 Friendly International",
@@ -129,6 +60,51 @@
         "1:0",
         "2:0",
         "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4892128",
+      "league": "Premiere Division",
+      "home": "Diarra",
+      "away": "Korofina",
+      "kickoff_utc": "2026-11-16T16:00:00Z",
+      "score": "1:0",
+      "probability": 0.29798112,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4775890",
+      "league": "Frauen Bundesliga",
+      "home": "Stuttgart (W)",
+      "away": "Bayer Leverkusen (W)",
+      "kickoff_utc": "2026-11-16T17:00:00Z",
+      "score": "2:1",
+      "probability": 0.21893474,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4672274",
+      "league": "UEFA Nations League - League A - Group 2",
+      "home": "Greece",
+      "away": "Serbia",
+      "kickoff_utc": "2026-11-16T19:45:00Z",
+      "score": "1:2",
+      "probability": 0.18216544,
+      "group": "A_LOW",
+      "group_scores": [
+        "0:1",
+        "0:2",
+        "1:2"
       ]
     }
   ]
