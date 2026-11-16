@@ -139,3 +139,28 @@ test('admin action hides a channel without deleting its review history',async()=
  assert.ok(db.writes.some(x=>x.sql.includes('listing_status')));
  assert.ok(db.writes.every(x=>!x.sql.includes('DELETE FROM channels')));
 });
+
+test('link health cannot override an administrator-hidden channel',async()=>{
+ const oldFetch=globalThis.fetch;
+ const checkDB={
+  operations:[],
+  prepare(sql){let args=[];const self=this;
+   return {bind(...v){args=v;return this;},async all(){
+    if(sql.includes('JOIN channel_index_meta'))return {results:[{id:9,link:'https://t.me/TestCinemaPublic'}]};
+    return {results:[]};
+   },async first(){
+    if(sql.includes('consecutive_failures'))return {consecutive_failures:0,listing_status:'hidden',admin_hidden:1,first_failure_at:null};
+    return null;
+   },async run(){self.operations.push({sql,args});return {meta:{changes:1}};}};
+  },
+  async batch(jobs){for(const job of jobs)await job.run();}
+ };
+ globalThis.fetch=async()=>new Response('<meta property="og:title" content="Cinéma Telegram"/>',{status:200,headers:{'content-type':'text/html'}});
+ try{
+  const result=await checkDailyLinks({DB:checkDB},10);
+  assert.equal(result.checked,1);
+  assert.equal(result.results[0].outcome,'reachable');
+  assert.equal(result.results[0].listing,'hidden');
+  assert.ok(checkDB.operations.some(x=>x.sql.includes('listing_status')&&x.args.includes('hidden')));
+ }finally{globalThis.fetch=oldFetch;}
+});
