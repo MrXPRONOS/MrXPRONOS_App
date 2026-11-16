@@ -178,10 +178,18 @@ async def preflight(client, bot, cfg: dict):
             perms = await bot.get_permissions(bot_public, bot_me)
         except Exception as exc:
             from telethon.errors import UserNotParticipantError
-            if isinstance(exc, UserNotParticipantError):
+            from .bot_http import TelegramBotHTTPError
+            if isinstance(exc, UserNotParticipantError) or (
+                isinstance(exc, TelegramBotHTTPError) and
+                "chat not found" in str(exc).casefold()
+            ):
                 raise RuntimeError(
-                    f"Le bot @{getattr(bot_me, 'username', 'inconnu')} doit être "
-                    f"administrateur de {cfg['public']} (Publier les messages)."
+                    f"Le bot @{getattr(bot_me, 'username', 'inconnu')} "
+                    f"(identifiant {bot_me.id}) ne peut pas accéder à "
+                    f"{cfg['public']} via Telegram Bot API. Vérifier qu'il "
+                    "est bien ajouté comme administrateur du canal "
+                    "avec le droit Publier des messages, et que le canal "
+                    "configuré correspond à la destination attendue."
                 ) from exc
             raise
         check_bot_permission(perms, cfg["public"])
