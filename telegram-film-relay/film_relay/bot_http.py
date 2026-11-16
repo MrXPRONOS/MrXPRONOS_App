@@ -132,6 +132,8 @@ class BotHTTPClient:
     async def send_message(self, channel, message, *, buttons=None, parse_mode=None, **kwargs):
         from telethon import utils
         data = {"chat_id": str(utils.get_peer_id(channel)), "text": str(message)}
+        if kwargs.get("reply_to_message_id") is not None:
+            data["reply_parameters"] = json.dumps({"message_id": int(kwargs["reply_to_message_id"])})
         if parse_mode and str(parse_mode).lower() == "html":
             data["parse_mode"] = "HTML"
         keyboard = self._keyboard(buttons)
