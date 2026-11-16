@@ -46,7 +46,7 @@ async function processBotUpdate(env,update){
  if(!chat)return;
  const value=String(cb?.data||"");
  const text=String(update.message?.text||"").trim();
- if(/^\\/admin(?:@[A-Za-z0-9_]+)?$/i.test(text)){
+ if(/^\/admin(?:@[A-Za-z0-9_]+)?$/i.test(text)){
   const uid=update.message?.from?.id;
   const admin=Number.isSafeInteger(uid)?await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(uid).first():null;
   if(!admin){await display(env,chat,cb,"Accès réservé.",homeButtons());return;}
