@@ -318,6 +318,77 @@ async function load(force=false){
  })();
  return fetchPending;
 }
+
+async function postV2(path,data){
+ const init=telegram()?.initData||"";
+ if(!init)throw Error("Ouvre Ciné Radar depuis Telegram pour participer.");
+ const response=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","X-Telegram-Init-Data":init},body:JSON.stringify(data)});
+ let result;try{result=await response.json();}catch{result={};}
+ if(!response.ok)throw Error(result.error||"Envoi impossible. Réessaie.");
+ return result;
+}
+function statusLine(parent,message){
+ let existing=parent.querySelector(".v2-result");
+ if(!existing){existing=node("div","v2-helper v2-result");existing.setAttribute("role","status");parent.append(existing);}
+ existing.textContent=message;
+}
+function createFeedback(c){
+ const area=node("section","v2-feedback");
+ const heading=node("strong",null,"Ton avis");area.append(heading);
+ const help=node("div","v2-helper","As-tu trouvé ce que tu cherchais ?");
+ area.append(help);
+ const stars=node("div","v2-stars");let rating=0;
+ for(let n=1;n<=5;n++){
+  const b=button("★",null,()=>{rating=n;for(const item of stars.children)item.classList.toggle("selected",Number(item.dataset.rate)<=n);});
+  b.dataset.rate=String(n);b.setAttribute("aria-label",n+" étoiles");stars.append(b);
+ }area.append(stars);
+ const row=node("div","v2-segment");let accuracy="yes";
+ for(const [key,label] of [["yes","Oui"],["part","En partie"],["no","Non"]]){
+  const b=button(label,key==="yes"?"selected":"",()=>{accuracy=key;for(const other of row.children)other.classList.toggle("selected",other.dataset.match===key);});
+  b.dataset.match=key;row.append(b);
+ }
+ area.append(row);
+ const comment=node("textarea");comment.maxLength=500;comment.placeholder="Commentaire (facultatif)";comment.setAttribute("aria-label","Commentaire");area.append(comment);
+ area.append(button("Publier mon avis","v2-submit",async()=>{
+  if(!rating){statusLine(area,"Choisis de 1 à 5 étoiles.");return;}
+  try{await postV2("/api/channels/"+c.id+"/reviews",{rating,matches_description:accuracy,comment:comment.value});statusLine(area,"Avis enregistré. Merci !");load(true);}
+  catch(e){statusLine(area,String(e.message||e));}
+ }));
+ const flag=node("select");flag.setAttribute("aria-label","Motif du signalement");
+ for(const [key,label] of [["","Signaler un problème…"],["wrong_category","Mauvaise catégorie"],["misleading","Description trompeuse"],["dead_link","Lien inutilisable"],["spam","Spam"],["copyright","Contenu non autorisé"],["other","Autre"]]){const o=node("option");o.value=key;o.textContent=label;flag.append(o);}
+ area.append(flag);
+ area.append(button("Envoyer le signalement","v2-submit",async()=>{
+  if(!flag.value){statusLine(area,"Choisis un motif.");return;}
+  try{await postV2("/api/reports",{channel_id:c.id,reason:flag.value});statusLine(area,"Signalement reçu.");}
+  catch(e){statusLine(area,String(e.message||e));}
+ }));
+ const comments=node("div","v2-helper");comments.textContent="Avis de la communauté";area.append(comments);
+ api("/api/channels/"+c.id+"/reviews").then(data=>{
+  if(!area.isConnected)return;
+  const count=data.summary?.count||0;comments.textContent=count?count+" avis · "+Number(data.summary.rating).toFixed(1)+"/5":"Aucun avis pour le moment";
+  for(const item of (data.reviews||[]).slice(0,3)){
+   const el=node("div","v2-helper","★ "+item.rating+" · "+item.comment);area.append(el);
+  }
+ }).catch(()=>{});
+ return area;
+}
+function showSuggestion(){
+ previewToken++;$("overlay").hidden=false;document.body.style.overflow="hidden";
+ const sheet=$("sheet");sheet.textContent="";
+ const head=node("div","sheet-head");
+ head.append(button("Retour","sheet-back",close,"back"),node("span",null,"Proposer un canal"));sheet.append(head);
+ const detail=node("div","sheet-detail");detail.append(node("h3",null,"Ajouter un canal"));
+ const area=node("section","v2-feedback");
+ const link=node("input");link.type="url";link.placeholder="https://t.me/nomducanal";link.setAttribute("aria-label","Lien Telegram public");area.append(link);
+ const kind=node("select");kind.setAttribute("aria-label","Catégorie du canal");
+ for(const [key,label] of [["films","Films"],["series","Séries"],["animes","Animés"]]){const o=node("option");o.value=key;o.textContent=label;kind.append(o);}area.append(kind);
+ area.append(button("Proposer","v2-submit",async()=>{
+  try{const reply=await postV2("/api/suggestions",{link:link.value.trim(),category:kind.value});statusLine(area,reply.status==="already_listed"?"Ce canal est déjà référencé.":"Merci ! Le lien sera vérifié automatiquement.");}
+  catch(e){statusLine(area,String(e.message||e));}
+ }));
+ area.append(node("div","v2-helper","Seuls les liens des canaux publics sont référencés."));detail.append(area);sheet.append(detail);
+}
+
 function fillPreview(c,p){
  const sheet=$("sheet");sheet.textContent="";
  const bar=node("div","sheet-head");const back=button("Retour","sheet-back",close,"back");
@@ -336,6 +407,7 @@ function fillPreview(c,p){
   "Canal public classé dans « "+typeLabel(c.type)+" ». Consulte ses publications directement sur Telegram.";
  detail.append(node("p","sheet-description",usefulBio));
  detail.append(button("Ouvrir le canal","sheet-open",()=>openTelegram(c.link),"send"));
+ detail.append(createFeedback(c));
  sheet.append(detail);
 }
 function showPreview(c){
