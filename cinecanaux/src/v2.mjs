@@ -32,6 +32,16 @@ async function identity(request,env){
  if(!Number.isSafeInteger(user?.id)||user.id<=0)return null;
  return hex(await crypto.subtle.digest('SHA-256',enc.encode(env.TELEGRAM_WEBHOOK_SECRET+':'+user.id)));
 }
+export async function verifiedIdentity(request,env){
+ const hash=await identity(request,env);
+ if(!hash)return null;
+ try{
+  const data=new URLSearchParams(request.headers.get('X-Telegram-Init-Data')||'');
+  const user=JSON.parse(data.get('user')||'null');
+  if(!Number.isSafeInteger(user?.id)||user.id<=0)return null;
+  return {hash,telegram_id:user.id};
+ }catch{return null;}
+}
 async function bodyJson(request){
  if(Number(request.headers.get('content-length')||0)>4000)throw Error('too_large');
  const raw=await request.text();if(raw.length>4000)throw Error('too_large');
@@ -158,7 +168,7 @@ export async function v2API(env,request){
   const limit=Math.min(80,Math.max(1,Number(u.searchParams.get('limit'))||60));
   const offset=Math.min(10000,Math.max(0,Number(u.searchParams.get('offset'))||0));
   const query=String(u.searchParams.get('q')||'').slice(0,120);
-  const types=String(u.searchParams.get('types')||'').slice(0,60);
+  const types=String(u.searchParams.get('types')||(path==='/api/catalog'?u.searchParams.get('type')||'':'' )).replace(/^all$/,'').slice(0,60);
   const sort=String(u.searchParams.get('sort')||'relevant');
   return json(await getCatalog(env,{query,types,sort,limit,offset}));
  }
