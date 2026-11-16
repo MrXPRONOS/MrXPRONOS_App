@@ -24,7 +24,9 @@ export async function adminAPI(env,request){
   (SELECT COUNT(*) FROM channel_reviews) AS reviews,
   (SELECT COUNT(*) FROM channel_reports WHERE status IN ('open','reviewing')) AS open_reports,
   (SELECT COUNT(*) FROM channel_suggestions WHERE status IN ('pending','unverifiable')) AS pending_suggestions,
-  (SELECT COUNT(*) FROM channel_checks WHERE checked_at>=datetime('now','-1 day')) AS checks_24h`).first();
+  (SELECT COUNT(*) FROM channel_checks WHERE checked_at>=datetime('now','-1 day')) AS checks_24h,
+  (SELECT COALESCE(SUM(searches),0) FROM search_daily_stats WHERE date_utc=date('now')) AS searches_today,
+  (SELECT COALESCE(SUM(empty_results),0) FROM search_daily_stats WHERE date_utc=date('now')) AS empty_searches_today`).first();
   return json(items||{});
  }
  if(request.method==='GET'&&path==='/api/admin/reports'){
