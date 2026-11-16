@@ -775,6 +775,12 @@
       "number": 7,
       "sent_at": "2026-10-25T22:44:57.299353+00:00",
       "source": "CoinPaprika"
+    },
+    "weekly:07:2026-W47": {
+      "message_id": 113,
+      "number": 7,
+      "sent_at": "2026-11-16T00:12:01.170974+00:00",
+      "source": "CoinPaprika"
     }
   }
 }
