@@ -662,6 +662,62 @@ async function say(chatId,text,businessId='',options={}) {
   }
 }
 
+
+/** Transforme une réponse IA longue en 1 à 5 messages Telegram lisibles.
+ * Les paragraphes et les étapes restent ensemble autant que possible.
+ * Le dernier message reçoit les boutons (pas cinq fois la même promotion).
+ */
+export function splitTelegramReply(raw,{target=650,maxParts=5}={}) {
+  const text=String(raw||'').replace(/\r\n?/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  if(!text) return [];
+  const limit=Math.min(3400,Math.max(180,Number(target)||650));
+  if(text.length<=limit)return [text];
+  const blocks=text.split(/\n\n+/).filter(Boolean);
+  const units=[];
+  for(const block of blocks){
+    if(block.length<=limit){units.push(block);continue;}
+    // Fractionner aux lignes sans casser « **en gras** » ou les étapes.
+    const lines=block.split('\n');
+    for(const line of lines){
+      if(line.length<=limit){units.push(line);continue;}
+      let rest=line.trim();
+      while(rest.length>limit){
+        let boundary=Math.max(rest.lastIndexOf('. ',limit),rest.lastIndexOf('! ',limit),rest.lastIndexOf('? ',limit),rest.lastIndexOf(' ',limit));
+        if(boundary<Math.floor(limit*.55))boundary=limit;
+        else boundary+=rest[boundary]===' '?0:1;
+        units.push(rest.slice(0,boundary).trim());
+        rest=rest.slice(boundary).trim();
+      }
+      if(rest)units.push(rest);
+    }
+  }
+  const parts=[];
+  for(const unit of units){
+    const sep=parts.length?'\n\n':'';
+    const current=parts.length-1;
+    if(current>=0 && parts[current].length+sep.length+unit.length<=limit){
+      parts[current]+=sep+unit;
+    }else parts.push(unit);
+  }
+  if(parts.length<=maxParts)return parts;
+  const head=parts.slice(0,maxParts-1),tail=parts.slice(maxParts-1).join('\n\n');
+  // Éviter de couper un long contenu en silence.
+  head.push(tail.length<=3500?tail:tail.slice(0,3420).replace(/\s+\S*$/,'')+'\n\n*(Réponse abrégée)*');
+  return head;
+}
+async function sayConversation(chatId,text,businessId='',options={},{
+  send=say,
+  maxParts=5
+}={}) {
+  const chunks=splitTelegramReply(text,{target:700,maxParts});
+  for(let i=0;i<chunks.length;i++){
+    // Les URLs doivent rester dans la dernière partie pour que les boutons apparaissent au bon endroit.
+    const isLast=i===chunks.length-1;
+    await send(chatId,chunks[i],businessId,isLast?options:{allowedUrls:[]});
+  }
+  return chunks.length;
+}
+
 const chatKey = (msg) => msg?.business_connection_id ? `b:${msg.business_connection_id}:${msg.chat.id}` : String(msg.chat.id);
 async function getChat(key) {const rows=await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}&select=*`);return rows?.[0]||null;}
 async function updateChat(chat) {await db('mx_telegram_assistant_chats?on_conflict=chat_key','POST',[chat],'resolution=merge-duplicates');}
@@ -875,7 +931,7 @@ export async function handleUpdate(update) {
           answer=contextualPresentation(parsed.reply,text,recentHistory,intent);
           const destinations=contextualDestinations(text,recentHistory,parsed.buttons,intent);
           if(destinations.length)answer+='\n'+destinations.join('\n');
-          await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
+          await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
           await logMessage(key,'user',text);
           await logMessage(key,'assistant',answer);
           await markHandled(id);
@@ -944,7 +1000,7 @@ export async function handleUpdate(update) {
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
   }
   answer=polishTelegramText(answer,text);
-  await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
+  await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
   await markHandled(id);
