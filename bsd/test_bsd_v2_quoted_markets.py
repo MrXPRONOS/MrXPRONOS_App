@@ -82,7 +82,7 @@ class PricedSelectionTests(unittest.TestCase):
                                                                                    "category_or_confidence_below_79")))
         self.assertEqual([x["id"] for x in due(out["matches"],self.now)],[])
 
-    def test_rejected_real_price_keeps_model_calculation_only_in_watchlist(self):
+    def test_rejected_real_price_does_not_create_theoretical_watchlist_quote(self):
         fixture={**self.fixture}
         base={"id":"bsd:17","home_team_id":1,"away_team_id":2,
             "category":"pro","model_version":"bsd-v2-isolated",
@@ -101,16 +101,7 @@ class PricedSelectionTests(unittest.TestCase):
                 odds_fetcher=lambda *a:(quotes,{"verified_provider_count":1}),
                 max_odds_requests=2)
         self.assertEqual(result["matches"],[])
-        self.assertEqual(len(result["model_odds_observations"]),1)
-        row=result["model_odds_observations"][0]
-        self.assertEqual(row["id"],"bsd:17")
-        self.assertEqual(row["publication_status"],"not_published")
-        self.assertFalse(row["prediction_eligible"])
-        self.assertTrue(row["do_not_send_to_telegram"])
-        self.assertTrue(row["market"]["estimated_odds"])
-        self.assertFalse(row["market"]["recommendation_eligible"])
-        self.assertEqual(row["market"]["odds_source"],"mrxpronos_model")
-        self.assertGreaterEqual(row["market"]["odds"],1.01)
+        self.assertEqual(result["model_odds_observations"],[])
         self.assertEqual([x["id"] for x in due(result["matches"],self.now)],[])
 
     def test_selected_market_remains_identical_with_or_without_bsd_quote(self):
