@@ -153,7 +153,7 @@ test('link hub: real Telegram handler sends welcome, complete links, folder, boo
  assert.ok(allLinks.has(assistant.LINKS.folder_films),'Official folder missing');
  assert.equal(expected.length,18);
  assert.ok(all[0].content.includes('Bookmakers partenaires'));
- assert.ok(all[0].content.includes('Canal Telegram Actu Foot'));
+ assert.match(all[0].content,/canal Telegram Actu Foot/i);
  assert.ok(!all[0].content.includes('lien non vérifié retiré'));
  assert.equal(all[0].buttons.flat().length,18,'The entire official hub must use Telegram buttons');
  assert.equal(all[0].buttons.length,9,'Two buttons per row, readable on phones');
