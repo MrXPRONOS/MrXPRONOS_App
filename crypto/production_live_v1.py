@@ -91,7 +91,8 @@ def record_send(chat: dict, caption: str, image: Path, parse_mode=None) -> int:
         if isinstance(code, int) and 400 <= code < 500:
             raise ValueError("Definite Telegram sendPhoto rejection: HTTP " + str(code) + " " + reason[:200])
         raise RuntimeError("Telegram sendPhoto outcome not confirmed HTTP " + str(code) + " " + reason[:120])
-    if getattr(resp, "status_code", 200) >= 400:
+    status = getattr(resp, "status_code", 200)
+    if isinstance(status, int) and status >= 400:
         raise RuntimeError("Telegram sendPhoto HTTP error despite success-shaped body")
     m = result.get("result")
     if (not isinstance(m, dict) or not isinstance(m.get("message_id"), int)
