@@ -1113,13 +1113,61 @@ export function reviewVisualDescription(raw=''){
   return {description:cut(redactSensitiveText(text),1700),uncertain};
 }
 
+
+export async function compressTelegramImage(data,{maxBytes=128000,codec=null}={}){
+ if(!data?.bytes?.length||!/^image\/(jpeg|png)$/.test(data.mime))return null;
+ if(data.bytes.length<=maxBytes)return data;
+ try{
+  let c=codec;
+  if(!c){
+   const j=await import('npm:jpeg-js@0.4.4'),jpeg=j.default||j;
+   let png;
+   if(data.mime==='image/png'){const p=await import('npm:upng-js@2.1.0');png=p.default||p;}
+   c={
+    decode(bytes,mime){
+     if(mime==='image/png'){
+      const img=png.decode(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
+      return {width:img.width,height:img.height,data:new Uint8Array(png.toRGBA8(img)[0])};
+     }
+     const img=jpeg.decode(bytes,{useTArray:true,maxResolutionInMP:10,maxMemoryUsageInMB:96});
+     return {width:img.width,height:img.height,data:new Uint8Array(img.data)};
+    },
+    encode(img,quality){return jpeg.encode(img,quality).data;}
+   };
+  }
+  const img=await c.decode(data.bytes,data.mime);
+  if(!img||!Number.isInteger(img.width)||!Number.isInteger(img.height)||img.width*img.height>10000000||img.width<1||img.height<1)return null;
+  for(const size of [1600,1300,1000,800,600]){
+   const scale=Math.min(1,size/Math.max(img.width,img.height));
+   const width=Math.max(1,Math.floor(img.width*scale)),height=Math.max(1,Math.floor(img.height*scale));
+   const rgba=new Uint8Array(width*height*4);
+   for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+    const ox=Math.min(img.width-1,Math.floor(x/scale)),oy=Math.min(img.height-1,Math.floor(y/scale));
+    const a=(img.data[4*(oy*img.width+ox)+3]??255)/255;
+    for(let ch=0;ch<3;ch++)rgba[4*(y*width+x)+ch]=Math.round((img.data[4*(oy*img.width+ox)+ch]??255)*a+255*(1-a));
+    rgba[4*(y*width+x)+3]=255;
+   }
+   for(const q of [78,60,45,32]){
+    const encoded=await c.encode({data:rgba,width,height},q);
+    const bytes=encoded instanceof Uint8Array?encoded:new Uint8Array(encoded);
+    if(bytes.length&&bytes.length<=maxBytes)return {bytes,mime:'image/jpeg',compressed:true,width,height,quality:q};
+   }
+  }
+ }catch(e){console.warn('image_compression_unavailable',String(e?.name||'error'));}
+ return null;
+}
+
 export async function analyzeTelegramImage(data,{
-  http=fetch,apiKey=env('MX_ASSISTANT_NVIDIA_KEY'),upload=nvidiaAsset
+  http=fetch,apiKey=env('MX_ASSISTANT_NVIDIA_KEY'),upload=nvidiaAsset,
+  compress=compressTelegramImage
 }={}){
   if(!apiKey||!data?.bytes?.length)return null;
   if(!/^image\/(jpeg|png)$/.test(data.mime))return null;
   let reference,assetId='';
-  // La taille base64 (~4/3 de la taille binaire) doit rester sous 180k caractères.
+  if(data.bytes.length>128000){
+    const small=await compress(data,{maxBytes:128000});
+    if(small?.bytes?.length&&small.bytes.length<=128000&&/^image\/(jpeg|png)$/.test(small.mime))data=small;
+  }
   if(data.bytes.length>128000){
     try{
       assetId=await upload(data,{apiKey,http});
