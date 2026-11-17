@@ -40,16 +40,19 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
     recent_ids = {int(m.id) for m in recent}
     if not recent:
         return [], {"source_id": source_key, "archive_ids": set(),
-                    "next_cursor": None, "complete": True, "count": 0, "allowed_ids": set()}
+                    "next_cursor": None, "complete": True, "count": 0,
+                    "allowed_ids": set(), "recent_ids": set(), "revisit": False}
 
     rescan = os.getenv("CINEX_CATALOG_RESCAN", "").lower() in ("1", "true", "yes")
     complete_before = bool(scan.get("complete")) and not rescan
-    if complete_before and archive_pages == 1:
-        return recent, None
-    # For large anime batches re-read a bounded historic window even when
-    # the archival scan previously finished, without moving its stored cursor.
-    cursor = (_oldest(recent) if complete_before or not scan.get("cursor") or rescan
-              else int(scan["cursor"]))
+    # Once the first complete archive pass is finished, rotate a separate
+    # bounded REVISIT window through old messages; do not loop over the same
+    # first 160/640 posts forever. The original complete cursor is immutable.
+    revisit = complete_before
+    if revisit:
+        cursor = int(scan["revisit_cursor"]) if scan.get("revisit_cursor") else _oldest(recent)
+    else:
+        cursor = _oldest(recent) if not scan.get("cursor") or rescan else int(scan["cursor"])
     archive = []
     complete = False
     # Some 25-episode series contain text announcements between batches.
@@ -68,7 +71,9 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
     archive_ids = {int(m.id) for m in archive}
     if not archive:
         return recent, {"source_id": source_key, "archive_ids": set(),
-                        "next_cursor": cursor, "complete": True, "count": 0, "allowed_ids": recent_ids}
+                        "next_cursor": None if revisit else cursor, "complete": True,
+                        "count": 0, "allowed_ids": recent_ids,
+                        "recent_ids": recent_ids, "revisit": revisit}
 
     # Context preceding the oldest page preserves its opening title/season.
     lookbehind = [m async for m in client.iter_messages(
@@ -77,11 +82,25 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
     ordered = sorted(combined.values(), key=lambda msg: int(msg.id))
     plan = {"source_id": source_key, "archive_ids": archive_ids,
             "allowed_ids": recent_ids | archive_ids,
-            "next_cursor": _oldest(archive), "complete": complete,
+            "next_cursor": None if (revisit and complete) else _oldest(archive),
+            "complete": complete, "revisit": revisit,
+            "recent_ids": recent_ids,
             "count": len(archive), "recent_count": len(recent_ids)}
     LOG.info("scan source: récents=%s archives=%s contexte=%s fin=%s",
              len(recent_ids), len(archive), len(lookbehind), plan["complete"])
-    return ordered, (None if complete_before else plan)
+    return ordered, plan
+
+
+def split_source_windows(messages, plan):
+    """Avoid assigning a recent episode to an unrelated older archive poster."""
+    if plan is None or not plan.get("archive_ids"):
+        return [messages]
+    recent_ids = set(plan.get("recent_ids", set()))
+    if not recent_ids:
+        recent_ids = set(plan["allowed_ids"]) - set(plan["archive_ids"])
+    history = [m for m in messages if int(m.id) not in recent_ids]
+    recent = [m for m in messages if int(m.id) in recent_ids]
+    return [segment for segment in (history, recent) if segment]
 
 
 def source_window_ids(messages, plan):
@@ -101,9 +120,18 @@ def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
     receipted = set()
     for entry in catalogue.get("series", {}).values():
         receipted.update(entry.get("source_items", {}))
-    done, waiting = 0, 0
+    done, waiting, revisited = 0, 0, 0
     for plan in plans:
         if plan is None:
+            continue
+        if plan.get("revisit"):
+            old = scans.setdefault(plan["source_id"], {"complete": True})
+            old["revisit_cursor"] = plan["next_cursor"]
+            old["revisit_last_checked"] = datetime.now(timezone.utc).isoformat()
+            old["revisit_cycles"] = int(old.get("revisit_cycles", 0)) + 1
+            revisited += 1
+            # Never convert a read-only historical revisit into a destructive
+            # archive cursor advance or an assertion that media was published.
             continue
         eligible = {row["source_key"] for row in observed
                     if str(row["source_key"]).rsplit(":", 1)[0] == plan["source_id"]
@@ -123,6 +151,7 @@ def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
         }
         done += 1
     return {"pages_saved": done, "episodes_waiting": waiting,
+            "revisit_windows": revisited,
             "history_complete_sources": sum(1 for s in scans.values() if s.get("complete"))}
 
 
