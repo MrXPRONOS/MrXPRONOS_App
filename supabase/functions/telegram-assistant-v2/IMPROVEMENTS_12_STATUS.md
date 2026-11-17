@@ -46,3 +46,11 @@ Le bot historique `telegram_webhook` (coupons) reste indépendant.
 6. Revue du déploiement de la fonction et de son webhook ; ne pas modifier le bot historique des coupons sans demande explicite.
 
 Le mot « testé » se rapporte aux contrôles du code. Ni les tests synthétiques ni une Edge Function marquée ACTIVE ne démontrent à eux seuls la qualité des réponses aux utilisateurs finaux.
+
+## Vérification de clôture — série du 17 novembre 2026
+
+- GitHub Actions `Telegram Assistant V2 tests`, run **44128647549** : **SUCCESS** ; **175 tests réussis / 175**, **0 échec** (Node 22).
+- Déploiement Supabase `telegram-assistant-v2` : **version 26 ACTIVE**, entrée `index.js`, `verify_jwt=false` et authentification propre du webhook dans la fonction.
+- `telegram_webhook` (ancien bot coupons) : **version 38 ACTIVE**, non modifié.
+- PR #328 : ouverte en **draft** ; aucune fusion vers `main`.
+- Le statut ACTIVE et les tests Node ne valident pas NVIDIA réel, Ogg/Opus, le rendu Telegram réel, ni la qualité métier de toutes les réponses.
