@@ -513,7 +513,7 @@ async function logMessage(key,role,content){await db('mx_telegram_assistant_mess
 async function wasHandled(id){const rows=await db(`mx_telegram_assistant_updates?update_id=eq.${id}&select=update_id&limit=1`);return rows?.length>0;}
 async function markHandled(id){await db('mx_telegram_assistant_updates','POST',{update_id:id},'resolution=ignore-duplicates');}
 function safeModelReply(raw) {
-  const reply=cut(String(raw||'').trim(),1350);
+  const reply=cut(String(raw||'').trim(),2800);
   const safe=reply.replace(/https?:\/\/[^\s<>\])}]+/gi,u=>allowed(u.replace(/[.,;!?]+$/,''))?u:'[lien non vérifié retiré]');
   return safe.replace(/(?:100\s*%\s*(?:garanti|certain|sur)|gain garanti|pari sans risque)/gi,'aucune garantie');
 }
