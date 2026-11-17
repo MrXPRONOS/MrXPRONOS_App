@@ -1,0 +1,308 @@
+"""Append-only encrypted pre-match ONE-score forecast archive.
+
+Separate from grouped market and legacy Top3 archives.
+Store exactly one suggested score (plus private evaluation ablations).
+Snapshots are immutable; only result/settlement fields can change.
+"""
+from __future__ import annotations
+import argparse,hashlib,json
+from collections import Counter
+from datetime import datetime,timedelta,timezone
+from pathlib import Path
+
+from bsd_api import BSDClient
+from bsd_archive import MATCHES_FILE,cipher
+from bsd_h2h import _team_id
+from bsd_v2_core import V2History,fixture_datetime,outcome_scores
+from exact_scores_prospective import fetch_fixture_window
+from exact_scores_h2h import H2HIndex
+from single_exact_score_engine import VERSION,PARAMETERS,forecast,train_dc
+from single_exact_score_advanced import train_advanced
+from single_exact_score_context import enrich_lineups,hydrate_history_xg
+from single_exact_score_xg_history import read as read_xg,save as save_xg,apply as apply_xg,add as add_xg
+from single_exact_score_top3 import read as read_top3,save as save_top3,select_groups,settle_groups,report as top3_report,verify as verify_top3
+from single_exact_score_context_model import learn as learn_context,fingerprint as context_fingerprint
+from single_exact_score_context_observations import (
+    read as read_lineup_evidence,save as save_lineup_evidence,
+    capture as capture_lineup_evidence)
+
+PATH=Path("bsd/single_exact_score_ledger.enc.json")
+SCHEMA="mrx-single-exact-score-ledger-v1"
+RESULT_FIELDS=frozenset(("status","settled_at","actual_score","actual_kickoff_utc",
+                          "hit","alternatives_hit","forecast_sha256","void_reason","voided_at"))
+def empty():
+    return {"format":SCHEMA,"model":PARAMETERS,"records":{}}
+def digest(row):
+    source={k:v for k,v in row.items() if k not in RESULT_FIELDS}
+    data=json.dumps(source,ensure_ascii=False,sort_keys=True,separators=(",",":"))
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
+def read(path=PATH,secret=None):
+    if not path.exists():return empty()
+    env=json.loads(path.read_text(encoding="utf-8"))
+    if env.get("format")!=SCHEMA or not isinstance(env.get("encrypted"),str):
+        raise ValueError("Encrypted ledger required")
+    result=json.loads((secret or cipher()).decrypt(env["encrypted"].encode("ascii")))
+    if result.get("format")!=SCHEMA or not isinstance(result.get("model"),dict):
+        raise ValueError("Incompatible archive schema: preserve original archive")
+    # Immutable per-row model/version and forecast digest are authoritative;
+    # changes in CURRENT model parameters must never make old records unreadable.
+    if not isinstance(result.get("records"),dict):
+        raise ValueError("Missing immutable forecast records")
+    for row in result["records"].values():
+        if digest(row)!=row.get("forecast_sha256"):
+            raise ValueError("The original single-score prediction was edited")
+    return result
+def save(data,path=PATH,secret=None):
+    if (data.get("format")!=SCHEMA or not isinstance(data.get("model"),dict)
+            or not isinstance(data.get("records"),dict)):
+        raise ValueError("Refusing to overwrite malformed or incompatible archive")
+    if any(digest(row)!=row.get("forecast_sha256") for row in data["records"].values()):
+        raise ValueError("Cannot save modified pre-match forecast")
+    contents=json.dumps(data,ensure_ascii=False,sort_keys=True,separators=(",",":"))
+    token=(secret or cipher()).encrypt(contents.encode("utf-8")).decode("ascii")
+    path.parent.mkdir(parents=True,exist_ok=True)
+    temp=path.with_name(path.name+".tmp")
+    temp.write_text(json.dumps({"format":SCHEMA,"encrypted":token}),encoding="utf-8")
+    temp.chmod(0o600)
+    temp.replace(path)
+
+def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,context_model=None,clock=None):
+    hindex=H2HIndex(index)
+    counter=Counter()
+    for event in sorted(fixtures,key=lambda x:(fixture_datetime(x),str(x["id"]))):
+        key=str(event["id"])
+        if key in archive["records"]:
+            counter["already_seen"]+=1
+            continue
+        if counter["captured"]>=limit:
+            counter["limit_reached"]+=1;continue
+        # Live time is checked per fixture, never trusted from pipeline start.
+        live_now=clock() if clock is not None else datetime.now(timezone.utc)
+        if live_now.tzinfo is None:raise ValueError("UTC-aware clock required")
+        # A stale pipeline-start timestamp must never override live_now.
+        output,reason=forecast(event,index,hindex,dc_model=model,now=live_now,
+                               advanced_model=advanced_model,context_model=context_model)
+        if output is None:
+            counter[reason]+=1;continue
+        # A forecast can become too late while the computation is running.
+        stored_at=clock() if clock is not None else datetime.now(timezone.utc)
+        if stored_at.tzinfo is None:raise ValueError("UTC-aware capture clock required")
+        if fixture_datetime(event)<=stored_at+timedelta(minutes=PARAMETERS["minimum_lead_minutes"]):
+            counter["too_close_after_compute"]+=1
+            continue
+        row={"id":key,"model":VERSION,"captured_at":stored_at.isoformat(),
+             "kickoff":output["kickoff_utc"],"home_id":_team_id(event,"home"),
+             "away_id":_team_id(event,"away"),"score":output["score"],
+             "estimated_probability":output["estimated_score_probability"],
+             "score_margin":output["score_margin"],
+             "selection_rank":output["selection_rank"],
+             "rank_version":output["rank_version"],
+             "research_priority":output["research_priority"],
+             "expected_goals":output["expected_goals"],
+             "primary_model":output["primary_model"],
+             "advanced_model_used_for_primary":False,
+             "h2h_low_stable":output["h2h_low_stable"],
+             "under25_probability":output["under25_probability"],
+             "form_risk":output["form_risk"],
+             "experimental_ablation":{
+                 **{k:(v["score"] if v else None)
+                    for k,v in output["ablation"].items()},
+                 "advanced_2024":(output["advanced_research"]["choice"]["score"]
+                                  if output.get("advanced_research") else None)},
+             "advanced_research":output.get("advanced_research"),
+             "status":"pending"}
+        row["forecast_sha256"]=digest(row)
+        archive["records"][key]=row
+        counter["captured"]+=1
+    return dict(counter)
+def settle(archive,fixtures,now):
+    by_id={}
+    for event in fixtures:
+        if not isinstance(event,dict) or event.get("id") is None:continue
+        try:
+            event_at=fixture_datetime(event)
+        except (TypeError,ValueError):continue
+        key=str(event["id"])
+        state=str(event.get("status") or "").lower()
+        previous=by_id.get(key)
+        # Prefer terminal fixture outcomes to an older unresolved snapshot.
+        if (previous is None or outcome_scores(event) is not None or
+                state in ("cancelled","canceled","abandoned","postponed")):
+            by_id[key]=event
+    counter=Counter()
+    for key,row in archive["records"].items():
+        if row["status"]!="pending":continue
+        found=by_id.get(key)
+        if found is None:continue
+        at=fixture_datetime(found)
+        original=datetime.fromisoformat(row["kickoff"])
+        state=str(found.get("status") or "").lower()
+        if (_team_id(found,"home")!=row["home_id"] or
+            _team_id(found,"away")!=row["away_id"]):
+            counter["different_teams"]+=1;continue
+        # An invalidated/changed fixture is NOT a losing exact-score pick.
+        reason=None
+        if state in ("cancelled","canceled","abandoned","postponed"):
+            reason=state
+        elif abs((at-original).total_seconds())>5400:
+            reason="kickoff_rescheduled_over_90_minutes"
+        if reason is not None:
+            row["status"]="void"
+            row["voided_at"]=now.isoformat()
+            row["void_reason"]=reason
+            row["actual_kickoff_utc"]=at.isoformat()
+            counter["void"]+=1
+            continue
+        if now<max(original,at)+timedelta(hours=4):continue
+        score=outcome_scores(found)
+        if score is None:continue
+        if (_team_id(found,"home")!=row["home_id"] or
+            _team_id(found,"away")!=row["away_id"]):
+            counter["different_teams"]+=1;continue
+        row["status"]="settled"
+        row["settled_at"]=now.isoformat()
+        row["actual_kickoff_utc"]=at.isoformat()
+        row["actual_score"]=list(score)
+        row["hit"]=int(tuple(row["score"])==score)
+        row["alternatives_hit"]={k:(int(tuple(v)==score) if v else None)
+                   for k,v in row["experimental_ablation"].items()}
+        counter["settled"]+=1
+    return dict(counter)
+def summary(archive,now):
+    values=list(archive["records"].values())
+    done=[v for v in values if v["status"]=="settled"]
+    void=[v for v in values if v["status"]=="void"]
+    frequency=Counter("-".join(map(str,v["score"])) for v in values)
+    by_score={}
+    for name,count in frequency.items():
+        subs=[v for v in done if "-".join(map(str,v["score"]))==name]
+        by_score[name]={"captured":count,"settled":len(subs),
+                        "hits":sum(v["hit"] for v in subs),
+                        "observed_accuracy":round(sum(v["hit"] for v in subs)/len(subs),6)
+                            if subs else None}
+    def calculate(rows):
+        n=len(rows);hits=sum(x["hit"] for x in rows)
+        return {"n":n,"hits":hits,"top1_rate":round(hits/n,6) if n else None,
+                "average_estimated_probability":round(sum(x["estimated_probability"] for x in rows)/n,6) if n else None}
+    return {"format":"mrx-single-exact-score-summary-v1","generated_at":now.isoformat(),
+            "experimental":True,"published":False,"model":VERSION,
+            "captured":len(values),"pending":len(values)-len(done)-len(void),
+            "settled":len(done),"void":len(void),
+            "void_reasons":dict(Counter(v.get("void_reason","unknown") for v in void)),
+            "primary_model":"under25_debiased_11_v2",
+            "archived_primary_model_counts":dict(Counter(
+                v.get("primary_model","under25_fusion") for v in values)),
+            "debiased_new_forecasts":{
+                "captured":sum(v.get("primary_model")=="under25_debiased_11_v2" for v in values),
+                "one_one":sum(v.get("primary_model")=="under25_debiased_11_v2"
+                              and v.get("score")==[1,1] for v in values),
+                "one_one_share":(
+                    round(sum(v.get("primary_model")=="under25_debiased_11_v2" and v.get("score")==[1,1]
+                              for v in values)/sum(v.get("primary_model")=="under25_debiased_11_v2"
+                              for v in values),6)
+                    if any(v.get("primary_model")=="under25_debiased_11_v2" for v in values)
+                    else None)},
+            "advanced_model":"experimental_comparison_only",
+            "selected_score_frequency":dict(frequency.most_common()),
+            "selected_score_hit_rates":by_score,
+            "one_one_selection_share":round(frequency.get("1-1",0)/len(values),6)
+                if values else None,
+            "excessive_one_one_warning":bool(values and
+                frequency.get("1-1",0)/len(values)>.60),"all":calculate(done),
+            "priority":calculate([v for v in done if v["research_priority"]]),
+            "h2h_under":calculate([v for v in done if v["h2h_low_stable"] and v["under25_probability"]>=.62]),
+            "experimental_alternatives":{
+               name:{"n":len(rows:=[r for r in done if r["alternatives_hit"].get(name) is not None]),
+                     "hits":sum(r["alternatives_hit"][name] for r in rows)}
+               for name in ("original","under25_fusion","debiased_11","optional_dc_fusion","advanced_2024")},
+            "note":"Exact ONE score per fixture. No odds, ROI or guarantee."}
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--history",default=str(MATCHES_FILE))
+    parser.add_argument("--ledger",default=str(PATH))
+    parser.add_argument("--report",default="tmp/single-exact-score/prospective-report.json")
+    parser.add_argument("--max-requests",type=int,default=90)
+    args=parser.parse_args()
+    now=datetime.now(timezone.utc)
+    matches=json.loads(Path(args.history).read_text(encoding="utf-8"))
+    if not matches:raise RuntimeError("Historical BSD archive empty")
+    index=V2History(matches)
+    xg_archive=read_xg()
+    restored_xg=apply_xg(index,xg_archive,now)
+    dc,training=train_dc(index)
+    advanced=train_advanced(index)
+    client=BSDClient(max_requests=args.max_requests)
+    upcoming=fetch_fixture_window(client,now)
+    archive=read(Path(args.ledger))
+    observations=read_lineup_evidence()
+    context_model=learn_context(archive,now,observations)
+    pending_new=[e for e in upcoming if str(e.get("id")) not in archive["records"]]
+    # Budgeted requests only for prematch candidates; missing data is explicit.
+    newly_measured={}
+    xg_diag=hydrate_history_xg(index,pending_new,client,now,max_lookups=12,
+                               capture_into=newly_measured)
+    saved_xg=add_xg(xg_archive,newly_measured)
+    if saved_xg:save_xg(xg_archive)
+    lineup_diag=enrich_lineups(pending_new,client,now,max_lookups=6)
+    added=capture(archive,upcoming,index,dc,now,advanced_model=advanced,
+                  context_model=context_model)
+    # Earlier immutable forecasts have no lineup evidence. Collect fresh
+    # evidence in a separate encrypted archive before their kickoffs.
+    lineup_evidence=capture_lineup_evidence(
+        observations,upcoming,archive,client,datetime.now(timezone.utc),
+        max_lookups=12)
+    if lineup_evidence["captured"]:
+        save_lineup_evidence(observations)
+    selection_now=datetime.now(timezone.utc)
+    top3=read_top3()
+    created_groups=select_groups(top3,archive,selection_now,enforce_cutoff=True)
+    pending={key for key,r in archive["records"].items() if r["status"]=="pending"}
+    completed=[event for _t,event in index.global_games if str(event["id"]) in pending]
+    finished=settle(archive,completed+upcoming,datetime.now(timezone.utc))
+    settled_groups=settle_groups(top3,archive,datetime.now(timezone.utc))
+    if added.get("captured") or finished.get("settled") or finished.get("void"):
+        save(archive,Path(args.ledger))
+    if created_groups.get("created") or settled_groups.get("settled") or settled_groups.get("void"):
+        save_top3(top3)
+    result=summary(archive,datetime.now(timezone.utc))
+    result["top3"]=top3_report(top3,datetime.now(timezone.utc))
+    result["top3_integrity"]=verify_top3(top3,archive,datetime.now(timezone.utc))
+    result["advanced_model_fingerprint_sha256"]=advanced.fingerprint()
+    result["absence_context_model"]={"active":context_model["active"],
+        "fingerprint_sha256":context_fingerprint(context_model),
+        "training_rows":context_model["diagnostic"]["eligible"],
+        "min_training_rows":context_model["diagnostic"]["min_required"],
+        "validation_reason":context_model["diagnostic"].get("reason"),
+        "validation_baseline":context_model["diagnostic"]["validation_baseline"],
+        "validation_candidate":context_model["diagnostic"]["validation_candidate"]}
+    result["context_coverage"]={
+        "pending_verified_lineups":sum(
+            bool((v.get("advanced_research") or {}).get("context",{}).get("available"))
+            for v in archive["records"].values() if v["status"]=="pending"),
+        "settled_verified_lineups":sum(
+            bool((v.get("advanced_research") or {}).get("context",{}).get("available"))
+            for v in archive["records"].values() if v["status"]=="settled"),
+        "new_collector_attempts":lineup_diag["attempts"],
+        "new_collector_found":lineup_diag["found"],
+        "new_collector_errors":lineup_diag["errors"],
+        "historical_measured_xg_collected":xg_diag["measured"],
+        "historical_measured_xg_restored":restored_xg,
+        "sidecar_verified_lineups_total":len(observations["records"]),
+        "sidecar_capture_attempted":lineup_evidence["attempted"],
+        "sidecar_capture_new":lineup_evidence["captured"],
+        "sidecar_capture_errors":lineup_evidence["errors"]}
+    dest=Path(args.report);dest.parent.mkdir(parents=True,exist_ok=True)
+    dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
+    print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,
+        "summary":result,"api_requests":client.requests_made,
+        "historical_measured_xg":{**xg_diag,"restored":restored_xg,
+            "new_persisted":saved_xg},"lineups":lineup_diag,
+        "advanced_training":advanced.info(),
+        "absence_context_model":{"active":context_model["active"],
+           "fingerprint":context_fingerprint(context_model),
+           "diagnostic":context_model["diagnostic"]},
+        "verified_lineup_evidence":lineup_evidence,
+        "top3":{
+            "new_groups":created_groups,"settled":settled_groups,
+            "report":top3_report(top3)}},ensure_ascii=False))
+if __name__=="__main__":main()
