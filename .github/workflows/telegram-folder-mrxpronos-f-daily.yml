@@ -1,0 +1,47 @@
+name: Telegram - MR XPRONOS F dossier (quotidien, 24 canaux)
+
+on:
+  # Togo, Africa/Lome = UTC+0, toute l'année.
+  # GitHub Actions schedule peut s'exécuter avec un léger décalage.
+  schedule:
+    - cron: '17 13 * * *'
+  # Première publication dès la création du workflow aujourd'hui.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-folder-mrxpronos-f-daily.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-folder-mrxpronos-f-daily
+  cancel-in-progress: false
+
+jobs:
+  daily-publication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/send_folder_promo_daily.py
+            assets/telegram/mrxpronos_f_folder_promo.jpg
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer Requests
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Valider l'affiche, le message et le bouton bleu
+        run: python scripts/send_folder_promo_daily.py --check
+      - name: Diffuser une fois par jour dans les 24 canaux, 4 exclus
+        run: python scripts/send_folder_promo_daily.py --send
