@@ -338,6 +338,7 @@ test('deep conversational baseline: analyse each final Telegram response, button
  for(const p of all)for(const t of p.turns){
    const malformed=/Lien externe non confirmé|2\*\*|sur\s*\./i.test(t.reply);
    expect(p.id,t.n,'readable_final_output',!malformed);
+   expect(p.id,t.n,'no_generic_nonanswer',!t.reply.includes('Je peux t’aider sur les pronostics, le site ou un guide en cours.'));
  }
  console.log('MX_DEEP_QUALITY '+JSON.stringify({
    dialogues:all.length,turns:global,checked:checks.length,
