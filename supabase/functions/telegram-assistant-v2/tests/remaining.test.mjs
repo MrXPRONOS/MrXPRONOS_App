@@ -5,7 +5,7 @@ import {
   trustedOddsFromFeed,findVerifiedOddsCombinations,reconcileKickoffs,
   compressTelegramImage,answerRelevanceGuard,limitClarificationQuestions,
   durableConversationSummary,assessTranscriptQuality,cleanupSpokenTranscript,
-  safeContextualFallback,sensitiveImageRequest,sayConversation,intentFor,extractSpokenCorrection,LINKS
+  safeContextualFallback,sensitiveImageRequest,sayConversation,intentFor,extractSpokenCorrection,resolveVoiceConfirmation,LINKS
 } from "../index.js";
 
 test("exclusions : aucune plateforme non approuvée dans les alternatives",()=>{
@@ -119,5 +119,8 @@ test("confirmation du vocal : le texte corrigé conserve son intention",()=>{
  assert.equal(intentFor(spoken),"pronos");
  const changed=extractSpokenCorrection("Non, j'ai dit Linebet");
  assert.equal(changed,"Linebet");
- assert.equal(intentFor(changed),"partner");
+ const recovered=resolveVoiceConfirmation("Non, j'ai dit Linebet","Je veux m'inscrire sur Bedclicker");
+ assert.equal(recovered.resolved,true);
+ assert.equal(intentFor(recovered.text),"signup");
+ assert.equal(resolveVoiceConfirmation("oui",spoken).text,spoken);
 });
