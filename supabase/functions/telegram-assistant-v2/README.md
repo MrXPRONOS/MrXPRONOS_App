@@ -297,3 +297,29 @@ L'audit de mise en service se trouve dans [`AUDIT_80_CHECKLIST.md`](./AUDIT_80_C
 - Le sitemap contenant `installer.html` a été **modifié sur la branche de développement** ; la publication effective sur GitHub Pages exige encore la fusion ou l'équivalent sur la branche du site.
 
 **Tests** : 114 tests de fonctions + 5 tests de corpus = **119 réussis** dans un environnement JavaScript simulant les dépendances Edge. Une simulation du webhook vérifie le nouvel accueil, les coupons, les restrictions d'âge et les demandes de gestion de données. Les appels réels NVIDIA et les vocaux Ogg nécessitent toujours une vérification directe.
+
+
+## Corrections des points partiels — Novembre 2026
+
+Le bilan actualisé est dans [`AUDIT_80_CHECKLIST.md`](./AUDIT_80_CHECKLIST.md) : **52 points couverts par le code et des tests, 23 encore partiels, 5 non réalisés**. Un point marqué « complet » n’est pas une preuve d’un essai réel du modèle sur un vocal ou une image.
+
+### Nouvelles capacités réellement codées
+
+- Guide persistant `mx_telegram_assistant_sessions` avec objectif, bookmaker, étape, dernière instruction et confirmation de transcription. La commande `/restart` repart à l’étape 1 ; `/stop` clôt le guidage. Un changement de sujet explicite met le guide en veille.
+- NVIDIA : latences et états d’erreur partagés dans `mx_telegram_assistant_model_events`, politique de temporisation après deux erreurs temporaires, commande administrateur `/health` donnant succès et délai moyen des derniers événements.
+- Messages Telegram : reçus par fragment dans `mx_telegram_assistant_delivery_receipts`, permettant de passer les fragments déjà acceptés si la même mise à jour est rejouée. La garantie exactement une fois reste impossible en cas de coupure dans l’instant entre succès Telegram et enregistrement du reçu.
+- Vocaux : demande `verbose_json` à Nemotron Transcribe, contrôle qualitatif (troncature, chute vers CTC, répétitions), demande de confirmation, gestion de « Non, j’ai dit… ». Les vocaux Ogg nécessitent un serveur ASR réellement configuré ; aucune confiance chiffrée artificielle n’est présentée.
+- Images : description structurée (résumé, textes, boutons, incertitude) et essai du modèle visuel de secours si le premier ne donne pas de réponse exploitable. Les fichiers trop grands continuent à dépendre d’Assets NVCF et peuvent rencontrer HTTP 410.
+- Questions clients : correction prudente des noms phonétiques, prise en compte du pays sans inventer la légalité des bookmakers, aide spécifique Android/iPhone/Windows pour installer la PWA, calcul de multiplication uniquement pour les cotes chiffrées fournies par le client, sans prétendre disposer de cotes bookmaker temps réel.
+- Rédaction : suppression de répétitions identiques, filtrage des mentions d’URL non vérifiées, demande de reformulation simplifiée, réutilisation de l’état du guide pour répondre aux photos liées à l’étape en cours.
+
+### Base de données
+
+Les trois tables protégées ont été créées dans Supabase avec RLS activée et permissions serveur : voir [`schema-private-reference.sql`](./schema-private-reference.sql). Le schéma est une référence versionnée ; la migration a déjà été exécutée côté Supabase.
+
+### Vérification
+
+- **134 tests automatisés réussis** : 114 tests historiques, 15 tests avancés et 5 contrôles du corpus des 1 000 messages.
+- La simulation de bout en bout reproduit un nouvel utilisateur, l’étape 1, la confirmation « fait », l’étape 2, l’orientation site/canal et les reçus de livraison.
+- Le sitemap du site publié sur la branche `main` contient désormais la page officielle `installer.html` (commit `60787aaf`). La propagation HTTP du site public n’est pas certifiée par ces seuls tests.
+- La réception et l’analyse réelles des vocaux Ogg et des photos volumineuses restent à valider. Les autres points non terminés sont détaillés dans l’audit.
