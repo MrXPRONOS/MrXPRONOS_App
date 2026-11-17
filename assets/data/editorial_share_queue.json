@@ -1,5 +1,509 @@
 [
   {
+    "id": "f9ac6a47b8438ca3e41522c1",
+    "kind": "news",
+    "title": "Mercato : le PSG prêt à saisir l'opportunité Balde ?",
+    "url": "https://m.maxifoot.fr/football/article-66588.htm",
+    "source_date": "2026-11-16T22:02:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d22a408b897a687ac1ff84c7",
+    "kind": "news",
+    "title": "Strasbourg a contacté un nouveau coach",
+    "url": "https://www.footmercato.net/a6063446702234684047-strasbourg-a-contacte-un-nouveau-coach",
+    "source_date": "2026-11-16T22:01:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "92a3cb779c5499e67b9ad24e",
+    "kind": "news",
+    "title": "Mercato PSG : un intérêt pour Balde ?",
+    "url": "https://www.maxifoot.fr/psg/un-interet-pour-balde-foot-467819.htm",
+    "source_date": "2026-11-16T21:59:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "85c11011e56e6332a3554edb",
+    "kind": "news",
+    "title": "Ligue des Nations : l’Allemagne humilie les Pays-Bas et se qualifie pour les quarts",
+    "url": "https://www.footmercato.net/a1866823244088133840-ligue-des-nations-lallemagne-humilie-les-pays-bas-et-se-qualifie-pour-les-quarts",
+    "source_date": "2026-11-16T21:35:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1af82351525323f69de5b60c",
+    "kind": "news",
+    "title": "Amical : l’Équipe de France Espoirs chute en Angleterre dans un match fou !",
+    "url": "https://www.footmercato.net/a8706312448656736658-amical-lequipe-de-france-espoirs-chute-en-angleterre-dans-un-match-fou",
+    "source_date": "2026-11-16T21:24:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e7ed2b7811c3116716b0d8c7",
+    "kind": "news",
+    "title": "Arsenal : accord trouvé pour la prolongation de Declan Rice",
+    "url": "https://www.footmercato.net/a4656058463555389412-arsenal-accord-trouve-pour-la-prolongation-de-declan-rice",
+    "source_date": "2026-11-16T21:12:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "413a89b19c431af5312de30b",
+    "kind": "news",
+    "title": "Portugal : Jorge Jesus et Ruben Neves répondent aux critiques de la mère de Cristiano Ronaldo",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-portugal-jorge-jesus-et-ruben-neves-repondent-aux-critiques-de-la-mere-de-cristiano-ronaldo-546041.html",
+    "source_date": "2026-11-16T20:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ab12f3254fbc8c53abd1544f",
+    "kind": "news",
+    "title": "CAN 2027 : la Guinée fait le travail, le Ghana met la pression, le Bénin quasi qualifié",
+    "url": "https://www.france24.com/fr/sports/20261116-can-2027-guinee-ghana-met-la-pression-benin",
+    "source_date": "2026-11-16T18:01:12+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "44dc28f967c6f353573dde33",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: après la polémique sur le record de buts en sélection, Salah peut trancher au Malawi",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261116-%C3%A9liminatoires-can-2027-apr%C3%A8s-la-pol%C3%A9mique-sur-le-record-de-buts-en-s%C3%A9lection-salah-peut-trancher-au-malawi",
+    "source_date": "2026-11-16T17:38:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cb40f7917f3486e0a16ec87f",
+    "kind": "news",
+    "title": "Ligue des Nations : la France et la Belgique qualifiées pour les quarts de finale",
+    "url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261116-ligue-des-nations-la-france-et-la-belgique-qualifi%C3%A9s-pour-les-quarts-de-finale",
+    "source_date": "2026-11-16T17:05:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ca065b82d22e3f0a24ef763a",
+    "kind": "news",
+    "title": "Ligue des nations : les Bleus qualifiés pour les quarts malgré une prestation mitigée",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261116-ligue-des-nations-les-bleus-qualifi%C3%A9s-pour-les-quarts-malgr%C3%A9-une-prestation-mitig%C3%A9e",
+    "source_date": "2026-11-16T15:38:11+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e5d9781b9166dd7b0bf6b96e",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: le Sénégal et le Cameroun ont un pied en phase finale",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261116-%C3%A9liminatoires-can-2027-le-s%C3%A9n%C3%A9gal-et-le-cameroun-ont-un-pied-en-phase-finale",
+    "source_date": "2026-11-16T15:28:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "638e14f24950203c501c9dd0",
+    "kind": "news",
+    "title": "CAN 2027 : le Sénégal se fait peur au Soudan, le Cameroun 1er qualifié sur le terrain",
+    "url": "https://www.france24.com/fr/sports/20261116-can-2027-senegal-soudan-cameroun-1er-qualifie",
+    "source_date": "2026-11-16T15:04:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4c0c71fd2060b589a58d8b0d",
+    "kind": "news",
+    "title": "\"Sur le contenu de ce soir, forcément, on n'est pas contents\", réagit Zinédine Zidane malgré la victoire des Bleus",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-nations/sur-le-contenu-de-ce-soir-forcement-on-n-est-pas-contents-reagit-zinedine-zidane-malgre-la-victoire-des-bleus_8284580.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-16T10:01:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "828fb7061e6532622eb353b9",
+    "kind": "news",
+    "title": "Les Bleus affrontent la Turquie pour le retour de Zinédine Zidane à Bordeaux",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261116-les-bleus-affrontent-la-turquie-pour-le-retour-de-zin%C3%A9dine-zidane-%C3%A0-bordeaux-1",
+    "source_date": "2026-11-16T09:35:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a399e630225d3e7d6f37e9c2",
+    "kind": "news",
+    "title": "Le XV de France héroïque, la reine Andreeva, les Bleus qualifiés : les infos sport du week-end",
+    "url": "https://www.france24.com/fr/sports/20261116-xv-france-rugby-andreeva-tennis-football-bleus-qualification-zidane",
+    "source_date": "2026-11-16T09:13:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2ab727266503f2508cae8bc6",
+    "kind": "news",
+    "title": "Ligue des nations : la France bat la Turquie et se qualifie pour les quarts",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261116-ligue-des-nations-france-bat-turquie-se-qualifie-quarts",
+    "source_date": "2026-11-16T07:13:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a9d1ee284449ae383b2d1fc5",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: Côte d'Ivoire, RDC, Cameroun, Sénégal... Qui peut se qualifier lors de la 4e journée?",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261116-%C3%A9liminatoires-can-2027-c%C3%B4te-d-ivoire-rdc-cameroun-s%C3%A9n%C3%A9gal-qui-peut-se-qualifier-lors-de-la-4e-journ%C3%A9egroupzuu",
+    "source_date": "2026-11-16T07:04:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "11430e18cb8c21fed1d78618",
+    "kind": "news",
+    "title": "Deux ans de prison et une interdiction d’exercer pendant 5 ans requis contre Pierre Ménès",
+    "url": "https://www.sofoot.com/breves/ces-comportements-sont-des-infractions-penales-affirme-la-procureure-au-proces-du-chroniqueur-pierre-menes-pour-agressions-sexuelles",
+    "source_date": "2026-11-16T23:30:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1d68d2d6478768ab96f89ae2",
+    "kind": "news",
+    "title": "RC Lens : un géant italien prêt à casser sa tirelire pour Ganiou !",
+    "url": "https://www.onzemondial.com/transferts/rc-lens-un-geant-italien-pret-a-casser-sa-tirelire-pour-ganiou-1009441",
+    "source_date": "2026-11-16T22:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1548732eb031931dd072516d",
+    "kind": "news",
+    "title": "Pays-Bas : Xavi présente ses excuses et fracasse ses joueurs",
+    "url": "https://www.footmercato.net/a508265187850851378-pays-bas-xavi-presente-ses-excuses-et-fracasse-ses-joueurs",
+    "source_date": "2026-11-16T22:57:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ab9e5afeb935cecc481c833e",
+    "kind": "news",
+    "title": "Ligue 1 : Strasbourg penserait à se séparer de son entraîneur Hugo Oliveira",
+    "url": "https://www.sofoot.com/breves/ligue-1-strasbourg-penserait-a-se-separer-de-son-entraineur-hugo-oliveira",
+    "source_date": "2026-11-16T22:45:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c1d3ec8f674977fb419f83a2",
+    "kind": "news",
+    "title": "La sortie folle d’Emmanuel Petit sur Rayan Cherki",
+    "url": "https://www.footmercato.net/a6743514433090317961-la-sortie-folle-demmanuel-petit-sur-rayan-cherki",
+    "source_date": "2026-11-16T22:31:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0e21ffc43c5dcf34a0b0d142",
+    "kind": "news",
+    "title": "Manchester City : « Suis-je censé répondre à ça ? », Haaland esquive les accusations contre son club",
+    "url": "https://www.onzemondial.com/premier-league/manchester-city-suis-je-cense-repondre-a-ca-haaland-esquive-les-accusations-contre-son-club-1009445",
+    "source_date": "2026-11-16T22:31:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-17T05:42:16.111881+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "d45828f19f1b431070699968",
     "kind": "news",
     "title": "France-Turquie : revivez la victoire dans la douleur des Bleus qui se qualifient pour les quarts de finale de la Ligue des nations",
@@ -18,7 +522,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f561c104dc897142aad84250",
@@ -39,7 +543,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5167e7c981ae5ca3098f0418",
@@ -60,7 +564,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "366244026b4a521d70ed4975",
@@ -81,7 +585,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "dba61cc4cf1ee182de25e45d",
@@ -123,7 +627,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3c8d68eba19fe099640b0005",
@@ -186,7 +690,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "66bdd3b72d427a1ba46658e4",
@@ -228,7 +732,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d222050af16153a2bbfdfc39",
@@ -270,7 +774,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "09bed9cbec673773fa3f85ea",
@@ -312,7 +816,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "61c24e718dcb92fefa44fa14",
@@ -333,7 +837,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8d484cea9b2389ae0e69ed77",
@@ -354,7 +858,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c266f1e822d52a7b3ae93af7",
@@ -375,7 +879,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a1638f4ac008e5809ef66166",
@@ -396,7 +900,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5cc7f0cc4b075406e7ea7e2a",
@@ -417,7 +921,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "335973fb46ef6a583f39bfe1",
@@ -438,7 +942,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "86bfffa17f7f9872e809ee30",
@@ -459,7 +963,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "76928b21c66c5495f1671124",
@@ -480,7 +984,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "17f0313355c1caabe300a0bd",
@@ -501,7 +1005,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8d98aef4d9b722398a59c6a5",
@@ -522,7 +1026,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6ac033c16dffdea182285e63",
@@ -543,7 +1047,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9d7db4774ebc8d1bdc87c3c9",
@@ -691,7 +1195,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8f26fe9e907f42723bf72dcc",
@@ -754,7 +1258,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f5b29fcff80258cb1a88fb54",
@@ -817,7 +1321,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b5eadf1994afb9de247a337c",
@@ -838,7 +1342,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3c3917388d868c73e0261aa3",
