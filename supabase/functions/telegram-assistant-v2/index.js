@@ -1326,14 +1326,22 @@ export function responseLinks(intent,question,answer='') {
 export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3}={}) {
   const seen=new Set(),buttons=[],links=[];
   const original=cut(raw,3500);
-  const permitted=(url)=>allowed(url)&&(!Array.isArray(allowedUrls)||allowedUrls.includes(url));
+  // allowedUrls sélectionne les boutons contextuels, pas la validité des
+  // adresses OFFICIELLES citées par l'assistant. L'ancien code écartait même
+  // le canal connu si un client envoyait un autre lien Telegram.
+  const official=(url)=>Object.values(LINKS).includes(url)||
+    url===channelUrl()||(!!footNewsChannelUrl()&&url===footNewsChannelUrl());
+  const requestedButton=(url)=>!Array.isArray(allowedUrls)||allowedUrls.includes(url);
+  const permitted=(url)=>allowed(url)&&(official(url)||requestedButton(url));
   const inline=(url,label)=>{
     const index=links.length;
     links.push({url,label:String(label||'Ouvrir le lien').slice(0,90)});
     return 'XMXANCHOR'+index+'X';
   };
   const addButton=(url)=>{
-    if(!permitted(url))return false;
+    // Une adresse officielle non demandée reste un lien cliquable, sans
+    // prendre un emplacement dans les boutons du message.
+    if(!permitted(url)||!requestedButton(url))return false;
     if(seen.has(url))return true;
     const button=buttonForUrl(url,original);
     if(!button||buttons.length>=Math.max(0,Math.min(8,maxButtons)))return false;
