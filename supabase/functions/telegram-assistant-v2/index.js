@@ -30,7 +30,7 @@ const allowed = (url) => Object.values(LINKS).includes(url) || (channelUrl() && 
 export function intentFor(input) {
   const text = norm(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
-  if (/^\/(format|apercu|mise_en_forme)(\s|$)/.test(text)) return 'format';
+  if (/^\/(format|forme|form|apercu|mise_en_forme)(?:@\w+)?(\s|$)/.test(text)) return 'format';
   if (/^\/(pronos|coupons|scores|canaux|resultats|conseils)(\s|$)/.test(text)) {const cmd=text.split(/\s|@/)[0].slice(1);return cmd==='coupons'?'pronos':cmd==='conseils'?'conseil':cmd;}
   if (/(parler a (un |une )?(humain|responsable|personne)|un conseiller|reclamation|partenariat|collaboration|proposition commerciale|remboursement|je veux te parler)/.test(text)) return 'human';
   if (/(je suis mineur|j.ai 1[0-7] ans|j.ai perdu tout|endette|me refaire|argent du loyer)/.test(text)) return 'safety';
@@ -284,6 +284,13 @@ async function adminCommand(msg) {
     return say(msg.chat.id,rows?.length?rows.map(x=>`${x.paused?'⏸':'✅'} ${x.chat_key} — ${x.nickname||'Utilisateur'}`).join('\n'):'Aucune conversation reçue.');
   }
   const [key,...words]=rest.trim().split(/\s+/);
+  if(!key && cmd==='resume') {
+    const own=await getChat(String(msg.chat.id));
+    if(own?.paused) {
+      await setPause(String(msg.chat.id),false);
+      return say(msg.chat.id,'✅ Discussion de test réactivée. Envoie /format pour voir le texte enrichi et les boutons.');
+    }
+  }
   if(!key) return say(msg.chat.id,'Indique le numéro du chat.');
   const row=await getChat(key);
   if(!row) return say(msg.chat.id,'Chat inconnu. Utilise /chats.');
@@ -328,8 +335,12 @@ export async function handleUpdate(update) {
   const previous=await getChat(key);
   await updateChat({chat_key:key,chat_id:msg.chat.id,business_connection_id:msg.business_connection_id||null,user_id:msg.from?.id||null,nickname:cut([msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'',100),last_message_at:new Date().toISOString()});
   if(previous?.paused) {
-    // En essai, le propriétaire ne doit pas recevoir sa propre notification de reprise en boucle.
-    if(!isOwner) await notifyAdmin(key,previous.nickname||'Client',text);
+    // Prévenir explicitement l'administrateur lors d'un test, plutôt que d'ignorer silencieusement ses messages.
+    if(isOwner) {
+      await say(msg.chat.id,`⏸ **Cette conversation est en pause.**\nEnvoie /resume ${key} pour réactiver les réponses automatiques.\nTu pourras ensuite tester /format.`);
+    } else {
+      await notifyAdmin(key,previous.nickname||'Client',text);
+    }
     await logMessage(key,'user',text);await markHandled(id);return;
   }
   const name=[msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'Client';
