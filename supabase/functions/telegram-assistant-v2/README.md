@@ -212,3 +212,16 @@ Les réponses de **NVIDIA NIM restent générées librement**, puis passent dans
 - Le formatage s'applique également aux réponses de secours si NVIDIA est indisponible. La commande `/format` affiche les styles avec espaces et sauts de ligne comme exemple de vérification.
 
 Tests du code : 64 réussis, y compris espacement, sécurité HTML, titres, italique, citations, étapes, message court sans formatage forcé et non-régression des boutons.
+
+
+
+## Étapes d'inscription et saisie du code XPVIP — 17 novembre 2026
+
+- **Espacement du guide :** même si le modèle écrit `Une fois sur le site, 1. Inscription`, la première étape commence désormais après **une ligne vide**. Les étapes 2, 3, etc. commencent chacune sur une ligne distincte. Les variantes `1, inscription`, `1)` et les étapes déjà à la ligne sont prises en charge. Les cotes `1.50` et sélections `1X` ne sont pas modifiées.
+- **Instruction directe :** pour une inscription chez un partenaire identifié, l'assistant présente dans un paragraphe autonome `🎁 **Code promo : XPVIP**` suivi de `Repère le champ **Code promo** du formulaire et saisis **XPVIP**.`. La formule « si le champ existe » est éliminée des instructions générales d'inscription.
+- Les instructions relatives à la présence du champ sont formulées selon l'indication du propriétaire du service. **La disponibilité d'un champ et l'acceptation du code ne sont pas garanties sur chaque formulaire/pays**, et les conditions éventuelles des offres restent celles du bookmaker ; éviter de promettre un bonus.
+- Si le modèle fournit déjà une étape ou ligne promo ambiguë, le serveur évite de la répéter et affiche le bloc unique de code. Les étapes restantes sont renumérotées si nécessaire.
+- NVIDIA continue de rédiger librement le guide, les réponses courtes, les introductions et les relances. Le post-traitement ne corrige que la mise en page et les renseignements du service imposés par la configuration.
+- Le lien partenaire reste un **bouton Telegram** seulement dans le contexte d'une inscription chez ce partenaire. Aucun lien brut n'est envoyé à l'utilisateur.
+
+Vérifications : **74 tests automatisés réussis** et simulation de conversation NVIDIA → Telegram confirmant le saut de ligne avant `1. Inscription`, le bloc XPVIP sans conditionnel, la conservation de l'ordre des étapes et le bouton Melbet.
