@@ -48,6 +48,10 @@
     "XRP": true
   },
   "news_fingerprints": {
+    "219923d8977c84540b652424": {
+      "message_id": 124,
+      "number": 9
+    },
     "2335b3e2185996ff59c95c5e": {
       "message_id": 83,
       "number": 9
@@ -757,6 +761,12 @@
       "number": 9,
       "sent_at": "2026-10-25T12:44:21.042000+00:00",
       "source": "Coinbase Status"
+    },
+    "news:09:72594072e3678689c44f1563": {
+      "message_id": 124,
+      "number": 9,
+      "sent_at": "2026-11-17T17:03:04.164829+00:00",
+      "source": "Bitcoin Magazine"
     },
     "news:09:7657cf05f22198f24bab49bc": {
       "message_id": 52,
