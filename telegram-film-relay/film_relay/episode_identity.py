@@ -12,15 +12,15 @@ from .text import first_title
 
 EPISODE = re.compile(
     r"(?i)(?<![a-z0-9])(?:s(?:aison|eason)?[ ._-]*0*(\d{1,2})[ ._-]*"
-    r"e(?:p(?:isode)?)?[ ._-]*0*(\d{1,3})|"
+    r"[eé](?:p(?:isode)?)?[ ._-]*0*(\d{1,3})|"
     r"(\d{1,2})[ ._-]*x[ ._-]*0*(\d{1,3})|"
-    r"e(?:p(?:isode)?)?[ ._-]*0*(\d{1,3}))(?!\d)"
+    r"[eé](?:p(?:isode)?)?[ ._-]*0*(\d{1,3}))(?!\d)"
 )
 SEASON_HEADER = re.compile(
     r"(?i)(?<![a-z0-9])s(?:aison|eason)?[ ._-]*0*(\d{1,2})(?!\d)"
 )
 SOURCE_SIGNATURE = re.compile(r"(?i)^@[a-z0-9_]{5,32}\s+(?:vf|fv|vostfr)?\s*")
-EP_LABEL = re.compile(r"(?i)\b(?:e(?:p(?:isode)?)?[ ._-]*0*\d{1,3}|"
+EP_LABEL = re.compile(r"(?i)\b(?:[eé](?:p(?:isode)?)?[ ._-]*0*\d{1,3}|"
                       r"s\d{1,2}[ ._-]*e\d{1,3}|\d{1,2}x\d{1,3})\b")
 SEASON_LABEL = re.compile(r"(?i)\b(?:saison|season)[ ._-]*0*\d{1,2}\b|"
                           r"(?<![a-z0-9])s0*\d{1,2}(?![a-z0-9])")
