@@ -871,6 +871,10 @@ export function splitTelegramReply(raw,{target=650,maxParts=5}={}) {
       parts[current]+=sep+unit;
     }else parts.push(unit);
   }
+  // Ne pas envoyer un titre tout seul : le regrouper avec son premier paragraphe.
+  if(parts.length>1 && parts[0].length<85 && /\*\*/.test(parts[0]) && parts[0].length+parts[1].length+2<3400){
+    parts[1]=parts[0]+'\n\n'+parts[1];parts.shift();
+  }
   if(parts.length<=maxParts)return parts;
   const head=parts.slice(0,maxParts-1),tail=parts.slice(maxParts-1).join('\n\n');
   // Éviter de couper un long contenu en silence.
