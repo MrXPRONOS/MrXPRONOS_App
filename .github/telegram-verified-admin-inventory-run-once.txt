@@ -5,3 +5,5 @@ Safe-diagnostic retry after matching bot token confirmed.
 Retry to identify SQLSTATE without disclosing sensitive registry payload.
 
 Retry to isolate recognized Vault validation rule while logging no sensitive channel values.
+
+Retry after supporting modern PostgREST JWT claim shape for service role.
