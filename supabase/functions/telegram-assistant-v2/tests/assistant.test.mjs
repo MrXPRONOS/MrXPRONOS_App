@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -68,7 +68,7 @@ test("liens officiels remplacés par des boutons dédupliqués",()=>{
  assert.equal(body.reply_markup.inline_keyboard[0][0].url,LINKS.pronos);
  assert.equal(body.reply_markup.inline_keyboard[0][0].style,"primary");
  assert.ok(!body.text.includes("https://"));
- assert.ok(body.text.includes("<b>Clique sur le bouton ci-dessous.</b>"));
+ assert.ok(!body.text.includes("Clique sur le bouton"));
 });
 test("boutons couleurs et label contextuels",()=>{
  assert.equal(buttonForUrl(LINKS.conseils).style,"success");
@@ -91,4 +91,56 @@ test("commande de démonstration du formatage",()=>{
  assert.equal(intentFor("/forme"),"format");
  assert.equal(intentFor("/form"),"format");
  assert.equal(intentFor("/format@AssistantTestBot"),"format");
+});
+
+test("mémoire : faits officiels du projet",()=>{
+ assert.equal(PROJECT_KNOWLEDGE.promo,"XPVIP");
+ assert.match(PROJECT_KNOWLEDGE.categories,/gratuitement/);
+ assert.match(PROJECT_KNOWLEDGE.confidence,/79 %/);
+ assert.match(PROJECT_KNOWLEDGE.schedule,/aucun nombre ni coupon quotidien garanti/);
+ assert.ok(knowledgePrompt().includes("mrxpronosfr"));
+ assert.equal(LINKS.channel,"https://t.me/mrxpronosfr");
+});
+test("FAQ précise : code, accès, catégories, fréquence et confiance",()=>{
+ assert.equal(intentFor("C'est quoi ton code promo ?"),"bonus");
+ assert.equal(intentFor("Les pronostics sont gratuits ?"),"access");
+ assert.equal(intentFor("Quelle différence entre Pro et VIP ?"),"categories");
+ assert.equal(intentFor("Des coupons chaque jour ?"),"schedule");
+ assert.equal(intentFor("Que signifie 79% de confiance ?"),"method");
+});
+test("aucun bouton décoratif sur les réponses simples",()=>{
+ for(const [q,category] of [
+  ["bonjour","welcome"],["Quel est le code promo ?","bonus"],
+  ["Les pronostics sont gratuits ?","access"],
+  ["Quels conseils pour analyser un match ?","conseil"],
+  ["Merci","general"],["Je veux parler à un responsable","human"]]){
+   assert.deepEqual(responseLinks(category,q),[],q);
+   const body=buildTelegramMessage("Réponse informative "+LINKS.accueil,{allowedUrls:responseLinks(category,q)});
+   assert.equal(body.reply_markup,undefined,q);
+   assert.ok(!body.text.includes("https://"),q);
+ }
+});
+test("boutons contextuels : coupons, scores, résultats, canal, bonus",()=>{
+ const examples=[
+  ["pronos","Je veux les coupons du jour",LINKS.pronos],
+  ["scores","Montre les scores exacts",LINKS.scores],
+  ["resultats","Montre les résultats",LINKS.historique],
+  ["canaux","Comment rejoindre votre canal ?",LINKS.channel],
+  ["bonus","Où trouver les offres bonus ?",LINKS.bonus]
+ ];
+ for(const [intent,q,url] of examples) {
+  const urls=responseLinks(intent,q);
+  assert.ok(urls.includes(url),q);
+  const view=buildTelegramMessage("Accès : "+url,{allowedUrls:urls});
+  assert.equal(view.reply_markup.inline_keyboard[0][0].url,url);
+ }
+});
+test("les boutons conseils ne sont pas automatiques",()=>{
+ assert.deepEqual(responseLinks("conseil","Comment analyser un match ?"),[]);
+ assert.deepEqual(responseLinks("conseil","Donne-moi le lien du guide"),[LINKS.conseils]);
+});
+test("pas de texte promotionnel sous les boutons",()=>{
+ const result=buildTelegramMessage("Voici les pronostics : "+LINKS.pronos,{allowedUrls:[LINKS.pronos]});
+ assert.equal(result.reply_markup.inline_keyboard.length,1);
+ assert.ok(!result.text.includes("Clique sur le bouton"));
 });
