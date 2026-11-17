@@ -1011,6 +1011,12 @@ export async function sayConversation(chatId,text,businessId='',options={},{
 
 const chatKey = (msg) => msg?.business_connection_id ? `b:${msg.business_connection_id}:${msg.chat.id}` : String(msg.chat.id);
 async function getChat(key) {const rows=await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}&select=*`);return rows?.[0]||null;}
+async function claimFirstChat(chat){
+  // INSERT ON CONFLICT DO NOTHING est atomique, contrairement à GET puis UPSERT.
+  const rows=await db('mx_telegram_assistant_chats?on_conflict=chat_key&select=chat_key','POST',[chat],
+    'resolution=ignore-duplicates,return=representation');
+  return Array.isArray(rows)&&rows.some(row=>row?.chat_key===chat.chat_key);
+}
 async function updateChat(chat) {await db('mx_telegram_assistant_chats?on_conflict=chat_key','POST',[chat],'resolution=merge-duplicates');}
 async function setPause(key,paused) {await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}`,'PATCH',{paused});}
 async function readHistory(key){const rows=await db(`mx_telegram_assistant_messages?chat_key=eq.${encodeURIComponent(key)}&select=role,content&order=id.desc&limit=20`);return (rows||[]).reverse().map(r=>({role:r.role==='user'?'user':'assistant',content:cut(r.content,1100)}));}
@@ -1209,7 +1215,10 @@ export async function handleUpdate(update) {
   }
   const key=chatKey(msg);
   const previous=await getChat(key);
-  await updateChat({chat_key:key,chat_id:msg.chat.id,business_connection_id:msg.business_connection_id||null,user_id:msg.from?.id||null,nickname:cut([msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'',100),last_message_at:new Date().toISOString()});
+  const currentChat={chat_key:key,chat_id:msg.chat.id,business_connection_id:msg.business_connection_id||null,user_id:msg.from?.id||null,nickname:cut([msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'',100),last_message_at:new Date().toISOString()};
+  // Premier contact revendiqué via un INSERT unique : pas de double accueil simultané.
+  const isFirstChat=!previous ? await claimFirstChat(currentChat) : false;
+  await updateChat(currentChat);
   if(previous?.paused) {
     // Prévenir explicitement l'administrateur lors d'un test, plutôt que d'ignorer silencieusement ses messages.
     if(isOwner) {
@@ -1220,7 +1229,7 @@ export async function handleUpdate(update) {
     await logMessage(key,'user',text);await markHandled(id);return;
   }
   // Premier contact uniquement : accueillir sans détourner la question d'origine.
-  if(shouldWelcomeNewcomer(previous,isBusiness)){
+  if(isFirstChat&&shouldWelcomeNewcomer(previous,isBusiness)){
     const welcome=newcomerWelcomeMessage();
     let sent=false;
     try{
