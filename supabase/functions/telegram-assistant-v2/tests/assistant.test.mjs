@@ -400,13 +400,15 @@ test("inscription : l'IA peut oublier XPVIP, le serveur le rappelle et ajoute le
  assert.equal(rendered.reply_markup.inline_keyboard[0][0].url,PARTNER_LINKS.linebet);
  assert.match(rendered.text,/<b>📝 Inscription Linebet<\/b>/);
  assert.match(rendered.text,/<b>XPVIP<\/b>/);
- assert.match(rendered.text,/<i>si accepté par le bookmaker<\/i>/);
+ assert.match(rendered.text,/<b>Code promo : XPVIP<\/b>/);
+ assert.match(rendered.text,/Repère le champ <b>Code promo<\/b>/);
  assert.ok(!rendered.text.includes("https://"));
 });
 test("inscription : ne pas dupliquer XPVIP lorsqu'il est déjà proposé",()=>{
  const q="Je veux m'inscrire sur 1xbet";
  const text=contextualPresentation("Utilise le code XPVIP s'il est accepté.",q);
- assert.equal((text.match(/XPVIP/g)||[]).length,1);
+ assert.equal((text.match(/Code promo : XPVIP/g)||[]).length,1);
+ assert.ok(!text.includes('si le champ existe'));
  assert.deepEqual(contextualDestinations(q,[],[]),[PARTNER_LINKS["1xbet"]]);
 });
 test("code promo : réponse courte mise en gras, aucun bouton parasite",()=>{
@@ -476,9 +478,10 @@ test("formatage : code promotionnel et conditions lisibles",()=>{
  const html=telegramHtml(text);
  assert.match(html,/<b>📝 Inscription Linebet<\/b>\n\n/);
  assert.match(html,/<b>XPVIP<\/b>/);
- assert.match(html,/<i>Code soumis aux conditions du bookmaker\.<\/i>/);
- assert.ok(text.includes("\n<i>") === false);
- assert.ok(text.includes("\n*Code soumis aux conditions"));
+ assert.match(html,/<b>Code promo : XPVIP<\/b>/);
+ assert.match(html,/Repère le champ <b>Code promo<\/b>/);
+ assert.ok(text.includes("\n\n🎁"));
+ assert.ok(!/si (?:le|un) champ (?:existe|appara)/i.test(text));
 });
 test("formatage : étapes sur des lignes distinctes",()=>{
  const text=polishTelegramText("1. Ouvre le compte 2. Complète ton profil 3. Vérifie ton identité.","Aide-moi à créer un compte");
@@ -515,4 +518,63 @@ test("formatage : texte HTML non fiable toujours échappé après traitement",()
  const html=telegramHtml(text);
  assert.ok(!html.includes("<script>"));
  assert.match(html,/&lt;script&gt;test&lt;\/script&gt;/);
+});
+
+
+test("première étape : une ligne VIDE entre présentation et 1. Inscription",()=>{
+ const raw="Voici le lien direct pour ouvrir Melbet. Une fois sur le site, 1. Inscription : ouvre le formulaire.";
+ const formatted=polishTelegramText(raw,"Je veux m'inscrire sur Melbet");
+ assert.match(formatted,/Une fois sur le site,\n\n1\. Inscription/);
+ assert.ok(!/site,\s+1\. Inscription/.test(formatted));
+});
+test("première étape seule : insérer aussi le paragraphe vide",()=>{
+ const raw="Voici le lien. Une fois sur le site, 1. inscription";
+ const out=polishTelegramText(raw,"Comment m'inscrire ?");
+ assert.match(out,/site,\n\n1\. inscription/);
+ assert.equal(polishTelegramText(out,"Comment m'inscrire ?"),out);
+});
+test("numérotation avec virgule reconnue et normalisée",()=>{
+ const out=polishTelegramText("Une fois sur le site, 1, Inscription. 2, Coordonnées. 3, Validation.","Aide-moi à m'inscrire");
+ assert.match(out,/site,\n\n1\. Inscription\.\n2\. Coordonnées\.\n3\. Validation/);
+});
+test("étapes multiples avec une première étape déjà à la ligne",()=>{
+ const out=polishTelegramText("Voici le lien.\n1. Inscription\n2. Complète le formulaire","Aide-moi");
+ assert.match(out,/Voici le lien\.\n\n1\. Inscription\n2\. Complète/);
+ assert.equal(polishTelegramText(out,"Aide-moi"),out);
+});
+test("mise en forme : ne pas casser cotes, dates, noms de marques ou code 1X",()=>{
+ const raw="Le marché 1X et la cote 1.50 sont affichés. Match le 17.11 à 18h.";
+ assert.equal(polishTelegramText(raw,"Cotes du match"),raw);
+});
+test("code promo : le champ est indiqué directement, sans conditionnel sur sa présence",()=>{
+ const text=contextualPresentation("Voici le lien. Code promo : XPVIP, si le champ existe.","Je veux m'inscrire sur Melbet");
+ assert.match(text,/🎁 \*\*Code promo : XPVIP\*\*/);
+ assert.match(text,/Repère le champ \*\*Code promo\*\* du formulaire et saisis \*\*XPVIP\*\*/);
+ assert.ok(!/si (?:le|un) champ/i.test(text),text);
+ assert.equal((text.match(/Code promo : XPVIP/g)||[]).length,1);
+ assert.ok(!text.includes("XPVIP, ."));
+});
+test("le code promo est placé dans son propre bloc sous le guide",()=>{
+ const text=contextualPresentation("Voici le lien. Une fois sur le site, 1. Inscription. 2. Renseigne ton profil.",
+   "Je veux m'inscrire sur Linebet");
+ assert.match(text,/site,\n\n1\. Inscription\.\n2\. Renseigne ton profil\.\n\n🎁 \*\*Code promo : XPVIP\*\*/);
+ assert.ok(!text.includes("si le champ existe"));
+});
+test("une ancienne étape promo conditionnelle n'est pas répétée",()=>{
+ const text=contextualPresentation("Une fois sur le site, 1. Inscription. 2. Si le champ existe, saisis XPVIP. 3. Vérifie ton compte.",
+   "Je veux m'inscrire sur Melbet");
+ assert.match(text,/1\. Inscription\.\n2\. Vérifie ton compte\./);
+ assert.equal((text.match(/Code promo : XPVIP/g)||[]).length,1);
+ assert.ok(!text.includes("Si le champ existe"));
+});
+test("les consignes d'inscription préservent le reste de la phrase de l'IA",()=>{
+ const text=contextualPresentation("Utilise XPVIP et termine le formulaire.","Je veux m'inscrire sur 1xbet");
+ assert.ok(text.includes("Termine le formulaire."),text);
+ assert.ok(text.includes("Code promo : XPVIP"),text);
+});
+test("le texte de secours place aussi la première étape sous une ligne vide",()=>{
+ const raw=signupMessage("melbet");
+ const formatted=polishTelegramText(raw,"Je veux m'inscrire sur Melbet");
+ assert.match(formatted,/législation locale\) :\n\n1\. Ouvre/);
+ assert.match(formatted,/🎁 \*\*Code promo : XPVIP\*\*/);
 });
