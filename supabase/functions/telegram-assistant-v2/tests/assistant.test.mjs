@@ -297,6 +297,7 @@ test("NVIDIA : limite temporelle arrête les modèles restants",async()=>{
   messages:[{role:"user",content:"test"}],apiKey:"fake-local-key",
   now:()=>clock,
   overallBudgetMs:3000,
+  perModelTimeoutMs:2000,
   signalFactory:()=>undefined,
   fetchImpl:async()=>{clock+=2500;return {ok:false,status:500};}
  });
