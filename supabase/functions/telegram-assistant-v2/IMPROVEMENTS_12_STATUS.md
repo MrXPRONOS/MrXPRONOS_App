@@ -66,3 +66,13 @@ Le mot « testé » se rapporte aux contrôles du code. Ni les tests synthétiqu
 - **Connaissances et tests (2, 11)** : suite de scénarios anonymisés extraits de véritables essais et tests comparant code promo, seuil Pro/VIP, présence PWA, six réseaux sociaux et liens partenaires aux fichiers des pages officielles du dépôt.
 
 **Limites persistantes :** aucun test automatisé ne remplace le compte Telegram réel, les requêtes multimodales NVIDIA/ASR, le contrôle externe de légalité d'un bookmaker ou un flux temps réel de cotes. Les tests de cohérence des fichiers du dépôt ne certifient pas que les pages GitHub Pages ont fini de se propager. Les données personnelles incluses dans les pixels d'une image ne sont pas automatiquement expurgées avec garantie.
+
+## Validation effective de la deuxième série — 17 novembre 2026
+
+- **GitHub Actions** : run [44131799220](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44131799220) : **193 tests réussis / 193**, **0 échec**. La vérification syntaxique et les tests fonctionnels ont réussi.
+- **Supabase** : fonction `telegram-assistant-v2` **V27 ACTIVE**, fichier déployé `index.js` correspondant au blob GitHub `d633cc6856adf61235280b90d866446c6743f494` ; `verify_jwt=false` conservé, webhook authentifié dans la fonction.
+- **Bot des coupons** : fonction `telegram_webhook` **V38 ACTIVE**, inchangée.
+- **PR #328** : toujours ouverte en brouillon, pas fusionnée dans `main`.
+- **Critères de réception encore ouverts** : essais du compte Telegram secondaire (guidage réel, notifications, suppression test), modèles NVIDIA et reconnaissance de vocaux et photos, et flux de cotes live réelles. Une Edge Function ACTIVE ne remplace pas cette vérification.
+
+**Définition de « complété » dans cette série :** le correctif logiciel et son test de non-régression sont complets lorsqu'il est indiqué comme tel ; les 12 grands chantiers ne sont pas tous entièrement validés en usage réel.
