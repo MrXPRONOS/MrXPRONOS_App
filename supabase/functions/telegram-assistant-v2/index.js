@@ -63,6 +63,41 @@ export function partnerFromMessage(message='') {
   return patterns.find(([,regex])=>regex.test(q))?.[0]||null;
 }
 /** N'assimile une réponse limitée au nom d'un bookmaker à une inscription que si le bot l'a demandé. */
+
+/** Analyse déterministe des intentions sensibles et des ambiguïtés courantes.
+ * NVIDIA reste responsable de la formulation des réponses, mais ne décide
+ * ni de l'âge légal ni de l'existence de coupons ou de liens partenaires.
+ */
+export function analyzeClientIntent(message='',history=[]) {
+  const q=norm(message).replace(/\u2019/g,"'");
+  const previous=norm(history.slice(-5).map(x=>x.content||'').join(' '));
+  const odds=/(?:\bcot(?:e|es)\b|\bodd[s]?\b|\bcombine\b|\bcombi\b)/.test(q) &&
+    /(?:\b10\b|\bdix\b|\btotale?\b|\bcombine\b)/.test(q);
+  const score=/(score(?:s)? exact(?:s)?|resultat exact)/.test(q);
+  const picks=/(?:\bprono(?:s|stic[s]?)?\b|\bcoupon[s]?\b|\bselection[s]?\b|\bpari[s]?\s+du\s+jour\b)/.test(q) &&
+    !/(c.est quoi|definition|que signifie|explique le mot)/.test(q);
+  const install=/(install|instal[eé]|pwa|appli(?:cation)?|ajoute?r?.{0,25}ecran d.accueil)/.test(q);
+  const minor=/(?:\b(?:1[0-7]|[1-9])\s*ans\b.*(?:parier|m.inscrire|deposer|miser)|\bje suis mineur\b|\bje suis au college\b.*\bpari)/.test(q);
+  const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies)/.test(q);
+  const secrets=/(?:mot de passe|otp|code sms|code de verification|phrase secrete|cle privee|seed phrase)/.test(q) &&
+    /(envoyer|donner|partager|transmettre|montrer|voici|photo)/.test(q);
+  const nickname=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?|w[aà]ris\s*p[té]|monsieur espronos)/.test(q);
+  const likelyPartner=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?)/.test(q)?'betclic':null;
+  return {odds,score,picks,install,minor,loss,secrets,nickname,likelyPartner,
+    partner:partnerFromMessage(message),
+    needsClarification:!!likelyPartner && !partnerFromMessage(message),
+    followedConversation:previous.length>0};
+}
+export function safetyResponse(details) {
+  if(details.minor)return '**Les paris sont réservés aux adultes.** Je ne peux pas t’aider à ouvrir un compte ou à miser si tu es mineur. Je peux expliquer les règles du football sans paris.';
+  if(details.loss)return '**Ta situation est prioritaire.** Évite de miser à nouveau pour récupérer tes pertes. Mets tes moyens de paiement à distance, fixe une pause et contacte une personne de confiance ou un service d’aide.';
+  if(details.secrets)return '🔒 **Ne partage jamais ton mot de passe, tes codes OTP ou tes clés privées ici.** Utilise uniquement la procédure officielle de récupération du service concerné.';
+  return '';
+}
+export function ambiguousPartnerQuestion(details) {
+  return details.needsClarification ? 'Tu parles de **Betclic** ? Confirme le nom du bookmaker avant que je te donne des indications ou un lien.' : '';
+}
+
 export function providerChoiceFromHistory(message,history=[]) {
   const platform=partnerFromMessage(message);
   if(!platform) return null;
@@ -753,7 +788,10 @@ export function telegramMediaKind(msg={}) {
   return null;
 }
 export function selectMedia(msg={}) {
-  const photo=Array.isArray(msg.photo)?msg.photo.filter(p=>p?.file_id).sort((a,b)=>(b.file_size||0)-(a.file_size||0))[0]:null;
+  const available=Array.isArray(msg.photo)?msg.photo.filter(p=>p?.file_id).sort((a,b)=>(b.file_size||0)-(a.file_size||0)):[];
+  // Telegram fournit plusieurs résolutions : pour éviter l'API NVCF asset qui renvoie 410,
+  // utiliser la meilleure photo dont le payload base64 tient dans la limite NVIDIA (~180k caractères).
+  const photo=available.find(p=>(p.file_size||Infinity)>0&&(p.file_size||Infinity)<=120000)||available.at(-1)||null;
   if(photo)return {kind:'image',fileId:photo.file_id,bytes:photo.file_size||0,mime:'image/jpeg'};
   const other=msg.voice||msg.audio||msg.document;
   if(!other?.file_id)return null;
@@ -942,8 +980,8 @@ const chatKey = (msg) => msg?.business_connection_id ? `b:${msg.business_connect
 async function getChat(key) {const rows=await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}&select=*`);return rows?.[0]||null;}
 async function updateChat(chat) {await db('mx_telegram_assistant_chats?on_conflict=chat_key','POST',[chat],'resolution=merge-duplicates');}
 async function setPause(key,paused) {await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}`,'PATCH',{paused});}
-async function readHistory(key){const rows=await db(`mx_telegram_assistant_messages?chat_key=eq.${encodeURIComponent(key)}&select=role,content&order=id.desc&limit=8`);return (rows||[]).reverse().map(r=>({role:r.role==='user'?'user':'assistant',content:cut(r.content,650)}));}
-async function logMessage(key,role,content){await db('mx_telegram_assistant_messages','POST',{chat_key:key,role,content:cut(content,1600)});}
+async function readHistory(key){const rows=await db(`mx_telegram_assistant_messages?chat_key=eq.${encodeURIComponent(key)}&select=role,content&order=id.desc&limit=20`);return (rows||[]).reverse().map(r=>({role:r.role==='user'?'user':'assistant',content:cut(r.content,1100)}));}
+async function logMessage(key,role,content){await db('mx_telegram_assistant_messages','POST',{chat_key:key,role,content:cut(content,2500)});}
 async function wasHandled(id){const rows=await db(`mx_telegram_assistant_updates?update_id=eq.${id}&select=update_id&limit=1`);return rows?.length>0;}
 async function markHandled(id){await db('mx_telegram_assistant_updates','POST',{update_id:id},'resolution=ignore-duplicates');}
 function safeModelReply(raw) {
