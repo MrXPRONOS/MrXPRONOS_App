@@ -172,14 +172,16 @@ async function sitemapOverview(){
     const res=await fetch(LINKS.sitemap,{headers:{accept:'application/xml'},signal:AbortSignal.timeout(4000)});
     if(!res.ok) return Object.values(LINKS).filter(x=>x.startsWith(SITE));
     const urls=sitemapUrls(await res.text());
-    return urls.length?urls:Object.values(LINKS).filter(x=>x.startsWith(SITE));
+    // Le fichier installer.html existe dans le dépôt, mais peut manquer du sitemap public
+    // tant que la branche GitHub Pages n'a pas été actualisée.
+    return urls.length?[...new Set([...urls,LINKS.installer])]:Object.values(LINKS).filter(x=>x.startsWith(SITE));
   }catch{return Object.values(LINKS).filter(x=>x.startsWith(SITE));}
 }
 const PAGE_TOPICS = Object.freeze({
   accueil:'Présentation du service',aujourd_hui:'Rencontres et contenus du jour',
   pronos:'Pronostics Pro et VIP',scores:'Scores exacts',
   historique:'Résultats gagnés/perdus/en attente',analyses:'Articles et analyses football',
-  infos:'Actualités football',conseils:'Conseils et pédagogie',
+  infos:'Actualités football',conseils:'Conseils et pédagogie',installer:'Installer l’application web',
   bonus:'Bookmakers partenaires et code XPVIP',contact:'Demande de contact'
 });
 export function pageForQuestion(text='') {
@@ -1401,7 +1403,7 @@ export async function handleUpdate(update) {
     const destination=pageForQuestion(text);
     answer=/(sitemap|plan du site)/.test(norm(text))
       ?'Le **plan du site** répertorie '+pages.length+' pages officielles, dont les analyses et les pronostics.'
-      :pages.includes(destination)?'Voici la rubrique correspondante de notre site.':'Cette page n’a pas été confirmée dans le sitemap actuel. Voici l’accueil.';
+      :(destination===LINKS.installer||pages.includes(destination))?'Voici la rubrique correspondante de notre site.':'Cette page n’a pas été confirmée dans le sitemap actuel. Voici l’accueil.';
   }
   else if(intent==='welcome') answer=(!previous || /^\/(start|help)\b/i.test(text))?intro():'Salut 👋 Comment puis-je t’aider ?';
   else if(intent==='format') answer='**🎨 Démonstration du formatage**\n\n**Information importante : XPVIP**\nVoici comment une information essentielle est mise en évidence.\n\n*Une précision secondaire en italique.*\n__Souligné__ · ~~Barré~~ · ||Spoiler masqué||\n\n> ⚠️ Un pronostic n’est jamais une garantie de gain.\n\n**Boutons contextuels**\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
