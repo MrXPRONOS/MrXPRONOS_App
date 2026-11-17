@@ -1147,6 +1147,55 @@ export function modelInCooldown(health,model,time=Date.now()){
   return false;
 }
 
+
+const MODEL_BAD=/^(?:timeout|http_(?:429|500|502|503|504))$/;
+export function recoverSharedModelHealth(rows=[],now=Date.now()){
+  const byModel=new Map(),health=new Map();
+  for(const r of rows){
+    const name=String(r?.model||'');
+    if(!name||byModel.has(name)&&byModel.get(name).length>=3)continue;
+    const t=Date.parse(r?.created_at||'');
+    if(!Number.isFinite(t)||t>now+1000||now-t>120000)continue;
+    const current=byModel.get(name)||[];
+    current.push({status:r.status,time:t});
+    byModel.set(name,current);
+  }
+  for(const [model,items]of byModel){
+    if(items.length<2||!MODEL_BAD.test(items[0].status)||!MODEL_BAD.test(items[1].status))continue;
+    const until=items[0].time+90000;
+    if(until>now)health.set(model,{since:items[1].time,failures:2,until});
+  }
+  return health;
+}
+async function fetchSharedModelHealth(){
+  const since=new Date(Date.now()-120000).toISOString();
+  const rows=await db('mx_telegram_assistant_model_events?select=model,status,created_at&source=eq.chat&created_at=gte.'+encodeURIComponent(since)+'&order=created_at.desc&limit=100');
+  return recoverSharedModelHealth(rows);
+}
+async function recordModelEvents(attempts=[],source='chat'){
+  const rows=attempts.filter(e=>e.status!=='cooldown').map(e=>({
+    model:cut(String(e.model||''),160),status:cut(String(e.status||'unknown'),40),
+    duration_ms:Math.min(299999,Math.max(0,Math.round(e.durationMs||0))),source
+  }));
+  if(rows.length)await db('mx_telegram_assistant_model_events','POST',rows);
+}
+export function modelDiagnostics(rows=[]){
+  const grouped=new Map();
+  for(const r of rows){
+    const m=String(r.model||'');
+    if(!m)continue;
+    const x=grouped.get(m)||{attempts:0,success:0,errors:0,sumMs:0,last:''};
+    x.attempts++;if(r.status==='ok')x.success++;else x.errors++;
+    x.sumMs+=Number(r.duration_ms||0);
+    if(!x.last)x.last=String(r.status);
+    grouped.set(m,x);
+  }
+  return [...grouped].map(([model,stat])=>({
+    model,attempts:stat.attempts,success:stat.success,errors:stat.errors,
+    avgMs:Math.round(stat.sumMs/Math.max(1,stat.attempts)),last:stat.last
+  })).sort((a,b)=>b.attempts-a.attempts);
+}
+
 export async function runNvidiaFailover({
   messages,
   detailed=false,
@@ -1167,12 +1216,13 @@ export async function runNvidiaFailover({
     const model=models[i];
     if(modelInCooldown(health,model,now())){
       attempts.push({model,status:'cooldown'});
-      onAttempt({model,status:'cooldown'});
+      onAttempt({model,status:'cooldown',durationMs:0});
       continue;
     }
     const remaining=overallBudgetMs-(now()-start);
     if(remaining<1100) {budgetExceeded=true;break;}
     const timeoutMs=Math.max(1000,Math.min(i<3?4800:(i<6?3800:2900),remaining));
+    const attemptStarted=now();
     const request={
       model,messages,stream:false,
       temperature:0.3,
@@ -1193,7 +1243,7 @@ export async function runNvidiaFailover({
         status='http_'+resp.status;
         if([401,402].includes(resp.status)) {
           recordModelHealth(health,model,status,now());
-    attempts.push({model,status});onAttempt({model,status});
+    attempts.push({model,status});onAttempt({model,status,durationMs:Math.max(0,now()-attemptStarted)});
           return {text:null,model:null,attempts,reason:'account_error'};
         }
       }else{
@@ -1204,7 +1254,7 @@ export async function runNvidiaFailover({
         if(output?.trim()){
           const text=safeModelReply(output);
           recordModelHealth(health,model,'ok',now());
-          attempts.push({model,status:'ok'});onAttempt({model,status:'ok'});
+          attempts.push({model,status:'ok'});onAttempt({model,status:'ok',durationMs:Math.max(0,now()-attemptStarted)});
           return {text,model,attempts,reason:null};
         }
         status='empty_'+String(choice?.finish_reason||'unknown').replace(/[^a-z0-9_-]/gi,'').slice(0,25);
@@ -1212,7 +1262,7 @@ export async function runNvidiaFailover({
     }catch(error){
       status=error?.name==='TimeoutError'||error?.name==='AbortError'?'timeout':'network_error';
     }
-    attempts.push({model,status});onAttempt({model,status});
+    attempts.push({model,status});onAttempt({model,status,durationMs:Math.max(0,now()-attemptStarted)});
   }
   return {text:null,model:null,attempts,reason:budgetExceeded?'time_budget':'all_failed'};
 }
@@ -1242,9 +1292,23 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
 +'FORMAT OBLIGATOIRE : renvoie un objet JSON compact valide, sans balises Markdown autour, avec deux champs : {"reply":"ton message naturel en français","buttons":[]}. Tu peux utiliser du gras **texte** ou de l’italique *texte* dans reply. buttons est un tableau de 0 à 5 CLÉS uniquement parmi : '+Object.keys(BUTTON_KEYS).join(', ')+'.\n'
     +'Choisis les boutons selon le contexte : inscription chez un bookmaker nommé -> son bouton partenaire, pronostics du jour -> pronos et éventuellement channel, rejoindre notre communauté -> channel, voir les résultats -> historique, accéder au site -> accueil ou rubrique pertinente. Lors d’une inscription, affiche explicitement **Code promo : XPVIP** et invite à saisir XPVIP dans le champ Code promo sans conditionnel sur la présence du champ ; les offres restent soumises aux conditions du partenaire. Aucun bouton pour merci, salut ou simple demande de code promo. Jamais de lien brut : le serveur fabrique les boutons. Ne répète aucune URL dans reply.';
   const messages=[{role:'system',content:system},...history.slice(-12),{role:'user',content:cut(question,1700)}];
-  const result=await runNvidiaFailover({messages,detailed,health:instanceModelHealth,onAttempt:({model,status})=>{
-    if(status!=='ok') console.warn('nvidia_fallback',model,status);
+  // Dernières erreurs partagées entre instances du serveur, avec repli sur l'état local
+  // si la table de mesures est temporairement indisponible.
+  let sharedHealth=instanceModelHealth;
+  try{
+    const shared=await fetchSharedModelHealth();
+    for(const [model,h]of shared)if(!modelInCooldown(sharedHealth,model))sharedHealth.set(model,h);
+  }catch(e){console.warn('model_health_unavailable',String(e?.name||'error'));}
+  const observations=[];
+  const result=await runNvidiaFailover({messages,detailed,health:sharedHealth,onAttempt:(event)=>{
+    observations.push(event);
+    if(event.status!=='ok')console.warn('nvidia_fallback',event.model,event.status);
   }});
+  if(observations.length){
+    const write=recordModelEvents(observations).catch(e=>console.warn('model_metrics_unavailable',String(e?.name||'error')));
+    if(typeof EdgeRuntime!=='undefined'&&typeof EdgeRuntime.waitUntil==='function')EdgeRuntime.waitUntil(write);
+    else await write;
+  }
   if(diagnostic) return result;
   if(result.model) console.info('nvidia_selected',result.model);
   return result.text;
@@ -1259,7 +1323,7 @@ async function notifyAdmin(key,user,message,businessId='') {
 }
 async function adminCommand(msg) {
   const text=String(msg.text||'').trim();
-  const match=text.match(/^\/(reply|pause|resume|chats|status|diagnostic)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
+  const match=text.match(/^\/(reply|pause|resume|chats|status|diagnostic|health)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
   if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. Réponses compte Business : ${businessModeEnabled()?'activées':'désactivées'}. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
@@ -1269,6 +1333,15 @@ async function adminCommand(msg) {
     return say(msg.chat.id,result.model
       ?'🟢 NVIDIA NIM : '+result.model+' fonctionne (priorité '+(NVIDIA_MODELS.indexOf(result.model)+1)+').\n'+details
       :'🔴 NVIDIA NIM : '+result.reason+'.\n'+(details||'Aucun modèle testé. Vérifie la clé API NVIDIA et les crédits.'));
+  }
+  if(cmd==='health'){
+    try{
+      const start=new Date(Date.now()-86400e3).toISOString();
+      const rows=await db('mx_telegram_assistant_model_events?select=model,status,duration_ms,created_at&created_at=gte.'+encodeURIComponent(start)+'&order=created_at.desc&limit=300');
+      const diagnostics=modelDiagnostics(rows);
+      const body=diagnostics.slice(0,8).map(d=>'- '+d.model+' : '+d.success+'/'+d.attempts+' OK, '+d.avgMs+' ms en moyenne').join('\n');
+      return say(msg.chat.id,'**État des modèles — 24 h**\n\n'+(body||'Aucune mesure récente disponible.'));
+    }catch(e){return say(msg.chat.id,'Les métriques ne sont pas accessibles pour le moment.');}
   }
   if(cmd==='chats') {
     const rows=await db('mx_telegram_assistant_chats?select=chat_key,nickname,paused&order=last_message_at.desc&limit=8');
@@ -1333,7 +1406,7 @@ export async function handleUpdate(update) {
   }
   if(await wasHandled(id)) return;
   const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
-  if(isOwner && /^\/(reply|pause|resume|chats|status|diagnostic)(?:@\w+)?\b/i.test(text)) {
+  if(isOwner && /^\/(reply|pause|resume|chats|status|diagnostic|health)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
   const key=chatKey(msg);
