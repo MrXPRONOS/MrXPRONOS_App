@@ -1,0 +1,56 @@
+name: Telegram - Invitation partageable (canal test)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-shareable-invitation-test.yml'
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Texte personnalisé (laisser vide pour le message coupons)"
+        required: false
+        type: string
+      button_text:
+        description: "Texte du bouton"
+        required: false
+        default: "🎁 Recevoir les coupons gratuits"
+        type: string
+      button_url:
+        description: "Lien de destination Telegram"
+        required: false
+        default: "https://t.me/mr_xpronos"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-shareable-invitation-test
+  cancel-in-progress: false
+
+jobs:
+  publish-test-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      SHARE_MESSAGE: ${{ inputs.message || '' }}
+      SHARE_BUTTON_TEXT: ${{ inputs.button_text || '🎁 Recevoir les coupons gratuits' }}
+      SHARE_BUTTON_URL: ${{ inputs.button_url || 'https://t.me/mr_xpronos' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Vérifier le message sans publier
+        run: python scripts/send_telegram_shareable_test.py --check
+      - name: Valider que le bot publie uniquement dans @predict_mrxp
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+      - name: Publier le message et son bouton sur le canal test
+        run: python scripts/send_telegram_shareable_test.py --send
