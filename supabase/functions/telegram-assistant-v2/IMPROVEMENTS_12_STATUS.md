@@ -22,7 +22,7 @@ Le bot historique `telegram_webhook` (coupons) reste indépendant.
 | 9 | Escalade humaine fiable | **Partiel** | `/reply`, `/pause`, `/resume` et notification présents ; tests de concurrence, suivi d'incident et reprise réelle non réalisés |
 | 10 | Tableau de bord qualité | **Partiel** | Commande admin `/quality` agrégée sur 24 h sans texte privé ; pas encore d'interface web ni de taux de satisfaction annoté |
 | 11 | Tests de non-régression | **Partiel** | Suite de tests existants + `conversation-quality.test.mjs` ; workflow GitHub Actions dédié ajouté ; validation en conditions réelles distincte |
-| 12 | Confidentialité | **Partiel** | Masquage OTP, numéros, clés API et phrases secrètes avant injection en IA ; pas d'analyse locale garantie des secrets dans les pixels, politique d'effacement et de rétention à compléter |
+| 12 | Confidentialité | **Partiel** | Masquage OTP, numéros, clés API et phrases secrètes avant injection en IA ; commandes /privacy et /delete_my_data avec confirmation de moins de 5 minutes. Les métadonnées techniques non indexées par chat, la rétention programmée et les secrets dans les pixels restent non couverts |
 
 ## Corrections ajoutées dans cette série
 
@@ -33,6 +33,7 @@ Le bot historique `telegram_webhook` (coupons) reste indépendant.
 - Priorisation NVIDIA calculée sur les événements des dernières 24 h avec lissage et conservation des modèles de secours.
 - Commande admin `/quality` fournissant uniquement des compteurs de fonctionnement.
 - Masquage de nouveaux secrets et retrait des secrets des requêtes de conversation envoyées à NVIDIA.
+- Demande de suppression du texte propre à l'utilisateur par /delete_my_data et validation /confirm_delete_my_data, sans prétendre effacer les journaux techniques non reliés au chat.
 - Tests de non-régression dédiés et workflow CI avec Node 22.
 
 ## Critères bloquants avant de déclarer les 12 chantiers « totalement terminés »
