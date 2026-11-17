@@ -242,6 +242,20 @@ export function redactSensitiveText(value) {
     .replace(/((?:seed phrase|phrase secrete|phrase de recuperation|mnemonic)\s*[:=]\s*)(?:[a-zà-ÿ]+\s+){11,23}[a-zà-ÿ]+\b/gi,'$1[PHRASE MASQUÉE]');
 }
 
+/** Commandes de vie privée explicites, sans autoriser une requête tierce. */
+export function privacyCommand(text='') {
+  const input=String(text||'').trim().toLowerCase();
+  if(/^\/privacy(?:@\w+)?$/.test(input))return 'info';
+  if(/^\/delete_my_data(?:@\w+)?$/.test(input))return 'request_delete';
+  if(/^\/confirm_delete_my_data(?:@\w+)?$/.test(input))return 'confirm_delete';
+  if(/^\/cancel_delete_my_data(?:@\w+)?$/.test(input))return 'cancel_delete';
+  return null;
+}
+export function deletionConfirmationValid(session,now=Date.now()) {
+  const age=now-Date.parse(session?.updated_at||'');
+  return session?.mode==='awaiting_deletion'&&Number.isFinite(age)&&age>=0&&age<=300000;
+}
+
 export function safetyResponse(details) {
   if(details.minor)return '**Les paris sont réservés aux adultes.** Je ne peux pas t’aider à ouvrir un compte ou à miser si tu es mineur. Je peux expliquer les règles du football sans paris.';
   if(details.loss)return '**Ta situation est prioritaire.** Évite de miser à nouveau pour récupérer tes pertes. Mets tes moyens de paiement à distance, fixe une pause et contacte une personne de confiance ou un service d’aide.';
@@ -2143,6 +2157,39 @@ export async function handleUpdate(update) {
   // Premier contact revendiqué via un INSERT unique : pas de double accueil simultané.
   const isFirstChat=!previous ? await claimFirstChat(currentChat) : false;
   await updateChat(currentChat);
+  const privacyAction=privacyCommand(text);
+  if(privacyAction) {
+    if(privacyAction==='info') {
+      await say(msg.chat.id,'🔐 **Confidentialité**\n\nCette conversation peut être enregistrée pour maintenir le contexte. Les messages destinés à NVIDIA sont filtrés pour masquer certains secrets.\n\nPour demander la suppression du texte de ta conversation, écris /delete_my_data. Cette action ne retire pas les messages déjà présents sur Telegram ni certaines traces techniques sans identifiant de conversation.',msg.business_connection_id||'');
+    } else if(privacyAction==='request_delete') {
+      await putAssistantSession(key,{mode:'awaiting_deletion',goal:'',bookmaker:'',step_number:0,step_text:'',last_input:'',summary:''});
+      await say(msg.chat.id,'⚠️ **Confirmer la suppression**\n\nPour supprimer le contenu de cette conversation enregistré sur notre serveur, envoie /confirm_delete_my_data dans les cinq minutes.\nPour annuler : /cancel_delete_my_data. Cette suppression ne retire pas les messages de Telegram ni certains journaux techniques.',msg.business_connection_id||'');
+    } else if(privacyAction==='cancel_delete') {
+      const session=await getAssistantSession(key);
+      if(session?.mode==='awaiting_deletion')await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},session);
+      await say(msg.chat.id,'Demande de suppression annulée.',msg.business_connection_id||'');
+    } else {
+      const session=await getAssistantSession(key);
+      if(!deletionConfirmationValid(session)) {
+        await say(msg.chat.id,'Confirmation expirée ou absente. Envoie /delete_my_data pour recommencer.',msg.business_connection_id||'');
+      } else {
+        const selector=encodeURIComponent(key);
+        // Ces trois tables sont les seules qui associent directement le texte au chat.
+        // Les reçus et événements techniques n'ont pas de chat_key exploitable.
+        try {
+          await db('mx_telegram_assistant_messages?chat_key=eq.'+selector,'DELETE');
+          await db('mx_telegram_assistant_sessions?chat_key=eq.'+selector,'DELETE');
+          await db('mx_telegram_assistant_chats?chat_key=eq.'+selector,'DELETE');
+          await say(msg.chat.id,'✅ Le texte de ta conversation et sa session ont été supprimés de la base Mr XPRONOS. Les messages Telegram et certaines métadonnées techniques ne sont pas supprimés par cette commande.',msg.business_connection_id||'');
+        } catch(e){
+          console.warn('privacy_delete_failed',String(e?.name||'error'));
+          await say(msg.chat.id,'La suppression n’a pas pu être entièrement confirmée. Contacte un responsable pour une vérification.',msg.business_connection_id||'');
+        }
+      }
+    }
+    await markHandled(id);
+    return;
+  }
   if(previous?.paused) {
     // Prévenir explicitement l'administrateur lors d'un test, plutôt que d'ignorer silencieusement ses messages.
     if(isOwner) {
