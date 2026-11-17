@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -463,4 +463,55 @@ test("l'IA ne peut imposer un bouton hors sujet même officiel",()=>{
  assert.deepEqual(contextualDestinations("Je veux consulter le site",[],["pronos","bonus"]),[LINKS.accueil]);
  assert.deepEqual(contextualDestinations("Comment rejoindre le canal ?",[],["partner_1xbet","bonus"]),[LINKS.channel]);
  assert.deepEqual(contextualDestinations("Comment ça va ?",[],["pronos","bonus","channel"]),[]);
+});
+
+
+test("formatage : une ligne vide après un titre important sans changer le sens",()=>{
+ const result=polishTelegramText("**Résumé du match**\nLe match commence demain.","Analyse ce match");
+ assert.equal(result,"**Résumé du match**\n\nLe match commence demain.");
+ assert.match(telegramHtml(result),/<b>Résumé du match<\/b>\n\nLe match commence demain/);
+});
+test("formatage : code promotionnel et conditions lisibles",()=>{
+ const text=contextualPresentation("Utilise XPVIP et termine le formulaire.","Je veux m'inscrire sur line bet");
+ const html=telegramHtml(text);
+ assert.match(html,/<b>📝 Inscription Linebet<\/b>\n\n/);
+ assert.match(html,/<b>XPVIP<\/b>/);
+ assert.match(html,/<i>si accepté par le bookmaker<\/i>/);
+ assert.ok(text.includes("\n\n🎁"));
+});
+test("formatage : étapes sur des lignes distinctes",()=>{
+ const text=polishTelegramText("1. Ouvre le compte 2. Complète ton profil 3. Vérifie ton identité.","Aide-moi à créer un compte");
+ assert.match(text,/1\. Ouvre le compte\n2\. Complète ton profil\n3\. Vérifie ton identité/);
+});
+test("formatage : citation de prudence et espace avant",()=>{
+ const text=polishTelegramText("**Analyse**\nVoici les éléments importants.\n⚠️ Aucun gain garanti, le pari comporte des risques.","Analyse du match");
+ const html=telegramHtml(text);
+ assert.match(html,/<b>Analyse<\/b>\n\n/);
+ assert.match(html,/<blockquote>⚠️ Aucun gain garanti, le pari comporte des risques\.<\/blockquote>/);
+ assert.ok(text.includes("\n\n> ⚠️"));
+});
+test("formatage : autres styles Telegram restent utilisables",()=>{
+ const input="**Important**\n\n*Précision* et ~~ancien~~ ; ||détail masqué||\n> Exemple de citation";
+ const html=telegramHtml(polishTelegramText(input,"Explique-moi"));
+ assert.match(html,/<b>Important<\/b>/);
+ assert.match(html,/<i>Précision<\/i>/);
+ assert.match(html,/<s>ancien<\/s>/);
+ assert.match(html,/<tg-spoiler>détail masqué<\/tg-spoiler>/);
+ assert.match(html,/<blockquote>Exemple de citation<\/blockquote>/);
+});
+test("formatage : salutations brèves sans paragraphes artificiels",()=>{
+ assert.equal(polishTelegramText("Salut 😊","cc"),"Salut 😊");
+ assert.equal(contextualPresentation("Avec plaisir 😊","Merci !"),"Avec plaisir 😊");
+});
+test("formatage : les blocs longs gagnent un paragraphe",()=>{
+ const text="La forme des équipes est importante pour évaluer la rencontre. Il faut aussi examiner les absences et le calendrier chargé des joueurs. Les statistiques du championnat donnent du contexte mais ne garantissent pas une victoire à coup sûr. Garde une mise adaptée à ton budget.";
+ const result=polishTelegramText(text,"Quels conseils ?");
+ assert.ok(result.includes("\n\n"),result);
+ assert.equal(result.replace(/\n\n/g," ").replace(/\s+/g," ").trim(),text);
+});
+test("formatage : texte HTML non fiable toujours échappé après traitement",()=>{
+ const text=polishTelegramText("**Consigne**\n<script>test</script>","Important ?");
+ const html=telegramHtml(text);
+ assert.ok(!html.includes("<script>"));
+ assert.match(html,/&lt;script&gt;test&lt;\/script&gt;/);
 });
