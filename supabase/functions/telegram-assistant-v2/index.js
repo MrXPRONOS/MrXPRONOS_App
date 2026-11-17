@@ -938,6 +938,27 @@ export async function analyzeTelegramImage(data,{
   }
   return null;
 }
+
+export function assessTranscriptQuality(raw,metadata={}) {
+  const transcript=String(raw||'').trim();
+  const reasons=[];
+  if(!transcript)reasons.push('empty');
+  if(metadata?.truncated_reason)reasons.push('truncated');
+  if(['ctc_fallback','llm_fallback'].includes(metadata?.transcript_origin))reasons.push('degraded_asr');
+  const q=normalizeClientFrench(transcript);
+  const words=q.split(/\s+/).filter(Boolean);
+  if(words.length<2)reasons.push('too_short');
+  if(/^(?:euh|hum|ah|bon|ben|he|hmm|ouais|oui)(?:[ ,.!?]+(?:euh|hum|ah|bon|ben|he|hmm|ouais|oui))*[ ,.!?]*$/i.test(q))reasons.push('filler');
+  if(/\b(\w{2,})\b(?:[ ,.!?]+\1\b){3,}/i.test(q))reasons.push('repetition');
+  if(/(?:bedclicker|betclicker|bet clicker|w[aà]ris pt)/i.test(q))reasons.push('phonetic_brand');
+  return {quality:reasons.length?'uncertain':'clear',reasons};
+}
+export function extractSpokenCorrection(question) {
+  const q=String(question||'').trim();
+  const correction=q.match(/^(?:non[,!. ]+)?(?:j.ai dit|je voulais dire|je disais|c.etait|j'ai dit|je parle de)\s*[:,-]?\s*(.{2,220})$/i);
+  return correction?.[1]?.trim().replace(/[.!?]+$/,'')||null;
+}
+
 export async function transcribeTelegramAudio(data,{
   http=fetch,apiKey=env('MX_ASSISTANT_NVIDIA_KEY'),upload=nvidiaAsset,
   asrUrl=env('MX_ASSISTANT_ASR_URL'),asrKey=env('MX_ASSISTANT_ASR_KEY')||apiKey
@@ -951,14 +972,17 @@ export async function transcribeTelegramAudio(data,{
       if(target.protocol!=='https:'||target.username||target.password)throw Error('asr_url_not_https');
       const form=new FormData();
       form.append('file',new Blob([data.bytes],{type:data.mime}),'message.'+(data.mime==='audio/ogg'?'ogg':data.mime.includes('wav')?'wav':'mp3'));
-      form.append('response_format','json');
+      form.append('response_format','verbose_json');
       if(env('MX_ASSISTANT_ASR_MODEL'))form.append('model',env('MX_ASSISTANT_ASR_MODEL'));
       const r=await http(target.href,{method:'POST',headers:{authorization:'Bearer '+asrKey},
         body:form,signal:AbortSignal.timeout(16000)});
       if(r.ok){
         const out=await r.json();
         const text=out?.text||out?.transcription?.text;
-        if(typeof text==='string'&&text.trim())return {transcript:cut(text.trim(),1500),model:'nemotron-transcribe'};
+        if(typeof text==='string'&&text.trim()){
+          const quality=assessTranscriptQuality(text,out?.transcription||out);
+          return {transcript:cut(text.trim(),1500),model:'nemotron-transcribe',...quality};
+        }
       }
     }catch(e){console.warn('asr_transcription_failed',String(e?.name||'error').slice(0,32));}
   }
@@ -983,7 +1007,12 @@ export async function transcribeTelegramAudio(data,{
     if(!r.ok)return null;
     const result=await r.json();
     const content=result?.choices?.[0]?.message?.content;
-    if(typeof content==='string'&&content.trim())return {transcript:cut(content.trim(),1500),model:MEDIA_MODELS.voice};
+    if(typeof content==='string'&&content.trim()){
+      const quality=assessTranscriptQuality(content);
+      return {transcript:cut(content.trim(),1500),model:MEDIA_MODELS.voice,
+        quality:data.mime==='audio/ogg'?'uncertain':quality.quality,
+        reasons:data.mime==='audio/ogg'?[...quality.reasons,'ogg_unverified']:quality.reasons};
+    }
   }catch(error){console.warn('voice_transcription_failed',String(error?.name||'error').slice(0,24));}
   return null;
 }
@@ -1490,6 +1519,14 @@ export async function handleUpdate(update) {
           await say(msg.chat.id,'Je ne parviens pas à transcrire ce vocal. Essaie un fichier MP3/WAV ou envoie ton message par écrit.',msg.business_connection_id||'');
           await markHandled(id);return;
         }
+        if(spoken.quality==='uncertain'){
+          const candidate=cut(redactSensitiveText(spoken.transcript),550);
+          await say(msg.chat.id,'🎙️ **Vocal reçu, transcription à confirmer**\n\nJ’ai compris : *'+candidate.replace(/[\*_\[\]]/g,'')+'*\n\nEst-ce correct ? Réponds **oui** ou écris **« Non, j’ai dit ... »**.',msg.business_connection_id||'');
+          try{await putAssistantSession(key,{mode:'awaiting_clarification',last_input:spoken.transcript,summary:spoken.reasons.join(',')},null);}
+          catch(e){console.warn('voice_confirmation_save_failed');}
+          await markHandled(id);
+          return;
+        }
         const caption=typeof msg.caption==='string'?msg.caption.trim():'';
         text=cut(spoken.transcript,1200)+(caption?'\n\n'+cut(caption,180):'');
       }
@@ -1506,6 +1543,23 @@ export async function handleUpdate(update) {
   try{recentHistory=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
   let liveSession=null;
   try{liveSession=await getAssistantSession(key);}catch(e){console.warn('guide_session_unavailable',String(e?.name||'error'));}
+
+  // Résolution d'une transcription vocale à faible confiance.
+  if(liveSession?.mode==='awaiting_clarification'){
+    const q=normalizeClientFrench(text);
+    const accepted=/^(oui|c.est ca|exact|correct|c.est bien cela|tout a fait)$/.test(q);
+    const correction=extractSpokenCorrection(text);
+    if(accepted||correction){
+      text=correction||liveSession.last_input;
+      try{await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},liveSession);}catch(e){console.warn('voice_confirmation_clear_failed');}
+      liveSession={...liveSession,mode:'idle',last_input:''};
+    }else if(/^(non|pas du tout|c.est faux)$/.test(q)){
+      await say(msg.chat.id,'D’accord, je n’ai pas bien compris. Peux-tu reformuler ton message ou l’écrire ici ?',msg.business_connection_id||'');
+      await markHandled(id);
+      return;
+    }
+  }
+
   const clientInfo=analyzeClientIntent(text,recentHistory);
   const highRisk=safetyResponse(clientInfo)||ambiguousPartnerQuestion(clientInfo);
   if(highRisk){
