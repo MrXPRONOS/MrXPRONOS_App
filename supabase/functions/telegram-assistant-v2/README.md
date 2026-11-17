@@ -415,3 +415,18 @@ Les notifications répétées d'un même chat repris par un humain sont espacée
 - Suite GitHub Actions `Telegram Assistant V2 tests` : [run #44131799220](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44131799220) — **193 tests réussis / 193**.
 - Le test des connaissances vérifie aussi les pages du site, les six réseaux officiels et le catalogue partenaire contre les fichiers du dépôt.
 - **Encore à valider en conditions réelles** : un guidage complet sur un second compte Telegram, la transcription Ogg/Opus, NVIDIA Vision et les cotes live avec une source fiable. Aucun succès réel n'est présumé.
+
+
+## Routage NVIDIA V28 — Mistral Large 4 et délai par modèle (17 novembre 2026)
+
+**Règle demandée :** le modèle initial est `mistralai/mistral-large-4-1t-a52b` (Mistral Large 4). Une réponse NVIDIA non vide, contrôlée et effectivement envoyée via Telegram inscrit son modèle dans `mx_telegram_assistant_model_events` avec `source=routing_v28` et `status=ok`. Lors du message suivant, le plus récent événement de ce type devient le modèle prioritaire, y compris sur une autre instance Edge. En l'absence de succès enregistré dans cette nouvelle stratégie, priorité à Mistral Large 4. Les anciens succès V27 ne modifient pas la priorité du premier démarrage V28.
+
+- Chaque modèle interrogé reçoit **jusqu'à 60 000 ms** ; une réponse rapide est transmise dès sa réception, sans attendre artificiellement une minute.
+- Une erreur HTTP ou une réponse vide peut provoquer un essai immédiat du modèle suivant. En cas de timeout, le modèle suivant n'est interrogé qu'après expiration de sa minute.
+- Le traitement complet dispose d'un **budget de 125 000 ms** pour les appels de chat. La fonction ne démarre pas un nouvel essai si elle ne peut pas lui garantir les 60 secondes complètes. En pratique, **deux modèles qui expirent à 60 secondes** épuisent ce budget ; les autres modèles ne sont alors pas testés pour ce message, et une réponse de secours sûre est envoyée.
+- L'ordre de secours initial derrière Mistral est Nemotron 3 Ultra, Poolside Laguna XS, Nemotron 3.5 Super VL, puis les autres modèles existants.
+- Le webhook **confirme immédiatement à Telegram** après validation de son secret, et exécute `handleUpdate` dans `EdgeRuntime.waitUntil`. C'est essentiel pour éviter que Telegram n'attende 60 secondes sur la connexion HTTP.
+- Les tâches d'arrière-plan Supabase restent soumises à la durée de vie des instances : **150 secondes sur le plan Free, 400 secondes sur les plans payants**, selon la documentation Supabase consultée. Le budget de 125 secondes laisse une marge pour la préparation, l'envoi et la sauvegarde, mais n'apporte pas de reprise garantie après arrêt forcé de l'instance.
+- Un accusé de réception HTTP ne prouve pas qu'un client a reçu son message. Pour garantir des reprises illimitées de 60 secondes par IA, il faudrait une **file d'attente persistante et un worker distinct**, qui ne sont pas fournis par cette version.
+
+Cette stratégie concerne les **réponses de chat NVIDIA**. La transcription audio et la vision gardent leurs propres limites et leur routage spécialisé. Le bot historique `telegram_webhook` de publication des coupons ne doit pas être modifié.
