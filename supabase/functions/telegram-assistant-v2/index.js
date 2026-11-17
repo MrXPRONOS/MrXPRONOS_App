@@ -336,7 +336,7 @@ export async function handleUpdate(update) {
   const intent=intentFor(text);
   let answer='';
   if(intent==='welcome') answer=intro();
-  else if(intent==='format') answer='**🎨 Exemple de mise en forme Telegram**\n*Texte en italique*\n__Texte souligné__\n~~Ancienne information barrée~~\n||Ce contenu est masqué jusqu’à ce que tu appuies dessus.||\n> Citation : une analyse ne garantit jamais un résultat.\n\n⚽ Pronostics : '+LINKS.pronos+'\n✅ Conseils : '+LINKS.conseils;
+  else if(intent==='format') answer='**🎨 Exemple de mise en forme Telegram**\n*Texte en italique*\n__Texte souligné__\n~~Ancienne information barrée~~\n||Ce contenu est masqué jusqu’à ce que tu appuies dessus.||\n> Citation : une analyse ne garantit jamais un résultat.\n\n⚽ Pronostics : '+LINKS.pronos+'\n✅ Conseils : '+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
   else if(intent==='conseil') answer=adviceMessage();
