@@ -457,3 +457,10 @@ test("inscription : réponse courte à la suite d'un bookmaker choisi",()=>{
  const final=contextualPresentation("Commence par ouvrir le formulaire.",q,hist);
  assert.match(final,/XPVIP/);
 });
+
+test("l'IA ne peut imposer un bouton hors sujet même officiel",()=>{
+ assert.deepEqual(contextualDestinations("Je veux m'inscrire sur Linebet",[],["pronos","channel","bonus","partner_melbet"]),[PARTNER_LINKS.linebet]);
+ assert.deepEqual(contextualDestinations("Je veux consulter le site",[],["pronos","bonus"]),[LINKS.accueil]);
+ assert.deepEqual(contextualDestinations("Comment rejoindre le canal ?",[],["partner_1xbet","bonus"]),[LINKS.channel]);
+ assert.deepEqual(contextualDestinations("Comment ça va ?",[],["pronos","bonus","channel"]),[]);
+});
