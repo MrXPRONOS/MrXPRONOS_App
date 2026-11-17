@@ -1447,7 +1447,7 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3,columns=
   // le canal connu si un client envoyait un autre lien Telegram.
   const official=(url)=>Object.values(LINKS).includes(url)||
     url===channelUrl()||(!!footNewsChannelUrl()&&url===footNewsChannelUrl());
-  const offeredExplicitly=/(?:lien|adresse|url|notre canal officiel|canal telegram officiel|rejoindre|ouvrir|acceder|installer|notre page|page facebook|réseaux sociaux|reseaux sociaux|voici notre|voici le|voici la)/.test(normalizeClientFrench(original));
+  const offeredExplicitly=/(?:lien|adresse|url|dossier|notre canal officiel|canal telegram officiel|rejoindre|ouvrir|acceder|installer|notre page|page facebook|reseaux sociaux|facebook officiel|instagram officiel|voici notre|voici le|voici la)/.test(normalizeClientFrench(original));
   const requestedButton=(url)=>!Array.isArray(allowedUrls)||allowedUrls.includes(url)||
     (official(url)&&offeredExplicitly);
   const permitted=(url)=>allowed(url)&&(official(url)||requestedButton(url));
@@ -1495,6 +1495,7 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3,columns=
   // lorsque l'URL a été convertie en bouton sous le message.
   text=text.replace(/\b(?:sur|via)\s*([.!?])/gi,'avec le bouton ci-dessous$1')
     .replace(/:\s*([.!?])/g,': utilise le bouton ci-dessous$1')
+    .replace(/,\s*([.!?])/g,', utilise le bouton ci-dessous$1')
     .replace(/\s+([.!?])/g,'$1')
     .replace(/^[ \t]*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
   const replaceAnchors=(str,html)=>str.replace(/XMXANCHOR(\d+)X/g,(_m,index)=>{
