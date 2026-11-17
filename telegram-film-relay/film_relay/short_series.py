@@ -12,12 +12,8 @@ DONE_COUNTER = re.compile(r"\b(\d{1,3})\s*/\s*\1\b")
 
 
 def normalized_key(value):
-    raw = str(value or "").lower().strip()
-    raw = re.sub(r"(?i)^@[a-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", raw)
-    raw = unicodedata.normalize("NFKD", raw).encode("ascii", "ignore").decode()
-    raw = re.sub(r"[^a-z0-9]+", "-", raw).strip("-")
-    raw = re.sub(r"^(?:mangas-fv|animes-canal)-", "", raw)
-    return re.sub(r"-(?:episode|ep)0*\d{1,3}$", "", raw)
+    from .episode_identity import canonical_title
+    return canonical_title(value)
 
 
 def short_complete_groups(groups, catalogue, maximum=12, diagnostics=None, *, require_completion_evidence=False):
