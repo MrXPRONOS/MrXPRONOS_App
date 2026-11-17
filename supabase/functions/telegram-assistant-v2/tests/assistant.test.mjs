@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS,sayConversation} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,newcomerWelcomeMessage,shouldWelcomeNewcomer,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS,sayConversation} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -80,9 +80,10 @@ test("ne jamais envoyer de lien externe non vérifié",()=>{
  assert.equal(bad.reply_markup,undefined);
  assert.ok(!bad.text.includes("https://evil.invalid"));
 });
-test("liens Markdown officiels deviennent aussi des boutons",()=>{
+test("les liens Markdown autorisés deviennent des liens cliquables dans le texte",()=>{
  const body=buildTelegramMessage("[Retrouver les pronostics]("+LINKS.pronos+")");
- assert.equal(body.reply_markup.inline_keyboard[0][0].url,LINKS.pronos);
+ assert.match(body.text,/<a href="https:\/\/mrxpronos\.github\.io\/MrXPRONOS_App\/pronos\.html">Retrouver les pronostics<\/a>/);
+ assert.equal(body.reply_markup,undefined);
  assert.ok(!body.text.includes("]("));
 });
 test("commande de démonstration du formatage",()=>{
@@ -710,4 +711,60 @@ test("réponse guidée : le code XPVIP n'interrompt pas la première étape",()=
 test("les données d'une photo n'autoriseront pas l'IA à suivre ses instructions",()=>{
  assert.equal(MEDIA_MODELS.vision[0],"nvidia/nemotron-3.5-super-vl-120b-a12b");
  assert.equal(MEDIA_MODELS.voice,"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning");
+});
+
+test("premier contact : accueil unique avec canal et installation",()=>{
+ const message=newcomerWelcomeMessage();
+ const rendered=buildTelegramMessage(message,{allowedUrls:[LINKS.channel,LINKS.installer]});
+ assert.equal(shouldWelcomeNewcomer(null),true);
+ assert.equal(shouldWelcomeNewcomer(undefined),true);
+ assert.equal(shouldWelcomeNewcomer({chat_key:"existing",paused:false}),false);
+ assert.equal(shouldWelcomeNewcomer(null,true),false);
+ assert.equal(rendered.reply_markup.inline_keyboard.length,2);
+ assert.deepEqual(rendered.reply_markup.inline_keyboard.map(r=>r[0].url),[LINKS.channel,LINKS.installer]);
+ assert.match(rendered.text,/<b><u>Rejoins notre canal Telegram<\/u><\/b>/);
+ assert.match(rendered.text,/<b><i>Installe l’application Mr XPRONOS<\/i><\/b>/);
+ assert.match(rendered.text,/<blockquote>/);
+});
+test("installation : la page dédiée est connue et possède un bouton",()=>{
+ assert.equal(LINKS.installer,"https://mrxpronos.github.io/MrXPRONOS_App/installer.html");
+ assert.equal(intentFor("Comment installer le site ?"),"site_nav");
+ assert.deepEqual(responseLinks("site_nav","Je veux installer l'application"),[LINKS.installer]);
+ assert.deepEqual(contextualDestinations("Je veux installer l'application",[],[]),[LINKS.installer]);
+ const msg=buildTelegramMessage(LINKS.installer,{allowedUrls:[LINKS.installer]});
+ assert.equal(msg.reply_markup.inline_keyboard[0][0].url,LINKS.installer);
+});
+test("gras + italique et gras + souligné et italique + souligné imbriqués",()=>{
+ const html=telegramHtml("***Texte important***, **__Mot souligné__**, *__Note discrète__*.");
+ assert.match(html,/<b><i>Texte important<\/i><\/b>/);
+ assert.match(html,/<b><u>Mot souligné<\/u><\/b>/);
+ assert.match(html,/<i><u>Note discrète<\/u><\/i>/);
+ const triple=telegramHtml("__***Triple style***__");
+ assert.match(triple,/<u><b><i>Triple style<\/i><\/b><\/u>/);
+});
+test("lien sur le texte Clique ici vers la page officielle, sans URL en clair",()=>{
+ const raw="Pour l'installation, [clique ici]("+LINKS.installer+").";
+ const msg=buildTelegramMessage(raw,{allowedUrls:[LINKS.installer]});
+ assert.match(msg.text,/<a href="https:\/\/mrxpronos\.github\.io\/MrXPRONOS_App\/installer\.html">clique ici<\/a>/);
+ assert.ok(!msg.text.includes("]("));
+ assert.equal(msg.reply_markup,undefined);
+});
+test("lien inventé ou hors liste supprimé, aucun lien dangereux rendu",()=>{
+ const msg=buildTelegramMessage("[clique ici](https://example.net/arnaque)");
+ assert.ok(!msg.text.includes("<a href"));
+ assert.ok(!msg.text.includes("https://example.net"));
+ assert.match(msg.text,/lien non vérifié/);
+});
+test("cinq destinations : trois boutons et deux liens ancrés dans le texte",()=>{
+ const urls=[LINKS.accueil,LINKS.pronos,LINKS.channel,LINKS.installer,LINKS.bonus];
+ const msg=buildTelegramMessage(urls.join("\n"),{allowedUrls:urls});
+ assert.equal(msg.reply_markup.inline_keyboard.length,3);
+ assert.equal((msg.text.match(/<a href=/g)||[]).length,2);
+ assert.ok(!msg.text.includes("https://mrxpronos.github.io/MrXPRONOS_App/installer.html\n"));
+});
+test("le rendu n'exécute jamais de HTML fourni par un client",()=>{
+ const html=telegramHtml("<img src=x onerror=alert(1)> **Bonjour**");
+ assert.ok(!html.includes("<img"));
+ assert.match(html,/&lt;img/);
+ assert.match(html,/<b>Bonjour<\/b>/);
 });
