@@ -336,6 +336,91 @@ export function telegramHtml(text) {
 }
 
 // Boutons uniquement si la demande du client nécessite réellement une destination.
+
+// L'IA rédige les réponses, ces aides ne fournissent que des faits vérifiés et des liens autorisés.
+const BUTTON_KEYS=Object.freeze({
+  accueil:LINKS.accueil,aujourd_hui:LINKS.aujourd_hui,pronos:LINKS.pronos,
+  scores:LINKS.scores,historique:LINKS.historique,analyses:LINKS.analyses,
+  infos:LINKS.infos,conseils:LINKS.conseils,bonus:LINKS.bonus,
+  contact:LINKS.contact,sitemap:LINKS.sitemap,channel:channelUrl(),
+  partner_1xbet:PARTNER_LINKS['1xbet'],partner_1win:PARTNER_LINKS['1win'],
+  partner_betwinner:PARTNER_LINKS['betwinner'],partner_melbet:PARTNER_LINKS['melbet'],
+  partner_linebet:PARTNER_LINKS['linebet'],partner_betclic:PARTNER_LINKS['betclic']
+});
+export function aiLinkCatalog(){
+  return Object.entries(BUTTON_KEYS).map(([key,url])=>key+' : '+url).join('\n');
+}
+export function parseAiReply(raw) {
+  const trimmed=String(raw||'').trim().replace(/^\x60{3}(?:json)?\s*/i,'').replace(/\x60{3}$/,'').trim();
+  let value=null;
+  for(const candidate of [trimmed,trimmed.slice(trimmed.indexOf('{'),trimmed.lastIndexOf('}')+1)]){
+    if(!candidate||candidate[0]!=='{')continue;
+    try{value=JSON.parse(candidate);break;}catch{}
+  }
+  if(value&&typeof value==='object'&&!Array.isArray(value)){
+    const reply=typeof value.reply==='string'?value.reply:typeof value.answer==='string'?value.answer:typeof value.message==='string'?value.message:'';
+    const buttons=Array.isArray(value.buttons)?value.buttons.filter(v=>typeof v==='string').slice(0,5):[];
+    if(reply.trim())return {reply:cut(reply.trim(),1400),buttons,structured:true};
+  }
+  return {reply:cut(trimmed,1400),buttons:[],structured:false};
+}
+export function aiButtons(keys,question,history=[]) {
+  const context=[...history.slice(-4).map(x=>String(x.content||'')),question].join(' ');
+  const q=norm(question);
+  const historyContext=norm(context);
+  if(/^(merci|merci beaucoup|thanks|thank you|ok|oui|non|cc|salut|bonjour|bonsoir)[!?. ]*$/.test(q) ||
+     (/code promo|xpvip/.test(q)&&!/(lien|inscri|site|bonus|utiliser)/.test(q)))return [];
+  const navigation=/(lien|ouvrir|visiter|rejoindre|inscri|consulter|montr|donne|envoyer|envoie|aller|acceder|page|site|sitemap|canal|coupons?|pronos?|pronostics?|scores exacts|resultats precedents|historique|offres)/.test(q);
+  const previousTopic=/(lien|ouvrir|visiter|rejoindre|inscri|page|site|partenaire|coupon|prono|scores|analyses|historique)/.test(historyContext);
+  if(!navigation && !(previousTopic&&/^(et le lien|le lien|envoie le lien|tu as un lien|ou je clique)/.test(q)))return [];
+  const urls=[];
+  for(const candidate of keys||[]) {
+    const key=String(candidate).trim().toLowerCase();
+    const url=key==='channel'?channelUrl():BUTTON_KEYS[key];
+    if(!url||!allowed(url)||urls.includes(url))continue;
+    if(key.startsWith('partner_')){
+      const partner=key.slice(8);
+      const chosen=partnerFromMessage(question)||partnerFromMessage(history.slice(-4).map(x=>x.content||'').join(' '));
+      if(chosen!==partner || !/(inscri|lien|partenaire|bookmaker|depot|offre|compte)/.test(historyContext))continue;
+    }
+    urls.push(url);
+    if(urls.length===3)break;
+  }
+  return urls;
+}
+export async function assistantFacts(question,history=[],{
+  loadJson=publicJson,loadSitemap=sitemapOverview,now=new Date()
+}={}) {
+  const q=norm(question);
+  const hist=norm(history.slice(-4).map(x=>x.content||'').join(' '));
+  const snippets=[];
+  const platform=partnerFromMessage(question)||
+    (/(ensuite|apres|bloqu|lien|inscri|compte|signup)/.test(q)?partnerFromMessage(hist):null);
+  if(platform){
+    snippets.push('BOOKMAKER CONCERNÉ : '+PARTNER_NAMES[platform]+'. Lien partenaire autorisé : '+PARTNER_LINKS[platform]+'. Code XPVIP lorsque accepté ; âge légal et conditions de l’offre à vérifier. Ne prétends pas connaître les écrans exacts du bookmaker.');
+  }
+  if(/(coupon|pronostic|prono|selection|match a jouer|a venir|paris du jour)/.test(q)){
+    const shift=/demain/.test(q)?1:0;
+    const date=new Date(now.getTime()+shift*86400e3).toISOString().slice(0,10);
+    const data=await loadJson(SITE+'/data.json');
+    const picks=publishedPicks(data,now,shift);
+    snippets.push('COUPONS POUR '+date+' : '+(!data?'Fichier inaccessible, ne confirme aucun coupon.':
+      picks.length?JSON.stringify(picks):'Aucune sélection admissible confirmée. Ne crée aucun match ni coupon fictif.'));
+    snippets.push('Destination : '+LINKS.pronos);
+  }
+  if(/(score exact|scores exacts)/.test(q)){
+    const date=now.toISOString().slice(0,10);
+    const data=await loadJson(SITE+'/scores-exacts-daily/'+date+'.json');
+    const picks=exactScorePicks(data,now);
+    snippets.push('SCORES EXACTS : '+(!data?'Source inaccessible.':picks.length?JSON.stringify(picks):'Aucun score admissible vérifié.'));
+  }
+  if(/(sitemap|plan du site|ou trouver|quelle page|lien de la page|navigation)/.test(q)){
+    const urls=await loadSitemap();
+    snippets.push('SITEMAP OFFICIEL (max 20 liens) : '+urls.slice(0,20).join(' ; '));
+  }
+  return snippets.join('\n');
+}
+
 export function responseLinks(intent,question,answer='') {
   const q=norm(question);
   if(intent==='format') return [LINKS.pronos,LINKS.conseils,LINKS.contact];
