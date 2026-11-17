@@ -70,20 +70,29 @@ def blocked_by_initial_history(state: dict, number: int) -> bool:
 
 def record_send(chat: dict, caption: str, image: Path, parse_mode=None) -> int:
     seed.validate_image(image)
+    mime = "image/jpeg" if image.suffix.lower() in (".jpeg", ".jpg") else "image/png"
     with image.open("rb") as fp:
         try:
             resp = requests.post(
                 "https://api.telegram.org/bot" + seed.TOKEN + "/sendPhoto",
                 data={"chat_id": chat["id"], "caption": caption,
                       **({"parse_mode": parse_mode} if parse_mode else {})},
-                files={"photo": (image.name, fp, "image/png")},
+                files={"photo": (image.name, fp, mime)},
                 timeout=(10, 90))
-            resp.raise_for_status()
-            result = resp.json()
-        except (requests.RequestException, ValueError):
+        except requests.RequestException:
             raise RuntimeError("Unknown Telegram send result — do not automatically retry") from None
+    try:
+        result = resp.json()
+    except ValueError:
+        raise RuntimeError("Telegram returned non-JSON reply; delivery uncertain") from None
     if not isinstance(result, dict) or result.get("ok") is not True:
-        raise RuntimeError("Telegram rejected photo")
+        reason = str(result.get("description") or "unknown reason") if isinstance(result, dict) else "invalid reply"
+        code = getattr(resp, "status_code", "unknown")
+        if isinstance(code, int) and 400 <= code < 500:
+            raise ValueError("Definite Telegram sendPhoto rejection: HTTP " + str(code) + " " + reason[:200])
+        raise RuntimeError("Telegram sendPhoto outcome not confirmed HTTP " + str(code) + " " + reason[:120])
+    if getattr(resp, "status_code", 200) >= 400:
+        raise RuntimeError("Telegram sendPhoto HTTP error despite success-shaped body")
     m = result.get("result")
     if (not isinstance(m, dict) or not isinstance(m.get("message_id"), int)
             or not isinstance(m.get("chat"), dict) or m["chat"].get("id") != chat["id"]
@@ -223,7 +232,12 @@ def publish_global_news():
         description = media.caption(candidate, image_source=photo_source)
         try:
             message_id = record_send(chat, description, image, parse_mode="HTML")
-        except (requests.RequestException, ValueError, RuntimeError):
+        except ValueError as exc:
+            # Telegram's 4xx response confirms no send. Preserve the exact
+            # reason (HTML entity rejection, caption length, etc.) in Actions.
+            print("CRYPTO_NEWS11_TELEGRAM_REJECTED", str(exc)[:240])
+            raise
+        except (requests.RequestException, RuntimeError):
             raise RuntimeError("News #11 delivery uncertain; manual audit required") from None
         digest.mark_sent(state, candidate, message_id, datetime.now(UTC))
         seed.write_state(state)
