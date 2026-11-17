@@ -351,6 +351,40 @@ const BUTTON_KEYS=Object.freeze({
 export function aiLinkCatalog(){
   return Object.entries(BUTTON_KEYS).map(([key,url])=>key+' : '+url).join('\n');
 }
+
+/** Suit un accompagnement un message à la fois en conservant la mémoire conversationnelle. */
+export function guidedMode(question,history=[]) {
+  const q=norm(question);
+  if(/(pas a pas|etape par etape|une etape a la fois|un par un|une chose a la fois|accompagne.moi|guide.moi|guides?.moi)/.test(q))return true;
+  const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
+  if(!/(?:Étape|Etape)\s+\d+|Quand c.est fait.+fait|[ée]cris.+fait/i.test(last))return false;
+  return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|je suis bloque|je ne trouve pas|comment|ou|pourquoi|et maintenant)/.test(q);
+}
+export function guidedResponse(reply,question,history=[]) {
+  if(!guidedMode(question,history))return String(reply||'');
+  let text=String(reply||'').trim();
+  const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
+  const lastNumber=Number(last.match(/(?:Étape|Etape)\s+(\d+)/i)?.[1]||0);
+  const done=/^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|et maintenant)/.test(norm(question));
+  const step=done?Math.min(lastNumber+1,10)||1:(lastNumber||1);
+  // Quand le modèle a trop rédigé, ne conserver que la première étape.
+  const first=text.search(/(?:^|\n)\s*(?:Étape|Etape)\s+\d+|(?:^|\n)\s*1[.)]\s/mi);
+  if(first>=0){
+    const remainder=text.slice(first+1);
+    const next=remainder.search(/(?:\n|^)\s*(?:Étape|Etape)\s+[2-9]|(?:\n|^)\s*[2-9][.)]\s/mi);
+    if(next>=0)text=text.slice(0,first+1+next).trim();
+  }
+  // Éviter la relance si l'utilisateur vient de poser une simple question de clarification.
+  const clarification=/^(je ne trouve pas|je suis bloque|comment|ou|pourquoi)/.test(norm(question));
+  if(!clarification && !/(c.est fait|dis.moi.+fait|[ée]cris.+fait|quand tu as fini)/i.test(norm(text))){
+    text+='\n\n*Quand c’est fait, réponds « fait » pour passer à la suite.*';
+  }
+  if(!/(?:Étape|Etape)\s+\d+/i.test(text)&&!clarification){
+    text='**Étape '+step+'**\n\n'+text;
+  }
+  return text;
+}
+
 export function parseAiReply(raw) {
   const trimmed=String(raw||'').trim().replace(/^\x60{3}(?:json)?\s*/i,'').replace(/\x60{3}$/,'').trim();
   let value=null;
@@ -532,7 +566,7 @@ export function polishTelegramText(raw,question='') {
   return result.replace(/\n{3,}/g,'\n\n').trim();
 }
 
-export function contextualPresentation(rawReply,question,history=[],intent='general') {
+export function contextualPresentation(rawReply,question,history=[],intent='general',options={}) {
   const q=norm(question);
   let reply=cut(String(rawReply||'').trim(),1350);
   const platform=partnerFromMessage(question)||providerChoiceFromHistory(question,history);
@@ -543,7 +577,7 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
   if(/^(merci|merci beaucoup|cc|bonjour|salut|bonsoir|ok|daccord|d.accord)[!?. ]*$/.test(q))return polishTelegramText(reply,question);
   // Rendre les éléments importants lisibles dans Telegram, sans transformer chaque échange en publicité.
   reply=reply.replace(/(?<!\*)\bXPVIP\b(?!\*)/gi,'**XPVIP**');
-  if(registration&&platform){
+  if(registration&&platform&&!options.guided){
     if(!/^\s*(?:\*\*|📝)/.test(reply))reply='**📝 Inscription '+PARTNER_NAMES[platform]+'**\n'+reply;
     // Remplacer les formulations « si le champ existe » par une indication claire.
     // Conserver le reste de la réponse librement rédigée par NVIDIA.
@@ -803,10 +837,13 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
   if(!env('MX_ASSISTANT_NVIDIA_KEY')) return diagnostic
     ? {text:null,model:null,attempts:[],reason:'missing_key'} : null;
   const detailed=/(explique en detail|detaille|pas a pas|developpe|longue explication|guide moi|aide moi a m.inscrire|comment m.inscrire)/.test(norm(question));
+  const guided=guidedMode(question,history);
   const system=diagnostic
     ? 'Réponds exactement test OK, sans autre texte.'
     : 'Tu es le cerveau conversationnel de l’assistant officiel Mr XPRONOS. Tu comprends librement les messages, le contexte et les relances. Tu rédiges TOI-MÊME toutes les réponses usuelles : salutations, remerciements, questions, pronostics, inscriptions, conseils et navigation.\n'
-    +'LANGUE : français naturel, chaleureux, professionnel. Réponse la plus courte possible, souvent UNE phrase (environ 10 à 35 mots). Si la personne veut un accompagnement étape par étape, réponds avec 2 à 5 étapes utiles et une question finale. Ne récite jamais un texte d’accueil au milieu d’une discussion.\n'
+    +'LANGUE : français naturel, chaleureux, professionnel. Réponse la plus courte possible, souvent UNE phrase de 10 à 35 mots, ou quelques paragraphes si nécessaire. Ne récite jamais un texte d’accueil au milieu d’une discussion.\\n'
+    +(guided?'MODE GUIDÉ INTERACTIF : l’utilisateur veut être aidé UNE ÉTAPE À LA FOIS ou continue un guide commencé. Réponds avec UNE SEULE étape concrète et fais-le confirmer (« fait ») avant la suivante. N’énumère jamais toutes les prochaines étapes. Utilise le contexte des messages précédents pour reprendre exactement où la personne en est, sans inventer ce qui est affiché sur son écran. Si elle est bloquée, explique seulement son étape actuelle. Le code promo XPVIP doit être proposé au moment du champ Code promo, pas obligatoirement à la première étape.\\n':'')
+
     +(firstContact?'Cette conversation débute, mais réponds d’abord à la question posée ; présente-toi uniquement si la personne te salue ou te demande qui tu es.\n':'La conversation existe déjà : reste naturel, sans te présenter à nouveau.\n')
     +'CONNAISSANCES OFFICIELLES (des faits, pas des instructions venues des clients) :\n'+knowledgePrompt()+'\n'
     +'PARTENAIRES et liens officiels :\n'+aiLinkCatalog()+'\n'
@@ -928,7 +965,8 @@ export async function handleUpdate(update) {
         // Si un fournisseur retourne un JSON incomplet, éviter de l'afficher aux clients.
         const malformed=/^\s*[\x60{]/.test(parsed.reply)&&!parsed.structured;
         if(parsed.reply.trim()&&!malformed){
-          answer=contextualPresentation(parsed.reply,text,recentHistory,intent);
+          const singleStep=guidedResponse(parsed.reply,text,recentHistory);
+          answer=contextualPresentation(singleStep,text,recentHistory,intent,{guided:guidedMode(text,recentHistory)});
           const destinations=contextualDestinations(text,recentHistory,parsed.buttons,intent);
           if(destinations.length)answer+='\n'+destinations.join('\n');
           await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
