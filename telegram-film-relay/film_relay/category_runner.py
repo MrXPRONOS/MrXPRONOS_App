@@ -109,7 +109,7 @@ def check_bot_permission(permission, category_name: str) -> None:
         )
 
 
-async def preflight(client, bot, cfg: dict):
+async def preflight(client, bot, cfg: dict, audit: dict | None = None):
     """Verify actual Telegram destinations and rights before uploading any file."""
     from telethon import utils
     if not await client.is_user_authorized():
@@ -140,6 +140,9 @@ async def preflight(client, bot, cfg: dict):
              cfg.get("category", "series"))
     source_peers = []
     seen_ids = set()
+    if audit is not None:
+        audit.update({"source_total": len(cfg["sources"]), "sources_accessible": 0,
+                      "sources_inaccessible": 0, "sources_protected": 0})
     for name in cfg["sources"]:
         try:
             source = await resolve_peer(client, name)
@@ -150,6 +153,8 @@ async def preflight(client, bot, cfg: dict):
                 raise ValueError("La source doit être un canal de diffusion (pas un groupe).")
             if getattr(source, "noforwards", False):
                 LOG.warning("Source %s protégée contre la copie : ignorée.", name)
+                if audit is not None:
+                    audit["sources_protected"] += 1
                 continue
             key = utils.get_peer_id(source)
             if key in forbidden:
@@ -161,7 +166,11 @@ async def preflight(client, bot, cfg: dict):
         except (FloodWaitError, PeerFloodError):
             raise
         except Exception as exc:
-            LOG.warning("Source %s inaccessible : %s", name, exc)
+            LOG.warning("Source %s inaccessible : %s", name, type(exc).__name__)
+            if audit is not None:
+                audit["sources_inaccessible"] += 1
+    if audit is not None:
+        audit["sources_accessible"] = len(source_peers)
     if not source_peers:
         raise RuntimeError("Aucun des canaux sources configurés n'est accessible et non protégé.")
     LOG.info("Audit sources : %s/%s canaux accessibles et distincts.",
@@ -170,18 +179,26 @@ async def preflight(client, bot, cfg: dict):
     mirror = None
     mirror_key = ""
     if bot is not None:
-        bot_public = await bot.get_entity(cfg["public"])
-        if utils.get_peer_id(bot_public) != utils.get_peer_id(public):
-            raise RuntimeError("Le bot et le compte utilisateur ne voient pas le même canal public.")
         bot_me = await bot.get_me()
         try:
+            bot_public = await bot.get_entity(cfg["public"])
+            if utils.get_peer_id(bot_public) != utils.get_peer_id(public):
+                raise RuntimeError("Le bot et le compte utilisateur ne voient pas le même canal public.")
             perms = await bot.get_permissions(bot_public, bot_me)
         except Exception as exc:
             from telethon.errors import UserNotParticipantError
-            if isinstance(exc, UserNotParticipantError):
+            from .bot_http import TelegramBotHTTPError
+            if isinstance(exc, UserNotParticipantError) or (
+                isinstance(exc, TelegramBotHTTPError) and
+                "chat not found" in str(exc).casefold()
+            ):
                 raise RuntimeError(
-                    f"Le bot @{getattr(bot_me, 'username', 'inconnu')} doit être "
-                    f"administrateur de {cfg['public']} (Publier les messages)."
+                    f"Le bot @{getattr(bot_me, 'username', 'inconnu')} "
+                    f"(identifiant {bot_me.id}) ne peut pas accéder à "
+                    f"{cfg['public']} via Telegram Bot API. Vérifier qu'il "
+                    "est bien ajouté comme administrateur du canal "
+                    "avec le droit Publier des messages, et que le canal "
+                    "configuré correspond à la destination attendue."
                 ) from exc
             raise
         check_bot_permission(perms, cfg["public"])
@@ -227,7 +244,8 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
     try:
         await client.connect()
         if publish:
-            token = (os.getenv("CINEX_CATEGORY_BOT_TOKEN") or "").strip()
+            token = ((os.getenv("COMEDIE_BOT_TOKEN") if category == "comedie" else None)
+                     or os.getenv("CINEX_CATEGORY_BOT_TOKEN") or "").strip()
             if not token:
                 raise RuntimeError("Configurer le bot existant dans CINEX_CATEGORY_BOT_TOKEN.")
             from .bot_http import BotHTTPClient

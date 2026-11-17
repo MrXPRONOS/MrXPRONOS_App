@@ -44,8 +44,8 @@ def requested_channels():
         "public": os.getenv("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr"),
     }, os.getenv("DESIR_BOT_TOKEN") or os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
     for name in ("comedie", "anime"):
-        entries.append((name, category_config(name),
-                        os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
+        token_var = "COMEDIE_BOT_TOKEN" if name == "comedie" else "CINEX_CATEGORY_BOT_TOKEN"
+        entries.append((name, category_config(name), os.getenv(token_var, "")))
     return entries
 
 
@@ -66,9 +66,12 @@ async def verify():
         if not await client.is_user_authorized():
             raise RuntimeError("La session personnelle Telegram n'est plus autorisée.")
         for name, cfg, token in requested_channels():
+            diagnostics = {}
             try:
                 # Validates actual IDs, distinct destinations, real source handles.
-                sources, private, public, _, _, _ = await preflight(client, None, cfg)
+                diagnostics = {}
+                sources, private, public, _, _, _ = await preflight(
+                    client, None, cfg, audit=diagnostics)
                 if len(sources) != len(cfg["sources"]):
                     raise RuntimeError(
                         f"Sources accessibles {len(sources)}/{len(cfg['sources'])} ; vérifier les canaux.")
@@ -87,6 +90,7 @@ async def verify():
                     raise RuntimeError("Le bot n'a pas le droit de publier dans la destination.")
                 # The actual numeric IDs have already been cross-checked in preflight.
                 report["channels"][name] = {"status": "ok",
+                                            **diagnostics,
                                             "sources_validated": len(sources),
                                             "private_id_verified": True,
                                             "public_id_verified": True,
@@ -96,8 +100,14 @@ async def verify():
                          name, len(sources))
             except Exception as exc:
                 # No private IDs or bot tokens in the report.
+                msg = str(exc).casefold()
+                hint = ("Vérifier le bot administrateur du canal public (Publier des messages)."
+                        if "chat not found" in msg or "administrateur" in msg else
+                        "Vérifier l'accès aux sources et les identifiants du canal.")
                 report["channels"][name] = {"status": "error",
-                                            "error_type": type(exc).__name__}
+                                            "error_type": type(exc).__name__,
+                                            "hint": hint,
+                                            **diagnostics}
                 LOG.error("Canaux %s : vérification refusée (%s)", name, type(exc).__name__)
     finally:
         await client.disconnect()

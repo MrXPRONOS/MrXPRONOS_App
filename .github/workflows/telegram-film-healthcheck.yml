@@ -12,6 +12,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/telegram-film-healthcheck.yml'
+  # Daily read-only Telegram connectivity checks. Never sends test messages.
+  schedule:
+    - cron: '37 0 * * *'
 
 permissions:
   contents: write
@@ -39,7 +42,7 @@ jobs:
           PYTHONPATH: .
         run: python -m unittest discover -s tests -q
       - name: Check Telegram setup without publishing
-        continue-on-error: true
+        continue-on-error: false
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}

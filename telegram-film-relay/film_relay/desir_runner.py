@@ -130,6 +130,23 @@ async def preflight_user(client, src, private, public):
         raise RuntimeError("Le canal public Telegram ne correspond pas à @CineXDesirfr.")
     return source_peer, library_peer, public_peer
 
+async def first_available_source(client, sources, private, public):
+    """Try historic and owner-configured sources without hiding Telegram rate limits."""
+    from telethon.errors import FloodWaitError, PeerFloodError
+    for candidate in sources:
+        try:
+            src, library, public_user = await preflight_user(
+                client, candidate, private, public)
+            LOG.info("CinéX Désir : source initiale disponible : %s", candidate)
+            return candidate, src, library, public_user
+        except (FloodWaitError, PeerFloodError):
+            raise
+        except Exception as exc:
+            LOG.warning("Source initiale %s indisponible : %s", candidate,
+                        type(exc).__name__)
+    raise RuntimeError("CinéX Désir : aucune source accessible ; aucune publication.")
+
+
 async def preflight_bot(bot, public, user_public):
     from telethon import utils
     peer = await bot.get_entity(public)
@@ -292,9 +309,13 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     completed = 0
     try:
         await client.connect()
-        src, library, public_user = await preflight_user(client, source, private, public)
+        # First historical handle may have expired: use the next readable source.
+        selected_source, src, library, public_user = await first_available_source(
+            client, sources, private, public)
         source_peers = [src]
-        for extra_name in sources[1:]:
+        for extra_name in sources:
+            if extra_name.casefold() == selected_source.casefold():
+                continue
             # User-added sources from the bulk variable must be public,
             # readable and unprotected; never join a channel automatically.
             try:
@@ -302,6 +323,9 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 if (str(getattr(second, "username", "") or "").casefold()
                         != extra_name.lstrip("@").casefold()):
                     raise ValueError("Identifiant de la source complémentaire incohérent.")
+                if not getattr(second, "broadcast", False):
+                    LOG.warning("Source %s non diffuseur : ignorée.", extra_name)
+                    continue
                 if getattr(second, "noforwards", False):
                     LOG.warning("Source %s protégée : ignorée.", extra_name)
                     continue
