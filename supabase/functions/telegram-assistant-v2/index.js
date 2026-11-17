@@ -2331,9 +2331,10 @@ export function formatAdminHistory(rows=[],limit=8) {
 }
 async function adminCommand(msg) {
   const text=String(msg.text||'').trim();
-  const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
+  const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /history <chat>, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status, /quality');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
+  if(cmd==='testaccueil')return say(msg.chat.id,'🧪 **Aperçu du nouvel abonné**\n\n'+newcomerWelcomeMessage(),'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
   if(cmd==='status') {
     let model=null;
     try{model=await fetchLastSuccessfulNvidiaModel();}
@@ -2462,7 +2463,7 @@ export async function handleUpdate(update) {
   }
   if(await wasHandled(id)) return;
   const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
-  if(isOwner && /^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality)(?:@\w+)?\b/i.test(text)) {
+  if(isOwner && /^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
   const key=chatKey(msg);
@@ -2640,6 +2641,16 @@ export async function handleUpdate(update) {
     await markHandled(id);
     return;
   }
+  // Les liens officiels et le nouvel accueil ne dépendent pas de l'IA.
+  const showWelcome=/^\/accueil(?:@\w+)?(?:\s|$)/i.test(text);
+  if(['links','folder','foot_news','partners'].includes(intent)||showWelcome){
+    const answer=showWelcome?newcomerWelcomeMessage():shortcutMessage(intent);
+    const urls=showWelcome?[LINKS.pronos,channelUrl(),LINKS.installer]:shortcutUrls(intent);
+    await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:urls});
+    await logMessage(key,'user',text);
+    await logMessage(key,'assistant',answer);
+    await markHandled(id);return;
+  }
   const clientInfo=analyzeClientIntent(text,recentHistory);
   const highRisk=safetyResponse(clientInfo)||ambiguousPartnerQuestion(clientInfo);
   if(highRisk){
@@ -2813,7 +2824,12 @@ async function telegramSetup(req) {
           {command:'pronos',description:'Pronostics et coupons publiés'},
           {command:'scores',description:'Scores exacts publiés'},
           {command:'canaux',description:'Canaux et liens officiels'},
-          {command:'resultats',description:'Historique des résultats'}
+          {command:'resultats',description:'Historique des résultats'},
+          {command:'liens',description:'Annuaire des liens officiels'},
+          {command:'dossier',description:'Dossier Telegram Mr XPRONOS F'},
+          {command:'actufoot',description:'Actualités du football'},
+          {command:'accueil',description:'Message de bienvenue'},
+          {command:'testaccueil',description:'Aperçu de bienvenue (admin)'}
         ]});
       }catch(e){console.warn('optional_commands_setup_failed',String(e));}
     }
