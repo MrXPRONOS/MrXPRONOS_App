@@ -45,6 +45,63 @@ class IdentityRegression(unittest.TestCase):
         self.assertEqual(ambiguous_fixture_ids([a,b]),{"1","2"})
 
 
+class PipelineRegression(unittest.TestCase):
+    def test_publisher_does_not_score_two_ids_for_same_fixture(self):
+        from unittest.mock import patch
+        from bsd_v2_publish import assemble
+        from bsd_v2_core import V2History
+        now = datetime(2026,11,17,10,tzinfo=timezone.utc)
+        fixtures=[]
+        for row in (match(654419), match(655428,"2026-11-17T16:30:00+00:00")):
+            fixture={**row,"id":row["source_event_id"],"league_name":"International Friendly"}
+            fixture["home_team"]={"id":2215,"name":"Kuwait"}
+            fixture["away_team"]={"id":722,"name":"Honduras"}
+            fixtures.append(fixture)
+        with patch("bsd_v2_publish.predict_v2",side_effect=AssertionError("ambiguous fixture scored")):
+            out=assemble({"source":"bsd","matches":[]},fixtures,[],now=now,
+                         calibration=None,policy=None,rho=0,
+                         historical_published_ids=set())
+        self.assertEqual(out["matches"],[])
+        self.assertEqual(out["diagnostics"]["rejections"]["cross_native_fixture_ids_quarantined"],2)
+
+    def test_saved_upcoming_fixture_stops_new_identity(self):
+        from unittest.mock import patch
+        from bsd_v2_publish import assemble
+        now=datetime(2026,11,17,10,tzinfo=timezone.utc)
+        existing={"source":"bsd","matches":[{
+            **match(654419), "date":"2026-11-17", "category":"pro",
+            "recommendation_eligible":True,"signal_tier":"QUALIFIE",
+            "prediction":{"selection_key":"1X","market_code":"DC_1X_FT",
+                          "odds":1.2,"odds_source":"bsd_consensus",
+                          "confidence":80.1,"recommendation_eligible":True}
+        }]}
+        fresh=match(655428,"2026-11-17T16:30:00+00:00")
+        fresh["id"]=655428
+        fresh["home_team"]={"id":2215,"name":"Kuwait"}
+        fresh["away_team"]={"id":722,"name":"Honduras"}
+        fresh["league_name"]="International Friendly"
+        with patch("bsd_v2_publish.predict_v2",side_effect=AssertionError("duplicate fixture scored")):
+            out=assemble(existing,[fresh],[],now=now,
+                         calibration=None,policy=None,rho=0,
+                         historical_published_ids={"654419"})
+        self.assertEqual(out["matches"],[])
+        self.assertTrue(any(r.get("reason")=="cross_native_fixture_identity_ambiguous"
+                            for r in out["retired_predictions"]))
+
+    def test_telegram_singles_and_combos_quarantine(self):
+        from bsd_v2_telegram import due, combos_due
+        now=datetime(2026,11,17,15,tzinfo=timezone.utc)
+        rows=[match(654419),match(655428,"2026-11-17T16:30:00+00:00")]
+        for row in rows:
+            row.update({"category":"pro","recommendation_eligible":True,
+                        "signal_tier":"QUALIFIE",
+                        "prediction":{"selection_key":"1X","market_code":"DC_1X_FT",
+                                      "odds":1.925,"odds_source":"bsd_consensus",
+                                      "confidence":82,"recommendation_eligible":True}})
+        self.assertEqual(due(rows,now),[])
+        self.assertEqual(combos_due(rows,now),[])
+
+
 class OddsPrecedenceRegression(unittest.TestCase):
     def setUp(self):
         self.selection={"key":"1X","internal_market_code":"DC_1X_FT",
