@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-18",
+  "generated_at": "2026-11-17T10:54:23Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4890775",
+      "league": "Ligue 1",
+      "home": "Cr Temouchent",
+      "away": "JS El Biar",
+      "kickoff_utc": "2026-11-18T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.13773411
+    },
+    {
+      "id": "sportsapipro:4876901",
+      "league": "Premier Division",
+      "home": "Gazelle",
+      "away": "Aigle Moungo",
+      "kickoff_utc": "2026-11-18T13:00:00Z",
+      "score": "2:1",
+      "probability": 0.09699268
+    },
+    {
+      "id": "sportsapipro:4884864",
+      "league": "Premier Division",
+      "home": "Coton Sport Garoua",
+      "away": "Stade Renard",
+      "kickoff_utc": "2026-11-18T15:00:00Z",
+      "score": "2:1",
+      "probability": 0.09523299
+    },
+    {
+      "id": "sportsapipro:4847171",
+      "league": "UEFA Women's Champions League",
+      "home": "Real Madrid (W)",
+      "away": "Inter Milan (W)",
+      "kickoff_utc": "2026-11-18T17:45:00Z",
+      "score": "2:1",
+      "probability": 0.08656849
+    },
+    {
+      "id": "sportsapipro:4874691",
+      "league": "CONCACAF Nations League - Quarter Finals",
+      "home": "USA",
+      "away": "Haiti",
+      "kickoff_utc": "2026-11-18T00:00:00Z",
+      "score": "2:1",
+      "probability": 0.08631191
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4890775",
+      "league": "Ligue 1",
+      "home": "Cr Temouchent",
+      "away": "JS El Biar",
+      "kickoff_utc": "2026-11-18T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.31203865,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4876901",
+      "league": "Premier Division",
+      "home": "Gazelle",
+      "away": "Aigle Moungo",
+      "kickoff_utc": "2026-11-18T13:00:00Z",
+      "score": "2:1",
+      "probability": 0.26026058,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4884864",
+      "league": "Premier Division",
+      "home": "Coton Sport Garoua",
+      "away": "Stade Renard",
+      "kickoff_utc": "2026-11-18T15:00:00Z",
+      "score": "2:1",
+      "probability": 0.25553909,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4874691",
+      "league": "CONCACAF Nations League - Quarter Finals",
+      "home": "USA",
+      "away": "Haiti",
+      "kickoff_utc": "2026-11-18T00:00:00Z",
+      "score": "2:1",
+      "probability": 0.23006646,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4814632",
+      "league": "Womens League Cup",
+      "home": "West Ham (W)",
+      "away": "Wolves (W)",
+      "kickoff_utc": "2026-11-18T19:00:00Z",
+      "score": "2:1",
+      "probability": 0.21159199,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
+}

@@ -3,29 +3,20 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-17",
-  "generated_at": "2026-11-16T13:46:28Z",
+  "generated_at": "2026-11-17T10:54:23Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4891585",
-      "league": "Azadegan League",
-      "home": "Havadar",
-      "away": "Mes Kerman",
-      "kickoff_utc": "2026-11-17T10:30:00Z",
-      "score": "1:0",
-      "probability": 0.13613519
-    },
-    {
       "id": "sportsapipro:4886054",
       "league": "Friendly International",
       "home": "Kuwait",
       "away": "Honduras",
       "kickoff_utc": "2026-11-17T16:30:00Z",
       "score": "2:1",
-      "probability": 0.09885564
+      "probability": 0.09867742
     },
     {
       "id": "sportsapipro:4887276",
@@ -34,7 +25,7 @@
       "away": "Syria",
       "kickoff_utc": "2026-11-17T14:10:00Z",
       "score": "2:1",
-      "probability": 0.09773919
+      "probability": 0.09770176
     },
     {
       "id": "sportsapipro:4766445",
@@ -43,7 +34,7 @@
       "away": "Harborough Town",
       "kickoff_utc": "2026-11-17T19:45:00Z",
       "score": "2:1",
-      "probability": 0.09630541
+      "probability": 0.09642629
     },
     {
       "id": "sportsapipro:4883918",
@@ -52,33 +43,27 @@
       "away": "Cray Wanderers",
       "kickoff_utc": "2026-11-17T19:45:00Z",
       "score": "2:1",
-      "probability": 0.0962671
+      "probability": 0.09638995
+    },
+    {
+      "id": "sportsapipro:4780720",
+      "league": "Non League Premier",
+      "home": "Havant & waterloovile",
+      "away": "Bracknell Town",
+      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "score": "2:1",
+      "probability": 0.09547353
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4891585",
-      "league": "Azadegan League",
-      "home": "Havadar",
-      "away": "Mes Kerman",
-      "kickoff_utc": "2026-11-17T10:30:00Z",
-      "score": "1:0",
-      "probability": 0.30407761,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
       "id": "sportsapipro:4886054",
       "league": "Friendly International",
       "home": "Kuwait",
       "away": "Honduras",
       "kickoff_utc": "2026-11-17T16:30:00Z",
       "score": "2:1",
-      "probability": 0.28632583,
+      "probability": 0.27823221,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -93,7 +78,7 @@
       "away": "Syria",
       "kickoff_utc": "2026-11-17T14:10:00Z",
       "score": "2:1",
-      "probability": 0.27816674,
+      "probability": 0.27332514,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -108,7 +93,7 @@
       "away": "Cray Wanderers",
       "kickoff_utc": "2026-11-17T19:45:00Z",
       "score": "2:1",
-      "probability": 0.24570294,
+      "probability": 0.24601079,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -123,7 +108,22 @@
       "away": "Harborough Town",
       "kickoff_utc": "2026-11-17T19:45:00Z",
       "score": "2:1",
-      "probability": 0.24560372,
+      "probability": 0.245906,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4894996",
+      "league": "Liga de Ascenso - Eastern Region",
+      "home": "CD Neo Pipil",
+      "away": "AD SESA",
+      "kickoff_utc": "2026-11-17T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.24285307,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
