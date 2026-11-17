@@ -387,3 +387,31 @@ Plusieurs messages vocaux de test étaient retranscrits de façon très incohér
 - Le chargement réel du module WASM et la précision sur une voix Telegram réelle doivent encore être confirmés. Une simple mise en production et un déploiement réussi ne prouvent pas ces deux points.
 - Pour vérifier, envoyer `/health` depuis le compte administrateur puis un court vocal de 5 à 10 secondes. La présence de nouvelles lignes dans `mx_telegram_assistant_model_events` avec `source=speech` permettra d'identifier les moteurs effectivement utilisés.
 - Si le décodeur Ogg est indisponible dans Edge Runtime, la réponse doit signaler l'impossibilité de transcrire plutôt que transmettre le format brut à Omni. Un endpoint ASR dédié reste la solution la plus robuste pour les vocaux longs.
+
+
+## Version 27 — suivi client et fiabilité du guidage (17 novembre 2026)
+
+**Statut vérifié :** Edge Function `telegram-assistant-v2` V27 ACTIVE. `telegram_webhook` V38 ACTIVE, inchangé. La PR #328 reste en brouillon.
+
+### Commandes administrateur (depuis le compte propriétaire uniquement)
+
+- `/quality` : compteurs de messages, tentatives NVIDIA, réponses humaines et chats suspendus sur les données disponibles.
+- `/chats` : derniers interlocuteurs et état de pause.
+- `/history <chat>` : 8 derniers messages conservés, avec distinction client / bot / responsable et masquage des secrets détectables en texte.
+- `/reply <chat> <message>` : répondre manuellement et mettre la conversation en pause ; `/resume <chat>` : réactiver le bot.
+- `/health` : état ASR / décodeur Ogg/Opus et modèles NVIDIA.
+
+Les notifications répétées d'un même chat repris par un humain sont espacées d'au moins 30 secondes ; les messages reçus restent conservés dans l'historique du chat pendant la pause.
+
+### Confidentialité pour les interlocuteurs
+
+- `/privacy` : fonctionnement et limites.
+- `/delete_my_data` puis `/confirm_delete_my_data` sous 5 minutes : suppression des messages, du résumé et du chat enregistrés par l'assistant pour **son propre identifiant Telegram** ; `/cancel_delete_my_data` annule la demande.
+- Cette suppression ne supprime ni l'historique sur les serveurs Telegram ni certaines métadonnées techniques non rattachées au chat. Les secrets présents dans les pixels d'une photo ne sont pas automatiquement masqués avec garantie.
+
+### Qualité et vérification
+
+- Le guidage n'avance plus lors d'un simple « OK / d'accord » : confirmation explicite de l'étape, et limitation à une seule étape dans les réponses structurées.
+- Suite GitHub Actions `Telegram Assistant V2 tests` : [run #44131799220](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44131799220) — **193 tests réussis / 193**.
+- Le test des connaissances vérifie aussi les pages du site, les six réseaux officiels et le catalogue partenaire contre les fichiers du dépôt.
+- **Encore à valider en conditions réelles** : un guidage complet sur un second compte Telegram, la transcription Ogg/Opus, NVIDIA Vision et les cotes live avec une source fiable. Aucun succès réel n'est présumé.
