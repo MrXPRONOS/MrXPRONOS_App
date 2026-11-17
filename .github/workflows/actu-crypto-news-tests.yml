@@ -4,9 +4,11 @@ on:
   pull_request:
     paths:
       - 'crypto/news_digest_v1.py'
+      - 'crypto/news_media_v1.py'
       - 'crypto/news_sources_v2.py'
       - 'crypto/production_live_v1.py'
       - 'crypto/test_news_digest_v1.py'
+      - 'crypto/test_news_media_v1.py'
       - '.github/workflows/actu-crypto-world-news-30min.yml'
       - '.github/workflows/actu-crypto-news-tests.yml'
   workflow_dispatch:
@@ -28,4 +30,4 @@ jobs:
       - name: Run offline regression tests (NO TELEGRAM SEND)
         run: |
           python -m compileall -q crypto
-          python -m unittest crypto.test_news_digest_v1 crypto.test_production_live_v1 -v
+          python -m unittest crypto.test_news_digest_v1 crypto.test_news_media_v1 crypto.test_production_live_v1 -v
