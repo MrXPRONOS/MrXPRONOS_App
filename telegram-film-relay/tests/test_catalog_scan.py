@@ -7,7 +7,7 @@ from unittest.mock import patch, AsyncMock
 from film_relay.category_runner import preflight
 
 from film_relay.catalog_scan import (
-    read_source_window, source_window_ids, finalize_scan, episode_audit,
+    read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit,
 )
 from scripts.merge_anime_catalog import merge
 
@@ -33,6 +33,38 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(plan["archive_ids"], set(range(21, 61)))
         self.assertNotIn(20, source_window_ids(messages, plan))
         self.assertIn((40, 61), client.calls)
+
+    def test_completed_archive_rotates_without_losing_original_cursor(self):
+        client = FakeTelegram(range(1, 161))
+        catalogue = {"scans": {"-100123": {"cursor": 1, "complete": True, "pages": 4}},
+                     "series": {}}
+        with patch.dict("os.environ", {"CINEX_CATALOG_PAGE_SIZE": "40"}):
+            seen = []
+            for _ in range(3):
+                messages, plan = asyncio.run(
+                    read_source_window(client, "source", catalogue, -100123))
+                self.assertTrue(plan["revisit"])
+                self.assertEqual(len(plan["archive_ids"]), 40)
+                seen.append(max(plan["archive_ids"]))
+                finalize_scan(catalogue, [plan], [])
+                self.assertEqual(catalogue["scans"]["-100123"]["cursor"], 1)
+            self.assertEqual(seen, [120, 80, 40])
+            _, last = asyncio.run(read_source_window(
+                client, "source", catalogue, -100123))
+            self.assertTrue(last["complete"])
+            finalize_scan(catalogue, [last], [])
+            self.assertIsNone(catalogue["scans"]["-100123"]["revisit_cursor"])
+            self.assertEqual(catalogue["scans"]["-100123"]["pages"], 4)
+
+    def test_recent_episodes_do_not_inherit_old_archive_artwork(self):
+        messages = [NS(id=20, photo=True, raw_text="Naruto"),
+                    NS(id=21, photo=None, raw_text="EP01"),
+                    NS(id=120, photo=None, raw_text="EP01")]
+        plan = {"archive_ids": {20, 21}, "recent_ids": {120},
+                "allowed_ids": {21, 120}}
+        windows = split_source_windows(messages, plan)
+        self.assertEqual([[item.id for item in window] for window in windows],
+                         [[20, 21], [120]])
 
     def test_archive_cursor_waits_for_all_numbered_episodes(self):
         row = {"source_key": "-100123:22", "video": NS(id=22),
@@ -71,6 +103,21 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(result["source_episode_numbers_observed"], 2)
         self.assertEqual(result["source_numbering_gaps"][0]["not_observed_between_known"], [2])
         self.assertEqual(result["not_yet_indexed_total"], 2)
+
+    def test_github_merge_keeps_newest_revisit_progress(self):
+        remote = {"series": {}, "scans": {"s": {
+            "cursor": 1, "complete": True, "revisit_cursor": 80,
+            "revisit_cycles": 2, "revisit_last_checked": "2026-11-17T01:00:00+00:00"}}}
+        local = {"series": {}, "scans": {"s": {
+            "cursor": 1, "complete": True, "revisit_cursor": 40,
+            "revisit_cycles": 3, "revisit_last_checked": "2026-11-17T02:00:00+00:00"}}}
+        row = merge(remote, local)["scans"]["s"]
+        self.assertTrue(row["complete"])
+        self.assertEqual(row["cursor"], 1)
+        self.assertEqual(row["revisit_cursor"], 40)
+        self.assertEqual(row["revisit_cycles"], 3)
+        row2 = merge(local, remote)["scans"]["s"]
+        self.assertEqual(row2["revisit_cursor"], 40)
 
     def test_preflight_rejects_mistyped_private_id(self):
         private = NS(peer_id=-100444, broadcast=True, username=None)
