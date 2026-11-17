@@ -548,16 +548,20 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
     // Remplacer les formulations « si le champ existe » par une indication claire.
     // Conserver le reste de la réponse librement rédigée par NVIDIA.
     reply=reply.replace(/(?:🎁[ \t]*)?(?:\*\*)?Code promo[ \t]*:[ \t]*(?:\*\*)?XPVIP(?:\*\*){0,2}(?:[ \t]*,?[ \t]*si (?:le|un) champ[^\n.!?]*)?[.!?]?/gi,'');
-    reply=reply.replace(/(^|[.!?][ \t]+)(?:Utilise|Saisis|Tape|Entre)[ \t]+(?:le[ \t]+)?(?:code[ \t]+)?(?:promo[ \t]+)?(?:\*\*)?XPVIP(?:\*\*)?(?:[ \t]+s.il est accept[eé])?[.!?]?/gim,(_all,prefix)=>prefix.trimEnd());
+    reply=reply.replace(/(^|\n)(?:Utilise|Saisis|Tape|Entre)[ \t]+(?:le[ \t]+)?(?:code[ \t]+)?(?:promo[ \t]+)?(?:\*\*)?XPVIP(?:\*\*)?(?:[ \t]+s.il est accept[eé])?[.!?]?[ \t]*(?=\n|$)/gim,'$1');
     reply=reply.replace(/(^|\n)([1-9][.)][ \t]*)Si (?:le|un) champ(?:[ \t]+Code promo)? (?:existe|appara[iî]t|est disponible|est pr[eé]sent|est propos[eé])[^.\n]*[.]?/gim,
       (_all,prefix,step)=>prefix+step+'Repère le champ **Code promo** et saisis **XPVIP**.');
     reply=reply.replace(/(^|\n)[ \t]*si (?:le|un) champ (?:code promo |promotionnel )?(?:existe|appara[iî]t|est pr[eé]sent|est disponible|est propos[eé])[, ]*/gim,'$1');
     reply=reply.replace(/[ \t]+(?=[.,;])/g,'').replace(/,[ \t]*\./g,'.');
-    // Retirer une ligne promo déjà fournie par le modèle : éviter une double présentation.
+    // Séparer les étapes d'abord ; supprimer seulement celles qui répéteraient le bloc promo.
+    reply=polishTelegramText(reply,question);
     reply=reply.split('\n').filter(line=>{
       const plain=line.replace(/[*_~]/g,'').trim().replace(/^🎁\s*/,'');
-      return !(/^(?:code promo\s*[:,-]|(?:saisis|entre|tape|rep[eè]re|cherche|utilise)\b.{0,95}\bXPVIP\b)/i.test(plain)&&!/^([1-9][.)]\s+)/.test(plain));
+      if(/^[1-9][.)]\s*(?:si (?:le|un) champ|(?:rep[eè]re|cherche|saisis|entre|tape)\b.{0,100}(?:code promo|XPVIP))/i.test(plain))return false;
+      return !/^(?:code promo\s*[:,-]|(?:saisis|entre|tape|rep[eè]re|cherche|utilise)\b.{0,95}\bXPVIP\b)/i.test(plain);
     }).join('\n').trim();
+    let stepIndex=0;
+    reply=reply.replace(/(^|\n)[1-9][.)]\s+(?=(?:\*\*)?[\p{L}])/gu,(_all,prefix)=>prefix+(++stepIndex)+'. ');
     reply+='\n\n🎁 **Code promo : XPVIP**\nRepère le champ **Code promo** du formulaire et saisis **XPVIP**.';
   }else if(/(code promo|code promotion|quel est.*code)/.test(q)&&!/\bXPVIP\b/i.test(reply)){
     reply+='\n**Code promo : XPVIP**.';
