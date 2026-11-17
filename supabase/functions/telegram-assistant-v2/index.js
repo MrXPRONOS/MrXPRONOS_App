@@ -643,15 +643,92 @@ export function keepOneGuideStep(reply='') {
  const markers=[...text.matchAll(/(?:^|\n)[ \t]*(?:\*\*)?(?:Étape\s+[1-9]\d*|Etape\s+[1-9]\d*|[1-9]\d*[.)])(?:\*\*)?(?=\s|$)/gim)];
  return markers.length>1?text.slice(0,markers[1].index).trim():text;
 }
+/** Retrouve la demande de départ ; une précision sur le téléphone ne change pas le guide. */
+export function guideTopic(question='',history=[],session=null){
+ const current=normalizeClientFrench(question);
+ const goal=normalizeClientFrench(session?.goal||'');
+ if(/(?:install|pwa|ecran d.accueil)/.test(current)&&!/(?:compte|inscri)/.test(current))return 'installation';
+ if(/(?:inscri|creer un compte|ouvrir un compte)/.test(current))return 'inscription';
+ if(/(?:install|pwa|ecran d.accueil)/.test(goal))return 'installation';
+ if(/(?:inscri|compte|bookmaker)/.test(goal))return 'inscription';
+ const latest=[...history].reverse().filter(x=>x.role==='user').map(x=>normalizeClientFrench(x.content||''));
+ const related=latest.find(q=>/(?:install|pwa|ecran d.accueil|m.inscrire|s.inscrire|creer un compte|ouvrir un compte)/.test(q));
+ if(!related)return 'general';
+ return /(?:install|pwa|ecran d.accueil)/.test(related)?'installation':'inscription';
+}
+export function guideDevice(question='',history=[],session=null){
+ const texts=[question,...[...history].reverse().map(x=>x.content||''),session?.goal||''];
+ const found=texts.map(x=>normalizeClientFrench(x)).find(x=>/(?:iphone|ios|safari|ipad|android|chrome|windows|ordinateur)/.test(x))||'';
+ if(/iphone|ios|safari|ipad/.test(found))return 'iphone';
+ if(/windows|ordinateur/.test(found))return 'windows';
+ if(/android|chrome/.test(found))return 'android';
+ return 'unknown';
+}
+export function installationGuideStep(question='',history=[],session=null){
+ const n=Number(session?.step_number||0);
+ const step=guideStepCompleted(question)?Math.max(1,n+1):Math.max(1,n);
+ const device=guideDevice(question,history,session);
+ let instruction='';
+ if(step===1)instruction='Ouvre la page officielle d’installation : '+LINKS.installer+'. Utilise ton navigateur habituel.';
+ else if(device==='iphone'){
+  instruction=step===2?'Dans Safari, touche le bouton **Partager** (carré avec flèche).':
+    step===3?'Choisis **Sur l’écran d’accueil**, puis **Ajouter**.':'Ouvre le raccourci Mr XPRONOS sur ton écran d’accueil.';
+ }else if(device==='android'){
+  instruction=step===2?'Dans Chrome, ouvre le menu **⋮** en haut à droite.':
+    step===3?'Choisis **Installer l’application** ou **Ajouter à l’écran d’accueil** si cette option apparaît.':'Confirme l’ajout, puis ouvre le raccourci Mr XPRONOS sur ton écran.';
+ }else if(device==='windows'){
+  instruction=step===2?'Dans Edge ou Chrome, ouvre le menu du navigateur et cherche **Applications** ou **Installer**.':
+    step===3?'Utilise **Installer ce site comme application** si proposé, sinon crée un raccourci.':'Ouvre le raccourci installé.';
+ }else instruction='Précise si tu es sur **Android**, **iPhone** ou **Windows**, pour que je t’indique le prochain bouton.';
+ const q=normalizeClientFrench(question);
+ if(/je ne vois pas|je ne trouve pas|je suis bloque/.test(q)){
+  instruction=(device==='iphone'
+    ?'Dans **Safari**, cherche **Partager** puis fais défiler les actions jusqu’à **Sur l’écran d’accueil**.'
+    :device==='android'
+    ?'Dans **Chrome**, ouvre **⋮** et cherche **Installer** ou **Ajouter à l’écran d’accueil**. L’intitulé peut varier selon ton téléphone.'
+    :'Dis-moi ce que tu vois à l’écran, sans envoyer de donnée confidentielle.');
+ }
+ return '**Étape '+step+' — Installation**\n\n'+instruction+'\n\n*Réponds « fait » quand cette étape est terminée.*';
+}
+export function signupGuideStep(question='',history=[],session=null){
+ const n=Number(session?.step_number||0);
+ const step=guideStepCompleted(question)?Math.max(1,n+1):Math.max(1,n);
+ const provider=partnerFromMessage(question)||session?.bookmaker||
+  [...history].reverse().map(x=>partnerFromMessage(x.content||'')).find(Boolean)||null;
+ const name=provider?PARTNER_NAMES[provider]:'la plateforme choisie';
+ const guide=[
+  'Ouvre le site officiel de **'+name+'** uniquement après en avoir vérifié le nom et la disponibilité dans ton pays.',
+  'Sur le site de **'+name+'**, cherche le bouton **Inscription** ou **Créer un compte**.',
+  'Remplis le formulaire avec tes informations exactes. Ne m’envoie jamais ton mot de passe, ton code OTP ou une pièce d’identité.',
+  'Si un champ **Code promo** est disponible et que le code est accepté chez ce partenaire, tu peux saisir **XPVIP**. Vérifie les conditions.',
+  'Relis les informations, les conditions et les restrictions d’âge ou de pays avant toute validation.'
+ ];
+ const q=normalizeClientFrench(question);
+ let instruction=guide[Math.min(step,5)-1];
+ if(/(ou entrer|code promo|ne propose pas)/.test(q))
+  instruction='Cherche le champ **Code promo** du formulaire. S’il est absent, ne force pas l’inscription : les formulaires et promotions varient selon la plateforme.';
+ if(/je suis bloque|je ne trouve pas|pas compris/.test(q))
+  instruction='Dis-moi le nom du bouton ou de la page affichée. Je t’aiderai sur cette étape sans demander de données confidentielles.';
+ return '**Étape '+step+' — Inscription**\n\n'+instruction+'\n\n*Réponds « fait » quand cette étape est terminée.*';
+}
+
 export function guidedResponse(reply,question,history=[],session=null) {
   if(!guidedMode(question,history)&&!guideIsContinuation(question,session))return String(reply||'');
   let text=String(reply||'').trim();
+  const topic=guideTopic(question,history,session);
+  if(topic==='installation')return installationGuideStep(question,history,session);
   const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
   const lastNumber=session?.mode==='guided'?Number(session.step_number||0):Number(last.match(/(?:Étape|Etape)\s+(\d+)/i)?.[1]||0);
   const done=guideStepCompleted(question);
   const step=done?Math.min(lastNumber+1,10)||1:(lastNumber||1);
   // Une seule étape par réponse, même si le modèle énumère plusieurs sections grasses.
   text=keepOneGuideStep(text);
+  const normalizedAnswer=normalizeClientFrench(text);
+  // Une explication générique ou une ancienne étape ne doit pas contaminer le guide.
+  if(topic==='inscription' && (
+      /je peux t.aider sur les pronostics/.test(normalizedAnswer) ||
+      (done&&lastNumber>0&&/(?:etape 1|ouvrir le lien officiel)/.test(normalizedAnswer))
+  ))return signupGuideStep(question,history,session);
   // Éviter la relance si l'utilisateur vient de poser une simple question de clarification.
   const clarification=/^(je ne trouve pas|je suis bloque|comment|ou|pourquoi|regarde|voici|image|photo|capture|que montre|je t.envoie)/.test(norm(question));
   if(!clarification && !/(c.est fait|dis.moi.+fait|[ée]cris.+fait|quand tu as fini)/i.test(norm(text))){
@@ -1781,8 +1858,13 @@ export function guideStateFromReply(question,reply,previous=null,history=[]) {
   const desired=completed&&prevStep?Math.min(50,prevStep+1):(prevStep||1);
   const answer=String(reply||'');
   const stepText=cut(answer.split('\n\n').filter(Boolean).slice(0,3).join('\n\n'),900);
-  return {mode:'guided',goal:explicit?cut(question,400):(previous?.goal||cut(question,400)),
-    bookmaker:partnerFromMessage(question)||previous?.bookmaker||partnerFromMessage(history.map(x=>x.content).join(' '))||'',
+  const topic=guideTopic(question,history,previous);
+  const inferredGoal=topic==='installation'?'Installation de Mr XPRONOS':
+    topic==='inscription'?'Inscription sur un bookmaker':question;
+  const provider=partnerFromMessage(question)||previous?.bookmaker||
+    [...history].reverse().map(x=>partnerFromMessage(x.content||'')).find(Boolean)||'';
+  return {mode:'guided',goal:explicit?cut(inferredGoal,400):(previous?.goal||cut(inferredGoal,400)),
+    bookmaker:provider,
     step_number:desired,step_text:stepText,last_input:question};
 }
 export function memoryDigest(history=[],session=null){
