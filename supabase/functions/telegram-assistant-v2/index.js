@@ -1856,6 +1856,20 @@ async function fetchRecentModelRanking() {
   return rankNvidiaModels(Array.isArray(rows)?rows:[]);
 }
 
+/** Agrégats uniquement : ne lit ni ne révèle le contenu des conversations. */
+export function qualityMetrics({events=[],updates=[],messages=[]}={}) {
+ const rows=Array.isArray(events)?events:[];
+ const text=Array.isArray(messages)?messages:[];
+ return {
+  users:text.filter(x=>x.role==='user').length,
+  answers:text.filter(x=>x.role==='assistant').length,
+  updates:Array.isArray(updates)?updates.length:0,
+  nvidiaAttempts:rows.filter(x=>x.source==='chat').length,
+  nvidiaSuccess:rows.filter(x=>x.source==='chat'&&x.status==='ok').length,
+  nvidiaTimeouts:rows.filter(x=>x.source==='chat'&&x.status==='timeout').length,
+  voiceAttempts:rows.filter(x=>x.source==='speech').length
+ };
+}
 export function modelDiagnostics(rows=[]){
   const grouped=new Map();
   for(const r of rows){
@@ -2009,7 +2023,7 @@ async function notifyAdmin(key,user,message,businessId='') {
 }
 async function adminCommand(msg) {
   const text=String(msg.text||'').trim();
-  const match=text.match(/^\/(reply|pause|resume|chats|status|diagnostic|health)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
+  const match=text.match(/^\/(reply|pause|resume|chats|status|diagnostic|health|quality)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
   if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. Réponses compte Business : ${businessModeEnabled()?'activées':'désactivées'}. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
@@ -2033,6 +2047,27 @@ async function adminCommand(msg) {
       const body=diagnostics.slice(0,8).map(d=>'- '+d.model+' : '+d.success+'/'+d.attempts+' OK, '+d.avgMs+' ms en moyenne').join('\n');
       return say(msg.chat.id,'**État des modèles — 24 h**\n\n'+(body||'Aucune mesure récente disponible.')+'\n\n'+asrLabel+'\n'+codecLabel+'\n**Voix :** '+voicePipeline);
     }catch(e){return say(msg.chat.id,'Les métriques ne sont pas accessibles pour le moment.');}
+  }
+  if(cmd==='quality'){
+    try{
+      const start=new Date(Date.now()-86400e3).toISOString();
+      const since=encodeURIComponent(start);
+      const [events,updates,msgs]=await Promise.all([
+        db('mx_telegram_assistant_model_events?select=model,status,duration_ms,source&created_at=gte.'+since+'&order=created_at.desc&limit=1000'),
+        db('mx_telegram_assistant_updates?select=update_id&created_at=gte.'+since+'&limit=1000').catch(()=>[]),
+        db('mx_telegram_assistant_messages?select=role&created_at=gte.'+since+'&limit=1000')
+      ]);
+      const stats=qualityMetrics({events,updates,messages:msgs});
+      return say(msg.chat.id,'**Qualité de service — dernières 24 h**\n\n'
+        +'Messages clients enregistrés : '+stats.users+'\n'
+        +'Réponses automatiques enregistrées : '+stats.answers+'\n'
+        +'Tentatives NVIDIA : '+stats.nvidiaAttempts+'\n'
+        +'Réussites NVIDIA : '+stats.nvidiaSuccess+'\n'
+        +'Timeouts NVIDIA : '+stats.nvidiaTimeouts+'\n'
+        +'Tentatives vocales : '+stats.voiceAttempts+'\n'
+        +'Réceptions Telegram suivies : '+stats.updates+'\n\n'
+        +'*Mesures techniques ; elles ne représentent pas un taux de satisfaction client.*');
+    }catch(e){console.warn('quality_metrics_failed',String(e?.name||'error'));return say(msg.chat.id,'Les statistiques qualité sont momentanément indisponibles.');}
   }
   if(cmd==='chats') {
     const rows=await db('mx_telegram_assistant_chats?select=chat_key,nickname,paused&order=last_message_at.desc&limit=8');
@@ -2097,7 +2132,7 @@ export async function handleUpdate(update) {
   }
   if(await wasHandled(id)) return;
   const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
-  if(isOwner && /^\/(reply|pause|resume|chats|status|diagnostic|health)(?:@\w+)?\b/i.test(text)) {
+  if(isOwner && /^\/(reply|pause|resume|chats|status|diagnostic|health|quality)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
   const key=chatKey(msg);
