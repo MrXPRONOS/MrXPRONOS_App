@@ -1721,6 +1721,13 @@ async function claimFirstChat(chat){
 }
 async function updateChat(chat) {await db('mx_telegram_assistant_chats?on_conflict=chat_key','POST',[chat],'resolution=merge-duplicates');}
 async function setPause(key,paused) {await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}`,'PATCH',{paused});}
+export function shouldNotifyPausedAdmin(lastNotice,now=Date.now(),intervalMs=30000){
+ const time=Date.parse(lastNotice||'');
+ return !Number.isFinite(time)||time>now||now-time>=intervalMs;
+}
+async function recordAdminNotice(key){
+ await db('mx_telegram_assistant_chats?chat_key=eq.'+encodeURIComponent(key),'PATCH',{last_admin_notice_at:new Date().toISOString()});
+}
 
 /** État de guidage durable, indépendant de la fenêtre d'historique de 20 messages. */
 export function guideIsContinuation(question,session=null) {
@@ -2215,8 +2222,9 @@ export async function handleUpdate(update) {
     // Prévenir explicitement l'administrateur lors d'un test, plutôt que d'ignorer silencieusement ses messages.
     if(isOwner) {
       await say(msg.chat.id,`⏸ **Cette conversation est en pause.**\nEnvoie /resume ${key} pour réactiver les réponses automatiques.\nTu pourras ensuite tester /format.`);
-    } else {
-      await notifyAdmin(key,previous.nickname||'Client',text);
+    } else if(shouldNotifyPausedAdmin(previous.last_admin_notice_at)) {
+      const notified=await notifyAdmin(key,previous.nickname||'Client',text);
+      if(notified)try{await recordAdminNotice(key);}catch(e){console.warn('human_notice_record_failed');}
     }
     await logMessage(key,'user',text);await markHandled(id);return;
   }
@@ -2445,7 +2453,10 @@ export async function handleUpdate(update) {
     else {
       const notified=await notifyAdmin(key,name,text,msg.business_connection_id||'');
       answer=notified?'📩 Un responsable a été prévenu.':'📩 La notification a échoué. Tu peux écrire via la page de contact : '+LINKS.contact;
-      if(notified) await setPause(key,true);
+      if(notified){
+        await setPause(key,true);
+        try{await recordAdminNotice(key);}catch(e){console.warn('human_notice_record_failed');}
+      }
     }
   } else {
     // Repli contextualisé sans deuxième appel NVIDIA après un timeout.
