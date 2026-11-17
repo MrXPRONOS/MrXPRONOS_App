@@ -677,14 +677,18 @@ test("audio Ogg : transcription via service ASR configuré",async()=>{
   }
  });
  assert.equal(result.transcript,"Bonjour, comment ça va ?");
- assert.equal(result.model,"nemotron-transcribe");
+ assert.equal(result.source,"dedicated_asr");
+ assert.equal(result.model,"dedicated-asr");
  assert.equal(req.length,1);
 });
-test("audio : impossible à transcrire => null, jamais un texte inventé",async()=>{
+test("audio : impossible à transcrire => résultat d'échec, jamais de texte inventé",async()=>{
+ let called=0;
  const result=await transcribeTelegramAudio({bytes:new Uint8Array([1,2,3]),mime:"audio/ogg"},{
-  apiKey:"fake",asrUrl:"",http:async()=>({ok:false,status:422})
+  apiKey:"fake",asrUrl:"",http:async()=>{called++;return {ok:false,status:422};}
  });
- assert.equal(result,null);
+ assert.equal(result.transcript,null);
+ assert.equal(result.reason,"invalid_ogg_opus");
+ assert.equal(called,0); // Plus aucun Ogg brut envoyé au modèle Omni.
 });
 
 test("message Telegram long : plusieurs envois et boutons uniquement sur la dernière partie",async()=>{
