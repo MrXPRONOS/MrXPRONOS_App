@@ -155,7 +155,8 @@ test('link hub: real Telegram handler sends welcome, complete links, folder, boo
  assert.ok(all[0].content.includes('Bookmakers partenaires'));
  assert.ok(all[0].content.includes('Canal Telegram Actu Foot'));
  assert.ok(!all[0].content.includes('lien non vérifié retiré'));
- assert.equal(all[0].buttons.flat().length,3,'Telegram button budget respected');
+ assert.equal(all[0].buttons.flat().length,18,'The entire official hub must use Telegram buttons');
+ assert.equal(all[0].buttons.length,9,'Two buttons per row, readable on phones');
  assert.ok(traces[2].messages[0].buttons.flat().some(b=>b.url===assistant.LINKS.folder_films));
  assert.ok(traces[3].messages[0].buttons.flat().some(b=>b.url===assistant.LINKS.infos),
   'Missing Actu Foot channel must fallback to verified website news URL');
@@ -214,7 +215,8 @@ test('REGRESSION: rendering keeps our channel clickable after a client sends a d
  assert.match(view.text,/<a href="https:\/\/t\.me\/mrxpronosfr">/);
  assert.ok(!view.text.includes('Lien externe non confirmé'),view.text);
  assert.ok(!view.text.includes('lien non vérifié retiré'));
- assert.equal(view.reply_markup,undefined,'No unsolicited button, but official anchor survives');
+ assert.ok(view.reply_markup?.inline_keyboard?.flat().some(b=>b.url===assistant.LINKS.channel),
+  'An explicitly offered official channel must be a Telegram button');
 });
 
 test('Official URLs survive contextual button restrictions, unknown links do not',()=>{
@@ -228,9 +230,9 @@ test('Official URLs survive contextual button restrictions, unknown links do not
  ];
  for(const url of urls){
   const view=assistant.buildTelegramMessage('Voici le lien officiel : '+url,{allowedUrls:[]});
-  assert.ok(view.text.includes('<a href="'+url.replace(/&/g,'&amp;')+'">'),'Blocked trusted '+url+': '+view.text);
+  assert.ok(view.reply_markup?.inline_keyboard?.flat().some(b=>b.url===url),
+    'Expected named official link as a button: '+url+' : '+view.text);
   assert.ok(!view.text.includes('Lien externe non confirmé'),'False warning for '+url);
-  assert.equal(view.reply_markup,undefined,'No button unless selected in context');
  }
  const unknown=assistant.buildTelegramMessage('Notre canal ? https://t.me/unknown_external_channel_42',{allowedUrls:[]});
  assert.match(unknown.text,/Lien externe non confirmé/);
@@ -251,7 +253,7 @@ test('Final rendered responses remain readable with restrictive contextual URL b
  ];
  for(const item of cases){
   const msg=assistant.buildTelegramMessage(item.answer,{allowedUrls:item.allowedUrls});
-  assert.ok(msg.text.includes('<a href="'),item.label+': '+msg.text);
+  assert.ok(msg.reply_markup?.inline_keyboard?.flat().length===1,item.label+': '+msg.text);
   assert.ok(!/lien externe non confirmé|lien non vérifié retiré/i.test(msg.text),item.label+': '+msg.text);
  }
 });
