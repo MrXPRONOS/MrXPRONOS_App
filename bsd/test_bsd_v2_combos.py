@@ -19,7 +19,7 @@ def match(num,minutes,odd=1.25,market="OVER_15"):
     return {
         "id":"bsd:"+str(num),"source_event_id":num,"source":"bsd",
         "date":dt.date().isoformat(),"event_date":dt.isoformat(),
-        "status":"notstarted","home_team":"Alpha United","away_team":"Beta City",
+        "status":"notstarted","home_team":f"Alpha United {num}","away_team":f"Beta City {num}",
         "league":"Example League","category":"pro","recommendation_eligible":True,
         "prediction":{"type":"Plus de 1.5 buts","selection_key":market,
             "odds":odd,"odds_source":"bsd_consensus","market":"goals",

@@ -65,7 +65,10 @@ def estimated_quote(candidate_row, quotes, *, now=None):
     code = candidate_row.get("market_code")
     # Ne jamais inventer une meilleure cote pour un marché déjà coté par BSD,
     # même si sa cote réelle a été refusée comme trop basse.
-    if code in (quotes or {}) and _real_quote(quotes[code]) is not None:
+    if code in (quotes or {}):
+        # Quote present means the provider did report that EXACT selection.
+        # Even an invalid or stale BSD quote cannot be replaced by a model
+        # price that looks executable. Reject instead of inventing a fallback.
         return None
     margin, origin = reference_overround(quotes)
     fair = 1.0 / p
@@ -159,6 +162,10 @@ def price_selected_market(selection, quotes, *, now=None):
         return None
     source_quote=(quotes or {}).get(code)
     price=_real_quote(source_quote)
+    # The selected market has a quote, but its verification or value failed:
+    # never replace the reported BSD price with an unrelated theoretical one.
+    if code in (quotes or {}) and price is None:
+        return None
     result=dict(selection)
     if price is not None:
         result.update({

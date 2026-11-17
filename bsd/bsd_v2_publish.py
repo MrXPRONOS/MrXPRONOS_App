@@ -23,6 +23,7 @@ from bsd_v2_odds import fetch_event_odds
 from bsd_odds_fallback import OddsRouter
 from bsd_v2_estimated_odds import (ESTIMATED_SOURCE, valid_standalone_prediction,
     price_selected_market, model_reference_for_observation)
+from bsd_v2_fixture_identity import ambiguous_fixture_ids
 from bsd_vip_diagnostics import summarize_vip_funnel
 from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
@@ -360,6 +361,15 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     stats=Counter()
     fixtures, identity_stats = unique_native_fixtures(fixtures)
     stats.update(identity_stats)
+    # Compare the new feed against previously exposed UPCOMING fixtures:
+    # BSD may assign a new native ID to the same teams and kickoff.
+    future_saved = [row for row in all_saved.values()
+                    if str(row.get("status") or "").lower() in ("notstarted", "upcoming")
+                    and not row.get("is_finished")]
+    blocked_ids = ambiguous_fixture_ids([*fixtures, *future_saved])
+    stats["cross_native_fixture_ids_quarantined"] += len(blocked_ids)
+    fixtures = [f for f in fixtures if str(f["id"]) not in blocked_ids]
+    saved = {key: row for key, row in saved.items() if key not in blocked_ids}
     by_id={str(f["id"]):f for f in fixtures}
     result=[]
     detailed=[]
@@ -372,6 +382,13 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         "retired_policy_version": POLICY_VERSION,
         "reason": "category_or_confidence_below_79",
     } for row in all_saved.values() if not eligible_feed_match(row)]
+    retired.extend({
+        "id":row.get("id"),"source_event_id":row.get("source_event_id"),
+        "event_date":row.get("event_date"),
+        "selection_key":(row.get("prediction") or {}).get("selection_key"),
+        "retired_by_policy":False,"retired_at":now.isoformat(),
+        "reason":"cross_native_fixture_identity_ambiguous",
+    } for key,row in all_saved.items() if key in blocked_ids)
     # 1) Régler les anciens pronostics sans jamais modifier leur sélection.
     for event_id,row in saved.items():
         event=by_id.get(event_id)
@@ -684,6 +701,12 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     for audit in detailed:
         if (audit.get("status")=="published" or not audit.get("reason")
             or str(audit.get("event_id")) in published_ids):
+            continue
+        # Do not calculate a second model price when a BSD exact-market
+        # quote has already been observed, including rejected observations.
+        quote_audit = audit.get("quote_audit") or {}
+        if (quote_audit.get("exact_market_quote_present")
+                and quote_audit.get("exact_market_quote_verified_source")):
             continue
         ref=model_reference_for_observation(audit.get("preprice"),now=now)
         if ref is None:

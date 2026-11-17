@@ -14,6 +14,7 @@ from bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selecti
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_combos import combo_ledger_ref
+from bsd_v2_fixture_identity import quarantine_ambiguous
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
@@ -70,6 +71,7 @@ def prediction_action_buttons(pack=None):
 
 def due(matches,now,min_minutes=60,max_minutes=120):
     selected=[]
+    matches, _blocked = quarantine_ambiguous(matches)
     for m in matches:
         if not isinstance(m,dict) or m.get("source")!="bsd" or not eligible_feed_match(m):continue
         if is_night_match(m):continue
@@ -89,6 +91,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
 
 def combos_due(matches,now):
     from bsd_v2_combos import build_combos,due_combos
+    matches, _blocked = quarantine_ambiguous(matches)
     return due_combos(build_combos([m for m in matches if not is_night_match(m)]),now)
 
 
@@ -184,11 +187,13 @@ def process(data,now,*,session,token,chat_ids,ledger):
     """
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
         raise ValueError("Production JSON is not BSD V2")
-    night_matches=[m for m in matches_for_night(data["matches"],now) if eligible_feed_match(m)]
+    safe_matches, blocked = quarantine_ambiguous(data["matches"])
+    night_matches=[m for m in matches_for_night(safe_matches,now) if eligible_feed_match(m)]
     night_mode=batch_date(now) is not None
-    selections=[pick for m in due(data["matches"],now) for pick in expand_tickets(m)]
+    selections=[pick for m in due(safe_matches,now) for pick in expand_tickets(m)]
     selections += [pick for m in night_matches for pick in expand_tickets(m)]
     report={"due":len(selections),"sent":0,"already_claimed":0,"errors":0,
+            "cross_native_fixture_ids_quarantined":len(blocked),
             "night_matches":len(night_matches),"night_picks_sent":0,"night_combos_sent":0}
     for match in selections:
         for chat in chat_ids:
@@ -208,7 +213,7 @@ def process(data,now,*,session,token,chat_ids,ledger):
                 report["errors"]+=1
                 print("TELEGRAM_BSD_ERROR:",match["id"],type(exc).__name__)
                 # Uncertain network errors retain the D1 reservation.
-    combo_picks=combos_due(data["matches"],now)
+    combo_picks=combos_due(safe_matches,now)
     from bsd_v2_combos import build_combos
     from bsd_v2_night import night_date
     if night_mode:
@@ -247,12 +252,14 @@ def main():
     if now - generated > timedelta(hours=36):
         raise RuntimeError('Pronostics BSD V2 trop anciens: Telegram ne diffuse pas un ancien fichier')
     if args.dry_run:
+        safe_matches, blocked = quarantine_ambiguous(data["matches"])
+        print("BSD_TELEGRAM_DUPLICATE_IDS_QUARANTINED:",len(blocked))
         print("BSD_TELEGRAM_DRY_RUN:",json.dumps([{"id":m.get("_telegram_selection_ref") or m["id"],"kickoff":m["event_date"]}
-          for match in due(data["matches"],now) for m in expand_tickets(match)]))
+          for match in due(safe_matches,now) for m in expand_tickets(match)]))
         print("BSD_COMBO_DRY_RUN:",json.dumps([{"id":x["id"],"kickoff":x["event_date"]}
-              for x in combos_due(data["matches"],now)]))
+              for x in combos_due(safe_matches,now)]))
         print("BSD_NIGHT_DRY_RUN:",json.dumps([{"id":m["id"],"kickoff":m["event_date"]}
-              for m in matches_for_night(data["matches"],now) if eligible_feed_match(m)]))
+              for m in matches_for_night(safe_matches,now) if eligible_feed_match(m)]))
         return
     token=os.getenv("TELEGRAM_BOT_TOKEN")
     chat=os.getenv("TELEGRAM_CHAT_ID")
