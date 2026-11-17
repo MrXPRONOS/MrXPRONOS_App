@@ -31,15 +31,15 @@ export const NVIDIA_REQUEST_BUDGET_MS=125000;
 // Ordre de secours fixe, utilisé à défaut d'un dernier succès exploitable.
 export const NVIDIA_MODELS = Object.freeze([
   NVIDIA_PRIMARY_MODEL,
-  'minimaxai/minimax-m3.1-flash',
   'nvidia/nemotron-3-ultra-550b-a55b',
+  'poolside/laguna-xs-2.1',
   'nvidia/nemotron-3.5-super-vl-120b-a12b',
+  'minimaxai/minimax-m3.1-flash',
   'stepfun-ai/step-5-preview',
   'nvidia/nemotron-3.5-lightning-30b-a3b',
   'z-ai/glm-5.3-flash',
   'openai/gpt-oss-20b',
-  'meta/muse-glimmer-30b',
-  'poolside/laguna-xs-2.1'
+  'meta/muse-glimmer-30b'
 ]);
 const supabaseUrl = () => env('SUPABASE_URL');
 const supabaseKey = () => env('SUPABASE_SERVICE_ROLE_KEY') || (() => {try {return JSON.parse(env('SUPABASE_SECRET_KEYS') || '{}').default || '';}catch{return '';}})();
@@ -1962,7 +1962,7 @@ export async function runNvidiaFailover({
   let budgetExceeded=false;
   for(let i=0;i<models.length;i++){
     const model=models[i];
-    if(modelInCooldown(health,model,now())){
+    if(i>0 && modelInCooldown(health,model,now())){
       attempts.push({model,status:'cooldown'});
       onAttempt({model,status:'cooldown',durationMs:0});
       continue;
@@ -2567,6 +2567,20 @@ async function telegramSetup(req) {
   }
 }
 
+/**
+ * Le webhook reçoit un accusé immédiat. Les traitements peuvent durer >60 s.
+ * En local, sans EdgeRuntime, handleRequest attend encore handleUpdate pour les tests.
+ * La promesse passée à waitUntil est capturée pour éviter les rejets non gérés.
+ */
+export function launchTelegramBackground(work,register=null) {
+  if(typeof work!=='function'||typeof register!=='function')return false;
+  const job=Promise.resolve().then(work).catch(error=>{
+    console.error('telegram_assistant_background_failed',String(error));
+  });
+  register(job);
+  return true;
+}
+
 export async function handleRequest(req) {
   if(req.method==='POST' && req.headers.has('x-mx-setup-secret')) return telegramSetup(req);
   if(req.method==='GET') return json({service:'mr-xpronos-telegram-assistant-v2',mode:'staging',configured:{telegram:!!botToken(),nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:Number.isSafeInteger(adminId())&&adminId()>0,webhook_secret:!!env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET'),channel:!!channelUrl(),business_enabled:businessModeEnabled(),business_owner:!!businessOwnerId(),database:!!supabaseUrl()&&!!supabaseKey()}});
@@ -2579,12 +2593,9 @@ export async function handleRequest(req) {
   let update;try{update=await req.json();}catch{return json({error:'invalid_json'},400);}
   // Accusé de réception immédiat à Telegram ; l'IA peut attendre 60 s
   // sans bloquer le webhook ni provoquer une nouvelle tentative Telegram.
-  if(typeof EdgeRuntime!=='undefined'&&typeof EdgeRuntime.waitUntil==='function'){
-    EdgeRuntime.waitUntil(Promise.resolve().then(()=>handleUpdate(update)).catch(
-      error=>console.error('telegram_assistant_background_failed',String(error))
-    ));
+  if(typeof EdgeRuntime!=='undefined'&&
+     launchTelegramBackground(()=>handleUpdate(update),p=>EdgeRuntime.waitUntil(p)))
     return json({ok:true});
-  }
   // En Node/local (sans EdgeRuntime) on conserve le comportement synchrone.
   try{await handleUpdate(update);return json({ok:true});}
   catch(e){console.error('telegram_assistant_handler',String(e));return json({error:'processing_failed'},500);}
