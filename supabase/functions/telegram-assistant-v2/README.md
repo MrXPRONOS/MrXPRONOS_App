@@ -323,3 +323,37 @@ Les trois tables protégées ont été créées dans Supabase avec RLS activée 
 - La simulation de bout en bout reproduit un nouvel utilisateur, l’étape 1, la confirmation « fait », l’étape 2, l’orientation site/canal et les reçus de livraison.
 - Le sitemap du site publié sur la branche `main` contient désormais la page officielle `installer.html` (commit `60787aaf`). La propagation HTTP du site public n’est pas certifiée par ces seuls tests.
 - La réception et l’analyse réelles des vocaux Ogg et des photos volumineuses restent à valider. Les autres points non terminés sont détaillés dans l’audit.
+
+
+## Version 23 — traitement des 28 points restants
+
+### Bilan du tableau de bord d’audit
+
+Les 80 points sont repris dans [`AUDIT_80_CHECKLIST.md`](./AUDIT_80_CHECKLIST.md) : **59 couverts dans le code et les tests**, **21 partiels car validation ou dépendance réelle manque**, **0 totalement non implémenté**. Ces chiffres ne constituent pas une garantie de réussite sur des clients réels.
+
+### Nouveau code de production
+
+- JPEG/PNG : compression et redimensionnement progressifs via imports à la demande `npm:jpeg-js@0.4.4` et `npm:upng-js@2.1.0` jusqu'à 128 Ko ; si non disponible, le transfert NVCF historique reste un secours. Le chargement réel des codecs dans l’Edge Runtime et le traitement d’une vraie photo restent à valider.
+- Vision : modèles visuels séquentiels ; description structurée avec incertitude, textes visibles et boutons ; demande de renvoi d'image lorsqu'aucun résultat ne peut être vérifié. Les images ne sont pas enregistrées volontairement en base ; les secrets dans les pixels ne sont **pas** automatiquement masqués. Les captures explicitement annoncées comme sensibles sont bloquées avant envoi et l'utilisateur est invité à les recadrer.
+- Vocaux : le relais Nemotron Transcribe optionnel reçoit Ogg/Opus (`MX_ASSISTANT_ASR_URL`), avec `verbose_json`, drapeaux de dégradation et indice **heuristique non calibré**. Les répétitions peuvent être nettoyées, les transcriptions incertaines sont confirmées. `/health` teste l’endpoint HTTPS `/v1/health/ready` s'il est configuré.
+- Sports : deux sources publiées comparées pour les heures de coup d'envoi ; en cas d'écart supérieur à 5 minutes, la sélection incohérente n'est pas présentée comme validée. Une source absente ne constitue pas une seconde confirmation.
+- Cotes : lecture optionnelle du fichier officiel `https://mrxpronos.github.io/MrXPRONOS_App/odds.json`, dont `updated_at` doit dater de moins de 15 minutes, avec événements futurs et opérateurs de la liste autorisée. Les combinaisons ne reprennent jamais deux sélections du même match. **Aucun flux live `odds.json` n'a été installé ni alimenté**. Schéma : [`ODDS_FEED_SCHEMA.json`](./ODDS_FEED_SCHEMA.json). L’IA ne doit pas créer des cotes lorsqu'il manque.
+- Bookmakers : variables `MX_ASSISTANT_EXCLUDED_BOOKMAKERS` et `MX_ASSISTANT_APPROVED_ALTERNATIVES`, acceptant des clés du catalogue (`1xbet`, `1win`, `betwinner`, `melbet`, `linebet`, `betclic`) séparées par des virgules. Les listes sont intentionnellement vides tant que le propriétaire ne les a pas décidées. Les exclusions s'appliquent aux liens, boutons et catalogue envoyé à NVIDIA.
+- Contexte : résumé persistant dans `mx_telegram_assistant_sessions` et contrôle de pertinence sur les demandes clés. Une seule clarification lorsque c'est nécessaire, relecture et réponses de repli sans deuxième appel NVIDIA inutile.
+- Livraison : table RLS `mx_telegram_assistant_delivery_claims` ; chaque fragment est réservé avant `sendMessage` pour éviter les doubles envois lors du rejeu de l'update. Ceci offre une politique **au plus une fois**, pas la garantie « exactement une fois » : après panne entre réservation et envoi, la livraison peut nécessiter une intervention manuelle.
+- Jeu responsable : détection supplémentaire des dettes, mises doublées pour se refaire et situations à risque ; aucun lien commercial dans ces réponses.
+
+### Dépendances et configuration encore nécessaires
+
+1. Vérifier en production une image JPEG/PNG volumineuse avec NVIDIA ; la compression doit être effectivement disponible à l’exécution.
+2. Mettre en place et renseigner un véritable endpoint Nemotron Transcribe compatible HTTPS dans `MX_ASSISTANT_ASR_URL` ; le texte du bot seul n'héberge aucun GPU.
+3. Fournir une source légitime et mise à jour pour les cotes avant de publier `odds.json` ; ne jamais remplir le fichier avec des valeurs fictives.
+4. Définir les valeurs commerciales des bookmakers interdits ou alternatifs ; aucune liste n'a été devinée.
+5. Une solution de masquage local des pixels contenant des données sensibles nécessite une détection visuelle locale fiable. Le filtre textuel actuel **ne garantit pas** la confidentialité des documents photographiés.
+
+### Preuves de vérification
+
+- **149 tests JavaScript réussis** : 114 anciens + 15 avancés + 15 nouveaux cas restants + 5 contrôles du corpus.
+- Fonction Supabase `telegram-assistant-v2` version **23 ACTIVE** ; `telegram_webhook` version **38 ACTIVE**, inchangée.
+- Tables privées RLS : sessions, événements de modèles, reçus d'envoi et réservations de fragments. Lecture par `anon`/`authenticated` interdite, accès au rôle `service_role` accordé.
+- Aucun test live de la capture/vocal sur le vrai compte n'est déclaré réussi sans preuve correspondante.
