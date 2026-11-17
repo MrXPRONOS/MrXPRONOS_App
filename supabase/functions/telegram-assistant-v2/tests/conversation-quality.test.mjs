@@ -4,7 +4,7 @@ import {
  LINKS, socialMediaRequest, officialSocialUrls, officialSocialMessage,
  verifiedReplyReview, contextualDestinations, intentFor,
  guidedMode, guideIsContinuation, answerRelevanceGuard,
- rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage
+ rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage, qualityMetrics
 } from '../index.js';
 
 test('all social networks on explicit request',()=>{
@@ -57,4 +57,18 @@ test('dynamic model ranking prioritizes proven successes',()=>{
 });
 test('ranking without observations is stable',()=>{
  assert.deepEqual(rankNvidiaModels([]),NVIDIA_MODELS);
+});
+
+test('private quality dashboard counts no message contents',()=>{
+ const metrics=qualityMetrics({
+  events:[{source:'chat',status:'ok'},{source:'chat',status:'timeout'},{source:'speech',status:'ok'}],
+  messages:[{role:'user',content:'private'},{role:'assistant',content:'private'}],
+  updates:[{}]
+ });
+ assert.equal(metrics.users,1);
+ assert.equal(metrics.answers,1);
+ assert.equal(metrics.nvidiaSuccess,1);
+ assert.equal(metrics.nvidiaTimeouts,1);
+ assert.equal(metrics.voiceAttempts,1);
+ assert.equal(JSON.stringify(metrics).includes('private'),false);
 });
