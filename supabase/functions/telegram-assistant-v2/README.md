@@ -423,6 +423,7 @@ Les notifications répétées d'un même chat repris par un humain sont espacée
 
 - Chaque modèle interrogé reçoit **jusqu'à 60 000 ms** ; une réponse rapide est transmise dès sa réception, sans attendre artificiellement une minute.
 - Une erreur HTTP ou une réponse vide peut provoquer un essai immédiat du modèle suivant. En cas de timeout, le modèle suivant n'est interrogé qu'après expiration de sa minute.
+- L'administrateur peut utiliser **`/status`** pour voir le prochain modèle prioritaire et le délai maximal par IA.
 - Le traitement complet dispose d'un **budget de 125 000 ms** pour les appels de chat. La fonction ne démarre pas un nouvel essai si elle ne peut pas lui garantir les 60 secondes complètes. En pratique, **deux modèles qui expirent à 60 secondes** épuisent ce budget ; les autres modèles ne sont alors pas testés pour ce message, et une réponse de secours sûre est envoyée.
 - L'ordre de secours initial derrière Mistral est Nemotron 3 Ultra, Poolside Laguna XS, Nemotron 3.5 Super VL, puis les autres modèles existants.
 - Le webhook **confirme immédiatement à Telegram** après validation de son secret, et exécute `handleUpdate` dans `EdgeRuntime.waitUntil`. C'est essentiel pour éviter que Telegram n'attende 60 secondes sur la connexion HTTP.
