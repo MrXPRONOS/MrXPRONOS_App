@@ -2097,7 +2097,18 @@ async function adminCommand(msg) {
   const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /history <chat>, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status, /quality');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
-  if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. Réponses compte Business : ${businessModeEnabled()?'activées':'désactivées'}. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
+  if(cmd==='status') {
+    let model=null;
+    try{model=await fetchLastSuccessfulNvidiaModel();}
+    catch(e){console.warn('admin_model_status_unavailable',String(e?.name||'error'));}
+    return say(msg.chat.id,'**Assistant V2 actif**\\n\\n'
+      +'🤖 **Prochain modèle prioritaire :** '+(model||NVIDIA_PRIMARY_MODEL)+'\\n'
+      +'⏱ **Délai maximal par modèle :** '+(NVIDIA_MODEL_TIMEOUT_MS/1000)+' secondes\\n'
+      +'🔁 **Mémoire du dernier modèle gagnant :** '+(model?'oui':'aucun succès V28 pour le moment')+'\\n'
+      +'NVIDIA : '+(env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER')+'\\n'
+      +'Réponses compte Business : '+(businessModeEnabled()?'activées':'désactivées')+'\\n'
+      +'Canal coupons : '+(channelUrl()||'NON CONFIRMÉ'));
+  }
   if(cmd==='diagnostic') {
     const result=await askNvidia('Réponds seulement : test OK.',[],{diagnostic:true});
     const details=result.attempts.map((x,i)=>(i+1)+'. '+x.model+' — '+x.status).join('\n');
