@@ -101,7 +101,7 @@ export function analyzeClientIntent(message='',history=[]) {
   const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies)/.test(q);
   const dataRights=/(supprimer|effacer|oublier|retirer|exporter|telecharger).{0,35}(?:donnees|historique|messages|conversation|infos personnelles)/.test(q);
   const secrets=/(?:mot de passe|otp|code sms|code de verification|phrase secrete|cle privee|seed phrase)/.test(q) &&
-    /(envoyer|donner|partager|transmettre|montrer|voici|photo)/.test(q);
+    /(envoi(?:e|es|er|ez|s)?|envoie|donne|donner|partage|partager|transmettre|montrer|voici|photo)/.test(q);
   const nickname=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?|w[aà]ris\s*p[té]|monsieur espronos)/.test(q);
   const likelyPartner=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?)/.test(q)?'betclic':null;
   return {odds,score,picks,install,minor,loss,secrets,dataRights,nickname,likelyPartner,
