@@ -525,7 +525,7 @@ test("première étape : une ligne VIDE entre présentation et 1. Inscription",(
  const raw="Voici le lien direct pour ouvrir Melbet. Une fois sur le site, 1. Inscription : ouvre le formulaire.";
  const formatted=polishTelegramText(raw,"Je veux m'inscrire sur Melbet");
  assert.match(formatted,/Une fois sur le site,\n\n1\. Inscription/);
- assert.ok(!/site,\s+1\. Inscription/.test(formatted));
+ assert.ok(!/site,[ \t]+1\. Inscription/.test(formatted));
 });
 test("première étape seule : insérer aussi le paragraphe vide",()=>{
  const raw="Voici le lien. Une fois sur le site, 1. inscription";
