@@ -1245,8 +1245,11 @@ export function groundedQuestionReply(question='',history=[],session=null){
     'Quel bouton ou quelle page ouvre un mauvais lien ? Ne transmets aucun code privé.';
  }
  if(/^(?:quels? pronos?.*aujourd.hui|et (?:pour )?les vip|qu.est.ce qui a reellement ete publie|et demain)\s*\??$/.test(q)&&
-    /(?:prono|coupon|vip|publie)/.test(hist))
-   return 'Pour les pronostics Pro/VIP, consulte les sélections réellement publiées sur '+LINKS.pronos+'. Je ne peux pas confirmer un nouveau coupon pour demain sans données actualisées.';
+    /(?:prono|coupon|vip|publie)/.test(hist)){
+   if(/vip/.test(q))return 'Pour les pronostics **VIP**, ouvre la page des sélections avec le bouton ci-dessous. Je ne peux pas confirmer qu’une nouvelle sélection VIP a été publiée aujourd’hui.\n'+LINKS.pronos;
+   if(/demain/.test(q))return 'Pour **demain**, les nouvelles sélections apparaîtront sur le site si elles sont publiées. Je ne peux pas les annoncer sans données actualisées.\n'+LINKS.pronos;
+   return 'Je ne peux pas confirmer ici quels pronostics ont réellement été publiés aujourd’hui. Consulte les sélections officielles via le bouton ci-dessous.\n'+LINKS.pronos;
+ }
  if(game&&/(?:qui est favori|le score exact|et les corners|ce match|pour ce match|tu prevois quoi|cote verifiee pour lui)/.test(q)){
   if(/corner/.test(q))return 'Pour **'+game+'**, je ne peux pas confirmer le nombre de corners sans statistiques actualisées. Je préfère ne pas inventer de total.';
   if(/cote/.test(q))return 'Pour **'+game+'**, je ne dispose pas actuellement de cote de bookmaker vérifiée et horodatée.';
@@ -2467,7 +2470,7 @@ async function adminCommand(msg) {
   const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil|synccommandes)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /history <chat>, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status, /quality');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
-  if(cmd==='testaccueil')return say(msg.chat.id,'🧪 **Aperçu du nouvel abonné**\n\n'+newcomerWelcomeMessage(),'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
+  if(cmd==='testaccueil')return say(msg.chat.id,'🧪 **Aperçu du nouvel abonné**\n\n'+newcomerWelcomeMessage(),'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer],buttonUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
   if(cmd==='synccommandes'){
     try{
       await tg('setMyCommands',{commands:telegramShortcutCommands()});
@@ -2568,14 +2571,15 @@ async function adminCommand(msg) {
 }
 export function newcomerWelcomeMessage() {
   return '**👋 Bienvenue chez Mr XPRONOS !**\n\n'
-    +'Je suis ton assistant pour les **pronostics football**, les résultats et l’aide avec notre plateforme.\n\n'
-    +'⚽ **Pronostics Pro/VIP** : '+LINKS.pronos+'\n'
-    +'📣 **Canal Telegram pronostics** : '+channelUrl()+'\n'
-    +'📲 **Installer le site sur ton téléphone** : '+LINKS.installer+'\n\n'
-    +'📚 Pour tous les réseaux, bookmakers et canaux : **/liens**\n'
-    +'🎬 Dossier Mr XPRONOS F : **/dossier**\n'
-    +'📰 Actu Foot : **/actufoot**\n\n'
-    +'*Les pronostics sont des estimations, pas des gains garantis.*';
+    +'Je t’aide à consulter les **pronostics football**, les résultats et notre site.\n\n'
+    +'**Choisis un bouton ci-dessous** pour :\n'
+    +'⚽ Voir les pronostics Pro/VIP\n'
+    +'📣 Rejoindre le canal Telegram\n'
+    +'📲 Installer le site sur ton téléphone\n\n'
+    +'📚 **/liens** : tous les réseaux et partenaires\n'
+    +'🎬 **/dossier** : dossier Telegram Mr XPRONOS F\n'
+    +'📰 **/actufoot** : actualités du football\n\n'
+    +'*Les pronostics restent des estimations ; aucun gain n’est garanti.*';
 }
 export function shouldWelcomeNewcomer(previous,isBusiness=false) {
   return !isBusiness && (previous===null || previous===undefined);
@@ -2667,7 +2671,7 @@ export async function handleUpdate(update) {
     const welcome=newcomerWelcomeMessage();
     let sent=false;
     try{
-      await say(msg.chat.id,welcome,'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
+      await say(msg.chat.id,welcome,'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer],buttonUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
       sent=true;
       await logMessage(key,'assistant',welcome);
     }catch(error){console.warn('newcomer_welcome_error',String(error?.name||'error'));}
@@ -2791,7 +2795,7 @@ export async function handleUpdate(update) {
     const urls=showWelcome?[LINKS.pronos,channelUrl(),LINKS.installer]:shortcutUrls(intent);
     await say(msg.chat.id,answer,msg.business_connection_id||'',{
       allowedUrls:urls,
-      buttonUrls:directory?urls:[],
+      buttonUrls:directory||showWelcome?urls:[],
       maxButtons:directory?20:3,
       columns:directory?2:1
     });
