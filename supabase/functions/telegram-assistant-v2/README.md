@@ -277,3 +277,23 @@ Le bot de coupons historique et le compte personnel Telegram Business restent in
 ### Vérification
 
 96 tests de fonctionnalités de l'assistant réussis, plus 3 contrôles automatiques du corpus. Simulation d'échanges avec deux comptes distincts : l'accueil est envoyé une fois par nouveau chat avec les deux destinations ; les messages suivants n'ont pas de nouvel accueil et restent répondus par l'IA.
+
+
+## Audit des 80 améliorations et garde-fous supplémentaires — 17 novembre 2026
+
+L'audit de mise en service se trouve dans [`AUDIT_80_CHECKLIST.md`](./AUDIT_80_CHECKLIST.md), avec une ligne par amélioration, la preuve disponible et le statut ✅ code/test, 🟡 partiel ou ⬜ à faire.
+
+**Les quatre axes** : (1) compréhension du client, (2) récupération de sources vérifiées, (3) intelligence conversationnelle NVIDIA, (4) contrôle de la réponse avant envoi.
+
+- Détection de fautes SMS (`jvx`, `coupan`, `ajd`, `prono du jr`, etc.), distinction cote totale/coupon/score exact et clarification des marques mal transcrites comme `Bedclicker`.
+- Garde-fous déterministes : âge inférieur à 18 ans, pertes de contrôle liées aux paris, partage de codes OTP/mots de passe et demandes de gestion des données ; aucun lien commercial dans les réponses sensibles.
+- La réponse de NVIDIA est vérifiée contre les données publiées : aucun coupon ni score exact inventé lorsque les sources ne présentent pas de sélection admissible. Une demande de cote 10 n'est jamais convertie en score exact fictif.
+- Les demandes de coupons, même en un seul mot, proposent le site ET le canal Telegram ; la page `installer.html` est reconnue comme officielle même si le sitemap public n'a pas encore été mis à jour.
+- Pour la vision NVIDIA, préférence à une variante JPEG de photo Telegram de moins de 120 ko ; pour les fichiers plus importants, le transfert via NVCF peut toujours répondre 410. En cas d'échec, le bot explique comment recadrer ou renvoyer le document comme photo. Aucun succès réel du modèle visuel n'a encore été prouvé.
+- Les codes OTP, mots de passe et numéros de type carte sont masqués lorsqu'ils sont consignés dans l'historique de conversation. Les fichiers image eux-mêmes ne sont pas automatiquement expurgés : éviter l'envoi de documents sensibles.
+- La conversation conserve jusqu'à 20 messages, dont 12 peuvent être fournis au modèle NVIDIA. Une politique de temporisation évite, au niveau d'une instance chaude, de rappeler sans arrêt un modèle après deux timeouts/erreurs 503.
+- La première salutation repose maintenant sur un INSERT atomique dans `mx_telegram_assistant_chats` afin de réduire les doubles messages de bienvenue lors d'une première prise de contact simultanée.
+- Les commandes `/restart` et `/stop` permettent de reprendre ou terminer un guidage étape par étape.
+- Le sitemap contenant `installer.html` a été **modifié sur la branche de développement** ; la publication effective sur GitHub Pages exige encore la fusion ou l'équivalent sur la branche du site.
+
+**Tests** : 114 tests de fonctions + 5 tests de corpus = **119 réussis** dans un environnement JavaScript simulant les dépendances Edge. Une simulation du webhook vérifie le nouvel accueil, les coupons, les restrictions d'âge et les demandes de gestion de données. Les appels réels NVIDIA et les vocaux Ogg nécessitent toujours une vérification directe.
