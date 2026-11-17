@@ -1,10 +1,11 @@
-name: Telegram - 5 nouvelles promos coupon (canal test)
+name: Telegram - 5 nouvelles promos coupon BLEU (canal test)
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/telegram-coupon-variants-v2-test.yml'
+      - 'scripts/send_telegram_coupon_variants_v2_test.py'
   workflow_dispatch:
     inputs:
       variant:
