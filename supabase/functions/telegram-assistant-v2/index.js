@@ -438,10 +438,19 @@ async function notifyAdmin(key,user,message,businessId='') {
 }
 async function adminCommand(msg) {
   const text=String(msg.text||'').trim();
-  const match=text.match(/^\/(reply|pause|resume|chats|status)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
+  const match=text.match(/^\/(reply|pause|resume|chats|status|diagnostic)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
   if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. Réponses compte Business : ${businessModeEnabled()?'activées':'désactivées'}. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
+  if(cmd==='diagnostic') {
+    if(!env('MX_ASSISTANT_NVIDIA_KEY')) return say(msg.chat.id,'🔴 NVIDIA NIM : clé API absente. Les réponses automatiques locales restent disponibles.');
+    try {
+      const answer=await askNvidia('Réponds seulement : test OK.',[]);
+      return say(msg.chat.id,answer?'🟢 NVIDIA NIM : réponse reçue.':'🟠 NVIDIA NIM : aucune réponse textuelle.');
+    } catch(e) {
+      return say(msg.chat.id,'🔴 NVIDIA NIM indisponible ('+String(e).replace(/[^\w\s-]/g,'').slice(0,70)+'). Vérifie la clé API et le modèle.');
+    }
+  }
   if(cmd==='chats') {
     const rows=await db('mx_telegram_assistant_chats?select=chat_key,nickname,paused&order=last_message_at.desc&limit=8');
     return say(msg.chat.id,rows?.length?rows.map(x=>`${x.paused?'⏸':'✅'} ${x.chat_key} — ${x.nickname||'Utilisateur'}`).join('\n'):'Aucune conversation reçue.');
@@ -491,7 +500,7 @@ export async function handleUpdate(update) {
   }
   if(await wasHandled(id)) return;
   const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
-  if(isOwner && /^\/(reply|pause|resume|chats|status)(?:@\w+)?\b/i.test(text)) {
+  if(isOwner && /^\/(reply|pause|resume|chats|status|diagnostic)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
   const key=chatKey(msg);
@@ -508,8 +517,26 @@ export async function handleUpdate(update) {
   }
   const name=[msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'Client';
   const intent=intentFor(text);
+  let recentHistory=[];
+  try{recentHistory=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
+  const continuation=guidanceFollowup(text,recentHistory);
   let answer='';
-  if(intent==='welcome') answer=intro();
+  if(intent==='thanks') answer='Avec plaisir 😊';
+  else if(intent==='ack') answer='Parfait 👍';
+  else if(continuation) answer=continuation;
+  else if(intent==='signup') answer=signupMessage(partnerFromMessage(text));
+  else if(intent==='partner'){
+    const platform=partnerFromMessage(text);
+    answer=platform?'Voici le **lien partenaire '+PARTNER_NAMES[platform]+'**. Vérifie les conditions et l’âge légal avant de t’inscrire.\n'+PARTNER_LINKS[platform]:'Pour quel bookmaker souhaites-tu le lien partenaire : 1xBet, 1win, Betwinner, Melbet, Linebet ou Betclic ?';
+  }
+  else if(intent==='site_nav'){
+    const pages=await sitemapOverview();
+    const destination=pageForQuestion(text);
+    answer=/(sitemap|plan du site)/.test(norm(text))
+      ?'Le **plan du site** répertorie '+pages.length+' pages officielles, dont les analyses et les pronostics.'
+      :pages.includes(destination)?'Voici la rubrique correspondante de notre site.':'Cette page n’a pas été confirmée dans le sitemap actuel. Voici l’accueil.';
+  }
+  else if(intent==='welcome') answer=intro();
   else if(intent==='format') answer='**🎨 Démonstration**\n*Italique* · __Souligné__ · ~~Barré~~\n||Spoiler||\n> Citation : aucune estimation n’est garantie.\n\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
@@ -533,13 +560,16 @@ export async function handleUpdate(update) {
       if(notified) await setPause(key,true);
     }
   } else {
-    let history=[];
-    try{history=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
-    try{answer=await askNvidia(text,history)||'';}catch(e){console.warn('nvidia_error',String(e));}
-    if(!answer) answer='Je ne peux pas confirmer cette information pour le moment. Peux-tu préciser ta question ?';
+    try{answer=await askNvidia(text,recentHistory)||'';}catch(e){console.warn('nvidia_error',String(e));}
+    if(!answer) {
+      const simple=norm(text);
+      if(/^(comment ca va|ca va|tu vas bien|quoi de neuf)/.test(simple)) answer='Ça va, merci 😊 Et toi ?';
+      else if(/^(oui|non|peut.etre|ok|d.accord|compris)/.test(simple)) answer='D’accord 🙂 Dis-moi ce que tu souhaites faire.';
+      else answer='Je peux t’aider sur les pronostics, les pages du site et les inscriptions partenaires. De quoi as-tu besoin précisément ?';
+    }
   }
   // Ajouter une destination seulement si elle répond à la demande ; aucune URL ni bouton gratuit.
-  const destinations=responseLinks(intent,text,answer);
+  const destinations=continuation?[]:responseLinks(intent,text,answer);
   if(destinations.length) {
     const missing=destinations.filter(u=>!answer.includes(u));
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
