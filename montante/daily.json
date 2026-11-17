@@ -6,8 +6,8 @@
   "frozen": false,
   "policy": "bsd-v2-montante-daily-1",
   "rejections": {
-    "match_started": 54,
-    "non_bsd_or_combo_or_finished": 58,
+    "match_started": 46,
+    "non_bsd_or_combo_or_finished": 56,
     "wrong_day_or_too_late": 2
   },
   "eligible_count": 0,
