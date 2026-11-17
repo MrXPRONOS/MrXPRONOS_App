@@ -99,19 +99,28 @@ export function analyzeClientIntent(message='',history=[]) {
   const install=/(install|instal[eé]|pwa|appli(?:cation)?|ajoute?r?.{0,25}ecran d.accueil)/.test(q);
   const minor=/(?:\b(?:1[0-7]|[1-9])\s*ans\b.*(?:parier|m.inscrire|deposer|miser)|\bje suis mineur\b|\bje suis au college\b.*\bpari)/.test(q);
   const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies)/.test(q);
+  const dataRights=/(supprimer|effacer|oublier|retirer|exporter|telecharger).{0,35}(?:donnees|historique|messages|conversation|infos personnelles)/.test(q);
   const secrets=/(?:mot de passe|otp|code sms|code de verification|phrase secrete|cle privee|seed phrase)/.test(q) &&
     /(envoyer|donner|partager|transmettre|montrer|voici|photo)/.test(q);
   const nickname=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?|w[aà]ris\s*p[té]|monsieur espronos)/.test(q);
   const likelyPartner=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?)/.test(q)?'betclic':null;
-  return {odds,score,picks,install,minor,loss,secrets,nickname,likelyPartner,
+  return {odds,score,picks,install,minor,loss,secrets,dataRights,nickname,likelyPartner,
     partner:partnerFromMessage(message),
     needsClarification:!!likelyPartner && !partnerFromMessage(message),
     followedConversation:previous.length>0};
 }
+export function redactSensitiveText(value) {
+  return String(value||'')
+    .replace(/\b((?:otp|code\s*sms|code\s*de\s*v[eé]rification|pin)\s*[:=\-]?\s*)\d{4,8}\b/gi,'$1[MASQUÉ]')
+    .replace(/\b((?:mot\s*de\s*passe|password|mdp)\s*[:=]\s*)\S+/gi,'$1[MASQUÉ]')
+    .replace(/\b(?:\d[ -]?){13,19}\b/g,'[NUMÉRO MASQUÉ]');
+}
+
 export function safetyResponse(details) {
   if(details.minor)return '**Les paris sont réservés aux adultes.** Je ne peux pas t’aider à ouvrir un compte ou à miser si tu es mineur. Je peux expliquer les règles du football sans paris.';
   if(details.loss)return '**Ta situation est prioritaire.** Évite de miser à nouveau pour récupérer tes pertes. Mets tes moyens de paiement à distance, fixe une pause et contacte une personne de confiance ou un service d’aide.';
   if(details.secrets)return '🔒 **Ne partage jamais ton mot de passe, tes codes OTP ou tes clés privées ici.** Utilise uniquement la procédure officielle de récupération du service concerné.';
+  if(details.dataRights)return '🔐 **Gestion des données personnelles**\n\nJe ne peux pas effacer tes données depuis cette conversation. Pour une demande de consultation ou de suppression, contacte un responsable via la page officielle de contact.';
   return '';
 }
 export function ambiguousPartnerQuestion(details) {
@@ -1040,7 +1049,7 @@ async function claimFirstChat(chat){
 async function updateChat(chat) {await db('mx_telegram_assistant_chats?on_conflict=chat_key','POST',[chat],'resolution=merge-duplicates');}
 async function setPause(key,paused) {await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}`,'PATCH',{paused});}
 async function readHistory(key){const rows=await db(`mx_telegram_assistant_messages?chat_key=eq.${encodeURIComponent(key)}&select=role,content&order=id.desc&limit=20`);return (rows||[]).reverse().map(r=>({role:r.role==='user'?'user':'assistant',content:cut(r.content,1100)}));}
-async function logMessage(key,role,content){await db('mx_telegram_assistant_messages','POST',{chat_key:key,role,content:cut(content,2500)});}
+async function logMessage(key,role,content){await db('mx_telegram_assistant_messages','POST',{chat_key:key,role,content:cut(redactSensitiveText(content),2500)});}
 async function wasHandled(id){const rows=await db(`mx_telegram_assistant_updates?update_id=eq.${id}&select=update_id&limit=1`);return rows?.length>0;}
 async function markHandled(id){await db('mx_telegram_assistant_updates','POST',{update_id:id},'resolution=ignore-duplicates');}
 function safeModelReply(raw) {
@@ -1304,7 +1313,7 @@ export async function handleUpdate(update) {
   const highRisk=safetyResponse(clientInfo)||ambiguousPartnerQuestion(clientInfo);
   if(highRisk){
     // Les messages sensibles ne passent pas par une suggestion de bookmaker générée.
-    await say(msg.chat.id,highRisk,msg.business_connection_id||'',{allowedUrls:[]});
+    await say(msg.chat.id,highRisk+(clientInfo.dataRights?'\n'+LINKS.contact:''),msg.business_connection_id||'',{allowedUrls:clientInfo.dataRights?[LINKS.contact]:[]});
     await logMessage(key,'user',text);
     await logMessage(key,'assistant',highRisk);
     await markHandled(id);
