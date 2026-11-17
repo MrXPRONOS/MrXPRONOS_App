@@ -1,0 +1,42 @@
+name: Telegram - Campagne coupons gratuit 28 canaux (unique)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-coupon-all-channels-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-coupon-free-all-channels-20261117-v1
+  cancel-in-progress: false
+
+jobs:
+  publish-once:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/send_coupon_all_channels_once.py
+            assets/telegram/promo_coupon_2026-10-25.jpg
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Vérifier photo, message 4 lignes et bouton bleu
+        run: python scripts/send_coupon_all_channels_once.py --check
+      - name: Campagne unique validée - 28 canaux publics et privés
+        run: python scripts/send_coupon_all_channels_once.py --send
