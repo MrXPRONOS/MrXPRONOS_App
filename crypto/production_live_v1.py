@@ -16,6 +16,7 @@ import requests
 
 from crypto import production_seed_v1 as seed
 from crypto import news_digest_v1 as digest
+from crypto import news_media_v1 as media
 
 UTC = timezone.utc
 TODAY = datetime.now(UTC)
@@ -67,13 +68,14 @@ def blocked_by_initial_history(state: dict, number: int) -> bool:
     return date == TODAY.date()
 
 
-def record_send(chat: dict, caption: str, image: Path) -> int:
+def record_send(chat: dict, caption: str, image: Path, parse_mode=None) -> int:
     seed.validate_image(image)
     with image.open("rb") as fp:
         try:
             resp = requests.post(
                 "https://api.telegram.org/bot" + seed.TOKEN + "/sendPhoto",
-                data={"chat_id": chat["id"], "caption": caption},
+                data={"chat_id": chat["id"], "caption": caption,
+                      **({"parse_mode": parse_mode} if parse_mode else {})},
                 files={"photo": (image.name, fp, "image/png")},
                 timeout=(10, 90))
             resp.raise_for_status()
@@ -212,10 +214,15 @@ def publish_global_news():
             break
         if digest.already_sent(candidate["main"], state):
             continue
-        image = digest.render(candidate)
-        description = digest.caption(candidate)
+        photo = media.photo_for(candidate)
+        if photo is None:
+            print("CRYPTO_NEWS11_SKIP_NO_REAL_ARTICLE_IMAGE",
+                  candidate["main"]["source"], candidate["main"]["title"][:75])
+            continue
+        image, photo_source = photo
+        description = media.caption(candidate, image_source=photo_source)
         try:
-            message_id = record_send(chat, description, image)
+            message_id = record_send(chat, description, image, parse_mode="HTML")
         except (requests.RequestException, ValueError, RuntimeError):
             raise RuntimeError("News #11 delivery uncertain; manual audit required") from None
         digest.mark_sent(state, candidate, message_id, datetime.now(UTC))
@@ -281,8 +288,21 @@ def execute(mode: str):
             if key in state["sent"]:
                 print("CRYPTO_LIVE_SKIP_DUPLICATE", number, key)
                 continue
-            caption = seed.caption_for(number, data)
-            message_id = record_send(chat, caption, image)
+            if number in (8, 9):
+                news_candidate = {
+                    "main": data["main"],
+                    "others": [data["confirmation"]] if data.get("confirmation") else [],
+                }
+                photo = media.photo_for(news_candidate)
+                if photo is None:
+                    print("CRYPTO_LIVE_SKIP_NEWS_NO_SOURCE_IMAGE", number)
+                    continue
+                image, photo_source = photo
+                caption = media.caption(news_candidate, image_source=photo_source)
+                message_id = record_send(chat, caption, image, parse_mode="HTML")
+            else:
+                caption = seed.caption_for(number, data)
+                message_id = record_send(chat, caption, image)
             stamped = datetime.now(UTC).isoformat()
             state["sent"][key] = {
                 "number": number, "message_id": message_id, "sent_at": stamped,
