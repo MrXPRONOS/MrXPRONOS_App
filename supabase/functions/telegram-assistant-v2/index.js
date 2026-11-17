@@ -405,33 +405,41 @@ export async function handleUpdate(update) {
   const intent=intentFor(text);
   let answer='';
   if(intent==='welcome') answer=intro();
-  else if(intent==='format') answer='**🎨 Exemple de mise en forme Telegram**\n*Texte en italique*\n__Texte souligné__\n~~Ancienne information barrée~~\n||Ce contenu est masqué jusqu’à ce que tu appuies dessus.||\n> Citation : une analyse ne garantit jamais un résultat.\n\n⚽ Pronostics : '+LINKS.pronos+'\n✅ Conseils : '+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
+  else if(intent==='format') answer='**🎨 Démonstration**\n*Italique* · __Souligné__ · ~~Barré~~\n||Spoiler||\n> Citation : aucune estimation n’est garantie.\n\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
   else if(intent==='conseil') answer=adviceMessage();
-  else if(intent==='capabilities') answer=`Je suis l’assistant automatique de Mr XPRONOS 👋 Je peux t’aider à consulter les pronostics et scores publiés, trouver le canal officiel, expliquer les rubriques du site et partager des conseils de prudence. Si ta demande exige un suivi personnel, écris « parler à un responsable ».\n\nPronostics : ${LINKS.pronos}\nConseils : ${LINKS.conseils}`;
-  else if(intent==='canaux') answer=`**📢 Suivre les coupons officiels**\nUtilise le bouton de notre canal s’il est configuré, sinon celui des pronostics.\n${channelLine()}\n**Site :** ${LINKS.accueil}`;
-  else if(intent==='resultats') answer=`**📊 Historique des résultats**\nConsulte les résultats *gagnés, perdus et en attente* via ce bouton :\n${LINKS.historique}`;
+  else if(intent==='categories') answer=categoriesMessage();
+  else if(intent==='access') answer=accessMessage();
+  else if(intent==='schedule') answer=scheduleMessage();
+  else if(intent==='method') answer=methodMessage();
+  else if(intent==='capabilities') answer='Je renseigne sur les **pronostics, résultats, analyses et le code XPVIP**. Pose-moi ta question 🙂';
+  else if(intent==='canaux') answer=channelLine();
+  else if(intent==='resultats') answer='📊 L’historique montre les sélections **gagnées, perdues et en attente**.\n'+LINKS.historique;
   else if(intent==='bonus') answer=formatPromo();
-  else if(intent==='live') answer=`Les pronostics LIVE sont temporairement suspendus. Les autres analyses sont disponibles ici :\n${LINKS.pronos}`;
-  else if(intent==='site') answer=`**🏠 Découvrir Mr XPRONOS**\nSite officiel : ${LINKS.accueil}\nAnalyses : ${LINKS.analyses}\nInfos foot : ${LINKS.infos}\nConseils : ${LINKS.conseils}`;
-  else if(intent==='safety') answer='Si les paris te mettent en difficulté, évite de chercher à récupérer tes pertes. Nous ne proposons aucun gain garanti. Il vaut mieux arrêter et demander de l’aide à une personne de confiance.';
+  else if(intent==='live') answer='Les pronostics **LIVE** sont actuellement suspendus. Les pronostics publiés restent consultables.';
+  else if(intent==='site') answer='🏠 Voici la page officielle de Mr XPRONOS.';
+  else if(intent==='safety') answer='Si tu es en difficulté avec les paris, **arrête et évite de poursuivre tes pertes**. Parles-en à une personne de confiance.';
   else if(intent==='human') {
-    if(isOwner) {
-      answer='Tu testes actuellement depuis le compte administrateur. Pour vérifier la reprise humaine, écris au bot depuis un autre compte Telegram, puis reviens ici pour utiliser /chats et /reply <chat> <message>. Je ne suspends pas ta discussion de test.';
-    } else {
+    if(isOwner) answer='Pour tester la reprise humaine, écris depuis un second compte Telegram ; l’administrateur pourra répondre via /reply.';
+    else {
       const notified=await notifyAdmin(key,name,text,msg.business_connection_id||'');
-      answer=notified?'Merci pour ton message. Je viens de prévenir un responsable qui pourra reprendre cette conversation.':'Merci pour ton message. Un responsable doit traiter cette demande ; tu peux aussi utiliser la page de contact officielle : '+LINKS.contact;
+      answer=notified?'📩 Un responsable a été prévenu.':'📩 La notification a échoué. Tu peux écrire via la page de contact : '+LINKS.contact;
       if(notified) await setPause(key,true);
     }
   } else {
     let history=[];
     try{history=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
     try{answer=await askNvidia(text,history)||'';}catch(e){console.warn('nvidia_error',String(e));}
-    if(!answer) answer=`Je n’ai pas réussi à traiter précisément ta question pour le moment. Je peux cependant te guider vers les pronostics, les conseils et les informations officielles : ${LINKS.accueil}\nPour une demande personnalisée, écris « parler à un responsable ».`;
+    if(!answer) answer='Je ne peux pas confirmer cette information pour le moment. Peux-tu préciser ta question ?';
   }
-  if(!previous && intent!=='welcome') answer=`Bienvenue chez Mr XPRONOS 👋 Je suis l’assistant automatique.\n\n${answer}`;
-  await say(msg.chat.id,answer,msg.business_connection_id||'');
+  // Ajouter une destination seulement si elle répond à la demande ; aucune URL ni bouton gratuit.
+  const destinations=responseLinks(intent,text,answer);
+  if(destinations.length) {
+    const missing=destinations.filter(u=>!answer.includes(u));
+    if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
+  }
+  await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
   await markHandled(id);
