@@ -22,14 +22,20 @@ const channelUrl = () => {
 // Les messages Business restent désactivés tant que le propriétaire n'a pas choisi les discussions autorisées.
 const businessModeEnabled = () => env('MX_ASSISTANT_ENABLE_BUSINESS').trim().toLowerCase() === 'true';
 const businessOwnerId = () => Number(env('MX_ASSISTANT_BUSINESS_OWNER_ID') || env('MX_ASSISTANT_ADMIN_ID'));
-// Ordre de priorité fixe, fondé sur les modèles retenus lors des précédents essais.
+// Premier démarrage : Mistral Large 4. Dès qu'une IA répond avec succès,
+// sa référence devient prioritaire à la prochaine demande (persistence Supabase).
+export const NVIDIA_PRIMARY_MODEL='mistralai/mistral-large-4-1t-a52b';
+export const NVIDIA_MODEL_TIMEOUT_MS=60000;
+// Tâches Edge Runtime : au plus deux timeouts complets sous le plafond Supabase Free 150 s.
+export const NVIDIA_REQUEST_BUDGET_MS=125000;
+// Ordre de secours fixe, utilisé à défaut d'un dernier succès exploitable.
 export const NVIDIA_MODELS = Object.freeze([
+  NVIDIA_PRIMARY_MODEL,
   'minimaxai/minimax-m3.1-flash',
   'nvidia/nemotron-3-ultra-550b-a55b',
   'nvidia/nemotron-3.5-super-vl-120b-a12b',
   'stepfun-ai/step-5-preview',
   'nvidia/nemotron-3.5-lightning-30b-a3b',
-  'mistralai/mistral-large-4-1t-a52b',
   'z-ai/glm-5.3-flash',
   'openai/gpt-oss-20b',
   'meta/muse-glimmer-30b',
@@ -1853,6 +1859,26 @@ async function recordModelEvents(attempts=[],source='chat'){
   if(rows.length)await db('mx_telegram_assistant_model_events','POST',rows);
 }
 /**
+ * Dernier modèle gagnant : priorité aux succès du routage V28 UNIQUEMENT.
+ * Les tentatives historiques de la version précédente ne changent pas le
+ * premier lancement qui doit impérativement démarrer sur Mistral Large 4.
+ * Aucun nouveau schéma : les événements ordinaires enregistrent source=chat.
+ */
+export function stickyNvidiaOrder(lastSuccess=null,models=NVIDIA_MODELS){
+  const primary=models.includes(NVIDIA_PRIMARY_MODEL)?NVIDIA_PRIMARY_MODEL:models[0];
+  const winner=lastSuccess&&models.includes(lastSuccess)?lastSuccess:primary;
+  return winner?[winner,...models.filter(model=>model!==winner)]:[];
+}
+async function fetchLastSuccessfulNvidiaModel(){
+  const rows=await db('mx_telegram_assistant_model_events?select=model&source=eq.routing_v28&status=eq.ok&order=id.desc&limit=1');
+  return Array.isArray(rows)&&NVIDIA_MODELS.includes(rows[0]?.model)?rows[0].model:null;
+}
+async function rememberSuccessfulNvidiaModel(model){
+  if(!NVIDIA_MODELS.includes(model))return;
+  // await : le prochain message doit trouver ce succès même sur une autre instance.
+  await recordModelEvents([{model,status:'ok',durationMs:0}],'routing_v28');
+}
+/**
  * Classe les modèles selon les dernières tentatives réelles, sans transformer
  * un résultat isolé en verdict définitif. Les modèles non essayés gardent
  * leur place relative ; une panne fréquente les relègue temporairement.
@@ -1927,7 +1953,8 @@ export async function runNvidiaFailover({
   onAttempt=()=>{},
   models=NVIDIA_MODELS,
   health=null,
-  overallBudgetMs=29000
+  perModelTimeoutMs=NVIDIA_MODEL_TIMEOUT_MS,
+  overallBudgetMs=NVIDIA_REQUEST_BUDGET_MS
 }={}) {
   const attempts=[];
   if(!apiKey) return {text:null,model:null,attempts,reason:'missing_key'};
@@ -1942,7 +1969,7 @@ export async function runNvidiaFailover({
     }
     const remaining=overallBudgetMs-(now()-start);
     if(remaining<1100) {budgetExceeded=true;break;}
-    const timeoutMs=Math.max(1000,Math.min(i<3?4800:(i<6?3800:2900),remaining));
+    const timeoutMs=Math.max(1000,Math.min(perModelTimeoutMs,remaining));
     const attemptStarted=now();
     const request={
       model,messages,stream:false,
@@ -2027,10 +2054,16 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
     for(const [model,h]of shared)if(!modelInCooldown(sharedHealth,model))sharedHealth.set(model,h);
   }catch(e){console.warn('model_health_unavailable',String(e?.name||'error'));}
   const observations=[];
-  let rankedModels=NVIDIA_MODELS;
-  try{rankedModels=await fetchRecentModelRanking();}
-  catch(error){console.warn('model_ranking_unavailable',String(error?.name||'error'));}
-  const result=await runNvidiaFailover({messages,detailed,models:rankedModels,health:sharedHealth,onAttempt:(event)=>{
+  let lastSuccessful=null;
+  if(!diagnostic){
+    try{lastSuccessful=await fetchLastSuccessfulNvidiaModel();}
+    catch(error){console.warn('last_nvidia_model_unavailable',String(error?.name||'error'));}
+  }
+  const rankedModels=stickyNvidiaOrder(lastSuccessful);
+  const result=await runNvidiaFailover({messages,detailed,models:rankedModels,
+    health:sharedHealth,overallBudgetMs:NVIDIA_REQUEST_BUDGET_MS,
+    perModelTimeoutMs:NVIDIA_MODEL_TIMEOUT_MS,
+    onAttempt:(event)=>{
     observations.push(event);
     if(event.status!=='ok')console.warn('nvidia_fallback',event.model,event.status);
   }});
@@ -2040,7 +2073,11 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
     else await write;
   }
   if(diagnostic) return result;
-  if(result.model) console.info('nvidia_selected',result.model);
+  if(result.model) {
+    try{await rememberSuccessfulNvidiaModel(result.model);}
+    catch(error){console.warn('last_nvidia_model_store_failed',String(error?.name||'error'));}
+    console.info('nvidia_selected',result.model);
+  }
   return result.text;
 }
 
@@ -2540,6 +2577,15 @@ export async function handleRequest(req) {
   const length=Number(req.headers.get('content-length')||0);
   if(length>50000) return json({error:'too_large'},413);
   let update;try{update=await req.json();}catch{return json({error:'invalid_json'},400);}
+  // Accusé de réception immédiat à Telegram ; l'IA peut attendre 60 s
+  // sans bloquer le webhook ni provoquer une nouvelle tentative Telegram.
+  if(typeof EdgeRuntime!=='undefined'&&typeof EdgeRuntime.waitUntil==='function'){
+    EdgeRuntime.waitUntil(Promise.resolve().then(()=>handleUpdate(update)).catch(
+      error=>console.error('telegram_assistant_background_failed',String(error))
+    ));
+    return json({ok:true});
+  }
+  // En Node/local (sans EdgeRuntime) on conserve le comportement synchrone.
   try{await handleUpdate(update);return json({ok:true});}
   catch(e){console.error('telegram_assistant_handler',String(e));return json({error:'processing_failed'},500);}
 }
