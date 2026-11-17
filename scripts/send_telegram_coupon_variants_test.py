@@ -18,54 +18,60 @@ TEST_CHAT = "predict_mrxp"
 JOIN_URL = "https://t.me/mrxpronosfr"
 JOIN = '<a href="' + JOIN_URL + '">Rejoins notre canal Telegram</a>'
 BUTTONS = {"inline_keyboard": [[
-    {"text": "📲 REJOINDRE LE CANAL GRATUIT", "url": JOIN_URL}
+    {"text": "📲 REJOINDRE LE CANAL GRATUIT", "url": JOIN_URL, "style": "primary"}
 ]]}
 
 MESSAGES = (
-    ("01-long", """🚨 <b>ARRÊTEZ D'ACHETER DES COUPONS QUI PERDENT !</b>
+    ("01-long", """🚨 <b>ARRÊTE D’ACHETER DES COUPONS QUI TE FONT PERDRE !</b>
 
-💸 Pourquoi continuer à payer pour des pronostics qui vous font perdre de l'argent ?
+💸 Tu paies pour recevoir un pronostic, puis tu risques encore ta mise ? <i>Ton argent mérite mieux que des promesses « 100 % sûres ».</i>
 
-🎯 Un bon pronostiqueur n'a pas besoin de vendre ses coupons pour montrer son travail.
+<blockquote><b><i>Un bon pronostic n’a pas besoin d’une étiquette VIP pour convaincre.</i></b></blockquote>
 
-✅ Ce ticket du 25 octobre montre un pari gagnant à la cote 4,18. Un résultat passé ne garantit pas les suivants.
+⚽ Chez <b>Mr XPRONOS</b>, les coupons et analyses sont <b>GRATUITS</b>.
 
-⚽ Tu veux découvrir des coupons et des analyses <b>GRATUITEMENT</b> ?
+📸 Ce ticket gagnant est un résultat passé, jamais une garantie.
 
-📲 """ + JOIN + """ et clique sur le bouton ci-dessous 👇
+📲 <b>REJOINS NOTRE CANAL TELEGRAM GRATUIT</b> 👇
 
-🔞 18+ • Jouez responsablement."""),
-    ("02-direct", """💰 <b>POURQUOI PAYER DES COUPONS ?</b>
+🔞 <i>18+ • Les paris comportent un risque de perte.</i>"""),
+    ("02-direct", """💰 <b>ON TE VEND DES COUPONS « SÛRS » ?</b>
 
-Ce ticket gagnant affiche une cote de 4,18. ⚽
-Chez Mr XPRONOS, on partage des coupons gratuits.
+<blockquote><b><i>Payant ne veut pas dire gagnant.</i></b></blockquote>
 
-📲 <b>REJOINS NOTRE CANAL TELEGRAM</b> pour les découvrir !
-👉 """ + JOIN + """ 👇
+✋ Arrête de payer l’accès à des pronostics.
+✅ Nos coupons et analyses sont <b>GRATUITS</b>.
 
-🔞 18+ • Aucun gain garanti."""),
-    ("03-court", """⚽ <b>UN TICKET GAGNANT. COTE 4,18.</b>
+📲 <b>REJOINS MR XPRONOS SUR TELEGRAM</b> 👇
 
-🎯 Tu veux découvrir nos coupons gratuits ?
-📲 """ + JOIN + """ maintenant 👇
+🔞 <i>18+ • Aucun pari garanti.</i>"""),
+    ("03-court", """⚽ <b>UN COUPON PEUT PERDRE. POURQUOI LE PAYER EN PLUS ?</b>
 
-🔞 18+ • Risque de perte."""),
-    ("04-humour", """😂 <b>TON PORTEFEUILLE MÉRITE DES VACANCES !</b>
+<blockquote><b><i>Moins de promesses, plus de transparence.</i></b></blockquote>
 
-Tu achètes des coupons, ils perdent… et ton argent prend un aller simple. ✈️💸
+✅ <b>Nos pronostics sont GRATUITS.</b>
+📲 <b>REJOINS LE CANAL TELEGRAM</b> 👇
 
-Ici, on partage des analyses et des coupons <b>GRATUITEMENT</b>.
-Le ticket sur l'image est gagnant, mais personne ne gagne à tous les coups !
+🔞 <i>18+ • Risque de perte.</i>"""),
+    ("04-humour", """😂 <b>TON PORTEFEUILLE EN A MARRE DES « COUPONS SÛRS ».</b>
 
-📲 """ + JOIN + """ 👇
+Tu paies le ticket, il perd… et le vendeur revient : <i>« Frère, le prochain est cadeau… à moitié prix. »</i> 💸
 
-🔞 18+ • Jouez responsablement."""),
-    ("05-humour-court", """💀 Acheter un coupon pour perdre ? <b>Ton portefeuille demande le divorce.</b> 😂
+<blockquote><b><i>La seule chose certaine, c’est que tu as payé le coupon.</i></b></blockquote>
 
-⚽ Nos coupons gratuits t'attendent.
-📲 """ + JOIN + """ 👇
+⚽ Ici, <b>nos coupons sont GRATUITS</b>.
 
-🔞 18+ • Aucun gain garanti."""),
+📲 <b>REJOINS MR XPRONOS SUR TELEGRAM</b> 👇
+
+🔞 <i>18+ • Aucun gain garanti.</i>"""),
+    ("05-humour-court", """💀 <b>COUPON PAYANT, RÉSULTAT PERDANT : TON PORTEFEUILLE A DÉMISSIONNÉ.</b> 😂
+
+<blockquote><b><i>Un pronostic payant peut aussi perdre !</i></b></blockquote>
+
+✅ <b>Les nôtres sont GRATUITS.</b>
+📲 <b>REJOINS LE CANAL TELEGRAM</b> 👇
+
+🔞 <i>18+ • Risque de perte.</i>"""),
 )
 
 
@@ -83,6 +89,10 @@ def check():
             raise ValueError(name + ": légende trop longue pour sendPhoto")
         if JOIN_URL not in caption or "18+" not in caption:
             raise ValueError(name + ": lien ou avertissement absent")
+        if BUTTONS["inline_keyboard"][0][0].get("style") != "primary":
+            raise ValueError("Bouton bleu requis")
+        if "<blockquote>" not in caption or "<i>" not in caption:
+            raise ValueError("Citation et italique requis")
         if caption.count("<b>") != caption.count("</b>"):
             raise ValueError(name + ": balises HTML incorrectes")
         print("VARIANT_OK", name, len(visible))
