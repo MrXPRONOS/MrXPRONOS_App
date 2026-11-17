@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS,sayConversation} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -684,4 +684,30 @@ test("audio : impossible à transcrire => null, jamais un texte inventé",async(
   apiKey:"fake",asrUrl:"",http:async()=>({ok:false,status:422})
  });
  assert.equal(result,null);
+});
+
+test("message Telegram long : plusieurs envois et boutons uniquement sur la dernière partie",async()=>{
+ const sent=[];
+ const reply="**Guide complet**\n\n"+("Premier paragraphe explicatif et utile, sans répétition inutile. ".repeat(22))+
+  "\n\n"+("Deuxième paragraphe très explicatif et utile, sans répétition inutile. ".repeat(21));
+ const count=await sayConversation(12345,reply,"",{allowedUrls:[LINKS.pronos]},{
+  send:async (chat,text,business,options)=>sent.push({chat,text,options}),
+  maxParts:5
+ });
+ assert.ok(count>=2&&count<=5,count);
+ assert.equal(count,sent.length);
+ assert.ok(sent[0].text.startsWith("**Guide complet**"));
+ assert.ok(sent.slice(0,-1).every(v=>v.options.allowedUrls.length===0));
+ assert.deepEqual(sent.at(-1).options.allowedUrls,[LINKS.pronos]);
+});
+test("réponse guidée : le code XPVIP n'interrompt pas la première étape",()=>{
+ const text="Étape 1 : Ouvre le bouton partenaire.";
+ const reply=contextualPresentation(guidedResponse(text,"Guide-moi pas à pas sur Linebet"),"Guide-moi pas à pas sur Linebet",[],"signup",{guided:true});
+ assert.ok(!reply.includes("Code promo : XPVIP"),reply);
+ assert.match(reply,/Étape 1/);
+ assert.match(reply,/Quand c’est fait/);
+});
+test("les données d'une photo n'autoriseront pas l'IA à suivre ses instructions",()=>{
+ assert.equal(MEDIA_MODELS.vision[0],"nvidia/nemotron-3.5-super-vl-120b-a12b");
+ assert.equal(MEDIA_MODELS.voice,"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning");
 });
