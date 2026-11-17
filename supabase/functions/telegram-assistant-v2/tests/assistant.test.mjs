@@ -204,11 +204,11 @@ test("priorité NVIDIA : 10 modèles fixes et distincts",()=>{
  assert.equal(NVIDIA_MODELS.length,10);
  assert.equal(new Set(NVIDIA_MODELS).size,10);
  assert.deepEqual(NVIDIA_MODELS.slice(0,3),[
-  "minimaxai/minimax-m3.1-flash",
+  "mistralai/mistral-large-4-1t-a52b",
   "nvidia/nemotron-3-ultra-550b-a55b",
-  "nvidia/nemotron-3.5-super-vl-120b-a12b"
+  "poolside/laguna-xs-2.1"
  ]);
- assert.equal(NVIDIA_MODELS.at(-1),"poolside/laguna-xs-2.1");
+ assert.equal(NVIDIA_MODELS.at(-1),"meta/muse-glimmer-30b");
 });
 test("NVIDIA : premier modèle fonctionnel choisi immédiatement",async()=>{
  const called=[];
