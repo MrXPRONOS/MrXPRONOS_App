@@ -53,7 +53,7 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 - [x] **29. Reconnaître fait, fini, suivant, terminé** — ✅ Complète au niveau du code et des tests. *Expressions courantes gérées*
 - [ ] **30. Rester sur une étape en cas de blocage** — 🟡 Partielle. *Heuristique, cas complexes incomplets*
 - [ ] **31. Utiliser la photo pour guider l’étape** — 🟡 Partielle. *Dépend de la vision NVIDIA*
-- [ ] **32. Reprendre ou abandonner un guide par commande** — ⬜ Non implémentée. *Pas de session dédiée*
+- [x] **32. Reprendre ou abandonner un guide par commande** — ✅ Complète au niveau du code et des tests. *`/restart`, « Recommence depuis le début » et `/stop` sont pris en charge ; la conservation de progression reste partielle (point 26).*
 
 ## E. Pronostics et données sportives
 
@@ -123,7 +123,7 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 
 ## Bilan chiffré
 
-✅ Code/tests : **43** ; 🟡 partiellement : **29** ; ⬜ à faire : **8**.
+✅ Code/tests : **44** ; 🟡 partiellement : **29** ; ⬜ à faire : **7**.
 
 ## Conditions avant une validation réelle
 
