@@ -75,7 +75,7 @@ export function socialMediaRequest(input='') {
   const q=normalizeClientFrench(input);
   const all=/(?:reseaux? sociaux|tous (?:vos|tes|nos) reseaux|liens? (?:de|des) (?:vos|nos|tes)? ?reseaux)/.test(q);
   const keys=['telegram','whatsapp','instagram','facebook','youtube','threads','tiktok'].filter(k=>new RegExp('\\b'+k+'\\b','i').test(q));
-  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau|je veux|seulement|uniquement)/.test(q) ||
+  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau|je veux|seulement|uniquement|quel est le vrai|c.est quoi le|quelle est votre)/.test(q) ||
     /^(?:et |puis |alors |pour |celui de |celui d.|et pour |le |la )?(?:facebook|instagram|youtube|threads|whatsapp|telegram)[!? .]*$/.test(q);
   return {requested:all||(keys.some(k=>k!=='telegram')&&wantsLink),all,keys};
 }
@@ -85,6 +85,22 @@ export function officialSocialUrls(input='') {
   const links={telegram:channelUrl(),whatsapp:LINKS.whatsapp,facebook:LINKS.facebook,
     instagram:LINKS.instagram,youtube:LINKS.youtube,threads:LINKS.threads};
   return [...new Set((req.all?Object.keys(links):req.keys).map(k=>links[k]).filter(Boolean))];
+}
+export function socialButtonsMessage(input='',history=[]){
+ const req=socialMediaRequest(input);
+ const urls=officialSocialUrls(input);
+ const q=normalizeClientFrench(input);
+ const recentExternal=history.slice(-6).some(x=>x.role==='user'&&/https:\/\/t\.me\//i.test(x.content||''));
+ const names=req.all?['Telegram','WhatsApp','Facebook','Instagram','YouTube','Threads']:
+   req.keys.filter(x=>x!=='tiktok').map(x=>x==='youtube'?'YouTube':x==='whatsapp'?'WhatsApp':x.charAt(0).toUpperCase()+x.slice(1));
+ let text='**Réseaux officiels Mr XPRONOS**\n\n';
+ if(/(?:signaler|renvoie ailleurs|lien casse|mauvais lien)/.test(q))
+   text+='Merci pour le signalement. Voici les liens enregistrés et le bouton **Contact** pour indiquer la page incorrecte.\n\n';
+ else if(/(?:ce lien|c.est bien ce lien).{0,40}facebook/.test(q)&&recentExternal)
+   text+='Non : l’adresse envoyée précédemment pointe vers **Telegram**, pas vers Facebook.\n\n';
+ text+='Choisis le bouton **'+(names.length===1?names[0]:'du réseau souhaité')+'** ci-dessous.';
+ if(req.keys.includes('tiktok'))text+='\n\n*Le lien TikTok n’est pas encore vérifié.*';
+ return {text,urls};
 }
 export function officialSocialMessage(input='') {
   const req=socialMediaRequest(input);
@@ -2770,6 +2786,19 @@ export async function handleUpdate(update) {
     });
     await logMessage(key,'user',text);
     await logMessage(key,'assistant',answer);
+    await markHandled(id);return;
+  }
+  // Les demandes de réseaux et les signalements disposent de boutons
+  // déterministes ; elles ne doivent pas dépendre de la prose de NVIDIA.
+  if(intent==='social'){
+    const request=socialButtonsMessage(text,recentHistory);
+    const report=/(?:signaler|renvoie ailleurs|lien casse|mauvais lien)/.test(normalizeClientFrench(text));
+    const urls=[...new Set([...(report?[LINKS.contact]:[]),...request.urls])];
+    await say(msg.chat.id,request.text,msg.business_connection_id||'',{
+      allowedUrls:urls,buttonUrls:urls,maxButtons:8,columns:urls.length>1?2:1
+    });
+    await logMessage(key,'user',text);
+    await logMessage(key,'assistant',request.text);
     await markHandled(id);return;
   }
   const clientInfo=analyzeClientIntent(text,recentHistory);
