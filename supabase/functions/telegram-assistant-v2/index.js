@@ -1674,6 +1674,17 @@ export async function handleUpdate(update) {
     }
   }
 
+  // Un nouveau sujet explicite interrompt le guidage précédent ; « fait » et les
+  // questions de blocage restent dans le guide en cours.
+  if(liveSession?.mode==='guided' &&
+     !guideIsContinuation(text,liveSession) &&
+     !guidedMode(text,recentHistory) &&
+     !/^(merci|bonjour|salut|cc|bonsoir|coucou)\b/.test(normalizeClientFrench(text)) &&
+     !['guide_cancel','guide_restart'].includes(intent)){
+    try{await putAssistantSession(key,{mode:'idle',step_number:0,goal:'',step_text:''},liveSession);}
+    catch(e){console.warn('guide_topic_change_failed');}
+    liveSession={...liveSession,mode:'idle',step_number:0,goal:'',step_text:''};
+  }
   const clientInfo=analyzeClientIntent(text,recentHistory);
   const highRisk=safetyResponse(clientInfo)||ambiguousPartnerQuestion(clientInfo);
   if(highRisk){
