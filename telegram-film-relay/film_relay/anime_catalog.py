@@ -62,41 +62,13 @@ EXPLICIT_EP_SEASON = re.compile(
 
 
 def episode_numbers(text: str):
-    match = SEASON_EP.search(text or "")
-    if not match:
-        # Episode is often labeled E01, without explicit season: default S01,
-        # but NEVER infer the episode number.
-        return None
-    season = int(match.group(1) or match.group(3) or 1)
-    episode = int(match.group(2) or match.group(4) or match.group(5))
-    if not (1 <= season <= 50 and 1 <= episode <= 999):
-        return None
-    return season, episode
+    from .episode_identity import episode_numbers as _shared_episode_numbers
+    return _shared_episode_numbers(text)
 
 
 def series_title(text: str) -> str:
-    value = first_title(text or "").strip()
-    value = re.sub(r"(?i)^@[A-Za-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", value)
-    # Strip the complete-season label BEFORE removing the season number.
-    # Otherwise "Mushishi Saison 2 complète" becomes "Mushishi complète",
-    # while "Mushishi S02E03" becomes "Mushishi": two false series.
-    value = re.sub(
-        r"(?i)\bs(?:aison|eason)?[\s._-]*0*\d{1,2}[\s:._-]+compl[eè]te\b",
-        " ", value)
-    value = CLEAN_CODES.sub(" ", value)
-    # Completeness labels belong to eligibility evidence, not to the anime
-    # identity: "Mushishi - 25 épisodes" and "Mushishi E03" are one title.
-    value = re.sub(r"(?i)\b(?:s[eé]rie|saison)\s+compl[eè]te\b", " ", value)
-    value = re.sub(r"(?i)\b\d{1,3}\s*(?:[eé]pisodes?|eps)\b", " ", value)
-    value = re.sub(r"(?i)\b(?:int[eé]grale|fin de (?:la )?s[eé]rie)\b", " ", value)
-    value = SEASON_HEADER.sub(" ", value)
-    value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
-    value = re.sub(r"(?i)\b(?:vf|vostfr|1080p|720p|dub|hd|complet)\b", " ", value)
-    value = re.sub(r"[|_\[\](){},:.]+", " ", value)
-    value = re.sub(r"\s+", " ", value).strip(" -.#!")
-    if not value or value.casefold() in GENERIC or len(value) < 3:
-        return ""
-    return value[:90]
+    from .episode_identity import series_title as _shared_series_title
+    return _shared_series_title(text)
 
 
 def slug(title: str) -> str:
@@ -151,17 +123,10 @@ def classify(messages, source_id: int):
         if not numbers:
             continue
         context = str(getattr(latest_poster, "raw_text", "") or "")
-        video_title = series_title(raw) or series_title(Path(filename).stem)
-        poster_title = series_title(context)
-        # Drop source-channel signatures and do not mistake an episode-only
-        # filename for the anime title.
-        episode_only = re.fullmatch(
-            r"(?i)(?:s\d{1,2}\s*[-._ ]*e\d{1,3}|"
-            r"(?:episode|épisode|ep|e)\s*[-._ ]*\d{1,3}|"
-            r"\d{1,2}x\d{1,3})"
-            r"(?:\s*\.(?:mkv|mp4))?", (raw or filename).strip()
-        ) is not None
-        title = (poster_title or video_title) if episode_only else (video_title or poster_title)
+        # Reject contradictory named video/poster evidence instead of
+        # inheriting the previous artwork or inventing a new show.
+        from .episode_identity import consistent_title
+        title = consistent_title(context, raw, filename)
         if not title:
             continue
         series_key = slug(title)
