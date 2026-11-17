@@ -97,7 +97,7 @@ export function analyzeClientIntent(message='',history=[]) {
   const picks=/(?:\bprono(?:s|stic[s]?)?\b|\bcoupon[s]?\b|\bselection[s]?\b|\bpari[s]?\s+du\s+jour\b)/.test(q) &&
     !/(c.est quoi|definition|que signifie|explique le mot)/.test(q);
   const install=/(install|instal[eé]|pwa|appli(?:cation)?|ajoute?r?.{0,25}ecran d.accueil)/.test(q);
-  const minor=/(?:\b(?:1[0-7]|[1-9])\s*ans\b.*(?:parier|m.inscrire|deposer|miser)|\bje suis mineur\b|\bje suis au college\b.*\bpari)/.test(q);
+  const minor=/(?:\b(?:j.ai|je suis age de|j'ai)\s*(?:1[0-7]|[1-9])\s*ans\b|\bje suis mineur\b|\bje suis au college\b.*\bpari)/.test(q);
   const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies)/.test(q);
   const dataRights=/(supprimer|effacer|oublier|retirer|exporter|telecharger).{0,35}(?:donnees|historique|messages|conversation|infos personnelles)/.test(q);
   const secrets=/(?:mot de passe|otp|code sms|code de verification|phrase secrete|cle privee|seed phrase)/.test(q) &&
@@ -236,6 +236,7 @@ export function intentFor(input) {
   if (/(s.inscrire|m.inscrire|inscription|ouvrir un compte|creer un compte|enregistrer un compte|signup|register|nouveau compte)/.test(text)) return 'signup';
   if (/(lien (d.affiliation|affilie|partenaire)|ton lien 1xbet|lien pour (1xbet|melbet|1win|betwinner|linebet|betclic))/.test(text) || (/(lien|affili|partenaire)/.test(text)&&partnerFromMessage(text))) return 'partner';
   if (/(sitemap|plan du site|ou (est|trouve|voir) (la page|le site)|quelle page|navigation du site)/.test(text)) return 'site_nav';
+  if (/(?:\bcote\b|\bcotes\b|\bcombi\b|\bcombine\b)/.test(text)&&/(?:\b10\b|\bdix\b|\btotale?\b|\bcombine\b)/.test(text))return 'odds';
   if (/(score exact|scores exacts|scores-exacts)/.test(text)) return 'scores';
   if (/(code promo|code promotion|code bonus|xpvip|quel est (ton|votre|le) code|bonus|promotion)/.test(text)) return 'bonus';
   if (/(gratuit|payant|combien (coute|coutent)|tarif|abonnement|prix du vip|acces vip|payer pour|devenir vip)/.test(text)) return 'access';
@@ -740,6 +741,7 @@ export function responseLinks(intent,question,answer='') {
     if(/(c.est quoi un pronostic|definition d.un pronostic)/.test(q)) return [];
     return /(canal|telegram)/.test(q)?[LINKS.pronos,channelUrl()]:[LINKS.pronos];
   }
+  if(intent==='odds')return [LINKS.pronos];
   if(intent==='scores') return [LINKS.scores];
   if(intent==='canaux') return [channelUrl()];
   if(intent==='resultats') return [LINKS.historique];
@@ -1407,6 +1409,7 @@ export async function handleUpdate(update) {
   }
   else if(intent==='welcome') answer=(!previous || /^\/(start|help)\b/i.test(text))?intro():'Salut 👋 Comment puis-je t’aider ?';
   else if(intent==='format') answer='**🎨 Démonstration du formatage**\n\n**Information importante : XPVIP**\nVoici comment une information essentielle est mise en évidence.\n\n*Une précision secondaire en italique.*\n__Souligné__ · ~~Barré~~ · ||Spoiler masqué||\n\n> ⚠️ Un pronostic n’est jamais une garantie de gain.\n\n**Boutons contextuels**\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
+  else if(intent==='odds') answer='**Cote totale demandée**\n\nJe ne dispose pas de cotes de bookmaker vérifiées pour construire une cote 10 précise. Les cotes combinées se multiplient ; vérifie-les sur le site du bookmaker avant toute décision.\n'+LINKS.pronos;
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
   else if(intent==='conseil') answer=adviceMessage();
