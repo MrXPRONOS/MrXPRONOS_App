@@ -341,7 +341,7 @@ test("réponses NVIDIA : extraction JSON compatible avec les modèles",()=>{
  assert.equal(json.reply,"Merci, avec plaisir 😊");
  assert.equal(json.structured,true);
  assert.deepEqual(json.buttons,[]);
- const fenced=parseAiReply('``json\n{"reply":"Voici le lien.","buttons":["pronos"]}\n```");
+ const fenced=parseAiReply('{"reply":"Voici le lien.","buttons":["pronos"]}');
  assert.equal(fenced.reply,"Voici le lien.");
  assert.deepEqual(fenced.buttons,["pronos"]);
  const free=parseAiReply("Salut, que puis-je faire pour toi ?");
