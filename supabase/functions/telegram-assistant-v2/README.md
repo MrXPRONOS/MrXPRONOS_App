@@ -197,3 +197,18 @@ Le code continue de prendre en charge les éléments qui ne doivent pas être la
 **Tests :** 56 tests de fonctions et de formatage réussis. Simulation d'une conversation avec NVIDIA ayant renvoyé `buttons: []` : le message d'inscription Linebet inclut XPVIP et son bouton ; les coupons incluent les boutons pertinents ; le canal renvoie au canal officiel ; les messages de remerciement n'ont pas de bouton.
 
 Le bot de coupons `telegram_webhook` et le compte personnel Telegram Business restent séparés. Leur configuration n'est pas modifiée.
+
+
+## Typographie et paragraphes automatiques — 17 novembre 2026
+
+Les réponses de **NVIDIA NIM restent générées librement**, puis passent dans une mise en forme légère pour la lecture mobile Telegram :
+
+- **Gras** pour un titre de rubrique et les informations clés (notamment XPVIP, type de pronostic, intitulé d'inscription), sans mettre chaque phrase en gras.
+- Ligne vide après un titre, entre deux idées, avant un avertissement et entre un développement et un complément important. Pas de paragraphes artificiels pour un salut ou un simple merci.
+- Guide d'inscription : étapes numérotées sur des lignes distinctes et bloc séparé pour le code XPVIP lorsqu'il manque.
+- *Italique* pour les conditions ou réserves ; citation Telegram pour un avertissement de prudence suffisamment important. Souligné, barré et spoiler seulement si leur usage a du sens.
+- L'IA est explicitement guidée dans le prompt pour produire des phrases courtes, un titre seul quand utile et des paragraphes aérés. Le serveur n'ajoute pas de fait ou de recommandation de pari.
+- Le texte est échappé et converti en HTML pris en charge par l'API Telegram. Les URL restent transformées en boutons uniquement selon le contexte.
+- Le formatage s'applique également aux réponses de secours si NVIDIA est indisponible. La commande `/format` affiche les styles avec espaces et sauts de ligne comme exemple de vérification.
+
+Tests du code : 64 réussis, y compris espacement, sécurité HTML, titres, italique, citations, étapes, message court sans formatage forcé et non-régression des boutons.
