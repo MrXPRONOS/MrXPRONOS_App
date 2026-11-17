@@ -52,13 +52,45 @@
       "message_id": 124,
       "number": 9
     },
+    "2244111df2ac92c4dabb": {
+      "message_id": 132,
+      "number": 11
+    },
+    "2244111df2ac92c4dabb5af4": {
+      "message_id": 132,
+      "number": 11
+    },
     "2335b3e2185996ff59c95c5e": {
       "message_id": 83,
       "number": 9
     },
+    "2c9e96cb528cf7c84325": {
+      "message_id": 130,
+      "number": 11
+    },
+    "2c9e96cb528cf7c843259fab": {
+      "message_id": 130,
+      "number": 11
+    },
     "40ac5307e210225494ff": {
       "message_id": 66,
       "number": 8
+    },
+    "41099b99963fd4467ca2": {
+      "message_id": 131,
+      "number": 11
+    },
+    "41099b99963fd4467ca29877": {
+      "message_id": 131,
+      "number": 11
+    },
+    "65848fa6a76ec1042b33": {
+      "message_id": 131,
+      "number": 11
+    },
+    "65848fa6a76ec1042b335f48": {
+      "message_id": 131,
+      "number": 11
     },
     "6e73187697234488cf91d3ec": {
       "message_id": 83,
@@ -84,6 +116,14 @@
       "message_id": 80,
       "number": 9
     },
+    "adbe0f80edb24646d5d1": {
+      "message_id": 130,
+      "number": 11
+    },
+    "adbe0f80edb24646d5d16f35": {
+      "message_id": 130,
+      "number": 11
+    },
     "afcb26cb17e7c27f143251a5": {
       "message_id": 52,
       "number": 9
@@ -108,11 +148,101 @@
       "message_id": 47,
       "number": 9
     },
+    "f21c34f4f8083e08acf0": {
+      "message_id": 132,
+      "number": 11
+    },
+    "f21c34f4f8083e08acf08295": {
+      "message_id": 132,
+      "number": 11
+    },
     "f9d78348be882c6834f8b7f4": {
       "message_id": 36,
       "number": 9
     }
   },
+  "news_stories": [
+    {
+      "actors": [
+        "binance",
+        "fed"
+      ],
+      "category": "SÉCURITÉ",
+      "countries": [],
+      "figures": [],
+      "message_id": 130,
+      "published_at": "2026-11-17T20:19:23+00:00",
+      "sent_at": "2026-11-17T21:32:54.632543+00:00",
+      "source": "Crypto Briefing",
+      "title": "Fed Governor Waller warns of risks in tokenized markets, cites Binance hack",
+      "tokens": [
+        "binance",
+        "cites",
+        "fed",
+        "governor",
+        "hack",
+        "risks",
+        "tokenized",
+        "waller",
+        "warns"
+      ],
+      "url": "https://cryptobriefing.com/fed-waller-tokenized-markets-binance-hack"
+    },
+    {
+      "actors": [
+        "binance",
+        "ethereum"
+      ],
+      "category": "SÉCURITÉ",
+      "countries": [],
+      "figures": [],
+      "message_id": 131,
+      "published_at": "2026-11-17T17:18:41+00:00",
+      "sent_at": "2026-11-17T21:32:55.252298+00:00",
+      "source": "Decrypt",
+      "title": "Binance Hack Wallets Move $137 Million in Ethereum After Two Weeks of Silence",
+      "tokens": [
+        "137",
+        "binance",
+        "ethereum",
+        "hack",
+        "million",
+        "move",
+        "silence",
+        "two",
+        "wallets",
+        "weeks"
+      ],
+      "url": "https://decrypt.co/383446/binance-hack-wallets-move-ethereum-after-two-weeks"
+    },
+    {
+      "actors": [
+        "ethereum"
+      ],
+      "category": "SÉCURITÉ",
+      "countries": [],
+      "figures": [],
+      "message_id": 132,
+      "published_at": "2026-11-17T15:00:00+00:00",
+      "sent_at": "2026-11-17T21:32:56.058192+00:00",
+      "source": "NewsBTC",
+      "title": "Judge Acquits Brothers in $25 Million Ethereum MEV Case After Finding No Proven Wire Fraud",
+      "tokens": [
+        "acquits",
+        "brothers",
+        "case",
+        "ethereum",
+        "finding",
+        "fraud",
+        "judge",
+        "mev",
+        "million",
+        "proven",
+        "wire"
+      ],
+      "url": "https://www.newsbtc.com/analysis/eth/judge-acquits-brothers-in-25-million-ethereum-mev-case-after-finding-no-proven-wire-fraud"
+    }
+  ],
   "sent": {
     "alert:04:2026-10-22:XRP:down:5": {
       "message_id": 29,
@@ -827,6 +957,30 @@
       "number": 9,
       "sent_at": "2026-10-30T02:08:23.697970+00:00",
       "source": "The Block"
+    },
+    "news:11:2c9e96cb528cf7c843259fab": {
+      "message_id": 130,
+      "number": 11,
+      "sent_at": "2026-11-17T21:32:54.632543+00:00",
+      "source": "Crypto Briefing",
+      "title": "Fed Governor Waller warns of risks in tokenized markets, cites Binance hack",
+      "url": "https://cryptobriefing.com/fed-waller-tokenized-markets-binance-hack"
+    },
+    "news:11:65848fa6a76ec1042b335f48": {
+      "message_id": 131,
+      "number": 11,
+      "sent_at": "2026-11-17T21:32:55.252298+00:00",
+      "source": "Decrypt",
+      "title": "Binance Hack Wallets Move $137 Million in Ethereum After Two Weeks of Silence",
+      "url": "https://decrypt.co/383446/binance-hack-wallets-move-ethereum-after-two-weeks"
+    },
+    "news:11:f21c34f4f8083e08acf08295": {
+      "message_id": 132,
+      "number": 11,
+      "sent_at": "2026-11-17T21:32:56.058192+00:00",
+      "source": "NewsBTC",
+      "title": "Judge Acquits Brothers in $25 Million Ethereum MEV Case After Finding No Proven Wire Fraud",
+      "url": "https://www.newsbtc.com/analysis/eth/judge-acquits-brothers-in-25-million-ethereum-mev-case-after-finding-no-proven-wire-fraud"
     },
     "weekly:07:2026-W43": {
       "message_id": 53,
