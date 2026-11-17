@@ -1968,8 +1968,9 @@ export async function runNvidiaFailover({
       continue;
     }
     const remaining=overallBudgetMs-(now()-start);
-    if(remaining<1100) {budgetExceeded=true;break;}
-    const timeoutMs=Math.max(1000,Math.min(perModelTimeoutMs,remaining));
+    // Ne démarrer aucun autre modèle sans pouvoir lui accorder ses 60 s.
+    if(remaining<perModelTimeoutMs) {budgetExceeded=true;break;}
+    const timeoutMs=perModelTimeoutMs;
     const attemptStarted=now();
     const request={
       model,messages,stream:false,
