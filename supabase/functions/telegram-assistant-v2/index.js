@@ -974,6 +974,13 @@ export async function assistantFacts(question,history=[],{
 export function contextualDestinations(question,history=[],suggested=[],intent='general') {
   const q=normalizeClientFrench(question);
   if(linksHubIntent(question))return shortcutUrls(linksHubIntent(question));
+  const reportNorm=normalizeClientFrench(question);
+  if(/(?:je voudrais signaler un lien casse|signaler un lien|lien casse|renvoie ailleurs|mauvais lien)/.test(reportNorm)){
+    const list=[LINKS.contact];
+    if(/instagram/.test(reportNorm))list.push(LINKS.instagram);
+    else if(/facebook/.test(reportNorm))list.push(LINKS.facebook);
+    return list;
+  }
   if(socialMediaRequest(question).requested)return officialSocialUrls(question);
   const h=norm(history.slice(-5).map(x=>x.content||'').join(' '));
   const topic=norm(question+' '+history.slice(-5).map(x=>x.content||'').join(' '));
@@ -997,6 +1004,8 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
     add(LINKS.pronos);
     add(channelUrl());
   }
+  if(/^(?:et (?:pour )?les vip|qu.est.ce qui a reellement ete publie|et demain)\s*\??$/.test(q)&&
+      /(?:prono|coupon|vip)/.test(h))add(LINKS.pronos);
   if(/(install|ajouter a l.ecran|application|appli|pwa|raccourci ecran)/.test(q)&&!/(desinstall|supprim)/.test(q))add(LINKS.installer);
   if(/(resultats?|historique|gagn[ée]s?|perdus?)/.test(q)&&/(voir|montre|lien|consulter|precedents|ou|resultats?|historique)/.test(q))add(LINKS.historique);
   if(/scores? exacts?/.test(q)&&/(voir|lien|consulter|donne|montre)/.test(q))add(LINKS.scores);
@@ -1273,7 +1282,15 @@ export function verifiedReplyReview(reply,question,facts='',history=[],session=n
   if(conversationalIntent==='ack')return 'Parfait 👍';
   if(conversationalIntent==='welcome'&&!/^\/(?:start|help)/i.test(question.trim()))return 'Salut 👋 Comment puis-je t’aider ?';
   if(linksHubIntent(question))return shortcutMessage(linksHubIntent(question));
- if(socialMediaRequest(question).requested)return officialSocialMessage(question);
+  const qNorm=normalizeClientFrench(question);
+  if(/(?:ce lien|c.est bien ce lien).{0,35}facebook/.test(qNorm)&&
+      history.slice(-4).some(x=>x.role==='user'&&/https:\/\/t\.me\//i.test(x.content||'')))
+    return 'Non, le lien reçu pointe vers Telegram, pas vers Facebook. Voici notre page Facebook officielle : '+LINKS.facebook;
+  if(/(?:signaler un lien|lien casse|renvoie ailleurs|mauvais lien)/.test(qNorm)){
+    const report=groundedQuestionReply(question,history,session);
+    if(report)return report;
+  }
+  if(socialMediaRequest(question).requested)return officialSocialMessage(question);
   const info=analyzeClientIntent(question,history);
   let text=String(reply||'').trim();
   if(/^je peux t.aider sur les pronostics, le site ou un guide en cours/i.test(normalizeClientFrench(text))){
@@ -2028,6 +2045,8 @@ export function pausedHumanReply(question=''){
   return '⏸️ **L’assistant automatique est en pause** parce qu’un responsable a été sollicité. Ton message est conservé pour son suivi ; il n’a pas encore nécessairement été lu.';
  if(/(?:mes messages?.*(?:enregistr|conserv)|enregistrez.*messages)/.test(q))
   return 'Oui, certains messages sont conservés pour le suivi de cette conversation. Consulte /privacy pour connaître les commandes de suppression et leurs limites.';
+ if(/(?:est.ce qu.il a vu|a.t.il lu|il a lu|vu mon message|a vu mon message)/.test(q))
+  return 'Je n’ai pas de confirmation de lecture du responsable. Ton message est enregistré pour son suivi ; il ne l’a pas forcément encore consulté.';
  if(/(?:reclamation|plainte|probleme|remboursement)/.test(q))
   return '📩 **Réclamation enregistrée dans cette conversation.** Le responsable pourra la consulter. Tu peux ajouter les détails utiles, sans partager de mot de passe ni de code OTP.';
  if(/(?:parler|contacter|envoyer|transmettre).{0,40}(?:responsable|humain|conseiller)/.test(q))
