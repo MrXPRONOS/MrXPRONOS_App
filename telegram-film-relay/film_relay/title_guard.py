@@ -62,8 +62,8 @@ NON_TITLE_LINE = re.compile(
 
 
 def filename_title(value):
-    cleaned = re.sub(r"[._\[\](){}]+", " ", str(value or ""))
-    cleaned = re.sub(r"(?i)\.(?:mp4|mkv|avi|mov|webm)$", "", cleaned).strip()
+    raw = re.sub(r"(?i)\.(?:mp4|mkv|avi|mov|webm)$", "", str(value or ""))
+    cleaned = re.sub(r"[._\[\](){}]+", " ", raw).strip()
     if GENERIC_UPLOAD.fullmatch(cleaned):
         return ""
     for match in RELEASE_MARKER.finditer(cleaned):
