@@ -75,7 +75,8 @@ export function socialMediaRequest(input='') {
   const q=normalizeClientFrench(input);
   const all=/(?:reseaux? sociaux|tous (?:vos|tes|nos) reseaux|liens? (?:de|des) (?:vos|nos|tes)? ?reseaux)/.test(q);
   const keys=['telegram','whatsapp','instagram','facebook','youtube','threads','tiktok'].filter(k=>new RegExp('\\b'+k+'\\b','i').test(q));
-  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau|je veux|seulement|uniquement)/.test(q);
+  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau|je veux|seulement|uniquement)/.test(q) ||
+    /^(?:et |puis |alors |pour |celui de |celui d.|et pour |le |la )?(?:facebook|instagram|youtube|threads|whatsapp|telegram)[!? .]*$/.test(q);
   return {requested:all||(keys.some(k=>k!=='telegram')&&wantsLink),all,keys};
 }
 export function officialSocialUrls(input='') {
@@ -133,6 +134,18 @@ export function officialLinksMessage({partners=true}={}){
  '\n*Liens affiliés ; vérifie l’âge légal, le pays et les conditions de chaque opérateur.*':'';
  return section('Site',g.websites)+'\n\n'+section('Telegram',g.telegram)+
    '\n\n'+section('Réseaux sociaux',g.socials)+missing+books;
+}
+export function linkDirectoryPresentation(intent){
+ if(intent==='partners')return '**⚽ Bookmakers partenaires**\n\nChoisis l’opérateur souhaité dans les **boutons ci-dessous**. Les liens sont affiliés ; seuls les adultes des pays où le service est autorisé peuvent les utiliser. Vérifie les conditions avant toute inscription.';
+ const g=officialLinksList();
+ return '**📚 Annuaire officiel Mr XPRONOS**\n\n'
+  +'Choisis directement un bouton ci-dessous :\n\n'
+  +'🌐 **Site et pronostics** — '+g.websites.length+' accès\n'
+  +'📣 **Telegram et dossier** — '+g.telegram.length+' accès\n'
+  +'📱 **Réseaux sociaux** — '+g.socials.length+' accès\n'
+  +'⚽ **Bookmakers partenaires** — '+g.bookmakers.length+' accès\n\n'
+  +(footNewsChannelUrl()?'':'📰 *Le canal Telegram Actu Foot n’a pas encore d’adresse confirmée : utilise le bouton Actualités football du site.*\n\n')
+  +'*Les liens affiliés sont réservés aux adultes, selon le pays et les conditions de chaque opérateur.*';
 }
 export function shortcutMessage(intent){
  if(intent==='links')return officialLinksMessage();
@@ -1323,7 +1336,7 @@ export function responseLinks(intent,question,answer='') {
   return [];
 }
 
-export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3}={}) {
+export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3,columns=1,buttonUrls=[]}={}) {
   const seen=new Set(),buttons=[],links=[];
   const original=cut(raw,3500);
   // allowedUrls sélectionne les boutons contextuels, pas la validité des
@@ -1331,8 +1344,12 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3}={}) {
   // le canal connu si un client envoyait un autre lien Telegram.
   const official=(url)=>Object.values(LINKS).includes(url)||
     url===channelUrl()||(!!footNewsChannelUrl()&&url===footNewsChannelUrl());
-  const requestedButton=(url)=>!Array.isArray(allowedUrls)||allowedUrls.includes(url);
+  const offeredExplicitly=/(?:lien|adresse|url|notre canal officiel|canal telegram officiel|rejoindre|ouvrir|acceder|installer|notre page|page facebook|réseaux sociaux|reseaux sociaux|voici notre|voici le|voici la)/.test(normalizeClientFrench(original));
+  const requestedButton=(url)=>!Array.isArray(allowedUrls)||allowedUrls.includes(url)||
+    (official(url)&&offeredExplicitly);
   const permitted=(url)=>allowed(url)&&(official(url)||requestedButton(url));
+  const buttonLimit=Math.max(0,Math.min(24,Number(maxButtons)||3));
+  const columnLimit=Math.max(1,Math.min(3,Number(columns)||1));
   const inline=(url,label)=>{
     const index=links.length;
     links.push({url,label:String(label||'Ouvrir le lien').slice(0,90)});
@@ -1344,9 +1361,14 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3}={}) {
     if(!permitted(url)||!requestedButton(url))return false;
     if(seen.has(url))return true;
     const button=buttonForUrl(url,original);
-    if(!button||buttons.length>=Math.max(0,Math.min(8,maxButtons)))return false;
-    buttons.push([button]);seen.add(url);return true;
+    if(!button||seen.size>=buttonLimit)return false;
+    if(buttons.length&&buttons.at(-1).length<columnLimit)buttons.at(-1).push(button);
+    else buttons.push([button]);
+    seen.add(url);return true;
   };
+  // Les annuaires affichent les liens comme vrais boutons, pas comme une
+  // longue liste d'URL difficiles à lire sur téléphone.
+  for(const url of Array.isArray(buttonUrls)?buttonUrls:[])addButton(url);
   // La syntaxe [clique ici](https://...) indique explicitement un lien DANS le texte.
   // Elle reste cliquable sans consommer un emplacement de bouton.
   let text=original.replace(/\[([^\]\n]{1,96})\]\((https:\/\/[^\s)]+)\)/gi,(_m,label,url)=>{
@@ -2661,9 +2683,15 @@ export async function handleUpdate(update) {
   // Les liens officiels et le nouvel accueil ne dépendent pas de l'IA.
   const showWelcome=/^\/accueil(?:@\w+)?(?:\s|$)/i.test(text);
   if(['links','folder','foot_news','partners'].includes(intent)||showWelcome){
-    const answer=showWelcome?newcomerWelcomeMessage():shortcutMessage(intent);
+    const directory=['links','partners'].includes(intent)&&!showWelcome;
+    const answer=showWelcome?newcomerWelcomeMessage():directory?linkDirectoryPresentation(intent):shortcutMessage(intent);
     const urls=showWelcome?[LINKS.pronos,channelUrl(),LINKS.installer]:shortcutUrls(intent);
-    await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:urls});
+    await say(msg.chat.id,answer,msg.business_connection_id||'',{
+      allowedUrls:urls,
+      buttonUrls:directory?urls:[],
+      maxButtons:directory?20:3,
+      columns:directory?2:1
+    });
     await logMessage(key,'user',text);
     await logMessage(key,'assistant',answer);
     await markHandled(id);return;
@@ -2705,7 +2733,10 @@ export async function handleUpdate(update) {
             answer+='\n\n*Pour les autres coupons, consulte le site ou rejoins notre canal Telegram.*';
           }
           if(destinations.length)answer+='\n'+destinations.join('\n');
-          await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations},{updateId:id});
+          await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{
+            allowedUrls:destinations,maxButtons:intent==='social'?8:3,
+            columns:intent==='social'?2:1
+          },{updateId:id});
           // Mémoriser seulement une réponse AI exploitable effectivement transmise.
           try{await rememberSuccessfulNvidiaModel(generated.model);}
           catch(e){console.warn('last_nvidia_model_store_failed',String(e?.name||'error'));}
@@ -2794,7 +2825,10 @@ export async function handleUpdate(update) {
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
   }
   answer=polishTelegramText(answer,text);
-  await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations},{updateId:id});
+  await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{
+    allowedUrls:destinations,maxButtons:intent==='social'?8:3,
+    columns:intent==='social'?2:1
+  },{updateId:id});
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
   const fallbackGuideState=intent==='guide_cancel'
