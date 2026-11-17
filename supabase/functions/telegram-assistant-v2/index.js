@@ -370,7 +370,7 @@ export function aiButtons(keys,question,history=[]) {
   const historyContext=norm(context);
   if(/^(merci|merci beaucoup|thanks|thank you|ok|oui|non|cc|salut|bonjour|bonsoir)[!?. ]*$/.test(q) ||
      (/code promo|xpvip/.test(q)&&!/(lien|inscri|site|bonus|utiliser)/.test(q)))return [];
-  const navigation=/(lien|ouvrir|visiter|rejoindre|inscri|consulter|montr|donne|envoyer|envoie|aller|acceder|page|site|sitemap|canal|coupons?|pronos?|pronostics?|scores exacts|resultats precedents|historique|offres)/.test(q);
+  const navigation=/(lien|ouvrir|visiter|rejoindre|inscri|consulter|montr|donne|envoyer|envoie|aller|acceder|page|site|sitemap|canal|coupons?|pronos?|pronostics?|scores exacts|resultats precedents|historique|offres)/.test(q) || !!providerChoiceFromHistory(question,history);
   const previousTopic=/(lien|ouvrir|visiter|rejoindre|inscri|page|site|partenaire|coupon|prono|scores|analyses|historique)/.test(historyContext);
   if(!navigation && !(previousTopic&&/^(et le lien|le lien|envoie le lien|tu as un lien|ou je clique)/.test(q)))return [];
   const urls=[];
@@ -701,6 +701,35 @@ export async function handleUpdate(update) {
   const continuation=guidanceFollowup(text,recentHistory);
   const chosenProvider=intent==='general'?providerChoiceFromHistory(text,recentHistory):null;
   let answer='';
+  // IA d'abord sur toutes les conversations ordinaires, y compris salutations,
+  // code promo, coupons, inscription, navigation et questions de suivi.
+  // Seuls les contrôles de sécurité, l'escalade humaine et la démo /format sont déterministes.
+  if(!['human','safety','format'].includes(intent)){
+    try {
+      const facts=await assistantFacts(text,recentHistory);
+      const generated=await askNvidia(text,recentHistory,{facts,firstContact:!previous});
+      if(generated){
+        const parsed=parseAiReply(generated);
+        // Si un fournisseur retourne un JSON incomplet, éviter de l'afficher aux clients.
+        const malformed=/^\s*[\x60{]/.test(parsed.reply)&&!parsed.structured;
+        if(parsed.reply.trim()&&!malformed){
+          answer=parsed.reply;
+          const destinations=aiButtons(parsed.buttons,text,recentHistory);
+          if(destinations.length)answer+='\n'+destinations.join('\n');
+          await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
+          await logMessage(key,'user',text);
+          await logMessage(key,'assistant',answer);
+          await markHandled(id);
+          return;
+        }
+      }
+    }catch(error){
+      console.warn('ai_first_unavailable',String(error).slice(0,130));
+    }
+  }
+  // Repli de continuité : anciens messages préparés uniquement si NVIDIA
+  // est indisponible ou renvoie une réponse inexploitable.
+
   if(intent==='thanks') answer='Avec plaisir 😊';
   else if(intent==='ack') answer='Parfait 👍';
   else if(chosenProvider) answer=signupMessage(chosenProvider);
