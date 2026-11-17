@@ -87,3 +87,11 @@ Le mot « testé » se rapporte aux contrôles du code. Ni les tests synthétiqu
 - **Tests** : `nvidia-sticky-60s.test.mjs` couvre priorité initiale, mémoire inter-instances simulée, fenêtres pleines, secours, réponses rapides et réponse HTTP non bloquante.
 
 Une réponse produite dans le simulateur de tests n'établit pas que NVIDIA est accessible depuis Supabase au moment du premier vrai message. Vérifier les métriques `source=chat` et `source=routing_v28` après une conversation réelle. **Ne pas modifier `telegram_webhook`**, qui gère les coupons.
+
+### Vérification du déploiement V28 (17 novembre 2026)
+
+- **GitHub Actions** : run [44147157896](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44147157896), statut **SUCCESS**, **200 tests réussis / 200**, aucun échec ni test ignoré.
+- **Fonction Supabase** : `telegram-assistant-v2` **V28 ACTIVE**, issue du blob GitHub `1dce7e6226e5c441a3a45b391e1e5ce19d67fe77` ; code déployé seulement sur cette fonction.
+- **Publication des coupons** : `telegram_webhook` **V38 ACTIVE**, inchangé.
+- **Vérification utilisateur** : commande propriétaire `/status` pour afficher le modèle prioritaire et son timeout, puis envoyer un message normal. Un nouvel événement `source=routing_v28` prouvera quel modèle a effectivement envoyé une réponse dans le nouvel algorithme.
+- **Limite de preuve** : 200 tests automatisés et statut ACTIVE confirment le déploiement du code ; ils ne prouvent pas qu'une requête Mistral réelle ait déjà réussi.
