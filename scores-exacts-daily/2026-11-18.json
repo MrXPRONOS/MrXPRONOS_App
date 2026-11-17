@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-18",
-  "generated_at": "2026-11-17T10:54:23Z",
+  "generated_at": "2026-11-17T14:37:40Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -117,13 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4814632",
-      "league": "Womens League Cup",
-      "home": "West Ham (W)",
-      "away": "Wolves (W)",
-      "kickoff_utc": "2026-11-18T19:00:00Z",
+      "id": "sportsapipro:4847171",
+      "league": "UEFA Women's Champions League",
+      "home": "Real Madrid (W)",
+      "away": "Inter Milan (W)",
+      "kickoff_utc": "2026-11-18T17:45:00Z",
       "score": "2:1",
-      "probability": 0.21159199,
+      "probability": 0.20343271,
       "group": "H_LOW",
       "group_scores": [
         "1:0",

@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-17",
-  "generated_at": "2026-11-17T10:54:23Z",
+  "generated_at": "2026-11-17T14:37:40Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -17,15 +17,6 @@
       "kickoff_utc": "2026-11-17T16:30:00Z",
       "score": "2:1",
       "probability": 0.09867742
-    },
-    {
-      "id": "sportsapipro:4887276",
-      "league": "Friendly International",
-      "home": "UAE",
-      "away": "Syria",
-      "kickoff_utc": "2026-11-17T14:10:00Z",
-      "score": "2:1",
-      "probability": 0.09770176
     },
     {
       "id": "sportsapipro:4766445",
@@ -53,6 +44,15 @@
       "kickoff_utc": "2026-11-17T19:45:00Z",
       "score": "2:1",
       "probability": 0.09547353
+    },
+    {
+      "id": "sportsapipro:4894996",
+      "league": "Liga de Ascenso - Eastern Region",
+      "home": "CD Neo Pipil",
+      "away": "AD SESA",
+      "kickoff_utc": "2026-11-17T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.09493908
     }
   ],
   "grouped": [
@@ -64,21 +64,6 @@
       "kickoff_utc": "2026-11-17T16:30:00Z",
       "score": "2:1",
       "probability": 0.27823221,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4887276",
-      "league": "Friendly International",
-      "home": "UAE",
-      "away": "Syria",
-      "kickoff_utc": "2026-11-17T14:10:00Z",
-      "score": "2:1",
-      "probability": 0.27332514,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -124,6 +109,21 @@
       "kickoff_utc": "2026-11-17T21:00:00Z",
       "score": "2:1",
       "probability": 0.24285307,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4780720",
+      "league": "Non League Premier",
+      "home": "Havant & waterloovile",
+      "away": "Bracknell Town",
+      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "score": "2:1",
+      "probability": 0.23947219,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
