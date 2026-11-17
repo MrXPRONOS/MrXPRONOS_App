@@ -125,7 +125,7 @@ export const PROJECT_KNOWLEDGE = Object.freeze({
   pages:'Pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.'
 });
 export function knowledgePrompt(){
- return Object.entries(PROJECT_KNOWLEDGE).map(([key,value])=>key+': '+value).join('\n');
+ return Object.entries(PROJECT_KNOWLEDGE).map(([key,value])=>key+': '+value).join('\n')+'\nSitemap officiel : '+LINKS.sitemap+'\nNavigation : '+Object.entries(PAGE_TOPICS).map(([key,label])=>label+' = '+LINKS[key]).join(' ; ');
 }
 
 export function intentFor(input) {
