@@ -9,7 +9,7 @@ from crypto.publish_crypto_1_5 import market, selected_watch, fear_index
 from crypto.render_premium_cards import render_prices_card
 from scripts.telegram_test_guard import validate_test_channel
 
-def get_sparkline(symbol):
+def get_sparkline(symbol, with_source=False):
     """Real 48h hourly charts; try independent public providers."""
     def valid(values):
         import math
@@ -29,7 +29,7 @@ def get_sparkline(symbol):
             values=valid([c["close"] for c in candles if c.get("close")])
             if values:
                 print("CHART_SOURCE",symbol,"CryptoCompare",len(values))
-                return values
+                return (values, "CryptoCompare") if with_source else values
         errors.append("CryptoCompare empty")
     except (requests.RequestException,ValueError,TypeError,KeyError) as exc:
         errors.append("CryptoCompare "+type(exc).__name__)
@@ -45,7 +45,7 @@ def get_sparkline(symbol):
             values=valid([c[4] for c in candles[-49:]])
             if values:
                 print("CHART_SOURCE",symbol,"Coinbase",len(values))
-                return values
+                return (values, "Coinbase") if with_source else values
         errors.append("Coinbase empty")
     except (requests.RequestException,ValueError,TypeError,KeyError) as exc:
         errors.append("Coinbase "+type(exc).__name__)
@@ -61,7 +61,7 @@ def get_sparkline(symbol):
             values=valid([p[1] for p in prices if isinstance(p,list) and len(p)>1])
             if values:
                 print("CHART_SOURCE",symbol,"CoinGecko",len(values))
-                return values
+                return (values, "CoinGecko") if with_source else values
         except (requests.RequestException,ValueError,TypeError,KeyError) as exc:
             errors.append("CoinGecko "+type(exc).__name__)
     print("CHART_UNAVAILABLE",symbol,"; ".join(errors))
@@ -98,9 +98,11 @@ def main():
     chosen=selected_watch(rows)
     count=0
     for row in chosen:
-        points=get_sparkline(row["symbol"])
-        if points:
+        result=get_sparkline(row["symbol"],with_source=True)
+        if result:
+            points,source=result
             row["sparkline"]=points
+            row["sparkline_source"]=source
             count+=1
     if count!=len(chosen):
         raise RuntimeError(f"Publication annulée : seulement {count}/5 graphiques réels disponibles")
