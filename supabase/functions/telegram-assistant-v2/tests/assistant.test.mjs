@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -301,4 +301,37 @@ test("NVIDIA : limite temporelle arrête les modèles restants",async()=>{
  });
  assert.equal(result.reason,"time_budget");
  assert.equal(result.attempts.length,1);
+});
+
+test("bookmakers avec espaces, tirets, majuscules et variantes usuelles",()=>{
+ const aliases=[
+  ["line bet","linebet"],["LINE BET","linebet"],["Line-Bet","linebet"],["line_bet","linebet"],
+  ["linebet","linebet"],["bet winner","betwinner"],["mel bet","melbet"],
+  ["1 x bet","1xbet"],["1xbet","1xbet"],["1 win","1win"],["bet clic","betclic"]
+ ];
+ for(const [phrase,expected] of aliases)assert.equal(partnerFromMessage(phrase),expected,phrase);
+ for(const unrelated of ["Alicenet","ligne de bus","lineage","mon problème"])assert.equal(partnerFromMessage(unrelated),null,unrelated);
+});
+test("inscription Line Bet correctement reconnue et liée au bon partenaire",()=>{
+ const question="Je veux m'inscrire sur line bet, aide-moi.";
+ assert.equal(intentFor(question),"signup");
+ const provider=partnerFromMessage(question);
+ assert.equal(provider,"linebet");
+ const answer=signupMessage(provider);
+ assert.match(answer,/Inscription Linebet/);
+ assert.deepEqual(responseLinks("signup",question),[PARTNER_LINKS.linebet]);
+ const rendered=buildTelegramMessage(answer,{allowedUrls:responseLinks("signup",question)});
+ assert.equal(rendered.reply_markup.inline_keyboard[0][0].url,PARTNER_LINKS.linebet);
+});
+test("réponse réduite au nom d'un bookmaker après demande de précision",()=>{
+ const history=[{role:"user",content:"Je veux m'inscrire"},{role:"assistant",content:"Sur quel bookmaker souhaites-tu t'inscrire ?"}];
+ assert.equal(providerChoiceFromHistory("line bet",history),"linebet");
+ assert.equal(providerChoiceFromHistory("Melbet",history),"melbet");
+ assert.equal(providerChoiceFromHistory("line bet",[{role:"assistant",content:"Salut !"}]),null);
+ assert.equal(providerChoiceFromHistory("Je veux m'inscrire sur line bet",history),null);
+});
+test("salutation courte reconnue séparément de la commande de démarrage",()=>{
+ assert.equal(intentFor("cc"),"welcome");
+ assert.equal(intentFor("/start"),"welcome");
+ assert.equal(intentFor("Bonjour !"),"welcome");
 });
