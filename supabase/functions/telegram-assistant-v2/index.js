@@ -1063,6 +1063,27 @@ function safeModelReply(raw) {
  * le suivant. Stop en cas de clé invalide/absence de crédits, indépendants du modèle.
  * Un budget global évite de monopoliser le webhook Telegram.
  */
+
+const instanceModelHealth=new Map();
+/** Best-effort circuit breaker per warm Edge Function instance.
+ * A provider outage should not force every new client through known timeouts.
+ */
+export function recordModelHealth(health,model,status,time=Date.now()){
+  if(!health)return;
+  if(status==='ok'){health.delete(model);return;}
+  if(!(/^(?:timeout|http_(?:429|500|502|503|504))$/.test(status)))return;
+  const previous=health.get(model);
+  const attempts=previous&&time-previous.since<120000?(previous.failures||0)+1:1;
+  health.set(model,{since:time,failures:attempts,until:attempts>=2?time+90000:0});
+}
+export function modelInCooldown(health,model,time=Date.now()){
+  const x=health?.get(model);
+  if(!x)return false;
+  if(x.until && x.until>time)return true;
+  if(x.until && x.until<=time){health.delete(model);return false;}
+  return false;
+}
+
 export async function runNvidiaFailover({
   messages,
   detailed=false,
@@ -1072,6 +1093,7 @@ export async function runNvidiaFailover({
   signalFactory=(ms)=>AbortSignal.timeout(ms),
   onAttempt=()=>{},
   models=NVIDIA_MODELS,
+  health=null,
   overallBudgetMs=29000
 }={}) {
   const attempts=[];
@@ -1080,6 +1102,11 @@ export async function runNvidiaFailover({
   let budgetExceeded=false;
   for(let i=0;i<models.length;i++){
     const model=models[i];
+    if(modelInCooldown(health,model,now())){
+      attempts.push({model,status:'cooldown'});
+      onAttempt({model,status:'cooldown'});
+      continue;
+    }
     const remaining=overallBudgetMs-(now()-start);
     if(remaining<1100) {budgetExceeded=true;break;}
     const timeoutMs=Math.max(1000,Math.min(i<3?4800:(i<6?3800:2900),remaining));
@@ -1102,7 +1129,8 @@ export async function runNvidiaFailover({
       if(!resp.ok){
         status='http_'+resp.status;
         if([401,402].includes(resp.status)) {
-          attempts.push({model,status});onAttempt({model,status});
+          recordModelHealth(health,model,status,now());
+    attempts.push({model,status});onAttempt({model,status});
           return {text:null,model:null,attempts,reason:'account_error'};
         }
       }else{
@@ -1112,6 +1140,7 @@ export async function runNvidiaFailover({
         const output=typeof content==='string'?content:Array.isArray(content)?content.filter(v=>v?.type==='text'&&typeof v?.text==='string').map(v=>v.text).join(''):'';
         if(output?.trim()){
           const text=safeModelReply(output);
+          recordModelHealth(health,model,'ok',now());
           attempts.push({model,status:'ok'});onAttempt({model,status:'ok'});
           return {text,model,attempts,reason:null};
         }
@@ -1149,7 +1178,7 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
 +'FORMAT OBLIGATOIRE : renvoie un objet JSON compact valide, sans balises Markdown autour, avec deux champs : {"reply":"ton message naturel en français","buttons":[]}. Tu peux utiliser du gras **texte** ou de l’italique *texte* dans reply. buttons est un tableau de 0 à 5 CLÉS uniquement parmi : '+Object.keys(BUTTON_KEYS).join(', ')+'.\n'
     +'Choisis les boutons selon le contexte : inscription chez un bookmaker nommé -> son bouton partenaire, pronostics du jour -> pronos et éventuellement channel, rejoindre notre communauté -> channel, voir les résultats -> historique, accéder au site -> accueil ou rubrique pertinente. Lors d’une inscription, affiche explicitement **Code promo : XPVIP** et invite à saisir XPVIP dans le champ Code promo sans conditionnel sur la présence du champ ; les offres restent soumises aux conditions du partenaire. Aucun bouton pour merci, salut ou simple demande de code promo. Jamais de lien brut : le serveur fabrique les boutons. Ne répète aucune URL dans reply.';
   const messages=[{role:'system',content:system},...history.slice(-12),{role:'user',content:cut(question,1700)}];
-  const result=await runNvidiaFailover({messages,detailed,onAttempt:({model,status})=>{
+  const result=await runNvidiaFailover({messages,detailed,health:instanceModelHealth,onAttempt:({model,status})=>{
     if(status!=='ok') console.warn('nvidia_fallback',model,status);
   }});
   if(diagnostic) return result;
