@@ -1,0 +1,46 @@
+name: Telegram - Promouvoir dossier MR XPRONOS F (TEST)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-folder-mrxpronos-f-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-folder-mrxpronos-f-test
+  cancel-in-progress: false
+
+jobs:
+  post-to-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/send_telegram_folder_promo_test.py
+            scripts/telegram_test_guard.py
+            assets/telegram/mrxpronos_f_folder_promo.jpg
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Vérifier affiche carrée, légende et bouton bleu
+        run: python scripts/send_telegram_folder_promo_test.py --check
+      - name: Vérifier le bot et la destination de test
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+      - name: Envoyer image, texte et bouton dans le canal de test
+        run: python scripts/send_telegram_folder_promo_test.py --send
