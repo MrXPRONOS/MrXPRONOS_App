@@ -322,7 +322,7 @@ export function pageForQuestion(text='') {
   return LINKS.accueil;
 }
 
-const allowed = (url) => Object.values(LINKS).includes(url) || Object.values(PARTNER_LINKS).includes(url) || (channelUrl() && url === channelUrl());
+const allowed = (url) => Object.values(LINKS).includes(url) || Object.entries(PARTNER_LINKS).some(([partner,link])=>link===url&&!bookmakerPolicy().excluded.includes(partner)) || (channelUrl() && url === channelUrl());
 
 
 // Connaissances vérifiées dans les pages du site et la logique des sélections (ne pas inventer d'offres).
@@ -497,7 +497,7 @@ export function buttonForUrl(url,context='') {
   if(!allowed(url)) return null;
   if(channelUrl() && url===channelUrl()) return {text:'📢 Rejoindre le canal Telegram',url,style:'success'};
   const partner=Object.entries(PARTNER_LINKS).find(([,value])=>value===url);
-  if(partner) return {text:'🔗 Ouvrir '+PARTNER_NAMES[partner[0]]+' (partenaire)',url,style:'primary'};
+  if(partner && !bookmakerPolicy().excluded.includes(partner[0])) return {text:'🔗 Ouvrir '+PARTNER_NAMES[partner[0]]+' (partenaire)',url,style:'primary'};
   const meta=BUTTON_LABELS[url];
   if(!meta) return null;
   if(url===LINKS.contact && /(reclamation|signaler|urgence|probleme|arnaque|responsable)/.test(norm(context))) {
@@ -558,7 +558,7 @@ const BUTTON_KEYS=Object.freeze({
   partner_linebet:PARTNER_LINKS['linebet'],partner_betclic:PARTNER_LINKS['betclic']
 });
 export function aiLinkCatalog(){
-  return Object.entries(BUTTON_KEYS).map(([key,url])=>key+' : '+url).join('\n');
+  return Object.entries(BUTTON_KEYS).filter(([,url])=>allowed(url)).map(([key,url])=>key+' : '+url).join('\n');
 }
 
 /** Suit un accompagnement un message à la fois en conservant la mémoire conversationnelle. */
@@ -674,7 +674,10 @@ export async function assistantFacts(question,history=[],{
   const platform=partnerFromMessage(question)||
     (/(ensuite|apres|bloqu|lien|inscri|compte|signup)/.test(q)?partnerFromMessage(hist):null);
   if(platform){
-    snippets.push('BOOKMAKER CONCERNÉ : '+PARTNER_NAMES[platform]+'. Lien partenaire autorisé : '+PARTNER_LINKS[platform]+'. Code XPVIP lorsque accepté ; âge légal et conditions de l’offre à vérifier. Ne prétends pas connaître les écrans exacts du bookmaker.');
+    const excluded=bookmakerPolicy().excluded.includes(platform);
+    snippets.push(excluded?
+      'BOOKMAKER CONCERNÉ : '+PARTNER_NAMES[platform]+' est EXCLU des recommandations. Ne fournissez aucun lien partenaire, code promo ou incitation.' :
+      'BOOKMAKER CONCERNÉ : '+PARTNER_NAMES[platform]+'. Lien partenaire autorisé : '+PARTNER_LINKS[platform]+'. Code XPVIP lorsque accepté ; âge légal et conditions de l’offre à vérifier. Ne prétends pas connaître les écrans exacts du bookmaker.');
   }
   const classified=analyzeClientIntent(question,history);
   if(classified.odds){
