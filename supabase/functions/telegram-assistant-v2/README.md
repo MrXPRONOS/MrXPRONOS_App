@@ -15,7 +15,7 @@ Dans Supabase > Edge Functions > Secrets, renseigner :
 | `MX_ASSISTANT_TELEGRAM_TOKEN` | Token BotFather du bot **assistant**, distinct du bot coupons |
 | `MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET` | Secret aléatoire de 32+ caractères A–Z a–z 0–9 _ - |
 | `MX_ASSISTANT_NVIDIA_KEY` | Clé personnelle NVIDIA NIM, jamais en clair dans GitHub |
-| `MX_ASSISTANT_NVIDIA_MODEL` | `mistralai/mistral-large-4-1t-a52b` |
+| `MX_ASSISTANT_NVIDIA_MODEL` | Ancien paramètre facultatif, **ignoré** par le nouveau moteur de secours ; priorité définie dans `NVIDIA_MODELS` du code |
 | `MX_ASSISTANT_ADMIN_ID` | ID Telegram du propriétaire/administrateur |
 | `MX_ASSISTANT_COUPONS_CHANNEL_URL` | Lien **vérifié** du canal qui diffuse effectivement les coupons (facultatif jusqu'à confirmation) |
 | `MX_ASSISTANT_ENABLE_BUSINESS` | `true` seulement après validation des tests et autorisation sur Telegram Business ; désactivé par défaut |
@@ -124,3 +124,30 @@ Les faits sont centralisés dans `PROJECT_KNOWLEDGE` du fichier `index.js`, en s
 `Merci !` ; `daccord` ; `je veux m'inscrire sur 1xbet aide moi` ; `ensuite ?` ; `je suis bloqué` ; `donne ton lien affilié Melbet` ; `quel est ton code promo ?` ; `où trouver l'historique ?` ; `plan du site` ; `je veux les coupons du jour` ; `/diagnostic` depuis le compte administrateur.
 
 Le bot personnel Telegram Business demeure désactivé tant que son propriétaire n'autorise pas cette étape.
+
+
+## Moteur NVIDIA multi-modèles avec secours automatique (17 novembre 2026)
+
+Les modèles sont désormais **définis directement dans `index.js`**, par ordre de priorité strict. Le programme ne se limite plus à `MX_ASSISTANT_NVIDIA_MODEL` :
+
+| Priorité | Identifiant NVIDIA NIM |
+| --- | --- |
+| 1 | `minimaxai/minimax-m3.1-flash` |
+| 2 | `nvidia/nemotron-3-ultra-550b-a55b` |
+| 3 | `nvidia/nemotron-3.5-super-vl-120b-a12b` |
+| 4 | `stepfun-ai/step-5-preview` |
+| 5 | `nvidia/nemotron-3.5-lightning-30b-a3b` |
+| 6 | `mistralai/mistral-large-4-1t-a52b` |
+| 7 | `z-ai/glm-5.3-flash` |
+| 8 | `openai/gpt-oss-20b` |
+| 9 | `meta/muse-glimmer-30b` |
+| 10 | `poolside/laguna-xs-2.1` |
+
+- Pour une demande générale traitée par l'IA, le bot teste le premier modèle. Il essaye le suivant si l'API renvoie un code d'erreur non global, une réponse vide ou une erreur réseau/un délai dépassé.
+- Les codes **401** (clé API invalide) et **402** (crédits insuffisants) arrêtent immédiatement les tentatives : ils ne peuvent pas être résolus en changeant simplement de modèle.
+- Un **budget total d'environ 29 secondes** protège le webhook. En cas de nombreux modèles très lents, tous les dix peuvent ne pas être atteints. Les délais par modèle sont volontairement courts et les réponses de service client restent concises.
+- La configuration des requêtes reste compatible avec plusieurs modèles : pas de paramètre `reasoning_effort` imposé globalement, car ses valeurs possibles varient selon le fournisseur.
+- La commande **`/diagnostic`** (administrateur seulement) teste la chaîne, indique le modèle retenu et le statut des tentatives (sans divulguer la clé, les messages ou le prompt).
+- **36 tests automatisés** du code passent, y compris un test simulant la réussite de plusieurs modèles de secours et l'ordre des dix tentatives. Ces tests n'établissent **pas** que les dix modèles sont réellement disponibles avec la clé NVIDIA du compte.
+- `MX_ASSISTANT_NVIDIA_KEY` reste obligatoire pour accéder à NVIDIA NIM. La connexion Telegram Business du propriétaire reste désactivée et le bot de publication des coupons ne change pas.
+
