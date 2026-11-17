@@ -7,7 +7,10 @@ export const LINKS = Object.freeze({
   conseils: `${SITE}/conseils.html`, installer: `${SITE}/installer.html`, bonus: `${SITE}/bonus.html`,
   contact: `${SITE}/contact.html`, sitemap: `${SITE}/sitemap.xml`, channel: 'https://t.me/mrxpronosfr', telegram: 'https://t.me/mr_xpronos',
   instagram: 'https://www.instagram.com/mr_xpronos',
-  youtube: 'https://youtube.com/@mrxpronos'
+  youtube: 'https://youtube.com/@mrxpronos',
+  whatsapp: 'https://wa.me/22899201444',
+  facebook: 'https://www.facebook.com/share/1DsG6H6gf1/',
+  threads: 'https://www.threads.com/@mr_xpronos'
 });
 const env = (name) => typeof Deno !== 'undefined' ? (Deno.env.get(name) || '') : (typeof process !== 'undefined' ? process.env[name] || '' : '');
 const botToken = () => env('MX_ASSISTANT_TELEGRAM_TOKEN');
@@ -48,6 +51,7 @@ export function normalizeClientFrench(value) {
     .replace(/\b(?:aplicassion|appliquation)\b/g,'application')
     .replace(/\b(?:bukmaker|boukmaker)\b/g,'bookmaker')
     .replace(/\b(?:matche)\b/g,'match')
+    .replace(/\b(?:de\s+)?pas\s+a\s+as\b/g,'pas a pas')
     .replace(/\bjvx\b/g,'je veux')
     .replace(/\bcmt\b/g,'comment')
     .replace(/\bpk\b/g,'pourquoi')
@@ -56,6 +60,31 @@ export function normalizeClientFrench(value) {
     .replace(/\s+/g,' ').trim();
 }
 
+export function socialMediaRequest(input='') {
+  const q=normalizeClientFrench(input);
+  const all=/(?:reseaux? sociaux|tous (?:vos|tes|nos) reseaux|liens? (?:de|des) (?:vos|nos|tes)? ?reseaux)/.test(q);
+  const keys=['telegram','whatsapp','instagram','facebook','youtube','threads','tiktok'].filter(k=>new RegExp('\\b'+k+'\\b','i').test(q));
+  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau)/.test(q);
+  return {requested:all||(keys.some(k=>k!=='telegram')&&wantsLink),all,keys};
+}
+export function officialSocialUrls(input='') {
+  const req=socialMediaRequest(input);
+  if(!req.requested)return [];
+  const links={telegram:channelUrl(),whatsapp:LINKS.whatsapp,facebook:LINKS.facebook,
+    instagram:LINKS.instagram,youtube:LINKS.youtube,threads:LINKS.threads};
+  return [...new Set((req.all?Object.keys(links):req.keys).map(k=>links[k]).filter(Boolean))];
+}
+export function officialSocialMessage(input='') {
+  const req=socialMediaRequest(input);
+  if(!req.requested)return null;
+  const entries=[['telegram','Telegram',channelUrl()],['whatsapp','WhatsApp',LINKS.whatsapp],
+    ['facebook','Facebook',LINKS.facebook],['instagram','Instagram',LINKS.instagram],
+    ['youtube','YouTube',LINKS.youtube],['threads','Threads',LINKS.threads]];
+  const selected=req.all?entries:entries.filter(([key])=>req.keys.includes(key));
+  const lines=selected.map(([,name,url])=>'• **'+name+'** : '+url);
+  if(req.keys.includes('tiktok'))lines.push('• **TikTok** : lien non encore vérifié.');
+  return '**Réseaux sociaux officiels Mr XPRONOS**\n\n'+lines.join('\n');
+}
 const cut = (s, n=3500) => String(s || '').slice(0,n);
 
 // Liens partenaires propres à Mr XPRONOS, tirés de assets/js/bonus-catalogue.js.
@@ -340,7 +369,8 @@ export const PROJECT_KNOWLEDGE = Object.freeze({
   channel:'Le site officiel désigne https://t.me/mrxpronosfr comme canal Telegram.',
   contact:'Pour une demande personnelle, un partenariat, une réclamation, proposer un responsable humain.',
   safety:'Réservé aux adultes. Paris risqués ; aucun gain ni remboursement garanti. Ne pas encourager une personne à récupérer des pertes.',
-  pages:'Installation sur téléphone : installer.html (PWA) ; pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.'
+  pages:'Installation sur téléphone : installer.html (PWA) ; pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.',
+  social:'Réseaux officiels vérifiés : Telegram, WhatsApp, Facebook, Instagram, YouTube et Threads. Ne jamais inventer un lien TikTok. Répondre avec tous les liens à une demande plurielle.'
 });
 export function knowledgePrompt(){
  return Object.entries(PROJECT_KNOWLEDGE).map(([key,value])=>key+': '+value).join('\n')+'\nSitemap officiel : '+LINKS.sitemap+'\nNavigation : '+Object.entries(PAGE_TOPICS).map(([key,label])=>label+' = '+LINKS[key]).join(' ; ');
@@ -353,6 +383,7 @@ export function intentFor(input) {
   if (/^\/(?:restart|recommencer|reset)(?:@\w+)?(?:\s|$)/.test(text)||/(?:recommence|reprends?) (?:tout )?(?:depuis le debut|a zero|la procedure)/.test(text))return 'guide_restart';
   if (/(comment installer|installer l.appli|installation du site|ajouter a l.ecran|installer le site|installer l.application)/.test(text))return 'site_nav';
   if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
+  if (socialMediaRequest(input).requested) return 'social';
   if (/^(ok|okay|d.accord|daccord|dac|compris|parfait|cool|super|bien recu|c.est note|tres bien)[!?. ]*$/.test(text)) return 'ack';
   if (/^\/(format|forme|form|apercu|mise_en_forme)(?:@\w+)?(\s|$)/.test(text)) return 'format';
   if (/^\/(pronos|coupons|scores|canaux|resultats|conseils)(\s|$)/.test(text)) {const cmd=text.split(/\s|@/)[0].slice(1);return cmd==='coupons'?'pronos':cmd==='conseils'?'conseil':cmd;}
@@ -491,7 +522,10 @@ const BUTTON_LABELS = Object.freeze({
   [LINKS.contact]: ['📩 Contacter un responsable', 'primary'],
   [LINKS.telegram]: ['💬 Contacter Mr XPRONOS', 'primary'],
   [LINKS.instagram]: ['📷 Instagram officiel', 'primary'],
-  [LINKS.youtube]: ['▶️ YouTube officiel', 'primary']
+  [LINKS.youtube]: ['▶️ YouTube officiel', 'primary'],
+  [LINKS.whatsapp]: ['💬 WhatsApp officiel', 'primary'],
+  [LINKS.facebook]: ['📘 Facebook officiel', 'primary'],
+  [LINKS.threads]: ['🧵 Threads officiel', 'primary']
 });
 export function buttonForUrl(url,context='') {
   if(!allowed(url)) return null;
@@ -563,7 +597,7 @@ export function aiLinkCatalog(){
 
 /** Suit un accompagnement un message à la fois en conservant la mémoire conversationnelle. */
 export function guidedMode(question,history=[]) {
-  const q=norm(question);
+  const q=normalizeClientFrench(question);
   if(/(pas a pas|etape par etape|une etape a la fois|un par un|une chose a la fois|accompagne.moi|guide.moi|guides?.moi)/.test(q))return true;
   const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
   if(!/(?:Étape|Etape)\s+\d+|Quand c.est fait.+fait|[ée]cris.+fait/i.test(last))return false;
@@ -871,6 +905,7 @@ export function safeContextualFallback(question='',history=[],session=null){
  }
  if(info.score)return '**Scores exacts**\n\nSeules les prévisions publiées peuvent être consultées : '+LINKS.scores;
  if(info.picks)return '**Pronostics**\n\nConsulte les sélections publiées sur le site et notre canal.\n'+LINKS.pronos+'\n'+channelUrl();
+ if(socialMediaRequest(question).requested)return officialSocialMessage(question);
  if(/(canal|telegram)/.test(q))return '**Canal officiel**\n\n'+channelUrl();
  if(/(promo|code.*xpvip)/.test(q))return '**Code promo : XPVIP**\n\nLes conditions dépendent de la plateforme partenaire.';
  if(guideIsContinuation(question,session))return '**Accompagnement**\n\n'+(session?.step_text||'Décris l’étape où tu es bloqué.');
@@ -892,7 +927,7 @@ export function answerRelevanceGuard(reply,question,history=[]){
   const q=normalizeClientFrench(question),r=normalizeClientFrench(reply);
   const intent=analyzeClientIntent(question,history);
   if(/^(?:merci|cc|bonjour|salut|oui|non|ok|parfait)\b/.test(q))return null;
-  if(intent.install && !/(install|application|appli|ecran d.accueil|safari|chrome|edge|pwa)/.test(r))
+  if(intent.install && (/(?:pas (?:d.|une) application|aucune application|pas de page d.installation|impossible d.installer)/.test(r)||!/(install|application|appli|ecran d.accueil|safari|chrome|edge|pwa)/.test(r)))
     return '**📲 Installer Mr XPRONOS**\n\n'+installationSteps(question);
   if(intent.odds && /(score exact|2-1|0-0|1-0)/.test(r) &&
      !/(cote|combin|multipli)/.test(r))
@@ -934,6 +969,11 @@ export function durableConversationSummary(history=[],previous='',question='',an
 }
 
 export function verifiedReplyReview(reply,question,facts='',history=[]) {
+  const conversationalIntent=intentFor(question);
+  if(conversationalIntent==='thanks')return 'Avec plaisir 😊';
+  if(conversationalIntent==='ack')return 'Parfait 👍';
+  if(conversationalIntent==='welcome'&&!/^\/(?:start|help)/i.test(question.trim()))return 'Salut 👋 Comment puis-je t’aider ?';
+  if(socialMediaRequest(question).requested)return officialSocialMessage(question);
   const info=analyzeClientIntent(question,history);
   let text=String(reply||'').trim();
   if(info.picks&&!info.odds&&!info.score&&/(?:Fichier inaccessible|Aucune sélection admissible confirmée)/.test(facts)){
@@ -1003,6 +1043,7 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
 export function responseLinks(intent,question,answer='') {
   const q=norm(question);
   if(intent==='format') return [LINKS.pronos,LINKS.conseils,LINKS.contact];
+  if(intent==='social')return officialSocialUrls(question);
   if(intent==='signup'||intent==='partner'){
     const provider=partnerFromMessage(question)||partnerFromMessage(answer);
     return provider?[PARTNER_LINKS[provider]]:[];
@@ -1663,6 +1704,8 @@ async function setPause(key,paused) {await db(`mx_telegram_assistant_chats?chat_
 export function guideIsContinuation(question,session=null) {
   if(session?.mode!=='guided')return false;
   const q=normalizeClientFrench(question);
+  const chosen=partnerFromMessage(question);
+  if(chosen&&q.replace(/[\s_.-]+/g,'')===chosen)return true;
   return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis bloque|je ne trouve pas|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie)/.test(q);
 }
 async function getAssistantSession(key){
@@ -2252,6 +2295,7 @@ export async function handleUpdate(update) {
   else if(intent==='canaux') answer=channelLine();
   else if(intent==='resultats') answer='📊 L’historique montre les sélections **gagnées, perdues et en attente**.\n'+LINKS.historique;
   else if(intent==='bonus') answer=formatPromo();
+  else if(intent==='social') answer=officialSocialMessage(text)||'Les liens sociaux officiels ne sont pas disponibles.';
   else if(intent==='live') answer='Les pronostics **LIVE** sont actuellement suspendus. Les pronostics publiés restent consultables.';
   else if(intent==='site') answer='🏠 Voici la page officielle de Mr XPRONOS.';
   else if(intent==='safety') answer='Si tu es en difficulté avec les paris, **arrête et évite de poursuivre tes pertes**. Parles-en à une personne de confiance.';
