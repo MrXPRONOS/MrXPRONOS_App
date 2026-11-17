@@ -54,3 +54,15 @@ Le mot « testé » se rapporte aux contrôles du code. Ni les tests synthétiqu
 - `telegram_webhook` (ancien bot coupons) : **version 38 ACTIVE**, non modifié.
 - PR #328 : ouverte en **draft** ; aucune fusion vers `main`.
 - Le statut ACTIVE et les tests Node ne valident pas NVIDIA réel, Ogg/Opus, le rendu Telegram réel, ni la qualité métier de toutes les réponses.
+
+## Deuxième série de corrections — continuation du 17 novembre 2026
+
+**Périmètre du travail :** terminer en priorité les lacunes purement logicielles, sans introduire de clé secrète, de source de cotes fictive ni de changement au bot historique.
+
+- **Guidage et compréhension (1, 3, 7)** : fonction `guideStepCompleted` pour ne pas avancer sur « OK » ou « D’accord » ; confirmation explicite « fait » ; `keepOneGuideStep` coupe la deuxième étape, y compris lorsqu'elle est formatée en Markdown ; « Je n'ai pas compris » conserve la session guidée.
+- **Données personnelles (12)** : demandes en langage naturel orientées vers `/delete_my_data` avec confirmation ; plus de message contradictoire affirmant que le serveur ne sait jamais supprimer les données. Les limites de cette suppression restent affichées (Telegram et certaines métadonnées techniques).
+- **Reprise humaine (9)** : commande administrateur `/history <chat>` pour consulter les 8 derniers messages avec rôle et masquage des secrets. Le texte de notification au responsable est également masqué. Anti-rafale de notification à 30 secondes, sans perte des messages entrants archivés. L'envoi humain exige toujours l'administrateur.
+- **Mesures (10)** : `/quality` présente désormais les interventions humaines et le nombre de conversations suspendues, en plus des succès/échecs NVIDIA.
+- **Connaissances et tests (2, 11)** : suite de scénarios anonymisés extraits de véritables essais et tests comparant code promo, seuil Pro/VIP, présence PWA, six réseaux sociaux et liens partenaires aux fichiers des pages officielles du dépôt.
+
+**Limites persistantes :** aucun test automatisé ne remplace le compte Telegram réel, les requêtes multimodales NVIDIA/ASR, le contrôle externe de légalité d'un bookmaker ou un flux temps réel de cotes. Les tests de cohérence des fichiers du dépôt ne certifient pas que les pages GitHub Pages ont fini de se propager. Les données personnelles incluses dans les pixels d'une image ne sont pas automatiquement expurgées avec garantie.
