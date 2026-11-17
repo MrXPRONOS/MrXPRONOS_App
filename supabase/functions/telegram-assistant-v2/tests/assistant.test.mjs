@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -334,4 +334,57 @@ test("salutation courte reconnue séparément de la commande de démarrage",()=>
  assert.equal(intentFor("cc"),"welcome");
  assert.equal(intentFor("/start"),"welcome");
  assert.equal(intentFor("Bonjour !"),"welcome");
+});
+
+test("réponses NVIDIA : extraction JSON compatible avec les modèles",()=>{
+ const json=parseAiReply('{"reply":"Merci, avec plaisir 😊","buttons":[]}');
+ assert.equal(json.reply,"Merci, avec plaisir 😊");
+ assert.equal(json.structured,true);
+ assert.deepEqual(json.buttons,[]);
+ const fenced=parseAiReply('``json\n{"reply":"Voici le lien.","buttons":["pronos"]}\n```");
+ assert.equal(fenced.reply,"Voici le lien.");
+ assert.deepEqual(fenced.buttons,["pronos"]);
+ const free=parseAiReply("Salut, que puis-je faire pour toi ?");
+ assert.equal(free.structured,false);
+ assert.ok(free.reply.startsWith("Salut"));
+});
+test("l'IA choisit les boutons sans promotion automatique",()=>{
+ assert.deepEqual(aiButtons(["pronos","bonus"],"Merci !"),[]);
+ assert.deepEqual(aiButtons(["pronos"],"Le code promo, c'est quoi ?"),[]);
+ assert.deepEqual(aiButtons(["pronos"],"Je veux les coupons du jour"),[LINKS.pronos]);
+ assert.deepEqual(aiButtons(["channel"],"Comment rejoindre le canal Telegram ?"),[LINKS.channel]);
+ assert.deepEqual(aiButtons(["partner_linebet"],"Je veux m'inscrire sur line bet"),[PARTNER_LINKS.linebet]);
+ assert.deepEqual(aiButtons(["partner_melbet"],"Je veux m'inscrire sur line bet"),[]);
+ assert.deepEqual(aiButtons(["site_trompeur"],"Quel est le lien ?"),[]);
+});
+test("l'IA peut proposer le lien après un choix de bookmaker dans l'historique",()=>{
+ const history=[{role:"user",content:"Je veux m'inscrire"},{role:"assistant",content:"Sur quel bookmaker souhaites-tu t'inscrire ?"}];
+ assert.deepEqual(aiButtons(["partner_linebet"],"line bet",history),[PARTNER_LINKS.linebet]);
+});
+test("contexte IA : faits de pronostics publiés uniquement",async()=>{
+ const now=new Date("2026-11-17T02:00:00Z");
+ let calls=0;
+ const data={matches:[
+  {date:"2026-11-17",event_date:"2026-11-17T18:00:00Z",category:"pro",recommendation_eligible:true,home_team:"Kuwait",away_team:"Honduras",prediction:{confidence:.85,prediction:"1X"}},
+  {date:"2026-11-17",event_date:"2026-11-17T17:00:00Z",category:"vip",recommendation_eligible:false,home_team:"Fake",away_team:"Match",prediction:{confidence:.95}}
+ ]};
+ const facts=await assistantFacts("Je veux les coupons du jour",[],{now,loadJson:async()=>{calls++;return data}});
+ assert.equal(calls,1);
+ assert.ok(facts.includes("Kuwait"));
+ assert.ok(!facts.includes("Fake"));
+ assert.ok(facts.includes("pronos.html"));
+});
+test("contexte IA : évite d'inventer quand la source est inaccessible",async()=>{
+ const now=new Date("2026-11-17T02:00:00Z");
+ const facts=await assistantFacts("Quels coupons aujourd'hui ?",[],{now,loadJson:async()=>null});
+ assert.match(facts,/Fichier inaccessible/);
+ assert.ok(!facts.includes("Kuwait"));
+});
+test("contexte IA : bookmaker et navigation vérifiée",async()=>{
+ const facts=await assistantFacts("Je veux m'inscrire sur line bet",[]);
+ assert.ok(facts.includes("Linebet"));
+ assert.ok(facts.includes(PARTNER_LINKS.linebet));
+ const urls=aiLinkCatalog();
+ assert.ok(urls.includes("partner_1xbet"));
+ assert.ok(urls.includes("sitemap"));
 });
