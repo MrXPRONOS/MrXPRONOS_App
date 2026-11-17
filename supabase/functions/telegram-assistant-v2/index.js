@@ -1315,6 +1315,24 @@ export async function inspectAsrEndpoint({url=env('MX_ASSISTANT_ASR_URL'),http=f
   }catch(error){return {configured:true,reachable:false,reason:'health_check_failed'};}
 }
 
+
+export function resolveVoiceConfirmation(reply,original=''){
+ const q=normalizeClientFrench(reply);
+ const yes=/^(oui|c.est ca|exact|correct|c.est bien cela|tout a fait)$/.test(q);
+ const correction=extractSpokenCorrection(reply);
+ if(yes)return {resolved:true,text:String(original||''),confirmed:true};
+ if(correction){
+  const platform=partnerFromMessage(correction);
+  // Ne déduire la demande d'inscription que si elle figurait clairement dans
+  // la première transcription, même imparfaite.
+  const text=platform&&/(inscri|ouvrir un compte|creer un compte|enregistr)/.test(normalizeClientFrench(original))
+   ?'Je veux m’inscrire sur '+PARTNER_NAMES[platform]
+   :correction;
+  return {resolved:true,text,confirmed:false};
+ }
+ return {resolved:false,text:String(reply||''),confirmed:false};
+}
+
 export function extractSpokenCorrection(question) {
   const q=String(question||'').trim();
   const correction=q.match(/^(?:non[,!. ]+)?(?:j.ai dit|je voulais dire|je disais|c.etait|j'ai dit|je parle de)\s*[:,-]?\s*(.{2,220})$/i);
@@ -1944,11 +1962,9 @@ export async function handleUpdate(update) {
   // Résolution d'une transcription vocale à faible confiance.
   if(liveSession?.mode==='awaiting_clarification'){
     const q=normalizeClientFrench(text);
-    const accepted=/^(oui|c.est ca|exact|correct|c.est bien cela|tout a fait)$/.test(q);
-    const correction=extractSpokenCorrection(text);
-    if(accepted||correction){
-      text=correction||liveSession.last_input;
-      // L'intention doit être celle de la transcription validée, pas le simple « oui ».
+    const confirmation=resolveVoiceConfirmation(text,liveSession.last_input);
+    if(confirmation.resolved){
+      text=confirmation.text;
       intent=intentFor(text);
       try{await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},liveSession);}catch(e){console.warn('voice_confirmation_clear_failed');}
       liveSession={...liveSession,mode:'idle',last_input:''};
