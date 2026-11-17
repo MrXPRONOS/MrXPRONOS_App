@@ -292,9 +292,27 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     completed = 0
     try:
         await client.connect()
-        src, library, public_user = await preflight_user(client, source, private, public)
+        # Do not stop all romantic-film publications when the first historic
+        # Telegram source has been renamed or has become inaccessible.
+        selected_source = None
+        for candidate in sources:
+            try:
+                src, library, public_user = await preflight_user(
+                    client, candidate, private, public)
+                selected_source = candidate
+                LOG.info("CinéX Désir : source initiale disponible : %s", candidate)
+                break
+            except (FloodWaitError, PeerFloodError):
+                raise
+            except Exception as exc:
+                LOG.warning("Source initiale %s indisponible : %s", candidate,
+                            type(exc).__name__)
+        if selected_source is None:
+            raise RuntimeError("CinéX Désir : aucune source accessible ; aucune publication.")
         source_peers = [src]
-        for extra_name in sources[1:]:
+        for extra_name in sources:
+            if extra_name.casefold() == selected_source.casefold():
+                continue
             # User-added sources from the bulk variable must be public,
             # readable and unprotected; never join a channel automatically.
             try:
@@ -302,6 +320,9 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 if (str(getattr(second, "username", "") or "").casefold()
                         != extra_name.lstrip("@").casefold()):
                     raise ValueError("Identifiant de la source complémentaire incohérent.")
+                if not getattr(second, "broadcast", False):
+                    LOG.warning("Source %s non diffuseur : ignorée.", extra_name)
+                    continue
                 if getattr(second, "noforwards", False):
                     LOG.warning("Source %s protégée : ignorée.", extra_name)
                     continue
