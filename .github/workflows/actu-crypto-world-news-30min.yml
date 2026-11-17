@@ -44,7 +44,7 @@ jobs:
       - name: Run editorial and duplicate-detection regression tests
         run: |
           python -m compileall -q crypto
-          python -m unittest crypto.test_news_digest_v1 crypto.test_production_live_v1 -v
+          python -m unittest crypto.test_news_digest_v1 crypto.test_news_media_v1 crypto.test_production_live_v1 -v
       - name: Read recent RSS news and publish only unseen qualified events
         run: python -m crypto.production_live_v1 --mode world
       - name: Save confirmed Telegram messages and event identities
