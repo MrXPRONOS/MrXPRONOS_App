@@ -31,6 +31,7 @@ BUTTON = {
     "inline_keyboard": [[{
         "text": "📲 REJOINDRE LE CANAL GRATUIT",
         "url": TARGET_URL,
+        "style": "primary",  # bleu selon l’API Telegram
     }]]
 }
 
@@ -38,61 +39,64 @@ BUTTON = {
 # aléatoires, et rappellent qu'un résultat passé ne garantit pas un gain.
 # Le texte est une légende directement attachée à l'image via sendPhoto.
 VARIANTS = (
-    ("06-provocateur", """🚨 <b>ARRÊTE D’ACHETER DES COUPONS POUR FINIR DÉÇU !</b> 💸
+    ("06-provocateur", """🚨 <b>ARRÊTE D’ACHETER DES COUPONS… POUR ACHETER DES REGRETS !</b> 💸
 
-Tu paies le coupon. Tu risques ta mise. Et quand ça perd, on te propose encore un « VIP sûr » ? 😅
+Tu paies le coupon. Tu risques ta mise. <i>Et quand ça perd, on te vend le « prochain sûr » ?</i> 😅
 
-<blockquote><b><i>Si quelqu’un dit gagner tout le temps, pourquoi te faire payer chaque ticket ?</i></b></blockquote>
+<blockquote><b><i>Si quelqu’un dit gagner à tous les coups, pourquoi insiste-t-il pour vendre ses tickets ?</i></b></blockquote>
 
-⚽ Chez <b>Mr XPRONOS</b>, découvre <b>nos coupons gratuitement</b>.
+⚽ Chez <b>Mr XPRONOS</b>, découvre les coupons <b>GRATUITEMENT</b>.
 
-📸 Ce ticket gagnant est un résultat passé, <i>pas une promesse de gain.</i>
+📲 <b>REJOINS LE CANAL TELEGRAM GRATUIT</b> 👇
 
-📲 <b>REJOINS NOTRE CANAL TELEGRAM GRATUIT</b> 👇
+🔞 <i>18+ • Aucun gain garanti. Les paris comportent des risques.</i>"""),
 
-🔞 <i>18+ • Les paris peuvent entraîner des pertes.</i>"""),
+    ("07-humour", """😂 <b>« COUPON VIP 100 % SÛR » : TON PORTEFEUILLE A DES SUEURS FROIDES.</b> 💀
 
-    ("07-humour", """😂 <b>LE COUPON PERD… MAIS LE VENDEUR NE RATE JAMAIS SON ENCAISSEMENT !</b> 💸
+Le vendeur : <i>« Cette fois, c’est du béton. »</i>
+Le résultat : ❌
+Ton portefeuille : <i>« On déménage. »</i> 🧳
 
-<blockquote><i>« Le prochain est sûr, frère. »</i>
-<b>Ton portefeuille :</b> <i>« Encore toi ? »</i> 🥲</blockquote>
+<blockquote><b><i>Un ticket payant ne devient pas gagnant par magie.</i></b></blockquote>
 
-🛑 Arrête de payer pour des promesses.
-⚽ <b>Nos coupons sont partagés gratuitement.</b>
+✅ <b>STOP aux coupons payants !</b> Nos pronostics sont partagés <b>GRATUITEMENT</b>.
 
 📲 <b>REJOINS MR XPRONOS SUR TELEGRAM</b> 👇
 
-🔞 <i>18+ • Aucun pari n’est garanti.</i>"""),
+🔞 <i>18+ • Les pronostics peuvent perdre.</i>"""),
 
-    ("08-direct", """💸 <b>ON T’A VENDU COMBIEN DE « COUPONS SÛRS » QUI ONT PERDU ?</b>
+    ("08-direct", """💸 <b>POURQUOI PAYER UN COUPON… QUI PEUT PERDRE ?</b>
 
-<blockquote><b><i>Un pronostic ne devient pas fiable parce qu’il est payant.</i></b></blockquote>
+<blockquote><b><i>Le prix d’un pronostic ne garantit jamais son résultat.</i></b></blockquote>
 
-✅ <b>Chez nous, les coupons sont GRATUITS.</b>
-📲 <b>REJOINS LE CANAL TELEGRAM</b> 👇
+❌ Arrête de payer pour des promesses.
+✅ <b>Récupère nos coupons GRATUITEMENT.</b>
 
-🔞 <i>18+ • Risque de perte.</i>"""),
-
-    ("09-humour-court", """💀 <b>UN COUPON PAYANT QUI PERD ? DOUBLE FACTURE.</b> 😂
-
-<blockquote><b><i>Tu paies pour l’acheter… puis tu risques ta mise pour le jouer.</i></b></blockquote>
-
-✋ <b>Arrête de payer l’accès aux pronostics.</b>
-⚽ <b>Nos coupons sont gratuits.</b>
-📲 <b>REJOINS NOTRE CANAL TELEGRAM</b> 👇
-
-🔞 <i>18+ • Risque de perte.</i>"""),
-
-    ("10-ticket-gratuit", """🏆 <b>CE TICKET A GAGNÉ. TON ACCÈS AU CANAL, LUI, EST GRATUIT.</b> 📲
-
-<blockquote><b><i>Un bon pronostic ne devrait pas se vendre comme une promesse de richesse.</i></b></blockquote>
-
-📸 Cote <b>4,18</b> sur ce ticket du 25 octobre. <i>Un exemple, pas une garantie.</i>
-
-💸 <b>STOP aux coupons payants qui te déçoivent.</b>
-📲 <b>REJOINS NOTRE TELEGRAM POUR LES COUPONS GRATUITS</b> 👇
+📲 <b>REJOINS LE CANAL TELEGRAM</b> et découvre nos analyses 👇
 
 🔞 <i>18+ • Joue responsablement.</i>"""),
+
+    ("09-humour-court", """💀 <b>COUPON PAYANT + PARI PERDANT = DOUBLE DOULEUR.</b> 😂
+
+<blockquote><b><i>Ton portefeuille mérite mieux qu’un « c’était presque gagné ».</i></b></blockquote>
+
+✋ <b>ARRÊTE D’ACHETER DES COUPONS.</b>
+⚽ Les nôtres ? <b>GRATUITS.</b>
+
+📲 <b>REJOINS NOTRE CANAL TELEGRAM</b> 👇
+
+🔞 <i>18+ • Aucun pari garanti.</i>"""),
+
+    ("10-ticket-gratuit", """🏆 <b>CE TICKET A GAGNÉ À 4,18. MAIS VOICI LA VRAIE BONNE NOUVELLE…</b> 👀
+
+📸 La photo montre un ticket passé, <i>pas une promesse de gain pour demain.</i>
+
+<blockquote><b><i>Pourquoi acheter des « coupons sûrs » quand tu peux consulter nos pronostics gratuitement ?</i></b></blockquote>
+
+💸 <b>STOP AUX COUPONS PAYANTS.</b>
+📲 <b>REJOINS MR XPRONOS SUR TELEGRAM — C’EST GRATUIT !</b> 👇
+
+🔞 <i>18+ • Risque de perte. Joue responsablement.</i>"""),
 )
 
 
@@ -129,6 +133,8 @@ def validate_content():
         raise ValueError("Cinq variantes sont obligatoires")
     if BUTTON["inline_keyboard"][0][0]["url"] != TARGET_URL:
         raise ValueError("Destination du bouton incorrecte")
+    if BUTTON["inline_keyboard"][0][0].get("style") != "primary":
+        raise ValueError("Le bouton doit utiliser le style bleu primary")
 
     names = set()
     for name, caption in VARIANTS:
@@ -205,6 +211,14 @@ def deliver(variant: str) -> int:
         ):
             print("::error::Telegram a refusé", name, "HTTP", response.status_code)
             return 1
+        # La réponse Telegram confirme le message, et parfois le style de son bouton.
+        returned_keyboard = (message.get("reply_markup") or {}).get("inline_keyboard", [])
+        returned_button = returned_keyboard[0][0] if returned_keyboard and returned_keyboard[0] else {}
+        returned_style = returned_button.get("style")
+        if returned_style == "primary":
+            print("BUTTON_BLUE_CONFIRMED", name)
+        else:
+            print("BUTTON_BLUE_REQUESTED_UNVERIFIED", name, "Telegram style retour:", returned_style)
         link = "https://t.me/" + TEST_USERNAME + "/" + str(message_id)
         print("COUPON_V2_SENT", name, link)
         published.append((name, link))
