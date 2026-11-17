@@ -1878,7 +1878,7 @@ async function fetchRecentModelRanking() {
 }
 
 /** Agrégats uniquement : ne lit ni ne révèle le contenu des conversations. */
-export function qualityMetrics({events=[],updates=[],messages=[]}={}) {
+export function qualityMetrics({events=[],updates=[],messages=[],chats=[]}={}) {
  const rows=Array.isArray(events)?events:[];
  const text=Array.isArray(messages)?messages:[];
  return {
@@ -1888,7 +1888,9 @@ export function qualityMetrics({events=[],updates=[],messages=[]}={}) {
   nvidiaAttempts:rows.filter(x=>x.source==='chat').length,
   nvidiaSuccess:rows.filter(x=>x.source==='chat'&&x.status==='ok').length,
   nvidiaTimeouts:rows.filter(x=>x.source==='chat'&&x.status==='timeout').length,
-  voiceAttempts:rows.filter(x=>x.source==='speech').length
+  voiceAttempts:rows.filter(x=>x.source==='speech').length,
+  humanReplies:text.filter(x=>x.role==='human').length,
+  pausedChats:(Array.isArray(chats)?chats:[]).filter(x=>x.paused===true).length
  };
 }
 export function modelDiagnostics(rows=[]){
@@ -2079,15 +2081,18 @@ async function adminCommand(msg) {
     try{
       const start=new Date(Date.now()-86400e3).toISOString();
       const since=encodeURIComponent(start);
-      const [events,updates,msgs]=await Promise.all([
+      const [events,updates,msgs,chats]=await Promise.all([
         db('mx_telegram_assistant_model_events?select=model,status,duration_ms,source&created_at=gte.'+since+'&order=created_at.desc&limit=1000'),
         db('mx_telegram_assistant_updates?select=update_id&handled_at=gte.'+since+'&limit=1000').catch(()=>[]),
-        db('mx_telegram_assistant_messages?select=role&created_at=gte.'+since+'&limit=1000')
+        db('mx_telegram_assistant_messages?select=role&created_at=gte.'+since+'&limit=1000'),
+        db('mx_telegram_assistant_chats?select=paused&limit=1000')
       ]);
-      const stats=qualityMetrics({events,updates,messages:msgs});
+      const stats=qualityMetrics({events,updates,messages:msgs,chats});
       return say(msg.chat.id,'**Qualité de service — dernières 24 h**\n\n'
         +'Messages clients enregistrés : '+stats.users+'\n'
         +'Réponses automatiques enregistrées : '+stats.answers+'\n'
+        +'Réponses de responsable : '+stats.humanReplies+'\n'
+        +'Conversations actuellement en pause : '+stats.pausedChats+'\n'
         +'Tentatives NVIDIA : '+stats.nvidiaAttempts+'\n'
         +'Réussites NVIDIA : '+stats.nvidiaSuccess+'\n'
         +'Timeouts NVIDIA : '+stats.nvidiaTimeouts+'\n'
