@@ -70,7 +70,7 @@ export function socialMediaRequest(input='') {
   const q=normalizeClientFrench(input);
   const all=/(?:reseaux? sociaux|tous (?:vos|tes|nos) reseaux|liens? (?:de|des) (?:vos|nos|tes)? ?reseaux)/.test(q);
   const keys=['telegram','whatsapp','instagram','facebook','youtube','threads','tiktok'].filter(k=>new RegExp('\\b'+k+'\\b','i').test(q));
-  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau)/.test(q);
+  const wantsLink=/(?:lien|url|adresse|page|compte|envoie|envoi|donne|partage|rejoindre|suivre|reseau|je veux|seulement|uniquement)/.test(q);
   return {requested:all||(keys.some(k=>k!=='telegram')&&wantsLink),all,keys};
 }
 export function officialSocialUrls(input='') {
@@ -124,6 +124,12 @@ export function partnerFromMessage(message='') {
  * ni de l'âge légal ni de l'existence de coupons ou de liens partenaires.
  */
 
+/** Le partenaire demandé reste celui du client : aucune substitution commerciale. */
+export function unverifiedBookmakerMention(message=''){
+  const q=normalizeClientFrench(message);
+  const match=q.match(/\b(?:whats[\s_-]*bet|what[\s_-]*bet)\b/);
+  return match?'Whatsbet':null;
+}
 export function suggestPartnerSpelling(message=''){
   if(partnerFromMessage(message))return null;
   const q=normalizeClientFrench(message).replace(/[^a-z0-9 ]/g,' ');
@@ -231,10 +237,11 @@ export function analyzeClientIntent(message='',history=[]) {
   const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies|miser double pour recuperer|je joue a credit|j.ai emprunte pour jouer|parier pour payer une dette|jouer mes economies|arreter de parier|impossible de m.arreter)/.test(q);
   const dataRights=/(supprimer|effacer|oublier|retirer|exporter|telecharger).{0,35}(?:donnees|historique|messages|conversation|infos personnelles)/.test(q);
   const secrets=/(?:mot de passe|otp|code sms|code de verification|phrase secrete|cle privee|seed phrase)/.test(q) &&
-    /(envoi(?:e|es|er|ez|s)?|envoie|donne|donner|partage|partager|transmettre|montrer|voici|photo)/.test(q);
+    /(envoi(?:e|es|er|ez|s)?|envoie|donne|donner|partage|partager|transmettre|montrer|voici|photo|garder|garde|conserver|stocke|recevoir|recois|peux.tu|tu peux)/.test(q);
   const nickname=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?|w[aà]ris\s*p[té]|monsieur espronos)/.test(q);
   const likelyPartner=/(?:bedclicker|betclicker|bet clicker|bet cliker|betclicke[r]?)/.test(q)?'betclic':suggestPartnerSpelling(message);
   return {odds,score,picks,install,minor,loss,secrets,dataRights,nickname,likelyPartner,
+    unknownBrand:unverifiedBookmakerMention(message),
     partner:partnerFromMessage(message),
     needsClarification:!!likelyPartner && !partnerFromMessage(message),
     followedConversation:previous.length>0};
@@ -296,6 +303,7 @@ export function combineClientOdds(text=''){
 }
 
 export function ambiguousPartnerQuestion(details) {
+  if(details.unknownBrand)return 'Je ne trouve pas **'+details.unknownBrand+'** dans notre catalogue de partenaires vérifiés. Peux-tu confirmer le nom exact du bookmaker ? Je ne vais pas te donner le lien d’une autre plateforme sans ta confirmation.';
   return details.needsClarification
     ? 'Tu parles de **'+PARTNER_NAMES[details.likelyPartner]+'** ? Confirme le nom avant que je te transmette des indications ou un lien.'
     : '';
@@ -401,7 +409,7 @@ export function knowledgePrompt(){
 export function intentFor(input) {
   const text = normalizeClientFrench(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
-  if (/^\/(?:stop|annuler|arreter)(?:@\w+)?(?:\s|$)/.test(text)||/(?:arrete|annule|quitte) (?:le|ce) (?:guide|guidage|tutoriel)/.test(text))return 'guide_cancel';
+  if (/^\/(?:stop|annuler|arreter)(?:@\w+)?(?:\s|$)/.test(text)||/(?:arrete|annule|quitte|arreter|annuler) (?:le|ce) (?:guide|guidage|tutoriel)/.test(text)||/(?:je veux|je souhaite) (?:arreter|stopper|terminer) (?:le|ce) (?:guide|guidage)/.test(text))return 'guide_cancel';
   if (/^\/(?:restart|recommencer|reset)(?:@\w+)?(?:\s|$)/.test(text)||/(?:recommence|reprends?) (?:tout )?(?:depuis le debut|a zero|la procedure)/.test(text))return 'guide_restart';
   if (/(comment installer|installer l.appli|installation du site|ajouter a l.ecran|installer le site|installer l.application)/.test(text))return 'site_nav';
   if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
@@ -998,6 +1006,8 @@ export function durableConversationSummary(history=[],previous='',question='',an
 
 export function verifiedReplyReview(reply,question,facts='',history=[]) {
   const conversationalIntent=intentFor(question);
+  const unverified=unverifiedBookmakerMention(question);
+  if(unverified)return ambiguousPartnerQuestion({unknownBrand:unverified});
   if(conversationalIntent==='thanks')return 'Avec plaisir 😊';
   if(conversationalIntent==='ack')return 'Parfait 👍';
   if(conversationalIntent==='welcome'&&!/^\/(?:start|help)/i.test(question.trim()))return 'Salut 👋 Comment puis-je t’aider ?';
@@ -1741,7 +1751,7 @@ export function guideIsContinuation(question,session=null) {
   const q=normalizeClientFrench(question);
   const chosen=partnerFromMessage(question);
   if(chosen&&q.replace(/[\s_.-]+/g,'')===chosen)return true;
-  return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis bloque|je ne trouve pas|je n.ai pas compris|j.ai pas compris|explique autrement|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie)/.test(q);
+  return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis (?:bloque|sur)|je ne (?:trouve|vois|comprends)|je n.ai pas compris|j.ai pas compris|explique autrement|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|ca ne propose pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie|est.ce que je dois|sur (?:android|iphone|windows)|avec (?:chrome|safari))/.test(q);
 }
 async function getAssistantSession(key){
   const result=await db('mx_telegram_assistant_sessions?chat_key=eq.'+encodeURIComponent(key)+'&select=*&limit=1');
