@@ -2038,14 +2038,20 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
 async function notifyAdmin(key,user,message,businessId='') {
   if(!Number.isSafeInteger(adminId()) || adminId()<=0) return false;
   try {
-    await say(adminId(),`📩 Reprise humaine Mr XPRONOS\nExpéditeur : ${cut(user,100)}\nChat : ${key}\nMessage : ${cut(message,950)}\n\nRépondre : /reply ${key} ton message\nReprendre l'IA : /resume ${key}`);
+    await say(adminId(),`📩 Reprise humaine Mr XPRONOS\nExpéditeur : ${cut(redactSensitiveText(user),100)}\nChat : ${key}\nMessage : ${cut(redactSensitiveText(message),950)}\n\nHistorique : /history ${key}\nRépondre : /reply ${key} ton message\nReprendre l'IA : /resume ${key}`);
     return true;
   } catch(err){console.warn('admin_notification_failed',String(err));return false;}
 }
+export function formatAdminHistory(rows=[],limit=8) {
+  const safe=(Array.isArray(rows)?rows:[]).slice(0,Math.min(12,Math.max(1,limit)));
+  if(!safe.length)return 'Aucun message enregistré pour cette discussion.';
+  const labels={user:'👤 Client',assistant:'🤖 Assistant',human:'👨‍💼 Responsable'};
+  return safe.map(row=>(labels[row.role]||'Message')+' : '+cut(redactSensitiveText(row.content||''),220)).join('\n\n');
+}
 async function adminCommand(msg) {
   const text=String(msg.text||'').trim();
-  const match=text.match(/^\/(reply|pause|resume|chats|status|diagnostic|health|quality)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
-  if(!match) return say(msg.chat.id,'Commandes admin : /chats, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status');
+  const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
+  if(!match) return say(msg.chat.id,'Commandes admin : /chats, /history <chat>, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status, /quality');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
   if(cmd==='status') return say(msg.chat.id,`Assistant V2 actif. Réponses compte Business : ${businessModeEnabled()?'activées':'désactivées'}. NVIDIA : ${env('MX_ASSISTANT_NVIDIA_KEY')?'configuré':'À CONFIGURER'}. Canal coupons : ${channelUrl()||'NON CONFIRMÉ'}`);
   if(cmd==='diagnostic') {
@@ -2105,6 +2111,11 @@ async function adminCommand(msg) {
   if(!key) return say(msg.chat.id,'Indique le numéro du chat.');
   const row=await getChat(key);
   if(!row) return say(msg.chat.id,'Chat inconnu. Utilise /chats.');
+  if(cmd==='history') {
+    const rows=await db('mx_telegram_assistant_messages?chat_key=eq.'+encodeURIComponent(key)+'&select=role,content&order=id.desc&limit=8');
+    const ordered=Array.isArray(rows)?[...rows].reverse():[];
+    return say(msg.chat.id,'**Derniers échanges avec le client**\n\n'+formatAdminHistory(ordered));
+  }
   if(cmd==='reply') {
     const body=words.join(' ').trim();
     if(!body) return say(msg.chat.id,'Utilisation : /reply <chat> <message>');
@@ -2153,7 +2164,7 @@ export async function handleUpdate(update) {
   }
   if(await wasHandled(id)) return;
   const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
-  if(isOwner && /^\/(reply|pause|resume|chats|status|diagnostic|health|quality)(?:@\w+)?\b/i.test(text)) {
+  if(isOwner && /^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
   const key=chatKey(msg);
