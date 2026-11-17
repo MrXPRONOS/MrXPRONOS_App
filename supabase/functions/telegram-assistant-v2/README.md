@@ -90,3 +90,20 @@ Les réponses du bot utilisent désormais une mise en forme HTML sûre : gras, i
 - Les commandes existantes, la configuration Business et les webhooks du bot coupons ne sont pas modifiés par cette fonctionnalité.
 
 Une réponse de secours sans formatage ou sans couleurs personnalisées est prévue si un ancien client ou l'API rejette une option.
+
+## Base de connaissances et concision (17 novembre 2026)
+
+Les faits sont centralisés dans `PROJECT_KNOWLEDGE` du fichier `index.js`, en se fondant sur les pages `index.html`, `pronos.html`, `bonus.html`, `historique.html` du dépôt :
+
+- Code partenaire **XPVIP** ; uniquement lorsque le bookmaker accepte ce code, conditions à vérifier.
+- Pronostics **Pro** et **VIP** gratuits ; seuil de **79 % de confiance estimée** publié sur la page pronostics (pas une probabilité de gain certaine ni un taux de réussite historique).
+- Sélections selon disponibilité des données du jour, jamais de promesse d’un coupon tous les jours. Les réponses sur les coupons et scores exacts lisent toujours les fichiers publics publiés plutôt que d’inventer des matchs.
+- Résultats : sélections gagnées, perdues, en attente ; chiffres de réussite calculés sur les seules sélections évaluées.
+- Canal indiqué par la page d’accueil : `https://t.me/mrxpronosfr`. Une URL valide en secret `MX_ASSISTANT_COUPONS_CHANNEL_URL` peut la remplacer après vérification.
+- Pronostics LIVE temporairement suspendus. Aucune offre VIP payante, promesse de gains ni demande de données sensibles.
+
+**Politique de réponse :** une phrase de 10 à 35 mots par défaut pour NVIDIA NIM, deux phrases si nécessaire ; développement uniquement sur demande explicite. Le bot ne répète pas les salutations, les promotions ou les liens inutilement. Les FAQ connues sont répondues directement, de façon concise.
+
+**Politique des boutons :** les boutons ne sont plus ajoutés sur les salutations, conversations générales, simples conseils ou questions « quel est le code promo ? ». Ils apparaissent seulement sur des demandes de pronostics, scores, résultats, canal, accès au site ou liens/conditions d’offres. Le rendu `/format` reste une démonstration volontaire. Les liens hors de ce contexte sont masqués, y compris s’ils ont été ajoutés par l’IA.
+
+**Ne pas activer Telegram Business pendant les essais.** Garder le webhook et les bots de coupons existants isolés. Pour tester : `/start`, `Quel est ton code promo ?`, `Les pronostics sont gratuits ?`, `Vous publiez chaque jour ?`, `Je veux les coupons du jour`, `Comment rejoindre votre canal ?`, `Merci`.
