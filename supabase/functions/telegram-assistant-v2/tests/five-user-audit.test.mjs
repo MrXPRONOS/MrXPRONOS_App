@@ -232,6 +232,7 @@ test('five virtual Telegram users send 100 messages through the real handler wit
  assert.ok(!at(911002,2).response.includes('Real Madrid'),'No invented match');
  assert.ok(!at(911002,8).response.includes('2-1'),'No invented score');
  const genericCount=transcript.filter(x=>x.response.includes('Je peux t’aider sur les pronostics, le site ou un guide en cours.')).length;
+ console.log('MX_100_GENERIC_DETAILS '+JSON.stringify(transcript.filter(x=>x.response.includes('Je peux t’aider sur les pronostics, le site ou un guide en cours.')).map(x=>({user:x.user,n:x.n,q:x.question,reply:x.response,step:x.step,guide:x.guide_mode}))));
  assert.equal(genericCount,0,'The five conversations should not contain generic nonanswers');
  console.log('MX_AUDIT_SUMMARY '+JSON.stringify({users:profiles.map(x=>({id:x.id,topic:x.topic,messages:x.messages.length})),
   total,aiMock:true,realTelegram:false,realNvidia:false,genericCount,
