@@ -127,74 +127,92 @@ def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
 
 
 def episode_audit(catalogue: dict, observed: list, *, category: str,
-                  ignored_unnumbered: int = 0) -> dict:
-    """Persist source inventory and report gaps separately from missing uploads.
+                  ignored_unnumbered: int = 0,
+                  eligibility_reasons: dict | None = None) -> dict:
+    """Audit unique episodes by canonical title; preserve all historic source IDs.
 
-    Source gaps are suspects until history scanning is complete; no episode
-    number is synthesized and no missing file is automatically requested.
+    Existing source_observed keys are NOT renamed or deleted. Historical keys
+    such as Death-Parade-EP05 and Death-Parade-480p are unified only for
+    reporting, eligibility and the episode coverage check.
     """
-    import re
-    import unicodedata
+    from .short_series import normalized_key
 
-    def normalize_title(title):
-        name = re.sub(r"(?i)^@[a-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", str(title))
-        name = re.sub(r"(?i)\b(?:s\d{1,2}|saison\s*\d+|mp4|mkv|vf|fv)\b", " ", name)
-        name = unicodedata.normalize("NFKD", name.lower()).encode("ascii", "ignore").decode()
-        return re.sub(r"[^a-z0-9]+", "-", name).strip("-")[:55]
-
-    series_catalogue = catalogue.get("series", {})
-    alias = {normalize_title(entry.get("title", "")): key
-             for key, entry in series_catalogue.items() if entry.get("title")}
+    indexed_series = catalogue.get("series", {})
     source_inventory = catalogue.setdefault("source_observed", {})
+    # Append raw references idempotently, never rewrite existing receipts.
     for row in observed:
-        key = row["series"] if row["series"] in series_catalogue else alias.get(row["series"], row["series"])
-        season, episode = str(row["season"]), str(row["episode"])
-        refs = source_inventory.setdefault(key, {}).setdefault(season, {}).setdefault(episode, [])
-        if row["source_key"] not in refs:
-            refs.append(row["source_key"])
+        name = str(row["series"])
+        season, episode = str(int(row["season"])), str(int(row["episode"]))
+        entries = source_inventory.setdefault(name, {}).setdefault(
+            season, {}).setdefault(episode, [])
+        if row["source_key"] not in entries:
+            entries.append(row["source_key"])
+
+    source_by_canonical = {}
+    for old_key, seasons in source_inventory.items():
+        key = normalized_key(old_key) or old_key
+        target = source_by_canonical.setdefault(key, {})
+        for season, numbers in seasons.items():
+            destination = target.setdefault(str(int(season)), {})
+            for number, refs in numbers.items():
+                group = destination.setdefault(str(int(number)), set())
+                group.update(str(ref) for ref in refs)
 
     indexed = {}
-    numbering_gaps = []
-    for key, entry in series_catalogue.items():
+    for old_key, entry in indexed_series.items():
+        key = normalized_key(entry.get("title", "")) or normalized_key(old_key) or old_key
         for season, episodes in entry.get("episodes", {}).items():
-            nums = sorted({int(n) for n in episodes if str(n).isdigit()})
-            if not nums:
-                continue
-            indexed[(key, str(season))] = set(nums)
-            gaps = sorted(set(range(nums[0], nums[-1] + 1)) - set(nums))
-            if gaps:
-                numbering_gaps.append({
-                    "series": key, "season": str(season),
-                    "missing_between_known": gaps[:40], "truncated": len(gaps) > 40,
-                })
+            position = (key, str(int(season)))
+            indexed.setdefault(position, set()).update(
+                int(number) for number in episodes if str(number).isdigit()
+            )
+
+    numbering_gaps = []
+    for (key, season), nums in indexed.items():
+        if not nums:
+            continue
+        missing = sorted(set(range(min(nums), max(nums) + 1)) - nums)
+        if missing:
+            numbering_gaps.append({
+                "series": key, "season": season, "missing_between_known": missing[:40],
+                "truncated": len(missing) > 40,
+            })
 
     source_gaps = []
     not_indexed = []
-    for key, seasons in source_inventory.items():
+    for key, seasons in source_by_canonical.items():
         for season, numbers in seasons.items():
-            nums = sorted(int(n) for n in numbers if str(n).isdigit())
+            nums = sorted(int(n) for n in numbers)
             if not nums:
                 continue
             gaps = sorted(set(range(nums[0], nums[-1] + 1)) - set(nums))
             if gaps:
                 source_gaps.append({
-                    "series": key, "season": str(season),
-                    "not_observed_between_known": gaps[:40], "truncated": len(gaps) > 40,
+                    "series": key, "season": season,
+                    "not_observed_between_known": gaps[:40],
+                    "truncated": len(gaps) > 40,
                 })
             for number in nums:
-                if number not in indexed.get((key, str(season)), set()):
+                if number not in indexed.get((key, season), set()):
                     not_indexed.append({
-                        "series": key, "season": str(season), "episode": number,
+                        "series": key, "season": season, "episode": number,
                         "source_instances": len(numbers[str(number)]),
                     })
 
     scans = catalogue.get("scans", {})
+    reasons = {}
+    for reason in (eligibility_reasons or {}).values():
+        reasons[reason] = reasons.get(reason, 0) + 1
     report = {
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "category": category,
         "scanned_episode_candidates": len(observed),
+        "source_title_variants": len(source_inventory),
+        "canonical_titles": len(source_by_canonical),
+        "source_title_variants_collapsed": len(source_inventory) - len(source_by_canonical),
         "source_episode_numbers_observed": sum(
-            len(numbers) for seasons in source_inventory.values() for numbers in seasons.values()),
+            len(numbers) for seasons in source_by_canonical.values()
+            for numbers in seasons.values()),
         "not_yet_indexed": not_indexed[:100],
         "not_yet_indexed_total": len(not_indexed),
         "numbering_gaps": numbering_gaps[:100],
@@ -202,14 +220,17 @@ def episode_audit(catalogue: dict, observed: list, *, category: str,
         "source_numbering_gaps": source_gaps[:100],
         "source_numbering_gap_seasons": len(source_gaps),
         "unnumbered_videos_skipped": ignored_unnumbered,
-        "source_scan_complete": bool(scans) and all(s.get("complete") for s in scans.values()),
-        "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
+        "eligibility_rejections": reasons,
+        "source_scan_complete": bool(scans) and all(
+            scan.get("complete") for scan in scans.values()),
+        "note": "Titres normalisés pour le diagnostic uniquement ; trous et épisodes en attente ne prouvent pas une copie autorisée ou disponible.",
     }
     catalogue["audit"] = report
     if source_gaps or numbering_gaps:
-        LOG.warning("%s: sources avec trous=%s, index avec trous=%s, couverture historique complète=%s",
-                    category, len(source_gaps), len(numbering_gaps), report["source_scan_complete"])
-    LOG.info("%s: épisodes sources uniques=%s, trouvés sans index=%s, vidéos non numérotées=%s",
-             category, report["source_episode_numbers_observed"],
-             len(not_indexed), ignored_unnumbered)
+        LOG.warning("%s : source_gaps=%s, index_gaps=%s, historique_complet=%s",
+                    category, len(source_gaps), len(numbering_gaps),
+                    report["source_scan_complete"])
+    LOG.info("%s : variantes titres=%s, séries canoniques=%s, épisodes uniques=%s, non indexés=%s",
+             category, len(source_inventory), len(source_by_canonical),
+             report["source_episode_numbers_observed"], len(not_indexed))
     return report
