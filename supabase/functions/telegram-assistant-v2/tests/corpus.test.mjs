@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {intentFor,analyzeClientIntent,contextualDestinations} from "../index.js";
 
 const csv=readFileSync(new URL("./fixtures/1000_messages_clients.csv",import.meta.url),"utf8");
 function parseCSVRow(line){
@@ -47,5 +48,26 @@ test("vérifie l'existence des fautes, SMS, vocaux et cas sensibles",()=>{
   }
   for(const intent of ["installer","canal","coupon_aujourdhui","inscription","vocal_confus","photo","mineur","perte_argent","securite"]){
     assert.ok(all.some(x=>x[index.intention]===intent),intent);
+  }
+});
+test("les 1000 formulations passent dans le moteur de règles sans erreur",()=>{
+  for(const row of all){
+    const question=row[index.message_client];
+    const intent=intentFor(question);
+    const details=analyzeClientIntent(question);
+    const destinations=contextualDestinations(question);
+    assert.equal(typeof intent,"string");
+    assert.equal(typeof details,"object");
+    assert.ok(Array.isArray(destinations));
+    assert.ok(destinations.length<=5);
+  }
+});
+test("les questions mineur ne peuvent pas déclencher un lien bookmaker",()=>{
+  for(const row of all.filter(r=>r[index.intention]==="mineur")){
+    const question=row[index.message_client];
+    const details=analyzeClientIntent(question);
+    if(!details.minor)continue;
+    const links=contextualDestinations(question);
+    assert.ok(!links.some(url=>/reffpa|lb-aff|refpa3665|1wrbgb|bwredir|betpari-click/.test(url)));
   }
 });
