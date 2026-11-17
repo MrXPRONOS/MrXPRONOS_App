@@ -369,8 +369,8 @@ test("contexte IA : faits de pronostics publiés uniquement",async()=>{
   {date:"2026-11-17",event_date:"2026-11-17T18:00:00Z",category:"pro",recommendation_eligible:true,home_team:"Kuwait",away_team:"Honduras",prediction:{confidence:.85,prediction:"1X"}},
   {date:"2026-11-17",event_date:"2026-11-17T17:00:00Z",category:"vip",recommendation_eligible:false,home_team:"Fake",away_team:"Match",prediction:{confidence:.95}}
  ]};
- const facts=await assistantFacts("Je veux les coupons du jour",[],{now,loadJson:async()=>{calls++;return data}});
- assert.equal(calls,1);
+ const facts=await assistantFacts("Je veux les coupons du jour",[],{now,loadJson:async(url)=>{calls++;return url.endsWith("/data.json")?data:null}});
+ assert.equal(calls,2); // data.json + second source schedule for consistency
  assert.ok(facts.includes("Kuwait"));
  assert.ok(!facts.includes("Fake"));
  assert.ok(facts.includes("pronos.html"));
