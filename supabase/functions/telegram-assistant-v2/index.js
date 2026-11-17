@@ -1228,6 +1228,10 @@ export function groundedQuestionReply(question='',history=[],session=null){
  const hist=normalizeClientFrench(history.slice(-8).filter(x=>x.role==='user').map(x=>x.content||'').join(' '));
  const game=lastClientMatch(question,history);
  if(session?.mode==='guided'&&guideIsContinuation(question,session))return null;
+ if(/(?:creer un compte|m.inscrire|s.inscrire|ouvrir un compte)/.test(q)&&partnerFromMessage(question)){
+   const partner=partnerFromMessage(question);
+   return 'Pour ouvrir un compte sur **'+PARTNER_NAMES[partner]+'**, utilise uniquement le bouton partenaire ci-dessous si le service est autorisé dans ton pays. Je peux te guider **une étape à la fois** ; ne me transmets aucun mot de passe ni code OTP.';
+ }
  if(/^https:\/\/t\.me\//i.test(String(question||'').trim())){
    const url=String(question).trim();
    if(url===channelUrl())return 'Oui, c’est l’adresse enregistrée de notre canal Telegram de pronostics.';
