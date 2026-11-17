@@ -1,6 +1,6 @@
 # Mr XPRONOS — 80 améliorations : vérification de l'implémentation
 
-Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-20261107`.
+Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `feature/telegram-assistant-nvidia-v2-20261107`.
 
 ## Les quatre axes fondamentaux
 
@@ -28,10 +28,10 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 - [ ] **10. Contrôler le protocole du service ASR** — 🟡 Partielle. *Formats contrôlés, endpoint réel non vérifié*
 - [x] **11. Reconnaître les noms de bookmakers après transcription** — ✅ Complète au niveau du code et des tests. *Contrôle déterministe après transcription*
 - [x] **12. Faire confirmer Bedclicker avant un lien Betclic** — ✅ Complète au niveau du code et des tests. *Confirmation obligatoire*
-- [ ] **13. Utiliser un score de confiance ASR** — ⬜ Non implémentée. *La passerelle actuelle ne fournit pas ce score*
+- [ ] **13. Utiliser un score de confiance ASR** — 🟡 Partielle. *Évaluation qualitative des transcriptions à partir des signes de dégradation, sans score de probabilité fiable de l’ASR*
 - [ ] **14. Gérer accents et répétitions** — 🟡 Partielle. *Normalisation de variantes, pas évaluation acoustique*
-- [ ] **15. Conserver la conversation après transcription confuse** — 🟡 Partielle. *Historique augmenté à 20 messages*
-- [ ] **16. Réinterpréter une transcription corrigée par le client** — 🟡 Partielle. *L’IA exploite l’historique, pas de procédure dédiée*
+- [x] **15. Conserver la conversation après transcription confuse** — ✅ Complète au niveau du code et des tests. *Contexte vocal confirmé en mémoire de session ; réponse « oui » ou correction textuelle reliée au dialogue*
+- [x] **16. Réinterpréter une transcription corrigée par le client** — ✅ Complète au niveau du code et des tests. *La commande « Non, j’ai dit … » rectifie la transcription persistante avant la réponse IA*
 
 ## C. Compréhension du langage
 
@@ -47,11 +47,11 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 ## D. Guidage pas à pas
 
 - [x] **25. Reconnaître les demandes de guide** — ✅ Complète au niveau du code et des tests. *Expressions courantes et confirmation « fait »*
-- [ ] **26. Conserver la progression durablement** — 🟡 Partielle. *Historique en base, sans table d’étapes dédiée*
+- [x] **26. Conserver la progression durablement** — ✅ Complète au niveau du code et des tests. *État des étapes, but et plateforme persistés dans la table RLS mx_telegram_assistant_sessions*
 - [x] **27. Envoyer une seule étape à la fois** — ✅ Complète au niveau du code et des tests. *Découpage du guide et tests*
 - [x] **28. Ne pas déclarer une action réussie sans confirmation** — ✅ Complète au niveau du code et des tests. *Le bot attend « fait »*
 - [x] **29. Reconnaître fait, fini, suivant, terminé** — ✅ Complète au niveau du code et des tests. *Expressions courantes gérées*
-- [ ] **30. Rester sur une étape en cas de blocage** — 🟡 Partielle. *Heuristique, cas complexes incomplets*
+- [x] **30. Rester sur une étape en cas de blocage** — ✅ Complète au niveau du code et des tests. *Questions de blocage et captures conservent l’étape, les nouveaux sujets ferment le guide*
 - [ ] **31. Utiliser la photo pour guider l’étape** — 🟡 Partielle. *Dépend de la vision NVIDIA*
 - [x] **32. Reprendre ou abandonner un guide par commande** — ✅ Complète au niveau du code et des tests. *`/restart`, « Recommence depuis le début » et `/stop` sont pris en charge ; la conservation de progression reste partielle (point 26).*
 
@@ -80,9 +80,9 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 ## G. Site et communauté
 
 - [x] **49. Connaître installer.html** — ✅ Complète au niveau du code et des tests. *Lien officiel ajouté au bot*
-- [ ] **50. Inclure la page installation dans le sitemap public** — 🟡 Partielle. *Modification commise sur branche non publiée*
+- [x] **50. Inclure la page installation dans le sitemap public** — ✅ Complète au niveau du code et des tests. *Page installer.html ajoutée au sitemap sur la branche main (commit 60787aaf) ; propagation du site externe à vérifier*
 - [x] **51. Offrir un bouton vers l’installation** — ✅ Complète au niveau du code et des tests. *Lien testé*
-- [ ] **52. Adapter installation Android, iOS et Windows** — 🟡 Partielle. *IA informée, test appareil manquant*
+- [x] **52. Adapter installation Android, iOS et Windows** — ✅ Complète au niveau du code et des tests. *Guides iPhone/Safari, Android/Chrome et Windows/Edge dérivés de la page officielle ; tests de contenu*
 - [x] **53. Diriger vers les pronostics et non l’accueil générique** — ✅ Complète au niveau du code et des tests. *Destination dédiée*
 - [x] **54. Envoyer le canal pour les alertes de coupons** — ✅ Complète au niveau du code et des tests. *Lien officiel*
 - [x] **55. Proposer le site et le canal ensemble** — ✅ Complète au niveau du code et des tests. *CTA double vérifié*
@@ -101,12 +101,12 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 
 ## I. Fiabilité des modèles
 
-- [ ] **65. Suivre les temps de réponse** — 🟡 Partielle. *Logs de modèles, pas de tableau de bord dédié*
-- [ ] **66. Éviter les modèles NVIDIA qui échouent en boucle** — 🟡 Partielle. *Circuit breaker temporaire par instance*
+- [x] **65. Suivre les temps de réponse** — ✅ Complète au niveau du code et des tests. *Latences, résultats et modèles enregistrés en table RLS ; commande administrateur /health*
+- [x] **66. Éviter les modèles NVIDIA qui échouent en boucle** — ✅ Complète au niveau du code et des tests. *Historique d’erreurs partagé entre instances via Supabase et temporisation après deux pannes ; tests*
 - [x] **67. Limiter délais par modèle et délai global** — ✅ Complète au niveau du code et des tests. *Timeout et budget définis*
 - [x] **68. Arrêter au premier modèle ayant réussi** — ✅ Complète au niveau du code et des tests. *Failover testé*
 - [x] **69. Contrôler JSON mal formé** — ✅ Complète au niveau du code et des tests. *Parse et repli*
-- [ ] **70. Éviter doublon après échec au milieu d’un message multiple** — ⬜ Non implémentée. *Pas de suivi d’envoi par fragment*
+- [ ] **70. Éviter doublon après échec au milieu d’un message multiple** — 🟡 Partielle. *Reçus persistants par fragment Telegram et reprise des parties non envoyées ; une coupure entre envoi et accusé empêche une garantie exactement une fois*
 - [ ] **71. Conserver plus de huit messages** — 🟡 Partielle. *20 relus, 12 réinjectés, pas de résumé durable*
 - [ ] **72. Garantir un secours totalement contextuel** — 🟡 Partielle. *Templates partiels*
 
@@ -123,7 +123,7 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 
 ## Bilan chiffré
 
-✅ Code/tests : **44** ; 🟡 partiellement : **29** ; ⬜ à faire : **7**.
+✅ Code/tests : **52** ; 🟡 partiellement : **23** ; ⬜ à faire : **5**.
 
 ## Conditions avant une validation réelle
 
@@ -139,3 +139,13 @@ Date : 17 novembre 2026 ; branche : `feature/telegram-assistant-nvidia-v2-202611
 - `tests/assistant.test.mjs` : sécurité, coupons, contexte, NVIDIA, multimédia et formatage.
 - `tests/corpus.test.mjs` : contrôle des 1000 exemples.
 - `tests/fixtures/1000_messages_clients.csv` : 1000 formulations synthétiques.
+
+## Revue complémentaire des anciennes améliorations partielles
+
+Les 29 éléments partiels initiaux ont été réévalués. 8 sont désormais considérés complets au niveau du code et des tests. Les deux éléments précédemment absents (#13 et #70) sont devenus partiels grâce aux heuristiques ASR et aux reçus de livraison.
+
+**Éléments bloquants toujours ouverts :** validation réelle de NVIDIA Vision sur les documents volumineux (410), serveur ASR Ogg/Opus effectif, légalité et disponibilité des bookmakers selon pays, accès à des cotes bookmaker en temps réel, qualité sémantique des réponses libres, impossibilité d'obtenir une garantie de livraison exactement une fois avec l'API Telegram.
+
+**Nouvelles tables privées :** `mx_telegram_assistant_sessions`, `mx_telegram_assistant_model_events` et `mx_telegram_assistant_delivery_receipts`. Leur RLS est activée, avec droits réservés au rôle serveur.
+
+**Tests :** 114 fonctions historiques + 15 scénarios avancés + 5 contrôles du corpus, soit 134/134 dans le harnais simulé ; simulation du webhook de guide, coupon et accueil vérifiée.
