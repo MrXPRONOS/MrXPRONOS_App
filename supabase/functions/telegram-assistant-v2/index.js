@@ -487,7 +487,7 @@ export function intentFor(input) {
   const linksIntent=linksHubIntent(input);
   if(linksIntent)return linksIntent;
   if (/^\/(?:stop|annuler|arreter)(?:@\w+)?(?:\s|$)/.test(text)||/(?:arrete|annule|quitte|arreter|annuler) (?:le|ce) (?:guide|guidage|tutoriel)/.test(text)||/(?:je veux|je souhaite) (?:arreter|stopper|terminer) (?:le|ce) (?:guide|guidage)/.test(text))return 'guide_cancel';
-  if (/^\/(?:restart|recommencer|reset)(?:@\w+)?(?:\s|$)/.test(text)||/(?:recommence|reprends?) (?:tout )?(?:depuis le debut|a zero|la procedure)/.test(text))return 'guide_restart';
+  if (/^\/(?:restart|recommencer|reset)(?:@\w+)?(?:\s|$)/.test(text)||/(?:recommence|reprends?) (?:tout )?(?:depuis le debut|a zero|la procedure)/.test(text)||/(?:reprends?|recommence) (?:le|ce) guide (?:pour|sur)/.test(text))return 'guide_restart';
   if (/(comment installer|installer l.appli|installation du site|ajouter a l.ecran|installer le site|installer l.application)/.test(text))return 'site_nav';
   if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
   if (socialMediaRequest(input).requested) return 'social';
@@ -800,10 +800,10 @@ export function signupGuideStep(question='',history=[],session=null){
  ];
  const q=normalizeClientFrench(question);
  let instruction=guide[Math.min(step,5)-1];
+ if(/je suis bloque|je ne trouve pas|pas compris/.test(q))
+  instruction='Dis-moi le nom du bouton affiché à cette étape. N’envoie pas de mot de passe, de code OTP ni de pièce d’identité.';
  if(/(ou entrer|code promo|ne propose pas)/.test(q))
   instruction='Cherche le champ **Code promo** du formulaire. S’il est absent, ne force pas l’inscription : les formulaires et promotions varient selon la plateforme.';
- if(/je suis bloque|je ne trouve pas|pas compris/.test(q))
-  instruction='À cette étape, cherche **Inscription** ou **Créer un compte** sur la page du bookmaker. Dis-moi ce que tu vois, sans envoyer de données confidentielles.';
  if(/(?:vrai nom|mes vraies informations)/.test(q))
   instruction='Utilise tes véritables informations conformément aux exigences du service, mais ne me communique ni mot de passe, ni code OTP, ni pièce d’identité.';
  return '**Étape '+step+' — Inscription**\n\n'+instruction+'\n\n*Réponds « fait » quand cette étape est terminée.*';
@@ -1437,6 +1437,9 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3,columns=
   // Elle reste cliquable sans consommer un emplacement de bouton.
   let text=original.replace(/\[([^\]\n]{1,96})\]\((https:\/\/[^\s)]+)\)/gi,(_m,label,url)=>{
     if(!permitted(url))return 'Lien externe non confirmé. Consulte /liens pour les adresses officielles.';
+    // Une destination sélectionnée devient un vrai bouton, même lorsque
+    // le modèle l'a rédigée en lien Markdown plutôt qu'en URL brute.
+    if(addButton(url))return '';
     return inline(url,label);
   });
   text=text.replace(/https?:\/\/[^\s<>"'\x60]+/gi,matched=>{
@@ -1449,7 +1452,12 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3,columns=
     const info=buttonForUrl(url,original);
     return inline(url,info?.text?.replace(/^[^\p{L}]+/u,'')||'Ouvrir le lien')+suffix;
   });
-  text=text.replace(/^[ \t]*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
+  // Éviter des phrases cassées telles que « consulte le site sur . »
+  // lorsque l'URL a été convertie en bouton sous le message.
+  text=text.replace(/\b(?:sur|via)\s*([.!?])/gi,'avec le bouton ci-dessous$1')
+    .replace(/:\s*([.!?])/g,': utilise le bouton ci-dessous$1')
+    .replace(/\s+([.!?])/g,'$1')
+    .replace(/^[ \t]*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
   const replaceAnchors=(str,html)=>str.replace(/XMXANCHOR(\d+)X/g,(_m,index)=>{
     const item=links[Number(index)];
     if(!item)return '';
@@ -2070,7 +2078,7 @@ export function guideIsContinuation(question,session=null) {
   const chosen=partnerFromMessage(question);
   if(guideDeviceSwitch(question,session)||guideProviderSwitch(question,session))return true;
   if(chosen&&q.replace(/[\s_.-]+/g,'')===chosen)return true;
-  return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis (?:bloque|sur)|je ne (?:trouve|vois|comprends)|je n.ai pas compris|j.ai pas compris|explique autrement|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|ca ne propose pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie|est.ce que je dois|sur (?:android|iphone|windows)|avec (?:chrome|safari))/.test(q);
+  return /^(et ensuite|et apres|et maintenant|quelle est la suite|etape suivante|fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis (?:bloque|sur)|je ne (?:trouve|vois|comprends)|je n.ai pas compris|j.ai pas compris|explique autrement|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|ca ne propose pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie|est.ce que je dois|sur (?:android|iphone|windows)|avec (?:chrome|safari))/.test(q);
 }
 async function getAssistantSession(key){
   const result=await db('mx_telegram_assistant_sessions?chat_key=eq.'+encodeURIComponent(key)+'&select=*&limit=1');
@@ -2886,7 +2894,9 @@ export async function handleUpdate(update) {
     answer=safeContextualFallback(text,recentHistory,liveSession);
   }
   // Ajouter une destination seulement si elle répond à la demande ; aucune URL ni bouton gratuit.
-  const restartPartner=intent==='guide_restart'?partnerFromMessage(recentHistory.map(x=>x.content||'').join(' ')):null;
+  const restartPartner=intent==='guide_restart'?
+    partnerFromMessage(text)||liveSession?.bookmaker||
+    [...recentHistory].reverse().map(x=>x.role==='user'?partnerFromMessage(x.content||''):null).find(Boolean):null;
   const destinations=restartPartner?[PARTNER_LINKS[restartPartner]]:(chosenProvider?[PARTNER_LINKS[chosenProvider]]:(continuation?[]:responseLinks(intent,text,answer)));
   if(destinations.length) {
     const missing=destinations.filter(u=>!answer.includes(u));
