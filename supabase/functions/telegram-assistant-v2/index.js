@@ -226,6 +226,8 @@ export function knowledgePrompt(){
 export function intentFor(input) {
   const text = normalizeClientFrench(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
+  if (/^\/(?:stop|annuler|arreter)(?:@\w+)?(?:\s|$)/.test(text)||/(?:arrete|annule|quitte) (?:le|ce) (?:guide|guidage|tutoriel)/.test(text))return 'guide_cancel';
+  if (/^\/(?:restart|recommencer|reset)(?:@\w+)?(?:\s|$)/.test(text)||/(?:recommence|reprends?) (?:tout )?(?:depuis le debut|a zero|la procedure)/.test(text))return 'guide_restart';
   if (/(comment installer|installer l.appli|installation du site|ajouter a l.ecran|installer le site|installer l.application)/.test(text))return 'site_nav';
   if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
   if (/^(ok|okay|d.accord|daccord|dac|compris|parfait|cool|super|bien recu|c.est note|tres bien)[!?. ]*$/.test(text)) return 'ack';
@@ -1358,8 +1360,8 @@ export async function handleUpdate(update) {
   let answer='';
   // IA d'abord sur toutes les conversations ordinaires, y compris salutations,
   // code promo, coupons, inscription, navigation et questions de suivi.
-  // Seuls les contrôles de sécurité, l'escalade humaine et la démo /format sont déterministes.
-  if(!['human','safety','format'].includes(intent)){
+  // Seuls les contrôles de sécurité, le guidage administratif et l'escalade sont déterministes.
+  if(!['human','safety','format','guide_cancel','guide_restart'].includes(intent)){
     try {
       const facts=await assistantFacts(text,recentHistory);
       const generated=await askNvidia(text,recentHistory,{facts,firstContact:!previous});
@@ -1391,7 +1393,14 @@ export async function handleUpdate(update) {
   // Repli de continuité : anciens messages préparés uniquement si NVIDIA
   // est indisponible ou renvoie une réponse inexploitable.
 
-  if(intent==='thanks') answer='Avec plaisir 😊';
+  if(intent==='guide_cancel')answer='**Guidage arrêté.** Tu peux me poser une autre question ou demander à recommencer.';
+  else if(intent==='guide_restart'){
+    const priorPartner=partnerFromMessage(recentHistory.map(x=>x.content||'').join(' '));
+    answer=priorPartner
+      ?'**Étape 1**\n\nOn recommence depuis le début pour '+PARTNER_NAMES[priorPartner]+'. Ouvre la page officielle avec le bouton ci-dessous.\n\n*Réponds « fait » quand tu l’as ouverte.*\n'+PARTNER_LINKS[priorPartner]
+      :'**On recommence à zéro.** Dis-moi ce que tu souhaites faire, et je te guiderai une étape à la fois.';
+  }
+  else if(intent==='thanks') answer='Avec plaisir 😊';
   else if(intent==='ack') answer='Parfait 👍';
   else if(chosenProvider) answer=signupMessage(chosenProvider);
   else if(continuation) answer=continuation;
@@ -1441,7 +1450,8 @@ export async function handleUpdate(update) {
     }
   }
   // Ajouter une destination seulement si elle répond à la demande ; aucune URL ni bouton gratuit.
-  const destinations=chosenProvider?[PARTNER_LINKS[chosenProvider]]:(continuation?[]:responseLinks(intent,text,answer));
+  const restartPartner=intent==='guide_restart'?partnerFromMessage(recentHistory.map(x=>x.content||'').join(' ')):null;
+  const destinations=restartPartner?[PARTNER_LINKS[restartPartner]]:(chosenProvider?[PARTNER_LINKS[chosenProvider]]:(continuation?[]:responseLinks(intent,text,answer)));
   if(destinations.length) {
     const missing=destinations.filter(u=>!answer.includes(u));
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
