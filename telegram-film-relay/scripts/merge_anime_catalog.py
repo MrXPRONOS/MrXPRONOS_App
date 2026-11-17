@@ -32,6 +32,22 @@ def merge(remote: dict, local: dict) -> dict:
                 result["scans"][source] = incoming
         elif prior.get("cursor") is None or int(incoming["cursor"]) <= int(prior["cursor"]):
             result["scans"][source] = incoming
+    # Preserve the newest bounded revisit checkpoint even if concurrent
+    # GitHub state merges choose a different immutable historical cursor.
+    for source in set(remote.get("scans", {})) & set(local.get("scans", {})):
+        older = remote["scans"][source]
+        incoming = local["scans"][source]
+        if "revisit_last_checked" not in older and "revisit_last_checked" not in incoming:
+            continue
+        chosen = max(
+            (older, incoming),
+            key=lambda value: str(value.get("revisit_last_checked", "")),
+        )
+        target = result["scans"][source]
+        target["revisit_cursor"] = chosen.get("revisit_cursor")
+        target["revisit_last_checked"] = chosen.get("revisit_last_checked")
+        target["revisit_cycles"] = max(
+            int(older.get("revisit_cycles", 0)), int(incoming.get("revisit_cycles", 0)))
     rseries = remote.get("series", {})
     lseries = local.get("series", {})
     for key in set(rseries) | set(lseries):
