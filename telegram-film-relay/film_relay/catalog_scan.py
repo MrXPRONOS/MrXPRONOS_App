@@ -223,7 +223,7 @@ def episode_audit(catalogue: dict, observed: list, *, category: str,
         "eligibility_rejections": reasons,
         "source_scan_complete": bool(scans) and all(
             scan.get("complete") for scan in scans.values()),
-        "note": "Titres normalisés pour le diagnostic uniquement ; trous et épisodes en attente ne prouvent pas une copie autorisée ou disponible.",
+        "note": "La présence de trous n'est pas la preuve d'épisodes manquants ; titres normalisés pour le diagnostic sans rendre une copie automatiquement autorisée.",
     }
     catalogue["audit"] = report
     if source_gaps or numbering_gaps:
