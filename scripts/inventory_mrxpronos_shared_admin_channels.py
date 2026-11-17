@@ -57,7 +57,19 @@ def save_row(row, session):
             pgcode = ""
         if not pgcode.isalnum() or len(pgcode) > 10:
             pgcode = "unknown"
-        raise RuntimeError("secure_registry_write_http_" + str(r.status_code) + "_sqlstate_" + pgcode)
+        possible_messages = {
+            "Not authorized to register channel": "unapproved_rpc_role",
+            "Unexpected Telegram bot": "unexpected_bot",
+            "Invalid Telegram channel identity": "invalid_telegram_identity",
+            "Unverified Telegram admin roles": "unverified_admin_roles",
+            "Invalid public channel username": "invalid_public_username",
+            "Missing server-side encryption index key": "vault_index_key_missing",
+        }
+        try:
+            detail = possible_messages.get(str(r.json().get("message") or ""), "other")
+        except (AttributeError, ValueError):
+            detail = "other"
+        raise RuntimeError("secure_registry_write_http_" + str(r.status_code) + "_sqlstate_" + pgcode + "_reason_" + detail)
     try:
         if r.json() is not True:
             raise ValueError("registry_rpc_not_confirmed")
@@ -200,7 +212,7 @@ def main():
         }
         msg = str(exc)
         code = msg if msg in approved or (msg.startswith("secure_registry_write_http_")
-                    and all(c.isalnum() or c == "_" for c in msg) and len(msg) < 75) else "unknown"
+                    and all(c.isalnum() or c == "_" for c in msg) and len(msg) < 120) else "unknown"
         print("::error::ADMIN_INVENTORY_FAILED",type(exc).__name__,code)
         return 1
 
