@@ -81,5 +81,27 @@ class ProductionSchedulerTests(unittest.TestCase):
                 validate.assert_called_once()
 
 
+    def test_real_article_jpeg_sender_and_html_caption(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from PIL import Image
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "source_photo.jpg"
+            Image.effect_noise((1200, 630), 32).convert("RGB").save(path, "JPEG", quality=84)
+            self.assertGreater(path.stat().st_size, 10000)
+            with patch.object(live.requests, "post") as request:
+                request.return_value.json.return_value = {
+                    "ok": True,
+                    "result": {"message_id": 404, "chat": {"id": -1001234},
+                               "photo": [{"file_id": "picture"}]},
+                }
+                caption = "<b>ACTU CRYPTO</b>\n<blockquote>Un fait rapporté</blockquote>\n<i>Source : CoinDesk</i>"
+                self.assertEqual(
+                    live.record_send({"id": -1001234}, caption, path, parse_mode="HTML"), 404)
+                kw = request.call_args.kwargs
+                self.assertEqual(kw["data"]["parse_mode"], "HTML")
+                self.assertEqual(kw["files"]["photo"][2], "image/jpeg")
+
+
 if __name__ == "__main__":
     unittest.main()
