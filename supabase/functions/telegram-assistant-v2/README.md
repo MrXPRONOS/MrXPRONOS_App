@@ -225,3 +225,26 @@ Tests du code : 64 réussis, y compris espacement, sécurité HTML, titres, ital
 - Le lien partenaire reste un **bouton Telegram** seulement dans le contexte d'une inscription chez ce partenaire. Aucun lien brut n'est envoyé à l'utilisateur.
 
 Vérifications : **74 tests automatisés réussis** et simulation de conversation NVIDIA → Telegram confirmant le saut de ligne avant `1. Inscription`, le bloc XPVIP sans conditionnel, la conservation de l'ordre des étapes et le bouton Melbet.
+
+
+## Messages multiples, tutoriels guidés et médias — 17 novembre 2026
+
+**NVIDIA reste le cerveau principal.**
+
+- **Messages longs** : 1 à 5 messages Telegram par réponse, coupés aux paragraphes. Le titre reste avec son premier paragraphe ; les boutons officiels ne se trouvent que sur le dernier message. Les réponses courtes ne sont pas découpées.
+- **Guidage interactif** : sur « pas à pas », « étape par étape », « guide-moi », l'IA donne UNE SEULE action, demande de répondre « fait », puis utilise l'historique existant pour continuer à l'étape suivante. En cas de blocage, elle reste sur l'étape en cours. Le code promo XPVIP est expliqué à l'étape appropriée.
+- **Images** : photo Telegram ou document JPEG/PNG téléchargé via `getFile` (6 Mo maximum) et analysé avec `nvidia/nemotron-3.5-super-vl-120b-a12b` ; secours `nvidia/nemotron-nano-12b-v2-vl`. La description visuelle est transmise à NVIDIA conversationnel, sans traiter le contenu de l'image comme des instructions fiables.
+- **Vocales** : reconnaissance des messages Telegram Ogg/Opus et fichiers WAV/MP3. Avec un endpoint Nemotron Transcribe compatible Ogg, l'enregistrement est transcrit, puis le texte est traité par NVIDIA conversationnel. Sinon, un essai se fait via `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`.
+- **Limite importante** : la compatibilité Ogg/Opus n'est pas documentée pour l'endpoint Omni hébergé (WAV/MP3 sont documentés). Un service ASR adapté est requis pour une transcription fiable des vocaux Telegram. Si rien ne fonctionne, le bot signale honnêtement l'échec.
+- Les fichiers sont récupérés côté serveur : aucune URL de téléchargement Telegram contenant le jeton du bot n'est transmise à NVIDIA. Pour les fichiers > 175 ko, l'API officielle NVCF Asset est utilisée avec un asset privé. Les fichiers médias ne sont pas stockés dans la base du bot.
+
+### Secrets facultatifs pour la transcription
+
+- `MX_ASSISTANT_ASR_URL` : URL HTTPS complète de `/v1/audio/transcriptions` sur un service Nemotron Transcribe compatible Ogg/Opus configuré par l'administrateur. Ne pas inventer d'endpoint public.
+- `MX_ASSISTANT_ASR_KEY` : clé privée optionnelle du serveur ASR ; sinon la clé NVIDIA principale est utilisée.
+- `MX_ASSISTANT_ASR_MODEL` : modèle optionnel si l'endpoint ASR en exige un.
+- `MX_ASSISTANT_NVIDIA_KEY` : la clé NVIDIA déjà configurée ; aucune modification requise pour les images.
+
+**Validation** : 89 tests fonctionnels et simulation de la réception de trois événements Telegram (démarrage du guide, confirmation « fait », analyse photo). Un essai avec la clé réelle reste nécessaire pour les endpoints multimodaux.
+
+Le bot de coupons historique et le compte personnel Telegram Business restent indépendants et inchangés.
