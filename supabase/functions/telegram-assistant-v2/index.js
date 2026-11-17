@@ -1226,6 +1226,17 @@ export function groundedQuestionReply(question='',history=[],session=null){
  const hist=normalizeClientFrench(history.slice(-8).filter(x=>x.role==='user').map(x=>x.content||'').join(' '));
  const game=lastClientMatch(question,history);
  if(session?.mode==='guided'&&guideIsContinuation(question,session))return null;
+ if(/^https:\/\/t\.me\//i.test(String(question||'').trim())){
+   const url=String(question).trim();
+   if(url===channelUrl())return 'Oui, c’est l’adresse enregistrée de notre canal Telegram de pronostics.';
+   if(url===LINKS.folder_films)return 'Oui, c’est le dossier officiel Mr XPRONOS F.';
+   const previous=/(?:facebook|page facebook)/.test(hist);
+   return previous?
+     'Non, cette adresse est un lien Telegram externe, pas notre page Facebook. Voici notre page Facebook : '+LINKS.facebook:
+     'Cette adresse est un lien Telegram externe, non répertorié parmi nos canaux officiels. Notre canal officiel est : '+channelUrl();
+ }
+ if(game&&/(?:que penses|quel pronostic|comment analyser|ton analyse)/.test(q))
+   return 'Pour **'+game+'**, je ne peux pas avancer de résultat fiable sans la date, les compositions et des données actualisées. Précise le match concerné si tu souhaites une analyse.';
  if(/(?:je voudrais signaler un lien casse|signaler un lien|lien casse|lien.*ne fonctionne pas|renvoie ailleurs)/.test(q)){
   const found=Object.entries({facebook:LINKS.facebook,instagram:LINKS.instagram,youtube:LINKS.youtube})
     .find(([key])=>q.includes(key));
