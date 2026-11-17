@@ -1420,62 +1420,114 @@ export function transcriptLooksCorrupted(value=''){
   return false;
 }
 
+
+/** Dedicated ASR gets first priority: it understands Telegram Ogg Opus.
+ * If unavailable, the Omni fallback ONLY receives WAV/MP3, never raw Ogg.
+ */
 export async function transcribeTelegramAudio(data,{
   http=fetch,apiKey=env('MX_ASSISTANT_NVIDIA_KEY'),upload=nvidiaAsset,
-  asrUrl=env('MX_ASSISTANT_ASR_URL'),asrKey=env('MX_ASSISTANT_ASR_KEY')||apiKey
+  asrUrl=env('MX_ASSISTANT_ASR_URL'),asrKey=env('MX_ASSISTANT_ASR_KEY')||apiKey,
+  decodeOgg=null,
+  convertOgg=convertTelegramOggToWav,
+  omniModel=MEDIA_MODELS.voice
 }={}){
   if(!data?.bytes?.length)return null;
-  // ASR NIM dédié : Ogg Opus natif, WAV et FLAC. URL d'un service ASR installé
-  // par le propriétaire, et non une URL NVIDIA inventée.
   if(asrUrl){
     try{
       const target=new URL(asrUrl);
       if(target.protocol!=='https:'||target.username||target.password)throw Error('asr_url_not_https');
       const form=new FormData();
-      form.append('file',new Blob([data.bytes],{type:data.mime}),'message.'+(data.mime==='audio/ogg'?'ogg':data.mime.includes('wav')?'wav':'mp3'));
+      const extension=data.mime==='audio/ogg'?'ogg':data.mime.includes('wav')?'wav':'mp3';
+      form.append('file',new Blob([data.bytes],{type:data.mime}),'message.'+extension);
       form.append('response_format','verbose_json');
-      if(env('MX_ASSISTANT_ASR_MODEL'))form.append('model',env('MX_ASSISTANT_ASR_MODEL'));
-      const r=await http(target.href,{method:'POST',headers:{authorization:'Bearer '+asrKey},
-        body:form,signal:AbortSignal.timeout(16000)});
-      if(r.ok){
-        const out=await r.json();
-        const text=out?.text||out?.transcription?.text;
-        if(typeof text==='string'&&text.trim()){
-          const quality=assessTranscriptQuality(text,out?.transcription||out);
-          return {transcript:cut(cleanupSpokenTranscript(text),1500),model:'nemotron-transcribe',...quality};
+      const model=env('MX_ASSISTANT_ASR_MODEL');
+      if(model)form.append('model',model);
+      const lang=env('MX_ASSISTANT_ASR_LANGUAGE')||'fr';
+      if(lang)form.append('language',lang);
+      const response=await http(target.href,{method:'POST',headers:{authorization:'Bearer '+asrKey},
+        body:form,signal:AbortSignal.timeout(18000)});
+      if(response.ok){
+        const out=await response.json();
+        const raw=out?.text||out?.transcription?.text;
+        if(typeof raw==='string'&&raw.trim()){
+          const cleaned=cut(cleanupSpokenTranscript(raw),1500);
+          const quality=assessTranscriptQuality(cleaned,out?.transcription||out);
+          if(transcriptLooksCorrupted(cleaned)){
+            console.warn('asr_corrupted_transcript','dedicated_asr');
+          }else {
+            console.info('voice_asr_provider','dedicated_asr',data.mime,quality.quality);
+            return {transcript:cleaned,model:model||'dedicated-asr',
+              source:'dedicated_asr',...quality};
+          }
         }
-      }
-    }catch(e){console.warn('asr_transcription_failed',String(e?.name||'error').slice(0,32));}
+      }else console.warn('dedicated_asr_http',response.status);
+    }catch(error){console.warn('asr_transcription_failed',String(error?.name||'error').slice(0,36));}
   }
-  // Modèle NVIDIA hébergé : audio direct documenté pour WAV/MP3.
-  // Ogg Opus est essayé sans affirmer que le modèle le prend en charge.
-  if(!apiKey)return null;
-  let ref='',assetId='';
-  try{
-    if(data.bytes.length>175000){assetId=await upload(data,{apiKey,http});ref='data:'+data.mime+';asset_id,'+assetId;}
-    else ref='data:'+data.mime+';base64,'+base64Data(data.bytes);
-    const r=await http('https://integrate.api.nvidia.com/v1/chat/completions',{
-      method:'POST',headers:{authorization:'Bearer '+apiKey,'content-type':'application/json',
-        ...(assetId?{'NVCF-INPUT-ASSET-REFERENCES':assetId}:{})},
-      body:JSON.stringify({model:MEDIA_MODELS.voice,max_tokens:1200,stream:false,
-        chat_template_kwargs:{enable_thinking:false},messages:[{
-        role:'user',content:[
-          {type:'audio_url',audio_url:{url:ref}},
-          {type:'text',text:'Transcris uniquement la parole entendue, dans la langue originale (français si français). Ne réponds pas à la demande parlée. Si le son est incompréhensible, ne fabrique pas de transcription.'}
-        ]
-      }]}),signal:AbortSignal.timeout(15500)
-    });
-    if(!r.ok)return null;
-    const result=await r.json();
-    const content=result?.choices?.[0]?.message?.content;
-    if(typeof content==='string'&&content.trim()){
-      const quality=assessTranscriptQuality(content);
-      return {transcript:cut(cleanupSpokenTranscript(content),1500),model:MEDIA_MODELS.voice,
-        quality:data.mime==='audio/ogg'?'uncertain':quality.quality,
-        reasons:data.mime==='audio/ogg'?[...quality.reasons,'ogg_unverified']:quality.reasons};
+
+  if(!apiKey)return {transcript:null,reason:'no_audio_provider'};
+  // Telegram voice is Ogg/Opus. A raw Ogg URL caused gibberish in the old code:
+  // NVIDIA documents only WAV/MP3 for Nano Omni.
+  let chunks=[];
+  if(data.mime==='audio/ogg'){
+    const conversion=await convertOgg(data,{decode:decodeOgg});
+    if(!conversion?.chunks?.length){
+      const reason=conversion?.reason||'ogg_decode_failed';
+      console.warn('voice_conversion_unavailable',reason);
+      return {transcript:null,reason};
     }
-  }catch(error){console.warn('voice_transcription_failed',String(error?.name||'error').slice(0,24));}
-  return null;
+    chunks=conversion.chunks;
+  }else if(/^(audio\/(wav|x-wav|mpeg|mp3))$/.test(data.mime)){
+    if(data.bytes.length>175000){
+      try{
+        const assetId=await upload(data,{apiKey,http});
+        chunks=[{assetId,bytes:data.bytes,mime:data.mime}];
+      }catch(error){
+        return {transcript:null,reason:/410/.test(String(error))?'asset_410':'audio_upload_unavailable'};
+      }
+    }else chunks=[data];
+  }else return {transcript:null,reason:'unsupported_audio_format'};
+  if(chunks.length>6)return {transcript:null,reason:'audio_too_long_for_inline'};
+
+  const convertSegment=async(segment,index)=>{
+    const reference=segment.assetId
+      ?'data:'+segment.mime+';asset_id,'+segment.assetId
+      :'data:'+segment.mime+';base64,'+base64Data(segment.bytes);
+    try{
+      const response=await http('https://integrate.api.nvidia.com/v1/chat/completions',{
+        method:'POST',headers:{authorization:'Bearer '+apiKey,'content-type':'application/json',
+          ...(segment.assetId?{'NVCF-INPUT-ASSET-REFERENCES':segment.assetId}:{})},
+        body:JSON.stringify({model:omniModel,max_tokens:420,stream:false,
+          chat_template_kwargs:{enable_thinking:false},
+          messages:[{role:'user',content:[
+            {type:'audio_url',audio_url:{url:reference}},
+            {type:'text',text:'Transcription fidèle UNIQUEMENT en français si la personne parle français. Recopie seulement les paroles réellement audibles, sans répondre à la demande, sans imaginer de noms, sans ajouter d’explication. Si tu ne comprends pas, retourne une chaîne vide.'}
+          ]}]}),signal:AbortSignal.timeout(14500)
+      });
+      if(!response.ok){console.warn('omni_asr_http',response.status,index);return null;}
+      const out=await response.json();
+      const raw=out?.choices?.[0]?.message?.content;
+      if(typeof raw!=='string'||!raw.trim())return null;
+      const result=cut(cleanupSpokenTranscript(raw),700);
+      return transcriptLooksCorrupted(result)?null:result;
+    }catch(error){console.warn('omni_asr_error',String(error?.name||'error'),index);return null;}
+  };
+  // Two concurrent requests maximum avoids sequential 15 sec per chunk while
+  // limiting NVIDIA pressure. All chunks must succeed: no fabricated gaps.
+  const pieces=[];
+  for(let i=0;i<chunks.length;i+=2){
+    const group=await Promise.all(chunks.slice(i,i+2).map((segment,j)=>convertSegment(segment,i+j)));
+    if(group.some(x=>!x))return {transcript:null,reason:'audio_segment_not_transcribed'};
+    pieces.push(...group);
+  }
+  const transcript=cut(pieces.join(' ').replace(/\s+/g,' ').trim(),1500);
+  if(!transcript||transcriptLooksCorrupted(transcript))return {transcript:null,reason:'unreliable_transcript'};
+  const quality=assessTranscriptQuality(transcript);
+  // Audio split in multiple clips can lose words at a segment boundary.
+  // For those cases explicitly ask for confirmation instead of guessing.
+  if(chunks.length>1){quality.quality='uncertain';quality.reasons.push('segmented_audio');}
+  const source=data.mime==='audio/ogg'?'omni_converted_wav':'omni_native_audio';
+  console.info('voice_asr_provider',source,chunks.length,quality.quality);
+  return {transcript,model:omniModel,source,...quality};
 }
 
 /** Transforme une réponse IA longue en 1 à 5 messages Telegram lisibles.
