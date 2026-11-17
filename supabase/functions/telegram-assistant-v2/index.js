@@ -1298,7 +1298,7 @@ export function groundedQuestionReply(question='',history=[],session=null){
   return 'Voici la page officielle des pronostics : '+LINKS.pronos;
  if(/(?:demain.*match|matchs demain|pronostics demain)/.test(q))
   return 'Les rencontres et pronostics disponibles pour demain sont consultables sur le site selon les données publiées : '+LINKS.aujourd_hui;
- if(/(?:est.ce payant|c.est payant)/.test(q)&&/(?:install|application|site)/.test(hist))
+ if(/(?:est.ce payant|c.est payant)/.test(q)&&/(?:install|application|site|ecran d.accueil|ajouter a l.ecran)/.test(hist))
   return 'L’accès et l’installation du site Mr XPRONOS sont gratuits. Aucun abonnement n’est nécessaire pour ses catégories Pro et VIP.';
  const multiply=q.match(/\b(\d+(?:[,.]\d+)?)\s*[x×*]\s*(\d+(?:[,.]\d+)?)\b/);
  if(multiply){const v=Number(multiply[1].replace(',','.'))*Number(multiply[2].replace(',','.'));
