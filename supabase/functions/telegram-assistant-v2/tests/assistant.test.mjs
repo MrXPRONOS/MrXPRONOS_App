@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,newcomerWelcomeMessage,shouldWelcomeNewcomer,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS,sayConversation} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,newcomerWelcomeMessage,shouldWelcomeNewcomer,normalizeClientFrench,analyzeClientIntent,safetyResponse,ambiguousPartnerQuestion,redactSensitiveText,verifiedReplyReview,recordModelHealth,modelInCooldown,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS,sayConversation} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -767,4 +767,97 @@ test("le rendu n'exécute jamais de HTML fourni par un client",()=>{
  assert.ok(!html.includes("<img"));
  assert.match(html,/&lt;img/);
  assert.match(html,/<b>Bonjour<\/b>/);
+});
+
+
+test("audit : fautes SMS et vocal transcrit reconnus pour les coupons",()=>{
+ assert.equal(normalizeClientFrench("jvx un prono du jr stp"),"je veux un prono du jour");
+ assert.equal(intentFor("coupan ajd"),"pronos");
+ assert.deepEqual(contextualDestinations("coupan"),[LINKS.pronos,LINKS.channel]);
+ assert.deepEqual(contextualDestinations("instalé l'aplicassion"),[LINKS.installer]);
+});
+test("audit : cote totale distincte de score exact",()=>{
+ const info=analyzeClientIntent("Je veux un coupon de cote dix");
+ assert.equal(info.odds,true);
+ assert.equal(info.score,false);
+ const score=analyzeClientIntent("Je veux un score exact 2 à 1");
+ assert.equal(score.score,true);
+ assert.equal(score.odds,false);
+});
+test("audit : bookmakers mal transcrits exigent une confirmation avant tout lien",()=>{
+ const info=analyzeClientIntent("Je veux m'inscrire sur Bedclicker");
+ assert.equal(info.needsClarification,true);
+ assert.equal(info.partner,null);
+ assert.match(ambiguousPartnerQuestion(info),/Betclic/);
+});
+test("audit : filtre mineur, perte de contrôle et divulgation de secrets",()=>{
+ assert.equal(analyzeClientIntent("J'ai 16 ans, je veux miser").minor,true);
+ assert.equal(analyzeClientIntent("Je veux récupérer mes pertes").loss,true);
+ assert.equal(analyzeClientIntent("Je t'envoie mon code OTP").secrets,true);
+ assert.match(safetyResponse(analyzeClientIntent("J'ai 16 ans je veux parier")),/réservés aux adultes/);
+ assert.match(safetyResponse(analyzeClientIntent("Je vais jouer l'argent du loyer")),/Évite de miser/);
+ assert.match(safetyResponse(analyzeClientIntent("Je t'envoie mon mot de passe")),/Ne partage jamais/);
+});
+test("audit : demandes de données personnelles traitées sans fausse suppression",()=>{
+ const info=analyzeClientIntent("Je veux supprimer mes données personnelles");
+ assert.equal(info.dataRights,true);
+ assert.match(safetyResponse(info),/Je ne peux pas effacer/);
+});
+test("audit : mot de passe OTP et numéro de carte masqués dans les logs",()=>{
+ const redacted=redactSensitiveText("mot de passe: secret123, code SMS: 483920, carte 4242 4242 4242 4242");
+ assert.ok(!redacted.includes("secret123"));
+ assert.ok(!redacted.includes("483920"));
+ assert.ok(!redacted.includes("4242"));
+ assert.match(redacted,/\[MASQUÉ\]/);
+});
+test("audit : coupon non confirmé jamais inventé par NVIDIA",()=>{
+ const text=verifiedReplyReview("Arsenal gagne 2-0 avec 90 % !","Donne-moi un coupon","COUPONS : Aucune sélection admissible confirmée");
+ assert.ok(!text.includes("Arsenal"));
+ assert.match(text,/Je ne peux pas confirmer/);
+});
+test("audit : score exact non disponible jamais inventé",()=>{
+ const text=verifiedReplyReview("Le score exact est 2-1","Je veux un score exact","SCORES EXACTS : Aucun score admissible vérifié");
+ assert.ok(!text.includes("2-1"));
+ assert.match(text,/Aucun score exact vérifié/);
+});
+test("audit : cote 10 non vérifiée traitée comme cote combinée",()=>{
+ const text=verifiedReplyReview("Voici une cote 10 garantie","Fais-moi une cote 10","COTE TOTALE : pas de cotes réelles");
+ assert.match(text,/multipliant les cotes/);
+ assert.ok(!text.includes("garantie"));
+});
+test("audit : même sur simple demande Coupon, les deux destinations apparaissent",()=>{
+ assert.deepEqual(contextualDestinations("coupon"),[LINKS.pronos,LINKS.channel]);
+ assert.deepEqual(contextualDestinations("C'est quoi un coupon"),[]);
+});
+test("audit : Telegram préfère une photo exploitable sans upload NVCF",()=>{
+ const photo=selectMedia({photo:[{file_id:"grand",file_size:920000},{file_id:"moyen",file_size:94000},{file_id:"petit",file_size:4500}]});
+ assert.equal(photo.fileId,"moyen");
+});
+test("audit : 410 NVCF est une erreur d'upload, pas une image floue",async()=>{
+ const result=await analyzeTelegramImage({bytes:new Uint8Array(150000),mime:"image/jpeg"},{
+   apiKey:"test",upload:async()=>{throw Error("nvidia_asset_create_410")},
+   http:async()=>{throw Error("should_not_be_called")}
+ });
+ assert.equal(result.description,null);
+ assert.equal(result.reason,"asset_410");
+});
+test("audit : circuit breaker après 2 erreurs NVIDIA temporaires",()=>{
+ const health=new Map();
+ recordModelHealth(health,"model","http_503",100);
+ assert.equal(modelInCooldown(health,"model",110),false);
+ recordModelHealth(health,"model","timeout",200);
+ assert.equal(modelInCooldown(health,"model",250),true);
+ assert.equal(modelInCooldown(health,"model",90300),false);
+});
+test("audit : succès NVIDIA remet le modèle en service",()=>{
+ const health=new Map();
+ recordModelHealth(health,"model","timeout",100);
+ recordModelHealth(health,"model","timeout",200);
+ recordModelHealth(health,"model","ok",250);
+ assert.equal(modelInCooldown(health,"model",260),false);
+});
+test("audit : 410 vision et secret ne contaminent pas les liens clients",()=>{
+ assert.deepEqual(contextualDestinations("Je veux un coupon"),[LINKS.pronos,LINKS.channel]);
+ const html=telegramHtml("**Attention**\n> *Ne communique jamais ton OTP.*");
+ assert.match(html,/<blockquote><i>Ne communique jamais ton OTP/);
 });
