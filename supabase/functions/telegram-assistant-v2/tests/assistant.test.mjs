@@ -802,10 +802,13 @@ test("audit : filtre mineur, perte de contrôle et divulgation de secrets",()=>{
  assert.match(safetyResponse(analyzeClientIntent("Je vais jouer l'argent du loyer")),/Évite de miser/);
  assert.match(safetyResponse(analyzeClientIntent("Je t'envoie mon mot de passe")),/Ne partage jamais/);
 });
-test("audit : demandes de données personnelles traitées sans fausse suppression",()=>{
+test("audit : demandes de données personnelles orientées vers la suppression confirmée",()=>{
  const info=analyzeClientIntent("Je veux supprimer mes données personnelles");
  assert.equal(info.dataRights,true);
- assert.match(safetyResponse(info),/Je ne peux pas effacer/);
+ const response=safetyResponse(info);
+ assert.match(response,/\/delete_my_data/);
+ assert.match(response,/métadonnées techniques/);
+ assert.ok(!response.includes("Je ne peux pas effacer tes données depuis cette conversation"));
 });
 test("audit : mot de passe OTP et numéro de carte masqués dans les logs",()=>{
  const redacted=redactSensitiveText("mot de passe: secret123, code SMS: 483920, carte 4242 4242 4242 4242");
