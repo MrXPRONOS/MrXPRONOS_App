@@ -278,6 +278,7 @@ test("NVIDIA : les dix échecs sont essayés dans l'ordre si le délai le permet
   messages:[{role:"user",content:"test"}],apiKey:"fake-local-key",
   signalFactory:()=>undefined,
   overallBudgetMs:29000,
+  perModelTimeoutMs:2000, // test artificiel de 10 erreurs immédiates
   fetchImpl:async (_url,options)=>{names.push(JSON.parse(options.body).model);return {ok:false,status:422};}
  });
  assert.deepEqual(names,[...NVIDIA_MODELS]);
