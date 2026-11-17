@@ -196,10 +196,15 @@ def photo_for(candidate, dest=OUTPUT):
     # is allowed only with explicit attribution to that publisher.
     articles = [candidate["main"]] + list(candidate.get("others") or [])
     for row in articles:
-        urls = row.get("image_candidates") or []
-        if not urls:
-            urls = from_article_og(row["url"])
+        urls = list(row.get("image_candidates") or [])
         for uri in urls[:MAX_IMAGE_CANDIDATES]:
+            path = fetch_photo(uri, dest)
+            if path is not None:
+                return path, row["source"]
+        # RSS thumbnails may be broken; try this article's own og:image.
+        for uri in from_article_og(row["url"]):
+            if uri in urls:
+                continue
             path = fetch_photo(uri, dest)
             if path is not None:
                 return path, row["source"]
