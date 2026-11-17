@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -143,4 +143,57 @@ test("pas de texte promotionnel sous les boutons",()=>{
  const result=buildTelegramMessage("Voici les pronostics : "+LINKS.pronos,{allowedUrls:[LINKS.pronos]});
  assert.equal(result.reply_markup.inline_keyboard.length,1);
  assert.ok(!result.text.includes("Clique sur le bouton"));
+});
+
+test("accusés de réception : merci et d'accord",()=>{
+ assert.equal(intentFor("Merci !"),"thanks");
+ assert.equal(intentFor("merci beaucoup"),"thanks");
+ assert.equal(intentFor("daccord"),"ack");
+});
+test("intention inscription et lien partenaire",()=>{
+ assert.equal(intentFor("Je veux m'inscrire sur 1xbet aide moi"),"signup");
+ assert.equal(intentFor("ouvrir un compte Melbet"),"signup");
+ assert.equal(intentFor("Donne ton lien affilié Betwinner"),"partner");
+ assert.equal(partnerFromMessage("sur 1xbet"),"1xbet");
+ assert.equal(partnerFromMessage("Melbet"),"melbet");
+ assert.equal(partnerFromMessage("Linebet"),"linebet");
+ assert.equal(partnerFromMessage("Alicenet"),null);
+});
+test("sources exactes : URL partenaire 1xbet et code XPVIP",()=>{
+ assert.equal(PARTNER_LINKS["1xbet"],"https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573");
+ const reply=signupMessage("1xbet");
+ assert.match(reply,/Inscription 1xBet/);
+ assert.match(reply,/XPVIP/);
+ assert.match(reply,/18\+/);
+ assert.ok(reply.includes(PARTNER_LINKS["1xbet"]));
+});
+test("pas de lien inventé pour un partenaire inconnu",()=>{
+ const reply=signupMessage(null);
+ assert.ok(reply.includes("Sur quel bookmaker"));
+ assert.ok(!reply.includes("https://"));
+});
+test("boutons partenaires uniquement pour demandes pertinentes",()=>{
+ const link=PARTNER_LINKS["1xbet"];
+ assert.deepEqual(responseLinks("signup","Je veux m'inscrire sur 1xbet"),[link]);
+ const body=buildTelegramMessage(signupMessage("1xbet"),{allowedUrls:[link]});
+ assert.equal(body.reply_markup.inline_keyboard[0][0].url,link);
+ assert.ok(!body.text.includes("https://"));
+ assert.deepEqual(responseLinks("thanks","Merci !"),[]);
+});
+test("sitemap restreint aux pages officielles",()=>{
+ const xml='<urlset><url><loc>https://mrxpronos.github.io/MrXPRONOS_App/pronos.html</loc></url><url><loc>https://external.example/evil</loc></url><url><loc>javascript:alert(1)</loc></url><url><loc>https://mrxpronos.github.io/MrXPRONOS_App/pronos.html</loc></url></urlset>';
+ assert.deepEqual(sitemapUrls(xml),[LINKS.pronos]);
+ assert.equal(pageForQuestion("Où lire les analyses ?"),LINKS.analyses);
+ assert.deepEqual(responseLinks("site_nav","plan du site"),[LINKS.sitemap]);
+});
+test("suivi d'inscription à l'étape suivante",()=>{
+ const history=[{role:"user",content:"je veux m'inscrire sur 1xbet"},{role:"assistant",content:"Inscription 1xBet : 1. Ouvre le lien"}];
+ const followup=guidanceFollowup("Ensuite ?",history);
+ assert.ok(followup && followup.includes("Inscription"));
+ assert.equal(guidanceFollowup("Merci",history),null);
+});
+test("pronostic dupliqué sur le même match supprimé",()=>{
+ const now=new Date("2026-11-17T01:00:00Z");
+ const example={date:"2026-11-17",event_date:"2026-11-17T20:00:00Z",category:"pro",recommendation_eligible:true,home_team:"Kuwait",away_team:"Honduras",prediction:{confidence:.85,prediction:"1X"}};
+ assert.equal(publishedPicks({matches:[example,{...example,category:"vip",prediction:{confidence:.89,prediction:"1X"}}]},now).length,1);
 });
