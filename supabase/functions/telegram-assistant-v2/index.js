@@ -486,6 +486,11 @@ export async function assistantFacts(question,history=[],{
   if(platform){
     snippets.push('BOOKMAKER CONCERNÉ : '+PARTNER_NAMES[platform]+'. Lien partenaire autorisé : '+PARTNER_LINKS[platform]+'. Code XPVIP lorsque accepté ; âge légal et conditions de l’offre à vérifier. Ne prétends pas connaître les écrans exacts du bookmaker.');
   }
+  const classified=analyzeClientIntent(question,history);
+  if(classified.odds){
+    snippets.push('COTE TOTALE : une demande de cote 10 ne désigne pas un score exact. Les données de pronostics ne contiennent aucune cote de bookmaker vérifiée dans les extraits fournis. Ne fabrique jamais de cote totale ni de combiné chiffré ; explique le principe et les limites.');
+  }
+  if(classified.install)snippets.push('INSTALLATION OFFICIELLE : '+LINKS.installer+'. Le site possède bien une page officielle pour installer la PWA.');
   if(/(coupon|pronostic|prono|selection|match a jouer|a venir|paris du jour)/.test(q)){
     const shift=/demain/.test(q)?1:0;
     const date=new Date(now.getTime()+shift*86400e3).toISOString().slice(0,10);
@@ -529,11 +534,13 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
   else if(!chosen&&wantsSignup)return [];
   const asksChannel=/(canal|telegram|chaine telegram|groupe telegram|rejoindre le canal)/.test(q);
   const asksPicks=/(coupons?|pronostics?|pronos?|selections? du jour|paris du jour)/.test(q)&&
-    /(montre|voir|veux|donne|envoie|chercher|trouv|consulter|lien|aujourd|demain|du jour|a venir|publie|disponible|recois)/.test(q);
+    !/(c.est quoi|definition|que signifie|explique le mot)/.test(q)&&
+    (/(montre|voir|veux|donne|envoie|chercher|trouv|consulter|lien|aujourd|demain|du jour|a venir|publie|disponible|recois)/.test(q)||
+      /^(des |le |un |les )?(coupons?|pronostics?|pronos?)[!? .]*$/.test(q));
   if(asksChannel)add(channelUrl());
   if(asksPicks) {
     add(LINKS.pronos);
-    if(/(du jour|aujourd|demain|recevoir|recois|coupon)/.test(q))add(channelUrl());
+    add(channelUrl());
   }
   if(/(install|ajouter a l.ecran|application|appli|pwa|raccourci ecran)/.test(q)&&!/(desinstall|supprim)/.test(q))add(LINKS.installer);
   if(/(resultats?|historique|gagn[ée]s?|perdus?)/.test(q)&&/(voir|montre|lien|consulter|precedents|ou|resultats?|historique)/.test(q))add(LINKS.historique);
@@ -1079,7 +1086,7 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
         +'STYLES COMBINÉS AUTORISÉS : ***gras et italique***, **__gras et souligné__**, *__italique et souligné__*, et __***les trois***__. N’utilise ces combinaisons que lorsqu’elles ajoutent vraiment de la lisibilité. Pour des liens officiels, tu peux intégrer le lien directement dans une expression : [clique ici](URL_OFFICIELLE). Le serveur vérifie toutes les URL. Au-delà de trois destinations, privilégie les liens ancrés dans des mots plutôt que des URL longues.\\n'
 +'FORMAT OBLIGATOIRE : renvoie un objet JSON compact valide, sans balises Markdown autour, avec deux champs : {"reply":"ton message naturel en français","buttons":[]}. Tu peux utiliser du gras **texte** ou de l’italique *texte* dans reply. buttons est un tableau de 0 à 5 CLÉS uniquement parmi : '+Object.keys(BUTTON_KEYS).join(', ')+'.\n'
     +'Choisis les boutons selon le contexte : inscription chez un bookmaker nommé -> son bouton partenaire, pronostics du jour -> pronos et éventuellement channel, rejoindre notre communauté -> channel, voir les résultats -> historique, accéder au site -> accueil ou rubrique pertinente. Lors d’une inscription, affiche explicitement **Code promo : XPVIP** et invite à saisir XPVIP dans le champ Code promo sans conditionnel sur la présence du champ ; les offres restent soumises aux conditions du partenaire. Aucun bouton pour merci, salut ou simple demande de code promo. Jamais de lien brut : le serveur fabrique les boutons. Ne répète aucune URL dans reply.';
-  const messages=[{role:'system',content:system},...history.slice(-6),{role:'user',content:cut(question,1200)}];
+  const messages=[{role:'system',content:system},...history.slice(-12),{role:'user',content:cut(question,1700)}];
   const result=await runNvidiaFailover({messages,detailed,onAttempt:({model,status})=>{
     if(status!=='ok') console.warn('nvidia_fallback',model,status);
   }});
