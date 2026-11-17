@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -387,4 +387,73 @@ test("contexte IA : bookmaker et navigation vérifiée",async()=>{
  const urls=aiLinkCatalog();
  assert.ok(urls.includes("partner_1xbet"));
  assert.ok(urls.includes("sitemap"));
+});
+
+test("inscription : l'IA peut oublier XPVIP, le serveur le rappelle et ajoute le bouton",()=>{
+ const q="Je veux m'inscrire sur line bet, aide-moi";
+ const raw="Ouvre le formulaire d'inscription puis complète les informations demandées.";
+ const final=contextualPresentation(raw,q);
+ assert.match(final,/\*\*XPVIP\*\*/);
+ assert.match(final,/Inscription Linebet/);
+ assert.deepEqual(contextualDestinations(q,[],[]),[PARTNER_LINKS.linebet]);
+ const rendered=buildTelegramMessage(final+"\n"+PARTNER_LINKS.linebet,{allowedUrls:contextualDestinations(q,[],[])});
+ assert.equal(rendered.reply_markup.inline_keyboard[0][0].url,PARTNER_LINKS.linebet);
+ assert.match(rendered.text,/<b>📝 Inscription Linebet<\/b>/);
+ assert.match(rendered.text,/<b>XPVIP<\/b>/);
+ assert.match(rendered.text,/<i>si accepté par le bookmaker<\/i>/);
+ assert.ok(!rendered.text.includes("https://"));
+});
+test("inscription : ne pas dupliquer XPVIP lorsqu'il est déjà proposé",()=>{
+ const q="Je veux m'inscrire sur 1xbet";
+ const text=contextualPresentation("Utilise le code XPVIP s'il est accepté.",q);
+ assert.equal((text.match(/XPVIP/g)||[]).length,1);
+ assert.deepEqual(contextualDestinations(q,[],[]),[PARTNER_LINKS["1xbet"]]);
+});
+test("code promo : réponse courte mise en gras, aucun bouton parasite",()=>{
+ const q="Quel est ton code promo ?";
+ const out=contextualPresentation("Notre code est XPVIP.",q);
+ assert.match(telegramHtml(out),/<b>XPVIP<\/b>/);
+ assert.deepEqual(contextualDestinations(q,[],["pronos","bonus"]),[]);
+});
+test("aucun bouton décoratif dans la conversation",()=>{
+ for(const q of ["Merci !","cc","Salut","Ok","Parfait","Comment ça va ?"]){
+  assert.deepEqual(contextualDestinations(q,[],["pronos","channel","partner_1xbet"]),[],q);
+ }
+});
+test("coupons : site officiel et canal au bon contexte",()=>{
+ const links=contextualDestinations("Je veux les coupons du jour",[],[]);
+ assert.deepEqual(links,[LINKS.pronos,LINKS.channel]);
+ const rendered=buildTelegramMessage(contextualPresentation("Voici les données disponibles.","Je veux les coupons du jour")+"\n"+links.join("\n"),{allowedUrls:links});
+ assert.equal(rendered.reply_markup.inline_keyboard.length,2);
+ assert.equal(rendered.reply_markup.inline_keyboard[0][0].style,"primary");
+ assert.equal(rendered.reply_markup.inline_keyboard[1][0].style,"success");
+ assert.match(rendered.text,/<b>⚽ Pronostics Mr XPRONOS<\/b>/);
+});
+test("canal et navigation sur le site : bouton adapté seulement à la question",()=>{
+ assert.deepEqual(contextualDestinations("Comment rejoindre le canal Telegram ?",[],[]),[LINKS.channel]);
+ assert.deepEqual(contextualDestinations("Je veux visiter le site",[],[]),[LINKS.accueil]);
+ assert.deepEqual(contextualDestinations("Montre-moi les résultats précédents",[],[]),[LINKS.historique]);
+ assert.deepEqual(contextualDestinations("Je veux le guide de conseils",[],[]),[LINKS.conseils]);
+});
+test("bookmakers : ne jamais pousser un lien d'affiliation non sollicité",()=>{
+ assert.deepEqual(contextualDestinations("Tu connais Linebet ?",[],["partner_linebet"]),[]);
+ assert.deepEqual(contextualDestinations("Je veux m'inscrire sur Linebet",[],["partner_melbet"]),[PARTNER_LINKS.linebet]);
+ assert.deepEqual(contextualDestinations("Le code promo est quoi ?",[],["partner_1xbet"]),[]);
+ assert.deepEqual(contextualDestinations("Je veux m'inscrire",[],["partner_linebet"]),[]);
+});
+test("formatage compatible Telegram : gras italique citation spoiler et barré",()=>{
+ const markup="**Titre**\n*Note* et ~~ancien~~\n> Prudence avec les pronostics.\n||Option masquée||";
+ const html=telegramHtml(markup);
+ assert.match(html,/<b>Titre<\/b>/);
+ assert.match(html,/<i>Note<\/i>/);
+ assert.match(html,/<s>ancien<\/s>/);
+ assert.match(html,/<blockquote>Prudence avec les pronostics.<\/blockquote>/);
+ assert.match(html,/<tg-spoiler>Option masquée<\/tg-spoiler>/);
+});
+test("inscription : réponse courte à la suite d'un bookmaker choisi",()=>{
+ const hist=[{role:"user",content:"Je veux m'inscrire"},{role:"assistant",content:"Sur quel bookmaker veux-tu t'inscrire ?"}];
+ const q="line bet";
+ assert.deepEqual(contextualDestinations(q,hist,[]),[PARTNER_LINKS.linebet]);
+ const final=contextualPresentation("Commence par ouvrir le formulaire.",q,hist);
+ assert.match(final,/XPVIP/);
 });
