@@ -519,7 +519,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         if publish:
             scan_progress = finalize_scan(catalogue, scan_plans, all_candidates)
             audit = episode_audit(catalogue, all_candidates, category="series_catalog",
-                                  ignored_unnumbered=unnumbered_skipped)
+                                  ignored_unnumbered=unnumbered_skipped,
+                                  eligibility_reasons=eligibility_reasons)
             save_catalog(catalogue)
             LOG.info("Historique Séries : %s ; en attente=%s ; saisons avec trous=%s",
                      scan_progress, audit["not_yet_indexed_total"], audit["numbering_gap_seasons"])
