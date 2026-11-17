@@ -151,3 +151,14 @@ Les modèles sont désormais **définis directement dans `index.js`**, par ordre
 - **36 tests automatisés** du code passent, y compris un test simulant la réussite de plusieurs modèles de secours et l'ordre des dix tentatives. Ces tests n'établissent **pas** que les dix modèles sont réellement disponibles avec la clé NVIDIA du compte.
 - `MX_ASSISTANT_NVIDIA_KEY` reste obligatoire pour accéder à NVIDIA NIM. La connexion Telegram Business du propriétaire reste désactivée et le bot de publication des coupons ne change pas.
 
+
+
+## Aliases bookmakers et salutations — 17 novembre 2026
+
+- `line bet`, `Line-Bet`, `Line_Bet` et `linebet` sont tous reconnus comme **Linebet**. Même logique pour `1 x bet`, `bet winner`, `mel bet`, `1 win` et `bet clic`.
+- Quand le bot a demandé « Sur quel bookmaker souhaites-tu t'inscrire ? », une réponse courte comme `line bet` déclenche le guide du bookmaker correspondant avec son lien partenaire déjà vérifié dans le catalogue.
+- La commande `/start` continue à présenter l'assistant. Lorsqu'une discussion a déjà commencé, un salut simple tel que `cc` ou `bonjour` reçoit seulement une réponse brève, sans répéter les services ni le code promo.
+- La reconnaissance des alias est déterministe et ne dépend pas de NVIDIA ; un faux positif sur un nom étranger comme `Alicenet` n'entraîne pas de redirection partenaire.
+- Les boutons partenaires sont des éléments Telegram `reply_markup.inline_keyboard` et peuvent ne pas figurer dans les copies textuelles d'une conversation.
+
+Tests automatiques de cette version : 40 réussis, plus simulations de messages avec un compte administrateur.
