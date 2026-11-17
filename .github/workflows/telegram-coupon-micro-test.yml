@@ -1,0 +1,61 @@
+name: Telegram - 5 micro-messages coupon bleu (TEST)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-coupon-micro-test.yml'
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: "all = les 5 messages ; 11-15 = une seule variante"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - '11'
+          - '12'
+          - '13'
+          - '14'
+          - '15'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-coupon-micro-test
+  cancel-in-progress: false
+
+jobs:
+  publish-test-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/send_telegram_coupon_micro_test.py
+            scripts/telegram_test_guard.py
+            assets/telegram/promo_coupon_2026-10-25.jpg
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Vérifier les cinq légendes (3-5 lignes)
+        run: python scripts/send_telegram_coupon_micro_test.py --check
+      - name: Vérifier le canal de test avant publication
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+      - name: Envoyer photo, légende courte et bouton bleu au canal de test
+        env:
+          CHOSEN_VARIANT: ${{ inputs.variant || 'all' }}
+        run: python scripts/send_telegram_coupon_micro_test.py --send --variant "$CHOSEN_VARIANT"
