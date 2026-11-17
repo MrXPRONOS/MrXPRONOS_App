@@ -4,7 +4,8 @@ import {
  LINKS, socialMediaRequest, officialSocialUrls, officialSocialMessage,
  verifiedReplyReview, contextualDestinations, intentFor,
  guidedMode, guideIsContinuation, answerRelevanceGuard,
- rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage, qualityMetrics, redactSensitiveText
+ rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage, qualityMetrics, redactSensitiveText,
+ privacyCommand, deletionConfirmationValid
 } from '../index.js';
 
 test('all social networks on explicit request',()=>{
@@ -78,4 +79,13 @@ test('OTP and API secrets must be redacted before AI context',()=>{
  assert.ok(!masked.includes('123456'));
  assert.ok(!masked.includes('abcdefghijklmnopq123456'));
  assert.match(masked,/MASQUÉ/);
+});
+
+test('privacy deletion requires an exact user command and fresh confirmation',()=>{
+ assert.equal(privacyCommand('/delete_my_data'),'request_delete');
+ assert.equal(privacyCommand('/confirm_delete_my_data'),'confirm_delete');
+ assert.equal(privacyCommand('efface les données de mon voisin'),null);
+ assert.equal(deletionConfirmationValid({mode:'awaiting_deletion',updated_at:new Date(100000).toISOString()},100000),true);
+ assert.equal(deletionConfirmationValid({mode:'awaiting_deletion',updated_at:new Date(100000).toISOString()},500000),false);
+ assert.equal(deletionConfirmationValid({mode:'guided',updated_at:new Date(100000).toISOString()},100000),false);
 });
