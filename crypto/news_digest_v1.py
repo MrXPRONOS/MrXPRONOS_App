@@ -150,6 +150,22 @@ AFRICAN = {
     "southafrica", "zimbabwe", "africa",
 }
 
+# The title must itself clearly refer to crypto. Source category or RSS
+# description/footer mentioning crypto is NOT sufficient evidence. This blocks
+# unrelated SEC/Nvidia, prediction-market and general-finance headlines.
+EXPLICIT_CRYPTO_TITLE_TERMS = {
+    "crypto", "bitcoin", "ethereum", "solana", "xrp", "stablecoin", "usdt",
+    "usdc", "tether", "circle", "binance", "coinbase", "kraken", "okx",
+    "bybit", "bitget", "blockchain", "defi", "web3", "nft", "lightning",
+    "ripple", "uniswap", "aave", "tron", "bnb", "metamask", "tokenization",
+    "tokenisation", "wallet",
+}
+EXPLICIT_CRYPTO_TITLE_PHRASES = (
+    "digital asset", "virtual asset", "crypto asset", "crypto-actif",
+    "actif numerique", "monnaie numerique", "monnaie virtuelle",
+)
+
+
 
 def clean(value, limit=300):
     v = re.sub(r"<[^>]+>", " ", html.unescape(str(value or "")))
@@ -228,9 +244,10 @@ def is_relevant(title, summary):
     t = normalize(title)
     if len(title) < 30 or any(term in t for term in EXCLUDED) or PRICE_ONLY.search(t):
         return False
-    tokens = set(words(title + " " + summary[:140]))
-    if not (tokens & {ALIASES.get(x, x) for x in CRYPTO_CUES} or
-            tokens & ACTORS):
+    title_tokens = set(words(title))
+    normalized_title = normalize(title)
+    if not (title_tokens & EXPLICIT_CRYPTO_TITLE_TERMS or
+            any(phrase in normalized_title for phrase in EXPLICIT_CRYPTO_TITLE_PHRASES)):
         return False
     # News should describe a concrete development, not a vague prediction/opinion.
     w = " ".join(words(title))
