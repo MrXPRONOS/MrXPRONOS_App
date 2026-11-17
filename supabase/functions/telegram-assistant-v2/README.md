@@ -362,3 +362,28 @@ Les 80 points sont repris dans [`AUDIT_80_CHECKLIST.md`](./AUDIT_80_CHECKLIST.md
 ## Version 24 — confirmation des vocaux
 
 Lorsqu'une transcription vocale est confirmée par « oui » ou corrigée par « Non, j'ai dit ... », l'assistant restaure la demande complète et recalcule l'intention avant de répondre. Pour une correction de bookmaker, l'intention d'inscription originale est conservée uniquement si elle était exprimée. **150 tests réussis** ; fonction Supabase `telegram-assistant-v2` version 24 ACTIVE. Les dépendances multimodales externes restent celles documentées dans la checklist.
+
+
+
+## Version 25 — correction de la transcription des vocaux Ogg/Opus
+
+### Diagnostic fondé sur les conversations du 17 novembre 2026
+
+Plusieurs messages vocaux de test étaient retranscrits de façon très incohérente. L'ancien chemin de secours transmettait directement `audio/ogg` (Ogg/Opus Telegram) au modèle `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`, alors que ce modèle ne documente que WAV/MP3 comme entrées audio. La base historise les transcriptions mais pas les fichiers audio originaux ni la source du moteur : on ne peut donc pas prouver un changement de modèle ancien ni mesurer la précision exacte sur les enregistrements disparus.
+
+### Nouveau chemin voix
+
+1. **Priorité au service ASR dédié** (`MX_ASSISTANT_ASR_URL`) pour Ogg/Opus natif ; formulaire HTTPS, `verbose_json`, langue française par défaut (modifiable avec `MX_ASSISTANT_ASR_LANGUAGE`). Le service doit être réellement déployé et disponible.
+2. Si l'ASR dédié est indisponible, le bot reconnaît l'en-tête Ogg/Opus, décode l'audio via `npm:@audio/decode-opus@1.3.3`, le convertit en **WAV PCM mono 16 kHz** et divise les vocaux en tranches de 4,8 secondes (moins de 175 Ko chacune).
+3. Nemotron Omni reçoit désormais **uniquement WAV/MP3** ; aucun Ogg brut ne doit lui être envoyé. Deux segments au plus sont traités en parallèle ; maximum six segments pour le secours en ligne. Au-delà, le bot indique qu'il ne peut pas transcrire correctement et demande un vocal plus court.
+4. Les transcriptions absurdes ou incomplètes sont rejetées. Les vocaux segmentés demandent confirmation avant de servir d'entrée à l'IA conversationnelle. Le bot ne doit plus traiter silencieusement des mots inventés comme un ordre valide.
+5. La clarification vocale expire après cinq minutes ou lors d'une nouvelle demande ; une ancienne transcription n'interfère plus avec le nouveau message.
+6. `/health` (administrateur) indique la disponibilité du service ASR dédié et le chargement du décodeur Ogg. Les métriques `source=speech` enregistrent **modèle, résultat et durée seulement**, sans stocker l'audio ni recopier son contenu.
+
+### Contrôles et limites
+
+- **162 tests JavaScript réussis** dans le harnais de simulation, dont 12 tests ciblés sur le traitement des vocaux.
+- **Supabase** : `telegram-assistant-v2` version **25 ACTIVE** ; `telegram_webhook` **38 ACTIVE** et inchangé.
+- Le chargement réel du module WASM et la précision sur une voix Telegram réelle doivent encore être confirmés. Une simple mise en production et un déploiement réussi ne prouvent pas ces deux points.
+- Pour vérifier, envoyer `/health` depuis le compte administrateur puis un court vocal de 5 à 10 secondes. La présence de nouvelles lignes dans `mx_telegram_assistant_model_events` avec `source=speech` permettra d'identifier les moteurs effectivement utilisés.
+- Si le décodeur Ogg est indisponible dans Edge Runtime, la réponse doit signaler l'impossibilité de transcrire plutôt que transmettre le format brut à Omni. Un endpoint ASR dédié reste la solution la plus robuste pour les vocaux longs.
