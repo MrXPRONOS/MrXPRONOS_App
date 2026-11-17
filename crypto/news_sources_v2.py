@@ -25,3 +25,21 @@ OFFICIAL_STATUS_APIS = {
     "Kraken Status": ("https://status.kraken.com/api/v2/incidents.json",
                       "status.kraken.com", "KRAKEN"),
 }
+
+
+# Independent public RSS publishers used by the global 30-minute news desk.
+# An unavailable source is logged and skipped. No feed access implies republication rights.
+# URLs were checked against published RSS directories in November 2026; the
+# automated pipeline validates their reachability and article domains on every scan.
+FRENCH_NEWS_FEEDS = frozenset({"Journal du Coin", "Cryptoast"})
+
+GLOBAL_NEWS_FEEDS = {
+    **EDITORIAL_FEEDS,
+    "CryptoSlate": ("https://cryptoslate.com/feed/", "cryptoslate.com"),
+    "Bitcoin.com News": ("https://news.bitcoin.com/feed/", "news.bitcoin.com"),
+    "CryptoPotato": ("https://cryptopotato.com/feed/", "cryptopotato.com"),
+    "Crypto Briefing": ("https://cryptobriefing.com/feed/", "cryptobriefing.com"),
+    "Cryptonews": ("https://cryptonews.com/news/feed", "cryptonews.com"),
+    "Journal du Coin": ("https://journalducoin.com/feed/", "journalducoin.com"),
+    "Cryptoast": ("https://cryptoast.fr/feed/", "cryptoast.fr"),
+}
