@@ -263,7 +263,88 @@ test('deep conversational baseline: analyse each final Telegram response, button
   noReply:all.flatMap(a=>a.turns).filter(t=>!t.reply).length,
   exceptions:all.flatMap(a=>a.turns).filter(t=>!!t.error).length
  }));
+ // Lire chaque réponse dans son contexte : qualité du texte, liens, référent,
+ // état du guide, changement de sujet, absence de chiffres inventés.
+ const flaws=[],checks=[];
+ const at=(id,n)=>all.find(x=>x.id===id)?.turns.find(x=>x.n===n);
+ const expect=(id,n,label,condition)=>{
+   checks.push({id,n,label,pass:!!condition});
+   if(!condition){const t=at(id,n);flaws.push({id,n,label,q:t?.q,reply:t?.reply,buttons:t?.btn,mode:t?.mode,step:t?.step});}
+ };
+ const hasButton=(id,n,url)=>at(id,n)?.btnUrls.includes(url);
+ const hasAny=(id,n,part)=>at(id,n)?.reply.toLowerCase().includes(part.toLowerCase());
+ const L=assistant.LINKS;
+ // Navigation : chaque lien demandé est un vrai bouton, les annuaires ne sont pas
+ // un pavé d'URL dans le texte et ne perdent aucun destinataire.
+ expect(935001,1,'welcome_3_buttons',at(935001,1)?.btn.length===3);
+ expect(935001,2,'channel_button',hasButton(935001,2,L.channel));
+ expect(935001,3,'facebook_followup',hasButton(935001,3,L.facebook));
+ expect(935001,4,'instagram_followup',hasButton(935001,4,L.instagram));
+ expect(935001,5,'film_folder_button',hasButton(935001,5,L.folder_films));
+ expect(935001,6,'actu_foot_safe_link',hasButton(935001,6,L.infos));
+ expect(935001,7,'directory_all_18_buttons',at(935001,7)?.btn.length===18);
+ expect(935001,7,'directory_presentation',hasAny(935001,7,'Annuaire officiel'));
+ expect(935001,8,'bookmakers_all_6_buttons',at(935001,8)?.btn.length===6);
+ // Guidage : la précision de l'appareil ou une question à l'étape courante
+ // ne doit pas supprimer la mémoire, ni avancer sans "fait".
+ for(const n of [2,3,4,5,6,7,8,9])expect(935002,n,'install_stays_guided',at(935002,n)?.mode==='guided');
+ expect(935002,4,'install_advances_after_fait',at(935002,4)?.step===2);
+ expect(935002,5,'install_blocked_same_step',at(935002,5)?.step===2);
+ expect(935002,6,'install_switch_resets_to_iphone_1',at(935002,6)?.step===1);
+ expect(935002,7,'install_safari_sharing_help',hasAny(935002,7,'Safari')&&hasAny(935002,7,'Partager'));
+ expect(935002,8,'install_fait_after_switch_step_2',at(935002,8)?.step===2);
+ expect(935002,9,'install_et_ensuite_keeps_step_2',at(935002,9)?.step===2);
+ expect(935002,9,'install_no_unverified_installer',!hasAny(935002,9,'Lien externe non confirmé'));
+ for(const n of [2,3,4,5,6,7,8,9])expect(935003,n,'signup_stays_guided',at(935003,n)?.mode==='guided');
+ expect(935003,4,'signup_daccord_does_not_advance',at(935003,4)?.step===1);
+ expect(935003,5,'signup_fait_advances',at(935003,5)?.step===2);
+ expect(935003,6,'signup_code_promo_relevant',hasAny(935003,6,'Code promo'));
+ expect(935003,7,'signup_new_bookmaker_step1',at(935003,7)?.step===1&&hasAny(935003,7,'Betwinner'));
+ expect(935003,8,'signup_restart_step1',at(935003,8)?.step===1&&hasAny(935003,8,'Betwinner'));
+ expect(935003,9,'signup_fait_then_step2',at(935003,9)?.step===2);
+ // Pronostics, cotes et suivi court : ne pas mélanger VIP et demain.
+ expect(935004,2,'vip_answer_specific',hasAny(935004,2,'VIP')&&!hasAny(935004,2,'pour demain'));
+ expect(935004,3,'published_picks_uncertainty',/publi|confirm/i.test(at(935004,3)?.reply||''));
+ expect(935004,4,'tomorrow_reference',hasAny(935004,4,'demain'));
+ expect(935004,5,'no_invented_odds',/vérifi|confirmer|ne dispose/i.test(at(935004,5)?.reply||''));
+ expect(935004,6,'no_guaranteed_score',!/score.*garanti.*[0-9]-[0-9]/i.test(at(935004,6)?.reply||''));
+ expect(935004,7,'pronos_button',hasButton(935004,7,L.pronos));
+ expect(935004,8,'channel_followup_button',hasButton(935004,8,L.channel));
+ // Faux canal de films, puis clarification, puis différents réseaux.
+ expect(935005,2,'external_telegram_explained',hasAny(935005,2,'Telegram'));
+ expect(935005,3,'facebook_is_not_telegram',hasAny(935005,3,'pas vers Facebook')&&hasButton(935005,3,L.facebook));
+ expect(935005,4,'true_facebook_button',hasButton(935005,4,L.facebook));
+ expect(935005,5,'youtube_button',hasButton(935005,5,L.youtube));
+ expect(935005,6,'threads_button',hasButton(935005,6,L.threads));
+ expect(935005,7,'social_6_buttons',at(935005,7)?.btn.length===6);
+ // Deux rencontres différentes : les pronoms et les relances doivent suivre
+ // le match le plus récent, sans réintroduire Real-Barça après PSG-OM.
+ expect(935006,1,'real_match_ack',hasAny(935006,1,'Real Madrid'));
+ expect(935006,2,'fav_ref_real',hasAny(935006,2,'Real Madrid'));
+ expect(935006,3,'corners_ref_real',hasAny(935006,3,'Real Madrid')&&hasAny(935006,3,'corners'));
+ expect(935006,5,'new_subject_psg',hasAny(935006,5,'PSG'));
+ expect(935006,6,'followup_psg',hasAny(935006,6,'PSG')&&!hasAny(935006,6,'Real Madrid'));
+ expect(935006,7,'odds_ref_psg',hasAny(935006,7,'PSG')||hasAny(935006,7,'cotes'));
+ expect(935006,8,'results_button',hasButton(935006,8,L.historique));
+ expect(935006,9,'history_followup_button',hasButton(935006,9,L.historique));
+ // Assistance : signalement puis bonne compréhension de la pause humaine.
+ expect(935007,2,'report_asks_which_link',hasAny(935007,2,'Quel bouton'));
+ expect(935007,3,'instagram_report_not_generic',hasAny(935007,3,'signalement'));
+ expect(935007,3,'instagram_and_contact_buttons',hasButton(935007,3,L.instagram)&&hasButton(935007,3,L.contact));
+ expect(935007,5,'no_fake_human_read_receipt',hasAny(935007,5,'pas de confirmation de lecture'));
+ expect(935007,7,'human_pause_maintained',hasAny(935007,7,'attente'));
+ // Texte final lisible : bannir les fragments de Markdown et les URL externes
+ // prétendument non confirmées alors que l'annuaire les connaît.
+ for(const p of all)for(const t of p.turns){
+   const malformed=/Lien externe non confirmé|2\*\*|sur\s*\./i.test(t.reply);
+   expect(p.id,t.n,'readable_final_output',!malformed);
+ }
+ console.log('MX_DEEP_QUALITY '+JSON.stringify({
+   dialogues:all.length,turns:global,checked:checks.length,
+   passed:checks.filter(c=>c.pass).length,failed:flaws.length,flaws
+ }));
  assert.equal(all.length,7);
  assert.equal(global,scenariosExpected);
  assert.ok(all.flatMap(x=>x.turns).every(x=>!x.error),'No uncaught errors');
+ assert.deepEqual(flaws,[],'Full conversational semantics and final Telegram buttons must pass');
 });
