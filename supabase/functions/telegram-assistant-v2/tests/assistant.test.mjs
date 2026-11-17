@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -45,4 +45,47 @@ test("Business : propriétaire, droits, validité temporelle et destinataire",()
  assert.equal(eligibleBusinessMessage({...base,from:{id:42}},connection,42,now),false);
  assert.equal(eligibleBusinessMessage({...base,date:Math.floor((now-25*3600000)/1000)},connection,42,now),false);
  assert.equal(eligibleBusinessMessage({...base,chat:{type:"group",id:9002}},connection,42,now),false);
+});
+
+test("formatage Telegram : gras, italique, barré, souligné, spoiler et citation",()=>{
+ const rich=telegramHtml("**Gras** *italique* ~~barré~~ __souligné__ ||secret||\n> Une citation");
+ assert.match(rich,/<b>Gras<\/b>/);
+ assert.match(rich,/<i>italique<\/i>/);
+ assert.match(rich,/<s>barré<\/s>/);
+ assert.match(rich,/<u>souligné<\/u>/);
+ assert.match(rich,/<tg-spoiler>secret<\/tg-spoiler>/);
+ assert.match(rich,/<blockquote>Une citation<\/blockquote>/);
+});
+test("HTML hostile est échappé",()=>{
+ const rich=telegramHtml("<script>alert('x')</script> & **OK**");
+ assert.ok(!rich.includes("<script>"));
+ assert.ok(rich.includes("&lt;script&gt;"));
+ assert.ok(rich.includes("&amp; <b>OK</b>"));
+});
+test("liens officiels remplacés par des boutons dédupliqués",()=>{
+ const body=buildTelegramMessage("Pronos : "+LINKS.pronos+"\nEncore : "+LINKS.pronos);
+ assert.equal(body.reply_markup.inline_keyboard.length,1);
+ assert.equal(body.reply_markup.inline_keyboard[0][0].url,LINKS.pronos);
+ assert.equal(body.reply_markup.inline_keyboard[0][0].style,"primary");
+ assert.ok(!body.text.includes("https://"));
+ assert.ok(body.text.includes("<b>Clique sur le bouton ci-dessous.</b>"));
+});
+test("boutons couleurs et label contextuels",()=>{
+ assert.equal(buttonForUrl(LINKS.conseils).style,"success");
+ assert.equal(buttonForUrl(LINKS.contact,"Réclamation urgente").style,"danger");
+ assert.equal(buttonForUrl(LINKS.accueil).style,"primary");
+});
+test("ne jamais envoyer de lien externe non vérifié",()=>{
+ const bad=buildTelegramMessage("Clique : https://evil.invalid/surprise");
+ assert.equal(bad.reply_markup,undefined);
+ assert.ok(!bad.text.includes("https://evil.invalid"));
+});
+test("liens Markdown officiels deviennent aussi des boutons",()=>{
+ const body=buildTelegramMessage("[Retrouver les pronostics]("+LINKS.pronos+")");
+ assert.equal(body.reply_markup.inline_keyboard[0][0].url,LINKS.pronos);
+ assert.ok(!body.text.includes("]("));
+});
+test("commande de démonstration du formatage",()=>{
+ assert.equal(intentFor("/format"),"format");
+ assert.equal(intentFor("/apercu"),"format");
 });
