@@ -1,6 +1,6 @@
 # Mr XPRONOS — 80 améliorations : vérification de l'implémentation
 
-Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `feature/telegram-assistant-nvidia-v2-20261107`.
+Date : 17 novembre 2026, après la version 23 ; branche : `feature/telegram-assistant-nvidia-v2-20261107`.
 
 ## Les quatre axes fondamentaux
 
@@ -13,23 +13,23 @@ Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `fe
 
 ## A. Analyse des photos
 
-- [ ] **01. Réparer le transfert d’images NVIDIA 410** — 🟡 Partielle. *Petites versions Telegram prioritaires ; grands fichiers dépendent toujours de NVCF*
+- [ ] **01. Réparer le transfert d’images NVIDIA 410** — 🟡 Partielle. *Compression JPEG/PNG avant NVCF ; un HTTP 410 reste possible sur de très grands médias, sans essai réel de la clé NVIDIA*
 - [x] **02. Envoyer les petites images en base64** — ✅ Complète au niveau du code et des tests. *Seuil 128 ko et test du choix de fichier*
-- [ ] **03. Compresser ou redimensionner les images trop grandes** — ⬜ Non implémentée. *Aucun processeur de redimensionnement installé*
-- [ ] **04. Basculer entre deux modèles visuels** — 🟡 Partielle. *Code disponible, clés et appels réels non validés*
-- [ ] **05. Lire textes, boutons et erreurs visibles** — 🟡 Partielle. *Prompt prévu ; performances réelles inconnues*
-- [ ] **06. Ne pas inventer de détails visuels** — 🟡 Partielle. *Consignes conservatrices, pas de validation indépendante*
-- [ ] **07. Reprendre une inscription via capture** — 🟡 Partielle. *Vision raccordée au dialogue, intégration réelle non certifiée*
+- [ ] **03. Compresser ou redimensionner les images trop grandes** — 🟡 Partielle. *Réencodage et réduction progressive intégrés via codecs JPEG/PNG JavaScript pur, tests injectés ; dépendances Edge non vérifiées sur une vraie photo*
+- [ ] **04. Basculer entre deux modèles visuels** — 🟡 Partielle. *Deux modèles visuels essayés séquentiellement, mais disponibilité réelle non vérifiée sur le compte NVIDIA*
+- [ ] **05. Lire textes, boutons et erreurs visibles** — 🟡 Partielle. *Extraction JSON des textes, boutons et erreurs ; lecture réelle de captures non testée*
+- [ ] **06. Ne pas inventer de détails visuels** — 🟡 Partielle. *Instruction de ne pas inventer, relecture JSON et rejet des réponses incertaines ; aucune vérification indépendante de chaque détail*
+- [ ] **07. Reprendre une inscription via capture** — 🟡 Partielle. *Description visuelle transmise à NVIDIA avec mémoire de l’étape ; essai client réel manquant*
 - [x] **08. Expliquer un échec et demander un recadrage** — ✅ Complète au niveau du code et des tests. *Erreurs spécifiques renvoyées au client*
 
 ## B. Messages vocaux
 
-- [ ] **09. Transcrire les vocaux Telegram Ogg/Opus** — 🟡 Partielle. *Requiert un service Nemotron Transcribe configuré*
-- [ ] **10. Contrôler le protocole du service ASR** — 🟡 Partielle. *Formats contrôlés, endpoint réel non vérifié*
+- [ ] **09. Transcrire les vocaux Telegram Ogg/Opus** — 🟡 Partielle. *ASR Ogg/Opus prévu par la passerelle Nemotron Transcribe, mais URL de service non configurée/confirmée*
+- [ ] **10. Contrôler le protocole du service ASR** — 🟡 Partielle. *Endpoint HTTPS validé et disponibilité vérifiable par /health ; protocole réel non validé faute d’URL fonctionnelle*
 - [x] **11. Reconnaître les noms de bookmakers après transcription** — ✅ Complète au niveau du code et des tests. *Contrôle déterministe après transcription*
 - [x] **12. Faire confirmer Bedclicker avant un lien Betclic** — ✅ Complète au niveau du code et des tests. *Confirmation obligatoire*
-- [ ] **13. Utiliser un score de confiance ASR** — 🟡 Partielle. *Évaluation qualitative des transcriptions à partir des signes de dégradation, sans score de probabilité fiable de l’ASR*
-- [ ] **14. Gérer accents et répétitions** — 🟡 Partielle. *Normalisation de variantes, pas évaluation acoustique*
+- [ ] **13. Utiliser un score de confiance ASR** — 🟡 Partielle. *Indice heuristique de fiabilité calculé avec anomalies ASR, sans score probabiliste calibré fourni par le modèle*
+- [ ] **14. Gérer accents et répétitions** — 🟡 Partielle. *Nettoyage des répétitions et correction phonétique ; gestion des accents acoustiques dépend du moteur ASR réel*
 - [x] **15. Conserver la conversation après transcription confuse** — ✅ Complète au niveau du code et des tests. *Contexte vocal confirmé en mémoire de session ; réponse « oui » ou correction textuelle reliée au dialogue*
 - [x] **16. Réinterpréter une transcription corrigée par le client** — ✅ Complète au niveau du code et des tests. *La commande « Non, j’ai dit … » rectifie la transcription persistante avant la réponse IA*
 
@@ -38,11 +38,11 @@ Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `fe
 - [x] **17. Comprendre les fautes et abréviations** — ✅ Complète au niveau du code et des tests. *Règles SMS et 1000 exemples synthétiques*
 - [x] **18. Comprendre cote dix et cote totale 10** — ✅ Complète au niveau du code et des tests. *Détection spécifique*
 - [x] **19. Distinguer cote, coupon et score exact** — ✅ Complète au niveau du code et des tests. *Intentions séparées*
-- [ ] **20. Éviter les réponses hors sujet** — 🟡 Partielle. *Garde-fous présents, pas de mesure sémantique exhaustive*
+- [ ] **20. Éviter les réponses hors sujet** — 🟡 Partielle. *Filtre de pertinence pour installation/cote et contrôles des réponses ; aucune couverture sémantique exhaustive*
 - [x] **21. Utiliser les relances et messages courts** — ✅ Complète au niveau du code et des tests. *Historique porté à 20 messages*
-- [ ] **22. Poser une seule clarification utile** — 🟡 Partielle. *Règle IA ; pas de validateur systématique*
-- [ ] **23. Reformuler une explication incomprise** — 🟡 Partielle. *Comportement demandé à NVIDIA*
-- [ ] **24. Distinguer erreur de formulation et absence de données** — 🟡 Partielle. *Sources vérifiées dans certains domaines*
+- [x] **22. Poser une seule clarification utile** — ✅ Complète au niveau du code et des tests. *Une seule question de clarification autorisée dans la sortie de contrôle, avec tests*
+- [x] **23. Reformuler une explication incomprise** — ✅ Complète au niveau du code et des tests. *Consigne de reformulation au modèle et réponse de secours tenant compte de la dernière explication, avec tests*
+- [x] **24. Distinguer erreur de formulation et absence de données** — ✅ Complète au niveau du code et des tests. *Distingue les demandes ambiguës, les sources manquantes et les données vérifiées dans les domaines publiés, avec tests*
 
 ## D. Guidage pas à pas
 
@@ -52,7 +52,7 @@ Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `fe
 - [x] **28. Ne pas déclarer une action réussie sans confirmation** — ✅ Complète au niveau du code et des tests. *Le bot attend « fait »*
 - [x] **29. Reconnaître fait, fini, suivant, terminé** — ✅ Complète au niveau du code et des tests. *Expressions courantes gérées*
 - [x] **30. Rester sur une étape en cas de blocage** — ✅ Complète au niveau du code et des tests. *Questions de blocage et captures conservent l’étape, les nouveaux sujets ferment le guide*
-- [ ] **31. Utiliser la photo pour guider l’étape** — 🟡 Partielle. *Dépend de la vision NVIDIA*
+- [ ] **31. Utiliser la photo pour guider l’étape** — 🟡 Partielle. *La description d’une photo s’intègre à l’étape guidée persistante ; reconnaissance visuelle réelle non confirmée*
 - [x] **32. Reprendre ou abandonner un guide par commande** — ✅ Complète au niveau du code et des tests. *`/restart`, « Recommence depuis le début » et `/stop` sont pris en charge ; la conservation de progression reste partielle (point 26).*
 
 ## E. Pronostics et données sportives
@@ -61,20 +61,20 @@ Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `fe
 - [x] **34. Exclure matchs terminés ou déjà commencés** — ✅ Complète au niveau du code et des tests. *Filtre des heures et statuts*
 - [x] **35. Supprimer les doublons de sélections** — ✅ Complète au niveau du code et des tests. *Filtre équipe, date, sélection*
 - [x] **36. Distinguer confiance estimée et taux de réussite** — ✅ Complète au niveau du code et des tests. *Consignes et formatage*
-- [ ] **37. Réconcilier les horaires contradictoires entre toutes les pages** — ⬜ Non implémentée. *Aucun comparateur multi-source*
-- [ ] **38. Construire une cote combinée 10 vérifiée** — 🟡 Partielle. *Intention reconnue, pas de cotes bookmaker réelles*
+- [ ] **37. Réconcilier les horaires contradictoires entre toutes les pages** — 🟡 Partielle. *Rapprochement des horaires data.json et scores-exacts-daily, seuil de 5 minutes ; pas toutes les pages du site*
+- [ ] **38. Construire une cote combinée 10 vérifiée** — 🟡 Partielle. *Moteur de combinaisons testé sur cotes réelles issues d’un flux horodaté valide, mais aucun flux odds.json alimenté*
 - [x] **39. Ne jamais inventer une cote quand la source manque** — ✅ Complète au niveau du code et des tests. *Garde-fou de sortie*
 - [x] **40. Après un coupon, proposer site et canal** — ✅ Complète au niveau du code et des tests. *Deux boutons contextuels*
 
 ## F. Bookmakers et promotion
 
 - [x] **41. Limiter les liens à un catalogue officiel** — ✅ Complète au niveau du code et des tests. *Liste blanche de partenaires*
-- [ ] **42. Appliquer une liste de bookmakers exclus** — ⬜ Non implémentée. *Règle métier contradictoire à clarifier*
-- [ ] **43. Proposer des alternatives explicitement autorisées** — ⬜ Non implémentée. *Catalogue complémentaire à définir*
-- [ ] **44. Reconnaître toutes les variantes phonétiques** — 🟡 Partielle. *Principaux cas reconnus et confirmés*
+- [ ] **42. Appliquer une liste de bookmakers exclus** — 🟡 Partielle. *Exclusions configurables via MX_ASSISTANT_EXCLUDED_BOOKMAKERS ; aucune liste métier explicite fournie pour activation*
+- [ ] **43. Proposer des alternatives explicitement autorisées** — 🟡 Partielle. *Alternatives explicitement approuvées configurables via MX_ASSISTANT_APPROVED_ALTERNATIVES ; valeurs non fournies*
+- [ ] **44. Reconnaître toutes les variantes phonétiques** — 🟡 Partielle. *Rapprochement phonétique et confirmation des noms proches, sans garantie sur toute prononciation possible*
 - [x] **45. Vérifier la destination de chaque lien partenaire** — ✅ Complète au niveau du code et des tests. *Validation de liste blanche*
 - [x] **46. Affirmer XPVIP dans l’inscription appropriée** — ✅ Complète au niveau du code et des tests. *Code séparé et formaté*
-- [ ] **47. Adapter les inscriptions selon pays et conditions** — 🟡 Partielle. *Réserve générale, pas de vérification par pays*
+- [ ] **47. Adapter les inscriptions selon pays et conditions** — 🟡 Partielle. *Pays détecté et vérification légale demandée ; aucune source juridique par pays intégrée*
 - [x] **48. Ne pas recommander un bookmaker hors contexte** — ✅ Complète au niveau du code et des tests. *Filtre de contexte promotionnel*
 
 ## G. Site et communauté
@@ -95,8 +95,8 @@ Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `fe
 - [x] **59. Espacer la première étape et les paragraphes** — ✅ Complète au niveau du code et des tests. *Tests d’espacement*
 - [x] **60. Mettre les réserves en italique** — ✅ Complète au niveau du code et des tests. *HTML Telegram*
 - [x] **61. Utiliser des citations pour la prudence** — ✅ Complète au niveau du code et des tests. *HTML Telegram*
-- [ ] **62. Supprimer tous les doublons de code et de lien** — 🟡 Partielle. *Nettoyage de cas connus*
-- [ ] **63. Corriger toutes les phrases maladroites** — 🟡 Partielle. *Contrôle partiel*
+- [ ] **62. Supprimer tous les doublons de code et de lien** — 🟡 Partielle. *Déduplication des lignes et XPVIP identiques, liens invalides filtrés ; toutes répétitions libres ne sont pas détectables*
+- [ ] **63. Corriger toutes les phrases maladroites** — 🟡 Partielle. *Nettoyage et contrôle de cohérence des phrases fréquentes, sans relecture linguistique exhaustive indépendante*
 - [x] **64. Adapter la longueur et les liens multiples** — ✅ Complète au niveau du code et des tests. *1 à 5 messages, 3 boutons + liens ancrés*
 
 ## I. Fiabilité des modèles
@@ -106,24 +106,24 @@ Date : 17 novembre 2026, après les corrections de la version 21 ; branche : `fe
 - [x] **67. Limiter délais par modèle et délai global** — ✅ Complète au niveau du code et des tests. *Timeout et budget définis*
 - [x] **68. Arrêter au premier modèle ayant réussi** — ✅ Complète au niveau du code et des tests. *Failover testé*
 - [x] **69. Contrôler JSON mal formé** — ✅ Complète au niveau du code et des tests. *Parse et repli*
-- [ ] **70. Éviter doublon après échec au milieu d’un message multiple** — 🟡 Partielle. *Reçus persistants par fragment Telegram et reprise des parties non envoyées ; une coupure entre envoi et accusé empêche une garantie exactement une fois*
-- [ ] **71. Conserver plus de huit messages** — 🟡 Partielle. *20 relus, 12 réinjectés, pas de résumé durable*
-- [ ] **72. Garantir un secours totalement contextuel** — 🟡 Partielle. *Templates partiels*
+- [x] **70. Éviter doublon après échec au milieu d’un message multiple** — ✅ Complète au niveau du code et des tests. *Réservation unique de chaque fragment en base AVANT l’envoi : absence de double envoi lors d’un rejeu testé ; possible fragment non transmis lors d’une coupure*
+- [x] **71. Conserver plus de huit messages** — ✅ Complète au niveau du code et des tests. *Résumé contextualisé persistant dans Supabase et réinjecté dans NVIDIA après la fenêtre des messages récents*
+- [x] **72. Garantir un secours totalement contextuel** — ✅ Complète au niveau du code et des tests. *Repli contextualisé sans second appel NVIDIA, sur les intentions et liens officiels, avec tests*
 
 ## J. Sécurité et confidentialité
 
 - [x] **73. Protéger les mineurs** — ✅ Complète au niveau du code et des tests. *Réponse déterministe sans promotion*
 - [x] **74. Détecter les situations de perte de contrôle** — ✅ Complète au niveau du code et des tests. *Réponse prudente*
 - [x] **75. Ne jamais garantir de gain** — ✅ Complète au niveau du code et des tests. *Prompt et vérification de sortie*
-- [ ] **76. Distinguer analyse sportive et conseil à risque** — 🟡 Partielle. *Filtre partiel*
+- [x] **76. Distinguer analyse sportive et conseil à risque** — ✅ Complète au niveau du code et des tests. *Détection étendue des pertes, dettes, doubles mises et demandes à risque avec réponse non promotionnelle*
 - [x] **77. Ne jamais demander des OTP ou mots de passe** — ✅ Complète au niveau du code et des tests. *Filtre et archivage masqué*
-- [ ] **78. Masquer les données sensibles à l’intérieur des images** — ⬜ Non implémentée. *Pas de masquage visuel*
+- [ ] **78. Masquer les données sensibles à l’intérieur des images** — 🟡 Partielle. *Avertissement et blocage des captures explicitement décrites comme sensibles ; aucun masquage automatique garanti des pixels ou secrets invisibles*
 - [x] **79. Ne pas prétendre lire des médias indisponibles** — ✅ Complète au niveau du code et des tests. *Retour d’erreur transparent*
 - [x] **80. Escalader vers un responsable** — ✅ Complète au niveau du code et des tests. *Notification et pause de conversation*
 
 ## Bilan chiffré
 
-✅ Code/tests : **52** ; 🟡 partiellement : **23** ; ⬜ à faire : **5**.
+✅ Code/tests : **59** ; 🟡 partiellement : **21** ; ⬜ à faire : **0**.
 
 ## Conditions avant une validation réelle
 
@@ -149,3 +149,11 @@ Les 29 éléments partiels initiaux ont été réévalués. 8 sont désormais co
 **Nouvelles tables privées :** `mx_telegram_assistant_sessions`, `mx_telegram_assistant_model_events` et `mx_telegram_assistant_delivery_receipts`. Leur RLS est activée, avec droits réservés au rôle serveur.
 
 **Tests :** 114 fonctions historiques + 15 scénarios avancés + 5 contrôles du corpus, soit 134/134 dans le harnais simulé ; simulation du webhook de guide, coupon et accueil vérifiée.
+
+## Revue des 28 derniers points — version 23
+
+Dans les 28 éléments encore ouverts, 7 passent à « complet au niveau du code et des tests » (#22, #23, #24, #70, #71, #72, #76), les 5 éléments auparavant absents deviennent partiels (#03, #37, #42, #43, #78). Les autres progressent, mais un succès de test simulé ne prouve pas leur fonctionnement sur des images, transcriptions ou flux réels.
+
+**Dépendances à finaliser :** vérification du chargement npm des codecs d'image et d’une capture réelle ; disponibilité d’un endpoint Nemotron Transcribe HTTPS et d'un vrai vocal Ogg/Opus ; flux officiel `odds.json` alimenté ; définition des bookmakers exclus et alternatives approuvées ; sources légales par pays ; analyse automatique avec masquage des secrets dans les pixels (non disponible). L’API Telegram ne garantit pas une livraison exactement une fois lors d’une panne réseau, même avec la réservation en base.
+
+**Version production :** `telegram-assistant-v2` 23 ACTIVE, bot de coupons `telegram_webhook` 38 ACTIVE. **149/149** tests JavaScript simulés réussis, aucune preuve de conversation réelle supplémentaire depuis le déploiement. Les nouvelles tables RLS sont réservées au rôle serveur.
