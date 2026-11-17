@@ -5,7 +5,7 @@ import {
  verifiedReplyReview, contextualDestinations, intentFor,
  guidedMode, guideIsContinuation, answerRelevanceGuard,
  rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage, qualityMetrics, redactSensitiveText,
- privacyCommand, deletionConfirmationValid
+ privacyCommand, deletionConfirmationValid, shouldNotifyPausedAdmin
 } from '../index.js';
 
 test('all social networks on explicit request',()=>{
@@ -99,4 +99,11 @@ test('quality dashboard distinguishes human follow-up and paused conversations',
  assert.equal(metrics.answers,1);
  assert.equal(metrics.humanReplies,1);
  assert.equal(metrics.pausedChats,2);
+});
+
+test('human handoff notices are rate-limited without dropping chat history',()=>{
+ const now=Date.parse('2026-11-17T17:00:00Z');
+ assert.equal(shouldNotifyPausedAdmin(null,now),true);
+ assert.equal(shouldNotifyPausedAdmin(new Date(now-10_000).toISOString(),now),false);
+ assert.equal(shouldNotifyPausedAdmin(new Date(now-31_000).toISOString(),now),true);
 });
