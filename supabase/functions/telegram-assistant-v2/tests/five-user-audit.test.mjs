@@ -188,7 +188,8 @@ test('five virtual Telegram users send 100 messages through the real handler wit
    if(/merci/i.test(q)&&/ne peux pas confirmer/i.test(response))checks.push('thanks_misfire');
    const item={user:p.id,n:i+1,question:q,response:response.slice(0,550),admin_notified:toAdmin.length>0,
     model:aiCalls.at(-1)?.model||null,guide_mode:session?.mode||null,step:session?.step_number||0,
-    elapsed_ms:Math.round(performance.now()-started),checks};
+    elapsed_ms:Math.round(performance.now()-started),
+    button_urls:delivered.flatMap(x=>x.buttons.flat().map(b=>b.url).filter(Boolean)),checks};
    transcript.push(item);
    for(const flag of checks)issues.push({user:p.id,n:i+1,flag,question:q,response:response.slice(0,240)});
    total++;
@@ -198,6 +199,40 @@ test('five virtual Telegram users send 100 messages through the real handler wit
  assert.equal(transcript.length,100);
  assert.equal(new Set(transcript.map(x=>x.user)).size,5);
  assert.ok(transcript.every(x=>x.elapsed_ms>=0));
+ // Critères bloquants : aucune confusion de marque ni réponse silencieuse en pause.
+ const at=(user,n)=>transcript.find(x=>x.user===user&&x.n===n);
+ assert.deepEqual(issues,[],'The adversarial regression audit detected faults');
+ assert.equal(new Set(transcript.map(x=>x.user)).size,5);
+ assert.ok(transcript.every(x=>x.response),'Every incoming message must have a visible user reply');
+ assert.ok(!at(911001,2).response.includes('1xBet'),'Unknown Whatsbet must not switch to 1xBet');
+ assert.ok(!at(911001,4).response.includes('1xBet'),'Unknown bookmaker cannot borrow a partner link');
+ assert.match(at(911001,2).response,/confirmer le nom exact/i);
+ assert.match(at(911005,4).response,/Ne partage jamais/i);
+ assert.match(at(911005,7).response,/Ne partage jamais/i);
+ assert.match(at(911005,5).response,/pertes/);
+ assert.match(at(911005,6).response,/adultes/);
+ assert.match(at(911005,9).response,/pause/);
+ assert.match(at(911005,15).response,/supprimer/);
+ assert.equal(at(911001,10).step,2);
+ assert.equal(at(911001,14).step,3);
+ for(let n=6;n<=17;n++)assert.equal(at(911001,n).guide_mode,'guided','Registration guide lost state at step '+n);
+ assert.equal(at(911001,18).guide_mode,'idle','Guide cancel must persist');
+ for(let n=7;n<=13;n++)assert.equal(at(911003,n).guide_mode,'guided','Installation guide lost state at step '+n);
+ assert.equal(at(911003,10).step,2);
+ assert.equal(at(911003,13).step,3);
+ assert.ok(at(911003,7).button_urls.includes(assistant.LINKS.installer),
+  'Guided installation must expose an official clickable link');
+ assert.ok(!at(911003,7).response.includes('Inscription'),
+  'Installation must not be replaced by bookmaker signup');
+ assert.ok(!transcript.some(x=>/Étape 1.*Étape 2/.test(x.response)),
+  'One-turn guides must never leak two steps');
+ assert.match(at(911004,12).response,/gratuit/i);
+ assert.match(at(911004,14).response,/3/);
+ assert.match(at(911003,18).response,/Instagram/);
+ assert.ok(!at(911002,2).response.includes('Real Madrid'),'No invented match');
+ assert.ok(!at(911002,8).response.includes('2-1'),'No invented score');
+ const genericCount=transcript.filter(x=>x.response.includes('Je peux t’aider sur les pronostics, le site ou un guide en cours.')).length;
+ assert.ok(genericCount<=8,'Too many generic replies: '+genericCount);
  console.log('MX_AUDIT_SUMMARY '+JSON.stringify({users:profiles.map(x=>({id:x.id,topic:x.topic,messages:x.messages.length})),
   total,aiMock:true,realTelegram:false,realNvidia:false,
   ai_calls:aiCalls.length,telegram_outbound:outbound.length,issues:issues.length,issue_details:issues,
