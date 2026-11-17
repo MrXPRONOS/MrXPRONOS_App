@@ -104,6 +104,21 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(result["source_numbering_gaps"][0]["not_observed_between_known"], [2])
         self.assertEqual(result["not_yet_indexed_total"], 2)
 
+    def test_github_merge_keeps_newest_revisit_progress(self):
+        remote = {"series": {}, "scans": {"s": {
+            "cursor": 1, "complete": True, "revisit_cursor": 80,
+            "revisit_cycles": 2, "revisit_last_checked": "2026-11-17T01:00:00+00:00"}}}
+        local = {"series": {}, "scans": {"s": {
+            "cursor": 1, "complete": True, "revisit_cursor": 40,
+            "revisit_cycles": 3, "revisit_last_checked": "2026-11-17T02:00:00+00:00"}}}
+        row = merge(remote, local)["scans"]["s"]
+        self.assertTrue(row["complete"])
+        self.assertEqual(row["cursor"], 1)
+        self.assertEqual(row["revisit_cursor"], 40)
+        self.assertEqual(row["revisit_cycles"], 3)
+        row2 = merge(local, remote)["scans"]["s"]
+        self.assertEqual(row2["revisit_cursor"], 40)
+
     def test_preflight_rejects_mistyped_private_id(self):
         private = NS(peer_id=-100444, broadcast=True, username=None)
         public = NS(peer_id=-100555, broadcast=True, username="publictest")
