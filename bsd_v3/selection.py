@@ -1,4 +1,5 @@
 """Two nonpublishing selection circuits: reliability and executable value."""
+# Revalidation 2026-11-07: no selection logic changes; CI acceptance backtest only.
 from __future__ import annotations
 from math import fsum, sqrt
 from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustment, label_candidate
