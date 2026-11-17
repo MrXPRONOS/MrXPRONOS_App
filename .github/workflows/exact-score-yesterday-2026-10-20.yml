@@ -1,0 +1,81 @@
+name: Exact Score Consensus - 20 October 2026
+on:
+  push:
+    branches: [research/exact-score-backtest-2026]
+    paths:
+      - 'research/backtest_yesterday_2026_10_20.py'
+      - '.github/workflows/exact-score-yesterday-2026-10-20.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: research-yesterday-2026-10-20-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-six-model-consensus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencies
+        run: python -m pip install numpy scipy scikit-learn requests
+      - name: Test model and consensus integrity
+        run: |
+          python research/exact_scores_2026.py --self-test-only
+          python research/predict_consensus.py --self-test-only
+          PYTHONPATH=research python research/test_consensus_pipeline.py
+      - name: Download archived pre-20-October predictions from verified 2026 backtest
+        uses: actions/download-artifact@v4
+        with:
+          name: exact-score-backtest-2026
+          run-id: 39511299147
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          path: previous_archived_predictions
+      - name: Verify source uniqueness
+        run: |
+          test "$(find previous_archived_predictions -name 'all_predictions.csv' | wc -l)" -eq 1
+          test -s cache/all_matches.json
+      - name: Simulate FOOTBALL-only six models on October 20 with pre-game historic data
+        env:
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+        shell: bash
+        run: |
+          set -o pipefail
+          INPUT="$(find previous_archived_predictions -name all_predictions.csv -print -quit)"
+          PYTHONPATH=.:research python -u research/backtest_yesterday_2026_10_20.py \
+            --history cache/all_matches.json \
+            --prior-predictions "$INPUT" \
+            --output research/results/yesterday_2026_10_20 \
+            2>&1 | tee october-20-consensus.log
+      - name: Display report
+        if: always()
+        run: |
+          if test -f research/results/yesterday_2026_10_20/summary.json; then
+            python - <<'PY'
+          import json
+          x=json.load(open("research/results/yesterday_2026_10_20/summary.json",encoding="utf8"))
+          print(json.dumps({"date":x["date_tested"],"matches":x["n_completed_evaluable_matches"],"voting":x["voting_thresholds"],"models":x["individual_models"],"examples":x["examples_top_voted"][:12]},ensure_ascii=False))
+          PY
+          fi
+      - name: Upload full October 20 predictions and ground-truth scores
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: consensus-test-2026-10-20
+          path: |
+            research/results/yesterday_2026_10_20/
+            october-20-consensus.log
+          retention-days: 30

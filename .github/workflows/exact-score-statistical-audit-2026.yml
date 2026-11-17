@@ -1,0 +1,58 @@
+name: Exact Score 2026 - Paired Statistical Audit
+on:
+  push:
+    branches: [research/exact-score-backtest-2026]
+    paths:
+      - 'research/statistical_audit_2026.py'
+      - '.github/workflows/exact-score-statistical-audit-2026.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: exact-score-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-saved-predictions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download saved expanded 2026 backtest (81k games)
+        uses: actions/download-artifact@v4
+        with:
+          name: exact-score-backtest-2026
+          path: prior_predictions
+          run-id: 39511299147
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+      - name: Verify historical source and model pairing
+        run: |
+          ls -lah prior_predictions
+          find prior_predictions -name 'all_predictions.csv' -print
+          test "$(find prior_predictions -name 'all_predictions.csv' | wc -l)" -eq 1
+      - name: Pair 2026 predictions and bootstrap confidence intervals
+        run: |
+          PRED="$(find prior_predictions -name 'all_predictions.csv' -print -quit)"
+          python research/statistical_audit_2026.py \
+            --predictions "$PRED" \
+            --source-run 39511299147 \
+            --bootstrap 1800 \
+            --output research/results/statistical_2026 \
+            2>&1 | tee statistical-audit.log
+          test ${PIPESTATUS[0]} -eq 0
+        shell: bash
+      - name: Display verified summary
+        run: cat research/results/statistical_2026/summary.json
+      - name: Upload statistical comparison
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exact-score-statistical-audit-2026
+          path: |
+            research/results/statistical_2026/
+            statistical-audit.log
+          retention-days: 30

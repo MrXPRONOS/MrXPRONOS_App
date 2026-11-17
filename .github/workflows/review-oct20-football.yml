@@ -1,0 +1,29 @@
+name: Oct20 football match-by-match audit
+on:
+  push:
+    branches: [research/exact-score-backtest-2026]
+    paths:
+      - 'research/review_yesterday_2026_10_20.py'
+      - '.github/workflows/review-oct20-football.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: consensus-test-2026-10-20
+          run-id: 39522118027
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          path: preserved_test
+      - name: Compare real match scores and six predictions for notable competitions
+        run: |
+          INPUT="$(find preserved_test -name all_match_results.json -print -quit)"
+          test -s "$INPUT"
+          python research/review_yesterday_2026_10_20.py --input "$INPUT"
