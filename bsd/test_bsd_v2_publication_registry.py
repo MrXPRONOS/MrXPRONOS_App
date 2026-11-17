@@ -59,7 +59,9 @@ class HistoricalPublicationGuardTests(unittest.TestCase):
 
     def test_new_event_remains_candidate_and_existing_id_stays_frozen(self):
         with patch("bsd_v2_publish.predict_v2",return_value=(None,"no_qualified_market")) as pick:
-            out=assemble({"source":"bsd","matches":[]},[fixture(1234),fixture(5678)],[],
+            different_fixture=fixture(5678)
+            different_fixture["away_team"]={"id":113,"name":"Fixture Other"}
+            out=assemble({"source":"bsd","matches":[]},[fixture(1234),different_fixture],[],
                 now=TIME,calibration=None,policy=None,rho=0,odds_fetcher=None,
                 historical_published_ids={"1234"})
         self.assertEqual(pick.call_count,1)
