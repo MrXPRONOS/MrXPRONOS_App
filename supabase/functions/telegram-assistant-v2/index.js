@@ -1935,7 +1935,7 @@ export async function handleUpdate(update) {
     }
   }
   const name=[msg.from?.first_name,msg.from?.last_name].filter(Boolean).join(' ')||msg.from?.username||'Client';
-  const intent=intentFor(text);
+  let intent=intentFor(text);
   let recentHistory=[];
   try{recentHistory=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
   let liveSession=null;
@@ -1948,6 +1948,8 @@ export async function handleUpdate(update) {
     const correction=extractSpokenCorrection(text);
     if(accepted||correction){
       text=correction||liveSession.last_input;
+      // L'intention doit être celle de la transcription validée, pas le simple « oui ».
+      intent=intentFor(text);
       try{await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},liveSession);}catch(e){console.warn('voice_confirmation_clear_failed');}
       liveSession={...liveSession,mode:'idle',last_input:''};
     }else if(/^(non|pas du tout|c.est faux)$/.test(q)){
