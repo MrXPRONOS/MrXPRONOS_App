@@ -96,6 +96,25 @@ class GlobalNewsTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             n.collect({"sent": {}}, NOW, broken)
 
+    def test_noncrypto_regulatory_story_rejected_even_with_crypto_in_summary(self):
+        self.assertFalse(n.is_relevant(
+            "SEC reportedly investigating whether Nvidia misled investors",
+            "Bitcoin and crypto prices also moved today."))
+        self.assertFalse(n.is_relevant(
+            "Kalshi Axes Trump Mention Markets After CFTC Raises Concerns",
+            "Crypto industry newsletter roundup and Bitcoin analysis."))
+
+    def test_real_crypto_regulatory_and_payment_headlines_remain(self):
+        self.assertTrue(n.is_relevant(
+            "Bank of England opens regulated pathway for blockchain clearing houses",
+            "Regulated blockchain infrastructure in the UK."))
+        self.assertTrue(n.is_relevant(
+            "Nigeria approves new stablecoin payments framework for banks",
+            "The regulator announced a crypto framework."))
+        self.assertTrue(n.is_relevant(
+            "Coinbase launches new wallet crypto payment service for Ghana",
+            "Company statement about cryptocurrency payments."))
+
     def test_nonnews_prediction_held(self):
         self.assertFalse(n.is_relevant("Bitcoin price prediction for tomorrow", ""))
 
