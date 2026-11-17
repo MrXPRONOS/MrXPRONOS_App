@@ -712,6 +712,17 @@ export function guidedMode(question,history=[]) {
   if(!/(?:Étape|Etape)\s+\d+|Quand c.est fait.+fait|[ée]cris.+fait/i.test(last))return false;
   return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|je suis bloque|je ne trouve pas|comment|ou|pourquoi|et maintenant)/.test(q);
 }
+export function guideDeviceSwitch(question='',session=null){
+ const q=normalizeClientFrench(question);
+ return session?.mode==='guided'&&/\b(?:finalement|plutot|en fait|je passe|je change|maintenant)\b/.test(q)&&
+   /\b(?:iphone|android|windows|ipad|safari|chrome)\b/.test(q);
+}
+export function guideProviderSwitch(question='',session=null){
+ const next=partnerFromMessage(question);
+ const q=normalizeClientFrench(question);
+ return session?.mode==='guided'&&next&&next!==session.bookmaker&&
+   /(?:finalement|plutot|je prefere|je choisis|je change|je passe|au lieu de)/.test(q)?next:null;
+}
 export function guideStepCompleted(question='') {
  const q=normalizeClientFrench(question).replace(/[.!?]+$/,'').trim();
  return /^(?:fait|c.est fait|j.ai (?:fini|fait|ouvert|clique|rempli|termine)|c.est termine|termine|suivant|etape suivante|passe a l.etape suivante|continue|je suis pret|je suis prete)$/.test(q);
@@ -736,7 +747,8 @@ export function guideTopic(question='',history=[],session=null){
  return /(?:install|pwa|ecran d.accueil)/.test(related)?'installation':'inscription';
 }
 export function guideDevice(question='',history=[],session=null){
- const texts=[question,...[...history].reverse().map(x=>x.content||''),session?.goal||''];
+ // Les descriptions de l'IA (« iPhone ou Android ») ne sont PAS des choix du client.
+ const texts=[question,...[...history].reverse().filter(x=>x.role==='user').map(x=>x.content||''),session?.goal||''];
  const found=texts.map(x=>normalizeClientFrench(x)).find(x=>/(?:iphone|ios|safari|ipad|android|chrome|windows|ordinateur)/.test(x))||'';
  if(/iphone|ios|safari|ipad/.test(found))return 'iphone';
  if(/windows|ordinateur/.test(found))return 'windows';
@@ -745,7 +757,8 @@ export function guideDevice(question='',history=[],session=null){
 }
 export function installationGuideStep(question='',history=[],session=null){
  const n=Number(session?.step_number||0);
- const step=guideStepCompleted(question)?Math.max(1,n+1):Math.max(1,n);
+ const step=guideDeviceSwitch(question,session)?1:
+   (guideStepCompleted(question)?Math.max(1,n+1):Math.max(1,n));
  const device=guideDevice(question,history,session);
  let instruction='';
  if(step===1)instruction='Ouvre la page officielle d’installation : '+LINKS.installer+'. Utilise ton navigateur habituel.';
@@ -760,6 +773,8 @@ export function installationGuideStep(question='',history=[],session=null){
     step===3?'Utilise **Installer ce site comme application** si proposé, sinon crée un raccourci.':'Ouvre le raccourci installé.';
  }else instruction='Précise si tu es sur **Android**, **iPhone** ou **Windows**, pour que je t’indique le prochain bouton.';
  const q=normalizeClientFrench(question);
+ if(device==='iphone'&&/(?:ou est|bouton|trouve|vois).{0,25}partager/.test(q))
+   instruction='Sur iPhone, ouvre la page dans **Safari**, puis touche **Partager** (carré avec une flèche vers le haut, généralement en bas). Fais défiler la liste des actions pour trouver **Sur l’écran d’accueil**.';
  if(/je ne vois pas|je ne trouve pas|je suis bloque/.test(q)){
   instruction=(device==='iphone'
     ?'Dans **Safari**, cherche **Partager** puis fais défiler les actions jusqu’à **Sur l’écran d’accueil**.'
@@ -771,7 +786,8 @@ export function installationGuideStep(question='',history=[],session=null){
 }
 export function signupGuideStep(question='',history=[],session=null){
  const n=Number(session?.step_number||0);
- const step=guideStepCompleted(question)?Math.max(1,n+1):Math.max(1,n);
+ const step=guideProviderSwitch(question,session)?1:
+   (guideStepCompleted(question)?Math.max(1,n+1):Math.max(1,n));
  const provider=partnerFromMessage(question)||session?.bookmaker||
   [...history].reverse().map(x=>partnerFromMessage(x.content||'')).find(Boolean)||null;
  const name=provider?PARTNER_NAMES[provider]:'la plateforme choisie';
@@ -798,6 +814,7 @@ export function guidedResponse(reply,question,history=[],session=null) {
   let text=String(reply||'').trim();
   const topic=guideTopic(question,history,session);
   if(topic==='installation')return installationGuideStep(question,history,session);
+  if(topic==='inscription')return signupGuideStep(question,history,session);
   const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
   const lastNumber=session?.mode==='guided'?Number(session.step_number||0):Number(last.match(/(?:Étape|Etape)\s+(\d+)/i)?.[1]||0);
   const done=guideStepCompleted(question);
@@ -2002,6 +2019,7 @@ export function guideIsContinuation(question,session=null) {
   if(session?.mode!=='guided')return false;
   const q=normalizeClientFrench(question);
   const chosen=partnerFromMessage(question);
+  if(guideDeviceSwitch(question,session)||guideProviderSwitch(question,session))return true;
   if(chosen&&q.replace(/[\s_.-]+/g,'')===chosen)return true;
   return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis (?:bloque|sur)|je ne (?:trouve|vois|comprends)|je n.ai pas compris|j.ai pas compris|explique autrement|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|ca ne propose pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie|est.ce que je dois|sur (?:android|iphone|windows)|avec (?:chrome|safari))/.test(q);
 }
@@ -2030,7 +2048,8 @@ export function guideStateFromReply(question,reply,previous=null,history=[]) {
   const q=normalizeClientFrench(question);
   const completed=guideStepCompleted(question);
   const prevStep=previous?.mode==='guided'?Math.max(1,Number(previous.step_number)||1):0;
-  const desired=completed&&prevStep?Math.min(50,prevStep+1):(prevStep||1);
+  const desired=(guideProviderSwitch(question,previous)||guideDeviceSwitch(question,previous))?1:
+    (completed&&prevStep?Math.min(50,prevStep+1):(prevStep||1));
   const answer=String(reply||'');
   const stepText=cut(answer.split('\n\n').filter(Boolean).slice(0,3).join('\n\n'),900);
   const topic=guideTopic(question,history,previous);
