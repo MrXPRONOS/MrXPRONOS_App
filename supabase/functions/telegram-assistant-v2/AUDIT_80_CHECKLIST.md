@@ -1,6 +1,6 @@
 # Mr XPRONOS — 80 améliorations : vérification de l'implémentation
 
-Date : 17 novembre 2026, après la version 23 ; branche : `feature/telegram-assistant-nvidia-v2-20261107`.
+Date : 17 novembre 2026, après la version 24 ; branche : `feature/telegram-assistant-nvidia-v2-20261107`.
 
 ## Les quatre axes fondamentaux
 
@@ -156,4 +156,8 @@ Dans les 28 éléments encore ouverts, 7 passent à « complet au niveau du code
 
 **Dépendances à finaliser :** vérification du chargement npm des codecs d'image et d’une capture réelle ; disponibilité d’un endpoint Nemotron Transcribe HTTPS et d'un vrai vocal Ogg/Opus ; flux officiel `odds.json` alimenté ; définition des bookmakers exclus et alternatives approuvées ; sources légales par pays ; analyse automatique avec masquage des secrets dans les pixels (non disponible). L’API Telegram ne garantit pas une livraison exactement une fois lors d’une panne réseau, même avec la réservation en base.
 
-**Version production :** `telegram-assistant-v2` 23 ACTIVE, bot de coupons `telegram_webhook` 38 ACTIVE. **149/149** tests JavaScript simulés réussis, aucune preuve de conversation réelle supplémentaire depuis le déploiement. Les nouvelles tables RLS sont réservées au rôle serveur.
+**Version production :** `telegram-assistant-v2` 24 ACTIVE, bot de coupons `telegram_webhook` 38 ACTIVE. **150/150** tests JavaScript simulés réussis, aucune preuve de conversation réelle supplémentaire depuis le déploiement. Les nouvelles tables RLS sont réservées au rôle serveur.
+
+## Correctif vocal de la version 24
+
+Le bot recalcule maintenant l'intention sur le contenu réellement confirmé. Une correction de nom de marque conserve l'objectif d'inscription uniquement si la première transcription l'exprimait explicitement. Un test de régression supplémentaire porte le total à **150/150 tests réussis**.
