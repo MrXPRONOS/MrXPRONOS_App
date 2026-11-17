@@ -1187,10 +1187,40 @@ export function durableConversationSummary(history=[],previous='',question='',an
  * Réponses déterministes uniquement pour les questions connues lorsque le
  * modèle produit un repli générique. Ne jamais inventer de cotes ou de matchs.
  */
+export function lastClientMatch(question='',history=[]){
+ const texts=[question,...[...history].reverse().filter(x=>x.role==='user').slice(0,7).map(x=>x.content||'')];
+ for(const line of texts){
+  const q=normalizeClientFrench(line);
+  if(/(?:real(?: madrid)?.{0,30}(?:barca|barcelone)|(?:barca|barcelone).{0,30}real|clasico|classico)/.test(q))return 'Real Madrid – Barcelone';
+  if(/(?:psg.{0,24}marseille|marseille.{0,24}psg)/.test(q))return 'PSG – Marseille';
+ }
+ return null;
+}
 export function groundedQuestionReply(question='',history=[],session=null){
  const q=normalizeClientFrench(question);
- const hist=normalizeClientFrench(history.slice(-8).map(x=>x.content||'').join(' '));
+ const hist=normalizeClientFrench(history.slice(-8).filter(x=>x.role==='user').map(x=>x.content||'').join(' '));
+ const game=lastClientMatch(question,history);
  if(session?.mode==='guided'&&guideIsContinuation(question,session))return null;
+ if(/(?:je voudrais signaler un lien casse|signaler un lien|lien casse|lien.*ne fonctionne pas|renvoie ailleurs)/.test(q)){
+  const found=Object.entries({facebook:LINKS.facebook,instagram:LINKS.instagram,youtube:LINKS.youtube})
+    .find(([key])=>q.includes(key));
+  return 'Merci pour le signalement. '+(found?
+    'Voici l’adresse '+found[0]+' enregistrée dans notre annuaire : '+found[1]+'. ':'')+
+    'Quel bouton ou quelle page ouvre un mauvais lien ? Ne transmets aucun code privé.';
+ }
+ if(/^(?:quels? pronos?.*aujourd.hui|et (?:pour )?les vip|qu.est.ce qui a reellement ete publie|et demain)\s*\??$/.test(q)&&
+    /(?:prono|coupon|vip|publie)/.test(hist))
+   return 'Pour les pronostics Pro/VIP, consulte les sélections réellement publiées sur '+LINKS.pronos+'. Je ne peux pas confirmer un nouveau coupon pour demain sans données actualisées.';
+ if(game&&/(?:qui est favori|le score exact|et les corners|ce match|pour ce match|tu prevois quoi|cote verifiee pour lui)/.test(q)){
+  if(/corner/.test(q))return 'Pour **'+game+'**, je ne peux pas confirmer le nombre de corners sans statistiques actualisées. Je préfère ne pas inventer de total.';
+  if(/cote/.test(q))return 'Pour **'+game+'**, je ne dispose pas actuellement de cote de bookmaker vérifiée et horodatée.';
+  if(/score exact/.test(q))return 'Pour **'+game+'**, aucun score exact n’est garanti. Je ne peux pas confirmer une publication précise sans source à jour.';
+  return 'Pour **'+game+'**, je ne peux pas désigner un favori fiable sans la date, les compositions et des données actualisées.';
+ }
+ if(game&&/(?:parlons maintenant de|parlons de)/.test(q))
+   return 'D’accord, on parle désormais de **'+game+'**. Souhaites-tu une analyse, les résultats publiés ou une explication des marchés ?';
+ if(/(?:je prefere les resultats|le lien de l.historique)/.test(q))
+   return 'Tu peux consulter les résultats et l’historique ici : '+LINKS.historique;
  if(/(?:est.ce un bookmaker partenaire|est.ce un partenaire)/.test(q)&&/whats[ -]?bet/.test(hist))
   return 'Whatsbet n’apparaît pas dans notre catalogue de partenaires vérifiés. Confirme le nom exact avant toute proposition de lien.';
  if(/(?:en fait|non).{0,18}(?:je voulais dire|je parle de)/.test(q)&&partnerFromMessage(question)){
@@ -1211,7 +1241,7 @@ export function groundedQuestionReply(question='',history=[],session=null){
   return 'Aucun pronostic ni score exact n’est garanti. Consulte uniquement les sélections réellement publiées et vérifie les résultats.';
  if(/(?:inventer|fabriquer|imaginer).{0,20}(?:match|coupon|prono)/.test(q))
   return 'Je ne peux pas présenter des matchs ou des coupons inventés comme des publications réelles. Voici les sélections vérifiées : '+LINKS.pronos;
- if(/(?:cotes? en temps reel|cotes? verifiees|flux de cotes)/.test(q))
+ if(/(?:cotes? en temps reel|une cote verifiee|cotes? verifiees|flux de cotes)/.test(q))
   return 'Je ne dispose pas actuellement d’un flux de cotes de bookmaker dont je puisse confirmer les valeurs en temps réel.';
  if(/(?:ou lire|montre.moi|voir).{0,30}(?:actualites|infos? du foot|analyses|articles)/.test(q))
   return /(?:actualit|infos? du foot)/.test(q)?'🗞️ **Actualités football** : '+LINKS.infos:'📰 **Analyses football** : '+LINKS.analyses;
