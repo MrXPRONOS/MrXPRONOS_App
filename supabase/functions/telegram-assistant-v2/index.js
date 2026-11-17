@@ -316,18 +316,32 @@ export function buttonForUrl(url,context='') {
 const htmlEscape=(str)=>String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 // Le texte de l'IA et celui des utilisateurs sont toujours échappés avant toute mise en forme.
 export function telegramInline(text) {
-  const codes=[];
-  let x=htmlEscape(text).replace(/\x60([^\x60]+)\x60/g,(_,value)=>{
-    codes.push('<code>'+value+'</code>');return 'XCODE'+(codes.length-1)+'X';
+  const protectedItems=[];
+  const stash=(html)=>{const id=protectedItems.length;protectedItems.push(html);return 'XMXPROTECTED'+id+'X';};
+  // Les liens ne peuvent pointer que vers le catalogue officiel ou un partenaire validé.
+  let value=String(text||'').replace(/`([^`]+)`/g,(_m,code)=>stash('<code>'+htmlEscape(code)+'</code>'));
+  value=value.replace(/\[([^\]\n]{1,96})\]\((https:\/\/[^\s)]+)\)/gi,(_m,label,url)=>{
+    if(!allowed(url))return '[lien non vérifié retiré]';
+    return stash('<a href="'+htmlEscape(url)+'">'+htmlEscape(label)+'</a>');
   });
+  let x=htmlEscape(value);
+  // Syntaxe combinée prise en charge : ***gras italique***, **__gras souligné__**,
+  // *__italique souligné__*, __**souligné gras**__ et __***triple***__.
+  x=x.replace(/__\*\*\*([^*\n_]+)\*\*\*__/g,'<u><b><i>$1</i></b></u>');
+  x=x.replace(/\*\*__([^_\n*]+)__\*\*/g,'<b><u>$1</u></b>');
+  x=x.replace(/__\*\*([^*\n_]+)\*\*__/g,'<u><b>$1</b></u>');
+  x=x.replace(/\*__([^_\n*]+)__\*/g,'<i><u>$1</u></i>');
+  x=x.replace(/__\*([^*\n_]+)\*__/g,'<u><i>$1</i></u>');
+  x=x.replace(/\*\*\*([^*\n]+)\*\*\*/g,'<b><i>$1</i></b>');
   x=x.replace(/\|\|([^|\n]+)\|\|/g,'<tg-spoiler>$1</tg-spoiler>');
   x=x.replace(/~~([^~\n]+)~~/g,'<s>$1</s>');
   x=x.replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>');
   x=x.replace(/__([^_\n]+)__/g,'<u>$1</u>');
   x=x.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'<i>$1</i>');
   x=x.replace(/(?<!_)_([^_\n]+)_(?!_)/g,'<i>$1</i>');
-  return x.replace(/XCODE(\d+)X/g,(_,i)=>codes[Number(i)]||'');
+  return x.replace(/XMXPROTECTED(\d+)X/g,(_all,id)=>protectedItems[Number(id)]||'');
 }
+
 export function telegramHtml(text) {
   const result=[];let quotes=[];
   const flush=()=>{if(quotes.length){result.push('<blockquote>'+quotes.map(telegramInline).join('\n')+'</blockquote>');quotes=[];}};
@@ -654,29 +668,50 @@ export function responseLinks(intent,question,answer='') {
   return [];
 }
 
-export function buildTelegramMessage(raw,{allowedUrls=null}={}) {
-  const buttons=[],seen=new Set();
+export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3}={}) {
+  const seen=new Set(),buttons=[],links=[];
   const original=cut(raw,3500);
-  const add=(url)=>{
-    const button=buttonForUrl(url,original);
-    if(!button || (Array.isArray(allowedUrls) && !allowedUrls.includes(url))) return false;
-    if(seen.has(url)) return true;
-    if(buttons.length>=8) return false;
-    seen.add(url);buttons.push([button]);return true;
+  const permitted=(url)=>allowed(url)&&(!Array.isArray(allowedUrls)||allowedUrls.includes(url));
+  const inline=(url,label)=>{
+    const index=links.length;
+    links.push({url,label:String(label||'Ouvrir le lien').slice(0,90)});
+    return 'XMXANCHOR'+index+'X';
   };
-  let text=original.replace(/\[([^\]\n]{1,72})\]\((https?:\/\/[^\s)]+)\)/gi,(_full,label,url)=>add(url)?label:(allowed(url)?'':'[lien non vérifié retiré]'));
-  // Remplacer tous les liens bruts par des boutons; aucun lien non vérifié n'est envoyé.
+  const addButton=(url)=>{
+    if(!permitted(url))return false;
+    if(seen.has(url))return true;
+    const button=buttonForUrl(url,original);
+    if(!button||buttons.length>=Math.max(0,Math.min(8,maxButtons)))return false;
+    buttons.push([button]);seen.add(url);return true;
+  };
+  // La syntaxe [clique ici](https://...) indique explicitement un lien DANS le texte.
+  // Elle reste cliquable sans consommer un emplacement de bouton.
+  let text=original.replace(/\[([^\]\n]{1,96})\]\((https:\/\/[^\s)]+)\)/gi,(_m,label,url)=>{
+    if(!permitted(url))return '[lien non vérifié retiré]';
+    return inline(url,label);
+  });
   text=text.replace(/https?:\/\/[^\s<>"'\x60]+/gi,matched=>{
     const url=matched.replace(/[.,;!?)\]]+$/g,'');
-    return add(url)?'':(allowed(url)?'':'[lien non vérifié retiré]');
+    const suffix=matched.slice(url.length);
+    if(!permitted(url))return '[lien non vérifié retiré]'+suffix;
+    if(addButton(url))return suffix;
+    // Au-delà du nombre raisonnable de boutons, les liens deviennent
+    // des liens sur du texte lisible plutôt que des URL brutes.
+    const info=buttonForUrl(url,original);
+    return inline(url,info?.text?.replace(/^[^\p{L}]+/u,'')||'Ouvrir le lien')+suffix;
   });
-  text=text.replace(/^(.*?)(?:\s*:\s*)$/gm,(_match,line)=>line.trimEnd());
   text=text.replace(/^[ \t]*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
-  text=text.replace(/^[ \t]*[^\n:]{1,45}:\s*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
-  // Pas de phrase de remplissage « clique sur le bouton » : Telegram affiche déjà son intitulé.
+  const replaceAnchors=(str,html)=>str.replace(/XMXANCHOR(\d+)X/g,(_m,index)=>{
+    const item=links[Number(index)];
+    if(!item)return '';
+    return html
+      ?'<a href="'+htmlEscape(item.url)+'">'+htmlEscape(item.label)+'</a>'
+      :item.label+' ('+item.url+')';
+  });
+  const message=telegramHtml(text||'Consulte les options ci-dessous.');
   return {
-    text:telegramHtml(text||'Consulte les options ci-dessous.'),
-    fallback_text:text||'Consulte les options ci-dessous.',
+    text:replaceAnchors(message,true),
+    fallback_text:replaceAnchors(text||'Consulte les options ci-dessous.',false),
     reply_markup:buttons.length?{inline_keyboard:buttons}:undefined
   };
 }
