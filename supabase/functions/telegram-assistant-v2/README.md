@@ -181,3 +181,19 @@ Le code continue de prendre en charge les éléments qui ne doivent pas être la
 **Vérification :** 46 tests automatiques du code réussis et simulation de quatre messages successifs (`Merci !`, inscription Linebet, coupons du jour, `cc`) ayant tous entraîné une requête NVIDIA, avec boutons contextuels et données de coupon injectées dans le prompt. Le fonctionnement avec la vraie clé NVIDIA nécessite encore le test dans Telegram.
 
 **Confidentialité :** les messages des clients traités par ce mode sont transmis à l'API NVIDIA pour générer les réponses. Ne jamais journaliser les clés API ni les conversations en clair.
+
+## Boutons et formatage contextuels renforcés — 17 novembre 2026
+
+**Architecture IA d'abord préservée.** L'IA NVIDIA reste chargée de rédiger les réponses et de proposer des boutons. Une validation côté serveur vérifie ces boutons, complète les destinations indispensables dans certains contextes et empêche les promotions non sollicitées.
+
+- **Inscription** : si l'utilisateur demande une inscription chez un bookmaker nommé (dont les variantes `line bet` / `1xbet`), le serveur garantit le **bouton partenaire exact** du catalogue GitHub et le code **XPVIP** dans le texte, en indiquant clairement « si accepté » ou une réserve équivalente. Les étapes restent rédigées par NVIDIA.
+- **Pronostics/coupons du jour** : boutons vers les pronostics officiels et le canal Telegram, uniquement sur une demande de consultation ou de réception.
+- **Canal Telegram** : bouton vert pointant vers l'URL vérifiée `https://t.me/mrxpronosfr`, ou la valeur valide du secret `MX_ASSISTANT_COUPONS_CHANNEL_URL`.
+- **Site et rubriques** : bouton vers l'accueil ou la rubrique demandée (résultats, conseils, analyses, scores exacts, bonus). Ne pas ajouter de bouton site à chaque réponse.
+- **Salutation, remerciement ou simple code promo** : pas de bouton commercial non sollicité.
+- Les choix de boutons de l'IA sont filtrés une seconde fois selon la question, le bookmaker choisi et l'historique. Un bouton hors sujet, même vers un site officiel, est ignoré.
+- **Formatage** : les titres d'inscriptions, de coupons et de canal sont en gras ; le code `XPVIP` est mis en valeur ; les précisions peuvent être en italique. NVIDIA peut produire une citation `>`, un ~~barré~~ ou un `||spoiler||` lorsque le contexte le justifie. Le moteur HTML Telegram échappe le contenu non fiable avant le rendu.
+
+**Tests :** 56 tests de fonctions et de formatage réussis. Simulation d'une conversation avec NVIDIA ayant renvoyé `buttons: []` : le message d'inscription Linebet inclut XPVIP et son bouton ; les coupons incluent les boutons pertinents ; le canal renvoie au canal officiel ; les messages de remerciement n'ont pas de bouton.
+
+Le bot de coupons `telegram_webhook` et le compte personnel Telegram Business restent séparés. Leur configuration n'est pas modifiée.
