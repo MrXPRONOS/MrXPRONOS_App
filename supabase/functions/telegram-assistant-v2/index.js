@@ -1339,6 +1339,87 @@ export function extractSpokenCorrection(question) {
   return correction?.[1]?.trim().replace(/[.!?]+$/,'')||null;
 }
 
+
+/** Convert Telegram Ogg/Opus voice to small, real PCM WAV chunks.
+ * NVIDIA Omni supports WAV/MP3, not raw Ogg. Each <= 4.8 sec chunk stays below
+ * the ~175 KB inline threshold, bypassing the NVCF asset endpoint (410).
+ * Dynamic import keeps the decoder out of non-audio requests.
+ */
+export function looksLikeTelegramOggOpus(bytes){
+  if(!bytes||bytes.length<28||String.fromCharCode(...bytes.subarray(0,4))!=='OggS')return false;
+  const head=String.fromCharCode(...bytes.subarray(0,Math.min(bytes.length,150)));
+  return head.includes('OpusHead');
+}
+export function pcmMonoWav16(channelData,sampleRate,{startSample=0,endSample=null,outputRate=16000}={}){
+  if(!Array.isArray(channelData)||!channelData.length||
+    !Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>192000||
+    !Number.isInteger(outputRate)||outputRate<8000||outputRate>48000)throw Error('invalid_pcm');
+  const channels=channelData.filter(x=>x instanceof Float32Array);
+  if(!channels.length)throw Error('invalid_channels');
+  const length=Math.min(...channels.map(x=>x.length));
+  const first=Math.max(0,Math.floor(startSample));
+  const last=Math.min(length,endSample==null?length:Math.floor(endSample));
+  if(last<=first)throw Error('empty_audio');
+  const count=Math.max(1,Math.ceil((last-first)*outputRate/sampleRate));
+  if(count>outputRate*30)throw Error('audio_too_long');
+  const bytes=new Uint8Array(44+count*2),dv=new DataView(bytes.buffer);
+  const word=(i,text)=>{for(let j=0;j<text.length;j++)bytes[i+j]=text.charCodeAt(j);};
+  word(0,'RIFF');dv.setUint32(4,bytes.length-8,true);word(8,'WAVE');
+  word(12,'fmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+  dv.setUint32(24,outputRate,true);dv.setUint32(28,outputRate*2,true);
+  dv.setUint16(32,2,true);dv.setUint16(34,16,true);word(36,'data');dv.setUint32(40,count*2,true);
+  for(let i=0;i<count;i++){
+    const pos=Math.min(last-1,first+Math.floor(i*sampleRate/outputRate));
+    let mono=0;for(const ch of channels)mono+=ch[pos]||0;
+    mono=Math.max(-1,Math.min(1,mono/channels.length));
+    dv.setInt16(44+i*2,mono<0?Math.round(mono*32768):Math.round(mono*32767),true);
+  }
+  return bytes;
+}
+export async function convertTelegramOggToWav(data,{
+  decode=null,outputRate=16000,segmentSeconds=4.8,maxSegments=6
+}={}){
+  if(data?.mime!=='audio/ogg'||!looksLikeTelegramOggOpus(data?.bytes))return {chunks:[],reason:'invalid_ogg_opus'};
+  try{
+    let opusDecode=decode;
+    if(!opusDecode){
+      const pkg=await import('npm:@audio/decode-opus@1.3.3');
+      opusDecode=pkg.default;
+    }
+    if(typeof opusDecode!=='function')return {chunks:[],reason:'decoder_unavailable'};
+    const decoded=await opusDecode(data.bytes);
+    const sampleRate=Number(decoded?.sampleRate),channels=decoded?.channelData;
+    if(!Array.isArray(channels)||!channels.length||!Number.isFinite(sampleRate)||
+       sampleRate<8000||sampleRate>192000)return {chunks:[],reason:'bad_decoded_audio'};
+    const samples=Math.min(...channels.map(x=>x.length)),seconds=samples/sampleRate;
+    if(!Number.isFinite(seconds)||seconds<.2)return {chunks:[],reason:'audio_too_short'};
+    const frame=Math.floor(segmentSeconds*sampleRate);
+    const count=Math.ceil(samples/frame);
+    if(count>maxSegments)return {chunks:[],reason:'audio_too_long_for_inline'};
+    const chunks=[];
+    for(let i=0;i<count;i++){
+      const bytes=pcmMonoWav16(channels,sampleRate,{
+        startSample:i*frame,endSample:Math.min(samples,(i+1)*frame),outputRate
+      });
+      if(bytes.length>175000)return {chunks:[],reason:'wav_inline_limit'};
+      chunks.push({bytes,mime:'audio/wav'});
+    }
+    return {chunks,durationSeconds:seconds,reason:null};
+  }catch(e){
+    console.warn('ogg_decoder_failed',String(e?.name||'error'));
+    return {chunks:[],reason:'ogg_decode_failed'};
+  }
+}
+export function transcriptLooksCorrupted(value=''){
+  const text=String(value||'').trim().toLowerCase();
+  if(!text||/^(?:transcription|audio|son|bruit|silence|[.,!? ]){2,}$/.test(text))return true;
+  // Explicitly reject observed Omni/Ogg hallucination signatures; a true
+  // transcript may contain unknown words or African accents.
+  if(/(?:esquire[\s,!.]+){2,}|(?:monsieur est prononc[eé])|(?:bite clicker.*(?:esquire|partie))/i.test(text))return true;
+  if(/(?:\b([\p{L}]{3,})\b[\s,;.!?]+)(?:\1[\s,;.!?]+){4,}/iu.test(text))return true;
+  return false;
+}
+
 export async function transcribeTelegramAudio(data,{
   http=fetch,apiKey=env('MX_ASSISTANT_NVIDIA_KEY'),upload=nvidiaAsset,
   asrUrl=env('MX_ASSISTANT_ASR_URL'),asrKey=env('MX_ASSISTANT_ASR_KEY')||apiKey
