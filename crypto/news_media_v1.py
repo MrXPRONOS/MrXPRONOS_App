@@ -6,7 +6,6 @@ Remote URLs are restricted to public HTTPS; responses are bounded and decoded.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from html import escape, unescape
 from html.parser import HTMLParser
 from io import BytesIO
@@ -231,19 +230,13 @@ def caption(candidate, image_source=None):
     quote = summary if summary and summary.casefold() != title.casefold() else title
     if len(quote) < 25:
         quote = title
-    try:
-        time = datetime.fromisoformat(main["published_at"].replace("Z", "+00:00"))
-        stamp = time.astimezone(timezone.utc).strftime("%d/%m/%Y à %H:%M UTC")
-    except (KeyError, ValueError, TypeError):
-        raise ValueError("Invalid dated RSS article")
     html_caption = (
         "📰 <b>ACTU CRYPTO</b>  |  <i>" + escape(category) + "</i>\n\n"
         + "🔸 <b>" + escape(title) + "</b>\n\n"
         + "<blockquote>" + escape(quote) + "</blockquote>\n\n"
-        + "🗞️ <i>Source : " + escape(source) + "</i>\n"
-        + ("📷 <i>Image : " + escape(image_source) + "</i>\n"
+        + "🗞️ <i>Source : " + escape(source) + "</i>"
+        + ("\n📷 <i>Image : " + escape(image_source) + "</i>"
            if image_source != source else "")
-        + "🕒 <i>" + escape(stamp) + "</i>"
     )
     # Telegram photo captions have a 1024 char text+entity limit.
     if len(html_caption) > 1000:
