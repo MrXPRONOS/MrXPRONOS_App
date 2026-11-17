@@ -431,3 +431,34 @@ Les notifications répétées d'un même chat repris par un humain sont espacée
 - Un accusé de réception HTTP ne prouve pas qu'un client a reçu son message. Pour garantir des reprises illimitées de 60 secondes par IA, il faudrait une **file d'attente persistante et un worker distinct**, qui ne sont pas fournis par cette version.
 
 Cette stratégie concerne les **réponses de chat NVIDIA**. La transcription audio et la vision gardent leurs propres limites et leur routage spécialisé. Le bot historique `telegram_webhook` de publication des coupons ne doit pas être modifié.
+
+
+## Annuaire de liens et test d’accueil (V30, 17 novembre 2026)
+
+**Problème corrigé :** un lien hors de l’annuaire était présenté avec un message peu utile (« lien non vérifié retiré »). Désormais, les liens officiels, les principaux canaux et les URL de bookmakers sont centralisés et rendus sous forme de boutons et liens cliquables. Une adresse externe inconnue n’est **jamais** transformée en lien affilié ; le bot explique comment consulter `/liens`.
+
+### Commandes accessibles aux abonnés
+
+- `/start` : accueille un nouvel abonné avec trois accès immédiats : page pronostics, canal Telegram pronostics, installation du site.
+- `/accueil` : affiche à nouveau le même message de bienvenue, sans réinitialiser la conversation.
+- `/liens` : annuaire complet avec site, pronostics Pro/VIP, installation, page d’actualités foot, canal pronostics, dossier Telegram Mr XPRONOS F, contact Telegram, WhatsApp, Instagram, Facebook, YouTube, Threads et les six bookmakers partenaires configurés. Les liens exclus par `MX_ASSISTANT_EXCLUDED_BOOKMAKERS` ne sont pas proposés.
+- `/dossier` : dossier Telegram **Mr XPRONOS F** : `https://t.me/addlist/ZmW4vfwcrMAwNzJk` (source : lien précédemment transmis par le propriétaire).
+- `/actufoot` : canal Telegram Actu Foot lorsque l’URL est renseignée, ou la page officielle `infos.html` tant que l’adresse publique est inconnue.
+- `/bookmakers` : liens configurés pour les opérateurs partenaires, avec avertissement concernant l’âge, le pays et les conditions.
+
+**Note sur le rendu Telegram** : par défaut trois liens sont convertis en boutons, et les autres liens vérifiés deviennent des ancres cliquables dans le texte, sans perte d’URL.
+
+### Commandes administrateur
+
+- `/testaccueil` : montre la bienvenue envoyée au premier nouveau client, avec les trois mêmes boutons.
+- `/synccommandes` : met à jour le menu des commandes du bot Telegram via `setMyCommands`. Cette opération doit être exécutée **une fois depuis le compte propriétaire** après le déploiement (les fichiers de code ne modifient pas automatiquement les menus déjà publiés par Telegram).
+
+### Compléter le lien Actu Foot
+
+Pour le moment, seule l’existence du système de publication de l’actualité football a été retrouvée : **l’URL publique exacte du canal Telegram Actu Foot n’a pas été confirmée**. Elle n’a donc pas été inventée. Pour l’ajouter, configurer le secret Supabase `MX_ASSISTANT_FOOT_NEWS_CHANNEL_URL` avec une véritable adresse de canal de type `https://t.me/<username>` ou `https://t.me/+<code>`. Le bot valide le format et ne l’affiche que s’il est renseigné. Sinon, il donne `https://mrxpronos.github.io/MrXPRONOS_App/infos.html`.
+
+### Validation automatisée
+
+Les tests de `link-hub-integration.test.mjs` couvrent des appels à `handleUpdate` pour `/start`, `/liens`, `/dossier`, `/actufoot`, `/bookmakers`, `/accueil` et `/testaccueil`. Les destinations sont contrôlées dans les boutons et les ancres HTML.
+
+**Attention au deuxième audit sportif :** 200 questions nouvelles ont fait ressortir **28 réponses signalées** lorsque NVIDIA est simulé de façon délibérément trompeuse. Ces défauts sont documentés dans `AUDIT_200_NOUVELLES_QUESTIONS_20261117.md`. Les tests automatisés réussis prouvent le fonctionnement technique, pas l’absence des 28 anomalies.
