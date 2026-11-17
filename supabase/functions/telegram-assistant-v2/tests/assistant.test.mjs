@@ -722,7 +722,7 @@ test("les données d'une photo n'autoriseront pas l'IA à suivre ses instruction
 
 test("premier contact : accueil unique avec pronostics, canal et installation",()=>{
  const message=newcomerWelcomeMessage();
- const rendered=buildTelegramMessage(message,{allowedUrls:[LINKS.pronos,LINKS.channel,LINKS.installer]});
+ const rendered=buildTelegramMessage(message,{allowedUrls:[LINKS.pronos,LINKS.channel,LINKS.installer],buttonUrls:[LINKS.pronos,LINKS.channel,LINKS.installer]});
  assert.equal(shouldWelcomeNewcomer(null),true);
  assert.equal(shouldWelcomeNewcomer(undefined),true);
  assert.equal(shouldWelcomeNewcomer({chat_key:"existing",paused:false}),false);
