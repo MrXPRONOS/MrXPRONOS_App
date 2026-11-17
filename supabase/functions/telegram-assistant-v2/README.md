@@ -85,7 +85,7 @@ Les réponses du bot utilisent désormais une mise en forme HTML sûre : gras, i
 - Les liens officiels de la réponse sont convertis en boutons inline Telegram **sous** le texte du message. Les boutons ne peuvent pas être placés au milieu d'une phrase dans un message standard.
 - Couleurs de boutons : `primary` (bleu) pour le site et les pronostics ; `success` (vert) pour le canal vérifié et les conseils ; `danger` (rouge) pour une assistance urgente, une réclamation ou un signalement. L'apparence dépend du thème et du client Telegram.
 - Les URL non vérifiées ne sont ni affichées ni proposées comme boutons. Les doublons sont supprimés. Sans valeur validée pour `MX_ASSISTANT_COUPONS_CHANNEL_URL`, aucun bouton « rejoindre le canal » n'est inventé.
-- Pour vérifier le rendu dans Telegram, envoie `/format` au bot. Il présente les principales mises en forme et deux boutons de liens.
+- Pour vérifier le rendu dans Telegram, envoie `/format` au bot. Il présente les principales mises en forme et trois boutons de liens (bleu, vert et rouge).
 - Le texte d'action « Clique sur le bouton ci-dessous » apparaît immédiatement au-dessus des boutons.
 - Les commandes existantes, la configuration Business et les webhooks du bot coupons ne sont pas modifiés par cette fonctionnalité.
 
