@@ -78,7 +78,7 @@ class MediaTests(TestCase):
         self.assertNotIn("21:00", cap)
         self.assertNotIn("17/11/2026", cap)
         self.assertNotIn("UTC", cap)
-        self.assertTrue(cap.endswith("<i>"))
+        self.assertTrue(cap.endswith("</i>"))
         self.assertIn("Source : CoinDesk", cap)
 
     def test_caption_strips_link_from_headline_and_summary(self):
