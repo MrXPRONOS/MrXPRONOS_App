@@ -462,7 +462,7 @@ export const PROJECT_KNOWLEDGE = Object.freeze({
   contact:'Pour une demande personnelle, un partenariat, une réclamation, proposer un responsable humain.',
   safety:'Réservé aux adultes. Paris risqués ; aucun gain ni remboursement garanti. Ne pas encourager une personne à récupérer des pertes.',
   pages:'Installation sur téléphone : installer.html (PWA) ; pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.',
-  social:'Réseaux officiels vérifiés : Telegram, WhatsApp, Facebook, Instagram, YouTube et Threads. Ne jamais inventer un lien TikTok. Répondre avec tous les liens à une demande plurielle.'
+  social:'Réseaux officiels : Telegram, WhatsApp, Facebook, Instagram, YouTube et Threads. Dossier Mr XPRONOS F : '+LINKS.folder_films+'. Canal Actu Foot Telegram : '+(footNewsChannelUrl()||'adresse non encore confirmée')+'. La commande /liens affiche les liens du site, des partenaires et des canaux. Ne jamais inventer de lien TikTok ou de canal non connu.'
 });
 export function knowledgePrompt(){
  return Object.entries(PROJECT_KNOWLEDGE).map(([key,value])=>key+': '+value).join('\n')+'\nSitemap officiel : '+LINKS.sitemap+'\nNavigation : '+Object.entries(PAGE_TOPICS).map(([key,label])=>label+' = '+LINKS[key]).join(' ; ');
@@ -471,6 +471,8 @@ export function knowledgePrompt(){
 export function intentFor(input) {
   const text = normalizeClientFrench(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
+  const linksIntent=linksHubIntent(input);
+  if(linksIntent)return linksIntent;
   if (/^\/(?:stop|annuler|arreter)(?:@\w+)?(?:\s|$)/.test(text)||/(?:arrete|annule|quitte|arreter|annuler) (?:le|ce) (?:guide|guidage|tutoriel)/.test(text)||/(?:je veux|je souhaite) (?:arreter|stopper|terminer) (?:le|ce) (?:guide|guidage)/.test(text))return 'guide_cancel';
   if (/^\/(?:restart|recommencer|reset)(?:@\w+)?(?:\s|$)/.test(text)||/(?:recommence|reprends?) (?:tout )?(?:depuis le debut|a zero|la procedure)/.test(text))return 'guide_restart';
   if (/(comment installer|installer l.appli|installation du site|ajouter a l.ecran|installer le site|installer l.application)/.test(text))return 'site_nav';
@@ -541,7 +543,7 @@ export function exactScorePicks(payload, now=new Date()) {
 }
 const formatPromo = () => '**Code promo : XPVIP** ✅\nÀ utiliser chez les partenaires qui l’acceptent, selon leurs conditions.';
 const channelLine = () => '📢 Canal Telegram officiel : '+channelUrl();
-const intro = () => 'Salut 👋 Je suis l’assistant de **Mr XPRONOS**. Je peux t’aider pour les pronostics, résultats et le code promo **XPVIP**.';
+const intro = () => 'Salut 👋 Je suis l’assistant de **Mr XPRONOS**. Je peux t’aider pour les pronostics, résultats, installation, réseaux et canaux. Écris **/liens** pour tous les liens, ou **/accueil** pour revoir le message de bienvenue.';
 const adviceMessage = () => '⚽ Regarde la forme, les absences et les statistiques du match. Aucun pronostic n’est garanti ; évite de poursuivre tes pertes.';
 const accessMessage = () => 'Les pronostics **Pro et VIP** sont consultables gratuitement sur notre site. Aucun abonnement VIP payant annoncé.';
 const categoriesMessage = () => '**Pro** et **VIP** sont deux catégories de sélections du site. Leur confiance est *estimée*, sans garantie de gain.';
@@ -941,6 +943,7 @@ export async function assistantFacts(question,history=[],{
  */
 export function contextualDestinations(question,history=[],suggested=[],intent='general') {
   const q=normalizeClientFrench(question);
+  if(linksHubIntent(question))return shortcutUrls(linksHubIntent(question));
   if(socialMediaRequest(question).requested)return officialSocialUrls(question);
   const h=norm(history.slice(-5).map(x=>x.content||'').join(' '));
   const topic=norm(question+' '+history.slice(-5).map(x=>x.content||'').join(' '));
@@ -1084,6 +1087,7 @@ export function safeContextualFallback(question='',history=[],session=null){
  }
  if(info.score)return '**Scores exacts**\n\nSeules les prévisions publiées peuvent être consultées : '+LINKS.scores;
  if(info.picks)return '**Pronostics**\n\nConsulte les sélections publiées sur le site et notre canal.\n'+LINKS.pronos+'\n'+channelUrl();
+ if(linksHubIntent(question))return shortcutMessage(linksHubIntent(question));
  if(socialMediaRequest(question).requested)return officialSocialMessage(question);
  if(/(canal|telegram)/.test(q))return '**Canal officiel**\n\n'+channelUrl();
  if(/(promo|code.*xpvip)/.test(q))return '**Code promo : XPVIP**\n\nLes conditions dépendent de la plateforme partenaire.';
@@ -1208,7 +1212,8 @@ export function verifiedReplyReview(reply,question,facts='',history=[],session=n
   if(conversationalIntent==='thanks')return 'Avec plaisir 😊';
   if(conversationalIntent==='ack')return 'Parfait 👍';
   if(conversationalIntent==='welcome'&&!/^\/(?:start|help)/i.test(question.trim()))return 'Salut 👋 Comment puis-je t’aider ?';
-  if(socialMediaRequest(question).requested)return officialSocialMessage(question);
+  if(linksHubIntent(question))return shortcutMessage(linksHubIntent(question));
+ if(socialMediaRequest(question).requested)return officialSocialMessage(question);
   const info=analyzeClientIntent(question,history);
   let text=String(reply||'').trim();
   if(/^je peux t.aider sur les pronostics, le site ou un guide en cours/i.test(normalizeClientFrench(text))){
@@ -1281,6 +1286,7 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
 
 export function responseLinks(intent,question,answer='') {
   const q=norm(question);
+  if(['links','folder','foot_news','partners'].includes(intent))return shortcutUrls(intent);
   if(intent==='format') return [LINKS.pronos,LINKS.conseils,LINKS.contact];
   if(intent==='social')return officialSocialUrls(question);
   if(intent==='signup'||intent==='partner'){
@@ -2417,13 +2423,16 @@ async function adminCommand(msg) {
   await setPause(key,cmd==='pause');
   return say(msg.chat.id,cmd==='pause'?'⏸ Assistant suspendu pour ce chat.':'✅ Assistant réactivé pour ce chat.');
 }
-export function newcomerWelcomeMessage() {
+export export function newcomerWelcomeMessage() {
   return '**👋 Bienvenue chez Mr XPRONOS !**\n\n'
-    +'Je suis ton assistant pour les **pronostics football**, les résultats et l’aide sur notre plateforme.\n\n'
-    +'📢 **__Rejoins notre canal Telegram__** pour retrouver les nouveaux contenus.\n\n'
-    +'📲 ***Installe l’application Mr XPRONOS*** pour accéder facilement aux pronostics depuis ton téléphone.\n\n'
-    +'> *Les pronostics sont des estimations ; aucun gain n’est garanti.*\n\n'
-    +channelUrl()+'\n'+LINKS.installer;
+    +'Je suis ton assistant pour les **pronostics football**, les résultats et l’aide avec notre plateforme.\n\n'
+    +'⚽ **Pronostics Pro/VIP** : '+LINKS.pronos+'\n'
+    +'📣 **Canal Telegram pronostics** : '+channelUrl()+'\n'
+    +'📲 **Installer le site sur ton téléphone** : '+LINKS.installer+'\n\n'
+    +'📚 Pour tous les réseaux, bookmakers et canaux : **/liens**\n'
+    +'🎬 Dossier Mr XPRONOS F : **/dossier**\n'
+    +'📰 Actu Foot : **/actufoot**\n\n'
+    +'*Les pronostics sont des estimations, pas des gains garantis.*';
 }
 export function shouldWelcomeNewcomer(previous,isBusiness=false) {
   return !isBusiness && (previous===null || previous===undefined);
@@ -2515,7 +2524,7 @@ export async function handleUpdate(update) {
     const welcome=newcomerWelcomeMessage();
     let sent=false;
     try{
-      await say(msg.chat.id,welcome,'',{allowedUrls:[channelUrl(),LINKS.installer]});
+      await say(msg.chat.id,welcome,'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
       sent=true;
       await logMessage(key,'assistant',welcome);
     }catch(error){console.warn('newcomer_welcome_error',String(error?.name||'error'));}
