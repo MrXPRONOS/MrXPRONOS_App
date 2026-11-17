@@ -52,7 +52,7 @@ unset TG_TOKEN TG_SECRET
 - Accueille une seule fois un nouvel interlocuteur, puis analyse les messages suivants (intentions : pronostics, scores, liens, historique, conseils, demande humaine), sans envoyer de message spontané.
 - Récupère les pronostics du site dans `data.json` (uniquement catégorie Pro/VIP, date valide, éligibilité publiée, rencontres futures) et les scores exacts dans les fichiers journaliers.
 - Affiche les liens officiels; ne fabrique ni rencontres, ni performances, ni conditions VIP.
-- Utilise NVIDIA NIM pour les questions générales et conserve une mémoire de conversation isolée.
+- Utilise **NVIDIA NIM pour tous les messages ordinaires** (y compris salutations, remerciements, FAQ, inscriptions et coupons) et conserve une mémoire de conversation isolée. Les modèles de réponse préécrits ne sont utilisés qu'en secours.
 - Prend en charge la notification et la reprise humaine avec `/reply`, `/pause`, `/resume`.
 - Ne touche pas aux mécanismes d'envoi automatique des coupons du canal.
 
@@ -102,7 +102,7 @@ Les faits sont centralisés dans `PROJECT_KNOWLEDGE` du fichier `index.js`, en s
 - Canal indiqué par la page d’accueil : `https://t.me/mrxpronosfr`. Une URL valide en secret `MX_ASSISTANT_COUPONS_CHANNEL_URL` peut la remplacer après vérification.
 - Pronostics LIVE temporairement suspendus. Aucune offre VIP payante, promesse de gains ni demande de données sensibles.
 
-**Politique de réponse :** une phrase de 10 à 35 mots par défaut pour NVIDIA NIM, deux phrases si nécessaire ; développement uniquement sur demande explicite. Le bot ne répète pas les salutations, les promotions ou les liens inutilement. Les FAQ connues sont répondues directement, de façon concise.
+**Politique de réponse :** une phrase de 10 à 35 mots par défaut pour NVIDIA NIM, deux phrases si nécessaire ; développement uniquement sur demande explicite. Le bot ne répète pas les salutations, les promotions ou les liens inutilement. Les FAQ sont désormais rédigées **par l'IA en priorité**, avec des données vérifiées fournies par le serveur. Les réponses préécrites sont seulement un secours si l'IA échoue.
 
 **Politique des boutons :** les boutons ne sont plus ajoutés sur les salutations, conversations générales, simples conseils ou questions « quel est le code promo ? ». Ils apparaissent seulement sur des demandes de pronostics, scores, résultats, canal, accès au site ou liens/conditions d’offres. Le rendu `/format` reste une démonstration volontaire. Les liens hors de ce contexte sont masqués, y compris s’ils ont été ajoutés par l’IA.
 
@@ -110,7 +110,7 @@ Les faits sont centralisés dans `PROJECT_KNOWLEDGE` du fichier `index.js`, en s
 
 ## Correctifs de conversation, inscriptions et sitemap — 17 novembre 2026
 
-- Réponses naturelles aux messages courants : `Merci !`, `D'accord`, `Parfait`, sans requête NVIDIA ni bouton superflu.
+- Réponses naturelles aux messages courants : `Merci !`, `D'accord`, `Parfait`, désormais générées par NVIDIA NIM si disponible, sans bouton superflu.
 - Un message `Je veux m'inscrire sur 1xBet` ouvre un guide neutre avec conditions d'âge/législation locale, démarches générales et utilisation éventuelle du code XPVIP, uniquement si accepté. Aucune promesse de promotion ni de gains.
 - Liens partenaires tirés **exactement** de `assets/js/bonus-catalogue.js` dans le dépôt (1xBet, 1win, Betwinner, Melbet, Linebet, Betclic). Les redirections et conditions doivent être vérifiées régulièrement ; ne jamais inventer un lien partenaire. Les liens sont proposés en boutons seulement en cas de demande d'inscription ou de lien.
 - Le sitemap `https://mrxpronos.github.io/MrXPRONOS_App/sitemap.xml` sert de carte officielle pour la navigation ; analyse des URL autorisée uniquement sur `mrxpronos.github.io/MrXPRONOS_App/`, et pages essentielles indexées (accueil, aujourd'hui, pronostics, scores exacts, résultats, analyses, infos, conseils, bonus, contact).
@@ -161,4 +161,23 @@ Les modèles sont désormais **définis directement dans `index.js`**, par ordre
 - La reconnaissance des alias est déterministe et ne dépend pas de NVIDIA ; un faux positif sur un nom étranger comme `Alicenet` n'entraîne pas de redirection partenaire.
 - Les boutons partenaires sont des éléments Telegram `reply_markup.inline_keyboard` et peuvent ne pas figurer dans les copies textuelles d'une conversation.
 
-Tests automatiques de cette version : 40 réussis, plus simulations de messages avec un compte administrateur.
+Tests automatiques de la version initiale : 40 réussis, plus simulations de messages avec un compte administrateur. La version IA d'abord passe 46 tests et une simulation de quatre conversations.
+
+
+## Architecture IA d'abord — 17 novembre 2026
+
+Le **modèle NVIDIA NIM est désormais le cerveau conversationnel**. L'assistant n'utilise plus le routage de 15 à 20 textes préécrits comme réponse prioritaire. Sur chaque message Telegram ordinaire, il :
+
+1. Recharge l'historique isolé de la conversation (jusqu'à 8 messages), les faits confirmés de Mr XPRONOS et, si la question le demande, les données des pronostics/scores et le sitemap.
+2. Interroge le premier modèle NVIDIA disponible de la liste des 10 priorités, avec basculement automatique en cas d'échec.
+3. Demande au modèle un objet JSON court de la forme `{"reply":"réponse naturelle","buttons":["pronos"]}`. La réponse textuelle est librement rédigée par l'IA et peut contenir du formatage Telegram.
+4. Convertit **uniquement** les identifiants de boutons proposés par l'IA en URL déjà validées dans le code (`pronos`, `channel`, `historique`, `partner_linebet`, etc.). Un filtre supplémentaire évite les liens d'affiliation non demandés et les boutons décoratifs.
+5. Envoie le message et garde l'historique de la réponse pour les relances.
+
+Le code continue de prendre en charge les éléments qui ne doivent pas être laissés à une IA : authentification du webhook, permissions Business (toujours désactivé), contrôles d'âge / détresse liés aux paris, commandes administrateur et reprise humaine. Le `/format` de démonstration est également déterministe.
+
+**Dégradation contrôlée :** si NVIDIA ne renvoie aucune réponse exploitable ou échoue, le bot conserve d'anciens messages prédéfinis pour ne pas laisser les clients sans réponse. Ce n'est plus le chemin normal.
+
+**Vérification :** 46 tests automatiques du code réussis et simulation de quatre messages successifs (`Merci !`, inscription Linebet, coupons du jour, `cc`) ayant tous entraîné une requête NVIDIA, avec boutons contextuels et données de coupon injectées dans le prompt. Le fonctionnement avec la vraie clé NVIDIA nécessite encore le test dans Telegram.
+
+**Confidentialité :** les messages des clients traités par ce mode sont transmis à l'API NVIDIA pour générer les réponses. Ne jamais journaliser les clés API ni les conversations en clair.
