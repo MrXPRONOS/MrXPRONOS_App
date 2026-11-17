@@ -1345,6 +1345,14 @@ export function extractSpokenCorrection(question) {
  * the ~175 KB inline threshold, bypassing the NVCF asset endpoint (410).
  * Dynamic import keeps the decoder out of non-audio requests.
  */
+
+export async function checkOggDecoderReady({load=null}={}){
+  try{
+    const pkg=load?await load():await import('npm:@audio/decode-opus@1.3.3');
+    return {ready:typeof pkg?.default==='function'};
+  }catch(e){return {ready:false,reason:String(e?.name||'import_failed')};}
+}
+
 export function looksLikeTelegramOggOpus(bytes){
   if(!bytes||bytes.length<28||String.fromCharCode(...bytes.subarray(0,4))!=='OggS')return false;
   const head=String.fromCharCode(...bytes.subarray(0,Math.min(bytes.length,150)));
@@ -1415,7 +1423,7 @@ export function transcriptLooksCorrupted(value=''){
   if(!text||/^(?:transcription|audio|son|bruit|silence|[.,!? ]){2,}$/.test(text))return true;
   // Explicitly reject observed Omni/Ogg hallucination signatures; a true
   // transcript may contain unknown words or African accents.
-  if(/(?:esquire[\s,!.]+){2,}|(?:monsieur est prononc[eé])|(?:bite clicker.*(?:esquire|partie))/i.test(text))return true;
+  if(/(?:esquire[\s,!.]+){2,}|(?:monsieur est prononc[eé])|(?:bite clicker.*(?:esquire|partie))|(?:salu\s+komotiva)|(?:b[eê]te\s+pariallo)/i.test(text))return true;
   if(/(?:\b([\p{L}]{3,})\b[\s,;.!?]+)(?:\1[\s,;.!?]+){4,}/iu.test(text))return true;
   return false;
 }
@@ -1936,13 +1944,15 @@ async function adminCommand(msg) {
   if(cmd==='health'){
     try{
       const asr=await inspectAsrEndpoint();
+      const oggCodec=await checkOggDecoderReady();
+      const codecLabel=oggCodec.ready?'🟢 Décodeur Ogg/Opus prêt':'🔴 Décodeur Ogg/Opus indisponible';
       const asrLabel=asr.reachable?'🟢 ASR dédié : prêt (Ogg/Opus)':asr.configured?'🟠 ASR dédié : '+asr.reason:'🟠 ASR dédié : non configuré';
       const voicePipeline=asr.reachable?'Moteur dédié prioritaire ; secours WAV si nécessaire':'Ogg/Opus → PCM WAV 16 kHz → Nemotron Omni ; aucun Ogg brut envoyé';
       const start=new Date(Date.now()-86400e3).toISOString();
       const rows=await db('mx_telegram_assistant_model_events?select=model,status,duration_ms,created_at&created_at=gte.'+encodeURIComponent(start)+'&order=created_at.desc&limit=300');
       const diagnostics=modelDiagnostics(rows);
       const body=diagnostics.slice(0,8).map(d=>'- '+d.model+' : '+d.success+'/'+d.attempts+' OK, '+d.avgMs+' ms en moyenne').join('\n');
-      return say(msg.chat.id,'**État des modèles — 24 h**\n\n'+(body||'Aucune mesure récente disponible.')+'\n\n'+asrLabel+'\n**Voix :** '+voicePipeline);
+      return say(msg.chat.id,'**État des modèles — 24 h**\n\n'+(body||'Aucune mesure récente disponible.')+'\n\n'+asrLabel+'\n'+codecLabel+'\n**Voix :** '+voicePipeline);
     }catch(e){return say(msg.chat.id,'Les métriques ne sont pas accessibles pour le moment.');}
   }
   if(cmd==='chats') {
