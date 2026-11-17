@@ -452,7 +452,7 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
   if(/scores? exacts?/.test(q)&&/(voir|lien|consulter|donne|montre)/.test(q))add(LINKS.scores);
   if(/(bonus|promotions?|offres?)/.test(q)&&/(voir|consulter|lien|page|conditions|quelles|ou trouver)/.test(q))add(LINKS.bonus);
   if(/(site|page d.accueil|site officiel|lien du site)/.test(q)&&/(lien|voir|visiter|ouvrir|consulter|acceder|donne|envoie|ou)/.test(q)&&!asksPicks)add(pageForQuestion(question));
-  if(/(conseils?|guide|analyses?)/.test(q)&&/(lien|page|lire|voir|consulter|acceder)/.test(q))add(pageForQuestion(question));
+  if(/(conseils?|guide|analyses?)/.test(q)&&/(lien|page|lire|voir|consulter|acceder|veux|donne|envoie|montre|trouve)/.test(q))add(pageForQuestion(question));
   // L'IA peut proposer d'autres boutons seulement si la demande est réellement navigatoire.
   const allowedModel=aiButtons(suggested,question,history);
   for(const url of allowedModel){
@@ -469,6 +469,7 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
   let reply=cut(String(rawReply||'').trim(),1350);
   const platform=partnerFromMessage(question)||providerChoiceFromHistory(question,history);
   const registration=/(inscri|enregistrer|creer un compte|ouvrir un compte|signup|register)/.test(q)||
+    !!providerChoiceFromHistory(question,history)||
     (!!platform && /(ensuite|apres|je suis bloque|comment faire|je ne trouve pas)/.test(q) &&
       /(inscri|inscription|compte)/.test(norm(history.slice(-5).map(x=>x.content||'').join(' '))));
   if(/^(merci|merci beaucoup|cc|bonjour|salut|bonsoir|ok|daccord|d.accord)[!?. ]*$/.test(q))return reply;
