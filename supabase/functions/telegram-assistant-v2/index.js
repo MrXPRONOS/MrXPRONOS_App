@@ -740,7 +740,7 @@ export function tidyResponseText(value=''){
   const seen=new Set();
   const lines=[];
   for(const line of text.split('\n')){
-    const key=normalizeClientFrench(line.replace(/[*_~>]/g,'').replace(/https?:\/\/\S+/g,'URL'));
+    const key=normalizeClientFrench(line.replace(/[*_~>]/g,'').replace(/https?:\/\/\S+/g,'URL')).replace(/^[^\p{L}\p{N}]+/u,'');
     const isRepeating=/^(?:code promo\s*:?\s*xpvip|repere le champ code promo|https?:\/\/|pour les autres coupons)/i.test(key);
     if(isRepeating&&seen.has(key))continue;
     if(isRepeating)seen.add(key);
