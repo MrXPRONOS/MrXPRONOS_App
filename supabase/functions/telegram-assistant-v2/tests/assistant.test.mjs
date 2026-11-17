@@ -861,3 +861,19 @@ test("audit : 410 vision et secret ne contaminent pas les liens clients",()=>{
  const html=telegramHtml("**Attention**\n> *Ne communique jamais ton OTP.*");
  assert.match(html,/<blockquote><i>Ne communique jamais ton OTP/);
 });
+
+test("audit : minorité détectée même sans mot parier",()=>{
+ assert.equal(analyzeClientIntent("J'ai 17 ans, je peux faire un dépôt ?").minor,true);
+ assert.equal(analyzeClientIntent("J'ai 16 ans, j'ai besoin d'un compte").minor,true);
+});
+test("audit : annuler ou recommencer une assistance pas à pas",()=>{
+ assert.equal(intentFor("/stop"),"guide_cancel");
+ assert.equal(intentFor("Arrête le guide"),"guide_cancel");
+ assert.equal(intentFor("/restart"),"guide_restart");
+ assert.equal(intentFor("Recommence depuis le début"),"guide_restart");
+});
+test("audit : cote dix routée différemment du score exact",()=>{
+ assert.equal(intentFor("Je veux une cote dix"),"odds");
+ assert.equal(intentFor("Je veux le score exact"),"scores");
+ assert.deepEqual(responseLinks("odds","Je cherche une cote 10"),[LINKS.pronos]);
+});
