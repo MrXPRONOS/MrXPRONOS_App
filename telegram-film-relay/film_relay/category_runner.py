@@ -179,11 +179,11 @@ async def preflight(client, bot, cfg: dict, audit: dict | None = None):
     mirror = None
     mirror_key = ""
     if bot is not None:
-        bot_public = await bot.get_entity(cfg["public"])
-        if utils.get_peer_id(bot_public) != utils.get_peer_id(public):
-            raise RuntimeError("Le bot et le compte utilisateur ne voient pas le même canal public.")
         bot_me = await bot.get_me()
         try:
+            bot_public = await bot.get_entity(cfg["public"])
+            if utils.get_peer_id(bot_public) != utils.get_peer_id(public):
+                raise RuntimeError("Le bot et le compte utilisateur ne voient pas le même canal public.")
             perms = await bot.get_permissions(bot_public, bot_me)
         except Exception as exc:
             from telethon.errors import UserNotParticipantError
