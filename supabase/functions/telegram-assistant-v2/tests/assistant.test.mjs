@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -196,4 +196,109 @@ test("pronostic dupliqué sur le même match supprimé",()=>{
  const now=new Date("2026-11-17T01:00:00Z");
  const example={date:"2026-11-17",event_date:"2026-11-17T20:00:00Z",category:"pro",recommendation_eligible:true,home_team:"Kuwait",away_team:"Honduras",prediction:{confidence:.85,prediction:"1X"}};
  assert.equal(publishedPicks({matches:[example,{...example,category:"vip",prediction:{confidence:.89,prediction:"1X"}}]},now).length,1);
+});
+
+
+test("priorité NVIDIA : 10 modèles fixes et distincts",()=>{
+ assert.equal(NVIDIA_MODELS.length,10);
+ assert.equal(new Set(NVIDIA_MODELS).size,10);
+ assert.deepEqual(NVIDIA_MODELS.slice(0,3),[
+  "minimaxai/minimax-m3.1-flash",
+  "nvidia/nemotron-3-ultra-550b-a55b",
+  "nvidia/nemotron-3.5-super-vl-120b-a12b"
+ ]);
+ assert.equal(NVIDIA_MODELS.at(-1),"poolside/laguna-xs-2.1");
+});
+test("NVIDIA : premier modèle fonctionnel choisi immédiatement",async()=>{
+ const called=[];
+ const result=await runNvidiaFailover({
+  messages:[{role:"user",content:"Bonjour"}],apiKey:"fake-local-key",
+  signalFactory:()=>undefined,
+  fetchImpl:async (_url,options)=>{
+    const body=JSON.parse(options.body);
+    called.push(body.model);
+    assert.equal(body.reasoning_effort,undefined);
+    assert.ok(body.max_tokens>=1000);
+    return {ok:true,status:200,json:async()=>({choices:[{message:{content:"Bonjour !"},finish_reason:"stop"}]})};
+  }
+ });
+ assert.equal(result.text,"Bonjour !");
+ assert.equal(result.model,NVIDIA_MODELS[0]);
+ assert.deepEqual(called,[NVIDIA_MODELS[0]]);
+ assert.deepEqual(result.attempts,[{model:NVIDIA_MODELS[0],status:"ok"}]);
+});
+test("NVIDIA : 400 et réponse vide entraînent passage au modèle suivant",async()=>{
+ const called=[];
+ const result=await runNvidiaFailover({
+  messages:[{role:"user",content:"Bonjour"}],apiKey:"fake-local-key",
+  signalFactory:()=>undefined,
+  fetchImpl:async (_url,options)=>{
+    const model=JSON.parse(options.body).model;called.push(model);
+    if(called.length===1) return {ok:false,status:400};
+    if(called.length===2) return {ok:true,status:200,json:async()=>({choices:[{message:{content:null},finish_reason:"length"}]})};
+    return {ok:true,status:200,json:async()=>({choices:[{message:{content:[{type:"text",text:"Réponse du troisième modèle."}]},finish_reason:"stop"}]})};
+  }
+ });
+ assert.equal(result.model,NVIDIA_MODELS[2]);
+ assert.deepEqual(called,NVIDIA_MODELS.slice(0,3));
+ assert.deepEqual(result.attempts.map(x=>x.status),["http_400","empty_length","ok"]);
+});
+test("NVIDIA : 403, 429 et timeout ne bloquent pas les secours",async()=>{
+ let count=0;
+ const result=await runNvidiaFailover({
+  messages:[{role:"user",content:"test"}],apiKey:"fake-local-key",
+  signalFactory:()=>undefined,
+  fetchImpl:async()=>{
+    count++;
+    if(count===1) return {ok:false,status:403};
+    if(count===2) return {ok:false,status:429};
+    if(count===3) throw Object.assign(new Error("slow"),{name:"TimeoutError"});
+    return {ok:true,status:200,json:async()=>({choices:[{message:{content:"OK"},finish_reason:"stop"}]})};
+  }
+ });
+ assert.equal(result.model,NVIDIA_MODELS[3]);
+ assert.deepEqual(result.attempts.map(x=>x.status),["http_403","http_429","timeout","ok"]);
+});
+test("NVIDIA : clé invalide et crédits épuisés arrêtent les tentatives",async()=>{
+ for(const status of [401,402]) {
+  let called=0;
+  const result=await runNvidiaFailover({
+   messages:[{role:"user",content:"test"}],apiKey:"fake-local-key",signalFactory:()=>undefined,
+   fetchImpl:async()=>{called++;return {ok:false,status};}
+  });
+  assert.equal(called,1);
+  assert.equal(result.reason,"account_error");
+  assert.equal(result.attempts[0].status,"http_"+status);
+ }
+});
+test("NVIDIA : les dix échecs sont essayés dans l'ordre si le délai le permet",async()=>{
+ const names=[];
+ const result=await runNvidiaFailover({
+  messages:[{role:"user",content:"test"}],apiKey:"fake-local-key",
+  signalFactory:()=>undefined,
+  overallBudgetMs:29000,
+  fetchImpl:async (_url,options)=>{names.push(JSON.parse(options.body).model);return {ok:false,status:422};}
+ });
+ assert.deepEqual(names,[...NVIDIA_MODELS]);
+ assert.equal(result.reason,"all_failed");
+ assert.equal(result.attempts.length,10);
+});
+test("NVIDIA : absence de clé signalée sans appel réseau",async()=>{
+ let called=false;
+ const result=await runNvidiaFailover({apiKey:"",fetchImpl:async()=>{called=true;}});
+ assert.equal(called,false);
+ assert.equal(result.reason,"missing_key");
+ assert.deepEqual(result.attempts,[]);
+});
+test("NVIDIA : limite temporelle arrête les modèles restants",async()=>{
+ let clock=0;
+ const result=await runNvidiaFailover({
+  messages:[{role:"user",content:"test"}],apiKey:"fake-local-key",
+  now:()=>clock,
+  overallBudgetMs:3000,
+  signalFactory:()=>undefined,
+  fetchImpl:async()=>{clock+=2500;return {ok:false,status:500};}
+ });
+ assert.equal(result.reason,"time_budget");
+ assert.equal(result.attempts.length,1);
 });
