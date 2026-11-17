@@ -5,7 +5,7 @@ import {
   trustedOddsFromFeed,findVerifiedOddsCombinations,reconcileKickoffs,
   compressTelegramImage,answerRelevanceGuard,limitClarificationQuestions,
   durableConversationSummary,assessTranscriptQuality,cleanupSpokenTranscript,
-  safeContextualFallback,sensitiveImageRequest,sayConversation,LINKS
+  safeContextualFallback,sensitiveImageRequest,sayConversation,intentFor,extractSpokenCorrection,LINKS
 } from "../index.js";
 
 test("exclusions : aucune plateforme non approuvée dans les alternatives",()=>{
@@ -110,4 +110,14 @@ test("envoi : réclamer chaque fragment avant de le publier",async()=>{
  await sayConversation(111,text,"",{},options);
  assert.equal(received.length,before);
  assert.equal(finals.length,before);
+});
+
+test("confirmation du vocal : le texte corrigé conserve son intention",()=>{
+ const spoken="Je veux les coupons du jour";
+ const confirmed="oui";
+ assert.notEqual(intentFor(confirmed),intentFor(spoken));
+ assert.equal(intentFor(spoken),"pronos");
+ const changed=extractSpokenCorrection("Non, j'ai dit Linebet");
+ assert.equal(changed,"Linebet");
+ assert.equal(intentFor(changed),"partner");
 });
