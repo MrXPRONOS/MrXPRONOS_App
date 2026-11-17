@@ -49,12 +49,27 @@ export const PARTNER_LINKS = Object.freeze({
   'betclic':'https://betpari-click.com/2vY0?extid=USD'
 });
 const PARTNER_NAMES=Object.freeze({'1xbet':'1xBet','1win':'1win',betwinner:'Betwinner',melbet:'Melbet',linebet:'Linebet',betclic:'Betclic'});
+// Accepte les graphies fréquentes : « line bet », « Line-Bet », « linebet », etc.
 export function partnerFromMessage(message='') {
   const q=norm(message);
-  if(/(?:^|\W)1\s*x\s*bet(?:\W|$)/.test(q)) return '1xbet';
-  if(/(?:^|\W)1win(?:\W|$)/.test(q)) return '1win';
-  for(const name of ['betwinner','melbet','linebet','betclic']) if(new RegExp('(?:^|\\W)'+name+'(?:\\W|$)').test(q)) return name;
-  return null;
+  const patterns=[
+    ['1xbet',/(?:^|\W)1[\s_-]*x[\s_-]*bet(?:\W|$)/],
+    ['1win',/(?:^|\W)1[\s_-]*win(?:\W|$)/],
+    ['betwinner',/(?:^|\W)bet[\s_-]*winner(?:\W|$)/],
+    ['melbet',/(?:^|\W)mel[\s_-]*bet(?:\W|$)/],
+    ['linebet',/(?:^|\W)line[\s_-]*bet(?:\W|$)/],
+    ['betclic',/(?:^|\W)bet[\s_-]*clic(?:\W|$)/]
+  ];
+  return patterns.find(([,regex])=>regex.test(q))?.[0]||null;
+}
+/** N'assimile une réponse limitée au nom d'un bookmaker à une inscription que si le bot l'a demandé. */
+export function providerChoiceFromHistory(message,history=[]) {
+  const platform=partnerFromMessage(message);
+  if(!platform) return null;
+  const cleaned=norm(message).replace(/[\s_.-]+/g,'');
+  if(!['1xbet','1win','betwinner','melbet','linebet','betclic'].includes(cleaned)) return null;
+  const previous=[...history].reverse().find(item=>item.role==='assistant')?.content||'';
+  return /(sur quel bookmaker|pour quel bookmaker|quel bookmaker|quelle plateforme)/.test(norm(previous))?platform:null;
 }
 export function signupMessage(platform) {
   if(!platform || !PARTNER_LINKS[platform]) return 'Sur quel bookmaker souhaites-tu t’inscrire : 1xBet, 1win, Betwinner, Melbet, Linebet ou Betclic ?';
@@ -150,7 +165,7 @@ export function intentFor(input) {
   if (/(parler a (un |une )?(humain|responsable|personne)|un conseiller|reclamation|partenariat|collaboration|proposition commerciale|remboursement|je veux te parler)/.test(text)) return 'human';
   if (/(je suis mineur|j.ai 1[0-7] ans|j.ai perdu tout|endette|me refaire|argent du loyer)/.test(text)) return 'safety';
   if (/(s.inscrire|m.inscrire|inscription|ouvrir un compte|creer un compte|enregistrer un compte|signup|register|nouveau compte)/.test(text)) return 'signup';
-  if (/(lien (d.affiliation|affilie|partenaire)|ton lien 1xbet|lien pour (1xbet|melbet|1win|betwinner|linebet|betclic))/.test(text)) return 'partner';
+  if (/(lien (d.affiliation|affilie|partenaire)|ton lien 1xbet|lien pour (1xbet|melbet|1win|betwinner|linebet|betclic))/.test(text) || (/(lien|affili|partenaire)/.test(text)&&partnerFromMessage(text))) return 'partner';
   if (/(sitemap|plan du site|ou (est|trouve|voir) (la page|le site)|quelle page|navigation du site)/.test(text)) return 'site_nav';
   if (/(score exact|scores exacts|scores-exacts)/.test(text)) return 'scores';
   if (/(code promo|code promotion|code bonus|xpvip|quel est (ton|votre|le) code|bonus|promotion)/.test(text)) return 'bonus';
@@ -594,9 +609,11 @@ export async function handleUpdate(update) {
   let recentHistory=[];
   try{recentHistory=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
   const continuation=guidanceFollowup(text,recentHistory);
+  const chosenProvider=intent==='general'?providerChoiceFromHistory(text,recentHistory):null;
   let answer='';
   if(intent==='thanks') answer='Avec plaisir 😊';
   else if(intent==='ack') answer='Parfait 👍';
+  else if(chosenProvider) answer=signupMessage(chosenProvider);
   else if(continuation) answer=continuation;
   else if(intent==='signup') answer=signupMessage(partnerFromMessage(text));
   else if(intent==='partner'){
@@ -610,7 +627,7 @@ export async function handleUpdate(update) {
       ?'Le **plan du site** répertorie '+pages.length+' pages officielles, dont les analyses et les pronostics.'
       :pages.includes(destination)?'Voici la rubrique correspondante de notre site.':'Cette page n’a pas été confirmée dans le sitemap actuel. Voici l’accueil.';
   }
-  else if(intent==='welcome') answer=intro();
+  else if(intent==='welcome') answer=(!previous || /^\/(start|help)\b/i.test(text))?intro():'Salut 👋 Comment puis-je t’aider ?';
   else if(intent==='format') answer='**🎨 Démonstration**\n*Italique* · __Souligné__ · ~~Barré~~\n||Spoiler||\n> Citation : aucune estimation n’est garantie.\n\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
@@ -643,7 +660,7 @@ export async function handleUpdate(update) {
     }
   }
   // Ajouter une destination seulement si elle répond à la demande ; aucune URL ni bouton gratuit.
-  const destinations=continuation?[]:responseLinks(intent,text,answer);
+  const destinations=chosenProvider?[PARTNER_LINKS[chosenProvider]]:(continuation?[]:responseLinks(intent,text,answer));
   if(destinations.length) {
     const missing=destinations.filter(u=>!answer.includes(u));
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
