@@ -184,8 +184,18 @@ def main():
     try:
         return asyncio.run(scan())
     except Exception as exc:
-        # Never print exception messages containing private IDs, tokens or session.
-        print("::error::ADMIN_INVENTORY_FAILED",type(exc).__name__)
+        # Never print arbitrary exception messages containing private IDs or tokens.
+        approved = {
+            "personal_telegram_session_missing", "supabase_credentials_missing",
+            "personal_telegram_session_not_authorized", "personal_session_is_not_user",
+            "requested_bot_identity_not_verified", "invalid_supabase_target",
+            "secure_registry_result_invalid", "registry_rpc_not_confirmed",
+            "channel_limit_exceeded"
+        }
+        msg = str(exc)
+        code = msg if msg in approved or (msg.startswith("secure_registry_write_http_")
+                    and msg.removeprefix("secure_registry_write_http_").isdigit()) else "unknown"
+        print("::error::ADMIN_INVENTORY_FAILED",type(exc).__name__,code)
         return 1
 
 if __name__ == "__main__":
