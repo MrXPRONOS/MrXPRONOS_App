@@ -1388,12 +1388,29 @@ async function writeDeliveryReceipt(updateId,index,telegramMsg){
   await db('mx_telegram_assistant_delivery_receipts?on_conflict=update_id,part_index','POST',
     [{update_id:updateId,part_index:index,telegram_message_id:messageId}],'resolution=ignore-duplicates');
 }
+
+async function claimDeliveryPart(updateId,index){
+ const rows=await db('mx_telegram_assistant_delivery_claims?on_conflict=update_id,part_index&select=update_id,part_index',
+  'POST',[{update_id:updateId,part_index:index,status:'pending'}],
+  'resolution=ignore-duplicates,return=representation');
+ return Array.isArray(rows)&&rows.length===1;
+}
+async function finalizeDeliveryClaim(updateId,index,telegramMsg){
+ if(!Number.isSafeInteger(updateId))return;
+ const id=Number(telegramMsg?.message_id);
+ if(!Number.isSafeInteger(id))return;
+ await db('mx_telegram_assistant_delivery_claims?update_id=eq.'+updateId+'&part_index=eq.'+index,
+  'PATCH',{status:'delivered',telegram_message_id:id,delivered_at:new Date().toISOString()});
+}
+
 export async function sayConversation(chatId,text,businessId='',options={},{
   send=say,
   maxParts=5,
   updateId=null,
   receiptReader=readDeliveryReceipts,
-  receiptWriter=writeDeliveryReceipt
+  receiptWriter=writeDeliveryReceipt,
+  claimPart=null,
+  finalizePart=null
 }={}) {
   const chunks=splitTelegramReply(text,{target:700,maxParts});
   let delivered=new Set();
@@ -1401,17 +1418,22 @@ export async function sayConversation(chatId,text,businessId='',options={},{
     try{delivered=await receiptReader(updateId);}
     catch(e){console.warn('delivery_read_failed',String(e?.name||'error'));}
   }
+  const claim=claimPart||(send===say?claimDeliveryPart:async()=>true);
+  const finalize=finalizePart||(send===say?finalizeDeliveryClaim:async()=>{});
   for(let i=0;i<chunks.length;i++){
     if(delivered.has(i))continue;
+    // Réservation en base AVANT l'envoi : un retry ou un second worker ne peut
+    // pas renvoyer un fragment déjà accepté ou potentiellement en transit.
+    // Compromis volontaire « at most once » : en cas de coupure après réservation
+    // mais avant transmission, une intervention admin peut être nécessaire.
+    if(Number.isSafeInteger(updateId)&&!(await claim(updateId,i)))continue;
     const isLast=i===chunks.length-1;
     const sent=await send(chatId,chunks[i],businessId,isLast?options:{allowedUrls:[]});
     if(Number.isSafeInteger(updateId)){
       try{await receiptWriter(updateId,i,sent);}
-      catch(e){
-        // Une réponse Telegram déjà acceptée ne peut pas être annulée.
-        // Signaler cette incertitude ; les reçus évitent les duplications sur les autres fragments.
-        console.warn('delivery_receipt_failed',i,String(e?.name||'error'));
-      }
+      catch(e){console.warn('delivery_receipt_failed',i,String(e?.name||'error'));}
+      try{await finalize(updateId,i,sent);}
+      catch(e){console.warn('delivery_finalize_failed',i,String(e?.name||'error'));}
     }
   }
   return chunks.length;
