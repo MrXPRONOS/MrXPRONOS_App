@@ -109,6 +109,18 @@ class CategoryGuardTests(unittest.TestCase):
     def test_no_genre_claim_does_not_invent_classification(self):
         self.assertTrue(category_allowed("comedie", NS(raw_text="Le Film"), None))
 
+    def test_configured_romance_channels_are_not_comedy_sources(self):
+        from film_relay.category_runner import category_config
+        cfg = category_config("comedie", {
+            "COMEDIE_SOURCE_CHANNEL": (
+                "@comexflex @filmsromatique @Films_Romantique_VF "
+                "@Paff_Erotique @filmromatique"
+            ),
+            "COMEDIE_PUBLIC_CHANNEL": "@CineXComediefr",
+            "COMEDIE_PRIVATE_CHANNEL": "-1001234567890",
+        })
+        self.assertEqual(cfg["sources"], ["@comexflex"])
+
     def test_generic_upload_filename_does_not_override_real_matching_caption(self):
         p = NS(raw_text="🎬 Un Voyage sur Mars", id=1, grouped_id=None)
         v = NS(raw_text="Un Voyage sur Mars", reply_to=None,
