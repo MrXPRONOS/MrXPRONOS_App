@@ -395,9 +395,9 @@ export function parseAiReply(raw) {
   if(value&&typeof value==='object'&&!Array.isArray(value)){
     const reply=typeof value.reply==='string'?value.reply:typeof value.answer==='string'?value.answer:typeof value.message==='string'?value.message:'';
     const buttons=Array.isArray(value.buttons)?value.buttons.filter(v=>typeof v==='string').slice(0,5):[];
-    if(reply.trim())return {reply:cut(reply.trim(),1400),buttons,structured:true};
+    if(reply.trim())return {reply:cut(reply.trim(),4400),buttons,structured:true};
   }
-  return {reply:cut(trimmed,1400),buttons:[],structured:false};
+  return {reply:cut(trimmed,4400),buttons:[],structured:false};
 }
 export function aiButtons(keys,question,history=[]) {
   const context=[...history.slice(-4).map(x=>String(x.content||'')),question].join(' ');
@@ -524,7 +524,7 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
  * Les titres restent courts ; les espaces séparent les idées, pas chaque phrase.
  */
 export function polishTelegramText(raw,question='') {
-  let result=cut(String(raw||'').replace(/\r\n?/g,'\n'),2500).split('\n')
+  let result=cut(String(raw||'').replace(/\r\n?/g,'\n'),4800).split('\n')
     .map(line=>line.trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim();
   if(!result) return result;
   const q=norm(question);
@@ -568,7 +568,7 @@ export function polishTelegramText(raw,question='') {
 
 export function contextualPresentation(rawReply,question,history=[],intent='general',options={}) {
   const q=norm(question);
-  let reply=cut(String(rawReply||'').trim(),1350);
+  let reply=cut(String(rawReply||'').trim(),4400);
   const platform=partnerFromMessage(question)||providerChoiceFromHistory(question,history);
   const registration=/(inscri|enregistrer|creer un compte|ouvrir un compte|signup|register)/.test(q)||
     !!providerChoiceFromHistory(question,history)||
@@ -899,7 +899,7 @@ async function logMessage(key,role,content){await db('mx_telegram_assistant_mess
 async function wasHandled(id){const rows=await db(`mx_telegram_assistant_updates?update_id=eq.${id}&select=update_id&limit=1`);return rows?.length>0;}
 async function markHandled(id){await db('mx_telegram_assistant_updates','POST',{update_id:id},'resolution=ignore-duplicates');}
 function safeModelReply(raw) {
-  const reply=cut(String(raw||'').trim(),2800);
+  const reply=cut(String(raw||'').trim(),4800);
   const safe=reply.replace(/https?:\/\/[^\s<>\])}]+/gi,u=>allowed(u.replace(/[.,;!?]+$/,''))?u:'[lien non vérifié retiré]');
   return safe.replace(/(?:100\s*%\s*(?:garanti|certain|sur)|gain garanti|pari sans risque)/gi,'aucune garantie');
 }
