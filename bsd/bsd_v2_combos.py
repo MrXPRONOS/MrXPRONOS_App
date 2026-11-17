@@ -12,6 +12,7 @@ import re
 from bsd_h2h import _utc
 from bsd_v2_stakes import combination_stake,gain_potentiel
 from bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selection
+from bsd_v2_fixture_identity import ambiguous_fixture_ids, quarantine_ambiguous
 
 COMBO_MIN_ODDS=1.20
 COMBO_MAX_ODDS=1.50
@@ -133,6 +134,9 @@ def eligible(match):
 def build_combos(matches,*,max_kickoff_gap_hours=24):
     valid=[]
     seen=set()
+    # Different BSD native IDs can still refer to the very same fixture.
+    # Quarantine every ambiguous entry before constructing two-match combos.
+    matches, _blocked = quarantine_ambiguous(matches)
     for match in matches:
         leg=choose_leg(match)
         if leg is None:continue
@@ -149,6 +153,7 @@ def build_combos(matches,*,max_kickoff_gap_hours=24):
         for b in valid[i+1:]:
             bid=str(b.get("source_event_id") or b["id"])
             if bid==aid or bid in used:continue
+            if ambiguous_fixture_ids((a,b)):continue
             delta=(_utc(b["event_date"])-_utc(a["event_date"])).total_seconds()
             if delta>max_kickoff_gap_hours*3600:break
             k1,k2=a["prediction"]["selection_key"],b["prediction"]["selection_key"]
@@ -169,7 +174,7 @@ def due_combos(combos,now,*,min_minutes=45,max_minutes=65):
     result=[]
     for combo in combos:
         legs=combo.get("legs") or []
-        if len(legs)!=2:continue
+        if len(legs)!=2 or ambiguous_fixture_ids(legs):continue
         delta=(_utc(combo["event_date"])-now).total_seconds()/60
         if min_minutes<=delta<max_minutes and all(priced_prediction(l.get("prediction")) for l in legs):
             first=str(legs[0].get("source_event_id") or legs[0]["id"])
