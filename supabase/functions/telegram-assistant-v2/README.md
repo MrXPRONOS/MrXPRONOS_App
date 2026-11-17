@@ -107,3 +107,20 @@ Les faits sont centralisés dans `PROJECT_KNOWLEDGE` du fichier `index.js`, en s
 **Politique des boutons :** les boutons ne sont plus ajoutés sur les salutations, conversations générales, simples conseils ou questions « quel est le code promo ? ». Ils apparaissent seulement sur des demandes de pronostics, scores, résultats, canal, accès au site ou liens/conditions d’offres. Le rendu `/format` reste une démonstration volontaire. Les liens hors de ce contexte sont masqués, y compris s’ils ont été ajoutés par l’IA.
 
 **Ne pas activer Telegram Business pendant les essais.** Garder le webhook et les bots de coupons existants isolés. Pour tester : `/start`, `Quel est ton code promo ?`, `Les pronostics sont gratuits ?`, `Vous publiez chaque jour ?`, `Je veux les coupons du jour`, `Comment rejoindre votre canal ?`, `Merci`.
+
+## Correctifs de conversation, inscriptions et sitemap — 17 novembre 2026
+
+- Réponses naturelles aux messages courants : `Merci !`, `D'accord`, `Parfait`, sans requête NVIDIA ni bouton superflu.
+- Un message `Je veux m'inscrire sur 1xBet` ouvre un guide neutre avec conditions d'âge/législation locale, démarches générales et utilisation éventuelle du code XPVIP, uniquement si accepté. Aucune promesse de promotion ni de gains.
+- Liens partenaires tirés **exactement** de `assets/js/bonus-catalogue.js` dans le dépôt (1xBet, 1win, Betwinner, Melbet, Linebet, Betclic). Les redirections et conditions doivent être vérifiées régulièrement ; ne jamais inventer un lien partenaire. Les liens sont proposés en boutons seulement en cas de demande d'inscription ou de lien.
+- Le sitemap `https://mrxpronos.github.io/MrXPRONOS_App/sitemap.xml` sert de carte officielle pour la navigation ; analyse des URL autorisée uniquement sur `mrxpronos.github.io/MrXPRONOS_App/`, et pages essentielles indexées (accueil, aujourd'hui, pronostics, scores exacts, résultats, analyses, infos, conseils, bonus, contact).
+- Quand une personne relance avec `ensuite ?`, `je suis bloqué`, la fonction utilise l'historique récent pour contextualiser sa réponse, sans inventer la navigation réelle de l'interface tiers.
+- En cas de réponse NVIDIA vide ou d'erreur, le bot répond de façon adaptée à ce qu'il sait au lieu de demander systématiquement de préciser. Pour le modèle `mistralai/mistral-large-4-1t-a52b`, le nombre de jetons est augmenté et `reasoning_effort: none` est demandé.
+- Déduplication des pronostics affichés : même match, même date et même marché/sélection = une ligne seulement.
+- La commande administrateur `/diagnostic` vérifie la réponse NVIDIA sans révéler la clé. Elle est réservée au propriétaire via `MX_ASSISTANT_ADMIN_ID`.
+
+### Essais recommandés
+
+`Merci !` ; `daccord` ; `je veux m'inscrire sur 1xbet aide moi` ; `ensuite ?` ; `je suis bloqué` ; `donne ton lien affilié Melbet` ; `quel est ton code promo ?` ; `où trouver l'historique ?` ; `plan du site` ; `je veux les coupons du jour` ; `/diagnostic` depuis le compte administrateur.
+
+Le bot personnel Telegram Business demeure désactivé tant que son propriétaire n'autorise pas cette étape.
