@@ -26,7 +26,7 @@ from telethon.sessions import StringSession
 from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, finalize_scan, episode_audit
-from .short_series import short_complete_groups
+from .tv_policy import complete_tv_seasons
 from .category_runner import preflight
 from .runner import config_from
 from .source_channels import source_list
@@ -337,8 +337,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await backfill_private_covers(client, private, catalogue, groups, pause)
         # Select a whole short series BEFORE any Telegram uploads: no six-episode slices.
         eligibility_reasons = {}
-        eligible = short_complete_groups(groups, catalogue, maximum=episode_cap,
-                                         diagnostics=eligibility_reasons)
+        eligible = complete_tv_seasons(groups, catalogue, maximum=episode_cap,
+                                       diagnostics=eligibility_reasons)
         excluded_totals = {}
         for reason in eligibility_reasons.values():
             excluded_totals[reason] = excluded_totals.get(reason, 0) + 1
@@ -346,8 +346,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                  len(groups), len(eligible), excluded_totals)
         LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
                  "series_catalog", len(eligible), episode_cap)
+        processed_seasons = set()
         for key, items in eligible:
-            if len(completed_series) >= limit:
+            season_marker_key = (key, int(items[0]["season"]))
+            if len(processed_seasons) >= limit:
                 break
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
@@ -362,12 +364,15 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             known_keys = set(existing.get("source_items", {}))
             pending = [x for x in sorted(items, key=lambda x: (x["season"], x["episode"]))
                        if x["source_key"] not in known_keys]
-            if not pending and existing.get("private_poster_id"):
+            if (not pending and existing.get("private_poster_id")
+                    and existing.get("public_id") and
+                    existing.get("season_indices", {}).get(str(items[0]["season"]))):
                 continue
             title = str(existing.get("title") or items[0]["title"])
             LOG.info("Série TV %s : %s épisodes nouveaux (lot borné)", title, len(pending))
             if not publish:
                 completed_series.add(key)
+                processed_seasons.add(season_marker_key)
                 continue
 
             series = catalogue["series"].setdefault(
@@ -508,6 +513,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 save_catalog(catalogue)
                 LOG.info("Fiche publique CinéX Séries TV : %s -> %s", title, public_id)
             completed_series.add(key)
+            processed_seasons.add(season_marker_key)
             await asyncio.sleep(pause)
 
         if publish:
