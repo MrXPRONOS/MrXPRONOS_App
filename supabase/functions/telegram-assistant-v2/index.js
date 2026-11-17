@@ -446,11 +446,11 @@ export function guidedMode(question,history=[]) {
   if(!/(?:Étape|Etape)\s+\d+|Quand c.est fait.+fait|[ée]cris.+fait/i.test(last))return false;
   return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|je suis bloque|je ne trouve pas|comment|ou|pourquoi|et maintenant)/.test(q);
 }
-export function guidedResponse(reply,question,history=[]) {
-  if(!guidedMode(question,history))return String(reply||'');
+export function guidedResponse(reply,question,history=[],session=null) {
+  if(!guidedMode(question,history)&&!guideIsContinuation(question,session))return String(reply||'');
   let text=String(reply||'').trim();
   const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
-  const lastNumber=Number(last.match(/(?:Étape|Etape)\s+(\d+)/i)?.[1]||0);
+  const lastNumber=session?.mode==='guided'?Number(session.step_number||0):Number(last.match(/(?:Étape|Etape)\s+(\d+)/i)?.[1]||0);
   const done=/^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|et maintenant)/.test(norm(question));
   const step=done?Math.min(lastNumber+1,10)||1:(lastNumber||1);
   // Quand le modèle a trop rédigé, ne conserver que la première étape.
@@ -464,6 +464,9 @@ export function guidedResponse(reply,question,history=[]) {
   const clarification=/^(je ne trouve pas|je suis bloque|comment|ou|pourquoi)/.test(norm(question));
   if(!clarification && !/(c.est fait|dis.moi.+fait|[ée]cris.+fait|quand tu as fini)/i.test(norm(text))){
     text+='\n\n*Quand c’est fait, réponds « fait » pour passer à la suite.*';
+  }
+  if(/(?:Étape|Etape)\s+\d+/i.test(text)&&!clarification){
+    text=text.replace(/(\*\*\s*)?(?:Étape|Etape)\s+\d+/i,(_all,stars)=>stars?'**Étape '+step:'Étape '+step);
   }
   if(!/(?:Étape|Etape)\s+\d+/i.test(text)&&!clarification){
     text='**Étape '+step+'**\n\n'+text;
