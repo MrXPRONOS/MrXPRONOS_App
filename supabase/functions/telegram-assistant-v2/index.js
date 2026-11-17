@@ -131,7 +131,7 @@ export function intentFor(input) {
   const text = norm(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
   if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
-  if (/^(ok|okay|d.accord|dac|compris|parfait|cool|super|bien recu|c.est note|tres bien)[!?. ]*$/.test(text)) return 'ack';
+  if (/^(ok|okay|d.accord|daccord|dac|compris|parfait|cool|super|bien recu|c.est note|tres bien)[!?. ]*$/.test(text)) return 'ack';
   if (/^\/(format|forme|form|apercu|mise_en_forme)(?:@\w+)?(\s|$)/.test(text)) return 'format';
   if (/^\/(pronos|coupons|scores|canaux|resultats|conseils)(\s|$)/.test(text)) {const cmd=text.split(/\s|@/)[0].slice(1);return cmd==='coupons'?'pronos':cmd==='conseils'?'conseil':cmd;}
   if (/(parler a (un |une )?(humain|responsable|personne)|un conseiller|reclamation|partenariat|collaboration|proposition commerciale|remboursement|je veux te parler)/.test(text)) return 'human';
@@ -180,7 +180,10 @@ export function publishedPicks(payload, now = new Date(), dayShift=0) {
     kickoff: String(m.event_date||m.kickoff_utc||''),
     market:cut(typeof m.prediction?.type==='string' ? m.prediction.type : m.prediction?.bet_type || '', 110),
     selection:cut(typeof m.prediction?.prediction==='string' ? m.prediction.prediction : m.prediction?.pick || m.prediction?.selection || '',110)
-  })).filter(m => m.home && m.away);
+  })).filter(m => m.home && m.away).filter((m,index,all)=>{
+    const key=(x)=>[norm(x.home),norm(x.away)].sort().join('|')+'|'+norm(x.selection||x.market||'')+'|'+String(x.kickoff).slice(0,10);
+    return all.findIndex(other=>key(other)===key(m))===index;
+  });
 }
 export function exactScorePicks(payload, now=new Date()) {
   const today=now.toISOString().slice(0,10);
@@ -307,7 +310,15 @@ export function telegramHtml(text) {
 // Boutons uniquement si la demande du client nécessite réellement une destination.
 export function responseLinks(intent,question,answer='') {
   const q=norm(question);
-  if(intent==='format') return [LINKS.pronos,LINKS.conseils,LINKS.contact]; // prévisualisation demandée
+  if(intent==='format') return [LINKS.pronos,LINKS.conseils,LINKS.contact];
+  if(intent==='signup'||intent==='partner'){
+    const provider=partnerFromMessage(question)||partnerFromMessage(answer);
+    return provider?[PARTNER_LINKS[provider]]:[];
+  }
+  if(intent==='site_nav'){
+    if(/(sitemap|plan du site)/.test(q)) return [LINKS.sitemap];
+    return [pageForQuestion(question)];
+  } // prévisualisation demandée
   if(intent==='pronos') {
     if(/(c.est quoi un pronostic|definition d.un pronostic)/.test(q)) return [];
     return /(canal|telegram)/.test(q)?[LINKS.pronos,channelUrl()]:[LINKS.pronos];
@@ -325,6 +336,9 @@ export function responseLinks(intent,question,answer='') {
   }
   if(intent==='schedule' && /(lien|ou voir|consulter|page)/.test(q)) return [LINKS.pronos];
   if(intent==='human' && answer.includes(LINKS.contact)) return [LINKS.contact];
+  if(intent==='general'&&/(lien|quelle page|ou trouver|ou voir|consulter le site)/.test(q)){
+    return [pageForQuestion(q)];
+  }
   return [];
 }
 
@@ -386,7 +400,7 @@ async function logMessage(key,role,content){await db('mx_telegram_assistant_mess
 async function wasHandled(id){const rows=await db(`mx_telegram_assistant_updates?update_id=eq.${id}&select=update_id&limit=1`);return rows?.length>0;}
 async function markHandled(id){await db('mx_telegram_assistant_updates','POST',{update_id:id},'resolution=ignore-duplicates');}
 function safeModelReply(raw) {
-  const reply=cut(String(raw||'').trim(),820);
+  const reply=cut(String(raw||'').trim(),1350);
   const safe=reply.replace(/https?:\/\/[^\s<>\])}]+/gi,u=>allowed(u.replace(/[.,;!?]+$/,''))?u:'[lien non vérifié retiré]');
   return safe.replace(/(?:100\s*%\s*(?:garanti|certain|sur)|gain garanti|pari sans risque)/gi,'aucune garantie');
 }
@@ -402,13 +416,17 @@ async function askNvidia(question,history) {
   const messages=[{role:'system',content:system},...history.slice(-5),{role:'user',content:cut(question,1200)}];
   const response=await fetch('https://integrate.api.nvidia.com/v1/chat/completions',{
     method:'POST',headers:{authorization:'Bearer '+env('MX_ASSISTANT_NVIDIA_KEY'),'content-type':'application/json'},
-    body:JSON.stringify({model:nvidiaModel(),messages,temperature:0.2,max_tokens:detailed?260:135,stream:false}),signal:AbortSignal.timeout(17000)
+    body:JSON.stringify({model:nvidiaModel(),messages,temperature:0.2,max_tokens:detailed?800:350,reasoning_effort:'none',stream:false}),signal:AbortSignal.timeout(17000)
   });
   if(!response.ok) throw Error('NVIDIA '+response.status);
   const result=await response.json();
   const c=result?.choices?.[0]?.message?.content;
   const text=typeof c==='string'?c:Array.isArray(c)?c.filter(x=>x?.type==='text').map(x=>x.text).join(''):'';
-  return text?.trim()?safeModelReply(text):null;
+  if(!text?.trim()) {
+    console.warn('nvidia_empty_content',String(result?.choices?.[0]?.finish_reason||'unknown'));
+    return null;
+  }
+  return safeModelReply(text);
 }
 
 async function notifyAdmin(key,user,message,businessId='') {
