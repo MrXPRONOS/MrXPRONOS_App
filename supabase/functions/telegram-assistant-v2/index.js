@@ -80,10 +80,10 @@ export function exactScorePicks(payload, now=new Date()) {
     return p.home && p.away && /^\d+:\d+$/.test(String(p.score)) && Number.isFinite(ts) && ts>now.getTime()+180000;
   }).slice(0,3).map(p=>({home:cut(p.home,80),away:cut(p.away,80),score:p.score,probability:Number(p.probability),kickoff:p.kickoff_utc}));
 }
-const formatPromo = () => 'Le code promotionnel affiché sur le site est XPVIP. Les conditions dépendent de chaque partenaire : vérifie toujours les détails de l’offre avant toute inscription.\n'+LINKS.bonus;
-const channelLine = () => channelUrl() ? `📢 Canal des coupons : ${channelUrl()}` : `📢 Consulte les coupons officiels ici : ${LINKS.pronos}\nLien du canal des coupons à confirmer par l’administrateur.`;
-const intro = () => `Salut 👋 Je suis l’assistant automatique de Mr XPRONOS. Je peux t’aider avec les pronostics, coupons, résultats, analyses football et liens officiels.\n\n${LINKS.pronos}\n${channelLine()}\n\nLes paris sont réservés aux adultes et comportent des risques.`;
-const adviceMessage = () => '⚽ Pour analyser un match : vérifie la forme récente, les absences, le calendrier et les cotes. Aucun pronostic n’est garanti. Fixe un budget que tu peux perdre, évite de poursuivre tes pertes et ne parie jamais avec de l’argent essentiel.\n\nGuides : '+LINKS.conseils+'\nHistorique : '+LINKS.historique+'\n🔞 Réservé aux adultes.';
+const formatPromo = () => '**🎁 Code promotionnel XPVIP**\nLes conditions dépendent de chaque partenaire : vérifie les détails avant toute inscription.\n\nOffre officielle : '+LINKS.bonus;
+const channelLine = () => channelUrl() ? `**📢 Rejoindre notre canal :** ${channelUrl()}` : `*Le lien du canal Telegram n’est pas encore configuré.* Tu peux consulter les coupons sur le site : ${LINKS.pronos}`;
+const intro = () => `**👋 Bienvenue chez Mr XPRONOS !**\nJe suis ton *assistant automatique*. Je peux t’aider à trouver les pronostics, coupons, résultats, analyses football et liens officiels.\n\n**⚽ Pronostics du jour :** ${LINKS.pronos}\n${channelLine()}\n\n> Les paris sont réservés aux adultes et comportent des risques.`;
+const adviceMessage = () => '**⚽ Comment analyser un match ?**\nExamine la forme récente, les absences, le calendrier et les cotes avant d’interpréter une probabilité.\n\n> Aucun pronostic n’est garanti. Ne poursuis jamais tes pertes et ne parie pas avec de l’argent essentiel.\n\n**Guides :** '+LINKS.conseils+'\n**Historique :** '+LINKS.historique+'\n*🔞 Réservé aux adultes.*';
 
 /** Vérifications de sécurité avant de répondre au nom du compte personnel connecté. */
 export function eligibleBusinessMessage(message,connection,ownerId,nowMs=Date.now()) {
@@ -108,23 +108,23 @@ async function predictionsMessage(shift=0) {
   const date=new Date(Date.now()+shift*86400e3).toISOString().slice(0,10);
   const payload=await publicJson(`${SITE}/data.json`);
   const picks=publishedPicks(payload,new Date(),shift);
-  let message=`⚽ Pronostics publiés pour le ${date} :\n`;
+  let message=`**⚽ Pronostics publiés pour le ${date}**\n`;
   if(picks.length) {
     message+=picks.map((p,i)=>`${i+1}. ${p.home} – ${p.away} (${p.category.toUpperCase()})${p.market ? `\nMarché : ${p.market}`:''}${p.selection?` · Sélection : ${p.selection}`:''}\nConfiance estimée du modèle : ${p.confidence}%`).join('\n\n');
   } else {
     message+='Je ne trouve pas de sélection à venir suffisamment vérifiée dans les données publiées. Je préfère ne pas inventer de coupon.';
   }
-  message+=`\n\nVoir les pronostics officiels : ${LINKS.pronos}\n${channelLine()}\n⚠️ Ces estimations ne garantissent aucun gain.`;
+  message+=`\n\n**Voir les pronostics :** ${LINKS.pronos}\n${channelLine()}\n*⚠️ Ces estimations ne garantissent aucun gain.*`;
   return cut(message,3500);
 }
 async function exactScoresMessage() {
   const date=new Date().toISOString().slice(0,10);
   const payload=await publicJson(`${SITE}/scores-exacts-daily/${date}.json`);
   const picks=exactScorePicks(payload,new Date());
-  let message='🎯 Top scores exacts publiés :\n';
+  let message='**🎯 Top scores exacts publiés**\n';
   if(picks.length) message+=picks.map((p,i)=>`${i+1}. ${p.home} – ${p.away} : ${p.score} (probabilité estimée ${(p.probability*100).toFixed(1)}%)`).join('\n');
   else message+='Aucun score exact à venir suffisamment vérifié pour le moment.';
-  return `${message}\n\n${LINKS.scores}\n${channelLine()}\n⚠️ Un score exact est incertain et ne constitue jamais une garantie.`;
+  return `${message}\n\n**Consulter les scores :** ${LINKS.scores}\n${channelLine()}\n*⚠️ Un score exact reste très incertain.*`;
 }
 const dbHeaders = () => ({apikey:supabaseKey(),authorization:`Bearer ${supabaseKey()}`,'content-type':'application/json'});
 async function db(path,method='GET',body=null,prefer='') {
@@ -341,11 +341,11 @@ export async function handleUpdate(update) {
   else if(intent==='scores') answer=await exactScoresMessage();
   else if(intent==='conseil') answer=adviceMessage();
   else if(intent==='capabilities') answer=`Je suis l’assistant automatique de Mr XPRONOS 👋 Je peux t’aider à consulter les pronostics et scores publiés, trouver le canal officiel, expliquer les rubriques du site et partager des conseils de prudence. Si ta demande exige un suivi personnel, écris « parler à un responsable ».\n\nPronostics : ${LINKS.pronos}\nConseils : ${LINKS.conseils}`;
-  else if(intent==='canaux') answer=`Pour recevoir les coupons, suis les publications officielles.\n${channelLine()}\nSite : ${LINKS.accueil}`;
-  else if(intent==='resultats') answer=`Tu peux consulter les résultats gagnés, perdus et en attente sur l'historique officiel :\n${LINKS.historique}`;
+  else if(intent==='canaux') answer=`**📢 Suivre les coupons officiels**\nUtilise le bouton de notre canal s’il est configuré, sinon celui des pronostics.\n${channelLine()}\n**Site :** ${LINKS.accueil}`;
+  else if(intent==='resultats') answer=`**📊 Historique des résultats**\nConsulte les résultats *gagnés, perdus et en attente* via ce bouton :\n${LINKS.historique}`;
   else if(intent==='bonus') answer=formatPromo();
   else if(intent==='live') answer=`Les pronostics LIVE sont temporairement suspendus. Les autres analyses sont disponibles ici :\n${LINKS.pronos}`;
-  else if(intent==='site') answer=`Site officiel : ${LINKS.accueil}\nAnalyses : ${LINKS.analyses}\nInfos foot : ${LINKS.infos}\nConseils : ${LINKS.conseils}`;
+  else if(intent==='site') answer=`**🏠 Découvrir Mr XPRONOS**\nSite officiel : ${LINKS.accueil}\nAnalyses : ${LINKS.analyses}\nInfos foot : ${LINKS.infos}\nConseils : ${LINKS.conseils}`;
   else if(intent==='safety') answer='Si les paris te mettent en difficulté, évite de chercher à récupérer tes pertes. Nous ne proposons aucun gain garanti. Il vaut mieux arrêter et demander de l’aide à une personne de confiance.';
   else if(intent==='human') {
     if(isOwner) {
