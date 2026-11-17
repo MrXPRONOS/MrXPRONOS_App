@@ -708,7 +708,9 @@ export function signupGuideStep(question='',history=[],session=null){
  if(/(ou entrer|code promo|ne propose pas)/.test(q))
   instruction='Cherche le champ **Code promo** du formulaire. S’il est absent, ne force pas l’inscription : les formulaires et promotions varient selon la plateforme.';
  if(/je suis bloque|je ne trouve pas|pas compris/.test(q))
-  instruction='Dis-moi le nom du bouton ou de la page affichée. Je t’aiderai sur cette étape sans demander de données confidentielles.';
+  instruction='À cette étape, cherche **Inscription** ou **Créer un compte** sur la page du bookmaker. Dis-moi ce que tu vois, sans envoyer de données confidentielles.';
+ if(/(?:vrai nom|mes vraies informations)/.test(q))
+  instruction='Utilise tes véritables informations conformément aux exigences du service, mais ne me communique ni mot de passe, ni code OTP, ni pièce d’identité.';
  return '**Étape '+step+' — Inscription**\n\n'+instruction+'\n\n*Réponds « fait » quand cette étape est terminée.*';
 }
 
@@ -730,11 +732,11 @@ export function guidedResponse(reply,question,history=[],session=null) {
       (done&&lastNumber>0&&/(?:etape 1|ouvrir le lien officiel)/.test(normalizedAnswer))
   ))return signupGuideStep(question,history,session);
   // Éviter la relance si l'utilisateur vient de poser une simple question de clarification.
-  const clarification=/^(je ne trouve pas|je suis bloque|comment|ou|pourquoi|regarde|voici|image|photo|capture|que montre|je t.envoie)/.test(norm(question));
+  const clarification=/^(je ne trouve pas|je ne vois pas|je suis bloque|je n.ai pas compris|j.ai pas compris|comment|ou|pourquoi|regarde|voici|image|photo|capture|que montre|je t.envoie)/.test(norm(question));
   if(!clarification && !/(c.est fait|dis.moi.+fait|[ée]cris.+fait|quand tu as fini)/i.test(norm(text))){
     text+='\n\n*Quand c’est fait, réponds « fait » pour passer à la suite.*';
   }
-  if(/(?:Étape|Etape)\s+\d+/i.test(text)&&!clarification){
+  if(/(?:Étape|Etape)\s+\d+/i.test(text)){
     text=text.replace(/(\*\*\s*)?(?:Étape|Etape)\s+\d+/i,(_all,stars)=>stars?'**Étape '+step:'Étape '+step);
   }
   if(!/(?:Étape|Etape)\s+\d+/i.test(text)&&!clarification){
@@ -2587,6 +2589,8 @@ export async function handleUpdate(update) {
           const singleStep=guidedResponse(checked,text,recentHistory,liveSession);
           answer=contextualPresentation(singleStep,text,recentHistory,intent,{guided:guidedMode(text,recentHistory)||guideIsContinuation(text,liveSession)});
           const destinations=contextualDestinations(text,recentHistory,parsed.buttons,intent);
+          if(answer.includes(LINKS.installer)&&guideTopic(text,recentHistory,liveSession)==='installation'&&!destinations.includes(LINKS.installer))
+            destinations.push(LINKS.installer);
           if(clientInfo.picks&&!clientInfo.odds&&destinations.includes(LINKS.pronos)&&destinations.includes(channelUrl())&&
             !/autres (coupons|pronostics|selections)|site.*canal/.test(norm(answer))){
             answer+='\n\n*Pour les autres coupons, consulte le site ou rejoins notre canal Telegram.*';
@@ -2684,7 +2688,11 @@ export async function handleUpdate(update) {
   await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations},{updateId:id});
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
-  const fallbackGuideState=guideStateFromReply(text,answer,liveSession,recentHistory);
+  const fallbackGuideState=intent==='guide_cancel'
+    ?{mode:'idle',step_number:0,goal:'',step_text:'',bookmaker:''}
+    :intent==='guide_restart'
+      ?{mode:'guided',step_number:1,goal:liveSession?.goal||'Aide étape par étape',step_text:answer}
+      :guideStateFromReply(text,answer,liveSession,recentHistory);
   try{
     const summary=durableConversationSummary(recentHistory,liveSession?.summary||'',text,answer);
     await putAssistantSession(key,{...(fallbackGuideState||{}),summary},liveSession);
