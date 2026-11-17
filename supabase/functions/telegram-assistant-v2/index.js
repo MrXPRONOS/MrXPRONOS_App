@@ -5,7 +5,7 @@ export const LINKS = Object.freeze({
   scores: `${SITE}/scores-exacts.html`, historique: `${SITE}/historique.html`,
   analyses: `${SITE}/blog.html`, infos: `${SITE}/infos.html`,
   conseils: `${SITE}/conseils.html`, bonus: `${SITE}/bonus.html`,
-  contact: `${SITE}/contact.html`, telegram: 'https://t.me/mr_xpronos',
+  contact: `${SITE}/contact.html`, channel: 'https://t.me/mrxpronosfr', telegram: 'https://t.me/mr_xpronos',
   instagram: 'https://www.instagram.com/mr_xpronos',
   youtube: 'https://youtube.com/@mrxpronos'
 });
@@ -14,7 +14,7 @@ const botToken = () => env('MX_ASSISTANT_TELEGRAM_TOKEN');
 const adminId = () => Number(env('MX_ASSISTANT_ADMIN_ID'));
 const channelUrl = () => {
   const url = env('MX_ASSISTANT_COUPONS_CHANNEL_URL').trim();
-  return /^https:\/\/t\.me\/[a-zA-Z0-9_+\/-]+$/.test(url) ? url : '';
+  return /^https:\/\/t\.me\/[a-zA-Z0-9_+\/-]+$/.test(url) ? url : LINKS.channel;
 };
 // Les messages Business restent désactivés tant que le propriétaire n'a pas choisi les discussions autorisées.
 const businessModeEnabled = () => env('MX_ASSISTANT_ENABLE_BUSINESS').trim().toLowerCase() === 'true';
@@ -27,6 +27,28 @@ const norm = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g,
 const cut = (s, n=3500) => String(s || '').slice(0,n);
 const allowed = (url) => Object.values(LINKS).includes(url) || (channelUrl() && url === channelUrl());
 
+
+// Connaissances vérifiées dans les pages du site et la logique des sélections (ne pas inventer d'offres).
+export const PROJECT_KNOWLEDGE = Object.freeze({
+  name:'Mr XPRONOS',
+  promo:'XPVIP',
+  promoRule:'Code utilisable uniquement chez les bookmakers partenaires qui l’acceptent ; les conditions et disponibilités varient selon l’offre.',
+  categories:'Pro et VIP : catégories de pronostics consultables gratuitement sur le site, sans abonnement VIP payant annoncé.',
+  confidence:'La page pronostics annonce un seuil de 79 % de confiance estimée pour les sélections Pro/VIP ; ce n’est PAS un taux de réussite réel ni une garantie.',
+  schedule:'Des sélections peuvent être publiées régulièrement, mais aucun nombre ni coupon quotidien garanti ; vérifier les données publiées le jour demandé.',
+  matches:'Sur la page pronostics, filtres Aujourd’hui, Demain, Hier ; sélection Pro et VIP, recherche par équipe ou championnat.',
+  exactScores:'Page Scores exacts distincte ; ne jamais inventer de score ou de probabilité.',
+  history:'L’historique montre les sélections passées, gagnées, perdues, en attente et, si disponibles, les scores finaux. Le taux de réussite porte uniquement sur les sélections évaluées.',
+  live:'Les pronostics LIVE sont actuellement suspendus ; ne pas promettre leur disponibilité.',
+  channel:'Le site officiel désigne https://t.me/mrxpronosfr comme canal Telegram.',
+  contact:'Pour une demande personnelle, un partenariat, une réclamation, proposer un responsable humain.',
+  safety:'Réservé aux adultes. Paris risqués ; aucun gain ni remboursement garanti. Ne pas encourager une personne à récupérer des pertes.',
+  pages:'Pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.'
+});
+export function knowledgePrompt(){
+ return Object.entries(PROJECT_KNOWLEDGE).map(([key,value])=>key+': '+value).join('\n');
+}
+
 export function intentFor(input) {
   const text = norm(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
@@ -35,12 +57,17 @@ export function intentFor(input) {
   if (/(parler a (un |une )?(humain|responsable|personne)|un conseiller|reclamation|partenariat|collaboration|proposition commerciale|remboursement|je veux te parler)/.test(text)) return 'human';
   if (/(je suis mineur|j.ai 1[0-7] ans|j.ai perdu tout|endette|me refaire|argent du loyer)/.test(text)) return 'safety';
   if (/(score exact|scores exacts|scores-exacts)/.test(text)) return 'scores';
+  if (/(code promo|code promotion|code bonus|xpvip|quel est (ton|votre|le) code|bonus|promotion)/.test(text)) return 'bonus';
+  if (/(gratuit|payant|combien (coute|coutent)|tarif|abonnement|prix du vip|acces vip|payer pour|devenir vip)/.test(text)) return 'access';
+  if (/(difference (entre|pro vip)|categorie|categories|c.est quoi (pro|vip)|que signifie (pro|vip))/.test(text)) return 'categories';
+  if (/(tous les jours|chaque jour|a quelle heure|quand (publie|postez|sortent|sort)|frequence|combien de (pronos|coupons)|aujourd.hui y a.t.il)/.test(text)) return 'schedule';
+  if (/(methode|calcul|79\s*%|taux de confiance|confiance estimee|h2h|statistique|comment (choisis|selectionnes|produisez|analysez)|fiabilite des pronos)/.test(text)) return 'method';
   if (/(conseil|comment analyser|comment parier|gestion de (budget|bankroll)|debuter dans les paris|debutant en pari|quel risque|comment eviter de perdre)/.test(text)) return 'conseil';
   if (/(prono|pronostic|coupon|selections? du jour|pari pour|match a jouer)/.test(text)) return 'pronos';
   if (/(rejoindre|integrer|abonner|lien du canal|groupe telegram|chaine telegram|canaux|canal telegram)/.test(text)) return 'canaux';
   if (/(historique|resultat|gagne|perdu|preuves)/.test(text)) return 'resultats';
   if (/(live|en direct|temps reel)/.test(text)) return 'live';
-  if (/(code promo|xpvip|bonus|promotion)/.test(text)) return 'bonus';
+  // Le code promotionnel est traité plus haut pour éviter les réponses hors sujet.
   if (/(site|application|installer|page officiel|lien officiel)/.test(text)) return 'site';
   if (/(tu fais quoi|tu peux faire quoi|que peux tu faire|a quoi tu sers|quels sont tes services|qui es tu|comment tu fonctionnes|c.est quoi ce bot)/.test(text)) return 'capabilities';
   if (/^(cc|coucou|salut|bonjour|bonsoir|hello|hey|bjr|slt)[!?. ]*$/.test(text)) return 'welcome';
@@ -80,10 +107,14 @@ export function exactScorePicks(payload, now=new Date()) {
     return p.home && p.away && /^\d+:\d+$/.test(String(p.score)) && Number.isFinite(ts) && ts>now.getTime()+180000;
   }).slice(0,3).map(p=>({home:cut(p.home,80),away:cut(p.away,80),score:p.score,probability:Number(p.probability),kickoff:p.kickoff_utc}));
 }
-const formatPromo = () => '**🎁 Code promotionnel XPVIP**\nLes conditions dépendent de chaque partenaire : vérifie les détails avant toute inscription.\n\nOffre officielle : '+LINKS.bonus;
-const channelLine = () => channelUrl() ? `**📢 Rejoindre notre canal :** ${channelUrl()}` : `*Le lien du canal Telegram n’est pas encore configuré.* Tu peux consulter les coupons sur le site : ${LINKS.pronos}`;
-const intro = () => `**👋 Bienvenue chez Mr XPRONOS !**\nJe suis ton *assistant automatique*. Je peux t’aider à trouver les pronostics, coupons, résultats, analyses football et liens officiels.\n\n**⚽ Pronostics du jour :** ${LINKS.pronos}\n${channelLine()}\n\n> Les paris sont réservés aux adultes et comportent des risques.`;
-const adviceMessage = () => '**⚽ Comment analyser un match ?**\nExamine la forme récente, les absences, le calendrier et les cotes avant d’interpréter une probabilité.\n\n> Aucun pronostic n’est garanti. Ne poursuis jamais tes pertes et ne parie pas avec de l’argent essentiel.\n\n**Guides :** '+LINKS.conseils+'\n**Historique :** '+LINKS.historique+'\n*🔞 Réservé aux adultes.*';
+const formatPromo = () => '**Code promo : XPVIP** ✅\nÀ utiliser chez les partenaires qui l’acceptent, selon leurs conditions.';
+const channelLine = () => '📢 Canal Telegram officiel : '+channelUrl();
+const intro = () => 'Salut 👋 Je suis l’assistant de **Mr XPRONOS**. Je peux t’aider pour les pronostics, résultats et le code promo **XPVIP**.';
+const adviceMessage = () => '⚽ Regarde la forme, les absences et les statistiques du match. Aucun pronostic n’est garanti ; évite de poursuivre tes pertes.';
+const accessMessage = () => 'Les pronostics **Pro et VIP** sont consultables gratuitement sur notre site. Aucun abonnement VIP payant annoncé.';
+const categoriesMessage = () => '**Pro** et **VIP** sont deux catégories de sélections du site. Leur confiance est *estimée*, sans garantie de gain.';
+const scheduleMessage = () => 'Les pronostics sont publiés selon les sélections disponibles : **pas de coupon garanti chaque jour**. Tu peux consulter Aujourd’hui et Demain sur le site.';
+const methodMessage = () => 'Les analyses utilisent notamment les données des matchs et leurs statistiques. **79 %** est un seuil de confiance *estimée*, pas un taux de réussite garanti.';
 
 /** Vérifications de sécurité avant de répondre au nom du compte personnel connecté. */
 export function eligibleBusinessMessage(message,connection,ownerId,nowMs=Date.now()) {
