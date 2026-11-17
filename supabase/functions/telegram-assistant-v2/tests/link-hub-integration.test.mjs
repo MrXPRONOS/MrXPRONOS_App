@@ -172,8 +172,16 @@ test('link hub: real Telegram handler sends welcome, complete links, folder, boo
  assert.match(preview[0].content,/Aperçu du nouvel abonné/);
  assert.match(preview[0].content,/Bienvenue chez Mr XPRONOS/);
  assert.equal(linkSet(preview).size,3);
+ const callsBefore=operations.filter(x=>x.method==='setMyCommands').length;
+ const beforeSync=outbound.length;
+ await assistant.handleUpdate(update(7,admin,'/synccommandes'));
+ const afterSync=operations.filter(x=>x.method==='setMyCommands').length;
+ assert.equal(afterSync,callsBefore+1,'Admin must refresh Telegram shortcut menu');
+ assert.match(received(beforeSync,admin)[0]?.content||'',/Menu Telegram mis à jour/);
+ assert.ok(assistant.telegramShortcutCommands().some(x=>x.command==='liens'));
+ assert.ok(assistant.telegramShortcutCommands().some(x=>x.command==='accueil'));
  console.log('MX_HUB_AUDIT '+JSON.stringify({
-  tested:steps.concat('/testaccueil'),
+  tested:steps.concat('/testaccueil','/synccommandes'),
   hubLinks:expected.length,
   firstWelcomeButtons:welcomeLinks.size,
   previewButtons:linkSet(preview).size,
