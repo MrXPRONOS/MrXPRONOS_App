@@ -37,6 +37,12 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/installer.html</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseils.html</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>weekly</changefreq>
