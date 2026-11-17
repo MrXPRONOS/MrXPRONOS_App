@@ -635,6 +635,36 @@ export function aiButtons(keys,question,history=[]) {
   }
   return urls;
 }
+
+export function normalizeFixtureTeams(name=''){
+  return norm(name).replace(/[^a-z0-9]+/g,' ').replace(/\b(fc|cf|sc|club|the)\b/g,'').replace(/\s+/g,' ').trim();
+}
+export function reconcileKickoffs(mainMatches=[],secondaryMatches=[],{
+  toleranceMs=5*60*1000
+}={}){
+  const index=new Map();
+  for(const row of secondaryMatches||[]){
+    const name=[normalizeFixtureTeams(row.home_team||row.home),normalizeFixtureTeams(row.away_team||row.away)].join('|');
+    const start=Date.parse(row.event_date||row.kickoff_utc||row.start_time||'');
+    if(name.length>3&&Number.isFinite(start)){
+      const list=index.get(name)||[];
+      list.push(start);index.set(name,list);
+    }
+  }
+  const safe=[],conflicts=[],unconfirmed=[];
+  for(const match of mainMatches||[]){
+    const name=[normalizeFixtureTeams(match.home||match.home_team),normalizeFixtureTeams(match.away||match.away_team)].join('|');
+    const main=Date.parse(match.kickoff||match.event_date||match.kickoff_utc||'');
+    const others=index.get(name)||[];
+    if(!others.length||!Number.isFinite(main)){unconfirmed.push(match);safe.push(match);continue;}
+    const near=others.some(x=>Math.abs(main-x)<=toleranceMs);
+    if(near)safe.push({...match,scheduleVerified:true});
+    else conflicts.push({home:match.home||match.home_team,away:match.away||match.away_team,
+      origin:match.kickoff||match.event_date||'',alternatives:others.map(x=>new Date(x).toISOString())});
+  }
+  return {safe,conflicts,unconfirmed};
+}
+
 export async function assistantFacts(question,history=[],{
   loadJson=publicJson,loadSitemap=sitemapOverview,now=new Date()
 }={}) {
@@ -649,9 +679,13 @@ export async function assistantFacts(question,history=[],{
   const classified=analyzeClientIntent(question,history);
   if(classified.odds){
     const quoted=combineClientOdds(question);
+    const feed=await loadJson(SITE+'/odds.json');
+    const candidates=findVerifiedOddsCombinations(trustedOddsFromFeed(feed,now),10);
     snippets.push('COTE TOTALE : ce n’est pas un score exact. '+(quoted?
-      'Calcul sur cotes fournies par le client uniquement : '+quoted.values.join(' × ')+' = '+quoted.total+'. Cotes NON vérifiées, ne prétends pas que le combiné existe.':
-      'Aucune cote vérifiée fournie, ne crée pas de combinaison fictive.'));
+      'Calcul fourni uniquement par le client : '+quoted.values.join(' × ')+' = '+quoted.total+'. NON vérifié.':''));
+    snippets.push(candidates.length?
+      'COMBINAISONS ISSUES DU FLUX OFFICIEL horodaté (cotes variables, ni pari conseillé ni gain garanti) : '+JSON.stringify(candidates):
+      'Aucune combinaison vérifiée dans le flux officiel ; ne crée aucune cote fictive ni lien non confirmé.');
   }
   if(classified.install)snippets.push('INSTALLATION OFFICIELLE : '+installationSteps(question));
   if(/(coupon|pronostic|prono|selection|match a jouer|a venir|paris du jour)/.test(q)){
@@ -659,8 +693,16 @@ export async function assistantFacts(question,history=[],{
     const date=new Date(now.getTime()+shift*86400e3).toISOString().slice(0,10);
     const data=await loadJson(SITE+'/data.json');
     const picks=publishedPicks(data,now,shift);
+    // Les scores exacts proviennent d'un second fichier de publication :
+    // toute discordance de coup d'envoi bloque l'horaire litigieux.
+    const second=await loadJson(SITE+'/scores-exacts-daily/'+date+'.json');
+    const secondMatches=Array.isArray(second?.matches)?second.matches:
+      Array.isArray(second?.predictions)?second.predictions:[];
+    const scheduled=reconcileKickoffs(picks,secondMatches);
     snippets.push('COUPONS POUR '+date+' : '+(!data?'Fichier inaccessible, ne confirme aucun coupon.':
-      picks.length?JSON.stringify(picks):'Aucune sélection admissible confirmée. Ne crée aucun match ni coupon fictif.'));
+      scheduled.safe.length?JSON.stringify(scheduled.safe):'Aucune sélection admissible confirmée. Ne crée aucun match ni coupon fictif.'));
+    if(scheduled.conflicts.length)snippets.push('HORAIRES CONTRADICTOIRES : '+JSON.stringify(scheduled.conflicts)+
+      ' ; ne publie aucune heure ou sélection concernée avant correction des données.');
     snippets.push('Destination : '+LINKS.pronos);
   }
   if(/(score exact|scores exacts)/.test(q)){
@@ -821,6 +863,9 @@ export function verifiedReplyReview(reply,question,facts='',history=[]) {
   }
   if(info.score&&/(?:Source inaccessible|Aucun score admissible vérifié)/.test(facts)){
     return '**🎯 Scores exacts**\n\nAucun score exact vérifié n’est actuellement disponible dans la source du site. Tu peux consulter la page des scores exacts pour les publications à venir.';
+  }
+  if(info.odds&&/Aucune combinaison vérifiée/.test(facts)&&/(voici|disponible|garanti|cote\s+10\s*[:=]|combin[eé]\s+de\s+10)/i.test(text)){
+    return '**Cote totale de 10**\n\nAucune combinaison de cotes vérifiées n’est disponible dans les données officielles pour le moment. Une cote totale est un produit de cotes qui peuvent changer. Tu peux consulter les pronostics existants sans considérer une cote comme garantie.';
   }
   if(info.odds && /(cote\s+(?:totale\s+)?(?:10|dix)|combin[eé]\s+(?:de\s+)?10)/i.test(text) &&
      /(voici|disponible|valid[eé]|garanti)/i.test(text)){
