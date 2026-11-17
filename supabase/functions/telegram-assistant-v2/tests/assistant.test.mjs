@@ -88,4 +88,7 @@ test("liens Markdown officiels deviennent aussi des boutons",()=>{
 test("commande de démonstration du formatage",()=>{
  assert.equal(intentFor("/format"),"format");
  assert.equal(intentFor("/apercu"),"format");
+ assert.equal(intentFor("/forme"),"format");
+ assert.equal(intentFor("/form"),"format");
+ assert.equal(intentFor("/format@AssistantTestBot"),"format");
 });
