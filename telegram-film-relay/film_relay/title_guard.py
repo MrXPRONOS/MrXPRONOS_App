@@ -49,9 +49,23 @@ RELEASE_MARKER = re.compile(
 )
 
 
+GENERIC_UPLOAD = re.compile(
+    r"(?i)^(?:(?:video|film|movie|fichier|upload|document|vid|mov|"
+    r"telegram)[ ._-]*)+(?:[0-9]{1,14}|[0-9a-f]{8,})?$|"
+    r"^(?:[0-9a-f]{12,}|[0-9]{5,})$"
+)
+NON_TITLE_LINE = re.compile(
+    r"(?i)^(?:genres?|cat[eé]gorie|duration|dur[eé]e|ann[eé]e|"
+    r"r[eé]alisateur|source|qualit[eé]|format|abonnez[- ]vous|"
+    r"cliquez ici)\s*[:=]"
+)
+
+
 def filename_title(value):
     cleaned = re.sub(r"[._\[\](){}]+", " ", str(value or ""))
     cleaned = re.sub(r"(?i)\.(?:mp4|mkv|avi|mov|webm)$", "", cleaned).strip()
+    if GENERIC_UPLOAD.fullmatch(cleaned):
+        return ""
     for match in RELEASE_MARKER.finditer(cleaned):
         prefix = cleaned[:match.start()].strip()
         if len(tokens(prefix)) >= 2:
@@ -62,10 +76,12 @@ def filename_title(value):
 def title_line(message):
     raw = str(getattr(message,"raw_text","") or "")
     lines = [line.strip() for line in raw.splitlines() if line.strip()]
-    for line in lines[:3]:
+    for line in lines[:5]:
+        if NON_TITLE_LINE.match(line):
+            continue
         if tokens(line):
             return line
-    return lines[0] if lines else ""
+    return ""
 
 def _compatible(a, b):
     """Require convincing agreement; a shared word is not enough."""
@@ -98,7 +114,7 @@ def title_assessment(poster,video):
     evidence = [b for b in evidence if b]
     # Equal titles do not identify the same remake when years conflict.
     poster_years = release_year(title_line(poster))
-    video_years = release_year(caption) | release_year(filename)
+    video_years = release_year(caption) | release_year(filename_title(filename))
     if poster_years and video_years and poster_years.isdisjoint(video_years):
         return "uncertain" if related else "mismatch"
     if a and evidence:
