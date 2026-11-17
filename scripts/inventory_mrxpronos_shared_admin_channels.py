@@ -50,8 +50,14 @@ def save_row(row, session):
         json={"p_channel": row}, timeout=(8, 25)
     )
     if r.status_code != 200:
-        # A Telegram ID/title must never be reflected from the response.
-        raise RuntimeError("secure_registry_write_http_" + str(r.status_code))
+        # Only SQLSTATE is safe; never dump PostgREST descriptions (may contain IDs).
+        try:
+            pgcode = str(r.json().get("code") or "")
+        except (ValueError, AttributeError):
+            pgcode = ""
+        if not pgcode.isalnum() or len(pgcode) > 10:
+            pgcode = "unknown"
+        raise RuntimeError("secure_registry_write_http_" + str(r.status_code) + "_sqlstate_" + pgcode)
     try:
         if r.json() is not True:
             raise ValueError("registry_rpc_not_confirmed")
@@ -194,7 +200,7 @@ def main():
         }
         msg = str(exc)
         code = msg if msg in approved or (msg.startswith("secure_registry_write_http_")
-                    and msg.removeprefix("secure_registry_write_http_").isdigit()) else "unknown"
+                    and all(c.isalnum() or c == "_" for c in msg) and len(msg) < 75) else "unknown"
         print("::error::ADMIN_INVENTORY_FAILED",type(exc).__name__,code)
         return 1
 
