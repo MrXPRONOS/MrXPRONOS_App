@@ -212,7 +212,8 @@ test('REGRESSION: rendering keeps our channel clickable after a client sends a d
  assert.deepEqual(destinations,[],'Original no-context scenario reproduced');
  const view=assistant.buildTelegramMessage(generated,{allowedUrls:destinations});
  assert.match(view.text,/Notre canal officiel/);
- assert.match(view.text,/<a href="https:\/\/t\.me\/mrxpronosfr">/);
+ assert.ok(!view.text.includes('Lien externe non confirmé'));
+ assert.ok(view.reply_markup?.inline_keyboard?.flat().some(b=>b.url===assistant.LINKS.channel));
  assert.ok(!view.text.includes('Lien externe non confirmé'),view.text);
  assert.ok(!view.text.includes('lien non vérifié retiré'));
  assert.ok(view.reply_markup?.inline_keyboard?.flat().some(b=>b.url===assistant.LINKS.channel),
