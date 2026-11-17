@@ -763,6 +763,7 @@ export async function assistantFacts(question,history=[],{
  */
 export function contextualDestinations(question,history=[],suggested=[],intent='general') {
   const q=normalizeClientFrench(question);
+  if(socialMediaRequest(question).requested)return officialSocialUrls(question);
   const h=norm(history.slice(-5).map(x=>x.content||'').join(' '));
   const topic=norm(question+' '+history.slice(-5).map(x=>x.content||'').join(' '));
   if(/^(merci|merci beaucoup|thanks|thank you|ok|okay|d.accord|daccord|cc|salut|bonjour|bonsoir|coucou|super|parfait)[!?. ]*$/.test(q))return [];
