@@ -458,7 +458,26 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
   for(const url of allowedModel){
     const isPartner=Object.values(PARTNER_LINKS).includes(url);
     if(isPartner&&!(chosen&&(wantsSignup||wantsPartnerLink)))continue;
-    if(!isPartner && !/(lien|site|page|voir|visiter|ouvrir|consulter|acceder|rejoindre|canal|telegram|coupons?|pronos?|pronostics?|resultats?|historique|scores|offres?|bonus|guide|conseils?|analyses?)/.test(q))continue;
+    // L'IA ne peut pas ajouter un bouton hors sujet même s'il fait partie du catalogue.
+    if(!isPartner) {
+      const followup=/^(et le lien|le lien|envoie le lien|tu as un lien|ou je clique)/.test(q);
+      const subject=followup?norm(q+' '+h):q;
+      const relevant =
+        url===channelUrl() ? (asksChannel||asksPicks||/(canal|telegram)/.test(subject)) :
+        url===LINKS.pronos ? (asksPicks||/(coupon|prono|pronostic)/.test(subject)) :
+        url===LINKS.accueil ? (/(site|accueil)/.test(subject)&&!wantsSignup) :
+        url===LINKS.historique ? /(resultat|historique|gagn|perdu)/.test(subject) :
+        url===LINKS.scores ? /score exact/.test(subject) :
+        url===LINKS.bonus ? /(bonus|offre|promotion)/.test(subject) :
+        url===LINKS.conseils ? /(guide|conseil|apprendre)/.test(subject) :
+        url===LINKS.analyses ? /(analyse|article|blog|h2h)/.test(subject) :
+        url===LINKS.infos ? /(info|actualite|news)/.test(subject) :
+        url===LINKS.contact ? /(contact|responsable|assistance|reclamation)/.test(subject) :
+        url===LINKS.sitemap ? /(sitemap|plan du site)/.test(subject) :
+        url===LINKS.aujourd_hui ? /(aujourd.hui|matchs du jour)/.test(subject) :
+        false;
+      if(!relevant)continue;
+    }
     add(url);
   }
   return list.slice(0,3);
