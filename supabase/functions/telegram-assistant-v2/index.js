@@ -1814,6 +1814,19 @@ async function claimFirstChat(chat){
 }
 async function updateChat(chat) {await db('mx_telegram_assistant_chats?on_conflict=chat_key','POST',[chat],'resolution=merge-duplicates');}
 async function setPause(key,paused) {await db(`mx_telegram_assistant_chats?chat_key=eq.${encodeURIComponent(key)}`,'PATCH',{paused});}
+/** Accusé de réception pendant une reprise humaine, sans prétendre que l'agent a lu le message. */
+export function pausedHumanReply(question=''){
+ const q=normalizeClientFrench(question);
+ if(/(?:pourquoi|comment).{0,35}(?:ia|bot|assistant).{0,35}(?:repond|silenc)/.test(q))
+  return '⏸️ **L’assistant automatique est en pause** parce qu’un responsable a été sollicité. Ton message est conservé pour son suivi ; il n’a pas encore nécessairement été lu.';
+ if(/(?:reclamation|plainte|probleme|remboursement)/.test(q))
+  return '📩 **Réclamation enregistrée dans cette conversation.** Le responsable pourra la consulter. Tu peux ajouter les détails utiles, sans partager de mot de passe ni de code OTP.';
+ if(/(?:parler|contacter|envoyer|transmettre).{0,40}(?:responsable|humain|conseiller)/.test(q))
+  return '📩 **Un responsable est sollicité.** Ton message vient d’être conservé dans la conversation ; il pourra en prendre connaissance.';
+ if(/^(?:merci|merci beaucoup|bonne journee|a bientot)/.test(q))
+  return 'Avec plaisir. La discussion reste en attente d’un responsable.';
+ return '✅ **Message reçu et conservé pour le responsable.** Les réponses automatiques restent en pause pendant la prise en charge humaine.';
+}
 export function shouldNotifyPausedAdmin(lastNotice,now=Date.now(),intervalMs=30000){
  const time=Date.parse(lastNotice||'');
  return !Number.isFinite(time)||time>now||now-time>=intervalMs;
@@ -2364,7 +2377,12 @@ export async function handleUpdate(update) {
       const notified=await notifyAdmin(key,previous.nickname||'Client',text);
       if(notified)try{await recordAdminNotice(key);}catch(e){console.warn('human_notice_record_failed');}
     }
-    await logMessage(key,'user',text);await markHandled(id);return;
+    const risk=safetyResponse(analyzeClientIntent(text));
+    const acknowledgement=risk||pausedHumanReply(text);
+    await say(msg.chat.id,acknowledgement,msg.business_connection_id||'');
+    await logMessage(key,'user',text);
+    await logMessage(key,'assistant',acknowledgement);
+    await markHandled(id);return;
   }
   // Premier contact uniquement : accueillir sans détourner la question d'origine.
   if(isFirstChat&&shouldWelcomeNewcomer(previous,isBusiness)){
