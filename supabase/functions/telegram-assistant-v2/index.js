@@ -1266,8 +1266,26 @@ export function assessTranscriptQuality(raw,metadata={}) {
   if(/^(?:euh|hum|ah|bon|ben|he|hmm|ouais|oui)(?:[ ,.!?]+(?:euh|hum|ah|bon|ben|he|hmm|ouais|oui))*[ ,.!?]*$/i.test(q))reasons.push('filler');
   if(/\b(\w{2,})\b(?:[ ,.!?]+\1\b){3,}/i.test(q))reasons.push('repetition');
   if(/(?:bedclicker|betclicker|bet clicker|w[aà]ris pt)/i.test(q))reasons.push('phonetic_brand');
-  return {quality:reasons.length?'uncertain':'clear',reasons};
+  const severity={truncated:0.35,degraded_asr:0.3,too_short:0.25,filler:0.5,repetition:0.35,phonetic_brand:0.18,empty:1};
+  const reliabilityIndex=Math.max(0,Math.min(1,1-reasons.reduce((total,reason)=>total+(severity[reason]||.2),0)));
+  return {quality:reliabilityIndex<.75?'uncertain':'clear',reasons,reliabilityIndex};
 }
+export function cleanupSpokenTranscript(raw=''){
+  return String(raw||'').replace(/\s+/g,' ')
+    .replace(/^(?:euh|heu|hum|hmm|ben|bah)[, ]+/ig,'')
+    .replace(/\b([A-Za-zÀ-ÿ]{2,})\b(?:[ ,;]+\1\b){2,}/gi,'$1').trim();
+}
+export async function inspectAsrEndpoint({url=env('MX_ASSISTANT_ASR_URL'),http=fetch}={}){
+  if(!url)return {configured:false,reachable:false,reason:'missing_url'};
+  try{
+    const target=new URL(url);
+    if(target.protocol!=='https:'||target.username||target.password)return {configured:true,reachable:false,reason:'invalid_url'};
+    target.pathname='/v1/health/ready';target.search='';
+    const response=await http(target.href,{method:'GET',signal:AbortSignal.timeout(4500)});
+    return {configured:true,reachable:response.ok,status:response.status,reason:response.ok?'ready':'http_'+response.status};
+  }catch(error){return {configured:true,reachable:false,reason:'health_check_failed'};}
+}
+
 export function extractSpokenCorrection(question) {
   const q=String(question||'').trim();
   const correction=q.match(/^(?:non[,!. ]+)?(?:j.ai dit|je voulais dire|je disais|c.etait|j'ai dit|je parle de)\s*[:,-]?\s*(.{2,220})$/i);
@@ -1296,7 +1314,7 @@ export async function transcribeTelegramAudio(data,{
         const text=out?.text||out?.transcription?.text;
         if(typeof text==='string'&&text.trim()){
           const quality=assessTranscriptQuality(text,out?.transcription||out);
-          return {transcript:cut(text.trim(),1500),model:'nemotron-transcribe',...quality};
+          return {transcript:cut(cleanupSpokenTranscript(text),1500),model:'nemotron-transcribe',...quality};
         }
       }
     }catch(e){console.warn('asr_transcription_failed',String(e?.name||'error').slice(0,32));}
@@ -1324,7 +1342,7 @@ export async function transcribeTelegramAudio(data,{
     const content=result?.choices?.[0]?.message?.content;
     if(typeof content==='string'&&content.trim()){
       const quality=assessTranscriptQuality(content);
-      return {transcript:cut(content.trim(),1500),model:MEDIA_MODELS.voice,
+      return {transcript:cut(cleanupSpokenTranscript(content),1500),model:MEDIA_MODELS.voice,
         quality:data.mime==='audio/ogg'?'uncertain':quality.quality,
         reasons:data.mime==='audio/ogg'?[...quality.reasons,'ogg_unverified']:quality.reasons};
     }
@@ -1737,11 +1755,13 @@ async function adminCommand(msg) {
   }
   if(cmd==='health'){
     try{
+      const asr=await inspectAsrEndpoint();
+      const asrLabel=asr.reachable?'🟢 ASR : prêt':asr.configured?'🟠 ASR : '+asr.reason:'🔴 ASR : URL non configurée';
       const start=new Date(Date.now()-86400e3).toISOString();
       const rows=await db('mx_telegram_assistant_model_events?select=model,status,duration_ms,created_at&created_at=gte.'+encodeURIComponent(start)+'&order=created_at.desc&limit=300');
       const diagnostics=modelDiagnostics(rows);
       const body=diagnostics.slice(0,8).map(d=>'- '+d.model+' : '+d.success+'/'+d.attempts+' OK, '+d.avgMs+' ms en moyenne').join('\n');
-      return say(msg.chat.id,'**État des modèles — 24 h**\n\n'+(body||'Aucune mesure récente disponible.'));
+      return say(msg.chat.id,'**État des modèles — 24 h**\n\n'+(body||'Aucune mesure récente disponible.')+'\n\n'+asrLabel);
     }catch(e){return say(msg.chat.id,'Les métriques ne sont pas accessibles pour le moment.');}
   }
   if(cmd==='chats') {
