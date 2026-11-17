@@ -1,0 +1,61 @@
+name: Telegram - Enregistrer les canaux prives du bot (sans publier)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-private-channels-registry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-private-channels-registry
+  cancel-in-progress: false
+
+jobs:
+  verify-and-register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+      PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+      CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+      TELEGRAM_LIVE_CHAT_ID: ${{ secrets.TELEGRAM_LIVE_CHAT_ID }}
+      TELEGRAM_COUPONS_CHAT_ID: ${{ secrets.TELEGRAM_COUPONS_CHAT_ID }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      EDITORIAL_TELEGRAM_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
+      PARTNERSHIP_CHAT_ID: ${{ vars.PARTNERSHIP_CHAT_ID }}
+      CINEX_CHANNEL_CHAT_ID: ${{ secrets.CINEX_CHANNEL_CHAT_ID }}
+      CINEX_FILMS_CHAT_ID: ${{ secrets.CINEX_FILMS_CHAT_ID }}
+      CINEX_SERIES_CHAT_ID: ${{ secrets.CINEX_SERIES_CHAT_ID }}
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/audit_mrxpronos_canal_bot.py
+            scripts/register_telegram_private_channels.py
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dependances de lecture seule Telegram
+        run: python -m pip install 'requests>=2.31,<3' 'telethon>=1.38,<2'
+      - name: Valider syntaxe
+        run: python -m py_compile scripts/audit_mrxpronos_canal_bot.py scripts/register_telegram_private_channels.py
+      - name: Enregistrer uniquement dans Supabase prive, sans publier sur Telegram
+        run: python scripts/register_telegram_private_channels.py
