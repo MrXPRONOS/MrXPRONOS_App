@@ -22,6 +22,7 @@ import feedparser
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from crypto.news_sources_v2 import GLOBAL_NEWS_FEEDS, FRENCH_NEWS_FEEDS
+from crypto import news_media_v1 as media
 
 UTC = timezone.utc
 MAX_AGE_HOURS = 30
@@ -252,6 +253,7 @@ def parse_entry(entry, source, now):
         "source": source, "title": title, "summary": summary, "url": url,
         "published_at": published_at(entry, now),
         "french": source in FRENCH_NEWS_FEEDS,
+        "image_candidates": media.images_from_rss(entry, url),
     }
     row.update(signature(row))
     row["sensitive"] = bool(SENSITIVE.search(normalize(title)))
