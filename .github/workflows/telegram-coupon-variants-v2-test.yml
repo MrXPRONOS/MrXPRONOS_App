@@ -1,0 +1,53 @@
+name: Telegram - 5 nouvelles promos coupon (canal test)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-coupon-variants-v2-test.yml'
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'all = cinq publications ; 6 à 10 = une seule variante'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          - '10'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-coupon-variants-v2-test
+  cancel-in-progress: false
+
+jobs:
+  publish-to-test-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer Requests
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Valider les 5 légendes Telegram, la photo et le bouton
+        run: python scripts/send_telegram_coupon_variants_v2_test.py --check
+      - name: Contrôler la destination et les permissions du bot
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+      - name: Publier 5 photos avec légende et bouton dans le canal test
+        env:
+          CHOSEN_VARIANT: ${{ inputs.variant || 'all' }}
+        run: python scripts/send_telegram_coupon_variants_v2_test.py --send --variant "$CHOSEN_VARIANT"
