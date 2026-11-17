@@ -3,9 +3,6 @@ name: Actu Crypto - NEWS FIRST every 30 minutes
 on:
   schedule:
     - cron: '0,30 * * * *'
-  push:
-    paths:
-      - 'crypto/actu-crypto-photo-preview-final-20261117.flag'
   workflow_dispatch:
     inputs:
       confirm_real_production:
@@ -25,7 +22,7 @@ concurrency:
 
 jobs:
   crypto-world-news:
-    if: github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.confirm_real_production == true)
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.confirm_real_production == true)
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     env:
