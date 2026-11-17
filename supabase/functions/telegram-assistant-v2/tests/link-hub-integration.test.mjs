@@ -200,3 +200,58 @@ test('unsafe URL stays excluded; /liens is understandable',()=>{
  assert.equal(assistant.intentFor('liste des bookmakers'),'partners');
  assert.equal(assistant.intentFor('dossier Mr XPRONOS F'),'folder');
 });
+
+
+test('REGRESSION: rendering keeps our channel clickable after a client sends a different Telegram channel',()=>{
+ const question='https://t.me/CineXFilms_vf';
+ const generated='Ce lien mène vers un canal films/séries, pas vers Mr XPRONOS.\n\n'+
+   'Notre canal officiel : https://t.me/mrxpronosfr\n\nBesoin d’un prono, des résultats ou d’autre chose ?';
+ const intent=assistant.intentFor(question);
+ const destinations=assistant.contextualDestinations(question,[],[],intent);
+ assert.deepEqual(destinations,[],'Original no-context scenario reproduced');
+ const view=assistant.buildTelegramMessage(generated,{allowedUrls:destinations});
+ assert.match(view.text,/Notre canal officiel/);
+ assert.match(view.text,/<a href="https:\/\/t\.me\/mrxpronosfr">/);
+ assert.ok(!view.text.includes('Lien externe non confirmé'),view.text);
+ assert.ok(!view.text.includes('lien non vérifié retiré'));
+ assert.equal(view.reply_markup,undefined,'No unsolicited button, but official anchor survives');
+});
+
+test('Official URLs survive contextual button restrictions, unknown links do not',()=>{
+ const urls=[
+  assistant.LINKS.channel,assistant.LINKS.telegram,
+  assistant.LINKS.pronos,assistant.LINKS.installer,
+  assistant.LINKS.infos,assistant.LINKS.facebook,
+  assistant.LINKS.instagram,assistant.LINKS.youtube,
+  assistant.LINKS.threads,assistant.LINKS.whatsapp,
+  assistant.LINKS.folder_films
+ ];
+ for(const url of urls){
+  const view=assistant.buildTelegramMessage('Voici le lien officiel : '+url,{allowedUrls:[]});
+  assert.ok(view.text.includes('<a href="'+url.replace(/&/g,'&amp;')+'">'),'Blocked trusted '+url+': '+view.text);
+  assert.ok(!view.text.includes('Lien externe non confirmé'),'False warning for '+url);
+  assert.equal(view.reply_markup,undefined,'No button unless selected in context');
+ }
+ const unknown=assistant.buildTelegramMessage('Notre canal ? https://t.me/unknown_external_channel_42',{allowedUrls:[]});
+ assert.match(unknown.text,/Lien externe non confirmé/);
+ assert.ok(!unknown.text.includes('<a href='));
+ const wrongBrand=assistant.PARTNER_LINKS['1xbet'];
+ const blocked=assistant.buildTelegramMessage('Voici un partenaire : '+wrongBrand,{allowedUrls:[]});
+ assert.ok(!blocked.text.includes('<a href=')&&!blocked.reply_markup,'Unsolicited bookmaker remains blocked');
+ const permitted=assistant.buildTelegramMessage('Partenaire autorisé : '+wrongBrand,{allowedUrls:[wrongBrand]});
+ assert.ok(permitted.reply_markup?.inline_keyboard?.flat().some(b=>b.url===wrongBrand));
+});
+
+test('Final rendered responses remain readable with restrictive contextual URL budget',()=>{
+ const cases=[
+  {label:'official channel',answer:'Notre canal officiel : '+assistant.LINKS.channel,allowedUrls:[]},
+  {label:'Facebook',answer:'Voici notre Facebook : '+assistant.LINKS.facebook,allowedUrls:[assistant.LINKS.instagram]},
+  {label:'dossier',answer:'Dossier Mr XPRONOS F : '+assistant.LINKS.folder_films,allowedUrls:[]},
+  {label:'installation',answer:'Installer le site : '+assistant.LINKS.installer,allowedUrls:[]}
+ ];
+ for(const item of cases){
+  const msg=assistant.buildTelegramMessage(item.answer,{allowedUrls:item.allowedUrls});
+  assert.ok(msg.text.includes('<a href="'),item.label+': '+msg.text);
+  assert.ok(!/lien externe non confirmé|lien non vérifié retiré/i.test(msg.text),item.label+': '+msg.text);
+ }
+});
