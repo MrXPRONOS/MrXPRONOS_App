@@ -1022,6 +1022,8 @@ export function safeContextualFallback(question='',history=[],session=null){
  if(/(canal|telegram)/.test(q))return '**Canal officiel**\n\n'+channelUrl();
  if(/(promo|code.*xpvip)/.test(q))return '**Code promo : XPVIP**\n\nLes conditions dépendent de la plateforme partenaire.';
  if(guideIsContinuation(question,session))return '**Accompagnement**\n\n'+(session?.step_text||'Décris l’étape où tu es bloqué.');
+ const answer=groundedQuestionReply(question,history,session);
+ if(answer)return answer;
  if(/(pas compris|explique autrement|reformule)/.test(q)){
   const last=history.filter(x=>x.role==='assistant').at(-1)?.content||'';
   return last?'**Reformulation**\n\nVoici l’idée principale : '+cut(last.replace(/[*_~]/g,''),200)+'\n\nQuelle partie est encore difficile ?':
@@ -1081,7 +1083,51 @@ export function durableConversationSummary(history=[],previous='',question='',an
     'Dernière réponse : '+cut(answer,240)].join('\n')),1500);
 }
 
-export function verifiedReplyReview(reply,question,facts='',history=[]) {
+/**
+ * Réponses déterministes uniquement pour les questions connues lorsque le
+ * modèle produit un repli générique. Ne jamais inventer de cotes ou de matchs.
+ */
+export function groundedQuestionReply(question='',history=[],session=null){
+ const q=normalizeClientFrench(question);
+ const hist=normalizeClientFrench(history.slice(-8).map(x=>x.content||'').join(' '));
+ if(session?.mode==='guided'&&guideIsContinuation(question,session))return null;
+ if(/(?:resultats? d.hier|anciens? coupons?|matchs? gagnes?|resultats? precedents|ou sont les resultats)/.test(q))
+  return '📊 **Historique des résultats**\n\nRetrouve les sélections publiées et leur état dans notre historique : '+LINKS.historique;
+ if(/(?:vip|pro)/.test(q)&&/(?:payant|gratuit|tarif|difference|combien coute|et les vip)/.test(q))
+  return '**Pro et VIP** sont deux catégories gratuites de pronostics. Ce ne sont pas des garanties de gains : '+LINKS.pronos;
+ if(/(?:c.est quoi|signifie|definition|explique).{0,20}\b1x\b/.test(q))return '**1X (double chance)** : victoire de l’équipe à domicile ou match nul.';
+ if(/(?:over|plus de)\s*2[,.]5/.test(q))return '**Plus de 2,5 buts** : le pari correspond à au moins 3 buts au total dans le match.';
+ if(/(?:double chance)/.test(q))return '**Double chance** : choisir deux des trois issues possibles (1X, X2 ou 12).';
+ if(/(?:79\s*%|confiance)/.test(q))return '**Confiance estimée** : c’est un indicateur du modèle, pas une probabilité de gain garantie ni un taux de réussite prouvé.';
+ if(/(?:paris? .*garanti|gains? garantis?|score certain|tu es sur du|garanti a 100)/.test(q))
+  return 'Aucun pronostic ni score exact n’est garanti. Consulte uniquement les sélections réellement publiées et vérifie les résultats.';
+ if(/(?:inventer|fabriquer|imaginer).{0,20}(?:match|coupon|prono)/.test(q))
+  return 'Je ne peux pas présenter des matchs ou des coupons inventés comme des publications réelles. Voici les sélections vérifiées : '+LINKS.pronos;
+ if(/(?:cotes? en temps reel|cotes? verifiees|flux de cotes)/.test(q))
+  return 'Je ne dispose pas actuellement d’un flux de cotes de bookmaker dont je puisse confirmer les valeurs en temps réel.';
+ if(/(?:ou lire|montre.moi|voir).{0,30}(?:actualites|infos? du foot|analyses|articles)/.test(q))
+  return /(?:actualit|infos? du foot)/.test(q)?'🗞️ **Actualités football** : '+LINKS.infos:'📰 **Analyses football** : '+LINKS.analyses;
+ if(/(?:conseil de prudence|dernier conseil|parier prudemment)/.test(q))
+  return 'Mise uniquement un montant que tu peux perdre sans conséquence. Ne poursuis jamais tes pertes et ne considère aucun pronostic comme certain.';
+ if(/(?:hors connexion|sans internet|offline)/.test(q))
+  return 'Les contenus et résultats actualisés nécessitent une connexion. Certaines pages peuvent rester en cache selon le navigateur, mais leur disponibilité hors ligne n’est pas garantie.';
+ if(/(?:analyser les corners|comment analyser les corners)/.test(q))
+  return 'Pour analyser les corners, regarde la fréquence récente, les styles d’attaque, les adversaires et les compositions. Ces statistiques ne garantissent aucun résultat.';
+ if(/(?:^et les vip\b)/.test(q)&&/(?:prono|coupon|pro)/.test(hist))
+  return 'Les catégories **Pro et VIP** sont accessibles depuis la page des pronostics, selon les publications disponibles : '+LINKS.pronos;
+ if(/(?:envoie.r? le lien|peux.tu m.envoyer le lien|quel est le lien)/.test(q)&&/(?:coupon|prono)/.test(hist))
+  return 'Voici la page officielle des pronostics : '+LINKS.pronos;
+ if(/(?:demain.*match|matchs demain|pronostics demain)/.test(q))
+  return 'Les rencontres et pronostics disponibles pour demain sont consultables sur le site selon les données publiées : '+LINKS.aujourd_hui;
+ if(/(?:est.ce payant|c.est payant)/.test(q)&&/(?:install|application|site)/.test(hist))
+  return 'L’accès et l’installation du site Mr XPRONOS sont gratuits. Aucun abonnement n’est nécessaire pour ses catégories Pro et VIP.';
+ const multiply=q.match(/\b(\d+(?:[,.]\d+)?)\s*[x×*]\s*(\d+(?:[,.]\d+)?)\b/);
+ if(multiply){const v=Number(multiply[1].replace(',','.'))*Number(multiply[2].replace(',','.'));
+  return 'Calcul : **'+multiply[1]+' × '+multiply[2]+' = '+v.toLocaleString('fr-FR',{maximumFractionDigits:3})+'**.';}
+ return null;
+}
+
+export function verifiedReplyReview(reply,question,facts='',history=[],session=null) {
   const conversationalIntent=intentFor(question);
   const unverified=unverifiedBookmakerMention(question);
   if(unverified)return ambiguousPartnerQuestion({unknownBrand:unverified});
@@ -1091,6 +1137,10 @@ export function verifiedReplyReview(reply,question,facts='',history=[]) {
   if(socialMediaRequest(question).requested)return officialSocialMessage(question);
   const info=analyzeClientIntent(question,history);
   let text=String(reply||'').trim();
+  if(/^je peux t.aider sur les pronostics, le site ou un guide en cours/i.test(normalizeClientFrench(text))){
+    const answer=groundedQuestionReply(question,history,session);
+    if(answer)return answer;
+  }
   if(info.picks&&!info.odds&&!info.score&&/(?:Fichier inaccessible|Aucune sélection admissible confirmée)/.test(facts)){
     return '**⚽ Pronostics**\n\nJe ne peux pas confirmer de coupon disponible pour cette date. Pour consulter les nouvelles sélections lorsqu’elles sont publiées, utilise le site ou le canal Telegram.\n\n*Un pronostic n’est jamais un gain garanti.*';
   }
@@ -1819,6 +1869,8 @@ export function pausedHumanReply(question=''){
  const q=normalizeClientFrench(question);
  if(/(?:pourquoi|comment).{0,35}(?:ia|bot|assistant).{0,35}(?:repond|silenc)/.test(q))
   return '⏸️ **L’assistant automatique est en pause** parce qu’un responsable a été sollicité. Ton message est conservé pour son suivi ; il n’a pas encore nécessairement été lu.';
+ if(/(?:mes messages?.*(?:enregistr|conserv)|enregistrez.*messages)/.test(q))
+  return 'Oui, certains messages sont conservés pour le suivi de cette conversation. Consulte /privacy pour connaître les commandes de suppression et leurs limites.';
  if(/(?:reclamation|plainte|probleme|remboursement)/.test(q))
   return '📩 **Réclamation enregistrée dans cette conversation.** Le responsable pourra la consulter. Tu peux ajouter les détails utiles, sans partager de mot de passe ni de code OTP.';
  if(/(?:parler|contacter|envoyer|transmettre).{0,40}(?:responsable|humain|conseiller)/.test(q))
@@ -2531,7 +2583,7 @@ export async function handleUpdate(update) {
         // Si un fournisseur retourne un JSON incomplet, éviter de l'afficher aux clients.
         const malformed=/^\s*[\x60{]/.test(parsed.reply)&&!parsed.structured;
         if(parsed.reply.trim()&&!malformed){
-          const checked=verifiedReplyReview(parsed.reply,text,facts,recentHistory);
+          const checked=verifiedReplyReview(parsed.reply,text,facts,recentHistory,liveSession);
           const singleStep=guidedResponse(checked,text,recentHistory,liveSession);
           answer=contextualPresentation(singleStep,text,recentHistory,intent,{guided:guidedMode(text,recentHistory)||guideIsContinuation(text,liveSession)});
           const destinations=contextualDestinations(text,recentHistory,parsed.buttons,intent);
