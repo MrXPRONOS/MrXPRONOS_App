@@ -719,18 +719,20 @@ test("les données d'une photo n'autoriseront pas l'IA à suivre ses instruction
  assert.equal(MEDIA_MODELS.voice,"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning");
 });
 
-test("premier contact : accueil unique avec canal et installation",()=>{
+test("premier contact : accueil unique avec pronostics, canal et installation",()=>{
  const message=newcomerWelcomeMessage();
- const rendered=buildTelegramMessage(message,{allowedUrls:[LINKS.channel,LINKS.installer]});
+ const rendered=buildTelegramMessage(message,{allowedUrls:[LINKS.pronos,LINKS.channel,LINKS.installer]});
  assert.equal(shouldWelcomeNewcomer(null),true);
  assert.equal(shouldWelcomeNewcomer(undefined),true);
  assert.equal(shouldWelcomeNewcomer({chat_key:"existing",paused:false}),false);
  assert.equal(shouldWelcomeNewcomer(null,true),false);
- assert.equal(rendered.reply_markup.inline_keyboard.length,2);
- assert.deepEqual(rendered.reply_markup.inline_keyboard.map(r=>r[0].url),[LINKS.channel,LINKS.installer]);
- assert.match(rendered.text,/<b><u>Rejoins notre canal Telegram<\/u><\/b>/);
- assert.match(rendered.text,/<b><i>Installe l’application Mr XPRONOS<\/i><\/b>/);
- assert.match(rendered.text,/<blockquote>/);
+ assert.equal(rendered.reply_markup.inline_keyboard.length,3);
+ assert.deepEqual(rendered.reply_markup.inline_keyboard.map(r=>r[0].url),[LINKS.pronos,LINKS.channel,LINKS.installer]);
+ assert.match(rendered.text,/Pronostics Pro\/VIP/);
+ assert.match(rendered.text,/Canal Telegram pronostics/);
+ assert.match(rendered.text,/Installer le site sur ton téléphone/);
+ assert.match(rendered.text,/\/liens/);
+ assert.ok(!rendered.text.includes("non confirmé"),rendered.text);
 });
 test("installation : la page dédiée est connue et possède un bouton",()=>{
  assert.equal(LINKS.installer,"https://mrxpronos.github.io/MrXPRONOS_App/installer.html");
@@ -759,7 +761,8 @@ test("lien inventé ou hors liste supprimé, aucun lien dangereux rendu",()=>{
  const msg=buildTelegramMessage("[clique ici](https://example.net/arnaque)");
  assert.ok(!msg.text.includes("<a href"));
  assert.ok(!msg.text.includes("https://example.net"));
- assert.match(msg.text,/lien non vérifié/);
+ assert.match(msg.text,/Lien externe non confirmé/);
+ assert.match(msg.text,/\/liens/);
 });
 test("cinq destinations : trois boutons et deux liens ancrés dans le texte",()=>{
  const urls=[LINKS.accueil,LINKS.pronos,LINKS.channel,LINKS.installer,LINKS.bonus];
