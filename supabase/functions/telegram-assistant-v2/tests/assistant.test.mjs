@@ -476,8 +476,9 @@ test("formatage : code promotionnel et conditions lisibles",()=>{
  const html=telegramHtml(text);
  assert.match(html,/<b>📝 Inscription Linebet<\/b>\n\n/);
  assert.match(html,/<b>XPVIP<\/b>/);
- assert.match(html,/<i>si accepté par le bookmaker<\/i>/);
- assert.ok(text.includes("\n\n🎁"));
+ assert.match(html,/<i>Code soumis aux conditions du bookmaker\.<\/i>/);
+ assert.ok(text.includes("\n<i>") === false);
+ assert.ok(text.includes("\n*Code soumis aux conditions"));
 });
 test("formatage : étapes sur des lignes distinctes",()=>{
  const text=polishTelegramText("1. Ouvre le compte 2. Complète ton profil 3. Vérifie ton identité.","Aide-moi à créer un compte");
