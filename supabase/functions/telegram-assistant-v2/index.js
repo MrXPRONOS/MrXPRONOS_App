@@ -235,9 +235,11 @@ export function analyzeClientIntent(message='',history=[]) {
 }
 export function redactSensitiveText(value) {
   return String(value||'')
-    .replace(/\b((?:otp|code\s*sms|code\s*de\s*v[eé]rification|pin)\s*[:=\-]?\s*)\d{4,8}\b/gi,'$1[MASQUÉ]')
+    .replace(/\b((?:otp|code\s*sms|code\s*de\s*v[eé]rification|pin)\s*(?:[:=\-]|est\b)?\s*)\d{4,8}\b/gi,'$1[MASQUÉ]')
     .replace(/\b((?:mot\s*de\s*passe|password|mdp)\s*[:=]\s*)\S+/gi,'$1[MASQUÉ]')
-    .replace(/\b(?:\d[ -]?){13,19}\b/g,'[NUMÉRO MASQUÉ]');
+    .replace(/\b(?:\d[ -]?){13,19}\b/g,'[NUMÉRO MASQUÉ]')
+    .replace(/\b(?:nvapi|sk)-[A-Za-z0-9_-]{16,}\b/g,'[CLÉ API MASQUÉE]')
+    .replace(/((?:seed phrase|phrase secrete|phrase de recuperation|mnemonic)\s*[:=]\s*)(?:[a-zà-ÿ]+\s+){11,23}[a-zà-ÿ]+\b/gi,'$1[PHRASE MASQUÉE]');
 }
 
 export function safetyResponse(details) {
@@ -1988,7 +1990,7 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
         +'STYLES COMBINÉS AUTORISÉS : ***gras et italique***, **__gras et souligné__**, *__italique et souligné__*, et __***les trois***__. N’utilise ces combinaisons que lorsqu’elles ajoutent vraiment de la lisibilité. Pour des liens officiels, tu peux intégrer le lien directement dans une expression : [clique ici](URL_OFFICIELLE). Le serveur vérifie toutes les URL. Au-delà de trois destinations, privilégie les liens ancrés dans des mots plutôt que des URL longues.\\n'
 +'FORMAT OBLIGATOIRE : renvoie un objet JSON compact valide, sans balises Markdown autour, avec deux champs : {"reply":"ton message naturel en français","buttons":[]}. Tu peux utiliser du gras **texte** ou de l’italique *texte* dans reply. buttons est un tableau de 0 à 5 CLÉS uniquement parmi : '+Object.keys(BUTTON_KEYS).join(', ')+'.\n'
     +'Choisis les boutons selon le contexte : inscription chez un bookmaker nommé -> son bouton partenaire, pronostics du jour -> pronos et éventuellement channel, rejoindre notre communauté -> channel, voir les résultats -> historique, accéder au site -> accueil ou rubrique pertinente. Lors d’une inscription, affiche explicitement **Code promo : XPVIP** et invite à saisir XPVIP dans le champ Code promo sans conditionnel sur la présence du champ ; les offres restent soumises aux conditions du partenaire. Aucun bouton pour merci, salut ou simple demande de code promo. Jamais de lien brut : le serveur fabrique les boutons. Ne répète aucune URL dans reply.';
-  const messages=[{role:'system',content:system},...history.slice(-12),{role:'user',content:cut(question,1700)}];
+  const messages=[{role:'system',content:system},...history.slice(-12).map(item=>({...item,content:redactSensitiveText(item.content)})),{role:'user',content:cut(redactSensitiveText(question),1700)}];
   // Dernières erreurs partagées entre instances du serveur, avec repli sur l'état local
   // si la table de mesures est temporairement indisponible.
   let sharedHealth=instanceModelHealth;
