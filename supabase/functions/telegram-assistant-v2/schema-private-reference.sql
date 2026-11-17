@@ -41,3 +41,20 @@ CREATE TABLE IF NOT EXISTS public.mx_telegram_assistant_delivery_receipts (
 ALTER TABLE public.mx_telegram_assistant_delivery_receipts ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.mx_telegram_assistant_delivery_receipts FROM anon,authenticated;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.mx_telegram_assistant_delivery_receipts TO service_role;
+
+
+-- At-most-once Telegram delivery reservation. Applied with the new server migration.
+CREATE TABLE IF NOT EXISTS public.mx_telegram_assistant_delivery_claims (
+  update_id bigint NOT NULL,
+  part_index smallint NOT NULL CHECK (part_index BETWEEN 0 AND 5),
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','delivered')),
+  telegram_message_id bigint,
+  claimed_at timestamptz NOT NULL DEFAULT now(),
+  delivered_at timestamptz,
+  PRIMARY KEY (update_id,part_index)
+);
+CREATE INDEX IF NOT EXISTS mx_ta_delivery_claims_issued_idx
+ ON public.mx_telegram_assistant_delivery_claims(claimed_at DESC);
+ALTER TABLE public.mx_telegram_assistant_delivery_claims ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.mx_telegram_assistant_delivery_claims FROM anon,authenticated;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.mx_telegram_assistant_delivery_claims TO service_role;
