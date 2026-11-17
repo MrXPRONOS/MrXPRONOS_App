@@ -209,7 +209,7 @@ def publish_global_news():
         return
     chat = seed.verify_production_route()
     published = 0
-    for candidate in candidates:
+    for candidate in candidates[:18]:  # bound remote article/photo probes per cycle
         if published >= digest.MAX_PER_RUN or used + published >= digest.MAX_PER_DAY:
             break
         if digest.already_sent(candidate["main"], state):
