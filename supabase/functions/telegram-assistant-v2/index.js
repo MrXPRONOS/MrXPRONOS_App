@@ -10,7 +10,8 @@ export const LINKS = Object.freeze({
   youtube: 'https://youtube.com/@mrxpronos',
   whatsapp: 'https://wa.me/22899201444',
   facebook: 'https://www.facebook.com/share/1DsG6H6gf1/',
-  threads: 'https://www.threads.com/@mr_xpronos'
+  threads: 'https://www.threads.com/@mr_xpronos',
+  folder_films: 'https://t.me/addlist/ZmW4vfwcrMAwNzJk'
 });
 const env = (name) => typeof Deno !== 'undefined' ? (Deno.env.get(name) || '') : (typeof process !== 'undefined' ? process.env[name] || '' : '');
 const botToken = () => env('MX_ASSISTANT_TELEGRAM_TOKEN');
@@ -20,6 +21,10 @@ const channelUrl = () => {
   return /^https:\/\/t\.me\/[a-zA-Z0-9_+\/-]+$/.test(url) ? url : LINKS.channel;
 };
 // Les messages Business restent désactivés tant que le propriétaire n'a pas choisi les discussions autorisées.
+export function footNewsChannelUrl(){
+ const value=env('MX_ASSISTANT_FOOT_NEWS_CHANNEL_URL').trim();
+ return /^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{10,}|[A-Za-z][A-Za-z0-9_]{4,31})\/?$/.test(value)?value:'';
+}
 const businessModeEnabled = () => env('MX_ASSISTANT_ENABLE_BUSINESS').trim().toLowerCase() === 'true';
 const businessOwnerId = () => Number(env('MX_ASSISTANT_BUSINESS_OWNER_ID') || env('MX_ASSISTANT_ADMIN_ID'));
 // Premier démarrage : Mistral Large 4. Dès qu'une IA répond avec succès,
@@ -91,6 +96,63 @@ export function officialSocialMessage(input='') {
   if(req.keys.includes('tiktok'))lines.push('• **TikTok** : lien non encore vérifié.');
   return '**Réseaux sociaux officiels Mr XPRONOS**\n\n'+lines.join('\n');
 }
+export function linksHubIntent(text=''){
+ const q=normalizeClientFrench(text);
+ if(/^\/(?:liens|links|annuaire|menu)(?:@\w+)?(?:\s|$)/.test(q)||
+   /(?:tous? (?:les|vos|tes|nos) liens|liste des liens|annuaire(?: officiel)?|toutes? les adresses|tous? les raccourcis)/.test(q))return 'links';
+ if(/^\/(?:dossier|films)(?:@\w+)?(?:\s|$)/.test(q)||
+   /(?:dossier.{0,35}(?:xpronos|films|series|animes|telegram)|xpronos f|mr x pronos f)/.test(q))return 'folder';
+ if(/^\/(?:actufoot|actu_foot)(?:@\w+)?(?:\s|$)/.test(q)||
+   /(?:canal|chaine|lien).{0,25}(?:actu foot|actualites? foot|news foot)|(?:actu foot|actualites? foot).{0,25}(?:canal|telegram|lien)/.test(q))return 'foot_news';
+ if(/^\/(?:bookmakers|partenaires)(?:@\w+)?(?:\s|$)/.test(q)||
+   /(?:tous? les liens?.{0,15}bookmakers|liste des bookmakers|liens? des (?:six )?bookmakers)/.test(q))return 'partners';
+ return null;
+}
+export function officialLinksList({partners=true}={}){
+ const websites=[['🏠 Site officiel',LINKS.accueil],['⚽ Pronostics Pro/VIP',LINKS.pronos],
+   ['📲 Installer le site',LINKS.installer],['🗞️ Actualités football (site)',LINKS.infos]];
+ const telegram=[['📣 Canal pronostics',channelUrl()],
+   ...(footNewsChannelUrl()?[['📰 Canal Actu Foot',footNewsChannelUrl()]]:[]),
+   ['🎬 Dossier Mr XPRONOS F (films, séries, animés)',LINKS.folder_films],
+   ['💬 Contact Telegram',LINKS.telegram]];
+ const socials=[['📱 WhatsApp',LINKS.whatsapp],['📷 Instagram',LINKS.instagram],
+   ['📘 Facebook',LINKS.facebook],['▶️ YouTube',LINKS.youtube],['🧵 Threads',LINKS.threads]];
+ const bookmakers=partners?Object.entries(PARTNER_LINKS)
+   .filter(([name])=>!bookmakerPolicy().excluded.includes(name))
+   .map(([name,url])=>['🔗 '+PARTNER_NAMES[name],url]):[];
+ return {websites,telegram,socials,bookmakers};
+}
+export function officialLinksUrls({partners=true}={}){
+ return [...new Set(Object.values(officialLinksList({partners})).flat().map(x=>x[1]).filter(Boolean))];
+}
+export function officialLinksMessage({partners=true}={}){
+ const g=officialLinksList({partners});
+ const section=(title,list)=>'**'+title+'**\n'+list.map(([name,url])=>'• '+name+' : '+url).join('\n');
+ const missing=footNewsChannelUrl()?'':'\n\n📰 **Canal Telegram Actu Foot :** son adresse n’est pas encore confirmée. Les informations football sont accessibles sur le site ci-dessus.';
+ const books=g.bookmakers.length?'\n\n'+section('Bookmakers partenaires',g.bookmakers)+
+ '\n*Liens affiliés ; vérifie l’âge légal, le pays et les conditions de chaque opérateur.*':'';
+ return section('Site',g.websites)+'\n\n'+section('Telegram',g.telegram)+
+   '\n\n'+section('Réseaux sociaux',g.socials)+missing+books;
+}
+export function shortcutMessage(intent){
+ if(intent==='links')return officialLinksMessage();
+ if(intent==='folder')return '**Dossier Telegram Mr XPRONOS F**\n\nFilms, séries, animés et autres canaux :\n'+LINKS.folder_films;
+ if(intent==='foot_news')return footNewsChannelUrl()?
+   '**Canal Telegram Actu Foot**\n\n'+footNewsChannelUrl():
+   '**Actualités football**\n\nL’adresse Telegram du canal Actu Foot n’est pas encore confirmée. Consulte les informations sur notre site :\n'+LINKS.infos;
+ if(intent==='partners')return '**Bookmakers partenaires**\n\n'+officialLinksList().bookmakers
+   .map(([name,url])=>name+' : '+url).join('\n')+
+   '\n\n*Liens affiliés réservés aux adultes lorsque la réglementation locale l’autorise.*';
+ return '';
+}
+export function shortcutUrls(intent){
+ if(intent==='links')return officialLinksUrls();
+ if(intent==='folder')return [LINKS.folder_films];
+ if(intent==='foot_news')return [footNewsChannelUrl()||LINKS.infos];
+ if(intent==='partners')return officialLinksList().bookmakers.map(x=>x[1]);
+ return [];
+}
+
 const cut = (s, n=3500) => String(s || '').slice(0,n);
 
 // Liens partenaires propres à Mr XPRONOS, tirés de assets/js/bonus-catalogue.js.
@@ -381,7 +443,7 @@ export function pageForQuestion(text='') {
   return LINKS.accueil;
 }
 
-const allowed = (url) => Object.values(LINKS).includes(url) || Object.entries(PARTNER_LINKS).some(([partner,link])=>link===url&&!bookmakerPolicy().excluded.includes(partner)) || (channelUrl() && url === channelUrl());
+const allowed = (url) => Object.values(LINKS).includes(url) || Object.entries(PARTNER_LINKS).some(([partner,link])=>link===url&&!bookmakerPolicy().excluded.includes(partner)) || (channelUrl() && url === channelUrl()) || (footNewsChannelUrl() && url===footNewsChannelUrl());
 
 
 // Connaissances vérifiées dans les pages du site et la logique des sélections (ne pas inventer d'offres).
@@ -555,11 +617,13 @@ const BUTTON_LABELS = Object.freeze({
   [LINKS.youtube]: ['▶️ YouTube officiel', 'primary'],
   [LINKS.whatsapp]: ['💬 WhatsApp officiel', 'primary'],
   [LINKS.facebook]: ['📘 Facebook officiel', 'primary'],
-  [LINKS.threads]: ['🧵 Threads officiel', 'primary']
+  [LINKS.threads]: ['🧵 Threads officiel', 'primary'],
+  [LINKS.folder_films]: ['🎬 Dossier Mr XPRONOS F', 'primary']
 });
 export function buttonForUrl(url,context='') {
   if(!allowed(url)) return null;
   if(channelUrl() && url===channelUrl()) return {text:'📢 Rejoindre le canal Telegram',url,style:'success'};
+  if(footNewsChannelUrl() && url===footNewsChannelUrl())return {text:'📰 Canal Actu Foot',url,style:'primary'};
   const partner=Object.entries(PARTNER_LINKS).find(([,value])=>value===url);
   if(partner && !bookmakerPolicy().excluded.includes(partner[0])) return {text:'🔗 Ouvrir '+PARTNER_NAMES[partner[0]]+' (partenaire)',url,style:'primary'};
   const meta=BUTTON_LABELS[url];
