@@ -2064,7 +2064,11 @@ export async function handleUpdate(update) {
       }else{
         const spoken=await transcribeTelegramAudio(file);
         if(!spoken?.transcript){
-          await say(msg.chat.id,'Je ne parviens pas à transcrire ce vocal. Essaie un fichier MP3/WAV ou envoie ton message par écrit.',msg.business_connection_id||'');
+          const tooLong=spoken?.reason==='audio_too_long_for_inline';
+          const error=tooLong
+            ?'🎙️ **Vocal trop long pour le moteur de secours.** Envoie un extrait de moins de 25 secondes, ou écris ton message. Je préfère ne pas inventer de transcription.'
+            :'🎙️ **Transcription indisponible.** Je n’ai pas réussi à reconnaître ce vocal avec fiabilité. Réessaie avec un nouveau vocal, ou écris-moi directement. Je ne vais pas deviner tes paroles.';
+          await say(msg.chat.id,error,msg.business_connection_id||'');
           await markHandled(id);return;
         }
         if(spoken.quality==='uncertain'){
@@ -2095,17 +2099,22 @@ export async function handleUpdate(update) {
   // Résolution d'une transcription vocale à faible confiance.
   if(liveSession?.mode==='awaiting_clarification'){
     const q=normalizeClientFrench(text);
-    const confirmation=resolveVoiceConfirmation(text,liveSession.last_input);
+    const age=Date.now()-Date.parse(liveSession.updated_at||'');
+    const eligible=!media&&Number.isFinite(age)&&age>=0&&age<5*60*1000;
+    const confirmation=eligible?resolveVoiceConfirmation(text,liveSession.last_input):{resolved:false};
     if(confirmation.resolved){
       text=confirmation.text;
       intent=intentFor(text);
-      try{await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},liveSession);}catch(e){console.warn('voice_confirmation_clear_failed');}
-      liveSession={...liveSession,mode:'idle',last_input:''};
-    }else if(/^(non|pas du tout|c.est faux)$/.test(q)){
+    }else if(eligible&&/^(non|pas du tout|c.est faux)$/.test(q)){
       await say(msg.chat.id,'D’accord, je n’ai pas bien compris. Peux-tu reformuler ton message ou l’écrire ici ?',msg.business_connection_id||'');
+      try{await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},liveSession);}catch(e){console.warn('voice_confirmation_clear_failed');}
       await markHandled(id);
       return;
     }
+    // A new question or expired clarification must never inherit a stale,
+    // potentially corrupted transcription from an earlier audio message.
+    try{await putAssistantSession(key,{mode:'idle',last_input:'',summary:''},liveSession);}catch(e){console.warn('voice_confirmation_clear_failed');}
+    liveSession={...liveSession,mode:'idle',last_input:'',summary:''};
   }
 
   // Un nouveau sujet explicite interrompt le guidage précédent ; « fait » et les
