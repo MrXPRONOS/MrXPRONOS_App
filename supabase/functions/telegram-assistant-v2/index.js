@@ -1824,6 +1824,38 @@ async function recordModelEvents(attempts=[],source='chat'){
   }));
   if(rows.length)await db('mx_telegram_assistant_model_events','POST',rows);
 }
+/**
+ * Classe les modèles selon les dernières tentatives réelles, sans transformer
+ * un résultat isolé en verdict définitif. Les modèles non essayés gardent
+ * leur place relative ; une panne fréquente les relègue temporairement.
+ */
+export function rankNvidiaModels(rows=[],models=NVIDIA_MODELS) {
+  const stats=new Map();
+  for(const row of rows) {
+    const name=String(row.model||'');
+    if(!models.includes(name)||!['ok','timeout','http_429','http_500','http_502','http_503','http_504'].includes(String(row.status)))continue;
+    const s=stats.get(name)||{total:0,ok:0,fail:0,latencies:[]};
+    s.total++;
+    if(row.status==='ok'){s.ok++;s.latencies.push(Number(row.duration_ms)||0);}
+    else s.fail++;
+    stats.set(name,s);
+  }
+  const score=(model,index)=>{
+    const s=stats.get(model);
+    if(!s||s.total<3)return 0-index*0.001;
+    const success=(s.ok+1)/(s.total+2); // smoothing
+    const avg=s.latencies.length?s.latencies.reduce((a,b)=>a+b,0)/s.latencies.length:5000;
+    return (success-0.5)*8 - avg/20000 -index*0.001;
+  };
+  return [...models].sort((a,b)=>score(b,models.indexOf(b))-score(a,models.indexOf(a)));
+}
+async function fetchRecentModelRanking() {
+  const since=new Date(Date.now()-24*60*60*1000).toISOString();
+  const rows=await db('mx_telegram_assistant_model_events?select=model,status,duration_ms&source=eq.chat&created_at=gte.'
+    +encodeURIComponent(since)+'&order=created_at.desc&limit=200');
+  return rankNvidiaModels(Array.isArray(rows)?rows:[]);
+}
+
 export function modelDiagnostics(rows=[]){
   const grouped=new Map();
   for(const r of rows){
@@ -1951,7 +1983,10 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
     for(const [model,h]of shared)if(!modelInCooldown(sharedHealth,model))sharedHealth.set(model,h);
   }catch(e){console.warn('model_health_unavailable',String(e?.name||'error'));}
   const observations=[];
-  const result=await runNvidiaFailover({messages,detailed,health:sharedHealth,onAttempt:(event)=>{
+  let rankedModels=NVIDIA_MODELS;
+  try{rankedModels=await fetchRecentModelRanking();}
+  catch(error){console.warn('model_ranking_unavailable',String(error?.name||'error'));}
+  const result=await runNvidiaFailover({messages,detailed,models:rankedModels,health:sharedHealth,onAttempt:(event)=>{
     observations.push(event);
     if(event.status!=='ok')console.warn('nvidia_fallback',event.model,event.status);
   }});
