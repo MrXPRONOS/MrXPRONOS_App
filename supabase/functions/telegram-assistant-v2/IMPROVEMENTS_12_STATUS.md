@@ -95,3 +95,15 @@ Une réponse produite dans le simulateur de tests n'établit pas que NVIDIA est 
 - **Publication des coupons** : `telegram_webhook` **V38 ACTIVE**, inchangé.
 - **Vérification utilisateur** : commande propriétaire `/status` pour afficher le modèle prioritaire et son timeout, puis envoyer un message normal. Un nouvel événement `source=routing_v28` prouvera quel modèle a effectivement envoyé une réponse dans le nouvel algorithme.
 - **Limite de preuve** : 200 tests automatisés et statut ACTIVE confirment le déploiement du code ; ils ne prouvent pas qu'une requête Mistral réelle ait déjà réussi.
+
+## Annuaire officiel, aperçu d'accueil et audit de 200 questions — V30 (17 novembre 2026)
+
+- **Déployé** : `telegram-assistant-v2` **V30 ACTIVE** sur Supabase. `telegram_webhook` **V38 ACTIVE**, non modifié.
+- **GitHub Actions** : [run #44157200973](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44157200973), **204 tests réussis sur 204**, zéro échec.
+- **Nouvelles commandes** : `/liens`, `/dossier`, `/actufoot`, `/bookmakers`, `/accueil` ; `/testaccueil` et `/synccommandes` disponibles uniquement à l'administrateur. Le compte administrateur doit envoyer `/synccommandes` pour actualiser le menu Telegram publié.
+- **Annuaire** : 18 URL vérifiées par la configuration du dépôt ; trois boutons visibles plus 15 liens HTML cliquables pour la demande `/liens` dans le test isolé.
+- **Dossier Mr XPRONOS F** : `https://t.me/addlist/ZmW4vfwcrMAwNzJk` ; **canal Actu Foot Telegram : URL publique encore inconnue**, configurer `MX_ASSISTANT_FOOT_NEWS_CHANNEL_URL` après réception d'une véritable URL. Repli vers la page officielle `infos.html`.
+- **Correction des messages ambigus** : remplacer le texte « lien non vérifié retiré » par une indication qui renvoie vers la commande `/liens` ; les URL extérieures à l'annuaire restent exclues.
+- **Nouvel audit football** : [200 nouvelles questions et transcriptions](AUDIT_200_NOUVELLES_QUESTIONS_20261117.md). Malgré les 204 tests techniques réussis, **28 réponses sont signalées comme problématiques** lors d'un test avec faux moteur NVIDIA trompeur : 17 cotes non vérifiées, 4 scores inventés, 2 coupons inventés, 2 substitutions de bookmaker, 2 risques de collecte de secrets et 1 réponse risquée concernant un mineur. Cela n'est pas corrigé par la seule mise à jour des liens.
+
+**Limite de validation :** aucun appel direct réel à Mistral Large 4 ni envoi à cinq comptes Telegram n'a été utilisé pour ces tests. L'adresse exacte du canal Actu Foot reste à renseigner avant de le déclarer intégré.
