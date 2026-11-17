@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
- looksLikeTelegramOggOpus,pcmMonoWav16,convertTelegramOggToWav,
+ looksLikeTelegramOggOpus,pcmMonoWav16,convertTelegramOggToWav,checkOggDecoderReady,
  transcribeTelegramAudio,transcriptLooksCorrupted
 } from "../index.js";
 
@@ -108,4 +108,14 @@ test("transcription : sortie absurde d'Omni est rejetée, jamais donnée à la c
  });
  assert.equal(result.transcript,null);
  assert.equal(result.reason,"audio_segment_not_transcribed");
+});
+
+test("vérification administrateur : décodeur audio chargé avant de le promettre",async()=>{
+ assert.equal((await checkOggDecoderReady({load:async()=>({default:async()=>null})})).ready,true);
+ assert.equal((await checkOggDecoderReady({load:async()=>{throw Error("module missing")}})).ready,false);
+});
+test("reconnaissance vocale : erreurs historiques très déformées rejetées",()=>{
+ assert.equal(transcriptLooksCorrupted("Salu Komotiva"),true);
+ assert.equal(transcriptLooksCorrupted("Ah je vous je vous et bête pariallo"),true);
+ assert.equal(transcriptLooksCorrupted("Salut, comment tu vas ?"),false);
 });
