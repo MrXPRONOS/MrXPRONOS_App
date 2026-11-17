@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-11-16T06:17:52.888669+00:00",
+  "generated_at": "2026-11-17T06:17:54.948183+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 0,
   "promo_copy_actions": 0,
@@ -60,9 +60,9 @@
       "kind": "article",
       "slug": "bsd-match-212701",
       "variant": "b",
-      "impressions": 0,
+      "impressions": 2,
       "opens": 0,
-      "open_rate": null,
+      "open_rate": 0.0,
       "status": "insufficient_data"
     },
     {
@@ -87,7 +87,7 @@
       "kind": "article",
       "slug": "bsd-match-215311",
       "variant": "a",
-      "impressions": 1,
+      "impressions": 2,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -123,7 +123,7 @@
       "kind": "article",
       "slug": "bsd-match-223907",
       "variant": "a",
-      "impressions": 2,
+      "impressions": 3,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -204,9 +204,9 @@
       "kind": "article",
       "slug": "bsd-match-601347",
       "variant": "b",
-      "impressions": 0,
+      "impressions": 1,
       "opens": 0,
-      "open_rate": null,
+      "open_rate": 0.0,
       "status": "insufficient_data"
     },
     {
@@ -258,7 +258,7 @@
       "kind": "article",
       "slug": "bsd-match-604604",
       "variant": "b",
-      "impressions": 2,
+      "impressions": 4,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -267,7 +267,7 @@
       "kind": "article",
       "slug": "bsd-match-604610",
       "variant": "a",
-      "impressions": 3,
+      "impressions": 5,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -285,9 +285,9 @@
       "kind": "article",
       "slug": "bsd-match-604617",
       "variant": "a",
-      "impressions": 0,
+      "impressions": 2,
       "opens": 0,
-      "open_rate": null,
+      "open_rate": 0.0,
       "status": "insufficient_data"
     },
     {
@@ -321,7 +321,7 @@
       "kind": "article",
       "slug": "bsd-match-642917",
       "variant": "a",
-      "impressions": 5,
+      "impressions": 7,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -339,7 +339,7 @@
       "kind": "article",
       "slug": "bsd-match-649890",
       "variant": "a",
-      "impressions": 2,
+      "impressions": 3,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
