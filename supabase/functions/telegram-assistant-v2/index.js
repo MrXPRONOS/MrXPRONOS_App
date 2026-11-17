@@ -260,7 +260,7 @@ export function safetyResponse(details) {
   if(details.minor)return '**Les paris sont réservés aux adultes.** Je ne peux pas t’aider à ouvrir un compte ou à miser si tu es mineur. Je peux expliquer les règles du football sans paris.';
   if(details.loss)return '**Ta situation est prioritaire.** Évite de miser à nouveau pour récupérer tes pertes. Mets tes moyens de paiement à distance, fixe une pause et contacte une personne de confiance ou un service d’aide.';
   if(details.secrets)return '🔒 **Ne partage jamais ton mot de passe, tes codes OTP ou tes clés privées ici.** Utilise uniquement la procédure officielle de récupération du service concerné.';
-  if(details.dataRights)return '🔐 **Gestion des données personnelles**\n\nJe ne peux pas effacer tes données depuis cette conversation. Pour une demande de consultation ou de suppression, contacte un responsable via la page officielle de contact.';
+  if(details.dataRights)return '🔐 **Gestion des données personnelles**\n\nPour supprimer les messages et la mémoire de cette conversation conservés sur notre serveur, utilise /delete_my_data puis confirme. Pour consulter ou exporter tes données, contacte un responsable. Les messages Telegram et certaines métadonnées techniques ne sont pas supprimés par cette commande.';
   return '';
 }
 
@@ -619,20 +619,25 @@ export function guidedMode(question,history=[]) {
   if(!/(?:Étape|Etape)\s+\d+|Quand c.est fait.+fait|[ée]cris.+fait/i.test(last))return false;
   return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|je suis bloque|je ne trouve pas|comment|ou|pourquoi|et maintenant)/.test(q);
 }
+export function guideStepCompleted(question='') {
+ const q=normalizeClientFrench(question).replace(/[.!?]+$/,'').trim();
+ return /^(?:fait|c.est fait|j.ai (?:fini|fait|ouvert|clique|rempli|termine)|c.est termine|termine|suivant|etape suivante|passe a l.etape suivante|continue|je suis pret|je suis prete)$/.test(q);
+}
+/** Coupe au début de l'étape suivante, même si NVIDIA emploie du Markdown gras. */
+export function keepOneGuideStep(reply='') {
+ const text=String(reply||'').trim();
+ const markers=[...text.matchAll(/(?:^|\n)[ \t]*(?:\*\*)?(?:Étape\s+[1-9]\d*|Etape\s+[1-9]\d*|[1-9]\d*[.)])(?:\*\*)?(?=\s|$)/gim)];
+ return markers.length>1?text.slice(0,markers[1].index).trim():text;
+}
 export function guidedResponse(reply,question,history=[],session=null) {
   if(!guidedMode(question,history)&&!guideIsContinuation(question,session))return String(reply||'');
   let text=String(reply||'').trim();
   const last=[...history].reverse().find(x=>x.role==='assistant')?.content||'';
   const lastNumber=session?.mode==='guided'?Number(session.step_number||0):Number(last.match(/(?:Étape|Etape)\s+(\d+)/i)?.[1]||0);
-  const done=/^(fait|c.est fait|ok|d.accord|suivant|ensuite|j.ai (fini|fait|ouvert|clique|rempli)|termine|c.est termine|continue|et maintenant)/.test(norm(question));
+  const done=guideStepCompleted(question);
   const step=done?Math.min(lastNumber+1,10)||1:(lastNumber||1);
-  // Quand le modèle a trop rédigé, ne conserver que la première étape.
-  const first=text.search(/(?:^|\n)\s*(?:Étape|Etape)\s+\d+|(?:^|\n)\s*1[.)]\s/mi);
-  if(first>=0){
-    const remainder=text.slice(first+1);
-    const next=remainder.search(/(?:\n|^)\s*(?:Étape|Etape)\s+[2-9]|(?:\n|^)\s*[2-9][.)]\s/mi);
-    if(next>=0)text=text.slice(0,first+1+next).trim();
-  }
+  // Une seule étape par réponse, même si le modèle énumère plusieurs sections grasses.
+  text=keepOneGuideStep(text);
   // Éviter la relance si l'utilisateur vient de poser une simple question de clarification.
   const clarification=/^(je ne trouve pas|je suis bloque|comment|ou|pourquoi|regarde|voici|image|photo|capture|que montre|je t.envoie)/.test(norm(question));
   if(!clarification && !/(c.est fait|dis.moi.+fait|[ée]cris.+fait|quand tu as fini)/i.test(norm(text))){
@@ -1723,7 +1728,7 @@ export function guideIsContinuation(question,session=null) {
   const q=normalizeClientFrench(question);
   const chosen=partnerFromMessage(question);
   if(chosen&&q.replace(/[\s_.-]+/g,'')===chosen)return true;
-  return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis bloque|je ne trouve pas|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie)/.test(q);
+  return /^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai|termine|je suis bloque|je ne trouve pas|je n.ai pas compris|j.ai pas compris|explique autrement|comment|ou|pourquoi|et maintenant|c.est bon|ca marche pas|toujours bloque|regarde|voici|image|photo|capture|sur l.ecran|que montre|je t.envoie)/.test(q);
 }
 async function getAssistantSession(key){
   const result=await db('mx_telegram_assistant_sessions?chat_key=eq.'+encodeURIComponent(key)+'&select=*&limit=1');
@@ -1748,7 +1753,7 @@ export function guideStateFromReply(question,reply,previous=null,history=[]) {
   const continuing=guideIsContinuation(question,previous);
   if(!explicit&&!continuing)return null;
   const q=normalizeClientFrench(question);
-  const completed=/^(fait|c.est fait|ok|d.accord|suivant|ensuite|continue|j.ai (fini|fait|ouvert|clique|rempli)|termine|et maintenant)/.test(q);
+  const completed=guideStepCompleted(question);
   const prevStep=previous?.mode==='guided'?Math.max(1,Number(previous.step_number)||1):0;
   const desired=completed&&prevStep?Math.min(50,prevStep+1):(prevStep||1);
   const answer=String(reply||'');
