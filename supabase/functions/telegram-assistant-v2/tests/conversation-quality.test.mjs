@@ -4,7 +4,7 @@ import {
  LINKS, socialMediaRequest, officialSocialUrls, officialSocialMessage,
  verifiedReplyReview, contextualDestinations, intentFor,
  guidedMode, guideIsContinuation, answerRelevanceGuard,
- rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage, qualityMetrics
+ rankNvidiaModels, NVIDIA_MODELS, buildTelegramMessage, qualityMetrics, redactSensitiveText
 } from '../index.js';
 
 test('all social networks on explicit request',()=>{
@@ -71,4 +71,11 @@ test('private quality dashboard counts no message contents',()=>{
  assert.equal(metrics.nvidiaTimeouts,1);
  assert.equal(metrics.voiceAttempts,1);
  assert.equal(JSON.stringify(metrics).includes('private'),false);
+});
+
+test('OTP and API secrets must be redacted before AI context',()=>{
+ const masked=redactSensitiveText('code OTP est 123456 et clé nvapi-abcdefghijklmnopq123456');
+ assert.ok(!masked.includes('123456'));
+ assert.ok(!masked.includes('abcdefghijklmnopq123456'));
+ assert.match(masked,/MASQUÉ/);
 });
