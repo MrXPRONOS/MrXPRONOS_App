@@ -357,3 +357,8 @@ Les 80 points sont repris dans [`AUDIT_80_CHECKLIST.md`](./AUDIT_80_CHECKLIST.md
 - Fonction Supabase `telegram-assistant-v2` version **23 ACTIVE** ; `telegram_webhook` version **38 ACTIVE**, inchangée.
 - Tables privées RLS : sessions, événements de modèles, reçus d'envoi et réservations de fragments. Lecture par `anon`/`authenticated` interdite, accès au rôle `service_role` accordé.
 - Aucun test live de la capture/vocal sur le vrai compte n'est déclaré réussi sans preuve correspondante.
+
+
+## Version 24 — confirmation des vocaux
+
+Lorsqu'une transcription vocale est confirmée par « oui » ou corrigée par « Non, j'ai dit ... », l'assistant restaure la demande complète et recalcule l'intention avant de répondre. Pour une correction de bookmaker, l'intention d'inscription originale est conservée uniquement si elle était exprimée. **150 tests réussis** ; fonction Supabase `telegram-assistant-v2` version 24 ACTIVE. Les dépendances multimodales externes restent celles documentées dans la checklist.
