@@ -52,6 +52,14 @@
       "message_id": 124,
       "number": 9
     },
+    "21cd64efe16cbba54ff1": {
+      "message_id": 135,
+      "number": 11
+    },
+    "21cd64efe16cbba54ff1b6d5": {
+      "message_id": 135,
+      "number": 11
+    },
     "2244111df2ac92c4dabb": {
       "message_id": 132,
       "number": 11
@@ -132,6 +140,14 @@
       "message_id": 22,
       "number": 9
     },
+    "be62f0d92e384a57cdef": {
+      "message_id": 136,
+      "number": 11
+    },
+    "be62f0d92e384a57cdef366d": {
+      "message_id": 136,
+      "number": 11
+    },
     "db4ecf0721aa03798e90420a": {
       "message_id": 87,
       "number": 9
@@ -147,6 +163,14 @@
     "eaf3122a414d9a7dfd5dd3da": {
       "message_id": 47,
       "number": 9
+    },
+    "f1be5fe23cc8eac72e78": {
+      "message_id": 137,
+      "number": 11
+    },
+    "f1be5fe23cc8eac72e788977": {
+      "message_id": 137,
+      "number": 11
     },
     "f21c34f4f8083e08acf0": {
       "message_id": 132,
@@ -241,6 +265,76 @@
         "wire"
       ],
       "url": "https://www.newsbtc.com/analysis/eth/judge-acquits-brothers-in-25-million-ethereum-mev-case-after-finding-no-proven-wire-fraud"
+    },
+    {
+      "actors": [
+        "sec"
+      ],
+      "category": "RÉGLEMENTATION",
+      "countries": [],
+      "figures": [],
+      "message_id": 135,
+      "published_at": "2026-11-17T21:02:02+00:00",
+      "sent_at": "2026-11-17T21:50:42.769321+00:00",
+      "source": "Crypto Briefing",
+      "title": "SEC reportedly investigating whether Nvidia misled investors",
+      "tokens": [
+        "investigating",
+        "investors",
+        "misled",
+        "nvidia",
+        "reportedly",
+        "sec",
+        "whether"
+      ],
+      "url": "https://cryptobriefing.com/sec-investigates-nvidia-investor-disclosures"
+    },
+    {
+      "actors": [
+        "cftc"
+      ],
+      "category": "RÉGLEMENTATION",
+      "countries": [],
+      "figures": [],
+      "message_id": 136,
+      "published_at": "2026-11-17T20:01:06+00:00",
+      "sent_at": "2026-11-17T21:50:43.960584+00:00",
+      "source": "Bitcoin.com News",
+      "title": "Kalshi Axes Trump Mention Markets After CFTC Raises Concerns: CNBC",
+      "tokens": [
+        "axes",
+        "cftc",
+        "cnbc",
+        "concerns",
+        "kalshi",
+        "mention",
+        "raises",
+        "trump"
+      ],
+      "url": "https://news.bitcoin.com/regulation-and-legal/kalshi-axes-trump-mention-markets-cftc-raises-concerns"
+    },
+    {
+      "actors": [
+        "blockchain"
+      ],
+      "category": "PAIEMENTS & ADOPTION",
+      "countries": [],
+      "figures": [],
+      "message_id": 137,
+      "published_at": "2026-11-17T21:28:14+00:00",
+      "sent_at": "2026-11-17T21:50:45.252576+00:00",
+      "source": "Crypto Briefing",
+      "title": "Bank of England opens regulated pathway for blockchain clearing houses",
+      "tokens": [
+        "bank",
+        "clearing",
+        "england",
+        "houses",
+        "opens",
+        "pathway",
+        "regulated"
+      ],
+      "url": "https://cryptobriefing.com/bank-of-england-blockchain-clearing-houses"
     }
   ],
   "sent": {
@@ -958,6 +1052,14 @@
       "sent_at": "2026-10-30T02:08:23.697970+00:00",
       "source": "The Block"
     },
+    "news:11:21cd64efe16cbba54ff1b6d5": {
+      "message_id": 135,
+      "number": 11,
+      "sent_at": "2026-11-17T21:50:42.769321+00:00",
+      "source": "Crypto Briefing",
+      "title": "SEC reportedly investigating whether Nvidia misled investors",
+      "url": "https://cryptobriefing.com/sec-investigates-nvidia-investor-disclosures"
+    },
     "news:11:2c9e96cb528cf7c843259fab": {
       "message_id": 130,
       "number": 11,
@@ -973,6 +1075,22 @@
       "source": "Decrypt",
       "title": "Binance Hack Wallets Move $137 Million in Ethereum After Two Weeks of Silence",
       "url": "https://decrypt.co/383446/binance-hack-wallets-move-ethereum-after-two-weeks"
+    },
+    "news:11:be62f0d92e384a57cdef366d": {
+      "message_id": 136,
+      "number": 11,
+      "sent_at": "2026-11-17T21:50:43.960584+00:00",
+      "source": "Bitcoin.com News",
+      "title": "Kalshi Axes Trump Mention Markets After CFTC Raises Concerns: CNBC",
+      "url": "https://news.bitcoin.com/regulation-and-legal/kalshi-axes-trump-mention-markets-cftc-raises-concerns"
+    },
+    "news:11:f1be5fe23cc8eac72e788977": {
+      "message_id": 137,
+      "number": 11,
+      "sent_at": "2026-11-17T21:50:45.252576+00:00",
+      "source": "Crypto Briefing",
+      "title": "Bank of England opens regulated pathway for blockchain clearing houses",
+      "url": "https://cryptobriefing.com/bank-of-england-blockchain-clearing-houses"
     },
     "news:11:f21c34f4f8083e08acf08295": {
       "message_id": 132,
