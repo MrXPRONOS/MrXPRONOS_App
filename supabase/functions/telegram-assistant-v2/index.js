@@ -1034,15 +1034,44 @@ export function splitTelegramReply(raw,{target=650,maxParts=5}={}) {
   head.push(tail.length<=3500?tail:tail.slice(0,3420).replace(/\s+\S*$/,'')+'\n\n*(Réponse abrégée)*');
   return head;
 }
+
+async function readDeliveryReceipts(updateId) {
+  if(!Number.isSafeInteger(updateId))return new Set();
+  const rows=await db('mx_telegram_assistant_delivery_receipts?update_id=eq.'+updateId+'&select=part_index&limit=6');
+  return new Set((rows||[]).map(x=>Number(x.part_index)));
+}
+async function writeDeliveryReceipt(updateId,index,telegramMsg){
+  if(!Number.isSafeInteger(updateId))return;
+  const messageId=Number(telegramMsg?.message_id);
+  if(!Number.isSafeInteger(messageId))return;
+  await db('mx_telegram_assistant_delivery_receipts?on_conflict=update_id,part_index','POST',
+    [{update_id:updateId,part_index:index,telegram_message_id:messageId}],'resolution=ignore-duplicates');
+}
 export async function sayConversation(chatId,text,businessId='',options={},{
   send=say,
-  maxParts=5
+  maxParts=5,
+  updateId=null,
+  receiptReader=readDeliveryReceipts,
+  receiptWriter=writeDeliveryReceipt
 }={}) {
   const chunks=splitTelegramReply(text,{target:700,maxParts});
+  let delivered=new Set();
+  if(Number.isSafeInteger(updateId)){
+    try{delivered=await receiptReader(updateId);}
+    catch(e){console.warn('delivery_read_failed',String(e?.name||'error'));}
+  }
   for(let i=0;i<chunks.length;i++){
-    // Les URLs doivent rester dans la dernière partie pour que les boutons apparaissent au bon endroit.
+    if(delivered.has(i))continue;
     const isLast=i===chunks.length-1;
-    await send(chatId,chunks[i],businessId,isLast?options:{allowedUrls:[]});
+    const sent=await send(chatId,chunks[i],businessId,isLast?options:{allowedUrls:[]});
+    if(Number.isSafeInteger(updateId)){
+      try{await receiptWriter(updateId,i,sent);}
+      catch(e){
+        // Une réponse Telegram déjà acceptée ne peut pas être annulée.
+        // Signaler cette incertitude ; les reçus évitent les duplications sur les autres fragments.
+        console.warn('delivery_receipt_failed',i,String(e?.name||'error'));
+      }
+    }
   }
   return chunks.length;
 }
@@ -1512,7 +1541,7 @@ export async function handleUpdate(update) {
             answer+='\n\n*Pour les autres coupons, consulte le site ou rejoins notre canal Telegram.*';
           }
           if(destinations.length)answer+='\n'+destinations.join('\n');
-          await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
+          await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations},{updateId:id});
           await logMessage(key,'user',text);
           await logMessage(key,'assistant',answer);
           const nextGuide=guideStateFromReply(text,answer,liveSession,recentHistory);
@@ -1596,7 +1625,7 @@ export async function handleUpdate(update) {
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
   }
   answer=polishTelegramText(answer,text);
-  await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
+  await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations},{updateId:id});
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
   const fallbackGuideState=guideStateFromReply(text,answer,liveSession,recentHistory);
