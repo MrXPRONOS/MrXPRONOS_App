@@ -2433,7 +2433,7 @@ async function adminCommand(msg) {
   await setPause(key,cmd==='pause');
   return say(msg.chat.id,cmd==='pause'?'⏸ Assistant suspendu pour ce chat.':'✅ Assistant réactivé pour ce chat.');
 }
-export export function newcomerWelcomeMessage() {
+export function newcomerWelcomeMessage() {
   return '**👋 Bienvenue chez Mr XPRONOS !**\n\n'
     +'Je suis ton assistant pour les **pronostics football**, les résultats et l’aide avec notre plateforme.\n\n'
     +'⚽ **Pronostics Pro/VIP** : '+LINKS.pronos+'\n'
