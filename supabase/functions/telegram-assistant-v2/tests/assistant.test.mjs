@@ -80,10 +80,9 @@ test("ne jamais envoyer de lien externe non vérifié",()=>{
  assert.equal(bad.reply_markup,undefined);
  assert.ok(!bad.text.includes("https://evil.invalid"));
 });
-test("les liens Markdown autorisés deviennent des liens cliquables dans le texte",()=>{
+test("les liens Markdown autorisés deviennent des boutons Telegram",()=>{
  const body=buildTelegramMessage("[Retrouver les pronostics]("+LINKS.pronos+")");
- assert.match(body.text,/<a href="https:\/\/mrxpronos\.github\.io\/MrXPRONOS_App\/pronos\.html">Retrouver les pronostics<\/a>/);
- assert.equal(body.reply_markup,undefined);
+ assert.ok(body.reply_markup?.inline_keyboard?.flat().some(b=>b.url===LINKS.pronos));
  assert.ok(!body.text.includes("]("));
 });
 test("commande de démonstration du formatage",()=>{
@@ -729,8 +728,8 @@ test("premier contact : accueil unique avec pronostics, canal et installation",(
  assert.equal(shouldWelcomeNewcomer(null,true),false);
  assert.equal(rendered.reply_markup.inline_keyboard.length,3);
  assert.deepEqual(rendered.reply_markup.inline_keyboard.map(r=>r[0].url),[LINKS.pronos,LINKS.channel,LINKS.installer]);
- assert.match(rendered.text,/Pronostics Pro\/VIP/);
- assert.match(rendered.text,/Canal Telegram pronostics/);
+ assert.match(rendered.text,/pronostics Pro\/VIP/i);
+ assert.match(rendered.text,/Rejoindre le canal Telegram/);
  assert.match(rendered.text,/Installer le site sur ton téléphone/);
  assert.match(rendered.text,/\/liens/);
  assert.ok(!rendered.text.includes("non confirmé"),rendered.text);
@@ -751,12 +750,12 @@ test("gras + italique et gras + souligné et italique + souligné imbriqués",()
  const triple=telegramHtml("__***Triple style***__");
  assert.match(triple,/<u><b><i>Triple style<\/i><\/b><\/u>/);
 });
-test("lien sur le texte Clique ici vers la page officielle, sans URL en clair",()=>{
+test("lien Markdown d'installation : vrai bouton et texte propre",()=>{
  const raw="Pour l'installation, [clique ici]("+LINKS.installer+").";
  const msg=buildTelegramMessage(raw,{allowedUrls:[LINKS.installer]});
- assert.match(msg.text,/<a href="https:\/\/mrxpronos\.github\.io\/MrXPRONOS_App\/installer\.html">clique ici<\/a>/);
+ assert.ok(msg.reply_markup?.inline_keyboard?.flat().some(b=>b.url===LINKS.installer));
+ assert.match(msg.text,/bouton ci-dessous/);
  assert.ok(!msg.text.includes("]("));
- assert.equal(msg.reply_markup,undefined);
 });
 test("lien inventé ou hors liste supprimé, aucun lien dangereux rendu",()=>{
  const msg=buildTelegramMessage("[clique ici](https://example.net/arnaque)");
