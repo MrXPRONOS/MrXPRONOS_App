@@ -130,6 +130,23 @@ async def preflight_user(client, src, private, public):
         raise RuntimeError("Le canal public Telegram ne correspond pas à @CineXDesirfr.")
     return source_peer, library_peer, public_peer
 
+async def first_available_source(client, sources, private, public):
+    """Try historic and owner-configured sources without hiding Telegram rate limits."""
+    from telethon.errors import FloodWaitError, PeerFloodError
+    for candidate in sources:
+        try:
+            src, library, public_user = await preflight_user(
+                client, candidate, private, public)
+            LOG.info("CinéX Désir : source initiale disponible : %s", candidate)
+            return candidate, src, library, public_user
+        except (FloodWaitError, PeerFloodError):
+            raise
+        except Exception as exc:
+            LOG.warning("Source initiale %s indisponible : %s", candidate,
+                        type(exc).__name__)
+    raise RuntimeError("CinéX Désir : aucune source accessible ; aucune publication.")
+
+
 async def preflight_bot(bot, public, user_public):
     from telethon import utils
     peer = await bot.get_entity(public)
@@ -292,23 +309,9 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     completed = 0
     try:
         await client.connect()
-        # Do not stop all romantic-film publications when the first historic
-        # Telegram source has been renamed or has become inaccessible.
-        selected_source = None
-        for candidate in sources:
-            try:
-                src, library, public_user = await preflight_user(
-                    client, candidate, private, public)
-                selected_source = candidate
-                LOG.info("CinéX Désir : source initiale disponible : %s", candidate)
-                break
-            except (FloodWaitError, PeerFloodError):
-                raise
-            except Exception as exc:
-                LOG.warning("Source initiale %s indisponible : %s", candidate,
-                            type(exc).__name__)
-        if selected_source is None:
-            raise RuntimeError("CinéX Désir : aucune source accessible ; aucune publication.")
+        # First historical handle may have expired: use the next readable source.
+        selected_source, src, library, public_user = await first_available_source(
+            client, sources, private, public)
         source_peers = [src]
         for extra_name in sources:
             if extra_name.casefold() == selected_source.casefold():
