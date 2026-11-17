@@ -89,3 +89,14 @@ test('privacy deletion requires an exact user command and fresh confirmation',()
  assert.equal(deletionConfirmationValid({mode:'awaiting_deletion',updated_at:new Date(100000).toISOString()},500000),false);
  assert.equal(deletionConfirmationValid({mode:'guided',updated_at:new Date(100000).toISOString()},100000),false);
 });
+
+test('quality dashboard distinguishes human follow-up and paused conversations',()=>{
+ const metrics=qualityMetrics({
+  messages:[{role:'user'},{role:'human'},{role:'assistant'}],
+  chats:[{paused:true},{paused:false},{paused:true}]
+ });
+ assert.equal(metrics.users,1);
+ assert.equal(metrics.answers,1);
+ assert.equal(metrics.humanReplies,1);
+ assert.equal(metrics.pausedChats,2);
+});
