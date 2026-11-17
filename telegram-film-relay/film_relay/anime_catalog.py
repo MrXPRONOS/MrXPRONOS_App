@@ -25,7 +25,7 @@ from telethon.sessions import StringSession
 
 from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
-from .catalog_scan import read_source_window, source_window_ids, finalize_scan, episode_audit
+from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
 from .anime_policy import complete_anime_seasons, select_anime_season, anime_movie_slots
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
@@ -413,7 +413,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             messages, plan = await read_source_window(
                 client, source, catalogue, source_id, archive_pages=4)
             allowed = source_window_ids(messages, plan)
-            candidates = [row for row in classify(messages, source_id)
+            candidates = [row for window in split_source_windows(messages, plan)
+                          for row in classify(window, source_id)
                           if int(row["video"].id) in allowed]
             all_candidates.extend(candidates)
             if plan is not None:
