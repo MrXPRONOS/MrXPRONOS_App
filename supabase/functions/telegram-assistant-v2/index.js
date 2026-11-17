@@ -2070,7 +2070,7 @@ async function adminCommand(msg) {
       const since=encodeURIComponent(start);
       const [events,updates,msgs]=await Promise.all([
         db('mx_telegram_assistant_model_events?select=model,status,duration_ms,source&created_at=gte.'+since+'&order=created_at.desc&limit=1000'),
-        db('mx_telegram_assistant_updates?select=update_id&created_at=gte.'+since+'&limit=1000').catch(()=>[]),
+        db('mx_telegram_assistant_updates?select=update_id&handled_at=gte.'+since+'&limit=1000').catch(()=>[]),
         db('mx_telegram_assistant_messages?select=role&created_at=gte.'+since+'&limit=1000')
       ]);
       const stats=qualityMetrics({events,updates,messages:msgs});
