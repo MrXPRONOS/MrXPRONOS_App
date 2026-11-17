@@ -295,6 +295,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     # A single GitHub Variable controls additional sources without dropping
     # the two historical sources already used by this category.
     sources = source_list(source, extra_source, os.getenv("DESIR_SOURCE_CHANNELS", ""))
+    # A mistakenly configured comedy/anime source must never enter Romance.
+    forbidden = {"@comexflex", "@orak_dessinanime", "@filmcomplets"}
+    for name in sources:
+        if name.casefold() in forbidden:
+            LOG.warning("CinéX Désir : source réservée à une autre catégorie ignorée.")
+    sources = [name for name in sources if name.casefold() not in forbidden]
     if any(name.casefold() == public.casefold() for name in sources):
         raise RuntimeError("Un canal source ne peut pas être le canal public Désir.")
     if mirror_name.casefold() != "@torrent9seriesfilms":
@@ -397,10 +403,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                      getattr(source_peer, "username", "?"),
                      item.video.id, getattr(item.poster, "id", None),
                      (getattr(getattr(item.video, "file", None), "name", "") or "document"))
-            if not publish:
-                completed += 1
-                if completed >= limit:
-                    break
+            # The diagnostic mode must apply the same safety filters as publish.
+            from .genre_guard import category_allowed
+            if not category_allowed("desir", item.poster, item.video):
+                LOG.warning("Désir : genre Comédie/Animé explicite, vidéo=%s en quarantaine.",
+                            item.video.id)
                 continue
             assessment = title_assessment(item.poster, item.video)
             if assessment != "verified":
@@ -408,6 +415,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 continue
             if getattr(item.video, "noforwards", False) or not valid_photo_message(item.poster):
                 LOG.warning("Média protégé : non publié.")
+                continue
+            if not publish:
+                completed += 1
+                if completed >= limit:
+                    break
                 continue
             staged = state.data["staged"].get(key, {})
             if "video" in staged:
