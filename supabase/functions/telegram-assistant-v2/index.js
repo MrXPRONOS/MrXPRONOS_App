@@ -2016,8 +2016,8 @@ export async function runNvidiaFailover({
   return {text:null,model:null,attempts,reason:budgetExceeded?'time_budget':'all_failed'};
 }
 
-async function askNvidia(question,history,{diagnostic=false,facts='',firstContact=false,session=null}={}) {
-  if(!env('MX_ASSISTANT_NVIDIA_KEY')) return diagnostic
+async function askNvidia(question,history,{diagnostic=false,facts='',firstContact=false,session=null,returnMetadata=false}={}) {
+  if(!env('MX_ASSISTANT_NVIDIA_KEY')) return (diagnostic||returnMetadata)
     ? {text:null,model:null,attempts:[],reason:'missing_key'} : null;
   const detailed=/(explique en detail|detaille|pas a pas|developpe|longue explication|guide moi|aide moi a m.inscrire|comment m.inscrire)/.test(norm(question));
   const guided=guidedMode(question,history)||guideIsContinuation(question,session);
@@ -2074,12 +2074,9 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
     else await write;
   }
   if(diagnostic) return result;
-  if(result.model) {
-    try{await rememberSuccessfulNvidiaModel(result.model);}
-    catch(error){console.warn('last_nvidia_model_store_failed',String(error?.name||'error'));}
-    console.info('nvidia_selected',result.model);
-  }
-  return result.text;
+  if(result.model)console.info('nvidia_selected',result.model);
+  // Ne pas déclarer ce modèle « dernier ayant répondu » avant envoi réel à Telegram.
+  return returnMetadata?{text:result.text,model:result.model}:result.text;
 }
 
 async function notifyAdmin(key,user,message,businessId='') {
@@ -2407,9 +2404,9 @@ export async function handleUpdate(update) {
   if(!['human','safety','format','guide_cancel','guide_restart'].includes(intent)){
     try {
       const facts=await assistantFacts(text,recentHistory);
-      const generated=await askNvidia(text,recentHistory,{facts,firstContact:!previous,session:liveSession});
-      if(generated){
-        const parsed=parseAiReply(generated);
+      const generated=await askNvidia(text,recentHistory,{facts,firstContact:!previous,session:liveSession,returnMetadata:true});
+      if(generated?.text){
+        const parsed=parseAiReply(generated.text);
         // Si un fournisseur retourne un JSON incomplet, éviter de l'afficher aux clients.
         const malformed=/^\s*[\x60{]/.test(parsed.reply)&&!parsed.structured;
         if(parsed.reply.trim()&&!malformed){
@@ -2423,6 +2420,9 @@ export async function handleUpdate(update) {
           }
           if(destinations.length)answer+='\n'+destinations.join('\n');
           await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations},{updateId:id});
+          // Mémoriser seulement une réponse AI exploitable effectivement transmise.
+          try{await rememberSuccessfulNvidiaModel(generated.model);}
+          catch(e){console.warn('last_nvidia_model_store_failed',String(e?.name||'error'));}
           await logMessage(key,'user',text);
           await logMessage(key,'assistant',answer);
           const nextGuide=guideStateFromReply(text,answer,liveSession,recentHistory);
