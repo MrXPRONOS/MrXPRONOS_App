@@ -1447,7 +1447,7 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3,columns=
   // le canal connu si un client envoyait un autre lien Telegram.
   const official=(url)=>Object.values(LINKS).includes(url)||
     url===channelUrl()||(!!footNewsChannelUrl()&&url===footNewsChannelUrl());
-  const offeredExplicitly=/(?:lien|adresse|url|dossier|notre canal officiel|canal telegram officiel|rejoindre|ouvrir|acceder|installer|notre page|page facebook|reseaux sociaux|facebook officiel|instagram officiel|voici notre|voici le|voici la)/.test(normalizeClientFrench(original));
+  const offeredExplicitly=/(?:lien|adresse|url|dossier|(?:notre )?canal officiel|canal telegram officiel|rejoindre|ouvrir|acceder|installer|notre page|page facebook|reseaux sociaux|facebook officiel|instagram officiel|voici notre|voici le|voici la)/.test(normalizeClientFrench(original));
   const requestedButton=(url)=>!Array.isArray(allowedUrls)||allowedUrls.includes(url)||
     (official(url)&&offeredExplicitly);
   const permitted=(url)=>allowed(url)&&(official(url)||requestedButton(url));
