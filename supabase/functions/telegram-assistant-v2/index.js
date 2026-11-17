@@ -4,7 +4,7 @@ export const LINKS = Object.freeze({
   accueil: `${SITE}/`, aujourd_hui: `${SITE}/aujourdhui.html`, pronos: `${SITE}/pronos.html`,
   scores: `${SITE}/scores-exacts.html`, historique: `${SITE}/historique.html`,
   analyses: `${SITE}/blog.html`, infos: `${SITE}/infos.html`,
-  conseils: `${SITE}/conseils.html`, bonus: `${SITE}/bonus.html`,
+  conseils: `${SITE}/conseils.html`, installer: `${SITE}/installer.html`, bonus: `${SITE}/bonus.html`,
   contact: `${SITE}/contact.html`, sitemap: `${SITE}/sitemap.xml`, channel: 'https://t.me/mrxpronosfr', telegram: 'https://t.me/mr_xpronos',
   instagram: 'https://www.instagram.com/mr_xpronos',
   youtube: 'https://youtube.com/@mrxpronos'
@@ -120,6 +120,7 @@ const PAGE_TOPICS = Object.freeze({
 });
 export function pageForQuestion(text='') {
   const q=norm(text);
+  if(/(install|ajouter a l.ecran|pwa|appli|application|icone sur le telephone)/.test(q)) return LINKS.installer;
   if(/(score exact)/.test(q)) return LINKS.scores;
   if(/(aujourd.hui|matchs du jour|agenda)/.test(q)) return LINKS.aujourd_hui;
   if(/(historique|resultat|gagne|perdu|preuve)/.test(q)) return LINKS.historique;
@@ -150,7 +151,7 @@ export const PROJECT_KNOWLEDGE = Object.freeze({
   channel:'Le site officiel désigne https://t.me/mrxpronosfr comme canal Telegram.',
   contact:'Pour une demande personnelle, un partenariat, une réclamation, proposer un responsable humain.',
   safety:'Réservé aux adultes. Paris risqués ; aucun gain ni remboursement garanti. Ne pas encourager une personne à récupérer des pertes.',
-  pages:'Pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.'
+  pages:'Installation sur téléphone : installer.html (PWA) ; pronostics : pronos.html ; scores exacts : scores-exacts.html ; résultats : historique.html ; analyses : blog.html ; infos football : infos.html ; conseils : conseils.html ; bonus : bonus.html ; contact : contact.html.'
 });
 export function knowledgePrompt(){
  return Object.entries(PROJECT_KNOWLEDGE).map(([key,value])=>key+': '+value).join('\n')+'\nSitemap officiel : '+LINKS.sitemap+'\nNavigation : '+Object.entries(PAGE_TOPICS).map(([key,label])=>label+' = '+LINKS[key]).join(' ; ');
@@ -159,6 +160,7 @@ export function knowledgePrompt(){
 export function intentFor(input) {
   const text = norm(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
+  if (/(comment installer|installer l.appli|installation du site|ajouter a l.ecran|installer le site|installer l.application)/.test(text))return 'site_nav';
   if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
   if (/^(ok|okay|d.accord|daccord|dac|compris|parfait|cool|super|bien recu|c.est note|tres bien)[!?. ]*$/.test(text)) return 'ack';
   if (/^\/(format|forme|form|apercu|mise_en_forme)(?:@\w+)?(\s|$)/.test(text)) return 'format';
@@ -292,6 +294,7 @@ const BUTTON_LABELS = Object.freeze({
   [LINKS.analyses]: ['📰 Lire les analyses', 'primary'],
   [LINKS.infos]: ['🗞️ Actualités football', 'primary'],
   [LINKS.conseils]: ['✅ Conseils football', 'success'],
+  [LINKS.installer]: ['📲 Installer l’application', 'primary'],
   [LINKS.bonus]: ['🎁 Voir les bonus', 'primary'],
   [LINKS.contact]: ['📩 Contacter un responsable', 'primary'],
   [LINKS.telegram]: ['💬 Contacter Mr XPRONOS', 'primary'],
@@ -342,7 +345,7 @@ export function telegramHtml(text) {
 const BUTTON_KEYS=Object.freeze({
   accueil:LINKS.accueil,aujourd_hui:LINKS.aujourd_hui,pronos:LINKS.pronos,
   scores:LINKS.scores,historique:LINKS.historique,analyses:LINKS.analyses,
-  infos:LINKS.infos,conseils:LINKS.conseils,bonus:LINKS.bonus,
+  infos:LINKS.infos,conseils:LINKS.conseils,installer:LINKS.installer,bonus:LINKS.bonus,
   contact:LINKS.contact,sitemap:LINKS.sitemap,channel:channelUrl(),
   partner_1xbet:PARTNER_LINKS['1xbet'],partner_1win:PARTNER_LINKS['1win'],
   partner_betwinner:PARTNER_LINKS['betwinner'],partner_melbet:PARTNER_LINKS['melbet'],
@@ -483,6 +486,7 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
     add(LINKS.pronos);
     if(/(du jour|aujourd|demain|recevoir|recois|coupon)/.test(q))add(channelUrl());
   }
+  if(/(install|ajouter a l.ecran|application|appli|pwa|raccourci ecran)/.test(q)&&!/(desinstall|supprim)/.test(q))add(LINKS.installer);
   if(/(resultats?|historique|gagn[ée]s?|perdus?)/.test(q)&&/(voir|montre|lien|consulter|precedents|ou|resultats?|historique)/.test(q))add(LINKS.historique);
   if(/scores? exacts?/.test(q)&&/(voir|lien|consulter|donne|montre)/.test(q))add(LINKS.scores);
   if(/(bonus|promotions?|offres?)/.test(q)&&/(voir|consulter|lien|page|conditions|quelles|ou trouver)/.test(q))add(LINKS.bonus);
@@ -504,6 +508,7 @@ export function contextualDestinations(question,history=[],suggested=[],intent='
         url===LINKS.historique ? /(resultat|historique|gagn|perdu)/.test(subject) :
         url===LINKS.scores ? /score exact/.test(subject) :
         url===LINKS.bonus ? /(bonus|offre|promotion)/.test(subject) :
+        url===LINKS.installer ? /(install|application|appli|pwa|ajouter a l.ecran)/.test(subject) :
         url===LINKS.conseils ? /(guide|conseil|apprendre)/.test(subject) :
         url===LINKS.analyses ? /(analyse|article|blog|h2h)/.test(subject) :
         url===LINKS.infos ? /(info|actualite|news)/.test(subject) :
@@ -621,6 +626,7 @@ export function responseLinks(intent,question,answer='') {
     return provider?[PARTNER_LINKS[provider]]:[];
   }
   if(intent==='site_nav'){
+    if(/(install|pwa|application|appli|ecran d.accueil)/.test(q))return [LINKS.installer];
     if(/(sitemap|plan du site)/.test(q)) return [LINKS.sitemap];
     return [pageForQuestion(question)];
   } // prévisualisation demandée
@@ -634,6 +640,7 @@ export function responseLinks(intent,question,answer='') {
   if(intent==='bonus') return /(lien|offre|page|site|ou (profiter|utiliser|trouver)|comment utiliser|conditions|bookmaker|inscri|bonus)/.test(q)?[LINKS.bonus]:[];
   if(intent==='conseil') return /(lien|page|guide|article|site|ou (lire|voir|consulter))/.test(q)?[LINKS.conseils]:[];
   if(intent==='site') {
+    if(/(install|pwa|appli|application)/.test(q))return [LINKS.installer];
     if(/(analyse|blog|h2h)/.test(q)) return [LINKS.analyses];
     if(/(info|actualite|news)/.test(q)) return [LINKS.infos];
     if(/(conseil|guide)/.test(q)) return [LINKS.conseils];
