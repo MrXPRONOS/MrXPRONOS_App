@@ -193,7 +193,7 @@ export function analyzeClientIntent(message='',history=[]) {
     !/(c.est quoi|definition|que signifie|explique le mot)/.test(q);
   const install=/(install|instal[eé]|pwa|appli(?:cation)?|ajoute?r?.{0,25}ecran d.accueil)/.test(q);
   const minor=/(?:\b(?:j.ai|je suis age de|j'ai)\s*(?:1[0-7]|[1-9])\s*ans\b|\bje suis mineur\b|\bje suis au college\b.*\bpari)/.test(q);
-  const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies)/.test(q);
+  const loss=/(perdu (?:tout|beaucoup)|recuperer mes pertes|me refaire|argent du loyer|je suis endette|je n.arrive plus a arreter|toutes mes economies|miser double pour recuperer|je joue a credit|j.ai emprunte pour jouer|parier pour payer une dette|jouer mes economies|arreter de parier|impossible de m.arreter)/.test(q);
   const dataRights=/(supprimer|effacer|oublier|retirer|exporter|telecharger).{0,35}(?:donnees|historique|messages|conversation|infos personnelles)/.test(q);
   const secrets=/(?:mot de passe|otp|code sms|code de verification|phrase secrete|cle privee|seed phrase)/.test(q) &&
     /(envoi(?:e|es|er|ez|s)?|envoie|donne|donner|partage|partager|transmettre|montrer|voici|photo)/.test(q);
@@ -858,6 +858,35 @@ export function tidyResponseText(value=''){
   return lines.join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
 
+
+
+export function safeContextualFallback(question='',history=[],session=null){
+ const q=normalizeClientFrench(question),info=analyzeClientIntent(question,history);
+ if(info.minor||info.loss||info.secrets||info.dataRights)return safetyResponse(info);
+ if(info.install)return '**Installer Mr XPRONOS**\n\n'+installationSteps(question);
+ if(info.odds){
+  const odds=combineClientOdds(question);
+  return odds?'**Calcul de cotes fournies**\n\n'+odds.values.join(' × ')+' = **'+odds.total+'**.\n\n*Disponibilité chez un bookmaker non vérifiée.*':
+   '**Cotes combinées**\n\nUne cote totale est le produit des cotes des sélections. Je n’ai pas de cotes réelles vérifiées pour composer un coupon précis.';
+ }
+ if(info.score)return '**Scores exacts**\n\nSeules les prévisions publiées peuvent être consultées : '+LINKS.scores;
+ if(info.picks)return '**Pronostics**\n\nConsulte les sélections publiées sur le site et notre canal.\n'+LINKS.pronos+'\n'+channelUrl();
+ if(/(canal|telegram)/.test(q))return '**Canal officiel**\n\n'+channelUrl();
+ if(/(promo|code.*xpvip)/.test(q))return '**Code promo : XPVIP**\n\nLes conditions dépendent de la plateforme partenaire.';
+ if(guideIsContinuation(question,session))return '**Accompagnement**\n\n'+(session?.step_text||'Décris l’étape où tu es bloqué.');
+ if(/(pas compris|explique autrement|reformule)/.test(q)){
+  const last=history.filter(x=>x.role==='assistant').at(-1)?.content||'';
+  return last?'**Reformulation**\n\nVoici l’idée principale : '+cut(last.replace(/[*_~]/g,''),200)+'\n\nQuelle partie est encore difficile ?':
+   'Quelle notion souhaites-tu que je réexplique avec un exemple ?';
+ }
+ if(/^(bonjour|salut|cc|coucou|bonsoir)/.test(q))return 'Salut 👋 Comment puis-je t’aider ?';
+ return 'Je peux t’aider sur les pronostics, le site ou un guide en cours. Précise ce que tu recherches.';
+}
+export function sensitiveImageRequest(question=''){
+ const q=normalizeClientFrench(question);
+ return /(mot de passe|code otp|code sms|numero de carte|carte bancaire|cni|passeport|piece d.identite|phrase secrete|cle privee|code pin)/.test(q) &&
+   /(photo|image|capture|regarde|envoi|montre|voici|screen|ecran)/.test(q);
+}
 
 export function answerRelevanceGuard(reply,question,history=[]){
   const q=normalizeClientFrench(question),r=normalizeClientFrench(reply);
@@ -1863,6 +1892,11 @@ export async function handleUpdate(update) {
   // Traitement multimodal : un vocal est transcrit avant la conversation NVIDIA ;
   // une photo est décrite par un modèle de vision puis analysée dans son contexte.
   if(media){
+    if(media.kind==='image'&&sensitiveImageRequest(text)){
+      await say(msg.chat.id,'🔒 **Protège tes informations.** Masque ou recadre les mots de passe, codes OTP, cartes bancaires et pièces d’identité avant de renvoyer cette capture.',msg.business_connection_id||'');
+      await markHandled(id);
+      return;
+    }
     try{
       const file=await getTelegramMedia(media);
       if(media.kind==='image'){
@@ -2049,13 +2083,8 @@ export async function handleUpdate(update) {
       if(notified) await setPause(key,true);
     }
   } else {
-    try{answer=await askNvidia(text,recentHistory)||'';}catch(e){console.warn('nvidia_error',String(e));}
-    if(!answer) {
-      const simple=norm(text);
-      if(/^(comment ca va|ca va|tu vas bien|quoi de neuf)/.test(simple)) answer='Ça va, merci 😊 Et toi ?';
-      else if(/^(oui|non|peut.etre|ok|d.accord|compris)/.test(simple)) answer='D’accord 🙂 Dis-moi ce que tu souhaites faire.';
-      else answer='Je peux t’aider sur les pronostics, les pages du site et les inscriptions partenaires. De quoi as-tu besoin précisément ?';
-    }
+    // Repli contextualisé sans deuxième appel NVIDIA après un timeout.
+    answer=safeContextualFallback(text,recentHistory,liveSession);
   }
   // Ajouter une destination seulement si elle répond à la demande ; aucune URL ni bouton gratuit.
   const restartPartner=intent==='guide_restart'?partnerFromMessage(recentHistory.map(x=>x.content||'').join(' ')):null;
