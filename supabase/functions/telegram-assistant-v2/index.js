@@ -437,10 +437,11 @@ export async function runNvidiaFailover({
   const attempts=[];
   if(!apiKey) return {text:null,model:null,attempts,reason:'missing_key'};
   const start=now();
+  let budgetExceeded=false;
   for(let i=0;i<models.length;i++){
     const model=models[i];
     const remaining=overallBudgetMs-(now()-start);
-    if(remaining<1100) break;
+    if(remaining<1100) {budgetExceeded=true;break;}
     const timeoutMs=Math.max(1000,Math.min(i<3?4800:(i<6?3800:2900),remaining));
     const request={
       model,messages,stream:false,
@@ -460,7 +461,7 @@ export async function runNvidiaFailover({
       });
       if(!resp.ok){
         status='http_'+resp.status;
-        if([401,402,403].includes(resp.status)) {
+        if([401,402].includes(resp.status)) {
           attempts.push({model,status});onAttempt({model,status});
           return {text:null,model:null,attempts,reason:'account_error'};
         }
@@ -481,7 +482,7 @@ export async function runNvidiaFailover({
     }
     attempts.push({model,status});onAttempt({model,status});
   }
-  return {text:null,model:null,attempts,reason:now()-start>=overallBudgetMs?'time_budget':'all_failed'};
+  return {text:null,model:null,attempts,reason:budgetExceeded?'time_budget':'all_failed'};
 }
 
 async function askNvidia(question,history,{diagnostic=false}={}) {
