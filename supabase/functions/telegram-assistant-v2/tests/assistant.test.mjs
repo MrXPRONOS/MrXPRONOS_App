@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText} from "../index.js";
+import {intentFor,publishedPicks,exactScorePicks,handleRequest,eligibleBusinessMessage,LINKS,buildTelegramMessage,telegramHtml,buttonForUrl,PROJECT_KNOWLEDGE,knowledgePrompt,responseLinks,PARTNER_LINKS,partnerFromMessage,providerChoiceFromHistory,signupMessage,guidanceFollowup,sitemapUrls,pageForQuestion,NVIDIA_MODELS,runNvidiaFailover,parseAiReply,aiButtons,assistantFacts,aiLinkCatalog,contextualPresentation,contextualDestinations,polishTelegramText,splitTelegramReply,guidedMode,guidedResponse,telegramMediaKind,selectMedia,getTelegramMedia,analyzeTelegramImage,transcribeTelegramAudio,MEDIA_MODELS} from "../index.js";
 
 test("orientation des messages",()=>{
  assert.equal(intentFor("Je veux les coupons du jour"),"pronos");
@@ -577,4 +577,111 @@ test("le texte de secours place aussi la première étape sous une ligne vide",(
  const formatted=polishTelegramText(raw,"Je veux m'inscrire sur Melbet");
  assert.match(formatted,/législation locale\) :\n\n1\. Ouvre/);
  assert.match(formatted,/🎁 \*\*Code promo : XPVIP\*\*/);
+});
+
+test("messages longs : 2 à 5 messages découpés proprement",()=>{
+ const reply=Array(12).fill("**Sujet important**\n\n"+("Explication claire. ".repeat(22))).join("\n\n");
+ const chunks=splitTelegramReply(reply,{target:500,maxParts:5});
+ assert.ok(chunks.length>1&&chunks.length<=5,chunks.length);
+ assert.ok(chunks.every(x=>x.length<=3500));
+ assert.ok(chunks[0].includes("Sujet important"));
+});
+test("messages courts : pas de découpage inutile",()=>{
+ assert.deepEqual(splitTelegramReply("Merci beaucoup !"),["Merci beaucoup !"]);
+ assert.deepEqual(splitTelegramReply(""),[]);
+});
+test("guidage : une seule étape et confirmation à chaque message",()=>{
+ const reply="Étape 1 : Ouvre le lien.\nÉtape 2 : Remplis les données.\nÉtape 3 : Confirme le compte.";
+ const result=guidedResponse(reply,"Guide-moi étape par étape");
+ assert.ok(result.includes("Étape 1"),result);
+ assert.ok(!result.includes("Étape 2"),result);
+ assert.ok(result.includes("fait"),result);
+});
+test("guidage : la réponse fait poursuit le guide, pas une nouvelle FAQ",()=>{
+ const history=[{role:"assistant",content:"**Étape 1**\n\nOuvre le lien.\n\n*Quand c’est fait, réponds « fait ». *"}];
+ assert.equal(guidedMode("fait",history),true);
+ const reply=guidedResponse("Renseigne ton nom.","fait",history);
+ assert.ok(reply.includes("Étape 2"),reply);
+ assert.ok(!reply.includes("Étape 3"),reply);
+});
+test("guidage : la réponse brève ordinaire n'active pas le mode guidé",()=>{
+ assert.equal(guidedMode("bonjour",[]),false);
+ assert.equal(guidedMode("fait",[]),false);
+});
+test("image : Telegram accepte photo et document image",()=>{
+ assert.equal(telegramMediaKind({photo:[{file_id:"p1"}]}),"image");
+ assert.equal(selectMedia({photo:[{file_id:"a",file_size:120},{file_id:"b",file_size:560}]}).fileId,"b");
+ assert.equal(selectMedia({document:{file_id:"b",mime_type:"image/png",file_size:2}}).mime,"image/png");
+ assert.equal(telegramMediaKind({voice:{file_id:"v1"}}),"voice");
+ assert.equal(selectMedia({voice:{file_id:"v1"}}).mime,"audio/ogg");
+});
+test("Telegram : téléchargement privé, jamais URL avec token vers NVIDIA",async()=>{
+ const visited=[];
+ const data=await getTelegramMedia({fileId:"p1",mime:"image/jpeg",bytes:6},{
+  key:"test_secret_token",
+  getFile:async(name,body)=>{assert.equal(name,"getFile");assert.equal(body.file_id,"p1");return {file_path:"photos/file_2.jpg",file_size:4};},
+  download:async(url)=>{visited.push(url);return {ok:true,headers:{get:()=>null},arrayBuffer:async()=>new Uint8Array([1,2,3,4]).buffer};}
+ });
+ assert.equal(data.bytes.length,4);
+ assert.equal(visited.length,1);
+ assert.ok(visited[0].includes("test_secret_token"));
+});
+test("vision NVIDIA : pièce jointe JPEG, réponse du modèle VL",async()=>{
+ let sent=null;
+ const result=await analyzeTelegramImage({bytes:new Uint8Array([1,2,3,4]),mime:"image/jpeg"},{
+  apiKey:"fake",http:async(url,params)=>{
+   assert.ok(url.includes("integrate.api.nvidia.com"));
+   sent=JSON.parse(params.body);
+   return {ok:true,json:async()=>({choices:[{message:{content:"Le bouton Inscription est visible à droite."}}]})};
+  }
+ });
+ assert.equal(result.model,MEDIA_MODELS.vision[0]);
+ assert.equal(result.description,"Le bouton Inscription est visible à droite.");
+ assert.equal(sent.messages[0].content[1].type,"image_url");
+ assert.ok(sent.messages[0].content[1].image_url.url.startsWith("data:image/jpeg;base64,"));
+});
+test("vision NVIDIA : photo au-delà de 175 ko passe par un asset privé",async()=>{
+ let request=null,assetCalls=0;
+ const result=await analyzeTelegramImage({bytes:new Uint8Array(185000),mime:"image/png"},{
+  apiKey:"fake",upload:async()=>{assetCalls++;return "12345678-1234-1234-1234-123456789012";},
+  http:async(url,params)=>{
+   request={url,params};
+   return {ok:true,json:async()=>({choices:[{message:{content:"Je vois un tableau."}}]})};
+  }
+ });
+ assert.equal(assetCalls,1);
+ assert.equal(result.description,"Je vois un tableau.");
+ assert.ok(request.params.headers["NVCF-INPUT-ASSET-REFERENCES"]);
+ assert.ok(JSON.parse(request.params.body).messages[0].content[1].image_url.url.includes(";asset_id,"));
+});
+test("audio NVIDIA : WAV transcrit avec Nemotron Omni",async()=>{
+ let requested=null;
+ const result=await transcribeTelegramAudio({bytes:new Uint8Array([82,73,70,70]),mime:"audio/wav"},{
+  asrUrl:"",apiKey:"fake",http:async(url,opts)=>{
+   requested=JSON.parse(opts.body);
+   return {ok:true,json:async()=>({choices:[{message:{content:"Je veux les pronostics du jour."}}]})};
+  }
+ });
+ assert.equal(result.transcript,"Je veux les pronostics du jour.");
+ assert.equal(requested.model,MEDIA_MODELS.voice);
+ assert.equal(requested.messages[0].content[0].type,"audio_url");
+});
+test("audio Ogg : transcription via service ASR configuré",async()=>{
+ const req=[];
+ const result=await transcribeTelegramAudio({bytes:new Uint8Array([79,103,103,83]),mime:"audio/ogg"},{
+  apiKey:"fake",asrUrl:"https://asr.example.com/v1/audio/transcriptions",
+  http:async(url,options)=>{
+   req.push({url,method:options.method});
+   return {ok:true,json:async()=>({text:"Bonjour, comment ça va ?"})};
+  }
+ });
+ assert.equal(result.transcript,"Bonjour, comment ça va ?");
+ assert.equal(result.model,"nemotron-transcribe");
+ assert.equal(req.length,1);
+});
+test("audio : impossible à transcrire => null, jamais un texte inventé",async()=>{
+ const result=await transcribeTelegramAudio({bytes:new Uint8Array([1,2,3]),mime:"audio/ogg"},{
+  apiKey:"fake",asrUrl:"",http:async()=>({ok:false,status:422})
+ });
+ assert.equal(result,null);
 });
