@@ -24,12 +24,12 @@ Date : 17 novembre 2026, après la version 24 ; branche : `feature/telegram-assi
 
 ## B. Messages vocaux
 
-- [ ] **09. Transcrire les vocaux Telegram Ogg/Opus** — 🟡 Partielle. *ASR Ogg/Opus prévu par la passerelle Nemotron Transcribe, mais URL de service non configurée/confirmée*
-- [ ] **10. Contrôler le protocole du service ASR** — 🟡 Partielle. *Endpoint HTTPS validé et disponibilité vérifiable par /health ; protocole réel non validé faute d’URL fonctionnelle*
+- [ ] **09. Transcrire les vocaux Telegram Ogg/Opus** — 🟡 Partielle. *Une conversion Ogg/Opus → WAV PCM 16 kHz avec décodeur WASM et priorité ASR dédié est implémentée ; sa réussite sur un vrai vocal Telegram reste à confirmer*
+- [ ] **10. Contrôler le protocole du service ASR** — 🟡 Partielle. *Le moteur ASR dédié reste optionnel ; /health vérifie désormais l'endpoint, le décodeur Ogg et affiche la route audio réellement utilisée*
 - [x] **11. Reconnaître les noms de bookmakers après transcription** — ✅ Complète au niveau du code et des tests. *Contrôle déterministe après transcription*
 - [x] **12. Faire confirmer Bedclicker avant un lien Betclic** — ✅ Complète au niveau du code et des tests. *Confirmation obligatoire*
-- [ ] **13. Utiliser un score de confiance ASR** — 🟡 Partielle. *Indice heuristique de fiabilité calculé avec anomalies ASR, sans score probabiliste calibré fourni par le modèle*
-- [ ] **14. Gérer accents et répétitions** — 🟡 Partielle. *Nettoyage des répétitions et correction phonétique ; gestion des accents acoustiques dépend du moteur ASR réel*
+- [ ] **13. Utiliser un score de confiance ASR** — 🟡 Partielle. *Qualité heuristique et rejet des transcriptions manifestement incohérentes ajoutés ; aucun indice probabiliste ASR calibré ne peut être garanti*
+- [ ] **14. Gérer accents et répétitions** — 🟡 Partielle. *Nettoyage des répétitions et traitement des fichiers convertis avant reconnaissance ; précision réelle sur les accents et parlers locaux non encore mesurée*
 - [x] **15. Conserver la conversation après transcription confuse** — ✅ Complète au niveau du code et des tests. *Contexte vocal confirmé en mémoire de session ; réponse « oui » ou correction textuelle reliée au dialogue*
 - [x] **16. Réinterpréter une transcription corrigée par le client** — ✅ Complète au niveau du code et des tests. *La commande « Non, j’ai dit … » rectifie la transcription persistante avant la réponse IA*
 
@@ -161,3 +161,7 @@ Dans les 28 éléments encore ouverts, 7 passent à « complet au niveau du code
 ## Correctif vocal de la version 24
 
 Le bot recalcule maintenant l'intention sur le contenu réellement confirmé. Une correction de nom de marque conserve l'objectif d'inscription uniquement si la première transcription l'exprimait explicitement. Un test de régression supplémentaire porte le total à **150/150 tests réussis**.
+
+## Version 25 — correction ciblée des vocaux
+
+Le diagnostic des dernières transcriptions a révélé un défaut de format : Ogg/Opus Telegram envoyé directement à Nemotron Nano Omni malgré une prise en charge WAV/MP3 documentée. Le bot utilise maintenant la transcription Ogg native par un service dédié s'il est configuré ; sinon il réencode en WAV avec un décodeur WASM et traite de courts segments. Toute transcription manifestement aberrante est rejetée, et les sessions de confirmation trop anciennes sont expirées. Les métriques `source=speech` permettront d’identifier le fournisseur utilisé lors des futurs essais, sans stocker l’audio. **162/162 tests simulés réussis** ; `telegram-assistant-v2` **25 ACTIVE** ; validation audio réelle non encore obtenue. Bilan global inchangé : 59 couverts dans le code et tests, 21 partiels, 0 totalement absents.
