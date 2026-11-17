@@ -79,7 +79,8 @@ async function sitemapOverview(){
   try {
     const res=await fetch(LINKS.sitemap,{headers:{accept:'application/xml'},signal:AbortSignal.timeout(4000)});
     if(!res.ok) return Object.values(LINKS).filter(x=>x.startsWith(SITE));
-    return sitemapUrls(await res.text());
+    const urls=sitemapUrls(await res.text());
+    return urls.length?urls:Object.values(LINKS).filter(x=>x.startsWith(SITE));
   }catch{return Object.values(LINKS).filter(x=>x.startsWith(SITE));}
 }
 const PAGE_TOPICS = Object.freeze({
