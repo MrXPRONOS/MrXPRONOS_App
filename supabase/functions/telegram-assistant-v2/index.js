@@ -1869,14 +1869,14 @@ export function stickyNvidiaOrder(lastSuccess=null,models=NVIDIA_MODELS){
   const winner=lastSuccess&&models.includes(lastSuccess)?lastSuccess:primary;
   return winner?[winner,...models.filter(model=>model!==winner)]:[];
 }
-async function fetchLastSuccessfulNvidiaModel(){
-  const rows=await db('mx_telegram_assistant_model_events?select=model&source=eq.routing_v28&status=eq.ok&order=id.desc&limit=1');
+export async function fetchLastSuccessfulNvidiaModel(readDb=db){
+  const rows=await readDb('mx_telegram_assistant_model_events?select=model&source=eq.routing_v28&status=eq.ok&order=id.desc&limit=1');
   return Array.isArray(rows)&&NVIDIA_MODELS.includes(rows[0]?.model)?rows[0].model:null;
 }
-async function rememberSuccessfulNvidiaModel(model){
+export async function rememberSuccessfulNvidiaModel(model,write=recordModelEvents){
   if(!NVIDIA_MODELS.includes(model))return;
   // await : le prochain message doit trouver ce succès même sur une autre instance.
-  await recordModelEvents([{model,status:'ok',durationMs:0}],'routing_v28');
+  await write([{model,status:'ok',durationMs:0}],'routing_v28');
 }
 /**
  * Classe les modèles selon les dernières tentatives réelles, sans transformer
