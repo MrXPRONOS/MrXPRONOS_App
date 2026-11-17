@@ -248,3 +248,32 @@ Vérifications : **74 tests automatisés réussis** et simulation de conversatio
 **Validation** : 89 tests fonctionnels et simulation de la réception de trois événements Telegram (démarrage du guide, confirmation « fait », analyse photo). Un essai avec la clé réelle reste nécessaire pour les endpoints multimodaux.
 
 Le bot de coupons historique et le compte personnel Telegram Business restent indépendants et inchangés.
+
+
+
+## Nouveaux utilisateurs, liens cliquables et corpus de 1000 messages — 17 novembre 2026
+
+### Premier message automatique (une seule fois)
+
+- Le bot vérifie si la conversation privée est déjà présente dans `mx_telegram_assistant_chats` ; **uniquement si elle est nouvelle**, il envoie une présentation courte puis deux boutons officiels : le **canal Telegram** `https://t.me/mrxpronosfr` et la **page d'installation** `https://mrxpronos.github.io/MrXPRONOS_App/installer.html`.
+- Le message combine du **gras**, du **gras + souligné**, du **gras + italique** et une **citation** présentant une réserve sur les pronostics. La demande du nouvel utilisateur est ensuite traitée normalement par NVIDIA. Un premier `/start` est satisfait par l'accueil, sans second message d'introduction.
+- Les anciens utilisateurs ne reçoivent pas une seconde fois cette présentation. Les messages Business personnels restent désactivés.
+- L'accueil est basé sur la présence du chat dans Supabase ; comme il ne possède pas encore de marqueur atomique distinct, deux premiers messages strictement simultanés pourraient théoriquement générer deux accueils. Pour une forte simultanéité, prévoir un contrôle atomique spécifique.
+
+### Formatage avancé Telegram
+
+- Rendu HTML sûr pour `**gras**`, `*italique*`, `__souligné__`, `***gras + italique***`, `**__gras + souligné__**`, `*__italique + souligné__*` et `__***les trois styles***__` ; les citations `>`, spoilers `||...||`, barrés `~~...~~` et code restent compatibles.
+- Les liens écrits `[clique ici](URL)` sont rendus comme de vrais liens HTML cliquables sur le texte **uniquement si l'URL figure dans le catalogue officiel**. Le HTML arbitraire et les domaines non autorisés sont échappés ou supprimés.
+- Maximum **3 boutons visibles par message** par défaut ; les destinations officielles supplémentaires sont converties en liens intégrés au texte. Le moteur de sélection peut maintenant transmettre jusqu'à 5 destinations. Le découpage des messages longs reste disponible.
+- La page `installer.html` a été ajoutée à `LINKS`, `BUTTON_KEYS`, à la connaissance officielle et au choix contextuel de destinations. Elle n'est pas remplacée par la simple page d'accueil.
+
+### Corpus QA : 1000 entrées de clients sans doublons
+
+- `tests/fixtures/1000_messages_clients.csv` contient **exactement 1000 messages différents**, répartis entre **50 intentions** (20 entrées par intention) et **5 styles** (200 entrées par style) : standard, SMS abrégé, vocal transcrit, orthographe approximative, message contextualisé.
+- Chaque ligne fournit un ID, une intention, un style, le texte utilisateur et le comportement attendu. Les exemples incluent `line bet`, `mel bet`, `Betclic`, `Waris PT`, `Monsieur Espronos`, la PWA, les coupons, les cotes, les fautes de frappe, les vocaux, les photos et des situations de sécurité.
+- Ce fichier est un **jeu de tests synthétiques**, pas un ensemble de messages privés réels ni un entraînement automatique de NVIDIA.
+- `tests/corpus.test.mjs` valide les 1000 IDs, l'absence de doublons après normalisation, les 50 intentions et les 5 styles. Lancement conseillé : `node --test supabase/functions/telegram-assistant-v2/tests/*.test.mjs` depuis la racine du dépôt.
+
+### Vérification
+
+96 tests de fonctionnalités de l'assistant réussis, plus 3 contrôles automatiques du corpus. Simulation d'échanges avec deux comptes distincts : l'accueil est envoyé une fois par nouveau chat avec les deux destinations ; les messages suivants n'ont pas de nouvel accueil et restent répondus par l'IA.
