@@ -56,7 +56,8 @@ def category_config(category: str, env: dict | None = None) -> dict:
     # singular GitHub variable must never leak comedy movies into Anime or
     # episodes into Comedy, while other user-added sources remain permitted.
     cross_category = {
-        "comedie": {"@orak_dessinanime", "@cineromances", "@filmsromantiques"},
+        "comedie": {"@orak_dessinanime", "@cineromances", "@filmsromantiques",
+                    "@filmromatique", "@g_romanticfilm"},
         "anime": {"@comexflex", "@filmcomplets", "@cineromances", "@filmsromantiques"},
     }
     forbidden_sources = cross_category.get(category, set())
@@ -296,6 +297,11 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 continue
             if getattr(item.video, "noforwards", False) or not valid_photo_message(item.poster):
                 LOG.warning("%s : paire ignorée, affiche Telegram non valide pour vidéo=%s", cfg["label"], item.video.id)
+                continue
+            from .genre_guard import category_allowed
+            if not category_allowed(category, item.poster, item.video):
+                LOG.warning("%s : genre explicitement incompatible, vidéo=%s en quarantaine.",
+                            cfg["label"], item.video.id)
                 continue
             assessment = title_assessment(item.poster, item.video)
             if assessment != "verified":
