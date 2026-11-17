@@ -627,6 +627,25 @@ export function polishTelegramText(raw,question='') {
   return result.replace(/\n{3,}/g,'\n\n').trim();
 }
 
+
+/** Barrière de vérification : l'IA rédige, le serveur évite de publier des faits non vérifiés. */
+export function verifiedReplyReview(reply,question,facts='',history=[]) {
+  const info=analyzeClientIntent(question,history);
+  let text=String(reply||'').trim();
+  if(info.picks&&!info.odds&&!info.score&&/(?:Fichier inaccessible|Aucune sélection admissible confirmée)/.test(facts)){
+    return '**⚽ Pronostics**\n\nJe ne peux pas confirmer de coupon disponible pour cette date. Pour consulter les nouvelles sélections lorsqu’elles sont publiées, utilise le site ou le canal Telegram.\n\n*Un pronostic n’est jamais un gain garanti.*';
+  }
+  if(info.score&&/(?:Source inaccessible|Aucun score admissible vérifié)/.test(facts)){
+    return '**🎯 Scores exacts**\n\nAucun score exact vérifié n’est actuellement disponible dans la source du site. Tu peux consulter la page des scores exacts pour les publications à venir.';
+  }
+  if(info.odds && /(cote\s+(?:totale\s+)?(?:10|dix)|combin[eé]\s+(?:de\s+)?10)/i.test(text) &&
+     /(voici|disponible|valid[eé]|garanti)/i.test(text)){
+    return '**Cote totale de 10**\n\nUne cote combinée se calcule en multipliant les cotes de chaque sélection. Je n’ai pas de cotes de bookmaker vérifiées pour construire une combinaison précise ; vérifie les cotes directement avant toute décision.';
+  }
+  text=text.replace(/(?:gain\s+(?:est\s+)?garanti|pari\s+sans\s+risque|100\s*%\s*(?:de\s+)?(?:r[eé]ussite|s[uû]r|certain))/gi,'aucun gain garanti');
+  return text;
+}
+
 export function contextualPresentation(rawReply,question,history=[],intent='general',options={}) {
   const q=norm(question);
   let reply=cut(String(rawReply||'').trim(),4400);
@@ -1240,6 +1259,17 @@ export async function handleUpdate(update) {
   const intent=intentFor(text);
   let recentHistory=[];
   try{recentHistory=await readHistory(key);}catch(e){console.warn('history_unavailable',String(e));}
+  const clientInfo=analyzeClientIntent(text,recentHistory);
+  const highRisk=safetyResponse(clientInfo)||ambiguousPartnerQuestion(clientInfo);
+  if(highRisk){
+    // Les messages sensibles ne passent pas par une suggestion de bookmaker générée.
+    await say(msg.chat.id,highRisk,msg.business_connection_id||'',{allowedUrls:[]});
+    await logMessage(key,'user',text);
+    await logMessage(key,'assistant',highRisk);
+    await markHandled(id);
+    console.info('assistant_guardrail',clientInfo.minor?'minor':clientInfo.loss?'gambling_harm':clientInfo.secrets?'credentials':'brand_confirmation');
+    return;
+  }
   const continuation=guidanceFollowup(text,recentHistory);
   const chosenProvider=intent==='general'?providerChoiceFromHistory(text,recentHistory):null;
   let answer='';
@@ -1255,9 +1285,14 @@ export async function handleUpdate(update) {
         // Si un fournisseur retourne un JSON incomplet, éviter de l'afficher aux clients.
         const malformed=/^\s*[\x60{]/.test(parsed.reply)&&!parsed.structured;
         if(parsed.reply.trim()&&!malformed){
-          const singleStep=guidedResponse(parsed.reply,text,recentHistory);
+          const checked=verifiedReplyReview(parsed.reply,text,facts,recentHistory);
+          const singleStep=guidedResponse(checked,text,recentHistory);
           answer=contextualPresentation(singleStep,text,recentHistory,intent,{guided:guidedMode(text,recentHistory)});
           const destinations=contextualDestinations(text,recentHistory,parsed.buttons,intent);
+          if(clientInfo.picks&&!clientInfo.odds&&destinations.includes(LINKS.pronos)&&destinations.includes(channelUrl())&&
+            !/autres (coupons|pronostics|selections)|site.*canal/.test(norm(answer))){
+            answer+='\n\n*Pour les autres coupons, consulte le site ou rejoins notre canal Telegram.*';
+          }
           if(destinations.length)answer+='\n'+destinations.join('\n');
           await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
           await logMessage(key,'user',text);
