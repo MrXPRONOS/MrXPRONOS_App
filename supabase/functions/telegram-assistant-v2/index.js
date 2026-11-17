@@ -928,7 +928,7 @@ export function answerRelevanceGuard(reply,question,history=[]){
   const q=normalizeClientFrench(question),r=normalizeClientFrench(reply);
   const intent=analyzeClientIntent(question,history);
   if(/^(?:merci|cc|bonjour|salut|oui|non|ok|parfait)\b/.test(q))return null;
-  if(intent.install && (/(?:pas (?:d.|une) application|aucune application|pas de page d.installation|impossible d.installer)/.test(r)||!/(install|application|appli|ecran d.accueil|safari|chrome|edge|pwa)/.test(r)))
+  if(intent.install && (/(?:pas\s+(?:d['’]|une?\s+)application|aucune application|pas de page d.installation|impossible d.installer)/.test(r)||!/(install|application|appli|ecran d.accueil|safari|chrome|edge|pwa)/.test(r)))
     return '**📲 Installer Mr XPRONOS**\n\n'+installationSteps(question);
   if(intent.odds && /(score exact|2-1|0-0|1-0)/.test(r) &&
      !/(cote|combin|multipli)/.test(r))
