@@ -72,6 +72,15 @@ class MediaTests(TestCase):
         self.assertNotIn("www.", cap)
         self.assertLess(len(cap), 1024)
 
+    def test_caption_omits_publication_time_and_date(self):
+        cap = media.caption(story())
+        self.assertNotIn("🕒", cap)
+        self.assertNotIn("21:00", cap)
+        self.assertNotIn("17/11/2026", cap)
+        self.assertNotIn("UTC", cap)
+        self.assertTrue(cap.endswith("<i>"))
+        self.assertIn("Source : CoinDesk", cap)
+
     def test_caption_strips_link_from_headline_and_summary(self):
         c = story()
         c["main"]["title"] += " https://foo.example/image"
