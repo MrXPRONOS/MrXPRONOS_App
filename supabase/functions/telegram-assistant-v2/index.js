@@ -548,6 +548,9 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
     // Remplacer les formulations « si le champ existe » par une indication claire.
     // Conserver le reste de la réponse librement rédigée par NVIDIA.
     reply=reply.replace(/(?:🎁[ \t]*)?(?:\*\*)?Code promo[ \t]*:[ \t]*(?:\*\*)?XPVIP(?:\*\*){0,2}(?:[ \t]*,?[ \t]*si (?:le|un) champ[^\n.!?]*)?[.!?]?/gi,'');
+    // Préserver le reste de l'instruction si une phrase contenait « Utilise XPVIP et ... ».
+    reply=reply.replace(/(^|\n)(?:Utilise|Saisis|Tape|Entre)[ \t]+(?:le[ \t]+)?(?:code[ \t]+)?(?:promo[ \t]+)?(?:\*\*)?XPVIP(?:\*\*)?[ \t]+et[ \t]+([a-zà-ÿ])/gim,
+      (_all,start,letter)=>start+letter.toUpperCase());
     reply=reply.replace(/(^|\n)(?:Utilise|Saisis|Tape|Entre)[ \t]+(?:le[ \t]+)?(?:code[ \t]+)?(?:promo[ \t]+)?(?:\*\*)?XPVIP(?:\*\*)?(?:[ \t]+s.il est accept[eé])?[.!?]?[ \t]*(?=\n|$)/gim,'$1');
     reply=reply.replace(/(^|\n)([1-9][.)][ \t]*)Si (?:le|un) champ(?:[ \t]+Code promo)? (?:existe|appara[iî]t|est disponible|est pr[eé]sent|est propos[eé])[^.\n]*[.]?/gim,
       (_all,prefix,step)=>prefix+step+'Repère le champ **Code promo** et saisis **XPVIP**.');
