@@ -545,10 +545,14 @@ export function contextualPresentation(rawReply,question,history=[],intent='gene
   reply=reply.replace(/(?<!\*)\bXPVIP\b(?!\*)/gi,'**XPVIP**');
   if(registration&&platform){
     if(!/^\s*(?:\*\*|📝)/.test(reply))reply='**📝 Inscription '+PARTNER_NAMES[platform]+'**\n'+reply;
-    // Le formulaire partenaire est présenté directement, sans conditionnel sur le champ.
-    // Ne jamais promettre une promotion ou un bonus : seul le code est officiel.
-    reply=reply.replace(/\bsi (?:le|un) champ (?:code promo |promotionnel )?(?:existe|appara[iî]t|est pr[eé]sent|est disponible|est propos[eé])\b[, ]*/gi,'');
-    reply=reply.replace(/\bsi tu vois (?:le|un) champ (?:code promo|promotionnel)\b[, ]*/gi,'');
+    // Remplacer les formulations « si le champ existe » par une indication claire.
+    // Conserver le reste de la réponse librement rédigée par NVIDIA.
+    reply=reply.replace(/(?:🎁[ \t]*)?(?:\*\*)?Code promo[ \t]*:[ \t]*(?:\*\*)?XPVIP(?:\*\*){0,2}(?:[ \t]*,?[ \t]*si (?:le|un) champ[^\n.!?]*)?[.!?]?/gi,'');
+    reply=reply.replace(/(^|[.!?][ \t]+)(?:Utilise|Saisis|Tape|Entre)[ \t]+(?:le[ \t]+)?(?:code[ \t]+)?(?:promo[ \t]+)?(?:\*\*)?XPVIP(?:\*\*)?(?:[ \t]+s.il est accept[eé])?[.!?]?/gim,(_all,prefix)=>prefix.trimEnd());
+    reply=reply.replace(/(^|\n)([1-9][.)][ \t]*)Si (?:le|un) champ(?:[ \t]+Code promo)? (?:existe|appara[iî]t|est disponible|est pr[eé]sent|est propos[eé])[^.\n]*[.]?/gim,
+      (_all,prefix,step)=>prefix+step+'Repère le champ **Code promo** et saisis **XPVIP**.');
+    reply=reply.replace(/(^|\n)[ \t]*si (?:le|un) champ (?:code promo |promotionnel )?(?:existe|appara[iî]t|est pr[eé]sent|est disponible|est propos[eé])[, ]*/gim,'$1');
+    reply=reply.replace(/[ \t]+(?=[.,;])/g,'').replace(/,[ \t]*\./g,'.');
     // Retirer une ligne promo déjà fournie par le modèle : éviter une double présentation.
     reply=reply.split('\n').filter(line=>{
       const plain=line.replace(/[*_~]/g,'').trim().replace(/^🎁\s*/,'');
