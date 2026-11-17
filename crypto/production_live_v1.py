@@ -69,7 +69,18 @@ def blocked_by_initial_history(state: dict, number: int) -> bool:
 
 
 def record_send(chat: dict, caption: str, image: Path, parse_mode=None) -> int:
-    seed.validate_image(image)
+    if image.suffix.lower() in (".jpeg", ".jpg"):
+        # RSS publisher photography is safely decoded and normalized to JPEG
+        # by news_media_v1. Never apply the legacy PNG-only poster gate to it.
+        from PIL import Image
+        if not image.is_file() or image.stat().st_size < 10000:
+            raise ValueError("Article photograph is missing or too small")
+        with Image.open(image) as photo:
+            if photo.format != "JPEG" or photo.width < 400 or photo.height < 200:
+                raise ValueError("Invalid article JPEG")
+            photo.verify()
+    else:
+        seed.validate_image(image)
     mime = "image/jpeg" if image.suffix.lower() in (".jpeg", ".jpg") else "image/png"
     with image.open("rb") as fp:
         try:
