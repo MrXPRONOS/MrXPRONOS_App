@@ -15,6 +15,7 @@ from pathlib import Path
 import requests
 
 from crypto import production_seed_v1 as seed
+from crypto import news_digest_v1 as digest
 
 UTC = timezone.utc
 TODAY = datetime.now(UTC)
@@ -25,6 +26,7 @@ MODES = {
     "alerts": (4,),
     "news": (8, 9),
     "weekly": (7,),
+    "world": (11,),
 }
 REG = Path("crypto/generated/test/regulation_v2_candidate.json")
 
@@ -191,7 +193,45 @@ def publish_automatic_regulation():
     return True
 
 
+def publish_global_news():
+    """News-first, half-hourly scan; up to three distinct real stories."""
+    state = seed.read_state()
+    now = datetime.now(UTC)
+    used = digest.day_count(state, now)
+    if used >= digest.MAX_PER_DAY:
+        print("CRYPTO_NEWS11_DAILY_CAP", used)
+        return
+    candidates = digest.collect(state, now)
+    if not candidates:
+        print("CRYPTO_NEWS11_SKIP_NOTHING_NEW")
+        return
+    chat = seed.verify_production_route()
+    published = 0
+    for candidate in candidates:
+        if published >= digest.MAX_PER_RUN or used + published >= digest.MAX_PER_DAY:
+            break
+        if digest.already_sent(candidate["main"], state):
+            continue
+        image = digest.render(candidate)
+        description = digest.caption(candidate)
+        try:
+            message_id = record_send(chat, description, image)
+        except (requests.RequestException, ValueError, RuntimeError):
+            raise RuntimeError("News #11 delivery uncertain; manual audit required") from None
+        digest.mark_sent(state, candidate, message_id, datetime.now(UTC))
+        seed.write_state(state)
+        published += 1
+        print("CRYPTO_NEWS11_PUBLISHED", "message_id="+str(message_id),
+              "category="+candidate["main"]["category"],
+              "source="+candidate["main"]["source"], "photo_confirmed=1")
+    print("CRYPTO_NEWS11_BATCH", "posted="+str(published),
+          "candidates="+str(len(candidates)), "already_today="+str(used))
+
+
 def execute(mode: str):
+    if mode == "world":
+        publish_global_news()
+        return
     if mode == "legal":
         # Automated from official first-party publications, no human approval.
         # Source HTML/RSS disagreement means NO Telegram publication.
@@ -231,7 +271,10 @@ def execute(mode: str):
                     print("CRYPTO_LIVE_SKIP_NO_REAL_EVENT", number)
                     continue
                 data, image = output
-            if number in (8, 9) and news_already_posted(state, data):
+            if number in (8, 9) and (news_already_posted(state, data) or
+                    digest.already_sent(data["main"], state) or
+                    (data.get("confirmation") is not None and
+                     digest.already_sent(data["confirmation"], state))):
                 print("CRYPTO_LIVE_SKIP_NEWS_ALREADY_SOURCED", number)
                 continue
             key = key_for(number, data, mode)
@@ -254,6 +297,10 @@ def execute(mode: str):
             if number in (8, 9):
                 for fp in data["fingerprints"]:
                     state["news_fingerprints"][fp] = {"number": number, "message_id": message_id}
+                digest.register_story(
+                    state, data["main"], message_id,
+                    [data["confirmation"]] if data.get("confirmation") else [],
+                    stamped)
             seed.write_state(state)
             print("CRYPTO_LIVE_PUBLISHED", "number="+str(number),
                   "message_id="+str(message_id), "photo_confirmed=1")
