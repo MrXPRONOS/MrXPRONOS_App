@@ -52,6 +52,27 @@ def update_monitor(previous: dict, *, run_id: str, verification: str,
     return report
 
 
+def catalogue_health(folder: Path) -> dict:
+    """Summarize catalogue backlog without exposing titles or private IDs."""
+    results = {}
+    for name in ("series", "anime"):
+        path = folder / f"{name}_catalog.json"
+        try:
+            row = json.loads(path.read_text(encoding="utf-8"))
+            audit = row.get("audit", {})
+            results[name] = {
+                "audit_date": audit.get("checked_at"),
+                "history_scan_complete": bool(audit.get("source_scan_complete")),
+                "observed_not_indexed": int(audit.get("not_yet_indexed_total", 0)),
+                "unnumbered_videos": int(audit.get("unnumbered_videos_skipped", 0)),
+                "source_gap_seasons": int(audit.get("source_numbering_gap_seasons", 0)),
+                "active_batch": bool(row.get("active_batch")),
+            }
+        except (OSError, ValueError, TypeError, AttributeError):
+            results[name] = {"status": "unavailable"}
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-id", required=True)
@@ -71,6 +92,7 @@ def main():
         verified_posts=args.verified_posts, outcomes=outcomes,
         now=datetime.now(timezone.utc).isoformat())
     args.path.parent.mkdir(parents=True, exist_ok=True)
+    report["catalogues"] = catalogue_health(args.path.parent)
     args.path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
                          encoding="utf-8")
     label = report["status"]
@@ -85,6 +107,11 @@ def main():
             f.write(f"- Cycles vides consécutifs : {report['empty_streak']}\n")
             f.write(f"- Alerte : {'oui' if report['alert'] else 'non'}\n")
             f.write("- Catégories : " + ", ".join(f"{c}={report['outcomes'][c]}" for c in CATEGORIES) + "\n")
+            for name, row in report["catalogues"].items():
+                if "observed_not_indexed" in row:
+                    f.write(f"- Catalogue {name} : {row['observed_not_indexed']} occurrences sources "
+                            f"non indexées, {row['unnumbered_videos']} vidéos sans numéro ; "
+                            f"archive terminée={row['history_scan_complete']}\n")
     return 0  # category and verification failure already checked by workflow
 
 
