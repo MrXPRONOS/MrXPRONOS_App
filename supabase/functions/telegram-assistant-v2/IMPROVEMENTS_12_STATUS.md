@@ -76,3 +76,14 @@ Le mot « testé » se rapporte aux contrôles du code. Ni les tests synthétiqu
 - **Critères de réception encore ouverts** : essais du compte Telegram secondaire (guidage réel, notifications, suppression test), modèles NVIDIA et reconnaissance de vocaux et photos, et flux de cotes live réelles. Une Edge Function ACTIVE ne remplace pas cette vérification.
 
 **Définition de « complété » dans cette série :** le correctif logiciel et son test de non-régression sont complets lorsqu'il est indiqué comme tel ; les 12 grands chantiers ne sont pas tous entièrement validés en usage réel.
+
+## Routage 60 secondes et Mistral Large 4 — V28
+
+- **Priorité de démarrage** : `mistralai/mistral-large-4-1t-a52b` (Mistral Large 4), au-dessus de Nemotron Ultra puis Poolside.
+- **Priorité des messages suivants** : dernier modèle IA ayant fourni une réponse exploitable et effectivement envoyée au client. Mémoire persistée en Supabase dans `mx_telegram_assistant_model_events` avec `source=routing_v28` ; l'historique V27 ne déplace pas Mistral au premier démarrage.
+- **Temps d'attente** : **60 000 ms par tentative** et reprise immédiate sur erreur HTTP / réponse vide. Il n'y a **pas** de délai artificiel avant une réponse qui arrive rapidement.
+- **Budget de sécurité** : **125 secondes** de tentatives au maximum. Deux tentatives complètement expirées saturent cette fenêtre ; un troisième essai n'est pas lancé sans 60 secondes disponibles. Un système de file persistante distincte serait nécessaire pour parcourir sans limites tous les modèles.
+- **Telegram** : accusé rapide du webhook après authentification, travail NVIDIA en arrière-plan via `EdgeRuntime.waitUntil`. Les limites de durée de vie des workers Supabase restent applicables.
+- **Tests** : `nvidia-sticky-60s.test.mjs` couvre priorité initiale, mémoire inter-instances simulée, fenêtres pleines, secours, réponses rapides et réponse HTTP non bloquante.
+
+Une réponse produite dans le simulateur de tests n'établit pas que NVIDIA est accessible depuis Supabase au moment du premier vrai message. Vérifier les métriques `source=chat` et `source=routing_v28` après une conversation réelle. **Ne pas modifier `telegram_webhook`**, qui gère les coupons.
