@@ -118,7 +118,8 @@ test("aucun bouton décoratif sur les réponses simples",()=>{
    assert.deepEqual(responseLinks(category,q),[],q);
    const body=buildTelegramMessage("Réponse informative "+LINKS.accueil,{allowedUrls:responseLinks(category,q)});
    assert.equal(body.reply_markup,undefined,q);
-   assert.ok(!body.text.includes("https://"),q);
+   assert.ok(body.text.includes('<a href="'+LINKS.accueil+'">'),q+' : known official URL stays clickable');
+   assert.ok(!body.text.includes('Lien externe non confirmé'),q);
  }
 });
 test("boutons contextuels : coupons, scores, résultats, canal, bonus",()=>{
