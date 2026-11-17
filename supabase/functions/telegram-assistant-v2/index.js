@@ -98,7 +98,9 @@ export function socialButtonsMessage(input='',history=[]){
    text+='Merci pour le signalement. Voici les liens enregistrés et le bouton **Contact** pour indiquer la page incorrecte.\n\n';
  else if(/(?:ce lien|c.est bien ce lien).{0,40}facebook/.test(q)&&recentExternal)
    text+='Non : l’adresse envoyée précédemment pointe vers **Telegram**, pas vers Facebook.\n\n';
- text+='Choisis le bouton **'+(names.length===1?names[0]:'du réseau souhaité')+'** ci-dessous.';
+ text+=names.length===1?
+  'Choisis le bouton **'+names[0]+'** ci-dessous.':
+  'Réseaux disponibles : **'+names.join(', ')+'**.\n\nChoisis le bouton souhaité ci-dessous.';
  if(req.keys.includes('tiktok'))text+='\n\n*Le lien TikTok n’est pas encore vérifié.*';
  return {text,urls};
 }
@@ -1323,6 +1325,13 @@ export function verifiedReplyReview(reply,question,facts='',history=[],session=n
   if(socialMediaRequest(question).requested)return officialSocialMessage(question);
   const info=analyzeClientIntent(question,history);
   let text=String(reply||'').trim();
+  // Le client demande des corners : ne pas lui donner une réponse parlant
+  // seulement de score exact ou de cote live, même si l'IA est fluide.
+  if(/corners?/.test(normalizeClientFrench(question))&&
+     !/corners?/.test(normalizeClientFrench(text))){
+    const corrected=groundedQuestionReply(question,history,session);
+    if(corrected)return corrected;
+  }
   if(/^je peux t.aider sur les pronostics, le site ou un guide en cours/i.test(normalizeClientFrench(text))){
     const answer=groundedQuestionReply(question,history,session);
     if(answer)return answer;
@@ -2854,7 +2863,7 @@ export async function handleUpdate(update) {
           }
           if(destinations.length)answer+='\n'+destinations.join('\n');
           await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{
-            allowedUrls:destinations,maxButtons:intent==='social'?8:3,
+            allowedUrls:destinations,buttonUrls:destinations,maxButtons:intent==='social'?8:3,
             columns:intent==='social'?2:1
           },{updateId:id});
           // Mémoriser seulement une réponse AI exploitable effectivement transmise.
@@ -2948,7 +2957,7 @@ export async function handleUpdate(update) {
   }
   answer=polishTelegramText(answer,text);
   await sayConversation(msg.chat.id,answer,msg.business_connection_id||'',{
-    allowedUrls:destinations,maxButtons:intent==='social'?8:3,
+    allowedUrls:destinations,buttonUrls:destinations,maxButtons:intent==='social'?8:3,
     columns:intent==='social'?2:1
   },{updateId:id});
   await logMessage(key,'user',text);
