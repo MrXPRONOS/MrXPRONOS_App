@@ -7,7 +7,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, patch
 
 from film_relay.category_runner import (
-    CATEGORIES, category_config, check_bot_permission, run,
+    CATEGORIES, category_config, check_bot_permission, preflight, run,
 )
 from film_relay.desir_runner import ReceiptState, DesirPromotionsState
 from film_relay.desir_matching import is_supported_video, pair_items
@@ -126,6 +126,68 @@ class CategoryRelayTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "administrateur"):
             check_bot_permission(NS(is_creator=False, is_admin=True, post_messages=False),
                                  "@DemoChannel")
+
+    def test_comedy_bot_chat_not_found_reports_correct_identity(self):
+        from film_relay.bot_http import TelegramBotHTTPError
+        from telethon.tl.types import Channel
+
+        class DummyUser:
+            is_user_authorized = AsyncMock(return_value=True)
+
+        class DummyBot:
+            get_entity = AsyncMock()
+            get_me = AsyncMock(return_value=NS(id=321, username="comedie_test_bot"))
+            get_permissions = AsyncMock(side_effect=TelegramBotHTTPError(
+                "getChatMember : Bad Request: chat not found"))
+
+        private = Channel(id=123456789, title="Prive", photo=None, date=None, broadcast=True)
+        public = Channel(id=234567890, title="Public", photo=None, date=None,
+                         username="CineXComediefr", broadcast=True)
+        source = Channel(id=345678901, title="Source", photo=None, date=None,
+                         username="comexflex", broadcast=True)
+        bot = DummyBot()
+        bot.get_entity.return_value = public
+        from telethon import utils
+        private_id = str(utils.get_peer_id(private))
+        cfg = {"private": private_id, "public": "@CineXComediefr",
+               "sources": ["@comexflex"], "mirror": "@Torrent9SeriesFilms",
+               "category": "comedie"}
+
+        async def resolve(_client, value):
+            return {private_id: private, "@CineXComediefr": public,
+                    "@comexflex": source}[value]
+
+        with patch("film_relay.category_runner.resolve_peer", side_effect=resolve), \
+             patch("film_relay.category_runner.asyncio.sleep", new_callable=AsyncMock):
+            with self.assertRaisesRegex(RuntimeError, r"@comedie_test_bot.*CineXComediefr"):
+                asyncio.run(preflight(DummyUser(), bot, cfg))
+
+    def test_source_failures_are_counted_and_other_sources_remain_available(self):
+        from telethon.tl.types import Channel
+        from telethon import utils
+        class DummyUser:
+            is_user_authorized = AsyncMock(return_value=True)
+        private = Channel(id=123456789, title="Prive", photo=None, date=None, broadcast=True)
+        public = Channel(id=234567890, title="Public", photo=None, date=None,
+                         username="CineXComediefr", broadcast=True)
+        source = Channel(id=345678901, title="Source", photo=None, date=None,
+                         username="comexflex", broadcast=True)
+        private_id = str(utils.get_peer_id(private))
+        cfg = {"private": private_id, "public": "@CineXComediefr",
+               "sources": ["@comexflex", "@missing_channel"], "mirror": "@Torrent9SeriesFilms",
+               "category": "comedie"}
+        async def resolve(_client, value):
+            if value == "@missing_channel":
+                raise ValueError("not available")
+            return {private_id: private, "@CineXComediefr": public,
+                    "@comexflex": source}[value]
+        audit = {}
+        with patch("film_relay.category_runner.resolve_peer", side_effect=resolve), \
+             patch("film_relay.category_runner.asyncio.sleep", new_callable=AsyncMock):
+            sources, *_ = asyncio.run(preflight(DummyUser(), None, cfg, audit=audit))
+        self.assertEqual(len(sources), 1)
+        self.assertEqual(audit["sources_accessible"], 1)
+        self.assertEqual(audit["sources_inaccessible"], 1)
 
     def test_category_state_and_promos_are_isolated(self):
         from film_relay.promotions import due
