@@ -885,7 +885,7 @@ export async function handleUpdate(update) {
       :pages.includes(destination)?'Voici la rubrique correspondante de notre site.':'Cette page n’a pas été confirmée dans le sitemap actuel. Voici l’accueil.';
   }
   else if(intent==='welcome') answer=(!previous || /^\/(start|help)\b/i.test(text))?intro():'Salut 👋 Comment puis-je t’aider ?';
-  else if(intent==='format') answer='**🎨 Démonstration**\n*Italique* · __Souligné__ · ~~Barré~~\n||Spoiler||\n> Citation : aucune estimation n’est garantie.\n\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
+  else if(intent==='format') answer='**🎨 Démonstration du formatage**\n\n**Information importante : XPVIP**\nVoici comment une information essentielle est mise en évidence.\n\n*Une précision secondaire en italique.*\n__Souligné__ · ~~Barré~~ · ||Spoiler masqué||\n\n> ⚠️ Un pronostic n’est jamais une garantie de gain.\n\n**Boutons contextuels**\n'+LINKS.pronos+'\n'+LINKS.conseils+'\n🆘 Urgence / signalement : '+LINKS.contact;
   else if(intent==='pronos') answer=await predictionsMessage(/demain/i.test(text)?1:0);
   else if(intent==='scores') answer=await exactScoresMessage();
   else if(intent==='conseil') answer=adviceMessage();
@@ -922,6 +922,7 @@ export async function handleUpdate(update) {
     const missing=destinations.filter(u=>!answer.includes(u));
     if(missing.length) answer+=(answer?'\n':'')+missing.join('\n');
   }
+  answer=polishTelegramText(answer,text);
   await say(msg.chat.id,answer,msg.business_connection_id||'',{allowedUrls:destinations});
   await logMessage(key,'user',text);
   await logMessage(key,'assistant',answer);
