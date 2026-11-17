@@ -1,11 +1,11 @@
 // Supabase Edge Function: Telegram assistant (separate from all coupon publication bots).
 const SITE = 'https://mrxpronos.github.io/MrXPRONOS_App';
 export const LINKS = Object.freeze({
-  accueil: `${SITE}/`, pronos: `${SITE}/pronos.html`,
+  accueil: `${SITE}/`, aujourd_hui: `${SITE}/aujourdhui.html`, pronos: `${SITE}/pronos.html`,
   scores: `${SITE}/scores-exacts.html`, historique: `${SITE}/historique.html`,
   analyses: `${SITE}/blog.html`, infos: `${SITE}/infos.html`,
   conseils: `${SITE}/conseils.html`, bonus: `${SITE}/bonus.html`,
-  contact: `${SITE}/contact.html`, channel: 'https://t.me/mrxpronosfr', telegram: 'https://t.me/mr_xpronos',
+  contact: `${SITE}/contact.html`, sitemap: `${SITE}/sitemap.xml`, channel: 'https://t.me/mrxpronosfr', telegram: 'https://t.me/mr_xpronos',
   instagram: 'https://www.instagram.com/mr_xpronos',
   youtube: 'https://youtube.com/@mrxpronos'
 });
@@ -25,7 +25,85 @@ const supabaseKey = () => env('SUPABASE_SERVICE_ROLE_KEY') || (() => {try {retur
 const json = (value, status = 200) => new Response(JSON.stringify(value), {status, headers: {'content-type':'application/json; charset=utf-8', 'cache-control':'no-store'}});
 const norm = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 const cut = (s, n=3500) => String(s || '').slice(0,n);
-const allowed = (url) => Object.values(LINKS).includes(url) || (channelUrl() && url === channelUrl());
+
+// Liens partenaires propres à Mr XPRONOS, tirés de assets/js/bonus-catalogue.js.
+// Ce sont des URL de partenariat, pas des garanties de promotion ou de disponibilité.
+export const PARTNER_LINKS = Object.freeze({
+  '1xbet':'https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573',
+  '1win':'https://1wrbgb.com/?open=register&p=qqcw',
+  'betwinner':'https://bwredir.com/299Y',
+  'melbet':'https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041',
+  'linebet':'https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611',
+  'betclic':'https://betpari-click.com/2vY0?extid=USD'
+});
+const PARTNER_NAMES=Object.freeze({'1xbet':'1xBet','1win':'1win',betwinner:'Betwinner',melbet:'Melbet',linebet:'Linebet',betclic:'Betclic'});
+export function partnerFromMessage(message='') {
+  const q=norm(message);
+  if(/(?:^|\W)1\s*x\s*bet(?:\W|$)/.test(q)) return '1xbet';
+  if(/(?:^|\W)1win(?:\W|$)/.test(q)) return '1win';
+  for(const name of ['betwinner','melbet','linebet','betclic']) if(new RegExp('(?:^|\\W)'+name+'(?:\\W|$)').test(q)) return name;
+  return null;
+}
+export function signupMessage(platform) {
+  if(!platform || !PARTNER_LINKS[platform]) return 'Sur quel bookmaker souhaites-tu t’inscrire : 1xBet, 1win, Betwinner, Melbet, Linebet ou Betclic ?';
+  return '**Inscription '+PARTNER_NAMES[platform]+'** (18+ et selon la législation locale) :\n'
+    +'1. Ouvre le lien partenaire ci-dessous.\n'
+    +'2. Appuie sur **Inscription** et complète les informations demandées.\n'
+    +'3. Vérifie ton contact ou ton identité si la plateforme le demande.\n'
+    +'4. Si un champ promo est proposé, essaie **XPVIP** et vérifie son acceptation.\n'
+    +'*Vérifie les conditions avant tout dépôt.*\n'
+    +PARTNER_LINKS[platform];
+}
+export function guidanceFollowup(question,history=[]) {
+  const q=norm(question).replace(/[!?.]+$/,'').trim();
+  if(!/^(et (apres|ensuite)|ensuite|apres|j.ai (clique|ouvert|fini)|je suis bloque|je ne trouve pas|ca ne marche pas|comment faire maintenant|et maintenant|quelle est la suite)/.test(q)) return null;
+  const relevant=history.slice(-8).map(x=>x.content||'').join(' ');
+  const platform=partnerFromMessage(relevant);
+  if(!/(inscription|inscrire|s.inscrire|cr[eé]er un compte|compte|premier d[eé]p[oô]t)/i.test(relevant)) return null;
+  if(/je (ne trouve pas|suis bloque)|ca ne marche pas/.test(q)) return 'Dis-moi **à quelle étape** tu es bloqué et ce qui s’affiche à l’écran ; je te guiderai.';
+  return 'Si tu as ouvert le lien, choisis **Inscription**, remplis les informations demandées, puis effectue les éventuelles vérifications. '+(platform?'Pour '+PARTNER_NAMES[platform]+', le code partenaire est **XPVIP** si accepté.':'')+' Où en es-tu ?';
+}
+export function sitemapUrls(xml='') {
+  const out=[];
+  for(const match of String(xml).matchAll(/<loc>([^<]+)<\/loc>/gi)){
+    try {
+      const raw=match[1].replace(/&amp;/g,'&').trim();
+      const u=new URL(raw);
+      if(u.origin===new URL(SITE).origin && u.pathname.startsWith('/MrXPRONOS_App/') && !out.includes(u.href)) out.push(u.href);
+    } catch {}
+    if(out.length>=80) break;
+  }
+  return out;
+}
+async function sitemapOverview(){
+  try {
+    const res=await fetch(LINKS.sitemap,{headers:{accept:'application/xml'},signal:AbortSignal.timeout(4000)});
+    if(!res.ok) return Object.values(LINKS).filter(x=>x.startsWith(SITE));
+    return sitemapUrls(await res.text());
+  }catch{return Object.values(LINKS).filter(x=>x.startsWith(SITE));}
+}
+const PAGE_TOPICS = Object.freeze({
+  accueil:'Présentation du service',aujourd_hui:'Rencontres et contenus du jour',
+  pronos:'Pronostics Pro et VIP',scores:'Scores exacts',
+  historique:'Résultats gagnés/perdus/en attente',analyses:'Articles et analyses football',
+  infos:'Actualités football',conseils:'Conseils et pédagogie',
+  bonus:'Bookmakers partenaires et code XPVIP',contact:'Demande de contact'
+});
+export function pageForQuestion(text='') {
+  const q=norm(text);
+  if(/(score exact)/.test(q)) return LINKS.scores;
+  if(/(aujourd.hui|matchs du jour|agenda)/.test(q)) return LINKS.aujourd_hui;
+  if(/(historique|resultat|gagne|perdu|preuve)/.test(q)) return LINKS.historique;
+  if(/(analyse|blog|article|h2h)/.test(q)) return LINKS.analyses;
+  if(/(actualite|info foot|news)/.test(q)) return LINKS.infos;
+  if(/(conseil|apprendre|guide)/.test(q)) return LINKS.conseils;
+  if(/(bonus|partenaire|code promo)/.test(q)) return LINKS.bonus;
+  if(/(contact|reclamation|responsable)/.test(q)) return LINKS.contact;
+  if(/(coupon|prono|selection)/.test(q)) return LINKS.pronos;
+  return LINKS.accueil;
+}
+
+const allowed = (url) => Object.values(LINKS).includes(url) || Object.values(PARTNER_LINKS).includes(url) || (channelUrl() && url === channelUrl());
 
 
 // Connaissances vérifiées dans les pages du site et la logique des sélections (ne pas inventer d'offres).
@@ -52,10 +130,15 @@ export function knowledgePrompt(){
 export function intentFor(input) {
   const text = norm(input);
   if (/^\/(start|help)(\s|$)/.test(text)) return 'welcome';
+  if (/^(merci|merci beaucoup|merci bien|thanks|thank you|super merci|ok merci|d.accord merci|cool merci|parfait merci)[!?. ]*$/.test(text)) return 'thanks';
+  if (/^(ok|okay|d.accord|dac|compris|parfait|cool|super|bien recu|c.est note|tres bien)[!?. ]*$/.test(text)) return 'ack';
   if (/^\/(format|forme|form|apercu|mise_en_forme)(?:@\w+)?(\s|$)/.test(text)) return 'format';
   if (/^\/(pronos|coupons|scores|canaux|resultats|conseils)(\s|$)/.test(text)) {const cmd=text.split(/\s|@/)[0].slice(1);return cmd==='coupons'?'pronos':cmd==='conseils'?'conseil':cmd;}
   if (/(parler a (un |une )?(humain|responsable|personne)|un conseiller|reclamation|partenariat|collaboration|proposition commerciale|remboursement|je veux te parler)/.test(text)) return 'human';
   if (/(je suis mineur|j.ai 1[0-7] ans|j.ai perdu tout|endette|me refaire|argent du loyer)/.test(text)) return 'safety';
+  if (/(s.inscrire|m.inscrire|inscription|ouvrir un compte|creer un compte|enregistrer un compte|signup|register|nouveau compte)/.test(text)) return 'signup';
+  if (/(lien (d.affiliation|affilie|partenaire)|ton lien 1xbet|lien pour (1xbet|melbet|1win|betwinner|linebet|betclic))/.test(text)) return 'partner';
+  if (/(sitemap|plan du site|ou (est|trouve|voir) (la page|le site)|quelle page|navigation du site)/.test(text)) return 'site_nav';
   if (/(score exact|scores exacts|scores-exacts)/.test(text)) return 'scores';
   if (/(code promo|code promotion|code bonus|xpvip|quel est (ton|votre|le) code|bonus|promotion)/.test(text)) return 'bonus';
   if (/(gratuit|payant|combien (coute|coutent)|tarif|abonnement|prix du vip|acces vip|payer pour|devenir vip)/.test(text)) return 'access';
@@ -169,6 +252,8 @@ async function tg(method,body) {
 // Représentation sécurisée des messages : HTML Telegram + boutons de liens officiels.
 const BUTTON_LABELS = Object.freeze({
   [LINKS.accueil]: ['🏠 Ouvrir le site', 'primary'],
+  [LINKS.aujourd_hui]: ['📅 Aujourd’hui', 'primary'],
+  [LINKS.sitemap]: ['🗺️ Plan du site', 'primary'],
   [LINKS.pronos]: ['⚽ Voir les pronostics', 'primary'],
   [LINKS.scores]: ['🎯 Voir les scores exacts', 'primary'],
   [LINKS.historique]: ['📊 Consulter les résultats', 'primary'],
@@ -184,6 +269,8 @@ const BUTTON_LABELS = Object.freeze({
 export function buttonForUrl(url,context='') {
   if(!allowed(url)) return null;
   if(channelUrl() && url===channelUrl()) return {text:'📢 Rejoindre le canal Telegram',url,style:'success'};
+  const partner=Object.entries(PARTNER_LINKS).find(([,value])=>value===url);
+  if(partner) return {text:'🔗 Ouvrir '+PARTNER_NAMES[partner[0]]+' (partenaire)',url,style:'primary'};
   const meta=BUTTON_LABELS[url];
   if(!meta) return null;
   if(url===LINKS.contact && /(reclamation|signaler|urgence|probleme|arnaque|responsable)/.test(norm(context))) {
