@@ -2331,10 +2331,19 @@ export function formatAdminHistory(rows=[],limit=8) {
 }
 async function adminCommand(msg) {
   const text=String(msg.text||'').trim();
-  const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
+  const match=text.match(/^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil|synccommandes)(?:@\w+)?(?:\s+([\s\S]+))?$/i);
   if(!match) return say(msg.chat.id,'Commandes admin : /chats, /history <chat>, /reply <chat> <message>, /pause <chat>, /resume <chat>, /status, /quality');
   const cmd=match[1].toLowerCase(), rest=match[2]||'';
   if(cmd==='testaccueil')return say(msg.chat.id,'🧪 **Aperçu du nouvel abonné**\n\n'+newcomerWelcomeMessage(),'',{allowedUrls:[LINKS.pronos,channelUrl(),LINKS.installer]});
+  if(cmd==='synccommandes'){
+    try{
+      await tg('setMyCommands',{commands:telegramShortcutCommands()});
+      return say(msg.chat.id,'✅ **Menu Telegram mis à jour.** Les raccourcis /liens, /dossier, /actufoot, /bookmakers et /accueil sont enregistrés.');
+    }catch(error){
+      console.warn('telegram_shortcuts_update_failed',String(error?.name||'error'));
+      return say(msg.chat.id,'Impossible de confirmer la mise à jour des commandes Telegram. Réessaie plus tard.');
+    }
+  }
   if(cmd==='status') {
     let model=null;
     try{model=await fetchLastSuccessfulNvidiaModel();}
@@ -2463,7 +2472,7 @@ export async function handleUpdate(update) {
   }
   if(await wasHandled(id)) return;
   const isOwner=!isBusiness && Number(msg.from?.id)===adminId();
-  if(isOwner && /^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil)(?:@\w+)?\b/i.test(text)) {
+  if(isOwner && /^\/(reply|pause|resume|chats|history|status|diagnostic|health|quality|testaccueil|synccommandes)(?:@\w+)?\b/i.test(text)) {
     await adminCommand(msg);await markHandled(id);return;
   }
   const key=chatKey(msg);
@@ -2796,6 +2805,21 @@ export async function handleUpdate(update) {
  * POST {"action":"setup_webhook"} with header x-mx-setup-secret = Supabase webhook secret.
  * Do not log or echo tokens.
  */
+export function telegramShortcutCommands(){
+ return [
+  {command:'start',description:'Découvrir Mr XPRONOS'},
+  {command:'pronos',description:'Pronostics et coupons publiés'},
+  {command:'scores',description:'Scores exacts publiés'},
+  {command:'canaux',description:'Canal Telegram et liens officiels'},
+  {command:'resultats',description:'Historique des résultats'},
+  {command:'liens',description:'Tous les liens officiels'},
+  {command:'dossier',description:'Dossier Telegram Mr XPRONOS F'},
+  {command:'actufoot',description:'Actualités football'},
+  {command:'bookmakers',description:'Liens des partenaires'},
+  {command:'accueil',description:'Revoir la bienvenue'}
+ ];
+}
+
 async function telegramSetup(req) {
   const secret = env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET');
   const supplied = req.headers.get('x-mx-setup-secret') || '';
@@ -2819,18 +2843,7 @@ async function telegramSetup(req) {
       });
       if(installed!==true) return json({error:'set_webhook_not_confirmed'},502);
       try {
-        await tg('setMyCommands',{commands:[
-          {command:'start',description:'Découvrir Mr XPRONOS'},
-          {command:'pronos',description:'Pronostics et coupons publiés'},
-          {command:'scores',description:'Scores exacts publiés'},
-          {command:'canaux',description:'Canaux et liens officiels'},
-          {command:'resultats',description:'Historique des résultats'},
-          {command:'liens',description:'Annuaire des liens officiels'},
-          {command:'dossier',description:'Dossier Telegram Mr XPRONOS F'},
-          {command:'actufoot',description:'Actualités du football'},
-          {command:'accueil',description:'Message de bienvenue'},
-          {command:'testaccueil',description:'Aperçu de bienvenue (admin)'}
-        ]});
+        await tg('setMyCommands',{commands:telegramShortcutCommands()});
       }catch(e){console.warn('optional_commands_setup_failed',String(e));}
     }
     const info=await tg('getWebhookInfo',{});
