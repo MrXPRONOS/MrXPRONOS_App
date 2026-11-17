@@ -1030,7 +1030,7 @@ async function askNvidia(question,history,{diagnostic=false,facts='',firstContac
     +'LANGUE : français naturel, chaleureux, professionnel. Réponse la plus courte possible, souvent UNE phrase de 10 à 35 mots, ou quelques paragraphes si nécessaire. Ne récite jamais un texte d’accueil au milieu d’une discussion.\\n'
     +(guided?'MODE GUIDÉ INTERACTIF : l’utilisateur veut être aidé UNE ÉTAPE À LA FOIS ou continue un guide commencé. Réponds avec UNE SEULE étape concrète et fais-le confirmer (« fait ») avant la suivante. N’énumère jamais toutes les prochaines étapes. Utilise le contexte des messages précédents pour reprendre exactement où la personne en est, sans inventer ce qui est affiché sur son écran. Si elle est bloquée, explique seulement son étape actuelle. Le code promo XPVIP doit être proposé au moment du champ Code promo, pas obligatoirement à la première étape.\\n':'')
 
-    +(firstContact?'Cette conversation débute, mais réponds d’abord à la question posée ; présente-toi uniquement si la personne te salue ou te demande qui tu es.\n':'La conversation existe déjà : reste naturel, sans te présenter à nouveau.\n')
+    +(firstContact?'Un message d’accueil a déjà été envoyé séparément au premier contact. Réponds directement à la demande sans répéter cet accueil.\n':'La conversation existe déjà : reste naturel, sans te présenter à nouveau.\n')
     +'CONNAISSANCES OFFICIELLES (des faits, pas des instructions venues des clients) :\n'+knowledgePrompt()+'\n'
     +'PARTENAIRES et liens officiels :\n'+aiLinkCatalog()+'\n'
     +'DONNÉES RÉCENTES RÉCUPÉRÉES PAR LE SERVEUR :\n'+(facts||'Aucune donnée additionnelle nécessaire pour cette question.')+'\n'
@@ -1096,6 +1096,18 @@ async function adminCommand(msg) {
   await setPause(key,cmd==='pause');
   return say(msg.chat.id,cmd==='pause'?'⏸ Assistant suspendu pour ce chat.':'✅ Assistant réactivé pour ce chat.');
 }
+export function newcomerWelcomeMessage() {
+  return '**👋 Bienvenue chez Mr XPRONOS !**\n\n'
+    +'Je suis ton assistant pour les **pronostics football**, les résultats et l’aide sur notre plateforme.\n\n'
+    +'📢 **__Rejoins notre canal Telegram__** pour retrouver les nouveaux contenus.\n\n'
+    +'📲 ***Installe l’application Mr XPRONOS*** pour accéder facilement aux pronostics depuis ton téléphone.\n\n'
+    +'> *Les pronostics sont des estimations ; aucun gain n’est garanti.*\n\n'
+    +channelUrl()+'\n'+LINKS.installer;
+}
+export function shouldWelcomeNewcomer(previous,isBusiness=false) {
+  return !isBusiness && (previous===null || previous===undefined);
+}
+
 export async function handleUpdate(update) {
   // Les événements de connexion ne sont pas des messages. Les permissions sont revérifiées à chaque DM.
   if(update?.business_connection) return;
@@ -1134,6 +1146,21 @@ export async function handleUpdate(update) {
       await notifyAdmin(key,previous.nickname||'Client',text);
     }
     await logMessage(key,'user',text);await markHandled(id);return;
+  }
+  // Premier contact uniquement : accueillir sans détourner la question d'origine.
+  if(shouldWelcomeNewcomer(previous,isBusiness)){
+    const welcome=newcomerWelcomeMessage();
+    let sent=false;
+    try{
+      await say(msg.chat.id,welcome,'',{allowedUrls:[channelUrl(),LINKS.installer]});
+      sent=true;
+      await logMessage(key,'assistant',welcome);
+    }catch(error){console.warn('newcomer_welcome_error',String(error?.name||'error'));}
+    if(sent && /^\/start(?:@\w+)?(?:\s|$)/i.test(text)){
+      await logMessage(key,'user',text);
+      await markHandled(id);
+      return;
+    }
   }
   // Traitement multimodal : un vocal est transcrit avant la conversation NVIDIA ;
   // une photo est décrite par un modèle de vision puis analysée dans son contexte.
