@@ -1,3 +1,5 @@
 Run one authorized verification of personal Telegram administrator broadcast channels and bot @mrxpronos_canal_bot administrator status. Securely store matches in Supabase Vault. Do not publish any messages. 2026-11-17.
 
 Safe-diagnostic retry after matching bot token confirmed.
+
+Retry to identify SQLSTATE without disclosing sensitive registry payload.
