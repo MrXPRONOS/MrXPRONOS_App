@@ -114,7 +114,7 @@ def title_assessment(poster,video):
     evidence = [b for b in evidence if b]
     # Equal titles do not identify the same remake when years conflict.
     poster_years = release_year(title_line(poster))
-    video_years = release_year(caption) | release_year(filename_title(filename))
+    video_years = release_year(caption) | (release_year(filename) if filename_title(filename) else set())
     if poster_years and video_years and poster_years.isdisjoint(video_years):
         return "uncertain" if related else "mismatch"
     if a and evidence:
