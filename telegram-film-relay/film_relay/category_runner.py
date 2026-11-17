@@ -57,7 +57,8 @@ def category_config(category: str, env: dict | None = None) -> dict:
     # episodes into Comedy, while other user-added sources remain permitted.
     cross_category = {
         "comedie": {"@orak_dessinanime", "@cineromances", "@filmsromantiques",
-                    "@filmromatique", "@g_romanticfilm"},
+                    "@filmromatique", "@g_romanticfilm", "@filmsromatique",
+                    "@films_romantique_vf", "@paff_erotique"},
         "anime": {"@comexflex", "@filmcomplets", "@cineromances", "@filmsromantiques"},
     }
     forbidden_sources = cross_category.get(category, set())
