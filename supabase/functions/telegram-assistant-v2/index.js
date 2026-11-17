@@ -643,7 +643,7 @@ export function telegramInline(text) {
   // Les liens ne peuvent pointer que vers le catalogue officiel ou un partenaire validé.
   let value=String(text||'').replace(/`([^`]+)`/g,(_m,code)=>stash('<code>'+htmlEscape(code)+'</code>'));
   value=value.replace(/\[([^\]\n]{1,96})\]\((https:\/\/[^\s)]+)\)/gi,(_m,label,url)=>{
-    if(!allowed(url))return '[lien non vérifié retiré]';
+    if(!allowed(url))return 'Lien externe non confirmé. Consulte /liens pour les adresses officielles.';
     return stash('<a href="'+htmlEscape(url)+'">'+htmlEscape(label)+'</a>');
   });
   let x=htmlEscape(value);
@@ -1342,13 +1342,13 @@ export function buildTelegramMessage(raw,{allowedUrls=null,maxButtons=3}={}) {
   // La syntaxe [clique ici](https://...) indique explicitement un lien DANS le texte.
   // Elle reste cliquable sans consommer un emplacement de bouton.
   let text=original.replace(/\[([^\]\n]{1,96})\]\((https:\/\/[^\s)]+)\)/gi,(_m,label,url)=>{
-    if(!permitted(url))return '[lien non vérifié retiré]';
+    if(!permitted(url))return 'Lien externe non confirmé. Consulte /liens pour les adresses officielles.';
     return inline(url,label);
   });
   text=text.replace(/https?:\/\/[^\s<>"'\x60]+/gi,matched=>{
     const url=matched.replace(/[.,;!?)\]]+$/g,'');
     const suffix=matched.slice(url.length);
-    if(!permitted(url))return '[lien non vérifié retiré]'+suffix;
+    if(!permitted(url))return 'Lien externe non confirmé. Consulte /liens pour les adresses officielles.'+suffix;
     if(addButton(url))return suffix;
     // Au-delà du nombre raisonnable de boutons, les liens deviennent
     // des liens sur du texte lisible plutôt que des URL brutes.
@@ -2033,7 +2033,7 @@ async function wasHandled(id){const rows=await db(`mx_telegram_assistant_updates
 async function markHandled(id){await db('mx_telegram_assistant_updates','POST',{update_id:id},'resolution=ignore-duplicates');}
 function safeModelReply(raw) {
   const reply=cut(String(raw||'').trim(),4800);
-  const safe=reply.replace(/https?:\/\/[^\s<>\])}]+/gi,u=>allowed(u.replace(/[.,;!?]+$/,''))?u:'[lien non vérifié retiré]');
+  const safe=reply.replace(/https?:\/\/[^\s<>\])}]+/gi,u=>allowed(u.replace(/[.,;!?]+$/,''))?u:'Lien externe non confirmé. Consulte /liens pour les adresses officielles.');
   return safe.replace(/(?:100\s*%\s*(?:garanti|certain|sur)|gain garanti|pari sans risque)/gi,'aucune garantie');
 }
 
