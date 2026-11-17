@@ -216,25 +216,51 @@ export function telegramHtml(text) {
   flush();
   return result.join('\n');
 }
-export function buildTelegramMessage(raw) {
+
+// Boutons uniquement si la demande du client nécessite réellement une destination.
+export function responseLinks(intent,question,answer='') {
+  const q=norm(question);
+  if(intent==='format') return [LINKS.pronos,LINKS.conseils,LINKS.contact]; // prévisualisation demandée
+  if(intent==='pronos') {
+    if(/(c.est quoi un pronostic|definition d.un pronostic)/.test(q)) return [];
+    return /(canal|telegram)/.test(q)?[LINKS.pronos,channelUrl()]:[LINKS.pronos];
+  }
+  if(intent==='scores') return [LINKS.scores];
+  if(intent==='canaux') return [channelUrl()];
+  if(intent==='resultats') return [LINKS.historique];
+  if(intent==='bonus') return /(lien|offre|page|site|ou (profiter|utiliser|trouver)|comment utiliser|conditions|bookmaker|inscri|bonus)/.test(q)?[LINKS.bonus]:[];
+  if(intent==='conseil') return /(lien|page|guide|article|site|ou (lire|voir|consulter))/.test(q)?[LINKS.conseils]:[];
+  if(intent==='site') {
+    if(/(analyse|blog|h2h)/.test(q)) return [LINKS.analyses];
+    if(/(info|actualite|news)/.test(q)) return [LINKS.infos];
+    if(/(conseil|guide)/.test(q)) return [LINKS.conseils];
+    return [LINKS.accueil];
+  }
+  if(intent==='schedule' && /(lien|ou voir|consulter|page)/.test(q)) return [LINKS.pronos];
+  if(intent==='human' && answer.includes(LINKS.contact)) return [LINKS.contact];
+  return [];
+}
+
+export function buildTelegramMessage(raw,{allowedUrls=null}={}) {
   const buttons=[],seen=new Set();
   const original=cut(raw,3500);
   const add=(url)=>{
     const button=buttonForUrl(url,original);
-    if(!button) return false;
+    if(!button || (Array.isArray(allowedUrls) && !allowedUrls.includes(url))) return false;
     if(seen.has(url)) return true;
     if(buttons.length>=8) return false;
     seen.add(url);buttons.push([button]);return true;
   };
-  let text=original.replace(/\[([^\]\n]{1,72})\]\((https?:\/\/[^\s)]+)\)/gi,(_full,label,url)=>add(url)?label:'[lien non vérifié retiré]');
+  let text=original.replace(/\[([^\]\n]{1,72})\]\((https?:\/\/[^\s)]+)\)/gi,(_full,label,url)=>add(url)?label:(allowed(url)?'':'[lien non vérifié retiré]'));
   // Remplacer tous les liens bruts par des boutons; aucun lien non vérifié n'est envoyé.
   text=text.replace(/https?:\/\/[^\s<>"'\x60]+/gi,matched=>{
     const url=matched.replace(/[.,;!?)\]]+$/g,'');
-    return add(url)?'':'[lien non vérifié retiré]';
+    return add(url)?'':(allowed(url)?'':'[lien non vérifié retiré]');
   });
   text=text.replace(/^(.*?)(?:\s*:\s*)$/gm,(_match,line)=>line.trimEnd());
   text=text.replace(/^[ \t]*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
-  if(buttons.length) text+=(text?'\n\n':'')+(buttons.length===1?'👇 **Clique sur le bouton ci-dessous.**':'👇 **Choisis un bouton ci-dessous.**');
+  text=text.replace(/^[ \t]*[^\n:]{1,45}:\s*$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
+  // Pas de phrase de remplissage « clique sur le bouton » : Telegram affiche déjà son intitulé.
   return {
     text:telegramHtml(text||'Consulte les options ci-dessous.'),
     fallback_text:text||'Consulte les options ci-dessous.',
@@ -242,8 +268,8 @@ export function buildTelegramMessage(raw) {
   };
 }
 
-async function say(chatId,text,businessId='') {
-  const view=buildTelegramMessage(text);
+async function say(chatId,text,businessId='',options={}) {
+  const view=buildTelegramMessage(text,options);
   const body={chat_id:chatId,text:view.text,parse_mode:'HTML',link_preview_options:{is_disabled:true}};
   if(view.reply_markup) body.reply_markup=view.reply_markup;
   if(businessId) body.business_connection_id=businessId;
