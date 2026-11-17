@@ -735,7 +735,7 @@ export function tidyResponseText(value=''){
   let text=String(value||'').replace(/\[lien non v[eé]rifi[eé] retir[eé]\]/gi,'')
     .replace(/\baucun aucune\b/gi,'aucune')
     .replace(/\b(?:pour pouvoir ){2,}/gi,'pour pouvoir ')
-    .replace(/\s+([,;:.!?])/g,'$1')
+    .replace(/[ \t]+([,.])/g,'$1')
     .replace(/[ ]{2,}/g,' ');
   const seen=new Set();
   const lines=[];
