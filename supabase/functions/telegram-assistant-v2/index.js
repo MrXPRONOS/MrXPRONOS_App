@@ -1093,6 +1093,14 @@ export function groundedQuestionReply(question='',history=[],session=null){
  const q=normalizeClientFrench(question);
  const hist=normalizeClientFrench(history.slice(-8).map(x=>x.content||'').join(' '));
  if(session?.mode==='guided'&&guideIsContinuation(question,session))return null;
+ if(/(?:est.ce un bookmaker partenaire|est.ce un partenaire)/.test(q)&&/whats[ -]?bet/.test(hist))
+  return 'Whatsbet n’apparaît pas dans notre catalogue de partenaires vérifiés. Confirme le nom exact avant toute proposition de lien.';
+ if(/(?:en fait|non).{0,18}(?:je voulais dire|je parle de)/.test(q)&&partnerFromMessage(question)){
+  const name=PARTNER_NAMES[partnerFromMessage(question)];
+  return 'Merci pour la précision : tu parles de **'+name+'**. Souhaites-tu que je t’aide à trouver les informations officielles ou à comprendre les étapes générales ?';
+ }
+ if(/(?:je suis sur (?:iphone|android)|et sur android|avec safari|ca marche avec safari|sur windows)/.test(q)&&/(?:install|application|pwa|ecran d.accueil)/.test(hist))
+  return '**Installation Mr XPRONOS**\n\n'+installationSteps(question);
  if(/(?:resultats? d.hier|anciens? coupons?|matchs? gagnes?|resultats? precedents|ou sont les resultats)/.test(q))
   return '📊 **Historique des résultats**\n\nRetrouve les sélections publiées et leur état dans notre historique : '+LINKS.historique;
  if(/(?:vip|pro)/.test(q)&&/(?:payant|gratuit|tarif|difference|combien coute|et les vip)/.test(q))
