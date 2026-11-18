@@ -109,8 +109,7 @@ def _model_translate(title, summary, model, key, post=requests.post):
                 ensure_ascii=False
             )},
         ],
-        "temperature":0, "reasoning_effort":"none",
-        "max_tokens":540, "stream":False,
+        "max_tokens":680, "stream":False,
     }
     try:
         r = post(ENDPOINT, headers={
@@ -120,7 +119,17 @@ def _model_translate(title, summary, model, key, post=requests.post):
     except requests.RequestException:
         raise TranslationHold("nvidia_network_error") from None
     if r.status_code != 200:
-        raise TranslationHold("nvidia_http_"+str(r.status_code))
+        # Only a sanitized error category; do not emit model text or API key.
+        try:
+            payload = r.json()
+            fragment = str(payload.get("detail") or payload.get("error") or "")
+            category = next((word for word in (
+                "reasoning_effort","temperature","max_tokens","model","messages",
+                "tokens","quota","permission","unsupported","invalid","parameter")
+                if word in fragment.lower()), "unknown")
+        except (ValueError, AttributeError, TypeError):
+            category = "unknown"
+        raise TranslationHold("nvidia_http_"+str(r.status_code)+"_"+category)
     if len(r.content) > 16000:
         raise TranslationHold("nvidia_response_too_large")
     try:
