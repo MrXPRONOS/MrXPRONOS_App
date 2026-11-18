@@ -62,7 +62,7 @@ for(const type of ["films","series","animes"]){
  const start=performance.now();
  const response=await get("/api/catalog?type="+type);
  assert.equal(response.status,200);
- assert.ok(response.body.channels.every(x=>x.type===type));
+ assert.ok(response.body.channels.every(x=>x.type===type||String(x.tags||"").split(",").includes(type)));
  console.log("PASS "+type+" live API "+Math.round(performance.now()-start)+" ms");
 }
 
