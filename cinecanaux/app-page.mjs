@@ -676,7 +676,20 @@ function makeNav(label,page,icon){const b=node("button",null);b.type="button";b.
 function openMenu(){const b=$("cine-menu-backdrop");if(!b)return;oldFocus=document.activeElement;b.hidden=false;drawerOpen=true;$("cine-menu-trigger").setAttribute("aria-expanded","true");document.body.style.overflow="hidden";$("cine-menu-close").focus()}
 function closeMenu(){if(!drawerOpen)return;$("cine-menu-backdrop").hidden=true;drawerOpen=false;$("cine-menu-trigger").setAttribute("aria-expanded","false");document.body.style.overflow="";if(oldFocus&&oldFocus.focus)oldFocus.focus()}
 function releaseSearch(){const input=$("search");if(input&&input.value){input.value="";input.dispatchEvent(new Event("input",{bubbles:true}))}const all=document.querySelector("#tabs [data-type=all]");if(all)all.click();const sort=$("sort");if(sort&&sort.value!=="relevant"){sort.value="relevant";sort.dispatchEvent(new Event("change"))}}
-function setFilter(term){setHash("explorer");const q=$("search");if(!q)return;const all=document.querySelector("#tabs [data-type=all]");if(all&&!all.classList.contains("active"))all.click();q.value=term;q.dispatchEvent(new Event("input",{bubbles:true}));setTimeout(()=>q.focus(),50)}
+function setFilter(term){
+ setHash("explorer");
+ const q=$("search");if(!q)return;
+ const category=["films","series","animes"].includes(term)?term:null;
+ const all=document.querySelector('#tabs [data-type="all"]');
+ if(all&&!all.classList.contains("active"))all.click();
+ if(category){
+  const button=document.querySelector('#tabs [data-type="'+category+'"]');
+  if(button&&!button.classList.contains("active"))button.click();
+ }
+ q.value=category?"":term;
+ q.dispatchEvent(new Event("input",{bubbles:true}));
+ setTimeout(()=>q.focus(),50);
+}
 function buildPanel(name){const s=node("section","cine-panel");s.id="cine-page-"+name;s.dataset.page=name;s.hidden=true;s.setAttribute("aria-label",labels[name]);panel[name]=s;return s}
 function heading(p,title,desc){const top=node("div","cine-head");const h=node("h2",null,title);top.append(h);if(desc)top.append(node("p",null,desc));p.append(top)}
 function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";showChannelImage(img,url,null,()=>{img.remove();avatar.textContent="🎬"});avatar.append(img)}else avatar.textContent="🎬";
