@@ -1,8 +1,8 @@
 {
   "project": "Mr XPRONOS Play",
-  "status": "binary_files_pending",
+  "status": "uploaded_verified",
   "asset_count": 50,
-  "notes": "PNG and WebP source files packaged locally; this GitHub catalog is not proof of uploaded binary files.",
+  "notes": "Verified on 2026-11-18 against GitHub main: 50 PNG + 50 WebP present in 5 folders, 100 expected paths match, all sizes > 0. No byte-for-byte / image-visual comparison performed.",
   "assets": [
     {
       "number": 1,
@@ -354,5 +354,14 @@
       "png": "assets/05-mrxp-legends-nft/50-nft-collection-chest.png",
       "webp": "assets/05-mrxp-legends-nft/50-nft-collection-chest.webp"
     }
-  ]
+  ],
+  "verified_on": "2026-11-18",
+  "verification": {
+    "expected_files": 100,
+    "png_files": 50,
+    "webp_files": 50,
+    "missing_files": 0,
+    "unexpected_files_in_lot_folders": 0,
+    "zero_byte_files": 0
+  }
 }
