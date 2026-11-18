@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-fdf1484b4dab9c46:1X",
+    "recorded_at_utc": "2026-11-18T19:36:09+00:00",
+    "kickoff_utc": "2026-11-20T17:00:00+00:00",
+    "fixture": {
+      "home_team": "Piast Gliwice",
+      "away_team": "MKS Korona Kielce",
+      "league": "Ekstraklasa"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 84.0,
+      "odds": 1.464,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "1e265321911540ef99fc4838675a60241c8aa7418e6e70abe285f50a2466de5a"
+}

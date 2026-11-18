@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-10e9a35148f5fbb1:UNDER_35",
+    "recorded_at_utc": "2026-11-18T19:36:09+00:00",
+    "kickoff_utc": "2026-11-20T13:30:00+00:00",
+    "fixture": {
+      "home_team": "ES Hammam-Sousse",
+      "away_team": "PS Sakiet Eddaïer",
+      "league": "Tunisian Professional League 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "578ba40048fec20cb6b6eae83a5856a9d9ada5b922781c7e13a753d37934799a"
+}
