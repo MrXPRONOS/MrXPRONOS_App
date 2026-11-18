@@ -442,7 +442,7 @@ function buildCard(c,i){
  const card=node("article","card");card.dataset.channelId=String(c.id);card.dataset.type=c.type;
  const cover=node("div","card-cover");cover.append(makeArt(c.type,c.id));
  const directAvatar=photoHost(c.avatar)?c.avatar:photoHost(c.photo)?c.photo:null;
- if(directAvatar){const img=node("img",photoHost(c.avatar)?"channel-profile-img":null);img.alt="Photo de profil du canal "+c.title;img.loading="lazy";img.decoding="async";img.onerror=()=>{if(img.src!==c.photo&&photoHost(c.photo)){img.classList.remove("channel-profile-img");img.src=c.photo;}else img.remove();};img.src=directAvatar;cover.append(img);}
+ if(directAvatar){const img=node("img",photoHost(c.avatar)?"channel-profile-img":null);img.alt="Photo de profil du canal "+c.title;img.loading="lazy";img.decoding="async";showChannelImage(img,directAvatar,c.photo,()=>img.remove());cover.append(img);}
  const body=node("div","card-body");body.append(node("h4",null,c.title));
  if(c.featured)body.append(node("div","owned-channel-badge","✦ À la une"));
  if(c.private_channel)body.append(node("div","private-channel-label","🔒 Canal privé"));
@@ -475,7 +475,7 @@ function updatePreviewThumb(id,p){
  source.photo=url;
  const cover=Array.from($("cards").children).find(x=>Number(x.dataset.channelId)===id)?.querySelector(".card-cover");
  if(cover&&!cover.querySelector("img")){
-  const img=node("img",url===source.avatar?"channel-profile-img":null);img.alt="Photo du canal "+source.title;img.loading="lazy";img.decoding="async";img.onerror=()=>img.remove();img.src=url;cover.append(img);
+  const img=node("img",url===source.avatar?"channel-profile-img":null);img.alt="Photo du canal "+source.title;img.loading="lazy";img.decoding="async";showChannelImage(img,url,null,()=>img.remove());cover.append(img);
  }
 }
 async function getPreview(id){
@@ -598,7 +598,7 @@ function fillPreview(c,p){
  const profile=node("div","sheet-profile");
  const avatar=node("div","sheet-avatar");avatar.append(ico(c.type==="series"?"tv":c.type==="animes"?"gamepad":"film"));
  const profilePhoto=[c.avatar,p?.photo,c.photo].find(photoHost);
- if(profilePhoto){avatar.textContent="";const img=node("img");img.alt="Photo de profil du canal";img.src=profilePhoto;img.onerror=()=>{if(img.src!==p?.photo&&photoHost(p?.photo)){img.src=p.photo;}else{avatar.textContent="";avatar.append(ico("film"));}};avatar.append(img);}
+ if(profilePhoto){avatar.textContent="";const img=node("img");img.alt="Photo de profil du canal";showChannelImage(img,profilePhoto,p?.photo,()=>{avatar.textContent="";avatar.append(ico("film"));});avatar.append(img);}
  const names=node("div","sheet-name");names.append(node("h3",null,p?.title||c.title),node("small",null,"Canal public Telegram"));
  const tag=node("div","genre-tag",typeLabel(c.type));names.append(tag);profile.append(avatar,names);detail.append(profile);
  const usefulBio=p?.description&&!p.description.startsWith("Canal Telegram public")?p.description:
@@ -652,6 +652,14 @@ const pages=["accueil","explorer","decouvrir","favoris","historique","proposer",
 const labels={accueil:"Accueil",explorer:"Explorer",decouvrir:"Découvrir",favoris:"Favoris",historique:"Historique",proposer:"Proposer un canal",apropos:"À propos"};
 let panel={},listing,existing,oldFocus=null;
 function persist(){try{localStorage.setItem(saveKey,JSON.stringify(favorites));localStorage.setItem(historyKey,JSON.stringify(recent))}catch{}}
+function showChannelImage(img,source,backup,exhausted){
+ const candidates=[source];
+ if(/^\/assets\/channel-avatar\/[1-9][0-9]{0,9}\.jpg$/.test(String(source||"")))candidates.push(source+"?refresh=1");
+ if(backup&&photoHost(backup)&&backup!==source)candidates.push(backup);
+ let current=0;
+ img.onerror=()=>{current++;if(current<candidates.length)img.src=candidates[current];else if(exhausted)exhausted()};
+ img.src=source;
+}
 function linkAvatar(c){const src=String(c.avatar||"");return /^\/assets\/channel-avatar\/([1-9][0-9]{0,9}|[a-z][a-z0-9_]{4,31})\.jpg$/i.test(src)?src:(Number.isSafeInteger(Number(c.id))&&Number(c.id)>0?"/assets/channel-avatar/"+c.id+".jpg":null)}
 function setHash(page){const h="#/"+page;if(location.hash!==h)location.hash=h;else navigate(page)}
 function switchPanel(p){pages.forEach(n=>{panel[n].hidden=n!==p});document.querySelectorAll("[data-go]").forEach(b=>{if(b.dataset.go===p)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});document.title=(p==="accueil"?"Ciné Radar":labels[p]+" | Ciné Radar");window.scrollTo({top:0,behavior:"instant"})}
@@ -662,7 +670,7 @@ function releaseSearch(){const input=$("search");if(input&&input.value){input.va
 function setFilter(term){setHash("explorer");const q=$("search");if(!q)return;const all=document.querySelector("#tabs [data-type=all]");if(all&&!all.classList.contains("active"))all.click();q.value=term;q.dispatchEvent(new Event("input",{bubbles:true}));setTimeout(()=>q.focus(),50)}
 function buildPanel(name){const s=node("section","cine-panel");s.id="cine-page-"+name;s.dataset.page=name;s.hidden=true;s.setAttribute("aria-label",labels[name]);panel[name]=s;return s}
 function heading(p,title,desc){const top=node("div","cine-head");const h=node("h2",null,title);top.append(h);if(desc)top.append(node("p",null,desc));p.append(top)}
-function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";img.src=url;img.onerror=()=>{img.remove();avatar.textContent="🎬"};avatar.append(img)}else avatar.textContent="🎬";
+function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";showChannelImage(img,url,null,()=>{img.remove();avatar.textContent="🎬"});avatar.append(img)}else avatar.textContent="🎬";
  const title=node("strong",null,c.title);const sub=node("small",null,(c.featured?"✦ À la une · ":"")+(label||"Canal Telegram"));b.append(avatar,title,sub);
  if(c.content_verified&&Number(c.content_count)>=1){const count=node("small","cine-pick-stat",Number(c.content_count).toLocaleString("fr-FR")+" publications");b.append(count)}
  b.onclick=()=>previewChannel(c);return b}
