@@ -189,6 +189,6 @@ export async function authorizeRadarTitle(env,id,ownerId){
  return Number(result.meta?.changes||0)>0;
 }
 export async function radarOwnerDigest(env){
- const rows=(await env.DB.prepare("SELECT t.id,t.kind,t.title,t.year,t.authorized,t.source_url,(SELECT COUNT(*) FROM radar_matches m WHERE m.title_id=t.id AND m.media_kind='video') matches FROM radar_titles t ORDER BY t.last_seen_at DESC,t.trend_rank ASC LIMIT 24").all()).results||[];
+ const rows=(await env.DB.prepare("SELECT t.id,t.kind,t.title,t.year,t.authorized,t.source_url,(SELECT COUNT(*) FROM radar_matches m WHERE m.title_id=t.id AND m.media_kind='video') matches FROM radar_titles t ORDER BY t.last_seen_at DESC,t.trend_rank ASC LIMIT 10").all()).results||[];
  return rows.length?'🎬 Tendances Ciné Radar\n'+rows.map(x=>({films:'🎬',series:'📺',animes:'🎌'}[x.kind]+' '+x.title+(x.year?' ('+x.year+')':'')+' — '+(x.authorized?'✅ Autorisé':x.matches?'🔐 À autoriser':'⏳ À publier')+'\n'+x.id+'\n'+x.source_url)).join('\n\n'):'Aucune tendance indexée pour le moment. Les sources sont contrôlées au prochain passage.';
 }
