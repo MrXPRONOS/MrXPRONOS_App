@@ -1,0 +1,35 @@
+name: Actu Foot RSS - Editorial safety tests (no Telegram)
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/actu_foot_d1_news.py'
+      - 'scripts/football_rss_editor.py'
+      - 'scripts/football_news_engine.py'
+      - 'tests_football_channel/test_football_rss_editor.py'
+      - 'tests_football_channel/test_actu_foot_d1_news.py'
+      - 'tests_football_channel/test_actu_foot_rss_format.py'
+      - '.github/workflows/actu-foot-rss-editor-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  editorial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline test dependencies only
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10' 'langdetect>=1.0.9,<2'
+      - name: Compile edited modules
+        run: python -m py_compile scripts/football_rss_editor.py scripts/actu_foot_d1_news.py
+      - name: Verify complete French RSS, translation and anti-duplicate safeguards
+        run: |
+          python -m unittest discover -s tests_football_channel -p 'test_football_rss_editor.py' -v
+          python -m unittest discover -s tests_football_channel -p 'test_actu_foot_d1_news.py' -v
+          python -m unittest discover -s tests_football_channel -p 'test_actu_foot_rss_format.py' -v

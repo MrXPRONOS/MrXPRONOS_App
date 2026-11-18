@@ -35,6 +35,8 @@ DEFAULT_FREE_FEEDS = (
     "https://www.onzemondial.com/rss/index.html",
     "http://rss.maxifoot.com/football-general.xml",
     "https://www.sofoot.com/rss",
+    # Verified public English football feed; Telegram requires NVIDIA French editing.
+    "https://feeds.bbci.co.uk/sport/football/rss.xml",
 )
 
 
@@ -62,6 +64,7 @@ SOURCE_PROFILES = {
     "www.maxifoot.fr": SourceProfile("Maxifoot", 78),
     "sofoot.com": SourceProfile("So Foot", 77),
     "www.sofoot.com": SourceProfile("So Foot", 77),
+    "feeds.bbci.co.uk": SourceProfile("BBC Sport", 85),
 }
 
 CATEGORY_RULES = (

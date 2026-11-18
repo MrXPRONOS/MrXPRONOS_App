@@ -24,6 +24,7 @@ from PIL import Image, ImageOps
 
 from d1_publication_ledger import D1Ledger
 from telegram_rich import post_photo, post_text
+from football_rss_editor import prepare, EditorialHold
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FILE = ROOT / "telegram_out" / "actu_foot_source_news.json"
@@ -65,10 +66,10 @@ def clean_visible_text(value):
 
 
 def story_parts(item):
-    title = clean_visible_text(item.get("title"))[:220]
+    title = clean_visible_text(item.get("telegram_title_fr") or item.get("title"))[:220]
     title = re.sub(r"(?i)^(?:⚽\s*)?(?:actu\s*foot|flash\s*foot)\s*[:|–—-]\s*", "", title).strip()
     content = clean_visible_text(
-        item.get("content") or item.get("telegram_summary") or item.get("summary")
+        item.get("telegram_content_fr") or item.get("content") or item.get("telegram_summary") or item.get("summary")
     )
     # Avoid starting the body by repeating the identical headline.
     if content.casefold().startswith(title.casefold()) and title:
@@ -182,6 +183,7 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
         if str(row.get("ref_id") or "").startswith(str(chat) + ":")
     }
     sent_this_run = set()
+    report["editorial_skipped"] = 0
 
     for stamp, item, image, slug, link in stories:
         if report["sent"] >= MAX_POSTS_PER_RUN:
@@ -194,6 +196,14 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
         ref = str(chat) + ":" + slug
         if ref in sent_this_run or ledger.rows(KIND, article_day, ref_id=ref):
             report["already_sent"] += 1
+            continue
+
+        # Editorial verification MUST precede D1 claims; no slot is wasted
+        # on clipped, untranslatable or unverifiable RSS stories.
+        try:
+            edited_item = prepare(item, session=session)
+        except EditorialHold:
+            report["editorial_skipped"] += 1
             continue
 
         # Each 30-minute run has two independent, durable publication slots.
@@ -213,7 +223,7 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
             report["already_sent"] += 1
             continue
         try:
-            msg = send_article(session, token, chat, item, image, link)
+            msg = send_article(session, token, chat, edited_item, image, link)
             ledger.mark(KIND, ref, article_day, message_id=msg)
             ledger.mark(SLOT_KIND, slot, day, message_id=msg)
             ledger.mark(DAILY_KIND, daily_ref, day, message_id=msg)
