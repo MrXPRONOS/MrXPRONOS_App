@@ -48,6 +48,14 @@
     "XRP": true
   },
   "news_fingerprints": {
+    "12756b1cf5393d74ae99": {
+      "message_id": 198,
+      "number": 11
+    },
+    "12756b1cf5393d74ae99ee90": {
+      "message_id": 198,
+      "number": 11
+    },
     "219923d8977c84540b652424": {
       "message_id": 124,
       "number": 9
@@ -123,6 +131,14 @@
     "97abe2544859d093cd88785c": {
       "message_id": 80,
       "number": 9
+    },
+    "999e3849747e1922e653": {
+      "message_id": 198,
+      "number": 11
+    },
+    "999e3849747e1922e653475b": {
+      "message_id": 198,
+      "number": 11
     },
     "adbe0f80edb24646d5d1": {
       "message_id": 130,
@@ -335,6 +351,29 @@
         "regulated"
       ],
       "url": "https://cryptobriefing.com/bank-of-england-blockchain-clearing-houses"
+    },
+    {
+      "actors": [
+        "coinbase"
+      ],
+      "category": "SÉCURITÉ",
+      "countries": [],
+      "figures": [],
+      "message_id": 198,
+      "published_at": "2026-11-18T15:30:00+00:00",
+      "sent_at": "2026-11-18T16:47:02.836095+00:00",
+      "source": "Bitcoin Magazine",
+      "title": "Coinbase Says Its AI Blocked $4.7 Million in Deepfake Elon Musk Scam",
+      "tokens": [
+        "blocked",
+        "coinbase",
+        "deepfake",
+        "elon",
+        "million",
+        "musk",
+        "scam"
+      ],
+      "url": "https://bitcoinmagazine.com/news/coinbase-ai-blocks-deepfake-musk-scam"
     }
   ],
   "sent": {
@@ -1045,6 +1084,12 @@
       "number": 9,
       "sent_at": "2026-10-29T21:22:49.756216+00:00",
       "source": "Cointelegraph"
+    },
+    "news:09:a10ec3cecfe1e8a8da5db48a": {
+      "message_id": 198,
+      "number": 9,
+      "sent_at": "2026-11-18T16:47:02.836095+00:00",
+      "source": "Bitcoin Magazine"
     },
     "news:09:a6eaf890e9fae202beede8cc": {
       "message_id": 87,
