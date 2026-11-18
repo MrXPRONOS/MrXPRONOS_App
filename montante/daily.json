@@ -7,8 +7,7 @@
   "policy": "bsd-v2-montante-daily-1",
   "rejections": {
     "match_started": 39,
-    "non_bsd_or_combo_or_finished": 55,
-    "wrong_day_or_too_late": 1,
+    "non_bsd_or_combo_or_finished": 56,
     "unverified_or_low_odds": 1
   },
   "eligible_count": 0,
