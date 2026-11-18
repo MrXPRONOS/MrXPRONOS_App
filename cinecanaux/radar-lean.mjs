@@ -1,4 +1,5 @@
 // Ciné Radar — annuaire minimal. Aucun compte, favori, parrainage ou suivi de clic.
+import {radarOwnerDigest,authorizeRadarTitle} from "./trend-radar.mjs";
 const BASE="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
 const TYPES=[["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]];
 const LINK=/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/;
@@ -48,6 +49,21 @@ async function processBotUpdate(env,update){
  if(!chat)return;
  const value=String(cb?.data||"");
  const text=String(update.message?.text||"").trim();
+ const ownerCommand=/^\/(tendances|autoriser)(?:@[A-Za-z0-9_]+)?(?:\s+([a-z0-9-]{6,70}))?$/i.exec(text);
+ if(ownerCommand){
+  const uid=update.message?.from?.id;
+  const owner=Number.isSafeInteger(uid)&&msg?.chat?.type==="private"
+   ?await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(uid).first():null;
+  if(owner?.role!=="owner"){await display(env,chat,cb,"Commande réservée au propriétaire en message privé.",homeButtons());return;}
+  if(ownerCommand[1].toLowerCase()==="tendances"){
+   await display(env,chat,cb,esc(await radarOwnerDigest(env)),homeButtons());return;
+  }
+  const id=ownerCommand[2]||"";
+  if(!id){await display(env,chat,cb,"Usage : /autoriser ID_TITRE\nRéservé aux publications dont tu possèdes les droits de diffusion.",homeButtons());return;}
+  const approved=await authorizeRadarTitle(env,id,uid);
+  await display(env,chat,cb,approved?"✅ Titre autorisé pour l’affichage si une publication vidéo correspondante est vérifiée.":"Titre introuvable ou identifiant invalide.",homeButtons());
+  return;
+ }
  if(/^\/admin(?:@[A-Za-z0-9_]+)?$/i.test(text)){
   const uid=update.message?.from?.id;
   const admin=Number.isSafeInteger(uid)?await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(uid).first():null;
@@ -118,16 +134,16 @@ export async function miniAppAPI(env,request,previewFn){
 }
 export async function initializeProfile(env){
  const v=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(v?.value==="5")return;
+ if(v?.value==="6")return;
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
   ["setMyShortDescription",{short_description:"🎬 Trouve rapidement des canaux publics de films, séries et animés."}],
   ["setMyDescription",{description:"🎬 Ciné Radar : choisis une catégorie, découvre des canaux Telegram publics et ouvre celui qui t'intéresse."}],
-  ["setMyCommands",{commands:[{command:"start",description:"🎬 Rechercher un canal"},{command:"menu",description:"🍿 Catégories"}]}],
+  ["setMyCommands",{commands:[{command:"start",description:"🎬 Rechercher un canal"},{command:"menu",description:"🍿 Catégories"},{command:"tendances",description:"📈 Tendances (propriétaire)"}]}],
   ["setChatMenuButton",{menu_button:{type:"web_app",text:"🎬 Voir les canaux",web_app:{url:BASE+"/app"}}}]
  ];
  for(const [method,data] of tasks){const r=await telegram(env,method,data);if(!r.ok)throw Error("Telegram profile update failed: "+method);}
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','5') ON CONFLICT(setting_key) DO UPDATE SET value='5',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','6') ON CONFLICT(setting_key) DO UPDATE SET value='5',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){
