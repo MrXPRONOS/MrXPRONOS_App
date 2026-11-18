@@ -253,6 +253,12 @@ body{background:#07111f}
 .cine-quick span{font-size:22px}
 .cine-home-picks,.cine-discover-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .cine-pick{min-width:0;background:linear-gradient(165deg,#1a3151,#102035);border:1px solid #324c74;color:#f5f9ff;border-radius:13px;padding:12px 9px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;min-height:156px}
+.cine-home-picks{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.cine-home-picks .cine-pick{min-height:177px;border-color:#486b9f}
+.cine-home-picks .cine-pick:nth-child(-n+2){min-height:205px;background:linear-gradient(160deg,#284773,#152440 72%);border-color:#6588d0;box-shadow:0 9px 24px #06112870}
+.cine-home-picks .cine-pick:nth-child(-n+2) .cine-pick-avatar{width:82px;height:82px;border-radius:21px}
+.cine-pick-stat{font-size:10px;color:#8ed6fc;line-height:1.2}
+@media(min-width:690px){.cine-home-picks{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .cine-pick-avatar{width:65px;height:65px;border-radius:18px;background:#293d6a;display:grid;place-items:center;overflow:hidden;border:1px solid #6b83b6;color:#e1eeff;font-size:22px}
 .cine-pick-avatar img{width:100%;height:100%;object-fit:cover}
 .cine-pick strong{font-size:11px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
@@ -657,7 +663,9 @@ function setFilter(term){setHash("explorer");const q=$("search");if(!q)return;co
 function buildPanel(name){const s=node("section","cine-panel");s.id="cine-page-"+name;s.dataset.page=name;s.hidden=true;s.setAttribute("aria-label",labels[name]);panel[name]=s;return s}
 function heading(p,title,desc){const top=node("div","cine-head");const h=node("h2",null,title);top.append(h);if(desc)top.append(node("p",null,desc));p.append(top)}
 function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";img.src=url;img.onerror=()=>{img.remove();avatar.textContent="🎬"};avatar.append(img)}else avatar.textContent="🎬";
- const title=node("strong",null,c.title);const sub=node("small",null,(c.featured?"✦ À la une · ":"")+(label||"Canal Telegram"));b.append(avatar,title,sub);b.onclick=()=>previewChannel(c);return b}
+ const title=node("strong",null,c.title);const sub=node("small",null,(c.featured?"✦ À la une · ":"")+(label||"Canal Telegram"));b.append(avatar,title,sub);
+ if(c.content_verified&&Number(c.content_count)>=1){const count=node("small","cine-pick-stat",Number(c.content_count).toLocaleString("fr-FR")+" publications");b.append(count)}
+ b.onclick=()=>previewChannel(c);return b}
 function previewChannel(c){const card=$("cards").querySelector('[data-channel-id="'+c.id+'"]');if(card){card.querySelector(".view")?.click()}else setFilter(c.title)}
 function quickButton(icon,label,term){const b=node("button");b.type="button";b.append(node("span",null,icon),node("strong",null,label));b.onclick=()=>setFilter(term);return b}
 function sectionTitle(parent,title,link,fn){const wrap=node("div","cine-section-title");wrap.append(node("h3",null,title));if(link){const b=node("button","cine-link",link);b.onclick=fn;wrap.append(b)}parent.append(wrap)}
@@ -687,7 +695,19 @@ async function loadCinemaShowcase(){
 }
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
- const chosen=[];for(const type of ["films","series","animes"]){const one=catalog.find(c=>c.type===type&&c.featured&&c.title)||catalog.find(c=>c.type===type&&c.title&&linkAvatar(c));if(one)chosen.push(one)}
+ const measure=c=>(c.avatar_verified?200:0)+(c.content_verified?35:0)
+   +Math.min(115,Math.log1p(Math.max(0,Number(c.content_count)||0))*16)
+   +Math.min(30,(Number(c.posts_7d)||0)*3);
+ const featured=catalog.filter(c=>c.featured&&c.title).sort((a,b)=>measure(b)-measure(a)||a.id-b.id);
+ const chosen=featured.slice(0,9);
+ // Keep every media universe represented when it has a genuinely listed channel.
+ for(const type of ["films","series","animes"]){
+  if(chosen.some(c=>c.type===type))continue;
+  const extra=featured.find(c=>c.type===type&&!chosen.includes(c));
+  if(extra){if(chosen.length>=9)chosen.pop();chosen.push(extra)}
+ }
+ chosen.sort((a,b)=>measure(b)-measure(a)||a.id-b.id);
+ if(!chosen.length)chosen.push(...catalog.filter(c=>c.title).slice(0,6));
  for(const c of chosen)a.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
  if(!chosen.length)a.append(node("div","cine-empty-spot","Chargement des canaux…"));
 
@@ -695,7 +715,7 @@ function miniFeatured(){
 function discover(){
  const grid=$("cine-discover-grid");if(!grid)return;grid.textContent="";
  const cats={};for(const id of favorites){const c=catalog.find(c=>c.id===id);if(c)cats[c.type]=(cats[c.type]||0)+1}
- const scored=catalog.filter(c=>!favorites.includes(c.id)).map(c=>{let score=(cats[c.type]||0)*6;if(c.featured)score+=18;score+=Math.min(6,Number(c.review_count||0));if(c.link_status==="reachable")score+=2;if(c.last_post_at&&Date.now()-Date.parse(c.last_post_at)<30*86400000)score+=2;return{c,score}}).sort((a,b)=>b.score-a.score||a.c.id-b.c.id).slice(0,12);
+ const scored=catalog.filter(c=>!favorites.includes(c.id)).map(c=>{let score=(cats[c.type]||0)*6;if(c.featured)score+=(c.avatar_verified?38:4)+(c.content_verified?10:0)+Math.min(35,Math.log1p(Math.max(0,Number(c.content_count)||0))*6);score+=Math.min(6,Number(c.review_count||0));if(c.link_status==="reachable")score+=2;if(c.last_post_at&&Date.now()-Date.parse(c.last_post_at)<30*86400000)score+=2;return{c,score}}).sort((a,b)=>b.score-a.score||a.c.id-b.c.id).slice(0,12);
  for(const {c} of scored)grid.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
  if(!scored.length)grid.append(node("div","cine-empty-spot","Aucun autre canal à suggérer actuellement."));
  const title=$("cine-discover-title");if(title)title.textContent=favorites.length?"Selon tes favoris":"Quelques canaux à explorer";
