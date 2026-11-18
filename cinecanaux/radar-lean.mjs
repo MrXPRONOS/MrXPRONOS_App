@@ -50,7 +50,7 @@ async function processBotUpdate(env,update){
  if(!chat)return;
  const value=String(cb?.data||"");
  const text=String(update.message?.text||"").trim();
- const ownerCommand=/^\/(tendances|manquants|autoriser|actualiser)(?:@[A-Za-z0-9_]+)?(?:\s+([a-z0-9-]{6,70}))?$/i.exec(text);
+ const ownerCommand=/^\/(tendances|manquants|canaux|autoriser|actualiser)(?:@[A-Za-z0-9_]+)?(?:\s+([a-z0-9-]{6,70}))?$/i.exec(text);
  if(ownerCommand){
   const uid=update.message?.from?.id;
   const owner=Number.isSafeInteger(uid)&&msg?.chat?.type==="private"
@@ -65,7 +65,16 @@ async function processBotUpdate(env,update){
   }
   if(ownerCommand[1].toLowerCase()==="manquants"){
    const rows=await missingRadarTitles(env,uid,{limit:24});
-   await display(env,chat,cb,esc(formatRadarMissing(rows)),homeButtons());return;
+   const count=rows.length?1:Number((await env.DB.prepare("SELECT COUNT(*) AS n FROM radar_titles").first())?.n||0);
+   await display(env,chat,cb,esc(count?formatRadarMissing(rows):"Aucune tendance encore collectée. Utilise /actualiser ou vérifie les sources TMDB/AniList."),homeButtons());return;
+  }
+  if(ownerCommand[1].toLowerCase()==="canaux"){
+   const result=await bindPrimaryRadarChannels(env);
+   const channels=(await env.DB.prepare("SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind").all()).results||[];
+   const report="📡 Vérification des canaux officiels\\n"+
+    channels.map(x=>(Number(x.connected)?"✅ ":"⏳ ")+x.kind+" : @"+x.username).join("\\n")+
+    (result.errors.length?"\\nDétails : "+result.errors.join("; "):"");
+   await display(env,chat,cb,esc(report),homeButtons());return;
   }
   if(ownerCommand[1].toLowerCase()==="tendances"){
    await display(env,chat,cb,esc(await radarOwnerDigest(env)),homeButtons());return;
@@ -146,7 +155,7 @@ export async function miniAppAPI(env,request,previewFn){
 }
 export async function initializeProfile(env){
  const v=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(v?.value==="8")return;
+ if(v?.value==="9")return;
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
   ["setMyShortDescription",{short_description:"🎬 Trouve rapidement des canaux publics de films, séries et animés."}],
@@ -155,7 +164,7 @@ export async function initializeProfile(env){
   ["setChatMenuButton",{menu_button:{type:"web_app",text:"🎬 Voir les canaux",web_app:{url:BASE+"/app"}}}]
  ];
  for(const [method,data] of tasks){const r=await telegram(env,method,data);if(!r.ok)throw Error("Telegram profile update failed: "+method);}
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','8') ON CONFLICT(setting_key) DO UPDATE SET value='8',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','9') ON CONFLICT(setting_key) DO UPDATE SET value='9',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){
