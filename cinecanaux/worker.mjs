@@ -11,6 +11,39 @@ import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncC
 import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
+// Durable, non-sensitive Telegram diagnostics visible from D1 (no tokens or user IDs).
+async function saveRadarOperationalStatus(env,job,status,detail){
+ await env.DB.prepare(
+  "INSERT INTO radar_ops_status(job_name,last_attempt_at,last_success_at,status,detail) "+
+  "VALUES(?,CURRENT_TIMESTAMP,CASE WHEN ?='ok' THEN CURRENT_TIMESTAMP ELSE NULL END,?,?) "+
+  "ON CONFLICT(job_name) DO UPDATE SET last_attempt_at=CURRENT_TIMESTAMP,"+
+  "last_success_at=CASE WHEN excluded.status='ok' THEN CURRENT_TIMESTAMP ELSE radar_ops_status.last_success_at END,"+
+  "status=excluded.status,detail=excluded.detail"
+ ).bind(job,status,status,String(detail||'').slice(0,800)).run();
+}
+async function runRadarOperationalVerification(env,{sendNotices=true}={}){
+ let errors=0,updated=0;
+ try{
+  const r=await bindPrimaryRadarChannels(env);
+  updated=r.bound;
+  errors+=r.errors.length;
+  await saveRadarOperationalStatus(env,'channel_binding',r.errors.length?'partial':'ok',
+   'new='+r.bound+' verified='+r.alreadyBound+'; '+[...r.checks,...r.errors].join('; '));
+ }catch(e){errors++;await saveRadarOperationalStatus(env,'channel_binding','error',String(e).slice(0,250));}
+ try{
+  const r=await reconcileRadarPosts(env,120);
+  await saveRadarOperationalStatus(env,'post_reconciliation','ok',JSON.stringify(r||{}).slice(0,350));
+ }catch(e){errors++;await saveRadarOperationalStatus(env,'post_reconciliation','error',String(e).slice(0,250));}
+ if(sendNotices){
+  try{
+   const r=await notifyOwnerMissingRadarTitles(env);
+   errors+=r.errors.length;
+   await saveRadarOperationalStatus(env,'private_notifications',r.errors.length?'error':'ok',
+    'owners='+r.ownersChecked+' sent='+r.sent+' suggestions='+r.listed+'; '+r.errors.join('; '));
+  }catch(e){errors++;await saveRadarOperationalStatus(env,'private_notifications','error',String(e).slice(0,250));}
+ }
+ return {checked:3,updated,errors};
+}
 function sameString(a,b){
  const x=new TextEncoder().encode(String(a||"")),y=new TextEncoder().encode(String(b||""));
  if(!x.length||x.length!==y.length)return false;
@@ -250,7 +283,9 @@ export default {
   return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
+  if(controller.cron==="*/1 * * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',
+   ()=>runRadarOperationalVerification(env,{sendNotices:true})));
+  else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
    const discovered=await indexQualifiedChannels(env);
    await syncCategoryTags(env);
@@ -269,23 +304,20 @@ export default {
    // After the first successful anime refresh, keep daily checks (with 72h source guard).
    const first=await env.DB.prepare("SELECT last_success_at FROM radar_runs WHERE job_name='trends_animes'").first();
    if(hour===6||!first?.last_success_at){
-    // Run sequentially: attach validated channel identities, refresh providers,
-    // reconcile existing publications, THEN notify owners about missing titles.
-    const tasks=[
-      ['bind_primary',()=>bindPrimaryRadarChannels(env)],
-      ['refresh_trends',()=>runTrendRefresh(env)],
-      ['reconcile_posts',()=>reconcileRadarPosts(env,120)],
-      ['notify_owner',()=>notifyOwnerMissingRadarTitles(env)],
-      ['check_links',()=>checkDailyLinks(env,10)]
-    ];
-    // Run in order: never notify before comparing with the latest indexed posts.
-    for(const [name,job] of tasks){
-      try{
-        const report=await job();
-        if(report?.errors?.length){errors+=report.errors.length;console.warn("radar_daily_warning",name,report.errors.map(String).join("; ").slice(0,160));}
-      }catch(e){errors++;console.error("radar_daily_error",name,String(e).slice(0,140));}
+    for(const [name,job] of [
+     ['refresh_trends',()=>runTrendRefresh(env)],
+     ['check_links',()=>checkDailyLinks(env,10)]
+    ]){
+     try{
+      const report=await job();
+      if(report?.errors?.length){errors+=report.errors.length;console.warn('radar_daily_warning',name,report.errors.join('; ').slice(0,140));}
+     }catch(e){errors++;console.error('radar_daily_error',name,String(e).slice(0,140));}
     }
    }
+   // Channel identity is checked every six hours, independently of the 72h trending cache.
+   // Owner digests are sent on the daily 06:00 pass or the first successful bootstrap.
+   const report=await runRadarOperationalVerification(env,{sendNotices:hour===6||!first?.last_success_at});
+   errors+=report.errors;
    return {errors};
   }));
   else ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
