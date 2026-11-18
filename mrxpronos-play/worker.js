@@ -32,10 +32,142 @@ const rewards=[["xp10",30,10],["xp25",22,25],["bonus",15,0],["xp50",8,50],["tick
 async function wheelOutcome(env,id,day){const b=new Uint8Array(await hmac(env.BOT_TOKEN,"mrxp-play-wheel-v1:"+id+":"+day));let pick=((b[0]<<8)+b[1])%100;for(const r of rewards){if(pick<r[1])return {key:r[0],xp:r[2]};pick-=r[1]}return {key:"xp10",xp:10}}
 async function ensurePlayer(env,u){const now=Date.now();await env.DB.prepare("INSERT OR IGNORE INTO players(user_id,username,display_name,next_sync_ms,created_ms,updated_ms) VALUES(?,?,?,?,?,?)").bind(u.id,u.username,u.name,now,now,now).run();await env.DB.prepare("UPDATE players SET username=?,display_name=? WHERE user_id=?").bind(u.username,u.name,u.id).run();return env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(u.id).first()}
 function validDay(d,now){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const ms=Date.parse(d+"T00:00:00Z");const todayMs=Math.floor(now/DAY)*DAY;return Number.isFinite(ms)&&ms<=todayMs&&ms>=todayMs-14*DAY;}
+
+/* Telegram Bot interface: public /start -> Mini App; admin D1 allowlist -> private tools. */
+const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\nTapote pour gagner des XP Points, tourne la Lucky Wheel, accomplis des missions et suis ta progression.\n\nAppuie ci-dessous pour démarrer le jeu.";
+const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, tourne la Lucky Wheel, accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
+const BOT_SHORT_DESCRIPTION="🎮 Tapote, gagne des XP, tourne la roue et relève des missions gratuites !";
+async function botApi(env,method,body){
+ const response=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/"+method,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+ let payload;try{payload=await response.json()}catch{throw Error("Telegram API réponse illisible : "+method)}
+ if(!response.ok||!payload?.ok)throw Error("Telegram API a refusé : "+method);
+ return payload.result;
+}
+async function getBotText(env,key,fallback){
+ const item=await env.DB.prepare("SELECT value FROM bot_settings WHERE key=?").bind(key).first();
+ return typeof item?.value==="string"?item.value:fallback;
+}
+async function isBotAdmin(env,userId){
+ if(!userId)return false;
+ const a=await env.DB.prepare("SELECT telegram_id FROM bot_admins WHERE telegram_id=?").bind(String(userId)).first();
+ return !!a;
+}
+function openGameKeyboard(origin,admin=false){
+ const rows=[[{text:"🎮 Démarrer Mr XPRONOS Play",web_app:{url:origin}}]];
+ if(admin)rows.push([{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]);
+ return {inline_keyboard:rows};
+}
+function adminKeyboard(origin){
+ return {inline_keyboard:[
+  [{text:"📊 Statistiques",callback_data:"mrxp:admin:stats"},{text:"📝 Accueil",callback_data:"mrxp:admin:edit_welcome"}],
+  [{text:"ℹ️ Description",callback_data:"mrxp:admin:edit_description"},{text:"✍️ Bio courte",callback_data:"mrxp:admin:edit_short"}],
+  [{text:"🎮 Mini App",web_app:{url:origin}},{text:"❌ Fermer",callback_data:"mrxp:admin:close"}]
+ ]};
+}
+async function adminDashboard(env,chatId,origin){
+ await botApi(env,"sendMessage",{chat_id:chatId,text:"⚙️ Administration Mr XPRONOS Play\n\nCe menu est visible uniquement sur ton compte Telegram. Tu peux consulter les statistiques ou modifier les textes du bot.",reply_markup:adminKeyboard(origin)});
+}
+async function adminStats(env,chatId,origin){
+ const [p,s,w,d]=await Promise.all([
+  env.DB.prepare("SELECT COUNT(*) n,COALESCE(SUM(confirmed_xp),0) xp FROM players").first(),
+  env.DB.prepare("SELECT COUNT(*) n FROM sync_receipts").first(),
+  env.DB.prepare("SELECT COUNT(*) n FROM wheel_claims").first(),
+  env.DB.prepare("SELECT COUNT(*) n FROM daily_claims").first()
+ ]);
+ await botApi(env,"sendMessage",{chat_id:chatId,text:"📊 Statistiques du jeu\n\n👥 Joueurs : "+p.n+"\n⭐ XP confirmés : "+p.xp+"\n🔄 Synchronisations : "+s.n+"\n🎡 Tours de roue confirmés : "+w.n+"\n🎁 Bonus quotidiens confirmés : "+d.n,reply_markup:{inline_keyboard:[[{text:"⚙️ Retour à l’administration",callback_data:"mrxp:admin:home"}]]}});
+}
+const ADMIN_EDITS={edit_welcome:{key:"welcome",label:"message d’accueil",limit:900},edit_description:{key:"description",label:"description « Que peut faire ce bot ? »",limit:512},edit_short:{key:"short_description",label:"description courte",limit:120}};
+async function startBotAdminEdit(env,chatId,userId,edit){
+ const item=ADMIN_EDITS[edit];
+ if(!item)return;
+ await env.DB.prepare("INSERT INTO bot_admin_pending(telegram_id,edit_key,expires_ms) VALUES(?,?,?) ON CONFLICT(telegram_id) DO UPDATE SET edit_key=excluded.edit_key,expires_ms=excluded.expires_ms").bind(String(userId),item.key,Date.now()+10*60*1000).run();
+ const current=await getBotText(env,item.key,"");
+ await botApi(env,"sendMessage",{chat_id:chatId,text:"✏️ Modifier "+item.label+"\n\nTexte actuel :\n"+current+"\n\nEnvoie maintenant le nouveau texte (maximum "+item.limit+" caractères). Tu as 10 minutes. Envoie /cancel pour annuler."});
+}
+async function submitAdminEdit(env,chatId,userId,text){
+ const pending=await env.DB.prepare("SELECT edit_key,expires_ms FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).first();
+ if(!pending)return false;
+ if(pending.expires_ms<Date.now()){
+  await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).run();
+  await botApi(env,"sendMessage",{chat_id:chatId,text:"Modification expirée. Utilise /admin pour recommencer."});
+  return true;
+ }
+ const limits={welcome:900,description:512,short_description:120};
+ const limit=limits[pending.edit_key];
+ if(!limit){await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).run();return true}
+ const value=String(text||"").trim();
+ if(value.length<10||value.length>limit){
+  await botApi(env,"sendMessage",{chat_id:chatId,text:"Le texte doit contenir entre 10 et "+limit+" caractères. Essaie à nouveau ou envoie /cancel."});
+  return true;
+ }
+ if(pending.edit_key==="description")await botApi(env,"setMyDescription",{description:value});
+ if(pending.edit_key==="short_description")await botApi(env,"setMyShortDescription",{short_description:value});
+ await env.DB.prepare("INSERT INTO bot_settings(key,value,updated_ms) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_ms=excluded.updated_ms").bind(pending.edit_key,value,Date.now()).run();
+ await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).run();
+ await botApi(env,"sendMessage",{chat_id:chatId,text:"✅ Modification enregistrée et appliquée.",reply_markup:{inline_keyboard:[[{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]]}});
+ return true;
+}
+async function telegramWebhook(env,update,origin){
+ const callback=update?.callback_query;
+ if(callback){
+  const fromId=String(callback.from?.id||"");
+  const chat=callback.message?.chat;
+  if(!chat||chat.type!=="private"||String(chat.id)!==fromId){
+   await botApi(env,"answerCallbackQuery",{callback_query_id:callback.id,text:"Action indisponible."});
+   return;
+  }
+  const action=String(callback.data||"");
+  if(!action.startsWith("mrxp:admin:")){
+   await botApi(env,"answerCallbackQuery",{callback_query_id:callback.id});
+   return;
+  }
+  const admin=await isBotAdmin(env,fromId);
+  await botApi(env,"answerCallbackQuery",{callback_query_id:callback.id,text:admin?"":"Accès réservé à l’administrateur.",show_alert:!admin});
+  if(!admin)return;
+  const task=action.slice("mrxp:admin:".length);
+  if(task==="home")return adminDashboard(env,chat.id,origin);
+  if(task==="stats")return adminStats(env,chat.id,origin);
+  if(ADMIN_EDITS[task])return startBotAdminEdit(env,chat.id,fromId,task);
+  if(task==="close")return botApi(env,"editMessageReplyMarkup",{chat_id:chat.id,message_id:callback.message.message_id,reply_markup:{inline_keyboard:[]}});
+  return;
+ }
+ const msg=update?.message;
+ if(!msg||msg.chat?.type!=="private")return;
+ const fromId=String(msg.from?.id||"");
+ const chatId=String(msg.chat?.id||"");
+ if(!fromId||chatId!==fromId)return;
+ const raw=String(msg.text||"").trim();
+ if(!raw)return;
+ const cmd=raw.match(/^\/([a-z]+)(?:@MrXpronosPlayBot)?(?:\s|$)/i)?.[1]?.toLowerCase()||"";
+ if(cmd==="start"||cmd==="play"){
+  const admin=await isBotAdmin(env,fromId);
+  const welcome=await getBotText(env,"welcome",PUBLIC_WELCOME);
+  await botApi(env,"sendMessage",{chat_id:chatId,text:welcome,reply_markup:openGameKeyboard(origin,admin)});
+  return;
+ }
+ const admin=await isBotAdmin(env,fromId);
+ if(!admin){
+  if(cmd==="help")await botApi(env,"sendMessage",{chat_id:chatId,text:"Pour jouer, appuie sur /start puis sur « Démarrer Mr XPRONOS Play »."});
+  return;
+ }
+ if(cmd==="admin")return adminDashboard(env,chatId,origin);
+ if(cmd==="cancel"){
+  await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(fromId).run();
+  await botApi(env,"sendMessage",{chat_id:chatId,text:"Modification annulée.",reply_markup:{inline_keyboard:[[{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]]}});
+  return;
+ }
+ if(!cmd)await submitAdminEdit(env,chatId,fromId,raw);
+}
+
 export default {async fetch(request,env){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
  if(p==="/api/health"){let bot_username=null,telegram_token_valid=false;try{if(env.BOT_TOKEN){const reply=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/getMe");const result=await reply.json();telegram_token_valid=result.ok===true;bot_username=telegram_token_valid?result.result?.username||null:null}}catch{}return json({ok:true,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,telegram_token_valid,bot_username,correct_bot:typeof bot_username==="string"&&bot_username.toLowerCase()==="mrxpronosplaybot",db_connected:!!env.DB,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false})}
- if(p==="/telegram/webhook"&&request.method==="POST"){if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);const update=await request.json();if(/^\/(?:start|play)(?:@\w+)?(?:\s|$)/.test(update.message?.text||"")){const chat=update.message.chat.id;const response=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/sendMessage",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat_id:chat,text:"Bienvenue sur Mr XPRONOS Play ! 🎮\nGagne des XP Points gratuitement en jouant.",reply_markup:{inline_keyboard:[[{text:"🎮 Jouer maintenant",web_app:{url:u.origin}}]]}})});if(!response.ok)return json({error:"Telegram sendMessage failed"},502)}return json({ok:true})}
+ if(p==="/telegram/webhook"&&request.method==="POST"){
+  if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);
+  const update=await request.json();
+  await telegramWebhook(env,update,u.origin);
+  return json({ok:true});
+ }
  if(!p.startsWith("/api/"))return json({error:"Not found"},404);
  if(request.method!=="GET"&&request.method!=="POST")return json({error:"Method not allowed"},405);
  const auth=await authenticate(request,env);if(!auth.user)return json({error:"Identification Telegram refusée : "+auth.reason,code:auth.reason},401);const user=auth.user;
