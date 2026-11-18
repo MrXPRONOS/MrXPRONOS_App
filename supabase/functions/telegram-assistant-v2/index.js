@@ -573,6 +573,11 @@ export function classifyClientScope(message='',history=[],session=null){
   if(other.some(re=>re.test(q)))return {scope:'out_of_scope',reason:'clearly_unrelated_topic'};
   if(/^([\p{L}])\1{5,}$/u.test(q) || /^[bcdfghjklmnpqrstvwxz]{8,}$/i.test(q))
     return {scope:'unclear',reason:'unreadable_text'};
+  // "Installer une application Windows" sans citer notre service n'est pas
+  // automatiquement une question sur l'installation du site Mr XPRONOS.
+  if(/(?:install|installation).{0,35}(?:application|logiciel|programme)\s+(?:windows|android|iphone)/.test(q)&&
+     !/(?:mr ?x ?pronos|notre|votre|ce site|l.application du site)/.test(q))
+    return {scope:'unknown',reason:'unspecified_external_application'};
   if(intent!=='general'||socialMediaRequest(message).requested||linksHubIntent(message))
     return {scope:'in_scope',reason:'known_intent'};
   if(session?.mode==='guided'&&guideIsContinuation(message,session))
