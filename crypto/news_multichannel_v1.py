@@ -30,6 +30,8 @@ EXPECTED_BOT = "mrxpronos_canal_bot"
 MAX_TARGETS = 25
 MAX_CANDIDATES = 60
 MAX_PER_TARGET_PER_RUN = 1
+FASTDEAL_USERNAME = '@fastdealexchange'
+FASTDEAL_DAILY_LIMIT = 4
 # Database also enforces 6 reserved/confirmed deliveries per channel per 24h.
 TOKEN_TIMEOUT = (8, 20)
 
@@ -253,10 +255,35 @@ def publish():
     slot = slot_for(now)
     db = Supabase()
     targets = db.targets()
+    fastdeal_only = os.getenv("CRYPTO_FASTDEAL_ONLY") == "1"
+    # Dedicated Fast Deal dispatch is independent from the 30-minute channels.
+    # It must be registered and Telegram-admin-verified before any publication.
+    if fastdeal_only:
+        targets = [t for t in targets if str(t.get("chat_id", "")).lower() == FASTDEAL_USERNAME]
+        if len(targets) != 1:
+            raise RuntimeError("Fast Deal channel is not registered as an authorized crypto destination")
+    else:
+        targets = [t for t in targets if str(t.get("chat_id", "")).lower() != FASTDEAL_USERNAME]
     if not targets:
         print("CRYPTO_MULTICHANNEL_NO_ACTIVE_CRYPTO_TARGETS")
         return
     receipts = db.receipts()
+    if fastdeal_only:
+        # A hard daily cap also applies to manually dispatched workflows.
+        today = now.date()
+        used = 0
+        for receipt in receipts:
+            if receipt.get("key") != targets[0]["key"]:
+                continue
+            try:
+                created = datetime.fromisoformat(str(receipt["created_at"]).replace("Z", "+00:00"))
+            except (KeyError, TypeError, ValueError):
+                raise RuntimeError("Fast Deal delivery timestamp invalid") from None
+            if created.astimezone(UTC).date() == today and receipt.get("status") in ("reserved", "confirmed"):
+                used += 1
+        if used >= FASTDEAL_DAILY_LIMIT:
+            print("FASTDEAL_DAILY_CAP_REACHED")
+            return
     client = Telegram()
     bot_id = client.assert_correct_bot(targets)
     # Use only the confirmed exact bot, not an arbitrary fallback token.
