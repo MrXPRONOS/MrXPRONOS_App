@@ -48,11 +48,14 @@ test('failed Telegram send never marks a suggestion as delivered',async t=>{
  globalThis.fetch=async()=>({ok:true,json:async()=>({ok:false,error_code:403})});
  t.after(()=>{globalThis.fetch=original});
  const writes=[];
- const DB={prepare(sql){return {bind(...args){return {run:async()=>{writes.push(args)},all:async()=>({results:[]})}},all:async()=>{
-  if(sql.includes('FROM admin_users'))return {results:[{user_id:77}]};
-  if(sql.includes('FROM radar_titles'))return {results:[{id:'tmdb-films-77',kind:'films',title:'Example',year:2026,source_url:'https://www.themoviedb.org/movie/77'}]};
-  return {results:[]};
- }}}};
+ const DB={prepare(sql){
+  const titleRows=[{id:'tmdb-films-77',kind:'films',title:'Example',year:2026,source_url:'https://www.themoviedb.org/movie/77'}];
+  const results=sql.includes('FROM admin_users')?[{user_id:77}]:sql.includes('FROM radar_titles')?titleRows:[];
+  return {
+    bind(...args){return {run:async()=>{writes.push(args)},all:async()=>({results})}},
+    all:async()=>({results})
+  };
+ }};
  const res=await notifyOwnerMissingRadarTitles({TELEGRAM_TOKEN:'test',DB});
  assert.equal(res.sent,0);
  assert.equal(res.errors.length,1);
