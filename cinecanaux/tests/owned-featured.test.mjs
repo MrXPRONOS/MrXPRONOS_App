@@ -34,8 +34,8 @@ function mockedDB(){
     return {results:[]};
    },
    async run(){return {meta:{changes:0}};}
-  }};
- }
+  }}
+ };
 }
 test('administered public and verified private links appear; unknown private links do not',async()=>{
  const env={DB:mockedDB()};
