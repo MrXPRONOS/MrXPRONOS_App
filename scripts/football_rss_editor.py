@@ -120,7 +120,7 @@ def _nim(session, key, title, excerpt, model=MODEL):
                       "titre_rss": title, "extrait_rss": excerpt[:3600]
                   }, ensure_ascii=False)},
               ]},
-        timeout=(7, 55),
+        timeout=(6, 25),
     )
     response.raise_for_status()
     raw = (response.json().get("choices") or [{}])[0].get("message", {}).get("content")
