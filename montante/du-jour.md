@@ -1,4 +1,4 @@
-# Montante BSD V2 — 2026-11-17 (UTC)
+# Montante BSD V2 — 2026-11-18 (UTC)
 
 **Aucun pari retenu.** Les critères de qualité et de cotes réelles sont prioritaires.
 
