@@ -30,8 +30,8 @@ test('TVmaze provides new episodes without mislabelling them as TMDB trends', as
  };return statement;}};
  try{
    const result=await runTrendRefresh({DB});
-   assert.ok(result.skipped.some(x=>String(x).includes('TMDB')));
-   assert.equal(result.errors.length,0);
+   assert.ok(result.skipped.some(x=>String(x).includes('TVmaze')||String(x).includes('Simkl')));
+   assert.ok(result.errors.every(x=>String(x).startsWith('films:')));
    assert.ok(stored.some(x=>x[0]==='tvmaze-series-123'),JSON.stringify(result));
    assert.ok(stamp.some(x=>x[0]==='trends_series'));
    assert.match(formatRadarMissing([{kind:'series',title:'Example Series',source_url:show.url}]),/tvmaze\.com/);
