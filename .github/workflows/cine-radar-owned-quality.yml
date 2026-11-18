@@ -1,0 +1,57 @@
+name: Cine Radar - Featured channel quality and real avatar audit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '22 6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cine-radar-owned-quality.yml'
+      - 'cinecanaux/audit_owned_channel_quality.py'
+      - 'cinecanaux/sync_owned_quality_to_d1.py'
+permissions:
+  contents: write
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate quality scripts
+        run: python -m py_compile cinecanaux/audit_owned_channel_quality.py cinecanaux/sync_owned_quality_to_d1.py
+      - name: Install read-only Telegram and HTTP clients
+        run: python -m pip install 'telethon>=1.38,<2' 'requests>=2.31,<3'
+      - name: Audit featured Telegram channel metadata and verify actual public avatars
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PYTHONUNBUFFERED: '1'
+        run: python cinecanaux/audit_owned_channel_quality.py
+      - name: Update D1 ranking from observed facts
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          PYTHONUNBUFFERED: '1'
+        run: python cinecanaux/sync_owned_quality_to_d1.py
+      - name: Save metadata-only audit for future verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cinecanaux/assets/owned_channel_quality.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'data(cineradar): refresh featured channel quality [skip ci]'
+          git pull --rebase origin main
+          git push origin HEAD:main
