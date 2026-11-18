@@ -2,6 +2,10 @@ name: Actu Crypto - Contrôle de traduction française (sans Telegram)
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'crypto/french-translation-smoke-retry-20261118.flag'
 
 permissions:
   contents: read
