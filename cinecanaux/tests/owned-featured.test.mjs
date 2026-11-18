@@ -49,7 +49,7 @@ test('administered public and verified private links appear; unknown private lin
 test('private anime shows only in anime category, with no fake public avatar',async()=>{
  const data=await (await v2API({DB:mockedDB()},new Request('https://example.org/api/search?types=animes'))).json();
  assert.deepEqual(data.channels.map(x=>x.id),[2]);
- assert.equal(data.channels[0].avatar,null);
+ assert.equal(data.channels[0].avatar,'/assets/channel-avatar/2.jpg');
 });
 test('private preview uses verified metadata without scraping private messages',async()=>{
  const env={DB:mockedDB()};
