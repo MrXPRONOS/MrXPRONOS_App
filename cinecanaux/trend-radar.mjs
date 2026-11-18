@@ -6,11 +6,11 @@ export const RADAR_CHANNELS=Object.freeze([
  {kind:'animes',username:'CineXAnimeFR'}
 ]);
 const TYPES=new Set(['films','series','animes']);
-const POSTER=/^https:\/\/(?:image\.tmdb\.org\/t\/p\/w342\/[a-z0-9_-]{8,100}\.(?:jpe?g|png|webp)|s4\.anilist\.co\/file\/anilistcdn\/media\/anime\/cover\/[^\s"'<>]{5,240})$/i;
+const POSTER=/^https:\/\/(?:image\.tmdb\.org\/t\/p\/w342\/[a-z0-9_-]{8,100}\.(?:jpe?g|png|webp)|s4\.anilist\.co\/file\/anilistcdn\/media\/anime\/cover\/[^\s"'<>]{5,240}|static\.tvmaze\.com\/uploads\/images\/(?:medium_portrait|original)\/[0-9]+\/[0-9]+\.(?:jpe?g|png|webp))$/i;
 const TIME_MS=72*60*60*1000;
 const clean=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
 const plain=s=>String(s||'').replace(/<[^>]+>/g,' ').replace(/&[^;]{1,12};/g,' ').replace(/\s+/g,' ').trim().slice(0,420);
-const validSource=s=>/^https:\/\/(?:www\.themoviedb\.org\/(?:movie|tv)\/[0-9]+|anilist\.co\/anime\/[0-9]+)\/?$/.test(String(s||''));
+const validSource=s=>/^https:\/\/(?:www\.themoviedb\.org\/(?:movie|tv)\/[0-9]+|anilist\.co\/anime\/[0-9]+|www\.tvmaze\.com\/shows\/[0-9]+\/[a-z0-9-]+)\/?$/i.test(String(s||''));
 function rowFor(source,kind,data,rank){
  const year=Number(data.year);
  return {id:source+'-'+kind+'-'+data.id,kind,
@@ -62,6 +62,35 @@ async function tmdbTrends(env,kind){
   sourceUrl:'https://www.themoviedb.org/'+media+'/'+x.id
  },i+1)).filter(x=>x.title&&x.sourceUrl)};
 }
+// TVmaze provides a free, current list of series with episodes released today.
+// This is an 'upcoming/recently airing' fallback, NOT a TMDB popularity ranking.
+async function tvmazeNewSeries(){
+ const days=[0,-1,-2],now=Date.now(),picked=new Map();
+ for(const day of days){
+  const date=new Date(now+day*86400000).toISOString().slice(0,10);
+  const response=await fetch('https://api.tvmaze.com/schedule/web?date='+date,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(10500)});
+  const items=await parseList(response);
+  if(!Array.isArray(items))throw Error('TVmaze schedule is not an array');
+  for(const ep of items){
+   const show=ep._embedded?.show||ep.show||{};
+   if(!Number.isSafeInteger(show.id)||!show.name||!show.url||!show.image?.medium)continue;
+   if(show.type==='Animation'&&show.genres?.includes('Anime'))continue; // AniList is authoritative for anime
+   if(picked.has(show.id))continue;
+   const id=String(show.id);
+   const poster=String(show.image.medium).replace(/^http:/,'https:');
+   const rank=picked.size+1;
+   const title=rowFor('tvmaze','series',{
+    id,title:show.name,original:show.name,aliases:'',
+    summary:show.summary||'',year:String(show.premiered||'').slice(0,4),
+    poster,sourceUrl:show.url
+   },rank);
+   if(title.title&&title.poster&&title.sourceUrl)picked.set(show.id,title);
+   if(picked.size>=20)break;
+  }
+  if(picked.size>=20)break;
+ }
+ return {rows:[...picked.values()]};
+}
 async function anilistTrends(){
  const query='query { Page(page:1,perPage:20) { media(type:ANIME,sort:TRENDING_DESC,isAdult:false) { id title { english romaji native } description(asHtml:false) coverImage { large } siteUrl seasonYear } } }';
  const data=await parseList(await fetch('https://graphql.anilist.co',{method:'POST',headers:{'content-type':'application/json',accept:'application/json'},body:JSON.stringify({query}),signal:AbortSignal.timeout(12000)}));
@@ -77,8 +106,13 @@ export async function runTrendRefresh(env,{force=false}={}){
   const job='trends_'+kind,stamp=await env.DB.prepare("SELECT last_success_at FROM radar_runs WHERE job_name=?").bind(job).first();
   if(!force&&stamp?.last_success_at&&Date.now()-Date.parse(String(stamp.last_success_at).replace(' ','T')+'Z')<TIME_MS){result.skipped.push(kind);continue;}
   let provider;
-  try{provider=kind==='animes'?await anilistTrends():await tmdbTrends(env,kind);}
-  catch(e){result.errors.push(kind+': '+String(e).slice(0,90));continue;}
+  try{
+   provider=kind==='animes'?await anilistTrends():await tmdbTrends(env,kind);
+   if(kind==='series'&&provider.disabled){
+    provider=await tvmazeNewSeries();
+    result.skipped.push('series: TMDB absent, nouveautés TVmaze utilisées (pas classement popularité)');
+   }
+  }catch(e){result.errors.push(kind+': '+String(e).slice(0,90));continue;}
   if(provider.disabled){result.skipped.push(kind+' (TMDB_API_KEY missing)');continue;}
   if(!provider.rows.length){result.errors.push(kind+': empty provider response');continue;}
   for(const item of provider.rows){
@@ -159,14 +193,14 @@ export async function radarApi(env,request){
   if(Number(request.headers.get('content-length')||0)>350)return Response.json({error:'Body too large'},{status:413});
   let body;try{body=await request.json()}catch{return Response.json({error:'Invalid JSON'},{status:400})}
   const id=String(body?.id||'');
-  if(!/^(?:tmdb-(?:films|series)|anilist-animes)-[0-9]{1,12}$/.test(id))return Response.json({error:'Invalid ID'},{status:400});
+  if(!/^(?:tmdb-(?:films|series)|anilist-animes|tvmaze-series)-[0-9]{1,12}$/.test(id))return Response.json({error:'Invalid ID'},{status:400});
   const result=await env.DB.prepare("UPDATE radar_titles SET click_count=click_count+1,last_clicked_at=CURRENT_TIMESTAMP WHERE id=? AND authorized=1 AND EXISTS(SELECT 1 FROM radar_matches m WHERE m.title_id=radar_titles.id AND m.media_kind='video')").bind(id).run();
   return Response.json({ok:Number(result.meta?.changes||0)>0},{headers:{'cache-control':'no-store'}});
  }
  return Response.json({error:'Not found'},{status:404});
 }
 export async function authorizeRadarTitle(env,id,ownerId){
- if(!/^(?:tmdb-(?:films|series)|anilist-animes)-[0-9]{1,12}$/.test(String(id||'')))return false;
+ if(!/^(?:tmdb-(?:films|series)|anilist-animes|tvmaze-series)-[0-9]{1,12}$/.test(String(id||'')))return false;
  const owner=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(ownerId).first();
  if(owner?.role!=='owner')return false;
  const result=await env.DB.prepare("UPDATE radar_titles SET authorized=1 WHERE id=?").bind(id).run();
