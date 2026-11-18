@@ -94,11 +94,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -244,11 +244,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -394,11 +394,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -544,11 +544,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -641,11 +641,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -738,11 +738,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -835,11 +835,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -932,11 +932,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1119,11 +1119,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1216,11 +1216,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1403,11 +1403,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1553,11 +1553,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1650,11 +1650,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1747,11 +1747,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1844,11 +1844,11 @@
       "revalidated_at": "2026-11-03T18:31:27.489368+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -1939,11 +1939,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2034,11 +2034,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2182,11 +2182,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2277,11 +2277,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2372,11 +2372,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2467,11 +2467,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2615,11 +2615,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2710,11 +2710,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2805,11 +2805,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -2900,11 +2900,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -3048,11 +3048,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -3196,11 +3196,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -3291,11 +3291,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -3386,11 +3386,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -3481,11 +3481,11 @@
       "generated_at": "2026-11-03T18:31:27.489368+00:00",
       "combo_only": false,
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -8024,11 +8024,11 @@
       "revalidated_at": "2026-11-12T00:06:33.714594+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-17T20:21:10.081729+00:00",
+      "settlement_checked_at": "2026-11-18T00:21:10.225398+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-18T00:21:10.081729+00:00"
+        "next_retry_after": "2026-11-18T04:21:10.225398+00:00"
       }
     },
     {
@@ -11833,7 +11833,7 @@
       }
     },
     "last_added": 0,
-    "updated_at": "2026-11-18T00:08:31.111054+00:00",
+    "updated_at": "2026-11-18T00:21:10.225398+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -27842,5 +27842,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-18T00:21:10.225398+00:00",
+    "checked": 31,
+    "settled": 0,
+    "pending": 31,
+    "h4": 0,
+    "h8": 0,
+    "fallback": 31,
+    "detail_hits": 0,
+    "reconciled_finished": 0
   }
 }
