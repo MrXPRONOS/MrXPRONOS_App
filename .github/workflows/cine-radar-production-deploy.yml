@@ -1,0 +1,40 @@
+name: Cine Radar - Deploy production after green CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cine-radar-production-deploy.yml'
+  workflow_run:
+    workflows: ['Cine Radar - Minimal directory CI']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: cine-radar-worker-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact CI-tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.sha || github.event.workflow_run.head_sha }}
+      - name: Deploy the verified Worker with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          accountId: '9c86118191b804d91b5f5b2c89114999'
+          workingDirectory: cinecanaux
+          command: deploy
+      - name: Verify production health without sending Telegram
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --retry 3 --retry-delay 2 --fail --silent --show-error --max-time 15 \
+            https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health \
+            -o /tmp/cine-radar-prod-health.json
+          python -c 'import json; x=json.load(open("/tmp/cine-radar-prod-health.json")); assert x.get("service")=="cine-radar" and x.get("database") is True'
