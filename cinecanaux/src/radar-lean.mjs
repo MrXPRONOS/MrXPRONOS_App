@@ -13,7 +13,7 @@ export function invalidateDirectoryCache(){categoryCache.clear();catalogCache=nu
 async function categoryRows(env,kind){
  const now=Date.now(),saved=categoryCache.get(kind);
  if(saved&&saved.expires>now)return saved.value;
- const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND content_type=? AND NOT EXISTS (SELECT 1 FROM channel_index_meta m WHERE m.channel_id=channels.id AND m.listing_status<>'listed') ORDER BY COALESCE((SELECT priority FROM owned_channel_features f WHERE f.channel_id=channels.id AND f.enabled=1),0) DESC,updated_at DESC LIMIT 160").bind(kind).all().then(x=>x.results||[]);
+ const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND (content_type=? OR EXISTS (SELECT 1 FROM channel_categories cc WHERE cc.channel_id=channels.id AND cc.category=?)) AND NOT EXISTS (SELECT 1 FROM channel_index_meta m WHERE m.channel_id=channels.id AND m.listing_status<>'listed') ORDER BY COALESCE((SELECT priority FROM owned_channel_features f WHERE f.channel_id=channels.id AND f.enabled=1),0) DESC,updated_at DESC LIMIT 160").bind(kind,kind).all().then(x=>x.results||[]);
  categoryCache.set(kind,{expires:now+60000,value:pending});
  try{return await pending;}catch(e){categoryCache.delete(kind);throw e;}
 }
