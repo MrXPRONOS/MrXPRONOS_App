@@ -100,43 +100,5 @@ export default {async fetch(request,env){const u=new URL(request.url),p=u.pathna
  }
  return json({error:"Route inconnue"},404)
 
- }catch(e){return json({error:"Erreur serveur",detail:env.DEV_MODE==="true"?String(e):undefined},500)}},
- async scheduled(event,env){
-  const key="bot-profile-description-v1";
-  const sql="INSERT INTO telegram_setup_status(id,status,bot_username,webhook_url,menu_type,error,updated_ms) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,bot_username=excluded.bot_username,error=excluded.error,updated_ms=excluded.updated_ms";
-  const desired="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, tourne la roue et accomplis des missions gratuites. Suis ton niveau et tes récompenses dans la Mini App. Les XP n’ont pas de valeur monétaire.";
-  const brief="🎮 Tapote, gagne des XP, tourne la roue et accomplis des missions gratuites !";
-  let status="ERROR",error="",name="";
-  try{
-   const existing=await env.DB.prepare("SELECT status FROM telegram_setup_status WHERE id=?").bind(key).first();
-   if(existing?.status==="VERIFIED")return;
-   const token=String(env.BOT_TOKEN||"").trim();
-   if(!token){status="NO_TOKEN"}
-   else{
-    const base="https://api.telegram.org/bot"+token+"/";
-    const call=async(method,body)=>{
-     const res=await fetch(base+method,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
-     if(!res.ok)throw Error(method+" HTTP "+res.status);
-     const json=await res.json();
-     if(!json.ok)throw Error(method+" rejected");
-     return json.result;
-    };
-    const me=await call("getMe",{});
-    name=String(me?.username||"");
-    if(name.toLowerCase()!=="mrxpronosplaybot"){status="WRONG_BOT"}
-    else{
-     await call("setMyDescription",{description:desired});
-     await call("setMyShortDescription",{short_description:brief});
-     await call("setMyDescription",{description:desired,language_code:"fr"});
-     await call("setMyShortDescription",{short_description:brief,language_code:"fr"});
-     const [a,b,c,d]=await Promise.all([
-      call("getMyDescription",{}),call("getMyShortDescription",{}),
-      call("getMyDescription",{language_code:"fr"}),call("getMyShortDescription",{language_code:"fr"})
-     ]);
-     status=(a?.description===desired&&b?.short_description===brief&&c?.description===desired&&d?.short_description===brief)?"VERIFIED":"CHECK_FAILED";
-    }
-   }
-  }catch(e){status="ERROR";error=String(e?.message||"Telegram error").slice(0,160)}
-  try{await env.DB.prepare(sql).bind(key,status,name,"","",error,Date.now()).run()}catch{}
- }
+ }catch(e){return json({error:"Erreur serveur",detail:env.DEV_MODE==="true"?String(e):undefined},500)}}
 }
