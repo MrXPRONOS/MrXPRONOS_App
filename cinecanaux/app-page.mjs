@@ -212,11 +212,34 @@ body{background:#07111f}
 .cine-hero .hero-copy p{font-size:clamp(11px,2.7vw,14px)}
 .cine-hero .hero-art:before{background:radial-gradient(ellipse at 68% 29%,#9a7ce34d,transparent 47%),linear-gradient(120deg,#253d73,#17224b)}
 .cine-hero .hero-art:after{display:none}
-.cine-hero-collage{position:absolute;inset:0;transform:translateX(9%);pointer-events:none}
-.cine-hero-cover{width:63px;height:91px;position:absolute;border-radius:10px;overflow:hidden;border:2px solid #c5d4ff88;box-shadow:0 6px 18px #0009;background:#1a3060}
-.cine-hero-cover img{width:100%;height:100%;object-fit:cover}
-.cine-hero-cover:nth-child(1){left:31%;top:18%;transform:rotate(-12deg)}
-.cine-hero-cover:nth-child(2){left:53%;top:7%;transform:rotate(7deg);z-index:2}
+.cine-hero{background:#0b1a35}
+.cine-hero .hero-art{width:min(85%,630px);opacity:.96;right:-12%;overflow:hidden}
+.cine-hero .hero-art>svg{opacity:.17}
+.cine-hero:before{background:linear-gradient(90deg,#091932 0%,#091b36ed 35%,#101d43ad 57%,#0a183a35 100%);z-index:1}
+.cine-hero-collage{position:absolute;inset:-6px -14px;overflow:hidden;pointer-events:none;z-index:1;mask-image:linear-gradient(90deg,transparent,#000 21%,#000 88%,transparent)}
+.cine-marquee-track{height:100%;display:flex;align-items:center;gap:9px;width:max-content;animation:cine-scroll-hero 39s linear infinite;will-change:transform}
+.cine-hero-cover{position:relative;flex:0 0 89px;height:133px;border-radius:10px;overflow:hidden;transform:rotate(-5deg);border:1px solid #a3baf399;box-shadow:0 8px 20px #000a;background:linear-gradient(140deg,#1b3266,#613a81)}
+.cine-hero-cover:nth-child(3n){transform:rotate(6deg) translateY(-5px)}
+.cine-hero-cover:nth-child(5n){transform:rotate(-8deg) translateY(7px)}
+.cine-hero-cover img,.cine-film-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.cine-hero-cover span{position:absolute;inset:auto 3px 5px;color:#fff;font-size:10px;font-weight:800;text-align:center;text-shadow:0 2px 5px #000}
+.cine-poster-section{margin:1px 0 19px}
+.cine-poster-section-title{display:flex;justify-content:space-between;align-items:center;margin:0 0 9px;gap:8px}
+.cine-poster-section-title strong{font-size:15px;letter-spacing:.1px}
+.cine-poster-section-title small{font-size:10px;color:#9ab5db}
+.cine-poster-window{position:relative;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent);border-radius:12px}
+.cine-poster-track{display:flex;gap:10px;width:max-content;animation:cine-scroll-posters 70s linear infinite;will-change:transform}
+.cine-film-poster{width:99px;height:144px;flex:0 0 99px;position:relative;border-radius:11px;overflow:hidden;border:1px solid #405b86;background:linear-gradient(155deg,#243b78,#9e477e 67%,#1c2449);margin:0;box-shadow:0 5px 18px #0006}
+.cine-film-poster:nth-child(4n){background:linear-gradient(155deg,#22476e,#a17a54,#2c3e67)}
+.cine-film-poster figcaption{position:absolute;bottom:0;left:0;right:0;padding:15px 6px 6px;font-size:10px;font-weight:760;color:#fff;line-height:1.1;background:linear-gradient(transparent,#030614df);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cine-film-poster .cine-poster-placeholder{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:#dbe7ff7a;font-weight:900;letter-spacing:2px}
+.cine-poster-note{margin:8px 0 0;font-size:10px;color:#91a8c9}
+@keyframes cine-scroll-hero{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes cine-scroll-posters{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.cine-hero:hover .cine-marquee-track,.cine-poster-window:hover .cine-poster-track{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.cine-marquee-track,.cine-poster-track{animation:none!important}}
+@media (max-width:400px){.cine-hero-cover{flex-basis:72px;height:111px}.cine-film-poster{flex-basis:87px;width:87px;height:132px}}
+
 .cine-hero-cover:nth-child(3){left:74%;top:24%;transform:rotate(14deg)}
 .cine-home-search{display:flex;align-items:center;gap:9px;background:#172d4b;border:1px solid #43618c;border-radius:14px;padding:7px 8px 7px 15px;margin:0 0 18px;height:54px}
 .cine-home-search input{min-width:0;flex:1;color:#f5f9ff;background:transparent;border:0;outline:0;font-size:13px}
@@ -362,7 +385,7 @@ const telegram=()=>window.Telegram?.WebApp||null;
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
 const validLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""))||/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/.test(String(url||""));
-const photoHost=url=>/^\/assets\/channel-avatar\/[a-z][a-z0-9_]{4,31}\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
+const photoHost=url=>/^\/assets\/channel-avatar\/(?:[a-z][a-z0-9_]{4,31}|[1-9][0-9]{0,9})\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
 const icons={
  sparkle:'<path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/><path d="m19 18 .5 1.5L21 20l-1.5.5L19 22l-.5-1.5L17 20l1.5-.5L19 18Z"/>',
  film:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M7 5l3 5M14 5l3 5M7 14h10"/>',
@@ -623,7 +646,7 @@ const pages=["accueil","explorer","decouvrir","favoris","historique","proposer",
 const labels={accueil:"Accueil",explorer:"Explorer",decouvrir:"Découvrir",favoris:"Favoris",historique:"Historique",proposer:"Proposer un canal",apropos:"À propos"};
 let panel={},listing,existing,oldFocus=null;
 function persist(){try{localStorage.setItem(saveKey,JSON.stringify(favorites));localStorage.setItem(historyKey,JSON.stringify(recent))}catch{}}
-function linkAvatar(c){return /^\/assets\/channel-avatar\/[a-z0-9_]{5,32}\.jpg$/i.test(String(c.avatar||""))?c.avatar:null}
+function linkAvatar(c){const src=String(c.avatar||"");return /^\/assets\/channel-avatar\/([1-9][0-9]{0,9}|[a-z][a-z0-9_]{4,31})\.jpg$/i.test(src)?src:(Number.isSafeInteger(Number(c.id))&&Number(c.id)>0?"/assets/channel-avatar/"+c.id+".jpg":null)}
 function setHash(page){const h="#/"+page;if(location.hash!==h)location.hash=h;else navigate(page)}
 function switchPanel(p){pages.forEach(n=>{panel[n].hidden=n!==p});document.querySelectorAll("[data-go]").forEach(b=>{if(b.dataset.go===p)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});document.title=(p==="accueil"?"Ciné Radar":labels[p]+" | Ciné Radar");window.scrollTo({top:0,behavior:"instant"})}
 function makeNav(label,page,icon){const b=node("button",null);b.type="button";b.dataset.go=page;const glyph=node("span",null,icon);b.append(glyph,document.createTextNode(label));b.onclick=()=>{closeMenu();setHash(page)};return b}
@@ -638,12 +661,36 @@ function featuredCard(c,label){const b=node("button","cine-pick");b.type="button
 function previewChannel(c){const card=$("cards").querySelector('[data-channel-id="'+c.id+'"]');if(card){card.querySelector(".view")?.click()}else setFilter(c.title)}
 function quickButton(icon,label,term){const b=node("button");b.type="button";b.append(node("span",null,icon),node("strong",null,label));b.onclick=()=>setFilter(term);return b}
 function sectionTitle(parent,title,link,fn){const wrap=node("div","cine-section-title");wrap.append(node("h3",null,title));if(link){const b=node("button","cine-link",link);b.onclick=fn;wrap.append(b)}parent.append(wrap)}
+// Cinema backdrop and scrolling posters are separate from channel profile avatars.
+let posterShowcase=[];
+const posterTypeTitle={films:"Films",series:"Séries",animes:"Animés"};
+const posterFallback=Array.from({length:12},(_,i)=>({title:["Cinéma","Films","Séries","Animés","À l'affiche","Découvertes"][i%6],type:["films","films","series","animes"][i%4],poster:null}));
+function posterTile(entry,hero=false){
+ const item=node(hero?"div":"figure",hero?"cine-hero-cover":"cine-film-poster");
+ const mark=node("div","cine-poster-placeholder",entry.type==="animes"?"✦":entry.type==="series"?"◈":"▶");item.append(mark);
+ const valid=/^https:\/\/image\.tmdb\.org\/t\/p\/w342\/[A-Za-z0-9_-]{8,100}\.(?:jpe?g|png|webp)$/.test(String(entry.poster||""));
+ if(valid){const img=node("img");img.alt="";img.loading=hero?"eager":"lazy";img.decoding="async";img.src=entry.poster;img.onerror=()=>img.remove();item.append(img)}
+ const caption=node(hero?"span":"figcaption",null,entry.title||posterTypeTitle[entry.type]||"Cinéma");item.append(caption);
+ return item;
+}
+function renderCinemaShowcase(){
+ const entries=posterShowcase.length>=6?posterShowcase:posterFallback;
+ const hero=$("cine-hero-collage"),strip=$("cine-poster-strip");
+ const render=(parent,isHero)=>{if(!parent)return;parent.textContent="";const track=node("div",isHero?"cine-marquee-track":"cine-poster-track");const one=entries.slice(0,isHero?14:22);for(let round=0;round<2;round++)for(const data of one)track.append(posterTile(data,isHero));parent.append(track)};
+ render(hero,true);render(strip,false);
+ const note=$("cine-poster-note");if(note)note.textContent=posterShowcase.length?"Affiches et données : TMDB · Visuels d'illustration, disponibilité non garantie dans les canaux Telegram.":"Univers cinéma · Affiches en cours d'actualisation";
+}
+async function loadCinemaShowcase(){
+ try{const r=await fetch("/api/showcase",{headers:{accept:"application/json"},signal:AbortSignal.timeout(9000)});if(!r.ok)throw Error("showcase unavailable");const body=await r.json();if(Array.isArray(body.items)){posterShowcase=body.items.filter(x=>x&&typeof x.title==="string"&&typeof x.type==="string"&&typeof x.poster==="string").slice(0,24)}}
+ catch{posterShowcase=[]}
+ renderCinemaShowcase();
+}
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
  const chosen=[];for(const type of ["films","series","animes"]){const one=catalog.find(c=>c.type===type&&c.featured&&c.title)||catalog.find(c=>c.type===type&&c.title&&linkAvatar(c));if(one)chosen.push(one)}
  for(const c of chosen)a.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
  if(!chosen.length)a.append(node("div","cine-empty-spot","Chargement des canaux…"));
- const collage=$("cine-hero-collage");if(collage){collage.textContent="";for(const c of chosen){const div=node("div","cine-hero-cover");const img=document.createElement("img");img.src=c.avatar;img.alt="";img.loading="eager";img.onerror=()=>div.remove();div.append(img);collage.append(div)}}
+
 }
 function discover(){
  const grid=$("cine-discover-grid");if(!grid)return;grid.textContent="";
@@ -734,6 +781,7 @@ function build(){
  const home=panel.accueil;hero.classList.add("cine-hero");home.append(hero);
  const art=hero.querySelector(".hero-art");if(art){const collage=node("div","cine-hero-collage");collage.id="cine-hero-collage";art.append(collage)}
  const copy=hero.querySelector(".hero-copy");if(copy){const h=copy.querySelector("h2"),p=copy.querySelector("p");if(h){h.textContent="";h.append("Le cinéma,",node("span","accent","à découvrir."))}if(p)p.textContent="Trouve facilement les canaux Telegram qui correspondent à tes envies."}
+ const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");showcaseHead.append(node("strong",null,"🎞️ À l'affiche"),node("small",null,"Films · Séries · Animés"));const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
  const form=node("form","cine-home-search");form.setAttribute("role","search");const inp=document.createElement("input");inp.type="search";inp.placeholder="Films d'action, animés, séries…";inp.setAttribute("aria-label","Rechercher des canaux");const submit=node("button",null,"Chercher");submit.type="submit";form.append(inp,submit);form.onsubmit=e=>{e.preventDefault();setFilter(inp.value.trim())};home.append(form);
  sectionTitle(home,"Explore par univers",null);
  const quick=node("div","cine-quick");quick.append(quickButton("🎬","Films","films"),quickButton("📺","Séries","series"),quickButton("🎌","Animés","animes"));home.append(quick);
