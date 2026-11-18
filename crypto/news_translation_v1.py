@@ -232,10 +232,12 @@ class FrenchTranslator:
             output = validate(title,source_summary,title_fr,summary_fr)
             self.cache[key] = output
             return output
-        except TranslationHold:
-            # Dedicated service failed or failed fact checks; a general
-            # multilingual model can try, but English is never sent unchanged.
-            pass
+        except TranslationHold as err:
+            # Never retry a semantically incorrect translation with a generative
+            # model. Only an unavailable/invalid provider permits fallback.
+            if not str(err).startswith(("riva_http_","riva_network_","riva_invalid_",
+                                        "riva_reply_")):
+                raise
         last_error = None
         for model in MODELS:
             try:
