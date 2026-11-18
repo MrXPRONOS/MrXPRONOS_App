@@ -34,6 +34,24 @@ Dans BotFather, associer au bot l'URL de la Mini App. Pour les réponses à `/st
 
 **Ne jamais publier les secrets dans GitHub ni dans un chat.** La requête setWebhook est à lancer depuis un outil sûr, après avoir défini le jeton.
 
+## Présentation du bot Telegram — texte officiel
+
+**Description (« Que peut faire ce bot ? »)**
+
+> 🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, tourne la roue et accomplis des missions gratuites. Suis ton niveau et tes récompenses dans la Mini App. Les XP n’ont pas de valeur monétaire.
+
+**Description courte du profil**
+
+> 🎮 Tapote, gagne des XP, tourne la roue et accomplis des missions gratuites !
+
+La V1.2 déploie les textes via les méthodes Telegram `setMyDescription` et `setMyShortDescription`. Ne pas stocker le token Telegram dans GitHub. L'exécution est vérifiable dans la table D1 `telegram_setup_status` par l'entrée `bot-profile-description-v1` (état `VERIFIED`).
+
+## Ajustements de l'écran de jeu (V1.2)
+
+- Les six raccourcis de chaque côté de la pièce passent à **28 × 28 px** (26 × 26 px pour les petits écrans), légèrement inférieurs aux icônes de navigation du bas (34 × 34 px).
+- Les cartes des raccourcis ont été réduites et remontées ; les boutons restent utilisables.
+- Un libellé **« TAPOTER POUR GAGNER »** accompagne la pièce, suivi du rappel **+1 XP / 1 énergie**.
+
 ## Fonctionnement du jeu
 
 - Le compteur augmente immédiatement dans le navigateur pour le tap-to-earn.
