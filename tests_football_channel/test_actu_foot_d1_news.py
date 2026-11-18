@@ -60,10 +60,10 @@ class NewsD1Tests(unittest.TestCase):
                 token="fake-token",chat="-100123",session=Mock())
         self.assertEqual(result["sent"],1)
         self.assertEqual(result["telegram_message_id"],321)
-        self.assertEqual(ledger.claim.call_count,2)
-        self.assertEqual(ledger.mark.call_count,2)
+        self.assertEqual(ledger.claim.call_count,3)
+        self.assertEqual(ledger.mark.call_count,3)
         send.assert_called_once()
-        self.assertEqual(ledger.claim.call_args_list[1].args[0],pub.KIND)
+        self.assertEqual(ledger.claim.call_args_list[2].args[0],pub.KIND)
 
     def test_no_duplicates_if_story_exists(self):
         ledger=Mock()
@@ -83,7 +83,7 @@ class NewsD1Tests(unittest.TestCase):
                 token="fake-token",chat="-100123",session=Mock())
         self.assertEqual(result["errors"],1)
         ledger.release.assert_not_called()
-        self.assertEqual(ledger.claim.call_count,2)
+        self.assertEqual(ledger.claim.call_count,3)
 
 if __name__=="__main__":
     unittest.main()
