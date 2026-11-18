@@ -64,3 +64,29 @@ Le score de classement combine récence, tendances et clics agrégés sans enreg
 Les suggestions sont envoyées au propriétaire par message privé, pas dans ses Messages enregistrés : l'API Telegram des bots ne peut pas écrire directement dans cet espace personnel. Aucun téléchargement ou recherche de copies non autorisées n'est effectué.
 
 API publique : GET /api/radar?kind=films|series|animes&limit=24. Le nouveau catalogue s'ajoute à l'annuaire des canaux existant.
+
+
+## À l'affiche = épingles des trois canaux officiels
+
+Migration : migrations/009_pinned_showcase.sql. Module : pinned-showcase.mjs.
+
+- La bannière animée « Le cinéma, à découvrir » conserve ses images décoratives.
+- La rangée « À l'affiche » n'affiche **que des publications image/vidéo enregistrées depuis les trois canaux officiels** ; aucune affiche décorative n'est présentée à la place d'un vrai lien. Chaque vignette ouvre directement le message public d'origine.
+- L'accueil suit l'ordre : bannière cinéma → À l'affiche → recherche → Explore par univers (boutons horizontaux compacts) → À découvrir.
+- Le panneau précédent « Nouveautés disponibles dans nos canaux » est supprimé de l'accueil pour limiter le défilement.
+- Les vues du canal figurent dans « À découvrir », comme auparavant.
+- Le nombre de clics reste agrégé, sans identité utilisateur ; il contribue au classement des images avec leur ancienneté.
+
+### Récupération des épingles Telegram
+
+L'API Telegram getChat fournit **uniquement le message épinglé le plus récent** du canal. Le Worker demande cette information lors du premier chargement (au maximum une fois par heure et par canal), puis toutes les six heures à travers une tâche Cron existante. Les épinglages transmis comme événements Telegram sont ajoutés automatiquement.
+
+Pour afficher **les autres messages déjà épinglés** :
+1. Ouvrir le canal officiel Films, Séries ou Animés et sélectionner un ancien message épinglé avec son image ou la miniature de sa vidéo.
+2. Utiliser « Transférer » vers **@CineRadarFr_Bot**, en conversation privée depuis le compte propriétaire enregistré dans Ciné Radar.
+3. Le bot vérifie l'origine et l'identifiant stable du canal, enregistre l'affiche et confirme sa prise en compte.
+4. L'image apparaît ensuite dans « À l'affiche » et ouvre **la publication d'origine** du canal, non le message privé du bot.
+
+Si le transfert est interdit ou qu'un message ne contient ni photo ni miniature vidéo exploitable, il ne peut pas être ajouté par cette méthode. Le bot ne télécharge, ne conserve ni ne republie les fichiers vidéo : seuls les petits visuels et métadonnées de publication sont utilisés. Respecter les autorisations de diffusion des visuels et contenus.
+
+Routes : GET /api/pinned-showcase ; GET /assets/pin-cover/{films|series|animes}/{message_id}.jpg ; POST /api/pinned-click.
