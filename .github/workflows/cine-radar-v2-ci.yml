@@ -56,3 +56,6 @@ jobs:
       - name: Production V2 smoke (read-only)
         timeout-minutes: 3
         run: node cinecanaux/tests/live-smoke.mjs
+      - name: Production administered channels smoke (read-only)
+        timeout-minutes: 3
+        run: node cinecanaux/tests/owned-live-smoke.mjs
