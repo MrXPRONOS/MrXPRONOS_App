@@ -45,5 +45,9 @@ jobs:
           assert 'loadTelegramAvatar' in html,'Client avatar integration missing'
           assert 'wheel-center img' in html,'Wheel center styling missing'
           assert 'translate(-50%,-50%)' in html,'Wheel not centred'
+          assert 'TAPOTER POUR GAGNER' in html,'Tap instruction missing'
+          assert 'side-link img{width:28px' in html,'Quick action icons not 28px'
+          assert 'side-link img{width:26px' in html,'Small screen action icons not 26px'
+          assert 'transform:translateY(-18px)' in html,'Quick actions not raised'
           print('SUCCESS: avatar endpoint protected, frontend avatar loading and wheel centering deployed')
           PY
