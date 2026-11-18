@@ -27,7 +27,7 @@ export function matchRadarTitle(caption,title){
  const variants=[title.title,title.title_original,...String(title.aliases||'').split('|')].map(clean).filter(x=>x.length>=5);
  if(!body.trim()||!variants.length)return 0;
  const years=String(caption||'').match(/\b(?:19|20)\d{2}\b/g)||[];
- if(title.year&&years.length&&years.some(y=>Number(y)!==Number(title.year)))return 0;
+ if((!title.kind||title.kind==='films')&&title.year&&years.length&&years.some(y=>Number(y)!==Number(title.year)))return 0;
  let best=0;
  for(const name of variants){
   if(name.length<5)continue;
@@ -68,7 +68,7 @@ async function anilistTrends(){
  return {rows:(data.data?.Page?.media||[]).map((x,i)=>rowFor('anilist','animes',{
   id:x.id,title:x.title?.english||x.title?.romaji||x.title?.native,
   original:x.title?.romaji||x.title?.native,aliases:[x.title?.native,x.title?.romaji].filter(Boolean).join('|'),
-  summary:x.description,poster:x.coverImage?.large,year:x.seasonYear,sourceUrl:x.siteUrl
+  summary:x.description,poster:x.coverImage?.large,year:x.seasonYear,sourceUrl:'https://anilist.co/anime/'+x.id
  },i+1)).filter(x=>x.title&&x.sourceUrl)};
 }
 async function sendOwner(env,message){
