@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/mrxpronos-play-healthcheck.yml'
       - 'mrxpronos-play/worker.js'
+      - 'mrxpronos-play/tests/**'
 permissions:
   contents: read
 jobs:
@@ -12,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
+      - name: Test public /start and private admin authorization
+        run: node --test mrxpronos-play/tests/telegram-bot.test.mjs
       - name: Check bot token identity and backend health (no secrets)
         run: |
           set -euo pipefail
