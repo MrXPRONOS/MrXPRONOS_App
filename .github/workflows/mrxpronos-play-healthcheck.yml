@@ -46,8 +46,10 @@ jobs:
           assert 'wheel-center img' in html,'Wheel center styling missing'
           assert 'translate(-50%,-50%)' in html,'Wheel not centred'
           assert 'TAPOTER POUR GAGNER' in html,'Tap instruction missing'
-          assert 'side-link img{width:28px' in html,'Quick action icons not 28px'
-          assert 'side-link img{width:26px' in html,'Small screen action icons not 26px'
-          assert 'transform:translateY(-18px)' in html,'Quick actions not raised'
+          assert 'async function trySync(manual=false)' in html,'Manual sync handler missing'
+          assert 'SYNCHRONISER MES XP' in html,'Sync button not activated'
+          assert '#screen-tap .coin-stage .side-link img{width:25px' in html,'Quick action icons not 25px'
+          assert '#screen-tap .coin-stage .side-link img{width:24px' in html,'Small screen action icons not 24px'
+          assert '#screen-tap .coin-stage .side-menu{align-self:start;justify-content:flex-start;gap:7px;transform:none' in html,'Quick action position incorrect'
           print('SUCCESS: avatar endpoint protected, frontend avatar loading and wheel centering deployed')
           PY
