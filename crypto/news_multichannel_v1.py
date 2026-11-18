@@ -23,6 +23,7 @@ import requests
 
 from crypto import news_digest_v1 as digest
 from crypto import news_media_v1 as media
+from crypto import news_translation_v1 as translator
 
 UTC = timezone.utc
 EXPECTED_BOT = "mrxpronos_canal_bot"
@@ -281,6 +282,7 @@ def publish():
     assignments = {article_key(c): exclusivity(c, targets, receipts) for c in candidates}
     used_keys, used_sources = {}, set()
     photo_cache = {}
+    translation_cache = translator.FrenchTranslator()
     counts = Counter()
     # Rotate the starting channel every time slot for fair exposure.
     shift = digest_number("channel-turn:" + slot) % len(targets)
@@ -322,7 +324,14 @@ def publish():
                 counts["no_real_source_image"] += 1
                 continue
             image, photo_source = photo
-            cap = media.caption(cand, image_source=photo_source)
+            try:
+                french = translation_cache.translate(cand["main"])
+                cap = media.caption(cand, image_source=photo_source,
+                                    translated=french, require_french=True)
+            except (translator.TranslationHold, ValueError):
+                counts["french_translation_unverified"] += 1
+                print("CRYPTO_MULTICHANNEL_SKIP_UNVERIFIED_FRENCH")
+                continue
             claim = db.claim(target, cand, is_exclusive, owner, slot)
             if claim != "claimed":
                 counts["reservation_" + str(claim)[:30]] += 1
@@ -369,7 +378,8 @@ def publish():
           "exclusive="+str(counts["exclusive_published"]),
           "delivery_unconfirmed="+str(counts["telegram_delivery_unconfirmed"]),
           "confirm_failed="+str(counts["db_confirm_failed"]),
-          "verification_failed="+str(counts["destination_verification_failed"]))
+          "verification_failed="+str(counts["destination_verification_failed"]),
+          "french_unverified="+str(counts["french_translation_unverified"]))
     if counts["db_confirm_failed"] or counts["telegram_delivery_unconfirmed"]:
         raise RuntimeError("One or more Telegram deliveries need a manual audit")
 
