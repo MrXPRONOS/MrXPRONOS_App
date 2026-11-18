@@ -121,6 +121,8 @@ export async function ingestRadarPost(env,update){
   if(bound)selected={kind:bound.kind,username:bound.username};
  }
  if(!selected||!id)return {ignored:true};
+ const known=await env.DB.prepare('SELECT chat_id FROM radar_primary_channels WHERE kind=?').bind(selected.kind).first();
+ if(known?.chat_id&&String(known.chat_id)!==id)return {ignored:true,reason:'channel_identity_changed'};
  // A Telegram-verified channel identity is stable even if its username later changes.
  if(name&&name===selected.username.toLowerCase())
   await env.DB.prepare("UPDATE radar_primary_channels SET chat_id=?,updated_at=CURRENT_TIMESTAMP WHERE kind=? AND (chat_id IS NULL OR chat_id=?)").bind(id,selected.kind,id).run();
