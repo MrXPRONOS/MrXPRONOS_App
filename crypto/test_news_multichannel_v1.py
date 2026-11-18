@@ -144,6 +144,31 @@ class DistributionTests(unittest.TestCase):
         self.assertEqual(net.ranking(c,t,no_lanes,set(),(True,t["key"])),
                          net.ranking(c,t,no_lanes,set(),(False,None)))
 
+    def test_fastdeal_target_is_explicit_and_not_legacy(self):
+        t = targets()
+        t[0]["chat_id"] = "@fastdealexchange"
+        chosen = [x for x in t if x["chat_id"].lower() == net.FASTDEAL_USERNAME]
+        self.assertEqual(len(chosen), 1)
+        self.assertEqual(net.FASTDEAL_DAILY_LIMIT, 4)
+        self.assertEqual(len([x for x in t if x not in chosen]), 9)
+
+    def test_fastdeal_daily_receipt_count_uses_utc(self):
+        from datetime import datetime
+        now = datetime(2026, 11, 18, 19, tzinfo=timezone.utc)
+        receipts = [
+            {"key": targets()[0]["key"], "created_at": "2026-11-18T07:15:00Z", "status": "confirmed"},
+            {"key": targets()[0]["key"], "created_at": "2026-11-18T11:15:00+00:00", "status": "reserved"},
+            {"key": targets()[0]["key"], "created_at": "2026-11-17T19:15:00Z", "status": "confirmed"},
+            {"key": targets()[1]["key"], "created_at": "2026-11-18T15:15:00Z", "status": "confirmed"},
+        ]
+        count = sum(
+            1 for receipt in receipts
+            if receipt["key"] == targets()[0]["key"]
+            and datetime.fromisoformat(receipt["created_at"].replace("Z","+00:00")).astimezone(timezone.utc).date() == now.date()
+            and receipt["status"] in ("reserved","confirmed")
+        )
+        self.assertEqual(count, 2)
+
     def test_service_credentials_required(self):
         with patch.dict("os.environ",{},clear=True):
             with self.assertRaises(RuntimeError):
