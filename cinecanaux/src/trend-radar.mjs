@@ -71,19 +71,6 @@ async function anilistTrends(){
   summary:x.description,poster:x.coverImage?.large,year:x.seasonYear,sourceUrl:'https://anilist.co/anime/'+x.id
  },i+1)).filter(x=>x.title&&x.sourceUrl)};
 }
-async function sendOwner(env,message){
- if(!env.TELEGRAM_TOKEN)return {sent:0};
- const owners=(await env.DB.prepare("SELECT user_id FROM admin_users WHERE role='owner' LIMIT 2").all()).results||[];
- let sent=0;
- for(const owner of owners){
-  const r=await fetch('https://api.telegram.org/bot'+env.TELEGRAM_TOKEN+'/sendMessage',{
-   method:'POST',headers:{'content-type':'application/json'},
-   body:JSON.stringify({chat_id:owner.user_id,text:message.slice(0,3900),disable_web_page_preview:true}),
-   signal:AbortSignal.timeout(7500)});
-  if(r.ok&&(await r.json()).ok)sent++;
- }
- return {sent};
-}
 export async function runTrendRefresh(env,{force=false}={}){
  const result={updated:0,skipped:[],errors:[],notified:0};
  for(const kind of ['films','series','animes']){
@@ -94,18 +81,13 @@ export async function runTrendRefresh(env,{force=false}={}){
   catch(e){result.errors.push(kind+': '+String(e).slice(0,90));continue;}
   if(provider.disabled){result.skipped.push(kind+' (TMDB_API_KEY missing)');continue;}
   if(!provider.rows.length){result.errors.push(kind+': empty provider response');continue;}
-  let fresh=[];
   for(const item of provider.rows){
-   const old=await env.DB.prepare('SELECT id FROM radar_titles WHERE id=?').bind(item.id).first();
    await env.DB.prepare("INSERT INTO radar_titles(id,kind,title,title_original,aliases,summary,year,poster_url,source_url,source,trend_rank) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,title_original=excluded.title_original,aliases=excluded.aliases,summary=excluded.summary,year=excluded.year,poster_url=excluded.poster_url,source_url=excluded.source_url,trend_rank=excluded.trend_rank,last_seen_at=CURRENT_TIMESTAMP")
    .bind(item.id,item.kind,item.title,item.original,item.aliases,item.summary,item.year,item.poster,item.sourceUrl,item.source,item.rank).run();
-   if(!old)fresh.push(item);result.updated++;
+   result.updated++;
   }
   await env.DB.prepare("INSERT INTO radar_runs(job_name,last_success_at,last_attempt_at,last_error,last_count) VALUES(?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'',?) ON CONFLICT(job_name) DO UPDATE SET last_success_at=CURRENT_TIMESTAMP,last_attempt_at=CURRENT_TIMESTAMP,last_error='',last_count=excluded.last_count").bind(job,provider.rows.length).run();
-  if(fresh.length){
-   const message='🎬 CINÉ RADAR — '+({films:'Films',series:'Séries',animes:'Animés'}[kind])+' tendance\n\n'+fresh.slice(0,7).map(x=>'• '+x.title+(x.year?' ('+x.year+')':'')+'\n'+x.sourceUrl+'\nID : '+x.id).join('\n\n')+'\n\nCes fiches sont des suggestions, pas des fichiers vidéo. Tu peux publier tes propres contenus autorisés dans le canal correspondant. Commande /tendances pour revoir la liste.';
-   try{result.notified+=(await sendOwner(env,message)).sent;}catch(e){result.errors.push('notification: '+String(e).slice(0,60));}
-  }
+
  }
  if(result.updated)await reconcileRadarPosts(env,120);
  return result;
