@@ -1,5 +1,9 @@
 name: Cine Radar - Deploy production after green CI
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cine-radar-production-deploy.yml'
   workflow_run:
     workflows: ['Cine Radar - Minimal directory CI']
     types: [completed]
@@ -11,14 +15,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    if: ${{ github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - name: Checkout exact CI-tested commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'push' && github.sha || github.event.workflow_run.head_sha }}
       - name: Deploy the verified Worker with Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
