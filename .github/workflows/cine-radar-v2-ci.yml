@@ -27,13 +27,14 @@ jobs:
         run: |
           node --check cinecanaux/worker.mjs
           node --check cinecanaux/trend-radar.mjs
+          node --check cinecanaux/radar-owner-ops.mjs
           node --check cinecanaux/channel-avatar.mjs
           node --check cinecanaux/poster-showcase.mjs
           node --check cinecanaux/radar-lean.mjs
           node --check cinecanaux/app-page.mjs
           node --check cinecanaux/channel-preview.mjs
           node --check cinecanaux/v2.mjs
-          python -m py_compile cinecanaux/audit_owned_channel_quality.py cinecanaux/sync_owned_quality_to_d1.py
+          python -m py_compile cinecanaux/audit_owned_channel_quality.py cinecanaux/sync_owned_quality_to_d1.py cinecanaux/backfill_official_posts.py
           node --check cinecanaux/maintenance-v2.mjs
           node --check cinecanaux/admin-v2.mjs
           node --check cinecanaux/admin-page.mjs
@@ -42,7 +43,7 @@ jobs:
       - name: Verify poster and avatar refresh scripts
         run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs cinecanaux/tests/owner-inbox.test.mjs
 
       - name: Staging Worker smoke (non-production)
         timeout-minutes: 2

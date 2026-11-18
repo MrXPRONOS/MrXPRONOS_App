@@ -9,6 +9,7 @@ import {runLoggedJob} from "./job-log.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
 import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
+import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
  const x=new TextEncoder().encode(String(a||"")),y=new TextEncoder().encode(String(b||""));
@@ -265,9 +266,22 @@ export default {
    // Source-specific successful trend refreshes are guarded by a 72-hour D1 window.
    const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
    if(hour===6){
-    const daily=await Promise.allSettled([runTrendRefresh(env),reconcileRadarPosts(env,120),checkDailyLinks(env,10)]);
-    errors+=daily.filter(x=>x.status==="rejected").length;
-    for(const item of daily)if(item.status==="rejected")console.error("radar_daily_error",String(item.reason).slice(0,140));
+    // Run sequentially: attach validated channel identities, refresh providers,
+    // reconcile existing publications, THEN notify owners about missing titles.
+    const tasks=[
+      ['bind_primary',()=>bindPrimaryRadarChannels(env)],
+      ['refresh_trends',()=>runTrendRefresh(env)],
+      ['reconcile_posts',()=>reconcileRadarPosts(env,120)],
+      ['notify_owner',()=>notifyOwnerMissingRadarTitles(env)],
+      ['check_links',()=>checkDailyLinks(env,10)]
+    ];
+    // Run in order: never notify before comparing with the latest indexed posts.
+    for(const [name,job] of tasks){
+      try{
+        const report=await job();
+        if(report?.errors?.length){errors+=report.errors.length;console.warn("radar_daily_warning",name,report.errors.map(String).join("; ").slice(0,160));}
+      }catch(e){errors++;console.error("radar_daily_error",name,String(e).slice(0,140));}
+    }
    }
    return {errors};
   }));
