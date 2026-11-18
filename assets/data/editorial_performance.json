@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-11-17T06:17:54.948183+00:00",
+  "generated_at": "2026-11-18T06:18:06.353264+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 0,
   "promo_copy_actions": 0,
@@ -11,24 +11,6 @@
   "ab_significance": null,
   "ab_limitation": "Assignation aléatoire par session aux listes Blog/Conseils ; événements d’impressions et clics, pas visiteurs uniques. Significativité non calculée ; aucune causalité affirmée.",
   "ab_tests": [
-    {
-      "kind": "article",
-      "slug": "analyse-premium-test",
-      "variant": "a",
-      "impressions": 2,
-      "opens": 0,
-      "open_rate": 0.0,
-      "status": "insufficient_data"
-    },
-    {
-      "kind": "article",
-      "slug": "analyse-premium-test",
-      "variant": "b",
-      "impressions": 0,
-      "opens": 0,
-      "open_rate": null,
-      "status": "insufficient_data"
-    },
     {
       "kind": "article",
       "slug": "bsd-match-209600",
@@ -365,78 +347,6 @@
     {
       "kind": "article",
       "slug": "bsd-match-7328",
-      "variant": "b",
-      "impressions": 0,
-      "opens": 0,
-      "open_rate": null,
-      "status": "insufficient_data"
-    },
-    {
-      "kind": "conseil",
-      "slug": "comprendre-value",
-      "variant": "a",
-      "impressions": 128,
-      "opens": 0,
-      "open_rate": 0.0,
-      "status": "descriptive_only"
-    },
-    {
-      "kind": "conseil",
-      "slug": "comprendre-value",
-      "variant": "b",
-      "impressions": 0,
-      "opens": 0,
-      "open_rate": null,
-      "status": "insufficient_data"
-    },
-    {
-      "kind": "conseil",
-      "slug": "conseil-premium-test",
-      "variant": "a",
-      "impressions": 3,
-      "opens": 0,
-      "open_rate": 0.0,
-      "status": "insufficient_data"
-    },
-    {
-      "kind": "conseil",
-      "slug": "conseil-premium-test",
-      "variant": "b",
-      "impressions": 0,
-      "opens": 0,
-      "open_rate": null,
-      "status": "insufficient_data"
-    },
-    {
-      "kind": "conseil",
-      "slug": "erreurs-tilt",
-      "variant": "a",
-      "impressions": 96,
-      "opens": 0,
-      "open_rate": 0.0,
-      "status": "descriptive_only"
-    },
-    {
-      "kind": "conseil",
-      "slug": "erreurs-tilt",
-      "variant": "b",
-      "impressions": 0,
-      "opens": 0,
-      "open_rate": null,
-      "status": "insufficient_data"
-    },
-    {
-      "kind": "conseil",
-      "slug": "gerer-bankroll",
-      "variant": "a",
-      "impressions": 128,
-      "opens": 0,
-      "open_rate": 0.0,
-      "status": "descriptive_only"
-    },
-    {
-      "kind": "conseil",
-      "slug": "gerer-bankroll",
       "variant": "b",
       "impressions": 0,
       "opens": 0,
