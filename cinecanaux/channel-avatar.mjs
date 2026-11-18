@@ -38,10 +38,16 @@ async function telegramAvatar(env,identifier){
  const image=await fetchWithin('https://api.telegram.org/file/bot'+env.TELEGRAM_TOKEN+'/'+path,{},6500);
  return await imageBytes(image);
 }
-async function repoAvatar(handle){
- if(!handle)return null;
- const path='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/avatars/'+encodeURIComponent(handle.toLowerCase())+'.jpg';
- return imageBytes(await fetchWithin(path,{cf:{cacheEverything:true,cacheTtl:86400}},4500));
+async function repoAvatar(handle,id){
+ const base='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/avatars/';
+ for(const file of ['d1_'+id+'.jpg',handle?handle.toLowerCase()+'.jpg':null]){
+  if(!file)continue;
+  try{
+   const image=await imageBytes(await fetchWithin(base+encodeURIComponent(file),{cf:{cacheEverything:true,cacheTtl:3600}},4500));
+   if(image)return image;
+  }catch{}
+ }
+ return null;
 }
 export async function serveChannelAvatar(request,env,ctx,channelId){
  const id=Number(channelId);
@@ -62,7 +68,7 @@ export async function serveChannelAvatar(request,env,ctx,channelId){
  }catch{}
  const handle=PUBLIC_RE.exec(channel.link||'')?.[1]||null;
  let image=null;
- try{image=await repoAvatar(handle);}catch{}
+ try{image=await repoAvatar(handle,id);}catch{}
  if(!image){
   const identifier=channel.telegram_chat_id|| (handle?'@'+handle:null);
   try{image=await telegramAvatar(env,identifier);}catch(e){console.warn('avatar_fetch_unavailable',id,e?.name||'error');}
