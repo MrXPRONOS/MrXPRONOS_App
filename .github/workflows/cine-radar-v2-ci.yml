@@ -95,3 +95,6 @@ jobs:
       - name: Production cinema poster and avatar smoke (read-only)
         timeout-minutes: 3
         run: node --test cinecanaux/tests/poster-avatar-live.test.mjs
+      - name: Production Telegram pinned showcase smoke (read-only)
+        timeout-minutes: 3
+        run: node --test cinecanaux/tests/pinned-showcase-live.test.mjs
