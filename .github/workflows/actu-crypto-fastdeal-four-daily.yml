@@ -1,0 +1,48 @@
+name: Actu Crypto - Fast Deal four daily RSS posts
+
+on:
+  schedule:
+    # UTC; Togo uses UTC year-round.
+    - cron: '15 7,11,15,19 * * *'
+  workflow_dispatch:
+    inputs:
+      confirm_real_production:
+        type: boolean
+        required: true
+        default: false
+        description: 'Authorize live posting to @fastdealexchange?'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-premium-production
+  cancel-in-progress: false
+
+jobs:
+  fastdeal-rss:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.confirm_real_production == true)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      CRYPTO_FASTDEAL_ONLY: '1'
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install RSS, translation and image dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7' 'langdetect>=1.0.9,<2'
+      - name: Run editorial and delivery safety tests
+        run: |
+          python -m compileall -q crypto
+          python -m unittest crypto.test_news_digest_v1 crypto.test_news_translation_v1 crypto.test_news_media_v1 crypto.test_news_multichannel_v1 crypto.test_production_live_v1 -v
+      - name: Publish at most one verified French RSS photo to Fast Deal
+        run: python -m crypto.production_live_v1 --mode world
