@@ -1,4 +1,5 @@
 name: Cine Radar - Backfill official publication metadata
+# Re-run after 3/3 official Telegram channels verified by Bot API on 2026-11-18.
 on:
   workflow_dispatch:
   schedule:
