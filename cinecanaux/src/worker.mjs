@@ -26,21 +26,32 @@ function banner(){
  return new Response(svg,{headers:{"content-type":"image/svg+xml; charset=utf-8","cache-control":"public, max-age=86400","x-content-type-options":"nosniff"}});
 }
 
-async function provisionTelegramWebhook(env) {
-  const current=await env.DB.prepare("SELECT status FROM bot_webhook_status WHERE id=1").first();
-  if(current?.status==="ok")return;
-  if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET) {
-    await env.DB.prepare("INSERT INTO bot_webhook_status(id,status,detail) VALUES(1,'error','Secrets Telegram manquants') ON CONFLICT(id) DO UPDATE SET status=excluded.status,detail=excluded.detail,updated_at=CURRENT_TIMESTAMP").run();
-    return;
-  }
-  const target="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/telegram";
-  const r=await telegram(env,"setWebhook",{url:target,secret_token:env.TELEGRAM_WEBHOOK_SECRET,allowed_updates:["message","callback_query"]});
-  const status=r.ok?"ok":"error";
-  const detail=r.ok?"Webhook accepté par Telegram":("Telegram HTTP "+String(r.error_code||"") + ": " + String(r.description||"").slice(0,140));
+export async function provisionTelegramWebhook(env) {
+ const target="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/telegram";
+ const accepted=["message","callback_query"];
+ const saveStatus=async(status,detail)=>{
   await env.DB.prepare("INSERT INTO bot_webhook_status(id,status,detail) VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,detail=excluded.detail,updated_at=CURRENT_TIMESTAMP").bind(status,detail).run();
-  if(!r.ok)throw Error("Configuration webhook refusée par Telegram");
+ };
+ if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET){
+  await saveStatus("error","Secrets Telegram manquants");
+  return;
+ }
+ let current=null;
+ try{
+  const info=await telegram(env,"getWebhookInfo",{});
+  if(info.ok)current=info.result||{};
+ }catch(e){console.warn("cineradar_webhook_probe_failed",String(e).slice(0,90));}
+ if(current&&current.url===target&&accepted.every(value=>Array.isArray(current.allowed_updates)&&current.allowed_updates.includes(value))){
+  await saveStatus("ok","Webhook Telegram vérifié");
+  return;
+ }
+ // A previously successful D1 flag cannot prove that Telegram still points here.
+ // Re-register only when the live configuration is missing, wrong, or unverifiable.
+ const r=await telegram(env,"setWebhook",{url:target,secret_token:env.TELEGRAM_WEBHOOK_SECRET,allowed_updates:accepted});
+ const detail=r.ok?"Webhook Telegram rétabli":("Telegram HTTP "+String(r.error_code||"")+": "+String(r.description||"").slice(0,140));
+ await saveStatus(r.ok?"ok":"error",detail);
+ if(!r.ok)throw Error("Configuration webhook refusée par Telegram");
 }
-
 
 const DISCOVERY_STATE_URL = "https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/telegram-film-relay/state/discovery_daily_state.json";
 const DISCOVERY_MAP = {
