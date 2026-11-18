@@ -18,6 +18,7 @@ ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions"
 # Verified by GET /v1/models using this repository's NVIDIA_API_KEY (2026-11-18).
 # Other historical Mistral/Llama IDs returned HTTP 410 on this account.
 MODELS = ("mistralai/mistral-large-4-1t-a52b",)
+RIVA_MODEL = "nvidia/riva-translate-4b-instruct-v2"
 TICKERS = {"BTC", "ETH", "USDT", "USDC", "SOL", "XRP", "BNB", "ETF", "NFT"}
 ENTITY_NAMES = ("Binance", "Coinbase", "Kraken", "BlackRock", "Tether",
                 "Circle", "Solana", "Ethereum", "Bitcoin", "Ripple",
@@ -85,6 +86,40 @@ def validate(original_title, original_summary, title_fr, summary_fr):
     if re.search(r"(?i)https?://|www\.", title_fr + " " + summary_fr):
         raise TranslationHold("link_generated")
     return {"title_fr": title_fr, "summary_fr": summary_fr}
+
+
+def _riva_translate(value, api_key, post=requests.post):
+    """Neural machine translation with NVIDIA's documented en-fr prompt."""
+    req = {
+        "model": RIVA_MODEL,
+        "messages": [
+            {"role": "system", "content": "en-fr"},
+            {"role": "user", "content": value}
+        ],
+        "temperature": 0, "max_tokens": 520, "stream": False
+    }
+    try:
+        r = post(ENDPOINT, headers={
+            "Authorization": "Bearer " + api_key,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }, json=req, timeout=(8, 38), allow_redirects=False)
+    except requests.RequestException:
+        raise TranslationHold("riva_network_unavailable") from None
+    if r.status_code != 200:
+        raise TranslationHold("riva_http_" + str(r.status_code))
+    if len(r.content) > 12000:
+        raise TranslationHold("riva_reply_too_large")
+    try:
+        v = r.json()["choices"][0]["message"]["content"]
+        if not isinstance(v,str) or not v.strip():
+            raise ValueError("no text")
+        out = v.strip().strip('"')
+        if "\n" in out and len(out) > 330:
+            raise ValueError("long")
+        return out
+    except (ValueError,TypeError,KeyError,IndexError,AttributeError):
+        raise TranslationHold("riva_invalid_text") from None
 
 
 def _model_translate(title, summary, model, key, post=requests.post):
@@ -189,6 +224,20 @@ class FrenchTranslator:
             return translated
         if not self.api_key:
             raise TranslationHold("NVIDIA_API_KEY_missing")
+        # Preferred specialized EN->FR translation, preserving field boundaries.
+        try:
+            title_fr = _riva_translate(title,self.api_key,self.post)
+            summary_fr = (_riva_translate(source_summary,self.api_key,self.post)
+                          if source_summary else title_fr)
+            output = validate(title,source_summary,title_fr,summary_fr)
+            self.cache[key] = output
+            return output
+        except TranslationHold as err:
+            # Never retry a semantically incorrect translation with a generative
+            # model. Only an unavailable/invalid provider permits fallback.
+            if not str(err).startswith(("riva_http_","riva_network_","riva_invalid_",
+                                        "riva_reply_")):
+                raise
         last_error = None
         for model in MODELS:
             try:

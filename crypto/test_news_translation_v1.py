@@ -22,7 +22,7 @@ class FakeResponse:
         self.payload = payload if payload is not None else FR
         self.status_code = status
     def json(self):
-        return {"choices":[{"message":{"content":json.dumps(self.payload,ensure_ascii=False)}}]}
+        return {"choices":[{"message":{"content":self.payload if isinstance(self.payload,str) else json.dumps(self.payload,ensure_ascii=False)}}]}
 
 
 class FrenchNewsTests(unittest.TestCase):
@@ -30,14 +30,17 @@ class FrenchNewsTests(unittest.TestCase):
         calls = []
         def fake_post(*args, **kwargs):
             calls.append(kwargs)
-            return FakeResponse()
+            self.assertEqual(kwargs["json"]["model"],tr.RIVA_MODEL)
+            english_input = kwargs["json"]["messages"][-1]["content"]
+            return FakeResponse(FR["title_fr"] if english_input==ENGLISH["title"]
+                                else FR["summary_fr"])
         worker = tr.FrenchTranslator(api_key="fake-secret",post=fake_post)
         one = worker.translate(ENGLISH)
         two = worker.translate(ENGLISH)
         self.assertEqual(one,FR)
         self.assertEqual(two,FR)
-        self.assertEqual(len(calls),1)
-        self.assertEqual(calls[0]["json"]["model"],tr.MODELS[0])
+        self.assertEqual(len(calls),2)
+        self.assertEqual(calls[0]["json"]["messages"][0]["content"],"en-fr")
         self.assertNotIn("fake-secret",str(one))
 
     def test_only_french_already_is_not_sent_to_nvidia(self):
@@ -107,7 +110,7 @@ class FrenchNewsTests(unittest.TestCase):
         self.assertEqual(
             tr.FrenchTranslator(api_key="mock-key",post=fake_post).translate(ENGLISH),
             FR)
-        self.assertEqual(seen,list(tr.MODELS))
+        self.assertEqual(seen,[tr.RIVA_MODEL,tr.MODELS[0]])
 
 
 if __name__=="__main__":
