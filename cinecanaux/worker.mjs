@@ -258,10 +258,19 @@ export default {
    return {inspected:discovered.inspected||0,inserted:(discovered.inserted||0)+(suggested.indexed||0),errors:discovered.unverifiable||0};
   }));
   else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
-  else if(controller.cron==="20 5 * * *")ctx.waitUntil((async()=>{
-    try{const trends=await runTrendRefresh(env);const posts=await reconcileRadarPosts(env,160);console.log(JSON.stringify({event:"radar_daily",trends,posts}));}
-    catch(e){console.error("radar_daily_error",String(e).slice(0,180));throw e;}
-  })());
+  else if(controller.cron==="0 */6 * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
+   const upkeep=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]);
+   let errors=upkeep.filter(x=>x.status==="rejected").length;
+   // At 06:00 UTC run the daily catalog reconciliation and link checks.
+   // Source-specific successful trend refreshes are guarded by a 72-hour D1 window.
+   const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
+   if(hour===6){
+    const daily=await Promise.allSettled([runTrendRefresh(env),reconcileRadarPosts(env,120),checkDailyLinks(env,10)]);
+    errors+=daily.filter(x=>x.status==="rejected").length;
+    for(const item of daily)if(item.status==="rejected")console.error("radar_daily_error",String(item.reason).slice(0,140));
+   }
+   return {errors};
+  }));
   else ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
    const result=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]);
    return {errors:result.filter(x=>x.status==='rejected').length};
