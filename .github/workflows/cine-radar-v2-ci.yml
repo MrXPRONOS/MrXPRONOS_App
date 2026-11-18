@@ -63,3 +63,6 @@ jobs:
       - name: Production administered channels smoke (read-only)
         timeout-minutes: 3
         run: node cinecanaux/tests/owned-live-smoke.mjs
+      - name: Production cinema poster and avatar smoke (read-only)
+        timeout-minutes: 3
+        run: node --test cinecanaux/tests/poster-avatar-live.test.mjs
