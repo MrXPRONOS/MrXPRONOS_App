@@ -225,8 +225,8 @@
     "published": "2026-11-17T22:07:18+00:00",
     "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/erling-haaland-2627-p.jpg",
     "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/erling-haaland-2627-p.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
+    "image_origin": "generated_fallback",
+    "image_layout": "general-banner",
     "source": "Foot Mercato",
     "source_priority": 92,
     "source_region": "international",
@@ -709,7 +709,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-18T01:00:26.476982+00:00"
+      "checked_at": "2026-11-18T01:27:11.745381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -879,7 +879,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-18T01:00:26.476982+00:00"
+      "checked_at": "2026-11-18T01:27:11.745381+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
