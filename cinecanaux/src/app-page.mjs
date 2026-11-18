@@ -470,7 +470,7 @@ function enqueueVisiblePhotos(){
  pumpThumbs();
 }
 function applyFilters(){
- channels=allChannels.filter(c=>!selectedTypes.size||selectedTypes.has(c.type));
+ channels=allChannels.filter(c=>!selectedTypes.size||[...selectedTypes].some(t=>c.type===t||String(c.tags||"").split(",").includes(t)));
  render();enqueueVisiblePhotos();
 }
 async function load(force=false){
