@@ -129,6 +129,21 @@ class DistributionTests(unittest.TestCase):
         self.assertNotEqual(a,b)
         self.assertLess(net.ranking(c,t[0],"2026-11-17T23:00",{"CoinDesk"}),a)
 
+    def test_exclusive_lanes_boost_only_owned_stories(self):
+        t=targets()[0]
+        slot=next("2026-11-18T%02d:00" % h for h in range(24)
+                  if net.wants_exclusive_slot(t,"2026-11-18T%02d:00" % h))
+        c=candidate()
+        shared=net.ranking(c,t,slot,set(),(False,None))
+        owned=net.ranking(c,t,slot,set(),(True,t["key"]))
+        other=net.ranking(c,t,slot,set(),(True,targets()[1]["key"]))
+        self.assertEqual(owned-shared,160)
+        self.assertEqual(other,shared)
+        no_lanes=next("2026-11-18T%02d:00" % h for h in range(24)
+                 if not net.wants_exclusive_slot(t,"2026-11-18T%02d:00" % h))
+        self.assertEqual(net.ranking(c,t,no_lanes,set(),(True,t["key"])),
+                         net.ranking(c,t,no_lanes,set(),(False,None)))
+
     def test_service_credentials_required(self):
         with patch.dict("os.environ",{},clear=True):
             with self.assertRaises(RuntimeError):
