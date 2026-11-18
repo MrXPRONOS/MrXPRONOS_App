@@ -1,4 +1,5 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
+import {serveShowcase} from "./poster-showcase.mjs";
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
@@ -157,6 +158,7 @@ export default {
   if(request.method==="GET"&&u.pathname==="/admin"){
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
+  if(u.pathname==="/api/showcase")return serveShowcase(request);
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
   const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
   if(request.method==="GET"&&avatarId)return serveChannelAvatar(request,env,ctx,avatarId[1]);
