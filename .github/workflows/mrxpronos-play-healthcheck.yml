@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/mrxpronos-play-healthcheck.yml'
+      - 'mrxpronos-play/worker.js'
 permissions:
   contents: read
 jobs:
@@ -25,4 +26,24 @@ jobs:
           if not all([safe['ok'],safe['bot_connected'],safe['telegram_token_valid'],safe['correct_bot'],safe['db_connected']]):
               raise SystemExit('ERROR: Telegram bot identity or Cloudflare backend incomplete')
           print('SUCCESS: Cloudflare Worker is bound to the expected Telegram bot.')
+          PY
+
+      - name: Check avatar authorization and Mini App markup
+        run: |
+          set -euo pipefail
+          BASE="https://mrxpronos-play.cinecanaux-xpronos.workers.dev"
+          CODE="$(curl --silent --show-error --max-time 20 -o /tmp/mrxp-guest-avatar.json -w '%{http_code}' "$BASE/api/avatar")"
+          echo "Guest avatar endpoint HTTP: $CODE"
+          test "$CODE" = "401"
+          curl --fail --silent --show-error --max-time 20 "$BASE/" > /tmp/mrxp-index.html
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          resp=json.loads(Path('/tmp/mrxp-guest-avatar.json').read_text())
+          assert resp.get('code')=='INITDATA_ABSENTE',resp
+          html=Path('/tmp/mrxp-index.html').read_text()
+          assert 'loadTelegramAvatar' in html,'Client avatar integration missing'
+          assert 'wheel-center img' in html,'Wheel center styling missing'
+          assert 'translate(-50%,-50%)' in html,'Wheel not centred'
+          print('SUCCESS: avatar endpoint protected, frontend avatar loading and wheel centering deployed')
           PY
