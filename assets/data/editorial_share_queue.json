@@ -1,5 +1,887 @@
 [
   {
+    "id": "3e487235370fd00faabb0ef6",
+    "kind": "news",
+    "title": "Ecosse : Pocognoli serait déjà sur la sellette",
+    "url": "https://www.footmercato.net/a2279480489339497875-ecosse-pocognoli-serait-deja-sur-la-sellette",
+    "source_date": "2026-11-17T23:02:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8df10ca362285a704079d224",
+    "kind": "news",
+    "title": "Senegal and Morocco lead Afcon qualifiers but Tunisia protest",
+    "url": "https://www.bbc.co.uk/sport/football/articles/c5evrgrvw1ezo?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-17T22:54:51+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "173da8b0688976e744bd60c6",
+    "kind": "news",
+    "title": "La rumeur qui envoie Eli Junior Kroupi vers le PSG ou au FC Barcelone",
+    "url": "https://www.footmercato.net/a806438339697515354-la-rumeur-qui-envoie-eli-junior-kroupi-vers-le-psg-ou-au-fc-barcelone",
+    "source_date": "2026-11-17T22:40:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "738e1ea9de8ce56a9f490124",
+    "kind": "news",
+    "title": "FIFA : le tacle glissé de Diallo à Infantino",
+    "url": "https://www.footmercato.net/a5289268598051543891-fifa-le-tacle-glisse-de-diallo-a-infantino",
+    "source_date": "2026-11-17T22:22:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "79cf13683f24d2a1ca4ba608",
+    "kind": "news",
+    "title": "Qualifs CAN 2027 : Le Maroc décroche sa qualification, les Comores et le Mali assurent... Le récap' des matchs du soir",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-qualifs-can-2027-le-maroc-decroche-sa-qualification-les-comores-et-le-mali-assurent-le-recap-des-matchs-du-soir-546140.html",
+    "source_date": "2026-11-17T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "863a984368ce642ff1b4012d",
+    "kind": "news",
+    "title": "\"Je n'étais pas initialement candidat\" : Philippe Diallo officialise sa candidature à la présidence de la Fifa",
+    "url": "https://www.franceinfo.fr/sports/foot/philippe-diallo/je-n-etais-pas-initialement-candidat-philippe-diallo-officialise-sa-candidature-a-la-presidence-de-la-fifa_8287235.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-17T22:11:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0c4e57ee7a09430c5fc4d3c0",
+    "kind": "news",
+    "title": "Norvège : Haaland dépasse le nombre de buts de Mbappé mais avec 46 matchs de moins",
+    "url": "https://www.footmercato.net/a2829259170531901600-norvege-haaland-depasse-le-nombre-de-buts-de-mbappe-mais-avec-46-matchs-de-moins",
+    "source_date": "2026-11-17T22:07:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4db22f16ebc30f90f48eb8f8",
+    "kind": "news",
+    "title": "CAN 2027 : en attendant le verdict du TAS, le Maroc bat le Niger et rejoint le Sénégal parmi les qualifiés",
+    "url": "https://www.france24.com/fr/sports/20261117-can-2027-en-attendant-la-verdict-du-tas-le-maroc-rejoint-le-s%C3%A9n%C3%A9gal-parmi-les-qualifi%C3%A9s",
+    "source_date": "2026-11-17T22:00:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4fc805d5961725b0af2c6749",
+    "kind": "news",
+    "title": "Qualifications CAN 2027 : le Maroc continue son parcours sans faute contre le Niger et se qualifie",
+    "url": "https://www.footmercato.net/a4540231938419956067-qualifications-can-2027-le-maroc-continue-son-parcours-sans-faute-contre-le-niger-et-se-qualifie",
+    "source_date": "2026-11-17T21:59:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b537cdfda7a03709f78162b7",
+    "kind": "news",
+    "title": "Ligue des Nations : Le Portugal valide sa première place, la Norvège renverse le Danemark et se qualifie, l'Irlande du Nord promue : le récap' des matches de la soirée",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-des-nations-le-portugal-valide-sa-premiere-place-la-norvege-renverse-le-danemark-et-se-qualifie-l-irlande-du-nord-promue-le-recap-des-matches-de-la-soiree-546137.html",
+    "source_date": "2026-11-17T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2004d4e5e863532dce0095f7",
+    "kind": "news",
+    "title": "Qualifications CAN 2027 : le Maroc valide son ticket !",
+    "url": "https://www.onzemondial.com/can/qualifications-can-2027-le-maroc-valide-son-ticket-1009673",
+    "source_date": "2026-11-17T21:52:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7542923d7c2934a623932680",
+    "kind": "news",
+    "title": "Ligue des Nations : tous les qualifiés pour les quarts et les adversaires potentiels des Bleus",
+    "url": "https://www.footmercato.net/a2471221496016926248-ligue-des-nations-tous-les-qualifies-pour-les-quarts-et-les-adversaires-potentiels-des-bleus",
+    "source_date": "2026-11-17T21:45:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "13b0df1b4c6a2811ea261891",
+    "kind": "news",
+    "title": "Ligue des Nations : le Portugal l’emporte au forceps, la Norvège élimine le Danemark à la dernière seconde",
+    "url": "https://www.footmercato.net/a1371122773343604562-ligue-des-nations-le-portugal-lemporte-au-forceps-la-norvege-elimine-le-danemark-a-la-derniere-seconde",
+    "source_date": "2026-11-17T21:45:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0a1dca2e1923b2e6e857f9c9",
+    "kind": "news",
+    "title": "Barça : le PSG et le Real, Rodri tempère",
+    "url": "https://www.maxifoot.fr/barca/le-psg-et-le-real-rodri-tempere-foot-467872.htm",
+    "source_date": "2026-11-17T21:22:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8de113fbe8c8d1b5c34ebda1",
+    "kind": "news",
+    "title": "Algérie : Hemdani sous pression après le fiasco !",
+    "url": "https://m.maxifoot.fr/football/article-66597.htm",
+    "source_date": "2026-11-17T21:13:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5cd394cd937e8000c9f14b17",
+    "kind": "news",
+    "title": "CAN 2027 : le Mali et le Burkina Faso qualifiés",
+    "url": "https://www.maxifoot.fr/can-2027/le-mali-et-le-burkina-faso-qualifies-foot-467877.htm",
+    "source_date": "2026-11-17T21:00:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "928f52f2b46d688e73725067",
+    "kind": "news",
+    "title": "CAN 2027: le Burkina Faso valide son billet et celui du Bénin, le Mali et le Cameroun qualifiés",
+    "url": "https://www.france24.com/fr/sports/20261117-can-2027-le-burkina-faso-valide-son-billet-et-celui-du-b%C3%A9nin-le-mali-et-le-cameroun-qualifi%C3%A9s-%C3%A9galement",
+    "source_date": "2026-11-17T20:59:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "be8dc3e46d39b7b4fd53cd97",
+    "kind": "news",
+    "title": "Qualifications CAN 2027 : le Mali domine le Rwanda et se qualifie, le Cameroun, le Burkina Faso et le Bénin compostent leur billet",
+    "url": "https://www.footmercato.net/a3740882561077138155-qualifications-can-2027-le-mali-domine-le-rwanda-et-se-qualifie-le-cameroun-le-burkina-faso-et-le-benin-compostent-leur-billet",
+    "source_date": "2026-11-17T20:58:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3eae55626e19a804816828cc",
+    "kind": "news",
+    "title": "Mercato OL : Loïs Openda répond aux rumeurs sur un potentiel départ !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-lois-openda-repond-aux-rumeurs-sur-un-potentiel-depart-546134.html",
+    "source_date": "2026-11-17T20:51:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8a45fe707086b068a2b903a0",
+    "kind": "news",
+    "title": "Real Madrid : Endrick met la pression sur Mourinho",
+    "url": "https://www.footmercato.net/a883368784775299478-real-madrid-endrick-met-la-pression-sur-mourinho",
+    "source_date": "2026-11-17T20:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "910fc93994feb531efe65c67",
+    "kind": "news",
+    "title": "EXCLU - Heuss L’Enfoiré : « Zidane sait comment gagner des trophées »",
+    "url": "https://www.onzemondial.com/ligue-1/exclu-heuss-lenfoire-zidane-sait-comment-gagner-des-trophees-1009530",
+    "source_date": "2026-11-17T20:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "77a405586261293c3bb87a44",
+    "kind": "news",
+    "title": "La vidéo du premier but de Mezian Mesloub avec les Espoirs portugais",
+    "url": "https://www.footmercato.net/a1162648897964742432-la-video-du-premier-but-de-mezian-mesloub-avec-les-espoirs-portugais",
+    "source_date": "2026-11-17T20:15:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "65eeec399e08fd5564413c48",
+    "kind": "news",
+    "title": "Algérie : une démission ? Hemdani répond",
+    "url": "https://www.maxifoot.fr/algerie/une-demission-hemdani-repond-foot-467875.htm",
+    "source_date": "2026-11-17T20:02:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5ad5f67142bf754b32cde203",
+    "kind": "news",
+    "title": "Mercato Real Madrid : JJ Gabriel annonce son départ de Manchester United... avant de rejoindre le Real Madrid ?",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-real-madrid-jj-gabriel-annonce-son-depart-de-manchester-united-avant-de-rejoindre-le-real-madrid-546121.html",
+    "source_date": "2026-11-17T19:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d507c0d7cb980d7cc3db3acb",
+    "kind": "news",
+    "title": "Mercato Barça : aucune offre pour Balde, mais...",
+    "url": "https://www.maxifoot.fr/barca/aucune-offre-pour-balde-mais-foot-467871.htm",
+    "source_date": "2026-11-17T19:01:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a0b3a6432e1dd356fb51a3fa",
+    "kind": "news",
+    "title": "Qualifs CAN 2027 : La Tunisie s'éloigne de la qualification, la RD Congo accrochée malgré Junior Kadile",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-qualifs-can-2027-la-tunisie-s-eloigne-de-la-qualification-la-rd-congo-accrochee-malgre-junior-kadile-546120.html",
+    "source_date": "2026-11-17T18:44:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "72897c6a78aacf64fff9c16a",
+    "kind": "news",
+    "title": "Mercato - OL : une énorme surprise pour l'avenir d'Openda ?",
+    "url": "https://m.maxifoot.fr/football/article-66596.htm",
+    "source_date": "2026-11-17T18:31:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3de7c5e216e4049eb99a0dd2",
+    "kind": "news",
+    "title": "OM : De Lange répond sur son rôle",
+    "url": "https://www.maxifoot.fr/om/de-lange-repond-sur-son-role-foot-467867.htm",
+    "source_date": "2026-11-17T18:27:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "131904bdef1e99237fd3a621",
+    "kind": "news",
+    "title": "CAN 2027: l'Algérie s'écroule au Togo, la Tunisie ne gagne toujours pas",
+    "url": "https://www.france24.com/fr/sports/20261117-can-2027-l-alg%C3%A9rie-s-%C3%A9croule-au-togo-la-tunisie-ne-gagne-toujours-pas",
+    "source_date": "2026-11-17T18:24:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b9a12c94d3f572f2b91709d3",
+    "kind": "news",
+    "title": "Qualifs CAN 2027 : Le Togo prend sa revanche sur l'Algérie avec une démonstration impressionnante (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-qualifs-can-2027-le-togo-prend-sa-revanche-sur-l-algerie-avec-une-demonstration-impressionnante-resume-546119.html",
+    "source_date": "2026-11-17T18:19:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "676cc7b5b6b074fb7c7d5d07",
+    "kind": "news",
+    "title": "CAN 2027 : la RD Congo retarde sa qualification, la Côte d'Ivoire ralentie en Gambie",
+    "url": "https://www.france24.com/fr/sports/20261117-can-2027-la-rdc-retarde-sa-qualification-la-c%C3%B4te-d-ivoire-ralentie-en-gambie",
+    "source_date": "2026-11-17T18:08:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6cebb2bc58f1baa3f8c19df5",
+    "kind": "news",
+    "title": "Qualifications CAN 2027 : le Togo gifle l’Algérie et revient dans la course à la qualification",
+    "url": "https://www.sofoot.com/breves/qualifications-can-2027-le-togo-gifle-lalgerie-et-revient-dans-la-course-a-la-qualification",
+    "source_date": "2026-11-17T18:03:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "589f3b3b90ba5d443281bd86",
+    "kind": "news",
+    "title": "Qualifications CAN 2027 : l'Algérie s'effondre face au Togo",
+    "url": "https://www.onzemondial.com/can/qualifications-can-2027-lalgerie-seffondre-face-au-togo-1009644",
+    "source_date": "2026-11-17T17:42:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d09e8c4586ea1874d463948d",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: Sénégal, Mali, Burkina Faso, Cameroun, Bénin et Maroc qualifiés, bilan de la 4e journée",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261117-%C3%A9liminatoires-can-2027-le-s%C3%A9n%C3%A9gal-d%C3%A9j%C3%A0-qualifi%C3%A9-r%C3%A9sultats-et-bilan-%C3%A0-l-issue-de-la-quatri%C3%A8me-journ%C3%A9e",
+    "source_date": "2026-11-17T15:16:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f659949cd131352d8bcb9125",
+    "kind": "news",
+    "title": "CAN 2027: l'Égypte cale, le Sénégal qualifié sans jouer, le Nigeria et le Gabon en difficulté",
+    "url": "https://www.france24.com/fr/sports/20261117-can-2027-l-%C3%A9gypte-cale-et-retarde-sa-qualification-le-nigeria-et-le-gabon-se-mettent-en-difficult%C3%A9",
+    "source_date": "2026-11-17T15:03:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2f6224379b65b909ed9e786d",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : le Sénégal bat le Soudan et se rapproche de la qualification",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261117-%C3%A9liminatoires-can-2027-s%C3%A9n%C3%A9gal-bat-soudan-se-rapproche-qualification",
+    "source_date": "2026-11-17T06:23:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "71768a1e15a8f8f8d5a2512c",
+    "kind": "news",
+    "title": "Ligue des nations : l’Espagne, les Pays-Bas et la Norvège potentiels adversaires des Bleus pour les quarts de finale",
+    "url": "https://www.sofoot.com/breves/ligue-des-nations-lespagne-les-pays-bas-et-la-norvege-potentiels-adversaires-des-bleus-pour-les-quarts-de-finale",
+    "source_date": "2026-11-18T00:00:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e2cf713ec3b6db95a7a18df5",
+    "kind": "news",
+    "title": "Belief and bench steer Northern Ireland into Nations League top tier",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cwp9dxr80p3po?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-17T23:49:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "904381c8b1461b3ad51ce29b",
+    "kind": "news",
+    "title": "Bellamy convinced of Wales credentials despite defeat by Portugal",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cmn507wn6gg3o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-17T23:37:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "14caf3dff7fec4fd0ae57ec5",
+    "kind": "news",
+    "title": "Republic of Ireland talisman Parrott caps dream year with two more goals",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cqzjr3yr2z0eo?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-17T23:10:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9c49d2f36f0596201892a88e",
+    "kind": "news",
+    "title": "Mercato : vers un duel Barça-PSG pour un crack français ?",
+    "url": "https://www.onzemondial.com/premier-league/mercato-vers-un-duel-barca-psg-pour-un-crack-francais-1009664",
+    "source_date": "2026-11-17T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "828a35f8bbb0924dacb73608",
+    "kind": "news",
+    "title": "OM : De Lange n’avait pas peur des critiques",
+    "url": "https://www.footmercato.net/a9153097580598026866-om-de-lange-navait-pas-peur-des-critiques",
+    "source_date": "2026-11-17T22:56:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-18T05:42:20.246027+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "f9ac6a47b8438ca3e41522c1",
     "kind": "news",
     "title": "Mercato : le PSG prêt à saisir l'opportunité Balde ?",
@@ -18,7 +900,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d22a408b897a687ac1ff84c7",
@@ -39,7 +921,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "92a3cb779c5499e67b9ad24e",
@@ -60,7 +942,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "85c11011e56e6332a3554edb",
@@ -81,7 +963,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1af82351525323f69de5b60c",
@@ -102,7 +984,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e7ed2b7811c3116716b0d8c7",
@@ -123,7 +1005,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "413a89b19c431af5312de30b",
@@ -144,7 +1026,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ab12f3254fbc8c53abd1544f",
@@ -396,7 +1278,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1d68d2d6478768ab96f89ae2",
@@ -417,7 +1299,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1548732eb031931dd072516d",
@@ -438,7 +1320,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ab9e5afeb935cecc481c833e",
@@ -459,7 +1341,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c1d3ec8f674977fb419f83a2",
@@ -480,7 +1362,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0e21ffc43c5dcf34a0b0d142",
@@ -501,14 +1383,14 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d45828f19f1b431070699968",
     "kind": "news",
     "title": "France-Turquie : revivez la victoire dans la douleur des Bleus qui se qualifient pour les quarts de finale de la Ligue des nations",
     "url": "https://www.franceinfo.fr/sports/foot/ligue-des-nations/direct-france-turquie-les-bleus-visent-la-qualification-pour-les-quarts-de-finale-suivez-le-dernier-match-de-phase-de-poules-de-ligue-des-nations_8282633.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
-    "source_date": "2026-11-16T02:12:05+00:00",
+    "source_date": "2026-11-16T06:24:40+00:00",
     "visual_variant": "legacy",
     "image": "",
     "story_image": "",
@@ -522,7 +1404,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": true
+    "retired": false
   },
   {
     "id": "f561c104dc897142aad84250",
