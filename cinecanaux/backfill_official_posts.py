@@ -44,6 +44,31 @@ def query_d1(sql, params=None):
     return data["result"][0].get("results", [])
 
 
+def query_d1_batch(statements):
+    """Send small D1 batches instead of one HTTPS request per public message."""
+    token = (os.environ.get("CLOUDFLARE_API_TOKEN") or os.environ.get("CF_API_TOKEN") or "").strip()
+    if not token:
+        raise RuntimeError("cloudflare_token_missing")
+    url = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/d1/database/{D1_ID}/query"
+    for offset in range(0, len(statements), 35):
+        chunk = statements[offset:offset + 35]
+        payload = json.dumps({"batch": [{"sql": sql, "params": params} for sql, params in chunk]}).encode("utf-8")
+        req = Request(url, data=payload, headers={
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }, method="POST")
+        try:
+            with urlopen(req, timeout=30) as response:
+                body = json.load(response)
+        except HTTPError as exc:
+            raise RuntimeError(f"d1_batch_http_{exc.code}") from None
+        if not body.get("success") or len(body.get("result", [])) != len(chunk) or not all(
+            x.get("success") for x in body["result"]
+        ):
+            raise RuntimeError("d1_batch_query_failed")
+
+
 async def backfill():
     api_id = (os.environ.get("TG_API_ID") or "").strip()
     api_hash = (os.environ.get("TG_API_HASH") or "").strip()
@@ -77,6 +102,7 @@ async def backfill():
                 print("CINE_RADAR_BACKFILL_SKIPPED", kind, "identity_mismatch")
                 continue
             seen = 0
+            pending = []
             async for message in client.iter_messages(entity, limit=250):
                 if not message.id or not message.date:
                     continue
@@ -92,15 +118,20 @@ async def backfill():
                     media_kind = "text"
                 caption = str(message.message or "").strip()[:500]
                 when = message.date.astimezone(timezone.utc).isoformat()
-                query_d1(
+                pending.append((
                     "INSERT INTO radar_posts(chat_id,message_id,kind,username,caption,media_kind,posted_at) "
                     "VALUES(?,?,?,?,?,?,?) "
                     "ON CONFLICT(chat_id,message_id) DO UPDATE SET "
                     "caption=excluded.caption,media_kind=excluded.media_kind,updated_at=CURRENT_TIMESTAMP",
                     [channel_id, str(message.id), kind, username, caption, media_kind, when],
-                )
+                ))
                 seen += 1
+                if len(pending) >= 35:
+                    query_d1_batch(pending)
+                    pending.clear()
                 await asyncio.sleep(0.04)
+            if pending:
+                query_d1_batch(pending)
             count += seen
             print("CINE_RADAR_BACKFILL", kind, "indexed", seen)
     finally:
