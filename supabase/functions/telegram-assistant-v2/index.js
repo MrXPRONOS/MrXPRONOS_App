@@ -2876,7 +2876,11 @@ export async function handleUpdate(update) {
       if(await wasHandled(id))return;
       const ownerKey=chatKey(msg);
       const ownerChat=await getChat(ownerKey);
-      if(ownerChat?.human_handoff)await touchHumanHandoff(ownerKey);
+      if(ownerChat?.human_handoff){
+        await touchHumanHandoff(ownerKey);
+        const ownerText=typeof msg.text==='string'?msg.text.trim():typeof msg.caption==='string'?msg.caption.trim():'';
+        if(ownerText)await logMessage(ownerKey,'human',ownerText);
+      }
       await markHandled(id);
       return;
     }
