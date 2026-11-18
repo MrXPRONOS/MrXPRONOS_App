@@ -9,7 +9,7 @@ const DAY=86400000,HALF=43200000;
 const dateOf=ms=>new Date(ms).toISOString().slice(0,10);
 const rewards=[["xp10",30,10],["xp25",22,25],["bonus",15,0],["xp50",8,50],["ticket",10,0],["xp100",7,100],["shield",5,0],["badge",3,0]];
 async function wheelOutcome(env,id,day){const b=new Uint8Array(await hmac(env.BOT_TOKEN,"mrxp-play-wheel-v1:"+id+":"+day));let pick=((b[0]<<8)+b[1])%100;for(const r of rewards){if(pick<r[1])return {key:r[0],xp:r[2]};pick-=r[1]}return {key:"xp10",xp:10}}
-async function ensurePlayer(env,u){const now=Date.now();await env.DB.prepare("INSERT OR IGNORE INTO players(user_id,username,display_name,created_ms,updated_ms) VALUES(?,?,?,?,?)").bind(u.id,u.username,u.name,now,now).run();await env.DB.prepare("UPDATE players SET username=?,display_name=? WHERE user_id=?").bind(u.username,u.name,u.id).run();return env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(u.id).first()}
+async function ensurePlayer(env,u){const now=Date.now(),firstBoundary=(Math.floor(now/HALF)+1)*HALF;await env.DB.prepare("INSERT OR IGNORE INTO players(user_id,username,display_name,next_sync_ms,created_ms,updated_ms) VALUES(?,?,?,?,?,?)").bind(u.id,u.username,u.name,firstBoundary,now,now).run();await env.DB.prepare("UPDATE players SET username=?,display_name=? WHERE user_id=?").bind(u.username,u.name,u.id).run();return env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(u.id).first()}
 function validDay(d,now){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const ms=Date.parse(d+"T00:00:00Z");const todayMs=Math.floor(now/DAY)*DAY;return Number.isFinite(ms)&&ms<=todayMs&&ms>=todayMs-14*DAY;}
 export default {async fetch(request,env){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
@@ -34,8 +34,8 @@ export default {async fetch(request,env){const u=new URL(request.url),p=u.pathna
   const elapsed=Math.max(0,now-Math.max(player.last_sync_ms,player.created_ms));
   const ceiling=Math.min(20000,500+Math.ceil(elapsed/3000));
   if(taps>ceiling)return json({error:"Tapotages incompatibles avec l'énergie régénérée. Vérification requise."},422);
-  const daily=[...new Set(Array.isArray(body.daily_days)?body.daily_days:[])].filter(d=>validDay(d,now)).slice(0,15);
-  const wheel=[...new Set(Array.isArray(body.wheel_days)?body.wheel_days:[])].filter(d=>validDay(d,now)).slice(0,15);
+  const daily=[...new Set(Array.isArray(body.daily_days)?body.daily_days:[])].filter(d=>validDay(d,now)&&Date.parse(d+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY).slice(0,15);
+  const wheel=[...new Set(Array.isArray(body.wheel_days)?body.wheel_days:[])].filter(d=>validDay(d,now)&&Date.parse(d+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY).slice(0,15);
   const wExisting=new Set((await env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()).results.map(x=>x.day));
   const dExisting=new Set((await env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()).results.map(x=>x.day));
   const newDaily=daily.filter(d=>!dExisting.has(d)),newWheel=wheel.filter(d=>!wExisting.has(d));
