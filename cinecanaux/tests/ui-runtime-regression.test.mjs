@@ -80,3 +80,11 @@ test('category counts use correct French singular/plural',()=>{
  assert.ok(APP_HTML.includes('count+(count===1?" canal":" canaux")+" dans l’annuaire"'));
  assert.ok(!APP_HTML.includes('count+" canal"+(count===1?"":"x")'));
 });
+
+test('both directory and home use versioned real-avatar URL on the first load',()=>{
+ for(const block of [directory,navigation]){
+  assert.ok(block.includes('source+"?v=3"'));
+  assert.ok(block.includes('source+"?v=3&refresh=1"'));
+  assert.ok(block.includes('img.src=candidates[0];'));
+ }
+});
