@@ -1,3 +1,4 @@
+import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
@@ -137,7 +138,7 @@ export async function indexQualifiedChannels(env){
 }
 
 export default {
- async fetch(request,env){
+ async fetch(request,env,ctx){
   const u=new URL(request.url);
   if(request.method==="GET"&&(u.pathname==="/app"||u.pathname==="/")){
    let html=APP_HTML;
@@ -151,12 +152,14 @@ export default {
     console.warn(JSON.stringify({event:"catalog_html_preload_fallback",error:String(e).slice(0,90)}));
     // The client still supports its original /api/catalog fetch.
    }
-   return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
+   return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me https://image.tmdb.org; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&u.pathname==="/admin"){
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
+  const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
+  if(request.method==="GET"&&avatarId)return serveChannelAvatar(request,env,ctx,avatarId[1]);
   const avatarMatch=new RegExp("^/assets/channel-avatar/([A-Za-z][A-Za-z0-9_]{4,31})[.]jpg$").exec(u.pathname);
   if(request.method==="GET"&&avatarMatch){
    const handle=avatarMatch[1].toLowerCase();
