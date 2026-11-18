@@ -410,6 +410,14 @@ document.querySelectorAll("[data-icon]").forEach(x=>x.replaceWith(ico(x.dataset.
 let type="all",query="",channels=[],allChannels=[],lastFetch=0,fetchPending=null,images=new Map(),inFlight=new Map(),previewToken=0,thumbQueue=[],thumbActive=0;
 const selectedTypes=new Set();let searchDelay=null;
 const MAX_THUMB_FETCH=2;
+function showChannelImage(img,source,backup,exhausted){
+ const isLocalAvatar=/^\/assets\/channel-avatar\/[1-9][0-9]{0,9}\.jpg$/.test(String(source||""));
+ const candidates=isLocalAvatar?[source+"?v=3",source+"?v=3&refresh=1"]:[source];
+ if(backup&&photoHost(backup)&&backup!==source)candidates.push(backup);
+ let current=0;
+ img.onerror=()=>{current++;if(current<candidates.length)img.src=candidates[current];else if(exhausted)exhausted()};
+ img.src=candidates[0];
+}
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 function button(text,cls,callback,icon){
  const b=node("button",cls);b.type="button";
@@ -646,6 +654,7 @@ load();
 const $=id=>document.getElementById(id);
 const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
 const saveKey="cine-radar-favorites-v3",historyKey="cine-radar-history-v3";
+const photoHost=url=>/^\/assets\/channel-avatar\/(?:[a-z][a-z0-9_]{4,31}|[1-9][0-9]{0,9})\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"\x27<>]{1,1200}$/i.test(String(url||""));
 const read=(key,max)=>{try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v.map(Number).filter(x=>Number.isSafeInteger(x)&&x>0).slice(0,max):[]}catch{return []}};
 let favorites=read(saveKey,250),recent=read(historyKey,60),catalog=[],mode="explorer",currentPreview=null,drawerOpen=false;
 const pages=["accueil","explorer","decouvrir","favoris","historique","proposer","apropos"];
