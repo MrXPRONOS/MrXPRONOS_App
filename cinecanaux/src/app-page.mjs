@@ -653,8 +653,8 @@ const labels={accueil:"Accueil",explorer:"Explorer",decouvrir:"Découvrir",favor
 let panel={},listing,existing,oldFocus=null;
 function persist(){try{localStorage.setItem(saveKey,JSON.stringify(favorites));localStorage.setItem(historyKey,JSON.stringify(recent))}catch{}}
 function showChannelImage(img,source,backup,exhausted){
- const candidates=[source];
- if(/^\/assets\/channel-avatar\/[1-9][0-9]{0,9}\.jpg$/.test(String(source||"")))candidates.push(source+"?refresh=1");
+ const isLocalAvatar=/^\/assets\/channel-avatar\/[1-9][0-9]{0,9}\.jpg$/.test(String(source||""));
+ const candidates=isLocalAvatar?[source+"?v=3",source+"?v=3&refresh=1"]:[source];
  if(backup&&photoHost(backup)&&backup!==source)candidates.push(backup);
  let current=0;
  img.onerror=()=>{current++;if(current<candidates.length)img.src=candidates[current];else if(exhausted)exhausted()};
