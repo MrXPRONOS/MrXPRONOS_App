@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import re
+from pathlib import Path
 from collections import Counter
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlsplit
@@ -118,7 +119,8 @@ def exclusivity(candidate, targets, receipts):
     is_exclusive = digest_number("exclusive:v1:" + key) % 100 < 25
     if not is_exclusive:
         return False, None
-    return True, targets[digest_number("owner:v1:" + key) % len(targets)]["key"]
+    ordered = sorted(targets, key=lambda x: x["key"])
+    return True, ordered[digest_number("owner:v1:" + key) % len(ordered)]["key"]
 
 
 def ranking(candidate, target, slot, used_sources):
@@ -267,6 +269,7 @@ def publish():
         print("CRYPTO_MULTICHANNEL_NO_VERIFIED_NEW_RSS_NEWS")
         return
     used_keys, used_sources = {}, set()
+    photo_cache = {}
     counts = Counter()
     # Rotate the starting channel every time slot for fair exposure.
     shift = digest_number("channel-turn:" + slot) % len(targets)
@@ -283,7 +286,7 @@ def publish():
             candidates, key=lambda cand: ranking(cand,target,slot,used_sources),
             reverse=True
         )
-        for cand in ranked[:25]:
+        for cand in ranked[:12]:
             k = article_key(cand)
             if k in used_keys:
                 continue
@@ -296,8 +299,12 @@ def publish():
             is_exclusive, owner = exclusivity(cand, targets, receipts)
             if is_exclusive and owner != target_key:
                 continue
-            # An article cannot be in two destinations during this same scan.
-            photo = media.photo_for(cand)
+            # Reuse a correctly identified article photo across channel plans,
+            # but never reuse a single mutable filename for different articles.
+            if k not in photo_cache:
+                unique_path = media.OUTPUT.parent / ("article_" + k + ".jpg")
+                photo_cache[k] = media.photo_for(cand, dest=unique_path)
+            photo = photo_cache[k]
             if photo is None:
                 counts["no_real_source_image"] += 1
                 continue
