@@ -29,7 +29,7 @@ test('every approved listed private channel has a usable SVG fallback even when 
  const old=globalThis.fetch;
  globalThis.fetch=async()=>new Response('missing',{status:404});
  try{
-  const response=await serveChannelAvatar(new Request('https://test.local/assets/channel-avatar/8.jpg'),{DB:db});
+  const response=await serveChannelAvatar(new Request('https://test.local/assets/channel-avatar/8.jpg'),{DB:db},null,8);
   assert.equal(response.status,200);
   assert.match(response.headers.get('content-type'),/image\/svg\+xml/);
   assert.match(await response.text(),/<svg/);
@@ -47,7 +47,7 @@ test('private numeric id can retrieve genuine Telegram avatar server-side, never
  };
  try{
   const db={prepare(){return {bind(){return this;},async first(){return {id:16,title:'Series',link:'https://t.me/+VerifiedPrivateExample',content_type:'series',telegram_chat_id:'-1001234567890'};}}}};
-  const response=await serveChannelAvatar(new Request('https://test.local/assets/channel-avatar/16.jpg'),{DB:db,TELEGRAM_TOKEN:'test-secret'});
+  const response=await serveChannelAvatar(new Request('https://test.local/assets/channel-avatar/16.jpg'),{DB:db,TELEGRAM_TOKEN:'test-secret'},null,16);
   assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/jpeg');
   const chats=calls.filter(x=>x.target.endsWith('/getChat'));
   assert.equal(chats.length,1);assert.equal(JSON.parse(chats[0].body).chat_id,'-1001234567890');
