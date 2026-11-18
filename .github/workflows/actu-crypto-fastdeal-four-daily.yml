@@ -45,4 +45,4 @@ jobs:
           python -m compileall -q crypto
           python -m unittest crypto.test_news_digest_v1 crypto.test_news_translation_v1 crypto.test_news_media_v1 crypto.test_news_multichannel_v1 crypto.test_production_live_v1 -v
       - name: Publish at most one verified French RSS photo to Fast Deal
-        run: python -m crypto.production_live_v1 --mode world
+        run: python -m crypto.fastdeal_rss_v1
