@@ -265,7 +265,10 @@ export default {
    // At 06:00 UTC run the daily catalog reconciliation and link checks.
    // Source-specific successful trend refreshes are guarded by a 72-hour D1 window.
    const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
-   if(hour===6){
+   // Run the first trend collection at the next six-hour Cron, not only at 06:00.
+   // After the first successful anime refresh, keep daily checks (with 72h source guard).
+   const first=await env.DB.prepare("SELECT last_success_at FROM radar_runs WHERE job_name='trends_animes'").first();
+   if(hour===6||!first?.last_success_at){
     // Run sequentially: attach validated channel identities, refresh providers,
     // reconcile existing publications, THEN notify owners about missing titles.
     const tasks=[
