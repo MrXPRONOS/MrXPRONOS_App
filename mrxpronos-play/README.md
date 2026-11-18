@@ -60,8 +60,8 @@ La V1.2 déploie les textes via les méthodes Telegram `setMyDescription` et `se
 - Le backend vérifie l'identité via Telegram Mini App `initData`, HMAC-SHA256.
 - Les actions locales restent **provisoires** jusqu'à confirmation par D1.
 - Les demandes de synchronisation sont autorisées avec un intervalle minimum de **12 heures**.
-- Première synchronisation admissible : prochain créneau **00 h / 12 h UTC** après la création du compte.
-- Si un créneau est manqué, les actions restent locales et sont proposées à la prochaine ouverture/connexion, toujours sous réserve du délai minimum.
+- **Première synchronisation : immédiate** dès que le joueur est connecté à Telegram et qu'il possède des XP provisoires. Après une synchronisation réussie, le serveur impose un délai minimum de **12 heures** avant la suivante.
+- Les gains non synchronisés restent stockés localement. Le bouton de synchronisation reste utilisable lorsqu'il y a des gains en attente : pendant un délai de 12 h, il indique précisément la prochaine date possible sans forcer le serveur.
 - Chaque lot a un `batch_id` unique, enregistré dans `sync_receipts` : une nouvelle tentative ne donne pas deux fois les XP.
 - La roue est déterminée pour chaque joueur et chaque jour côté serveur et récupérée pour un horizon de 15 jours lors de la connexion.
 - Les XP gratuits ne sont ni des tokens on-chain ni une promesse d'argent.
