@@ -2846,7 +2846,7 @@ export async function handleUpdate(update) {
   }
 
   // Premier contact uniquement : accueillir sans détourner la question d'origine.
-  if(!isBusiness&&(isFirstChat||!recentHistory.some(x=>x.role==='assistant'))){
+  if(!isBusiness&&scope.scope==='in_scope'&&(isFirstChat||!recentHistory.some(x=>x.role==='assistant'))){
     const welcome=newcomerWelcomeMessage();
     let sent=false;
     try{
@@ -2939,9 +2939,10 @@ export async function handleUpdate(update) {
           await markHandled(id);return;
         }
         if(scope.scope==='unknown'&&parsed.scope==='unclear'){
-          await say(msg.chat.id,TEXT_NOT_UNDERSTOOD_REPLY,msg.business_connection_id||'');
+          const retryMessage=media?.kind==='voice'?VOICE_NOT_UNDERSTOOD_REPLY:TEXT_NOT_UNDERSTOOD_REPLY;
+          await say(msg.chat.id,retryMessage,msg.business_connection_id||'');
           await logMessage(key,'user',text);
-          await logMessage(key,'assistant',TEXT_NOT_UNDERSTOOD_REPLY);
+          await logMessage(key,'assistant',retryMessage);
           await markHandled(id);return;
         }
         // Si un fournisseur retourne un JSON incomplet, éviter de l'afficher aux clients.
