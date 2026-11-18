@@ -15,9 +15,9 @@ from langdetect import DetectorFactory, LangDetectException, detect_langs
 DetectorFactory.seed = 0
 ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions"
 # 2026 NVIDIA API catalog: older Llama IDs can return HTTP 410.
-MODELS = ("mistralai/mistral-small-4-119b-2603",
-          "mistralai/mistral-medium-3.5-128b",
-          "mistralai/mistral-large-3-675b-instruct-2512")
+# Verified by GET /v1/models using this repository's NVIDIA_API_KEY (2026-11-18).
+# Other historical Mistral/Llama IDs returned HTTP 410 on this account.
+MODELS = ("mistralai/mistral-large-4-1t-a52b",)
 TICKERS = {"BTC", "ETH", "USDT", "USDC", "SOL", "XRP", "BNB", "ETF", "NFT"}
 ENTITY_NAMES = ("Binance", "Coinbase", "Kraken", "BlackRock", "Tether",
                 "Circle", "Solana", "Ethereum", "Bitcoin", "Ripple",
@@ -109,7 +109,8 @@ def _model_translate(title, summary, model, key, post=requests.post):
                 ensure_ascii=False
             )},
         ],
-        "temperature":0, "max_tokens":440, "stream":False,
+        "temperature":0, "reasoning_effort":"none",
+        "max_tokens":540, "stream":False,
     }
     try:
         r = post(ENDPOINT, headers={
