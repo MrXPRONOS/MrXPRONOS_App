@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-19",
+  "generated_at": "2026-11-18T10:20:41Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4890777",
+      "league": "Ligue 1",
+      "home": "MC Alger",
+      "away": "Olympique Akbou",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.15728079
+    },
+    {
+      "id": "sportsapipro:4890778",
+      "league": "Ligue 1",
+      "home": "JS Kabylie",
+      "away": "USM Alger",
+      "kickoff_utc": "2026-11-19T19:00:00Z",
+      "score": "1:0",
+      "probability": 0.13391803
+    },
+    {
+      "id": "sportsapipro:4890776",
+      "league": "Ligue 1",
+      "home": "MB Rouisset",
+      "away": "CR Belouizdad",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.13204339
+    },
+    {
+      "id": "sportsapipro:4773006",
+      "league": "Second Division",
+      "home": "Baladiyet El Mahallah",
+      "away": "Haras El Hodood",
+      "kickoff_utc": "2026-11-19T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.13027664
+    },
+    {
+      "id": "sportsapipro:4773008",
+      "league": "Second Division",
+      "home": "La Viena Fc",
+      "away": "El Sekka El Hadid",
+      "kickoff_utc": "2026-11-19T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.1272538
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4890777",
+      "league": "Ligue 1",
+      "home": "MC Alger",
+      "away": "Olympique Akbou",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.34164942,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4773006",
+      "league": "Second Division",
+      "home": "Baladiyet El Mahallah",
+      "away": "Haras El Hodood",
+      "kickoff_utc": "2026-11-19T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.31089374,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4773008",
+      "league": "Second Division",
+      "home": "La Viena Fc",
+      "away": "El Sekka El Hadid",
+      "kickoff_utc": "2026-11-19T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.30009198,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4890778",
+      "league": "Ligue 1",
+      "home": "JS Kabylie",
+      "away": "USM Alger",
+      "kickoff_utc": "2026-11-19T19:00:00Z",
+      "score": "1:0",
+      "probability": 0.2970454,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4890776",
+      "league": "Ligue 1",
+      "home": "MB Rouisset",
+      "away": "CR Belouizdad",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.2958277,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
+}

@@ -2,68 +2,68 @@
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
   "status": "published",
-  "date": "2026-11-17",
-  "generated_at": "2026-11-17T14:37:40Z",
+  "date": "2026-11-18",
+  "generated_at": "2026-11-18T10:20:41Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4886054",
-      "league": "Friendly International",
-      "home": "Kuwait",
-      "away": "Honduras",
-      "kickoff_utc": "2026-11-17T16:30:00Z",
-      "score": "2:1",
-      "probability": 0.09867742
+      "id": "sportsapipro:4890775",
+      "league": "Ligue 1",
+      "home": "Cr Temouchent",
+      "away": "JS El Biar",
+      "kickoff_utc": "2026-11-18T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.1375087
     },
     {
-      "id": "sportsapipro:4766445",
-      "league": "National League N/S - Regular Season",
-      "home": "South Shields",
-      "away": "Harborough Town",
-      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "id": "sportsapipro:4876901",
+      "league": "Premier Division",
+      "home": "Gazelle",
+      "away": "Aigle Moungo",
+      "kickoff_utc": "2026-11-18T12:00:00Z",
       "score": "2:1",
-      "probability": 0.09642629
+      "probability": 0.09687894
     },
     {
-      "id": "sportsapipro:4883918",
-      "league": "Non League Premier",
-      "home": "Ramsgate",
-      "away": "Cray Wanderers",
-      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "id": "sportsapipro:4632606",
+      "league": "Brasileirão Série A",
+      "home": "Flamengo",
+      "away": "Athletico Paranaense",
+      "kickoff_utc": "2026-11-18T23:30:00Z",
       "score": "2:1",
-      "probability": 0.09638995
+      "probability": 0.0959878
     },
     {
-      "id": "sportsapipro:4780720",
-      "league": "Non League Premier",
-      "home": "Havant & waterloovile",
-      "away": "Bracknell Town",
-      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "id": "sportsapipro:4884864",
+      "league": "Premier Division",
+      "home": "Coton Sport Garoua",
+      "away": "Stade Renard",
+      "kickoff_utc": "2026-11-18T15:00:00Z",
       "score": "2:1",
-      "probability": 0.09547353
+      "probability": 0.0951245
     },
     {
-      "id": "sportsapipro:4894996",
-      "league": "Liga de Ascenso - Eastern Region",
-      "home": "CD Neo Pipil",
-      "away": "AD SESA",
-      "kickoff_utc": "2026-11-17T21:00:00Z",
+      "id": "sportsapipro:4814521",
+      "league": "Womens League Cup",
+      "home": "Nottingham Forest (W)",
+      "away": "Liverpool (W)",
+      "kickoff_utc": "2026-11-18T19:00:00Z",
       "score": "2:1",
-      "probability": 0.09493908
+      "probability": 0.08895342
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4886054",
-      "league": "Friendly International",
-      "home": "Kuwait",
-      "away": "Honduras",
-      "kickoff_utc": "2026-11-17T16:30:00Z",
-      "score": "2:1",
-      "probability": 0.27823221,
+      "id": "sportsapipro:4890775",
+      "league": "Ligue 1",
+      "home": "Cr Temouchent",
+      "away": "JS El Biar",
+      "kickoff_utc": "2026-11-18T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.31150985,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -72,13 +72,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4883918",
-      "league": "Non League Premier",
-      "home": "Ramsgate",
-      "away": "Cray Wanderers",
-      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "id": "sportsapipro:4876901",
+      "league": "Premier Division",
+      "home": "Gazelle",
+      "away": "Aigle Moungo",
+      "kickoff_utc": "2026-11-18T12:00:00Z",
       "score": "2:1",
-      "probability": 0.24601079,
+      "probability": 0.25996628,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -87,13 +87,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4766445",
-      "league": "National League N/S - Regular Season",
-      "home": "South Shields",
-      "away": "Harborough Town",
-      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "id": "sportsapipro:4884864",
+      "league": "Premier Division",
+      "home": "Coton Sport Garoua",
+      "away": "Stade Renard",
+      "kickoff_utc": "2026-11-18T15:00:00Z",
       "score": "2:1",
-      "probability": 0.245906,
+      "probability": 0.25526316,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -102,13 +102,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4894996",
-      "league": "Liga de Ascenso - Eastern Region",
-      "home": "CD Neo Pipil",
-      "away": "AD SESA",
-      "kickoff_utc": "2026-11-17T21:00:00Z",
+      "id": "sportsapipro:4632606",
+      "league": "Brasileirão Série A",
+      "home": "Flamengo",
+      "away": "Athletico Paranaense",
+      "kickoff_utc": "2026-11-18T23:30:00Z",
       "score": "2:1",
-      "probability": 0.24285307,
+      "probability": 0.25486394,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -117,13 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4780720",
-      "league": "Non League Premier",
-      "home": "Havant & waterloovile",
-      "away": "Bracknell Town",
-      "kickoff_utc": "2026-11-17T19:45:00Z",
+      "id": "sportsapipro:4814521",
+      "league": "Womens League Cup",
+      "home": "Nottingham Forest (W)",
+      "away": "Liverpool (W)",
+      "kickoff_utc": "2026-11-18T19:00:00Z",
       "score": "2:1",
-      "probability": 0.23947219,
+      "probability": 0.21449856,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
