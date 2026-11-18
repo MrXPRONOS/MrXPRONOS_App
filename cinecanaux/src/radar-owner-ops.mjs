@@ -14,11 +14,11 @@ async function botCall(env,method,payload){
     signal:AbortSignal.timeout(9500)
   });
   const data=await response.json();
-  if(!response.ok||!data.ok)throw Error('Telegram '+method+' failed ('+(data.error_code||response.status)+')');
+  if(!response.ok||!data.ok)throw Error('Telegram '+method+' '+String(data.error_code||response.status)+': '+String(data.description||'request failed').slice(0,105));
   return data.result;
 }
 export async function bindPrimaryRadarChannels(env){
-  const result={bound:0,alreadyBound:0,errors:[]};
+  const result={bound:0,alreadyBound:0,errors:[],checks:[]};
   let me;
   try{me=await botCall(env,'getMe',{});}catch(e){return {...result,errors:['getMe: '+String(e).slice(0,90)]};}
   for(const channel of PRIMARY_CHANNELS){
@@ -32,11 +32,11 @@ export async function bindPrimaryRadarChannels(env){
         .bind(channel.kind,channel.username).first();
       if(!existing)throw Error('Canal non inscrit dans D1');
       if(existing.chat_id&&String(existing.chat_id)!==String(chat.id))throw Error('Identifiant Telegram changé : contrôle manuel requis');
-      if(existing.chat_id){result.alreadyBound++;continue;}
+      if(existing.chat_id){result.alreadyBound++;result.checks.push(channel.kind+': verified admin and previously bound');continue;}
       const write=await env.DB.prepare("UPDATE radar_primary_channels SET chat_id=?,updated_at=CURRENT_TIMESTAMP WHERE kind=? AND LOWER(username)=LOWER(?) AND chat_id IS NULL")
         .bind(String(chat.id),channel.kind,channel.username).run();
-      if(Number(write.meta?.changes||0)===1)result.bound++;
-    }catch(e){result.errors.push(channel.kind+': '+String(e.message||e).slice(0,100));}
+      if(Number(write.meta?.changes||0)===1){result.bound++;result.checks.push(channel.kind+': verified admin and newly bound');}
+    }catch(e){result.errors.push(channel.kind+': '+String(e.message||e).slice(0,165));}
   }
   return result;
 }
@@ -80,9 +80,10 @@ export function formatRadarMissing(rows){
 // Notification uniquement en message privé, jamais dans les canaux.
 // On ne marque une suggestion comme envoyée qu'après confirmation Telegram.
 export async function notifyOwnerMissingRadarTitles(env){
-  const output={sent:0,listed:0,errors:[]};
+  const output={sent:0,listed:0,ownersChecked:0,errors:[]};
   const owners=(await env.DB.prepare("SELECT user_id FROM admin_users WHERE role='owner' LIMIT 3").all()).results||[];
   for(const owner of owners){
+    output.ownersChecked++;
     try{
       const rows=await missingRadarTitles(env,owner.user_id,{limit:12,onlyUnnotified:true});
       if(!rows.length)continue;
@@ -93,7 +94,7 @@ export async function notifyOwnerMissingRadarTitles(env){
         "INSERT INTO radar_notice_log(owner_id,title_id,sent_at) VALUES(?,?,CURRENT_TIMESTAMP) "+
         "ON CONFLICT(owner_id,title_id) DO UPDATE SET sent_at=CURRENT_TIMESTAMP"
       ).bind(owner.user_id,title.id).run();
-    }catch(e){output.errors.push('owner_notify: '+String(e.message||e).slice(0,100));}
+    }catch(e){output.errors.push('owner_notify: '+String(e.message||e).slice(0,180));}
   }
   return output;
 }
