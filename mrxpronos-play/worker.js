@@ -4,7 +4,28 @@ const html="<!DOCTYPE html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><me
 const page=()=>new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store, max-age=0, must-revalidate","content-security-policy":"default-src 'self' https://telegram.org https://*.telegram.org; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; frame-ancestors https://web.telegram.org https://*.telegram.org"}});
 const hex=a=>Array.from(new Uint8Array(a)).map(b=>b.toString(16).padStart(2,"0")).join("");
 async function hmac(key,content){const imported=await crypto.subtle.importKey("raw",typeof key==="string"?encoder.encode(key):key,{name:"HMAC",hash:"SHA-256"},false,["sign"]);return crypto.subtle.sign("HMAC",imported,encoder.encode(content))}
-async function authenticate(req,env){if(!env.BOT_TOKEN)return null;const init=req.headers.get("x-telegram-init-data")||"";if(!init||init.length>8192)return null;const p=new URLSearchParams(init),hash=p.get("hash"),ts=Number(p.get("auth_date"));if(!hash||!ts||Math.abs(Date.now()/1000-ts)>86400)return null;p.delete("hash");p.delete("signature");const data=[...p.entries()].sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0).map(([k,v])=>k+"="+v).join("\n");const secret=await hmac("WebAppData",env.BOT_TOKEN);const dig=hex(await hmac(secret,data));if(dig!==hash)return null;try{const user=JSON.parse(p.get("user")||"null");if(!user?.id)return null;return {id:String(user.id),username:(user.username||"").slice(0,64),name:(user.first_name||user.username||"Joueur").slice(0,90)}}catch{return null}}
+function equalSignature(expected,supplied){if(typeof supplied!=="string"||!(/^[0-9a-fA-F]{64}$/.test(supplied)))return false;let diff=0;for(let i=0;i<expected.length;i++)diff|=expected.charCodeAt(i)^supplied.toLowerCase().charCodeAt(i);return diff===0}
+async function authenticate(req,env){
+ const token=typeof env.BOT_TOKEN==="string"?env.BOT_TOKEN.trim():"";
+ if(!token)return {reason:"TOKEN_ABSENT"};
+ const raw=req.headers.get("x-telegram-init-data")||"";
+ if(!raw)return {reason:"INITDATA_ABSENTE"};
+ if(raw.length>8192)return {reason:"INITDATA_TROP_LONGUE"};
+ const p=new URLSearchParams(raw),hash=p.get("hash"),ts=Number(p.get("auth_date"));
+ if(!hash||!Number.isFinite(ts)||ts<=0)return {reason:"CHAMPS_MANQUANTS"};
+ const age=Math.floor(Date.now()/1000)-ts;
+ if(age>86400)return {reason:"SESSION_EXPIREE"};
+ if(age < -300)return {reason:"HORLOGE_INVALIDE"};
+ p.delete("hash");
+ const pairs=[...p.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+ const signingKey=await hmac("WebAppData",token);
+ const variants=[pairs,pairs.filter(([key])=>key!=="signature")];
+ let verified=false;
+ for(const items of variants){const checkString=items.map(([k,v])=>k+"="+v).join("\n");const signature=hex(await hmac(signingKey,checkString));if(equalSignature(signature,hash)){verified=true;break}}
+ if(!verified)return {reason:"SIGNATURE_INVALIDE"};
+ try{const user=JSON.parse(p.get("user")||"null");if(!user||typeof user!=="object"||!user.id)return {reason:"UTILISATEUR_ABSENT"};return {user:{id:String(user.id),username:String(user.username||"").slice(0,64),name:String(user.first_name||user.username||"Monsieur X Pronos").slice(0,90)}}}
+ catch{return {reason:"UTILISATEUR_INVALIDE"}}
+}
 const DAY=86400000,HALF=43200000;
 const dateOf=ms=>new Date(ms).toISOString().slice(0,10);
 const rewards=[["xp10",30,10],["xp25",22,25],["bonus",15,0],["xp50",8,50],["ticket",10,0],["xp100",7,100],["shield",5,0],["badge",3,0]];
@@ -17,7 +38,7 @@ export default {async fetch(request,env){const u=new URL(request.url),p=u.pathna
  if(p==="/telegram/webhook"&&request.method==="POST"){if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);const update=await request.json();if(/^\/(?:start|play)(?:@\w+)?(?:\s|$)/.test(update.message?.text||"")){const chat=update.message.chat.id;const response=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/sendMessage",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat_id:chat,text:"Bienvenue sur Mr XPRONOS Play ! 🎮\nGagne des XP Points gratuitement en jouant.",reply_markup:{inline_keyboard:[[{text:"🎮 Jouer maintenant",web_app:{url:u.origin}}]]}})});if(!response.ok)return json({error:"Telegram sendMessage failed"},502)}return json({ok:true})}
  if(!p.startsWith("/api/"))return json({error:"Not found"},404);
  if(request.method!=="GET"&&request.method!=="POST")return json({error:"Method not allowed"},405);
- const user=await authenticate(request,env);if(!user)return json({error:"Telegram non connecté : configure BOT_TOKEN et ouvre l'application depuis le bot."},401);
+ const auth=await authenticate(request,env);if(!auth.user)return json({error:"Identification Telegram refusée : "+auth.reason,code:auth.reason},401);const user=auth.user;
  let player=await ensurePlayer(env,user);
  if(p==="/api/bootstrap"&&request.method==="GET"){
   const now=Date.now(), plans={},base=Math.floor(now/DAY)*DAY;
