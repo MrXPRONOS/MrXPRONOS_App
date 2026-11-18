@@ -75,3 +75,8 @@ test('home and discovery hydrate immediately from the same preloaded catalog as 
  const step=navigation.slice(bootstrap,fetchIndex);
  for(const fn of ['miniFeatured();','discover();','genreContent();','cardDecorate();'])assert.ok(step.includes(fn),fn+' omitted from instant hydration');
 });
+
+test('category counts use correct French singular/plural',()=>{
+ assert.ok(APP_HTML.includes('count+(count===1?" canal":" canaux")+" dans l’annuaire"'));
+ assert.ok(!APP_HTML.includes('count+" canal"+(count===1?"":"x")'));
+});
