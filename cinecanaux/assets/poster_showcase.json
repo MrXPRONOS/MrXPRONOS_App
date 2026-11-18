@@ -1,0 +1,204 @@
+{
+  "version": 2,
+  "source": "SampleAPIs + TVmaze",
+  "updated_at": "2026-11-18T06:00:57.234672+00:00",
+  "notice": "Images originales de fiches films/séries pour l'ambiance visuelle. Leur présence ne garantit pas la disponibilité dans un canal Telegram.",
+  "items": [
+    {
+      "id": "films-tt1825683",
+      "title": "Black Panther",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTg1MTY2MjYzNV5BMl5BanBnXkFtZTgwMTc4NTMwNDI@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt1825683/"
+    },
+    {
+      "id": "films-tt1392190",
+      "title": "Mad Max: Fury Road",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BN2EwM2I5OWMtMGQyMi00Zjg1LWJkNTctZTdjYTA4OGUwZjMyXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt1392190/"
+    },
+    {
+      "id": "films-tt0451279",
+      "title": "Wonder Woman",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BNDFmZjgyMTEtYTk5MC00NmY0LWJhZjktOWY2MzI5YjkzODNlXkEyXkFqcGdeQXVyMDA4NzMyOA@@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt0451279/"
+    },
+    {
+      "id": "films-tt0017136",
+      "title": "Metropolis",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTg5YWIyMWUtZDY5My00Zjc1LTljOTctYmI0MWRmY2M2NmRkXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt0017136/"
+    },
+    {
+      "id": "films-tt2380307",
+      "title": "Coco",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BYjQ5NjM0Y2YtNjZkNC00ZDhkLWJjMWItN2QyNzFkMDE3ZjAxXkEyXkFqcGdeQXVyODIxMzk5NjA@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt2380307/"
+    },
+    {
+      "id": "films-tt5013056",
+      "title": "Dunkirk",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BN2YyZjQ0NTEtNzU5MS00NGZkLTg0MTEtYzJmMWY3MWRhZjM2XkEyXkFqcGdeQXVyMDA4NzMyOA@@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt5013056/"
+    },
+    {
+      "id": "films-tt2527336",
+      "title": "Star Wars: The Last Jedi",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMjQ1MzcxNjg4N15BMl5BanBnXkFtZTgwNzgwMjY4MzI@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt2527336/"
+    },
+    {
+      "id": "films-tt3315342",
+      "title": "Logan",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BYzc5MTU4N2EtYTkyMi00NjdhLTg3NWEtMTY4OTEyMzJhZTAzXkEyXkFqcGdeQXVyNjc1NTYyMjg@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt3315342/"
+    },
+    {
+      "id": "films-tt3501632",
+      "title": "Thor: Ragnarok",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMjMyNDkzMzI1OF5BMl5BanBnXkFtZTgwODcxODg5MjI@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt3501632/"
+    },
+    {
+      "id": "films-tt0024216",
+      "title": "King Kong",
+      "type": "films",
+      "poster": "https://m.media-amazon.com/images/M/MV5BZTY3YjYxZGQtMTM2YS00ZmYwLWFlM2QtOWFlMTU1NTAyZDQ2XkEyXkFqcGdeQXVyNTgyNTA4MjM@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt0024216/"
+    },
+    {
+      "id": "animes-tt2096673",
+      "title": "Inside Out",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BOTgxMDQwMDk0OF5BMl5BanBnXkFtZTgwNjU5OTg2NDE@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt2096673/"
+    },
+    {
+      "id": "animes-tt3606756",
+      "title": "Incredibles 2",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTEzNzY0OTg0NTdeQTJeQWpwZ15BbWU4MDU3OTg3MjUz._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt3606756/"
+    },
+    {
+      "id": "animes-tt0029583",
+      "title": "Snow White and the Seven Dwarfs",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTQwMzE2Mzc4M15BMl5BanBnXkFtZTcwMTE4NTc1Nw@@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt0029583/"
+    },
+    {
+      "id": "animes-tt2948356",
+      "title": "Zootopia",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BOTMyMjEyNzIzMV5BMl5BanBnXkFtZTgwNzIyNjU0NzE@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt2948356/"
+    },
+    {
+      "id": "animes-tt0120363",
+      "title": "Toy Story 2",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMWM5ZDcxMTYtNTEyNS00MDRkLWI3YTItNThmMGExMWY4NDIwXkEyXkFqcGdeQXVyNjUwNzk3NDc@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt0120363/"
+    },
+    {
+      "id": "animes-tt1049413",
+      "title": "Up",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTk3NDE2NzI4NF5BMl5BanBnXkFtZTgwNzE1MzEyMTE@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt1049413/"
+    },
+    {
+      "id": "animes-tt0435761",
+      "title": "Toy Story 3",
+      "type": "animes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTgxOTY4Mjc0MF5BMl5BanBnXkFtZTcwNTA4MDQyMw@@._V1_SX300.jpg",
+      "tmdb": "https://www.imdb.com/title/tt0435761/"
+    },
+    {
+      "id": "series-50701",
+      "title": "Lupin",
+      "type": "series",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/646/1617244.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/50701/lupin"
+    },
+    {
+      "id": "series-68407",
+      "title": "Black Doves",
+      "type": "series",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/642/1607270.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/68407/black-doves"
+    },
+    {
+      "id": "series-2993",
+      "title": "Stranger Things",
+      "type": "series",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/595/1489169.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/2993/stranger-things"
+    },
+    {
+      "id": "series-46562",
+      "title": "The Last of Us",
+      "type": "series",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/563/1409008.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/46562/the-last-of-us"
+    },
+    {
+      "id": "series-53647",
+      "title": "Wednesday",
+      "type": "series",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/586/1466410.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/53647/wednesday"
+    },
+    {
+      "id": "series-169",
+      "title": "Breaking Bad",
+      "type": "series",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/169/breaking-bad"
+    },
+    {
+      "id": "animes-1505",
+      "title": "One Piece",
+      "type": "animes",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/504/1262497.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/1505/one-piece"
+    },
+    {
+      "id": "animes-1905",
+      "title": "Bleach",
+      "type": "animes",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/459/1148800.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/1905/bleach"
+    },
+    {
+      "id": "animes-48450",
+      "title": "Jujutsu Kaisen",
+      "type": "animes",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/608/1521905.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/48450/jujutsu-kaisen"
+    },
+    {
+      "id": "animes-31396",
+      "title": "Black Clover",
+      "type": "animes",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/564/1411801.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/31396/black-clover"
+    },
+    {
+      "id": "animes-919",
+      "title": "Attack on Titan",
+      "type": "animes",
+      "poster": "https://static.tvmaze.com/uploads/images/medium_portrait/632/1582290.jpg",
+      "tmdb": "https://www.tvmaze.com/shows/919/attack-on-titan"
+    }
+  ]
+}
