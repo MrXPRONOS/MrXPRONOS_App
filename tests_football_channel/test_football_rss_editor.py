@@ -60,13 +60,14 @@ class RSSFrenchEditorialTests(unittest.TestCase):
             "choices": [{"message": {"content": json.dumps(translated, ensure_ascii=False)}}]
         }
         session.post.return_value = response
-        result = editor.prepare(english, api_key="fake", session=session)
+        with patch.object(editor, "_french", return_value=True):
+            result = editor.prepare(english, api_key="fake", session=session)
         self.assertIn("2026", result["telegram_title_fr"])
         self.assertEqual(result["telegram_content_fr"], translated["summary_fr"])
         self.assertEqual(session.post.call_args.kwargs["json"]["model"], editor.MODEL)
 
     def test_nim_cannot_invent_numbers(self):
-        with self.assertRaisesRegex(editor.EditorialHold, "new_number"):
+        with patch.object(editor, "_french", return_value=True), self.assertRaisesRegex(editor.EditorialHold, "new_number"):
             editor._valid_result(
                 "Arsenal signe un joueur",
                 "Le club prépare un accord.",
