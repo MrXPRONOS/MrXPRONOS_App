@@ -148,6 +148,16 @@ const samples=[
  ['Explique les cryptomonnaies','out_of_scope'],
  ['Quel visa pour voyager en France ?','out_of_scope'],
  ['Tu peux m’aider à installer une application Windows ?','unknown'],
+ ['Combien coûte un terrain à côté de Lomé ?','out_of_scope'],
+ ['Je cherche un conseil pour élever des poulets','out_of_scope'],
+ ['Je veux parler de mes problèmes de santé','out_of_scope'],
+ ['Donne-moi le pronostic du match de tennis Nadal Djokovic','out_of_scope'],
+ ['Tu peux m\'aider à installer Telegram sur Android ?','out_of_scope'],
+ ['Comment installer notre site sur Android ?','in_scope'],
+ ['Comment installer Telegram pour recevoir les pronostics ?','in_scope'],
+ ['Donne-moi le prix du Bitcoin pour payer 1xbet','in_scope'],
+ ['Quel est le meilleur iPhone ?','out_of_scope'],
+ ['Tu as des conseils ?','unknown'],
  ['...','unclear'],
  ['bonjour','in_scope']
 ];
