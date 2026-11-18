@@ -207,7 +207,15 @@ test('real Telegram handler: silent off-topic alerts, clear voice retry request,
  const privacy=await send(970014,'Je veux supprimer mes données personnelles');
  assert.match(privacy.reply,/confidentialit|donn.e|supprim/i);
  assert.equal(privacy.admin,'');
+ // The first voice test deliberately has NO transcription provider.
+ // Force both credentials off to avoid inherited CI settings contaminating it.
+ const savedNvidia=process.env.MX_ASSISTANT_NVIDIA_KEY;
+ const savedAsr=process.env.MX_ASSISTANT_ASR_URL;
+ process.env.MX_ASSISTANT_ASR_URL='';
+ process.env.MX_ASSISTANT_NVIDIA_KEY='';
  const newVocal=await send(970015,'',{voice:true});
+ process.env.MX_ASSISTANT_NVIDIA_KEY=savedNvidia;
+ process.env.MX_ASSISTANT_ASR_URL=savedAsr||'';
  assert.equal(newVocal.reply.replace(/\s+/g,' ').trim(),assistant.VOICE_NOT_UNDERSTOOD_REPLY);
  assert.equal(newVocal.admin,'');
  const afterVocal=await send(970015,'Je veux le code promo');
