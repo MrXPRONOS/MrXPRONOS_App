@@ -75,5 +75,26 @@ export default {async fetch(request,env){const u=new URL(request.url),p=u.pathna
   return json({ok:true,duplicate:false,xp_awarded:awarded,user:player,wheel_outcomes:outcomes});
  }
  return json({error:"Route inconnue"},404)
- }catch(e){return json({error:"Erreur serveur",detail:env.DEV_MODE==="true"?String(e):undefined},500)}}
+ }catch(e){return json({error:"Erreur serveur",detail:env.DEV_MODE==="true"?String(e):undefined},500)}},
+ async scheduled(event,env){
+  let status="ERREUR_RESEAU", bot="", hook="", menu="", error="";
+  try{
+   const tok=String(env.BOT_TOKEN||"").trim();
+   if(!tok){status="TOKEN_ABSENT"}else{
+    const api="https://api.telegram.org/bot"+tok+"/";
+    const me=await (await fetch(api+"getMe")).json();
+    if(!me.ok){status="TOKEN_INVALIDE"}else{
+     bot=String(me.result?.username||"");
+     if(bot.toLowerCase()!=="mrxpronosplaybot"){status="MAUVAIS_BOT"}
+     else{
+      const [wh,mb]=await Promise.all([fetch(api+"getWebhookInfo").then(x=>x.json()),fetch(api+"getChatMenuButton").then(x=>x.json())]);
+      hook=String(wh.result?.url||"");menu=String(mb.result?.menu_button?.type||"");
+      status=!wh.ok?"WEBHOOK_ERREUR":!hook.endsWith("/telegram/webhook")?"WEBHOOK_INCORRECT":menu!=="web_app"?"MENU_INCORRECT":"CONFIGURE";
+      if(wh.result?.last_error_message)error=String(wh.result.last_error_message).slice(0,200);
+     }
+    }
+   }
+  }catch(e){status="ERREUR_RESEAU";error="Requête Telegram indisponible"}
+  try{await env.DB.prepare("INSERT INTO telegram_setup_status(id,status,bot_username,webhook_url,menu_type,error,updated_ms) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,bot_username=excluded.bot_username,webhook_url=excluded.webhook_url,menu_type=excluded.menu_type,error=excluded.error,updated_ms=excluded.updated_ms").bind("token-diagnostic-20261118",status,bot,hook,menu,error,Date.now()).run()}catch{}
+ }
 }
