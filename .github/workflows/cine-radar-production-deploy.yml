@@ -1,4 +1,5 @@
 name: Cine Radar - Deploy production after green CI
+# Bootstrap a fresh production deployment after the verified PR #433 rollout.
 on:
   push:
     branches: [main]
