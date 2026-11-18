@@ -30,6 +30,8 @@ EXPECTED_BOT = "mrxpronos_canal_bot"
 MAX_TARGETS = 25
 MAX_CANDIDATES = 60
 MAX_PER_TARGET_PER_RUN = 1
+FASTDEAL_USERNAME = '@fastdealexchange'
+FASTDEAL_DAILY_LIMIT = 4
 # Database also enforces 6 reserved/confirmed deliveries per channel per 24h.
 TOKEN_TIMEOUT = (8, 20)
 
@@ -253,6 +255,8 @@ def publish():
     slot = slot_for(now)
     db = Supabase()
     targets = db.targets()
+    # The public Fast Deal channel has a separate dedicated scheduler.
+    targets = [t for t in targets if str(t.get("chat_id", "")).lower() != FASTDEAL_USERNAME]
     if not targets:
         print("CRYPTO_MULTICHANNEL_NO_ACTIVE_CRYPTO_TARGETS")
         return
