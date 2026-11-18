@@ -86,7 +86,7 @@ def record_send(chat: dict, caption: str, image: Path, parse_mode=None) -> int:
         try:
             resp = requests.post(
                 "https://api.telegram.org/bot" + seed.TOKEN + "/sendPhoto",
-                data={"chat_id": chat["id"], "caption": caption,
+                data={"chat_id": chat.get("destination", chat["id"]), "caption": caption,
                       **({"parse_mode": parse_mode} if parse_mode else {})},
                 files={"photo": (image.name, fp, mime)},
                 timeout=(10, 90))
@@ -217,48 +217,12 @@ def publish_automatic_regulation():
 
 
 def publish_global_news():
-    """News-first, half-hourly scan; up to three distinct real stories."""
-    state = seed.read_state()
-    now = datetime.now(UTC)
-    used = digest.day_count(state, now)
-    if used >= digest.MAX_PER_DAY:
-        print("CRYPTO_NEWS11_DAILY_CAP", used)
-        return
-    candidates = digest.collect(state, now)
-    if not candidates:
-        print("CRYPTO_NEWS11_SKIP_NOTHING_NEW")
-        return
-    chat = seed.verify_production_route()
-    published = 0
-    for candidate in candidates[:18]:  # bound remote article/photo probes per cycle
-        if published >= digest.MAX_PER_RUN or used + published >= digest.MAX_PER_DAY:
-            break
-        if digest.already_sent(candidate["main"], state):
-            continue
-        photo = media.photo_for(candidate)
-        if photo is None:
-            print("CRYPTO_NEWS11_SKIP_NO_REAL_ARTICLE_IMAGE",
-                  candidate["main"]["source"], candidate["main"]["title"][:75])
-            continue
-        image, photo_source = photo
-        description = media.caption(candidate, image_source=photo_source)
-        try:
-            message_id = record_send(chat, description, image, parse_mode="HTML")
-        except ValueError as exc:
-            # Telegram's 4xx response confirms no send. Preserve the exact
-            # reason (HTML entity rejection, caption length, etc.) in Actions.
-            print("CRYPTO_NEWS11_TELEGRAM_REJECTED", str(exc)[:240])
-            raise
-        except (requests.RequestException, RuntimeError):
-            raise RuntimeError("News #11 delivery uncertain; manual audit required") from None
-        digest.mark_sent(state, candidate, message_id, datetime.now(UTC))
-        seed.write_state(state)
-        published += 1
-        print("CRYPTO_NEWS11_PUBLISHED", "message_id="+str(message_id),
-              "category="+candidate["main"]["category"],
-              "source="+candidate["main"]["source"], "photo_confirmed=1")
-    print("CRYPTO_NEWS11_BATCH", "posted="+str(published),
-          "candidates="+str(len(candidates)), "already_today="+str(used))
+    """Route #11 to the verified crypto-only channel network.
+
+    Intentionally different from the other #01-#10 scheduler modes.
+    """
+    from crypto import news_multichannel_v1 as network
+    return network.publish()
 
 
 def execute(mode: str):
