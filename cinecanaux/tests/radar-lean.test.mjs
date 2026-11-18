@@ -20,7 +20,7 @@ const db={prepare(sql){
   async all(){
    if(sql.includes("FROM channels c LEFT JOIN channel_profile_cache"))return {results:state.channels.map(x=>({...x,avatar_url:""}))};
    if(sql.includes("prior FROM channels c LEFT JOIN channel_telemetry"))return {results:state.channels.map(x=>({...x,prior:state.prior.get(x.id)||"unknown"}))};
-   if(sql.includes("SELECT title,link FROM channels WHERE status='approved' AND content_type="))return {results:state.channels.filter(x=>x.content_type===values[0])};
+   if(sql.includes("SELECT title,link FROM channels WHERE status='approved' AND (content_type="))return {results:state.channels.filter(x=>x.content_type===values[0])};
    return {results:[]};
   },
   async first(){
