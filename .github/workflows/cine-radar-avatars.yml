@@ -7,6 +7,9 @@ on:
     branches: [main]
     paths:
       - 'cinecanaux/.avatar-refresh-trigger'
+      - 'cinecanaux/refresh_channel_avatars.py'
+      - 'cinecanaux/refresh_private_avatars.py'
+      - '.github/workflows/cine-radar-avatars.yml'
 permissions:
   contents: write
 concurrency:
@@ -33,7 +36,15 @@ jobs:
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
         run: python cinecanaux/refresh_channel_avatars.py
-      - name: Commit real public profile images and manifest
+      - name: Retrieve verified private channel profile pictures
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python cinecanaux/refresh_private_avatars.py
+      - name: Commit actual public and private profile images and manifest
         shell: bash
         run: |
           set -euo pipefail
