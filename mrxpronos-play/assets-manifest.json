@@ -1,0 +1,358 @@
+{
+  "project": "Mr XPRONOS Play",
+  "status": "binary_files_pending",
+  "asset_count": 50,
+  "notes": "PNG and WebP source files packaged locally; this GitHub catalog is not proof of uploaded binary files.",
+  "assets": [
+    {
+      "number": 1,
+      "group": "01-brand",
+      "slug": "mx-crowned-logo",
+      "png": "assets/01-brand/01-mx-crowned-logo.png",
+      "webp": "assets/01-brand/01-mx-crowned-logo.webp"
+    },
+    {
+      "number": 2,
+      "group": "01-brand",
+      "slug": "mr-xpronos-play-logo",
+      "png": "assets/01-brand/02-mr-xpronos-play-logo.png",
+      "webp": "assets/01-brand/02-mr-xpronos-play-logo.webp"
+    },
+    {
+      "number": 3,
+      "group": "01-brand",
+      "slug": "mx-tap-coin",
+      "png": "assets/01-brand/03-mx-tap-coin.png",
+      "webp": "assets/01-brand/03-mx-tap-coin.webp"
+    },
+    {
+      "number": 4,
+      "group": "01-brand",
+      "slug": "xp-points-coin",
+      "png": "assets/01-brand/04-xp-points-coin.png",
+      "webp": "assets/01-brand/04-xp-points-coin.webp"
+    },
+    {
+      "number": 5,
+      "group": "01-brand",
+      "slug": "xp-coin-stack",
+      "png": "assets/01-brand/05-xp-coin-stack.png",
+      "webp": "assets/01-brand/05-xp-coin-stack.webp"
+    },
+    {
+      "number": 6,
+      "group": "01-brand",
+      "slug": "mrxp-token-coin",
+      "png": "assets/01-brand/06-mrxp-token-coin.png",
+      "webp": "assets/01-brand/06-mrxp-token-coin.webp"
+    },
+    {
+      "number": 7,
+      "group": "01-brand",
+      "slug": "energy-blue-bolt",
+      "png": "assets/01-brand/07-energy-blue-bolt.png",
+      "webp": "assets/01-brand/07-energy-blue-bolt.webp"
+    },
+    {
+      "number": 8,
+      "group": "01-brand",
+      "slug": "energy-gold-bolt",
+      "png": "assets/01-brand/08-energy-gold-bolt.png",
+      "webp": "assets/01-brand/08-energy-gold-bolt.webp"
+    },
+    {
+      "number": 9,
+      "group": "01-brand",
+      "slug": "tap-hand",
+      "png": "assets/01-brand/09-tap-hand.png",
+      "webp": "assets/01-brand/09-tap-hand.webp"
+    },
+    {
+      "number": 10,
+      "group": "01-brand",
+      "slug": "gold-plus-button",
+      "png": "assets/01-brand/10-gold-plus-button.png",
+      "webp": "assets/01-brand/10-gold-plus-button.webp"
+    },
+    {
+      "number": 11,
+      "group": "02-navigation",
+      "slug": "nav-home",
+      "png": "assets/02-navigation/11-nav-home.png",
+      "webp": "assets/02-navigation/11-nav-home.webp"
+    },
+    {
+      "number": 12,
+      "group": "02-navigation",
+      "slug": "nav-play",
+      "png": "assets/02-navigation/12-nav-play.png",
+      "webp": "assets/02-navigation/12-nav-play.webp"
+    },
+    {
+      "number": 13,
+      "group": "02-navigation",
+      "slug": "nav-rewards",
+      "png": "assets/02-navigation/13-nav-rewards.png",
+      "webp": "assets/02-navigation/13-nav-rewards.webp"
+    },
+    {
+      "number": 14,
+      "group": "02-navigation",
+      "slug": "nav-friends",
+      "png": "assets/02-navigation/14-nav-friends.png",
+      "webp": "assets/02-navigation/14-nav-friends.webp"
+    },
+    {
+      "number": 15,
+      "group": "02-navigation",
+      "slug": "nav-profile",
+      "png": "assets/02-navigation/15-nav-profile.png",
+      "webp": "assets/02-navigation/15-nav-profile.webp"
+    },
+    {
+      "number": 16,
+      "group": "02-navigation",
+      "slug": "nav-quests",
+      "png": "assets/02-navigation/16-nav-quests.png",
+      "webp": "assets/02-navigation/16-nav-quests.webp"
+    },
+    {
+      "number": 17,
+      "group": "02-navigation",
+      "slug": "nav-leaderboard",
+      "png": "assets/02-navigation/17-nav-leaderboard.png",
+      "webp": "assets/02-navigation/17-nav-leaderboard.webp"
+    },
+    {
+      "number": 18,
+      "group": "02-navigation",
+      "slug": "nav-referrals",
+      "png": "assets/02-navigation/18-nav-referrals.png",
+      "webp": "assets/02-navigation/18-nav-referrals.webp"
+    },
+    {
+      "number": 19,
+      "group": "02-navigation",
+      "slug": "nav-nft",
+      "png": "assets/02-navigation/19-nav-nft.png",
+      "webp": "assets/02-navigation/19-nav-nft.webp"
+    },
+    {
+      "number": 20,
+      "group": "02-navigation",
+      "slug": "nav-lucky-wheel",
+      "png": "assets/02-navigation/20-nav-lucky-wheel.png",
+      "webp": "assets/02-navigation/20-nav-lucky-wheel.webp"
+    },
+    {
+      "number": 21,
+      "group": "03-wheel-rewards",
+      "slug": "lucky-wheel-full",
+      "png": "assets/03-wheel-rewards/21-lucky-wheel-full.png",
+      "webp": "assets/03-wheel-rewards/21-lucky-wheel-full.webp"
+    },
+    {
+      "number": 22,
+      "group": "03-wheel-rewards",
+      "slug": "lucky-wheel-pointer",
+      "png": "assets/03-wheel-rewards/22-lucky-wheel-pointer.png",
+      "webp": "assets/03-wheel-rewards/22-lucky-wheel-pointer.webp"
+    },
+    {
+      "number": 23,
+      "group": "03-wheel-rewards",
+      "slug": "lucky-wheel-mx-center",
+      "png": "assets/03-wheel-rewards/23-lucky-wheel-mx-center.png",
+      "webp": "assets/03-wheel-rewards/23-lucky-wheel-mx-center.webp"
+    },
+    {
+      "number": 24,
+      "group": "03-wheel-rewards",
+      "slug": "treasure-chest",
+      "png": "assets/03-wheel-rewards/24-treasure-chest.png",
+      "webp": "assets/03-wheel-rewards/24-treasure-chest.webp"
+    },
+    {
+      "number": 25,
+      "group": "03-wheel-rewards",
+      "slug": "gift-box",
+      "png": "assets/03-wheel-rewards/25-gift-box.png",
+      "webp": "assets/03-wheel-rewards/25-gift-box.webp"
+    },
+    {
+      "number": 26,
+      "group": "03-wheel-rewards",
+      "slug": "free-spin",
+      "png": "assets/03-wheel-rewards/26-free-spin.png",
+      "webp": "assets/03-wheel-rewards/26-free-spin.webp"
+    },
+    {
+      "number": 27,
+      "group": "03-wheel-rewards",
+      "slug": "bonus-spin-x2",
+      "png": "assets/03-wheel-rewards/27-bonus-spin-x2.png",
+      "webp": "assets/03-wheel-rewards/27-bonus-spin-x2.webp"
+    },
+    {
+      "number": 28,
+      "group": "03-wheel-rewards",
+      "slug": "xp-reward-badge",
+      "png": "assets/03-wheel-rewards/28-xp-reward-badge.png",
+      "webp": "assets/03-wheel-rewards/28-xp-reward-badge.webp"
+    },
+    {
+      "number": 29,
+      "group": "03-wheel-rewards",
+      "slug": "energy-bonus-card",
+      "png": "assets/03-wheel-rewards/29-energy-bonus-card.png",
+      "webp": "assets/03-wheel-rewards/29-energy-bonus-card.webp"
+    },
+    {
+      "number": 30,
+      "group": "03-wheel-rewards",
+      "slug": "free-raffle-ticket",
+      "png": "assets/03-wheel-rewards/30-free-raffle-ticket.png",
+      "webp": "assets/03-wheel-rewards/30-free-raffle-ticket.webp"
+    },
+    {
+      "number": 31,
+      "group": "04-quests-progression",
+      "slug": "quests-target",
+      "png": "assets/04-quests-progression/31-quests-target.png",
+      "webp": "assets/04-quests-progression/31-quests-target.webp"
+    },
+    {
+      "number": 32,
+      "group": "04-quests-progression",
+      "slug": "daily-calendar-check",
+      "png": "assets/04-quests-progression/32-daily-calendar-check.png",
+      "webp": "assets/04-quests-progression/32-daily-calendar-check.webp"
+    },
+    {
+      "number": 33,
+      "group": "04-quests-progression",
+      "slug": "friend-invite-group",
+      "png": "assets/04-quests-progression/33-friend-invite-group.png",
+      "webp": "assets/04-quests-progression/33-friend-invite-group.webp"
+    },
+    {
+      "number": 34,
+      "group": "04-quests-progression",
+      "slug": "mini-game-challenge",
+      "png": "assets/04-quests-progression/34-mini-game-challenge.png",
+      "webp": "assets/04-quests-progression/34-mini-game-challenge.webp"
+    },
+    {
+      "number": 35,
+      "group": "04-quests-progression",
+      "slug": "challenge-checklist",
+      "png": "assets/04-quests-progression/35-challenge-checklist.png",
+      "webp": "assets/04-quests-progression/35-challenge-checklist.webp"
+    },
+    {
+      "number": 36,
+      "group": "04-quests-progression",
+      "slug": "xp-reward-voucher",
+      "png": "assets/04-quests-progression/36-xp-reward-voucher.png",
+      "webp": "assets/04-quests-progression/36-xp-reward-voucher.webp"
+    },
+    {
+      "number": 37,
+      "group": "04-quests-progression",
+      "slug": "success-green-check",
+      "png": "assets/04-quests-progression/37-success-green-check.png",
+      "webp": "assets/04-quests-progression/37-success-green-check.webp"
+    },
+    {
+      "number": 38,
+      "group": "04-quests-progression",
+      "slug": "level-crown",
+      "png": "assets/04-quests-progression/38-level-crown.png",
+      "webp": "assets/04-quests-progression/38-level-crown.webp"
+    },
+    {
+      "number": 39,
+      "group": "04-quests-progression",
+      "slug": "mrxp-launch-rocket",
+      "png": "assets/04-quests-progression/39-mrxp-launch-rocket.png",
+      "webp": "assets/04-quests-progression/39-mrxp-launch-rocket.webp"
+    },
+    {
+      "number": 40,
+      "group": "04-quests-progression",
+      "slug": "xp-progress-bar",
+      "png": "assets/04-quests-progression/40-xp-progress-bar.png",
+      "webp": "assets/04-quests-progression/40-xp-progress-bar.webp"
+    },
+    {
+      "number": 41,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-rookie-bronze",
+      "png": "assets/05-mrxp-legends-nft/41-nft-rookie-bronze.png",
+      "webp": "assets/05-mrxp-legends-nft/41-nft-rookie-bronze.webp"
+    },
+    {
+      "number": 42,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-warrior-silver",
+      "png": "assets/05-mrxp-legends-nft/42-nft-warrior-silver.png",
+      "webp": "assets/05-mrxp-legends-nft/42-nft-warrior-silver.webp"
+    },
+    {
+      "number": 43,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-elite-gold",
+      "png": "assets/05-mrxp-legends-nft/43-nft-elite-gold.png",
+      "webp": "assets/05-mrxp-legends-nft/43-nft-elite-gold.webp"
+    },
+    {
+      "number": 44,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-legend-diamond",
+      "png": "assets/05-mrxp-legends-nft/44-nft-legend-diamond.png",
+      "webp": "assets/05-mrxp-legends-nft/44-nft-legend-diamond.webp"
+    },
+    {
+      "number": 45,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-hexagonal-emblem",
+      "png": "assets/05-mrxp-legends-nft/45-nft-hexagonal-emblem.png",
+      "webp": "assets/05-mrxp-legends-nft/45-nft-hexagonal-emblem.webp"
+    },
+    {
+      "number": 46,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-mx-mini-crown",
+      "png": "assets/05-mrxp-legends-nft/46-nft-mx-mini-crown.png",
+      "webp": "assets/05-mrxp-legends-nft/46-nft-mx-mini-crown.webp"
+    },
+    {
+      "number": 47,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-gold-laurels",
+      "png": "assets/05-mrxp-legends-nft/47-nft-gold-laurels.png",
+      "webp": "assets/05-mrxp-legends-nft/47-nft-gold-laurels.webp"
+    },
+    {
+      "number": 48,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-blue-purple-diamond",
+      "png": "assets/05-mrxp-legends-nft/48-nft-blue-purple-diamond.png",
+      "webp": "assets/05-mrxp-legends-nft/48-nft-blue-purple-diamond.webp"
+    },
+    {
+      "number": 49,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-gold-rarity-star",
+      "png": "assets/05-mrxp-legends-nft/49-nft-gold-rarity-star.png",
+      "webp": "assets/05-mrxp-legends-nft/49-nft-gold-rarity-star.webp"
+    },
+    {
+      "number": 50,
+      "group": "05-mrxp-legends-nft",
+      "slug": "nft-collection-chest",
+      "png": "assets/05-mrxp-legends-nft/50-nft-collection-chest.png",
+      "webp": "assets/05-mrxp-legends-nft/50-nft-collection-chest.webp"
+    }
+  ]
+}
