@@ -1,5 +1,6 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
+import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick} from "./pinned-showcase.mjs";
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
@@ -57,7 +58,11 @@ async function receiveTelegram(request,env){
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  try{
-  if(update.channel_post||update.edited_channel_post){await ingestRadarPost(env,update);return Response.json({ok:true});}
+  if(update.channel_post||update.edited_channel_post){await ingestPinUpdate(env,update);await ingestRadarPost(env,update);return Response.json({ok:true});}
+  if(update.message?.forward_origin?.type==="channel"){
+   const result=await ingestOwnerForward(env,update.message);
+   if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
+  }
   await botUpdate(env,update);return Response.json({ok:true});}
  catch(e){console.error("cine_radar_update_failed",String(e).slice(0,120));return new Response("Retry",{status:500});}
 }
@@ -207,6 +212,10 @@ export default {
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
   if(u.pathname==="/api/showcase")return serveShowcase(request);
+  if(u.pathname==="/api/pinned-showcase")return servePinned(env,request);
+  if(u.pathname==="/api/pinned-click")return registerPinClick(env,request);
+  const pinnedCover=/^\/assets\/pin-cover\/(films|series|animes)\/([1-9][0-9]{0,12})\.jpg$/.exec(u.pathname);
+  if(pinnedCover)return servePinCover(env,request,pinnedCover[1],Number(pinnedCover[2]));
   if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click")return radarApi(env,request);
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
   const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
@@ -293,7 +302,7 @@ export default {
   }));
   else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
   else if(controller.cron==="0 */6 * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
-   const upkeep=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]);
+   const upkeep=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),syncLatestPinned(env)]);
    let errors=upkeep.filter(x=>x.status==="rejected").length;
    // At 06:00 UTC run the daily catalog reconciliation and link checks.
    // Source-specific successful trend refreshes are guarded by a 72-hour D1 window.
