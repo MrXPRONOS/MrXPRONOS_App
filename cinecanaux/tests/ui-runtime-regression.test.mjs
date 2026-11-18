@@ -88,3 +88,14 @@ test('both directory and home use versioned real-avatar URL on the first load',(
   assert.ok(block.includes('img.src=candidates[0];'));
  }
 });
+
+test('returning from Favorites and History restores the Explorer heading and count',()=>{
+ assert.ok(navigation.includes('else if(h)h.textContent=$("search")?.value?.trim()?"Résultats de recherche":"Les canaux";'));
+ assert.ok(navigation.includes('if(counter)counter.textContent=visible+" cana"+(visible===1?"l":"ux");'));
+});
+test('home and Discover recommendations open their channel preview directly without keyword filtering',()=>{
+ assert.ok(navigation.includes('document.dispatchEvent(new CustomEvent("cineradar:show-preview"'));
+ assert.ok(directory.includes('document.addEventListener("cineradar:show-preview"'));
+ assert.ok(directory.includes('showPreview(c);'));
+ assert.ok(!navigation.includes('else setFilter(c.title)'));
+});
