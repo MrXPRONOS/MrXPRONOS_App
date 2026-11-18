@@ -94,6 +94,25 @@ function matchToken(token,c){
  if(name.split(/\W+/).some(w=>distanceOne(token,w)))return 2;
  return 0;
 }
+export function ownedQualityScore(row){
+ if(Number(row.owned_featured)!==1)return 0;
+ // Featured ownership is a modest baseline; a demonstrably real avatar and active catalog matter more.
+ let points=Math.min(5,Math.max(0,Number(row.owned_priority)||0))*4;
+ if(row.avatar_status==='real')points+=26;
+ else if(row.avatar_status==='fallback')points-=14;
+ // An unverified avatar is not assumed absent, but should rank below a confirmed real one.
+ else points-=4;
+ if(row.audit_status==='verified'){
+  const total=Math.max(0,Number(row.total_posts)||0),posts7=Math.max(0,Number(row.posts_7d)||0),posts30=Math.max(0,Number(row.posts_30d)||0);
+  const media30=Math.max(0,Number(row.media_30d)||0);
+  points+=Math.min(21,Math.log1p(total)*3.5);
+  points+=Math.min(15,Math.sqrt(posts30)*2.4);
+  points+=Math.min(10,posts7*1.7);
+  points+=Math.min(6,Math.sqrt(media30)*1.5);
+  if(total<3)points-=20;
+ }else points-=3; // temporary lack of evidence is not proof of an empty channel
+ return Math.round(points*100)/100;
+}
 function rank(row,groups){
  const groupScores=[];
  for(const tokens of groups){
@@ -107,7 +126,7 @@ function rank(row,groups){
  const quality=count?Math.min(1,count/5)*rating:0;
  const activity=row.last_post_at&&Date.now()-Date.parse(row.last_post_at)<30*86400000?1:0;
  const reach=row.link_status==='reachable'?1:0;
- return match*10+quality*2+activity+reach+Math.min(5,Math.max(0,Number(row.owned_priority||0)))*5;
+ return match*10+quality*2+activity+reach+ownedQualityScore(row);
 }
 async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset=0}={}){
  const selected=String(types||'').split(',').filter(t=>TYPES.has(t));
@@ -115,7 +134,9 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  if(!groups.length)groups.push([]);
  // A single bounded query for a medium directory; later expand with FTS/pagination if needed.
  const result=await env.DB.prepare(`SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,
- c.last_post_at,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') AS photo,
+ COALESCE(NULLIF(q.last_post_at,''),c.last_post_at) AS last_post_at,
+ COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') AS photo,
+ q.avatar_status,q.audit_status,q.total_posts,q.posts_7d,q.posts_30d,q.media_30d,
  CASE WHEN f.enabled=1 THEN 1 ELSE 0 END AS owned_featured, COALESCE(f.priority,0) AS owned_priority, COALESCE(f.private_channel,0) AS private_channel,
  COALESCE(m.listing_status,'listed') AS listing_status,COALESCE(m.link_status,'unknown') AS link_status,
  COALESCE((SELECT group_concat(category,',') FROM channel_categories cc WHERE cc.channel_id=c.id),'') AS tags,
@@ -125,6 +146,7 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  FROM channels c LEFT JOIN channel_profile_cache p ON p.channel_id=c.id
  LEFT JOIN channel_index_meta m ON m.channel_id=c.id
  LEFT JOIN owned_channel_features f ON f.channel_id=c.id
+ LEFT JOIN owned_channel_quality q ON q.channel_id=c.id
  WHERE c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'
  ORDER BY c.updated_at DESC LIMIT 2500`).all();
  const rows=(result.results||[]).filter(c=>validListingLink(c)&&(!selected.length||selected.includes(c.content_type)||String(c.tags||'').split(',').some(t=>selected.includes(t))));
@@ -133,7 +155,13 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  else if(sort==='recent')ranked.sort((a,b)=>(Date.parse(b.c.last_post_at)||0)-(Date.parse(a.c.last_post_at)||0)||b.score-a.score);
  else if(sort==='new')ranked.sort((a,b)=>b.c.id-a.c.id);
  else ranked.sort((a,b)=>b.score-a.score||Number(b.c.review_count)-Number(a.c.review_count)||a.c.id-b.c.id);
- return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,tags:c.tags||'',description:c.description||'',photo:c.photo||null,avatar:'/assets/channel-avatar/'+c.id+'.jpg',featured:Number(c.owned_featured)===1,private_channel:Number(c.private_channel)===1,rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
+ return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,tags:c.tags||'',description:c.description||'',photo:c.photo||null,avatar:'/assets/channel-avatar/'+c.id+'.jpg',featured:Number(c.owned_featured)===1,private_channel:Number(c.private_channel)===1,
+ avatar_verified:c.avatar_status==='real',avatar_status:c.avatar_status||'unknown',
+ content_verified:c.audit_status==='verified',
+ content_count:c.audit_status==='verified'&&c.total_posts!=null?Number(c.total_posts):null,
+ posts_7d:c.audit_status==='verified'&&c.posts_7d!=null?Number(c.posts_7d):null,
+ posts_30d:c.audit_status==='verified'&&c.posts_30d!=null?Number(c.posts_30d):null,
+ rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
 }
 async function reviews(env,channelId){
  const info=await env.DB.prepare("SELECT COUNT(*) AS total,ROUND(AVG(rating),2) AS rating,ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) AS accuracy FROM channel_reviews WHERE channel_id=? AND visibility='visible'").bind(channelId).first();
