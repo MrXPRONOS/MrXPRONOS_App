@@ -2,7 +2,7 @@ name: Update football news
 
 on:
   schedule:
-    - cron: '17 * * * *'  # limite quotas: une collecte par heure
+    - cron: '07,37 * * * *'  # RSS toutes les 30 minutes, max 24 publications/jour
   workflow_dispatch:
   push:
     branches: [main]
@@ -10,6 +10,8 @@ on:
       - '.github/workflows/update-footnews.yml'
       - 'fetch_foot_news.py'
       - 'scripts/football_news_engine.py'
+      - 'scripts/actu_foot_d1_news.py'
+      - 'tests_football_channel/test_actu_foot_rss_format.py'
 
 permissions:
   contents: write
@@ -46,14 +48,15 @@ jobs:
         run: |
           python -m py_compile fetch_foot_news.py scripts/actu_foot_d1_news.py scripts/d1_publication_ledger.py
           python -m unittest discover -s tests_football_channel -p 'test_actu_foot_d1_news.py' -v
+          python -m unittest discover -s tests_football_channel -p 'test_actu_foot_rss_format.py' -v
           node --check assets/js/main.js
       - name: Fetch and translate football news
         id: fetch
         env:
           FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
-          MAX_ARTICLES: '30'
-          MAX_ARTICLES_PER_FEED: '8'
-          MAX_NEWS_AGE_HOURS: '48'
+          MAX_ARTICLES: '60'
+          MAX_ARTICLES_PER_FEED: '16'
+          MAX_NEWS_AGE_HOURS: '72'
         run: |
           python fetch_foot_news.py
 
@@ -122,7 +125,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run deploy.yml --ref main
 
-      - name: Send one genuine fresh football Flash with D1 deduplication
+      - name: Send up to two verified RSS football updates with D1 deduplication
         id: telegram
         shell: bash
         run: |
