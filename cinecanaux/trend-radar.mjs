@@ -107,10 +107,15 @@ export async function simklPublicTrends(kind){
  const rows=[];
  for(const item of records.slice(0,60)){
   const entry=item?.movie||item?.show||item?.anime||item;
-  const id=Number(entry?.ids?.simkl||item?.ids?.simkl);
+  const rawUrl=String(entry?.url||item?.url||'').trim();
+  const path=/^\/(movies|tv|anime)\/([0-9]{1,12})(?:\/[a-z0-9-]+)?\/?$/i.exec(rawUrl);
+  const fullUrl=/^https:\/\/simkl\.com\/(?:movies|tv|anime)\/[0-9]{1,12}(?:\/[a-z0-9-]+)?\/?$/i.test(rawUrl)?rawUrl:
+   path?'https://simkl.com'+rawUrl:'';
+  const urlId=path?.[2]||/^https:\/\/simkl\.com\/(?:movies|tv|anime)\/([0-9]+)/i.exec(fullUrl)?.[1]||'';
+  const id=Number(entry?.ids?.simkl||item?.ids?.simkl||urlId);
   if(!Number.isSafeInteger(id)||id<=0)continue;
   const title=String(entry?.title||item?.title||'').trim();
-  const ref=String(entry?.url||item?.url||'').trim();
+  const ref=fullUrl;
   const posterKey=String(entry?.poster||item?.poster||'').trim();
   const poster=/^https:\/\/simkl\.in\/posters\//i.test(posterKey)?posterKey:
    /^[a-z0-9_/-]{2,160}$/i.test(posterKey)?'https://simkl.in/posters/'+posterKey+'_m.jpg':'';
