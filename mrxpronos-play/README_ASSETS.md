@@ -2,7 +2,7 @@
 
 Ce dossier contient le **catalogue officiel de 50 éléments sélectionnés** pour Mr XPRONOS Play (lots 1 à 5).
 
-> **État de publication :** le catalogue est publié. Les 50 PNG originaux et les 50 WebP optimisés sont préparés dans une archive ZIP séparée, mais leurs fichiers binaires ne sont **pas encore transférés dans ce dépôt**. Ne considérez pas les chemins ci-dessous comme accessibles avant leur import.
+> **État de publication (vérifié le 18 novembre 2026) :** les 50 PNG et les 50 WebP sont présents sur `main` dans les cinq dossiers prévus (20 fichiers par dossier). Les 100 chemins ont été comparés avec le manifeste : **aucun élément manquant, aucun chemin supplémentaire dans les dossiers des lots et aucun fichier vide**. Cette vérification porte sur la présence, les noms et les tailles, pas sur une comparaison pixel par pixel.
 
 ## Règles
 
