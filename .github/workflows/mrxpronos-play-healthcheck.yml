@@ -1,0 +1,28 @@
+name: MRXPRONOS Play - Telegram public healthcheck
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/mrxpronos-play-healthcheck.yml'
+permissions:
+  contents: read
+jobs:
+  check-telegram-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check bot token identity and backend health (no secrets)
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 --max-time 20 \
+            "https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/health" > /tmp/mrxp-health.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/mrxp-health.json', encoding='utf-8') as f:
+              data=json.load(f)
+          safe={k:data.get(k) for k in ('ok','bot_connected','telegram_token_valid','bot_username','correct_bot','db_connected')}
+          print('Health:',safe)
+          if not all([safe['ok'],safe['bot_connected'],safe['telegram_token_valid'],safe['correct_bot'],safe['db_connected']]):
+              raise SystemExit('ERROR: Telegram bot identity or Cloudflare backend incomplete')
+          print('SUCCESS: Cloudflare Worker is bound to the expected Telegram bot.')
+          PY
