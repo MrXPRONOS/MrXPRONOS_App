@@ -55,3 +55,8 @@ verify_jwt = true
 # GitHub OIDC is verified inside this Edge Function, not by Supabase Auth.
 [functions.admin-incident-watch]
 verify_jwt = false
+
+
+# Telegram assistant webhook authenticates Telegram requests with its own secret token.
+[functions.telegram-assistant-v2]
+verify_jwt = false
