@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""Index metadata (no media bytes) from the three user-designated public channels.
+
+Read-only Telegram session; D1 writes only caption and message coordinates.
+Requires the Telegram bot to have verified and bound each channel ID first.
+"""
+import asyncio
+import json
+import os
+from datetime import datetime, timezone
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+
+from telethon import TelegramClient, utils
+from telethon.sessions import StringSession
+
+CHANNELS = {
+    "films": "CineXFilms_vf",
+    "series": "seriesvf_cinex",
+    "animes": "CineXAnimeFR",
+}
+D1_ID = "fa8b5009-bc1a-4a6e-b143-7a487c7297a5"
+ACCOUNT_ID = "9c86118191b804d91b5f5b2c89114999"
+
+
+def query_d1(sql, params=None):
+    token = (os.environ.get("CLOUDFLARE_API_TOKEN") or os.environ.get("CF_API_TOKEN") or "").strip()
+    if not token:
+        raise RuntimeError("cloudflare_token_missing")
+    url = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/d1/database/{D1_ID}/query"
+    payload = json.dumps({"sql": sql, "params": params or []}).encode("utf-8")
+    request = Request(url, data=payload, headers={
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }, method="POST")
+    try:
+        with urlopen(request, timeout=25) as response:
+            data = json.load(response)
+    except HTTPError as exc:
+        raise RuntimeError(f"d1_http_{exc.code}") from None
+    if not data.get("success") or not data.get("result") or not data["result"][0].get("success"):
+        raise RuntimeError("d1_query_failed")
+    return data["result"][0].get("results", [])
+
+
+async def backfill():
+    api_id = (os.environ.get("TG_API_ID") or "").strip()
+    api_hash = (os.environ.get("TG_API_HASH") or "").strip()
+    session = (os.environ.get("TG_SESSION_STRING")
+               or os.environ.get("TG_STRING_SESSION")
+               or os.environ.get("TG_STREAM_SESSION") or "").strip()
+    if not api_id.isdigit() or not api_hash or not session:
+        raise RuntimeError("telegram_session_credentials_missing")
+    # Bindings must be previously verified by Telegram Bot API, not inferred from names.
+    rows = query_d1("SELECT kind,username,chat_id FROM radar_primary_channels")
+    expected = {r["kind"]: r for r in rows}
+    count = 0
+    skipped = 0
+    client = TelegramClient(StringSession(session), int(api_id), api_hash,
+                            request_retries=1, connection_retries=2,
+                            flood_sleep_threshold=0, receive_updates=False)
+    await client.connect()
+    try:
+        if not await client.is_user_authorized():
+            raise RuntimeError("telegram_session_not_authorized")
+        for kind, username in CHANNELS.items():
+            record = expected.get(kind)
+            if not record or record.get("username", "").lower() != username.lower() or not record.get("chat_id"):
+                skipped += 1
+                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "channel_not_verified")
+                continue
+            entity = await client.get_entity(username)
+            channel_id = str(utils.get_peer_id(entity))
+            if channel_id != str(record["chat_id"]):
+                skipped += 1
+                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "identity_mismatch")
+                continue
+            seen = 0
+            async for message in client.iter_messages(entity, limit=250):
+                if not message.id or not message.date:
+                    continue
+                # Do not download, copy or forward media: only the public post metadata.
+                if getattr(message, "video", None) is not None or (
+                    getattr(message, "document", None) is not None
+                    and str(getattr(message.document, "mime_type", "")).startswith("video/")
+                ):
+                    media_kind = "video"
+                elif getattr(message, "photo", None) is not None:
+                    media_kind = "photo"
+                else:
+                    media_kind = "text"
+                caption = str(message.message or "").strip()[:500]
+                when = message.date.astimezone(timezone.utc).isoformat()
+                query_d1(
+                    "INSERT INTO radar_posts(chat_id,message_id,kind,username,caption,media_kind,posted_at) "
+                    "VALUES(?,?,?,?,?,?,?) "
+                    "ON CONFLICT(chat_id,message_id) DO UPDATE SET "
+                    "caption=excluded.caption,media_kind=excluded.media_kind,updated_at=CURRENT_TIMESTAMP",
+                    [channel_id, str(message.id), kind, username, caption, media_kind, when],
+                )
+                seen += 1
+                await asyncio.sleep(0.04)
+            count += seen
+            print("CINE_RADAR_BACKFILL", kind, "indexed", seen)
+    finally:
+        await client.disconnect()
+    print("CINE_RADAR_BACKFILL_RESULT", json.dumps({"indexed": count, "skipped_channels": skipped}))
+
+
+if __name__ == "__main__":
+    asyncio.run(backfill())
