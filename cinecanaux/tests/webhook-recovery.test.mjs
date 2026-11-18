@@ -24,7 +24,7 @@ async function withMockTelegram(handlers,fn){
 }
 test('healthy live Telegram webhook stays configured even when D1 status is old',async()=>{
  const e=env();
- await withMockTelegram({getWebhookInfo:{ok:true,result:{url:TARGET,allowed_updates:['message','callback_query']}}},async calls=>{
+ await withMockTelegram({getWebhookInfo:{ok:true,result:{url:TARGET,allowed_updates:['message','callback_query','channel_post','edited_channel_post']}}},async calls=>{
   await provisionTelegramWebhook(e);
   assert.deepEqual(calls.map(x=>x.method),['getWebhookInfo']);
   assert.equal(e.updates.at(-1)?.params[0],'ok');
@@ -40,7 +40,7 @@ test('stale Telegram webhook is corrected even if old D1 flag previously said ok
   await provisionTelegramWebhook(e);
   assert.deepEqual(calls.map(x=>x.method),['getWebhookInfo','setWebhook']);
   assert.equal(calls[1].body.url,TARGET);
-  assert.deepEqual(calls[1].body.allowed_updates,['message','callback_query']);
+  assert.deepEqual(calls[1].body.allowed_updates,['message','callback_query','channel_post','edited_channel_post']);
   assert.equal(calls[1].body.secret_token,'test-secret');
   assert.equal(e.updates.at(-1)?.params[0],'ok');
  });
