@@ -2,6 +2,10 @@ name: Actu Crypto - Contrôle de traduction française (sans Telegram)
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'crypto/french-translation-nvidia-catalog-20261118.flag'
 
 permissions:
   contents: read
@@ -23,6 +27,27 @@ jobs:
           python-version: '3.11'
       - name: Installer les dépendances
         run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7' 'langdetect>=1.0.9,<2'
+      - name: Vérifier le catalogue NVIDIA (sans afficher la clé)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os, requests
+          key=os.environ.get("NVIDIA_API_KEY","")
+          for base in ("https://integrate.api.nvidia.com/v1/models",
+                       "https://api.nvidia.com/v1/models"):
+              try:
+                  r=requests.get(base,headers={"Authorization":"Bearer "+key},
+                                 timeout=(6,16),allow_redirects=False)
+                  print("NVIDIA_CATALOG_STATUS",base.split("/")[2],r.status_code)
+                  if r.status_code==200:
+                      j=r.json()
+                      names=sorted(str(x.get("id","")) for x in j.get("data",[])
+                                   if isinstance(x,dict) and "mistral" in str(x.get("id","")).lower())
+                      print("NVIDIA_MISTRAL_CATALOG",names[:25])
+                      print("NVIDIA_MODEL_COUNT",len(j.get("data",[])))
+              except Exception as exc:
+                  print("NVIDIA_CATALOG_UNAVAILABLE",type(exc).__name__)
+          PY
       - name: Essai réel de traduction — zéro publication
         shell: bash
         run: |
