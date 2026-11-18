@@ -14,7 +14,7 @@ export function avatarFallback(channel){
  const first=(Array.from(title.replace(/^[^\p{L}\p{N}]+/u,'').trim())[0]||'C').toUpperCase();
  const safe=esc(first.slice(0,2));
  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="${colors[0]}"/><stop offset="1" stop-color="${colors[1]}"/></linearGradient></defs><rect width="256" height="256" rx="28" fill="url(#g)"/><circle cx="128" cy="128" r="93" fill="#fff" fill-opacity=".10" stroke="#fff" stroke-opacity=".23" stroke-width="3"/><text x="128" y="153" text-anchor="middle" font-family="Arial,sans-serif" font-size="86" font-weight="800" fill="#fff">${safe}</text><path d="M57 218h142" stroke="#fff" stroke-opacity=".35" stroke-width="6" stroke-linecap="round"/></svg>`;
- return new Response(svg,{status:200,headers:{'content-type':'image/svg+xml; charset=utf-8','cache-control':'public, max-age=1200','x-content-type-options':'nosniff','x-cineradar-avatar':'fallback'}});
+ return new Response(svg,{status:200,headers:{'content-type':'image/svg+xml; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','x-cineradar-avatar':'fallback'}});
 }
 async function imageBytes(response){
  if(!response.ok||!String(response.headers.get('content-type')||'').toLowerCase().startsWith('image/'))return null;
