@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mr XPRONOS verified odds feed",
+  "description": "Schema for the optional /odds.json, not live market data. Publish only values from an authorized verified source. UTC ISO-8601 dates required. This schema is documentation; the bot also validates freshness and known operators.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "updated_at",
+    "odds"
+  ],
+  "properties": {
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "odds": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "selection",
+          "bookmaker",
+          "decimal_odds",
+          "kickoff_utc"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "selection": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "bookmaker": {
+            "type": "string",
+            "enum": [
+              "1xbet",
+              "1win",
+              "betwinner",
+              "melbet",
+              "linebet",
+              "betclic"
+            ]
+          },
+          "decimal_odds": {
+            "type": "number",
+            "exclusiveMinimum": 1,
+            "maximum": 100
+          },
+          "kickoff_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    }
+  }
+}

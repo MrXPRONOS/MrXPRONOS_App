@@ -1,0 +1,30 @@
+name: Telegram Assistant V2 tests
+on:
+  push:
+    branches:
+      - feature/telegram-assistant-nvidia-v2-20261107
+    paths:
+      - 'supabase/functions/telegram-assistant-v2/**'
+      - '.github/workflows/telegram-assistant-v2-tests.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/telegram-assistant-v2/**'
+      - '.github/workflows/telegram-assistant-v2-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-assistant:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntaxe JavaScript
+        run: node --check supabase/functions/telegram-assistant-v2/index.js
+      - name: Tests fonctionnels et de non-régression
+        run: node --test supabase/functions/telegram-assistant-v2/tests/*.test.mjs
