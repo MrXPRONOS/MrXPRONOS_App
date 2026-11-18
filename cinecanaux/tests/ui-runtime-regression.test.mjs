@@ -36,3 +36,32 @@ test('all category controls remain wired to an API-backed directory',()=>{
  assert.ok(APP_HTML.includes('"/api/search?q="'));
  assert.ok(APP_HTML.includes('const PRELOADED_CATALOG=null;'));
 });
+
+test('type shortcut actually selects the right button and clears the search term',()=>{
+ const body=navigation.match(/function setFilter\(term\)\{([\s\S]*?)\n\}/)?.[1];
+ assert.ok(body,'setFilter implementation missing');
+ for(const kind of ['films','series','animes']){
+  const state={selected:'series',query:'previous query',hash:'',focus:false,triggered:false};
+  const q={get value(){return state.query},set value(v){state.query=v},dispatchEvent(){state.triggered=true},focus(){state.focus=true}};
+  const all={get classList(){return {contains:()=>state.selected==='all'}},click(){state.selected='all'}};
+  const cats=Object.fromEntries(['films','series','animes'].map(t=>[t,{get classList(){return{contains:()=>state.selected===t}},click(){state.selected=t}}]));
+  const context={
+   setHash(p){state.hash=p},
+   $(id){assert.equal(id,'search');return q},
+   document:{querySelector(sel){
+    if(sel==='#tabs [data-type="all"]')return all;
+    for(const t of ['films','series','animes'])if(sel==='#tabs [data-type="'+t+'"]')return cats[t];
+    return null;
+   }},
+   Event:class Event{},
+   setTimeout(fn){fn()}
+  };
+  const fn=new Function('term','setHash','$','document','Event','setTimeout',body);
+  fn(kind,context.setHash,context.$,context.document,context.Event,context.setTimeout);
+  assert.equal(state.hash,'explorer');
+  assert.equal(state.selected,kind);
+  assert.equal(state.query,'');
+  assert.equal(state.triggered,true);
+  assert.equal(state.focus,true);
+ }
+});
