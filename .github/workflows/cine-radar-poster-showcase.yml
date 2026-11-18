@@ -1,0 +1,46 @@
+name: Cine Radar - Weekly real movie/series poster showcase
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 4 * * 0'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cine-radar-poster-showcase.yml'
+      - 'cinecanaux/refresh_poster_showcase.py'
+permissions:
+  contents: write
+concurrency:
+  group: cine-radar-poster-showcase
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Validate Python syntax
+        run: python -m py_compile cinecanaux/refresh_poster_showcase.py
+      - name: Load real movie and series posters from TMDB
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: python cinecanaux/refresh_poster_showcase.py
+      - name: Persist verified poster manifest
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cinecanaux/assets/poster_showcase.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'assets(cineradar): weekly genuine TMDB posters [skip ci]'
+          git pull --rebase origin main
+          git push origin HEAD:main
