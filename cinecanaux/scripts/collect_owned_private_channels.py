@@ -162,7 +162,8 @@ async def run():
                     headers={"Prefer":"resolution=merge-duplicates,return=minimal"},
                     json=payload,timeout=(8,25))
                 if post.status_code not in (200,201,204):
-                    reasons["supabase_save_failed"]=reasons.get("supabase_save_failed",0)+1
+                    reason="supabase_save_http_"+str(post.status_code)
+                    reasons[reason]=reasons.get(reason,0)+1
                     unavailable+=1
                     continue
                 stored+=1
