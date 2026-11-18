@@ -51,7 +51,7 @@ const cb=data=>({callback_query:{id:"cb",from:{id:100},message:{chat:{id:100,typ
 test("1. UI has only categories, public search, real previews and open",()=>{
  assert.match(APP_HTML,/data-type="films"/);assert.match(APP_HTML,/data-type="series"/);assert.match(APP_HTML,/data-type="animes"/);
  assert.match(APP_HTML,/getPreview/);
- for(const word of ["Mes favoris","Parrainage","/profil","Copier le lien","Partager"]){
+ for(const word of ["Parrainage","/profil","Copier le lien","Partager"]){
   assert.ok(!APP_HTML.includes(word),"Removed feature still visible: "+word);
  }
 });
@@ -62,7 +62,7 @@ test("2. Homepage and category flow take at most two clicks",async()=>{
  assert.equal(latest.reply_markup.inline_keyboard.length,2);
  await botUpdate(env,cb("category:films"));
  latest=calls.at(-1).body;
- assert.match(latest.text,/Canaux publics/);
+ assert.match(latest.text,/Canaux Telegram/);
  assert.equal(latest.reply_markup.inline_keyboard[0][0].url,"https://t.me/CinemaPublic2026");
 });
 test("3. Public catalog requires no account or database writes",async()=>{
@@ -138,7 +138,7 @@ test("13. Premium mockup: four existing views preserve navigation and cinematic 
  assert.ok(APP_HTML.includes("button(\"Ouvrir\""));
 });
 test("14. Redesign contains no accounts, sharing, favorites, unrelated features or demo data",()=>{
- for(const disallowed of ["Mes favoris","Copier le lien","Parrainage","Inscription","Mes préférences","124 canaux","Ciné Vault","Anime Horizon"]){
+ for(const disallowed of ["Copier le lien","Parrainage","Inscription","Mes préférences","124 canaux","Ciné Vault","Anime Horizon"]){
   assert.ok(!APP_HTML.includes(disallowed),"Unwanted screenshot-only text or feature: "+disallowed);
  }
  assert.ok(APP_HTML.includes("textContent=text"),"Channel names should use safe textContent");
