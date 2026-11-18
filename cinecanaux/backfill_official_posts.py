@@ -2,7 +2,7 @@
 """Index metadata (no media bytes) from the three user-designated public channels.
 
 Read-only Telegram session; D1 writes only caption and message coordinates.
-Requires the Telegram bot to have verified and bound each channel ID first.
+Bootstraps unbound IDs only from the explicitly configured, administrator-owned public channels.
 """
 import asyncio
 import json
@@ -77,7 +77,7 @@ async def backfill():
                or os.environ.get("TG_STREAM_SESSION") or "").strip()
     if not api_id.isdigit() or not api_hash or not session:
         raise RuntimeError("telegram_session_credentials_missing")
-    # Bindings must be previously verified by Telegram Bot API, not inferred from names.
+    # An existing Bot API verified ID is immutable; an unbound ID may be verified by the owner's admin session.
     rows = query_d1("SELECT kind,username,chat_id FROM radar_primary_channels")
     expected = {r["kind"]: r for r in rows}
     count = 0
@@ -89,18 +89,57 @@ async def backfill():
     try:
         if not await client.is_user_authorized():
             raise RuntimeError("telegram_session_not_authorized")
+        myself = await client.get_me()
         for kind, username in CHANNELS.items():
             record = expected.get(kind)
-            if not record or record.get("username", "").lower() != username.lower() or not record.get("chat_id"):
+            if not record or record.get("username", "").lower() != username.lower():
                 skipped += 1
-                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "channel_not_verified")
+                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "channel_not_configured")
                 continue
-            entity = await client.get_entity(username)
-            channel_id = str(utils.get_peer_id(entity))
-            if channel_id != str(record["chat_id"]):
+            try:
+                entity = await client.get_entity(username)
+                if (not getattr(entity, "broadcast", False)
+                        or str(getattr(entity, "username", "")).lower() != username.lower()):
+                    raise ValueError("channel_username_mismatch")
+                channel_id = str(utils.get_peer_id(entity))
+            except Exception as exc:
                 skipped += 1
-                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "identity_mismatch")
+                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "channel_not_accessible", type(exc).__name__)
                 continue
+            if record["chat_id"] and channel_id != str(record["chat_id"]):
+                skipped += 1
+                print("CINE_RADAR_BACKFILL_SKIPPED", kind, "immutable_identity_mismatch")
+                continue
+            if not record["chat_id"]:
+                # The personal session must demonstrably administer this exact channel.
+                try:
+                    rights = await client.get_permissions(entity, myself)
+                    owner_admin = bool(
+                        getattr(rights, "is_creator", False)
+                        or getattr(rights, "is_admin", False)
+                        or getattr(entity, "creator", False)
+                        or getattr(entity, "admin_rights", None)
+                    )
+                except Exception:
+                    owner_admin = bool(getattr(entity, "creator", False) or getattr(entity, "admin_rights", None))
+                if not owner_admin:
+                    skipped += 1
+                    print("CINE_RADAR_BACKFILL_SKIPPED", kind, "personal_session_not_administrator")
+                    continue
+                query_d1(
+                    "UPDATE radar_primary_channels SET chat_id=?,updated_at=CURRENT_TIMESTAMP "
+                    "WHERE kind=? AND LOWER(username)=LOWER(?) AND chat_id IS NULL",
+                    [channel_id, kind, username],
+                )
+                current = query_d1(
+                    "SELECT chat_id FROM radar_primary_channels WHERE kind=?", [kind]
+                )
+                if not current or str(current[0].get("chat_id") or "") != channel_id:
+                    skipped += 1
+                    print("CINE_RADAR_BACKFILL_SKIPPED", kind, "d1_binding_verification_failed")
+                    continue
+                print("CINE_RADAR_BACKFILL_OWNER_ADMIN_BOUND", kind)
+
             seen = 0
             pending = []
             async for message in client.iter_messages(entity, limit=250):
