@@ -68,7 +68,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
             self.assertEqual(pub.send_article(Mock(), "token", "-10042", story, self.path, story["link"]), 444)
         self.assertGreaterEqual(followup.call_count, 1)
         messages = " ".join(call.args[3] for call in followup.call_args_list)
-        self.assertIn("Plus de contexte en fin d'article", messages)
+        self.assertIn("Plus de contexte en fin d&#x27;article", messages)
         self.assertIn("Source : Foot Mercato", messages)
         self.assertNotIn("https://", messages)
         self.assertNotIn("Lire l", messages)
