@@ -88,7 +88,8 @@ async def run():
             kind,secondary,sensitive=target
             if sensitive:
                 skipped_sensitive+=1
-                continue  # No age-gated surface exists in Cine Radar.
+                # Retain this channel in the secure registry, but do not feature it
+                # publicly until an age-restricted presentation is available.
             try:
                 permissions=await client.get_permissions(entity,me)
                 is_admin=bool(getattr(entity,"creator",False) or getattr(entity,"admin_rights",None)
@@ -113,7 +114,7 @@ async def run():
                 payload={
                   "telegram_channel_id":cid,"title":str(entity.title or registered["title"])[:160],
                   "category":kind,"secondary_category":secondary,"invite_url":invite,
-                  "public_username":None,"is_sensitive":False,
+                  "public_username":None,"is_sensitive":bool(sensitive),
                   "personal_admin_confirmed":True,"bot_admin_confirmed":True,
                   "verified_at":datetime.now(timezone.utc).isoformat()
                 }
