@@ -60,6 +60,38 @@ def previous(api,s):
     if r.status_code!=200:raise RuntimeError("invite_lookup_failed")
     return {int(x["telegram_channel_id"]):x.get("invite_url") for x in r.json()}
 
+
+def bot_api(method, payload):
+    token=(os.getenv("MRXPRONOS_CANAL_BOT_TOKEN") or "").strip()
+    if not token:return None
+    try:
+        response=requests.post("https://api.telegram.org/bot"+token+"/"+method,json=payload,timeout=(8,18))
+        if response.status_code!=200:return None
+        body=response.json()
+        return body.get("result") if isinstance(body,dict) and body.get("ok") is True else None
+    except (requests.RequestException,ValueError):
+        return None
+
+def bot_invite(cid):
+    """Use existing invites or admin-granted invite creation, never bypass privileges."""
+    info=bot_api("getMe",{})
+    if not isinstance(info,dict) or str(info.get("username","")).casefold()!="mrxpronos_canal_bot":
+        return None,"bot_unverified"
+    bot_id=info.get("id")
+    if not isinstance(bot_id,int):return None,"bot_unverified"
+    member=bot_api("getChatMember",{"chat_id":cid,"user_id":bot_id})
+    if not isinstance(member,dict) or member.get("status") not in ("creator","administrator"):
+        return None,"bot_not_admin"
+    chat=bot_api("getChat",{"chat_id":cid})
+    existing=(chat or {}).get("invite_link") if isinstance(chat,dict) else None
+    if existing and INVITE.fullmatch(existing):return existing,"bot_existing"
+    if member.get("status")=="creator" or member.get("can_invite_users") is True:
+        created=bot_api("createChatInviteLink",{"chat_id":cid,"name":"CineRadarDirectory"})
+        invite=created.get("invite_link") if isinstance(created,dict) else None
+        if invite and INVITE.fullmatch(invite):return invite,"bot_created"
+        return None,"bot_create_failed"
+    return None,"bot_no_invite_permission"
+
 async def run():
     tg_id=os.getenv("TG_API_ID","")
     tg_hash=os.getenv("TG_API_HASH","")
@@ -70,7 +102,7 @@ async def run():
     rows=registry(api,s); prior=previous(api,s)
     client=TelegramClient(StringSession(tg_session),int(tg_id),tg_hash,
         request_retries=0,connection_retries=2,flood_sleep_threshold=0,receive_updates=False)
-    seen=0; confirmed=0; stored=0; unavailable=0; skipped_sensitive=0
+    seen=0; confirmed=0; stored=0; unavailable=0; skipped_sensitive=0; reasons={}
     await client.connect()
     try:
         if not await client.is_user_authorized(): raise RuntimeError("personal_session_not_authorized")
@@ -107,11 +139,18 @@ async def run():
                     if not invite or not INVITE.fullmatch(invite):
                         rights=getattr(entity,"admin_rights",None)
                         can_invite=bool(getattr(entity,"creator",False) or getattr(rights,"invite_users",False))
-                        if not can_invite:
-                            unavailable+=1
-                            continue
-                        invite=(await client(ExportChatInviteRequest(entity))).link
-                if not INVITE.fullmatch(invite):unavailable+=1;continue
+                        if can_invite:
+                            invite=(await client(ExportChatInviteRequest(entity))).link
+                        else:
+                            invite,reason=bot_invite(cid)
+                            if not invite:
+                                reasons[reason]=reasons.get(reason,0)+1
+                                unavailable+=1
+                                continue
+                if not invite or not INVITE.fullmatch(invite):
+                    reasons["invalid_invite"]=reasons.get("invalid_invite",0)+1
+                    unavailable+=1
+                    continue
                 payload={
                   "telegram_channel_id":cid,"title":str(entity.title or registered["title"])[:160],
                   "category":kind,"secondary_category":secondary,"invite_url":invite,
@@ -123,18 +162,19 @@ async def run():
                     headers={"Prefer":"resolution=merge-duplicates,return=minimal"},
                     json=payload,timeout=(8,25))
                 if post.status_code not in (200,201,204):
+                    reasons["supabase_save_failed"]=reasons.get("supabase_save_failed",0)+1
                     unavailable+=1
                     continue
                 stored+=1
             except Exception as exc:
                 # Never print private IDs, titles, links, session, or Telegram response strings.
                 unavailable+=1
-                print("CHANNEL_CHECK_UNAVAILABLE",type(exc).__name__)
+                reasons[type(exc).__name__]=reasons.get(type(exc).__name__,0)+1
     finally:
         await client.disconnect()
         s.close()
     print("OWNED_PRIVATE_DISCOVERY",{"broadcast_seen":seen,"qualified_admin":confirmed,
-        "stored":stored,"unavailable":unavailable,"sensitive_deferred":skipped_sensitive})
+        "stored":stored,"unavailable":unavailable,"sensitive_deferred":skipped_sensitive,"reasons":reasons})
 
 if __name__=="__main__":
     try:asyncio.run(run())
