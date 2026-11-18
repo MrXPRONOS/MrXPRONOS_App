@@ -45,6 +45,7 @@ jobs:
       ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -82,7 +83,7 @@ jobs:
           echo "CRYPTO_MODE=$MODE"
       - name: Install public-data and premium-poster dependencies
         run: |
-          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7' 'langdetect>=1.0.9,<2'
           npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
       - name: Verify real Chromium renderer before any publication
