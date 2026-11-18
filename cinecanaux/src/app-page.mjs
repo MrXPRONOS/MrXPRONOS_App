@@ -387,6 +387,7 @@ body{background:#07111f}
 <script>
 (function(){
 const PRELOADED_CATALOG=null;
+window.__CINERADAR_INITIAL_CATALOG__=PRELOADED_CATALOG;
 const telegram=()=>window.Telegram?.WebApp||null;
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
@@ -886,6 +887,11 @@ function build(){
  window.addEventListener("hashchange",()=>navigate(location.hash.slice(2)));
  navigate(location.hash.slice(2));
  cardDecorate();
+ const embedded=window.__CINERADAR_INITIAL_CATALOG__;
+ if(Array.isArray(embedded)&&embedded.length){
+  catalog=embedded.filter(c=>Number.isSafeInteger(Number(c.id)));
+  miniFeatured();discover();genreContent();cardDecorate();
+ }
  fetch("/api/catalog?limit=80",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{catalog=(d.channels||[]).filter(c=>Number.isSafeInteger(Number(c.id)));miniFeatured();discover();genreContent();cardDecorate();const rated=document.querySelector("#sort option[value=\\\"rated\\\"]");if(rated){const any=catalog.some(c=>c.review_count>0);rated.disabled=!any;rated.textContent=any?"Mieux notés":"Notes à venir"}}).catch(()=>{miniFeatured();cardDecorate()});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build,{once:true});else build();
