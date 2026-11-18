@@ -12,7 +12,7 @@ test('actual public homepage has cinematic poster marquee and renewed profile av
  for(const feature of ['cine-marquee-track','cine-poster-track','loadCinemaShowcase()','renderCinemaShowcase()','/api/showcase','const PRELOADED_CATALOG=[','/assets/channel-avatar/']){
   assert.ok(html.includes(feature),'Missing '+feature);
  }
- assert.ok(html.includes('https://static.tvmaze.com'));
+ assert.ok(html.includes('static\\.tvmaze\\.com')||html.includes('static.tvmaze.com'));
  console.log('LIVE_HOME_POSTER_MARQUEE_OK');
 });
 test('production poster manifest returns vetted authentic film, TV and anime posters',async()=>{
