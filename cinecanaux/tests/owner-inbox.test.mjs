@@ -79,3 +79,14 @@ test('channel binding rejects a mismatched persisted Telegram chat ID',async()=>
   assert.equal(updates.length,0);
  }finally{globalThis.fetch=old;}
 });
+
+test('owner digest never re-sends a title already logged while it remains indexed',async()=>{
+ const statements=[];
+ const env={DB:{prepare(sql){statements.push(sql);return {bind(){return {all:async()=>({results:[]})}}}}}};
+ await missingRadarTitles(env,777,{onlyUnnotified:true,limit:12});
+ assert.equal(statements.length,3);
+ for(const sql of statements){
+  assert.match(sql,/NOT EXISTS \(SELECT 1 FROM radar_notice_log/);
+  assert.doesNotMatch(sql,/sent_at>=/);
+ }
+});
