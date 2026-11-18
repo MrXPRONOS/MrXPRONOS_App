@@ -43,7 +43,29 @@ jobs:
       - name: Verify poster and avatar refresh scripts
         run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs cinecanaux/tests/owner-inbox.test.mjs cinecanaux/tests/trend-fallback.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs cinecanaux/tests/owner-inbox.test.mjs cinecanaux/tests/trend-fallback.test.mjs cinecanaux/tests/simkl-trends.test.mjs
+
+      - name: Probe public Simkl trends feeds (non-blocking diagnostic)
+        continue-on-error: true
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from urllib.request import Request,urlopen
+          for category in ('movies','tv','anime'):
+              url=f'https://data.simkl.in/discover/trending/{category}/week_100.json'
+              try:
+                  request=Request(url,headers={'User-Agent':'CineRadar/1.2','Accept':'application/json'})
+                  with urlopen(request,timeout=12) as response:
+                      payload=json.load(response)
+                  items=payload if isinstance(payload,list) else payload.get(category,payload.get('shows',[]))
+                  if not isinstance(items,list) or not items:
+                      raise ValueError('empty_or_malformed_chart')
+                  print('SIMKL_FEED_OK',category,'count',len(items),'fields',sorted(items[0].keys())[:16])
+              except Exception as e:
+                  print('SIMKL_FEED_ERROR',category,type(e).__name__,str(e)[:100])
+                  raise
+          PY
 
       - name: Staging Worker smoke (non-production)
         timeout-minutes: 2
