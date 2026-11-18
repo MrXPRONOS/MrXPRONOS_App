@@ -42,15 +42,24 @@ export async function bindPrimaryRadarChannels(env){
 }
 export async function missingRadarTitles(env,ownerId,{limit=24,onlyUnnotified=false}={}){
   const n=Math.max(1,Math.min(30,Number(limit)||24));
-  const filter=onlyUnnotified?" AND NOT EXISTS (SELECT 1 FROM radar_notice_log l WHERE l.owner_id=? AND l.title_id=t.id )":'';
+  const perKind=Math.ceil(n/3);
+  const filter=onlyUnnotified
+    ? " AND NOT EXISTS (SELECT 1 FROM radar_notice_log l WHERE l.owner_id=? AND l.title_id=t.id AND l.sent_at>=datetime('now','-72 hours'))"
+    : '';
   const sql="SELECT t.id,t.kind,t.title,t.year,t.source_url,t.trend_rank FROM radar_titles t "+
-    "WHERE t.last_seen_at>=datetime('now','-8 days') "+
+    "WHERE t.kind=? AND t.last_seen_at>=datetime('now','-8 days') "+
     "AND NOT EXISTS (SELECT 1 FROM radar_matches m WHERE m.title_id=t.id AND m.media_kind='video')"+
-    filter+" ORDER BY CASE t.kind WHEN 'films' THEN 0 WHEN 'series' THEN 1 ELSE 2 END,t.trend_rank ASC,t.last_seen_at DESC LIMIT ?";
-  const statement=env.DB.prepare(sql);
-  const params=onlyUnnotified?[ownerId,n]:[n];
-  return (await statement.bind(...params).all()).results||[];
+    filter+" ORDER BY t.trend_rank ASC,t.last_seen_at DESC LIMIT ?";
+  const results=[];
+  // Fair quota: an abundance of films must not hide series or anime alerts.
+  for(const kind of ['films','series','animes']){
+    const params=onlyUnnotified?[kind,ownerId,perKind]:[kind,perKind];
+    const rows=(await env.DB.prepare(sql).bind(...params).all()).results||[];
+    results.push(...rows);
+  }
+  return results.slice(0,n);
 }
+
 export function formatRadarMissing(rows){
   if(!rows.length)return '✅ Aucun nouveau titre manquant parmi les tendances déjà indexées.';
   const blocks=['🎬 CINÉ RADAR — TITRES À RECHERCHER',
