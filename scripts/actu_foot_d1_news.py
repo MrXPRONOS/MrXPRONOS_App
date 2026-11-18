@@ -34,6 +34,7 @@ SLOT_KIND = "actu_foot_flash_30m_slot_v3"
 DAILY_KIND = "actu_foot_flash_daily_quota_v3"
 MAX_POSTS_PER_RUN = 2
 MAX_POSTS_PER_DAY = 24
+MAX_NIM_ATTEMPTS_PER_RUN = 5  # Guard against repeated slow/outage calls
 MAX_PHOTO_CAPTION_CHARS = 900  # Telegram legacy photo captions: 1024 chars.
 MAX_TEXT_CHARS = 3500          # Telegram legacy sendMessage: 4096 chars.
 
@@ -184,6 +185,7 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
     }
     sent_this_run = set()
     report["editorial_skipped"] = 0
+    nim_attempts = 0
 
     for stamp, item, image, slug, link in stories:
         if report["sent"] >= MAX_POSTS_PER_RUN:
@@ -201,7 +203,12 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
         # Editorial verification MUST precede D1 claims; no slot is wasted
         # on clipped, untranslatable or unverifiable RSS stories.
         try:
-            edited_item = prepare(item, session=session)
+            # After the bounded NIM budget, use only safe local complete
+            # French sentences; untranslated English articles are skipped.
+            nim_key = None if nim_attempts < MAX_NIM_ATTEMPTS_PER_RUN else ""
+            if nim_key is None:
+                nim_attempts += 1
+            edited_item = prepare(item, session=session, api_key=nim_key)
         except EditorialHold:
             report["editorial_skipped"] += 1
             continue
