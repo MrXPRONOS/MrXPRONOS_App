@@ -22,7 +22,7 @@ function fixtureDatabase(known=true){
 test('public catalog points to a same-origin avatar, never leaks the Telegram token',async()=>{
  const response=await v2API({DB:fixtureDatabase()},new Request('https://test.local/api/catalog'));
  const data=await response.json();
- assert.equal(data.channels[0].avatar,'/assets/channel-avatar/publicfilms2026.jpg');
+ assert.equal(data.channels[0].avatar,'/assets/channel-avatar/1.jpg');
  assert.ok(!JSON.stringify(data).includes('api.telegram.org/bot'));
 });
 test('app shows circular profile avatars when present',()=>{

@@ -26,6 +26,8 @@ jobs:
       - name: Validate syntax
         run: |
           node --check cinecanaux/worker.mjs
+          node --check cinecanaux/channel-avatar.mjs
+          node --check cinecanaux/poster-showcase.mjs
           node --check cinecanaux/radar-lean.mjs
           node --check cinecanaux/app-page.mjs
           node --check cinecanaux/channel-preview.mjs
@@ -35,8 +37,10 @@ jobs:
           node --check cinecanaux/admin-page.mjs
           node --check cinecanaux/channel-identity.mjs
           node --check cinecanaux/job-log.mjs
+      - name: Verify poster and avatar refresh scripts
+        run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs
 
       - name: Staging Worker smoke (non-production)
         timeout-minutes: 2
