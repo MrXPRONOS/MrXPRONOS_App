@@ -268,11 +268,20 @@ export default {
    if(hour===6){
     // Run sequentially: attach validated channel identities, refresh providers,
     // reconcile existing publications, THEN notify owners about missing titles.
-    const daily=await Promise.allSettled([bindPrimaryRadarChannels(env),runTrendRefresh(env),checkDailyLinks(env,10)]);
-    const reconciled=await Promise.allSettled([reconcileRadarPosts(env,120),notifyOwnerMissingRadarTitles(env)]);
-    daily.push(...reconciled);
-    errors+=daily.filter(x=>x.status==="rejected").length;
-    for(const item of daily)if(item.status==="rejected")console.error("radar_daily_error",String(item.reason).slice(0,140));
+    const tasks=[
+      ['bind_primary',()=>bindPrimaryRadarChannels(env)],
+      ['refresh_trends',()=>runTrendRefresh(env)],
+      ['reconcile_posts',()=>reconcileRadarPosts(env,120)],
+      ['notify_owner',()=>notifyOwnerMissingRadarTitles(env)],
+      ['check_links',()=>checkDailyLinks(env,10)]
+    ];
+    // Run in order: never notify before comparing with the latest indexed posts.
+    for(const [name,job] of tasks){
+      try{
+        const report=await job();
+        if(report?.errors?.length){errors+=report.errors.length;console.warn("radar_daily_warning",name,report.errors.map(String).join("; ").slice(0,160));}
+      }catch(e){errors++;console.error("radar_daily_error",name,String(e).slice(0,140));}
+    }
    }
    return {errors};
   }));
