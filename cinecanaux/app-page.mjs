@@ -110,6 +110,9 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 @media(prefers-reduced-motion:reduce){.loading{animation:none}html{scroll-behavior:auto}.card,.hero-art,.tabs button{transition:none}}
 
 /* V2 — minimal mobile-first controls; descriptions remain in detail sheets. */
+.owned-channel-badge{display:inline-flex;width:max-content;align-items:center;padding:3px 8px;border-radius:999px;background:#294d91;color:#e7f3ff;font-size:11px;font-weight:750;margin:5px 0}
+.private-channel-label{color:#b0c5df;font-size:11px;margin:4px 0}
+
 .tabs button{height:68px;flex-direction:column;justify-content:center;gap:5px;font-size:clamp(10px,2.6vw,12px);border-radius:14px}
 .tabs button .icon{width:23px;height:23px;color:#b7ceff}
 .tabs button.active .icon{color:#fff}
@@ -358,7 +361,7 @@ const PRELOADED_CATALOG=null;
 const telegram=()=>window.Telegram?.WebApp||null;
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
-const validLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""));
+const validLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""))||/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/.test(String(url||""));
 const photoHost=url=>/^\/assets\/channel-avatar\/[a-z][a-z0-9_]{4,31}\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
 const icons={
  sparkle:'<path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/><path d="m19 18 .5 1.5L21 20l-1.5.5L19 22l-.5-1.5L17 20l1.5-.5L19 18Z"/>',
@@ -412,6 +415,8 @@ function buildCard(c,i){
  const directAvatar=photoHost(c.avatar)?c.avatar:photoHost(c.photo)?c.photo:null;
  if(directAvatar){const img=node("img",photoHost(c.avatar)?"channel-profile-img":null);img.alt="Photo de profil du canal "+c.title;img.loading="lazy";img.decoding="async";img.onerror=()=>{if(img.src!==c.photo&&photoHost(c.photo)){img.classList.remove("channel-profile-img");img.src=c.photo;}else img.remove();};img.src=directAvatar;cover.append(img);}
  const body=node("div","card-body");body.append(node("h4",null,c.title));
+ if(c.featured)body.append(node("div","owned-channel-badge","✦ À la une"));
+ if(c.private_channel)body.append(node("div","private-channel-label","🔒 Canal privé"));
  body.append(node("div","card-kind",typeLabel(c.type)));
  if(c.review_count){body.append(node("div","card-rating","★ "+Number(c.rating).toFixed(1)+" · "+c.review_count+" avis"));}else{body.append(node("div","card-rating","Pas encore noté"));}
  const actions=node("div","card-actions");
@@ -465,7 +470,7 @@ function enqueueVisiblePhotos(){
  pumpThumbs();
 }
 function applyFilters(){
- channels=allChannels.filter(c=>!selectedTypes.size||selectedTypes.has(c.type));
+ channels=allChannels.filter(c=>!selectedTypes.size||[...selectedTypes].some(t=>c.type===t||String(c.tags||"").split(",").includes(t)));
  render();enqueueVisiblePhotos();
 }
 async function load(force=false){
@@ -629,13 +634,13 @@ function setFilter(term){setHash("explorer");const q=$("search");if(!q)return;co
 function buildPanel(name){const s=node("section","cine-panel");s.id="cine-page-"+name;s.dataset.page=name;s.hidden=true;s.setAttribute("aria-label",labels[name]);panel[name]=s;return s}
 function heading(p,title,desc){const top=node("div","cine-head");const h=node("h2",null,title);top.append(h);if(desc)top.append(node("p",null,desc));p.append(top)}
 function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";img.src=url;img.onerror=()=>{img.remove();avatar.textContent="🎬"};avatar.append(img)}else avatar.textContent="🎬";
- const title=node("strong",null,c.title);const sub=node("small",null,label||"Canal Telegram");b.append(avatar,title,sub);b.onclick=()=>previewChannel(c);return b}
+ const title=node("strong",null,c.title);const sub=node("small",null,(c.featured?"✦ À la une · ":"")+(label||"Canal Telegram"));b.append(avatar,title,sub);b.onclick=()=>previewChannel(c);return b}
 function previewChannel(c){const card=$("cards").querySelector('[data-channel-id="'+c.id+'"]');if(card){card.querySelector(".view")?.click()}else setFilter(c.title)}
 function quickButton(icon,label,term){const b=node("button");b.type="button";b.append(node("span",null,icon),node("strong",null,label));b.onclick=()=>setFilter(term);return b}
 function sectionTitle(parent,title,link,fn){const wrap=node("div","cine-section-title");wrap.append(node("h3",null,title));if(link){const b=node("button","cine-link",link);b.onclick=fn;wrap.append(b)}parent.append(wrap)}
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
- const chosen=[];for(const type of ["films","series","animes"]){const one=catalog.find(c=>c.type===type&&c.title&&linkAvatar(c));if(one)chosen.push(one)}
+ const chosen=[];for(const type of ["films","series","animes"]){const one=catalog.find(c=>c.type===type&&c.featured&&c.title)||catalog.find(c=>c.type===type&&c.title&&linkAvatar(c));if(one)chosen.push(one)}
  for(const c of chosen)a.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
  if(!chosen.length)a.append(node("div","cine-empty-spot","Chargement des canaux…"));
  const collage=$("cine-hero-collage");if(collage){collage.textContent="";for(const c of chosen){const div=node("div","cine-hero-cover");const img=document.createElement("img");img.src=c.avatar;img.alt="";img.loading="eager";img.onerror=()=>div.remove();div.append(img);collage.append(div)}}
@@ -643,7 +648,7 @@ function miniFeatured(){
 function discover(){
  const grid=$("cine-discover-grid");if(!grid)return;grid.textContent="";
  const cats={};for(const id of favorites){const c=catalog.find(c=>c.id===id);if(c)cats[c.type]=(cats[c.type]||0)+1}
- const scored=catalog.filter(c=>!favorites.includes(c.id)).map(c=>{let score=(cats[c.type]||0)*6;score+=Math.min(6,Number(c.review_count||0));if(c.link_status==="reachable")score+=2;if(c.last_post_at&&Date.now()-Date.parse(c.last_post_at)<30*86400000)score+=2;return{c,score}}).sort((a,b)=>b.score-a.score||a.c.id-b.c.id).slice(0,12);
+ const scored=catalog.filter(c=>!favorites.includes(c.id)).map(c=>{let score=(cats[c.type]||0)*6;if(c.featured)score+=18;score+=Math.min(6,Number(c.review_count||0));if(c.link_status==="reachable")score+=2;if(c.last_post_at&&Date.now()-Date.parse(c.last_post_at)<30*86400000)score+=2;return{c,score}}).sort((a,b)=>b.score-a.score||a.c.id-b.c.id).slice(0,12);
  for(const {c} of scored)grid.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
  if(!scored.length)grid.append(node("div","cine-empty-spot","Aucun autre canal à suggérer actuellement."));
  const title=$("cine-discover-title");if(title)title.textContent=favorites.length?"Selon tes favoris":"Quelques canaux à explorer";

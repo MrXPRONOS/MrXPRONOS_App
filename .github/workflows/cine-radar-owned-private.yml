@@ -1,0 +1,49 @@
+name: Ciné Radar — vérifier mes canaux privés (sans publication Telegram)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cine-radar-owned-private.yml'
+  schedule:
+    - cron: '37 4 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+jobs:
+  private-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            cinecanaux/scripts/collect_owned_private_channels.py
+            cinecanaux/scripts/sync_owned_private_to_d1.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer Telegram en lecture seule et Supabase
+        run: python -m pip install --disable-pip-version-check 'telethon>=1.38,<2' 'requests>=2.31,<3'
+      - name: Vérifier la syntaxe
+        run: python -m py_compile cinecanaux/scripts/collect_owned_private_channels.py cinecanaux/scripts/sync_owned_private_to_d1.py
+      - name: Inventorier et conserver les invitations dans le registre privé
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PYTHONUNBUFFERED: '1'
+        run: python cinecanaux/scripts/collect_owned_private_channels.py
+      - name: Synchroniser les invitations confirmées vers Cine Radar
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          PYTHONUNBUFFERED: '1'
+        run: python cinecanaux/scripts/sync_owned_private_to_d1.py

@@ -2,6 +2,8 @@
 const BASE="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
 const TYPES=[["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]];
 const LINK=/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/;
+const PRIVATE_LINK=/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/;
+const validTelegramLink=url=>LINK.test(url)||PRIVATE_LINK.test(url);
 const esc=t=>String(t??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const button=(text,data,url)=>url?{text,url}:{text,callback_data:data};
 const keyboard=rows=>({inline_keyboard:rows});
@@ -11,13 +13,13 @@ export function invalidateDirectoryCache(){categoryCache.clear();catalogCache=nu
 async function categoryRows(env,kind){
  const now=Date.now(),saved=categoryCache.get(kind);
  if(saved&&saved.expires>now)return saved.value;
- const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND content_type=? ORDER BY updated_at DESC LIMIT 160").bind(kind).all().then(x=>x.results||[]);
+ const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND (content_type=? OR EXISTS (SELECT 1 FROM channel_categories cc WHERE cc.channel_id=channels.id AND cc.category=?)) AND NOT EXISTS (SELECT 1 FROM channel_index_meta m WHERE m.channel_id=channels.id AND m.listing_status<>'listed') ORDER BY COALESCE((SELECT priority FROM owned_channel_features f WHERE f.channel_id=channels.id AND f.enabled=1),0) DESC,updated_at DESC LIMIT 160").bind(kind,kind).all().then(x=>x.results||[]);
  categoryCache.set(kind,{expires:now+60000,value:pending});
  try{return await pending;}catch(e){categoryCache.delete(kind);throw e;}
 }
 async function catalogRows(env){
  if(catalogCache&&catalogCache.expires>Date.now())return catalogCache.value;
- const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
+ const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' AND NOT EXISTS (SELECT 1 FROM channel_index_meta m WHERE m.channel_id=c.id AND m.listing_status<>'listed') ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
  catalogCache={expires:Date.now()+90000,value:pending};
  try{return await pending;}catch(e){catalogCache=null;throw e;}
 }
@@ -65,7 +67,7 @@ async function processBotUpdate(env,update){
  if(!match){await display(env,chat,cb,"🎬 <b>CINÉ RADAR</b>\n\nChoisis une catégorie 👇",homeButtons());return;}
  const kind=match[1],requested=Math.min(50,Math.max(0,Number(match[2]||0)));
  const rows=await categoryRows(env,kind);
- const filtered=rows.filter(c=>LINK.test(c.link));
+ const filtered=rows.filter(c=>validTelegramLink(c.link));
  const page=Math.min(requested,Math.max(0,Math.ceil(filtered.length/8)-1)),slice=filtered.slice(page*8,page*8+8);
  const nav=slice.map(c=>[button("🎞 "+String(c.title||"Canal public").slice(0,43),null,c.link)]);
  const pages=[];
@@ -73,7 +75,7 @@ async function processBotUpdate(env,update){
  if((page+1)*8<filtered.length)pages.push(button("Suivants ▶","category:"+kind+":"+(page+1)));
  if(pages.length)nav.push(pages);
  nav.push([button("⬅ Catégories","home")]);
- const msgText=esc(categoriesLabel(kind))+" <b>— Canaux publics</b>\n\n"+
+ const msgText=esc(categoriesLabel(kind))+" <b>— Canaux Telegram</b>\n\n"+
  (slice.length?"Appuie sur un canal pour l'ouvrir 👇":"Aucun canal disponible pour le moment.");
  await display(env,chat,cb,msgText,keyboard(nav));
 }
@@ -86,7 +88,7 @@ export async function botUpdate(env,update){
 }
 export async function listPublicChannels(env){
  const rows=await catalogRows(env);
- return rows.filter(c=>LINK.test(c.link)).map(x=>({
+ return rows.filter(c=>validTelegramLink(c.link)).map(x=>({
   id:x.id,title:x.title,link:x.link,type:x.content_type,
   photo:x.avatar_url||null,genre:x.genre
  }));

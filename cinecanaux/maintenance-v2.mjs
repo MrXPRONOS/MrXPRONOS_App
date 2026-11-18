@@ -135,6 +135,7 @@ export async function checkDailyLinks(env,limit=10){
  const rows=(await env.DB.prepare(`SELECT c.id,c.link FROM channels c
   JOIN channel_index_meta m ON m.channel_id=c.id
   WHERE c.status='approved' AND m.listing_status IN ('listed','checking','hidden')
+   AND NOT EXISTS (SELECT 1 FROM owned_channel_features f WHERE f.channel_id=c.id AND f.private_channel=1)
    AND (m.next_check_at IS NULL OR m.next_check_at<=CURRENT_TIMESTAMP)
   ORDER BY CASE WHEN m.link_status='not_found' THEN 0 ELSE 1 END,
            COALESCE(m.last_checked_at,'1970-01-01') ASC,c.id ASC LIMIT ?`).bind(Math.max(1,Math.min(10,limit))).all()).results||[];
