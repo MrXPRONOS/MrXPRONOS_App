@@ -10,7 +10,8 @@ test('fallback image never becomes stale in browser cache',()=>{
 });
 test('failed real Telegram avatar is retried once before icon replacement',()=>{
  assert.ok(APP_HTML.includes('function showChannelImage('));
- assert.ok(APP_HTML.includes('candidates.push(source+"?refresh=1")'));
+ assert.ok(APP_HTML.includes('source+"?v=3"'));
+ assert.ok(APP_HTML.includes('source+"?v=3&refresh=1"'));
  assert.ok(APP_HTML.includes('showChannelImage(img,url,null,()=>'));
  assert.ok(APP_HTML.includes('showChannelImage(img,profilePhoto,p?.photo,()=>'));
  assert.ok(APP_HTML.includes('showChannelImage(img,directAvatar,c.photo,()=>'));
