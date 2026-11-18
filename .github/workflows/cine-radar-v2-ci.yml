@@ -61,7 +61,10 @@ jobs:
                   items=payload if isinstance(payload,list) else payload.get(category,payload.get('shows',[]))
                   if not isinstance(items,list) or not items:
                       raise ValueError('empty_or_malformed_chart')
-                  print('SIMKL_FEED_OK',category,'count',len(items),'fields',sorted(items[0].keys())[:16])
+                  first=items[0]
+                  print('SIMKL_FEED_OK',category,'count',len(items),'fields',sorted(first.keys())[:16])
+                  print('SIMKL_FEED_SAMPLE',category,'id',str(first.get('ids',{}).get('simkl',''))[:20],
+                        'url',str(first.get('url',''))[:120],'poster',str(first.get('poster',''))[:80])
               except Exception as e:
                   print('SIMKL_FEED_ERROR',category,type(e).__name__,str(e)[:100])
                   raise
