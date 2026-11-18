@@ -1,0 +1,31 @@
+name: Cine Radar - Sync real Simkl trends to D1
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/sync_public_trends_to_d1.py'
+      - '.github/workflows/cine-radar-simkl-sync.yml'
+  schedule:
+    - cron: '30 6 */3 * *'
+permissions:
+  contents: read
+concurrency:
+  group: cine-radar-simkl-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check safe public trend synchronizer syntax
+        run: python -m py_compile cinecanaux/sync_public_trends_to_d1.py
+      - name: Index real Simkl weekly charts, metadata only
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          PYTHONUNBUFFERED: '1'
+        run: python cinecanaux/sync_public_trends_to_d1.py
