@@ -109,7 +109,7 @@ def _model_translate(title, summary, model, key, post=requests.post):
                 ensure_ascii=False
             )},
         ],
-        "max_tokens":680, "stream":False,
+        "max_tokens":1200, "stream":False,
     }
     try:
         r = post(ENDPOINT, headers={
@@ -133,17 +133,35 @@ def _model_translate(title, summary, model, key, post=requests.post):
     if len(r.content) > 16000:
         raise TranslationHold("nvidia_response_too_large")
     try:
-        v = r.json()["choices"][0]["message"]["content"]
-        if not isinstance(v, str):
-            raise ValueError("non-string")
+        choice = r.json()["choices"][0]
+        msg = choice["message"]
+        v = msg.get("content")
+        if isinstance(v, list):
+            v = "".join(str(part.get("text") or "") for part in v
+                        if isinstance(part, dict))
+        if not isinstance(v, str) or not v.strip():
+            end = str(choice.get("finish_reason") or "unknown").lower()
+            if end not in ("length", "stop", "unknown"):
+                end = "unknown"
+            raise TranslationHold("nvidia_empty_content_" + end)
         v = v.strip()
         if v.startswith(chr(96)*3):
             v = re.sub(r"^"+chr(96)*3+r"(?:json)?\s*|\s*"+chr(96)*3+r"$","",v,flags=re.I)
-        data = json.loads(v)
+        # The source is a controlled model response; reject extra keys rather
+        # than treating an unrelated JSON fragment as a translation.
+        try:
+            data = json.loads(v)
+        except (ValueError, TypeError):
+            start, end = v.find("{"), v.rfind("}")
+            if start < 0 or end <= start:
+                raise TranslationHold("nvidia_non_json_content")
+            data = json.loads(v[start:end+1])
         title_fr, summary_fr = data["title_fr"], data["summary_fr"]
         if not isinstance(title_fr, str) or not isinstance(summary_fr, str):
-            raise ValueError("non-string")
+            raise TranslationHold("nvidia_invalid_translation_fields")
         return title_fr, summary_fr
+    except TranslationHold:
+        raise
     except (KeyError, IndexError, TypeError, ValueError, AttributeError):
         raise TranslationHold("nvidia_invalid_translation_json") from None
 
