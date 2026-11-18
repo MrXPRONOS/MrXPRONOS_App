@@ -33,6 +33,7 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,10 +43,10 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install public RSS and image dependencies
-        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7' 'langdetect>=1.0.9,<2'
       - name: Run editorial and per-channel delivery safety tests
         run: |
           python -m compileall -q crypto
-          python -m unittest crypto.test_news_digest_v1 crypto.test_news_media_v1 crypto.test_news_multichannel_v1 crypto.test_production_live_v1 -v
+          python -m unittest crypto.test_news_digest_v1 crypto.test_news_translation_v1 crypto.test_news_media_v1 crypto.test_news_multichannel_v1 crypto.test_production_live_v1 -v
       - name: Query RSS then distribute diverse unseen stories to verified crypto channels
         run: python -m crypto.production_live_v1 --mode world
