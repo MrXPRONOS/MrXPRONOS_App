@@ -668,7 +668,7 @@ function showChannelImage(img,source,backup,exhausted){
  if(backup&&photoHost(backup)&&backup!==source)candidates.push(backup);
  let current=0;
  img.onerror=()=>{current++;if(current<candidates.length)img.src=candidates[current];else if(exhausted)exhausted()};
- img.src=source;
+ img.src=candidates[0];
 }
 function linkAvatar(c){const src=String(c.avatar||"");return /^\/assets\/channel-avatar\/([1-9][0-9]{0,9}|[a-z][a-z0-9_]{4,31})\.jpg$/i.test(src)?src:(Number.isSafeInteger(Number(c.id))&&Number(c.id)>0?"/assets/channel-avatar/"+c.id+".jpg":null)}
 function setHash(page){const h="#/"+page;if(location.hash!==h)location.hash=h;else navigate(page)}
