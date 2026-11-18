@@ -223,7 +223,8 @@ test('real Telegram handler: silent off-topic alerts, clear voice retry request,
  assert.equal(afterVocal.admin,'');
  process.env.MX_ASSISTANT_ASR_URL='https://asr.sandbox.invalid/v1/audio/transcriptions';
  process.env.MX_ASSISTANT_ASR_KEY='sandbox-asr-key';
- asrText='bonjour';
+ // Ambiguous phonetic brand: ASR returned content, but its quality is flagged uncertain.
+ asrText='Bedclicker';
  const uncertain=await send(970016,'',{voice:true});
  assert.equal(uncertain.reply.replace(/\s+/g,' ').trim(),assistant.VOICE_NOT_UNDERSTOOD_REPLY);
  assert.ok(!uncertain.reply.includes('J’ai compris'),uncertain.reply);
