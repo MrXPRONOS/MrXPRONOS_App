@@ -8,6 +8,7 @@ import {adminAPI} from "./admin-v2.mjs";
 import {runLoggedJob} from "./job-log.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
+import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
  const x=new TextEncoder().encode(String(a||"")),y=new TextEncoder().encode(String(b||""));
@@ -21,7 +22,9 @@ async function receiveTelegram(request,env){
  if(Number(request.headers.get("content-length")||0)>750000)return new Response("Too large",{status:413});
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
- try{await botUpdate(env,update);return Response.json({ok:true});}
+ try{
+  if(update.channel_post||update.edited_channel_post){await ingestRadarPost(env,update);return Response.json({ok:true});}
+  await botUpdate(env,update);return Response.json({ok:true});}
  catch(e){console.error("cine_radar_update_failed",String(e).slice(0,120));return new Response("Retry",{status:500});}
 }
 function banner(){
@@ -170,6 +173,7 @@ export default {
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
   if(u.pathname==="/api/showcase")return serveShowcase(request);
+  if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click")return radarApi(env,request);
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
   const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
   if(request.method==="GET"&&avatarId)return serveChannelAvatar(request,env,ctx,avatarId[1]);
@@ -254,6 +258,10 @@ export default {
    return {inspected:discovered.inspected||0,inserted:(discovered.inserted||0)+(suggested.indexed||0),errors:discovered.unverifiable||0};
   }));
   else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
+  else if(controller.cron==="20 5 * * *")ctx.waitUntil((async()=>{
+    try{const trends=await runTrendRefresh(env);const posts=await reconcileRadarPosts(env,160);console.log(JSON.stringify({event:"radar_daily",trends,posts}));}
+    catch(e){console.error("radar_daily_error",String(e).slice(0,180));throw e;}
+  })());
   else ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
    const result=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]);
    return {errors:result.filter(x=>x.status==='rejected').length};
