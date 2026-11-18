@@ -4,9 +4,9 @@ import {simklPublicTrends,runTrendRefresh} from '../trend-radar.mjs';
 import {formatRadarMissing} from '../radar-owner-ops.mjs';
 
 const entries={
- films:{title:'Example Popular Film',year:2026,poster:'ab/cd123',url:'https://simkl.com/movies/1234/example-popular-film',ids:{simkl:1234},rank:1},
- series:{title:'Example Popular Series',year:2025,poster:'ab/cd456',url:'https://simkl.com/tv/2345/example-popular-series',ids:{simkl:2345},rank:1},
- animes:{title:'Example Popular Anime',year:2026,poster:'ab/cd789',url:'https://simkl.com/anime/3456/example-popular-anime',ids:{simkl:3456},rank:1}
+ films:{title:'Example Popular Film',year:2026,poster:'ab/cd123',url:'/movies/1234/example-popular-film',ids:{},rank:1},
+ series:{title:'Example Popular Series',year:2025,poster:'ab/cd456',url:'/tv/2345/example-popular-series',ids:{},rank:1},
+ animes:{title:'Example Popular Anime',year:2026,poster:'ab/cd789',url:'/anime/3456/example-popular-anime',ids:{},rank:1}
 };
 
 test('Simkl keyless weekly trending charts produce genuine category-specific references', async () => {
@@ -23,7 +23,7 @@ test('Simkl keyless weekly trending charts produce genuine category-specific ref
    assert.equal(actual.rows.length,1);
    assert.equal(actual.rows[0].kind,kind);
    assert.match(actual.rows[0].poster,/^https:\/\/simkl\.in\/posters\//);
-   assert.equal(actual.rows[0].sourceUrl,entries[kind].url);
+   assert.equal(actual.rows[0].sourceUrl,'https://simkl.com'+entries[kind].url);
    assert.match(formatRadarMissing([{
      kind,title:actual.rows[0].title,source_url:actual.rows[0].sourceUrl
    }]),/simkl\.com/);
@@ -36,7 +36,7 @@ test('malformed Simkl records cannot inject external movie links or posters',asy
  const original=globalThis.fetch;
  globalThis.fetch=async()=>Response.json([
   {title:'Misleading',poster:'https://evil.test/file.jpg',url:'https://evil.test/videos',ids:{simkl:555}},
-  {title:'Valid',poster:'folder/file',url:'https://simkl.com/movies/777/valid',ids:{simkl:777}}
+  {title:'Valid',poster:'folder/file',url:'/movies/777/valid',ids:{}}
  ]);
  try{
   const rows=(await simklPublicTrends('films')).rows;
