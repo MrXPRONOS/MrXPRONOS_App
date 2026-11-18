@@ -65,3 +65,13 @@ test('type shortcut actually selects the right button and clears the search term
   assert.equal(state.focus,true);
  }
 });
+
+test('home and discovery hydrate immediately from the same preloaded catalog as Explorer',()=>{
+ assert.ok(directory.includes('window.__CINERADAR_INITIAL_CATALOG__=PRELOADED_CATALOG'));
+ assert.ok(navigation.includes('const embedded=window.__CINERADAR_INITIAL_CATALOG__'));
+ const bootstrap=navigation.indexOf('const embedded=window.__CINERADAR_INITIAL_CATALOG__');
+ const fetchIndex=navigation.indexOf('fetch("/api/catalog?limit=80"');
+ assert.ok(bootstrap!==-1&&fetchIndex>bootstrap,'Home must render before the network request');
+ const step=navigation.slice(bootstrap,fetchIndex);
+ for(const fn of ['miniFeatured();','discover();','genreContent();','cardDecorate();'])assert.ok(step.includes(fn),fn+' omitted from instant hydration');
+});
