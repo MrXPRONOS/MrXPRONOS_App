@@ -2,6 +2,10 @@ name: Actu Crypto - Contrôle de traduction française (sans Telegram)
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'crypto/french-translation-structured-v1-20261118.flag'
 
 permissions:
   contents: read
@@ -41,6 +45,7 @@ jobs:
                                    if isinstance(x,dict) and "mistral" in str(x.get("id","")).lower())
                       print("NVIDIA_MISTRAL_CATALOG",names[:25])
                       print("NVIDIA_MODEL_COUNT",len(j.get("data",[])))
+                      print("NVIDIA_ALL_CHAT_MODEL_IDS",sorted(str(x.get("id","")) for x in j.get("data",[]) if isinstance(x,dict))[:45])
               except Exception as exc:
                   print("NVIDIA_CATALOG_UNAVAILABLE",type(exc).__name__)
           PY
