@@ -1,0 +1,56 @@
+name: Actu Crypto - Contrôle de traduction française (sans Telegram)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'crypto/french-translation-smoke-once-20261118.flag'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-french-translation-smoke
+  cancel-in-progress: false
+
+jobs:
+  check-french:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7' 'langdetect>=1.0.9,<2'
+      - name: Essai réel de traduction — zéro publication
+        shell: bash
+        run: |
+          python - <<'PY'
+          from crypto.news_translation_v1 import FrenchTranslator, TranslationHold
+          from crypto.news_media_v1 import caption
+          from crypto import news_digest_v1 as digest
+          article = {
+              "title": "Coinbase launches a new USDT crypto payment service in Ghana",
+              "summary": "Coinbase says the new crypto payments service reaches 500 companies in Ghana.",
+              "source": "CoinDesk", "category": "PAIEMENTS & ADOPTION",
+          }
+          try:
+              result = FrenchTranslator().translate(article)
+              out = caption({"main":article}, translated=result, require_french=True)
+          except TranslationHold as exc:
+              print("CRYPTO_FRENCH_TRANSLATION_SMOKE_BLOCKED", str(exc))
+              raise SystemExit(2)
+          assert out.startswith("<b>" + result["title_fr"] + "</b>")
+          assert "🏷️ <i>Catégorie :" in out
+          assert out.index("🏷️ <i>Catégorie :") < out.index("🗞️ <i>Source :")
+          assert not any(x in out for x in ("http://", "https://", "🕒", "ACTU CRYPTO</b>"))
+          print("CRYPTO_FRENCH_TRANSLATION_SMOKE_OK")
+          print("Titre français validé :", result["title_fr"])
+          print("Résumé français validé :", result["summary_fr"])
+          print("AUCUN MESSAGE TELEGRAM ENVOYÉ")
+          PY
