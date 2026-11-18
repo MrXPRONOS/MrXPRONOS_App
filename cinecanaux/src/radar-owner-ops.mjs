@@ -70,7 +70,7 @@ export function formatRadarMissing(rows){
     blocks.push(headings[kind]);
     for(const x of selected){
       const label='• '+String(x.title).slice(0,105)+(x.year?' ('+x.year+')':'');
-      const source=/^https:\/\/(?:www\.themoviedb\.org\/(?:movie|tv)\/\d+|anilist\.co\/anime\/\d+|www\.tvmaze\.com\/shows\/\d+\/[a-z0-9-]+)\/?$/i.test(String(x.source_url||''))?String(x.source_url):'';
+      const source=/^https:\/\/(?:www\.themoviedb\.org\/(?:movie|tv)\/\d+|anilist\.co\/anime\/\d+|www\.tvmaze\.com\/shows\/\d+\/[a-z0-9-]+|simkl\.com\/(?:movies|tv|anime)\/\d+(?:\/[a-z0-9-]+)?)\/?$/i.test(String(x.source_url||''))?String(x.source_url):'';
       blocks.push(label+(source?'\n'+source:''));
     }
   }
