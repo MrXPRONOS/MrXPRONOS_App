@@ -123,7 +123,12 @@ def exclusivity(candidate, targets, receipts):
     return True, ordered[digest_number("owner:v1:" + key) % len(ordered)]["key"]
 
 
-def ranking(candidate, target, slot, used_sources):
+def wants_exclusive_slot(target, slot):
+    """Give one in three per-channel time slots an exclusive editorial lane."""
+    return digest_number("exclusive-lane:v1:" + slot + ":" + target["key"]) % 3 == 0
+
+
+def ranking(candidate, target, slot, used_sources, assignment=(False, None)):
     main = candidate["main"]
     k = article_key(candidate)
     score = candidate.get("score", 0)
@@ -134,6 +139,10 @@ def ranking(candidate, target, slot, used_sources):
         score += 20
     if main.get("source") in used_sources:
         score -= 22
+    # The boost never removes the one-channel-only invariant: it applies
+    # exclusively when this exact verified channel owns the editorial story.
+    if assignment == (True, target["key"]) and wants_exclusive_slot(target, slot):
+        score += 160
     return score
 
 
@@ -268,6 +277,8 @@ def publish():
     if not candidates:
         print("CRYPTO_MULTICHANNEL_NO_VERIFIED_NEW_RSS_NEWS")
         return
+    # Assign exclusive ownership once using the globally verified channel set.
+    assignments = {article_key(c): exclusivity(c, targets, receipts) for c in candidates}
     used_keys, used_sources = {}, set()
     photo_cache = {}
     counts = Counter()
@@ -283,7 +294,9 @@ def publish():
             counts["destination_verification_failed"] += 1
             continue
         ranked = sorted(
-            candidates, key=lambda cand: ranking(cand,target,slot,used_sources),
+            candidates,
+            key=lambda cand: ranking(cand,target,slot,used_sources,
+                                     assignments[article_key(cand)]),
             reverse=True
         )
         for cand in ranked[:12]:
@@ -296,7 +309,7 @@ def publish():
             if skip_for_target(cand, target_key, receipts, original_id,
                                source_state, destination_id):
                 continue
-            is_exclusive, owner = exclusivity(cand, targets, receipts)
+            is_exclusive, owner = assignments[k]
             if is_exclusive and owner != target_key:
                 continue
             # Reuse a correctly identified article photo across channel plans,
