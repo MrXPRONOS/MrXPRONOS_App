@@ -34,7 +34,7 @@ function banner(){
 
 export async function provisionTelegramWebhook(env) {
  const target="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/telegram";
- const accepted=["message","callback_query"];
+ const accepted=["message","callback_query","channel_post","edited_channel_post"];
  const saveStatus=async(status,detail)=>{
   await env.DB.prepare("INSERT INTO bot_webhook_status(id,status,detail) VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,detail=excluded.detail,updated_at=CURRENT_TIMESTAMP").bind(status,detail).run();
  };
