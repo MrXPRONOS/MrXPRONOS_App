@@ -1,23 +1,29 @@
 # Mr XPRONOS Play — Cloudflare V1
 
-## Statut au 18 novembre 2026
+## État de connexion Telegram — vérifié le 18 novembre 2026
 
-- **Worker déployé** : `mrxpronos-play`
+- **Worker déployé** : `mrxpronos-play` (Cloudflare Workers, sans Telegram Serverless)
+- **Bot Telegram configuré** : [@MrXpronosPlayBot](https://t.me/MrXpronosPlayBot).
+- **Webhook vérifié** : `https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook`.
+- **Bouton Menu configuré** : `🎮 Jouer` → la Mini App Cloudflare.
+- **Commandes disponibles** : `/start` et `/play`.
 - **Adresse prévue** : https://mrxpronos-play.cinecanaux-xpronos.workers.dev
 - **D1 créé** : `mrxpronos-play-v1` (`59d4ecbf-21bc-4221-8909-0213737ab029`).
 - **Maquettes Figma** : https://www.figma.com/design/RlWwR9KutRVBRGhuELDH1N
 - **Backend + UI** : `worker.js`. Interface embarquée dans le Worker pour cette première version.
-- **Icônes** : emplacements visuels réservés, en attente de l'import des PNG officiels.
+- **Icônes** : 50 PNG / 50 WebP présents dans GitHub, visuels WebP déjà intégrés dans la Mini App.
 - **État des paiements et tokens** : désactivés / aucun MRXP émis.
 
-**Limitation :** le déploiement a été accepté par Cloudflare, mais l'URL publique n'a pas pu être testée de bout en bout depuis cet environnement. La connexion Telegram n'est pas activée tant que les secrets et BotFather ne sont pas configurés. Ne pas considérer la V1 comme production prête pour des récompenses financières.
+**Vérification :** Cloudflare confirme que les deux secrets `BOT_TOKEN` et `WEBHOOK_SECRET` sont présents sans exposer leurs valeurs. Le bot `MrXpronosPlayBot` possède le webhook attendu et un bouton de type `web_app`. La Mini App a déjà été ouverte dans un navigateur de test ; l'ouverture depuis le compte personnel Telegram reste à contrôler par l'utilisateur. La V1 ne doit pas être considérée prête pour des récompenses financières.
 
-## Configurer Telegram
+## Telegram — configuration en place
+
+Les secrets et le webhook sont déjà installés. Ne créez pas un deuxième webhook sur un autre service : Telegram n'en utilise qu'un à la fois. Les instructions suivantes sont à utiliser uniquement pour une réinstallation ou une rotation de jeton.
 
 Dans Cloudflare → Workers & Pages → Worker `mrxpronos-play` → Settings → Variables and Secrets :
 
-1. Créer `BOT_TOKEN` (Secret) : jeton du bot fourni par **@BotFather**.
-2. Créer `WEBHOOK_SECRET` (Secret) : chaîne aléatoire longue, uniquement lettres/chiffres/_/-, à garder privée.
+1. Vérifier `BOT_TOKEN` (Secret) : jeton du bot fourni par **@BotFather**.
+2. Vérifier `WEBHOOK_SECRET` (Secret) : chaîne aléatoire longue, uniquement lettres/chiffres/_/-, à garder privée.
 3. Conserver le binding D1 `DB` pointant vers `mrxpronos-play-v1`.
 
 Dans BotFather, associer au bot l'URL de la Mini App. Pour les réponses à `/start`, configurer `setWebhook` avec :
@@ -47,7 +53,7 @@ Dans BotFather, associer au bot l'URL de la Mini App. Pour les réponses à `/st
 - **Anti-triche** : les tapotages hors ligne ne peuvent pas prouver qu'ils viennent d'un humain. La V1 applique des limites d'énergie et de cadence, mais des protections supplémentaires sont nécessaires avant un airdrop ou des récompenses monétaires.
 - **Stockage** : panne ou effacement simultané de tous les stockages locaux peut faire perdre des actions non synchronisées.
 - **Quotas** : vérifier le volume de requêtes et les écritures D1 en conditions de charge.
-- **Tests indispensables** : installation via BotFather, /start et menu Mini App, 2 comptes Telegram, sauvegarde puis reconnexion, fermeture en cours de jeu, 12 h de délai, synchronisation en double, jeu hors ligne, changement de jour UTC, erreurs réseau.
+- **Tests indispensables** : /start et menu Mini App sur vrai compte Telegram, 2 comptes Telegram, sauvegarde puis reconnexion, fermeture en cours de jeu, 12 h de délai, synchronisation en double, jeu hors ligne, changement de jour UTC, erreurs réseau.
 - **Images** : remplacer les boîtes réservées par les PNG nommés du catalogue `mrxpronos-play/assets-manifest.json` lorsqu'ils sont présents sur GitHub.
 - **Figma** : six écrans éditables sont créés (Tap, Roue, Missions, Profil, Amis, NFT), mais l'alignement pixel par pixel avec les rendus d'origine n'est pas encore certifié, notamment tant que les vrais éléments graphiques ne sont pas intégrés.
 
@@ -63,3 +69,12 @@ mrxpronos-play/
   tools/import_assets.py    # Import des ressources
 ```
 
+
+## Lancement utilisateur
+
+1. Ouvrir https://t.me/MrXpronosPlayBot dans Telegram.
+2. Appuyer sur **Démarrer**, ou envoyer `/start` (également `/play`).
+3. Dans le message de bienvenue, toucher **🎮 Jouer maintenant** ou le bouton menu **🎮 Jouer**.
+4. La page se charge depuis Cloudflare. Les XP sont locaux avant validation, avec intervalle minimum de 12 h entre synchronisations.
+
+**Vérification automatique réalisée :** la réponse de `getWebhookInfo` concorde avec l'URL Cloudflare et celle de `getChatMenuButton` confirme `type=web_app`. Aucun webhook préexistant différent n'a été écrasé. Le Cron temporaire de configuration a été désactivé.
