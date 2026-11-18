@@ -283,9 +283,7 @@ export default {
   return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  if(controller.cron==="*/1 * * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',
-   ()=>runRadarOperationalVerification(env,{sendNotices:true})));
-  else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
+  if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
    const discovered=await indexQualifiedChannels(env);
    await syncCategoryTags(env);
