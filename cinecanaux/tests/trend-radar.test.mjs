@@ -91,3 +91,15 @@ test('mini-app exposes an independent verified titles section while preserving o
  assert.ok(APP_HTML.includes('fetch("/api/radar/click"'));
  assert.ok(APP_HTML.includes('loadCinemaShowcase()'));
 });
+
+test('a reused channel username cannot replace the Telegram chat ID already verified',async()=>{
+ const state=memoryDB(),base=state.db;
+ const DB={prepare(sql){
+  if(sql.includes('SELECT chat_id FROM radar_primary_channels'))return {bind(){return {async first(){return {chat_id:'-100111'}}}}};
+  return base.prepare(sql);
+ }};
+ const result=await ingestRadarPost({DB},{channel_post:{message_id:45,chat:{type:'channel',id:-100999,username:'CineXFilms_vf'},caption:'Film Exemple 2026',video:{file_id:'not-stored'}}});
+ assert.equal(result.ignored,true);
+ assert.equal(result.reason,'channel_identity_changed');
+ assert.equal(state.posts.length,0);
+});
