@@ -14,6 +14,7 @@ function validDay(d,now){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))
 export default {async fetch(request,env){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
  if(p==="/api/health")return json({ok:true,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,db_connected:!!env.DB,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false});
+ if(p==="/telegram/webhook"&&request.method==="POST"){if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);const update=await request.json();if(update.message?.text?.startsWith("/start")){const chat=update.message.chat.id;const response=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/sendMessage",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat_id:chat,text:"Bienvenue sur Mr XPRONOS Play ! 🎮\nGagne des XP Points gratuitement en jouant.",reply_markup:{inline_keyboard:[[{text:"🎮 Jouer maintenant",web_app:{url:u.origin}}]]}})});if(!response.ok)return json({error:"Telegram sendMessage failed"},502)}return json({ok:true})}
  if(!p.startsWith("/api/"))return json({error:"Not found"},404);
  if(request.method!=="GET"&&request.method!=="POST")return json({error:"Method not allowed"},405);
  const user=await authenticate(request,env);if(!user)return json({error:"Telegram non connecté : configure BOT_TOKEN et ouvre l'application depuis le bot."},401);
