@@ -47,14 +47,14 @@ class ActuFootRssFormatTests(unittest.TestCase):
         with patch.object(pub, "post_photo", post):
             result = pub.send_article(Mock(), "token", "-10042", self.story, self.path, self.story["link"])
         self.assertEqual(result, 345)
-        caption = post.call_args.args[5]
+        caption = post.call_args.args[4]
         self.assertTrue(caption.startswith("<b>Un nouveau titre</b>"))
         self.assertIn("tous les faits disponibles", caption)
         self.assertNotIn("Résumé très court", caption)
         self.assertTrue(caption.endswith("<i>Catégorie : Mercato\nSource : Foot Mercato</i>"))
         self.assertNotIn("https://", caption)
         self.assertNotIn("Lire l", caption)
-        self.assertIsNone(post.call_args.args[6])
+        self.assertIsNone(post.call_args.args[5])
 
     def test_long_rss_description_is_delivered_in_followup_text_without_links(self):
         story = {
@@ -72,7 +72,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertIn("Source : Foot Mercato", messages)
         self.assertNotIn("https://", messages)
         self.assertNotIn("Lire l", messages)
-        self.assertIsNone(photo.call_args.args[6])
+        self.assertIsNone(photo.call_args.args[5])
 
     def test_twice_hourly_dispatchs_two_unique_articles(self):
         second = {**self.story, "slug": "news-b", "title": "Deuxième titre"}
