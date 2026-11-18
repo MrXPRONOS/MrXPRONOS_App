@@ -13,6 +13,11 @@ test('a real photo and extensive current content outperform an empty featured ch
  assert.ok(ownedQualityScore({...active,avatar_status:'unknown',audit_status:'unavailable'})>ownedQualityScore(fallback),
   'A temporary unreachable audit should not imply zero content');
 });
+test('even a content-heavy placeholder must rank below a photographed genuine channel',()=>{
+ const small={...active,total_posts:5,posts_7d:0,posts_30d:0,media_30d:0};
+ const large={...active,avatar_status:'fallback',total_posts:5000,posts_7d:150,posts_30d:220,media_30d:200};
+ assert.ok(ownedQualityScore(small)>ownedQualityScore(large));
+});
 test('actual catalog ranking prioritizes feature members verified as active and photographed',async()=>{
  const base={content_type:'films',link_status:'unknown',listing_status:'listed',genre:'general',
  language:'VF',description:'',tags:'films',review_count:0,rating:null};

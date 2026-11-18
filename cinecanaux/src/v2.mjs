@@ -98,8 +98,8 @@ export function ownedQualityScore(row){
  if(Number(row.owned_featured)!==1)return 0;
  // Featured ownership is a modest baseline; a demonstrably real avatar and active catalog matter more.
  let points=Math.min(5,Math.max(0,Number(row.owned_priority)||0))*4;
- if(row.avatar_status==='real')points+=26;
- else if(row.avatar_status==='fallback')points-=14;
+ if(row.avatar_status==='real')points+=95;
+ else if(row.avatar_status==='fallback')points-=25;
  // An unverified avatar is not assumed absent, but should rank below a confirmed real one.
  else points-=4;
  if(row.audit_status==='verified'){
