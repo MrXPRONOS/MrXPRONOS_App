@@ -762,7 +762,7 @@ function genreContent(){
   ["🌐","Séries turques","turc",c=>/turc/i.test(c.title+" "+c.genre)],
   ["🎭","Drame","drama",c=>/drama|drame/i.test(c.title+" "+c.genre)]
  ];
- for(const [emoji,label,query,check] of options){const count=catalog.filter(check).length;if(!count)continue;const b=node("button","cine-genre-tile");b.type="button";b.append(node("span",null,emoji+" "+label),node("small",null,count+" canal"+(count===1?"":"x")+" dans l’annuaire"));b.onclick=()=>setFilter(query);grid.append(b)}
+ for(const [emoji,label,query,check] of options){const count=catalog.filter(check).length;if(!count)continue;const b=node("button","cine-genre-tile");b.type="button";b.append(node("span",null,emoji+" "+label),node("small",null,count+(count===1?" canal":" canaux")+" dans l’annuaire"));b.onclick=()=>setFilter(query);grid.append(b)}
 }
 function cardDecorate(){
  const root=$("cards");if(!root)return;
