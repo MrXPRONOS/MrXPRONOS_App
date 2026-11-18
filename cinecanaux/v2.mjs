@@ -2,6 +2,7 @@
 // Requires cinecanaux/migrations/001_v2.sql. No media is copied or redistributed.
 const CORS={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
 const LINK=/^https:\/\/t\.me\/([a-z][a-z0-9_]{4,31})\/?$/i;
+const PRIVATE_LINK=/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/;
 const TYPES=new Set(['films','series','animes']);
 const REASONS=new Set(['wrong_category','misleading','dead_link','spam','copyright','other']);
 const json=(body,status=200)=>Response.json(body,{status,headers:CORS});
@@ -10,6 +11,7 @@ const enc=new TextEncoder();
 const hex=u=>Array.from(new Uint8Array(u)).map(b=>b.toString(16).padStart(2,'0')).join('');
 function escapeLike(s){return s.replace(/[%_]/g,'');}
 function linkUsername(url){return LINK.exec(String(url||'').trim())?.[1]?.toLowerCase()||null;}
+function validListingLink(c){return !!linkUsername(c.link)||(Number(c.owned_featured)===1&&Number(c.private_channel)===1&&PRIVATE_LINK.test(String(c.link||'')));}
 async function hmac(key,content){
  const k=await crypto.subtle.importKey('raw',typeof key==='string'?enc.encode(key):key,{name:'HMAC',hash:'SHA-256'},false,['sign']);
  return new Uint8Array(await crypto.subtle.sign('HMAC',k,enc.encode(content)));
@@ -105,7 +107,7 @@ function rank(row,groups){
  const quality=count?Math.min(1,count/5)*rating:0;
  const activity=row.last_post_at&&Date.now()-Date.parse(row.last_post_at)<30*86400000?1:0;
  const reach=row.link_status==='reachable'?1:0;
- return match*10+quality*2+activity+reach;
+ return match*10+quality*2+activity+reach+Math.min(5,Math.max(0,Number(row.owned_priority||0)))*5;
 }
 async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset=0}={}){
  const selected=String(types||'').split(',').filter(t=>TYPES.has(t));
@@ -114,6 +116,7 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  // A single bounded query for a medium directory; later expand with FTS/pagination if needed.
  const result=await env.DB.prepare(`SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,
  c.last_post_at,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') AS photo,
+ CASE WHEN f.enabled=1 THEN 1 ELSE 0 END AS owned_featured, COALESCE(f.priority,0) AS owned_priority, COALESCE(f.private_channel,0) AS private_channel,
  COALESCE(m.listing_status,'listed') AS listing_status,COALESCE(m.link_status,'unknown') AS link_status,
  COALESCE((SELECT group_concat(category,',') FROM channel_categories cc WHERE cc.channel_id=c.id),'') AS tags,
  (SELECT COUNT(*) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility='visible') AS review_count,
@@ -121,15 +124,16 @@ async function getCatalog(env,{query='',types='',sort='relevant',limit=60,offset
  (SELECT ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) FROM channel_reviews r WHERE r.channel_id=c.id AND r.visibility='visible') AS accuracy
  FROM channels c LEFT JOIN channel_profile_cache p ON p.channel_id=c.id
  LEFT JOIN channel_index_meta m ON m.channel_id=c.id
+ LEFT JOIN owned_channel_features f ON f.channel_id=c.id
  WHERE c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'
  ORDER BY c.updated_at DESC LIMIT 2500`).all();
- const rows=(result.results||[]).filter(c=>linkUsername(c.link)&&(!selected.length||selected.includes(c.content_type)||String(c.tags||'').split(',').some(t=>selected.includes(t))));
+ const rows=(result.results||[]).filter(c=>validListingLink(c)&&(!selected.length||selected.includes(c.content_type)||String(c.tags||'').split(',').some(t=>selected.includes(t))));
  const ranked=rows.map(c=>({c,score:rank(c,groups)})).filter(x=>x.score!==null);
  if(sort==='rated')ranked.sort((a,b)=>(Number(b.c.review_count)>=3?Number(b.c.rating):0)-(Number(a.c.review_count)>=3?Number(a.c.rating):0)||b.score-a.score);
  else if(sort==='recent')ranked.sort((a,b)=>(Date.parse(b.c.last_post_at)||0)-(Date.parse(a.c.last_post_at)||0)||b.score-a.score);
  else if(sort==='new')ranked.sort((a,b)=>b.c.id-a.c.id);
  else ranked.sort((a,b)=>b.score-a.score||Number(b.c.review_count)-Number(a.c.review_count)||a.c.id-b.c.id);
- return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,tags:c.tags||'',description:c.description||'',photo:c.photo||null,avatar:'/assets/channel-avatar/'+linkUsername(c.link)+'.jpg',rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
+ return {total:ranked.length,channels:ranked.slice(offset,offset+limit).map(({c})=>({id:c.id,title:c.title,link:c.link,type:c.content_type,genre:c.genre,language:c.language,tags:c.tags||'',description:c.description||'',photo:c.photo||null,avatar:linkUsername(c.link)?'/assets/channel-avatar/'+linkUsername(c.link)+'.jpg':null,featured:Number(c.owned_featured)===1,private_channel:Number(c.private_channel)===1,rating:c.review_count?Number(c.rating):null,review_count:Number(c.review_count),accuracy:c.review_count?Number(c.accuracy):null,link_status:c.link_status,last_post_at:c.last_post_at||null}))};
 }
 async function reviews(env,channelId){
  const info=await env.DB.prepare("SELECT COUNT(*) AS total,ROUND(AVG(rating),2) AS rating,ROUND(AVG(CASE WHEN matches_description='yes' THEN 1.0 WHEN matches_description='part' THEN 0.5 ELSE 0 END)*100) AS accuracy FROM channel_reviews WHERE channel_id=? AND visibility='visible'").bind(channelId).first();
