@@ -14,7 +14,10 @@ from langdetect import DetectorFactory, LangDetectException, detect_langs
 
 DetectorFactory.seed = 0
 ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions"
-MODELS = ("meta/llama-3.3-70b-instruct", "meta/llama-3.1-8b-instruct")
+# 2026 NVIDIA API catalog: older Llama IDs can return HTTP 410.
+MODELS = ("mistralai/mistral-small-4-119b-2603",
+          "mistralai/mistral-medium-3.5-128b",
+          "mistralai/mistral-large-3-675b-instruct-2512")
 TICKERS = {"BTC", "ETH", "USDT", "USDC", "SOL", "XRP", "BNB", "ETF", "NFT"}
 ENTITY_NAMES = ("Binance", "Coinbase", "Kraken", "BlackRock", "Tether",
                 "Circle", "Solana", "Ethereum", "Bitcoin", "Ripple",
