@@ -216,31 +216,42 @@ def no_links(value, max_chars=240):
     return value[:max_chars].strip()
 
 
-def caption(candidate, image_source=None):
-    """Telegram HTML: bold, italic, native blockquote; no links or clickable URLs."""
+def caption(candidate, image_source=None, translated=None, require_french=False):
+    """News photo legend: French headline, quote, then category and source.
+
+    No header, links, dates, hours or unverified automatic English fallback.
+    RSS original title and source stay intact in candidate for deduplication.
+    """
     main = candidate["main"]
     source = no_links(main["source"], 60)
     image_source = no_links(image_source or source, 60)
     category = no_links(main.get("category") or "ACTUALITÉ CRYPTO", 40)
-    title = no_links(main["title"], 185)
-    summary = no_links(main.get("summary"), 330)
-    if not title:
+    if require_french and not translated:
+        raise ValueError("Verified French translation is mandatory")
+    if translated:
+        if not isinstance(translated, dict) or not all(
+            isinstance(translated.get(field), str) and translated[field].strip()
+            for field in ("title_fr", "summary_fr")
+        ):
+            raise ValueError("Invalid verified French editorial data")
+        title = no_links(translated["title_fr"], 185)
+        summary = no_links(translated["summary_fr"], 330)
+    else:
+        title = no_links(main["title"], 185)
+        summary = no_links(main.get("summary"), 330)
+    if len(title) < 20:
         raise ValueError("Headline missing")
-    # A concise, attributable quote, not an invented interpretation.
     quote = summary if summary and summary.casefold() != title.casefold() else title
-    if len(quote) < 25:
-        quote = title
-    html_caption = (
-        "📰 <b>ACTU CRYPTO</b>  |  <i>" + escape(category) + "</i>\n\n"
-        + "🔸 <b>" + escape(title) + "</b>\n\n"
+    legend = (
+        "<b>" + escape(title) + "</b>\n\n"
         + "<blockquote>" + escape(quote) + "</blockquote>\n\n"
-        + "🗞️ <i>Source : " + escape(source) + "</i>"
-        + ("\n📷 <i>Image : " + escape(image_source) + "</i>"
+        + ("📷 <i>Image : " + escape(image_source) + "</i>\n"
            if image_source != source else "")
+        + "🏷️ <i>Catégorie : " + escape(category) + "</i>\n"
+        + "🗞️ <i>Source : " + escape(source) + "</i>"
     )
-    # Telegram photo captions have a 1024 char text+entity limit.
-    if len(html_caption) > 1000:
+    if len(legend) > 1000:
         raise ValueError("News photo caption above Telegram limit")
-    if re.search(r"(?i)https?://|www\.", html_caption):
+    if re.search(r"(?i)https?://|www\.", legend):
         raise ValueError("Links are forbidden in public Telegram messages")
-    return html_caption
+    return legend
