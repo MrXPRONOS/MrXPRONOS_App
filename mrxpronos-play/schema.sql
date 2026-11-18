@@ -37,3 +37,14 @@ CREATE TABLE IF NOT EXISTS daily_claims (
   PRIMARY KEY (user_id,day)
 );
 CREATE INDEX IF NOT EXISTS players_ranking ON players(confirmed_xp DESC);
+
+-- Trace non sensible de l'activation Telegram, aucun token stocké ici.
+CREATE TABLE IF NOT EXISTS telegram_setup_status (
+  id TEXT PRIMARY KEY,
+  status TEXT NOT NULL,
+  bot_username TEXT NOT NULL DEFAULT '',
+  webhook_url TEXT NOT NULL DEFAULT '',
+  menu_type TEXT NOT NULL DEFAULT '',
+  error TEXT NOT NULL DEFAULT '',
+  updated_ms INTEGER NOT NULL
+);
