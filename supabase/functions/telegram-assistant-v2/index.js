@@ -549,7 +549,15 @@ export function classifyClientScope(message='',history=[],session=null){
   const old=history.slice(-10);
   const lastUserContext=old.some(x=>x.role==='user'&&
     /(?:prono|coupon|football|match|score|corner|pari|bookmaker|inscri|telegram|installation|site|xpvip|vip)/.test(normalizeClientFrench(x.content||'')));
-  const domain=/(?:prono|coupon|pari(?:s sportifs?)?|bookmaker|pronostic|football|\bfoot\b|\bmatchs?\b|score|corners?|cotes?|double chance|over 2|xpvip|1xbet|1win|melbet|betwinner|betclic|linebet|mr ?x ?pronos|monsieur x pronos|nos? reseaux sociaux|votre canal|votre site|site mr|dossier mr|actu foot|vip|h2h)/.test(q);
+  // En français « à côté » n'est pas une cote de bookmaker.
+  const topical=q.replace(/\b(?:a|du) cote de\b/g,'');
+  if(/(?:tennis|basket(?:ball)?|volley(?:ball)?|baseball|formule ?1|nba|ufc)/.test(q)&&
+      !/(?:football|\bfoot\b|mr ?x ?pronos|notre|votre)/.test(q))
+    return {scope:'out_of_scope',reason:'other_sport'};
+  if(/(?:install|installation).{0,30}(?:telegram|whatsapp|facebook|instagram|tiktok|capcut)/.test(q)&&
+      !/(?:notre canal|nos? (?:pronos|pronostics)|xpronos|pour (?:voir|recevoir) (?:les )?pronos)/.test(q))
+    return {scope:'out_of_scope',reason:'external_app_installation'};
+  const domain=/(?:prono|coupon|pari(?:s sportifs?)?|bookmaker|pronostic|football|\bfoot\b|\bmatchs?\b|score|corners?|\bcotes?\b|double chance|over 2|xpvip|1xbet|1win|melbet|betwinner|betclic|linebet|mr ?x ?pronos|monsieur x pronos|nos? reseaux sociaux|votre canal|votre site|site mr|dossier mr|actu foot|vip|h2h)/.test(topical);
   const dangerous=analyzeClientIntent(message,history);
   if(domain||dangerous.minor||dangerous.loss||dangerous.secrets||dangerous.dataRights)
     return {scope:'in_scope',reason:domain?'domain':'safety'};
@@ -561,12 +569,12 @@ export function classifyClientScope(message='',history=[],session=null){
     /(?:curriculum vitae|mon cv|lettre de motivation|entretien d.embauche|trouver (?:un )?emploi|offre d.emploi)/,
     /(?:ma copine|mon copain|petite amie|petit ami|relation amoureuse|probleme de couple|mariage|draguer)/,
     /(?:musculation|salle de sport|exercices? physiques?|prise de muscle|perdre du ventre|barbe|cheveux|soin de peau)/,
-    /(?:panne (?:de|sur) (?:ma|mon) (?:voiture|moto|telephone|ordinateur)|reparer (?:ma|mon) (?:voiture|moto|telephone|ordinateur)|mon (?:telephone|ordinateur) est (?:casse|en panne))/,
+    /(?:panne (?:de|sur) (?:ma|mon) (?:voiture|moto|telephone|ordinateur)|reparer (?:ma|mon) (?:voiture|moto|telephone|ordinateur)|mon (?:telephone|ordinateur) est (?:casse|en panne)|meilleur (?:iphone|smartphone|telephone))/,
     /(?:visa (?:pour|schengen)|billets? d.avion|reserver (?:un )?hotel|voyage(?:r)? (?:au|en|a) (?:canada|france|usa|europe)|demande de passeport)/,
-    /(?:elevage|poussins?|pondeuses?|poulailler|ferme agricole|prix d.un terrain|investissement immobilier)/,
+    /(?:elevage|poussins?|pondeuses?|poulailler|ferme agricole|prix d.un terrain|investissement immobilier|elever des? (?:poulets?|poussins?)|mes poulets?|(?:combien coute|prix).{0,24}(?:terrain|parcelle|lot))/,
     /(?:bitcoin|usdt|usdc|ethereum|blockchain|cryptomonnaie|binance|portefeuille crypto|wallet crypto)/,
     /(?:coder (?:une|un) (?:appli|application|site)|programmation python|code javascript|developper (?:une|un) application|debugger mon code)/,
-    /(?:mal de tete|medecin|malade|medicament|symptome|ordonnance|hopital|soins medicaux)/,
+    /(?:mal de tete|medecin|malade|medicament|symptome|ordonnance|hopital|soins medicaux|problemes? de sante|ma sante)/,
     /(?:devoir (?:de|en) (?:math|francais|histoire|physique)|cours de maths|exercice de physique|qui est le president|elections politiques)/,
     /(?:film netflix|serie netflix|resume du film|conseille.moi un film|quelle musique|chanteur|paroles de chanson)/
   ];
@@ -578,6 +586,10 @@ export function classifyClientScope(message='',history=[],session=null){
   if(/(?:install|installation).{0,35}(?:application|logiciel|programme)\s+(?:windows|android|iphone)/.test(q)&&
      !/(?:mr ?x ?pronos|notre|votre|ce site|l.application du site)/.test(q))
     return {scope:'unknown',reason:'unspecified_external_application'};
+  if(['conseil','site','site_nav','method','access'].includes(intent)&&
+    !/(?:le site|notre site|votre site|site officiel|notre application|votre application|mr ?x ?pronos|l.application du site|pronostics?|paris|pari sportif|football|coupon|bookmaker)/.test(q)&&
+    !lastUserContext)
+    return {scope:'unknown',reason:'ambiguous_general_intent'};
   if(intent!=='general'||socialMediaRequest(message).requested||linksHubIntent(message))
     return {scope:'in_scope',reason:'known_intent'};
   if(session?.mode==='guided'&&guideIsContinuation(message,session))
