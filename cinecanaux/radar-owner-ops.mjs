@@ -42,7 +42,7 @@ export async function bindPrimaryRadarChannels(env){
 }
 export async function missingRadarTitles(env,ownerId,{limit=24,onlyUnnotified=false}={}){
   const n=Math.max(1,Math.min(30,Number(limit)||24));
-  const filter=onlyUnnotified?" AND NOT EXISTS (SELECT 1 FROM radar_notice_log l WHERE l.owner_id=? AND l.title_id=t.id AND l.sent_at>=datetime('now','-72 hours'))":'';
+  const filter=onlyUnnotified?" AND NOT EXISTS (SELECT 1 FROM radar_notice_log l WHERE l.owner_id=? AND l.title_id=t.id )":'';
   const sql="SELECT t.id,t.kind,t.title,t.year,t.source_url,t.trend_rank FROM radar_titles t "+
     "WHERE t.last_seen_at>=datetime('now','-8 days') "+
     "AND NOT EXISTS (SELECT 1 FROM radar_matches m WHERE m.title_id=t.id AND m.media_kind='video')"+
@@ -75,7 +75,7 @@ export async function notifyOwnerMissingRadarTitles(env){
   const owners=(await env.DB.prepare("SELECT user_id FROM admin_users WHERE role='owner' LIMIT 3").all()).results||[];
   for(const owner of owners){
     try{
-      const rows=await missingRadarTitles(env,owner.user_id,{limit:18,onlyUnnotified:true});
+      const rows=await missingRadarTitles(env,owner.user_id,{limit:12,onlyUnnotified:true});
       if(!rows.length)continue;
       output.listed+=rows.length;
       await botCall(env,'sendMessage',{chat_id:owner.user_id,text:formatRadarMissing(rows),disable_web_page_preview:true});
