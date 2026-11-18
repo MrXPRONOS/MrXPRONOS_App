@@ -103,3 +103,7 @@ test('a reused channel username cannot replace the Telegram chat ID already veri
  assert.equal(result.reason,'channel_identity_changed');
  assert.equal(state.posts.length,0);
 });
+
+test('a current TV season year does not disqualify a series first aired in an earlier year',()=>{
+ assert.ok(matchRadarTitle('Lupin Saison 3 2026 VF',{title:'Lupin',kind:'series',year:2021})>=85);
+});
