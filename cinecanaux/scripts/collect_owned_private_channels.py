@@ -14,7 +14,8 @@ import requests
 from telethon import TelegramClient, utils
 from telethon.sessions import StringSession
 from telethon.tl.types import Channel
-from telethon.tl.functions.channels import GetFullChannelRequest, ExportChatInviteRequest
+from telethon.tl.functions.channels import GetFullChannelRequest
+from telethon.tl.functions.messages import ExportChatInviteRequest
 
 MAX_SCAN = 1000
 TARGET = "cine_radar_owned_invites"
