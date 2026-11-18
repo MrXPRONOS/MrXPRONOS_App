@@ -1,10 +1,14 @@
+import {serveChannelAvatar} from "./channel-avatar.mjs";
+import {serveShowcase} from "./poster-showcase.mjs";
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
 import {ADMIN_HTML} from "./admin-page.mjs";
 import {adminAPI} from "./admin-v2.mjs";
+import {runLoggedJob} from "./job-log.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
+import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
  const x=new TextEncoder().encode(String(a||"")),y=new TextEncoder().encode(String(b||""));
@@ -18,7 +22,9 @@ async function receiveTelegram(request,env){
  if(Number(request.headers.get("content-length")||0)>750000)return new Response("Too large",{status:413});
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
- try{await botUpdate(env,update);return Response.json({ok:true});}
+ try{
+  if(update.channel_post||update.edited_channel_post){await ingestRadarPost(env,update);return Response.json({ok:true});}
+  await botUpdate(env,update);return Response.json({ok:true});}
  catch(e){console.error("cine_radar_update_failed",String(e).slice(0,120));return new Response("Retry",{status:500});}
 }
 function banner(){
@@ -147,7 +153,7 @@ export async function indexQualifiedChannels(env){
 }
 
 export default {
- async fetch(request,env){
+ async fetch(request,env,ctx){
   const u=new URL(request.url);
   if(request.method==="GET"&&(u.pathname==="/app"||u.pathname==="/")){
    let html=APP_HTML;
@@ -161,12 +167,58 @@ export default {
     console.warn(JSON.stringify({event:"catalog_html_preload_fallback",error:String(e).slice(0,90)}));
     // The client still supports its original /api/catalog fetch.
    }
-   return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
+   return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me https://image.tmdb.org https://static.tvmaze.com https://m.media-amazon.com https://images-na.ssl-images-amazon.com; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&u.pathname==="/admin"){
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
+  if(u.pathname==="/api/showcase")return serveShowcase(request);
+  if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click")return radarApi(env,request);
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
+  const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
+  if(request.method==="GET"&&avatarId)return serveChannelAvatar(request,env,ctx,avatarId[1]);
+  const avatarMatch=new RegExp("^/assets/channel-avatar/([A-Za-z][A-Za-z0-9_]{4,31})[.]jpg$").exec(u.pathname);
+  if(request.method==="GET"&&avatarMatch){
+   const handle=avatarMatch[1].toLowerCase();
+   const indexed=await env.DB.prepare("SELECT id FROM channels WHERE LOWER(link)=? AND status='approved'").bind('https://t.me/'+handle).first();
+   if(!indexed)return new Response("Not found",{status:404,headers:{"cache-control":"public,max-age=300"}});
+   const base="https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/avatars/";
+   try{
+    const image=await fetch(base+encodeURIComponent(handle)+".jpg",{signal:AbortSignal.timeout(6000),cf:{cacheEverything:true,cacheTtl:3600}});
+    const type=String(image.headers.get("content-type")||"");
+    if(image.ok&&type.toLowerCase().startsWith("image/"))return new Response(image.body,{headers:{"content-type":"image/jpeg","cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
+   }catch(e){console.warn("cineradar_avatar_repository_unavailable",String(e).slice(0,90));}
+   // Fallback for newly indexed channels: fetch the public channel photo with the server-side Bot API.
+   // The Telegram token and getFile URL are never sent to the browser.
+   if(env.TELEGRAM_TOKEN){
+    try{
+     const base="https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/";
+     const chatResponse=await fetch(base+"getChat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat_id:"@"+handle}),signal:AbortSignal.timeout(5500)});
+     if(chatResponse.ok){
+      const chat=await chatResponse.json();
+      const photoId=chat.ok&&chat.result?.type==="channel"?chat.result?.photo?.big_file_id:null;
+      if(typeof photoId==="string"&&photoId.length<500){
+       const fileResponse=await fetch(base+"getFile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({file_id:photoId}),signal:AbortSignal.timeout(5500)});
+       if(fileResponse.ok){
+        const file=await fileResponse.json();
+        const path=file.ok?file.result?.file_path:null;
+        if(typeof path==="string"&&/^[a-zA-Z0-9_./-]{1,350}$/.test(path)&&!path.includes("..")){
+         const imageResponse=await fetch("https://api.telegram.org/file/bot"+env.TELEGRAM_TOKEN+"/"+path,{signal:AbortSignal.timeout(6000)});
+         const contentType=String(imageResponse.headers.get("content-type")||"").toLowerCase();
+         if(imageResponse.ok&&contentType.startsWith("image/")){
+          const bytes=await imageResponse.arrayBuffer();
+          if(bytes.byteLength>0&&bytes.byteLength<=2097152){
+           return new Response(bytes,{headers:{"content-type":contentType,"cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
+          }
+         }
+        }
+       }
+      }
+     }
+    }catch(e){console.warn("cineradar_avatar_bot_fallback_unavailable",String(e).slice(0,90));}
+   }
+   return new Response("No accessible public avatar",{status:404,headers:{"cache-control":"public,max-age=300"}});
+  }
   if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
    const name=u.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
@@ -175,6 +227,18 @@ export default {
    return new Response(image.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public,max-age=86400"}});
   }
   if(u.pathname==="/api/catalog"||u.pathname==="/api/search"||u.pathname==="/api/reports"||u.pathname==="/api/suggestions"||/^\/api\/channels\/\d+\/reviews$/.test(u.pathname))return v2API(env,request);
+  if(u.pathname==="/api/engagement"&&request.method==="POST"){
+    const origin=request.headers.get("origin");
+    if(origin&&origin!==u.origin)return Response.json({error:"Origin denied"},{status:403});
+    if(Number(request.headers.get("content-length")||0)>256)return Response.json({error:"Too large"},{status:413});
+    let payload;try{payload=await request.json()}catch{return Response.json({error:"Invalid request"},{status:400})}
+    const id=payload?.id;
+    if(payload?.event!=="open"||!Number.isSafeInteger(id)||id<1)return Response.json({error:"Invalid event"},{status:400});
+    const active=await env.DB.prepare("SELECT c.id FROM channels c LEFT JOIN channel_index_meta m ON m.channel_id=c.id WHERE c.id=? AND c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'").bind(id).first();
+    if(!active)return Response.json({error:"Channel unavailable"},{status:404});
+    await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=opens+1").bind(id).run();
+    return Response.json({ok:true},{headers:{"Cache-Control":"no-store"}});
+  }
   if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
   if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
   if(request.method==="GET"&&u.pathname==="/health"){
@@ -185,14 +249,22 @@ export default {
   return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  if(controller.cron==="0 */4 * * *")ctx.waitUntil((async()=>{
+  if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
-   await indexQualifiedChannels(env);
+   const discovered=await indexQualifiedChannels(env);
    await syncCategoryTags(env);
-   await integrateSuggestions(env,12);
+   const suggested=await integrateSuggestions(env,12);
    await cleanup(env);
+   return {inspected:discovered.inspected||0,inserted:(discovered.inserted||0)+(suggested.indexed||0),errors:discovered.unverifiable||0};
+  }));
+  else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
+  else if(controller.cron==="20 5 * * *")ctx.waitUntil((async()=>{
+    try{const trends=await runTrendRefresh(env);const posts=await reconcileRadarPosts(env,160);console.log(JSON.stringify({event:"radar_daily",trends,posts}));}
+    catch(e){console.error("radar_daily_error",String(e).slice(0,180));throw e;}
   })());
-  else if(controller.cron==="0 3 * * *")ctx.waitUntil(checkDailyLinks(env,10));
-  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]));
+  else ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
+   const result=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]);
+   return {errors:result.filter(x=>x.status==='rejected').length};
+  }));
  }
 };
