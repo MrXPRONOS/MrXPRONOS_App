@@ -24,8 +24,8 @@ class NewsD1Tests(unittest.TestCase):
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
         self.item={
-            "slug":"news1","title":"Football confirmed update","summary":"Source verified.",
-            "telegram_summary":"Source verified.", "published":(NOW-timedelta(minutes=25)).isoformat(),
+            "slug":"news1","title":"Un nouveau contrat annoncé en France","summary":"Le club confirme un nouveau contrat pour la saison prochaine. Les dirigeants ont présenté leur projet.",
+            "telegram_summary":"Le club confirme un nouveau contrat pour la saison prochaine. Les dirigeants ont présenté leur projet.", "published":(NOW-timedelta(minutes=25)).isoformat(),
             "link":"https://example.org/news/story",
             "image":"assets/images/footnews/news.jpg","image_origin":"source",
             "source":"Example source",
