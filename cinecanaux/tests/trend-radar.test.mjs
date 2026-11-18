@@ -84,12 +84,13 @@ test('admin approval requires owner and only accepts known source ID formats',as
  assert.equal(await authorizeRadarTitle({DB:fixture.db},'bad',1),false);
  assert.equal(await authorizeRadarTitle({DB:fixture.db},'tmdb-films-100',1),true);
 });
-test('mini-app exposes an independent verified titles section while preserving original illustrated posters',()=>{
- assert.ok(APP_HTML.includes('radarSection("🎬 Nouveautés disponibles dans nos canaux")'));
- assert.ok(APP_HTML.includes('radarSection("🎞️ Films, séries et animés référencés")'));
- assert.ok(APP_HTML.includes('fetch("/api/radar?limit=24"'));
- assert.ok(APP_HTML.includes('fetch("/api/radar/click"'));
+test('mini-app preserves the scenic cinema hero and reserves À l’affiche for real pinned messages',()=>{
+ assert.ok(APP_HTML.includes('fetch("/api/pinned-showcase"'));
+ assert.ok(APP_HTML.includes('fetch("/api/pinned-click"'));
  assert.ok(APP_HTML.includes('loadCinemaShowcase()'));
+ assert.ok(APP_HTML.includes('renderCinemaShowcase()'));
+ assert.ok(!APP_HTML.includes('home.append(homeRadar)'));
+ assert.ok(!APP_HTML.includes('panel.decouvrir.append(radarSection'));
 });
 
 test('a reused channel username cannot replace the Telegram chat ID already verified',async()=>{
