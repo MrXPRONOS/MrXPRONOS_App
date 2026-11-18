@@ -184,6 +184,7 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
         if str(row.get("ref_id") or "").startswith(str(chat) + ":")
     }
     sent_this_run = set()
+    claimed_run_slots = set()
     report["editorial_skipped"] = 0
     nim_attempts = 0
 
@@ -213,9 +214,19 @@ def dispatch(news, now, *, dry_run, token=None, chat=None, ledger=None, session=
             report["editorial_skipped"] += 1
             continue
 
-        # Each 30-minute run has two independent, durable publication slots.
-        slot = f"{chat}:{day}:{now.hour:02d}:{now.minute // 30}:{report['sent']}"
-        if not ledger.claim(SLOT_KIND, slot, day):
+        # A previous Telegram ReadTimeout can leave slot 0 reserved forever.
+        # Use the other D1 slot for a DIFFERENT article; never reclaim or
+        # retry a reserved item and never exceed two slots per half-hour.
+        slot = None
+        for slot_index in range(MAX_POSTS_PER_RUN):
+            candidate_slot = f"{chat}:{day}:{now.hour:02d}:{now.minute // 30}:{slot_index}"
+            if candidate_slot in claimed_run_slots:
+                continue
+            if ledger.claim(SLOT_KIND, candidate_slot, day):
+                slot = candidate_slot
+                claimed_run_slots.add(candidate_slot)
+                break
+        if slot is None:
             report["slot_already_claimed"] = True
             break
         daily_ref = next(

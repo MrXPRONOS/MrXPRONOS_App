@@ -86,6 +86,59 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertEqual(sending.call_count, 2)
         self.assertEqual(ledger.mark.call_count, 6)
 
+    def test_reserved_first_slot_uses_only_other_slot_for_distinct_story(self):
+        first = {**self.story, "slug": "news-c", "title": "Titre original numero trois"}
+        second = {**self.story, "slug": "news-d", "title": "Autre publication"}
+        ledger = Mock()
+        ledger.rows.return_value = []
+        claimed = set()
+
+        def claim(kind, ref, day):
+            if kind == pub.SLOT_KIND:
+                if ref.endswith(":0") or ref in claimed:
+                    return False
+                claimed.add(ref)
+                return True
+            return True
+
+        ledger.claim.side_effect = claim
+        with patch.object(pub, "send_article", return_value=555) as send:
+            report = pub.dispatch([first, second], NOW, dry_run=False,
+                                  token="token", chat="-10042", ledger=ledger, session=Mock())
+        self.assertEqual(report["sent"], 1)
+        self.assertTrue(report["slot_already_claimed"])
+        send.assert_called_once()
+        self.assertEqual(send.call_args.args[3]["slug"], "news-c")
+        self.assertEqual(len(claimed), 1)
+        self.assertTrue(next(iter(claimed)).endswith(":1"))
+
+    def test_reserved_slot_zero_uses_other_slot_without_resending_ambiguous_article(self):
+        # Simulate an article already reserved from an earlier uncertain send
+        # and slot 0 already claimed for this half-hour.
+        first = {**self.story, "slug": "uncertain-article"}
+        second = {**self.story, "slug": "fresh-article", "title": "Deuxième information"}
+        ledger = Mock()
+        def rows(kind, day, *, ref_id=None):
+            if kind == pub.DAILY_KIND:
+                return [{"ref_id": "-10042:00"}]
+            if kind == pub.KIND and ref_id == "-10042:uncertain-article":
+                return [{"delivery_status": "reserved"}]
+            return []
+        ledger.rows.side_effect = rows
+        def claim(kind, ref, day):
+            if kind == pub.SLOT_KIND and ref.endswith(":0"):
+                return False
+            return True
+        ledger.claim.side_effect = claim
+        with patch.object(pub, "send_article", return_value=678) as send:
+            result = pub.dispatch([first, second], NOW, dry_run=False,
+                                  ledger=ledger, token="token", chat="-10042",
+                                  session=Mock())
+        self.assertEqual(result["sent"], 1)
+        self.assertGreaterEqual(result["already_sent"], 1)
+        self.assertEqual(send.call_args.args[3]["slug"], "fresh-article")
+        self.assertEqual(ledger.claim.call_args_list[1].args[1].split(":")[-1], "1")
+
     def test_daily_quota_blocks_publication(self):
         ledger = Mock()
         ledger.rows.return_value = [
