@@ -87,7 +87,7 @@ async function loadChannelPreview(env,id){
  if(!c)return {status:404,error:"Canal non disponible"};
  const match=PUBLIC_LINK.exec(c.link||"");
  if(!match){
-  const privateInvite=/^https:\\/\\/t\\.me\\/(?:\\+[A-Za-z0-9_-]{12,}|joinchat\\/[A-Za-z0-9_-]{12,})\\/?$/.test(c.link||"");
+  const privateInvite=new RegExp("^https://t[.]me/(?:[+][A-Za-z0-9_-]{12,}|joinchat/[A-Za-z0-9_-]{12,})/?$").test(c.link||"");
   if(!privateInvite)return {status:404,error:"Lien Telegram invalide"};
   const owned=await env.DB.prepare("SELECT private_channel,enabled FROM owned_channel_features WHERE channel_id=?").bind(id).first();
   if(Number(owned?.enabled)!==1||Number(owned?.private_channel)!==1)return {status:404,error:"Canal privé indisponible"};
