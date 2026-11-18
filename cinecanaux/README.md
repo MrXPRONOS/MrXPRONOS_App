@@ -29,3 +29,38 @@ La suppression des anciennes tables de favoris, de parrainage et de données per
 Mini App : https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app
 
 Bot : https://t.me/CineRadarFr_Bot
+
+
+## Radar des tendances et canaux principaux (novembre 2026)
+
+Trois canaux publics administrés par le bot :
+- Films : https://t.me/CineXFilms_vf
+- Séries : https://t.me/seriesvf_cinex
+- Animés : https://t.me/CineXAnimeFR
+
+Migration D1 : migrations/008_trending_radar.sql. Module : trend-radar.mjs. Les fichiers vidéo ne sont jamais téléchargés, copiés, stockés ni retransmis par ce module.
+
+### Sources et fréquence
+
+- TMDB pour les films et séries de la semaine : configurer TMDB_API_KEY (v3) ou TMDB_READ_ACCESS_TOKEN comme secret du Worker Cloudflare cinecanaux-bot. Un secret GitHub Actions de même nom ne configure pas automatiquement Cloudflare.
+- AniList pour les animés tendance via l'API GraphQL publique.
+- Le Cron existant 0 */6 * * * (UTC) exécute à 06:00 UTC une vérification quotidienne. Le rafraîchissement réussi par catégorie doit dater d'au moins 72 heures pour se reproduire. Les sources en échec sont réessayées au passage suivant.
+
+### Référencement des titres
+
+Le webhook accepte message, callback_query, channel_post et edited_channel_post. Le bot reçoit seulement les **nouvelles** publications de ses canaux (il ne peut pas relire rétroactivement leur historique via la Bot API). Il conserve uniquement la légende, le type de média, l'identifiant du message et son lien Telegram. Ajouter le **titre exact dans la légende de la vidéo** ou le nom de son fichier ; une affiche isolée ne prouve pas qu'un titre complet est disponible.
+
+L'affiche cliquable du nouveau panneau n'apparaît que lorsqu'une correspondance vidéo assez sûre et une autorisation explicite de diffusion ont été enregistrées. Elle ouvre la publication Telegram exacte, pas simplement la page du canal.
+
+Le score de classement combine récence, tendances et clics agrégés sans enregistrer l'identité des spectateurs. Un titre souvent consulté peut rester visible plus longtemps.
+
+### Commandes privées réservées au propriétaire
+
+- /start : ouvrir la conversation privée avec Cine Radar.
+- /actualiser : démarrer manuellement une collecte de tendances.
+- /tendances : afficher les recommandations indexées et leurs identifiants.
+- /autoriser ID_DU_TITRE : confirmer uniquement les titres pour lesquels on possède les droits nécessaires pour diffuser la vidéo.
+
+Les suggestions sont envoyées au propriétaire par message privé, pas dans ses Messages enregistrés : l'API Telegram des bots ne peut pas écrire directement dans cet espace personnel. Aucun téléchargement ou recherche de copies non autorisées n'est effectué.
+
+API publique : GET /api/radar?kind=films|series|animes&limit=24. Le nouveau catalogue s'ajoute à l'annuaire des canaux existant.
