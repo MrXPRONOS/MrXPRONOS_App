@@ -17,6 +17,7 @@ import requests
 from crypto import production_seed_v1 as seed
 from crypto import news_digest_v1 as digest
 from crypto import news_media_v1 as media
+from crypto import news_translation_v1 as translator
 
 UTC = timezone.utc
 TODAY = datetime.now(UTC)
@@ -288,7 +289,13 @@ def execute(mode: str):
                     print("CRYPTO_LIVE_SKIP_NEWS_NO_SOURCE_IMAGE", number)
                     continue
                 image, photo_source = photo
-                caption = media.caption(news_candidate, image_source=photo_source)
+                try:
+                    french = translator.FrenchTranslator().translate(news_candidate["main"])
+                    caption = media.caption(news_candidate, image_source=photo_source,
+                                            translated=french, require_french=True)
+                except translator.TranslationHold:
+                    print("CRYPTO_LIVE_SKIP_UNVERIFIED_FRENCH", number)
+                    continue
                 message_id = record_send(chat, caption, image, parse_mode="HTML")
             else:
                 caption = seed.caption_for(number, data)
