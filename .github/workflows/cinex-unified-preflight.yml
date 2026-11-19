@@ -39,7 +39,7 @@ jobs:
       ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
       ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
-      CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-audit.json
+      CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-audit-${{ github.run_id }}.json
       PYTHONPATH: .
     defaults:
       run:
