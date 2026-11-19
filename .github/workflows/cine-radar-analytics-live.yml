@@ -1,0 +1,21 @@
+name: Cine Radar - Auth and visitor analytics smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/tests/owner-analytics-live.test.mjs'
+      - '.github/workflows/cine-radar-analytics-live.yml'
+permissions:
+  contents: read
+jobs:
+  analytics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check production protected admin and analytics
+        run: node --test cinecanaux/tests/owner-analytics-live.test.mjs
