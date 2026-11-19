@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: cinex-archive-activation
@@ -19,45 +20,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Verifier les droits, activer les garde-fous et lancer un archivage canari
+      - name: Verifier les trois variables et demander un archivage limite a deux films
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT_SECRETS }}
+          GH_TOKEN: ${{ github.token }}
+          CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+          CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
+          CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
         run: |
           set -euo pipefail
-          if [[ -z "${GH_TOKEN:-}" ]]; then
-            echo "::error::Secret GH_PAT_SECRETS absent. Activation impossible sans permission GitHub Variables."
-            exit 1
-          fi
-
-          repo="$GITHUB_REPOSITORY"
-          # CINEX_RIGHTS_VERIFIED must have been explicitly attested by the
-          # account owner. NEVER create or overwrite the rights attestation.
-          rights="$(gh api "repos/$repo/actions/variables/CINEX_RIGHTS_VERIFIED" --jq .value 2>/dev/null || true)"
-          if [[ "$rights" != "true" ]]; then
-            echo "::error::CINEX_RIGHTS_VERIFIED n'est pas true : aucun archivage reel autorise."
-            exit 1
-          fi
-
-          for name in CINEX_ARCHIVE_ENABLED CINEX_ARCHIVE_DELETE_APPROVED; do
-            if gh api "repos/$repo/actions/variables/$name" --jq .name >/dev/null 2>&1; then
-              gh api --method PATCH "repos/$repo/actions/variables/$name" \
-                -f name="$name" -f value=true >/dev/null
-            else
-              gh api --method POST "repos/$repo/actions/variables" \
-                -f name="$name" -f value=true >/dev/null
-            fi
-            actual="$(gh api "repos/$repo/actions/variables/$name" --jq .value)"
-            if [[ "$actual" != "true" ]]; then
-              echo "::error::$name n'a pas pu etre confirme. Archivage non declenche."
+          # Read the actual repository variables injected into the GitHub Actions
+          # environment. Do not rely on PAT access to the Variables API.
+          for name in CINEX_RIGHTS_VERIFIED CINEX_ARCHIVE_ENABLED CINEX_ARCHIVE_DELETE_APPROVED; do
+            if [[ "${!name:-}" != "true" ]]; then
+              echo "::error::$name doit etre defini a true dans les variables du depot (Settings / Secrets and variables / Actions / Variables)."
               exit 1
             fi
-            echo "$name active"
+            echo "$name confirme"
           done
 
-          # The archive workflow itself rechecks ALL THREE independent
-          # variables, bot+owner permissions, 10 most recent verified films,
-          # exact private media and every required public poster button.
-          # Manual dispatch is limited to two archival deletions per run.
-          gh workflow run cinex-public-video-rotation.yml --repo "$repo" --ref main -f apply=true
-          echo "Archivage canari demande : au plus deux anciennes videos."
+          # The archive workflow rechecks those variables independently, and
+          # verifies video/poster/link identity and Telegram permissions again.
+          # Manual dispatch cannot delete more than two verified older films.
+          gh workflow run cinex-public-video-rotation.yml --repo "$GITHUB_REPOSITORY" --ref main -f apply=true
+          echo "Archivage reel limite a deux films demande."
