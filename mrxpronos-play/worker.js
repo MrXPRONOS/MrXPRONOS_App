@@ -135,6 +135,50 @@ async function v2PlayerProfile(env,player,progression){
  };
 }
 
+
+/* V2 Phase 3 — signed, expiring snapshots of server-confirmed public stats.
+   Tokens reveal no Telegram numeric ID, private handle or unconfirmed XP.
+   Verification is optional and expires automatically after 30 days. */
+const MRXP_SHARE_TTL_MS=30*24*60*60*1000;
+const MRXP_SHARE_IMAGE_ROOT="https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/mrxpronos-play/assets/07-rank-avatars/";
+function mrxpSafeName(str){return String(str||"").replace(/[<>&"'\u0000-\u001f\u007f]/g," ").replace(/\s+/g," ").trim().slice(0,42)||"Joueur MRXP"}
+function mrxpBase64url(bytes){let binary="";for(const byte of bytes)binary+=String.fromCharCode(byte);return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function mrxpUnbase64url(str){if(!/^[A-Za-z0-9_-]+$/.test(str)||str.length>4000)throw Error("INVALID_SHARE_TOKEN");const binary=atob(str.replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(binary,c=>c.charCodeAt(0))}
+async function mrxpShareKey(env){if(!env.BOT_TOKEN)throw Error("Share signing unavailable");return crypto.subtle.importKey("raw",new TextEncoder().encode("mrxp-share-v1:"+env.BOT_TOKEN),{name:"HMAC",hash:"SHA-256"},false,["sign","verify"])}
+async function mrxpShareToken(env,snapshot){
+ const payload=mrxpBase64url(new TextEncoder().encode(JSON.stringify(snapshot)));
+ const sig=await crypto.subtle.sign("HMAC",await mrxpShareKey(env),new TextEncoder().encode(payload));
+ return payload+"."+mrxpBase64url(new Uint8Array(sig));
+}
+async function mrxpVerifySnapshot(env,token){
+ if(typeof token!=="string"||token.length>2500)return null;
+ const parts=token.split(".");if(parts.length!==2)return null;
+ try{
+  const payload=parts[0],sig=mrxpUnbase64url(parts[1]);
+  if(sig.byteLength!==32)return null;
+  const verified=await crypto.subtle.verify("HMAC",await mrxpShareKey(env),sig,new TextEncoder().encode(payload));
+  if(!verified)return null;
+  const s=JSON.parse(new TextDecoder().decode(mrxpUnbase64url(payload)));
+  if(s.v!==1||!Number.isInteger(s.issued_ms)||Date.now()-s.issued_ms<0||Date.now()-s.issued_ms>MRXP_SHARE_TTL_MS)return null;
+  if(!Number.isInteger(s.level)||s.level<1||s.level>50||!Number.isInteger(s.avatar_rank)||s.avatar_rank<1||s.avatar_rank>11||s.avatar_rank>v2CurrentRankIndex(s.level)+1)return null;
+  if(!Number.isSafeInteger(s.xp)||s.xp<0||!Number.isSafeInteger(s.missions)||s.missions<0)return null;
+  if(typeof s.display_name!=="string"||s.display_name.length>42||typeof s.rank!=="string"||s.rank!==v2Rank(s.level).name)return null;
+  return s;
+ }catch{return null}
+}
+function mrxpEscapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function mrxpShareSnapshot(env,player,hideName){
+ const progression=await v2Progression(env,player);
+ const profile=await v2PlayerProfile(env,player,progression);
+ const count=await env.DB.prepare("SELECT COUNT(*) AS total FROM mission_claims WHERE user_id=?").bind(player.user_id).first();
+ const issued_ms=Date.now();
+ const snapshot={v:1,issued_ms,display_name:hideName?"Joueur MRXP":mrxpSafeName(player.display_name),
+  rank:progression.rank,level:progression.level,xp:progression.confirmed_xp,
+  missions:Math.max(0,Number(count?.total||0)),mastery:progression.mastery.completed,
+  progress_percent:progression.xp_progress_percent,avatar_rank:profile.selected_rank_id};
+ return {snapshot,token:await mrxpShareToken(env,snapshot)};
+}
+
 /* Telegram Bot interface: public /start -> Mini App; admin D1 allowlist -> private tools. */
 const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\n🎯 Tapote pour collecter des XP Points.\n🎮 Explore les Jeux : commence avec la Lucky Wheel.\n🎁 Accomplis des missions pour gagner des XP.\n📈 Suis ta progression depuis la Mini App.\n\nLes XP Points sont des points virtuels sans valeur monétaire.\n\nAppuie sur « Ouvrir l’application » pour jouer.";
 const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, explore les Jeux (Lucky Wheel), accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
@@ -404,6 +448,34 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   await telegramWebhook(env,update,u.origin,ctx);
   return json({ok:true});
  }
+
+ if(p.startsWith("/share/avatar/")&&request.method==="GET"){
+  const rank=Number(p.slice("/share/avatar/".length));
+  if(!Number.isInteger(rank)||rank<1||rank>11)return new Response("Avatar inconnu",{status:404});
+  const asset=V2_RANK_PORTRAITS[rank-1];
+  try{
+   const remote=await fetch(MRXP_SHARE_IMAGE_ROOT+asset,{cf:{cacheTtl:86400,cacheEverything:true}});
+   if(!remote.ok)return new Response("Image indisponible",{status:502});
+   const type=(remote.headers.get("content-type")||"").toLowerCase();
+   if(!type.includes("image/")&&!type.includes("application/octet-stream"))return new Response("Image invalide",{status:502});
+   if(Number(remote.headers.get("content-length")||0)>3000000)return new Response("Image volumineuse",{status:502});
+   const bytes=await remote.arrayBuffer();
+   if(bytes.byteLength<100||bytes.byteLength>3000000)return new Response("Image invalide",{status:502});
+   return new Response(bytes,{headers:{"content-type":"image/webp","cache-control":"public, max-age=86400","x-content-type-options":"nosniff"}});
+  }catch{return new Response("Image indisponible",{status:502})}
+ }
+ if(p==="/share/verify"&&request.method==="GET"){
+  const s=await mrxpVerifySnapshot(env,u.searchParams.get("token"));
+  if(!s)return new Response("<!doctype html><html lang=\"fr\"><meta charset=\"utf-8\"><title>Profil non vérifié</title><body><h1>Profil non vérifié</h1><p>Cette carte n'est pas authentique ou a expiré.</p></body></html>",{status:400,headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}});
+  const name=mrxpEscapeHtml(s.display_name),rank=mrxpEscapeHtml(s.rank),stamp=new Date(s.issued_ms).toLocaleDateString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"long",year:"numeric"});
+  const htmlVerify='<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Profil MRXP vérifié</title><style>body{font-family:system-ui,sans-serif;background:#08152e;color:white;text-align:center;padding:40px 20px;max-width:560px;margin:auto}article{border:1px solid #d9b354;border-radius:22px;padding:25px;background:linear-gradient(#102f62,#07132c)}h1{color:#f6d480}img{max-width:200px;height:200px;object-fit:contain}strong{color:#f5d28a}a{color:#9ad9ff}</style></head><body><article><h1>✓ Profil MRXP vérifié</h1><img alt="Avatar officiel" src="/share/avatar/'+s.avatar_rank+'"><h2>'+name+'</h2><p>Rang '+rank+' · Niveau '+s.level+'</p><p><strong>'+s.xp.toLocaleString("fr-FR")+' XP confirmés</strong></p><p>'+s.missions+' missions validées · '+s.mastery+' maîtrises</p><small>Statistiques confirmées le '+mrxpEscapeHtml(stamp)+'. Cette preuve expire 30 jours après sa création.</small></article><p><a href="https://t.me/MrXpronosPlayBot">Jouer à Mr XPRONOS Play</a></p></body></html>';
+  return new Response(htmlVerify,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"private, no-store","x-content-type-options":"nosniff","referrer-policy":"no-referrer"}});
+ }
+ if(p==="/api/share/verify"&&request.method==="GET"){
+  const snapshot=await mrxpVerifySnapshot(env,u.searchParams.get("token"));
+  return json(snapshot?{valid:true,snapshot}:{valid:false,error:"Carte non vérifiée ou expirée"},snapshot?200:400);
+ }
+
  if(!p.startsWith("/api/"))return json({error:"Not found"},404);
  if(request.method!=="GET"&&request.method!=="POST")return json({error:"Method not allowed"},405);
  const auth=await authenticate(request,env);if(!auth.user)return json({error:"Identification Telegram refusée : "+auth.reason,code:auth.reason},401);const user=auth.user;
@@ -437,6 +509,15 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  if(p==="/api/profile"&&request.method==="GET"){
   const progression=await v2Progression(env,player);
   return json({progression,profile:await v2PlayerProfile(env,player,progression)});
+ }
+
+ if(p==="/api/share/profile"&&request.method==="POST"){
+  let body={};try{body=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  if(body.hide_name!==true&&body.hide_name!==false)return json({error:"Choisir la visibilité du nom.",code:"SHARE_PRIVACY_REQUIRED"},400);
+  const signed=await mrxpShareSnapshot(env,player,body.hide_name);
+  return json({snapshot:signed.snapshot,token:signed.token,
+   verify_url:u.origin+"/share/verify?token="+encodeURIComponent(signed.token),
+   expires_ms:signed.snapshot.issued_ms+MRXP_SHARE_TTL_MS});
  }
  if(p==="/api/profile/avatar"&&request.method==="POST"){
   let body;try{body=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
