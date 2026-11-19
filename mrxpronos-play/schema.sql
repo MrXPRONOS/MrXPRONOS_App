@@ -66,3 +66,15 @@ CREATE TABLE IF NOT EXISTS bot_admin_pending (
 );
 -- Game feature flags use bot_settings keys feature_tap, feature_wheel,
 -- feature_daily, feature_missions. Missing keys mean enabled by default.
+
+-- Rewards engine: unique one-time bonus for each completed mission (idempotent).
+CREATE TABLE IF NOT EXISTS mission_claims (
+  user_id TEXT NOT NULL,
+  mission_key TEXT NOT NULL,
+  xp_awarded INTEGER NOT NULL CHECK (xp_awarded >= 0),
+  created_ms INTEGER NOT NULL,
+  PRIMARY KEY (user_id, mission_key)
+);
+CREATE INDEX IF NOT EXISTS idx_mission_claims_user ON mission_claims(user_id);
+-- Existing users and XP totals are preserved; no points are retroactively
+-- awarded until a valid mission claim is submitted and checked by the Worker.
