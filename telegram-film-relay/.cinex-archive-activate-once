@@ -1,1 +1,1 @@
-2026-11-19: retry after fixing Actions variable injection. User confirmed rights and archive variable setup. Strictly require all three booleans true; dispatch max-two archive canary.
+2026-11-19 19:04 UTC: owner confirmed CINEX_RIGHTS_VERIFIED=true in repository Actions variables; rerun activation to verify all three and dispatch live canary archiving max 2 older videos.
