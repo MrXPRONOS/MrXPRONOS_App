@@ -137,6 +137,7 @@ def targets_from_env(env: dict | None = None) -> list[str]:
         env.get("DESIR_PUBLIC_CHANNEL") or "@CineXDesirfr",
         env.get("COMEDIE_PUBLIC_CHANNEL") or "",
         env.get("ANIME_PUBLIC_CHANNEL") or "@CineXAnimeFR",
+        env.get("ACTION_PUBLIC_CHANNEL") or "@filmsaction2026vf",
     ]
     if (str(env.get("CINEX_TORRENT9_PAUSED", "true")).lower() != "true"
             and str(env.get("CINEX_DEFER_MIRROR", "true")).lower() != "true"):
