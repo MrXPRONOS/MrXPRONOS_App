@@ -1,6 +1,9 @@
 name: CineX - Audit quotidien de securite
 
 on:
+  push:
+    branches: [main]
+    paths: ['telegram-film-relay/.cinex-phase1-health-once']
   workflow_dispatch:
   schedule:
     - cron: '11 8 * * *'
