@@ -17,23 +17,23 @@ test("Legacy category callbacks now open Mini App without querying directory cat
   await botUpdate(env,update);await botUpdate(env,update);
   assert.equal(state.queries,0);
   assert.ok(state.calls.includes("answerCallbackQuery"));
-  assert.equal(state.calls.filter(x=>x==="editMessageText").length,2);
+  assert.equal(state.calls.filter(x=>x==="sendPhoto").length,2);
  }finally{globalThis.fetch=previous;invalidateDirectoryCache();}
 });
-test("Callback acknowledgement begins while owner-role authorization is still pending",async()=>{
+test("Callback is acknowledged immediately without private owner-role database queries",async()=>{
  invalidateDirectoryCache();
- let unblock;
- const delayed=new Promise(resolve=>{unblock=resolve;});
- const state={calls:[]};
- const env={TELEGRAM_TOKEN:"123:test",DB:{prepare(){return {bind(){return this},async first(){await delayed;return null;}}}}};
+ const state={calls:[],dbReads:0};
+ const env={TELEGRAM_TOKEN:"123:test",DB:{prepare(){state.dbReads++;throw Error("No DB read required for Mini App entry")}}};
  const previous=globalThis.fetch;
- globalThis.fetch=async(url)=>{const method=String(url).split("/").pop();state.calls.push(method);return Response.json({ok:true,result:{message_id:5}});};
+ globalThis.fetch=async(url)=>{
+  const method=String(url).split("/").pop();state.calls.push(method);
+  return Response.json({ok:true,result:{message_id:5}});
+ };
  try{
-  const pending=botUpdate(env,{callback_query:{id:"early-ack",from:{id:10},message:{chat:{id:10,type:"private"},message_id:5},data:"category:films"}});
-  await Promise.resolve();await Promise.resolve();
-  assert.ok(state.calls.includes("answerCallbackQuery"),"click must be acknowledged before query completes");
-  unblock();await pending;
-  assert.ok(state.calls.includes("editMessageText"));
+  await botUpdate(env,{callback_query:{id:"early-ack",from:{id:10},message:{chat:{id:10,type:"private"},message_id:5},data:"category:films"}});
+  assert.ok(state.calls.includes("answerCallbackQuery"),"Callback must be acknowledged");
+  assert.ok(state.calls.includes("sendPhoto"),"Legacy callback should show welcome image");
+  assert.equal(state.dbReads,0,"Bot management is moved to Mini App");
  }finally{globalThis.fetch=previous;invalidateDirectoryCache();}
 });
 test("Mini App gets one all-category payload and is locally filterable",async()=>{
