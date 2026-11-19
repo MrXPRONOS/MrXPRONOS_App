@@ -1,5 +1,15 @@
 {
   "channels": {
+    "@cinexanimefr": {
+      "description_digest": "c978278be5937ffdb62725bbabcd91f2ad5477b6b820dc5c3028b61641a1c976",
+      "invite_sha256": "1a11930a145a4a68679a152f9f5c8ea506537e1c0459f16a25afe77051d2b23a",
+      "profile_photo_source_id": 5951942473548500494,
+      "public_id": -1004347937458,
+      "public_title": "Manga et Anime CinéX 🌸",
+      "public_username": "@cinexanimefr",
+      "rescue_channel_id": -1003941504667,
+      "rescue_title": "Manga et Anime CinéX 🌸 Secours"
+    },
     "@cinexcomediefr": {
       "invite_sha256": "4377ea25abf6070d40ec905af41787e030e7a0775fea84a232d4248dc9780dbe",
       "profile_photo_source_id": 6044063311524991436,
