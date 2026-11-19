@@ -153,6 +153,7 @@ jobs:
         run: python -m film_relay.runner
 
       - name: 2a - Videos directes des 2 derniers films CineX
+        id: showcase
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         continue-on-error: true
         working-directory: telegram-film-relay
@@ -491,8 +492,8 @@ jobs:
           exit 1
 
       - name: 7 - Contrôler le résultat de toutes les catégories
-        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure' || steps.rescue_links.outcome == 'failure') }}
+        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure' || steps.showcase.outcome == 'failure' || steps.rescue_links.outcome == 'failure') }}
         shell: bash
         run: |
-          echo '::error::Une ou plusieurs catégories CinéX ont échoué ; les autres ont tout de même été exécutées. Vérifier les étapes précédentes.'
+          echo '::error::CinéX dégradé : catégorie, vidéos publiques, vérification Telegram ou récupération des invitations Secours en échec. Examiner le rapport de cycle.'
           exit 1
