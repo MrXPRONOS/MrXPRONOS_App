@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-054268ecf3f4303a:UNDER_35",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T14:30:00+00:00",
+    "fixture": {
+      "home_team": "Académica Petróleos do Lobito",
+      "away_team": "Recreativo do Libolo",
+      "league": "Girabola"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2a86663d566eede5f4cc6c97a54bb22eefc2b1a31a0a064ac9e1a7cd7226a77e"
+}

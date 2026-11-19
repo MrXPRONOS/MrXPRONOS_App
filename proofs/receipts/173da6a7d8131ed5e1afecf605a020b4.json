@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-3757989ef1fea458:UNDER_35",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T01:40:00+00:00",
+    "fixture": {
+      "home_team": "Deportivo Cali",
+      "away_team": "Millonarios",
+      "league": "Categoría Primera A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.6,
+      "odds": 1.34,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "88077a5db9a0b99ba1ef14078f334e4eec4147b79842450f8b8c52d45126a0fe"
+}

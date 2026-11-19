@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-28eabd004e952532:1X",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T14:00:00+00:00",
+    "fixture": {
+      "home_team": "AIK",
+      "away_team": "Degerfors IF",
+      "league": "Swedish Allsvenskan"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 84.1,
+      "odds": 1.378,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "e6a8f3c8bccec858edb04863fa139ddc736fe6a98e22edb88cb88bf2dbeae142"
+}

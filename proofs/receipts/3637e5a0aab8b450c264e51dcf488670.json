@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-897a52bd8b43b70a:UNDER_35",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T14:00:00+00:00",
+    "fixture": {
+      "home_team": "Mjällby AIF",
+      "away_team": "Malmö FF",
+      "league": "Allsvenskan"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.9,
+      "odds": 1.355,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "078593716d35688e2156cd8a61f02113be2e5b93a723b47696c8a00f70467b67"
+}

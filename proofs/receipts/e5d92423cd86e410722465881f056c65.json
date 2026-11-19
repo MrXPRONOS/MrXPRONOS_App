@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-bf11dba7d19254d5:UNDER_35",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T16:00:00+00:00",
+    "fixture": {
+      "home_team": "SC Covilhã",
+      "away_team": "Lusitano Ginásio Clube",
+      "league": "Liga 3"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 83.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "4f25167b789c4b9e585c071935a233a8de33996a5a75e94ce40edb79250ca34d"
+}

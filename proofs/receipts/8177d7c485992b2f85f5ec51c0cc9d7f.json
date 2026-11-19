@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0f663037b5be2b81:UNDER_35",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T18:00:00+00:00",
+    "fixture": {
+      "home_team": "Sporting Lagos FC",
+      "away_team": "Kwara United",
+      "league": "Nigeria Premier Football League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "82816bd30df2f1153b9261a20b7997883b502207c1828451d8ed43fad6152cd0"
+}

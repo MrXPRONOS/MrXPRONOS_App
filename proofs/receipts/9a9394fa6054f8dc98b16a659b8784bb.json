@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-260566c289c95f99:1X",
+    "recorded_at_utc": "2026-11-19T19:39:38+00:00",
+    "kickoff_utc": "2026-11-21T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Bournemouth",
+      "away_team": "Nottingham Forest",
+      "league": "Premier League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 87.1,
+      "odds": 1.236,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "699406868f28fe2441524e4d413a50aad8370ec798dddfffe643a5b9b346f565"
+}
