@@ -410,6 +410,33 @@ body{background:#07111f}
 .cine-rating-buttons button{background:#263d66;border:1px solid #47658d;color:#ffe1a6;border-radius:7px;padding:5px 7px;font-size:11px}
 .cine-rate-later{background:transparent;border:0;color:#aac8f2;text-decoration:underline;padding:5px;font-size:11px}
 @media(prefers-reduced-motion:reduce){.cine-home-picks{scroll-behavior:auto}}
+
+/* Lot 3: ten original transparent cinematic category illustrations, packed in one
+   compact 560x56 WebP (56px per cell) to avoid multiple network requests. */
+.cine-cat-icon{display:inline-block;flex:0 0 auto;width:34px;height:34px;vertical-align:middle;background-image:url('/assets/ui-icons-lot3.webp');background-repeat:no-repeat;background-size:1000% 100%;background-position-y:0;pointer-events:none}
+.cine-cat-films{background-position-x:0%}
+.cine-cat-series{background-position-x:11.111111%}
+.cine-cat-animes{background-position-x:22.222222%}
+.cine-cat-action{background-position-x:33.333333%}
+.cine-cat-romance{background-position-x:44.444444%}
+.cine-cat-africain{background-position-x:55.555556%}
+.cine-cat-vostfr{background-position-x:66.666667%}
+.cine-cat-turc{background-position-x:77.777778%}
+.cine-cat-drame{background-position-x:88.888889%}
+.cine-cat-affiches{background-position-x:100%}
+.cine-genre-tile .cine-genre-label{display:flex;align-items:center;min-width:0;gap:9px}
+.cine-genre-tile .cine-genre-label strong{color:#f5f9ff;font-size:13px;line-height:1.2;overflow-wrap:anywhere}
+.cine-genre-tile .cine-cat-icon{width:45px;height:45px}
+.cine-genre-chips button{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.cine-genre-chips button .cine-cat-icon{width:22px;height:22px}
+.cine-poster-section-title strong{display:inline-flex;align-items:center;gap:7px}
+.cine-poster-section-title strong .cine-cat-icon{width:29px;height:29px}
+.cine-film-poster .cine-poster-placeholder .cine-cat-icon{width:46px;height:46px}
+.cine-hero-cover .cine-poster-placeholder{position:absolute;inset:0;display:grid;place-items:center}
+.cine-hero-cover .cine-poster-placeholder .cine-cat-icon{width:54px;height:54px}
+.cine-pin-kind{display:inline-flex;align-items:center;gap:3px}
+.cine-pin-kind .cine-cat-icon{width:13px;height:13px}
+@media(max-width:350px){.cine-genre-tile{padding:9px}.cine-genre-tile .cine-cat-icon{width:37px;height:37px}.cine-genre-tile .cine-genre-label{gap:5px}.cine-genre-tile .cine-genre-label strong{font-size:12px}}
 </style>
 </head>
 <body>
@@ -755,6 +782,12 @@ load();
 "use strict";
 const $=id=>document.getElementById(id);
 const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
+const cineCategoryKeys=new Set(["films","series","animes","action","romance","africain","vostfr","turc","drame","affiches"]);
+function cineCategoryIcon(key){
+ const icon=node("span","cine-cat-icon cine-cat-"+(cineCategoryKeys.has(key)?key:"films"));
+ icon.setAttribute("aria-hidden","true");
+ return icon;
+}
 
 /* Ten original 3D navigation icon drawings, ported from the approved SVG files.
    The source art remains editable as vector paths, not baked into emoji/font glyphs. */
@@ -871,13 +904,13 @@ function openPinnedMessage(entry){
 function posterTile(entry,hero=false){
  const item=node(hero?"div":"button",hero?"cine-hero-cover":"cine-film-poster");
  if(!hero){item.type="button";item.title="Ouvrir "+entry.title+" sur Telegram";item.setAttribute("aria-label","Voir "+entry.title+" dans le canal Telegram");item.onclick=()=>openPinnedMessage(entry)}
- const mark=node("div","cine-poster-placeholder",entry.type==="animes"?"✦":entry.type==="series"?"◈":"▶");item.append(mark);
+ const mark=node("div","cine-poster-placeholder");mark.append(cineCategoryIcon(entry.type));item.append(mark);
  const external=/^https:\/\/(?:image\.tmdb\.org\/t\/p\/w342\/[A-Za-z0-9_-]{8,100}\.(?:jpe?g|png|webp)|static\.tvmaze\.com\/uploads\/images\/(?:medium_portrait|original_untouched)\/[0-9]+\/[0-9]+\.jpg|(?:m\.media-amazon\.com|images-na\.ssl-images-amazon\.com)\/images\/[A-Za-z0-9_%@.+/-]{8,800})$/.test(String(entry.poster||""));
  if((hero&&external)||(!hero&&pinnedImage(entry.poster)&&pinnedLink(entry.link))){
   const img=node("img");img.alt=hero?"":"Affiche de "+entry.title;img.loading=hero?"eager":"lazy";img.decoding="async";img.src=entry.poster;img.onerror=()=>img.remove();item.append(img)
  }
  const caption=node("span",null,entry.title||posterTypeTitle[entry.type]||"Cinéma");if(!hero)caption.className="cine-pin-label";item.append(caption);
- if(!hero){const label=node("span","cine-pin-kind",entry.type==="animes"?"🎌 Animé":entry.type==="series"?"📺 Série":"🎬 Film");item.append(label)}
+ if(!hero){const label=node("span","cine-pin-kind");label.append(cineCategoryIcon(entry.type),document.createTextNode(entry.type==="animes"?"Animé":entry.type==="series"?"Série":"Film"));item.append(label)}
  return item;
 }
 function renderCinemaShowcase(){
@@ -1106,15 +1139,21 @@ function discover(){
 function genreContent(){
  const grid=$("cine-genres");grid.textContent="";
  const options=[
-  ["🎬","Films","films",c=>c.type==="films"],["📺","Séries","series",c=>c.type==="series"],
-  ["🎌","Animés","animes",c=>c.type==="animes"],["⚔️","Action","action",c=>/action/i.test(c.title+" "+c.genre)],
-  ["💖","Romance","romance",c=>/romanti|romance/i.test(c.title+" "+c.genre)],
-  ["🌍","Films africains","africain",c=>/nigerian|nigerien|africain|nollywood/i.test(c.title+" "+c.genre)],
-  ["🇯🇵","VOSTFR","vostfr",c=>/vostfr/i.test(c.title+" "+c.language)],
-  ["🌐","Séries turques","turc",c=>/turc/i.test(c.title+" "+c.genre)],
-  ["🎭","Drame","drama",c=>/drama|drame/i.test(c.title+" "+c.genre)]
+  ["films","Films","films",c=>c.type==="films"],["series","Séries","series",c=>c.type==="series"],
+  ["animes","Animés","animes",c=>c.type==="animes"],["action","Action","action",c=>/action/i.test(c.title+" "+c.genre)],
+  ["romance","Romance","romance",c=>/romanti|romance/i.test(c.title+" "+c.genre)],
+  ["africain","Films africains","africain",c=>/nigerian|nigerien|africain|nollywood/i.test(c.title+" "+c.genre)],
+  ["vostfr","VOSTFR","vostfr",c=>/vostfr/i.test(c.title+" "+c.language)],
+  ["turc","Séries turques","turc",c=>/turc/i.test(c.title+" "+c.genre)],
+  ["drame","Drame","drama",c=>/drama|drame/i.test(c.title+" "+c.genre)]
  ];
- for(const [emoji,label,query,check] of options){const count=catalog.filter(check).length;if(!count)continue;const b=node("button","cine-genre-tile");b.type="button";b.append(node("span",null,emoji+" "+label),node("small",null,count+(count===1?" canal":" canaux")+" dans l’annuaire"));b.onclick=()=>setFilter(query);grid.append(b)}
+ for(const [iconKey,label,query,check] of options){
+  const count=catalog.filter(check).length;if(!count)continue;
+  const b=node("button","cine-genre-tile");b.type="button";
+  const head=node("span","cine-genre-label");head.append(cineCategoryIcon(iconKey),node("strong",null,label));
+  b.append(head,node("small",null,count+(count===1?" canal":" canaux")+" dans l’annuaire"));
+  b.onclick=()=>setFilter(query);grid.append(b);
+ }
 }
 function cardDecorate(){
  const root=$("cards");if(!root)return;
@@ -1184,7 +1223,7 @@ function build(){
  const home=panel.accueil;hero.classList.add("cine-hero");home.append(hero);
  const art=hero.querySelector(".hero-art");if(art){const collage=node("div","cine-hero-collage");collage.id="cine-hero-collage";art.append(collage)}
  const copy=hero.querySelector(".hero-copy");if(copy){const h=copy.querySelector("h2"),p=copy.querySelector("p");if(h){h.textContent="";h.append("Le cinéma,",node("span","accent","à découvrir."))}if(p)p.textContent="Trouve facilement les canaux Telegram qui correspondent à tes envies."}
- const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");showcaseHead.append(node("strong",null,"🎞️ À l'affiche"),node("small",null,"Films · Séries · Animés"));const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
+ const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");const showcaseLabel=node("strong");showcaseLabel.append(cineCategoryIcon("affiches"),document.createTextNode("À l'affiche"));showcaseHead.append(showcaseLabel,node("small",null,"Films · Séries · Animés"));const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
 
  const form=node("form","cine-home-search");form.setAttribute("role","search");const inp=document.createElement("input");inp.type="search";inp.placeholder="Films d'action, animés, séries…";inp.setAttribute("aria-label","Rechercher des canaux");const submit=node("button",null,"Chercher");submit.type="submit";form.append(inp,submit);form.onsubmit=e=>{e.preventDefault();setFilter(inp.value.trim())};home.append(form);
  sectionTitle(home,"Explore par univers",null);
@@ -1235,8 +1274,8 @@ function build(){
  new MutationObserver(()=>previewInfo()).observe($("sheet"),{childList:true,subtree:false});
  /* navigation handled by the router */
  root.querySelector(".v2-tools #suggest")?.remove();
- const chipConfigs=[["Action","action"],["Romance","romance"],["Animés VF","animes vf"],["Séries turques","turc"],["Films africains","africain"]];
- for(const [title,term] of chipConfigs){const chip=node("button",null,title);chip.type="button";chip.onclick=()=>setFilter(term);genres.append(chip)}
+ const chipConfigs=[["Action","action","action"],["Romance","romance","romance"],["Animés VF","animes vf","animes"],["Séries turques","turc","turc"],["Films africains","africain","africain"]];
+ for(const [title,term,iconKey] of chipConfigs){const chip=node("button");chip.type="button";chip.append(cineCategoryIcon(iconKey),document.createTextNode(title));chip.onclick=()=>setFilter(term);genres.append(chip)}
  search.querySelector("input").placeholder="Nom du canal, action, romance…";
  // Hide legacy footer when viewing other pages; retain in DOM for attribution.
  footer.textContent="Ciné Radar · Films, séries et animés";
