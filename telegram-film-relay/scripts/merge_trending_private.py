@@ -1,6 +1,7 @@
 """Merge CineX private channel checkpoints after concurrent GitHub workflow runs."""
 from __future__ import annotations
 import json
+import hashlib
 import sys
 from pathlib import Path
 
@@ -13,7 +14,10 @@ def merge(base: dict, incoming: dict) -> dict:
         current = dict(output["channels"].get(key, {}))
         if current.get("channel_id") and row.get("channel_id") and current["channel_id"] != row["channel_id"]:
             raise ValueError("Conflit : deux canaux Telegram distincts pour " + key)
-        current.update({k:v for k,v in row.items() if k != "copied" and v is not None})
+        current.update({k:v for k,v in row.items() if k not in ("copied", "invite") and v is not None})
+        url = row.get("invite") or current.pop("invite", None)
+        if url:
+            current["invite_sha256"] = hashlib.sha256(url.encode()).hexdigest()
         current["copied"] = {**(output["channels"].get(key, {}).get("copied") or {}),
                              **(row.get("copied") or {})}
         output["channels"][key] = current
