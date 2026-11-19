@@ -107,7 +107,7 @@ def targets_from_env(env: dict | None = None) -> list[str]:
     """
     env = os.environ if env is None else env
     candidates = [
-        env.get("TG_PUBLIC_CHANNEL") or "@CineXFilms_vf",
+        (env.get("TG_PUBLIC_CHANNEL") if public_username(env.get("TG_PUBLIC_CHANNEL")) else "@CineXFilms_vf"),
         "@seriesvf_cinex",
         env.get("DESIR_PUBLIC_CHANNEL") or "@CineXDesirfr",
         env.get("COMEDIE_PUBLIC_CHANNEL") or "",
@@ -183,6 +183,10 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                     # Backup only channels under this user's own administration.
                     raise ValueError("Le compte connecté n'est pas propriétaire du canal public")
                 public_id = utils.get_peer_id(public)
+                configured_films = str(os.getenv("TG_PUBLIC_CHANNEL", "")).strip()
+                if username == "@cinexfilms_vf" and configured_films.startswith("-100"):
+                    if int(configured_films) != public_id:
+                        raise RuntimeError("Le canal Films ne correspond pas à son ID configuré")
                 desired_title = str(getattr(public, "title", "") or "").strip() + " Secours"
                 if not 8 <= len(desired_title) <= 128:
                     raise ValueError("Titre public Telegram invalide")
