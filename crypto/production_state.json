@@ -164,6 +164,14 @@
       "message_id": 136,
       "number": 11
     },
+    "c587690f9193a83adbac": {
+      "message_id": 203,
+      "number": 11
+    },
+    "c587690f9193a83adbace1ef": {
+      "message_id": 203,
+      "number": 11
+    },
     "db4ecf0721aa03798e90420a": {
       "message_id": 87,
       "number": 9
@@ -194,6 +202,14 @@
     },
     "f21c34f4f8083e08acf08295": {
       "message_id": 132,
+      "number": 11
+    },
+    "f6a8a025ddc9d1cbac31": {
+      "message_id": 203,
+      "number": 11
+    },
+    "f6a8a025ddc9d1cbac31ddf8": {
+      "message_id": 203,
       "number": 11
     },
     "f9d78348be882c6834f8b7f4": {
@@ -374,6 +390,30 @@
         "scam"
       ],
       "url": "https://bitcoinmagazine.com/news/coinbase-ai-blocks-deepfake-musk-scam"
+    },
+    {
+      "actors": [
+        "binance"
+      ],
+      "category": "SÉCURITÉ",
+      "countries": [],
+      "figures": [
+        "5b"
+      ],
+      "message_id": 203,
+      "published_at": "2026-11-18T20:20:37+00:00",
+      "sent_at": "2026-11-19T01:31:46.373555+00:00",
+      "source": "Cointelegraph",
+      "title": "Binance says it obtained $6.5B worldwide freezing order after hack",
+      "tokens": [
+        "binance",
+        "freezing",
+        "hack",
+        "obtained",
+        "order",
+        "worldwide"
+      ],
+      "url": "https://cointelegraph.com/news/binance-says-won-65b-worldwide-freezing-order-after-hack"
     }
   ],
   "sent": {
@@ -1101,6 +1141,12 @@
       "message_id": 80,
       "number": 9,
       "sent_at": "2026-10-29T21:22:49.756216+00:00",
+      "source": "Cointelegraph"
+    },
+    "news:09:950bae686e44dd7e8d1efb43": {
+      "message_id": 203,
+      "number": 9,
+      "sent_at": "2026-11-19T01:31:46.373555+00:00",
       "source": "Cointelegraph"
     },
     "news:09:a10ec3cecfe1e8a8da5db48a": {
