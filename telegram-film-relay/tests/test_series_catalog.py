@@ -27,11 +27,13 @@ class TVSeriesTests(unittest.TestCase):
     def test_series_source_uses_existing_authorized_sources(self):
         with patch.dict(os.environ, {"TG_PRIVATE_CHANNEL":"-1001111111111",
                                      "TG_PUBLIC_CHANNEL":"@CineXFilmsDemo",
+                                     "SERIES_PRIVATE_CHANNEL":"-1003887995735",
+                                     "SERIES_PUBLIC_CHANNEL":"@seriesvf_cinex",
                                      "SERIES_SOURCE_CHANNELS":"@series_source1,@series_source2"},clear=False):
             cfg=series_config()
         self.assertEqual(cfg["sources"], ["@series_source1","@series_source2"])
-        self.assertEqual(cfg["private"],"-1001111111111")
-        self.assertEqual(cfg["public"],"@CineXFilmsDemo")
+        self.assertEqual(cfg["private"],"-1003887995735")
+        self.assertEqual(cfg["public"],"@seriesvf_cinex")
         self.assertEqual(cfg["mirror"],"@Torrent9SeriesFilms")
 
     def test_s02_poster_is_not_s01(self):
