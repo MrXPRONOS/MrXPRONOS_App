@@ -90,6 +90,6 @@ test('owner can hide a stale pinned card without unpinning in Telegram',async()=
 test('pin moderation in Mini App uses explicit owner-only route with confirmation',()=>{
  assert.ok(ADMIN_HTML.includes('id="owner-pinned"'));
  assert.ok(ADMIN_HTML.includes('Désépingler sur Telegram'));
- assert.ok(ADMIN_HTML.includes('Retirer de l\\'affiche'));
+ assert.ok(ADMIN_HTML.includes("Retirer de l\'affiche"));
  assert.ok(ADMIN_HTML.includes('"/api/admin/pins/"'));
 });
