@@ -16,6 +16,7 @@ test('pinned showcase is live, uses trusted channel message URLs, and can serve 
  if(data.items.length){
   const img=await fetch(ORIGIN+data.items[0].poster,{signal:AbortSignal.timeout(14000)});
   console.log('First pinned thumbnail status:',img.status,'type:',img.headers.get('content-type'));
+  if(img.status!==200)console.log('Thumbnail diagnostic:',(await img.text()).slice(0,150));
   assert.equal(img.status,200);
   assert.match(String(img.headers.get('content-type')), /^image\/(?:jpeg|png|webp)/);
   await img.body?.cancel();
