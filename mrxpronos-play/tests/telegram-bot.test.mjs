@@ -11,7 +11,7 @@ const publicId = 222;
 const adminId = 111;
 
 function harness(){
- const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
+ const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]),balanceAudit=[],settingUpdated=new Map();
  const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map(),creditBaselines=new Map(),creditEvents=new Map();
  const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map();
  const v2Counts={daily:0,wheel:0};
@@ -37,6 +37,7 @@ function harness(){
         if(lower.includes('count(*) as total from mission_claims'))return {total:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).length};
         if(lower.includes('from mrxp_boost_inventory')){
          const id=String(values[0]),list=[...boostInventory.values()].filter(x=>x.user_id===id);
+         if(lower.includes('count(*) as n'))return {n:list.filter(x=>x.bought_ms>=Number(values[1])).length};
          if(lower.includes('purchase_id=?'))return list.find(x=>x.purchase_id===String(values[1]))||null;
          if(lower.includes("kind='tap'"))return list.find(x=>x.kind==='tap'&&(x.state==='queued'||(x.state==='active'&&x.expires_ms>Number(values[1]))))||null;
          if(lower.includes("kind='energy'"))return list.find(x=>x.kind==='energy'&&x.state==='charged'&&x.expires_ms>Number(values[1]))||null;
@@ -102,7 +103,7 @@ function harness(){
        }
       };
      },
-     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
+     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value,updated_ms:settingUpdated.get(key)||0}))};return {results:[]}},
      async first(){
       if(lower.includes('from players'))return {n:rows.players,xp:180};
       if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
@@ -113,10 +114,17 @@ function harness(){
     };
    },
    async batch(ops){
+    if(ops[0]?._sql?.includes('insert into mrxp_balance_audit')){
+     const [admin_id,setting_key,old_value,new_value,created_ms]=ops[0]._values;
+     balanceAudit.push({admin_id,setting_key,old_value,new_value,created_ms});
+     settings.set(ops[1]._values[0],ops[1]._values[1]);settingUpdated.set(ops[1]._values[0],ops[1]._values[2]);
+     return ops.map(()=>({success:true,meta:{changes:1}}))
+    }
     if(ops[0]?._sql?.includes('insert or ignore into mrxp_boost_inventory')){
      const [id,purchaseId,sku,kind,cost,ms]=ops[0]._values;
      const key=String(id)+':'+purchaseId,balance=[...creditEvents.values()].filter(x=>x.user_id===String(id)).reduce((a,x)=>a+Number(x.amount),0);
-     if(boostInventory.has(key)||balance<Number(cost))return [{success:true,meta:{changes:0}},{success:true,meta:{changes:0}}];
+     const limit=Number(ops[0]._values[10]),start=Number(ops[0]._values[9]);const count=[...boostInventory.values()].filter(x=>x.user_id===String(id)&&x.bought_ms>=start).length;
+     if(boostInventory.has(key)||balance<Number(cost)||count>=limit)return [{success:true,meta:{changes:0}},{success:true,meta:{changes:0}}];
      boostInventory.set(key,{user_id:String(id),purchase_id:purchaseId,sku,kind,cost,state:'owned',bought_ms:ms,activated_ms:0,expires_ms:0,carry_milli:0});
      const eventKey=String(id)+':buy:'+purchaseId;
      if(creditEvents.has(eventKey))throw Error('Duplicate purchase debit');
@@ -177,7 +185,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,balanceAudit,settingUpdated,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -986,7 +994,7 @@ test('phase 4 wallet starts at zero and does not retroactively pay historical le
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits',{headers:{'x-telegram-init-data':init}}),h.env);
   assert.equal(res.status,200,await res.clone().text());const wallet=(await res.json()).wallet;
   assert.equal(wallet.balance,0);assert.equal(wallet.ledger.length,0);
-  assert.ok(wallet.baseline_level>=5);assert.equal(wallet.spend_enabled,false);
+  assert.ok(wallet.baseline_level>=5);assert.equal(wallet.spend_enabled,true);
   assert.equal(wallet.transfer_enabled,false);assert.equal(wallet.cash_value,false);
  }finally{h.restore()}
 });
@@ -1265,5 +1273,263 @@ test('phase 5 expired tap boost cannot grant bonus XP, and queued status never e
   assert.equal(res.status,200,await res.clone().text());const body=await res.json();
   assert.equal(body.boost_bonus_xp,1);assert.equal(body.boost_multiplier_milli,1100);
   assert.equal(h.boostInventory.get(id+':'+old).state,'expired');
+ }finally{h.restore()}
+});
+
+
+test('phase 6 admin panel is private and exposes bounded pricing, rewards and release controls',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(publicId,'mrxp:admin:balance_price'));
+  assert.equal(h.calls.length,1);assert.equal(h.calls[0].method,'answerCallbackQuery');assert.equal(h.calls[0].args.show_alert,true);
+  assert.equal(h.settings.size,1);
+  h.calls.length=0;
+  await h.webhook(callback(adminId,'mrxp:admin:balance_price'));
+  const reply=h.calls.find(x=>x.method==='sendMessage')?.args;
+  assert.ok(reply.text.includes('ÉQUILIBRAGE V2'));
+  assert.ok(JSON.stringify(reply.reply_markup).includes('price_energy-250'));
+  assert.ok(!JSON.stringify(reply.reply_markup).includes("ALTER TABLE"));
+  assert.equal(h.balanceAudit.length,0)
+ }finally{h.restore()}
+});
+
+test('phase 6 admin can change price with strict range, audit trail, and unchanged purchased effect',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const id='96101',user=signedTelegramUser({id:Number(id),first_name:'Amisi'});
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ h.creditEvents.set(id+':earned',{user_id:id,event_key:'earned',amount:200,event_type:'test',label:'earned',created_ms:Date.now()});
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:econ_edit_price_tap-110'));
+  assert.equal(h.pending.get(String(adminId)).edit_key,'econ:price_tap-110');
+  await h.webhook(message(adminId,'-5'));
+  assert.equal(h.pending.has(String(adminId)),true);
+  assert.equal(h.settings.has('mrxp_balance_price_tap-110'),false);
+  await h.webhook(message(adminId,'12000'));
+  assert.equal(h.pending.has(String(adminId)),true);
+  await h.webhook(message(adminId,'80'));
+  assert.equal(h.pending.has(String(adminId)),false);
+  assert.equal(h.settings.get('mrxp_balance_price_tap-110'),'80');
+  assert.equal(h.balanceAudit.length,1);
+  assert.equal(h.balanceAudit[0].old_value,'25');
+  assert.equal(h.balanceAudit[0].new_value,'80');
+  const headers={'x-telegram-init-data':user,'content-type':'application/json'};
+  const catalog=await worker.fetch(new Request(root+'/api/shop',{headers}),h.env);
+  assert.equal(catalog.status,200,await catalog.clone().text());
+  assert.equal((await catalog.json()).shop.catalog.find(x=>x.sku==='tap-110').price,80);
+  const purchase=await worker.fetch(new Request(root+'/api/shop/buy',{method:'POST',headers,body:JSON.stringify({sku:'tap-110',purchase_id:'f0010000-0000-4000-8000-000000000001',price:1})}),h.env);
+  assert.equal(purchase.status,200,await purchase.clone().text());
+  const data=await purchase.json();
+  assert.equal(data.wallet.balance,120);
+  assert.equal(data.shop.inventory[0].price,80);
+  assert.equal(data.shop.inventory[0].item.multiplier_milli,1100);
+ }finally{h.restore()}
+});
+
+test('phase 6 changed MRXP rates apply prospectively and cannot reprice historical events',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const id='96102',auth=signedTelegramUser({id:Number(id),first_name:'Awa'});
+ const now=Date.now(),today=new Date(now).toISOString().slice(0,10),yesterday=new Date(now-86400000).toISOString().slice(0,10);
+ h.creditBaselines.set(id,{baseline_level:1,activated_ms:now-4*86400000});
+ h.settings.set('mrxp_balance_reward_daily_base','20');
+ h.settingUpdated.set('mrxp_balance_reward_daily_base',now-2*3600000);
+ h.verifiedDaily.push({user_id:id,day:yesterday,created_ms:now-86400000});
+ h.verifiedDaily.push({user_id:id,day:today,created_ms:now-1000});
+ try{
+  const req=()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits',{headers:{'x-telegram-init-data':auth}}),h.env);
+  let res=await req();assert.equal(res.status,200,await res.clone().text());
+  let wallet=(await res.json()).wallet;
+  assert.equal(wallet.balance,35); // yesterday 5+5; today 20+5
+  h.settings.set('mrxp_balance_reward_daily_base','60');
+  h.settingUpdated.set('mrxp_balance_reward_daily_base',now+1000);
+  res=await req();wallet=(await res.json()).wallet;
+  assert.equal(wallet.balance,35); // credits are immutable even after the admin changes a rate
+  assert.equal(wallet.ledger.filter(x=>x.key.startsWith('daily:')).length,2);
+ }finally{h.restore()}
+});
+
+test('phase 6 emergency pause and gradual rollout never delete already purchased inventory',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const id='96103',auth=signedTelegramUser({id:Number(id),first_name:'Abla'});
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ h.creditEvents.set(id+':earned',{user_id:id,event_key:'earned',amount:160,event_type:'test',label:'earned',created_ms:Date.now()});
+ const headers={'x-telegram-init-data':auth,'content-type':'application/json'};
+ const post=(path,body)=>worker.fetch(new Request(root+path,{method:'POST',headers,body:JSON.stringify(body)}),h.env);
+ try{
+  h.settings.set('mrxp_balance_shop_rollout','0');
+  let res=await post('/api/shop/buy',{sku:'tap-110',purchase_id:'f0010000-0000-4000-8000-000000000002'});
+  assert.equal(res.status,423);assert.equal(h.boostInventory.size,0);
+  h.settings.set('mrxp_balance_shop_rollout','100');
+  res=await post('/api/shop/buy',{sku:'tap-110',purchase_id:'f0010000-0000-4000-8000-000000000002'});
+  assert.equal(res.status,200);
+  h.settings.set('mrxp_balance_shop_enabled','0');
+  res=await post('/api/shop/buy',{sku:'tap-120',purchase_id:'f0010000-0000-4000-8000-000000000003'});
+  assert.equal(res.status,423);
+  res=await post('/api/shop/activate',{purchase_id:'f0010000-0000-4000-8000-000000000002'});
+  assert.equal(res.status,200);assert.equal((await res.json()).shop.active_tap.state,'queued');
+  const get=await worker.fetch(new Request(root+'/api/shop',{headers}),h.env);
+  assert.equal((await get.json()).shop.available,false);
+  assert.equal(h.boostInventory.size,1)
+ }finally{h.restore()}
+});
+
+test('phase 6 daily spend cap is enforced independently of untrusted browser payload',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const id='96104',auth=signedTelegramUser({id:Number(id),first_name:'Béa'});
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ h.settings.set('mrxp_balance_shop_daily_limit','1');
+ h.creditEvents.set(id+':earned',{user_id:id,event_key:'earned',amount:100,event_type:'test',label:'earned',created_ms:Date.now()});
+ const headers={'x-telegram-init-data':auth,'content-type':'application/json'};
+ const post=(purchase_id)=>worker.fetch(new Request(root+'/api/shop/buy',{method:'POST',headers,body:JSON.stringify({sku:'tap-110',purchase_id})}),h.env);
+ try{
+  let r=await post('f0010000-0000-4000-8000-000000000004');assert.equal(r.status,200,await r.clone().text());
+  r=await post('f0010000-0000-4000-8000-000000000005');assert.equal(r.status,429);
+  r=await post('f0010000-0000-4000-8000-000000000004');assert.equal(r.status,200);
+  const data=await r.json();assert.equal(data.duplicate,true);assert.equal(data.wallet.balance,75);
+  assert.equal(h.boostInventory.size,1);
+  assert.equal([...h.creditEvents.values()].filter(e=>e.amount<0).length,1)
+ }finally{h.restore()}
+});
+
+test('phase 6 multiple signed Telegram accounts are separated for MRXP credits and boost activation',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',one='96105',two='96106';
+ const authA=signedTelegramUser({id:Number(one),first_name:'Fatou'}),authB=signedTelegramUser({id:Number(two),first_name:'Yao'});
+ h.creditEvents.set(one+':earned',{user_id:one,event_key:'earned',amount:45,event_type:'test',label:'earned',created_ms:Date.now()});
+ h.creditEvents.set(two+':earned',{user_id:two,event_key:'earned',amount:100,event_type:'test',label:'earned',created_ms:Date.now()});
+ const id='f0010000-0000-4000-8000-000000000006',headers=a=>({'x-telegram-init-data':a,'content-type':'application/json'});
+ try{
+  const purchase=await worker.fetch(new Request(root+'/api/shop/buy',{method:'POST',headers:headers(authA),body:JSON.stringify({sku:'tap-110',purchase_id:id})}),h.env);
+  assert.equal(purchase.status,200,await purchase.clone().text());
+  const a=await worker.fetch(new Request(root+'/api/shop',{headers:headers(authA)}),h.env);
+  const shopA=await a.json();assert.equal(shopA.wallet.balance,20);assert.equal(shopA.shop.inventory.length,1);
+  const b=await worker.fetch(new Request(root+'/api/shop',{headers:headers(authB)}),h.env);
+  const shopB=await b.json();assert.equal(shopB.wallet.balance,100);assert.equal(shopB.shop.inventory.length,0);
+  const forbidden=await worker.fetch(new Request(root+'/api/shop/activate',{method:'POST',headers:headers(authB),body:JSON.stringify({purchase_id:id})}),h.env);
+  assert.equal(forbidden.status,404);
+  const signatureForged=authA.replace(/hash=[a-f0-9]+/,'hash='+'0'.repeat(64));
+  assert.equal((await worker.fetch(new Request(root+'/api/shop',{headers:headers(signatureForged)}),h.env)).status,401);
+ }finally{h.restore()}
+});
+
+test('phase 6 audit migration is additive and phase 5 monetization rules remain absent',async()=>{
+ const sql=await readFile(new URL('../migrations/006_balance_audit.sql',import.meta.url),'utf8');
+ assert.match(sql,/CREATE TABLE IF NOT EXISTS mrxp_balance_audit/);
+ assert.match(sql,/CREATE INDEX IF NOT EXISTS idx_mrxp_balance_audit_created/);
+ assert.doesNotMatch(sql,/\b(DROP TABLE|DELETE FROM players|UPDATE players)\b/i);
+ const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
+ assert.match(schema,/mrxp_balance_audit/);
+ for(const name of ['mrxpBalanceCanBuy','mrxpBalanceRolloutBucket','mrxpBalanceChange','mrxpAdminBalancePanel','mrxpAdminBalanceAudit']){
+  assert.ok(code.includes(name),'missing '+name)
+ }
+ assert.ok(code.includes('real_money:false'));assert.ok(code.includes('transfer_enabled:false'))
+});
+
+
+test('phase 6 simulator verifies all 50 official levels, 11 ranks and seven mastery gates',()=>{
+ const from=code.indexOf('const V2_MAX_LEVEL=50;'),to=code.indexOf('async function v2Progression(env,player)');
+ assert.ok(from>0&&to>from);
+ const rules=new Function(code.slice(from,to)+'\nreturn {cap:V2_MAX_LEVEL,thresholds:V2_LEVEL_THRESHOLDS,ranks:V2_RANKS,gates:V2_GATES,mastery:V2_MASTERY,eligible:v2XpLevel,legacy:v2LegacyLevel};')();
+ assert.equal(rules.cap,50);assert.equal(rules.thresholds.length,51);
+ assert.equal(rules.ranks.length,11);assert.equal(rules.gates.length,7);
+ assert.equal(rules.mastery.length,30);
+ for(let n=2;n<=50;n++){
+  assert.ok(Number.isInteger(rules.thresholds[n]));
+  assert.ok(rules.thresholds[n]>rules.thresholds[n-1]);
+  assert.equal(rules.eligible(rules.thresholds[n]-1),n-1);
+  assert.equal(rules.eligible(rules.thresholds[n]),n);
+  assert.equal(rules.ranks.filter(r=>n>=r.from&&n<=r.to).length,1)
+ }
+ assert.equal(rules.eligible(Number.MAX_SAFE_INTEGER),50);
+ assert.equal(rules.legacy(0),1);
+ assert.ok(rules.legacy(400000)>=40);
+ assert.deepEqual(rules.gates.map(g=>g.level),[5,10,15,20,30,40,50]);
+ assert.deepEqual(rules.gates.map(g=>g.required),[2,3,5,7,10,14,18]);
+});
+
+test('phase 6 365-day simulated casual-to-intensive profiles never skip mastery or overspend MRXP',()=>{
+ const from=code.indexOf('const V2_MAX_LEVEL=50;'),to=code.indexOf('async function v2Progression(env,player)');
+ const g=new Function(code.slice(from,to)+'\nreturn {thresholds:V2_LEVEL_THRESHOLDS,gates:V2_GATES,mastery:V2_MASTERY,ranks:V2_RANKS,eligible:v2XpLevel};')();
+ const simulation=(dailyTaps,wheelEvery,boosts)=>{
+  let xp=0,taps=0,daily=0,wheel=0,missions=0,level=1,credits=0,spent=0,boostDay=-1,bought=0;
+  const progress=[];
+  for(let day=1;day<=365;day++){
+   const spin=day%wheelEvery===0;
+   daily++;taps+=dailyTaps;if(spin)wheel++;
+   if([1,7,30,60].includes(day))missions++;
+   credits+=5+5+(spin?5:0)+(dailyTaps>=50?5:0)+(day%7===0?30:0)+([1,7,30,60].includes(day)?10:0);
+   if(boosts&&day%30===1&&credits>=180){credits-=180;spent+=180;boostDay=day;bought++}
+   xp+=dailyTaps*(day===boostDay?2:1)+100+(spin?25:0);
+   const earned=g.mastery.filter(c=>({taps,daily,wheel,missions})[c.kind]>=c.goal).length;
+   const target=g.eligible(xp);
+   for(let next=level+1;next<=target;next++){
+    const gate=g.gates.find(x=>x.level===next);
+    if(gate&&earned<gate.required)break;
+    level=next;
+    credits+=g.ranks.some(r=>r.from===next&&r.from>1)?40:10
+   }
+   assert.ok(credits>=0,'simulation never overspends');
+   assert.ok(level>=1&&level<=50);
+   assert.ok(xp>=0&&xp<Number.MAX_SAFE_INTEGER);
+   for(const gate of g.gates)if(level>=gate.level)assert.ok(earned>=gate.required,'mastery was bypassed at gate '+gate.level);
+   progress.push(level)
+  }
+  assert.ok(progress.every((l,i)=>i===0||l>=progress[i-1]));
+  return {xp,level,taps,credits,spent,bought}
+ };
+ const profiles=[
+  {taps:30,wheel:3},
+  {taps:150,wheel:2},
+  {taps:450,wheel:1},
+  {taps:950,wheel:1}
+ ];
+ const results=profiles.map(x=>({base:simulation(x.taps,x.wheel,false),boost:simulation(x.taps,x.wheel,true)}));
+ for(const [index,row] of results.entries()){
+  assert.ok(row.boost.xp>=row.base.xp);
+  assert.ok(row.boost.level>=row.base.level);
+  assert.ok(row.boost.credits<=row.base.credits+500);
+  assert.ok(row.boost.bought>=1);
+  if(index)assert.ok(row.base.xp>=results[index-1].base.xp)
+ }
+ assert.ok(results[0].base.level<results[3].base.level);
+});
+
+test('phase 6 all numeric admin parameters are bounded and reject arbitrary SQL keys',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:econ_edit_reward_mission'));
+  assert.equal(h.pending.get(String(adminId)).edit_key,'econ:reward_mission');
+  await h.webhook(message(adminId,'0'));
+  assert.equal(h.settings.has('mrxp_balance_reward_mission'),false);
+  await h.webhook(message(adminId,'9999999'));
+  assert.equal(h.settings.has('mrxp_balance_reward_mission'),false);
+  await h.webhook(message(adminId,'40'));
+  assert.equal(h.settings.get('mrxp_balance_reward_mission'),'40');
+  assert.equal(h.balanceAudit.length,1);
+  await h.webhook(callback(adminId,'mrxp:admin:econ_edit_not_an_allowlisted_key'));
+  assert.equal(h.pending.has(String(adminId)),false);
+  assert.equal(h.balanceAudit.length,1)
+ }finally{h.restore()}
+});
+
+
+test('phase 6 oversized or non-object inputs are rejected before reaching credits or XP',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ const auth=signedTelegramUser({id:96107,first_name:'Tina'});
+ const post=(path,payload)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:payload}),h.env);
+ try{
+  let r=await post('/api/shop/buy',JSON.stringify({sku:'tap-110',purchase_id:'f0010000-0000-4000-8000-000000000009',filler:'x'.repeat(5000)}));
+  assert.equal(r.status,413);
+  r=await post('/api/shop/activate',JSON.stringify({purchase_id:'f0010000-0000-4000-8000-000000000009',filler:'x'.repeat(5000)}));
+  assert.equal(r.status,413);
+  r=await post('/api/sync',JSON.stringify({batch_id:'security-batch-0001',taps:2,filler:'x'.repeat(17000)}));
+  assert.equal(r.status,413);
+  r=await post('/api/sync','null');
+  assert.equal(r.status,400);
+  r=await post('/api/sync','[]');
+  assert.equal(r.status,400);
+  assert.equal(h.creditEvents.size,0);
+  assert.equal(h.boostInventory.size,0);
+  assert.equal(h.player.confirmed_xp,0)
  }finally{h.restore()}
 });
