@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'telegram-film-relay/film_relay/**'
-      - 'telegram-film-relay/scripts/merge_state.py'
+      - 'telegram-film-relay/scripts/**'
       - 'telegram-film-relay/tests/**'
       - '.github/workflows/telegram-film-tests.yml'
       - '.github/workflows/cinex-*.yml'
@@ -15,6 +15,7 @@ on:
   pull_request:
     paths:
       - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/scripts/**'
       - 'telegram-film-relay/tests/**'
       - '.github/workflows/telegram-film-tests.yml'
       - '.github/workflows/cinex-*.yml'
