@@ -1,10 +1,11 @@
 import unittest
+import asyncio
 from types import SimpleNamespace
 from film_relay.public_video_showcase import select_recent_completed
 from film_relay.public_video_archive import (
     is_video_message, last_ten_video_ids, matching_poster,
     normalize_title, title_similarity, archive_buttons, verified_film_video_pairs,
-    is_user_reserved_film, poster_heading,
+    is_user_reserved_film, poster_heading, replace_uneditable_public_poster,
 )
 
 
@@ -117,6 +118,34 @@ class PublicArchiveTests(unittest.TestCase):
         poster = msg(216, title="🎬 12 12 12 Saison 1 VF", photo=True)
         video = msg(217, title="12 12 12 [S01 EP 01] [VF]", video=True)
         self.assertEqual(verified_film_video_pairs([poster, video]), [])
+
+    def test_replacement_poster_has_photo_description_and_movie_folder_buttons(self):
+        original = msg(174, title="🎬 The Beekeeper\\nDescription du film",
+                       photo=True)
+        original.media = "old-photo"
+        class FakeClient:
+            async def iter_messages(self, channel, limit):
+                yield original
+            async def download_media(self, media, file):
+                return b"photo-mock"
+            async def get_messages(self, channel, ids):
+                return SimpleNamespace(
+                    id=ids, photo=True, raw_text="The Beekeeper",
+                    buttons=bot.options["buttons"],
+                )
+        class FakeBot:
+            async def send_file(self, channel, media, **kwargs):
+                self.options = kwargs
+                self.media = media
+                return SimpleNamespace(id=999)
+        bot = FakeBot()
+        result = asyncio.run(replace_uneditable_public_poster(
+            FakeClient(), bot, "@cinexfilms_vf", original,
+            "https://t.me/c/1234/5678", None))
+        self.assertEqual(result, 999)
+        self.assertEqual(bot.media, b"photo-mock")
+        self.assertIn("Beekeeper", bot.options["caption"])
+        self.assertEqual(bot.options["buttons"][0][0].url, "https://t.me/c/1234/5678")
 
     def test_two_buttons(self):
         buttons = archive_buttons("https://t.me/c/1234/5678")
