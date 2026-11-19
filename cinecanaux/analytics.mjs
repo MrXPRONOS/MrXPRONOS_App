@@ -2,7 +2,7 @@
 const enc=new TextEncoder(),hex=a=>[...new Uint8Array(a)].map(x=>x.toString(16).padStart(2,'0')).join('');
 const sha=async x=>hex(await crypto.subtle.digest('SHA-256',enc.encode(x)));
 const reply=(x,status=200)=>Response.json(x,{status,headers:{'cache-control':'no-store'}});
-const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[4-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 async function visitor(env,kind,id){return sha('cine-radar-analytics:'+env.TELEGRAM_WEBHOOK_SECRET+':'+kind+':'+id)}
 export async function recordBotTouch(env,update){
  const msg=update?.message;
