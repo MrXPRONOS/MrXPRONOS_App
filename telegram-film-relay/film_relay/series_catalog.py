@@ -376,9 +376,15 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             known_keys = set(existing.get("source_items", {}))
             pending = [x for x in sorted(items, key=lambda x: (x["season"], x["episode"]))
                        if x["source_key"] not in known_keys]
+            public_receipts = existing.get("public_episode_posts", {})
+            all_episodes_public = all(
+                f"S{int(row['season']):02d}E{int(row['episode']):02d}"
+                in public_receipts for row in items
+            )
             if (not pending and existing.get("private_poster_id")
-                    and existing.get("public_id") and
-                    existing.get("season_indices", {}).get(str(items[0]["season"]))):
+                    and existing.get("public_id")
+                    and existing.get("season_indices", {}).get(str(items[0]["season"]))
+                    and all_episodes_public):
                 continue
             title = str(existing.get("title") or items[0]["title"])
             LOG.info("Série TV %s : %s épisodes nouveaux (lot borné)", title, len(pending))
