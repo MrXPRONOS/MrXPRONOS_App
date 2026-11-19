@@ -390,12 +390,30 @@ function adminKeyboard(origin){
   [{text:"📊 Statistiques",callback_data:"mrxp:admin:stats"},{text:"📝 Accueil",callback_data:"mrxp:admin:edit_welcome"}],
   [{text:"ℹ️ Description",callback_data:"mrxp:admin:edit_description"},{text:"✍️ Bio courte",callback_data:"mrxp:admin:edit_short"}],
   [{text:"🎮 Réglages du jeu",callback_data:"mrxp:admin:features"},{text:"🩺 État du bot",callback_data:"mrxp:admin:health"}],
-  [{text:"📢 Canaux des missions",callback_data:"mrxp:admin:channels"}],
+  [{text:"📢 Canaux des missions",callback_data:"mrxp:admin:channels"},{text:"🪙 Économie MRXP",callback_data:"mrxp:admin:credits"}],
   [{text:"🎮 Mini App",web_app:{url:origin}},{text:"❌ Fermer",callback_data:"mrxp:admin:close"}]
  ]};
 }
 async function adminDashboard(env,chatId,origin){
  await botApi(env,"sendMessage",{chat_id:chatId,text:"⚙️ Administration Mr XPRONOS Play\n\nCe menu est visible uniquement sur ton compte Telegram. Tu peux consulter les statistiques, modifier les textes du bot et gérer les modules de jeu.",reply_markup:adminKeyboard(origin)});
+}
+
+async function adminCreditStats(env,chatId,origin){
+ const [ledger,users]=await Promise.all([
+   env.DB.prepare("SELECT COUNT(*) AS events,COUNT(DISTINCT user_id) AS players,COALESCE(SUM(CASE WHEN amount>0 THEN amount ELSE 0 END),0) AS issued,COALESCE(SUM(CASE WHEN amount<0 THEN -amount ELSE 0 END),0) AS spent FROM mrxp_credit_events").first(),
+   env.DB.prepare("SELECT COUNT(*) AS n FROM player_credit_state").first()
+ ]);
+ const total=Number(ledger?.issued||0),spent=Number(ledger?.spent||0);
+ const text="🪙 ÉCONOMIE MRXP (crédits gratuits)\n\n"+
+  "👥 Comptes activés : "+Number(users?.n||0)+"\n"+
+  "🧾 Événements confirmés : "+Number(ledger?.events||0)+"\n"+
+  "🎯 Joueurs récompensés : "+Number(ledger?.players||0)+"\n"+
+  "➕ Crédits distribués : "+total+"\n"+
+  "➖ Crédits dépensés : "+spent+"\n"+
+  "💰 Crédits en circulation : "+(total-spent)+"\n\n"+
+  "Aucun retrait, achat en monnaie réelle ou transfert. Les XP sont séparés des crédits MRXP.\n"+
+  "Les taux de récompense sont actuellement fixés pour les tests d'équilibrage V2.";
+ await botApi(env,"sendMessage",{chat_id:chatId,text,reply_markup:{inline_keyboard:[[{text:"⚙️ Retour à l'administration",callback_data:"mrxp:admin:home"}]]}})
 }
 async function adminStats(env,chatId,origin){
  const [p,s,w,d]=await Promise.all([
@@ -457,6 +475,7 @@ async function telegramWebhook(env,update,origin,ctx){
   const task=action.slice("mrxp:admin:".length);
   if(task==="home")return adminDashboard(env,chat.id,origin);
   if(task==="stats")return adminStats(env,chat.id,origin);
+  if(task==="credits")return adminCreditStats(env,chat.id,origin);
   if(task==="features")return adminFeatures(env,chat.id,origin);
   if(task==="health")return adminBotHealth(env,chat.id,origin);
   if(task==="channels")return channelMissionDiagnostic(env,chat.id,origin);
