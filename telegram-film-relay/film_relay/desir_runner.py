@@ -244,6 +244,8 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     """
     from .bot_http import url_button
     from .publication import library_button_rows
+    if not valid_photo_message(item.poster):
+        raise ValueError("Publication annulée : affiche Telegram réelle obligatoire.")
     # Require both public support buttons before publishing anything.
     library_button_rows(public_peer)
     # Same two buttons as the classic relay. The former private-library
