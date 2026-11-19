@@ -5,8 +5,8 @@
 - **Worker déployé** : `mrxpronos-play` (Cloudflare Workers, sans Telegram Serverless)
 - **Bot Telegram configuré** : [@MrXpronosPlayBot](https://t.me/MrXpronosPlayBot).
 - **Webhook vérifié** : `https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook`.
-- **Bouton Menu configuré** : `🎮 Jouer` → la Mini App Cloudflare.
-- **Commandes disponibles** : `/start` et `/play`.
+- **Bouton de lancement** : `🎮 Ouvrir l’application` sous le message `/start` → la Mini App Cloudflare.
+- **Commandes visibles** : `/start` pour le public ; `/start` et `/admin` uniquement pour l’administrateur. `/play` reste un alias compatible.
 - **Adresse prévue** : https://mrxpronos-play.cinecanaux-xpronos.workers.dev
 - **D1 créé** : `mrxpronos-play-v1` (`59d4ecbf-21bc-4221-8909-0213737ab029`).
 - **Maquettes Figma** : https://www.figma.com/design/RlWwR9KutRVBRGhuELDH1N
@@ -18,7 +18,7 @@
 
 ## Accueil Telegram public et administration privée
 
-- **Public** : le menu des commandes expose seulement `/start`. Le message de bienvenue comporte un unique bouton **🎮 Démarrer Mr XPRONOS Play** qui ouvre la Mini App. Les jeux, missions, roue, XP et profil restent dans la Mini App.
+- **Public** : le menu des commandes expose seulement `/start`. Le message de bienvenue comporte un unique bouton **🎮 Ouvrir l’application** qui ouvre la Mini App. Les jeux, missions, roue, XP et profil restent dans la Mini App.
 - **Administrateur** : seul le compte Telegram figurant dans la table D1 `bot_admins` peut utiliser `/admin`, voir les statistiques et modifier les textes du bot (accueil, description du profil et bio courte). Les contrôles sont effectués côté Worker à partir de `message.from.id` / `callback_query.from.id` et des droits D1 ; aucun identifiant administrateur n'est codé en clair dans GitHub.
 - **Avant Start** : la rubrique Telegram « Que peut faire ce bot ? » utilise `setMyDescription`, et la bio courte `setMyShortDescription`. Ce sont des descriptions Telegram, pas des messages automatiquement envoyés au joueur.
 - **Commandes Telegram** : `/start` par défaut et pour tous les chats privés, `/start` + `/admin` exclusivement dans le chat privé du compte administrateur. Les anciennes commandes non adaptées ne sont plus affichées dans le menu public une fois la synchronisation des commandes Telegram effectuée.
@@ -40,7 +40,7 @@ Dans BotFather, associer au bot l'URL de la Mini App. Pour les réponses à `/st
 
 - URL : `https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook`
 - `secret_token` : identique à `WEBHOOK_SECRET`
-- `allowed_updates` : `["message"]`.
+- `allowed_updates` : `["message", "callback_query"]` (pour les boutons de gestion privés).
 
 **Ne jamais publier les secrets dans GitHub ni dans un chat.** La requête setWebhook est à lancer depuis un outil sûr, après avoir défini le jeton.
 
@@ -101,8 +101,18 @@ mrxpronos-play/
 ## Lancement utilisateur
 
 1. Ouvrir https://t.me/MrXpronosPlayBot dans Telegram.
-2. Appuyer sur **Démarrer**, ou envoyer `/start` (également `/play`).
-3. Dans le message de bienvenue, toucher **🎮 Jouer maintenant** ou le bouton menu **🎮 Jouer**.
+2. Appuyer sur **Démarrer**, ou envoyer `/start` (l'alias `/play` reste accepté mais n'est pas visible dans le menu public).
+3. Dans le message de bienvenue, toucher **🎮 Ouvrir l’application**.
 4. La page se charge depuis Cloudflare. Les XP sont locaux avant validation, avec intervalle minimum de 12 h entre synchronisations.
 
 **Vérification automatique réalisée :** la réponse de `getWebhookInfo` concorde avec l'URL Cloudflare et celle de `getChatMenuButton` confirme `type=web_app`. Aucun webhook préexistant différent n'a été écrasé. Le Cron temporaire de configuration a été désactivé.
+
+## Vérification de la reprise du 19 novembre 2026
+
+- Accueil : texte du jeu avec XP, roue, missions, progression et avertissement sur la valeur virtuelle des XP.
+- Navigation : un unique bouton public « 🎮 Ouvrir l’application » ; seuls les administrateurs D1 voient les outils privés.
+- Commandes : `/start` public, `/admin` réservé au compte autorisé, alias `/play` accepté sans publicité dans le menu.
+- Sécurité : secret du webhook, contrôle de `from.id` et du chat privé, vérification D1 de l’administrateur pour les commandes et callbacks.
+- Édition : accueil, description et bio courte, délai de 10 minutes, annulation `/cancel`.
+- Tests automatiques : démarrage public, autorisations, changements de texte, statistiques, annulation et configuration Telegram.
+- Les anciennes touches de messages déjà envoyés restent éventuellement visibles dans l’historique Telegram ; seules les commandes/menu et nouveaux messages sont configurables.
