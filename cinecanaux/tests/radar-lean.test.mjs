@@ -55,15 +55,18 @@ test("1. UI has only categories, public search, real previews and open",()=>{
   assert.ok(!APP_HTML.includes(word),"Removed feature still visible: "+word);
  }
 });
-test("2. Homepage and category flow take at most two clicks",async()=>{
+test("2. /start explains the Mini App with exactly one public button; old callbacks no longer list categories",async()=>{
  await botUpdate(env,msg("/start"));
  let latest=calls.at(-1).body;
- assert.match(latest.text,/CINÉ RADAR/);
- assert.equal(latest.reply_markup.inline_keyboard.length,2);
+ assert.match(latest.text,/Bienvenue sur CINÉ RADAR/);
+ assert.match(latest.text,/films, séries et animés/);
+ assert.equal(latest.reply_markup.inline_keyboard.length,1);
+ assert.equal(latest.reply_markup.inline_keyboard[0][0].web_app.url,"https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app");
  await botUpdate(env,cb("category:films"));
  latest=calls.at(-1).body;
- assert.match(latest.text,/Canaux Telegram/);
- assert.equal(latest.reply_markup.inline_keyboard[0][0].url,"https://t.me/CinemaPublic2026");
+ assert.match(latest.text,/Mini App/);
+ assert.equal(latest.reply_markup.inline_keyboard.length,1);
+ assert.ok(!latest.reply_markup.inline_keyboard.flat().some(x=>x.callback_data?.startsWith("category:")));
 });
 test("3. Public catalog requires no account or database writes",async()=>{
  const before=state.updated;
