@@ -326,7 +326,9 @@ def main():
         parser.error("1 canal nouveau maximum par exécution")
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")
-    asyncio.run(provision(apply=args.apply, max_created=args.max_created))
+    report = asyncio.run(provision(apply=args.apply, max_created=args.max_created))
+    if report["errors"]:
+        raise SystemExit("Un ou plusieurs canaux Secours sont en échec ; état non entièrement opérationnel")
 
 
 if __name__ == "__main__":
