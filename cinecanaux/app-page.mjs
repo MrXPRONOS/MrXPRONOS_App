@@ -407,6 +407,11 @@ body{background:#07111f}
 @media(max-width:350px){.cine-promo-card{flex-basis:220px}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
 
 /* Discovery cards retain the original responsive grid; only the separate promotion track scrolls. */
+.cine-owner-admin-overlay{position:fixed;inset:0;z-index:1500;background:#07101e;display:flex;flex-direction:column}
+.cine-owner-admin-overlay[hidden]{display:none}
+.cine-owner-admin-toolbar{flex:none;display:flex;align-items:center;padding:9px 13px;min-height:44px;background:#0e1d34;border-bottom:1px solid #354f7e}
+.cine-owner-admin-toolbar button{border:1px solid #476a9f;background:#1b3765;color:#f5f9ff;border-radius:9px;padding:7px 11px;font-weight:700}
+.cine-owner-admin-frame{flex:1;border:0;width:100%;min-height:0;background:#07101e}
 .cine-owner-admin-link{display:flex;width:100%;align-items:center;gap:11px;padding:13px 14px;background:linear-gradient(115deg,#1b3972,#2b2372);color:#f6f9ff;border:1px solid #6682ca;border-radius:10px;font-weight:800;font-size:13px;margin:10px 0}
 .cine-owner-admin-link[hidden]{display:none}
 .cine-community{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;color:#a6bce0}
@@ -1367,7 +1372,30 @@ function build(){
  const ownerAdmin=node("button","cine-owner-admin-link","🔐 Administration");
  ownerAdmin.type="button";ownerAdmin.hidden=true;
  ownerAdmin.id="cine-owner-admin-link";
- ownerAdmin.onclick=()=>{closeMenu();window.location.assign("/admin")};
+ ownerAdmin.onclick=()=>{
+  closeMenu();
+  let overlay=$("cine-owner-admin-overlay");
+  if(!overlay){
+   overlay=node("div","cine-owner-admin-overlay");overlay.id="cine-owner-admin-overlay";
+   const bar=node("div","cine-owner-admin-toolbar");
+   const back=node("button",null,"← Retour à Ciné Radar");back.type="button";
+   back.onclick=()=>{overlay.hidden=true;document.body.style.overflow=""};
+   bar.append(back);
+   const frame=node("iframe","cine-owner-admin-frame");
+   frame.title="Administration Ciné Radar";frame.src="/admin";
+   // Keep the original Telegram WebView alive: direct page navigation loses
+   // Telegram.WebApp.initData on some clients, even for legitimate owners.
+   frame.addEventListener("load",()=>{
+    const signed=window.Telegram?.WebApp?.initData||"";
+    if(signed)frame.contentWindow?.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
+   });
+   overlay.append(bar,frame);document.body.append(overlay);
+  }
+  overlay.hidden=false;document.body.style.overflow="hidden";
+  const frame=overlay.querySelector("iframe");
+  const signed=window.Telegram?.WebApp?.initData||"";
+  if(signed)frame?.contentWindow?.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
+ };
  drawer.append(ownerAdmin);
  // Display privileged navigation only after the server verifies Telegram initData.
  let init=window.Telegram?.WebApp?.initData||"";
