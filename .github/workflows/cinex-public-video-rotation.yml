@@ -1,6 +1,9 @@
 name: CineX - Rotation quotidienne des 10 videos
 
 on:
+  push:
+    branches: [main]
+    paths: ['telegram-film-relay/.cinex-archive-audit-once']
   workflow_dispatch:
     inputs:
       apply:
