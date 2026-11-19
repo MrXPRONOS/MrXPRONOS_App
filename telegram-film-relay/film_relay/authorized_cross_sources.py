@@ -74,9 +74,9 @@ def cross_channel_movie_pairs(posters, media_messages):
         if not getattr(poster, "photo", None) or getattr(poster, "noforwards", False):
             continue
         possibilities = [
-            media for media, channel_title in media_messages
+            media for media, peer in media_messages
             if is_supported_video(media) and _title_compatible(
-                poster, media, channel_title)
+                poster, media, getattr(peer, "title", peer))
         ]
         if len(possibilities) == 1:
             matched.append(Item(poster, possibilities[0]))
