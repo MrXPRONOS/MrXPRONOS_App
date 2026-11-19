@@ -535,7 +535,7 @@ test('rank portrait mapping matches all 11 approved ranks including Souverain MX
   assert.ok(html.includes('const servedSource=source+'));
   assert.ok(html.includes('RANK_BRAND_FALLBACK'));
   assert.ok(html.includes('window.refreshRankAvatar?.()'));
-  assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
+  assert.ok(html.includes('const source=selectedPortrait.image?RANK_AVATAR_ROOT+selectedPortrait.image:RANK_BRAND_FALLBACK'));
   assert.ok(!html.includes('getUserProfilePhotos?user_id'));
  }finally{h.restore()}
 });
@@ -703,8 +703,8 @@ test('V2 sent levels never trust browser stored levels for authenticated ranking
  try{
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
   const html=await res.text();
-  assert.ok(html.includes('state.progression=null;/* Never trust locally restored ranks as official. */'));
-  assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
+  assert.ok(html.includes('state.progression=null;state.profile=null;/* Never trust locally restored ranks or avatar choices as official. */'));
+  assert.ok(html.includes('const source=selectedPortrait.image?RANK_AVATAR_ROOT+selectedPortrait.image:RANK_BRAND_FALLBACK'));
   assert.ok(!html.includes('function level(){return Math.max(1,Math.floor(Math.sqrt('));
  }finally{h.restore()}
 });
