@@ -101,14 +101,17 @@ async function processBotUpdate(env,update){
  const command=/^\/([a-z_]+)(?:@[A-Za-z0-9_]+)?(?:\s+(.*))?$/i.exec(text);
  const name=command?.[1]?.toLowerCase()||"";
  const arg=String(command?.[2]||"").trim();
+ if(privateChat&&name==="stop"){await display(env,chat,null,"🔕 <b>Annonces désactivées</b>\n\nTu ne recevras plus les annonces de Ciné Radar. Tape /start pour les réactiver.",markup);return;}
+ if(name==="aide"||name==="help"){await display(env,chat,null,HELP,markup);return;}
+ if(name==="confidentialite"){await display(env,chat,null,PRIVACY,markup);return;}
 
  // Administrative commands are never shown or executed for other users.
- if(!owner||!privateChat||!["admin","tendances","manquants","canaux","autoriser","actualiser"].includes(name)){
+ if(!owner||!privateChat||!["admin","annonces","tendances","manquants","canaux","autoriser","actualiser"].includes(name)){
   await display(env,chat,null,INTRO,markup);
   return;
  }
- if(name==="admin"){
-  await display(env,chat,null,"🔐 <b>Ciné Radar — espace propriétaire</b>\n\nGère les canaux et le catalogue depuis l'administration.",markup);
+ if(name==="admin"||name==="annonces"){
+  await display(env,chat,null,"🔐 <b>Ciné Radar — Administration</b>\n\n📣 Prépare et diffuse des annonces avec texte, image et bouton cliquable depuis ton espace propriétaire.",markup);
   return;
  }
  if(name==="actualiser"){
@@ -181,11 +184,12 @@ export async function miniAppAPI(env,request,previewFn){
 }
 export async function initializeProfile(env){
  const version=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(version?.value==="11")return;
- const PUBLIC_COMMANDS=[{command:"start",description:"🎬 Ouvrir Ciné Radar"}];
+ if(version?.value==="12")return;
+ const PUBLIC_COMMANDS=[{command:"start",description:"🎬 Lancer Ciné Radar"},{command:"aide",description:"📖 Guide et fonctionnalités"},{command:"stop",description:"🔕 Arrêter les annonces"},{command:"confidentialite",description:"🔐 Confidentialité"}];
  const OWNER_COMMANDS=[
   ...PUBLIC_COMMANDS,
   {command:"admin",description:"🔐 Administration"},
+   {command:"annonces",description:"📣 Envoyer une annonce"},
   {command:"tendances",description:"📈 Tendances cinéma"},
   {command:"manquants",description:"📬 Titres à référencer"},
   {command:"canaux",description:"📡 État des canaux"},
@@ -194,8 +198,8 @@ export async function initializeProfile(env){
  ];
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
-  ["setMyShortDescription",{short_description:"🎬 Découvre des canaux de films, séries et animés sur Telegram."}],
-  ["setMyDescription",{description:"🎬 Explore des canaux de films, séries et animés, consulte les affiches et ouvre les publications sur Telegram. Appuie sur Démarrer puis sur « Ouvrir la Mini App »."}],
+  ["setMyShortDescription",{short_description:"🎬🍿 Films, séries et animés : explore, découvre et ouvre tes canaux favoris !"}],
+  ["setMyDescription",{description:"🎬 BIENVENUE SUR CINÉ RADAR !\n\n🍿 Films, séries et animés.\n\n🔎 1. Recherche les canaux.\n🎞️ 2. Découvre les affiches.\n⭐ 3. Garde tes favoris.\n💬 4. Donne ton avis.\n\n▶️ Appuie sur Démarrer puis sur Lancer Ciné Radar !"}],
   ["setMyCommands",{scope:{type:"default"},commands:PUBLIC_COMMANDS}],
   ["setChatMenuButton",{menu_button:{type:"commands"}}]
  ];
@@ -218,7 +222,7 @@ export async function initializeProfile(env){
   if(!menu.ok)throw Error("Owner menu button update failed");
  }
  if(!ownerRows.length)throw Error("Owner account not found: retry profile configuration later");
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','11') ON CONFLICT(setting_key) DO UPDATE SET value='11',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','12') ON CONFLICT(setting_key) DO UPDATE SET value='12',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){
