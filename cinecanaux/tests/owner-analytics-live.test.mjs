@@ -22,3 +22,11 @@ test('public telemetry rejects malformed events, and Mini App still loads',async
  assert.match(html,/autoScrollDiscover/);
  console.log('TELEMETRY_GUARD_AND_PUBLIC_APP_OK');
 });
+
+test('a valid first-party anonymous visit event is accepted and increments the current visit period',async()=>{
+ const id=crypto.randomUUID();
+ const res=await fetch(ROOT+'/api/analytics/event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event:'visit',id}),signal:AbortSignal.timeout(12000)});
+ const text=await res.text();
+ console.log('VALID_ANONYMOUS_VISIT_RESPONSE:',JSON.stringify({status:res.status,response:text.slice(0,180),uuidLength:id.length,version:id[14],variant:id[19]}));
+ assert.equal(res.status,200);
+});
