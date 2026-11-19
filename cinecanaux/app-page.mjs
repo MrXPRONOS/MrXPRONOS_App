@@ -351,6 +351,24 @@ body{background:#07111f}
 .cine-film-poster .cine-pin-label{position:absolute;bottom:0;left:0;right:0;padding:15px 6px 7px;background:linear-gradient(transparent,#020715ed);font-size:10px;font-weight:790;line-height:1.15;z-index:3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cine-pin-kind{position:absolute;top:5px;left:5px;padding:3px 6px;background:#071529d9;color:#eef6ff;z-index:4;border-radius:6px;font-size:9px}
 .cine-pins-empty{min-height:46px;width:100%;border-radius:10px;border:1px dashed #394f78;background:#101e35;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:12px;color:#adbfdb}
+
+/* Discrete editorial cross-promotion, placed after initial home discoveries. */
+.cine-promo-slot{grid-column:1/-1;min-width:0;margin:2px 0 8px;border:1px solid #34496b;border-radius:14px;background:linear-gradient(135deg,#102139,#0c1b30);padding:11px}
+.cine-promo-head{display:flex;justify-content:space-between;gap:6px;align-items:baseline;margin:0 1px 9px}
+.cine-promo-head strong{font-size:13px;letter-spacing:-.1px}
+.cine-promo-head small{color:#8ba2c2;font-size:9px;white-space:nowrap}
+.cine-promo-track{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,76%);gap:8px;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;padding-bottom:3px;overscroll-behavior-inline:contain}
+.cine-promo-card{position:relative;min-width:0;min-height:91px;display:flex;align-items:center;gap:9px;text-decoration:none;color:#eaf2ff;border:1px solid #3a5377;background:#152a44;border-radius:11px;padding:10px;scroll-snap-align:start;transition:border-color .15s,background .15s}
+.cine-promo-card:hover,.cine-promo-card:focus-visible{border-color:#84aafa;background:#1b3657;outline-offset:2px}
+.cine-promo-avatar{position:relative;flex:0 0 43px;height:43px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#243f69;border:1px solid #6883b0;font-size:21px}
+.cine-promo-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cine-promo-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.cine-promo-name{font-size:11.5px;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cine-promo-description{color:#b2c7e4;font-size:10px;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.cine-promo-age{font-size:9px;color:#f1c993;line-height:1.2}
+.cine-promo-arrow{flex:none;align-self:flex-start;color:#9db8e3;font-size:14px}
+@media(min-width:690px){.cine-promo-track{grid-auto-flow:row;grid-auto-columns:unset;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}.cine-promo-slot{margin:4px 0 9px}}
+@media(max-width:350px){.cine-promo-track{grid-auto-columns:minmax(208px,86%)}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
 </style>
 </head>
 <body>
@@ -803,6 +821,66 @@ async function loadCinemaShowcase(){
   }).catch(()=>{}).finally(renderCinemaShowcase);
  await Promise.allSettled([pins,art]);
 }
+
+const promoChannels=[
+ {handle:"actufoot_mrxp",title:"Actu Foot MRXP",desc:"Actualités, résultats et temps forts du football.",icon:"⚽",kind:"football",url:"https://t.me/actufoot_mrxp"},
+ {handle:"ActuCrypto24H",title:"Actu Crypto 24H/7",desc:"Mouvements du marché, annonces et tendances crypto.",icon:"₿",kind:"crypto",url:"https://t.me/ActuCrypto24H"},
+ {handle:"mrxpronosfr",title:"MR X PRONOS FR",desc:"Pronostics et analyses de rencontres. 18+ · Joue responsablement.",icon:"📊",kind:"pronos",url:"https://t.me/mrxpronosfr"}
+];
+let promoProfiles=null,promoStarted=false;
+function promoCard(info){
+ const a=node("a","cine-promo-card");
+ a.href=info.url;a.target="_blank";a.rel="noopener noreferrer";
+ a.dataset.promoHandle=info.handle;
+ a.setAttribute("aria-label","Découvrir "+info.title+" sur Telegram");
+ a.onclick=e=>{
+  const tg=window.Telegram?.WebApp;
+  if(tg?.openTelegramLink){e.preventDefault();tg.openTelegramLink(info.url)}
+ };
+ const avatar=node("div","cine-promo-avatar",info.icon);
+ const img=document.createElement("img");
+ img.alt="Photo du canal "+info.title;img.loading="lazy";img.decoding="async";
+ img.src="/assets/promo-avatar/"+info.handle+".jpg";
+ img.onerror=()=>img.remove();
+ avatar.append(img);
+ const copy=node("div","cine-promo-copy");
+ const name=node("strong",null,info.title);name.classList.add("cine-promo-name");
+ const desc=node("small",null,info.desc);desc.classList.add("cine-promo-description");
+ copy.append(name,desc);
+ if(info.kind==="pronos")copy.append(node("small","cine-promo-age","18+ · Joue responsablement"));
+ a.append(avatar,copy,node("span","cine-promo-arrow","↗"));
+ return a;
+}
+function promoBlock(){
+ const wrapper=node("aside","cine-promo-slot");wrapper.setAttribute("aria-label","Nos autres canaux Telegram");
+ const header=node("div","cine-promo-head");
+ header.append(node("strong",null,"À découvrir aussi"),node("small",null,"Nos autres canaux · Promotion"));
+ const track=node("div","cine-promo-track");
+ const profiles=promoProfiles||[];
+ for(const base of promoChannels){
+  const profile=profiles.find(p=>p.handle===base.handle);
+  track.append(promoCard({...base,title:profile?.name||base.title,desc:profile?.description||base.desc}));
+ }
+ wrapper.append(header,track);
+ if(!promoStarted){
+  promoStarted=true;
+  fetch("/api/partner-promos",{headers:{accept:"application/json"},signal:AbortSignal.timeout(8500)})
+   .then(r=>r.ok?r.json():Promise.reject(Error("Partner profiles unavailable")))
+   .then(data=>{
+    if(!Array.isArray(data.items))return;
+    promoProfiles=data.items.filter(p=>promoChannels.some(c=>c.handle===p.handle));
+    for(const profile of promoProfiles){
+     const card=[...document.querySelectorAll(".cine-promo-card")].find(el=>el.dataset.promoHandle===profile.handle);
+     if(!card)continue;
+     const name=card.querySelector(".cine-promo-name"),description=card.querySelector(".cine-promo-description");
+     if(name&&typeof profile.name==="string")name.textContent=profile.name.slice(0,68);
+     if(description&&typeof profile.description==="string")description.textContent=profile.description.slice(0,160);
+    }
+   }).catch(()=>{});
+ }
+ return wrapper;
+}
+
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
  const measure=c=>(c.avatar_verified?200:0)+(c.content_verified?35:0)
@@ -818,7 +896,11 @@ function miniFeatured(){
  }
  chosen.sort((a,b)=>measure(b)-measure(a)||a.id-b.id);
  if(!chosen.length)chosen.push(...catalog.filter(c=>c.title).slice(0,6));
- for(const c of chosen)a.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
+ const promoAfter=(window.matchMedia?.("(min-width: 690px)")?.matches?6:4);
+ for(const [index,c] of chosen.entries()){
+  a.append(featuredCard(c,c.type==="films"?"Films":c.type==="series"?"Séries":"Animés"));
+  if(index+1===Math.min(promoAfter,chosen.length))a.append(promoBlock());
+ }
  if(!chosen.length)a.append(node("div","cine-empty-spot","Chargement des canaux…"));
 
 }
