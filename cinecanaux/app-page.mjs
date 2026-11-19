@@ -374,7 +374,7 @@ body{background:#07111f}
 .cine-home-picks{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-snap-type:x proximity;padding:4px 1px 9px;align-items:stretch}
 .cine-home-picks .cine-pick{flex:0 0 155px;min-width:155px;max-width:155px;min-height:178px;scroll-snap-align:start}
 .cine-home-picks .cine-pick:nth-child(-n+2){flex-basis:165px;min-width:165px;max-width:165px}
-.cine-home-picks .cine-promo-slot{flex:0 0 min(86vw,342px);width:min(86vw,342px);grid-column:auto;scroll-snap-align:start;margin:0;align-self:stretch}
+.cine-home-picks .cine-promo-slot{flex:0 0 min(86vw,342px);width:min(86vw,342px);grid-column:auto;scroll-snap-align:start;margin:0;align-self:center}
 .cine-home-picks .cine-promo-track{grid-auto-columns:minmax(200px,88%);gap:7px}
 .cine-home-picks .cine-promo-card{min-height:92px}
 @media(min-width:690px){.cine-home-picks .cine-pick{flex:0 0 190px;min-width:190px;max-width:190px}.cine-home-picks .cine-promo-slot{flex-basis:335px;width:335px}.cine-home-picks .cine-promo-track{display:grid;grid-template-columns:1fr;grid-auto-flow:row;overflow-y:auto;max-height:180px}.cine-home-picks .cine-promo-card{min-height:49px;padding:5px}.cine-home-picks .cine-promo-avatar{flex-basis:34px;height:34px}.cine-home-picks .cine-promo-description{-webkit-line-clamp:1;line-clamp:1}}
@@ -984,8 +984,8 @@ function autoScrollDiscover(){
   const max=box.scrollWidth-box.clientWidth;
   if(!document.hidden&&now>pausedUntil&&max>3){
    const elapsed=prev?Math.min(50,now-prev):16;
-   if(box.scrollLeft<1)box.scrollLeft=max;
-   else box.scrollLeft=Math.max(0,box.scrollLeft-.022*elapsed);
+   if(box.scrollLeft>=max-1)box.scrollLeft=0;
+   else box.scrollLeft=Math.min(max,box.scrollLeft+.022*elapsed);
   }
   prev=now;discoverFrame=requestAnimationFrame(loop);
  };
