@@ -30,6 +30,7 @@ LOG = logging.getLogger("cinex_categories")
 CATEGORIES = {
     "comedie": {"prefix": "COMEDIE", "label": "CinéX Comédie", "fallback": "😂 Film comédie"},
     "anime": {"prefix": "ANIME", "label": "CinéX Anime", "fallback": "🌸 Film / épisode anime"},
+    "action": {"prefix": "ACTION", "label": "Ciné X Action", "fallback": "🎬 Film d'action"},
 }
 _CHANNEL = re.compile(r"^@[a-zA-Z0-9_]{5,32}$")
 _PRIVATE = re.compile(r"^-100\d{5,}$")
@@ -45,6 +46,7 @@ def category_config(category: str, env: dict | None = None) -> dict:
     default_sources = {
         "comedie": ("@comexflex",),
         "anime": ("@orak_dessinanime",),
+        "action": (),
     }
     # One owner-facing GitHub Variable per category. Keep the historical
     # baseline available when the variable is not yet configured.
@@ -60,6 +62,8 @@ def category_config(category: str, env: dict | None = None) -> dict:
                     "@filmromatique", "@g_romanticfilm", "@filmsromatique",
                     "@films_romantique_vf", "@paff_erotique"},
         "anime": {"@comexflex", "@filmcomplets", "@cineromances", "@filmsromantiques"},
+        "action": {"@comexflex", "@orak_dessinanime", "@cineromances",
+                   "@filmromatique", "@g_romanticfilm"},
     }
     forbidden_sources = cross_category.get(category, set())
     for value in sources:
@@ -219,6 +223,8 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
     from telethon.sessions import StringSession
     if limit not in (1, 2):
         raise ValueError("La limite par lancement est de 1 ou 2 publications.")
+    if publish and category == "action" and os.getenv("ACTION_RIGHTS_ATTESTED", "").lower() != "true":
+        raise RuntimeError("ACTION_RIGHTS_ATTESTED=true requis avant toute publication Action.")
     if category == "anime" and publish:
         # Includes manual movie jobs: they may never interrupt a series batch
         # awaiting recovery in the shared anime catalogue.
@@ -264,9 +270,13 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         # Global cap of two across all sources, ordered by message timestamp.
         records = []
         messages_read = 0
+        approved_action_posters = []
         for peer in source_peers:
             try:
                 messages = [m async for m in client.iter_messages(peer, limit=160)]
+                if category == "action":
+                    approved_action_posters.extend(m for m in messages
+                                                    if getattr(m, "photo", None))
             except (FloodWaitError, PeerFloodError):
                 raise
             except Exception as exc:
@@ -277,6 +287,33 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             peer_id = utils.get_peer_id(peer)
             records.extend((peer_id, item) for item in pair_items(messages))
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
+        if category == "action" and os.getenv("ACTION_MEDIA_CHANNELS", "").strip():
+            # Telegram buttons can point to a film in another channel, but
+            # no arbitrary navigation: only separately approved allowlisted
+            # media channels, already accessible to the user session.
+            from .authorized_cross_sources import (
+                authorized_peers, follow_authorized_button_posts,
+                cross_channel_movie_pairs,
+            )
+            media_peers = await authorized_peers(
+                client, [os.getenv("ACTION_MEDIA_CHANNELS", "")],
+                banned_ids={utils.get_peer_id(private), utils.get_peer_id(public)},
+            )
+            media = []
+            for _, peer in media_peers:
+                samples = [m async for m in client.iter_messages(peer, limit=140)]
+                media.extend((m, getattr(peer, "title", "") or "") for m in samples)
+            media.extend((msg, getattr(peer, "title", "") or "")
+                         for msg, peer in await follow_authorized_button_posts(
+                             client, approved_action_posters, media_peers))
+            for item in cross_channel_movie_pairs(approved_action_posters, media):
+                # The video really resides in a separately allowlisted channel.
+                # Store its id scoped by the media peer, not the poster feed.
+                peer_of = next((peer for _, peer in media_peers
+                                if getattr(peer, "title", "") in
+                                [name for m, name in media if m is item.video]), None)
+                if peer_of is not None:
+                    records.append((utils.get_peer_id(peer_of), item))
         def order(record):
             ts = getattr(record[1].video, "date", None)
             if not isinstance(ts, datetime):
