@@ -261,7 +261,7 @@ body{background:#07111f}
 .cine-film-poster{width:99px;height:144px;flex:0 0 99px;position:relative;border-radius:11px;overflow:hidden;border:1px solid #405b86;background:linear-gradient(155deg,#243b78,#9e477e 67%,#1c2449);margin:0;box-shadow:0 5px 18px #0006}
 .cine-film-poster:nth-child(4n){background:linear-gradient(155deg,#22476e,#a17a54,#2c3e67)}
 .cine-film-poster figcaption{position:absolute;bottom:0;left:0;right:0;padding:15px 6px 6px;font-size:10px;font-weight:760;color:#fff;line-height:1.1;background:linear-gradient(transparent,#030614df);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cine-film-poster .cine-poster-placeholder{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:#dbe7ff7a;font-weight:900;letter-spacing:2px}
+.cine-film-poster.cine-poster-fallback{background:linear-gradient(150deg,#17305f,#684278 66%,#14264b)}
 .cine-poster-note{margin:8px 0 0;font-size:10px;color:#91a8c9}
 @keyframes cine-scroll-hero{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes cine-scroll-posters{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -384,7 +384,6 @@ body{background:#07111f}
 .cine-film-poster{appearance:none;padding:0;text-align:left;cursor:pointer;color:#fff;touch-action:manipulation}
 .cine-film-poster:focus-visible{outline:2px solid #a1b9ff;outline-offset:3px}
 .cine-film-poster .cine-pin-label{position:absolute;bottom:0;left:0;right:0;padding:15px 6px 7px;background:linear-gradient(transparent,#020715ed);font-size:10px;font-weight:790;line-height:1.15;z-index:3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cine-pin-kind{position:absolute;top:5px;left:5px;padding:3px 6px;background:#071529d9;color:#eef6ff;z-index:4;border-radius:6px;font-size:9px}
 .cine-pins-empty{min-height:46px;width:100%;border-radius:10px;border:1px dashed #394f78;background:#101e35;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:12px;color:#adbfdb}
 
 /* Discrete editorial cross-promotion, placed after initial home discoveries. */
@@ -436,11 +435,7 @@ body{background:#07111f}
 .cine-genre-chips button .cine-cat-icon{width:22px;height:22px}
 .cine-poster-section-title strong{display:inline-flex;align-items:center;gap:7px}
 .cine-poster-section-title strong .cine-cat-icon{width:29px;height:29px}
-.cine-film-poster .cine-poster-placeholder .cine-cat-icon{width:46px;height:46px}
-.cine-hero-cover .cine-poster-placeholder{position:absolute;inset:0;display:grid;place-items:center}
-.cine-hero-cover .cine-poster-placeholder .cine-cat-icon{width:54px;height:54px}
-.cine-pin-kind{display:inline-flex;align-items:center;gap:3px}
-.cine-pin-kind .cine-cat-icon{width:13px;height:13px}
+.cine-hero-cover.cine-poster-fallback{background:linear-gradient(145deg,#1c3063,#643e7e)}
 @media(max-width:350px){.cine-genre-tile{padding:9px}.cine-genre-tile .cine-cat-icon{width:37px;height:37px}.cine-genre-tile .cine-genre-label{gap:5px}.cine-genre-tile .cine-genre-label strong{font-size:12px}}
 
 /* Lot 4: ten original glossy icons (football, crypto, pronos, privacy, ratings,
@@ -466,9 +461,6 @@ body{background:#07111f}
 .cine-community-rating>.cine-lot4-icon{width:28px;height:28px;flex-basis:28px}
 .cine-rating-buttons button{display:inline-flex;align-items:center;gap:3px}
 .cine-rating-buttons button .cine-lot4-icon{width:16px;height:16px;flex-basis:16px}
-.cine-pin-kind{display:inline-flex;align-items:center;gap:3px}
-.cine-pin-kind .cine-lot4-icon{width:16px;height:16px;flex-basis:16px}
-.cine-film-poster>.cine-lot4-play{position:absolute;top:32px;right:5px;width:20px;height:20px;z-index:4;filter:drop-shadow(0 1px 3px #020a1bbb)}
 .cine-home-footer{display:flex;align-items:center;gap:8px}
 .cine-home-footer .cine-lot4-icon{width:24px;height:24px;flex-basis:24px}
 </style>
@@ -1002,13 +994,15 @@ function openPinnedMessage(entry){
 function posterTile(entry,hero=false){
  const item=node(hero?"div":"button",hero?"cine-hero-cover":"cine-film-poster");
  if(!hero){item.type="button";item.title="Ouvrir "+entry.title+" sur Telegram";item.setAttribute("aria-label","Voir "+entry.title+" dans le canal Telegram");item.onclick=()=>openPinnedMessage(entry)}
- const mark=node("div","cine-poster-placeholder");mark.append(entry.type==="series"?cineLot4Icon("series"):cineCategoryIcon(entry.type));item.append(mark);
  const external=/^https:\/\/(?:image\.tmdb\.org\/t\/p\/w342\/[A-Za-z0-9_-]{8,100}\.(?:jpe?g|png|webp)|static\.tvmaze\.com\/uploads\/images\/(?:medium_portrait|original_untouched)\/[0-9]+\/[0-9]+\.jpg|(?:m\.media-amazon\.com|images-na\.ssl-images-amazon\.com)\/images\/[A-Za-z0-9_%@.+/-]{8,800})$/.test(String(entry.poster||""));
+ // Actual movie artwork stays clean: no category, play or placeholder icons
+ // are ever layered over the posters (including the moving hero collage).
  if((hero&&external)||(!hero&&pinnedImage(entry.poster)&&pinnedLink(entry.link))){
-  const img=node("img");img.alt=hero?"":"Affiche de "+entry.title;img.loading=hero?"eager":"lazy";img.decoding="async";img.src=entry.poster;img.onerror=()=>img.remove();item.append(img)
- }
+  const img=node("img");img.alt=hero?"":"Affiche de "+entry.title;img.loading=hero?"eager":"lazy";img.decoding="async";
+  img.onerror=()=>{img.remove();item.classList.add("cine-poster-fallback")};
+  img.src=entry.poster;item.append(img);
+ }else item.classList.add("cine-poster-fallback");
  const caption=node("span",null,entry.title||posterTypeTitle[entry.type]||"Cinéma");if(!hero)caption.className="cine-pin-label";item.append(caption);
- if(!hero){const label=node("span","cine-pin-kind");label.append(entry.type==="series"?cineLot4Icon("series"):cineCategoryIcon(entry.type),document.createTextNode(entry.type==="animes"?"Animé":entry.type==="series"?"Série":"Film"));item.append(label,cineLot4Icon("play"));}
  return item;
 }
 function renderCinemaShowcase(){
