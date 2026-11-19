@@ -1423,3 +1423,90 @@ test('phase 6 audit migration is additive and phase 5 monetization rules remain 
  }
  assert.ok(code.includes('real_money:false'));assert.ok(code.includes('transfer_enabled:false'))
 });
+
+
+test('phase 6 simulator verifies all 50 official levels, 11 ranks and seven mastery gates',()=>{
+ const from=code.indexOf('const V2_MAX_LEVEL=50;'),to=code.indexOf('async function v2Progression(env,player)');
+ assert.ok(from>0&&to>from);
+ const rules=new Function(code.slice(from,to)+'\nreturn {cap:V2_MAX_LEVEL,thresholds:V2_LEVEL_THRESHOLDS,ranks:V2_RANKS,gates:V2_GATES,mastery:V2_MASTERY,eligible:v2XpLevel,legacy:v2LegacyLevel};')();
+ assert.equal(rules.cap,50);assert.equal(rules.thresholds.length,51);
+ assert.equal(rules.ranks.length,11);assert.equal(rules.gates.length,7);
+ assert.equal(rules.mastery.length,30);
+ for(let n=2;n<=50;n++){
+  assert.ok(Number.isInteger(rules.thresholds[n]));
+  assert.ok(rules.thresholds[n]>rules.thresholds[n-1]);
+  assert.equal(rules.eligible(rules.thresholds[n]-1),n-1);
+  assert.equal(rules.eligible(rules.thresholds[n]),n);
+  assert.equal(rules.ranks.filter(r=>n>=r.from&&n<=r.to).length,1)
+ }
+ assert.equal(rules.eligible(Number.MAX_SAFE_INTEGER),50);
+ assert.equal(rules.legacy(0),1);
+ assert.ok(rules.legacy(400000)>=40);
+ assert.deepEqual(rules.gates.map(g=>g.level),[5,10,15,20,30,40,50]);
+ assert.deepEqual(rules.gates.map(g=>g.required),[2,3,5,7,10,14,18]);
+});
+
+test('phase 6 365-day simulated casual-to-intensive profiles never skip mastery or overspend MRXP',()=>{
+ const from=code.indexOf('const V2_MAX_LEVEL=50;'),to=code.indexOf('async function v2Progression(env,player)');
+ const g=new Function(code.slice(from,to)+'\nreturn {thresholds:V2_LEVEL_THRESHOLDS,gates:V2_GATES,mastery:V2_MASTERY,ranks:V2_RANKS,eligible:v2XpLevel};')();
+ const simulation=(dailyTaps,wheelEvery,boosts)=>{
+  let xp=0,taps=0,daily=0,wheel=0,missions=0,level=1,credits=0,spent=0,boostDay=-1,bought=0;
+  const progress=[];
+  for(let day=1;day<=365;day++){
+   const spin=day%wheelEvery===0;
+   daily++;taps+=dailyTaps;if(spin)wheel++;
+   if([1,7,30,60].includes(day))missions++;
+   credits+=5+5+(spin?5:0)+(dailyTaps>=50?5:0)+(day%7===0?30:0)+([1,7,30,60].includes(day)?10:0);
+   if(boosts&&day%30===1&&credits>=180){credits-=180;spent+=180;boostDay=day;bought++}
+   xp+=dailyTaps*(day===boostDay?2:1)+100+(spin?25:0);
+   const earned=g.mastery.filter(c=>({taps,daily,wheel,missions})[c.kind]>=c.goal).length;
+   const target=g.eligible(xp);
+   for(let next=level+1;next<=target;next++){
+    const gate=g.gates.find(x=>x.level===next);
+    if(gate&&earned<gate.required)break;
+    level=next;
+    credits+=g.ranks.some(r=>r.from===next&&r.from>1)?40:10
+   }
+   assert.ok(credits>=0,'simulation never overspends');
+   assert.ok(level>=1&&level<=50);
+   assert.ok(xp>=0&&xp<Number.MAX_SAFE_INTEGER);
+   for(const gate of g.gates)if(level>=gate.level)assert.ok(earned>=gate.required,'mastery was bypassed at gate '+gate.level);
+   progress.push(level)
+  }
+  assert.ok(progress.every((l,i)=>i===0||l>=progress[i-1]));
+  return {xp,level,taps,credits,spent,bought}
+ };
+ const profiles=[
+  {taps:30,wheel:3},
+  {taps:150,wheel:2},
+  {taps:450,wheel:1},
+  {taps:950,wheel:1}
+ ];
+ const results=profiles.map(x=>({base:simulation(x.taps,x.wheel,false),boost:simulation(x.taps,x.wheel,true)}));
+ for(const [index,row] of results.entries()){
+  assert.ok(row.boost.xp>=row.base.xp);
+  assert.ok(row.boost.level>=row.base.level);
+  assert.ok(row.boost.credits<=row.base.credits+500);
+  assert.ok(row.boost.bought>=1);
+  if(index)assert.ok(row.base.xp>=results[index-1].base.xp)
+ }
+ assert.ok(results[0].base.level<results[3].base.level);
+});
+
+test('phase 6 all numeric admin parameters are bounded and reject arbitrary SQL keys',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:econ_edit_reward_mission'));
+  assert.equal(h.pending.get(String(adminId)).edit_key,'econ:reward_mission');
+  await h.webhook(message(adminId,'0'));
+  assert.equal(h.settings.has('mrxp_balance_reward_mission'),false);
+  await h.webhook(message(adminId,'9999999'));
+  assert.equal(h.settings.has('mrxp_balance_reward_mission'),false);
+  await h.webhook(message(adminId,'40'));
+  assert.equal(h.settings.get('mrxp_balance_reward_mission'),'40');
+  assert.equal(h.balanceAudit.length,1);
+  await h.webhook(callback(adminId,'mrxp:admin:econ_edit_not_an_allowlisted_key'));
+  assert.equal(h.pending.has(String(adminId)),false);
+  assert.equal(h.balanceAudit.length,1)
+ }finally{h.restore()}
+});
