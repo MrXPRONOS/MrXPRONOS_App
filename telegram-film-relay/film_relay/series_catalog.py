@@ -35,6 +35,10 @@ from .desir_runner import ReceiptState, DesirPromotionsState
 from .promotions import publish_promotions
 from .matching import filename_of
 from .text import first_title, private_message_link
+from .publication import (
+    send_library_poster_with_buttons, verify_library_bot,
+    publish_catalog_episode_pairs,
+)
 
 LOG = logging.getLogger("cinex_series_catalog")
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,10 +87,14 @@ def series_config() -> dict:
     names = list(dict.fromkeys(names))
     if not names:
         raise ValueError("Aucune source SERIES autorisée dans les paramètres existants.")
+    series_public = (os.getenv("SERIES_PUBLIC_CHANNEL") or "").strip()
+    series_private = (os.getenv("SERIES_PRIVATE_CHANNEL") or "").strip()
+    if bool(series_public) != bool(series_private):
+        raise ValueError("SERIES_PUBLIC_CHANNEL et SERIES_PRIVATE_CHANNEL doivent être configurés ensemble.")
     return {
         "sources": names,
-        "private": cfg["private_channel"],
-        "public": cfg["public_channel"],
+        "private": series_private or cfg["private_channel"],
+        "public": series_public or cfg["public_channel"],
         "mirror": cfg.get("mirror_channel") or "@Torrent9SeriesFilms",
         "state_path": "state/series_state.json",
     }
@@ -305,6 +313,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 raise RuntimeError("Bot CinéX Séries TV manquant.")
             bot = BotHTTPClient(token, client)
         sources, private, public, bot_public, mirror, mirror_key = await preflight(client, bot, cfg)
+        if publish:
+            await verify_library_bot(bot, private)
         private_id = utils.get_peer_id(private)
         all_candidates = []
         scan_plans = []
@@ -393,17 +403,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     if original_poster is None:
                         LOG.warning("Affiche absente pour %s : aucun épisode envoyé.", title)
                         continue
-                    raw_poster = await client.download_media(original_poster.media, file=bytes)
-                    if not raw_poster:
-                        LOG.warning("Affiche introuvable pour %s : aucun épisode envoyé.", title)
-                        continue
-                    photo_stream = io.BytesIO(raw_poster)
-                    photo_stream.name = "cinex_private_series.jpg"
-                    sent_poster = await client.send_file(
-                        private, photo_stream,
-                        caption=f"📺 <b>{escape(title)}</b>\n"
-                                f"<i>Fiche de la série et épisodes ci-dessous.</i>\n{poster_marker}",
-                        parse_mode="html", force_document=False,
+                    sent_poster = await send_library_poster_with_buttons(
+                        client, bot, private, public, original_poster,
+                        f"📺 {title}\nFiche de la série et épisodes ci-dessous.\n{poster_marker}",
                     )
                     private_poster = int(sent_poster.id)
                     await asyncio.sleep(pause)
@@ -450,6 +452,27 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 if prior_id:
                     private_msg_id = int(prior_id)
                 else:
+                    # Every episode also has its own illustrated two-button
+                    # library fiche directly BEFORE the video, independently
+                    # of the season index and its main cover.
+                    original_poster = row.get("poster") or next(
+                        (x.get("poster") for x in items if x.get("poster") is not None), None)
+                    if original_poster is None:
+                        raise RuntimeError("Série : affiche épisode indisponible")
+                    episode_cover_marker = episode_marker(row["source_key"]) + "_POSTER"
+                    existing_cover = await find_marked(
+                        client, private, episode_cover_marker, limit=700)
+                    if not existing_cover:
+                        cover = await send_library_poster_with_buttons(
+                            client, bot, private, public, original_poster,
+                            f"📺 {title} — S{row['season']:02d}E{row['episode']:02d}\n"
+                            f"{episode_cover_marker}",
+                        )
+                        existing_cover = int(cover.id)
+                        await asyncio.sleep(pause)
+                    series.setdefault("episode_poster_ids", {})[
+                        f"S{row['season']:02d}E{row['episode']:02d}"] = int(existing_cover)
+                    save_catalog(catalogue)
                     caption = (f"📺 <b>{escape(title)}</b> — "
                                f"S{row['season']:02d}E{row['episode']:02d}\n"
                                f"{episode_marker(row['source_key'])}")
@@ -514,6 +537,12 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 state.complete("tv-series:" + key, int(first_ep), int(public_id))
                 save_catalog(catalogue)
                 LOG.info("Fiche publique CinéX Séries TV : %s -> %s", title, public_id)
+            # Publish one complete public fiche+video per verified episode;
+            # season cards and indices remain available for navigation.
+            await publish_catalog_episode_pairs(
+                client, bot, public, private, private_id,
+                series, items, catalogue, save_catalog, pause,
+            )
             completed_series.add(key)
             processed_seasons.add(season_marker_key)
             await asyncio.sleep(pause)
