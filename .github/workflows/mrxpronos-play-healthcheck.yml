@@ -1,6 +1,11 @@
 name: MRXPRONOS Play - Telegram public healthcheck
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'mrxpronos-play/worker.js'
+      - 'mrxpronos-play/tests/**'
+      - '.github/workflows/mrxpronos-play-healthcheck.yml'
   push:
     paths:
       - '.github/workflows/mrxpronos-play-healthcheck.yml'
