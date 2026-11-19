@@ -14,7 +14,7 @@ from html import unescape
 
 LOG = logging.getLogger("cinex.channel_profile")
 DEFAULT_PAUSE = 45
-MAX_ABOUT = 245
+MAX_ABOUT = 255
 
 
 def digest(value: str) -> str:
@@ -57,10 +57,13 @@ async def get_channel_about(client, channel) -> str:
 
 
 async def sync_description(client, target, desired: str, record: dict, *,
-                           key: str = "description_digest", pause: int = DEFAULT_PAUSE) -> bool:
+                           key: str = "description_digest", pause: int = DEFAULT_PAUSE,
+                           preserve_format: bool = False) -> bool:
     """Always verify the actual Telegram about even if a previous receipt exists."""
     from telethon import functions
-    desired = about_text(desired)
+    desired = str(desired) if preserve_format else about_text(desired)
+    if len(desired) > MAX_ABOUT:
+        raise ValueError("Description trop longue pour Telegram : ne pas tronquer une copie exacte")
     if not desired:
         LOG.warning("Description source vide ; ancienne description conservée")
         return False
@@ -128,7 +131,7 @@ async def sync_rescue_profile(client, public, rescue, record: dict, *, pause: in
     if original:
         description_changed = await sync_description(
             client, rescue, original, record,
-            key="description_digest", pause=pause)
+            key="description_digest", pause=pause, preserve_format=True)
     # ChannelPhoto is not sufficient for download_media in all Telegram versions.
     # download_profile_photo reads the real current profile avatar via Telethon.
     source_photo_id = int(getattr(getattr(public, "photo", None), "photo_id", 0) or 0)
