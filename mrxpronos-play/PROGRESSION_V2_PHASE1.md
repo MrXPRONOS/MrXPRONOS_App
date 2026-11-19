@@ -55,9 +55,9 @@ Tous les autres niveaux exigent uniquement le seuil d'XP. Si un joueur possède 
 
 - La migration `migrations/002_hybrid_progression.sql` ajoute uniquement `player_progress_v2` et un index.
 - **Ne pas supprimer** `players`, `mission_claims`, `sync_receipts`, `daily_claims` ou `wheel_claims`.
-- À la première authentification après migration, l'ancien niveau basé sur les tapotages **déjà confirmés** est enregistré comme `legacy_level_floor`, plafonné à 50.
+- La migration D1 initialise immédiatement le niveau historique de **tous les comptes déjà présents** à partir des tapotages confirmés. Pour les comptes arrivant plus tard ou non initialisés, le Worker possède aussi un mécanisme de rattrapage au premier accès. Ce niveau est enregistré comme `legacy_level_floor`, plafonné à 50.
 - Ce niveau historique est un plancher définitif : un recalcul XP ne peut jamais rétrograder l'ancien joueur.
-- Le premier enregistrement de progression est effectué **avant** toute mise à jour des tapotages par une nouvelle synchronisation, même si le joueur n'a pas appelé le bootstrap.
+- Le premier enregistrement de progression (s'il manque après la migration) est effectué **avant** toute mise à jour des tapotages par une nouvelle synchronisation, même si le joueur n'a pas appelé le bootstrap.
 - Les niveaux débloqués ultérieurement respectent les nouveaux seuils et défis de maîtrise.
 - Les XP et tapotages en attente sur le téléphone restent en attente selon les règles existantes ; leurs futurs crédits sont traités normalement par `/api/sync`.
 - La transition est transparente : aucun achat, réinitialisation, transfert ou création d'un deuxième compte n'est nécessaire.
