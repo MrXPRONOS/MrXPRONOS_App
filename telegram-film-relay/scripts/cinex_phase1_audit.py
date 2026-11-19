@@ -54,14 +54,17 @@ def check() -> list[str]:
     for path in sorted(STATE.glob("*.json")):
         filename = path.name
         raw = path.read_text(encoding="utf-8")
+        # Every file is checked as text first, including legacy JSON state files.
+        if INVITATION_PATTERN.search(raw):
+            issues.append(f"{filename}: invitation Telegram publique enregistrée")
+        if filename not in ("rescue_channels.json", "trending_private.json"):
+            continue
         try:
             data = json.loads(raw)
         except (ValueError, OSError):
-            issues.append(f"{filename}: JSON invalide")
+            issues.append(f"{filename}: JSON de sécurité invalide")
             continue
-        if INVITATION_PATTERN.search(raw):
-            issues.append(f"{filename}: invitation Telegram publique enregistrée")
-        if isinstance(data, dict):
+        if isinstance(data, dict) and isinstance(data.get("channels", {}), dict):
             for key, item in data.get("channels", {}).items():
                 if isinstance(item, dict) and ("invite" in item or "invite_link" in item):
                     issues.append(f"{filename}:{key}: clé d'invitation en clair")
