@@ -106,3 +106,14 @@ L'intégrité des originaux et optimisations est documentée dans `avatars-manif
 ## Rang 11 — Souverain MX
 
 Le portrait africain **Souverain MX** complète les onze rangs officiels dès le niveau 50. Son **PNG original transparent de 1 254 × 1 254 px (2 616 419 octets)** et son **WebP transparent optimisé de 768 × 768 px (237 800 octets)** sont maintenant intégrés dans GitHub, en remplacement des anciennes miniatures de 200 × 200 px. Les empreintes SHA-256 sont consignées dans `avatars-manifest.json` et vérifiées par les tests automatiques. Le nom du fichier et le mapping de rang restent inchangés. Une version d'URL actualisée contourne les caches CDN des anciennes miniatures. Aucun changement aux XP, à la formule de niveau, aux missions ou à la roue.
+
+## Lot 8 — Icônes d'interface personnalisées (59–60)
+
+| N° | Visuel | Interface | PNG | WebP |
+|---:|---|---|---|---|
+| 59 | i entouré d'un double cercle doré | Bouton Informations en haut à droite | `assets/08-ui-actions/59-info-circle.png` | `assets/08-ui-actions/59-info-circle.webp` |
+| 60 | Bouclier bleu avec couronne dorée | Badge à droite du nom et du niveau du joueur | `assets/08-ui-actions/60-crowned-shield.png` | `assets/08-ui-actions/60-crowned-shield.webp` |
+
+Images 3D bleu et or, fonds transparents et WebP 512 × 512. Les deux icônes sont intégrées dans la Mini App. Le bouton d'information conserve sa fonction, et le bouclier remplace l'ancien visuel `38-level-crown` uniquement dans le bandeau du joueur. Les paramètres `?v=20261119` permettent de différencier la version affichée du cache. Les hachages SHA-256 des 4 fichiers figurent dans `assets-manifest-ui-actions.json`.
+
+**Inventaire actuel :** 60 éléments d'interface PNG + 60 WebP ; 11 avatars de rang PNG + WebP. Les cartes partageables, les badges de rang indépendants, les cosmétiques et les visuels de boutique de la V2 demeurent en phase de conception, hors de cet inventaire.
