@@ -5,7 +5,7 @@ const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,
 const url='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app';
 const errors=[],metricsRequests=[];
 page.on('pageerror',e=>errors.push(e.message));
-page.on('response',async r=>{if(r.url().includes('/api/analytics/event')){let body={};try{body=JSON.parse(r.request().postData()||'{}')}catch{}metricsRequests.push({status:r.status(),event:body.event,idLength:typeof body.id==='string'?body.id.length:0,detail:r.status()!==200?(await r.text()).slice(0,140):''});}});
+page.on('response',r=>{if(r.url().includes('/api/analytics/event')){let body={};try{body=JSON.parse(r.request().postData()||'{}')}catch{}metricsRequests.push({status:r.status(),event:body.event,idLength:typeof body.id==='string'?body.id.length:0});}});
 try{
  const r=await page.goto(url,{waitUntil:'domcontentloaded',timeout:25000});assert.equal(r?.status(),200);
  await page.waitForSelector('#cine-home-picks .cine-pick',{timeout:15000});
