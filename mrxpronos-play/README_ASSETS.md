@@ -102,3 +102,7 @@ Le nom public du joueur reste vérifié par Telegram, mais **sa photo personnell
 **Périmètre volontairement limité :** l'expérience hybride XP + défis, les crédits MRXP, les boosts et la carte de partage ne font pas partie de ce lot et ne sont pas activés par cette mise à jour. Le niveau utilisé pour choisir l'avatar est **le niveau actuel calculé à partir des tapotages** ; le futur moteur de progression pourra reprendre le même manifeste.
 
 L'intégrité des originaux et optimisations est documentée dans `avatars-manifest.json` par fichier SHA-256 et dimensions. Les **58 ressources graphiques historiques** sont conservées séparément dans `assets-manifest.json`. Les tests de non-régression vérifient les cinq correspondances exactes, les dix fichiers réels et l'absence d'utilisation de la photo Telegram dans la page.
+
+## Rang 11 — Souverain MX
+
+Le portrait africain **Souverain MX** complète les onze rangs officiels. Disponible au niveau 50 et au-delà ; fichier source `rank-11-souverain-mx.png` (1254 × 1254, fond transparent) et WebP optimisé `rank-11-souverain-mx.webp` (768 × 768). Aucun changement au calcul de niveaux, aux XP, ni aux missions.
