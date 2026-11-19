@@ -39,13 +39,16 @@ async function display(env,chat,callback,text,markup){
  const r=await telegram(env,"sendMessage",{chat_id:chat,text,parse_mode:"HTML",disable_web_page_preview:true,reply_markup:markup});
  if(!r.ok)throw Error("Cannot display Telegram directory");
 }
-const miniAppKeyboard=(owner=false,privateChat=true)=>{
- const rows=[[privateChat
-  ?{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:BASE+"/app"}}
-  :{text:"▶️ Découvrir Ciné Radar",style:"primary",url:BASE+"/app"}]];
- if(owner&&privateChat)rows.push([{text:"🔐 Administration",web_app:{url:BASE+"/admin"}}]);
- return keyboard(rows);
-};
+const BOT_PROFILE_PHOTO_URL=BASE+"/assets/bot-profile.jpg";
+const BOT_START_POSTER_URL=BASE+"/assets/bot-start-poster.jpg";
+const miniAppKeyboard=()=>keyboard([[{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:BASE+"/app"}}]]);
+async function welcomePhoto(env,chat,markup){
+ // Caption and button are attached directly below the user-approved image.
+ const result=await telegram(env,"sendPhoto",{
+  chat_id:chat,photo:BOT_START_POSTER_URL,caption:INTRO,parse_mode:"HTML",reply_markup:markup
+ });
+ if(!result.ok)await display(env,chat,null,INTRO,markup); // Always keep the Mini App accessible.
+}
 const INTRO=[
  "🎬 <b>BIENVENUE SUR CINÉ RADAR</b> ✨",
  "",
@@ -84,66 +87,22 @@ const isOwner=async(env,user,privateChat)=>{
  return role?.role==="owner";
 };
 async function processBotUpdate(env,update){
- const callback=update.callback_query, msg=callback?.message||update.message;
+ const cb=update.callback_query, msg=cb?.message||update.message;
  const chat=msg?.chat?.id;
  if(!chat)return;
  const privateChat=msg?.chat?.type==="private";
- const sender=callback?.from?.id||update.message?.from?.id;
- const owner=await isOwner(env,sender,privateChat);
- const markup=miniAppKeyboard(owner,privateChat);
- const value=String(callback?.data||"");
+ const markup=miniAppKeyboard();
  const text=String(update.message?.text||"").trim();
-
- // All legacy category/menu callbacks now lead back to the Mini App.
- // No channel listings or multi-step selection menus remain in the bot chat.
- if(value){await display(env,chat,callback,INTRO,markup);return;}
-
- const command=/^\/([a-z_]+)(?:@[A-Za-z0-9_]+)?(?:\s+(.*))?$/i.exec(text);
- const name=command?.[1]?.toLowerCase()||"";
- const arg=String(command?.[2]||"").trim();
- if(privateChat&&name==="stop"){await display(env,chat,null,"🔕 <b>Annonces désactivées</b>\n\nTu ne recevras plus les annonces de Ciné Radar. Tape /start pour les réactiver.",markup);return;}
+ // The bot chat is now an entry point only: all channel management, trends,
+ // announcements and owner administration live in the authenticated Mini App.
+ if(cb?.data){await welcomePhoto(env,chat,markup);return;}
+ const name=/^\/([a-z_]+)(?:@[A-Za-z0-9_]+)?(?:\s|$)/i.exec(text)?.[1]?.toLowerCase()||"";
+ if(privateChat&&name==="stop"){
+  await display(env,chat,null,"🔕 <b>Annonces désactivées</b>\n\nTu ne recevras plus les annonces de Ciné Radar. Tape /start pour les réactiver.",markup);return;
+ }
  if(name==="aide"||name==="help"){await display(env,chat,null,HELP,markup);return;}
  if(name==="confidentialite"){await display(env,chat,null,PRIVACY,markup);return;}
-
- // Administrative commands are never shown or executed for other users.
- if(!owner||!privateChat||!["admin","annonces","tendances","manquants","canaux","autoriser","actualiser"].includes(name)){
-  await display(env,chat,null,INTRO,markup);
-  return;
- }
- if(name==="admin"||name==="annonces"){
-  await display(env,chat,null,"🔐 <b>Ciné Radar — Administration</b>\n\n📣 Prépare et diffuse des annonces avec texte, image et bouton cliquable depuis ton espace propriétaire.",markup);
-  return;
- }
- if(name==="actualiser"){
-  const binding=await bindPrimaryRadarChannels(env);
-  const result=await runTrendRefresh(env,{force:true});
-  await reconcileRadarPosts(env,120);
-  const notices=await notifyOwnerMissingRadarTitles(env);
-  await display(env,chat,null,esc("Tendances : "+result.updated+" fiches mises à jour ; "+notices.sent+" digest(s) privés ; "+binding.bound+" canal(aux) rattaché(s) ; "+(result.errors.length+notices.errors.length+binding.errors.length)+" erreur(s)."),markup);
-  return;
- }
- if(name==="manquants"){
-  const rows=await missingRadarTitles(env,sender,{limit:24});
-  const count=rows.length?1:Number((await env.DB.prepare("SELECT COUNT(*) AS n FROM radar_titles").first())?.n||0);
-  await display(env,chat,null,esc(count?formatRadarMissing(rows):"Aucune tendance encore collectée. Utilise /actualiser ou vérifie les sources TMDB/AniList."),markup);
-  return;
- }
- if(name==="canaux"){
-  const result=await bindPrimaryRadarChannels(env);
-  const channels=(await env.DB.prepare("SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind").all()).results||[];
-  const report="📡 Vérification des canaux officiels\n"+
-   channels.map(x=>(Number(x.connected)?"✅ ":"⏳ ")+x.kind+" : @"+x.username).join("\n")+
-   (result.errors.length?"\nDétails : "+result.errors.join("; "):"");
-  await display(env,chat,null,esc(report),markup);
-  return;
- }
- if(name==="tendances"){
-  await display(env,chat,null,esc(await radarOwnerDigest(env)),markup);
-  return;
- }
- if(!arg){await display(env,chat,null,"Usage : /autoriser ID_TITRE\nRéservé aux publications pour lesquelles tu disposes des droits de diffusion.",markup);return;}
- const approved=await authorizeRadarTitle(env,arg,sender);
- await display(env,chat,null,approved?"✅ Titre autorisé pour l’affichage si une publication vidéo correspondante est vérifiée.":"Titre introuvable ou identifiant invalide.",markup);
+ await welcomePhoto(env,chat,markup);
 }
 // Acknowledge the Telegram tap in parallel with loading and editing the message.
 export async function botUpdate(env,update){
@@ -182,47 +141,64 @@ export async function miniAppAPI(env,request,previewFn){
  }
  return json({error:"Route non trouvée"},404);
 }
+// Telegram supports profile pictures via setMyProfilePhoto with a new uploaded JPG.
+export async function syncBotProfilePhoto(env){
+ const key="cine_bot_avatar_v1";
+ const seen=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key=?").bind(key).first();
+ if(seen?.value==="1")return {updated:false};
+ const url="https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/bot-profile.jpg";
+ const img=await fetch(url,{signal:AbortSignal.timeout(9000)});
+ if(!img.ok||!String(img.headers.get("content-type")||"").toLowerCase().startsWith("image/"))
+  throw Error("Approved bot profile JPG unavailable");
+ const bytes=new Uint8Array(await img.arrayBuffer());
+ if(bytes.length<10000||bytes.length>1900000||bytes[0]!==255||bytes[1]!==216||bytes[2]!==255)
+  throw Error("Invalid profile JPG");
+ const form=new FormData();
+ form.append("photo",JSON.stringify({type:"static",photo:"attach://cine_radar_avatar"}));
+ form.append("cine_radar_avatar",new Blob([bytes],{type:"image/jpeg"}),"cine-radar-profile.jpg");
+ const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/setMyProfilePhoto",{
+  method:"POST",body:form,signal:AbortSignal.timeout(15000)
+ });
+ const result=await r.json();
+ if(!result.ok)throw Error("Telegram bot profile photo update rejected: "+String(result.error_code||"unknown"));
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES(?,?) ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP").bind(key,"1").run();
+ return {updated:true};
+}
 export async function initializeProfile(env){
  const version=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(version?.value==="12")return;
- const PUBLIC_COMMANDS=[{command:"start",description:"🎬 Lancer Ciné Radar"},{command:"aide",description:"📖 Guide et fonctionnalités"},{command:"stop",description:"🔕 Arrêter les annonces"},{command:"confidentialite",description:"🔐 Confidentialité"}];
- const OWNER_COMMANDS=[
-  ...PUBLIC_COMMANDS,
-  {command:"admin",description:"🔐 Administration"},
-   {command:"annonces",description:"📣 Envoyer une annonce"},
-  {command:"tendances",description:"📈 Tendances cinéma"},
-  {command:"manquants",description:"📬 Titres à référencer"},
-  {command:"canaux",description:"📡 État des canaux"},
-  {command:"actualiser",description:"🔄 Actualiser les tendances"},
-  {command:"autoriser",description:"✅ Autoriser une fiche"}
+ if(version?.value==="13")return;
+ const PUBLIC_COMMANDS=[
+  {command:"start",description:"🎬 Lancer Ciné Radar"},
+  {command:"aide",description:"📖 Comment utiliser la Mini App"},
+  {command:"stop",description:"🔕 Arrêter les annonces"},
+  {command:"confidentialite",description:"🔐 Confidentialité"}
  ];
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
   ["setMyShortDescription",{short_description:"🎬🍿 Films, séries et animés : explore, découvre et ouvre tes canaux favoris !"}],
-  ["setMyDescription",{description:"🎬 BIENVENUE SUR CINÉ RADAR !\n\n🍿 Films, séries et animés.\n\n🔎 1. Recherche les canaux.\n🎞️ 2. Découvre les affiches.\n⭐ 3. Garde tes favoris.\n💬 4. Donne ton avis.\n\n▶️ Appuie sur Démarrer puis sur Lancer Ciné Radar !"}],
+  ["setMyDescription",{description:"🎬 CINÉ RADAR — Films, séries et animés.\n\n🔎 Trouve des canaux Telegram.\n🎞️ Explore les affiches.\n⭐ Garde tes favoris.\n\n▶️ Appuie sur Démarrer, puis sur Lancer Ciné Radar !"}],
   ["setMyCommands",{scope:{type:"default"},commands:PUBLIC_COMMANDS}],
-  ["setChatMenuButton",{menu_button:{type:"commands"}}]
+  ["setChatMenuButton",{menu_button:{type:"web_app",text:"🎬 Ciné Radar",web_app:{url:BASE+"/app"}}}]
  ];
  for(const [method,data] of tasks){
   const r=await telegram(env,method,data);
   if(!r.ok)throw Error("Telegram public profile update failed: "+method);
  }
  const ownerRows=(await env.DB.prepare("SELECT user_id FROM admin_users WHERE role='owner' LIMIT 10").all()).results||[];
- // A per-private-chat command scope wins over the public default command list.
- // Never expose owner commands to the general/default scope.
+ // The old owner chat commands are wiped. Everyone launches the same Mini App;
+ // its admin link is shown only after server-side owner authorization.
  for(const row of ownerRows){
-  const id=Number(row.user_id);
-  if(!Number.isSafeInteger(id)||id<=0)continue;
-  const scope={type:"chat",chat_id:id};
-  const configured=await telegram(env,"setMyCommands",{scope,commands:OWNER_COMMANDS});
-  if(!configured.ok)throw Error("Owner command scope update failed");
+  const id=Number(row.user_id);if(!Number.isSafeInteger(id)||id<=0)continue;
+  const cleared=await telegram(env,"deleteMyCommands",{scope:{type:"chat",chat_id:id}});
+  if(!cleared.ok)throw Error("Failed to clear deprecated owner commands");
   const menu=await telegram(env,"setChatMenuButton",{
-   chat_id:id,menu_button:{type:"web_app",text:"🔐 Administration",web_app:{url:BASE+"/admin"}}
+   chat_id:id,menu_button:{type:"web_app",text:"🎬 Ciné Radar",web_app:{url:BASE+"/app"}}
   });
-  if(!menu.ok)throw Error("Owner menu button update failed");
+  if(!menu.ok)throw Error("Failed to set owner Mini App menu");
  }
- if(!ownerRows.length)throw Error("Owner account not found: retry profile configuration later");
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','12') ON CONFLICT(setting_key) DO UPDATE SET value='12',updated_at=CURRENT_TIMESTAMP").run();
+ // Run exactly once, with safe retries when Telegram or the image host is unavailable.
+ await syncBotProfilePhoto(env);
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','13') ON CONFLICT(setting_key) DO UPDATE SET value='13',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){
