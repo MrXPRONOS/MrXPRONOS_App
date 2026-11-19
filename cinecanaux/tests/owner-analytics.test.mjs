@@ -44,6 +44,8 @@ test('only verified private Telegram username and one-time code can claim owner'
   assert.ok(fixture.state.writes.some(x=>x.sql.startsWith("INSERT INTO admin_users")&&x.vals[0]===900));
   assert.equal((await tryOwnerClaim({DB:fixture.DB,TELEGRAM_TOKEN:'test'},good)).activated,false);
   assert.ok(calls.some(x=>x.text.includes('activé')));
+  assert.ok(calls.filter(x=>!x.text.includes('activé')).every(x=>!x.reply_markup),'Denied owner claims must never show an admin button');
+  assert.ok(calls.filter(x=>x.text.includes('activé')).every(x=>x.reply_markup?.inline_keyboard?.length===1),'Only successful owner claim should show admin entry point');
  }finally{globalThis.fetch=old}
 });
 test('analytics reject invalid and cross-site event payloads',async()=>{
