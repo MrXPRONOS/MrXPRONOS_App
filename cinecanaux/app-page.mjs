@@ -1403,7 +1403,7 @@ function build(){
  const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");const showcaseLabel=node("strong");showcaseLabel.append(cineCategoryIcon("affiches"),document.createTextNode("À l'affiche"));showcaseHead.append(showcaseLabel,node("small",null,"Films · Séries · Animés"));const seeAll=node("button","cine-link","Tout voir");seeAll.type="button";seeAll.onclick=()=>showPinnedKind("all");showcaseHead.append(seeAll);const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
 
  const form=node("form","cine-home-search");form.setAttribute("role","search");const inp=document.createElement("input");inp.type="search";inp.placeholder="Films d'action, animés, séries…";inp.setAttribute("aria-label","Rechercher des canaux");const submit=node("button",null,"Chercher");submit.type="submit";form.append(inp,submit);form.onsubmit=e=>{e.preventDefault();setFilter(inp.value.trim())};home.append(form);
- sectionTitle(home,"Les publications épinglées",null);
+ sectionTitle(home,"Les affiches par univers",null);
  const categoryQuick=node("div","cine-pinned-category-quick");
  for(const [kind,caption] of [["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]]){
   const b=node("button",null,caption);b.type="button";b.onclick=()=>showPinnedKind(kind);categoryQuick.append(b);
@@ -1424,7 +1424,7 @@ function build(){
  const empty=node("div","cine-private-empty");empty.id="cine-private-empty";empty.hidden=true;listing.append(empty);
  for(const name of ["explorer","favoris","historique"]){const slot=node("div");slot.id="cine-slot-"+name;panel[name].append(slot)}
  $("cine-slot-explorer").append(listing);
- heading(panel.affiches,"À l’affiche","Retrouve les publications épinglées dans nos trois canaux cinéma.");
+ heading(panel.affiches,"À l’affiche","Retrouve les films, séries et animés sélectionnés dans nos trois canaux cinéma.");
  const controls=node("div","cine-pinned-filters");controls.id="cine-pinned-filters";
  for(const [kind,title] of [["all","Tout"],["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]]){
   const b=node("button",null,title);b.type="button";b.dataset.pinKind=kind;
