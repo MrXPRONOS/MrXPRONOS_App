@@ -79,22 +79,20 @@ def series_config() -> dict:
         os.getenv("SERIES_SOURCE_CHANNELS", ""),
         max_sources=12,
     )
-    if explicit:
-        names = explicit  # variables définies par le propriétaire
-    else:
-        names = [row["channel"] for row in cfg["sources"]
-                 if row.get("redistribution_authorized") is True]
+    # Only the owner's explicit, independently approved Series sources.
+    # Classic-film sources are never silently repurposed for television.
+    names = explicit
     names = list(dict.fromkeys(names))
     if not names:
         raise ValueError("Aucune source SERIES autorisée dans les paramètres existants.")
-    series_public = (os.getenv("SERIES_PUBLIC_CHANNEL") or "").strip()
+    series_public = (os.getenv("SERIES_PUBLIC_CHANNEL") or "@seriesvf_cinex").strip()
     series_private = (os.getenv("SERIES_PRIVATE_CHANNEL") or "").strip()
-    if bool(series_public) != bool(series_private):
-        raise ValueError("SERIES_PUBLIC_CHANNEL et SERIES_PRIVATE_CHANNEL doivent être configurés ensemble.")
+    if not series_private:
+        raise ValueError("Configurer SERIES_PRIVATE_CHANNEL avec l'ID -100 de Ciné X Séries Vidéothèque.")
     return {
         "sources": names,
-        "private": series_private or cfg["private_channel"],
-        "public": series_public or cfg["public_channel"],
+        "private": series_private,
+        "public": series_public,
         "mirror": cfg.get("mirror_channel") or "@Torrent9SeriesFilms",
         "state_path": "state/series_state.json",
     }
@@ -286,7 +284,9 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
 
 
 async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int:
-    cfg = series_config()  # mêmes sources et canaux films existants
+    cfg = series_config()  # canaux Series indépendants, sources explicitement approuvées
+    if publish and os.getenv("SERIES_RIGHTS_ATTESTED", "").lower() != "true":
+        raise RuntimeError("SERIES_RIGHTS_ATTESTED=true requis pour publier des séries.")
     session = (os.getenv("TG_STRING_SESSION") or os.getenv("TG_SESSION_STRING") or
                os.getenv("TG_STREAM_SESSION") or "").strip()
     api_id = os.getenv("TG_API_ID", "").strip()
@@ -317,11 +317,16 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await verify_library_bot(bot, private)
         private_id = utils.get_peer_id(private)
         all_candidates = []
+        all_authorized_posters = []
+        source_messages = []
         scan_plans = []
         unnumbered_skipped = 0
         for source in sources:
             source_id = utils.get_peer_id(source)
             messages, plan = await read_source_window(client, source, catalogue, source_id)
+            source_messages.extend(messages)
+            all_authorized_posters.extend(m for m in messages
+                                          if getattr(m, "photo", None))
             allowed = source_window_ids(messages, plan)
             candidates = [row for window in split_source_windows(messages, plan)
                           for row in classify(window, source_id)
@@ -339,6 +344,27 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             LOG.info("Canal source validé : catégorie=%s, épisodes identifiés=%s, vidéos sans index=%s",
                      "series_catalog", len(candidates), unnumbered_skipped)
             await asyncio.sleep(pause)
+        if os.getenv("SERIES_MEDIA_CHANNELS", "").strip():
+            from .authorized_cross_sources import (
+                authorized_peers, follow_authorized_button_posts,
+                cross_channel_series_rows,
+            )
+            media_peers = await authorized_peers(
+                client, [os.getenv("SERIES_MEDIA_CHANNELS", "")],
+                banned_ids={utils.get_peer_id(private), utils.get_peer_id(public)},
+            )
+            remote_media = []
+            for _, peer in media_peers:
+                messages = [msg async for msg in client.iter_messages(peer, limit=200)]
+                remote_media.extend((msg, peer) for msg in messages)
+            remote_media.extend(await follow_authorized_button_posts(
+                client, source_messages, media_peers))
+            linked = cross_channel_series_rows(
+                all_authorized_posters, remote_media)
+            seen_cross = {row["source_key"] for row in all_candidates}
+            all_candidates.extend(row for row in linked
+                                  if row["source_key"] not in seen_cross)
+            LOG.info("Séries : %s épisodes inter-canaux distincts validés", len(linked))
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
         groups = {}
         for row in all_candidates:
