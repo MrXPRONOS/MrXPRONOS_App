@@ -1,1 +1,1 @@
-2026-11-19: second activation run explicitly requested by repository owner after adding CINEX_RIGHTS_VERIFIED, CINEX_ARCHIVE_ENABLED and CINEX_ARCHIVE_DELETE_APPROVED. Revalidate rights and launch canary max 2 archived films; preserve all safety checks.
+2026-11-19: retry after fixing Actions variable injection. User confirmed rights and archive variable setup. Strictly require all three booleans true; dispatch max-two archive canary.
