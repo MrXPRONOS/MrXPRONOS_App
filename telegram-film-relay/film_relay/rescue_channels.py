@@ -179,9 +179,13 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                 if public_username(public) != username:
                     raise ValueError("Identité publique Telegram différente")
                 perm = await client.get_permissions(public, me)
-                if not getattr(perm, "is_creator", False):
-                    # Backup only channels under this user's own administration.
-                    raise ValueError("Le compte connecté n'est pas propriétaire du canal public")
+                if not (getattr(perm, "is_creator", False) or (
+                    getattr(perm, "is_admin", False)
+                    and getattr(perm, "post_messages", False)
+                    and getattr(perm, "edit_messages", False)
+                )):
+                    # Only channels with proven full publication/editing access.
+                    raise ValueError("Le compte connecté n'a pas les droits administrateur de publication et modification")
                 public_id = utils.get_peer_id(public)
                 configured_films = str(os.getenv("TG_PUBLIC_CHANNEL", "")).strip()
                 if username == "@cinexfilms_vf" and configured_films.startswith("-100"):
