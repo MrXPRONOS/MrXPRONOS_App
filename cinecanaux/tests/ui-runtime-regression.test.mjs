@@ -152,9 +152,10 @@ test('lot 2: all ten approved 3D navigation icons are used in interactive contro
  assert.ok(APP_HTML.includes('linearGradient id='));
  assert.ok(APP_HTML.includes('.cine-nav-icon svg{display:block;width:100%'));
  assert.ok(navigation.includes('b.append(cineNavIcon(icon),document.createTextNode(label))'),'Menu and bottom tabs must have matching vector icons');
- for(const key of ['accueil','explorer','decouvrir','favoris','historique','proposer','apropos','menu']){
+ for(const key of ['accueil','explorer','decouvrir','favoris','historique','proposer','apropos']){
   assert.ok(navigation.includes('"'+key+'"]'),key+' navigation entry missing');
  }
+ assert.ok(navigation.includes('makeNav("Menu","accueil","menu")'),'Menu tab must use the lot 2 menu icon');
  assert.ok(navigation.includes('menuBtn.append(cineNavIcon("menu"))'));
  assert.ok(navigation.includes('close.append(cineNavIcon("fermer"))'));
  assert.ok(navigation.includes('btn.append(cineNavIcon("partager"),document.createTextNode("Partager Ciné Radar"))'));
