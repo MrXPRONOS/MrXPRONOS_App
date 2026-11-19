@@ -742,7 +742,8 @@ function previewChannel(c){
 function quickButton(icon,label,term){const b=node("button");b.type="button";b.append(node("span",null,icon),node("strong",null,label));b.onclick=()=>setFilter(term);return b}
 function sectionTitle(parent,title,link,fn){const wrap=node("div","cine-section-title");wrap.append(node("h3",null,title));if(link){const b=node("button","cine-link",link);b.onclick=fn;wrap.append(b)}parent.append(wrap)}
 // Hero artwork stays decorative; only verified pinned channel messages appear in À l'affiche.
-let posterShowcase=[],pinnedShowcase=[];
+const PRELOADED_PINS=null;
+let posterShowcase=[],pinnedShowcase=Array.isArray(PRELOADED_PINS)?PRELOADED_PINS:[];
 const posterTypeTitle={films:"Films",series:"Séries",animes:"Animés"};
 const posterFallback=Array.from({length:10},(_,i)=>({title:["Cinéma","Films","Séries","Animés","À découvrir"][i%5],type:["films","films","series","animes"][i%4],poster:null}));
 const pinnedLink=url=>/^https:\/\/t\.me\/(?:CineXFilms_vf|seriesvf_cinex|CineXAnimeFR)\/[1-9][0-9]{0,12}$/i.test(String(url||""));
