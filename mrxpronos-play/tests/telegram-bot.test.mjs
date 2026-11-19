@@ -11,7 +11,7 @@ const adminId = 111;
 
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
- const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map();
+ const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map();
  const v2Counts={daily:0,wheel:0};
  const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
@@ -30,6 +30,7 @@ function harness(){
         if(lower.includes('from bot_settings'))return {value:settings.get(values[0])};
         if(lower.includes('from bot_admin_pending'))return pending.get(String(values[0]))||null;
         if(lower.includes(' as daily_count'))return {daily_count:v2Counts.daily,wheel_count:v2Counts.wheel,mission_count:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')&&!/:(join_main|join_foot)$/.test(x)).length};
+        if(lower.includes('from player_avatar_prefs'))return avatarPrefs.has(String(values[0]))?{selected_rank:avatarPrefs.get(String(values[0]))}:null;
         if(lower.includes('from player_progress_v2'))return v2Progress.get(String(values[0]))||null;
         if(lower.includes('from mission_claims'))return missionClaims.has(String(values[0])+':'+String(values[1]))?{mission_key:String(values[1])}:null;
         if(lower.includes('select * from players'))return {...player};
@@ -41,6 +42,7 @@ function harness(){
         return null;
        },
        async run(){
+        if(lower.includes('insert into player_avatar_prefs'))avatarPrefs.set(String(values[0]),values[1]);
         if(lower.includes('insert or ignore into player_progress_v2')&&!v2Progress.has(String(values[0])))v2Progress.set(String(values[0]),{user_id:String(values[0]),legacy_level_floor:values[1],current_level:values[2]});
         if(lower.includes('update player_progress_v2 set current_level')){const row=v2Progress.get(String(values[2]));if(row)row.current_level=Math.max(Number(row.current_level),Number(values[0]));}
         if(lower.includes('insert into bot_admin_pending'))pending.set(String(values[0]),{edit_key:values[1],expires_ms:values[2]});
@@ -92,7 +94,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -705,4 +707,108 @@ test('V2 sent levels never trust browser stored levels for authenticated ranking
   assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
   assert.ok(!html.includes('function level(){return Math.max(1,Math.floor(Math.sqrt('));
  }finally{h.restore()}
+});
+
+test('V2 phase 2 requires signed Telegram identity to read or edit profile avatars',async()=>{
+ const h=harness();
+ try{
+  const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+  const get=await worker.fetch(new Request(root+'/api/profile'),h.env);
+  const change=await worker.fetch(new Request(root+'/api/profile/avatar',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({rank:11})}),h.env);
+  assert.equal(get.status,401);assert.equal(change.status,401);assert.equal(h.avatarPrefs.size,0);
+ }finally{h.restore()}
+});
+
+test('V2 phase 2 returns 11 official African avatars with server-verified lock states',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const init=signedTelegramUser({id:88001,first_name:'Joueuse',username:'mrxp_test'});
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/profile',{headers:{'x-telegram-init-data':init}}),h.env);
+  assert.equal(res.status,200,await res.clone().text());const {progression:p,profile}=await res.json();
+  assert.equal(p.level,1);assert.equal(profile.current_rank_id,1);assert.equal(profile.selected_rank_id,1);
+  assert.equal(profile.selection_mode,'auto');assert.equal(profile.collection.length,11);
+  assert.equal(profile.unlocked_count,1);assert.equal(profile.collection[0].unlocked,true);
+  assert.equal(profile.collection[0].selected,true);assert.equal(profile.collection[1].unlocked,false);
+  assert.equal(profile.collection[10].from,50);assert.equal(profile.collection[10].name,'Souverain MX');
+  assert.equal(profile.cosmetics_only,true);
+ }finally{h.restore()}
+});
+
+test('V2 phase 2 blocks locked avatars, invalid rank IDs and cannot grant an upgrade by selecting appearance',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=300;h.player.confirmed_taps=0;
+ const init=signedTelegramUser({id:88002,first_name:'Nouveau'});
+ const post=async body=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/profile/avatar',{method:'POST',headers:{'x-telegram-init-data':init,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+ try{
+  const invalid=[{rank:-1},{rank:12},{rank:1.5},{rank:"2"},{rank:null},{rank:99999}];
+  for(const body of invalid){const r=await post(body);assert.equal(r.status,400,await r.clone().text())}
+  const locked=await post({rank:11});assert.equal(locked.status,403,await locked.clone().text());
+  assert.equal((await locked.json()).code,'AVATAR_LOCKED');
+  assert.equal(h.avatarPrefs.size,0);
+  assert.equal(h.player.confirmed_xp,300);assert.equal(h.v2Progress.get('88002').current_level,2);
+ }finally{h.restore()}
+});
+
+test('V2 phase 2 saves unlocked avatar choices per account without changing the official badge and resets to automatic',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=2330;h.player.confirmed_taps=200;
+ const alice=signedTelegramUser({id:88003,first_name:'Alice'});
+ const bob=signedTelegramUser({id:88004,first_name:'Bob'});
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ const read=async init=alice=>worker.fetch(new Request(root+'/api/profile',{headers:{'x-telegram-init-data':init}}),h.env);
+ const choose=async (init,rank)=>worker.fetch(new Request(root+'/api/profile/avatar',{method:'POST',headers:{'x-telegram-init-data':init,'content-type':'application/json'},body:JSON.stringify({rank})}),h.env);
+ try{
+  const first=await read();const initial=await first.json();assert.equal(initial.progression.level,5);
+  assert.equal(initial.profile.current_rank_id,4);assert.equal(initial.profile.unlocked_count,4);
+  const changed=await choose(alice,2);assert.equal(changed.status,200,await changed.clone().text());
+  const data=await changed.json();assert.equal(data.profile.selected_rank_id,2);
+  assert.equal(data.profile.avatar_image,'rank-02-eclaireur.webp');
+  assert.equal(data.profile.selection_mode,'custom');
+  assert.equal(data.profile.current_rank_id,4);assert.equal(data.progression.level,5);
+  assert.equal(data.profile.rank,'Sentinelle');
+  assert.equal(h.player.confirmed_xp,2330);assert.equal(h.player.confirmed_taps,200);
+  assert.equal((await (await read()).json()).profile.selected_rank_id,2);
+  assert.equal((await (await read(bob)).json()).profile.selected_rank_id,4);
+  assert.equal(h.avatarPrefs.get('88003'),2);
+  assert.ok(!h.avatarPrefs.has('88004'));
+  const reset=await choose(alice,0);assert.equal(reset.status,200,await reset.clone().text());
+  const automatic=(await reset.json()).profile;
+  assert.equal(automatic.selected_rank_id,4);assert.equal(automatic.selection_mode,'auto');
+  assert.equal(h.avatarPrefs.get('88003'),0);
+ }finally{h.restore()}
+});
+
+test('V2 phase 2 profile clearly distinguishes next-rank XP requirements from mastery challenges',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=2330;h.player.confirmed_taps=0;
+ const init=signedTelegramUser({id:88005,first_name:'Progression'});
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/profile',{headers:{'x-telegram-init-data':init}}),h.env);
+  assert.equal(res.status,200);const {progression:p}=await res.json();
+  assert.equal(p.level,4);assert.equal(p.blocked_by_mastery,true);
+  assert.equal(p.next_rank.level,5);assert.equal(p.next_rank.xp_remaining,0);
+  assert.equal(p.next_rank.mastery_required,2);assert.equal(p.next_rank.mastery_missing,2);
+  assert.equal(p.mastery.completed,0);
+ }finally{h.restore()}
+});
+
+test('V2 phase 2 profile has 11 selectable avatar cards with provisional stars and badge styling',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  assert.ok(html.includes('mrxp-avatar-grid'));assert.ok(html.includes('mrxp-auto-avatar'));
+  assert.ok(html.includes('mrxp-rank-badge-level'));assert.ok(html.includes('mrxp-rank-stars'));
+  assert.ok(html.includes('mrxp-next-rank-details'));assert.ok(html.includes('mrxp-avatar-choice-notice'));
+  assert.ok(html.includes('async function selectProfileAvatar(rank)'));
+  assert.ok(html.includes('"/api/profile/avatar","POST",{rank}'));
+  assert.ok(html.includes('state.profile=r.profile||null'));
+  assert.ok(html.includes('state.profile=null;/* Never trust locally restored ranks or avatar choices as official. */'));
+  assert.ok(html.includes('mrxp-rank-up'));
+ }finally{h.restore()}
+});
+
+test('V2 phase 2 migration is additive and does not touch XP or other player data',async()=>{
+ const sql=await readFile(new URL('../migrations/003_avatar_profiles.sql',import.meta.url),'utf8');
+ assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS player_avatar_prefs'));
+ assert.ok(!/DROP TABLE|DELETE FROM players|UPDATE players|UPDATE .*confirmed_xp/i.test(sql));
+ const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
+ assert.ok(schema.includes('CREATE TABLE IF NOT EXISTS player_avatar_prefs'));
 });
