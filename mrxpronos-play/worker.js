@@ -86,13 +86,52 @@ async function v2Progression(env,player){
  const stopped=V2_GATES.find(g=>g.level===nextLevel&&earned<g.required)||null;
  const lower=V2_LEVEL_THRESHOLDS[official]||0,upper=V2_LEVEL_THRESHOLDS[nextLevel]||lower;
  const progress=official>=V2_MAX_LEVEL?100:Math.round(100*Math.min(1,Math.max(0,(xp-lower)/Math.max(1,upper-lower))));
+ const nextRank=V2_RANKS.find(r=>r.from>official)||null;
+ const nextRankGate=nextRank?V2_GATES.find(g=>g.level===nextRank.from):null;
+ const nextRankDetails=nextRank?{
+   name:nextRank.name,level:nextRank.from,xp_required:V2_LEVEL_THRESHOLDS[nextRank.from],
+   xp_remaining:Math.max(0,V2_LEVEL_THRESHOLDS[nextRank.from]-xp),
+   mastery_required:nextRankGate?.required||0,mastery_completed:earned,
+   mastery_missing:Math.max(0,(nextRankGate?.required||0)-earned)
+ }:null;
  return {
   version:2,level:official,rank:v2Rank(official).name,max_level:V2_MAX_LEVEL,legacy_level_floor:floor,
   confirmed_xp:xp,xp_eligible_level:xpEligible,xp_current_threshold:lower,xp_next_threshold:official>=V2_MAX_LEVEL?null:upper,
   xp_to_next:official>=V2_MAX_LEVEL?0:Math.max(0,upper-xp),xp_progress_percent:progress,
   blocked_by_mastery:!!stopped,required_mastery:stopped?.required||0,
   mastery:{completed:earned,total:challenges.length,challenges,next_gate:nextGate?{level:nextGate.level,required:nextGate.required,missing:Math.max(0,nextGate.required-earned)}:null},
+  next_rank:nextRankDetails,
   progress_pending:false
+ };
+}
+
+
+/* Phase 2 — permanent, per-account choice of a cosmetic avatar.
+   The rank badge always reflects the official server level. Selecting an older
+   unlocked portrait does NOT change the level or any progression metrics. */
+const V2_RANK_PORTRAITS=[
+ "rank-01-recrue.webp","rank-02-eclaireur.webp","rank-03-combattant.webp",
+ "rank-04-sentinelle.webp","rank-05-chevalier.webp","rank-06-elite.webp",
+ "rank-07-maitre.webp","rank-08-champion.webp","rank-09-legende.webp",
+ "rank-10-mythique.webp","rank-11-souverain-mx.webp"
+];
+function v2CurrentRankIndex(level){return Math.max(0,V2_RANKS.findIndex(r=>level>=r.from&&level<=r.to))}
+async function v2PlayerProfile(env,player,progression){
+ const userId=String(player.user_id),currentRank=v2CurrentRankIndex(progression.level)+1;
+ const pref=await env.DB.prepare("SELECT selected_rank FROM player_avatar_prefs WHERE user_id=?").bind(userId).first();
+ const saved=Number(pref?.selected_rank||0);
+ const selectedRank=Number.isInteger(saved)&&saved>=1&&saved<=currentRank?saved:currentRank;
+ const collection=V2_RANKS.map((r,index)=>({
+   id:index+1,name:r.name,from:r.from,to:r.to,
+   image:V2_RANK_PORTRAITS[index],unlocked:progression.level>=r.from,
+   current:index+1===currentRank,selected:index+1===selectedRank
+ }));
+ return {level:progression.level,rank:progression.rank,
+   current_rank_id:currentRank,selected_rank_id:selectedRank,
+   selection_mode:saved>=1&&saved<=currentRank?"custom":"auto",
+   avatar_image:V2_RANK_PORTRAITS[selectedRank-1],
+   collection,unlocked_count:collection.filter(a=>a.unlocked).length,total_count:collection.length,
+   cosmetics_only:true
  };
 }
 
@@ -395,6 +434,21 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  let player=await ensurePlayer(env,user);
  if(p==="/api/game-features"&&request.method==="GET")return json({features:await getGameFeatures(env)});
  if(p==="/api/progression"&&request.method==="GET")return json({progression:await v2Progression(env,player)});
+ if(p==="/api/profile"&&request.method==="GET"){
+  const progression=await v2Progression(env,player);
+  return json({progression,profile:await v2PlayerProfile(env,player,progression)});
+ }
+ if(p==="/api/profile/avatar"&&request.method==="POST"){
+  let body;try{body=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  const selected=body?.rank;
+  if(!Number.isInteger(selected)||selected<0||selected>11)return json({error:"Rang invalide : entier de 0 à 11 requis.",code:"INVALID_AVATAR"},400);
+  const progression=await v2Progression(env,player);
+  const unlocked=v2CurrentRankIndex(progression.level)+1;
+  if(selected>unlocked)return json({error:"Cet avatar sera débloqué au niveau "+V2_RANKS[selected-1].from+".",code:"AVATAR_LOCKED"},403);
+  const now=Date.now();
+  await env.DB.prepare("INSERT INTO player_avatar_prefs(user_id,selected_rank,updated_ms) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET selected_rank=excluded.selected_rank,updated_ms=excluded.updated_ms").bind(user.id,selected,now).run();
+  return json({ok:true,progression,profile:await v2PlayerProfile(env,player,progression)});
+ }
  if(p==="/api/missions"&&request.method==="GET")return json({missions:await missionStatus(env,player),progression:await v2Progression(env,player)});
  if(p==="/api/missions/claim"&&request.method==="POST"){
   let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
@@ -406,7 +460,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const now=Date.now(), plans={},base=Math.floor(now/DAY)*DAY;
   for(let i=0;i<15;i++){const d=dateOf(base+i*DAY);plans[d]=(await wheelOutcome(env,user.id,d)).key}
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
-  return json({user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression:await v2Progression(env,player),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
+  return json({user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression:await v2Progression(env,player),profile:await v2PlayerProfile(env,player,await v2Progression(env,player)),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
  }
  if(p==="/api/sync"&&request.method==="POST"){
   /* Freeze the legacy floor BEFORE applying new taps or XP, even if a client skips bootstrap. */
