@@ -369,6 +369,23 @@ body{background:#07111f}
 .cine-promo-arrow{flex:none;align-self:flex-start;color:#9db8e3;font-size:14px}
 @media(min-width:690px){.cine-promo-track{grid-auto-flow:row;grid-auto-columns:unset;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}.cine-promo-slot{margin:4px 0 9px}}
 @media(max-width:350px){.cine-promo-track{grid-auto-columns:minmax(208px,86%)}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
+
+/* Horizontal auto-scroll for home channel discovery, with interactive links preserved. */
+.cine-home-picks{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-snap-type:x proximity;padding:4px 1px 9px;align-items:stretch}
+.cine-home-picks .cine-pick{flex:0 0 155px;min-width:155px;max-width:155px;min-height:178px;scroll-snap-align:start}
+.cine-home-picks .cine-pick:nth-child(-n+2){flex-basis:165px;min-width:165px;max-width:165px}
+.cine-home-picks .cine-promo-slot{flex:0 0 min(86vw,342px);width:min(86vw,342px);grid-column:auto;scroll-snap-align:start;margin:0;align-self:stretch}
+.cine-home-picks .cine-promo-track{grid-auto-columns:minmax(200px,88%);gap:7px}
+.cine-home-picks .cine-promo-card{min-height:92px}
+@media(min-width:690px){.cine-home-picks .cine-pick{flex:0 0 190px;min-width:190px;max-width:190px}.cine-home-picks .cine-promo-slot{flex-basis:335px;width:335px}.cine-home-picks .cine-promo-track{display:grid;grid-template-columns:1fr;grid-auto-flow:row;overflow-y:auto;max-height:180px}.cine-home-picks .cine-promo-card{min-height:49px;padding:5px}.cine-home-picks .cine-promo-avatar{flex-basis:34px;height:34px}.cine-home-picks .cine-promo-description{-webkit-line-clamp:1;line-clamp:1}}
+.cine-community{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;color:#a6bce0}
+.cine-community-share{background:#273f78;color:#eaf4ff;border:1px solid #5876b0;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:750}
+.cine-community small{font-size:10px}
+.cine-community-rating{display:flex;flex-wrap:wrap;align-items:center;gap:7px;background:#112b45;border:1px solid #3b5c89;border-radius:11px;padding:10px;margin:7px 0 15px;font-size:12px}
+.cine-rating-buttons{display:flex;gap:4px}
+.cine-rating-buttons button{background:#263d66;border:1px solid #47658d;color:#ffe1a6;border-radius:7px;padding:5px 7px;font-size:11px}
+.cine-rate-later{background:transparent;border:0;color:#aac8f2;text-decoration:underline;padding:5px;font-size:11px}
+@media(prefers-reduced-motion:reduce){.cine-home-picks{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -768,6 +785,7 @@ const pinnedLink=url=>/^https:\/\/t\.me\/(?:CineXFilms_vf|seriesvf_cinex|CineXAn
 const pinnedImage=url=>/^\/assets\/pin-cover\/(?:films|series|animes)\/[1-9][0-9]{0,12}\.jpg$/.test(String(url||""));
 function openPinnedMessage(entry){
  if(!pinnedLink(entry.link))return;
+ metric("pin_open","p:"+entry.type+":"+Number(entry.message_id));
  fetch("/api/pinned-click",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({kind:entry.type,message_id:Number(entry.message_id)}),keepalive:true}).catch(()=>{});
  const webapp=window.Telegram?.WebApp;
  if(webapp?.openTelegramLink)webapp.openTelegramLink(entry.link);else window.open(entry.link,"_blank","noopener,noreferrer");
@@ -834,6 +852,7 @@ function promoCard(info){
  a.dataset.promoHandle=info.handle;
  a.setAttribute("aria-label","Découvrir "+info.title+" sur Telegram");
  a.onclick=e=>{
+  metric("promo_open",info.handle);
   const tg=window.Telegram?.WebApp;
   if(tg?.openTelegramLink){e.preventDefault();tg.openTelegramLink(info.url)}
  };
@@ -881,6 +900,98 @@ function promoBlock(){
  return wrapper;
 }
 
+
+const ANALYTICS_DISABLED_KEY="cine-radar-analytics-off";
+const ANALYTICS_ID_KEY="cine-radar-visitor-id-v1";
+function metricsAllowed(){
+ try{return navigator.doNotTrack!=="1"&&localStorage.getItem(ANALYTICS_DISABLED_KEY)!=="1"}catch{return false}
+}
+function metric(event,target){
+ if(!metricsAllowed())return;
+ const payload={event};if(target!==undefined)payload.target=String(target);
+ fetch("/api/analytics/event",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload),keepalive:true}).catch(()=>{});
+}
+function visitorTracking(){
+ if(!metricsAllowed()||!window.crypto?.randomUUID)return;
+ let id;
+ try{
+  id=localStorage.getItem(ANALYTICS_ID_KEY);
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[4-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id||""))){id=crypto.randomUUID();localStorage.setItem(ANALYTICS_ID_KEY,id)}
+ }catch{return}
+ const send=event=>fetch("/api/analytics/event",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({event,id}),keepalive:true}).catch(()=>{});
+ send("visit");
+ setInterval(()=>{if(!document.hidden&&metricsAllowed())send("ping")},70000);
+}
+function shareCineRadar(){
+ const url="https://t.me/CineRadarFr_Bot";
+ const text="🍿 Ciné Radar : ton cinéma sur Telegram ! Films, séries, animés et canaux réunis au même endroit. 🎬 Découvre la Mini App 👇";
+ metric("share","bot");
+ const shareUrl="https://t.me/share/url?url="+encodeURIComponent(url)+"&text="+encodeURIComponent(text);
+ const tg=window.Telegram?.WebApp;
+ if(tg?.openTelegramLink)tg.openTelegramLink(shareUrl);
+ else window.open(shareUrl,"_blank","noopener,noreferrer");
+}
+function communityTools(home){
+ const aside=node("div","cine-community");
+ const btn=node("button","cine-community-share","↗ Partager Ciné Radar");btn.type="button";btn.onclick=shareCineRadar;
+ aside.append(btn,node("small",null,"Tu apprécies Ciné Radar ? Fais-le découvrir à tes proches."));
+ home.append(aside);
+ let visits=0;
+ try{visits=Number(localStorage.getItem("cine-radar-app-visits-v1")||0)+1;localStorage.setItem("cine-radar-app-visits-v1",String(Math.min(visits,9999)))}catch{}
+ if(visits<2)return;
+ try{if(localStorage.getItem("cine-radar-rating-done-v1"))return}catch{}
+ const box=node("div","cine-community-rating");
+ const msg=node("span",null,"Tu aimes Ciné Radar ? Donne une note ⭐");
+ const buttons=node("div","cine-rating-buttons");
+ for(let i=1;i<=5;i++){
+  const b=node("button",null,"★"+i);b.type="button";b.setAttribute("aria-label",i+" étoiles");
+  b.onclick=()=>{metric("rating",i);box.textContent="Merci pour ton avis ! ❤️";try{localStorage.setItem("cine-radar-rating-done-v1",String(i))}catch{}};
+  buttons.append(b);
+ }
+ const later=node("button","cine-rate-later","Plus tard");later.type="button";
+ later.onclick=()=>{box.remove();try{localStorage.setItem("cine-radar-rating-done-v1","later")}catch{}};
+ box.append(msg,buttons,later);home.append(box);
+}
+function analyticsPreference(about){
+ const controls=node("div","cine-helper");
+ controls.append(node("h3",null,"Statistiques de fréquentation"),node("p",null,"Ciné Radar utilise un identifiant aléatoire propre à ce navigateur pour compter les visites et mesurer les clics. Aucune adresse IP, conversation ou identité Telegram n'est enregistrée dans ces statistiques."));
+ const opt=node("button","cine-soft-button");opt.type="button";
+ const update=()=>{opt.textContent=metricsAllowed()?"Désactiver les statistiques":"Autoriser les statistiques";};
+ opt.onclick=()=>{
+  try{
+   const enabled=metricsAllowed();
+   localStorage.setItem(ANALYTICS_DISABLED_KEY,enabled?"1":"0");
+   if(enabled)localStorage.removeItem(ANALYTICS_ID_KEY);
+   else visitorTracking();
+  }catch{}
+  update();
+ };
+ update();controls.append(opt);about.append(controls);
+}
+let discoverFrame=null;
+function autoScrollDiscover(){
+ const box=$("cine-home-picks");
+ if(!box)return;
+ if(discoverFrame!==null){cancelAnimationFrame(discoverFrame);discoverFrame=null}
+ if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
+ let pausedUntil=0,prev=0;
+ const pause=()=>{pausedUntil=performance.now()+5000;};
+ if(!box.dataset.autoscrollBound){
+  for(const event of ["pointerdown","touchstart","wheel","focusin","mouseenter"])box.addEventListener(event,pause,{passive:true});
+  box.dataset.autoscrollBound="1";
+ }
+ const loop=now=>{
+  const max=box.scrollWidth-box.clientWidth;
+  if(!document.hidden&&now>pausedUntil&&max>3){
+   const elapsed=prev?Math.min(50,now-prev):16;
+   if(box.scrollLeft<1)box.scrollLeft=max;
+   else box.scrollLeft=Math.max(0,box.scrollLeft-.022*elapsed);
+  }
+  prev=now;discoverFrame=requestAnimationFrame(loop);
+ };
+ discoverFrame=requestAnimationFrame(loop);
+}
+
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
  const measure=c=>(c.avatar_verified?200:0)+(c.content_verified?35:0)
@@ -902,6 +1013,7 @@ function miniFeatured(){
   if(index+1===Math.min(promoAfter,chosen.length))a.append(promoBlock());
  }
  if(!chosen.length)a.append(node("div","cine-empty-spot","Chargement des canaux…"));
+ autoScrollDiscover();
 
 }
 function discover(){
@@ -951,7 +1063,7 @@ function filterCards(){
  const empty=$("cine-private-empty");if(empty)empty.hidden=mode==="explorer"||visible!==0; if(empty&&!empty.hidden)empty.textContent=mode==="favoris"?"Tu n’as aucun favori. Explore les canaux et utilise « Ajouter aux favoris ».":"Aucun canal consulté pour le moment.";
 }
 function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[id,...favorites].slice(0,250);persist();cardDecorate();discover();const b=$("cine-preview-save");if(b&&currentPreview===id)b.textContent=favorites.includes(id)?"★ Retirer des favoris":"☆ Ajouter aux favoris"}
-function recordOpen(id){if(!Number.isSafeInteger(id)||id<1)return;const first=!recent.includes(id);recent=[id,...recent.filter(x=>x!==id)].slice(0,60);persist();if(first){fetch("/api/engagement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({event:"open",id}),keepalive:true}).catch(()=>{})}filterCards()}
+function recordOpen(id){if(!Number.isSafeInteger(id)||id<1)return;metric("channel_open","c:"+id);const first=!recent.includes(id);recent=[id,...recent.filter(x=>x!==id)].slice(0,60);persist();if(first){fetch("/api/engagement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({event:"open",id}),keepalive:true}).catch(()=>{})}filterCards()}
 function previewInfo(){
  const sheet=$("sheet");if(!sheet||!sheet.querySelector(".sheet-detail"))return;
  const detail=sheet.querySelector(".sheet-detail");
@@ -1048,6 +1160,8 @@ function build(){
  const quick=node("div","cine-quick");quick.append(quickButton("🎬","Films","films"),quickButton("📺","Séries","series"),quickButton("🎌","Animés","animes"));home.append(quick);
  sectionTitle(home,"À découvrir","Voir tout",()=>setHash("decouvrir"));const picks=node("div","cine-home-picks");picks.id="cine-home-picks";home.append(picks);
  const help=node("p","cine-home-footer","Annuaire de canaux publics · Consulte le contenu directement sur Telegram");home.append(help);
+ communityTools(home);
+ visitorTracking();
  // Explorer : recherche, filtres repliés et liste
  heading(panel.explorer,"Explorer les canaux","Recherche un canal, un genre ou un mot-clé.");panel.explorer.append(search);
  const details=node("details","cine-explore-options");const summary=node("summary",null,"Filtres avancés et tri");details.append(summary,nav,tools);panel.explorer.append(details);
@@ -1074,6 +1188,7 @@ function build(){
  const report=node("div","cine-helper");report.append(node("h3",null,"Signaler un problème"),node("p",null,"Ouvre la fiche d’un canal pour signaler un lien cassé, une mauvaise catégorie, du spam ou une atteinte aux droits."));const bBrowse=node("button",null,"Parcourir les canaux");bBrowse.onclick=()=>setHash("explorer");report.append(bBrowse);panel.proposer.append(report);
  heading(panel.apropos,"À propos de Ciné Radar","Un annuaire indépendant de canaux publics Telegram.");
  const about=node("div","cine-helper");about.append(node("h3",null,"Comment ça marche ?"),node("p",null,"Ciné Radar référence des canaux publics. Il n’héberge ni ne fournit les films et ne garantit pas les publications des canaux tiers."),node("h3",null,"Peut-on donner son avis ?"),node("p",null,"Oui, depuis la mini-application Telegram, pour limiter les faux avis et modérer les signalements."),node("h3",null,"Confidentialité"),node("p",null,"Les favoris et l’historique sont enregistrés dans ce navigateur. Les statistiques de recherche sont agrégées sans mémoriser ton texte de recherche. Tu peux supprimer tes données locales."));
+ analyticsPreference(about);
  const wipe=node("button","cine-soft-button","Supprimer mes favoris et mon historique");wipe.onclick=()=>{favorites=[];recent=[];persist();cardDecorate();discover();wipe.textContent="Données locales effacées"};about.append(wipe);panel.apropos.append(about);
  // Navigation en tiroir
  const backdrop=node("div","cine-drawer-backdrop");backdrop.id="cine-menu-backdrop";backdrop.hidden=true;
