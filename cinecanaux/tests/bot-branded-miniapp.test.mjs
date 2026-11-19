@@ -73,6 +73,8 @@ test('old owner commands do not run in chat; Mini App is always the entry point'
  assert.ok(APP_HTML.includes('sessionStorage.setItem("cine-radar-owner-auth"'));
  assert.ok(ADMIN_HTML.includes('sessionStorage.getItem("cine-radar-owner-auth"'));
  assert.ok(ADMIN_HTML.includes('href="/app"'));
+ assert.ok(ADMIN_HTML.includes('id="bot-brand-sync"'));
+ assert.ok(admin.includes("path==='/api/admin/sync-bot-identity'"));
  assert.ok(!bot.includes('{command:"admin"'));
 });
 
@@ -93,4 +95,16 @@ test('Worker serves the exact two newly approved JPEGs without exposing bot toke
  }
  assert.ok(worker.includes('bytes[0]===0xff&&bytes[1]===0xd8'));
  assert.ok(!worker.includes('env.TELEGRAM_TOKEN+"/assets/'));
+});
+
+test('user-approved profile and welcome assets are committed as valid JPEG images',()=>{
+ for(const [name,maxSize] of [['bot-profile.jpg',400000],['bot-start-poster.jpg',650000]]){
+  const bytes=readFileSync(new URL('../assets/'+name,import.meta.url));
+  assert.ok(bytes.length>10000&&bytes.length<maxSize,name+' has suspicious size');
+  assert.equal(bytes[0],255);
+  assert.equal(bytes[1],216);
+  assert.equal(bytes[2],255);
+  assert.equal(bytes.at(-2),255);
+  assert.equal(bytes.at(-1),217);
+ }
 });
