@@ -12,7 +12,8 @@ const adminId = 111;
 
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
- const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map();
+ const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map(),creditBaselines=new Map(),creditEvents=new Map();
+ const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[];
  const v2Counts={daily:0,wheel:0};
  const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
@@ -31,6 +32,9 @@ function harness(){
         if(lower.includes('from bot_settings'))return {value:settings.get(values[0])};
         if(lower.includes('from bot_admin_pending'))return pending.get(String(values[0]))||null;
         if(lower.includes(' as daily_count'))return {daily_count:v2Counts.daily,wheel_count:v2Counts.wheel,mission_count:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')&&!/:(join_main|join_foot)$/.test(x)).length};
+        if(lower.includes('from player_credit_state'))return creditBaselines.get(String(values[0]))||null;
+        if(lower.includes('from mrxp_credit_events')&&lower.includes('sum(amount)')){const list=[...creditEvents.values()].filter(x=>x.user_id===String(values[0]));return {balance:list.reduce((a,x)=>a+x.amount,0),event_count:list.length}}
+        if(lower.includes('count(*) as total from mission_claims'))return {total:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).length};
         if(lower.includes('from player_avatar_prefs'))return avatarPrefs.has(String(values[0]))?{selected_rank:avatarPrefs.get(String(values[0]))}:null;
         if(lower.includes('from player_progress_v2'))return v2Progress.get(String(values[0]))||null;
         if(lower.includes('from mission_claims'))return missionClaims.has(String(values[0])+':'+String(values[1]))?{mission_key:String(values[1])}:null;
@@ -43,6 +47,7 @@ function harness(){
         return null;
        },
        async run(){
+        if(lower.includes('insert or ignore into player_credit_state')&&!creditBaselines.has(String(values[0])))creditBaselines.set(String(values[0]),{baseline_level:values[1],activated_ms:values[2]});
         if(lower.includes('insert into player_avatar_prefs'))avatarPrefs.set(String(values[0]),values[1]);
         if(lower.includes('insert or ignore into player_progress_v2')&&!v2Progress.has(String(values[0])))v2Progress.set(String(values[0]),{user_id:String(values[0]),legacy_level_floor:values[1],current_level:values[2]});
         if(lower.includes('update player_progress_v2 set current_level')){const row=v2Progress.get(String(values[2]));if(row)row.current_level=Math.max(Number(row.current_level),Number(values[0]));}
@@ -53,7 +58,22 @@ function harness(){
         return {success:true};
        },
        get _sql(){return lower},get _values(){return values},
-       async all(){if(lower.includes('from mission_claims'))return {results:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).map(x=>({mission_key:x.slice(String(values[0]).length+1)}))};return {results:[]}}
+       async all(){
+        const id=String(values[0]);
+        if(lower.includes('from mrxp_credit_events')){
+          const list=[...creditEvents.values()].filter(x=>x.user_id===id);
+          if(lower.includes('select event_key from'))return {results:list.map(x=>({event_key:x.event_key}))};
+          return {results:list.sort((a,b)=>b.created_ms-a.created_ms).slice(0,50).map(x=>({...x}))};
+        }
+        if(lower.includes('from daily_claims'))return {results:verifiedDaily.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1]))};
+        if(lower.includes('from wheel_claims'))return {results:verifiedWheel.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1]))};
+        if(lower.includes('from sync_receipts'))return {results:verifiedTaps.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1])&&x.taps>=50)};
+        if(lower.includes('from mission_claims')){
+         if(lower.includes('select mission_key,created_ms'))return {results:[...missionClaims.entries()].filter(([k,v])=>k.startsWith(id+':')&&Number(v.created_ms||0)>=Number(values[1])).map(([k,v])=>({mission_key:k.slice(id.length+1),created_ms:v.created_ms}))};
+         return {results:[...missionClaims.keys()].filter(x=>x.startsWith(id+':')).map(x=>({mission_key:x.slice(id.length+1)}))}
+        }
+        return {results:[]}
+       }}
       };
      },
      async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
@@ -67,12 +87,19 @@ function harness(){
     };
    },
    async batch(ops){
+    if(ops.length&&ops.every(op=>op._sql?.includes('insert or ignore into mrxp_credit_events'))){
+      return ops.map(op=>{const [user_id,event_key,event_type,amount,label,created_ms]=op._values,key=String(user_id)+':'+event_key;
+       const isNew=!creditEvents.has(key);
+       if(isNew)creditEvents.set(key,{user_id:String(user_id),event_key,event_type,amount,label,created_ms});
+       return {success:true,meta:{changes:isNew?1:0}}
+      })
+    }
     let applied=0;
     for(const op of ops){
      if(op._sql?.includes('insert or ignore into mission_claims')){
       const [id,key,xp]=op._values;const claimId=String(id)+':'+String(key);
       applied=missionClaims.has(claimId)?0:1;
-      if(applied)missionClaims.set(claimId,{xp});
+      if(applied)missionClaims.set(claimId,{xp,created_ms:Date.now()});
      }else if(op._sql?.includes('update players set confirmed_xp')){
       if(applied)player.confirmed_xp+=Number(op._values[0]);
      }
@@ -95,7 +122,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -830,5 +857,155 @@ test('V2 phase 2 Mini App inline scripts parse successfully in the browser',asyn
   }
   assert.ok(inline.length>=2);
   for(const [i,js] of inline.entries())assert.doesNotThrow(()=>new vm.Script(js,{filename:'miniapp-inline-'+i+'.js'}));
+ }finally{h.restore()}
+});
+
+
+test('phase 3 shares only authenticated, confirmed server stats with optional name hiding',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=764;h.player.confirmed_taps=200;
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ const init=signedTelegramUser({id:91001,first_name:'Fatou',last_name:'Diop',username:'personnel'});
+ const make=(payload,header=init)=>worker.fetch(new Request(root+'/api/share/profile',{method:'POST',headers:{'x-telegram-init-data':header,'content-type':'application/json'},body:JSON.stringify(payload)}),h.env);
+ try{
+  assert.equal((await make({hide_name:false},'')).status,401);
+  assert.equal((await make({})).status,400);
+  const valid=await make({hide_name:false});assert.equal(valid.status,200,await valid.clone().text());
+  const data=await valid.json();
+  assert.equal(data.snapshot.display_name,'Fatou Diop');
+  assert.equal(data.snapshot.level,3);assert.equal(data.snapshot.xp,764);
+  assert.equal(data.snapshot.rank,'Combattant');assert.equal(data.snapshot.avatar_rank,3);
+  assert.ok(data.verify_url.includes('/share/verify?token='));
+  assert.ok(!data.verify_url.includes('91001'));assert.ok(!data.token.includes('91001'));
+  const publicCheck=await worker.fetch(new Request(data.verify_url),h.env);
+  assert.equal(publicCheck.status,200);const text=await publicCheck.text();
+  assert.ok(text.includes('Fatou Diop'));assert.ok(text.includes('764 XP confirmés'));
+  assert.ok(!text.includes('91001'));assert.ok(!text.includes('personnel'));
+  const hidden=await make({hide_name:true});assert.equal(hidden.status,200);
+  assert.equal((await hidden.json()).snapshot.display_name,'Joueur MRXP');
+ }finally{h.restore()}
+});
+
+test('phase 3 verifies signed snapshot proof and rejects tampering or forged ranks',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ const init=signedTelegramUser({id:91002,first_name:'Alpha'});
+ try{
+  const res=await worker.fetch(new Request(root+'/api/share/profile',{method:'POST',headers:{'x-telegram-init-data':init,'content-type':'application/json'},body:JSON.stringify({hide_name:true})}),h.env);
+  assert.equal(res.status,200,await res.clone().text());const out=await res.json();
+  const good=await worker.fetch(new Request(root+'/api/share/verify?token='+encodeURIComponent(out.token)),h.env);
+  assert.equal(good.status,200);assert.equal((await good.json()).snapshot.xp,0);
+  const broken=out.token.slice(0,-5)+'abcde';
+  const bad=await worker.fetch(new Request(root+'/api/share/verify?token='+encodeURIComponent(broken)),h.env);
+  assert.equal(bad.status,400);assert.equal((await bad.json()).valid,false);
+  const invalidHtml=await worker.fetch(new Request(root+'/share/verify?token='+encodeURIComponent(broken)),h.env);
+  assert.equal(invalidHtml.status,400);
+  assert.equal((await worker.fetch(new Request(root+'/share/avatar/999'),h.env)).status,404);
+  assert.equal((await worker.fetch(new Request(root+'/share/avatar/0'),h.env)).status,404);
+ }finally{h.restore()}
+});
+
+test('phase 3 Mini App has two high resolution PNG formats and real download/share alternatives',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  for(const needle of ['mrxp-share-format','mrxp-share-hide-name','mrxp-share-create','mrxp-share-preview','mrxp-share-download','mrxp-share-native','mrxp-share-telegram','mrxp-share-copy','1080 × 1920','1080 × 1080','mrxpDrawShareImage(snapshot,vertical,avatar)','canvas.toBlob','navigator.share','/api/share/profile','/share/avatar/']){
+   assert.ok(html.includes(needle),needle);
+  }
+ }finally{h.restore()}
+});
+
+test('phase 4 requires Telegram authentication for private free MRXP wallet',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits'),h.env);
+  assert.equal(res.status,401);
+  assert.equal(h.creditEvents.size,0);
+ }finally{h.restore()}
+});
+
+test('phase 4 wallet starts at zero and does not retroactively pay historical levels',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=56000;h.player.confirmed_taps=1200;
+ const init=signedTelegramUser({id:93001,first_name:'Historique'});
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits',{headers:{'x-telegram-init-data':init}}),h.env);
+  assert.equal(res.status,200,await res.clone().text());const wallet=(await res.json()).wallet;
+  assert.equal(wallet.balance,0);assert.equal(wallet.ledger.length,0);
+  assert.ok(wallet.baseline_level>=5);assert.equal(wallet.spend_enabled,false);
+  assert.equal(wallet.transfer_enabled,false);assert.equal(wallet.cash_value,false);
+ }finally{h.restore()}
+});
+
+test('phase 4 credits server-verified daily, wheel, sync and permanent mission exactly once',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const id='93002',init=signedTelegramUser({id:Number(id),first_name:'Binta'});
+ const get=()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits',{headers:{'x-telegram-init-data':init}}),h.env);
+ try{
+  let res=await get();assert.equal(res.status,200,await res.clone().text());assert.equal((await res.json()).wallet.balance,0);
+  const today=new Date().toISOString().slice(0,10),ms=Date.now()+3;
+  h.verifiedDaily.push({user_id:id,day:today,created_ms:ms});
+  h.verifiedWheel.push({user_id:id,day:today,created_ms:ms});
+  h.verifiedTaps.push({user_id:id,created_ms:ms,taps:55});
+  h.missionClaims.set(id+':first_open',{xp:25,created_ms:ms});
+  res=await get();assert.equal(res.status,200,await res.clone().text());
+  const wallet=(await res.json()).wallet;assert.equal(wallet.balance,30); // 5 daily + 5 daily quest + 5 wheel + 5 taps + 10 mission
+  assert.equal(wallet.total_events,5);assert.equal(wallet.today_goals.length,3);
+  assert.equal(wallet.today_goals.filter(x=>x.done).length,3);
+  const repeat=await get();assert.equal((await repeat.json()).wallet.balance,30);
+  assert.equal(h.creditEvents.size,5);
+  assert.equal(h.player.confirmed_xp,0); // currencies fully separate
+ }finally{h.restore()}
+});
+
+test('phase 4 weekly bonus and level gains are awarded once without affecting XP',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const id='93003',init=signedTelegramUser({id:Number(id),first_name:'Koffi'});
+ const ms=Date.now();
+ const weekday=(new Date().getUTCDay()+6)%7;
+ const thisMonday=Date.UTC(new Date().getUTCFullYear(),new Date().getUTCMonth(),new Date().getUTCDate())-weekday*86400000;
+ const prevMonday=thisMonday-7*86400000;
+ h.creditBaselines.set(id,{baseline_level:1,activated_ms:Date.now()-30*86400000});
+ for(let i=0;i<4;i++)h.verifiedDaily.push({user_id:id,day:new Date(prevMonday+i*86400000).toISOString().slice(0,10),created_ms:ms-86400000});
+ const get=()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits',{headers:{'x-telegram-init-data':init}}),h.env);
+ try{
+  h.player.confirmed_xp=300;let res=await get();assert.equal(res.status,200,await res.clone().text());
+  const wallet=(await res.json()).wallet;
+  assert.equal(wallet.balance,80); // four days * (5+5) + weekly 30 + level2 10
+  assert.equal(h.v2Progress.get(id).current_level,2);
+  const second=(await (await get()).json()).wallet;assert.equal(second.balance,80);
+  assert.equal(h.player.confirmed_xp,300);assert.equal(h.creditEvents.size,10);
+ }finally{h.restore()}
+});
+
+test('phase 4 SQL migration is additive and credits are isolated per account',async()=>{
+ const sql=await readFile(new URL('../migrations/004_free_mrxp_credits.sql',import.meta.url),'utf8');
+ assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS mrxp_credit_events'));
+ assert.ok(sql.includes('PRIMARY KEY(user_id,event_key)'));
+ assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS player_credit_state'));
+ assert.ok(sql.includes('INSERT OR IGNORE INTO player_credit_state'));
+ assert.ok(!/DROP TABLE|DELETE FROM players|UPDATE players/i.test(sql));
+ const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
+ assert.ok(schema.includes('mrxp_credit_events'));assert.ok(schema.includes('player_credit_state'));
+ const h=harness();h.env.DEV_MODE='true';
+ try{
+  const user1=signedTelegramUser({id:93004,first_name:'A'});
+  const user2=signedTelegramUser({id:93005,first_name:'B'});
+  const base='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits';
+  let r=await worker.fetch(new Request(base,{headers:{'x-telegram-init-data':user1}}),h.env);
+  assert.equal(r.status,200);let day=new Date().toISOString().slice(0,10);
+  h.verifiedDaily.push({user_id:'93004',day,created_ms:Date.now()+10});
+  r=await worker.fetch(new Request(base,{headers:{'x-telegram-init-data':user1}}),h.env);assert.equal((await r.json()).wallet.balance,10);
+  r=await worker.fetch(new Request(base,{headers:{'x-telegram-init-data':user2}}),h.env);assert.equal((await r.json()).wallet.balance,0);
+ }finally{h.restore()}
+});
+
+test('phase 4 wallet UI displays free currency, three daily quests and actual ledger',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  for(const term of ['mrxp-credit-balance','mrxp-credit-history','mrxp-credit-daily-goals','mrxp-credit-weekly','mrxp-credit-goal-count','/api/credits','mrxpConfirmedWallet=null','mrxpRenderWallet()','mrxp-credit-refresh']){
+   assert.ok(html.includes(term),term)
+  }
  }finally{h.restore()}
 });
