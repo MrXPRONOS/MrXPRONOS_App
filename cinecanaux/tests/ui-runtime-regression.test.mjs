@@ -208,3 +208,44 @@ test('lot 3: every category, genre chip and movie-poster icon uses the generated
  assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Do not regress the lot 1 atlas');
  assert.ok(navigation.includes('function cineNavIcon(key){'),'Do not regress lot 2 navigation');
 });
+
+
+test('lot 4: all ten verified transparent 3D icons ship as a compact WebP atlas',()=>{
+ const atlas=readFileSync(new URL('../assets/ui-icons-lot4.webp',import.meta.url));
+ assert.equal(atlas.subarray(0,4).toString(),'RIFF');
+ assert.equal(atlas.subarray(8,12).toString(),'WEBP');
+ assert.equal(atlas.subarray(12,16).toString(),'VP8X');
+ assert.equal(atlas.readUIntLE(24,3)+1,560,'Ten 56px icons must occupy exactly one strip');
+ assert.equal(atlas.readUIntLE(27,3)+1,56);
+ assert.ok(atlas.byteLength<30000,'Do not make the Mini App heavier than necessary');
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot4.webp')"));
+ assert.ok(APP_HTML.includes('background-size:1000% 100%'));
+ const worker=readFileSync(new URL('../worker.mjs',import.meta.url),'utf8');
+ assert.ok(worker.includes('u.pathname==="/assets/ui-icons-lot4.webp"'));
+ assert.ok(worker.includes('main/cinecanaux/assets/ui-icons-lot4.webp'));
+ assert.ok(worker.includes('"content-type":"image/webp"'));
+});
+
+test('lot 4: the correct original icon is connected to each user action',()=>{
+ const icons=['football','crypto','pronos','private','star','evaluate','play','series','thanks','popcorn'];
+ for(const key of icons)assert.ok(APP_HTML.includes('.cine-lot4-'+key+'{background-position-x:'),key+' sprite location missing');
+ for(const script of [directory,navigation]){
+  assert.ok(script.includes('function cineLot4Icon(key){'));
+  assert.ok(script.includes('el.setAttribute("aria-hidden","true")'));
+ }
+ assert.ok(directory.includes('cineLot4Icon("private")'),'Private channels must display the padlock icon');
+ assert.ok(directory.includes('cineLot4Icon("star")'),'Reviews must display the actual rating star');
+ assert.ok(navigation.includes('cineLot4Icon(info.kind)'),'Promotions should use football, crypto and pronos badges');
+ assert.ok(navigation.includes('cineLot4Icon("evaluate")'),'Feedback invitation icon is absent');
+ assert.ok(navigation.includes('cineLot4Icon("thanks")'),'Thank-you icon is absent');
+ assert.ok(navigation.includes('cineLot4Icon("play")'),'Pin poster play icon is absent');
+ assert.ok(navigation.includes('cineLot4Icon("series")'),'Series poster badge is absent');
+ assert.ok(navigation.includes('cineLot4Icon("popcorn")'),'Cinema popcorn icon is absent');
+ for(const key of ['football','crypto','pronos'])assert.ok(navigation.includes('kind:"'+key+'"'));
+ assert.ok(navigation.includes('promoCard(info)'),'Promotion click handling must be preserved');
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Lot 1 must remain');
+ assert.ok(APP_HTML.includes('function cineNavIcon(key){'),'Lot 2 must remain');
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot3.webp')"),'Lot 3 must remain');
+ assert.ok(APP_HTML.includes('function chooseCategory(chosen,exclusive=false){'),'Advanced filters must remain working');
+ assert.ok(APP_HTML.includes('function autoScrollPromos()'),'The promotion carousel must remain working');
+});
