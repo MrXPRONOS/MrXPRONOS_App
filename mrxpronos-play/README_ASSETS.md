@@ -83,3 +83,22 @@ Le fichier `assets-manifest.json` associe chaque identifiant à son chemin PNG e
 | 58 | `58-mission-complete.webp` | Mission terminée |
 
 Les PNG sources se trouvent dans le même dossier, avec les mêmes noms (extension `.png`). Le manifeste global `assets-manifest.json` comprend maintenant 58 entrées ; `assets-manifest-lot6.json` conserve les empreintes SHA-256 des PNG du lot 6. Tous les huit visuels sont importés depuis les originaux : pas de nouvelle génération ni de recompression des fichiers PNG.
+
+
+## Avatars africains officiels — premiers cinq rangs (19 novembre 2026)
+
+Cinq avatars **individuels**, distincts des affiches de groupe et des mockups, ont été vérifiés et importés en **PNG RGBA source transparent 1254 × 1254** et **WebP transparent optimisé 768 × 768**. Ils correspondent aux cinq premières étapes de prestige :
+
+| Rang | Niveau affiché | Image WebP |
+|---|---|---|
+| Recrue | 1 | `assets/07-rank-avatars/rank-01-recrue.webp` |
+| Éclaireur | 2 | `assets/07-rank-avatars/rank-02-eclaireur.webp` |
+| Combattant | 3–4 | `assets/07-rank-avatars/rank-03-combattant.webp` |
+| Sentinelle | 5 | `assets/07-rank-avatars/rank-04-sentinelle.webp` |
+| Chevalier | 6–9 | `assets/07-rank-avatars/rank-05-chevalier.webp` |
+
+Le nom public du joueur reste vérifié par Telegram, mais **sa photo personnelle n'est plus affichée** : la Mini App utilise l'avatar de rang dans l'en-tête du joueur et sur sa page Profil. Pour les **niveaux 10 et au-delà**, l'emblème MX reste provisoirement visible jusqu'à la création des six personnages restants, sans prétendre que leurs avatars sont terminés.
+
+**Périmètre volontairement limité :** l'expérience hybride XP + défis, les crédits MRXP, les boosts et la carte de partage ne font pas partie de ce lot et ne sont pas activés par cette mise à jour. Le niveau utilisé pour choisir l'avatar est **le niveau actuel calculé à partir des tapotages** ; le futur moteur de progression pourra reprendre le même manifeste.
+
+L'intégrité des originaux et optimisations est documentée dans `avatars-manifest.json` par fichier SHA-256 et dimensions. Les **58 ressources graphiques historiques** sont conservées séparément dans `assets-manifest.json`. Les tests de non-régression vérifient les cinq correspondances exactes, les dix fichiers réels et l'absence d'utilisation de la photo Telegram dans la page.
