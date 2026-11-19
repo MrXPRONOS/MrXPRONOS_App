@@ -29,7 +29,7 @@ test("Callback acknowledgement begins while owner-role authorization is still pe
  const previous=globalThis.fetch;
  globalThis.fetch=async(url)=>{const method=String(url).split("/").pop();state.calls.push(method);return Response.json({ok:true,result:{message_id:5}});};
  try{
-  const pending=botUpdate(env,{callback_query:{id:"early-ack",from:{id:10},message:{chat:{id:10},message_id:5},data:"category:films"}});
+  const pending=botUpdate(env,{callback_query:{id:"early-ack",from:{id:10},message:{chat:{id:10,type:"private"},message_id:5},data:"category:films"}});
   await Promise.resolve();await Promise.resolve();
   assert.ok(state.calls.includes("answerCallbackQuery"),"click must be acknowledged before query completes");
   unblock();await pending;
