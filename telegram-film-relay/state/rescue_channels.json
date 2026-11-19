@@ -1,7 +1,19 @@
 {
   "channels": {
+    "@cinexdesirfr": {
+      "description_digest": "63abbfd4d50bc2d834298cd83a6b5569c0c1d0ac658cc31365227d69dd90686e",
+      "invite_link": "https://t.me/+p5sYWUqyKaExYmM0",
+      "profile_photo_source_id": 5951823958220935249,
+      "public_id": -1003974982750,
+      "public_title": "Film Romantique CinéX Désir fr",
+      "public_username": "@cinexdesirfr",
+      "rescue_channel_id": -1003900673730,
+      "rescue_title": "Film Romantique CinéX Désir fr Secours"
+    },
     "@cinexfilms_vf": {
+      "description_digest": "bec0ea8a94cdb7c38ba734a28d8e75681da7ed7b023c5aa848a26d725339b0e4",
       "invite_link": "https://t.me/+okmooQbDRNUxMGI0",
+      "profile_photo_source_id": 5951535680016027293,
       "public_id": -1003921647496,
       "public_title": "Films & Série 2026 vf | CinéX 🎬",
       "public_username": "@cinexfilms_vf",
@@ -9,7 +21,9 @@
       "rescue_title": "Films & Série 2026 vf | CinéX 🎬 Secours"
     },
     "@seriesvf_cinex": {
+      "description_digest": "c1e9c406d51024690de6676a01690b4aa39184e2dc2292b73b792e07f51a40fc",
       "invite_link": "https://t.me/+r9VegRqBhQJiOTg8",
+      "profile_photo_source_id": 6041759061570688139,
       "public_id": -1004406527554,
       "public_title": "SÉRIES 2026 VF | CINÉ X ⚔️",
       "public_username": "@seriesvf_cinex",
