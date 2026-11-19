@@ -1,10 +1,10 @@
-name: CineX - Rotation biquotidienne des 10 films
+name: CineX - Rotation biquotidienne des 10 videos par canal
 
 on:
   workflow_dispatch:
     inputs:
       apply:
-        description: 'Archiver les anciens films après copie affiche + vidéo (false = simulation)'
+        description: 'Retirer uniquement les anciennes videos déjà présentes avec fiche et preuve en videotheque (false = simulation)'
         required: false
         type: boolean
         default: false
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   archive:
-    name: Verifier / archiver les anciennes videos CineX
+    name: Conserver les dix dernières videos dans chaque canal
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -32,6 +32,17 @@ jobs:
       CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
       TG_PUBLIC_CHANNEL: '@CineXFilms_vf'
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
+      CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
+      CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
       TG_RIGHTS_ATTESTED: ${{ vars.CINEX_RIGHTS_VERIFIED || 'false' }}
       PYTHONPATH: .
@@ -50,7 +61,7 @@ jobs:
       - name: Installer les dependances
         run: python -m pip install -r requirements.txt
       - name: Tester la rotation hors ligne
-        run: python -m unittest discover -s tests -p 'test_public_video_archive.py' -v
+        run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
       - name: Verifier les identifiants
         shell: bash
         run: |
@@ -72,16 +83,16 @@ jobs:
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-              python -m film_relay.public_video_archive --apply --max-archived 10
+              python -m film_relay.ten_video_rotation --apply --max-deleted 10
             else
-              python -m film_relay.public_video_archive --apply --max-archived 10
+              python -m film_relay.ten_video_rotation --apply --max-deleted 10
             fi
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.apply }}" == "true" ]]; then
             echo "::error::Suppression refusée : activer explicitement CINEX_ARCHIVE_ENABLED, CINEX_ARCHIVE_DELETE_APPROVED et CINEX_RIGHTS_VERIFIED."
             exit 1
           else
             echo "Simulation : archivage destructif non autorisé par les trois contrôles indépendants."
-            python -m film_relay.public_video_archive
+            python -m film_relay.ten_video_rotation
           fi
       - name: Vérifier le chargement des invitations
         if: ${{ always() && steps.rescue_links.outcome == 'failure' }}
