@@ -1,0 +1,249 @@
+"""CinéX unified video rotation: retain ten recent media videos per main channel.
+
+Unlike the historical backfill, this routine NEVER copies media or edits
+posters. New relays must have already posted poster+buttons then video to both
+the private library and the public channel. Dry run is the default.
+"""
+from __future__ import annotations
+
+import argparse
+import asyncio
+import logging
+import os
+import re
+
+from .publication import film_folder_url
+from .public_video_archive import (
+    has_verified_button, is_video_message, is_primary_film_video,
+    video_document_id, video_title,
+)
+from .rescue_channels import rescue_link_for
+from .text import private_message_link
+
+LOG = logging.getLogger("cinex.ten_video_rotation")
+KEEP = 10
+VIDEO_LINK = re.compile(r"^https://t\.me/c/(\d+)/(\d+)(?:\?.*)?$")
+MANUAL_TITLES = ("john wick",)
+
+
+def is_rotatable_video(message, category: str) -> bool:
+    """Avoid animations, promotional videos and manual John Wick inventory."""
+    if not is_video_message(message):
+        return False
+    title = video_title(message).casefold()
+    filename = str(getattr(getattr(message, "file", None), "name", "") or "").casefold()
+    if ("animation gif" in title or "animation.gif" in filename
+            or "pronostics mr xpronos" in title or "daily_pronos" in filename):
+        return False
+    if category == "films":
+        return is_primary_film_video(message)
+    # Other channels contain both movies and series episodes; retain the ten
+    # newest actual video messages, not only title-matched movie pairs.
+    if any(name in title for name in MANUAL_TITLES):
+        return False
+    return True
+
+
+def split_recent_and_old(messages, category: str, count: int = KEEP):
+    videos = sorted((m for m in messages if is_rotatable_video(m, category)),
+                    key=lambda msg: int(msg.id), reverse=True)
+    return videos[:count], videos[count:]
+
+
+def movie_button_target(poster, private_id: int) -> int | None:
+    """One and only one movie button must lead to our configured library."""
+    expected_prefix = str(abs(int(private_id)))[3:] if str(private_id).startswith("-100") else None
+    if not expected_prefix:
+        return None
+    candidates = set()
+    for row in getattr(poster, "buttons", None) or ():
+        for button in row:
+            url = getattr(button, "url", None) or getattr(
+                getattr(button, "button", None), "url", None)
+            match = VIDEO_LINK.fullmatch(str(url or ""))
+            if match and match.group(1) == expected_prefix:
+                candidates.add(int(match.group(2)))
+    return next(iter(candidates)) if len(candidates) == 1 else None
+
+
+def category_targets(env: dict | None = None):
+    """Allow only explicitly configured known destination pairs."""
+    env = os.environ if env is None else env
+    categories = (
+        ("films", "@CineXFilms_vf", env.get("TG_PRIVATE_CHANNEL")),
+        ("series", env.get("SERIES_PUBLIC_CHANNEL"), env.get("SERIES_PRIVATE_CHANNEL")),
+        ("desir", env.get("DESIR_PUBLIC_CHANNEL") or "@CineXDesirfr",
+         env.get("DESIR_PRIVATE_CHANNEL")),
+        ("comedie", env.get("COMEDIE_PUBLIC_CHANNEL"), env.get("COMEDIE_PRIVATE_CHANNEL")),
+        ("anime", env.get("ANIME_PUBLIC_CHANNEL") or "@CineXAnimeFR",
+         env.get("ANIME_PRIVATE_CHANNEL")),
+    )
+    selected = []
+    for category, public, private in categories:
+        if not public or not private:
+            LOG.warning("%s : canal principal ou vidéothèque non configuré, ignoré", category)
+            continue
+        if not re.fullmatch(r"-100\d{5,}", str(private)):
+            raise RuntimeError(f"{category}: l'ID vidéothèque doit commencer par -100")
+        if not re.fullmatch(r"@[A-Za-z0-9_]{5,32}", str(public)):
+            raise RuntimeError(f"{category}: canal principal doit être un @username")
+        selected.append((category, str(public), int(private)))
+    return selected
+
+
+async def verify_existing_pair(client, public, private, private_id, video, posters):
+    """Fail closed unless public+private poster, description and links exist."""
+    candidates = [p for p in posters if 0 < video.id - p.id <= 3]
+    candidates.sort(key=lambda p: p.id, reverse=True)
+    rescue_url = rescue_link_for(public)
+    if not rescue_url:
+        raise RuntimeError("Invitation Secours manquante pour ce canal")
+    folder_url = film_folder_url()
+    for poster in candidates:
+        if not getattr(poster, "photo", None) or not (
+            getattr(poster, "raw_text", "") or ""
+        ).strip():
+            continue
+        private_video_id = movie_button_target(poster, private_id)
+        if not private_video_id:
+            continue
+        url = private_message_link(private_id, private_video_id)
+        if not all(has_verified_button(poster, link)
+                   for link in (url, rescue_url, folder_url)):
+            continue
+        private_video = await client.get_messages(private, ids=private_video_id)
+        if (not is_video_message(private_video)
+                or video_document_id(private_video) != video_document_id(video)):
+            continue
+        # Private library poster must have both buttons and precede this video.
+        prior_ids = list(range(max(1, private_video_id - 5), private_video_id))
+        private_posters = await client.get_messages(private, ids=prior_ids)
+        for private_poster in private_posters or []:
+            if (getattr(private_poster, "photo", None)
+                    and (getattr(private_poster, "raw_text", "") or "").strip()
+                    and has_verified_button(private_poster, rescue_url)
+                    and has_verified_button(private_poster, folder_url)):
+                return poster
+    return None
+
+
+async def rotate_channel(client, category: str, public, private,
+                         *, apply: bool, max_deleted: int = 10, history: int = 4000):
+    from telethon import utils
+    public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
+    if public_id == private_id:
+        raise RuntimeError("Même canal public et privé : rotation interdite")
+    messages = [m async for m in client.iter_messages(public, limit=history)]
+    recent, old = split_recent_and_old(messages, category)
+    report = {"category": category, "videos": len(recent) + len(old),
+              "protected": len(recent), "older": len(old), "deleted": 0,
+              "unverified": 0}
+    if len(recent) < KEEP:
+        LOG.info("%s : moins de dix vidéos, aucune suppression", category)
+        return report
+    me = await client.get_me()
+    permissions = await client.get_permissions(public, me)
+    if apply and not (getattr(permissions, "is_creator", False) or
+                      (getattr(permissions, "is_admin", False)
+                       and getattr(permissions, "delete_messages", False))):
+        raise RuntimeError(f"{category}: absence de droits de suppression")
+    # Oldest first; no copy, forward, or edit operation in this workflow.
+    posters = [m for m in messages if getattr(m, "photo", None)]
+    for video in reversed(old):
+        if report["deleted"] >= max_deleted:
+            break
+        if not apply:
+            LOG.info("[SIMULATION] %s : ancienne vidéo #%s", category, video.id)
+            continue
+        public_poster = await verify_existing_pair(
+            client, public, private, private_id, video, posters)
+        if not public_poster:
+            report["unverified"] += 1
+            LOG.warning("%s : ancienne vidéo #%s gardée (fiche ou média non vérifié)",
+                        category, video.id)
+            continue
+        # Newly added movies may have moved the 10-film boundary. Re-evaluate
+        # against live Telegram immediately before every destructive call.
+        latest = []
+        async for current in client.iter_messages(public, limit=1000):
+            if is_rotatable_video(current, category):
+                latest.append(current)
+            if len(latest) >= KEEP:
+                break
+        if len(latest) < KEEP or video.id in {m.id for m in latest}:
+            report["unverified"] += 1
+            LOG.warning("%s : frontière des dix dernières vidéos non sûre", category)
+            continue
+        actual = await client.get_messages(public, ids=video.id)
+        if not actual or video_document_id(actual) != video_document_id(video):
+            report["unverified"] += 1
+            continue
+        await client.delete_messages(public, [video.id], revoke=True)
+        after = await client.get_messages(public, ids=video.id)
+        if after and is_video_message(after):
+            raise RuntimeError(f"{category}: la suppression #{video.id} n'est pas confirmée")
+        report["deleted"] += 1
+        LOG.info("%s : ancienne vidéo #%s supprimée ; fiche #%s conservée",
+                 category, video.id, public_poster.id)
+        await asyncio.sleep(12)
+    LOG.info("BILAN %s", report)
+    return report
+
+
+async def execute(*, apply: bool = False, max_deleted: int = 10):
+    from telethon import TelegramClient, utils
+    from telethon.sessions import StringSession
+    from .runner import resolve_peer
+    if apply and not all(os.getenv(v, "").lower() == "true" for v in
+                         ("CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
+                          "CINEX_RIGHTS_VERIFIED")):
+        raise RuntimeError("Les trois confirmations d'archivage sont requises")
+    targets = category_targets()
+    credentials = (os.getenv("TG_API_ID"), os.getenv("TG_API_HASH"),
+                   os.getenv("TG_STRING_SESSION") or os.getenv("TG_SESSION_STRING")
+                   or os.getenv("TG_STREAM_SESSION"))
+    if not all(credentials):
+        raise RuntimeError("Session Telegram manquante")
+    client = TelegramClient(StringSession(credentials[2]), int(credentials[0]),
+                            credentials[1], request_retries=1, flood_sleep_threshold=0)
+    await client.connect()
+    reports = []
+    try:
+        if not await client.is_user_authorized():
+            raise RuntimeError("Session Telegram non autorisée")
+        seen_public = set()
+        for category, public_name, private_id in targets:
+            try:
+                public = await resolve_peer(client, public_name)
+                private = await resolve_peer(client, str(private_id))
+                if utils.get_peer_id(public) in seen_public:
+                    raise RuntimeError("Canal principal dupliqué dans deux catégories")
+                seen_public.add(utils.get_peer_id(public))
+                reports.append(await rotate_channel(
+                    client, category, public, private, apply=apply,
+                    max_deleted=max_deleted))
+            except Exception:
+                LOG.exception("Rotation %s interrompue, autres catégories conservées", category)
+                reports.append({"category": category, "error": True})
+    finally:
+        await client.disconnect()
+    LOG.info("RÉSULTAT GLOBAL %s", reports)
+    if any(report.get("error") for report in reports):
+        raise RuntimeError("Une ou plusieurs catégories nécessitent une correction")
+    return reports
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--max-deleted", type=int, default=10)
+    options = parser.parse_args()
+    if not 1 <= options.max_deleted <= 10:
+        parser.error("Limite par canal : de 1 à 10")
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)s %(message)s")
+    asyncio.run(execute(apply=options.apply, max_deleted=options.max_deleted))
+
+
+if __name__ == "__main__":
+    main()
