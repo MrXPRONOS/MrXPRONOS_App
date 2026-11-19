@@ -1,0 +1,61 @@
+name: MRXP - Import approved rank avatars 06-10
+
+on:
+  push:
+    branches:
+      - feat/play-rank-avatars-06-10-20261119
+    paths:
+      - '.github/workflows/mrxp-avatars-06-10-import.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download approved original PNG + WebP archive
+        shell: bash
+        env:
+          SOURCE_URL: https://at.adobe.com/y1KD5l0JcCb7VvKH
+        run: |
+          set -euo pipefail
+          curl -fLsS --retry 3 --connect-timeout 15 --max-time 180 "$SOURCE_URL" -o /tmp/mrxp-approved-avatars.zip
+          python3 - <<'PY'
+          import zipfile, hashlib, pathlib
+          archive='/tmp/mrxp-approved-avatars.zip'
+          if not zipfile.is_zipfile(archive): raise SystemExit('Archive download invalid')
+          items=[
+            (6,'elite','2926acaa7826c049ea4e82db385f9351a552a5422ffac7dd2089f4701b2c47d2','5d42afce87b50a0984a6c2980f6428071e2c9eceffa0bb3dcb88ce15df4ed642'),
+            (7,'maitre','34b6a0b2917ab176c577780a1336472e7ce1297c58a51c7a56b854610a8a2552','00c22eedd9b43a10586a5f210e76e2775f2653acbd5064e71abd197111075f32'),
+            (8,'champion','c6599c3687fbadd9807cf08f6e321abec671751740e755dcf9821c8a5b603b81','d18d9e0136be27f0616fcf7267319e241b1a7063ba7d25241c05be05e4d1fd21'),
+            (9,'legende','5b19c53011ee8cce275577f9d492d5b8d38d5d5b75889c5c5897ec1939735157','38d72f5cf7043070fec2566d5628b269b542cdca4c6bc13550d459a2fbea58d6'),
+            (10,'mythique','920c528e7f68d0d18b9cdc9102459b0c4104c55348b5fb01cf017f489081ba0e','f0ee77c8091ebd0b63842aa33a79c38b15d3488b930f1e87c6eed7c133bd3f3d')]
+          out=pathlib.Path('mrxpronos-play/assets/07-rank-avatars')
+          out.mkdir(parents=True,exist_ok=True)
+          with zipfile.ZipFile(archive) as zip:
+            for n,name,sha_png,sha_webp in items:
+              for ext,expected in [('png',sha_png),('webp',sha_webp)]:
+                file=f'rank-{n:02}-{name}.{ext}'
+                data=zip.read(file)
+                actual=hashlib.sha256(data).hexdigest()
+                if actual!=expected:raise SystemExit(f'Integrity failed for {file}: {actual}')
+                if ext=='png' and (data[:8]!=bytes.fromhex('89504e470d0a1a0a') or data[25]!=6):
+                  raise SystemExit(f'PNG not RGBA: {file}')
+                if ext=='webp' and not (data[:4]==b'RIFF' and data[8:12]==b'WEBP'):
+                  raise SystemExit(f'WEBP corrupt: {file}')
+                (out/file).write_bytes(data)
+          print('Verified all five RGBA PNG source images and five WebP optimized outputs')
+          PY
+      - name: Commit verified graphics to feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mrxpronos-play/assets/07-rank-avatars/
+          git diff --cached --check
+          git commit -m "assets(play): add verified rank portraits 06-10 (PNG + WebP)"
+          git push origin HEAD:feat/play-rank-avatars-06-10-20261119
