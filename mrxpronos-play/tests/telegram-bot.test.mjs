@@ -1224,3 +1224,46 @@ test('phase 5 schema is additive; new shop UI and sync logic preserve signed ide
   }
  }finally{h.restore()}
 });
+
+
+test('phase 5 +100 energy is counted once in anti-cheat ceiling and consumed after accepted sync',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',id='94007',uuid='a0a1a2a3-0000-4000-8000-aabbccddee10';
+ const auth=signedTelegramUser({id:Number(id),first_name:'Nana'});
+ h.player.created_ms=Date.now()-2000;
+ h.creditEvents.set(id+':credit',{user_id:id,event_key:'credit',amount:50,event_type:'test',label:'earned',created_ms:Date.now()});
+ const post=(path,body)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+ try{
+  assert.equal((await post('/api/shop/buy',{sku:'energy-100',purchase_id:uuid})).status,200);
+  assert.equal((await post('/api/shop/activate',{purchase_id:uuid})).status,200);
+  let r=await post('/api/sync',{batch_id:'energy-batch-000000001',taps:600,daily_days:[],wheel_days:[]});
+  assert.equal(r.status,200,await r.clone().text());let data=await r.json();
+  assert.equal(data.xp_awarded,600);assert.equal(data.energy_charge_used,100);
+  assert.equal(h.boostInventory.get(id+':'+uuid).state,'used');
+  assert.equal(h.player.confirmed_taps,600);
+  h.player.next_sync_ms=0;h.player.last_sync_ms=Date.now()-1000;
+  r=await post('/api/sync',{batch_id:'energy-batch-000000002',taps:600,daily_days:[],wheel_days:[]});
+  assert.equal(r.status,422);assert.equal(h.player.confirmed_taps,600);
+ }finally{h.restore()}
+});
+
+test('phase 5 expired tap boost cannot grant bonus XP, and queued status never expires before first sync',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',id='94008';
+ const auth=signedTelegramUser({id:Number(id),first_name:'Sarah'}),now=Date.now();
+ const old='a0a1a2a3-0000-4000-8000-aabbccddee11',queued='a0a1a2a3-0000-4000-8000-aabbccddee12';
+ h.player.created_ms=now-24*3600000;
+ h.boostInventory.set(id+':'+old,{user_id:id,purchase_id:old,sku:'tap-150',kind:'tap',cost:100,state:'active',bought_ms:now-5*3600000,activated_ms:now-5*3600000,expires_ms:now-1000,carry_milli:0});
+ h.boostInventory.set(id+':'+queued,{user_id:id,purchase_id:queued,sku:'tap-110',kind:'tap',cost:25,state:'queued',bought_ms:now-1*3600000,activated_ms:0,expires_ms:0,carry_milli:0});
+ try{
+  const shop=await worker.fetch(new Request(root+'/api/shop',{headers:{'x-telegram-init-data':auth}}),h.env);
+  assert.equal(shop.status,200);const payload=(await shop.json()).shop;
+  assert.equal(h.boostInventory.get(id+':'+old).state,'expired');
+  assert.equal(h.boostInventory.get(id+':'+queued).state,'queued');
+  assert.equal(payload.active_tap.sku,'tap-110');
+  const res=await worker.fetch(new Request(root+'/api/sync',{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:JSON.stringify({batch_id:'expire-batch-0000001',taps:10,daily_days:[],wheel_days:[]})}),h.env);
+  assert.equal(res.status,200,await res.clone().text());const body=await res.json();
+  assert.equal(body.boost_bonus_xp,1);assert.equal(body.boost_multiplier_milli,1100);
+  assert.equal(h.boostInventory.get(id+':'+old).state,'expired');
+ }finally{h.restore()}
+});
