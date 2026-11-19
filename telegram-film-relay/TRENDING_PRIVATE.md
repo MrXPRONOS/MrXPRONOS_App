@@ -10,6 +10,7 @@
 - Pour un titre éligible : le **compte propriétaire** crée un canal privé dédié (ou retrouve celui déjà créé), récupère son lien d'invitation, retransmet l'affiche, organise les saisons et les épisodes disponibles, et enregistre chaque étape.
 - **Le bot** modifie la fiche principale (bouton `VOIR LE CONTENU / LES SAISONS` + dossier partagé) et l'épingle **seulement après vérification du transfert**. Si le bot ne peut pas épingler par manque de droits, la session propriétaire prend la main, sans essayer de contourner un ralentissement Telegram.
 - Une seule nouvelle vidéothèque par passage, 12 épisodes transférés au maximum par passage, **30 secondes de pause entre opérations**, 60 secondes après création d'un canal. Les saisons incomplètes ne sont pas présentées comme complètes.
+- Un titre qui sort des classements autorisés peut perdre son épingle (maximum 3 par cycle). **Son canal privé et ses médias sont conservés**.
 - Les anciennes vidéos publiques peuvent être supprimées par le bot ou, en cas de limitation explicitement confirmée, par le propriétaire ; l'archive est vérifiée en premier, comme avant.
 
 ## Activation et garde-fous
