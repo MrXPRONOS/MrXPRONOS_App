@@ -117,7 +117,7 @@ def is_primary_film_video(message) -> bool:
         return False
     if "animation.gif" in filename or "daily_pronos" in filename:
         return False
-    if re.search(r"(?i)\\bS\\d{1,2}\\s*E[P]?\\s*\\d{1,3}\\b", video_title(message)):
+    if re.search(r"(?i)\bS\d{1,2}\s*E[P]?\s*\d{1,3}\b", video_title(message)):
         return False
     return True
 
