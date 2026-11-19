@@ -343,7 +343,7 @@ async function mrxpActivateBoost(env,player,payload){
  const item=mrxpBoostSku(String(row.sku));
  if(!item)return {status:409,error:"BOOST_UNAVAILABLE"};
  if(row.state!=="owned"){
-  if(["queued","active","charged","used"].includes(row.state))return {ok:true,duplicate:true,applied_energy:0,shop:await mrxpBoostList(env,player)};
+  if(["queued","active","charged","used"].includes(row.state))return {ok:true,duplicate:true,applied_energy:row.state==="charged"&&item.kind==="energy"?item.energy:0,purchase_id:purchaseId,shop:await mrxpBoostList(env,player)};
   return {status:409,error:"BOOST_EXPIRED"};
  }
  const now=Date.now(),tap=item.kind==="tap";
@@ -354,7 +354,7 @@ async function mrxpActivateBoost(env,player,payload){
   "UPDATE mrxp_boost_inventory SET state='charged',activated_ms=?,expires_ms=? WHERE user_id=? AND purchase_id=? AND state='owned' AND NOT EXISTS(SELECT 1 FROM mrxp_boost_inventory WHERE user_id=? AND kind='energy' AND state='charged' AND purchase_id<>?)"
  ).bind(...(tap?[id,purchaseId,id,purchaseId]:[now,now+item.duration_hours*3600000,id,purchaseId,id,purchaseId])).run();
  if(Number(result?.meta?.changes||0)!==1)return {status:409,error:"BOOST_ACTIVATION_CONFLICT"};
- return {ok:true,duplicate:false,applied_energy:tap?0:item.energy,shop:await mrxpBoostList(env,player)}
+ return {ok:true,duplicate:false,applied_energy:tap?0:item.energy,purchase_id:purchaseId,shop:await mrxpBoostList(env,player)}
 }
 async function mrxpBoostSyncContext(env,player,now){
  const id=String(player.user_id);
