@@ -141,13 +141,20 @@
       "max_level": 999999,
       "png": "mrxpronos-play/assets/07-rank-avatars/rank-11-souverain-mx.png",
       "webp": "mrxpronos-play/assets/07-rank-avatars/rank-11-souverain-mx.webp",
-      "png_bytes": 96780,
-      "webp_bytes": 30552,
-      "sha256_png": "ac844671588b131e1aacfe1f9fa3bc0047ad6abc519a2e9f3803b4bcb1071008",
-      "sha256_webp": "49a7fe56d4b4d095e19eaca2420b8ac7783f6f03d7873d0449fd9381e488add6",
+      "png_bytes": 2616419,
+      "webp_bytes": 237800,
+      "sha256_png": "a60c6eedf57cc77ad0c93cb24fb48997d9bcef24219d2b7469d3f15be49d21fc",
+      "sha256_webp": "1d556fd9044e6f98788a9d89d02b08c93277b0fefca50e9b428afbb20063f7a0",
       "transparent": true,
-      "source_quality": "web profile fallback (Canva signed thumbnail, 200x200)",
-      "original_master": "Full-resolution 1254x1254 RGBA master exists in conversation package MRXP_Souverain_MX_Rang_11.zip; GitHub PNG is a 200px preview only"
+      "source_quality": "original PNG RGBA 1254x1254; optimized transparent WEBP 768x768",
+      "png_dimensions": [
+        1254,
+        1254
+      ],
+      "webp_dimensions": [
+        768,
+        768
+      ]
     }
   ],
   "verification": {
@@ -156,6 +163,6 @@
     "webp_files": 11,
     "missing_files": 0
   },
-  "web_optimization": "Ranks 01–10: 1254x1254 PNG masters and optimized WebP; rank 11: 200x200 transparent preview PNG/WebP because external file bridge exposes only thumbnail. Original full-size file remains in conversation ZIP for later replacement.",
+  "web_optimization": "All 11 ranks now have full-resolution 1254x1254 transparent PNG originals and optimized WebP images (rank 11: 768x768). No 200px profile fallback remains.",
   "updated_on": "2026-11-19"
 }
