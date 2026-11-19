@@ -90,3 +90,15 @@ CREATE TABLE IF NOT EXISTS player_progress_v2 (
  updated_ms INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_player_progress_v2_level ON player_progress_v2(current_level DESC);
+
+
+-- Immediately freeze the legacy level of every existing player before V2 goes live.
+-- This INSERT is idempotent and never overwrites an existing progression record.
+-- SQLite D1 supports sqrt(); its result is floored exactly like V1 JavaScript.
+INSERT OR IGNORE INTO player_progress_v2(user_id,legacy_level_floor,current_level,created_ms,updated_ms)
+ SELECT user_id,
+        MIN(50,MAX(1,CAST(sqrt(MAX(0,confirmed_taps)/250.0) AS INTEGER)+1)),
+        MIN(50,MAX(1,CAST(sqrt(MAX(0,confirmed_taps)/250.0) AS INTEGER)+1)),
+        CAST(strftime('%s','now') AS INTEGER)*1000,
+        CAST(strftime('%s','now') AS INTEGER)*1000
+ FROM players;
