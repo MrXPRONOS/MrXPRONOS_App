@@ -1,0 +1,60 @@
+name: Mr XPRONOS Play - import exact lot 6 graphic assets
+
+on:
+  push:
+    branches:
+      - feat/mrxp-play-lot6-assets-20261119
+    paths:
+      - '.github/workflows/mrxp-lot6-import.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import-lot6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download source archive and verify graphic files
+        shell: bash
+        env:
+          ASSET_ARCHIVE_URL: https://at.adobe.com/asbwKKfZDB08sFCW
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 15 --max-time 180 --silent --show-error "$ASSET_ARCHIVE_URL" --output /tmp/mrxp-lot6.zip
+          python3 - <<'PY'
+          import zipfile, pathlib, json, shutil
+          archive = pathlib.Path("/tmp/mrxp-lot6.zip")
+          if not zipfile.is_zipfile(archive):
+              raise SystemExit("Asset download is not a valid ZIP file")
+          with zipfile.ZipFile(archive) as z:
+              entries = {f.filename for f in z.infolist() if not f.is_dir()}
+              expected = {f"assets/06-game-states/{num:02}-{name}.{ext}" for num,name in [
+                  (51,"locked-padlock"),(52,"unlocked-padlock"),(53,"launch-splash"),(54,"loading-spinner"),
+                  (55,"telegram-channel"),(56,"victory-trophy"),(57,"energy-empty"),(58,"mission-complete")
+              ] for ext in ("png","webp")}
+              assert expected.issubset(entries), f"Missing assets: {expected - entries}"
+              out = pathlib.Path("mrxpronos-play")
+              for name in expected:
+                  dest=out / name
+                  dest.parent.mkdir(parents=True, exist_ok=True)
+                  with z.open(name) as fi, dest.open("wb") as fo: shutil.copyfileobj(fi,fo)
+                  assert dest.stat().st_size>1000
+              for name in ("assets-manifest-lot6.json","loading-animation.css"):
+                  if name not in entries: raise SystemExit("Required metadata missing: "+name)
+                  with z.open(name) as fi, (out / name).open("wb") as fo: shutil.copyfileobj(fi,fo)
+              print(f"Verified and imported {len(expected)} image files")
+          PY
+      - name: Commit exact PNG and WebP originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mrxpronos-play/assets/06-game-states mrxpronos-play/assets-manifest-lot6.json mrxpronos-play/loading-animation.css
+          git diff --cached --check
+          git commit -m 'assets(play): import original lot 6 PNG and WebP files' || true
+          git push origin HEAD:feat/mrxp-play-lot6-assets-20261119
