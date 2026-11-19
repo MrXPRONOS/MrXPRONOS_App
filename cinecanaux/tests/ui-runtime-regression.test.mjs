@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Script} from 'node:vm';
+import {readFileSync} from 'node:fs';
 import {APP_HTML} from '../app-page.mjs';
 
 const scripts=[...APP_HTML.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(s=>s.trim());
@@ -119,4 +120,24 @@ test('public visitor screens omit backend explanations and retain actionable inf
   'Aucune affiche à présenter pour le moment.'
  ])assert.ok(APP_HTML.includes(useful),'Missing user-facing feature: '+useful);
  assert.ok(!APP_HTML.includes('function radarLoad()'),'Unused radar diagnostics should not be shipped to visitors');
+});
+
+test('lot 1: all ten original 3D icons are integrated and the sprite is an optimized transparent WebP',()=>{
+ const atlas=readFileSync(new URL('../assets/ui-icons-lot1.webp',import.meta.url));
+ assert.equal(atlas.subarray(0,4).toString(),'RIFF');
+ assert.equal(atlas.subarray(8,12).toString(),'WEBP');
+ assert.equal(atlas.subarray(12,16).toString(),'VP8X');
+ assert.equal(atlas.readUIntLE(24,3)+1,400,'Sprite should contain ten 40px-wide icons');
+ assert.equal(atlas.readUIntLE(27,3)+1,40);
+ assert.ok(atlas.byteLength<12000,'Do not bloat the Mini App with images');
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"));
+ assert.ok(APP_HTML.includes('background-size:1000% 100%'));
+ for(const key of ['sparkle','film','tv','gamepad','search','eye','external','back','x','send']){
+  assert.ok(APP_HTML.includes('.cine-icon-'+key+'{background-position-x:'),key+' icon position is missing');
+  assert.ok(directory.includes('"'+key+'"'),key+' is not registered as a functional icon');
+ }
+ assert.ok(directory.includes('holder.classList.add("cine-3d-icon","cine-icon-"+key)'));
+ for(const [kind,icon] of [['Films','film'],['Séries','tv'],['Animés','gamepad']])
+  assert.ok(navigation.includes('quickButton("'+icon+'","'+kind+'"'),kind+' shortcut is still an emoji');
+ assert.ok(APP_HTML.includes('function autoScrollPromos()'),'Existing promotional carousel must be preserved');
 });
