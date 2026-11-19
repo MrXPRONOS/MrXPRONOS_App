@@ -1,21 +1,21 @@
 {
-  "time_utc": "2026-11-03T14:40:38.961103+00:00",
-  "run_id": "41655046970",
+  "time_utc": "2026-11-19T00:16:34.144875+00:00",
+  "run_id": "44426092076",
   "attempt": "1",
-  "trigger_sha": "1e2a6d9726abd68cf2d5bf423c0740e45770955c",
+  "trigger_sha": "416def7323bd69743fd430aca26442a227ffa6d8",
   "steps": {
     "compile": "success",
     "regression": "success",
     "javascript": "success",
     "category": "success",
     "restore": "success",
-    "build": "failure",
-    "multisource": "skipped",
-    "quality": "skipped",
-    "publish": "skipped",
-    "artifacts": "skipped",
-    "browser": "skipped",
-    "cleanup": "skipped",
-    "deploy": "skipped"
+    "build": "success",
+    "multisource": "success",
+    "quality": "success",
+    "publish": "success",
+    "artifacts": "success",
+    "browser": "success",
+    "cleanup": "success",
+    "deploy": "failure"
   }
 }
