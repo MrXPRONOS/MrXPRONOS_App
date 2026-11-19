@@ -57,7 +57,7 @@ test('the latest pin disappears when Telegram confirms the channel has no pinned
  const chat_ids=[-1003921647496,-1004406527554,-1004347937458],writes=[];
  const env={TELEGRAM_TOKEN:'fake_bot',DB:{prepare(sql){let args=[];const stmt={
   bind(...v){args=v;return stmt},
-  async first(){if(sql.includes('FROM cine_pins_poll'))return null;if(sql.includes('FROM radar_primary_channels'))return {chat_id:String(chat_ids[username.findIndex(x=>x===args[0])])};return null},
+  async first(){if(sql.includes('FROM cine_pins_poll'))return null;if(sql.includes('FROM radar_primary_channels'))return {chat_id:String(chat_ids[['films','series','animes'].indexOf(args[0])])};return null},
   async run(){writes.push({sql,args});return {meta:{changes:1}}}
  };return stmt;}}};
  const old=globalThis.fetch;
