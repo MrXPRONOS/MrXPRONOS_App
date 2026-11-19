@@ -1,5 +1,887 @@
 [
   {
+    "id": "0845c5f43d2202245e992548",
+    "kind": "news",
+    "title": "Ligue des Champions (F) : le PSG craque dans les dernières minutes face à Chelsea",
+    "url": "https://www.onzemondial.com/ligue-des-champions/ligue-des-champions-f-le-psg-craque-dans-les-dernieres-minutes-face-a-chelsea-1009899",
+    "source_date": "2026-11-18T21:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "76d378d318c81a957bf5ad8c",
+    "kind": "news",
+    "title": "LdC (f) : Chelsea fait craquer le PSG",
+    "url": "https://www.maxifoot.fr/ldc-f/chelsea-fait-craquer-le-psg-foot-467928.htm",
+    "source_date": "2026-11-18T21:56:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bf1fe1eb77ad336f3d33a174",
+    "kind": "news",
+    "title": "Jonathan Clauss n’a pas encore abandonné l’équipe de France",
+    "url": "https://www.footmercato.net/a3633254237885728977-jonathan-clauss-na-pas-encore-abandonne-lequipe-de-france",
+    "source_date": "2026-11-18T21:48:07+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6f174bc4d757d64f88e58316",
+    "kind": "news",
+    "title": "«Un peu d’argent ne nous ferait pas de mal» : Deco et Bojan sont cash sur le mercato du FC Barcelone",
+    "url": "https://www.footmercato.net/a5887007861261263080-un-peu-dargent-ne-nous-ferait-pas-de-mal-deco-et-bojan-sont-cash-sur-le-mercato-du-fc-barcelone",
+    "source_date": "2026-11-18T21:32:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "db7542762b1c4b464cf2cb18",
+    "kind": "news",
+    "title": "Strasbourg annonce le départ d’Hugo Oliveira et l’arrivée de Vitor Matos",
+    "url": "https://www.footmercato.net/a7496643774374951988-strasbourg-annonce-le-depart-dhugo-oliveira",
+    "source_date": "2026-11-18T20:28:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "21018799cfa79d692b2fbeb9",
+    "kind": "news",
+    "title": "Mercato Strasbourg : Matos sur le banc (officiel)",
+    "url": "https://www.maxifoot.fr/strasbourg/matos-sur-le-banc-officiel-foot-467927.htm",
+    "source_date": "2026-11-18T20:23:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5e67f5e212c3cd6607cb89f5",
+    "kind": "news",
+    "title": "OL : Michele Kang tacle de nouveau John Textor et sa gestion de l'OL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-michele-kang-tacle-de-nouveau-john-textor-et-sa-gestion-de-l-ol-546215.html",
+    "source_date": "2026-11-18T20:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3cf65b94f8440bace62d4637",
+    "kind": "news",
+    "title": "Mercato Strasbourg : Hugo Oliveira s'en va (officiel)",
+    "url": "https://www.maxifoot.fr/strasbourg/hugo-oliveira-s-en-va-officiel-foot-467926.htm",
+    "source_date": "2026-11-18T20:09:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0d4cab8031e072a5467a9364",
+    "kind": "news",
+    "title": "RC Lens : le directeur sportif de Nice fracasse Pierre Sage",
+    "url": "https://www.footmercato.net/a2435871777176091983-rc-lens-le-directeur-sportif-de-nice-fracasse-pierre-sage",
+    "source_date": "2026-11-18T20:03:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a00f7c15734baa927191e020",
+    "kind": "news",
+    "title": "Arsenal : après Declan Rice, les Gunners s’apprêtent à prolonger trois autres cadres",
+    "url": "https://www.footmercato.net/a2119753623988081019-arsenal-apres-declan-rice-les-gunners-sappretent-a-prolonger-trois-autres-cadres",
+    "source_date": "2026-11-18T19:51:37+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8a22a4115d3016624278c8a0",
+    "kind": "news",
+    "title": "OL : Michele Kang se dit prête à s'impliquer à 100% et être une \"solution\" pour les droits TV",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-michele-kang-se-dit-prete-a-s-impliquer-a-100-et-etre-une-solution-pour-les-droits-tv-546203.html",
+    "source_date": "2026-11-18T19:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "575a2407f2498f4dd9700eb5",
+    "kind": "news",
+    "title": "Équipe de France : Didier Deschamps de retour dans la peau d'un entraîneur, mais pas là où on l'attendait !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-didier-deschamps-de-retour-dans-la-peau-d-un-entraineur-mais-pas-la-ou-on-l-attendait-546204.html",
+    "source_date": "2026-11-18T18:38:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8aaabbcd8f8facd1c25b8b6c",
+    "kind": "news",
+    "title": "Lyon : Michele Kang répond à Aulas",
+    "url": "https://www.maxifoot.fr/lyon/michele-kang-repond-a-aulas-foot-467920.htm",
+    "source_date": "2026-11-18T18:33:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "74e4aeae7a4414791ffc8ae8",
+    "kind": "news",
+    "title": "Ligue 1 : L’OL assure avoir pris des mesures contre le racisme dans ses tribunes",
+    "url": "https://www.sofoot.com/breves/ligue-1-lol-assure-avoir-pris-des-mesures-contre-le-racisme-dans-ses-tribunes",
+    "source_date": "2026-11-18T18:23:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c230185b73a8b298593b6c5f",
+    "kind": "news",
+    "title": "Lyon : une vente du club ? Michele Kang répond",
+    "url": "https://www.maxifoot.fr/lyon/une-vente-du-club-michele-kang-repond-foot-467922.htm",
+    "source_date": "2026-11-18T18:11:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4701d6813a12b97adcb8dccc",
+    "kind": "news",
+    "title": "Mercato : le Real Madrid traîné en justice par Manchester United pour JJ Gabriel ?",
+    "url": "https://www.onzemondial.com/liga/mercato-le-real-madrid-traine-en-justice-par-manchester-united-pour-jj-gabriel-1009808",
+    "source_date": "2026-11-18T17:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d2c2384f2bd654b6a0ca0b60",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: 6 nations qualifiées",
+    "url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261118-%C3%A9liminatoires-can-2027-6-nations-qualifi%C3%A9es",
+    "source_date": "2026-11-18T17:00:52+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "216d2ecd29bc6568c8457b73",
+    "kind": "news",
+    "title": "CAN 2027 : les Lions de la Teranga seront au rendez-vous",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261118-can-2027-les-lions-de-la-teranga-seront-au-rendez-vous",
+    "source_date": "2026-11-18T11:39:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "57d00d5b5ce7e54ccf575599",
+    "kind": "news",
+    "title": "Six qualifiés, quatre éliminés, la déception de Salah : le point sur les éliminatoires de la CAN 2027",
+    "url": "https://www.france24.com/fr/sports/20261118-qualifies-elimines-coupe-afrique-2027-qualifications-mohamed-salah",
+    "source_date": "2026-11-18T10:50:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "58fe5d9d6ff73c18d23ca825",
+    "kind": "news",
+    "title": "Éliminatoires de la CAN 2027 : qualification pour le Sénégal et cinq autres nations",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261118-%C3%A9liminatoires-can-2027-qualification-s%C3%A9n%C3%A9gal-cinq-autres-nations",
+    "source_date": "2026-11-18T10:08:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f3bcd82af3651c19946e7326",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: Claude Le Roy devrait quitter la sélection du Congo",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261118-%C3%A9liminatoires-can-2027-claude-le-roy-devrait-quitter-la-s%C3%A9lection-du-congo",
+    "source_date": "2026-11-18T09:46:56+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0e30c7624cebb72dac94ff4d",
+    "kind": "news",
+    "title": "\"Le sortant a toujours un avantage\" : pourquoi Gianni Infantino est en position de force pour être réélu à la tête de la Fifa, malgré les polémiques",
+    "url": "https://www.franceinfo.fr/sports/foot/giovanni-infantino/le-sortant-a-toujours-un-avantage-pourquoi-gianni-infantino-est-en-position-de-force-pour-etre-reelu-a-la-tete-de-la-fifa-malgre-les-polemiques_8286173.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-18T04:47:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "142aa20901c8f771f7af2604",
+    "kind": "news",
+    "title": "Un club anglais lâche son sponsor à cause d’une actrice X !",
+    "url": "https://www.footmercato.net/a4474625957832475100-un-club-anglais-lache-son-sponsor-a-cause-dune-actrice-x",
+    "source_date": "2026-11-18T23:06:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "45f712bcd42071ab9cb64645",
+    "kind": "news",
+    "title": "Équipe de France : Didier Deschamps dans une pub pour Burger King",
+    "url": "https://www.sofoot.com/breves/equipe-de-france-didier-deschamps-dans-une-pub-pour-burger-king",
+    "source_date": "2026-11-18T23:05:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "27d806130e2651e00676e054",
+    "kind": "news",
+    "title": "Belgique : l'immense hommage d'une légende de l'Équipe de France à Lukaku",
+    "url": "https://www.onzemondial.com/coupe-du-monde/belgique-limmense-hommage-dune-legende-de-lequipe-de-france-a-lukaku-1009881",
+    "source_date": "2026-11-18T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fba0c480ebd75947cc7f5b45",
+    "kind": "news",
+    "title": "Ligue 1 – Monaco : Mamadou Coulibaly suspendu un match après sa célébration polémique",
+    "url": "https://www.sofoot.com/breves/ligue-1-monaco-mamadou-coulibaly-suspendu-un-match-apres-sa-celebration-polemique",
+    "source_date": "2026-11-18T22:52:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9a818a0e04567a095f9361a8",
+    "kind": "news",
+    "title": "Le Bayern Munich refroidit la piste d’un nouveau transfert à 100 M€",
+    "url": "https://www.footmercato.net/a796918223166245963-le-bayern-munich-refroidit-la-piste-dun-nouveau-transfert-a-100-meur",
+    "source_date": "2026-11-18T22:51:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9e77ca57c45c78b34b2c0605",
+    "kind": "news",
+    "title": "Alcool, santé mentale, accusation contre la sélection : les révélations chocs de Mykhaylo Mudryk sur son affaire de dopage",
+    "url": "https://www.footmercato.net/a2561164687829624640-alcool-sante-mentale-accusation-contre-la-selection-les-revelations-chocs-de-mykhaylo-mudryk-sur-son-affaire-de-dopage",
+    "source_date": "2026-11-18T22:51:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2bc05f2ed31519c73f756967",
+    "kind": "news",
+    "title": "Barça : un défenseur de Premier League ciblé pour le mercato d’hiver",
+    "url": "https://www.footmercato.net/a7066692263324144065-barca-un-defenseur-de-premier-league-cible-pour-le-mercato-dhiver",
+    "source_date": "2026-11-18T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b68d586630ecb54f7aba80c0",
+    "kind": "news",
+    "title": "Man Utd pursuing Como's Paz - Thursday's gossip",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cxnv4q2qnvjvo?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-18T22:34:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "10253833bb4bffc1e94e4a49",
+    "kind": "news",
+    "title": "Real Madrid : la Fiorentina a un plan pour garder Franco Mastantuono",
+    "url": "https://www.onzemondial.com/transferts/real-madrid-la-fiorentina-a-un-plan-pour-garder-franco-mastantuono-1009878",
+    "source_date": "2026-11-18T22:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0434437299838a229096c29b",
+    "kind": "news",
+    "title": "Ligue 1 – Le directeur sportif de Nice, Roger Ricort, critique le couple Lens-Pierre Sage",
+    "url": "https://www.sofoot.com/breves/ligue-1-le-directeur-sportif-de-nice-roger-ricort-critique-le-couple-lens-pierre-sage",
+    "source_date": "2026-11-18T22:25:23+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b083c3fd9510973e6ebf6ab1",
+    "kind": "news",
+    "title": "Vincent Kompany va entraîner le Bayern Munich ce vendredi",
+    "url": "https://www.footmercato.net/a4647439202070661167-vincent-kompany-va-entrainer-le-bayern-munich-ce-vendredi",
+    "source_date": "2026-11-18T22:21:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a6869956bd975821a4a8616d",
+    "kind": "news",
+    "title": "Le FC Barcelone et le Bayern Munich ciblent une pépite russe",
+    "url": "https://www.footmercato.net/a8416102646023956486-le-fc-barcelone-et-le-bayern-munich-ciblent-une-pepite-russe",
+    "source_date": "2026-11-18T22:08:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d62fa7cb1d240c8530bd9590",
+    "kind": "news",
+    "title": "Euro Leagues",
+    "url": "https://www.bbc.co.uk/sounds/play/p0pnqxmx?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-18T22:06:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "55aab2e13eb7fb7894201940",
+    "kind": "news",
+    "title": "LdC (F) : le PSG perd contre Chelsea et se retrouve sous pression",
+    "url": "https://www.footmercato.net/a2951954088290493785-c1-f-le-psg-perd-contre-chelsea-et-se-retrouve-sous-pression",
+    "source_date": "2026-11-18T22:01:12+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2eabdccf165d2b97a3510fc6",
+    "kind": "news",
+    "title": "\"C'est une chance pour moi de pouvoir entraîner en Ligue 1\" : le nouveau coach du Havre enthousiaste avant son premier match",
+    "url": "https://www.onzemondial.com/ligue-1/cest-une-chance-pour-moi-de-pouvoir-entrainer-en-ligue-1-le-nouveau-coach-du-havre-enthousiaste-avant-son-premier-match-1009868",
+    "source_date": "2026-11-18T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ea6bce16c1cbe83eae7310cd",
+    "kind": "news",
+    "title": "Ligue des champions féminine – Chelsea fait craquer le PSG",
+    "url": "https://www.sofoot.com/breves/ligue-des-champions-feminine-chelsea-fait-craquer-le-psg",
+    "source_date": "2026-11-18T21:53:51+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a089482f3f6aaa71dc3ccd7d",
+    "kind": "news",
+    "title": "WCL : Face à Chelsea, le PSG F finit par s'incliner de nouveau (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-wcl-face-a-chelsea-le-psg-f-finit-par-s-incliner-de-nouveau-resume-546226.html",
+    "source_date": "2026-11-18T21:51:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "47a9b19ecb1f5f6c1dfb4378",
+    "kind": "news",
+    "title": "Mercato OM : Mamadou Niang conseille une recrue de choix aux dirigeants marseillais",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-om-mamadou-niang-conseille-une-recrue-de-choix-aux-dirigeants-marseillais-546225.html",
+    "source_date": "2026-11-18T21:44:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3c22f15becaf03ea59f4c300",
+    "kind": "news",
+    "title": "Rennes : un ménage attendu au mercato après le coup de pression de De Tavernost",
+    "url": "https://m.maxifoot.fr/football/article-66607.htm",
+    "source_date": "2026-11-18T21:40:34+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6e98718f450dec53ad478925",
+    "kind": "news",
+    "title": "OL : \"On peut améliorer l’effectif\", le directeur général lyonnais annonce des renforts au mercato hivernal",
+    "url": "https://www.onzemondial.com/ligue-1/ol-on-peut-ameliorer-leffectif-le-directeur-general-lyonnais-annonce-des-renforts-au-mercato-hivernal-1009867",
+    "source_date": "2026-11-18T21:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-19T05:42:35.343777+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "3e487235370fd00faabb0ef6",
     "kind": "news",
     "title": "Ecosse : Pocognoli serait déjà sur la sellette",
@@ -18,7 +900,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8df10ca362285a704079d224",
@@ -39,7 +921,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "173da8b0688976e744bd60c6",
@@ -60,7 +942,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "738e1ea9de8ce56a9f490124",
@@ -81,7 +963,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "79cf13683f24d2a1ca4ba608",
@@ -102,7 +984,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "863a984368ce642ff1b4012d",
@@ -144,7 +1026,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4db22f16ebc30f90f48eb8f8",
@@ -186,7 +1068,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b537cdfda7a03709f78162b7",
@@ -207,7 +1089,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2004d4e5e863532dce0095f7",
@@ -228,7 +1110,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7542923d7c2934a623932680",
@@ -249,7 +1131,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "13b0df1b4c6a2811ea261891",
@@ -270,7 +1152,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0a1dca2e1923b2e6e857f9c9",
@@ -291,7 +1173,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8de113fbe8c8d1b5c34ebda1",
@@ -312,7 +1194,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5cd394cd937e8000c9f14b17",
@@ -333,7 +1215,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "928f52f2b46d688e73725067",
@@ -375,7 +1257,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3eae55626e19a804816828cc",
@@ -396,7 +1278,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8a45fe707086b068a2b903a0",
@@ -417,7 +1299,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "910fc93994feb531efe65c67",
@@ -438,7 +1320,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "77a405586261293c3bb87a44",
@@ -459,7 +1341,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "65eeec399e08fd5564413c48",
@@ -480,7 +1362,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ad5f67142bf754b32cde203",
@@ -501,7 +1383,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d507c0d7cb980d7cc3db3acb",
@@ -522,7 +1404,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a0b3a6432e1dd356fb51a3fa",
@@ -543,7 +1425,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "72897c6a78aacf64fff9c16a",
@@ -564,7 +1446,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3de7c5e216e4049eb99a0dd2",
@@ -585,7 +1467,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "131904bdef1e99237fd3a621",
@@ -627,7 +1509,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "676cc7b5b6b074fb7c7d5d07",
@@ -669,7 +1551,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "589f3b3b90ba5d443281bd86",
@@ -690,7 +1572,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d09e8c4586ea1874d463948d",
@@ -774,7 +1656,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e2cf713ec3b6db95a7a18df5",
@@ -795,7 +1677,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "904381c8b1461b3ad51ce29b",
@@ -816,7 +1698,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "14caf3dff7fec4fd0ae57ec5",
@@ -837,7 +1719,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c49d2f36f0596201892a88e",
@@ -858,7 +1740,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "828a35f8bbb0924dacb73608",
@@ -879,7 +1761,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f9ac6a47b8438ca3e41522c1",
@@ -1215,7 +2097,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2ab727266503f2508cae8bc6",
@@ -1236,7 +2118,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a9d1ee284449ae383b2d1fc5",
@@ -1488,7 +2370,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8566b884b7011c87bae03c25",
@@ -1530,7 +2412,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2b095484f6d2869fb7f37229",
@@ -1551,7 +2433,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "eb224bd67b236a3679e69a66",
@@ -1593,7 +2475,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "480602b1c2cd7a71ed588435",
@@ -1635,7 +2517,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "27cf839a99cb3d4f66efcf97",
@@ -1677,7 +2559,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0f585a7beab2acd1579400da",
