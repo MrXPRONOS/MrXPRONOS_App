@@ -24,7 +24,7 @@ Le miroir externe Torrent9 est volontairement ignoré tant que les transferts mi
 ## Workflow
 `.github/workflows/cinex-rescue-channels.yml` : passage horaire à la minute 43 (UTC, même heure qu'à Lomé), au maximum **un canal nouveau par passage** avec **60 secondes** après création et après récupération de son invitation. Le groupe d'exclusion `mrx-telegram-personal-account` empêche les passages simultanés avec les autres flux qui utilisent le compte.
 
-**Par défaut les passages programmés effectuent seulement une simulation.** Pour activer après contrôle des logs : GitHub → Settings → Secrets and variables → Actions → Variables → `CINEX_RESCUE_ENABLED=true`.
+**Les passages programmés créent automatiquement un canal Secours au maximum par cycle.** Pour interrompre ces créations : GitHub → Settings → Secrets and variables → Actions → Variables → `CINEX_RESCUE_ENABLED=false`. Le lancement manuel reste en simulation par défaut.
 
 GitHub → Actions → `CineX - Creer et verifier les canaux Secours` → Run workflow → `apply=true` pour une exécution manuelle contrôlée.
 
