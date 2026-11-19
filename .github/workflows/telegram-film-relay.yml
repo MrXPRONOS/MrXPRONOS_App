@@ -23,6 +23,7 @@ permissions:
 concurrency:
   group: mrx-telegram-personal-account
   cancel-in-progress: false
+  queue: max
 
 jobs:
   relay:
