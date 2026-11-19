@@ -649,7 +649,7 @@ function showSuggestion(){
  const kind=node("select");kind.setAttribute("aria-label","Catégorie du canal");
  for(const [key,label] of [["films","Films"],["series","Séries"],["animes","Animés"]]){const o=node("option");o.value=key;o.textContent=label;kind.append(o);}area.append(kind);
  area.append(button("Proposer","v2-submit",async()=>{
-  try{const reply=await postV2("/api/suggestions",{link:link.value.trim(),category:kind.value});statusLine(area,reply.status==="already_listed"?"Ce canal est déjà référencé.":"Merci ! Le lien sera vérifié automatiquement.");}
+  try{const reply=await postV2("/api/suggestions",{link:link.value.trim(),category:kind.value});statusLine(area,reply.status==="already_listed"?"Ce canal figure déjà dans Ciné Radar.":"Merci ! Ta proposition a bien été envoyée.");}
   catch(e){statusLine(area,String(e.message||e));}
  }));
  area.append(node("div","v2-helper","Seuls les liens des canaux publics sont référencés."));detail.append(area);sheet.append(detail);
@@ -668,10 +668,10 @@ function fillPreview(c,p){
  const avatar=node("div","sheet-avatar");avatar.append(ico(c.type==="series"?"tv":c.type==="animes"?"gamepad":"film"));
  const profilePhoto=[c.avatar,p?.photo,c.photo].find(photoHost);
  if(profilePhoto){avatar.textContent="";const img=node("img");img.alt="Photo de profil du canal";showChannelImage(img,profilePhoto,p?.photo,()=>{avatar.textContent="";avatar.append(ico("film"));});avatar.append(img);}
- const names=node("div","sheet-name");names.append(node("h3",null,p?.title||c.title),node("small",null,"Canal public Telegram"));
+ const names=node("div","sheet-name");names.append(node("h3",null,p?.title||c.title),node("small",null,c.private_channel?"Canal privé Telegram":"Canal Telegram"));
  const tag=node("div","genre-tag",typeLabel(c.type));names.append(tag);profile.append(avatar,names);detail.append(profile);
  const usefulBio=p?.description&&!p.description.startsWith("Canal Telegram public")?p.description:
-  "Canal public classé dans « "+typeLabel(c.type)+" ». Consulte ses publications directement sur Telegram.";
+  "Découvre ce canal de "+typeLabel(c.type).toLowerCase()+" sur Telegram.";
  detail.append(node("p","sheet-description",usefulBio));
  detail.append(button("Ouvrir le canal","sheet-open",()=>openTelegram(c.link),"send"));
  detail.append(createFeedback(c));
@@ -811,10 +811,10 @@ function renderCinemaShowcase(){
    if(!many)track.classList.add("cine-poster-short");
    const count=many?2:1;for(let round=0;round<count;round++)for(const data of pinnedShowcase.slice(0,24))track.append(posterTile(data,false));
    strip.append(track);
-  }else strip.append(node("div","cine-pins-empty","Les affiches épinglées de tes trois canaux apparaîtront ici."));
+  }else strip.append(node("div","cine-pins-empty","Aucune affiche à présenter pour le moment."));
  }
  const note=$("cine-poster-note");
- if(note)note.textContent=pinnedShowcase.length?pinnedShowcase.length+" publications épinglées · Appuie sur une affiche pour ouvrir son message Telegram.":"Films, séries et animés de tes canaux · Aucun lien inventé.";
+ if(note)note.textContent=pinnedShowcase.length?"Appuie sur une affiche pour voir la publication sur Telegram.":"";
 }
 async function loadCinemaShowcase(){
  const art=fetch("/api/showcase",{headers:{accept:"application/json"},signal:AbortSignal.timeout(8500)})
@@ -953,7 +953,7 @@ function communityTools(home){
 }
 function analyticsPreference(about){
  const controls=node("div","cine-helper");
- controls.append(node("h3",null,"Statistiques de fréquentation"),node("p",null,"Ciné Radar utilise un identifiant aléatoire propre à ce navigateur pour compter les visites et mesurer les clics. Aucune adresse IP, conversation ou identité Telegram n'est enregistrée dans ces statistiques."));
+ controls.append(node("h3",null,"Choix de confidentialité"),node("p",null,"Nous comptons les visites et certains clics pour améliorer Ciné Radar, sans enregistrer ton nom ni tes messages Telegram. Tu peux désactiver ces statistiques."));
  const opt=node("button","cine-soft-button");opt.type="button";
  const update=()=>{opt.textContent=metricsAllowed()?"Désactiver les statistiques":"Autoriser les statistiques";};
  opt.onclick=()=>{
@@ -1067,13 +1067,11 @@ function previewInfo(){
  if(!c)return;
  const box=node("div","cine-meta");box.id="cine-preview-meta";
  const fields=[];
- if(c.genre&&c.genre!=="general")fields.push("Genre indiqué : "+c.genre);
- if(c.language&&c.title.toLowerCase().includes("vf"))fields.push("Langue annoncée : "+c.language);
+ if(c.genre&&c.genre!=="general")fields.push("Genre : "+c.genre);
+ if(c.language&&c.title.toLowerCase().includes("vf"))fields.push("Langue : "+c.language);
  if(c.review_count)fields.push("Avis : "+c.review_count+" · "+Number(c.rating).toFixed(1)+"/5");
  else fields.push("Aucun avis publié pour le moment");
- if(c.link_status==="reachable")fields.push("Lien récemment contrôlé : accessible");
- else if(c.link_status==="unknown")fields.push("Statut du lien : non encore vérifié");
- if(c.last_post_at){const date=Date.parse(c.last_post_at);if(Number.isFinite(date))fields.push("Activité constatée le "+new Date(date).toLocaleDateString("fr-FR"))}
+  if(c.last_post_at){const date=Date.parse(c.last_post_at);if(Number.isFinite(date))fields.push("Dernière activité : "+new Date(date).toLocaleDateString("fr-FR"))}
  fields.forEach(v=>box.append(node("div",null,v)));
  const open=detail.querySelector(".sheet-open");if(open)detail.insertBefore(box,open);else detail.append(box);
  const save=node("button","cine-soft-button",favorites.includes(c.id)?"★ Retirer des favoris":"☆ Ajouter aux favoris");save.id="cine-preview-save";save.onclick=()=>toggleFavorite(c.id);
@@ -1094,52 +1092,6 @@ function navigate(name){
  if(p==="accueil")miniFeatured();
 }
 
-const radarChannels=[["🎬 Films","https://t.me/CineXFilms_vf"],["📺 Séries","https://t.me/seriesvf_cinex"],["🎌 Animés","https://t.me/CineXAnimeFR"]];
-const radarPoster=url=>/^https:\/\/(?:image\.tmdb\.org\/t\/p\/w342\/[a-z0-9_-]{8,100}\.(?:jpe?g|png|webp)|s4\.anilist\.co\/file\/anilistcdn\/media\/anime\/cover\/[^\s"'<>]{5,240})$/i.test(String(url||""));
-const radarMessage=url=>/^https:\/\/t\.me\/[a-z][a-z0-9_]{4,31}\/[1-9][0-9]{0,12}$/i.test(String(url||""));
-function radarSection(title){
- const section=node("section","radar-available");const head=node("h3",null,title);
- const note=node("p",null,"Uniquement les titres associés à une publication Telegram vérifiée et autorisée.");
- const links=node("div","radar-primary-links");
- for(const [label,url] of radarChannels){const a=node("a",null,label);a.href=url;a.rel="noopener noreferrer";a.target="_blank";links.append(a)}
- const grid=node("div","radar-available-grid");
- grid.append(node("div","radar-status","Le catalogue des publications vérifiées est en cours de constitution."));
- section.append(head,note,links,grid);return section;
-}
-function radarRender(items){
- const data=Array.isArray(items)?items.filter(x=>x&&radarPoster(x.poster)&&radarMessage(x.link)):[];
- for(const [sectionIndex,grid] of [...document.querySelectorAll(".radar-available-grid")].entries()){
-  grid.textContent="";
-  const show=data.slice(0,sectionIndex===0?8:24);
-  if(!show.length){
-   grid.append(node("div","radar-status","Aucune publication vidéo vérifiée et autorisée pour le moment. Les trois canaux continuent de fonctionner normalement."));
-   continue;
-  }
-  for(const item of show){
-   const button=node("button","radar-title-card");button.type="button";
-   const img=node("img","radar-title-poster");img.src=item.poster;img.loading="lazy";img.alt="Affiche de "+item.title;
-   img.onerror=()=>img.remove();
-   button.append(img,node("strong",null,item.title),node("small",null,(item.kind==="animes"?"🎌 Animé":item.kind==="series"?"📺 Série":"🎬 Film")+(item.year?" · "+item.year:"")),node("small",null,"▶ Ouvrir la publication"));
-   button.onclick=()=>{
-    if(!radarMessage(item.link))return;
-    fetch("/api/radar/click",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:item.id}),keepalive:true}).catch(()=>{});
-    const tg=window.Telegram?.WebApp;
-    if(tg?.openTelegramLink)tg.openTelegramLink(item.link);else window.open(item.link,"_blank","noopener,noreferrer");
-   };
-   grid.append(button);
-  }
- }
-}
-async function radarLoad(){
- try{
-  const r=await fetch("/api/radar?limit=24",{cache:"no-store",signal:AbortSignal.timeout(8500)});
-  if(!r.ok)throw Error("Radar indisponible");
-  const payload=await r.json();radarRender(payload.items||[]);
- }catch{
-  radarRender([]);
- }
-}
-
 function build(){
  const root=document.querySelector("main.page"),brand=root?.querySelector(".brand"),hero=root?.querySelector(".hero"),nav=$("tabs"),search=document.querySelector("label.search"),tools=root?.querySelector(".v2-tools"),head=root?.querySelector(".heading"),cards=$("cards"),footer=root?.querySelector(".footer");
  if(!root||!brand||!hero||!nav||!search||!tools||!head||!cards)return;
@@ -1154,7 +1106,7 @@ function build(){
  sectionTitle(home,"Explore par univers",null);
  const quick=node("div","cine-quick");quick.append(quickButton("🎬","Films","films"),quickButton("📺","Séries","series"),quickButton("🎌","Animés","animes"));home.append(quick);
  sectionTitle(home,"À découvrir","Voir tout",()=>setHash("decouvrir"));const picks=node("div","cine-home-picks");picks.id="cine-home-picks";home.append(picks);
- const help=node("p","cine-home-footer","Annuaire de canaux publics · Consulte le contenu directement sur Telegram");home.append(help);
+ const help=node("p","cine-home-footer","Choisis un canal pour l’ouvrir directement sur Telegram.");home.append(help);
  communityTools(home);
  visitorTracking();
  // Explorer : recherche, filtres repliés et liste
@@ -1176,13 +1128,12 @@ function build(){
  sectionTitle(panel.decouvrir,"Genres et catégories",null);const genreGrid=node("div","cine-genre-grid");genreGrid.id="cine-genres";panel.decouvrir.append(genreGrid);
  sectionTitle(panel.decouvrir,"Quelques suggestions",null);panel.decouvrir.querySelector(".cine-section-title:last-of-type")?.querySelector("h3")?.setAttribute("id","cine-discover-title");
  const disGrid=node("div","cine-discover-grid");disGrid.id="cine-discover-grid";panel.decouvrir.append(disGrid);
- const note=node("p","cine-note","Les suggestions sont calculées à partir des canaux référencés et, si tu en as, de tes favoris. Elles ne garantissent pas la disponibilité d’un film.");panel.decouvrir.append(note);
  heading(panel.proposer,"Participer","Contribue à améliorer l’annuaire.");
- const contribute=node("div","cine-helper");contribute.append(node("h3",null,"Tu connais un bon canal ?"),node("p",null,"Propose son lien Telegram : chaque suggestion est examinée avant d’être intégrée. La validation nécessite d’ouvrir Ciné Radar depuis Telegram."));
+ const contribute=node("div","cine-helper");contribute.append(node("h3",null,"Tu connais un bon canal ?"),node("p",null,"Partage son lien Telegram pour nous le proposer. Ouvre Ciné Radar depuis Telegram pour participer."));
  const suggest=$("suggest");if(suggest){contribute.append(suggest);suggest.textContent="+ Proposer un canal"}panel.proposer.append(contribute);
  const report=node("div","cine-helper");report.append(node("h3",null,"Signaler un problème"),node("p",null,"Ouvre la fiche d’un canal pour signaler un lien cassé, une mauvaise catégorie, du spam ou une atteinte aux droits."));const bBrowse=node("button",null,"Parcourir les canaux");bBrowse.onclick=()=>setHash("explorer");report.append(bBrowse);panel.proposer.append(report);
  heading(panel.apropos,"À propos de Ciné Radar","Un annuaire indépendant de canaux publics Telegram.");
- const about=node("div","cine-helper");about.append(node("h3",null,"Comment ça marche ?"),node("p",null,"Ciné Radar référence des canaux publics. Il n’héberge ni ne fournit les films et ne garantit pas les publications des canaux tiers."),node("h3",null,"Peut-on donner son avis ?"),node("p",null,"Oui, depuis la mini-application Telegram, pour limiter les faux avis et modérer les signalements."),node("h3",null,"Confidentialité"),node("p",null,"Les favoris et l’historique sont enregistrés dans ce navigateur. Les statistiques de recherche sont agrégées sans mémoriser ton texte de recherche. Tu peux supprimer tes données locales."));
+ const about=node("div","cine-helper");about.append(node("h3",null,"Comment utiliser Ciné Radar ?"),node("p",null,"Explore les films, séries et animés, consulte la fiche d’un canal et ouvre-le dans Telegram. Ciné Radar ne fournit pas les vidéos et ne garantit pas les contenus des autres canaux."),node("h3",null,"Donner son avis ou signaler un problème"),node("p",null,"Ouvre la fiche d’un canal depuis Telegram pour laisser un avis ou signaler un problème."),node("h3",null,"Tes données"),node("p",null,"Tes favoris et ton historique restent dans ce navigateur. Tu peux les effacer ci-dessous. Nous ne conservons pas le texte de tes recherches."));
  analyticsPreference(about);
  const wipe=node("button","cine-soft-button","Supprimer mes favoris et mon historique");wipe.onclick=()=>{favorites=[];recent=[];persist();cardDecorate();discover();wipe.textContent="Données locales effacées"};about.append(wipe);panel.apropos.append(about);
  // Navigation en tiroir
@@ -1191,7 +1142,7 @@ function build(){
  const dhead=node("div","cine-drawer-title");dhead.append(node("b",null,"Ciné Radar"));const close=node("button",null,"×");close.id="cine-menu-close";close.setAttribute("aria-label","Fermer le menu");close.onclick=closeMenu;dhead.append(close);drawer.append(dhead);
  const groups=[["Découvrir",[["Accueil","accueil","⌂"],["Explorer les canaux","explorer","⌕"],["Genres et découvertes","decouvrir","✦"]]],["Personnel",[["Mes favoris","favoris","☆"],["Historique","historique","◷"]]],["Communauté",[["Proposer un canal","proposer","＋"],["À propos et confidentialité","apropos","ⓘ"]]]];
  for(const [label,entries] of groups){drawer.append(node("div","cine-drawer-subtitle",label));for(const [title,page,icon] of entries){const item=makeNav(title,page,icon);item.classList.add("cine-drawer-link");drawer.append(item)}}
- drawer.append(node("p","cine-drawer-foot","Ciné Radar · Annuaire public Telegram"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
+ drawer.append(node("p","cine-drawer-foot","Ciné Radar · Films, séries, animés"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
  const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","⌂"],["Explorer","explorer","⌕"],["Favoris","favoris","☆"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","☰");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerOpen){e.preventDefault();closeMenu()}});
  $("cards").addEventListener("click",e=>{const parent=e.target.closest("article[data-channel-id]");if(!parent)return;const id=Number(parent.dataset.channelId);if(e.target.closest(".view"))currentPreview=id;if(e.target.closest(".open"))recordOpen(id)},true);
@@ -1204,7 +1155,7 @@ function build(){
  for(const [title,term] of chipConfigs){const chip=node("button",null,title);chip.type="button";chip.onclick=()=>setFilter(term);genres.append(chip)}
  search.querySelector("input").placeholder="Nom du canal, action, romance…";
  // Hide legacy footer when viewing other pages; retain in DOM for attribution.
- footer.textContent="Ciné Radar · Annuaire public · Version mobile";
+ footer.textContent="Ciné Radar · Films, séries et animés";
  window.addEventListener("hashchange",()=>navigate(location.hash.slice(2)));
  navigate(location.hash.slice(2));
  cardDecorate();
