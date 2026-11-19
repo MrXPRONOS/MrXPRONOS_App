@@ -18,6 +18,18 @@ button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid #
 button:active{transform:scale(.97)}
 .icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px}
 .icon svg{display:block;width:100%;height:100%;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+/* Lot 1: ten original glossy cinema icons from a single optimized, transparent WebP sprite. */
+.icon.cine-3d-icon{display:inline-block;flex:none;vertical-align:middle;background-image:url('/assets/ui-icons-lot1.webp');background-repeat:no-repeat;background-size:1000% 100%;background-position-y:0}
+.cine-icon-sparkle{background-position-x:0%}
+.cine-icon-film{background-position-x:11.111111%}
+.cine-icon-tv{background-position-x:22.222222%}
+.cine-icon-gamepad{background-position-x:33.333333%}
+.cine-icon-search{background-position-x:44.444444%}
+.cine-icon-eye{background-position-x:55.555556%}
+.cine-icon-external{background-position-x:66.666667%}
+.cine-icon-back{background-position-x:77.777778%}
+.cine-icon-x{background-position-x:88.888889%}
+.cine-icon-send{background-position-x:100%}
 .page{width:min(100%,1000px);margin:0 auto;padding:18px clamp(12px,3.8vw,28px) calc(32px + env(safe-area-inset-bottom))}
 .brand{display:flex;align-items:center;gap:10px;margin:1px 0 19px}
 .brand-mark{height:39px;width:39px;border:1px solid #677efa;border-radius:13px;background:linear-gradient(135deg,#172c63,#0c1329 52%,#211a53);display:grid;place-items:center;box-shadow:0 0 24px #456cfc28,inset 0 0 16px #5978ff19;color:#c8dfff}
@@ -51,7 +63,7 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 .search input{flex:1;min-width:0;background:transparent;border:0;color:#f2f7ff;outline:0;padding:0;font-size:13px}
 .search input::placeholder{color:#829aba}
 .search-clear{padding:0;border:0;background:#304666;color:#bacef7;border-radius:50%;height:21px;width:21px;display:grid;place-items:center}
-.search-clear .icon{width:13px;height:13px}
+.search-clear .icon{width:16px;height:16px}
 [hidden]{display:none!important}
 .heading{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 12px;gap:10px}
 .heading h3{font-size:16px;line-height:1.2;font-weight:800;letter-spacing:-.28px;margin:0}
@@ -75,7 +87,7 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
 .card-kind{display:flex;align-items:center;color:#a0b5d6;font-size:10px;margin:3px 0 10px;gap:4px}
 .card-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .card-actions button{display:flex;justify-content:center;align-items:center;min-width:0;gap:3px;border-radius:8px;height:31px;border:1px solid transparent;font-size:clamp(10px,2.35vw,12px);font-weight:750;padding:0 2px;white-space:nowrap}
-.card-actions .icon{height:13px;width:13px}
+.card-actions .icon{height:16px;width:16px}
 .view{background:#233958;color:#e3edff;border-color:#2d4770!important}
 .open{background:linear-gradient(120deg,#7156f2,#387ffe);color:white;box-shadow:0 3px 10px #366efc39}
 .empty{grid-column:1/-1;border:1px dashed #3d5680;border-radius:16px;background:#101e34;padding:29px 14px;text-align:center;color:#a8bcda;font-size:13px;line-height:1.6}
@@ -344,6 +356,7 @@ body{background:#07111f}
 .cine-quick{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:2px 0 13px}
 .cine-quick button{min-height:42px;flex-direction:row;align-items:center;justify-content:center;gap:7px;padding:8px 7px;text-align:center;border-radius:10px;font-size:12px;white-space:nowrap}
 .cine-quick button span{font-size:17px;line-height:1}
+.cine-quick button .cine-3d-icon{width:23px;height:23px}
 .cine-quick button strong{font-size:12px}
 .cine-poster-track.cine-poster-short{animation:none;min-width:100%}
 .cine-film-poster{appearance:none;padding:0;text-align:left;cursor:pointer;color:#fff;touch-action:manipulation}
@@ -466,7 +479,13 @@ const icons={
  send:'<path d="m21 3-8.5 18-2.5-7-7-2.5L21 3Z"/><path d="M10 14 21 3"/>',
  clapper:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 8V4l17-2 1 6M7 3l4 5M14 2l4 6"/>'
 };
-function ico(key){const holder=document.createElement("span");holder.className="icon";holder.setAttribute("aria-hidden","true");holder.innerHTML='<svg viewBox="0 0 24 24">'+(icons[key]||icons.film)+'</svg>';return holder;}
+const lot1Icons=new Set(["sparkle","film","tv","gamepad","search","eye","external","back","x","send"]);
+function ico(key){
+ const holder=document.createElement("span");holder.className="icon";holder.setAttribute("aria-hidden","true");
+ if(lot1Icons.has(key))holder.classList.add("cine-3d-icon","cine-icon-"+key);
+ else holder.innerHTML='<svg viewBox="0 0 24 24">'+(icons[key]||icons.film)+'</svg>';
+ return holder;
+}
 document.querySelectorAll("[data-icon]").forEach(x=>x.replaceWith(ico(x.dataset.icon)));
 let type="all",query="",channels=[],allChannels=[],lastFetch=0,fetchPending=null,images=new Map(),inFlight=new Map(),previewToken=0,thumbQueue=[],thumbActive=0;
 const selectedTypes=new Set();let searchDelay=null;
@@ -768,7 +787,7 @@ function previewChannel(c){
  currentPreview=Number(c.id);
  document.dispatchEvent(new CustomEvent("cineradar:show-preview",{detail:{id:currentPreview,channel:c}}));
 }
-function quickButton(icon,label,term){const b=node("button");b.type="button";b.append(node("span",null,icon),node("strong",null,label));b.onclick=()=>setFilter(term);return b}
+function quickButton(iconKey,label,term){const b=node("button");b.type="button";const glyph=node("span","icon cine-3d-icon cine-icon-"+iconKey);glyph.setAttribute("aria-hidden","true");b.append(glyph,node("strong",null,label));b.onclick=()=>setFilter(term);return b}
 function sectionTitle(parent,title,link,fn){const wrap=node("div","cine-section-title");wrap.append(node("h3",null,title));if(link){const b=node("button","cine-link",link);b.onclick=fn;wrap.append(b)}parent.append(wrap)}
 // Hero artwork stays decorative; only verified pinned channel messages appear in À l'affiche.
 const PRELOADED_PINS=null;
@@ -1104,7 +1123,7 @@ function build(){
 
  const form=node("form","cine-home-search");form.setAttribute("role","search");const inp=document.createElement("input");inp.type="search";inp.placeholder="Films d'action, animés, séries…";inp.setAttribute("aria-label","Rechercher des canaux");const submit=node("button",null,"Chercher");submit.type="submit";form.append(inp,submit);form.onsubmit=e=>{e.preventDefault();setFilter(inp.value.trim())};home.append(form);
  sectionTitle(home,"Explore par univers",null);
- const quick=node("div","cine-quick");quick.append(quickButton("🎬","Films","films"),quickButton("📺","Séries","series"),quickButton("🎌","Animés","animes"));home.append(quick);
+ const quick=node("div","cine-quick");quick.append(quickButton("film","Films","films"),quickButton("tv","Séries","series"),quickButton("gamepad","Animés","animes"));home.append(quick);
  sectionTitle(home,"À découvrir","Voir tout",()=>setHash("decouvrir"));const picks=node("div","cine-home-picks");picks.id="cine-home-picks";home.append(picks);
  const help=node("p","cine-home-footer","Choisis un canal pour l’ouvrir directement sur Telegram.");home.append(help);
  communityTools(home);
