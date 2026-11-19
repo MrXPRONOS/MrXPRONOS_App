@@ -11,7 +11,7 @@ const publicId = 222;
 const adminId = 111;
 
 function harness(){
- const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
+ const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]),balanceAudit=[],settingUpdated=new Map();
  const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map(),creditBaselines=new Map(),creditEvents=new Map();
  const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map();
  const v2Counts={daily:0,wheel:0};
@@ -37,6 +37,7 @@ function harness(){
         if(lower.includes('count(*) as total from mission_claims'))return {total:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).length};
         if(lower.includes('from mrxp_boost_inventory')){
          const id=String(values[0]),list=[...boostInventory.values()].filter(x=>x.user_id===id);
+         if(lower.includes('count(*) as n'))return {n:list.filter(x=>x.bought_ms>=Number(values[1])).length};
          if(lower.includes('purchase_id=?'))return list.find(x=>x.purchase_id===String(values[1]))||null;
          if(lower.includes("kind='tap'"))return list.find(x=>x.kind==='tap'&&(x.state==='queued'||(x.state==='active'&&x.expires_ms>Number(values[1]))))||null;
          if(lower.includes("kind='energy'"))return list.find(x=>x.kind==='energy'&&x.state==='charged'&&x.expires_ms>Number(values[1]))||null;
@@ -102,7 +103,7 @@ function harness(){
        }
       };
      },
-     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
+     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value,updated_ms:settingUpdated.get(key)||0}))};return {results:[]}},
      async first(){
       if(lower.includes('from players'))return {n:rows.players,xp:180};
       if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
@@ -113,10 +114,17 @@ function harness(){
     };
    },
    async batch(ops){
+    if(ops[0]?._sql?.includes('insert into mrxp_balance_audit')){
+     const [admin_id,setting_key,old_value,new_value,created_ms]=ops[0]._values;
+     balanceAudit.push({admin_id,setting_key,old_value,new_value,created_ms});
+     settings.set(ops[1]._values[0],ops[1]._values[1]);settingUpdated.set(ops[1]._values[0],ops[1]._values[2]);
+     return ops.map(()=>({success:true,meta:{changes:1}}))
+    }
     if(ops[0]?._sql?.includes('insert or ignore into mrxp_boost_inventory')){
      const [id,purchaseId,sku,kind,cost,ms]=ops[0]._values;
      const key=String(id)+':'+purchaseId,balance=[...creditEvents.values()].filter(x=>x.user_id===String(id)).reduce((a,x)=>a+Number(x.amount),0);
-     if(boostInventory.has(key)||balance<Number(cost))return [{success:true,meta:{changes:0}},{success:true,meta:{changes:0}}];
+     const limit=Number(ops[0]._values[10]),start=Number(ops[0]._values[9]);const count=[...boostInventory.values()].filter(x=>x.user_id===String(id)&&x.bought_ms>=start).length;
+     if(boostInventory.has(key)||balance<Number(cost)||count>=limit)return [{success:true,meta:{changes:0}},{success:true,meta:{changes:0}}];
      boostInventory.set(key,{user_id:String(id),purchase_id:purchaseId,sku,kind,cost,state:'owned',bought_ms:ms,activated_ms:0,expires_ms:0,carry_milli:0});
      const eventKey=String(id)+':buy:'+purchaseId;
      if(creditEvents.has(eventKey))throw Error('Duplicate purchase debit');
@@ -177,7 +185,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,balanceAudit,settingUpdated,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -986,7 +994,7 @@ test('phase 4 wallet starts at zero and does not retroactively pay historical le
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/credits',{headers:{'x-telegram-init-data':init}}),h.env);
   assert.equal(res.status,200,await res.clone().text());const wallet=(await res.json()).wallet;
   assert.equal(wallet.balance,0);assert.equal(wallet.ledger.length,0);
-  assert.ok(wallet.baseline_level>=5);assert.equal(wallet.spend_enabled,false);
+  assert.ok(wallet.baseline_level>=5);assert.equal(wallet.spend_enabled,true);
   assert.equal(wallet.transfer_enabled,false);assert.equal(wallet.cash_value,false);
  }finally{h.restore()}
 });
