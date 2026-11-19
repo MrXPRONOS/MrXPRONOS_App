@@ -50,7 +50,7 @@ def normalize(value: str) -> str:
 
 def canonical_key(item: dict) -> str:
     """Common title key across provider IDs: do not create 2 channels per title."""
-    name = normalize(item.get("title_original") or item.get("original") or item.get("title"))
+    name = normalize(item.get("title") or item.get("title_original") or item.get("original"))
     year = item.get("year") or ""
     return f"{item.get('kind')}:{name}:{year}"
 
@@ -195,9 +195,9 @@ async def locate_existing_channel(client, title: str):
 async def ensure_channel(client, item: dict, record: dict):
     from telethon import functions, utils
     if record.get("channel_id"):
-        channel = await client.get_entity(int(record["channel_id"]))
-        if utils.get_peer_id(channel) != int(record["channel_id"]):
-            raise RuntimeError("Identifiant de vidéothèque différent de l'état")
+        channel = await locate_existing_channel(client, channel_title(item))
+        if channel is None or utils.get_peer_id(channel) != int(record["channel_id"]):
+            raise RuntimeError("Vidéothèque enregistrée non accessible : aucune nouvelle création")
         return channel, False
     title = channel_title(item)
     channel = await locate_existing_channel(client, title)
