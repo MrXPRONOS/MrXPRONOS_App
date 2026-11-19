@@ -1,6 +1,9 @@
 name: CineX - Creer et verifier les canaux Secours
 
 on:
+  push:
+    branches: [main]
+    paths: ['telegram-film-relay/.cinex-rescue-run-once']
   workflow_dispatch:
     inputs:
       apply:
@@ -57,7 +60,7 @@ jobs:
           }
       - name: Detecter ou creer les canaux de secours
         env:
-          RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_RESCUE_ENABLED != 'false' || github.event_name == 'workflow_dispatch' && inputs.apply }}
+          RUN_APPLY: ${{ github.event_name == 'push' || github.event_name == 'schedule' && vars.CINEX_RESCUE_ENABLED != 'false' || github.event_name == 'workflow_dispatch' && inputs.apply }}
         run: |
           if [ "$RUN_APPLY" = 'true' ]; then
             python -m film_relay.rescue_channels --apply --max-created 1
