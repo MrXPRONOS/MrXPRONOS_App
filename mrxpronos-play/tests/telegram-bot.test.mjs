@@ -439,13 +439,13 @@ test('photo URL originates from validated signed Telegram initData',async()=>{
  }finally{h.restore()}
 });
 
-test('lot 6 contains 16 exact image assets and all 58 catalog entries',async()=>{
+test('lot 6 retains its 16 files within the expanded 60-icon catalog',async()=>{
  const main=JSON.parse(await readFile(new URL('../assets-manifest.json',import.meta.url),'utf8'));
  const lot=JSON.parse(await readFile(new URL('../assets-manifest-lot6.json',import.meta.url),'utf8'));
- assert.equal(main.asset_count,58);
- assert.equal(main.assets.length,58);
+ assert.equal(main.asset_count,60);
+ assert.equal(main.assets.length,60);
  assert.equal(lot.assets.length,8);
- assert.deepEqual(main.assets.slice(50).map(x=>x.number),[51,52,53,54,55,56,57,58]);
+ assert.deepEqual(main.assets.slice(50,58).map(x=>x.number),[51,52,53,54,55,56,57,58]);
  for(const x of lot.assets){
   assert.ok(main.assets.some(y=>y.number===x.number&&y.webp===x.webp&&y.png===x.png));
   const png=await readFile(new URL('../'+x.png,import.meta.url));
