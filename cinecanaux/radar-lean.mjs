@@ -59,7 +59,7 @@ const INTRO=[
  "3️⃣ ⭐ <b>Enregistrer</b> tes canaux favoris.",
  "4️⃣ 💬 <b>Donner ton avis</b> et proposer un canal.",
  "",
- "👇 <b>Appuie sur le bouton bleu pour commencer !</b>",
+ "👇 <b>Appuie sur le bouton bleu pour ouvrir la Mini App !</b>",
  "",
  "📣 <i>Tu peux recevoir des annonces du bot. /stop pour les désactiver.</i>"
 ].join("\n");
