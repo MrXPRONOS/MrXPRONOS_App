@@ -141,6 +141,20 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.runner
 
+      - name: 2a - Videos directes des 2 derniers films CineX
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          TG_PUBLIC_CHANNEL: '@CineXFilms_vf'
+          CINEX_SHOWCASE_ENABLED: 'true'
+          PYTHONPATH: .
+        run: python -m film_relay.public_video_showcase
+
       - name: 2bis - Catalogues de series TV par saison et episode
         id: tvseries
         continue-on-error: true
