@@ -16,6 +16,16 @@
 
 **Vérification :** Cloudflare confirme que les deux secrets `BOT_TOKEN` et `WEBHOOK_SECRET` sont présents sans exposer leurs valeurs. Le bot `MrXpronosPlayBot` possède le webhook attendu et un bouton de type `web_app`. La Mini App a déjà été ouverte dans un navigateur de test ; l'ouverture depuis le compte personnel Telegram reste à contrôler par l'utilisateur. La V1 ne doit pas être considérée prête pour des récompenses financières.
 
+## Accueil Telegram public et administration privée
+
+- **Public** : le menu des commandes expose seulement `/start`. Le message de bienvenue comporte un unique bouton **🎮 Démarrer Mr XPRONOS Play** qui ouvre la Mini App. Les jeux, missions, roue, XP et profil restent dans la Mini App.
+- **Administrateur** : seul le compte Telegram figurant dans la table D1 `bot_admins` peut utiliser `/admin`, voir les statistiques et modifier les textes du bot (accueil, description du profil et bio courte). Les contrôles sont effectués côté Worker à partir de `message.from.id` / `callback_query.from.id` et des droits D1 ; aucun identifiant administrateur n'est codé en clair dans GitHub.
+- **Avant Start** : la rubrique Telegram « Que peut faire ce bot ? » utilise `setMyDescription`, et la bio courte `setMyShortDescription`. Ce sont des descriptions Telegram, pas des messages automatiquement envoyés au joueur.
+- **Commandes Telegram** : `/start` par défaut et pour tous les chats privés, `/start` + `/admin` exclusivement dans le chat privé du compte administrateur. Les anciennes commandes non adaptées ne sont plus affichées dans le menu public une fois la synchronisation des commandes Telegram effectuée.
+- **Menu Telegram** : menu global remis au mode commandes ; l'ouverture du jeu se fait via le bouton affiché après `/start`. Les anciennes touches inline dans l'historique des messages ne peuvent pas être effacées rétrospectivement.
+- **Configuration native** : le premier `/start` ou `/admin` de l'administrateur peut déclencher en arrière-plan la synchronisation des commandes et du webhook (y compris les `callback_query`), sans exposer le secret. Le statut du processus est dans D1 `telegram_setup_status`, entrée `onboarding-public-admin-v1`.
+- **Réglages administrateur** : les textes personnalisables sont dans `bot_settings`, les changements de texte attendus dans `bot_admin_pending` avec expiration de 10 minutes. Aucun mot de passe Telegram, secret ou token ne doit être publié dans le dépôt.
+
 ## Telegram — configuration en place
 
 Les secrets et le webhook sont déjà installés. Ne créez pas un deuxième webhook sur un autre service : Telegram n'en utilise qu'un à la fois. Les instructions suivantes sont à utiliser uniquement pour une réinstallation ou une rotation de jeton.
