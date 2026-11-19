@@ -246,7 +246,7 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     rows = [
         [url_button(label, url, style="success" if index == 0 else "danger")
          for label, url in row]
-        for index, row in enumerate(url_button_rows(video_url))
+        for index, row in enumerate(url_button_rows(video_url, public_peer=public_peer))
     ]
     # The link in text must survive the subsequent native forward.
     caption = (f"<b>🎬 {escape(title[:560])}</b>\n\n"
