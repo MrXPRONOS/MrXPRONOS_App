@@ -77,6 +77,8 @@ def category_targets(env: dict | None = None):
         ("comedie", env.get("COMEDIE_PUBLIC_CHANNEL"), env.get("COMEDIE_PRIVATE_CHANNEL")),
         ("anime", env.get("ANIME_PUBLIC_CHANNEL") or "@CineXAnimeFR",
          env.get("ANIME_PRIVATE_CHANNEL")),
+        ("action", env.get("ACTION_PUBLIC_CHANNEL") or "@filmsaction2026vf",
+         env.get("ACTION_PRIVATE_CHANNEL")),
     )
     selected = []
     for category, public, private in categories:
