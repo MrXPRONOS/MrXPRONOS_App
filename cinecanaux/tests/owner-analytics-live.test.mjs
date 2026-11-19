@@ -30,3 +30,16 @@ test('a valid first-party anonymous visit event is accepted and increments the c
  console.log('VALID_ANONYMOUS_VISIT_RESPONSE:',JSON.stringify({status:res.status,response:text.slice(0,180),uuidLength:id.length,version:id[14],variant:id[19]}));
  assert.equal(res.status,200);
 });
+
+test('production accepts a standards-compliant UUIDv4 containing low digits in its random section',async()=>{
+ // Regression: a broken server regex wrongly rejected 4xxx groups containing 0-3.
+ // "ping" verifies parsing and hash without incrementing daily visit counts.
+ const id='00000000-0000-4012-8000-000000000001';
+ const r=await fetch(ROOT+'/api/analytics/event',{
+  method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({event:'ping',id}),signal:AbortSignal.timeout(12000)
+ });
+ const payload=await r.text();
+ console.log('UUIDV4_PRODUCTION_PING:',JSON.stringify({status:r.status,payload:payload.slice(0,120)}));
+ assert.equal(r.status,200);
+});
