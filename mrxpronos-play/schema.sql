@@ -78,3 +78,15 @@ CREATE TABLE IF NOT EXISTS mission_claims (
 CREATE INDEX IF NOT EXISTS idx_mission_claims_user ON mission_claims(user_id);
 -- Existing users and XP totals are preserved; no points are retroactively
 -- awarded until a valid mission claim is submitted and checked by the Worker.
+
+
+-- V2 Phase 1: official XP level with mastery gates and frozen legacy floor.
+-- The old players.confirmed_xp and players.confirmed_taps remain untouched.
+CREATE TABLE IF NOT EXISTS player_progress_v2 (
+ user_id TEXT PRIMARY KEY REFERENCES players(user_id),
+ legacy_level_floor INTEGER NOT NULL DEFAULT 1 CHECK (legacy_level_floor>=1),
+ current_level INTEGER NOT NULL DEFAULT 1 CHECK (current_level>=1),
+ created_ms INTEGER NOT NULL,
+ updated_ms INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_player_progress_v2_level ON player_progress_v2(current_level DESC);
