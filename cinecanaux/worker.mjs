@@ -51,7 +51,7 @@ function sameString(a,b){
  let difference=0;for(let i=0;i<x.length;i++)difference|=x[i]^y[i];
  return difference===0;
 }
-async function receiveTelegram(request,env){
+async function receiveTelegram(request,env,ctx){
  if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET)return new Response("Telegram credentials missing",{status:503});
  if(!sameString(request.headers.get("X-Telegram-Bot-Api-Secret-Token"),env.TELEGRAM_WEBHOOK_SECRET))return new Response("Forbidden",{status:403});
  if(Number(request.headers.get("content-length")||0)>750000)return new Response("Too large",{status:413});
@@ -63,7 +63,13 @@ async function receiveTelegram(request,env){
    const result=await ingestOwnerForward(env,update.message);
    if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
   }
-  await botUpdate(env,update);return Response.json({ok:true});}
+  await botUpdate(env,update);
+  // Apply public start-only and private owner command scopes on the next /start
+  // without delaying the welcome. Scheduled housekeeping remains the backup.
+  if(/^\\/start(?:@[A-Za-z0-9_]+)?(?:\\s|$)/i.test(String(update.message?.text||""))){
+   ctx?.waitUntil(initializeProfile(env).catch(e=>console.warn("bot_profile_bootstrap_failed",String(e).slice(0,130))));
+  }
+  return Response.json({ok:true});}
  catch(e){console.error("cine_radar_update_failed",String(e).slice(0,120));return new Response("Retry",{status:500});}
 }
 function banner(){
@@ -290,7 +296,7 @@ export default {
     return Response.json({ok:true},{headers:{"Cache-Control":"no-store"}});
   }
   if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
-  if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
+  if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env,ctx);
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
