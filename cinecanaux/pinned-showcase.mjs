@@ -46,7 +46,7 @@ export async function syncLatestPinned(env,{force=false}={}){
  await Promise.all(PRIMARY_PINS.map(async channel=>{
   const previous=await env.DB.prepare("SELECT last_attempt_at FROM cine_pins_poll WHERE kind=?").bind(channel.kind).first();
   const at=previous?.last_attempt_at?Date.parse(String(previous.last_attempt_at).replace(" ","T")+"Z"):0;
-  if(!force&&at&&Date.now()-at<60*60*1000)return;
+  if(!force&&at&&Date.now()-at<90*1000)return;
   stats.checked++;
   let detail="";let ok=false;
   try{
@@ -59,7 +59,13 @@ export async function syncLatestPinned(env,{force=false}={}){
    await env.DB.prepare("UPDATE radar_primary_channels SET chat_id=?,updated_at=CURRENT_TIMESTAMP WHERE kind=? AND (chat_id IS NULL OR chat_id=?)").bind(chatId,channel.kind,chatId).run();
    const pin=asPin(channel,info.pinned_message,"getchat",chatId);
    if(pin){stats.found++;if(await insertPin(env,pin))stats.stored++;}
-   detail=pin?"Most recent pin indexed":"No accessible image in most recent pin";
+   // A missing pinned_message on a verified getChat means this channel has
+   // no pins. Deactivate all its recorded posters, including older entries.
+   // Do not guess when a pin exists but has no usable image.
+   if(!info.pinned_message){
+    await env.DB.prepare("UPDATE cine_pinned_posts SET active=0 WHERE kind=? AND chat_id=? AND active=1").bind(channel.kind,chatId).run();
+   }
+   detail=pin?"Most recent pin indexed":!info.pinned_message?"No pins: inactive posters removed":"Latest pin has no usable image";
    ok=true;
   }catch(e){detail=String(e).slice(0,100);stats.errors.push(channel.kind+": "+detail);}
   await env.DB.prepare("INSERT INTO cine_pins_poll(kind,last_attempt_at,last_success_at,detail) VALUES(?,CURRENT_TIMESTAMP,CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE NULL END,?) ON CONFLICT(kind) DO UPDATE SET last_attempt_at=CURRENT_TIMESTAMP,last_success_at=CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE cine_pins_poll.last_success_at END,detail=excluded.detail")
@@ -88,7 +94,7 @@ export async function ingestOwnerForward(env,message){
 }
 const covers=kind=>KINDS.has(kind);
 export async function listPinned(env,{limit=24}={}){
- const rows=(await env.DB.prepare("SELECT p.kind,p.message_id,p.title,p.media_kind,p.click_count,p.last_seen_at,c.username FROM cine_pinned_posts p JOIN radar_primary_channels c ON c.kind=p.kind AND c.chat_id=p.chat_id WHERE p.active=1 AND p.image_file_id<>'' ORDER BY p.last_seen_at DESC LIMIT 200").all()).results||[];
+ const rows=(await env.DB.prepare("SELECT p.kind,p.message_id,p.title,p.media_kind,p.click_count,p.last_seen_at,c.username FROM cine_pinned_posts p JOIN radar_primary_channels c ON c.kind=p.kind AND c.chat_id=p.chat_id WHERE p.active=1 AND p.image_file_id<>'' ORDER BY p.last_seen_at DESC LIMIT 500").all()).results||[];
  const dated=rows.map(x=>{
   const age=Math.max(0,(Date.now()-Date.parse(String(x.last_seen_at).replace(" ","T")+"Z"))/86400000);
   return {...x,rank:Math.log1p(Math.max(0,Number(x.click_count)||0))*24+Math.max(0,40-age*.45)};
@@ -97,7 +103,7 @@ export async function listPinned(env,{limit=24}={}){
  // First show one item per category when available, then score-ranked items.
  for(const kind of kinds){const item=dated.find(x=>x.kind===kind);if(item){ordered.push(item);used.add(kind+":"+item.message_id)}}
  for(const row of dated){const id=row.kind+":"+row.message_id;if(!used.has(id)){ordered.push(row);used.add(id)}}
- return {source:"Épingles Telegram",items:ordered.slice(0,Math.max(1,Math.min(32,limit))).map(x=>({
+ return {source:"Épingles Telegram",items:ordered.slice(0,Math.max(1,Math.min(120,limit))).map(x=>({
   type:x.kind,title:x.title,poster:"/assets/pin-cover/"+x.kind+"/"+x.message_id+".jpg",
   link:"https://t.me/"+x.username+"/"+x.message_id,
   message_id:x.message_id,clicks:Number(x.click_count)||0
@@ -107,7 +113,7 @@ export async function servePinned(env,request){
  if(request.method!=="GET")return Response.json({error:"Method not allowed"},{status:405});
  // Best-effort initial bootstrap; rate-limited in D1 to one query per channel per hour.
  try{await syncLatestPinned(env);}catch(e){console.warn("pin_bootstrap_unavailable",String(e).slice(0,100));}
- return Response.json(await listPinned(env),{headers:{"cache-control":"public,max-age=120","x-content-type-options":"nosniff"}});
+ return Response.json(await listPinned(env,{limit:120}),{headers:{"cache-control":"no-store","x-content-type-options":"nosniff"}});
 }
 export async function servePinCover(env,request,kind,id){
  if(request.method!=="GET"||!covers(kind)||!Number.isSafeInteger(Number(id))||Number(id)<1)return new Response("Invalid cover",{status:400});
@@ -140,6 +146,25 @@ export async function servePinCover(env,request,kind,id){
   return new Response("Cover unavailable ("+reason+")",{status:503,headers:{"cache-control":"no-store"}});
  }
 }
+
+export async function ownerPinnedList(env){
+ const rows=(await env.DB.prepare("SELECT p.kind,p.message_id,p.title,p.active,p.source,p.last_seen_at,c.username FROM cine_pinned_posts p JOIN radar_primary_channels c ON c.kind=p.kind AND c.chat_id=p.chat_id ORDER BY p.last_seen_at DESC LIMIT 180").all()).results||[];
+ return {items:rows.map(r=>({kind:r.kind,message_id:r.message_id,title:r.title,active:Number(r.active)===1,source:r.source,updated_at:r.last_seen_at,url:"https://t.me/"+r.username+"/"+r.message_id}))};
+}
+export async function ownerRemovePin(env,kind,messageId,{unpinTelegram=false}={}){
+ if(!covers(kind)||!Number.isSafeInteger(messageId)||messageId<1)return {ok:false,error:"Publication inconnue"};
+ const channel=PRIMARY_PINS.find(c=>c.kind===kind);
+ const row=await env.DB.prepare("SELECT p.message_id,c.chat_id FROM cine_pinned_posts p JOIN radar_primary_channels c ON c.kind=p.kind AND c.chat_id=p.chat_id WHERE p.kind=? AND p.message_id=?").bind(kind,messageId).first();
+ if(!row)return {ok:false,error:"Affiche introuvable"};
+ if(unpinTelegram){
+  // Telegram's bot must be channel administrator with can_edit_messages.
+  // Never claim to have unpinned anything if the Bot API rejects the action.
+  await tgApi(env,"unpinChatMessage",{chat_id:row.chat_id,message_id:messageId});
+ }
+ await env.DB.prepare("UPDATE cine_pinned_posts SET active=0 WHERE kind=? AND message_id=? AND active=1").bind(kind,messageId).run();
+ return {ok:true,telegram_unpinned:unpinTelegram};
+}
+
 export async function registerPinClick(env,request){
  if(request.method!=="POST")return Response.json({error:"Method not allowed"},{status:405});
  const origin=request.headers.get("origin"),url=new URL(request.url);
