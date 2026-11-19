@@ -3,7 +3,7 @@ name: CineX - Rotation quotidienne des 10 videos
 on:
   push:
     branches: [main]
-    paths: ['telegram-film-relay/.cinex-archive-audit-once']
+    paths: ['telegram-film-relay/.cinex-archive-audit-once', 'telegram-film-relay/.cinex-archive-apply-once']
   workflow_dispatch:
     inputs:
       apply:
@@ -64,11 +64,15 @@ jobs:
           }
       - name: Analyser puis archiver
         env:
-          RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_ARCHIVE_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.apply }}
+          RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_ARCHIVE_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.apply || github.event_name == 'push' && contains(github.event.head_commit.message, '[cinex-archive-apply-2]') }}
         shell: bash
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
-            python -m film_relay.public_video_archive --apply
+            if [[ "${{ github.event_name }}" == "push" ]]; then
+              python -m film_relay.public_video_archive --apply --max-archived 2
+            else
+              python -m film_relay.public_video_archive --apply
+            fi
           else
             echo "Simulation uniquement : CINEX_ARCHIVE_ENABLED n'est pas active."
             python -m film_relay.public_video_archive
