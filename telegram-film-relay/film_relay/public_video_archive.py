@@ -269,6 +269,56 @@ async def ensure_private_poster_then_video(
     return int(confirmed.id)
 
 
+async def replace_uneditable_public_poster(
+    client, bot, public, original_poster, movie_url: str, rescue_url: str | None,
+) -> int:
+    """Create an equivalent bot-owned photo only when the old one cannot be edited.
+
+    Reuse an already verified replacement after a partially interrupted run.
+    Never remove the old photo or movie here: that happens only after the
+    replacement and the private movie are both verified.
+    """
+    import re
+    title = poster_heading(original_poster)
+    if not title:
+        raise RuntimeError("Affiche publique sans titre fiable : aucun remplacement")
+    folder = film_folder_url()
+    async for existing in client.iter_messages(public, limit=500):
+        if (getattr(existing, "photo", None)
+                and existing.id != original_poster.id
+                and has_verified_button(existing, movie_url)
+                and has_verified_button(existing, folder)
+                and (not rescue_url or has_verified_button(existing, rescue_url))
+                and title_similarity(poster_heading(existing), title) >= 0.95):
+            LOG.info("Fiche de remplacement existante #%s : réutilisation", existing.id)
+            return int(existing.id)
+    raw = clean_caption(getattr(original_poster, "raw_text", "") or "")
+    lines = raw.splitlines()
+    if lines and re.fullmatch(r"(?i)#?films?", lines[0].strip()):
+        lines = lines[1:]
+    description = "\n".join(lines).strip()
+    if not description or not getattr(original_poster, "photo", None):
+        raise RuntimeError("Affiche sans description ou média : remplacement refusé")
+    image = await client.download_media(original_poster.media, file=bytes)
+    if not image:
+        raise RuntimeError("Impossible de lire l'affiche : vidéo publique conservée")
+    created = await bot.send_file(
+        public, image,
+        caption=rich_caption(description), parse_mode="html",
+        buttons=archive_buttons(movie_url, public),
+    )
+    check = await client.get_messages(public, ids=int(created.id))
+    if (not check or not getattr(check, "photo", None)
+            or not (getattr(check, "raw_text", "") or "").strip()
+            or not has_verified_button(check, movie_url)
+            or not has_verified_button(check, folder)
+            or (rescue_url and not has_verified_button(check, rescue_url))):
+        raise RuntimeError("Nouvelle fiche publique non vérifiée ; ancienne vidéo conservée")
+    LOG.info("Nouvelle fiche modifiable #%s créée pour remplacer #%s",
+             created.id, original_poster.id)
+    return int(created.id)
+
+
 async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived: int | None = None) -> dict:
     from telethon import TelegramClient, utils
     from telethon.errors import FloodWaitError, PeerFloodError
@@ -384,8 +434,20 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                 rescue_url = rescue_link_for(public) if rescue_state else None
                 if rescue_state and not rescue_url:
                     raise RuntimeError("Lien Secours indisponible : affiche et vidéo conservées")
-                await bot.edit_reply_markup(public, poster.id, buttons=archive_buttons(url, public))
-                refreshed = await client.get_messages(public, ids=poster.id)
+                replacement_id = None
+                try:
+                    await bot.edit_reply_markup(
+                        public, poster.id, buttons=archive_buttons(url, public))
+                except TelegramBotHTTPError as exc:
+                    if "message can't be edited" not in str(exc).casefold():
+                        raise
+                    LOG.warning(
+                        "Affiche #%s non modifiable par le bot ; création d'une "
+                        "fiche équivalente avec liens vérifiables", poster.id)
+                    replacement_id = await replace_uneditable_public_poster(
+                        client, bot, public, poster, url, rescue_url)
+                refreshed = await client.get_messages(
+                    public, ids=replacement_id or poster.id)
                 if not refreshed or not has_verified_button(refreshed, url):
                     raise RuntimeError("Le bouton Voir le film n'a pas été vérifié")
                 if not has_verified_button(refreshed, film_folder_url()):
@@ -449,8 +511,18 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                 if after and is_video_message(after):
                     raise RuntimeError("Suppression non confirmée par Telegram")
                 report["archived"] += 1
+                if replacement_id:
+                    await client.delete_messages(public, [poster.id], revoke=True)
+                    old_poster = await client.get_messages(public, ids=poster.id)
+                    if old_poster and getattr(old_poster, "photo", None):
+                        report["errors"] += 1
+                        LOG.error("Ancienne affiche #%s encore visible, remplacement #%s confirmé",
+                                  poster.id, replacement_id)
+                    else:
+                        LOG.info("Affiche historique #%s retirée ; nouvelle fiche #%s conservée",
+                                 poster.id, replacement_id)
                 LOG.info("ARCHIVÉ #%s vers vidéothèque #%s ; affiche #%s",
-                         video.id, destination_id, poster.id)
+                         video.id, destination_id, replacement_id or poster.id)
                 await asyncio.sleep(30)  # 2x+ marge prudente entre suppressions
             except (FloodWaitError, PeerFloodError):
                 raise
