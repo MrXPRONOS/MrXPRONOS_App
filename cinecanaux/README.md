@@ -90,3 +90,19 @@ Pour afficher **les autres messages déjà épinglés** :
 Si le transfert est interdit ou qu'un message ne contient ni photo ni miniature vidéo exploitable, il ne peut pas être ajouté par cette méthode. Le bot ne télécharge, ne conserve ni ne republie les fichiers vidéo : seuls les petits visuels et métadonnées de publication sont utilisés. Respecter les autorisations de diffusion des visuels et contenus.
 
 Routes : GET /api/pinned-showcase ; GET /assets/pin-cover/{films|series|animes}/{message_id}.jpg ; POST /api/pinned-click.
+
+
+## Promotions croisées discrètes dans « À découvrir » (novembre 2026)
+
+Les trois canaux choisis explicitement pour la bande « À découvrir aussi » sont :
+- Actualité du football : https://t.me/actufoot_mrxp
+- Actualité des cryptomonnaies : https://t.me/ActuCrypto24H
+- Pronostics : https://t.me/mrxpronosfr
+
+Le bloc apparaît dans la liste « À découvrir », après quatre canaux sur mobile et six en affichage large. Il ne se place pas entre « À l'affiche » et la recherche. Sur mobile, les cartes se parcourent horizontalement pour éviter une section publicitaire trop haute. Les promotions sont signalées et les pronostics portent une mention de responsabilité (18+).
+
+Module : partner-promotions.mjs. Routes publiques :
+- GET /api/partner-promos : trois descriptions et titres issus de l'aperçu public Telegram lorsqu'il est joignable ; textes explicatifs de secours sinon.
+- GET /assets/promo-avatar/{actufoot_mrxp|ActuCrypto24H|mrxpronosfr}.jpg : photo Telegram réelle, relayée sur le domaine de Ciné Radar, avec validation stricte des formats et limite de taille.
+
+Les liens sont figés sur la liste blanche de ces trois canaux. Aucun annonceur externe, cookie, script publicitaire tiers ou suivi individuel n'est installé. Si la photo n'est pas accessible, un pictogramme de catégorie reste visible sans être présenté comme une photo réelle.
