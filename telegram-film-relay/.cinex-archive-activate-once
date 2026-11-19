@@ -1,1 +1,1 @@
-2026-11-19: owner requested activation of real archive. Require existing CINEX_RIGHTS_VERIFIED=true. Enable only archive switches; launch at-most-two-film canary. No bypass of controls.
+2026-11-19: second activation run explicitly requested by repository owner after adding CINEX_RIGHTS_VERIFIED, CINEX_ARCHIVE_ENABLED and CINEX_ARCHIVE_DELETE_APPROVED. Revalidate rights and launch canary max 2 archived films; preserve all safety checks.
