@@ -232,7 +232,7 @@ async def publish_catalog_episode_pairs(
     """
     import asyncio
     from .public_video_archive import is_video_message, video_document_id
-    from .text import clean_caption
+    from .text import clean_caption, private_message_link
     receipts = series.setdefault("public_episode_posts", {})
     fallback = next((r.get("poster") for r in items
                      if r.get("poster") is not None), None)
