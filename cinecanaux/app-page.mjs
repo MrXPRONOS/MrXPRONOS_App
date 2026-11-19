@@ -1370,9 +1370,14 @@ function build(){
  ownerAdmin.onclick=()=>{closeMenu();window.location.assign("/admin")};
  drawer.append(ownerAdmin);
  // Display privileged navigation only after the server verifies Telegram initData.
- const init=window.Telegram?.WebApp?.initData||"";
+ let init=window.Telegram?.WebApp?.initData||"";
+ if(!init){try{init=sessionStorage.getItem("cine-radar-owner-auth")||""}catch{}}
  if(init)fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":init},cache:"no-store"})
-  .then(r=>{if(r.ok)ownerAdmin.hidden=false}).catch(()=>{});
+  .then(r=>{if(r.ok){
+    ownerAdmin.hidden=false;
+    // Preserve signed initData only for navigation to /admin in this WebView.
+    try{sessionStorage.setItem("cine-radar-owner-auth",init)}catch{}
+   }}).catch(()=>{});
  drawer.append(node("p","cine-drawer-foot","Ciné Radar · Films, séries, animés"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
  const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","accueil"],["Explorer","explorer","explorer"],["Favoris","favoris","favoris"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","menu");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerOpen){e.preventDefault();closeMenu()}});
