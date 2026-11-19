@@ -116,3 +116,12 @@ mrxpronos-play/
 - Édition : accueil, description et bio courte, délai de 10 minutes, annulation `/cancel`.
 - Tests automatiques : démarrage public, autorisations, changements de texte, statistiques, annulation et configuration Telegram.
 - Les anciennes touches de messages déjà envoyés restent éventuellement visibles dans l’historique Telegram ; seules les commandes/menu et nouveaux messages sont configurables.
+
+## Gestion du jeu et identité Telegram — 19 novembre 2026
+
+- **Nom** : le prénom et le nom viennent des `initData` signées par Telegram (champ `user`), validées par HMAC côté Worker. La Mini App affiche `players.display_name` après chaque connexion plutôt qu'un nom de marque. Un changement de nom Telegram est pris en compte à la prochaine ouverture authentifiée.
+- **Photo de profil** : endpoint privé `GET /api/avatar`, réservé à l'identité Telegram authentifiée. Le Worker demande `getUserProfilePhotos` puis `getFile` à Telegram, sans exposer le token du bot. Le frontend privilégie la photo personnelle Telegram ; en cas d'absence de photo, de restriction de confidentialité ou de défaillance, il tente `initDataUnsafe.user.photo_url` sur des domaines Telegram autorisés, puis affiche les initiales de l'utilisateur.
+- **Panneau privé** : `/admin` → statistiques, textes du bot, état du webhook Telegram, réglages du jeu. Aucun autre identifiant que celui inscrit dans `bot_admins` ne peut modifier ces réglages.
+- **Réglages du jeu** : l'administrateur peut activer/suspendre le tapotage, la Lucky Wheel, le bonus quotidien et l'affichage des missions. Les flags sont stockés dans D1 `bot_settings`. Le bootstrap les charge et le client les rafraîchit toutes les minutes. Le serveur refuse les nouvelles tentatives de synchronisation utilisant un module désactivé : le client garde les XP provisoires jusqu'à réactivation. Les réglages n'effacent aucune donnée.
+- **Attention** : les missions de tapotage montrent leur progression mais leurs bonus indicatifs ne sont pas encore distribués séparément côté serveur. Seul le bonus quotidien (+100 XP), les tapotages (+1 XP) et les gains XP de la roue sont actuellement comptabilisés par le backend.
+- **Vérifications automatisées** : tests de la signature HMAC, du nom complet, de l'avatar associé uniquement au compte signé, de l'isolation administrateur, des réglages et des suspensions côté serveur. Un essai manuel sur Telegram avec deux vrais comptes reste requis pour certifier l'expérience mobile native.

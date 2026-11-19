@@ -48,3 +48,21 @@ CREATE TABLE IF NOT EXISTS telegram_setup_status (
   error TEXT NOT NULL DEFAULT '',
   updated_ms INTEGER NOT NULL
 );
+
+-- Telegram bot administration (additive migration, no account identifier in code).
+CREATE TABLE IF NOT EXISTS bot_admins (
+  telegram_id TEXT PRIMARY KEY,
+  created_ms INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS bot_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_ms INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS bot_admin_pending (
+  telegram_id TEXT PRIMARY KEY,
+  edit_key TEXT NOT NULL,
+  expires_ms INTEGER NOT NULL
+);
+-- Game feature flags use bot_settings keys feature_tap, feature_wheel,
+-- feature_daily, feature_missions. Missing keys mean enabled by default.
