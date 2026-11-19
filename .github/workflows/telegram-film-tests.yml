@@ -8,11 +8,19 @@ on:
       - 'telegram-film-relay/scripts/merge_state.py'
       - 'telegram-film-relay/tests/**'
       - '.github/workflows/telegram-film-tests.yml'
+      - '.github/workflows/cinex-*.yml'
+      - '.github/workflows/cine-radar-owned-private.yml'
+      - '.github/workflows/cine-radar-avatars.yml'
+      - '.github/workflows/cine-radar-official-posts.yml'
   pull_request:
     paths:
       - 'telegram-film-relay/film_relay/**'
       - 'telegram-film-relay/tests/**'
       - '.github/workflows/telegram-film-tests.yml'
+      - '.github/workflows/cinex-*.yml'
+      - '.github/workflows/cine-radar-owned-private.yml'
+      - '.github/workflows/cine-radar-avatars.yml'
+      - '.github/workflows/cine-radar-official-posts.yml'
   workflow_dispatch:
 
 permissions:
@@ -28,7 +36,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Installer les dépendances
-        run: python -m pip install -r telegram-film-relay/requirements.txt
+        run: |
+          python -m pip install -r telegram-film-relay/requirements.txt
+          python -m pip install PyYAML==6.0.3
       - name: Vérifier syntaxe Python
         working-directory: telegram-film-relay
         run: python -m compileall -q film_relay scripts tests
@@ -37,3 +47,6 @@ jobs:
         env:
           PYTHONPATH: .
         run: python -m unittest discover -s tests -v
+      - name: Auditer les invitations privées, permissions et files Telegram
+        working-directory: telegram-film-relay
+        run: python scripts/cinex_phase1_audit.py
