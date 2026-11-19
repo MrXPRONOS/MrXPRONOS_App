@@ -239,7 +239,7 @@ export async function exportRadarTrends(env,{limit=12}={}){
  for(const kind of ['films','series','animes']){
   const rows=(await env.DB.prepare(
    "SELECT id,kind,title,title_original,aliases,year,summary,poster_url,source_url,source,trend_rank,last_seen_at,authorized " +
-   "FROM radar_titles WHERE kind=? AND last_seen_at>=datetime('now','8 days') " +
+   "FROM radar_titles WHERE kind=? AND last_seen_at>=datetime('now','-8 days') " +
    "AND source IN ('tmdb','anilist','simkl') ORDER BY trend_rank ASC,last_seen_at DESC LIMIT ?"
   ).bind(kind,n).all()).results||[];
   for(const item of rows)result.push({id:item.id,kind:item.kind,title:item.title,
