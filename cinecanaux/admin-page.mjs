@@ -120,6 +120,12 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
  <h3>Canaux officiels</h3><div id="radar-ops-channels"></div>
  <h3>Titres à référencer</h3><div id="radar-ops-missing"></div>
 </section>
+<section class="broadcast-box" id="owner-pinned">
+ <h2>📌 Affiches et messages épinglés</h2>
+ <p>Retire une affiche de la Mini App ou désépingle sa publication sur Telegram si le bot dispose des droits nécessaires.</p>
+ <div class="broadcast-actions"><button id="owner-pins-refresh" type="button">↻ Actualiser les épingles</button></div>
+ <p id="owner-pins-status" role="status"></p><div id="owner-pins-items"></div>
+</section>
 <section class="analytics-dashboard" aria-label="Statistiques de fréquentation">
  <div class="analytics-head"><h2>📊 Fréquentation et engagement</h2><small id="analytics-clock">Actualisation automatique · 30 s</small></div>
  <div class="analytics-controls">
@@ -151,7 +157,8 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
+let init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
+let adminBooted=false;
 try{window.Telegram?.WebApp?.ready();window.Telegram?.WebApp?.expand();}catch{}
 const status=t=>{$("status").textContent=t;};
 const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!=null)x.textContent=text;return x;};
@@ -168,7 +175,7 @@ async function manage(id,action){await api("/api/admin/channels/"+id,{action});s
 async function load(){
  const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
- $("private").hidden=false;status("");refreshAnalytics();refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));
+ $("private").hidden=false;status("");refreshAnalytics();refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
@@ -325,6 +332,34 @@ $("bot-brand-sync").onclick=async()=>{
  }catch(e){$("bot-brand-status").textContent="⚠️ "+String(e.message||e)}
  finally{btn.disabled=false}
 };
+async function refreshOwnerPins(){
+ const data=await api("/api/admin/pins"),list=$("owner-pins-items");list.textContent="";
+ for(const item of data.items||[]){
+  if(!item.active)continue;
+  const line=el("article","broadcast-row");
+  line.append(el("strong",null,({films:"🎬 Films",series:"📺 Séries",animes:"🎌 Animés"}[item.kind]||item.kind)+" · "+item.title),
+   el("div","muted","#"+item.message_id+" · "+item.source));
+  const actions=el("div","broadcast-actions");
+  const channel=el("a",null,"Voir sur Telegram");channel.href=item.url;channel.target="_blank";channel.rel="noopener noreferrer";actions.append(channel);
+  const hide=el("button",null,"Retirer de l'affiche");
+  hide.onclick=async()=>{
+   if(!confirm("Retirer cette affiche de la Mini App sans modifier Telegram ?"))return;
+   hide.disabled=true;
+   try{await api("/api/admin/pins/"+item.kind+"/"+item.message_id+"/hide",{});$("owner-pins-status").textContent="Affiche retirée.";await refreshOwnerPins();}
+   catch(e){$("owner-pins-status").textContent=String(e.message||e);hide.disabled=false}
+  };
+  const unpin=el("button","danger","Désépingler sur Telegram");
+  unpin.onclick=async()=>{
+   if(!confirm("Désépingler aussi cette publication du canal Telegram ? Le bot doit être administrateur du canal."))return;
+   unpin.disabled=true;
+   try{await api("/api/admin/pins/"+item.kind+"/"+item.message_id+"/unpin",{});$("owner-pins-status").textContent="Publication désépinglée et retirée.";await refreshOwnerPins();}
+   catch(e){$("owner-pins-status").textContent=String(e.message||e);unpin.disabled=false}
+  };
+  actions.append(hide,unpin);line.append(actions);list.append(line);
+ }
+ if(!list.children.length)list.append(el("p","muted","Aucune affiche épinglée active."));
+}
+$("owner-pins-refresh").onclick=()=>refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
 async function refreshRadarOps(){
  const data=await api("/api/admin/radar-ops");
  const chan=$("radar-ops-channels");chan.replaceChildren();
@@ -442,7 +477,23 @@ for(const action of ["hide","show","exclude"])$(action).onclick=async()=>{
  if(action==="exclude"&&!confirm("Exclure durablement ce canal ?"))return;
  try{await manage(id,action);}catch(e){status(String(e.message||e));}
 };
-if(!init)status("Ouvre cette page depuis le bot Telegram avec ton compte administrateur.");
-else load().catch(e=>status("Accès refusé ou service indisponible : "+String(e.message||e)));
+function bootstrapAdmin(){
+ if(adminBooted||!init)return;
+ adminBooted=true;
+ load().catch(e=>{
+  adminBooted=false;
+  status("Accès refusé ou service indisponible : "+String(e.message||e));
+ });
+}
+window.addEventListener("message",event=>{
+ if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=="cine-radar-owner-auth")return;
+ const signed=String(event.data.initData||"");
+ if(!signed||signed.length>5000)return;
+ init=signed;
+ try{sessionStorage.setItem("cine-radar-owner-auth",signed)}catch{}
+ bootstrapAdmin();
+});
+if(!init)status("Vérification Telegram : ouvre l'administration depuis le menu Ciné Radar.");
+else bootstrapAdmin();
 })();
 </script></body></html>`;

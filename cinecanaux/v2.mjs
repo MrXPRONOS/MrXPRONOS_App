@@ -41,7 +41,7 @@ export async function verifiedIdentity(request,env){
   const data=new URLSearchParams(request.headers.get('X-Telegram-Init-Data')||'');
   const user=JSON.parse(data.get('user')||'null');
   if(!Number.isSafeInteger(user?.id)||user.id<=0)return null;
-  return {hash,telegram_id:user.id};
+  return {hash,telegram_id:user.id,telegram_username:String(user.username||"").toLowerCase()};
  }catch{return null;}
 }
 async function bodyJson(request){

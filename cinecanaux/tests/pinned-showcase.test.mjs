@@ -120,5 +120,18 @@ test('pinned posters render independently of the slower decorative hero API',()=
  const segment=APP_HTML.slice(start,end);
  assert.ok(segment.includes('const pins=fetch("/api/pinned-showcase"'));
  assert.ok(segment.includes('const art=fetch("/api/showcase"'));
- assert.equal(segment.split('.finally(renderCinemaShowcase)').length-1,2);
+ assert.ok(segment.includes('.finally(()=>{renderCinemaShowcase();renderPinnedGallery()})'));
+ assert.ok(segment.includes('.finally(renderCinemaShowcase)'));
+});
+
+test('the Mini App has full pinned gallery, categories, live refresh and Telegram subscription links',()=>{
+ assert.ok(APP_HTML.includes('const pages=["accueil","affiches"'));
+ assert.ok(APP_HTML.includes('function galleryCard(entry){'));
+ assert.ok(APP_HTML.includes('function renderPinnedGallery(){'));
+ assert.ok(APP_HTML.includes('function refreshPinnedFeed(){')||APP_HTML.includes('async function refreshPinnedFeed(){'));
+ assert.ok(APP_HTML.includes('id="cine-pinned-gallery"'));
+ assert.ok(APP_HTML.includes('＋ S’abonner au canal'));
+ assert.ok(APP_HTML.includes('▶️ Voir sur Telegram'));
+ assert.ok(APP_HTML.includes('["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]'));
+ assert.ok(APP_HTML.includes('setInterval(()=>{if(!document.hidden)refreshPinnedFeed()},90000)'));
 });
