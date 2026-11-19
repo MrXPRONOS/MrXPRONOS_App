@@ -968,30 +968,25 @@ function analyticsPreference(about){
  };
  update();controls.append(opt);about.append(controls);
 }
-let discoverFrame=null;
+let discoverTimer=null;
 function autoScrollDiscover(){
  const box=$("cine-home-picks");
  if(!box)return;
- if(discoverFrame!==null){cancelAnimationFrame(discoverFrame);discoverFrame=null}
+ if(discoverTimer!==null){clearInterval(discoverTimer);discoverTimer=null}
  if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
- let pausedUntil=0,prev=0;
- const pause=()=>{pausedUntil=performance.now()+5000;};
+ let pausedUntil=0;
  if(!box.dataset.autoscrollBound){
-  for(const event of ["pointerdown","touchstart","wheel","focusin","mouseenter"])box.addEventListener(event,pause,{passive:true});
+  const pause=()=>{pausedUntil=Date.now()+3000;};
+  for(const event of ["pointerdown","touchstart","wheel","focusin"])box.addEventListener(event,pause,{passive:true});
   box.dataset.autoscrollBound="1";
  }
- const loop=now=>{
+ discoverTimer=setInterval(()=>{
+  if(document.hidden||Date.now()<pausedUntil)return;
   const max=box.scrollWidth-box.clientWidth;
-  if(!document.hidden&&now>pausedUntil&&max>3){
-   const elapsed=prev?Math.min(50,now-prev):16;
-   if(box.scrollLeft>=max-1)box.scrollLeft=0;
-   else box.scrollLeft=Math.min(max,box.scrollLeft+.022*elapsed);
-  }
-  prev=now;discoverFrame=requestAnimationFrame(loop);
- };
- discoverFrame=requestAnimationFrame(loop);
+  if(max<5)return;
+  box.scrollLeft=box.scrollLeft>=max-1?0:box.scrollLeft+1;
+ },50);
 }
-
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
  const measure=c=>(c.avatar_verified?200:0)+(c.content_verified?35:0)
