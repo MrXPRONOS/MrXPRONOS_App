@@ -819,7 +819,15 @@ test('V2 phase 2 Mini App inline scripts parse successfully in the browser',asyn
  try{
   const r=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
   const html=await r.text();
-  const inline=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)].map(x=>x[1]).filter(Boolean);
+  const inline=[];
+  let cursor=0;
+  while((cursor=html.indexOf('<script',cursor))>=0){
+   const gt=html.indexOf('>',cursor),close=html.indexOf('</script>',gt);
+   if(gt<0||close<0)break;
+   const content=html.slice(gt+1,close).trim();
+   if(content)inline.push(content);
+   cursor=close+9;
+  }
   assert.ok(inline.length>=2);
   for(const [i,js] of inline.entries())assert.doesNotThrow(()=>new vm.Script(js,{filename:'miniapp-inline-'+i+'.js'}));
  }finally{h.restore()}
