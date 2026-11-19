@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-links.json
+      CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-links-${{ github.run_id }}.json
       TG_API_ID: ${{ secrets.TG_API_ID }}
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
