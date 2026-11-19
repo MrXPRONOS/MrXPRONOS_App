@@ -307,6 +307,22 @@ export default {
    }catch(e){console.warn("cine_ui_icon_asset_unavailable",String(e).slice(0,90));}
    return new Response("Image indisponible",{status:503,headers:{"cache-control":"no-store"}});
   }
+  // Transparent, approved lot 3 cinema category icons, packed in a single small WebP atlas.
+  if(request.method==="GET"&&u.pathname==="/assets/ui-icons-lot3.webp"){
+   try{
+    const image=await fetch("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/ui-icons-lot3.webp",
+     {signal:AbortSignal.timeout(8000),cf:{cacheEverything:true,cacheTtl:86400}});
+    if(image.ok){
+     const bytes=new Uint8Array(await image.arrayBuffer());
+     const riff=bytes.length>=12&&String.fromCharCode(...bytes.slice(0,4))==="RIFF";
+     const webp=bytes.length>=12&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
+     if(bytes.byteLength>100&&bytes.byteLength<65536&&riff&&webp){
+      return new Response(bytes,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400,immutable","x-content-type-options":"nosniff"}});
+     }
+    }
+   }catch(e){console.warn("cine_ui_lot3_asset_unavailable",String(e).slice(0,90));}
+   return new Response("Image indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
   if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
    const name=u.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
