@@ -357,8 +357,9 @@ body{background:#07111f}
 .cine-promo-head{display:flex;justify-content:space-between;gap:6px;align-items:baseline;margin:0 1px 9px}
 .cine-promo-head strong{font-size:13px;letter-spacing:-.1px}
 .cine-promo-head small{color:#8ba2c2;font-size:9px;white-space:nowrap}
-.cine-promo-track{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,76%);gap:8px;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;padding-bottom:3px;overscroll-behavior-inline:contain}
-.cine-promo-card{position:relative;min-width:0;min-height:91px;display:flex;align-items:center;gap:9px;text-decoration:none;color:#eaf2ff;border:1px solid #3a5377;background:#152a44;border-radius:11px;padding:10px;scroll-snap-align:start;transition:border-color .15s,background .15s}
+.cine-promo-track{display:flex;gap:8px;min-width:0;width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-snap-type:none;padding-bottom:3px;overscroll-behavior-inline:contain}
+.cine-promo-track::-webkit-scrollbar{display:none}
+.cine-promo-card{position:relative;flex:0 0 clamp(220px,76%,360px);min-width:0;min-height:91px;display:flex;align-items:center;gap:9px;text-decoration:none;color:#eaf2ff;border:1px solid #3a5377;background:#152a44;border-radius:11px;padding:10px;transition:border-color .15s,background .15s}
 .cine-promo-card:hover,.cine-promo-card:focus-visible{border-color:#84aafa;background:#1b3657;outline-offset:2px}
 .cine-promo-avatar{position:relative;flex:0 0 43px;height:43px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#243f69;border:1px solid #6883b0;font-size:21px}
 .cine-promo-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -367,17 +368,10 @@ body{background:#07111f}
 .cine-promo-description{color:#b2c7e4;font-size:10px;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
 .cine-promo-age{font-size:9px;color:#f1c993;line-height:1.2}
 .cine-promo-arrow{flex:none;align-self:flex-start;color:#9db8e3;font-size:14px}
-@media(min-width:690px){.cine-promo-track{grid-auto-flow:row;grid-auto-columns:unset;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}.cine-promo-slot{margin:4px 0 9px}}
-@media(max-width:350px){.cine-promo-track{grid-auto-columns:minmax(208px,86%)}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
+@media(min-width:690px){.cine-promo-slot{margin:4px 0 9px}}
+@media(max-width:350px){.cine-promo-card{flex-basis:220px}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
 
-/* Horizontal auto-scroll for home channel discovery, with interactive links preserved. */
-.cine-home-picks{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-snap-type:none;padding:4px 1px 9px;align-items:stretch}
-.cine-home-picks .cine-pick{flex:0 0 155px;min-width:155px;max-width:155px;min-height:178px;scroll-snap-align:start}
-.cine-home-picks .cine-pick:nth-child(-n+2){flex-basis:165px;min-width:165px;max-width:165px}
-.cine-home-picks .cine-promo-slot{flex:0 0 min(86vw,342px);width:min(86vw,342px);grid-column:auto;scroll-snap-align:start;margin:0;align-self:center}
-.cine-home-picks .cine-promo-track{grid-auto-columns:minmax(200px,88%);gap:7px}
-.cine-home-picks .cine-promo-card{min-height:92px}
-@media(min-width:690px){.cine-home-picks .cine-pick{flex:0 0 190px;min-width:190px;max-width:190px}.cine-home-picks .cine-promo-slot{flex-basis:335px;width:335px}.cine-home-picks .cine-promo-track{display:grid;grid-template-columns:1fr;grid-auto-flow:row;overflow-y:auto;max-height:180px}.cine-home-picks .cine-promo-card{min-height:49px;padding:5px}.cine-home-picks .cine-promo-avatar{flex-basis:34px;height:34px}.cine-home-picks .cine-promo-description{-webkit-line-clamp:1;line-clamp:1}}
+/* Discovery cards retain the original responsive grid; only the separate promotion track scrolls. */
 .cine-community{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;color:#a6bce0}
 .cine-community-share{background:#273f78;color:#eaf4ff;border:1px solid #5876b0;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:750}
 .cine-community small{font-size:10px}
@@ -876,9 +870,13 @@ function promoBlock(){
  header.append(node("strong",null,"À découvrir aussi"),node("small",null,"Nos autres canaux · Promotion"));
  const track=node("div","cine-promo-track");
  const profiles=promoProfiles||[];
- for(const base of promoChannels){
+ // Three complete sets allow a seamless circular scroll on mobile and desktop.
+ // Only the first set is keyboard accessible; duplicate cards remain clickable.
+ for(let repeat=0;repeat<3;repeat++)for(const base of promoChannels){
   const profile=profiles.find(p=>p.handle===base.handle);
-  track.append(promoCard({...base,title:profile?.name||base.title,desc:profile?.description||base.desc}));
+  const card=promoCard({...base,title:profile?.name||base.title,desc:profile?.description||base.desc});
+  if(repeat>0){card.classList.add("cine-promo-duplicate");card.setAttribute("aria-hidden","true");card.tabIndex=-1;}
+  track.append(card);
  }
  wrapper.append(header,track);
  if(!promoStarted){
@@ -889,11 +887,12 @@ function promoBlock(){
     if(!Array.isArray(data.items))return;
     promoProfiles=data.items.filter(p=>promoChannels.some(c=>c.handle===p.handle));
     for(const profile of promoProfiles){
-     const card=[...document.querySelectorAll(".cine-promo-card")].find(el=>el.dataset.promoHandle===profile.handle);
-     if(!card)continue;
-     const name=card.querySelector(".cine-promo-name"),description=card.querySelector(".cine-promo-description");
-     if(name&&typeof profile.name==="string")name.textContent=profile.name.slice(0,68);
-     if(description&&typeof profile.description==="string")description.textContent=profile.description.slice(0,160);
+     for(const card of document.querySelectorAll(".cine-promo-card")){
+      if(card.dataset.promoHandle!==profile.handle)continue;
+      const name=card.querySelector(".cine-promo-name"),description=card.querySelector(".cine-promo-description");
+      if(name&&typeof profile.name==="string")name.textContent=profile.name.slice(0,68);
+      if(description&&typeof profile.description==="string")description.textContent=profile.description.slice(0,160);
+     }
     }
    }).catch(()=>{});
  }
@@ -968,23 +967,24 @@ function analyticsPreference(about){
  };
  update();controls.append(opt);about.append(controls);
 }
-let discoverTimer=null;
-function autoScrollDiscover(){
- const box=$("cine-home-picks");
- if(!box)return;
- if(discoverTimer!==null){clearInterval(discoverTimer);discoverTimer=null}
- if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
- let pausedUntil=0;
- if(!box.dataset.autoscrollBound){
-  const pause=()=>{pausedUntil=Date.now()+3000;};
-  for(const event of ["pointerdown","touchstart","wheel","focusin"])box.addEventListener(event,pause,{passive:true});
-  box.dataset.autoscrollBound="1";
- }
- discoverTimer=setInterval(()=>{
-  if(document.hidden||Date.now()<pausedUntil)return;
-  const max=box.scrollWidth-box.clientWidth;
-  if(max<5)return;
-  box.scrollLeft=box.scrollLeft>=max-1?0:box.scrollLeft+1;
+let promoTimer=null;
+function autoScrollPromos(){
+ const track=$("cine-home-picks")?.querySelector(".cine-promo-track");
+ if(promoTimer!==null){clearInterval(promoTimer);promoTimer=null}
+ if(!track||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
+ let hovered=false,pausedUntil=0;
+ track.addEventListener("mouseenter",()=>{hovered=true});
+ track.addEventListener("mouseleave",()=>{hovered=false});
+ const pause=()=>{pausedUntil=Date.now()+4500;};
+ for(const event of ["pointerdown","touchstart","wheel"])track.addEventListener(event,pause,{passive:true});
+ promoTimer=setInterval(()=>{
+  if(document.hidden||hovered||Date.now()<pausedUntil||track.matches(":focus-within"))return;
+  const nextSet=track.children[promoChannels.length],first=track.children[0];
+  if(!nextSet||!first)return;
+  const cycle=nextSet.offsetLeft-first.offsetLeft;
+  if(cycle<=0||track.scrollWidth-track.clientWidth<cycle)return;
+  if(track.scrollLeft>=cycle)track.scrollLeft-=cycle;
+  track.scrollLeft+=1;
  },50);
 }
 function miniFeatured(){
@@ -1008,7 +1008,7 @@ function miniFeatured(){
   if(index+1===Math.min(promoAfter,chosen.length))a.append(promoBlock());
  }
  if(!chosen.length)a.append(node("div","cine-empty-spot","Chargement des canaux…"));
- autoScrollDiscover();
+ autoScrollPromos();
 
 }
 function discover(){
