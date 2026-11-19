@@ -69,13 +69,24 @@ class FakeTelegramClient:
         raise ValueError(value)
 
     async def iter_messages(self, entity, *, limit=10, min_id=0, reverse=False):
-        if entity.peer_id != SRC:
-            return
-        found = [x for x in self.samples if x.id > min_id]
-        if not reverse:
-            found.reverse()
+        if entity.peer_id == SRC:
+            found = [x for x in self.samples if x.id > min_id]
+            if not reverse:
+                found.reverse()
+        else:
+            found = sorted(
+                (x for x in self.sent if x.channel == entity.peer_id
+                 and x.id > min_id),
+                key=lambda x: x.id, reverse=not reverse,
+            )
         for obj in found[:limit]:
             yield obj
+
+    async def get_messages(self, entity, ids):
+        def find(mid):
+            return next((x for x in self.sent if x.channel == entity.peer_id
+                         and x.id == mid), None)
+        return [find(int(v)) for v in ids] if isinstance(ids, list) else find(int(ids))
 
     async def forward_messages(self, to, msg_id, *, from_peer):
         if self.mirror_should_fail:
@@ -91,8 +102,17 @@ class FakeTelegramClient:
         self._next += 1
         if isinstance(media, io.BytesIO):
             media = media.name if str(getattr(media, "name", "")).startswith("mrx_") else media.getvalue().decode("utf-8")
-        self.sent.append(NS(channel=entity.peer_id, media=media, caption=caption,
-                            parse_mode=parse_mode, options=options, id=self._next))
+        is_film = isinstance(media, str) and media.startswith("video-")
+        doc_id = 100 + int(media.split("-")[-1]) if is_film else None
+        self.sent.append(NS(
+            channel=entity.peer_id, media=media, caption=caption,
+            raw_text=caption, parse_mode=parse_mode, options=options,
+            buttons=options.get("buttons"), id=self._next,
+            photo=None if is_film else object(),
+            document=NS(id=doc_id, attributes=[]) if is_film else None,
+            video=object() if is_film else None,
+            file=NS(name="movie.mp4") if is_film else None,
+        ))
         return NS(id=self._next)
 
 
@@ -122,6 +142,8 @@ class RelayEndToEndTests(unittest.TestCase):
             with patch("film_relay.bot_http.BotHTTPClient", side_effect=lambda token, user: client), \
                  patch("film_relay.mirror_policy.torrent9_paused", return_value=False), \
                  patch("film_relay.mirror_policy.assert_torrent9_enabled"), \
+                 patch("film_relay.rescue_channels.rescue_link_for",
+                       return_value="https://t.me/+VerifiedRescueDemo123"), \
                  patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
                 return asyncio.run(runner.execute())
 
@@ -149,8 +171,8 @@ class RelayEndToEndTests(unittest.TestCase):
             cfg, state = self.setup_files(temp)
             client = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(client, cfg, state), 0)
-            self.assertEqual([x.channel for x in client.sent], [PRIV, PRIV, PUB])
-            self.assertEqual([x.media for x in client.sent], ['poster-0', 'video-0', 'poster-0'])
+            self.assertEqual([x.channel for x in client.sent], [PRIV, PRIV, PUB, PUB])
+            self.assertEqual([x.media for x in client.sent], ['poster-0', 'video-0', 'poster-0', 'video-0'])
             self.assertIn('Résumé du film', client.sent[0].caption)
             self.assertNotIn('t.me', client.sent[0].caption)
             self.assertTrue(client.sent[1].caption.startswith('<b>🎞️ Excellente histoire'))
@@ -168,12 +190,12 @@ class RelayEndToEndTests(unittest.TestCase):
             cfg, state = self.setup_files(temp, with_mirror=True)
             first = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(first, cfg, state), 0)
-            self.assertEqual(len(first.sent), 3)
+            self.assertEqual(len(first.sent), 4)
             self.assertEqual(len(first.forwarded), 1)
             forwarded = first.forwarded[0]
             self.assertEqual(forwarded.destination, MIRROR)
             self.assertEqual(forwarded.source, PUB)
-            self.assertEqual(forwarded.origin_id, first.sent[-1].id)
+            self.assertEqual(forwarded.origin_id, first.sent[-2].id)
             self.assertTrue(State(str(state)).mirrored(f'{SRC}:10:11', str(MIRROR)))
             second = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(second, cfg, state), 0)
@@ -212,8 +234,9 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(State(str(state)).get_staged_posts(f'{SRC}:10:11'), {'poster': 101, 'video': 102})
             second = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(second, cfg, state), 0)
-            self.assertEqual(len(second.sent), 1)
+            self.assertEqual(len(second.sent), 2)
             self.assertEqual(second.sent[0].channel, PUB)
+            self.assertEqual(second.sent[1].channel, PUB)
             self.assertEqual(second.sent[0].options['buttons'][0][0].url, 'https://t.me/c/1020304050/102')
             self.assertEqual(State(str(state)).get_staged_posts(f'{SRC}:10:11'), {})
 
@@ -233,12 +256,12 @@ class RelayEndToEndTests(unittest.TestCase):
             samples = sample_messages(count=2)
             first = FakeTelegramClient(samples)
             self.assertEqual(self.start(first, cfg, state), 0)
-            self.assertEqual(len(first.sent), 3)
+            self.assertEqual(len(first.sent), 4)
             self.assertEqual(State(str(state)).seen(str(SRC)), 11)
             second = FakeTelegramClient(samples)
             self.assertEqual(self.start(second, cfg, state), 0)
-            self.assertEqual([x.media for x in second.sent[:3]], ['poster-1', 'video-1', 'poster-1'])
-            self.assertEqual([x.media for x in second.sent[3:]], [])
+            self.assertEqual([x.media for x in second.sent[:4]], ['poster-1', 'video-1', 'poster-1', 'video-1'])
+            self.assertEqual([x.media for x in second.sent[4:]], [])
             self.assertEqual(State(str(state)).seen(str(SRC)), 13)
 
 
