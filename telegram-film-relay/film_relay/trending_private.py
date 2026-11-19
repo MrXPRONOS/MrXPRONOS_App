@@ -241,6 +241,17 @@ async def copy_verified(client, source, destination, msg_id: int, record: dict, 
         raise RuntimeError("Média original introuvable : " + str(msg_id))
     if getattr(original, "noforwards", False):
         raise RuntimeError("Média protégé : transfert non autorisé")
+    # Reconcile a Telegram-accepted copy after a lost GitHub checkpoint.
+    # A dedicated channel only contains this title's own media.
+    source_document = video_document_id(original)
+    source_photo = getattr(getattr(original, "photo", None), "id", None)
+    async for prior in client.iter_messages(destination, limit=400):
+        if source_document and video_document_id(prior) == source_document:
+            record["copied"][key] = int(prior.id)
+            return int(prior.id)
+        if source_photo and getattr(getattr(prior, "photo", None), "id", None) == source_photo:
+            record["copied"][key] = int(prior.id)
+            return int(prior.id)
     copied = await client.forward_messages(destination, msg_id, from_peer=source)
     if isinstance(copied, list):
         copied = copied[0] if len(copied) == 1 else None
@@ -331,9 +342,13 @@ async def work_item(client, bot, item, state, library, public, candidate,
                 break
             season_key = "season:" + str(season)
             if season not in completed_seasons and not record["copied"].get(season_key):
-                message = await client.send_message(
-                    channel, f"📺 {candidate['title']} — Saison {season}",
-                    link_preview=False)
+                label = f"📺 {candidate['title']} — Saison {season}"
+                recovered = None
+                async for prior in client.iter_messages(channel, limit=400):
+                    if not prior.media and str(prior.raw_text or "") == label:
+                        recovered = prior
+                        break
+                message = recovered or await client.send_message(channel, label, link_preview=False)
                 if not message:
                     raise RuntimeError("Bannière de saison non confirmée")
                 record["copied"][season_key] = int(message.id)
