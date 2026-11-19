@@ -367,6 +367,7 @@ async function mrxpBoostExpire(env,id){
 }
 async function mrxpBoostList(env,player,wallet){
  const id=String(player.user_id);
+ const config=await mrxpBalanceConfig(env);
  await mrxpBoostExpire(env,id);
  const r=await env.DB.prepare("SELECT purchase_id,sku,kind,cost,state,bought_ms,activated_ms,expires_ms FROM mrxp_boost_inventory WHERE user_id=? ORDER BY bought_ms DESC LIMIT 100").bind(id).all();
  const inventory=(r.results||[]).map(b=>({
@@ -377,7 +378,7 @@ async function mrxpBoostList(env,player,wallet){
  }));
  const activeTap=inventory.find(x=>x.kind==="tap"&&(x.state==="queued"||x.state==="active"))||null;
  const energyCharged=inventory.find(x=>x.kind==="energy"&&x.state==="charged")||null;
- return {catalog:MRXP_BOOST_CATALOG,inventory,
+ return {catalog:mrxpBalanceCatalog(config),available:mrxpBalanceCanBuy(config,id),rollout_percent:config.values.shop_rollout,inventory,
   active_tap:activeTap,energy_charged:energyCharged,
   balance:wallet?wallet.balance:null,server_time:Date.now(),
   sync_hours:12,stacking:false,real_money:false,
@@ -386,24 +387,28 @@ async function mrxpBoostList(env,player,wallet){
 async function mrxpPurchaseBoost(env,player,payload){
  const id=String(player.user_id);
  const sku=String(payload?.sku||""),purchaseId=String(payload?.purchase_id||"");
- const item=mrxpBoostSku(sku);
+ const config=await mrxpBalanceConfig(env);
+ const itemBase=mrxpBoostSku(sku),item=itemBase?{...itemBase,price:mrxpBalancePrice(config,sku,itemBase.price)}:null;
  if(!item)return {status:400,error:"BOOST_UNKNOWN"};
  if(!MRXP_BOOST_PURCHASE_PATTERN.test(purchaseId))return {status:400,error:"PURCHASE_ID_INVALID"};
  const wallet=await mrxpWallet(env,player);
  const existing=await env.DB.prepare("SELECT purchase_id,sku,cost FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?").bind(id,purchaseId).first();
  if(existing)return existing.sku===sku?{ok:true,duplicate:true,wallet,shop:await mrxpBoostList(env,player,wallet)}:{status:409,error:"PURCHASE_ID_REUSED"};
+ if(!mrxpBalanceCanBuy(config,id))return {status:423,error:"SHOP_NOT_AVAILABLE"};
  if(wallet.balance<item.price)return {status:409,error:"INSUFFICIENT_CREDITS",balance:wallet.balance};
- const now=Date.now();
+ const now=Date.now(),dayStart=Math.floor(now/86400000)*86400000,limit=config.values.shop_daily_limit;
+ const purchases=await env.DB.prepare("SELECT COUNT(*) AS n FROM mrxp_boost_inventory WHERE user_id=? AND bought_ms>=?").bind(id,dayStart).first();
+ if(Number(purchases?.n||0)>=limit)return {status:429,error:"SHOP_DAILY_LIMIT"};
  /* D1 batch runs as one transaction; the debit INSERT is required and can
     happen only if the immediately previous inventory INSERT changed a row. */
  const rows=await env.DB.batch([
-  env.DB.prepare("INSERT OR IGNORE INTO mrxp_boost_inventory(user_id,purchase_id,sku,kind,cost,state,bought_ms,activated_ms,expires_ms,carry_milli) SELECT ?,?,?,?,?, 'owned',?,0,0,0 WHERE (SELECT COALESCE(SUM(amount),0) FROM mrxp_credit_events WHERE user_id=?)>=? AND NOT EXISTS(SELECT 1 FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?)").bind(id,purchaseId,item.sku,item.kind,item.price,now,id,item.price,id,purchaseId),
+  env.DB.prepare("INSERT OR IGNORE INTO mrxp_boost_inventory(user_id,purchase_id,sku,kind,cost,state,bought_ms,activated_ms,expires_ms,carry_milli) SELECT ?,?,?,?,?, 'owned',?,0,0,0 WHERE (SELECT COALESCE(SUM(amount),0) FROM mrxp_credit_events WHERE user_id=?)>=? AND (SELECT COUNT(*) FROM mrxp_boost_inventory WHERE user_id=? AND bought_ms>=?)<? AND NOT EXISTS(SELECT 1 FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?)").bind(id,purchaseId,item.sku,item.kind,item.price,now,id,item.price,id,dayStart,limit,id,purchaseId),
   env.DB.prepare("INSERT INTO mrxp_credit_events(user_id,event_key,event_type,amount,label,created_ms) SELECT ?,?,'purchase',?,?,? WHERE changes()=1").bind(id,"buy:"+purchaseId,-item.price,"Boutique : "+item.label,now)
  ]);
  const accepted=Number(rows[0]?.meta?.changes||0)===1;
  if(!accepted){
   const retry=await env.DB.prepare("SELECT sku FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?").bind(id,purchaseId).first();
-  if(!retry)return {status:409,error:"INSUFFICIENT_CREDITS"};
+  if(!retry){const count=await env.DB.prepare("SELECT COUNT(*) AS n FROM mrxp_boost_inventory WHERE user_id=? AND bought_ms>=?").bind(id,dayStart).first();return Number(count?.n||0)>=limit?{status:429,error:"SHOP_DAILY_LIMIT"}:{status:409,error:"INSUFFICIENT_CREDITS"}};
   if(retry.sku!==sku)return {status:409,error:"PURCHASE_ID_REUSED"}
  }
  const fresh=await mrxpWallet(env,player);
