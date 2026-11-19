@@ -1,0 +1,44 @@
+{
+  "project": "Mr XPRONOS Play",
+  "group": "08-ui-actions",
+  "assets": [
+    {
+      "number": 59,
+      "slug": "info-circle",
+      "png": "assets/08-ui-actions/59-info-circle.png",
+      "webp": "assets/08-ui-actions/59-info-circle.webp",
+      "dimensions_png": [
+        1254,
+        1254
+      ],
+      "dimensions_webp": [
+        512,
+        512
+      ],
+      "transparent": true,
+      "png_bytes": 1061505,
+      "webp_bytes": 37366,
+      "sha256_png": "ab4f4e9881e37528c7049d7502588684cc43c14e5839ef2e747f95b544310663",
+      "sha256_webp": "edee3d77791975aa5dc67745c984fd52bb529a9d2c4b3b334ae9be5d0885b3f9"
+    },
+    {
+      "number": 60,
+      "slug": "crowned-shield",
+      "png": "assets/08-ui-actions/60-crowned-shield.png",
+      "webp": "assets/08-ui-actions/60-crowned-shield.webp",
+      "dimensions_png": [
+        1254,
+        1254
+      ],
+      "dimensions_webp": [
+        512,
+        512
+      ],
+      "transparent": true,
+      "png_bytes": 609419,
+      "webp_bytes": 26952,
+      "sha256_png": "1133c0f8e3d254e517df33ceef73aab4bbd67ae8f6d9f1a50c7d546e7b4c0209",
+      "sha256_webp": "d7625ad142dd3994fbdc45702af3584826f78460a3df0ee8a9887d93c3afd118"
+    }
+  ]
+}
