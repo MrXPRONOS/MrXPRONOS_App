@@ -14,7 +14,7 @@ from .text import first_title
 
 # User's Telegram shared-chat folder: replaces the old private-library button.
 DEFAULT_FILM_FOLDER_URL = "https://t.me/addlist/ZmW4vfwcrMAwNzJk"
-FILM_FOLDER_BUTTON_TEXT = "🔥 PLUS DE FILMS ? REJOINS LA TEAM !"
+FILM_FOLDER_BUTTON_TEXT = "📁 Rejoindre le dossier"
 
 
 def film_folder_url() -> str:
@@ -82,10 +82,11 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
     if not movie_url.startswith("https://t.me/c/"):
         raise ValueError("Le lien vidéo privé doit être un lien t.me/c validé.")
     from .rescue_channels import add_rescue_tuple_row
-    return add_rescue_tuple_row([
+    rows = add_rescue_tuple_row([
         [("🎬 REGARDER LE FILM", movie_url)],
-        [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())],
     ], public_peer)
+    rows.append([(FILM_FOLDER_BUTTON_TEXT, film_folder_url())])
+    return rows
 
 
 async def send_public_poster_with_buttons(
@@ -106,7 +107,10 @@ async def send_public_poster_with_buttons(
     photo.name = "cinex_affiche.jpg"
     rows = url_button_rows(private_movie_link, invite_link, public_peer=public_peer)
     keyboard = [
-        [url_button(label, url, style="success" if index == 0 else "danger")
+        [url_button(label, url, style=(
+            "success" if label.startswith("🎬") else
+            "primary" if "secours" in label.lower() else "danger"
+        ))
          for label, url in row]
         for index, row in enumerate(rows)
     ]
