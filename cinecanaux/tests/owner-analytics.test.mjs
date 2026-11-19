@@ -13,6 +13,7 @@ function mockClaim(){
  const db={prepare(sql){
   let vals=[];const query={
    bind(...xs){vals=xs;return query},
+   async all(){return sql.includes('FROM admin_users')?{results:[{user_id:state.roleId}]}:{results:[]}},
    async first(){
     if(sql.includes('FROM owner_claim_request'))return {code_sha256:await codeHash(CODE),expires_at:'2099-01-01 00:00:00',used_at:state.used?'now':null};
     return null;
@@ -43,9 +44,12 @@ test('only verified private Telegram username and one-time code can claim owner'
   assert.ok(fixture.state.writes.some(x=>x.sql.startsWith("DELETE FROM admin_users")));
   assert.ok(fixture.state.writes.some(x=>x.sql.startsWith("INSERT INTO admin_users")&&x.vals[0]===900));
   assert.equal((await tryOwnerClaim({DB:fixture.DB,TELEGRAM_TOKEN:'test'},good)).activated,false);
-  assert.ok(calls.some(x=>x.text.includes('activé')));
-  assert.ok(calls.filter(x=>!x.text.includes('activé')).every(x=>!x.reply_markup),'Denied owner claims must never show an admin button');
-  assert.ok(calls.filter(x=>x.text.includes('activé')).every(x=>x.reply_markup?.inline_keyboard?.length===1),'Only successful owner claim should show admin entry point');
+  const messages=calls.filter(x=>typeof x.text==='string');
+  assert.ok(messages.some(x=>x.text.includes('activé')));
+  assert.ok(messages.filter(x=>!x.text.includes('activé')).every(x=>!x.reply_markup),'Denied owner claims must never show an admin button');
+  assert.ok(messages.filter(x=>x.text.includes('activé')).every(x=>x.reply_markup?.inline_keyboard?.length===1),'Only successful owner claim should show admin entry point');
+  assert.ok(calls.some(x=>x.scope?.type==='chat'&&x.scope?.chat_id===123),'Old owner command scope should be revoked');
+  assert.ok(calls.some(x=>x.chat_id===123&&x.menu_button?.type==='commands'),'Old owner admin menu should be reset');
  }finally{globalThis.fetch=old}
 });
 test('analytics reject invalid and cross-site event payloads',async()=>{
