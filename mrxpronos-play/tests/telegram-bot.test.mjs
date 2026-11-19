@@ -474,6 +474,14 @@ test('the Mini App loads lot 6 splash, spinner, mission status, energy and victo
 });
 
 test('rank avatar catalog has 11 validated African portraits and 22 hash-verified image files',async()=>{
+ const highDefPng=await readFile(new URL('../assets/07-rank-avatars/rank-11-souverain-mx.png',import.meta.url));
+ const highDefWebp=await readFile(new URL('../assets/07-rank-avatars/rank-11-souverain-mx.webp',import.meta.url));
+ assert.equal(highDefPng.length,2616419);
+ assert.equal(highDefWebp.length,237800);
+ assert.equal(highDefPng.readUInt32BE(16),1254);
+ assert.equal(highDefPng.readUInt32BE(20),1254);
+ assert.ok(highDefWebp.length>200000);
+
  const manifest=JSON.parse(await readFile(new URL('../avatars-manifest.json',import.meta.url),'utf8'));
  assert.equal(manifest.avatar_count,11);
  assert.equal(manifest.avatars.length,11);
@@ -516,6 +524,8 @@ test('rank portrait mapping matches all 11 approved ranks including Souverain MX
   }
   assert.ok(html.includes('from:10,to:14,name:"Élite",image:"rank-06-elite.webp"'));
   assert.ok(html.includes('from:50,to:999999,name:"Souverain MX",image:"rank-11-souverain-mx.webp"'));
+  assert.ok(html.includes('rank-11-souverain-mx.webp"?"?v=hd-20261119"'));
+  assert.ok(html.includes('const servedSource=source+'));
   assert.ok(html.includes('RANK_BRAND_FALLBACK'));
   assert.ok(html.includes('window.refreshRankAvatar?.()'));
   assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
