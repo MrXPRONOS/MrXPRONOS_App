@@ -6,6 +6,7 @@ from film_relay.public_video_archive import (
     is_video_message, last_ten_video_ids, matching_poster,
     normalize_title, title_similarity, archive_buttons, verified_film_video_pairs,
     is_user_reserved_film, poster_heading, replace_uneditable_public_poster,
+    is_primary_film_video,
 )
 
 
@@ -22,6 +23,22 @@ class PublicArchiveTests(unittest.TestCase):
     def test_video_and_nonvideo(self):
         self.assertTrue(is_video_message(msg(1, title="Film", video=True)))
         self.assertFalse(is_video_message(msg(2, title="Affiche", photo=True)))
+
+    def test_latest_ten_real_films_include_unpaired_but_not_gifs_pronos_series_or_john_wick(self):
+        movies = [msg(100 + i, title=f"🎞️ Film voyage {i}", video=True)
+                  for i in range(12)]
+        movies.extend([
+            msg(400, title="animation gif", video=True, name="animation.gif.mp4"),
+            msg(401, title="⚽ Pronostics Mr XPRONOS", video=True,
+                name="daily_pronos_coupon_short.mp4"),
+            msg(402, title="JOHN WICK FILM 4 VF.mp4", video=True),
+            msg(403, title="12 12 12 [S01 EP 01]", video=True),
+            msg(404, title="🎞️ Nouveau film sans affiche", video=True),
+        ])
+        self.assertTrue(is_primary_film_video(movies[-1]))
+        self.assertFalse(is_primary_film_video(movies[-2]))
+        self.assertEqual(last_ten_video_ids(movies),
+                         {404, *range(103, 112)})
 
     def test_only_latest_ten_kept(self):
         messages = [msg(i, video=True) for i in range(1, 15)]
