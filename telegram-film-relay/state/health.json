@@ -1,8 +1,8 @@
 {
-  "last_checked": "2026-10-16T19:43:59.803814+00:00",
+  "last_checked": "2026-11-19T07:56:21.349773+00:00",
   "status": "ready",
   "checks": {
-    "Secrets TG_API_ID / TG_API_HASH / TG_STRING_SESSION (ou TG_STREAM_SESSION)": {
+    "Secrets TG_API_ID / TG_API_HASH / TG_SESSION_STRING (ou TG_STRING_SESSION)": {
       "status": "ok"
     },
     "Format TG_PRIVATE_CHANNEL": {
@@ -24,5 +24,5 @@
   "publishing_enabled": false,
   "rights_attested": false,
   "publishing_blocked": true,
-  "discovery_has_run": false
+  "discovery_has_run": true
 }
