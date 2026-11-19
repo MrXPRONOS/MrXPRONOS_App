@@ -320,6 +320,14 @@ async def work_item(client, bot, item, state, library, public, candidate,
         await asyncio.sleep(60)
     invite = await private_invitation(client, channel, record)
     save_state(state)
+    # Profile is based on this title's actual Telegram poster, not a generic logo.
+    source_channel = public if candidate["kind"] == "films" else library
+    original_poster = await client.get_messages(source_channel, ids=int(candidate["cover_id"]))
+    if not original_poster or not getattr(original_poster, "photo", None):
+        raise RuntimeError("Affiche du titre non vérifiée : photo de profil différée")
+    from .channel_profiles import sync_trend_profile
+    await sync_trend_profile(client, channel, item, original_poster, record, pause=MIN_PAUSE)
+    save_state(state)
     copies = 0
     if candidate["kind"] == "films":
         if not record["copied"].get("cover"):
