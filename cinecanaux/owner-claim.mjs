@@ -34,6 +34,8 @@ export async function tryOwnerClaim(env,update){
   await reply("Code incorrect, expiré ou déjà utilisé. Aucune modification des droits n'a été effectuée.");
   return {handled:true,activated:false};
  }
+ // Keep the previous owner IDs so their Telegram command menus can be revoked.
+ const previousOwners=(await env.DB.prepare("SELECT user_id FROM admin_users WHERE role='owner'").all()).results||[];
  // Consume the one-use activation atomically before changing any privileges.
  const consumed=await env.DB.prepare("UPDATE owner_claim_request SET used_at=CURRENT_TIMESTAMP WHERE id=1 AND used_at IS NULL AND code_sha256=? AND expires_at>datetime('now')").bind(hash).run();
  if(Number(consumed.meta?.changes||0)!==1)throw Error("Owner claim race/replay prevented");
@@ -42,6 +44,24 @@ export async function tryOwnerClaim(env,update){
   env.DB.prepare("INSERT INTO admin_users(user_id,role) VALUES(?,'owner') ON CONFLICT(user_id) DO UPDATE SET role='owner'").bind(userId),
   env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','9') ON CONFLICT(setting_key) DO UPDATE SET value='9',updated_at=CURRENT_TIMESTAMP")
  ]);
+ // Security cleanup: previous owners must not retain stale /admin commands or menu buttons.
+ for(const old of previousOwners){
+  const oldId=Number(old.user_id);
+  if(!Number.isSafeInteger(oldId)||oldId<=0||oldId===userId)continue;
+  for(const [method,payload] of [
+   ["deleteMyCommands",{scope:{type:"chat",chat_id:oldId}}],
+   ["setChatMenuButton",{chat_id:oldId,menu_button:{type:"commands"}}]
+  ]){
+   try{
+    const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/"+method,{
+     method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload),
+     signal:AbortSignal.timeout(5000)
+    });
+    const result=await r.json();
+    if(!r.ok||!result.ok)console.warn("owner_scope_cleanup_failed",method);
+   }catch{console.warn("owner_scope_cleanup_unavailable",method)}
+  }
+ }
  await reply("✅ Compte administrateur activé.\n\nOuvre le bouton ci-dessous depuis cette conversation Telegram. Ne partage pas ton code d'activation.",true);
  return {handled:true,activated:true,ownerId:userId};
 }
