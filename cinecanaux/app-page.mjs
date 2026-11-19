@@ -414,6 +414,24 @@ body{background:#07111f}
 .cine-owner-admin-frame{flex:1;border:0;width:100%;min-height:0;background:#07101e}
 .cine-owner-admin-link{display:flex;width:100%;align-items:center;gap:11px;padding:13px 14px;background:linear-gradient(115deg,#1b3972,#2b2372);color:#f6f9ff;border:1px solid #6682ca;border-radius:10px;font-weight:800;font-size:13px;margin:10px 0}
 .cine-owner-admin-link[hidden]{display:none}
+.cine-pinned-filters{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.cine-pinned-filters button{border:1px solid #4a6d9f;background:#152b49;border-radius:999px;color:#d9e9ff;padding:9px 12px;font-size:12px;font-weight:750}
+.cine-pinned-filters button[aria-pressed=true]{background:linear-gradient(115deg,#376cf6,#604cef);color:white;border-color:#95b4ff}
+.cine-pinned-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:13px 0 22px}
+.cine-pinned-gallery-card{min-width:0;overflow:hidden;border:1px solid #3c5a8d;border-radius:13px;background:linear-gradient(150deg,#13294d,#111d37)}
+.cine-gallery-art{position:relative;aspect-ratio:2/3;background:#233d69;overflow:hidden}
+.cine-gallery-art img{width:100%;height:100%;object-fit:cover;display:block}
+.cine-gallery-category{position:absolute;left:8px;top:8px;background:#081c34df;border:1px solid #8194c0;border-radius:7px;padding:4px 7px;color:white;font-size:10px}
+.cine-gallery-info{padding:10px;display:flex;flex-direction:column;gap:9px}
+.cine-gallery-info strong{font-size:12px;line-height:1.35;min-height:32px;overflow-wrap:anywhere}
+.cine-gallery-actions{display:flex;flex-direction:column;gap:6px}
+.cine-gallery-actions button,.cine-gallery-actions a{display:block;text-decoration:none;width:100%;font:inherit;font-size:11px;font-weight:800;border-radius:8px;padding:9px 7px;text-align:center;border:1px solid #557fd1;color:#fff;background:#2a55b1}
+.cine-gallery-actions a{background:#172c4b;border-color:#4c719f;color:#dce9fc}
+.cine-pinned-category-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 18px}
+.cine-pinned-category-quick button{min-width:0;border:1px solid #5275b4;background:#142e56;color:#f3f8ff;border-radius:11px;padding:13px 5px;font-weight:800;font-size:12px}
+.cine-gallery-note{font-size:11px;color:#a9bfdc;margin:10px 0;line-height:1.5}
+@media(min-width:640px){.cine-pinned-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:340px){.cine-pinned-gallery{gap:7px}.cine-gallery-info{padding:7px}.cine-pinned-category-quick button{font-size:10px}}
 .cine-community{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;color:#a6bce0}
 .cine-community-share{background:#273f78;color:#eaf4ff;border:1px solid #5876b0;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:750}
 .cine-community small{font-size:10px}
@@ -939,8 +957,8 @@ const validChannelLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.t
 const photoHost=url=>/^\/assets\/channel-avatar\/(?:[a-z][a-z0-9_]{4,31}|[1-9][0-9]{0,9})\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"\x27<>]{1,1200}$/i.test(String(url||""));
 const read=(key,max)=>{try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v.map(Number).filter(x=>Number.isSafeInteger(x)&&x>0).slice(0,max):[]}catch{return []}};
 let favorites=read(saveKey,250),recent=read(historyKey,60),catalog=[],mode="explorer",currentPreview=null,drawerOpen=false;
-const pages=["accueil","explorer","decouvrir","favoris","historique","proposer","apropos"];
-const labels={accueil:"Accueil",explorer:"Explorer",decouvrir:"Découvrir",favoris:"Favoris",historique:"Historique",proposer:"Proposer un canal",apropos:"À propos"};
+const pages=["accueil","affiches","explorer","decouvrir","favoris","historique","proposer","apropos"];
+const labels={accueil:"Accueil",affiches:"À l’affiche",explorer:"Explorer",decouvrir:"Découvrir",favoris:"Favoris",historique:"Historique",proposer:"Proposer un canal",apropos:"À propos"};
 let panel={},listing,existing,oldFocus=null;
 function persist(){try{localStorage.setItem(saveKey,JSON.stringify(favorites));localStorage.setItem(historyKey,JSON.stringify(recent))}catch{}}
 function showChannelImage(img,source,backup,exhausted){
@@ -1047,8 +1065,62 @@ async function loadCinemaShowcase(){
    if(Array.isArray(body.items)){
     pinnedShowcase=body.items.filter(x=>x&&["films","series","animes"].includes(x.type)&&pinnedLink(x.link)&&pinnedImage(x.poster)).slice(0,24);
    }
-  }).catch(()=>{}).finally(renderCinemaShowcase);
+  }).catch(()=>{}).finally(()=>{renderCinemaShowcase();renderPinnedGallery()});
  await Promise.allSettled([pins,art]);
+}
+
+
+const PINNED_CHANNELS={films:"CineXFilms_vf",series:"seriesvf_cinex",animes:"CineXAnimeFR"};
+let selectedPinType="all";
+function showPinnedKind(kind){
+ selectedPinType=["films","series","animes"].includes(kind)?kind:"all";
+ setHash("affiches");
+ renderPinnedGallery();
+}
+function galleryCard(entry){
+ const card=node("article","cine-pinned-gallery-card"),art=node("div","cine-gallery-art");
+ const label=node("span","cine-gallery-category",posterTypeTitle[entry.type]||"Cinéma");
+ if(pinnedImage(entry.poster)&&pinnedLink(entry.link)){
+  const img=node("img");img.loading="lazy";img.decoding="async";img.alt="Affiche de "+entry.title;img.src=entry.poster;
+  img.onerror=()=>{img.remove();art.classList.add("cine-poster-fallback")};art.append(img);
+ }
+ art.append(label);
+ const info=node("div","cine-gallery-info"),title=node("strong",null,entry.title||"Publication épinglée");
+ const actions=node("div","cine-gallery-actions"),see=node("button",null,"▶️ Voir sur Telegram");
+ see.type="button";see.onclick=()=>openPinnedMessage(entry);
+ const subscribe=node("a",null,"＋ S’abonner au canal");
+ const username=PINNED_CHANNELS[entry.type];
+ subscribe.href="https://t.me/"+username;subscribe.target="_blank";subscribe.rel="noopener noreferrer";
+ subscribe.onclick=e=>{
+  const tg=window.Telegram?.WebApp;
+  if(tg?.openTelegramLink){e.preventDefault();tg.openTelegramLink(subscribe.href)}
+ };
+ actions.append(see,subscribe);info.append(title,actions);card.append(art,info);
+ return card;
+}
+function renderPinnedGallery(){
+ const list=$("cine-pinned-gallery"),tabs=$("cine-pinned-filters"),counter=$("cine-pinned-count");
+ if(!list||!tabs)return;
+ for(const button of tabs.querySelectorAll("button[data-pin-kind]"))
+  button.setAttribute("aria-pressed",String(button.dataset.pinKind===selectedPinType));
+ list.textContent="";
+ const filtered=pinnedShowcase.filter(p=>selectedPinType==="all"||p.type===selectedPinType);
+ for(const entry of filtered)list.append(galleryCard(entry));
+ if(counter)counter.textContent=filtered.length+" publication"+(filtered.length===1?"":"s")+" à découvrir";
+ if(!filtered.length)list.append(node("p","cine-gallery-note","Aucune publication épinglée dans cette catégorie pour le moment."));
+}
+async function refreshPinnedFeed(){
+ try{
+  const r=await fetch("/api/pinned-showcase",{cache:"no-store",headers:{accept:"application/json"}});
+  if(!r.ok)throw Error("Erreur de synchronisation");
+  const data=await r.json();
+  if(!Array.isArray(data.items))throw Error("Réponse invalide");
+  pinnedShowcase=data.items.filter(x=>x&&["films","series","animes"].includes(x.type)&&pinnedLink(x.link)&&pinnedImage(x.poster)).slice(0,120);
+  renderCinemaShowcase();renderPinnedGallery();
+  const state=$("cine-pinned-sync-state");if(state)state.textContent="Dernière mise à jour : "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+ }catch{
+  const state=$("cine-pinned-sync-state");if(state)state.textContent="Actualisation indisponible. Réessaie.";
+ }
 }
 
 const promoChannels=[
@@ -1316,6 +1388,7 @@ function navigate(name){
  if(["explorer","favoris","historique"].includes(p))goToList(p);
  switchPanel(p);
  if(p==="decouvrir"){discover();genreContent()}
+ if(p==="affiches"){renderPinnedGallery();refreshPinnedFeed()}
  if(p==="accueil")miniFeatured();
 }
 
@@ -1327,9 +1400,15 @@ function build(){
  const home=panel.accueil;hero.classList.add("cine-hero");home.append(hero);
  const art=hero.querySelector(".hero-art");if(art){const collage=node("div","cine-hero-collage");collage.id="cine-hero-collage";art.append(collage)}
  const copy=hero.querySelector(".hero-copy");if(copy){const h=copy.querySelector("h2"),p=copy.querySelector("p");if(h){h.textContent="";h.append("Le cinéma,",node("span","accent","à découvrir."))}if(p)p.textContent="Trouve facilement les canaux Telegram qui correspondent à tes envies."}
- const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");const showcaseLabel=node("strong");showcaseLabel.append(cineCategoryIcon("affiches"),document.createTextNode("À l'affiche"));showcaseHead.append(showcaseLabel,node("small",null,"Films · Séries · Animés"));const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
+ const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");const showcaseLabel=node("strong");showcaseLabel.append(cineCategoryIcon("affiches"),document.createTextNode("À l'affiche"));showcaseHead.append(showcaseLabel,node("small",null,"Films · Séries · Animés"));const seeAll=node("button","cine-link","Tout voir");seeAll.type="button";seeAll.onclick=()=>showPinnedKind("all");showcaseHead.append(seeAll);const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
 
  const form=node("form","cine-home-search");form.setAttribute("role","search");const inp=document.createElement("input");inp.type="search";inp.placeholder="Films d'action, animés, séries…";inp.setAttribute("aria-label","Rechercher des canaux");const submit=node("button",null,"Chercher");submit.type="submit";form.append(inp,submit);form.onsubmit=e=>{e.preventDefault();setFilter(inp.value.trim())};home.append(form);
+ sectionTitle(home,"Les publications épinglées",null);
+ const categoryQuick=node("div","cine-pinned-category-quick");
+ for(const [kind,caption] of [["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]]){
+  const b=node("button",null,caption);b.type="button";b.onclick=()=>showPinnedKind(kind);categoryQuick.append(b);
+ }
+ home.append(categoryQuick);
  sectionTitle(home,"Explore par univers",null);
  const quick=node("div","cine-quick");quick.append(quickButton("film","Films","films"),quickButton("tv","Séries","series"),quickButton("gamepad","Animés","animes"));home.append(quick);
  sectionTitle(home,"À découvrir","Voir tout",()=>setHash("decouvrir"));const picks=node("div","cine-home-picks");picks.id="cine-home-picks";home.append(picks);
@@ -1345,6 +1424,21 @@ function build(){
  const empty=node("div","cine-private-empty");empty.id="cine-private-empty";empty.hidden=true;listing.append(empty);
  for(const name of ["explorer","favoris","historique"]){const slot=node("div");slot.id="cine-slot-"+name;panel[name].append(slot)}
  $("cine-slot-explorer").append(listing);
+ heading(panel.affiches,"À l’affiche","Retrouve les publications épinglées dans nos trois canaux cinéma.");
+ const controls=node("div","cine-pinned-filters");controls.id="cine-pinned-filters";
+ for(const [kind,title] of [["all","Tout"],["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]]){
+  const b=node("button",null,title);b.type="button";b.dataset.pinKind=kind;
+  b.setAttribute("aria-pressed",String(kind===selectedPinType));
+  b.onclick=()=>{selectedPinType=kind;renderPinnedGallery()};controls.append(b);
+ }
+ panel.affiches.append(controls);
+ const count=node("p","cine-gallery-note");count.id="cine-pinned-count";
+ const sync=node("p","cine-gallery-note");sync.id="cine-pinned-sync-state";
+ const refresh=node("button","cine-soft-button","↻ Actualiser les affiches");refresh.type="button";refresh.onclick=refreshPinnedFeed;
+ const cardsGrid=node("div","cine-pinned-gallery");cardsGrid.id="cine-pinned-gallery";
+ const info=node("p","cine-gallery-note","Abonne-toi au canal de ton choix pour suivre les nouvelles publications. Chaque affiche ouvre son message Telegram d’origine.");
+ panel.affiches.append(count,refresh,sync,cardsGrid,info);
+ renderPinnedGallery();
  heading(panel.favoris,"Mes favoris","Les canaux enregistrés restent dans ce navigateur.");
  heading(panel.historique,"Consultés récemment","Retrouve les canaux ouverts depuis ce navigateur.");
  panel.favoris.prepend(panel.favoris.querySelector(".cine-head"));
@@ -1367,7 +1461,7 @@ function build(){
  const backdrop=node("div","cine-drawer-backdrop");backdrop.id="cine-menu-backdrop";backdrop.hidden=true;
  const drawer=node("aside","cine-drawer");drawer.setAttribute("role","dialog");drawer.setAttribute("aria-modal","true");drawer.setAttribute("aria-label","Menu de navigation");
  const dhead=node("div","cine-drawer-title");dhead.append(node("b",null,"Ciné Radar"));const close=node("button");close.append(cineNavIcon("fermer"));close.id="cine-menu-close";close.setAttribute("aria-label","Fermer le menu");close.onclick=closeMenu;dhead.append(close);drawer.append(dhead);
- const groups=[["Découvrir",[["Accueil","accueil","accueil"],["Explorer les canaux","explorer","explorer"],["Genres et découvertes","decouvrir","decouvrir"]]],["Personnel",[["Mes favoris","favoris","favoris"],["Historique","historique","historique"]]],["Communauté",[["Proposer un canal","proposer","proposer"],["À propos et confidentialité","apropos","apropos"]]]];
+ const groups=[["Découvrir",[["Accueil","accueil","accueil"],["À l’affiche — Films, séries, animés","affiches","decouvrir"],["Explorer les canaux","explorer","explorer"],["Genres et découvertes","decouvrir","decouvrir"]]],["Personnel",[["Mes favoris","favoris","favoris"],["Historique","historique","historique"]]],["Communauté",[["Proposer un canal","proposer","proposer"],["À propos et confidentialité","apropos","apropos"]]]];
  for(const [label,entries] of groups){drawer.append(node("div","cine-drawer-subtitle",label));for(const [title,page,icon] of entries){const item=makeNav(title,page,icon);item.classList.add("cine-drawer-link");drawer.append(item)}}
  const ownerAdmin=node("button","cine-owner-admin-link","🔐 Administration");
  ownerAdmin.type="button";ownerAdmin.hidden=true;
@@ -1422,6 +1516,8 @@ function build(){
  footer.textContent="Ciné Radar · Films, séries et animés";
  window.addEventListener("hashchange",()=>navigate(location.hash.slice(2)));
  navigate(location.hash.slice(2));
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshPinnedFeed()});
+ setInterval(()=>{if(!document.hidden)refreshPinnedFeed()},90000);
  cardDecorate();
 
  const embedded=window.__CINERADAR_INITIAL_CATALOG__;
