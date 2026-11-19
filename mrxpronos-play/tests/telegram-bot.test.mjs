@@ -1510,3 +1510,26 @@ test('phase 6 all numeric admin parameters are bounded and reject arbitrary SQL 
   assert.equal(h.balanceAudit.length,1)
  }finally{h.restore()}
 });
+
+
+test('phase 6 oversized or non-object inputs are rejected before reaching credits or XP',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ const auth=signedTelegramUser({id:96107,first_name:'Tina'});
+ const post=(path,payload)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:payload}),h.env);
+ try{
+  let r=await post('/api/shop/buy',JSON.stringify({sku:'tap-110',purchase_id:'f0010000-0000-4000-8000-000000000009',filler:'x'.repeat(5000)}));
+  assert.equal(r.status,413);
+  r=await post('/api/shop/activate',JSON.stringify({purchase_id:'f0010000-0000-4000-8000-000000000009',filler:'x'.repeat(5000)}));
+  assert.equal(r.status,413);
+  r=await post('/api/sync',JSON.stringify({batch_id:'security-batch-0001',taps:2,filler:'x'.repeat(17000)}));
+  assert.equal(r.status,413);
+  r=await post('/api/sync','null');
+  assert.equal(r.status,400);
+  r=await post('/api/sync','[]');
+  assert.equal(r.status,400);
+  assert.equal(h.creditEvents.size,0);
+  assert.equal(h.boostInventory.size,0);
+  assert.equal(h.player.confirmed_xp,0)
+ }finally{h.restore()}
+});
