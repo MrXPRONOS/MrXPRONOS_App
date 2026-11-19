@@ -14,11 +14,14 @@ test('pinned showcase is live, uses trusted channel message URLs, and can serve 
   assert.ok(item.title);
  }
  if(data.items.length){
-  const img=await fetch(ORIGIN+data.items[0].poster,{signal:AbortSignal.timeout(14000)});
-  console.log('First pinned thumbnail status:',img.status,'type:',img.headers.get('content-type'));
-  if(img.status!==200)console.log('Thumbnail diagnostic:',(await img.text()).slice(0,150));
-  assert.equal(img.status,200);
-  assert.match(String(img.headers.get('content-type')), /^image\/(?:jpeg|png|webp)/);
-  await img.body?.cancel();
+  const checks=await Promise.all(data.items.slice(0,24).map(async (item)=>{
+   const img=await fetch(ORIGIN+item.poster,{signal:AbortSignal.timeout(14000)});
+   const status=img.status,type=img.headers.get('content-type');
+   const reason=status!==200?(await img.text()).slice(0,120):'';
+   await img.body?.cancel().catch(()=>{});
+   return {kind:item.type,id:item.message_id,status,type,reason};
+  }));
+  console.log('Pinned thumbnail results:',checks);
+  assert.ok(checks.every(x=>x.status===200&&/^image\/(?:jpeg|png|webp)/.test(String(x.type))), 'Every pinned poster must load successfully');
  }
 });
