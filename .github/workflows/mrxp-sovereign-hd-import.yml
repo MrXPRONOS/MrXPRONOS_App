@@ -1,0 +1,59 @@
+name: MRXP Sovereign HD Import (temporary)
+
+on:
+  push:
+    branches:
+      - feat/mrxp-sovereign-hd-20261119
+    paths:
+      - '.github/workflows/mrxp-sovereign-hd-import.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  replace-rank-11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download exact approved high-definition archive
+        env:
+          MRXP_HD_ASSET_URL: https://at.adobe.com/rA2HJA5L3KSivW1a
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 15 --max-time 180 --silent --show-error "$MRXP_HD_ASSET_URL" -o /tmp/mrxp-sovereign-hd.zip
+          python3 - <<'PY'
+          import hashlib, io, pathlib, zipfile, struct
+          target=pathlib.Path("mrxpronos-play/assets/07-rank-avatars")
+          archive=pathlib.Path("/tmp/mrxp-sovereign-hd.zip")
+          expected={
+            "rank-11-souverain-mx.png":("a60c6eedf57cc77ad0c93cb24fb48997d9bcef24219d2b7469d3f15be49d21fc",2616419),
+            "rank-11-souverain-mx.webp":("1d556fd9044e6f98788a9d89d02b08c93277b0fefca50e9b428afbb20063f7a0",237800)
+          }
+          if not zipfile.is_zipfile(archive): raise SystemExit("NOT A ZIP: cannot import")
+          with zipfile.ZipFile(archive) as z:
+            for filename,(sha,size) in expected.items():
+              path_candidates=[p for p in z.namelist() if p.split("/")[-1]==filename]
+              if len(path_candidates)!=1: raise SystemExit("Missing/ambiguous archive file: "+filename)
+              data=z.read(path_candidates[0])
+              if hashlib.sha256(data).hexdigest()!=sha or len(data)!=size: raise SystemExit("SHA256 or length mismatch: "+filename)
+              if filename.endswith(".png"):
+                if data[:8]!=b"\x89PNG\r\n\x1a\n" or struct.unpack(">II",data[16:24])!=(1254,1254) or data[25]!=6: raise SystemExit("Invalid original RGBA PNG")
+              else:
+                if data[:4]!=b"RIFF" or data[8:12]!=b"WEBP": raise SystemExit("Invalid original WEBP")
+              dest=target/filename
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              dest.write_bytes(data)
+              print("IMPORTED",str(dest),len(data),"SHA256",sha)
+          PY
+      - name: Commit high-definition originals
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mrxpronos-play/assets/07-rank-avatars/rank-11-souverain-mx.png mrxpronos-play/assets/07-rank-avatars/rank-11-souverain-mx.webp
+          git diff --cached --check
+          git commit -m 'assets(play): replace Souverain thumbnail with exact HD masters'
+          git push origin HEAD:feat/mrxp-sovereign-hd-20261119
