@@ -103,6 +103,9 @@ async def send_public_poster_with_buttons(
         raise RuntimeError("Affiche inaccessible : photo non téléchargée ; aucune publication publique.")
     photo = io.BytesIO(contents)
     photo.name = "cinex_affiche.jpg"
+    # A missing Secours link is a publication blocker, never omit a required
+    # button silently. The link is loaded transiently from the safe runtime.
+    library_button_rows(public_peer)
     rows = url_button_rows(private_movie_link, invite_link, public_peer=public_peer)
     keyboard = make_button_keyboard(rows)
     return await bot_client.send_file(
