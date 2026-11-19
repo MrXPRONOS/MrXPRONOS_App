@@ -105,4 +105,4 @@ L'intégrité des originaux et optimisations est documentée dans `avatars-manif
 
 ## Rang 11 — Souverain MX
 
-Le portrait africain **Souverain MX** complète les onze rangs officiels. Disponible au niveau 50 et au-delà ; fichier source `rank-11-souverain-mx.png` (1254 × 1254, fond transparent) et WebP optimisé `rank-11-souverain-mx.webp` (768 × 768). Aucun changement au calcul de niveaux, aux XP, ni aux missions.
+Le portrait africain **Souverain MX** complète les onze rangs officiels dès le niveau 50. Le dépôt contient une **version d'affichage provisoire transparente de 200 × 200 px**, en PNG et WebP, afin de permettre son utilisation immédiate dans la Mini App. L'original PNG RGBA **1 254 × 1 254 px** et sa version WebP 768 × 768 sont conservés dans l'archive de conversation `MRXP_Souverain_MX_Rang_11.zip`, mais **ne sont pas encore présents dans GitHub** : le lien de transfert externe ne donnait accès qu'à une miniature. Les fichiers devront être remplacés par les originaux sans modifier le nom ni le mapping du rang. Aucun changement aux XP, à la formule de niveau, aux missions ou à la roue.
