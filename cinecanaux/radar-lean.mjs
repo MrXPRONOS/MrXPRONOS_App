@@ -41,22 +41,43 @@ async function display(env,chat,callback,text,markup){
 }
 const miniAppKeyboard=(owner=false,privateChat=true)=>{
  const rows=[[privateChat
-  ?{text:"🎬 Ouvrir la Mini App",web_app:{url:BASE+"/app"}}
-  :{text:"🎬 Découvrir Ciné Radar",url:BASE+"/app"}]];
+  ?{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:BASE+"/app"}}
+  :{text:"▶️ Découvrir Ciné Radar",style:"primary",url:BASE+"/app"}]];
  if(owner&&privateChat)rows.push([{text:"🔐 Administration",web_app:{url:BASE+"/admin"}}]);
  return keyboard(rows);
 };
 const INTRO=[
- "🎬 <b>Bienvenue sur CINÉ RADAR !</b>",
+ "🎬 <b>BIENVENUE SUR CINÉ RADAR</b> ✨",
  "",
- "🍿 Découvre des films, séries et animés sur Telegram.",
+ "<i>Le cinéma à découvrir, en quelques clics.</i>",
  "",
- "🔎 <b>Rechercher</b> des canaux selon tes envies.",
- "🎞️ Voir les affiches et les recommandations.",
- "🔗 Ouvrir les canaux directement sur Telegram.",
+ "<blockquote>🍿 Films, séries et animés : retrouve les canaux Telegram qui correspondent à tes envies.</blockquote>",
  "",
- "👉 Appuie sur « Ouvrir la Mini App » pour commencer."
+ "🎯 <b>Les possibilités :</b>",
+ "1️⃣ 🔎 <b>Explorer</b> les canaux cinéma.",
+ "2️⃣ 🎞️ <b>Découvrir</b> les affiches à la une.",
+ "3️⃣ ⭐ <b>Enregistrer</b> tes canaux favoris.",
+ "4️⃣ 💬 <b>Donner ton avis</b> et proposer un canal.",
+ "",
+ "👇 <b>Appuie sur le bouton bleu pour commencer !</b>",
+ "",
+ "📣 <i>Tu peux recevoir des annonces du bot. /stop pour les désactiver.</i>"
 ].join("\n");
+const HELP=[
+ "📖 <b>GUIDE CINÉ RADAR</b>",
+ "",
+ "<blockquote>🎬 Le cinéma et tes canaux Telegram réunis dans une Mini App.</blockquote>",
+ "",
+ "1️⃣ 🔎 <b>Explorer</b> films, séries et animés.",
+ "2️⃣ 🧭 <b>Filtrer</b> par catégorie et genre.",
+ "3️⃣ 🎞️ <b>Ouvrir</b> les affiches sur Telegram.",
+ "4️⃣ ⭐ <b>Retrouver</b> tes favoris.",
+ "5️⃣ 📝 <b>Évaluer</b> ou signaler un canal.",
+ "",
+ "💡 <i>Utilise le bouton « Lancer Ciné Radar » ci-dessous.</i>",
+ "🔕 /stop — arrêter les annonces · /start — les réactiver"
+].join("\n");
+const PRIVACY="🔐 <b>Confidentialité</b>\n\nLes statistiques restent anonymisées. Ton identifiant de conversation Telegram est conservé séparément pour pouvoir t'envoyer des annonces après /start.\n\n🔕 /stop pour arrêter les annonces ; /start pour les réactiver.";
 const isOwner=async(env,user,privateChat)=>{
  if(!privateChat||!Number.isSafeInteger(Number(user))||Number(user)<=0)return false;
  const role=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(Number(user)).first();
