@@ -1,1 +1,1 @@
-2026-11-19: launch remaining Ciné X private rescue channel provisioning (manual owner request). One channel maximum per workflow run; preserve existing channels and invitation hashes.
+2026-11-19: second owner-requested provisioning pass for remaining CinéX private Secours channels. One new channel max per pass. Reuse checkpoint, no duplicates.
