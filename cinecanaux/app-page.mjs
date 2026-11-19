@@ -598,7 +598,7 @@ function render(){
  $("heading").textContent=query.trim()?"Résultats de recherche":"Les canaux";
  if(!channels.length){
   const empty=node("div","empty");empty.append(node("strong",null,"Aucun canal trouvé"),document.createTextNode("Essaie une autre recherche ou une autre catégorie."));
-  const suggestions=document.createElement("div");suggestions.className="cine-no-results";suggestions.style.marginTop="14px";for(const [word,term] of [["Films","films"],["Séries","series"],["Animés","animes"]]){const b=document.createElement("button");b.type="button";b.textContent=word;b.style.cssText="margin:4px;padding:9px 13px;border-radius:100px;background:#24416a;color:#f1f7ff;border:1px solid #5071a2";b.onclick=()=>{const search=$("search");search.value=term;search.dispatchEvent(new Event("input",{bubbles:true}));};suggestions.append(b);}empty.append(suggestions);root.append(empty);return;
+  const suggestions=document.createElement("div");suggestions.className="cine-no-results";suggestions.style.marginTop="14px";for(const [word,term] of [["Films","films"],["Séries","series"],["Animés","animes"]]){const b=document.createElement("button");b.type="button";b.textContent=word;b.style.cssText="margin:4px;padding:9px 13px;border-radius:100px;background:#24416a;color:#f1f7ff;border:1px solid #5071a2";b.onclick=()=>{const search=$("search");search.value="";query="";$("searchClear").hidden=true;chooseCategory(term,true);};suggestions.append(b);}empty.append(suggestions);root.append(empty);return;
  }
  const fragment=document.createDocumentFragment();
  channels.forEach((c,i)=>fragment.append(buildCard(c,i)));
@@ -692,10 +692,10 @@ async function load(force=false){
   root.append(retry);
  }
 }
-function chooseCategory(chosen){
- if(chosen==="all")selectedTypes.clear();
- else if(["films","series","animes"].includes(chosen)){
-  if(selectedTypes.has(chosen))selectedTypes.delete(chosen);
+function chooseCategory(chosen,exclusive=false){
+ if(chosen==="all"||exclusive)selectedTypes.clear();
+ if(chosen!=="all"&&["films","series","animes"].includes(chosen)){
+  if(!exclusive&&selectedTypes.has(chosen))selectedTypes.delete(chosen);
   else selectedTypes.add(chosen);
  }
  syncCategoryControls();
