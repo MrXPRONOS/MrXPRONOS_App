@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'cinecanaux/tests/pinned-mobile-visual.mjs'
+      - 'cinecanaux/tests/partner-promotions-mobile.mjs'
       - '.github/workflows/cine-radar-mobile-visual.yml'
 permissions:
   contents: read
@@ -23,11 +24,15 @@ jobs:
         run: google-chrome --version
       - name: Exercise real mobile Mini App
         run: node cinecanaux/tests/pinned-mobile-visual.mjs
+      - name: Verify three compact cross-promotions on mobile
+        run: node cinecanaux/tests/partner-promotions-mobile.mjs
       - name: Upload preview (if available)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cineradar-mobile-pinned-preview
-          path: /tmp/cineradar-mobile.png
+          path: |
+            /tmp/cineradar-mobile.png
+            /tmp/cineradar-cross-promo-mobile.png
           if-no-files-found: ignore
           retention-days: 3
