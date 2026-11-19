@@ -1009,3 +1009,17 @@ test('phase 4 wallet UI displays free currency, three daily quests and actual le
   }
  }finally{h.restore()}
 });
+
+
+test('phase 4 economy admin dashboard remains private and never exposes credits to public callbacks',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(publicId,'mrxp:admin:credits'));
+  assert.equal(h.calls.filter(x=>x.method==='sendMessage').length,0);
+  await h.webhook(callback(adminId,'mrxp:admin:credits'));
+  const lines=h.calls.filter(x=>x.method==='sendMessage').map(x=>x.args.text);
+  assert.ok(lines.some(x=>x.includes('ÉCONOMIE MRXP')));
+  assert.ok(lines.some(x=>x.includes('Crédits en circulation')));
+  assert.ok(lines.some(x=>x.includes('Aucun retrait')));
+ }finally{h.restore()}
+});
