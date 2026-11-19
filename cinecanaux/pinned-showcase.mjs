@@ -75,10 +75,21 @@ export async function syncLatestPinned(env,{force=false}={}){
 }
 export async function ingestPinUpdate(env,update){
  const post=update?.channel_post||update?.edited_channel_post;
- if(!post?.pinned_message||post?.chat?.type!=="channel")return false;
+ if(post?.chat?.type!=="channel")return false;
  const channel=PRIMARY_PINS.find(c=>c.username.toLowerCase()===String(post.chat.username||"").toLowerCase());
  if(!channel)return false;
- return insertPin(env,asPin(channel,post.pinned_message,"pin_event",post.chat.id));
+ if(post.pinned_message){
+  // Telegram delivers the pin service message on the existing channel webhook:
+  // one D1 upsert, no getChat polling, GitHub Action or extra cron.
+  return insertPin(env,asPin(channel,post.pinned_message,"pin_event",post.chat.id));
+ }
+ if(!update.edited_channel_post)return false;
+ // Editing the caption or poster of an already indexed pin should update
+ // that card too, without treating unrelated channel posts as pinned.
+ const known=await env.DB.prepare("SELECT message_id FROM cine_pinned_posts WHERE kind=? AND chat_id=? AND message_id=? AND active=1")
+  .bind(channel.kind,String(post.chat.id),Number(post.message_id)).first();
+ if(!known)return false;
+ return insertPin(env,asPin(channel,post,"edited_pin",post.chat.id));
 }
 export async function ingestOwnerForward(env,message){
  if(message?.chat?.type!=="private"||!message?.from?.id)return {handled:false};
@@ -111,8 +122,9 @@ export async function listPinned(env,{limit=24}={}){
 }
 export async function servePinned(env,request){
  if(request.method!=="GET")return Response.json({error:"Method not allowed"},{status:405});
- // Best-effort initial bootstrap; rate-limited in D1 to one query per channel per hour.
- try{await syncLatestPinned(env);}catch(e){console.warn("pin_bootstrap_unavailable",String(e).slice(0,100));}
+ // Public reads never trigger external Telegram API calls: pin/edited_pin
+ // channel webhooks update D1 as soon as events arrive. Twice-daily scheduled
+ // reconciliation handles missed events without per-visitor polling.
  return Response.json(await listPinned(env,{limit:120}),{headers:{"cache-control":"no-store","x-content-type-options":"nosniff"}});
 }
 export async function servePinCover(env,request,kind,id){

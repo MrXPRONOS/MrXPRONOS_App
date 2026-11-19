@@ -398,11 +398,17 @@ export default {
   }));
   else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
   else if(controller.cron==="0 */6 * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
-   const upkeep=await Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),syncLatestPinned(env)]);
+   const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
+   const jobs=[provisionTelegramWebhook(env),initializeProfile(env)];
+   // Existing six-hour housekeeping remains unchanged. Reconcile Telegram
+   // pinned messages only twice a day (00:00 and 12:00 UTC): up to three
+   // getChat calls per pass. In between, channel_post webhooks update pins
+   // directly without extra API polling or any new GitHub workflow.
+   if(hour===0||hour===12)jobs.push(syncLatestPinned(env,{force:true}));
+   const upkeep=await Promise.allSettled(jobs);
    let errors=upkeep.filter(x=>x.status==="rejected").length;
    // At 06:00 UTC run the daily catalog reconciliation and link checks.
    // Source-specific successful trend refreshes are guarded by a 72-hour D1 window.
-   const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
    // Run the first trend collection at the next six-hour Cron, not only at 06:00.
    // After the first successful anime refresh, keep daily checks (with 72h source guard).
    const first=await env.DB.prepare("SELECT last_success_at FROM radar_runs WHERE job_name='trends_animes'").first();

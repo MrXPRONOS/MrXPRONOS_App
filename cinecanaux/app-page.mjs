@@ -277,6 +277,8 @@ body{background:#07111f}
 .cine-section-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:14px 0 11px}
 .cine-section-title h3{font-size:17px;margin:0}
 .cine-link{border:0;background:transparent;color:#a8c9ff;font-size:12px;padding:5px}
+.cine-showcase-all{border:0;background:linear-gradient(115deg,#7157e9,#367cf5);color:#fff;border-radius:10px;padding:9px 12px;font-weight:750;font-size:12px;min-height:34px;box-shadow:0 3px 12px #315be850;white-space:nowrap}
+.cine-showcase-all:focus-visible{outline:2px solid #abcbff;outline-offset:2px}
 .cine-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:3px 0 22px}
 .cine-quick button{background:#13253e;border:1px solid #334d70;color:#eaf2ff;border-radius:13px;padding:14px 9px;min-height:78px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;gap:8px;font-size:12px;font-weight:750}
 .cine-quick span{font-size:22px}
@@ -414,9 +416,11 @@ body{background:#07111f}
 .cine-owner-admin-frame{flex:1;border:0;width:100%;min-height:0;background:#07101e}
 .cine-owner-admin-link{display:flex;width:100%;align-items:center;gap:11px;padding:13px 14px;background:linear-gradient(115deg,#1b3972,#2b2372);color:#f6f9ff;border:1px solid #6682ca;border-radius:10px;font-weight:800;font-size:13px;margin:10px 0}
 .cine-owner-admin-link[hidden]{display:none}
-.cine-pinned-filters{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
-.cine-pinned-filters button{border:1px solid #4a6d9f;background:#152b49;border-radius:999px;color:#d9e9ff;padding:9px 12px;font-size:12px;font-weight:750}
+.cine-pinned-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:14px 0}
+.cine-pinned-filters button{min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid #4a6d9f;background:#152b49;border-radius:11px;color:#d9e9ff;padding:9px 5px;font-size:11px;font-weight:750}
 .cine-pinned-filters button[aria-pressed=true]{background:linear-gradient(115deg,#376cf6,#604cef);color:white;border-color:#95b4ff}
+.cine-pinned-filters button .cine-3d-icon{width:21px;height:21px;flex:0 0 21px;font-size:0}
+.cine-pinned-filters button .cine-cat-icon{width:21px;height:21px;flex:0 0 21px}
 .cine-pinned-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:13px 0 22px}
 .cine-pinned-gallery-card{min-width:0;overflow:hidden;border:1px solid #3c5a8d;border-radius:13px;background:linear-gradient(150deg,#13294d,#111d37)}
 .cine-gallery-art{position:relative;aspect-ratio:2/3;background:#233d69;overflow:hidden}
@@ -427,11 +431,9 @@ body{background:#07111f}
 .cine-gallery-actions{display:flex;flex-direction:column;gap:6px}
 .cine-gallery-actions button,.cine-gallery-actions a{display:block;text-decoration:none;width:100%;font:inherit;font-size:11px;font-weight:800;border-radius:8px;padding:9px 7px;text-align:center;border:1px solid #557fd1;color:#fff;background:#2a55b1}
 .cine-gallery-actions a{background:#172c4b;border-color:#4c719f;color:#dce9fc}
-.cine-pinned-category-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 18px}
-.cine-pinned-category-quick button{min-width:0;border:1px solid #5275b4;background:#142e56;color:#f3f8ff;border-radius:11px;padding:13px 5px;font-weight:800;font-size:12px}
 .cine-gallery-note{font-size:11px;color:#a9bfdc;margin:10px 0;line-height:1.5}
 @media(min-width:640px){.cine-pinned-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:340px){.cine-pinned-gallery{gap:7px}.cine-gallery-info{padding:7px}.cine-pinned-category-quick button{font-size:10px}}
+@media(max-width:340px){.cine-pinned-gallery{gap:7px}.cine-gallery-info{padding:7px}}
 .cine-community{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;color:#a6bce0}
 .cine-community-share{background:#273f78;color:#eaf4ff;border:1px solid #5876b0;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:750}
 .cine-community small{font-size:10px}
@@ -1400,15 +1402,9 @@ function build(){
  const home=panel.accueil;hero.classList.add("cine-hero");home.append(hero);
  const art=hero.querySelector(".hero-art");if(art){const collage=node("div","cine-hero-collage");collage.id="cine-hero-collage";art.append(collage)}
  const copy=hero.querySelector(".hero-copy");if(copy){const h=copy.querySelector("h2"),p=copy.querySelector("p");if(h){h.textContent="";h.append("Le cinéma,",node("span","accent","à découvrir."))}if(p)p.textContent="Trouve facilement les canaux Telegram qui correspondent à tes envies."}
- const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");const showcaseLabel=node("strong");showcaseLabel.append(cineCategoryIcon("affiches"),document.createTextNode("À l'affiche"));showcaseHead.append(showcaseLabel,node("small",null,"Films · Séries · Animés"));const seeAll=node("button","cine-link","Tout voir");seeAll.type="button";seeAll.onclick=()=>showPinnedKind("all");showcaseHead.append(seeAll);const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
+ const showcaseSection=node("section","cine-poster-section");showcaseSection.setAttribute("aria-label","Affiches de films et séries");const showcaseHead=node("div","cine-poster-section-title");const showcaseLabel=node("strong");showcaseLabel.append(cineCategoryIcon("affiches"),document.createTextNode("À l'affiche"));showcaseHead.append(showcaseLabel,node("small",null,"Films · Séries · Animés"));const seeAll=node("button","cine-link cine-showcase-all","Tout voir");seeAll.type="button";seeAll.onclick=()=>showPinnedKind("all");showcaseHead.append(seeAll);const posterWindow=node("div","cine-poster-window");posterWindow.id="cine-poster-strip";const attribution=node("p","cine-poster-note");attribution.id="cine-poster-note";showcaseSection.append(showcaseHead,posterWindow,attribution);home.append(showcaseSection);renderCinemaShowcase();loadCinemaShowcase();
 
  const form=node("form","cine-home-search");form.setAttribute("role","search");const inp=document.createElement("input");inp.type="search";inp.placeholder="Films d'action, animés, séries…";inp.setAttribute("aria-label","Rechercher des canaux");const submit=node("button",null,"Chercher");submit.type="submit";form.append(inp,submit);form.onsubmit=e=>{e.preventDefault();setFilter(inp.value.trim())};home.append(form);
- sectionTitle(home,"Les affiches par univers",null);
- const categoryQuick=node("div","cine-pinned-category-quick");
- for(const [kind,caption] of [["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]]){
-  const b=node("button",null,caption);b.type="button";b.onclick=()=>showPinnedKind(kind);categoryQuick.append(b);
- }
- home.append(categoryQuick);
  sectionTitle(home,"Explore par univers",null);
  const quick=node("div","cine-quick");quick.append(quickButton("film","Films","films"),quickButton("tv","Séries","series"),quickButton("gamepad","Animés","animes"));home.append(quick);
  sectionTitle(home,"À découvrir","Voir tout",()=>setHash("decouvrir"));const picks=node("div","cine-home-picks");picks.id="cine-home-picks";home.append(picks);
@@ -1426,8 +1422,11 @@ function build(){
  $("cine-slot-explorer").append(listing);
  heading(panel.affiches,"À l’affiche","Retrouve les films, séries et animés sélectionnés dans nos trois canaux cinéma.");
  const controls=node("div","cine-pinned-filters");controls.id="cine-pinned-filters";
- for(const [kind,title] of [["all","Tout"],["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]]){
-  const b=node("button",null,title);b.type="button";b.dataset.pinKind=kind;
+ for(const [kind,title,iconKey] of [["all","Tout","affiches"],["films","Films","film"],["series","Séries","tv"],["animes","Animés","gamepad"]]){
+  const b=node("button",null);b.type="button";b.dataset.pinKind=kind;
+  if(kind==="all")b.append(cineCategoryIcon(iconKey));
+  else {const icon=node("span","icon cine-3d-icon cine-icon-"+iconKey);icon.setAttribute("aria-hidden","true");b.append(icon);}
+  b.append(document.createTextNode(title));
   b.setAttribute("aria-pressed",String(kind===selectedPinType));
   b.onclick=()=>{selectedPinType=kind;renderPinnedGallery()};controls.append(b);
  }
@@ -1517,7 +1516,7 @@ function build(){
  window.addEventListener("hashchange",()=>navigate(location.hash.slice(2)));
  navigate(location.hash.slice(2));
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshPinnedFeed()});
- setInterval(()=>{if(!document.hidden)refreshPinnedFeed()},90000);
+ // Updates arrive via Telegram channel_post webhook; refresh on visit/focus or explicit action.
  cardDecorate();
 
  const embedded=window.__CINERADAR_INITIAL_CATALOG__;

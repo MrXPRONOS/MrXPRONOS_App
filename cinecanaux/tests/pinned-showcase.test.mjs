@@ -132,6 +132,7 @@ test('the Mini App has full pinned gallery, categories, live refresh and Telegra
  assert.ok(APP_HTML.includes('id="cine-pinned-gallery"'));
  assert.ok(APP_HTML.includes('＋ S’abonner au canal'));
  assert.ok(APP_HTML.includes('▶️ Voir sur Telegram'));
- assert.ok(APP_HTML.includes('["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]'));
- assert.ok(APP_HTML.includes('setInterval(()=>{if(!document.hidden)refreshPinnedFeed()},90000)'));
+ assert.ok(APP_HTML.includes('["films","Films","film"],["series","Séries","tv"],["animes","Animés","gamepad"]'));
+ assert.ok(!APP_HTML.includes('setInterval(()=>{if(!document.hidden)refreshPinnedFeed()},90000)'),'Avoid wasteful periodic polling');
+ assert.ok(APP_HTML.includes('refreshPinnedFeed()'),'A manual or page-entry refresh must remain');
 });
