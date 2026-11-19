@@ -73,7 +73,7 @@ def rich_video_title(description: str) -> str:
     return f"<b>🎞️ {escape(first_title(description))}</b>"
 
 
-def url_button_rows(movie_url: str, invitation_url: str = "") -> list[list[tuple[str, str]]]:
+def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=None) -> list[list[tuple[str, str]]]:
     """Two movie buttons: film in green; Telegram movie folder in red.
 
     The old invitation URL is intentionally ignored: the second button is
@@ -81,10 +81,11 @@ def url_button_rows(movie_url: str, invitation_url: str = "") -> list[list[tuple
     """
     if not movie_url.startswith("https://t.me/c/"):
         raise ValueError("Le lien vidéo privé doit être un lien t.me/c validé.")
-    return [
+    from .rescue_channels import add_rescue_tuple_row
+    return add_rescue_tuple_row([
         [("🎬 REGARDER LE FILM", movie_url)],
         [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())],
-    ]
+    ], public_peer)
 
 
 async def send_public_poster_with_buttons(
@@ -103,7 +104,7 @@ async def send_public_poster_with_buttons(
         raise RuntimeError("Affiche inaccessible : photo non téléchargée ; aucune publication publique.")
     photo = io.BytesIO(contents)
     photo.name = "cinex_affiche.jpg"
-    rows = url_button_rows(private_movie_link, invite_link)
+    rows = url_button_rows(private_movie_link, invite_link, public_peer=public_peer)
     keyboard = [
         [url_button(label, url, style="success" if index == 0 else "danger")
          for label, url in row]

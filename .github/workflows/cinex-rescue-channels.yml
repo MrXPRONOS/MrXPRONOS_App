@@ -1,0 +1,92 @@
+name: CineX - Creer et verifier les canaux Secours
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        type: boolean
+        default: false
+        required: false
+        description: 'Autoriser la creation (simulation sinon)'
+  schedule:
+    - cron: '43 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  rescue:
+    name: Une seule creation de canal prive par cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL || '@CineXFilms_vf' }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
+      CINEX_TORRENT9_PAUSED: 'true'
+      CINEX_DEFER_MIRROR: 'true'
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Tests de liaisons, de droits et d'anti-doublons (hors connexion)
+        run: |
+          python -m compileall -q film_relay
+          python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
+      - name: Controle des identifiants
+        run: |
+          test -n "$TG_API_ID" && test -n "$TG_API_HASH" && test -n "$TG_STRING_SESSION" || {
+            echo "::error::Session Telegram absente"; exit 1;
+          }
+      - name: Detecter ou creer les canaux de secours
+        env:
+          RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_RESCUE_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.apply }}
+        run: |
+          if [ "$RUN_APPLY" = 'true' ]; then
+            python -m film_relay.rescue_channels --apply --max-created 1
+          else
+            python -m film_relay.rescue_channels
+          fi
+      - name: Sauvegarder les liens et identifiants Telegram
+        if: always()
+        shell: bash
+        working-directory: .
+        run: |
+          set -euo pipefail
+          STATE=telegram-film-relay/state/rescue_channels.json
+          if [ ! -f "$STATE" ] || git diff --quiet -- "$STATE"; then
+            echo 'Aucune nouvelle identite Secours.'
+            exit 0
+          fi
+          cp "$STATE" "$RUNNER_TEMP/cinex-rescue-channels.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_rescue_channels.py "$RUNNER_TEMP/cinex-rescue-channels.json" "$STATE"
+            git add "$STATE"
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m 'state(cinex): Secours channels checkpoint [skip ci]'
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 12
+          done
+          echo '::error::Checkpoints Telegram non synchronises.'
+          exit 1

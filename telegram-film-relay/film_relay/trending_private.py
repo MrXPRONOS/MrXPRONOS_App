@@ -162,13 +162,14 @@ def channel_title(item: dict) -> str:
     return f"Ciné X {category} • {str(item['title'])[:55]} [{suffix}]"
 
 
-def buttons(invite: str):
+def buttons(invite: str, public_peer=None):
     if not re.match(r"^https://t\.me/(?:\+|joinchat/)[a-zA-Z0-9_-]{12,}$", invite):
         raise ValueError("Lien d'invitation privé Telegram non validé")
-    return [
+    from .rescue_channels import add_rescue_button_row
+    return add_rescue_button_row([
         [url_button("🎬 VOIR LE CONTENU / LES SAISONS", invite, style="success")],
         [url_button("👥 REJOINDRE LA TEAM", film_folder_url(), style="danger")],
-    ]
+    ], public_peer)
 
 
 def get_trends() -> list[dict]:
@@ -368,7 +369,7 @@ async def work_item(client, bot, item, state, library, public, candidate,
         LOG.info("Canal %s partiellement rempli ; reprise au prochain cycle", identity)
         return False, created
     if not record.get("announced"):
-        await bot.edit_reply_markup(public, candidate["public_id"], buttons=buttons(invite))
+        await bot.edit_reply_markup(public, candidate["public_id"], buttons=buttons(invite, public))
         post = await client.get_messages(public, ids=candidate["public_id"])
         if not post or not any(
             getattr(button, "url", None) == invite

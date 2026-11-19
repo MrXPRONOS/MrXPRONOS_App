@@ -194,7 +194,7 @@ def main_index_text(title: str, private_id: int, season_indices: dict) -> str:
     return "\n".join(lines)
 
 
-def public_buttons(private_id: int, series_entry: dict):
+def public_buttons(private_id: int, series_entry: dict, public_peer=None):
     seasons = series_entry.get("season_indices", {})
     rows = []
     for season, index_id in sorted(seasons.items(), key=lambda x: int(x[0])):
@@ -207,7 +207,8 @@ def public_buttons(private_id: int, series_entry: dict):
     # The existing shared folder is the official way to join the private library.
     from .publication import film_folder_url
     rows.append([url_button("➕ Rejoindre CinéX", film_folder_url(), style="danger")])
-    return rows
+    from .rescue_channels import add_rescue_button_row
+    return add_rescue_button_row(rows, public_peer)
 
 
 def read_catalog():
@@ -478,7 +479,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
 
             if series.get("public_id"):
                 await bot.edit_reply_markup(bot_public, series["public_id"],
-                                            buttons=public_buttons(private_id, series))
+                                            buttons=public_buttons(private_id, series, public))
                 LOG.info("Boutons de saisons mis à jour : %s", title)
             else:
                 # Recover an existing card after partial GitHub state failure.
@@ -505,7 +506,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                            f"{marker}")
                     post = await bot.send_file(
                         bot_public, picture, caption=cap, parse_mode="html",
-                        buttons=public_buttons(private_id, series), force_document=False)
+                        buttons=public_buttons(private_id, series, public), force_document=False)
                     public_id = int(post.id)
                     posted_cards += 1
                 series["public_id"] = public_id
