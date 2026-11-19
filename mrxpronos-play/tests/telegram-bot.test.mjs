@@ -246,15 +246,18 @@ test('authenticated Telegram full name is returned for the exact signed user',as
  }finally{h.restore()}
 });
 
-test('Mini App uses server-verified display_name and Telegram photo, not brand identity',async()=>{
+test('Mini App uses the verified Telegram display name but the official rank portrait',async()=>{
  const h=harness();
  try{
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
   const html=await res.text();
   assert.ok(html.includes('state.username=String(r.user.display_name||"").trim()'));
-  assert.ok(html.includes('loadTelegramAvatar()'));
-  assert.ok(html.includes('avatarInitials(state.username)'));
-  assert.ok(!html.includes("avatar.replaceChildren(img(asset.logo,'Logo MX par défaut'))"));
+  assert.ok(html.includes('renderRankAvatar()'));
+  assert.ok(html.includes('rank-01-recrue.webp'));
+  assert.ok(html.includes('rank-02-eclaireur.webp'));
+  assert.ok(!html.includes('loadTelegramAvatar()'));
+  assert.ok(!html.includes('id="photo-refresh"'));
+  assert.ok(!html.includes('Photo Telegram en attente'));
  }finally{h.restore()}
 });
 
@@ -429,9 +432,10 @@ test('photo URL originates from validated signed Telegram initData',async()=>{
   assert.equal((await result.json()).telegram_photo_url,original);
   const page=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
   const html=await page.text();
-  assert.ok(html.includes('signedPhotoUrl=r.telegram_photo_url||""'));
-  assert.ok(html.includes('photo-refresh'));
-  assert.ok(html.includes('tryTelegramPhotoFallback()'));
+  assert.ok(!html.includes('signedPhotoUrl=r.telegram_photo_url||""'));
+  assert.ok(!html.includes('photo-refresh'));
+  assert.ok(!html.includes('tryTelegramPhotoFallback()'));
+  assert.ok(html.includes('RANK_AVATAR_ROOT'));
  }finally{h.restore()}
 });
 
@@ -466,5 +470,50 @@ test('the Mini App loads lot 6 splash, spinner, mission status, energy and victo
   }
   assert.ok(html.includes('mrxp-launch-overlay'));
   assert.ok(html.includes('setTimeout(hideLaunchScreen,9000)'));
+ }finally{h.restore()}
+});
+
+test('rank avatar catalog has 5 validated African portraits and 10 hash-verified image files',async()=>{
+ const manifest=JSON.parse(await readFile(new URL('../avatars-manifest.json',import.meta.url),'utf8'));
+ assert.equal(manifest.avatar_count,5);
+ assert.equal(manifest.avatars.length,5);
+ assert.deepEqual(manifest.avatars.map(x=>[x.rank,x.slug,x.min_level,x.max_level]),[
+  [1,'recrue',1,1],[2,'eclaireur',2,2],[3,'combattant',3,4],
+  [4,'sentinelle',5,5],[5,'chevalier',6,9]
+ ]);
+ for(const avatar of manifest.avatars){
+  for(const kind of ['png','webp']){
+   const p=avatar[kind];const buf=await readFile(new URL('../'+p.replace(/^mrxpronos-play\//,''),import.meta.url));
+   assert.equal(buf.length,avatar[kind+'_bytes'],p);
+   assert.equal(createHash('sha256').update(buf).digest('hex'),avatar['sha256_'+kind],p);
+   if(kind==='png'){
+    assert.equal(buf.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+    assert.equal(buf.readUInt8(25),6,'Expected RGBA PNG for '+p);
+   }else{
+    assert.equal(buf.toString('ascii',0,4),'RIFF');
+    assert.equal(buf.toString('ascii',8,12),'WEBP');
+   }
+  }
+  assert.equal(avatar.transparent,true);
+ }
+});
+
+test('rank portrait mapping matches all specified levels while leaving later ranks for future images',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  for(const [start,stop,name,image] of [
+   [1,1,'Recrue','rank-01-recrue.webp'],[2,2,'Éclaireur','rank-02-eclaireur.webp'],
+   [3,4,'Combattant','rank-03-combattant.webp'],[5,5,'Sentinelle','rank-04-sentinelle.webp'],
+   [6,9,'Chevalier','rank-05-chevalier.webp']]){
+    assert.ok(html.includes('from:'+start+',to:'+stop+',name:"'+name+'",image:"'+image+'"'),name);
+  }
+  assert.ok(html.includes('from:10,to:14,name:"Élite",image:null'));
+  assert.ok(html.includes('from:50,to:999999,name:"Souverain MX",image:null'));
+  assert.ok(html.includes('RANK_BRAND_FALLBACK'));
+  assert.ok(html.includes('window.refreshRankAvatar?.()'));
+  assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
+  assert.ok(!html.includes('getUserProfilePhotos?user_id'));
  }finally{h.restore()}
 });
