@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 from pathlib import Path
 
@@ -17,7 +18,12 @@ def merge(old: dict, incoming: dict) -> dict:
         for identity in ("public_id", "rescue_channel_id", "public_username"):
             if prior.get(identity) and item.get(identity) and str(prior[identity]) != str(item[identity]):
                 raise ValueError(f"Conflicting Telegram rescue identity for {key}: {identity}")
-        result["channels"][key] = {**prior, **item}
+        row = {**prior, **item}
+        url = row.pop("invite_link", None)
+        row.pop("invite", None)
+        if url:
+            row["invite_sha256"] = hashlib.sha256(url.encode()).hexdigest()
+        result["channels"][key] = row
     return result
 
 
