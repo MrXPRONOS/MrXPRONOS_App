@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac, createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
 
 const code = await readFile(new URL('../worker.js',import.meta.url), 'utf8');
 const { default: worker } = await import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
@@ -811,4 +812,15 @@ test('V2 phase 2 migration is additive and does not touch XP or other player dat
  assert.ok(!/DROP TABLE|DELETE FROM players|UPDATE players|UPDATE .*confirmed_xp/i.test(sql));
  const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
  assert.ok(schema.includes('CREATE TABLE IF NOT EXISTS player_avatar_prefs'));
+});
+
+test('V2 phase 2 Mini App inline scripts parse successfully in the browser',async()=>{
+ const h=harness();
+ try{
+  const r=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await r.text();
+  const inline=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)].map(x=>x[1]).filter(Boolean);
+  assert.ok(inline.length>=2);
+  for(const [i,js] of inline.entries())assert.doesNotThrow(()=>new vm.Script(js,{filename:'miniapp-inline-'+i+'.js'}));
+ }finally{h.restore()}
 });
