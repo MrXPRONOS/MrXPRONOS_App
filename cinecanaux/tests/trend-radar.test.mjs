@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {RADAR_CHANNELS,matchRadarTitle,ingestRadarPost,radarFeed,radarApi,authorizeRadarTitle} from '../trend-radar.mjs';
+import {RADAR_CHANNELS,matchRadarTitle,ingestRadarPost,radarFeed,radarApi,exportRadarTrends,authorizeRadarTitle} from '../trend-radar.mjs';
 import {APP_HTML} from '../app-page.mjs';
 
 test('three exact owner-designated public Telegram channels',()=>{
@@ -107,4 +107,26 @@ test('a reused channel username cannot replace the Telegram chat ID already veri
 
 test('a current TV season year does not disqualify a series first aired in an earlier year',()=>{
  assert.ok(matchRadarTitle('Lupin Saison 3 2026 VF',{title:'Lupin',kind:'series',year:2021})>=85);
+});
+
+test('trend export is read-only, recent and does not expose Telegram private data',async()=>{
+ const calls=[];
+ const DB={prepare(sql){
+  calls.push(sql);
+  assert.ok(sql.includes("last_seen_at>=datetime('now','-8 days')"));
+  assert.ok(sql.includes("source IN ('tmdb','anilist','simkl')"));
+  return {bind(){return {async all(){return {results:[{
+   id:'tmdb-films-12',kind:'films',title:'Exemple',title_original:'Exemple',
+   aliases:'',year:2026,summary:'Résumé',poster_url:'',source_url:'',
+   source:'tmdb',trend_rank:3,last_seen_at:'2026-11-19 08:00:00',authorized:1
+  }]}}}}};
+ }};
+ const data=await exportRadarTrends({DB},{limit:3});
+ assert.equal(data.items.length,3);
+ assert.equal(data.items[0].authorized,true);
+ assert.ok(!JSON.stringify(data).includes('access_hash'));
+ assert.ok(calls.length===3);
+ const response=await radarApi({DB},new Request('https://demo.local/api/radar/trends?limit=3'));
+ assert.equal(response.status,200);
+ assert.equal((await response.json()).items.length,3);
 });
