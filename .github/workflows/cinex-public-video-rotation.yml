@@ -28,6 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
+      CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-links.json
+    env:
       TG_API_ID: ${{ secrets.TG_API_ID }}
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
@@ -63,6 +65,10 @@ jobs:
           [[ "$TG_PRIVATE_CHANNEL" =~ ^-100[0-9]+$ ]] || {
             echo "::error::TG_PRIVATE_CHANNEL doit etre l'ID -100 de Cine X Videotheque"; exit 1;
           }
+      - name: Retrouver les invitations Secours sans les journaliser
+        id: rescue_links
+        continue-on-error: true
+        run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
       - name: Analyser puis archiver
         env:
           RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_ARCHIVE_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.apply || github.event_name == 'push' && contains(github.event.head_commit.message, '[cinex-archive-apply-2]') }}
