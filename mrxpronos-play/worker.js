@@ -186,6 +186,81 @@ async function mrxpShareSnapshot(env,player,hideName){
    XP and credit balances never share a column or accounting formula. */
 const MRXP_CREDIT_RANK_BONUSES={5:40,10:50,15:70,20:90,30:110,40:140,50:180};
 const MRXP_CREDIT_POLICY={daily_base:5,daily_quest:5,wheel_quest:5,tap_quest:5,mission:10,weekly:30,ordinary_level:10};
+
+/* Phase 6: all mutable economy controls are allowlisted integers from D1.
+   They only alter future verified rewards, store prices and new purchases.
+   Purchased SKUs retain their immutable XP/energy effect. */
+const MRXP_BALANCE_FIELDS={
+ shop_enabled:{label:"Boutique activée (0/1)",min:0,max:1,default:1,group:"release"},
+ shop_rollout:{label:"Pourcentage du déploiement (0-100)",min:0,max:100,default:100,group:"release"},
+ shop_daily_limit:{label:"Achats maximum par compte et par jour",min:1,max:100,default:30,group:"release"},
+ "price_tap-110":{label:"Prix Boost Découverte",min:1,max:10000,default:25,group:"price"},
+ "price_tap-120":{label:"Prix Boost Guerrier",min:1,max:10000,default:45,group:"price"},
+ "price_tap-150":{label:"Prix Boost Champion",min:1,max:10000,default:100,group:"price"},
+ "price_tap-200":{label:"Prix Boost Souverain",min:1,max:10000,default:180,group:"price"},
+ "price_energy-100":{label:"Prix Recharge 100",min:1,max:10000,default:20,group:"price"},
+ "price_energy-250":{label:"Prix Recharge 250",min:1,max:10000,default:45,group:"price"},
+ reward_daily_base:{label:"Crédits par bonus quotidien",min:0,max:500,default:5,group:"reward"},
+ reward_daily_quest:{label:"Crédits défi quotidien",min:0,max:500,default:5,group:"reward"},
+ reward_wheel_quest:{label:"Crédits défi roue",min:0,max:500,default:5,group:"reward"},
+ reward_tap_quest:{label:"Crédits défi 50 tapotages",min:0,max:500,default:5,group:"reward"},
+ reward_mission:{label:"Crédits par mission permanente",min:0,max:500,default:10,group:"reward"},
+ reward_weekly:{label:"Crédits semaine active",min:0,max:2000,default:30,group:"reward"},
+ reward_ordinary_level:{label:"Crédits niveau ordinaire",min:0,max:500,default:10,group:"reward"},
+ reward_rank_scale:{label:"Bonus de rang (% du barème)",min:0,max:300,default:100,group:"reward"}
+};
+async function mrxpBalanceConfig(env){
+ const r=await env.DB.prepare("SELECT key,value,updated_ms FROM bot_settings WHERE key LIKE 'mrxp_balance_%'").all();
+ const values={},updated={};
+ for(const [field,rule] of Object.entries(MRXP_BALANCE_FIELDS)){values[field]=rule.default;updated[field]=0}
+ for(const row of r.results||[]){
+  const field=String(row.key||"").replace(/^mrxp_balance_/,""),rule=MRXP_BALANCE_FIELDS[field];
+  if(!rule||!/^\d+$/.test(String(row.value)))continue;
+  const n=Number(row.value);
+  if(!Number.isSafeInteger(n)||n<rule.min||n>rule.max)continue;
+  values[field]=n;updated[field]=Number(row.updated_ms)||0
+ }
+ return {values,updated}
+}
+function mrxpBalancePrice(config,sku,fallback){
+ return config?.values?.["price_"+sku]??fallback
+}
+function mrxpBalanceRate(config,field,eventMs){
+ const setting="reward_"+field,base=MRXP_BALANCE_FIELDS[setting];
+ if(!base)return 0;
+ const effective=Number(config?.updated?.[setting]||0);
+ if(effective>0&&eventMs<effective)return base.default;
+ return config?.values?.[setting]??base.default
+}
+function mrxpBalanceRankReward(config,amount){
+ return Math.floor(amount*(config?.values?.reward_rank_scale??100)/100)
+}
+function mrxpBalanceCatalog(config){
+ return MRXP_BOOST_CATALOG.map(item=>({...item,price:mrxpBalancePrice(config,item.sku,item.price)}))
+}
+function mrxpBalanceRolloutBucket(userId){
+ let hash=2166136261;for(const c of String(userId)){hash=Math.imul(hash^c.charCodeAt(0),16777619)>>>0}
+ return hash%100
+}
+function mrxpBalanceCanBuy(config,userId){
+ if(config.values.shop_enabled!==1)return false;
+ return mrxpBalanceRolloutBucket(userId)<config.values.shop_rollout
+}
+async function mrxpBalanceChange(env,adminId,field,newValue){
+ const rule=MRXP_BALANCE_FIELDS[field];
+ if(!rule||typeof newValue!=="number"||!Number.isSafeInteger(newValue)||newValue<rule.min||newValue>rule.max)throw Error("Paramètre interdit ou hors limites");
+ if(!await isBotAdmin(env,adminId))throw Error("Accès administrateur refusé");
+ const key="mrxp_balance_"+field,now=Date.now();
+ const previous=await env.DB.prepare("SELECT value FROM bot_settings WHERE key=?").bind(key).first();
+ const old=previous?.value??String(rule.default);
+ if(old===String(newValue))return {changed:false,old,current:newValue};
+ await env.DB.batch([
+  env.DB.prepare("INSERT INTO mrxp_balance_audit(admin_id,setting_key,old_value,new_value,created_ms) VALUES(?,?,?,?,?)").bind(String(adminId),key,old,String(newValue),now),
+  env.DB.prepare("INSERT INTO bot_settings(key,value,updated_ms) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_ms=excluded.updated_ms").bind(key,String(newValue),now)
+ ]);
+ return {changed:true,old,current:newValue}
+}
+
 function mrxpWeekMonday(day){
  const d=new Date(day+"T00:00:00Z"),offset=(d.getUTCDay()+6)%7;
  return new Date(d.getTime()-offset*86400000).toISOString().slice(0,10)
