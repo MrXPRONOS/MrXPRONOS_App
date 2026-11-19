@@ -8,6 +8,7 @@ import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
 import {bindPrimaryRadarChannels,missingRadarTitles} from './radar-owner-ops.mjs';
 import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle} from './trend-radar.mjs';
 import {initializeProfile} from './radar-lean.mjs';
+import {ownerPinnedList,ownerRemovePin} from './pinned-showcase.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -34,6 +35,7 @@ export async function adminAPI(env,request,ctx){
  const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403);
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
+ if(request.method==='GET'&&path==='/api/admin/pins')return json(await ownerPinnedList(env));
  if(request.method==='GET'&&path==='/api/admin/radar-ops'){
   const [missing,channels]=await Promise.all([
    missingRadarTitles(env,admin.telegram_id,{limit:24}),
@@ -81,6 +83,15 @@ export async function adminAPI(env,request,ctx){
  if(request.method!=='POST')return json({error:'Méthode inconnue'},405);
  try{
   const data=await parseBody(request);
+  const pinAction=/^\/api\/admin\/pins\/(films|series|animes)\/([1-9][0-9]{0,12})\/(hide|unpin)$/.exec(path);
+  if(pinAction){
+   const kind=pinAction[1],id=Number(pinAction[2]);
+   if(!Number.isSafeInteger(id))return json({error:'Identifiant invalide'},400);
+   try{
+    const result=await ownerRemovePin(env,kind,id,{unpinTelegram:pinAction[3]==='unpin'});
+    return json(result,result.ok?200:404);
+   }catch(e){return json({error:"Telegram n'a pas confirmé le désépinglage. Vérifie que le bot est administrateur du canal et dispose des droits nécessaires."},502)}
+  }
   if(path==='/api/admin/sync-bot-identity'){
    await initializeProfile(env);
    return json({ok:true,message:"Identité Telegram synchronisée. La photo et le message /start sont configurés."});
