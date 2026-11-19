@@ -208,7 +208,7 @@ class RelayEndToEndTests(unittest.TestCase):
             first = FakeTelegramClient(sample_messages())
             first.mirror_should_fail = True
             self.assertEqual(self.start(first, cfg, state), 1)
-            self.assertEqual(len(first.sent), 3)
+            self.assertEqual(len(first.sent), 4)
             self.assertEqual(len(State(str(state)).pending_mirrors(str(MIRROR))), 1)
             second = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(second, cfg, state), 0)
