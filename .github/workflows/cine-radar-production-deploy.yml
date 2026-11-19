@@ -1,5 +1,6 @@
 name: Cine Radar - Deploy production after green CI
 # Deployment refresh for the verified Cine Radar public-source fallback (#435).
+# Redeploy 2026-11-19: publish verified read-only trends endpoint and owner-curation integration (#446).
 on:
   push:
     branches: [main]
