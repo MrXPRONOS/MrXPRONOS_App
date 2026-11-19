@@ -29,8 +29,7 @@ def is_valid_invitation(url: str) -> bool:
 
 async def get_existing_invite(client, channel, *, expected_sha: str | None = None) -> str | None:
     """Read an existing owner-admin invitation; never rotate a live link."""
-    from telethon import functions
-    me = await client.get_me()
+    from telethon import functions, types
     choices = []
     full = await client(functions.channels.GetFullChannelRequest(channel=channel))
     primary = getattr(getattr(full, "full_chat", None), "exported_invite", None)
@@ -40,7 +39,7 @@ async def get_existing_invite(client, channel, *, expected_sha: str | None = Non
         return next(link for link in choices if fingerprint(link) == expected_sha)
     try:
         response = await client(functions.messages.GetExportedChatInvitesRequest(
-            peer=channel, admin_id=me, limit=100, revoked=False
+            peer=channel, admin_id=types.InputUserSelf(), limit=100, revoked=False
         ))
     except Exception:
         LOG.warning("Liste d'invitations inaccessible ; utilisation éventuelle de l'invitation primaire vérifiée")
