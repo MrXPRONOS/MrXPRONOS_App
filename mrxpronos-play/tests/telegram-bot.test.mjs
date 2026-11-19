@@ -753,7 +753,7 @@ test('V2 phase 2 saves unlocked avatar choices per account without changing the 
  const alice=signedTelegramUser({id:88003,first_name:'Alice'});
  const bob=signedTelegramUser({id:88004,first_name:'Bob'});
  const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
- const read=async init=alice=>worker.fetch(new Request(root+'/api/profile',{headers:{'x-telegram-init-data':init}}),h.env);
+ const read=async (init=alice)=>worker.fetch(new Request(root+'/api/profile',{headers:{'x-telegram-init-data':init}}),h.env);
  const choose=async (init,rank)=>worker.fetch(new Request(root+'/api/profile/avatar',{method:'POST',headers:{'x-telegram-init-data':init,'content-type':'application/json'},body:JSON.stringify({rank})}),h.env);
  try{
   const first=await read();const initial=await first.json();assert.equal(initial.progression.level,5);
