@@ -39,6 +39,7 @@ function harness(){
        }
       };
      },
+     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};return {results:[]}},
      async first(){
       if(lower.includes('from players'))return {n:rows.players,xp:180};
       if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
@@ -54,13 +55,17 @@ function harness(){
  globalThis.fetch=async(input,init)=>{
   const method=String(input).split('/').at(-1);
   calls.push({method,args:JSON.parse(init.body)});
-  return Response.json({ok:true,result:method==='sendMessage'?{message_id:123}:true});
+  let result=method==='sendMessage'?{message_id:123}:true;
+  if(method==='getMyCommands')result=init.body.includes('"type":"chat"')?[{command:'start'},{command:'admin'}]:[{command:'start'}];
+  if(method==='getWebhookInfo')result={url:'https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook',allowed_updates:['message','callback_query']};
+  if(method==='getChatMenuButton')result={type:'commands'};
+  return Response.json({ok:true,result});
  };
  return {
   env,calls,settings,pending,
   restore(){globalThis.fetch=oldFetch},
-  async webhook(update,secret='unit-test-secret'){
-   return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env);
+  async webhook(update,secret='unit-test-secret',ctx){
+   return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
   }
  };
 }
@@ -129,5 +134,24 @@ test('admin can edit welcome, and new public users see new welcome',async()=>{
   h.calls.length=0;
   await h.webhook(message(publicId,'/start'));
   assert.equal(h.calls[0].args.text,'🎮 Nouveau message : ouvre le jeu et récupère des XP.');
+ }finally{h.restore()}
+});
+
+test('approved admin /start safely synchronizes Telegram command scopes and webhook callbacks',async()=>{
+ const h=harness();const tasks=[];const context={waitUntil(p){tasks.push(p)}};
+ try{
+  const res=await h.webhook(message(adminId,'/start'),'unit-test-secret',context);
+  assert.equal(res.status,200);
+  assert.equal(tasks.length,1);
+  await Promise.all(tasks);
+  const commands=h.calls.filter(x=>x.method==='setMyCommands');
+  assert.equal(commands.length,4);
+  const privateCmd=commands.find(x=>x.args.scope?.type==='all_private_chats');
+  assert.deepEqual(privateCmd.args.commands.map(x=>x.command),['start']);
+  const adminCmd=commands.find(x=>x.args.scope?.type==='chat');
+  assert.deepEqual(adminCmd.args.commands.map(x=>x.command),['start','admin']);
+  const webhook=h.calls.find(x=>x.method==='setWebhook');
+  assert.ok(webhook.args.allowed_updates.includes('callback_query'));
+  assert.ok(h.calls.some(x=>x.method==='setMyDescription'));
  }finally{h.restore()}
 });
