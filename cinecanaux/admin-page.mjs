@@ -35,12 +35,66 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 .analytics-notice{color:#a9bfde;font-size:11px;line-height:1.5;margin:8px 0}
 @media(min-width:660px){.analytics-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:360px){.analytics-controls select{max-width:145px}.analytics-dashboard{padding:10px}}
+
+/* Private owner announcement composer. Nothing is sent without explicit confirmation. */
+.broadcast-box{background:linear-gradient(145deg,#102443,#101e35);border:1px solid #486ba3;border-radius:14px;padding:15px;margin:15px 0 24px}
+.broadcast-box h2{margin:0 0 8px;font-size:16px}
+.broadcast-box p{font-size:12px;line-height:1.5;color:#bacded}
+.broadcast-box label{display:flex;flex-direction:column;gap:6px;margin:12px 0 0;font-size:12px;color:#dce9ff;font-weight:650}
+.broadcast-box textarea,.broadcast-box input{width:100%;min-width:0;border:1px solid #425e8b;border-radius:9px;background:#0b192c;color:#f2f7ff;font:inherit;padding:10px}
+.broadcast-box textarea{min-height:160px;resize:vertical;line-height:1.5}
+.broadcast-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.broadcast-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+.broadcast-toolbar button{padding:7px 9px;background:#203d6c;font-size:11px}
+.broadcast-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.broadcast-primary{background:linear-gradient(110deg,#406bf9,#7358ef);border-color:#8ab5ff}
+.broadcast-box button[hidden]{display:none}
+#broadcast-status{font-size:12px;min-height:16px;color:#d3e4ff;padding-top:8px}
+#broadcast-preview{white-space:pre-wrap;overflow-wrap:anywhere;border:1px dashed #52729e;border-radius:10px;padding:10px;color:#e3eeff;background:#0b182b;max-height:250px;overflow:auto;margin-top:10px;font-size:12px}
+#broadcast-history .broadcast-row{border:1px solid #344b71;border-radius:9px;background:#11233d;padding:10px;margin-top:7px;font-size:11px;line-height:1.55}
+@media(max-width:420px){.broadcast-grid{grid-template-columns:1fr}}
 </style></head>
 <body><div class="page">
 <header><span style="font-size:30px">🎬</span><div><h1>Ciné Radar</h1><small>Modération privée</small></div></header>
 <p id="status" role="status">Vérification de l’accès…</p>
 <div id="private" hidden>
 <section class="stats" id="stats"></section>
+
+<section class="broadcast-box" id="broadcast-box" aria-label="Envoyer une annonce aux utilisateurs">
+ <h2>📣 Annonces aux utilisateurs du bot</h2>
+ <p>Crée un message, ajoute une image et un bouton, puis prévisualise-le dans ton Telegram avant l'envoi. <b>Aucun envoi collectif n'a lieu sans confirmation.</b></p>
+ <p id="broadcast-audience">Destinataires : chargement…</p>
+ <label for="broadcast-text">Message (mise en forme Telegram : gras, italique, citation)
+  <textarea id="broadcast-text" maxlength="3900" placeholder="🎬 Nouveauté Ciné Radar !&#10;&#10;Découvre les nouveaux canaux…"></textarea>
+ </label>
+ <div class="broadcast-toolbar" aria-label="Mise en forme">
+  <button type="button" data-format="b">B Gras</button>
+  <button type="button" data-format="i">I Italique</button>
+  <button type="button" data-format="blockquote">❞ Citation</button>
+  <button type="button" data-format="u">U Souligner</button>
+ </div>
+ <p>Tu peux également saisir les balises HTML Telegram : &lt;b&gt;, &lt;i&gt;, &lt;blockquote&gt;. Le lien du bouton se configure ci-dessous.</p>
+ <label for="broadcast-photo">Image facultative (JPEG, PNG ou WebP — 2 Mo maximum)
+  <input id="broadcast-photo" type="file" accept="image/jpeg,image/png,image/webp">
+ </label>
+ <div class="broadcast-actions"><button id="broadcast-upload-photo" type="button">🖼️ Importer l'image</button><button id="broadcast-remove-photo" type="button" hidden>Retirer l'image</button></div>
+ <p id="broadcast-photo-status">Aucune image sélectionnée. L'import envoie uniquement un aperçu privé dans ton Telegram.</p>
+ <div class="broadcast-grid">
+  <label for="broadcast-button-text">Texte du bouton (facultatif)<input id="broadcast-button-text" maxlength="64" placeholder="▶️ Découvrir"></label>
+  <label for="broadcast-button-url">Lien HTTPS du bouton<input id="broadcast-button-url" type="url" placeholder="https://t.me/..."></label>
+ </div>
+ <h3>Prévisualisation du contenu</h3>
+ <div id="broadcast-preview">Saisis un message pour afficher son aperçu.</div>
+ <div class="broadcast-actions">
+  <button id="broadcast-save" class="broadcast-primary" type="button">💾 Enregistrer le brouillon</button>
+  <button id="broadcast-preview-send" type="button" disabled>👁️ Aperçu privé Telegram</button>
+  <button id="broadcast-start" class="broadcast-primary" type="button" disabled>📢 Confirmer et envoyer</button>
+  <button id="broadcast-cancel" type="button" disabled>Annuler</button>
+ </div>
+ <p id="broadcast-status" role="status"></p>
+ <h3>Historique des annonces</h3><div id="broadcast-history"></div>
+ <button id="broadcast-refresh" type="button">↻ Actualiser l'historique</button>
+</section>
 <section class="analytics-dashboard" aria-label="Statistiques de fréquentation">
  <div class="analytics-head"><h2>📊 Fréquentation et engagement</h2><small id="analytics-clock">Actualisation automatique · 30 s</small></div>
  <div class="analytics-controls">
@@ -89,7 +143,7 @@ async function manage(id,action){await api("/api/admin/channels/"+id,{action});s
 async function load(){
  const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
- $("private").hidden=false;status("");refreshAnalytics();
+ $("private").hidden=false;status("");refreshAnalytics();refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
@@ -130,6 +184,113 @@ async function load(){
  }
  if(!suggestions.children.length)suggestions.append(el("p","muted","Aucune suggestion."));
 }
+
+
+let activeBroadcastId=null,uploadedPhotoId="",broadcastAudience=0;
+const broadcastStatus=message=>{$("broadcast-status").textContent=message;};
+function broadcastDraftChanged(){
+ activeBroadcastId=null;
+ $("broadcast-preview-send").disabled=true;$("broadcast-start").disabled=true;$("broadcast-cancel").disabled=true;
+ updateBroadcastPreview();
+}
+function updateBroadcastPreview(){
+ const text=$("broadcast-text").value.trim(),button=$("broadcast-button-text").value.trim(),url=$("broadcast-button-url").value.trim();
+ $("broadcast-preview").textContent=(text||"Saisis un message pour afficher son aperçu.")+
+  (uploadedPhotoId?"\n\n🖼️ Image jointe":"")+(button?"\n\n🔗 "+button+" → "+url:"");
+}
+function broadcastPayload(){
+ if($("broadcast-photo").files.length&&!uploadedPhotoId)throw Error("Clique d'abord sur « Importer l'image ».");
+ return {text_html:$("broadcast-text").value.trim(),photo_id:uploadedPhotoId,button_text:$("broadcast-button-text").value.trim(),button_url:$("broadcast-button-url").value.trim()};
+}
+async function refreshBroadcasts(){
+ const data=await api("/api/admin/broadcasts");
+ broadcastAudience=Number(data.subscribers?.active||0);
+ $("broadcast-audience").textContent="📬 "+broadcastAudience.toLocaleString("fr-FR")+" utilisateur(s) joignable(s) enregistré(s) après /start. Les anciens visiteurs anonymisés ne sont pas joignables automatiquement.";
+ const box=$("broadcast-history");box.textContent="";
+ const labels={draft:"Brouillon",preparing:"Préparation",sending:"En cours",completed:"Terminé",cancelled:"Annulé"};
+ for(const item of data.jobs||[]){
+  const row=el("div","broadcast-row");
+  row.append(el("strong",null,"#"+item.id+" · "+(labels[item.status]||item.status)),
+   el("div",null,"Destinataires : "+Number(item.recipients||0)+" · Envoyés : "+Number(item.delivered||0)+
+   " · Bloqués : "+Number(item.blocked||0)+" · Échecs : "+Number(item.failed||0)),
+   el("small",null,String(item.created_at||"")+(item.has_photo?" · 🖼️ Image":"")+(item.button_text?" · 🔗 Bouton":"")));
+  box.append(row);
+ }
+ if(!box.children.length)box.append(el("p","muted","Aucune annonce créée."));
+}
+for(const id of ["broadcast-text","broadcast-button-text","broadcast-button-url"])
+ $(id).addEventListener("input",broadcastDraftChanged);
+$("broadcast-photo").addEventListener("change",()=>{
+ uploadedPhotoId="";
+ $("broadcast-photo-status").textContent=$("broadcast-photo").files.length?"Image sélectionnée : clique sur « Importer l'image ».":"Aucune image.";
+ $("broadcast-remove-photo").hidden=true;
+ broadcastDraftChanged();
+});
+$("broadcast-remove-photo").onclick=()=>{
+ uploadedPhotoId="";$("broadcast-photo").value="";
+ $("broadcast-remove-photo").hidden=true;
+ $("broadcast-photo-status").textContent="Aucune image.";
+ broadcastDraftChanged();
+};
+for(const button of document.querySelectorAll("[data-format]"))button.onclick=()=>{
+ const box=$("broadcast-text"),open="<"+button.dataset.format+">",close="</"+button.dataset.format+">";
+ const start=box.selectionStart,end=box.selectionEnd,selected=box.value.slice(start,end)||"Ton texte";
+ box.setRangeText(open+selected+close,start,end,"select");
+ broadcastDraftChanged();box.focus();
+};
+$("broadcast-upload-photo").onclick=async()=>{
+ const file=$("broadcast-photo").files[0];
+ if(!file){broadcastStatus("Choisis une image.");return}
+ if(file.size>2000000){broadcastStatus("Image trop volumineuse : maximum 2 Mo.");return}
+ const btn=$("broadcast-upload-photo");btn.disabled=true;broadcastStatus("Import de l'image…");
+ try{
+  const form=new FormData();form.append("photo",file);
+  const r=await fetch("/api/admin/broadcast-image",{method:"POST",headers:{"X-Telegram-Init-Data":init},body:form});
+  const data=await r.json();if(!r.ok)throw Error(data.error||"Échec de l'import");
+  uploadedPhotoId=data.photo_id;$("broadcast-photo-status").textContent="✅ Image ajoutée. Un aperçu privé a été envoyé dans ton Telegram.";
+  $("broadcast-remove-photo").hidden=false;broadcastStatus("Image prête.");broadcastDraftChanged();
+ }catch(e){broadcastStatus(String(e.message||e));}finally{btn.disabled=false}
+};
+$("broadcast-save").onclick=async()=>{
+ const btn=$("broadcast-save");btn.disabled=true;
+ try{
+  const payload=broadcastPayload();
+  const data=await api("/api/admin/broadcasts",payload);
+  activeBroadcastId=data.id;
+  $("broadcast-preview-send").disabled=false;$("broadcast-start").disabled=false;$("broadcast-cancel").disabled=false;
+  broadcastStatus("✅ Brouillon #"+data.id+" enregistré. Tu peux d'abord envoyer un aperçu privé.");
+  await refreshBroadcasts();
+ }catch(e){broadcastStatus("Erreur : "+String(e.message||e));}
+ finally{btn.disabled=false}
+};
+$("broadcast-preview-send").onclick=async()=>{
+ if(!activeBroadcastId)return;
+ const btn=$("broadcast-preview-send");btn.disabled=true;
+ try{await api("/api/admin/broadcasts/"+activeBroadcastId+"/preview",{});broadcastStatus("👁️ Aperçu envoyé dans ton Telegram privé, pas aux utilisateurs.");}
+ catch(e){broadcastStatus("Erreur : "+String(e.message||e));}finally{btn.disabled=false}
+};
+$("broadcast-start").onclick=async()=>{
+ if(!activeBroadcastId)return;
+ const id=activeBroadcastId;
+ const note="Envoyer l'annonce #"+id+" aux "+broadcastAudience+" utilisateurs enregistrés et actifs ?\n\nCette action démarre une diffusion qui ne pourra pas être annulée pour les messages déjà envoyés.";
+ if(!confirm(note))return;
+ const btn=$("broadcast-start");btn.disabled=true;
+ try{
+  const data=await api("/api/admin/broadcasts/"+id+"/start",{});
+  broadcastStatus("📢 Diffusion "+data.status+" : "+data.recipients+" destinataire(s). Actualise l'historique pour suivre.");
+  activeBroadcastId=null;$("broadcast-preview-send").disabled=true;$("broadcast-cancel").disabled=true;
+  await refreshBroadcasts();
+ }catch(e){btn.disabled=false;broadcastStatus("Erreur : "+String(e.message||e));}
+};
+$("broadcast-cancel").onclick=async()=>{
+ if(!activeBroadcastId||!confirm("Annuler le brouillon #"+activeBroadcastId+" ?"))return;
+ try{
+  await api("/api/admin/broadcasts/"+activeBroadcastId+"/cancel",{});
+  activeBroadcastId=null;$("broadcast-preview-send").disabled=true;$("broadcast-start").disabled=true;$("broadcast-cancel").disabled=true;
+  broadcastStatus("Brouillon annulé.");await refreshBroadcasts();
+ }catch(e){broadcastStatus(String(e.message||e))}
+};
+$("broadcast-refresh").onclick=()=>refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));
 
 let analyticsCached=null;
 function analyticsList(where,entries,formatValue,formatLabel){
