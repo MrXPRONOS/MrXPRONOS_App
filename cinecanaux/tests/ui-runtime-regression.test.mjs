@@ -33,7 +33,9 @@ test('all category controls remain wired to an API-backed directory',()=>{
  for(const type of ['films','series','animes']){
   assert.ok(APP_HTML.includes('data-type="'+type+'"'));
  }
- assert.ok(directory.includes('applyFilters();load(true);'));
+ assert.ok(directory.includes('function chooseCategory(chosen,exclusive=false){'));
+ assert.ok(directory.includes('syncCategoryControls();'));
+ assert.ok(directory.includes('load(true);'));
  assert.ok(APP_HTML.includes('"/api/search?q="'));
  assert.ok(APP_HTML.includes('const PRELOADED_CATALOG=null;'));
 });
