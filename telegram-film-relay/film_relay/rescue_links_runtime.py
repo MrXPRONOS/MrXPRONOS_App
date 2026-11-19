@@ -36,9 +36,15 @@ async def get_existing_invite(client, channel, *, expected_sha: str | None = Non
     primary = getattr(getattr(full, "full_chat", None), "exported_invite", None)
     if is_valid_invitation(getattr(primary, "link", "")) and not getattr(primary, "revoked", False):
         choices.append(str(primary.link))
-    response = await client(functions.messages.GetExportedChatInvitesRequest(
-        peer=channel, admin_id=me, limit=100, revoked=False
-    ))
+    if expected_sha and any(fingerprint(link) == expected_sha for link in choices):
+        return next(link for link in choices if fingerprint(link) == expected_sha)
+    try:
+        response = await client(functions.messages.GetExportedChatInvitesRequest(
+            peer=channel, admin_id=me, limit=100, revoked=False
+        ))
+    except Exception:
+        LOG.warning("Liste d'invitations inaccessible ; utilisation éventuelle de l'invitation primaire vérifiée")
+        response = None
     for row in getattr(response, "invites", []):
         link = str(getattr(row, "link", "") or "")
         if is_valid_invitation(link) and not getattr(row, "revoked", False) and not getattr(row, "expire_date", None):
