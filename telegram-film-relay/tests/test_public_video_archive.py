@@ -4,7 +4,7 @@ from film_relay.public_video_showcase import select_recent_completed
 from film_relay.public_video_archive import (
     is_video_message, last_ten_video_ids, matching_poster,
     normalize_title, title_similarity, archive_buttons, verified_film_video_pairs,
-    is_user_reserved_film,
+    is_user_reserved_film, poster_heading,
 )
 
 
@@ -92,6 +92,31 @@ class PublicArchiveTests(unittest.TestCase):
         messages = [msg(40, title="Video unique", video=True),
                     msg(39, title="Autre film", photo=True)]
         self.assertEqual(verified_film_video_pairs(messages), [])
+
+    def test_legacy_hash_film_heading_matches_mutiny(self):
+        video = msg(185, title="Mutiny Ultra HD (2026) VF", video=True)
+        poster = msg(184, title="#Film\\n\\n🎬 MUTINY (2026)\\nSynopsis : aventure", photo=True)
+        self.assertEqual(poster_heading(poster), "MUTINY (2026)")
+        self.assertIs(matching_poster(video, [poster, video]), poster)
+
+    def test_duplicate_beekeeper_uses_nearest_exact_poster(self):
+        video = msg(175, title="🎞️ The Beekeeper", video=True)
+        older = msg(168, title="🎬 The Beekeeper", photo=True)
+        latest = msg(174, title="🎬 The Beekeeper", photo=True)
+        self.assertIs(matching_poster(video, [older, latest, video]), latest)
+
+    def test_short_hope_and_hash_film_mongoose(self):
+        hope = msg(276, title="Hope VF 2026.mp4", video=True)
+        hope_poster = msg(275, title="Hope\\n2026 ‧ Thriller/SF", photo=True)
+        self.assertIs(matching_poster(hope, [hope_poster, hope]), hope_poster)
+        mongoose = msg(293, title="The Mongoose (2026) VF", video=True)
+        mongoose_poster = msg(292, title="#Film\\n🎬 THE MONGOOSE (2026)", photo=True)
+        self.assertIs(matching_poster(mongoose, [mongoose_poster, mongoose]), mongoose_poster)
+
+    def test_ignore_series_episode_in_movie_count(self):
+        poster = msg(216, title="🎬 12 12 12 Saison 1 VF", photo=True)
+        video = msg(217, title="12 12 12 [S01 EP 01] [VF]", video=True)
+        self.assertEqual(verified_film_video_pairs([poster, video]), [])
 
     def test_two_buttons(self):
         buttons = archive_buttons("https://t.me/c/1234/5678")
