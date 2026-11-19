@@ -15,12 +15,48 @@ button:disabled{opacity:.6}.danger{background:#552d48;border-color:#864867}.stat
 .item .name{font-weight:700;overflow-wrap:anywhere}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 input{padding:10px;border:1px solid #3c5983;background:#14243b;color:#fff;border-radius:9px;width:95px}
 a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
+
+.analytics-dashboard{margin:18px 0 26px;padding:14px;border:1px solid #3c557c;border-radius:15px;background:#0c1c31}
+.analytics-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.analytics-head h2{margin:0 0 10px}
+.analytics-head small{font-size:10px;text-align:right}
+.analytics-controls{display:flex;flex-wrap:wrap;gap:9px;align-items:end;margin:10px 0 14px}
+.analytics-controls label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:#b8c9e6}
+.analytics-controls select,.analytics-controls input{background:#142b48;border:1px solid #456288;border-radius:8px;color:#fff;padding:9px;width:auto;max-width:170px;min-width:0;font:inherit}
+#analytics-custom{display:flex;gap:8px;flex-wrap:wrap}
+.analytics-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-metrics .metric strong{font-size:19px;font-variant-numeric:tabular-nums}
+.analytics-dashboard h3{font-size:13px;margin:23px 0 10px}
+.analytics-row{padding:9px 10px;margin:5px 0;border-radius:9px;background:#14263e;border:1px solid #2d466c}
+.analytics-row .analytics-row-top{display:flex;justify-content:space-between;gap:9px;align-items:center;line-height:1.4}
+.analytics-row strong{font-size:12px;max-width:80%;overflow-wrap:anywhere}
+.analytics-row small{color:#9bb5d4;font-size:10px}
+.analytics-bar{height:5px;border-radius:5px;background:#182f52;margin-top:7px;overflow:hidden}
+.analytics-bar span{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#577df2,#ac90f5)}
+.analytics-daily{max-height:360px;overflow:auto}
+.analytics-notice{color:#a9bfde;font-size:11px;line-height:1.5;margin:8px 0}
+@media(min-width:660px){.analytics-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:360px){.analytics-controls select{max-width:145px}.analytics-dashboard{padding:10px}}
 </style></head>
 <body><div class="page">
 <header><span style="font-size:30px">🎬</span><div><h1>Ciné Radar</h1><small>Modération privée</small></div></header>
 <p id="status" role="status">Vérification de l’accès…</p>
 <div id="private" hidden>
 <section class="stats" id="stats"></section>
+<section class="analytics-dashboard" aria-label="Statistiques de fréquentation">
+ <div class="analytics-head"><h2>📊 Fréquentation et engagement</h2><small id="analytics-clock">Actualisation automatique · 30 s</small></div>
+ <div class="analytics-controls">
+ <label>Période <select id="analytics-period"><option value="today">Aujourd'hui</option><option value="yesterday">Hier</option><option value="7d">7 derniers jours</option><option value="week">Cette semaine</option><option value="30d" selected>30 derniers jours</option><option value="month">Ce mois</option><option value="year">Cette année</option><option value="last-year">Année passée</option><option value="all">Toutes les années</option><option value="custom">Dates personnalisées</option></select></label>
+ <div id="analytics-custom" hidden><label>Du <input type="date" id="analytics-from"></label><label>Au <input type="date" id="analytics-to"></label></div>
+ <button id="analytics-refresh" type="button">Actualiser</button><button id="analytics-csv" type="button">Exporter CSV</button>
+ </div>
+ <div class="stats analytics-metrics" id="analytics-metrics"></div>
+ <p class="muted" id="analytics-note">Collecte de statistiques en cours…</p>
+ <h3>📈 Évolution quotidienne</h3><div id="analytics-daily" class="analytics-daily"></div>
+ <h3>🎬 Canaux les plus ouverts</h3><div id="analytics-channels"></div>
+ <h3>🍿 Films et publications les plus cliqués</h3><div id="analytics-pins"></div>
+ <h3>📢 Promotions, partages et avis</h3><div id="analytics-promos"></div>
+ <h3>Historique des ouvertures de canaux (avant ce suivi)</h3><div id="analytics-historic"></div>
+ </section>
+
 <h2>Automatisations</h2>
 <div class="item"><div class="actions"><button id="runChecks">Vérifier 10 canaux</button><button id="refreshJobs">Actualiser</button></div></div><section id="jobs"></section>
 <h2>Signalements</h2><section id="reports"></section>
@@ -53,7 +89,7 @@ async function manage(id,action){await api("/api/admin/channels/"+id,{action});s
 async function load(){
  const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
- $("private").hidden=false;status("");
+ $("private").hidden=false;status("");refreshAnalytics();
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
@@ -94,6 +130,76 @@ async function load(){
  }
  if(!suggestions.children.length)suggestions.append(el("p","muted","Aucune suggestion."));
 }
+
+let analyticsCached=null;
+function analyticsList(where,entries,formatValue,formatLabel){
+ const root=$(where);root.textContent="";
+ if(!entries?.length){root.append(el("p","analytics-notice","Pas encore de données sur cette période."));return}
+ const largest=Math.max(1,...entries.map(x=>Number(formatValue(x))||0));
+ for(const item of entries){
+  const value=Number(formatValue(item))||0;
+  const card=el("div","analytics-row"),top=el("div","analytics-row-top");
+  top.append(el("strong",null,formatLabel(item)),el("small",null,value.toLocaleString("fr-FR")));
+  const bar=el("div","analytics-bar"),fill=el("span");fill.style.width=Math.max(2,100*value/largest)+"%";bar.append(fill);
+  card.append(top,bar);root.append(card);
+ }
+}
+function renderAnalytics(data){
+ analyticsCached=data;const m=data.metrics||{},e=data.events||{};
+ $("analytics-clock").textContent="Dernière mise à jour : "+new Date(data.generated_at).toLocaleTimeString("fr-FR");
+ const keys=[
+  ["bot_total","Comptes ayant démarré le bot · total"],
+  ["bot_unique","Visiteurs du bot · période"],
+  ["bot_starts","Commandes /start · période"],
+  ["bot_recent","Bot · actifs sur 5 min"],
+  ["app_total","Navigateurs connus · total"],
+  ["app_unique","Visiteurs de la Mini App · période"],
+  ["app_visits","Ouvertures Mini App · période"],
+  ["app_active","Mini App · activité sur 5 min"]
+ ];
+ const cards=$("analytics-metrics");cards.textContent="";
+ for(const [k,title] of keys){const box=el("div","metric");box.append(el("strong",null,Number(m[k]||0).toLocaleString("fr-FR")),el("small",null,title));cards.append(box)}
+ for(const [k,title] of [["channel_open","Clics sur les canaux"],["pin_open","Clics sur les films"],["promo_open","Promotions ouvertes"],["share","Partages"],["rating","Avis reçus"]]){
+  const box=el("div","metric");box.append(el("strong",null,Number(e[k]||0).toLocaleString("fr-FR")),el("small",null,title));cards.append(box)
+ }
+ $("analytics-note").textContent=data.note+" Les visiteurs uniques peuvent utiliser plusieurs appareils ; aucune identité réelle n'est enregistrée. Les chiffres précédant la mise en service ne sont pas reconstitués.";
+ const counts=new Map();
+ for(const x of data.daily?.app||[])counts.set(x.day_utc,{day:x.day_utc,app:Number(x.unique_visitors),visits:Number(x.visits),bot:0});
+ for(const x of data.daily?.bot||[]){const row=counts.get(x.day_utc)||{day:x.day_utc,app:0,visits:0,bot:0};row.bot=Number(x.unique_visitors);counts.set(x.day_utc,row)}
+ const days=[...counts.values()].sort((a,b)=>a.day<b.day?1:-1).slice(0,45);
+ analyticsList("analytics-daily",days,x=>x.app+x.bot,x=>x.day+" · App "+x.app+" · Bot "+x.bot);
+ analyticsList("analytics-channels",data.top_channels||[],x=>x.hits,x=>x.title);
+ analyticsList("analytics-pins",(data.top_pins||[]).filter(x=>x.click_count>0),x=>x.click_count,x=>x.title+" · "+x.kind+" (total cumulé)");
+ analyticsList("analytics-historic",(data.historical_channels||[]).filter(x=>x.opens>0),x=>x.opens,x=>x.title+" (total historique)");
+ const promoted=(data.promos||[]).map(x=>({name:({actufoot_mrxp:"Actu Foot",ActuCrypto24H:"Actu Crypto",mrxpronosfr:"MR X PRONOS"}[x.target_key]||x.target_key),hits:x.hits}));
+ const votes=(data.ratings||[]).map(x=>({name:x.target_key+" ★",hits:x.hits}));
+ analyticsList("analytics-promos",[...promoted,...votes],x=>x.hits,x=>x.name);
+}
+async function refreshAnalytics(){
+ const period=$("analytics-period").value;
+ if(period==="custom"&&(!$("analytics-from").value||!$("analytics-to").value))return;
+ const q=new URLSearchParams({period});
+ if(period==="custom"){q.set("from",$("analytics-from").value);q.set("to",$("analytics-to").value)}
+ try{renderAnalytics(await api("/api/admin/analytics?"+q.toString()))}
+ catch(e){$("analytics-note").textContent="Statistiques indisponibles : "+String(e.message||e)}
+}
+$("analytics-period").onchange=()=>{
+ $("analytics-custom").hidden=$("analytics-period").value!=="custom";
+ if($("analytics-period").value!=="custom")refreshAnalytics();
+};
+$("analytics-refresh").onclick=refreshAnalytics;
+$("analytics-csv").onclick=()=>{
+ if(!analyticsCached)return;
+ const rows=[["date_utc","visiteurs_app","visites_app","visiteurs_bot","demarrages_bot"]];
+ const app=new Map((analyticsCached.daily?.app||[]).map(x=>[x.day_utc,x]));
+ const bot=new Map((analyticsCached.daily?.bot||[]).map(x=>[x.day_utc,x]));
+ const days=[...new Set([...app.keys(),...bot.keys()])].sort();
+ for(const day of days){const a=app.get(day),b=bot.get(day);rows.push([day,a?.unique_visitors||0,a?.visits||0,b?.unique_visitors||0,b?.starts||0])}
+ const csv=rows.map(r=>r.join(",")).join("\n"),blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cine-radar-stats.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+};
+setInterval(()=>{if(!document.hidden&&init&&!$("private").hidden)refreshAnalytics()},30000);
+
 $("runChecks").onclick=async()=>{
  const btn=$("runChecks");btn.disabled=true;status("Contrôle des liens en cours…");
  try{const result=await api("/api/admin/run-check",{count:10});status(result.checked+" canaux examinés.");await load();}
