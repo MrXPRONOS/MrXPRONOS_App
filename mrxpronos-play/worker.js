@@ -818,7 +818,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
    ).bind(user.id,boost.energy.purchase_id,now,user.id,batch));
   const result=await env.DB.batch(ops);
   player=await env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(user.id).first();
-  if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found){const progression=await v2Progression(env,player),wallet=await mrxpWallet(env,player,progression);return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression,wallet,shop:await mrxpBoostList(env,player,wallet)};}return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
+  if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found){const progression=await v2Progression(env,player),wallet=await mrxpWallet(env,player,progression);return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression,wallet,shop:await mrxpBoostList(env,player,wallet)});}return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
   const updatedProgress=await v2Progression(env,player);
   const wallet=await mrxpWallet(env,player,updatedProgress);
   return json({ok:true,duplicate:false,xp_awarded:awarded,boost_bonus_xp:boostBonus,
