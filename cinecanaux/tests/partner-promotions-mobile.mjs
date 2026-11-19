@@ -17,7 +17,7 @@ try{
   const root=document.querySelector('#cine-home-picks');
   const children=[...root.children];
   const index=children.findIndex(c=>c.classList.contains('cine-promo-slot'));
-  const promo=children[index],cards=[...promo.querySelectorAll('.cine-promo-card')];
+  const promo=children[index],track=promo.querySelector('.cine-promo-track'),cards=[...track.querySelectorAll('.cine-promo-card:not(.cine-promo-duplicate)')];
   return {
    index,precedingChannels:children.slice(0,index).filter(c=>c.classList.contains('cine-pick')).length,
    followingChannels:children.slice(index+1).filter(c=>c.classList.contains('cine-pick')).length,
@@ -27,6 +27,9 @@ try{
    descriptions:cards.map(c=>c.querySelector('.cine-promo-description')?.textContent||''),
    avatars:cards.map(c=>({loaded:c.querySelector('img')?.naturalWidth>0,hasFallback:!!c.querySelector('.cine-promo-avatar')})),
    sectionHeight:Math.round(promo.getBoundingClientRect().height),
+   discoveryDisplay:getComputedStyle(root).display,discoveryOverflow:root.scrollWidth-root.clientWidth,
+   repeatCards:track.querySelectorAll('.cine-promo-card').length,
+   autoScrollTrack:track.scrollLeft,
    windowWidth:innerWidth,scrollTrackWidth:Math.round(promo.querySelector('.cine-promo-track').scrollWidth),
    scrollClientWidth:Math.round(promo.querySelector('.cine-promo-track').clientWidth),
    label:promo.querySelector('.cine-promo-head')?.textContent,
@@ -38,6 +41,9 @@ try{
  await page.screenshot({path:'/tmp/cineradar-cross-promo-mobile.png'});
  assert.equal(state.precedingChannels,4,'Promotion should appear after the first four suggestions');
  assert.equal(state.cardCount,3);
+ assert.equal(state.repeatCards,9);
+ assert.equal(state.discoveryDisplay,'grid');
+ assert.ok(state.discoveryOverflow<5);
  assert.equal(state.promoOtherPlaces,1);
  assert.deepEqual(state.urls,[
   'https://t.me/actufoot_mrxp',
