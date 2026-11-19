@@ -201,8 +201,8 @@ test('lot 3: every category, genre chip and movie-poster icon uses the generated
  assert.ok(navigation.includes('head.append(cineCategoryIcon(iconKey),node("strong",null,label))'));
  assert.ok(navigation.includes('b.onclick=()=>setFilter(query);grid.append(b);'));
  assert.ok(navigation.includes('showcaseLabel.append(cineCategoryIcon("affiches")'));
- assert.ok(navigation.includes('mark.append(cineCategoryIcon(entry.type))'));
- assert.ok(navigation.includes('label.append(cineCategoryIcon(entry.type)'));
+ assert.ok(navigation.includes('mark.append(entry.type==="series"?cineLot4Icon("series"):cineCategoryIcon(entry.type))'));
+ assert.ok(navigation.includes('label.append(entry.type==="series"?cineLot4Icon("series"):cineCategoryIcon(entry.type)'));
  assert.ok(navigation.includes('chip.append(cineCategoryIcon(iconKey),document.createTextNode(title))'));
  assert.ok(!navigation.includes('emoji+" "+label'),'The category grid must not show the legacy emoji list');
  assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Do not regress the lot 1 atlas');
