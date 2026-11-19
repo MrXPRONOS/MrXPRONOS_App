@@ -259,6 +259,16 @@ async function mrxpWallet(env,player,progression){
  return {currency:"MRXP",balance:Math.max(0,Number(balance?.balance)||0),total_events:Number(balance?.event_count)||0,
   ledger:(history.results||[]).map(x=>({key:x.event_key,type:x.event_type,amount:Number(x.amount),label:x.label,created_ms:Number(x.created_ms)})),
   spend_enabled:false,transfer_enabled:false,cash_value:false,
+  today_goals:(()=>{const day=new Date().toISOString().slice(0,10);
+   return [
+    {key:"daily",label:"Bonus quotidien synchronisé",done:(d.results||[]).some(r=>r.day===day),reward:MRXP_CREDIT_POLICY.daily_quest},
+    {key:"wheel",label:"Roue du jour confirmée",done:(w.results||[]).some(r=>r.day===day),reward:MRXP_CREDIT_POLICY.wheel_quest},
+    {key:"taps",label:"50 tapotages synchronisés",done:(t.results||[]).some(r=>new Date(Number(r.created_ms)).toISOString().slice(0,10)===day),reward:MRXP_CREDIT_POLICY.tap_quest}
+   ]
+  })(),
+  weekly:{done:(dailyWeeks.get(mrxpWeekMonday(new Date().toISOString().slice(0,10)))?.size||0)>=4,
+    days:dailyWeeks.get(mrxpWeekMonday(new Date().toISOString().slice(0,10)))?.size||0,
+    target:4,reward:MRXP_CREDIT_POLICY.weekly},
   policy:MRXP_CREDIT_POLICY,baseline_level:state.baseline_level,activated_ms:state.activated_ms}
 }
 
