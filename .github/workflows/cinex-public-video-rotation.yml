@@ -1,9 +1,6 @@
 name: CineX - Rotation quotidienne des 10 videos
 
 on:
-  push:
-    branches: [main]
-    paths: ['telegram-film-relay/.cinex-archive-audit-once', 'telegram-film-relay/.cinex-archive-apply-once']
   workflow_dispatch:
     inputs:
       apply:
@@ -36,7 +33,7 @@ jobs:
       TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
       TG_PUBLIC_CHANNEL: '@CineXFilms_vf'
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
-      TG_RIGHTS_ATTESTED: 'true'
+      TG_RIGHTS_ATTESTED: ${{ vars.CINEX_RIGHTS_VERIFIED || 'false' }}
       PYTHONPATH: .
     defaults:
       run:
@@ -70,16 +67,24 @@ jobs:
         run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
       - name: Analyser puis archiver
         env:
-          RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_ARCHIVE_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.apply || github.event_name == 'push' && contains(github.event.head_commit.message, '[cinex-archive-apply-2]') }}
+          RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
         shell: bash
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
-            if [[ "${{ github.event_name }}" == "push" ]]; then
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
               python -m film_relay.public_video_archive --apply --max-archived 2
             else
-              python -m film_relay.public_video_archive --apply
+              python -m film_relay.public_video_archive --apply --max-archived 10
             fi
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.apply }}" == "true" ]]; then
+            echo "::error::Suppression refusée : activer explicitement CINEX_ARCHIVE_ENABLED, CINEX_ARCHIVE_DELETE_APPROVED et CINEX_RIGHTS_VERIFIED."
+            exit 1
           else
-            echo "Simulation uniquement : CINEX_ARCHIVE_ENABLED n'est pas active."
+            echo "Simulation : archivage destructif non autorisé par les trois contrôles indépendants."
             python -m film_relay.public_video_archive
           fi
+      - name: Vérifier le chargement des invitations
+        if: ${{ always() && steps.rescue_links.outcome == 'failure' }}
+        run: |
+          echo "::error::Échec de récupération des liens Secours. Voir l'étape de lecture sécurisée."
+          exit 1
