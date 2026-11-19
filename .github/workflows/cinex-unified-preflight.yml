@@ -38,6 +38,9 @@ jobs:
       COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
       ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
       ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
       CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-audit-${{ github.run_id }}.json
       PYTHONPATH: .

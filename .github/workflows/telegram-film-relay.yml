@@ -161,7 +161,7 @@ jobs:
         continue-on-error: true
         # Never send TV episodes into the Classic film library by fallback.
         # Independent series video library must have an explicit verified ID.
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && vars.SERIES_PRIVATE_CHANNEL != '' }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && vars.SERIES_PRIVATE_CHANNEL != '' && vars.SERIES_SOURCE_CHANNELS != '' && vars.SERIES_RIGHTS_ATTESTED == 'true' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -174,6 +174,8 @@ jobs:
           SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
           TG_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
+          SERIES_MEDIA_CHANNELS: ${{ vars.SERIES_MEDIA_CHANNELS }}
+          SERIES_RIGHTS_ATTESTED: ${{ vars.SERIES_RIGHTS_ATTESTED }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           PYTHONPATH: .
         run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 12
@@ -381,6 +383,28 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category anime --phase after
 
+      - name: 5bis - Cine X Action (2 films au maximum)
+        id: action
+        continue-on-error: true
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && vars.ACTION_PRIVATE_CHANNEL != '' && vars.ACTION_SOURCE_CHANNELS != '' && vars.ACTION_RIGHTS_ATTESTED == 'true' }}
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+          ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+          ACTION_SOURCE_CHANNEL: ${{ vars.ACTION_SOURCE_CHANNELS }}
+          ACTION_MEDIA_CHANNELS: ${{ vars.ACTION_MEDIA_CHANNELS }}
+          ACTION_RIGHTS_ATTESTED: ${{ vars.ACTION_RIGHTS_ATTESTED }}
+          ACTION_STATE_PATH: state/action_state.json
+          ACTION_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+          PYTHONPATH: .
+        run: python -m film_relay.category_runner --category action --publish --limit 2
+
       - name: Confirmer les nouvelles publications directement sur Telegram
         id: telegram_check
         if: ${{ always() && steps.credentials.outputs.ready == 'true' && (github.event_name != 'workflow_dispatch' || inputs.publish) }}
@@ -392,6 +416,10 @@ jobs:
           TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+          SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+          ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+          ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
           DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
           DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
           COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
@@ -410,6 +438,7 @@ jobs:
           DESIR_OUTCOME: ${{ steps.desir.outcome }}
           COMEDIE_OUTCOME: ${{ steps.comedy.outcome }}
           ANIME_OUTCOME: ${{ steps.anime.outcome }}
+          ACTION_OUTCOME: ${{ steps.action.outcome }}
           VERIFICATION: ${{ steps.telegram_check.outputs.verification_status }}
           VERIFIED_POSTS: ${{ steps.telegram_check.outputs.verified_posts || '0' }}
           RUN_ID: ${{ github.run_id }}
@@ -423,7 +452,7 @@ jobs:
           outcomes = {k: os.getenv(v, "missing") for k, v in {
               "films": "FILMS_OUTCOME", "series": "SERIES_OUTCOME",
               "desir": "DESIR_OUTCOME", "comedie": "COMEDIE_OUTCOME",
-              "anime": "ANIME_OUTCOME",
+              "anime": "ANIME_OUTCOME", "action": "ACTION_OUTCOME",
           }.items()}
           subprocess.run([sys.executable, "scripts/cycle_monitor.py",
               "--run-id", os.environ["RUN_ID"],
@@ -441,7 +470,7 @@ jobs:
         run: |
           set -e
           STATE=telegram-film-relay/state
-          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json" "$STATE/cycle_monitor.json"; then
+          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/action_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json" "$STATE/cycle_monitor.json"; then
             echo 'Aucun historique a sauvegarder.'
             exit 0
           fi
@@ -450,6 +479,7 @@ jobs:
           cp "$STATE/discovered_channels.json" "$RUNNER_TEMP/discovery-state.json"
           cp "$STATE/comedie_state.json" "$RUNNER_TEMP/comedie-state.json"
           cp "$STATE/anime_state.json" "$RUNNER_TEMP/anime-state.json"
+          cp "$STATE/action_state.json" "$RUNNER_TEMP/action-state.json"
           cp "$STATE/anime_catalog.json" "$RUNNER_TEMP/anime-catalog.json"
           cp "$STATE/series_state.json" "$RUNNER_TEMP/series-state.json"
           cp "$STATE/series_catalog.json" "$RUNNER_TEMP/series-catalog.json"
@@ -464,11 +494,12 @@ jobs:
             python telegram-film-relay/scripts/merge_discovery_state.py "$RUNNER_TEMP/discovery-state.json" "$STATE/discovered_channels.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/comedie-state.json" "$STATE/comedie_state.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-state.json" "$STATE/anime_state.json"
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/action-state.json" "$STATE/action_state.json"
             python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/anime-catalog.json" "$STATE/anime_catalog.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/series-state.json" "$STATE/series_state.json"
             python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/series-catalog.json" "$STATE/series_catalog.json"
             python telegram-film-relay/scripts/merge_cycle_monitor.py "$RUNNER_TEMP/cinex-cycle-monitor.json" "$STATE/cycle_monitor.json"
-            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json" "$STATE/cycle_monitor.json"
+            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/action_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json" "$STATE/cycle_monitor.json"
             if git diff --cached --quiet; then
               echo 'Historiques deja synchronises.'
               exit 0
@@ -485,7 +516,7 @@ jobs:
           exit 1
 
       - name: 7 - Contrôler le résultat de toutes les catégories
-        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure'  || steps.rescue_links.outcome == 'failure') }}
+        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.action.outcome == 'failure' || steps.telegram_check.outcome == 'failure'  || steps.rescue_links.outcome == 'failure') }}
         shell: bash
         run: |
           echo '::error::CinéX dégradé : catégorie, vidéos publiques, vérification Telegram ou récupération des invitations Secours en échec. Examiner le rapport de cycle.'

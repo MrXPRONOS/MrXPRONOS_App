@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CATEGORIES = {
     "films": ("state.json", "processed", "TG_PRIVATE_CHANNEL", "TG_PUBLIC_CHANNEL",
               "private_message_id", "public_message_id"),
-    "series": ("series_state.json", "completed", "TG_PRIVATE_CHANNEL", "TG_PUBLIC_CHANNEL",
+    "series": ("series_state.json", "completed", "SERIES_PRIVATE_CHANNEL", "SERIES_PUBLIC_CHANNEL",
                "video_id", "public_id"),
     "desir": ("desir_state.json", "completed", "DESIR_PRIVATE_CHANNEL", "DESIR_PUBLIC_CHANNEL",
               "video_id", "public_id"),
@@ -26,6 +26,8 @@ CATEGORIES = {
                 "video_id", "public_id"),
     "anime": ("anime_state.json", "completed", "ANIME_PRIVATE_CHANNEL", "ANIME_PUBLIC_CHANNEL",
               "video_id", "public_id"),
+    "action": ("action_state.json", "completed", "ACTION_PRIVATE_CHANNEL", "ACTION_PUBLIC_CHANNEL",
+               "video_id", "public_id"),
 }
 
 
