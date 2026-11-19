@@ -179,6 +179,89 @@ async function mrxpShareSnapshot(env,player,hideName){
  return {snapshot,token:await mrxpShareToken(env,snapshot)};
 }
 
+
+/* V2 Phase 4 — Free MRXP virtual credit economy. No real currency.
+   Only rows in verified server ledgers can generate credit events.
+   Exactly-once credits: (user_id,event_key) is unique in SQLite D1.
+   XP and credit balances never share a column or accounting formula. */
+const MRXP_CREDIT_RANK_BONUSES={5:40,10:50,15:70,20:90,30:110,40:140,50:180};
+const MRXP_CREDIT_POLICY={daily_base:5,daily_quest:5,wheel_quest:5,tap_quest:5,mission:10,weekly:30,ordinary_level:10};
+function mrxpWeekMonday(day){
+ const d=new Date(day+"T00:00:00Z"),offset=(d.getUTCDay()+6)%7;
+ return new Date(d.getTime()-offset*86400000).toISOString().slice(0,10)
+}
+async function mrxpCreditBaseline(env,player,progression){
+ const id=String(player.user_id);
+ let baseline=await env.DB.prepare("SELECT baseline_level,activated_ms FROM player_credit_state WHERE user_id=?").bind(id).first();
+ if(!baseline){
+  const p=progression||await v2Progression(env,player);
+  await env.DB.prepare("INSERT OR IGNORE INTO player_credit_state(user_id,baseline_level,activated_ms) VALUES(?,?,?)").bind(id,p.level,Date.now()).run();
+  baseline=await env.DB.prepare("SELECT baseline_level,activated_ms FROM player_credit_state WHERE user_id=?").bind(id).first()
+ }
+ if(!baseline)throw Error("MRXP credit baseline missing");
+ return {baseline_level:Math.max(1,Math.min(50,Number(baseline.baseline_level)||1)),
+  activated_ms:Math.max(1,Number(baseline.activated_ms)||Date.now())}
+}
+async function mrxpWallet(env,player,progression){
+ const id=String(player.user_id),p=progression||await v2Progression(env,player);
+ const state=await mrxpCreditBaseline(env,player,p);
+ const existing=await env.DB.prepare("SELECT event_key FROM mrxp_credit_events WHERE user_id=?").bind(id).all();
+ const owned=new Set((existing.results||[]).map(x=>x.event_key));
+ const baselineDay=new Date(state.activated_ms).toISOString().slice(0,10),entries=[];
+ const add=(key,type,amount,label,ms)=>{
+  if(owned.has(key)||!Number.isSafeInteger(amount)||amount<=0)return;
+  owned.add(key);entries.push({key,type,amount,label,ms})
+ };
+ const [d,w,t,m]=await Promise.all([
+  env.DB.prepare("SELECT day,created_ms FROM daily_claims WHERE user_id=? AND created_ms>=? ORDER BY day").bind(id,state.activated_ms).all(),
+  env.DB.prepare("SELECT day,created_ms FROM wheel_claims WHERE user_id=? AND created_ms>=? ORDER BY day").bind(id,state.activated_ms).all(),
+  env.DB.prepare("SELECT created_ms,taps FROM sync_receipts WHERE user_id=? AND created_ms>=? AND taps>=50 ORDER BY created_ms").bind(id,state.activated_ms).all(),
+  env.DB.prepare("SELECT mission_key,created_ms FROM mission_claims WHERE user_id=? AND created_ms>=? ORDER BY created_ms").bind(id,state.activated_ms).all()
+ ]);
+ const dailyWeeks=new Map();
+ for(const row of d.results||[]){
+  const day=String(row.day||"");if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<baselineDay)continue;
+  const week=mrxpWeekMonday(day);if(!dailyWeeks.has(week))dailyWeeks.set(week,new Set());
+  dailyWeeks.get(week).add(day);
+  add("daily:"+day,"daily",MRXP_CREDIT_POLICY.daily_base,"Bonus quotidien validé",Number(row.created_ms));
+  add("quest:daily:"+day,"quest",MRXP_CREDIT_POLICY.daily_quest,"Défi : bonus quotidien confirmé",Number(row.created_ms))
+ }
+ for(const row of w.results||[]){
+  const day=String(row.day||"");if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<baselineDay)continue;
+  add("quest:wheel:"+day,"quest",MRXP_CREDIT_POLICY.wheel_quest,"Défi : Lucky Wheel confirmée",Number(row.created_ms))
+ }
+ for(const row of t.results||[]){
+  const ms=Number(row.created_ms);
+  if(!Number.isFinite(ms)||ms<=0||Number(row.taps)<50)continue;
+  const day=new Date(ms).toISOString().slice(0,10);
+  add("quest:taps:"+day,"quest",MRXP_CREDIT_POLICY.tap_quest,"Défi : 50 tapotages synchronisés",ms)
+ }
+ for(const row of m.results||[]){
+  const key=String(row.mission_key||"");if(!/^[a-z][a-z0-9_]{0,79}$/.test(key))continue;
+  add("mission:"+key,"mission",MRXP_CREDIT_POLICY.mission,"Mission validée : "+key,Number(row.created_ms))
+ }
+ for(const [week,days] of dailyWeeks){
+  if(days.size>=4)add("weekly:"+week,"weekly",MRXP_CREDIT_POLICY.weekly,"Semaine active : 4 bonus quotidiens",Date.now())
+ }
+ for(let n=state.baseline_level+1;n<=p.level;n++){
+  const rankName=V2_RANKS.find(r=>r.from===n)?.name;
+  const amount=MRXP_CREDIT_RANK_BONUSES[n]||MRXP_CREDIT_POLICY.ordinary_level;
+  add("level:"+n,rankName?"rank":"level",amount,rankName?"Nouveau rang : "+rankName:"Niveau "+n+" atteint",Date.now())
+ }
+ for(let n=0;n<entries.length;n+=50){
+  const group=entries.slice(n,n+50).map(e=>env.DB.prepare("INSERT OR IGNORE INTO mrxp_credit_events(user_id,event_key,event_type,amount,label,created_ms) VALUES(?,?,?,?,?,?)").bind(id,e.key,e.type,e.amount,e.label,Number.isFinite(e.ms)&&e.ms>0?e.ms:Date.now()));
+  await env.DB.batch(group)
+ }
+ const [balance,history]=await Promise.all([
+  env.DB.prepare("SELECT COALESCE(SUM(amount),0) AS balance, COUNT(*) AS event_count FROM mrxp_credit_events WHERE user_id=?").bind(id).first(),
+  env.DB.prepare("SELECT event_key,event_type,amount,label,created_ms FROM mrxp_credit_events WHERE user_id=? ORDER BY created_ms DESC,event_key DESC LIMIT 50").bind(id).all()
+ ]);
+ return {currency:"MRXP",balance:Math.max(0,Number(balance?.balance)||0),total_events:Number(balance?.event_count)||0,
+  ledger:(history.results||[]).map(x=>({key:x.event_key,type:x.event_type,amount:Number(x.amount),label:x.label,created_ms:Number(x.created_ms)})),
+  spend_enabled:false,transfer_enabled:false,cash_value:false,
+  policy:MRXP_CREDIT_POLICY,baseline_level:state.baseline_level,activated_ms:state.activated_ms}
+}
+
 /* Telegram Bot interface: public /start -> Mini App; admin D1 allowlist -> private tools. */
 const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\n🎯 Tapote pour collecter des XP Points.\n🎮 Explore les Jeux : commence avec la Lucky Wheel.\n🎁 Accomplis des missions pour gagner des XP.\n📈 Suis ta progression depuis la Mini App.\n\nLes XP Points sont des points virtuels sans valeur monétaire.\n\nAppuie sur « Ouvrir l’application » pour jouer.";
 const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, explore les Jeux (Lucky Wheel), accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
@@ -519,6 +602,11 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
    verify_url:u.origin+"/share/verify?token="+encodeURIComponent(signed.token),
    expires_ms:signed.snapshot.issued_ms+MRXP_SHARE_TTL_MS});
  }
+
+ if(p==="/api/credits"&&request.method==="GET"){
+  const progression=await v2Progression(env,player);
+  return json({wallet:await mrxpWallet(env,player,progression)});
+ }
  if(p==="/api/profile/avatar"&&request.method==="POST"){
   let body;try{body=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
   const selected=body?.rank;
@@ -533,20 +621,24 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  if(p==="/api/missions"&&request.method==="GET")return json({missions:await missionStatus(env,player),progression:await v2Progression(env,player)});
  if(p==="/api/missions/claim"&&request.method==="POST"){
   let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  const before=await v2Progression(env,player);await mrxpCreditBaseline(env,player,before);
   const result=await awardPlayMission(env,player,String(payload?.mission_key||""));
   if(!result.ok)return json({error:result.reason,code:result.error},result.status);
-  return json({...result,progression:await v2Progression(env,result.player||player)});
+  const progression=await v2Progression(env,result.player||player);
+  return json({...result,progression,wallet:await mrxpWallet(env,result.player||player,progression)});
  }
  if(p==="/api/bootstrap"&&request.method==="GET"){
   const now=Date.now(), plans={},base=Math.floor(now/DAY)*DAY;
   for(let i=0;i<15;i++){const d=dateOf(base+i*DAY);plans[d]=(await wheelOutcome(env,user.id,d)).key}
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
   const progression=await v2Progression(env,player);
-  return json({user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression,profile:await v2PlayerProfile(env,player,progression),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
+  const wallet=await mrxpWallet(env,player,progression);
+  return json({wallet,user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression,profile:await v2PlayerProfile(env,player,progression),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
  }
  if(p==="/api/sync"&&request.method==="POST"){
   /* Freeze the legacy floor BEFORE applying new taps or XP, even if a client skips bootstrap. */
-  await v2Progression(env,player);
+  const initialProgress=await v2Progression(env,player);
+  await mrxpCreditBaseline(env,player,initialProgress);
   let body;try{body=await request.json()}catch{return json({error:"JSON invalide"},400)}
   const now=Date.now(),batch=String(body.batch_id||""),taps=Number(body.taps);
   if(!/^[\w-]{16,100}$/.test(batch)||!Number.isInteger(taps)||taps<0||taps>20000)return json({error:"Lot de tapotages invalide"},400);
@@ -574,7 +666,8 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const result=await env.DB.batch(ops);
   player=await env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(user.id).first();
   if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found)return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression:await v2Progression(env,player)});return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
-  return json({ok:true,duplicate:false,xp_awarded:awarded,user:player,wheel_outcomes:outcomes,progression:await v2Progression(env,player)});
+  const updatedProgress=await v2Progression(env,player);
+  return json({ok:true,duplicate:false,xp_awarded:awarded,user:player,wheel_outcomes:outcomes,progression:updatedProgress,wallet:await mrxpWallet(env,player,updatedProgress)});
  }
  return json({error:"Route inconnue"},404)
 
