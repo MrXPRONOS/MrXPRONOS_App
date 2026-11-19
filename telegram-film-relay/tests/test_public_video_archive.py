@@ -7,9 +7,6 @@ from film_relay.public_video_archive import (
 
 
 def msg(identifier, *, title="", photo=False, video=False, document_id=None, name=""):
-    attributes = []
-    if video:
-        attributes.append(SimpleNamespace(__class__=None))  # native video indicated below
     document = SimpleNamespace(id=document_id or identifier, attributes=[]) if video else None
     return SimpleNamespace(
         id=identifier, raw_text=title, photo=(object() if photo else None),
