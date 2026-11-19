@@ -272,6 +272,102 @@ async function mrxpWallet(env,player,progression){
   policy:MRXP_CREDIT_POLICY,baseline_level:state.baseline_level,activated_ms:state.activated_ms}
 }
 
+
+/* V2 Phase 5 — shop and boost accounting. All prices/effects are server-owned.
+   No client-supplied price or multiplier can influence XP or credit balance.
+   Activation of tap boosts is queued for the next admissible 12h sync; the
+   clock begins on that first successful sync so every purchase gets use. */
+const MRXP_BOOST_CATALOG=[
+ {sku:"tap-110",label:"Boost Découverte",icon:"⚡",kind:"tap",price:25,multiplier_milli:1100,duration_hours:24,description:"x1,1 XP sur les tapotages confirmés"},
+ {sku:"tap-120",label:"Boost Guerrier",icon:"🔥",kind:"tap",price:45,multiplier_milli:1200,duration_hours:24,description:"x1,2 XP sur les tapotages confirmés"},
+ {sku:"tap-150",label:"Boost Champion",icon:"👑",kind:"tap",price:100,multiplier_milli:1500,duration_hours:24,description:"x1,5 XP sur les tapotages confirmés"},
+ {sku:"tap-200",label:"Boost Souverain",icon:"💎",kind:"tap",price:180,multiplier_milli:2000,duration_hours:24,description:"x2 XP sur les tapotages confirmés"},
+ {sku:"energy-100",label:"Recharge 100",icon:"🔋",kind:"energy",price:20,energy:100,duration_hours:72,description:"+100 énergie (maximum 500)"},
+ {sku:"energy-250",label:"Recharge 250",icon:"🔌",kind:"energy",price:45,energy:250,duration_hours:72,description:"+250 énergie (maximum 500)"}
+];
+function mrxpBoostSku(sku){return MRXP_BOOST_CATALOG.find(x=>x.sku===sku)||null}
+const MRXP_BOOST_PURCHASE_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+async function mrxpBoostExpire(env,id){
+ return env.DB.prepare("UPDATE mrxp_boost_inventory SET state='expired' WHERE user_id=? AND state IN ('active','charged') AND expires_ms>0 AND expires_ms<=?").bind(String(id),Date.now()).run()
+}
+async function mrxpBoostList(env,player,wallet){
+ const id=String(player.user_id);
+ await mrxpBoostExpire(env,id);
+ const r=await env.DB.prepare("SELECT purchase_id,sku,kind,cost,state,bought_ms,activated_ms,expires_ms FROM mrxp_boost_inventory WHERE user_id=? ORDER BY bought_ms DESC LIMIT 100").bind(id).all();
+ const inventory=(r.results||[]).map(b=>({
+  id:String(b.purchase_id),sku:String(b.sku),kind:String(b.kind),
+  price:Number(b.cost),state:String(b.state),bought_ms:Number(b.bought_ms),
+  activated_ms:Number(b.activated_ms),expires_ms:Number(b.expires_ms),
+  item:mrxpBoostSku(String(b.sku))
+ }));
+ const activeTap=inventory.find(x=>x.kind==="tap"&&(x.state==="queued"||x.state==="active"))||null;
+ const energyCharged=inventory.find(x=>x.kind==="energy"&&x.state==="charged")||null;
+ return {catalog:MRXP_BOOST_CATALOG,inventory,
+  active_tap:activeTap,energy_charged:energyCharged,
+  balance:wallet?wallet.balance:null,server_time:Date.now(),
+  sync_hours:12,stacking:false,real_money:false,
+  note:"Un seul multiplicateur XP à la fois. Activation lors de la prochaine synchronisation autorisée; valable 24 h après son premier effet. Les recharges d'énergie sont utilisables immédiatement et validées au prochain envoi de tapotages."}
+}
+async function mrxpPurchaseBoost(env,player,payload){
+ const id=String(player.user_id);
+ const sku=String(payload?.sku||""),purchaseId=String(payload?.purchase_id||"");
+ const item=mrxpBoostSku(sku);
+ if(!item)return {status:400,error:"BOOST_UNKNOWN"};
+ if(!MRXP_BOOST_PURCHASE_PATTERN.test(purchaseId))return {status:400,error:"PURCHASE_ID_INVALID"};
+ const wallet=await mrxpWallet(env,player);
+ const existing=await env.DB.prepare("SELECT purchase_id,sku,cost FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?").bind(id,purchaseId).first();
+ if(existing)return existing.sku===sku?{ok:true,duplicate:true,wallet,shop:await mrxpBoostList(env,player,wallet)}:{status:409,error:"PURCHASE_ID_REUSED"};
+ if(wallet.balance<item.price)return {status:409,error:"INSUFFICIENT_CREDITS",balance:wallet.balance};
+ const now=Date.now();
+ /* D1 batch runs as one transaction; the debit INSERT is required and can
+    happen only if the immediately previous inventory INSERT changed a row. */
+ const rows=await env.DB.batch([
+  env.DB.prepare("INSERT OR IGNORE INTO mrxp_boost_inventory(user_id,purchase_id,sku,kind,cost,state,bought_ms,activated_ms,expires_ms,carry_milli) SELECT ?,?,?,?,?, 'owned',?,0,0,0 WHERE (SELECT COALESCE(SUM(amount),0) FROM mrxp_credit_events WHERE user_id=?)>=? AND NOT EXISTS(SELECT 1 FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?)").bind(id,purchaseId,item.sku,item.kind,item.price,now,id,item.price,id,purchaseId),
+  env.DB.prepare("INSERT INTO mrxp_credit_events(user_id,event_key,event_type,amount,label,created_ms) SELECT ?,?,'purchase',?,?,? WHERE changes()=1").bind(id,"buy:"+purchaseId,-item.price,"Boutique : "+item.label,now)
+ ]);
+ const accepted=Number(rows[0]?.meta?.changes||0)===1;
+ if(!accepted){
+  const retry=await env.DB.prepare("SELECT sku FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?").bind(id,purchaseId).first();
+  if(!retry)return {status:409,error:"INSUFFICIENT_CREDITS"};
+  if(retry.sku!==sku)return {status:409,error:"PURCHASE_ID_REUSED"}
+ }
+ const fresh=await mrxpWallet(env,player);
+ return {ok:true,duplicate:!accepted,wallet:fresh,shop:await mrxpBoostList(env,player,fresh)}
+}
+async function mrxpActivateBoost(env,player,payload){
+ const id=String(player.user_id),purchaseId=String(payload?.purchase_id||"");
+ if(!MRXP_BOOST_PURCHASE_PATTERN.test(purchaseId))return {status:400,error:"PURCHASE_ID_INVALID"};
+ await mrxpBoostExpire(env,id);
+ const row=await env.DB.prepare("SELECT purchase_id,sku,kind,state,expires_ms FROM mrxp_boost_inventory WHERE user_id=? AND purchase_id=?").bind(id,purchaseId).first();
+ if(!row)return {status:404,error:"BOOST_NOT_OWNED"};
+ const item=mrxpBoostSku(String(row.sku));
+ if(!item)return {status:409,error:"BOOST_UNAVAILABLE"};
+ if(row.state!=="owned"){
+  if(["queued","active","charged","used"].includes(row.state))return {ok:true,duplicate:true,applied_energy:0,shop:await mrxpBoostList(env,player)};
+  return {status:409,error:"BOOST_EXPIRED"};
+ }
+ const now=Date.now(),tap=item.kind==="tap";
+ const existing=await env.DB.prepare("SELECT purchase_id FROM mrxp_boost_inventory WHERE user_id=? AND kind=? AND state IN (?,?) LIMIT 1").bind(id,item.kind,tap?"queued":"charged",tap?"active":"charged").first();
+ if(existing&&existing.purchase_id!==purchaseId)return {status:409,error:tap?"BOOST_ALREADY_ACTIVE":"ENERGY_ALREADY_CHARGED"};
+ const result=await env.DB.prepare(tap?
+  "UPDATE mrxp_boost_inventory SET state='queued' WHERE user_id=? AND purchase_id=? AND state='owned' AND NOT EXISTS(SELECT 1 FROM mrxp_boost_inventory WHERE user_id=? AND kind='tap' AND state IN ('queued','active') AND purchase_id<>?)":
+  "UPDATE mrxp_boost_inventory SET state='charged',activated_ms=?,expires_ms=? WHERE user_id=? AND purchase_id=? AND state='owned' AND NOT EXISTS(SELECT 1 FROM mrxp_boost_inventory WHERE user_id=? AND kind='energy' AND state='charged' AND purchase_id<>?)"
+ ).bind(...(tap?[id,purchaseId,id,purchaseId]:[now,now+item.duration_hours*3600000,id,purchaseId,id,purchaseId])).run();
+ if(Number(result?.meta?.changes||0)!==1)return {status:409,error:"BOOST_ACTIVATION_CONFLICT"};
+ return {ok:true,duplicate:false,applied_energy:tap?0:item.energy,shop:await mrxpBoostList(env,player)}
+}
+async function mrxpBoostSyncContext(env,player,now){
+ const id=String(player.user_id);
+ await mrxpBoostExpire(env,id);
+ const [t,e]=await Promise.all([
+  env.DB.prepare("SELECT purchase_id,sku,state,expires_ms,carry_milli FROM mrxp_boost_inventory WHERE user_id=? AND kind='tap' AND (state='queued' OR (state='active' AND expires_ms>?)) ORDER BY bought_ms DESC LIMIT 1").bind(id,now).first(),
+  env.DB.prepare("SELECT purchase_id,sku FROM mrxp_boost_inventory WHERE user_id=? AND kind='energy' AND state='charged' AND expires_ms>? ORDER BY bought_ms DESC LIMIT 1").bind(id,now).first()
+ ]);
+ const multiplier=t?mrxpBoostSku(t.sku):null,energy=e?mrxpBoostSku(e.sku):null;
+ return {tap:multiplier?.kind==="tap"?t:null,tapItem:multiplier?.kind==="tap"?multiplier:null,
+  energy:energy?.kind==="energy"?e:null,energyItem:energy?.kind==="energy"?energy:null}
+}
+
 /* Telegram Bot interface: public /start -> Mini App; admin D1 allowlist -> private tools. */
 const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\n🎯 Tapote pour collecter des XP Points.\n🎮 Explore les Jeux : commence avec la Lucky Wheel.\n🎁 Accomplis des missions pour gagner des XP.\n📈 Suis ta progression depuis la Mini App.\n\nLes XP Points sont des points virtuels sans valeur monétaire.\n\nAppuie sur « Ouvrir l’application » pour jouer.";
 const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, explore les Jeux (Lucky Wheel), accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
