@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-20",
+  "generated_at": "2026-11-19T10:33:40Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4848803",
+      "league": "Liga Unitel Girabola",
+      "home": "Cd São Salvador Do Kongo",
+      "away": "Primeiro De Agosto",
+      "kickoff_utc": "2026-11-20T14:30:00Z",
+      "score": "1:0",
+      "probability": 0.15318166
+    },
+    {
+      "id": "sportsapipro:4890781",
+      "league": "Ligue 1",
+      "home": "MC Oran",
+      "away": "JS Saoura",
+      "kickoff_utc": "2026-11-20T19:00:00Z",
+      "score": "1:0",
+      "probability": 0.15215751
+    },
+    {
+      "id": "sportsapipro:4894129",
+      "league": "Premiere Division",
+      "home": "Diarra",
+      "away": "AS Kayes",
+      "kickoff_utc": "2026-11-20T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.14565735
+    },
+    {
+      "id": "sportsapipro:4823656",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Bandari",
+      "away": "Murang'a Seal",
+      "kickoff_utc": "2026-11-20T12:00:00Z",
+      "score": "1:0",
+      "probability": 0.13800341
+    },
+    {
+      "id": "sportsapipro:4772999",
+      "league": "Second Division",
+      "home": "Maleyeit Kafr El Zayiat",
+      "away": "Mega Sport",
+      "kickoff_utc": "2026-11-20T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.13650385
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4848803",
+      "league": "Liga Unitel Girabola",
+      "home": "Cd São Salvador Do Kongo",
+      "away": "Primeiro De Agosto",
+      "kickoff_utc": "2026-11-20T14:30:00Z",
+      "score": "1:0",
+      "probability": 0.35452216,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4894129",
+      "league": "Premiere Division",
+      "home": "Diarra",
+      "away": "AS Kayes",
+      "kickoff_utc": "2026-11-20T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.33161154,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4894684",
+      "league": "Syrian Premier League",
+      "home": "Homs Al Fidaa SC",
+      "away": "Horriya",
+      "kickoff_utc": "2026-11-20T12:00:00Z",
+      "score": "2:0",
+      "probability": 0.32736475,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4782273",
+      "league": "Ligi Kuu Bara",
+      "home": "Azam FC",
+      "away": "Singida Black Stars SC",
+      "kickoff_utc": "2026-11-20T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.32533712,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4782274",
+      "league": "Ligi Kuu Bara",
+      "home": "Namungo FC",
+      "away": "Mbeya City",
+      "kickoff_utc": "2026-11-20T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.32456126,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
+}

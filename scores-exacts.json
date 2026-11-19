@@ -2,68 +2,83 @@
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
   "status": "published",
-  "date": "2026-11-18",
-  "generated_at": "2026-11-18T14:13:39Z",
+  "date": "2026-11-19",
+  "generated_at": "2026-11-19T10:33:40Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
+      "id": "sportsapipro:4890777",
+      "league": "Ligue 1",
+      "home": "MC Alger",
+      "away": "Olympique Akbou",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.16015298
+    },
+    {
       "id": "sportsapipro:4895470",
       "league": "Ligue 1",
       "home": "ASC Linguère",
       "away": "Teungueth",
-      "kickoff_utc": "2026-11-18T16:30:00Z",
+      "kickoff_utc": "2026-11-19T16:30:00Z",
       "score": "1:0",
-      "probability": 0.15529556
+      "probability": 0.15695959
     },
     {
-      "id": "sportsapipro:4890775",
+      "id": "sportsapipro:4890778",
       "league": "Ligue 1",
-      "home": "Cr Temouchent",
-      "away": "JS El Biar",
-      "kickoff_utc": "2026-11-18T16:45:00Z",
+      "home": "JS Kabylie",
+      "away": "USM Alger",
+      "kickoff_utc": "2026-11-19T19:00:00Z",
       "score": "1:0",
-      "probability": 0.1375087
+      "probability": 0.1355131
     },
     {
-      "id": "sportsapipro:4632606",
-      "league": "Brasileirão Série A",
-      "home": "Flamengo",
-      "away": "Athletico Paranaense",
-      "kickoff_utc": "2026-11-18T23:30:00Z",
-      "score": "2:1",
-      "probability": 0.0959878
+      "id": "sportsapipro:4890776",
+      "league": "Ligue 1",
+      "home": "MB Rouisset",
+      "away": "CR Belouizdad",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.13362853
     },
     {
-      "id": "sportsapipro:4814521",
-      "league": "Womens League Cup",
-      "home": "Nottingham Forest (W)",
-      "away": "Liverpool (W)",
-      "kickoff_utc": "2026-11-18T19:00:00Z",
-      "score": "2:1",
-      "probability": 0.08895342
-    },
-    {
-      "id": "sportsapipro:4895270",
-      "league": "Club Friendlies",
-      "home": "Marbella",
-      "away": "Kongsvinger",
-      "kickoff_utc": "2026-11-18T15:00:00Z",
-      "score": "2:1",
-      "probability": 0.08812084
+      "id": "sportsapipro:4773006",
+      "league": "Second Division",
+      "home": "Baladiyet El Mahallah",
+      "away": "Haras El Hodood",
+      "kickoff_utc": "2026-11-19T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.13010174
     }
   ],
   "grouped": [
     {
+      "id": "sportsapipro:4890777",
+      "league": "Ligue 1",
+      "home": "MC Alger",
+      "away": "Olympique Akbou",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.34538227,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
       "id": "sportsapipro:4895470",
       "league": "Ligue 1",
       "home": "ASC Linguère",
       "away": "Teungueth",
-      "kickoff_utc": "2026-11-18T16:30:00Z",
+      "kickoff_utc": "2026-11-19T16:30:00Z",
       "score": "1:0",
-      "probability": 0.33640213,
+      "probability": 0.33745066,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -72,13 +87,28 @@
       ]
     },
     {
-      "id": "sportsapipro:4890775",
+      "id": "sportsapipro:4773006",
+      "league": "Second Division",
+      "home": "Baladiyet El Mahallah",
+      "away": "Haras El Hodood",
+      "kickoff_utc": "2026-11-19T12:30:00Z",
+      "score": "1:0",
+      "probability": 0.31046915,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4890778",
       "league": "Ligue 1",
-      "home": "Cr Temouchent",
-      "away": "JS El Biar",
-      "kickoff_utc": "2026-11-18T16:45:00Z",
+      "home": "JS Kabylie",
+      "away": "USM Alger",
+      "kickoff_utc": "2026-11-19T19:00:00Z",
       "score": "1:0",
-      "probability": 0.31150985,
+      "probability": 0.29809699,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -87,43 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4632606",
-      "league": "Brasileirão Série A",
-      "home": "Flamengo",
-      "away": "Athletico Paranaense",
-      "kickoff_utc": "2026-11-18T23:30:00Z",
-      "score": "2:1",
-      "probability": 0.25486394,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4814521",
-      "league": "Womens League Cup",
-      "home": "Nottingham Forest (W)",
-      "away": "Liverpool (W)",
-      "kickoff_utc": "2026-11-18T19:00:00Z",
-      "score": "2:1",
-      "probability": 0.21449856,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4814632",
-      "league": "Womens League Cup",
-      "home": "West Ham (W)",
-      "away": "Wolves (W)",
-      "kickoff_utc": "2026-11-18T19:00:00Z",
-      "score": "2:1",
-      "probability": 0.21140823,
+      "id": "sportsapipro:4890776",
+      "league": "Ligue 1",
+      "home": "MB Rouisset",
+      "away": "CR Belouizdad",
+      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "score": "1:0",
+      "probability": 0.29689784,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
