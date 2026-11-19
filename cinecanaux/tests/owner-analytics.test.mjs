@@ -69,7 +69,7 @@ test('Mini App and administration inline JavaScript parse and include requested 
   assert.ok(scripts.length,label+' missing scripts');
   for(const source of scripts)assert.doesNotThrow(()=>new Script(source),label+' syntax invalid');
  }
- for(const token of ['function autoScrollDiscover(){','requestAnimationFrame(loop)','function shareCineRadar(){','communityTools(home);','function analyticsPreference(about){','metric("channel_open"','metric("pin_open"','metric("promo_open"']){
+ for(const token of ['function autoScrollDiscover(){','discoverTimer=setInterval','function shareCineRadar(){','communityTools(home);','function analyticsPreference(about){','metric("channel_open"','metric("pin_open"','metric("promo_open"']){
   assert.ok(APP_HTML.includes(token),token);
  }
  for(const token of ['analytics-period','analytics-from','analytics-to','analytics-metrics','analytics-daily','analytics-channels','analytics-pins','analytics-promos','analytics-csv']){
