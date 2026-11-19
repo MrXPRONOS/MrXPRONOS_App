@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-20",
-  "generated_at": "2026-11-19T10:33:40Z",
+  "generated_at": "2026-11-19T14:30:59Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -41,7 +41,7 @@
       "league": "SportPesa Premier League - Regular Season",
       "home": "Bandari",
       "away": "Murang'a Seal",
-      "kickoff_utc": "2026-11-20T12:00:00Z",
+      "kickoff_utc": "2026-11-20T11:00:00Z",
       "score": "1:0",
       "probability": 0.13800341
     },
