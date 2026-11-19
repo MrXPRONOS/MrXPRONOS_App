@@ -15,7 +15,7 @@ import re
 from .publication import film_folder_url
 from .public_video_archive import (
     has_verified_button, is_video_message, is_primary_film_video,
-    video_document_id, video_title,
+    video_document_id, video_title, title_similarity, poster_heading,
 )
 from .rescue_channels import rescue_link_for
 from .text import private_message_link
@@ -121,6 +121,8 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
         for private_poster in private_posters or []:
             if (getattr(private_poster, "photo", None)
                     and (getattr(private_poster, "raw_text", "") or "").strip()
+                    and title_similarity(poster_heading(private_poster),
+                                         poster_heading(poster)) >= 0.80
                     and has_verified_button(private_poster, rescue_url)
                     and has_verified_button(private_poster, folder_url)):
                 return poster
