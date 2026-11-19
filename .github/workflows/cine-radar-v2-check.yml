@@ -30,7 +30,7 @@ jobs:
       # Historical optional suites reference a removed radar-features module;
       # keep the active V2 and maintained legacy suites as merge gates.
       - name: Tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs
+        run: node --test cinecanaux/tests/broadcast.test.mjs cinecanaux/tests/bot-miniapp-entry.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs
       - name: No accidental production deployment
         run: |
           echo "CI validation only: no Cloudflare deployment, no D1 writes."

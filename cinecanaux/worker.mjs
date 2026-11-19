@@ -7,6 +7,7 @@ import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,inva
 import {APP_HTML} from "./app-page.mjs";
 import {ADMIN_HTML} from "./admin-page.mjs";
 import {adminAPI} from "./admin-v2.mjs";
+import {trackBroadcastSubscriber,deliverBroadcastBatch} from "./broadcast.mjs";
 import {tryOwnerClaim} from "./owner-claim.mjs";
 import {recordBotTouch,analyticsEvent} from "./analytics.mjs";
 import {runLoggedJob} from "./job-log.mjs";
@@ -65,6 +66,7 @@ async function receiveTelegram(request,env,ctx){
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
+   await trackBroadcastSubscriber(env,update).catch(e=>console.warn("broadcast_subscription_failed",String(e?.name||"error")));
    const claim=await tryOwnerClaim(env,update);
    if(claim.handled){
     if(claim.activated&&ctx?.waitUntil)ctx.waitUntil(initializeProfile(env).catch(e=>console.warn("owner_profile_update_failed",String(e).slice(0,90))));
@@ -245,7 +247,7 @@ export default {
   const pinnedCover=/^\/assets\/pin-cover\/(films|series|animes)\/([1-9][0-9]{0,12})\.jpg$/.exec(u.pathname);
   if(pinnedCover)return servePinCover(env,request,pinnedCover[1],Number(pinnedCover[2]));
   if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click"||u.pathname==="/api/radar/trends")return radarApi(env,request);
-  if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request);
+  if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request,ctx);
   if(u.pathname==="/api/analytics/event")return analyticsEvent(env,request);
   const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
   if(request.method==="GET"&&avatarId)return serveChannelAvatar(request,env,ctx,avatarId[1]);
@@ -369,7 +371,8 @@ export default {
   return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
+  if(controller.cron==="* * * * *")ctx.waitUntil(deliverBroadcastBatch(env).catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
+  else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
    const discovered=await indexQualifiedChannels(env);
    await syncCategoryTags(env);
