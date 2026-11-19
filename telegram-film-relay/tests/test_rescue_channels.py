@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -30,6 +32,13 @@ class RescueChannelTests(unittest.TestCase):
             "rescue_title": "Ciné X Films VF Secours",
             "invite_link": "https://t.me/+abcdefghijklmno1",
         }}}, path)
+        runtime = directory / "runtime.json"
+        runtime.write_text(json.dumps({"channels":{"@cinexfilms_vf":{
+            "url":"https://t.me/+abcdefghijklmno1",
+            "rescue_channel_id":-100444555666
+        }}}),encoding="utf-8")
+        self.addCleanup(lambda: os.environ.pop("CINEX_RESCUE_RUNTIME_FILE",None))
+        os.environ["CINEX_RESCUE_RUNTIME_FILE"]=str(runtime)
         return path
 
     def test_targets_owner_primary_and_all_categories(self):
@@ -63,8 +72,12 @@ class RescueChannelTests(unittest.TestCase):
                              "https://t.me/+abcdefghijklmno1")
             self.assertIsNone(rescue_link_for("@Unknown_123", path=path))
             state = read_state(path)
-            state["channels"]["@cinexfilms_vf"]["invite_link"] = "https://malicious.invalid"
-            write_state(state, path)
+            self.assertNotIn("invite_link", state["channels"]["@cinexfilms_vf"])
+            self.assertIn("invite_sha256", state["channels"]["@cinexfilms_vf"])
+            runtime = Path(os.environ["CINEX_RESCUE_RUNTIME_FILE"])
+            runtime.write_text(json.dumps({"channels":{"@cinexfilms_vf":{
+                "url":"https://malicious.invalid","rescue_channel_id":-100444555666
+            }}}),encoding="utf-8")
             self.assertIsNone(rescue_link_for("@CineXFilms_vf", path=path))
 
     def test_do_not_append_until_link_is_verified(self):
@@ -103,6 +116,18 @@ class RescueChannelTests(unittest.TestCase):
     def test_legacy_buttons_unchanged_without_saved_rescue(self):
         self.assertEqual(len(url_button_rows("https://t.me/c/222/15")), 2)
 
+    def test_tracked_state_has_no_invitation_urls(self):
+        with TemporaryDirectory() as directory:
+            path = self.fixture(Path(directory))
+            self.assertNotIn("https://t.me/+",path.read_text())
+            self.assertIn("invite_sha256",path.read_text())
+
+    def test_no_link_if_runtime_file_missing(self):
+        with TemporaryDirectory() as directory:
+            path = self.fixture(Path(directory))
+            with patch.dict(os.environ,{"CINEX_RESCUE_RUNTIME_FILE":str(Path(directory)/"absent")}):
+                self.assertIsNone(rescue_link_for("@CineXFilms_vf",path=path))
+
     def test_exact_recovery_rejects_homonymous_public(self):
         title = "Ciné X Films VF Secours"
         dialogs = [
@@ -115,7 +140,10 @@ class RescueChannelTests(unittest.TestCase):
     def test_checkpoint_merge_preserves_identity(self):
         old={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"old"}}}
         new={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"new"}}}
-        self.assertEqual(merge(old,new)["channels"]["@cinexfilms_vf"]["invite_link"],"new")
+        import hashlib
+        self.assertEqual(merge(old,new)["channels"]["@cinexfilms_vf"]["invite_sha256"],
+                         hashlib.sha256("new".encode()).hexdigest())
+        self.assertNotIn("invite_link",merge(old,new)["channels"]["@cinexfilms_vf"])
         new["channels"]["@cinexfilms_vf"]["rescue_channel_id"]=-1003
         with self.assertRaises(ValueError):
             merge(old,new)
