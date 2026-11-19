@@ -301,6 +301,11 @@ body{background:#07111f}
 .cine-explore-options .v2-tools{margin:0;display:flex;gap:10px;align-items:center}
 .cine-explore-options .v2-tools button{display:none}
 .cine-explore-options .v2-tools select{margin:0}
+.cine-filter-state{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 13px;padding:9px 11px;background:#142b48;border:1px solid #355780;border-radius:10px}
+.cine-filter-state span{color:#c9dbf6;font-size:11px;line-height:1.45}
+.cine-filter-state button{background:#274d7c;color:#f4f8ff;border:1px solid #597eaf;border-radius:8px;font-size:11px;font-weight:700;padding:7px 10px}
+.cine-filter-state button[hidden]{display:none}
+.cine-explore-options summary:focus-visible,.cine-filter-state button:focus-visible{outline:2px solid #a5c9ff;outline-offset:3px}
 .cine-genre-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:13px;padding:4px 0}
 .cine-genre-chips button,.cine-genre-tile{flex:none;border:1px solid #3b5476;background:#152942;color:#dce9ff;border-radius:50px;padding:10px 13px;font-size:12px}
 .cine-genre-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0 24px}
@@ -492,6 +497,7 @@ body{background:#07111f}
  <button type="button" data-type="series" aria-pressed="false"><span class="icon" data-icon="tv"></span>Séries</button>
  <button type="button" data-type="animes" aria-pressed="false"><span class="icon" data-icon="gamepad"></span>Animés</button>
 </nav>
+<div class="cine-filter-state" id="cine-filter-state" role="status" aria-live="polite"><span id="cine-filter-summary">Toutes les catégories</span><button type="button" id="cine-filter-reset" hidden>Effacer les catégories</button></div>
 <label class="search" for="search"><span class="icon" data-icon="search"></span><input id="search" type="search" autocomplete="off" placeholder="Rechercher un canal…" aria-label="Rechercher un canal"><button class="search-clear" type="button" id="searchClear" aria-label="Effacer la recherche" hidden><span class="icon" data-icon="x"></span></button></label>
 <div class="v2-tools"><select id="sort" aria-label="Trier les canaux"><option value="relevant">Pertinents</option><option value="rated">Mieux notés</option><option value="recent">Récents</option><option value="new">Nouveaux</option></select><button type="button" id="suggest">＋ Proposer un canal</button></div>
 <div class="heading"><h3 id="heading">Les canaux</h3><span class="count" id="count">—</span></div>
@@ -531,7 +537,7 @@ function ico(key){
  return holder;
 }
 document.querySelectorAll("[data-icon]").forEach(x=>x.replaceWith(ico(x.dataset.icon)));
-let type="all",query="",channels=[],allChannels=[],lastFetch=0,fetchPending=null,images=new Map(),inFlight=new Map(),previewToken=0,thumbQueue=[],thumbActive=0;
+let type="all",query="",channels=[],allChannels=[],lastFetch=0,lastResultKey="",filterRequestId=0,images=new Map(),inFlight=new Map(),previewToken=0,thumbQueue=[],thumbActive=0;
 const selectedTypes=new Set();let searchDelay=null;
 const MAX_THUMB_FETCH=2;
 function showChannelImage(img,source,backup,exhausted){
@@ -587,7 +593,7 @@ function buildCard(c,i){
  return card;
 }
 function render(){
- const root=$("cards");root.textContent="";
+ const root=$("cards");root.dataset.filterLoading="false";root.textContent="";
  $("count").textContent=channels.length+" cana"+(channels.length===1?"l":"ux");
  $("heading").textContent=query.trim()?"Résultats de recherche":"Les canaux";
  if(!channels.length){
@@ -630,22 +636,71 @@ function enqueueVisiblePhotos(){
  }
  pumpThumbs();
 }
+function matchesSelectedCategory(c,selected){
+ if(!selected.size)return true;
+ const tags=String(c.tags||"").split(",").map(t=>t.trim());
+ return [...selected].some(t=>c.type===t||tags.includes(t));
+}
+function currentFilterKey(){
+ return JSON.stringify([query.trim(),[...selectedTypes].sort(),$("sort").value]);
+}
+function syncCategoryControls(){
+ type=selectedTypes.size===1?[...selectedTypes][0]:"all";
+ document.documentElement.dataset.scene=type;
+ for(const item of document.querySelectorAll("#tabs [data-type]")){
+  const active=item.dataset.type==="all"?!selectedTypes.size:selectedTypes.has(item.dataset.type);
+  item.classList.toggle("active",active);
+  item.setAttribute("aria-pressed",String(active));
+ }
+ const names={films:"Films",series:"Séries",animes:"Animés"};
+ const summary=$("cine-filter-summary");
+ if(summary)summary.textContent=selectedTypes.size?
+  "Catégories : "+[...selectedTypes].map(t=>names[t]||t).join(" + ")+" (l’une ou l’autre)":
+  "Toutes les catégories";
+ const reset=$("cine-filter-reset");
+ if(reset)reset.hidden=!selectedTypes.size;
+}
+function showFilterLoading(){
+ const root=$("cards");root.dataset.filterLoading="true";
+ $("count").textContent="…";
+ root.replaceChildren(node("div","empty loading","Recherche en cours…"));
+}
 function applyFilters(){
- channels=allChannels.filter(c=>!selectedTypes.size||[...selectedTypes].some(t=>c.type===t||String(c.tags||"").split(",").includes(t)));
+ channels=allChannels.filter(c=>matchesSelectedCategory(c,selectedTypes));
  render();enqueueVisiblePhotos();
 }
 async function load(force=false){
- if(fetchPending)return fetchPending;
- if(!force&&allChannels.length&&Date.now()-lastFetch<120000){applyFilters();return;}
- const requested=query+'|'+Array.from(selectedTypes).sort().join(',')+'|'+$("sort").value;
- const url="/api/search?q="+encodeURIComponent(query)+"&types="+encodeURIComponent(Array.from(selectedTypes).join(','))+"&sort="+encodeURIComponent($("sort").value)+"&limit=80";
- if(!allChannels.length){$("count").textContent="…";$("cards").textContent="";$("cards").append(node("div","empty loading","Recherche en cours…"));}
- fetchPending=(async()=>{
-  try{const result=await api(url);if(result&&Array.isArray(result.channels)){allChannels=result.channels;lastFetch=Date.now();applyFilters();}}
-  catch{if(!allChannels.length){$("cards").textContent="";$("cards").append(node("div","empty","Connexion momentanément indisponible."));}}
-  finally{fetchPending=null;const current=query+'|'+Array.from(selectedTypes).sort().join(',')+'|'+$("sort").value;if(current!==requested)load(true);}
- })();
- return fetchPending;
+ const requested=currentFilterKey();
+ if(!force&&lastResultKey===requested&&Date.now()-lastFetch<120000){applyFilters();return;}
+ const requestId=++filterRequestId;
+ const url="/api/search?q="+encodeURIComponent(query.trim())+"&types="+encodeURIComponent([...selectedTypes].sort().join(","))+"&sort="+encodeURIComponent($("sort").value)+"&limit=80";
+ showFilterLoading();
+ try{
+  const result=await api(url);
+  // Never display data from a previous category/search/sort request.
+  if(requestId!==filterRequestId||requested!==currentFilterKey())return;
+  if(!result||!Array.isArray(result.channels))throw Error("Réponse de recherche invalide");
+  allChannels=result.channels;
+  lastResultKey=requested;
+  lastFetch=Date.now();
+  applyFilters();
+ }catch(e){
+  if(requestId!==filterRequestId||requested!==currentFilterKey())return;
+  const root=$("cards");root.dataset.filterLoading="false";root.replaceChildren(node("div","empty","Impossible de charger les canaux. Vérifie ta connexion puis réessaie."));
+  $("count").textContent="—";
+  const retry=button("Réessayer","cine-soft-button",()=>load(true));
+  root.append(retry);
+ }
+}
+function chooseCategory(chosen){
+ if(chosen==="all")selectedTypes.clear();
+ else if(["films","series","animes"].includes(chosen)){
+  if(selectedTypes.has(chosen))selectedTypes.delete(chosen);
+  else selectedTypes.add(chosen);
+ }
+ syncCategoryControls();
+ clearTimeout(searchDelay);
+ load(true);
 }
 
 async function postV2(path,data){
@@ -752,19 +807,17 @@ function showPreview(c){
  if(images.has(c.id))return;
  getPreview(c.id).then(p=>{if(token===previewToken&&!$("overlay").hidden)fillPreview(c,p);}).catch(()=>{});
 }
-for(const b of document.querySelectorAll("[data-type]"))b.onclick=()=>{
- const chosen=b.dataset.type;
- if(chosen==="all"){selectedTypes.clear();type="all";}
- else{if(selectedTypes.has(chosen))selectedTypes.delete(chosen);else selectedTypes.add(chosen);type=selectedTypes.size===1?Array.from(selectedTypes)[0]:"all";}
- document.documentElement.dataset.scene=type;
- for(const x of document.querySelectorAll("[data-type]")){const active=x.dataset.type==="all"?!selectedTypes.size:selectedTypes.has(x.dataset.type);x.classList.toggle("active",active);x.setAttribute("aria-pressed",String(active));}
- applyFilters();load(true);
-};
+for(const b of document.querySelectorAll("#tabs [data-type]"))b.onclick=()=>chooseCategory(b.dataset.type);
+$("cine-filter-reset").onclick=()=>chooseCategory("all");
+syncCategoryControls();
 $("search").oninput=e=>{
  query=e.target.value.slice(0,120);$("searchClear").hidden=!query.length;
- clearTimeout(searchDelay);searchDelay=setTimeout(()=>load(true),230);
+ // Invalidate in-flight requests immediately, even while the input is debounced.
+ filterRequestId++;
+ clearTimeout(searchDelay);showFilterLoading();
+ searchDelay=setTimeout(()=>load(true),230);
 };
-$("searchClear").onclick=()=>{$("search").value="";query="";$("searchClear").hidden=true;load(true);$("search").focus();};
+$("searchClear").onclick=()=>{clearTimeout(searchDelay);$("search").value="";query="";$("searchClear").hidden=true;load(true);$("search").focus();};
 $("sort").onchange=()=>load(true);
 $("suggest").onclick=showSuggestion;
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-lastFetch>120000)load(true);});
@@ -1171,6 +1224,7 @@ function cardDecorate(){
 }
 function filterCards(){
  const root=$("cards");if(!root)return;
+ if(root.dataset.filterLoading==="true")return;
  let visible=0;
  for(const c of root.querySelectorAll("article[data-channel-id]")){const id=Number(c.dataset.channelId);const show=mode==="favoris"?favorites.includes(id):mode==="historique"?recent.includes(id):true;c.hidden=!show;if(show)visible++}
  const h=$("heading"),counter=$("count");
@@ -1234,7 +1288,7 @@ function build(){
  visitorTracking();
  // Explorer : recherche, filtres repliés et liste
  heading(panel.explorer,"Explorer les canaux","Recherche un canal, un genre ou un mot-clé.");panel.explorer.append(search);
- const details=node("details","cine-explore-options");const summary=node("summary",null,"Filtres avancés et tri");details.append(summary,nav,tools);panel.explorer.append(details);
+ const details=node("details","cine-explore-options");const summary=node("summary",null,"Filtres avancés et tri");details.append(summary,nav,$("cine-filter-state"),tools);panel.explorer.append(details);
  const genres=node("div","cine-genre-chips");genres.id="cine-genre-chips";panel.explorer.append(genres);
  // La liste est déplacée selon Explorer / Favoris / Historique
  listing=node("div");listing.id="cine-listing";listing.append(head,cards);
