@@ -1,1 +1,1 @@
-2026-11-19: rerun rights-confirmed CinéX archive canary after PR #464 owner-delete fallback merged. Preserve verified movie, poster, rescue and folder links and 10 recent movies; at most 2 archives.
+2026-11-19: owner requested backlog cleanup after PR #467 merge; run real twice-daily archive logic now as a manual canary (up to 10 verified old films; exclude remaining John Wick). Require all three Actions rights/safety variables; preserve ten recent films, private poster-before-video and verified public buttons.
