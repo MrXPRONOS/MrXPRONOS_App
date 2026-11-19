@@ -89,6 +89,7 @@ test('public Start shows only one Mini App button',async()=>{
   const send=h.calls.filter(x=>x.method==='sendMessage');
   assert.equal(send.length,1);
   assert.equal(send[0].args.reply_markup.inline_keyboard.length,1);
+  assert.equal(send[0].args.reply_markup.inline_keyboard[0][0].text,'🎮 Ouvrir l’application');
   assert.equal(send[0].args.reply_markup.inline_keyboard[0][0].web_app.url,'https://mrxpronos-play.cinecanaux-xpronos.workers.dev');
   assert.ok(!JSON.stringify(send).includes('Administration'));
  }finally{h.restore()}
@@ -152,6 +153,48 @@ test('approved admin /start safely synchronizes Telegram command scopes and webh
   assert.deepEqual(adminCmd.args.commands.map(x=>x.command),['start','admin']);
   const webhook=h.calls.find(x=>x.method==='setWebhook');
   assert.ok(webhook.args.allowed_updates.includes('callback_query'));
+  assert.ok(h.calls.some(x=>x.method==='setMyDescription'));
+ }finally{h.restore()}
+});
+
+test('admin statistics are accessible only through protected callbacks',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:stats'));
+  const send=h.calls.find(x=>x.method==='sendMessage');
+  assert.ok(send?.args.text.includes('Joueurs : 3'));
+  assert.ok(send?.args.text.includes('XP confirmés : 180'));
+  assert.ok(send?.args.reply_markup.inline_keyboard.flat().some(x=>x.callback_data==='mrxp:admin:home'));
+ }finally{h.restore()}
+});
+
+test('admin can cancel a pending text change without changing settings',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:edit_welcome'));
+  assert.equal(h.pending.get(String(adminId)).edit_key,'welcome');
+  await h.webhook(message(adminId,'/cancel'));
+  assert.equal(h.pending.has(String(adminId)),false);
+  assert.equal(h.settings.get('welcome'),'🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.');
+ }finally{h.restore()}
+});
+
+test('public messages cannot overwrite pending admin settings',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:edit_welcome'));
+  await h.webhook(message(publicId,'Nouveau faux message d’administration'));
+  assert.equal(h.pending.get(String(adminId)).edit_key,'welcome');
+  assert.equal(h.settings.get('welcome'),'🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.');
+ }finally{h.restore()}
+});
+
+test('admin can update Telegram profile description using protected flow',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(adminId,'mrxp:admin:edit_description'));
+  await h.webhook(message(adminId,'🎮 Jouer gratuitement et collectionner des XP Points.'));
+  assert.equal(h.settings.get('description'),'🎮 Jouer gratuitement et collectionner des XP Points.');
   assert.ok(h.calls.some(x=>x.method==='setMyDescription'));
  }finally{h.restore()}
 });
