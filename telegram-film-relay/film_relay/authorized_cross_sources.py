@@ -17,22 +17,31 @@ from .title_guard import title_assessment, tokens
 from .source_channels import source_list
 
 PUBLIC_POST = re.compile(r"^https?://t\.me/([A-Za-z0-9_]{5,32})/(\d+)(?:\?.*)?$", re.I)
+PRIVATE_POST = re.compile(r"^https?://t\.me/c/(\d+)/(\d+)(?:\?.*)?$", re.I)
 MAX_FOLLOWED = 20
 
 
-def linked_posts(message, allowed_handles):
-    """Read inline URLs from an already authorized source without joining."""
+def linked_posts(message, allowed_handles, allowed_private_ids=None):
+    """Read post URLs only when destination is already explicitly allowed."""
     allowed = {x.casefold() for x in allowed_handles}
+    allowed_private_ids = allowed_private_ids or {}
     found = []
     for row in getattr(message, "buttons", None) or ():
-        for b in row:
-            url = getattr(b, "url", None) or getattr(
-                getattr(b, "button", None), "url", None)
+        for button in row:
+            url = getattr(button, "url", None) or getattr(
+                getattr(button, "button", None), "url", None)
             match = PUBLIC_POST.fullmatch(str(url or ""))
             if match:
                 handle = "@" + match.group(1)
                 if handle.casefold() in allowed:
                     found.append((handle, int(match.group(2))))
+                continue
+            private = PRIVATE_POST.fullmatch(str(url or ""))
+            if private:
+                peer_id = "-100" + private.group(1)
+                handle = allowed_private_ids.get(peer_id)
+                if handle and handle.casefold() in allowed:
+                    found.append((handle, int(private.group(2))))
     return list(dict.fromkeys(found))[:MAX_FOLLOWED]
 
 
@@ -152,10 +161,13 @@ def cross_channel_series_rows(posters, media_messages):
 
 async def follow_authorized_button_posts(client, messages, media_peers):
     """Follow ONLY direct post URLs from allowed channels already accessible."""
+    from telethon import utils
     allowed = {handle.casefold(): peer for handle, peer in media_peers}
+    allow_by_id = {str(utils.get_peer_id(peer)): handle
+                   for handle, peer in media_peers}
     seen = {}
     for message in messages:
-        for handle, msg_id in linked_posts(message, allowed):
+        for handle, msg_id in linked_posts(message, allowed, allow_by_id):
             peer = allowed[handle.casefold()]
             try:
                 found = await client.get_messages(peer, ids=int(msg_id))
