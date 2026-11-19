@@ -255,6 +255,8 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         source_peers, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
+        if publish:
+            await verify_library_bot(bot, private)
         if publish and mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
@@ -349,9 +351,8 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     staged = state.data["staged"][key]
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
-                    photo = await client.send_file(
-                        private, require_photo(item.poster),
-                        caption=rich_caption(title, private=True), parse_mode="html",
+                    photo = await send_library_poster_with_buttons(
+                        client, bot, private, public, item.poster, title,
                     )
                     state.stage(key, "poster", photo.id)
                     await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
@@ -366,7 +367,14 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             public_post = await post_public(
                 bot, client, bot_public, item, title, video_url, ""
             )
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
+            public_video = await post_public_video_after_poster(
+                client, public, item.video, title,
+                int(public_post.id), video_url,
+            )
             state.complete(key, private_video_id, public_post.id)
+            LOG.info("%s : fiche publique #%s puis vidéo #%s",
+                     cfg["label"], public_post.id, public_video.id)
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             mirrored_id = None
             if mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
