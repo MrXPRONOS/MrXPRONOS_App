@@ -137,7 +137,7 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const init=window.Telegram?.WebApp?.initData||"";
+const init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
 try{window.Telegram?.WebApp?.ready();window.Telegram?.WebApp?.expand();}catch{}
 const status=t=>{$("status").textContent=t;};
 const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!=null)x.textContent=text;return x;};
