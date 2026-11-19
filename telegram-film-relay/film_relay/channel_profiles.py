@@ -71,7 +71,7 @@ async def sync_description(client, target, desired: str, record: dict, *,
     if original == desired:
         record[key] = digest(desired)
         return False
-    await client(functions.channels.EditAboutRequest(channel=target, about=desired))
+    await client(functions.messages.EditChatAboutRequest(peer=target, about=desired))
     confirmed = await get_channel_about(client, target)
     if confirmed != desired:
         raise RuntimeError("Description Telegram non confirmée ; checkpoint refusé")
