@@ -83,3 +83,29 @@ test('unknown administrative period is rejected before queries',async()=>{
  const r=await adminAnalytics(env,new Request('https://test.local/api/admin/analytics?period=invalid'));
  assert.equal(r.status,400);
 });
+
+test('every valid UUID v4 is accepted including random fields containing digits 0-3',async()=>{
+ const writes=[];
+ const env={TELEGRAM_WEBHOOK_SECRET:'testing-secret-for-hash',DB:{prepare(sql){let args=[];const q={bind(...values){args=values;return q},async run(){writes.push({sql,args});return {meta:{changes:1}}}};return q;}}};
+ const valid=[
+  '00000000-0000-4000-8000-000000000000',
+  '11111111-2222-4012-8abc-123456789012',
+  'abcdef12-3456-4123-9a01-0123456789ab',
+  '01234567-89ab-4abc-bdef-0123456789ab'
+ ];
+ for(const id of valid){
+  const r=await analyticsEvent(env,new Request('https://demo.test/api/analytics/event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event:'visit',id})}));
+  assert.equal(r.status,200,'Valid UUIDv4 unexpectedly rejected: '+id);
+ }
+ const invalid=[
+  '00000000-0000-3000-8000-000000000000',
+  '00000000-0000-4000-7000-000000000000',
+  '00000000-0000-4000-8000-00000000000g'
+ ];
+ for(const id of invalid){
+  const r=await analyticsEvent(env,new Request('https://demo.test/api/analytics/event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event:'visit',id})}));
+  assert.equal(r.status,400,'Malformed UUID accepted: '+id);
+ }
+ assert.equal(writes.length,valid.length*2);
+ assert.ok(writes.every(x=>!JSON.stringify(x).includes('123456789012')));
+});
