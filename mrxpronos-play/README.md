@@ -1,5 +1,11 @@
 # Mr XPRONOS Play — Cloudflare V1
 
+## V2 Phase 5 — Boutique gratuite et boosts MRXP
+
+Boutique intégrée dans Jouer, Missions et Profil, avec six boosts (multiplicateurs ×1,1 à ×2 et recharges d'énergie +100/+250), inventaire, achats idempotents débités atomiquement, activation, expiration et suivi. Les crédits MRXP restent **100 % gratuits et non monétaires** ; aucun paiement ou transfert n'existe. Les multiplicateurs démarrent à la première synchronisation admissible, conformément au délai actuel de 12 heures.
+
+**Avant le déploiement**, appliquer la migration additive `migrations/005_boost_store.sql` sur la base D1 dédiée. Documentation : [SHOP_BOOSTS_V2_PHASE5.md](SHOP_BOOSTS_V2_PHASE5.md).
+
 ## V2 Phases 3 et 4 — Partage officiel et crédits MRXP gratuits
 
 **Phase 3 :** cartes de profil PNG (1080 × 1080 et 1080 × 1920), aperçu, téléchargement, partage natif, partage par lien Telegram, visibilité du nom contrôlée, et preuve serveur HMAC valable 30 jours. Les XP et niveaux sont issus de D1, jamais des valeurs du téléphone.
