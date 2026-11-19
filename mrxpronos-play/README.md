@@ -1,5 +1,11 @@
 # Mr XPRONOS Play — Cloudflare V1
 
+## V2 Phase 6 — Équilibrage, sécurité et préparation au lancement
+
+Dernière phase du plan : administration privée `/admin → Équilibrage V2` pour modifier les prix des six boosts, les taux des récompenses gratuites, l'ouverture progressive et le plafond d'achats ; modifications journalisées en D1 ; sécurisation du débit, de la synchronisation XP et des entrées ; simulations annuelles de quatre profils, contrôle des 50 niveaux et des sept exigences de maîtrise, tests avec plusieurs identités Telegram signées.
+
+Migration additive : `migrations/006_balance_audit.sql`. Guide et résultats : [PHASE6_BALANCE_SECURITY_LAUNCH.md](PHASE6_BALANCE_SECURITY_LAUNCH.md).
+
 ## V2 Phase 5 — Boutique gratuite et boosts MRXP
 
 Boutique intégrée dans Jouer, Missions et Profil, avec six boosts (multiplicateurs ×1,1 à ×2 et recharges d'énergie +100/+250), inventaire, achats idempotents débités atomiquement, activation, expiration et suivi. Les crédits MRXP restent **100 % gratuits et non monétaires** ; aucun paiement ou transfert n'existe. Les multiplicateurs démarrent à la première synchronisation admissible, conformément au délai actuel de 12 heures.
