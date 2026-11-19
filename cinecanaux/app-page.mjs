@@ -786,17 +786,21 @@ function renderCinemaShowcase(){
  if(note)note.textContent=pinnedShowcase.length?pinnedShowcase.length+" publications épinglées · Appuie sur une affiche pour ouvrir son message Telegram.":"Films, séries et animés de tes canaux · Aucun lien inventé.";
 }
 async function loadCinemaShowcase(){
- const [art,pins]=await Promise.allSettled([
-  fetch("/api/showcase",{headers:{accept:"application/json"},signal:AbortSignal.timeout(8500)}).then(r=>r.ok?r.json():Promise.reject(Error("art unavailable"))),
-  fetch("/api/pinned-showcase",{headers:{accept:"application/json"},signal:AbortSignal.timeout(12500)}).then(r=>r.ok?r.json():Promise.reject(Error("pins unavailable")))
- ]);
- if(art.status==="fulfilled"&&Array.isArray(art.value?.items)){
-  posterShowcase=art.value.items.filter(x=>x&&typeof x.title==="string"&&typeof x.type==="string"&&typeof x.poster==="string").slice(0,24);
- }
- if(pins.status==="fulfilled"&&Array.isArray(pins.value?.items)){
-  pinnedShowcase=pins.value.items.filter(x=>x&&["films","series","animes"].includes(x.type)&&pinnedLink(x.link)&&pinnedImage(x.poster)).slice(0,24);
- }
- renderCinemaShowcase();
+ const art=fetch("/api/showcase",{headers:{accept:"application/json"},signal:AbortSignal.timeout(8500)})
+  .then(r=>r.ok?r.json():Promise.reject(Error("art unavailable")))
+  .then(body=>{
+   if(Array.isArray(body.items)){
+    posterShowcase=body.items.filter(x=>x&&typeof x.title==="string"&&typeof x.type==="string"&&typeof x.poster==="string").slice(0,24);
+   }
+  }).catch(()=>{}).finally(renderCinemaShowcase);
+ const pins=fetch("/api/pinned-showcase",{headers:{accept:"application/json"},signal:AbortSignal.timeout(12500)})
+  .then(r=>r.ok?r.json():Promise.reject(Error("pins unavailable")))
+  .then(body=>{
+   if(Array.isArray(body.items)){
+    pinnedShowcase=body.items.filter(x=>x&&["films","series","animes"].includes(x.type)&&pinnedLink(x.link)&&pinnedImage(x.poster)).slice(0,24);
+   }
+  }).catch(()=>{}).finally(renderCinemaShowcase);
+ await Promise.allSettled([pins,art]);
 }
 function miniFeatured(){
  const a=$("cine-home-picks");if(!a)return;a.textContent="";
