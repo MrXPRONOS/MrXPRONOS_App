@@ -36,8 +36,12 @@ test('a new visitor only sees the Mini App, not categories or admin controls',as
  try{
   await botUpdate(f.env,update(123,'/start'));
   const sent=lastMessage(f.calls);
-  assert.match(sent.text,/Bienvenue sur CINÉ RADAR/);
-  assert.match(sent.text,/Rechercher/);
+  assert.match(sent.text,/BIENVENUE SUR CINÉ RADAR/);
+  assert.match(sent.text,/<blockquote>/);
+  assert.match(sent.text,/1️⃣/);
+  assert.match(sent.text,/4️⃣/);
+  assert.match(sent.text,/Explorer/);
+  assert.equal(sent.reply_markup.inline_keyboard[0][0].style,"primary");
   assert.match(sent.text,/Mini App/);
   assert.equal(sent.reply_markup.inline_keyboard.length,1);
   assert.equal(sent.reply_markup.inline_keyboard[0][0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
@@ -59,7 +63,7 @@ test('owner gets a private administration button while retaining the Mini App',a
   assert.equal(buttons[0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
   assert.equal(buttons[1].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
   await botUpdate(f.env,update(900,'/admin'));
-  assert.match(lastMessage(f.calls).text,/espace propriétaire/);
+  assert.match(lastMessage(f.calls).text,/Administration/);
   assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard.flat().length,2);
  }finally{restore()}
 });
@@ -82,9 +86,9 @@ test('Telegram default command list has only start, owner receives scoped admin 
   const list=f.calls.filter(x=>x.method==='setMyCommands');
   assert.equal(list.length,2);
   assert.deepEqual(list[0].body.scope,{type:'default'});
-  assert.deepEqual(list[0].body.commands.map(x=>x.command),['start']);
+  assert.deepEqual(list[0].body.commands.map(x=>x.command),['start','aide','stop','confidentialite']);
   assert.deepEqual(list[1].body.scope,{type:'chat',chat_id:900});
-  assert.deepEqual(list[1].body.commands.map(x=>x.command),['start','admin','tendances','manquants','canaux','actualiser','autoriser']);
+  assert.deepEqual(list[1].body.commands.map(x=>x.command),['start','aide','stop','confidentialite','admin','annonces','tendances','manquants','canaux','actualiser','autoriser']);
   const menu=f.calls.filter(x=>x.method==='setChatMenuButton');
   assert.equal(menu.length,2);
   assert.equal(menu[0].body.menu_button.type,'commands');
@@ -92,6 +96,20 @@ test('Telegram default command list has only start, owner receives scoped admin 
   assert.equal(menu[1].body.menu_button.web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
   assert.ok(f.calls.some(x=>x.method==='setMyDescription'&&/Mini App/.test(x.body.description)));
   assert.ok(f.calls.some(x=>x.method==='setMyShortDescription'&&/films, séries et animés/i.test(x.body.short_description)));
-  assert.ok(f.writes.some(x=>x.includes("'11'")));
+  assert.ok(f.writes.some(x=>x.includes("'12'")));
+ }finally{restore()}
+});
+
+test('visitor help, opt-out and privacy commands use formatted Telegram HTML',async()=>{
+ const f=setup(),restore=f.mock();
+ try{
+  await botUpdate(f.env,update(123,'/aide'));
+  assert.match(lastMessage(f.calls).text,/<blockquote>/);
+  assert.match(lastMessage(f.calls).text,/5️⃣/);
+  await botUpdate(f.env,update(123,'/stop'));
+  assert.match(lastMessage(f.calls).text,/Annonces désactivées/);
+  await botUpdate(f.env,update(123,'/confidentialite'));
+  assert.match(lastMessage(f.calls).text,/identifiant de conversation/);
+  assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard[0][0].style,'primary');
  }finally{restore()}
 });
