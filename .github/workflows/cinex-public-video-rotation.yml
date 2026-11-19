@@ -1,0 +1,72 @@
+name: CineX - Rotation quotidienne des 10 videos
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Activer modifications et suppressions (false = simulation)'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    name: Verifier / archiver les anciennes videos CineX
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      TG_PUBLIC_CHANNEL: '@CineXFilms_vf'
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      TG_RIGHTS_ATTESTED: 'true'
+      PYTHONPATH: .
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dependances
+        run: python -m pip install -r requirements.txt
+      - name: Tester la rotation hors ligne
+        run: python -m unittest discover -s tests -p 'test_public_video_archive.py' -v
+      - name: Verifier les identifiants
+        shell: bash
+        run: |
+          set -eu
+          [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]] || {
+            echo "::error::Secrets de la session Telegram indisponibles"; exit 1;
+          }
+          [[ "$TG_PRIVATE_CHANNEL" =~ ^-100[0-9]+$ ]] || {
+            echo "::error::TG_PRIVATE_CHANNEL doit etre l'ID -100 de Cine X Videotheque"; exit 1;
+          }
+      - name: Analyser puis archiver
+        env:
+          RUN_APPLY: ${{ github.event_name == 'schedule' && vars.CINEX_ARCHIVE_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.apply }}
+        shell: bash
+        run: |
+          if [[ "$RUN_APPLY" == "true" ]]; then
+            python -m film_relay.public_video_archive --apply
+          else
+            echo "Simulation uniquement : CINEX_ARCHIVE_ENABLED n'est pas active."
+            python -m film_relay.public_video_archive
+          fi
