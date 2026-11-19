@@ -51,8 +51,8 @@ StrictLoader.add_constructor(
 
 def check() -> list[str]:
     issues = []
-    for filename in ("rescue_channels.json", "trending_private.json"):
-        path = STATE / filename
+    for path in sorted(STATE.glob("*.json")):
+        filename = path.name
         raw = path.read_text(encoding="utf-8")
         try:
             data = json.loads(raw)
@@ -63,7 +63,7 @@ def check() -> list[str]:
             issues.append(f"{filename}: invitation Telegram publique enregistrée")
         if isinstance(data, dict):
             for key, item in data.get("channels", {}).items():
-                if "invite" in item or "invite_link" in item:
+                if isinstance(item, dict) and ("invite" in item or "invite_link" in item):
                     issues.append(f"{filename}:{key}: clé d'invitation en clair")
     for name in TELEGRAM_WORKFLOWS:
         path = WF / name
