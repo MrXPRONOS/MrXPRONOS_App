@@ -1,6 +1,4 @@
 // Ciné Radar — annuaire minimal. Aucun compte, favori, parrainage ou suivi de clic.
-import {radarOwnerDigest,authorizeRadarTitle,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
-import {bindPrimaryRadarChannels,missingRadarTitles,formatRadarMissing,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 const BASE="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
 const TYPES=[["films","🎬 Films"],["series","📺 Séries"],["animes","🎌 Animés"]];
 const LINK=/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/;
@@ -81,11 +79,6 @@ const HELP=[
  "🔕 /stop — arrêter les annonces · /start — les réactiver"
 ].join("\n");
 const PRIVACY="🔐 <b>Confidentialité</b>\n\nLes statistiques restent anonymisées. Ton identifiant de conversation Telegram est conservé séparément pour pouvoir t'envoyer des annonces après /start.\n\n🔕 /stop pour arrêter les annonces ; /start pour les réactiver.";
-const isOwner=async(env,user,privateChat)=>{
- if(!privateChat||!Number.isSafeInteger(Number(user))||Number(user)<=0)return false;
- const role=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(Number(user)).first();
- return role?.role==="owner";
-};
 async function processBotUpdate(env,update){
  const cb=update.callback_query, msg=cb?.message||update.message;
  const chat=msg?.chat?.id;
