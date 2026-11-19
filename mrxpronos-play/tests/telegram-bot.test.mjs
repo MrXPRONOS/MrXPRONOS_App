@@ -473,15 +473,15 @@ test('the Mini App loads lot 6 splash, spinner, mission status, energy and victo
  }finally{h.restore()}
 });
 
-test('rank avatar catalog has 10 validated African portraits and 20 hash-verified image files',async()=>{
+test('rank avatar catalog has 11 validated African portraits and 22 hash-verified image files',async()=>{
  const manifest=JSON.parse(await readFile(new URL('../avatars-manifest.json',import.meta.url),'utf8'));
- assert.equal(manifest.avatar_count,10);
- assert.equal(manifest.avatars.length,10);
+ assert.equal(manifest.avatar_count,11);
+ assert.equal(manifest.avatars.length,11);
  assert.deepEqual(manifest.avatars.map(x=>[x.rank,x.slug,x.min_level,x.max_level]),[
   [1,'recrue',1,1],[2,'eclaireur',2,2],[3,'combattant',3,4],
   [4,'sentinelle',5,5],[5,'chevalier',6,9],
   [6,'elite',10,14],[7,'maitre',15,19],[8,'champion',20,29],
-  [9,'legende',30,39],[10,'mythique',40,49]
+  [9,'legende',30,39],[10,'mythique',40,49],[11,'souverain-mx',50,999999]
  ]);
  for(const avatar of manifest.avatars){
   for(const kind of ['png','webp']){
@@ -500,7 +500,7 @@ test('rank avatar catalog has 10 validated African portraits and 20 hash-verifie
  }
 });
 
-test('rank portrait mapping matches all approved levels and only Sovereign remains a placeholder',async()=>{
+test('rank portrait mapping matches all 11 approved ranks including Souverain MX',async()=>{
  const h=harness();
  try{
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
@@ -511,11 +511,11 @@ test('rank portrait mapping matches all approved levels and only Sovereign remai
    [6,9,'Chevalier','rank-05-chevalier.webp'],
    [10,14,'Élite','rank-06-elite.webp'],[15,19,'Maître','rank-07-maitre.webp'],
    [20,29,'Champion','rank-08-champion.webp'],[30,39,'Légende','rank-09-legende.webp'],
-   [40,49,'Mythique','rank-10-mythique.webp']]){
+   [40,49,'Mythique','rank-10-mythique.webp'],[50,999999,'Souverain MX','rank-11-souverain-mx.webp']]){
     assert.ok(html.includes('from:'+start+',to:'+stop+',name:"'+name+'",image:"'+image+'"'),name);
   }
   assert.ok(html.includes('from:10,to:14,name:"Élite",image:"rank-06-elite.webp"'));
-  assert.ok(html.includes('from:50,to:999999,name:"Souverain MX",image:null'));
+  assert.ok(html.includes('from:50,to:999999,name:"Souverain MX",image:"rank-11-souverain-mx.webp"'));
   assert.ok(html.includes('RANK_BRAND_FALLBACK'));
   assert.ok(html.includes('window.refreshRankAvatar?.()'));
   assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
