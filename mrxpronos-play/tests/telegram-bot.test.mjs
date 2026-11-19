@@ -11,7 +11,8 @@ const adminId = 111;
 
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
- const pending = new Map();
+ const pending = new Map(),missionClaims=new Map(),channelMembership=new Map();
+ const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
  const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0};
  const env={
@@ -27,6 +28,7 @@ function harness(){
         if(lower.includes('from bot_admins'))return String(values[0])===String(adminId)?{telegram_id:String(adminId)}:null;
         if(lower.includes('from bot_settings'))return {value:settings.get(values[0])};
         if(lower.includes('from bot_admin_pending'))return pending.get(String(values[0]))||null;
+        if(lower.includes('from mission_claims'))return missionClaims.has(String(values[0])+':'+String(values[1]))?{mission_key:String(values[1])}:null;
         if(lower.includes('select * from players'))return {...player};
         if(lower.includes('from players'))return {n:rows.players,xp:180};
         if(lower.includes('select xp_awarded from sync_receipts'))return null;
@@ -42,7 +44,8 @@ function harness(){
         if(lower.includes('update players set username')){player.username=values[0];player.display_name=values[1];player.user_id=values[3]}
         return {success:true};
        },
-       async all(){return {results:[]}}
+       get _sql(){return lower},get _values(){return values},
+       async all(){if(lower.includes('from mission_claims'))return {results:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).map(x=>({mission_key:x.slice(String(values[0]).length+1)}))};return {results:[]}}
       };
      },
      async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
@@ -54,6 +57,19 @@ function harness(){
       return null;
      }
     };
+   },
+   async batch(ops){
+    let applied=0;
+    for(const op of ops){
+     if(op._sql?.includes('insert or ignore into mission_claims')){
+      const [id,key,xp]=op._values;const claimId=String(id)+':'+String(key);
+      applied=missionClaims.has(claimId)?0:1;
+      if(applied)missionClaims.set(claimId,{xp});
+     }else if(op._sql?.includes('update players set confirmed_xp')){
+      if(applied)player.confirmed_xp+=Number(op._values[0]);
+     }
+    }
+    return [{success:true,meta:{changes:applied}},{success:true,meta:{changes:applied}}];
    }
   }
  };
@@ -65,10 +81,13 @@ function harness(){
   if(method==='getMyCommands')result=init.body.includes('"type":"chat"')?[{command:'start'},{command:'admin'}]:[{command:'start'}];
   if(method==='getWebhookInfo')result={url:'https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook',allowed_updates:['message','callback_query']};
   if(method==='getChatMenuButton')result={type:'commands'};
+  if(method==='getMe')result={id:99,username:'MrXpronosPlayBot'};
+  if(method==='getChat')result={id:-100123,title:'Test '+(JSON.parse(init.body).chat_id||'')};
+  if(method==='getChatMember'){const args=JSON.parse(init.body);result=Number(args.user_id)===99?{status:membership.botAdmin?'administrator':'member'}:{status:channelMembership.get(args.chat_id)||'left'}};
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -294,4 +313,124 @@ test('avatar endpoint reads only authenticated user Telegram picture',async()=>{
   assert.ok(profileQuery.includes('user_id=44004'));
   assert.equal(res.headers.get('cache-control'),'private, no-store');
  }finally{globalThis.fetch=oldFetch;h.restore()}
+});
+
+test('all six server missions are visible to the signed Telegram user',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:50001,first_name:'Dayo'});
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
+  assert.equal(res.status,200,await res.clone().text());
+  const data=await res.json();
+  assert.equal(data.missions.length,6);
+  assert.deepEqual(data.missions.filter(m=>m.kind==='channel').map(m=>m.channel),['@mrxpronosfr','@actufoot_mrxp']);
+  assert.equal(data.missions.find(m=>m.key==='first_open').xp,25);
+ }finally{h.restore()}
+});
+
+async function claimMissionForTest(h,userId,key){
+ const signed=signedTelegramUser({id:userId,first_name:'Test'});
+ return worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/missions/claim',{
+  method:'POST',headers:{'content-type':'application/json','x-telegram-init-data':signed},
+  body:JSON.stringify({mission_key:key})
+ }),h.env);
+}
+
+test('welcome reward can be claimed only once even on repeated requests',async()=>{
+ const h=harness();
+ try{
+  let r=await claimMissionForTest(h,50002,'first_open');
+  assert.equal(r.status,200,await r.clone().text());
+  assert.equal((await r.json()).awarded,25);
+  r=await claimMissionForTest(h,50002,'first_open');
+  assert.equal((await r.json()).awarded,0);
+  assert.equal(h.player.confirmed_xp,25);
+  assert.equal(h.missionClaims.size,1);
+ }finally{h.restore()}
+});
+
+test('50, 200 and 500 tap missions are independent and reward all thresholds once',async()=>{
+ const h=harness();
+ try{
+  let r=await claimMissionForTest(h,50003,'tap_50');
+  assert.equal(r.status,409);
+  h.player.confirmed_taps=500;
+  for(const [key,xp] of [['tap_500',150],['tap_50',40],['tap_200',75]]){
+   r=await claimMissionForTest(h,50003,key);
+   assert.equal(r.status,200,await r.clone().text());
+   assert.equal((await r.json()).awarded,xp);
+  }
+  assert.equal(h.player.confirmed_xp,265);
+  r=await claimMissionForTest(h,50003,'tap_200');
+  assert.equal((await r.json()).awarded,0);
+  assert.equal(h.player.confirmed_xp,265);
+ }finally{h.restore()}
+});
+
+test('channel missions require bot admin access and real membership, then reward once',async()=>{
+ const h=harness();
+ try{
+  h.membership.botAdmin=false;
+  let r=await claimMissionForTest(h,50004,'join_main');
+  assert.equal(r.status,503);
+  assert.equal((await r.json()).code,'BOT_NOT_ADMIN');
+  h.membership.botAdmin=true;
+  r=await claimMissionForTest(h,50004,'join_main');
+  assert.equal(r.status,409);
+  assert.equal((await r.json()).code,'NOT_JOINED');
+  h.channelMembership.set('@mrxpronosfr','member');
+  r=await claimMissionForTest(h,50004,'join_main');
+  assert.equal(r.status,200);
+  assert.equal((await r.json()).awarded,100);
+  h.channelMembership.set('@actufoot_mrxp','member');
+  r=await claimMissionForTest(h,50004,'join_foot');
+  assert.equal((await r.json()).awarded,100);
+  r=await claimMissionForTest(h,50004,'join_main');
+  assert.equal((await r.json()).awarded,0);
+  assert.equal(h.player.confirmed_xp,200);
+ }finally{h.restore()}
+});
+
+test('unclaimed channel missions persist on subsequent visits until joined',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:50005,first_name:'Test'});
+  const check=()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/missions',{headers:{'x-telegram-init-data':signed}}),h.env);
+  let r=await check(),m=(await r.json()).missions;
+  assert.equal(m.find(x=>x.key==='join_main').claimed,false);
+  assert.equal(m.find(x=>x.key==='join_foot').claimed,false);
+  h.channelMembership.set('@mrxpronosfr','member');
+  await claimMissionForTest(h,50005,'join_main');
+  r=await check();m=(await r.json()).missions;
+  assert.equal(m.find(x=>x.key==='join_main').claimed,true);
+  assert.equal(m.find(x=>x.key==='join_foot').claimed,false);
+ }finally{h.restore()}
+});
+
+test('mission API blocks unauthenticated visitors and paused missions',async()=>{
+ const h=harness();
+ try{
+  const unauth=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/missions'),h.env);
+  assert.equal(unauth.status,401);
+  h.settings.set('feature_missions','0');
+  const res=await claimMissionForTest(h,50006,'first_open');
+  assert.equal(res.status,423);
+  assert.equal((await res.json()).code,'MISSIONS_PAUSED');
+ }finally{h.restore()}
+});
+
+test('photo URL originates from validated signed Telegram initData',async()=>{
+ const h=harness();
+ try{
+  const original='https://t.me/i/userpic/320/example.jpg';
+  const signed=signedTelegramUser({id:50007,first_name:'Photo',photo_url:original});
+  const result=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
+  assert.equal(result.status,200);
+  assert.equal((await result.json()).telegram_photo_url,original);
+  const page=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await page.text();
+  assert.ok(html.includes('signedPhotoUrl=r.telegram_photo_url||""'));
+  assert.ok(html.includes('photo-refresh'));
+  assert.ok(html.includes('tryTelegramPhotoFallback()'));
+ }finally{h.restore()}
 });
