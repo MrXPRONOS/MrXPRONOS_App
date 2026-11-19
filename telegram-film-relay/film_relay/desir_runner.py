@@ -18,7 +18,7 @@ from .media_guard import valid_photo_message, require_photo
 from .title_guard import title_assessment
 from .matching import document_key
 from .runner import resolve_peer
-from .text import private_message_link
+from .text import private_message_link, clean_caption
 from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
                           film_folder_url, send_public_poster_with_buttons,
@@ -251,10 +251,7 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
         for index, row in enumerate(url_button_rows(video_url, public_peer=public_peer))
     ]
     # The link in text must survive the subsequent native forward.
-    caption = (f"<b>🎬 {escape(title[:560])}</b>\n\n"
-               f"🔗 <a href=\"{escape(video_url, quote=True)}\">REGARDER LE FILM</a>"
-               f"\n\n🎞️ <a href=\"{escape(film_folder_url(), quote=True)}\">"
-               "PLUS DE FILMS ? REJOINS NOTRE TEAM !</a>")
+    caption = rich_caption(title)
     if not valid_photo_message(item.poster):
         raise ValueError("Publication annulée : affiche Telegram réelle obligatoire.")
     if item.poster is not None:
@@ -424,6 +421,10 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 if completed >= limit:
                     break
                 continue
+            description = clean_caption(
+                getattr(item.poster, "raw_text", "") or format_title(item),
+                getattr(item.poster, "entities", None),
+            ) or format_title(item)
             staged = state.data["staged"].get(key, {})
             if "video" in staged:
                 cache = await snapshot_telegram_posts(
@@ -456,7 +457,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
                     image = await send_library_poster_with_buttons(
-                        client, bot, library, public_user, item.poster, title,
+                        client, bot, library, public_user, item.poster, description,
                     )
                     state.stage(key, "poster", image.id)
                     await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
@@ -469,7 +470,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             video_url = private_message_link(private_id, private_video_id)
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
-            public_post = await post_public(bot, client, bot_public, item, title, video_url, link)
+            public_post = await post_public(bot, client, bot_public, item, description, video_url, link)
             # Publish the corresponding video in the public feed as well;
             # the public fiche must immediately precede its own video.
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
