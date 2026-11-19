@@ -8,7 +8,8 @@ from unittest.mock import patch
 
 from film_relay.publication import (rich_caption, rich_video_title, url_button_rows,
                                     send_public_poster_with_buttons, film_folder_url, DEFAULT_FILM_FOLDER_URL,
-                                    FILM_FOLDER_BUTTON_TEXT)
+                                    FILM_FOLDER_BUTTON_TEXT,
+                                    library_button_rows, send_library_poster_with_buttons)
 
 
 class RenderTests(unittest.TestCase):
@@ -39,6 +40,35 @@ class RenderTests(unittest.TestCase):
                          DEFAULT_FILM_FOLDER_URL)
         self.assertEqual(url_button_rows(movie)[0][0][1], movie)
 
+    def test_private_library_fiche_has_exactly_rescue_and_folder_buttons(self):
+        from unittest.mock import AsyncMock
+        image = NS(media="source-photo")
+        reader = NS(download_media=AsyncMock(return_value=b"original-poster"))
+        bot = NS(send_file=AsyncMock(return_value=NS(id=77)))
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value="https://t.me/+RescueExample123"):
+            result = asyncio.run(send_library_poster_with_buttons(
+                reader, bot, "@private_library", "@public_channel",
+                image, "🎬 Film complet\\nSynopsis: Un film"))
+        self.assertEqual(result.id, 77)
+        keyboard = bot.send_file.await_args.kwargs["buttons"]
+        self.assertEqual(len(keyboard), 2)
+        self.assertEqual(keyboard[0][0].url, "https://t.me/+RescueExample123")
+        self.assertEqual(keyboard[1][0].url, DEFAULT_FILM_FOLDER_URL)
+        self.assertIn("Synopsis", bot.send_file.await_args.kwargs["caption"])
+
+    def test_public_fiche_requires_existing_verified_rescue_invitation(self):
+        from unittest.mock import AsyncMock
+        reader = NS(download_media=AsyncMock(return_value=b"photo"))
+        bot = NS(send_file=AsyncMock())
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value=None):
+            with self.assertRaisesRegex(RuntimeError, "Secours"):
+                asyncio.run(send_public_poster_with_buttons(
+                    reader, bot, "@public", NS(media="photo"), "Mon Film",
+                    "https://t.me/c/123456/12"))
+        bot.send_file.assert_not_awaited()
+
     def test_send_photo_with_inline_keyboard(self):
         class FakeReader:
             async def download_media(self, media, file):
@@ -53,7 +83,10 @@ class RenderTests(unittest.TestCase):
         mocktelethon = types.ModuleType("telethon")
         mocktelethon.Button = NS(url=lambda label, url, **kw: (label, url, kw.get("style")))
         user, bot = FakeReader(), FakeBot()
-        with patch.dict(sys.modules, {"telethon": mocktelethon}):
+        with patch.dict(sys.modules, {"telethon": mocktelethon}), patch(
+                "film_relay.publication.library_button_rows",
+                return_value=[[("Secours", "https://t.me/+test")],
+                              [(FILM_FOLDER_BUTTON_TEXT, DEFAULT_FILM_FOLDER_URL)]]):
             result = asyncio.run(send_public_poster_with_buttons(
                 user, bot, "@cinex", NS(media="photo"),
                 "🎬 Mon film\nGenre: Action",
