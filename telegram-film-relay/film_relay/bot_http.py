@@ -155,6 +155,23 @@ class BotHTTPClient:
                 return False  # Catalogue already carries these exact buttons.
             raise
 
+    async def delete_message(self, channel, message_id: int):
+        """Delete a channel message via Bot API when permitted (<48h rule)."""
+        from telethon import utils
+        return await self._call("deleteMessage", {
+            "chat_id": str(utils.get_peer_id(channel)),
+            "message_id": str(int(message_id)),
+        })
+
+    async def pin_message(self, channel, message_id: int, *, silent: bool = True):
+        """Pin a verified channel post, without notifying subscribers."""
+        from telethon import utils
+        return await self._call("pinChatMessage", {
+            "chat_id": str(utils.get_peer_id(channel)),
+            "message_id": str(int(message_id)),
+            "disable_notification": "true" if silent else "false",
+        })
+
     async def disconnect(self):
         # Aucun état d'authentification MTProto à libérer.
         return None
