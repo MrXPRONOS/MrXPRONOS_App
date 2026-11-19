@@ -57,7 +57,7 @@ test('À découvrir stays a static responsive grid while only the promotional ca
  assert.ok(APP_HTML.includes('function autoScrollPromos(){'));
  assert.ok(APP_HTML.includes('autoScrollPromos();'));
  assert.ok(!APP_HTML.includes('autoScrollDiscover'));
- assert.ok(APP_HTML.includes('const track=$( "cine-home-picks"')===false); // Avoid accidentally using the discovery container as the moving track.
+ assert.ok(APP_HTML.includes('const track=$("cine-home-picks")?.querySelector(".cine-promo-track")'));
  assert.ok(APP_HTML.includes('querySelector(".cine-promo-track")'));
  assert.ok(APP_HTML.includes('track.scrollLeft+=1;'));
  assert.ok(APP_HTML.includes('for(let repeat=0;repeat<3;repeat++)'));
