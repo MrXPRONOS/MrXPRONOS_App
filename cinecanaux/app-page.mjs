@@ -18,6 +18,23 @@ button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid #
 button:active{transform:scale(.97)}
 .icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px}
 .icon svg{display:block;width:100%;height:100%;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+
+/* Lot 2: faithful vector icons from the generated neon 3D SVG set.
+   Inline SVG keeps all ten icons sharp without ten image requests. */
+.cine-nav-icon{display:inline-block;flex:0 0 22px;width:22px;height:22px;vertical-align:middle;line-height:0;pointer-events:none}
+.cine-nav-icon svg{display:block;width:100%;height:100%;overflow:visible}
+.cine-drawer-link .cine-nav-icon{width:23px;height:23px;min-width:23px;flex-basis:23px}
+.cine-bottom-nav .cine-nav-icon{width:25px;height:25px;flex-basis:25px}
+.cine-menu-trigger .cine-nav-icon{width:24px;height:24px}
+.cine-drawer-title button .cine-nav-icon{width:23px;height:23px}
+.cine-community-share{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.cine-community-share .cine-nav-icon{width:19px;height:19px;flex-basis:19px}
+.cine-save{display:flex;align-items:center;justify-content:center;gap:6px}
+.cine-save .cine-nav-icon{width:17px;height:17px;flex-basis:17px}
+#cine-preview-save{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+#cine-preview-save .cine-nav-icon{width:20px;height:20px;flex-basis:20px}
+#suggest{display:inline-flex;align-items:center;gap:6px}
+#suggest .cine-nav-icon{width:17px;height:17px;flex-basis:17px}
 /* Lot 1: ten original glossy cinema icons from a single optimized, transparent WebP sprite. */
 .icon.cine-3d-icon{display:inline-block;flex:none;vertical-align:middle;background-image:url('/assets/ui-icons-lot1.webp');background-repeat:no-repeat;background-size:1000% 100%;background-position-y:0}
 .cine-icon-sparkle{background-position-x:0%}
@@ -738,6 +755,54 @@ load();
 "use strict";
 const $=id=>document.getElementById(id);
 const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
+
+/* Ten original 3D navigation icon drawings, ported from the approved SVG files.
+   The source art remains editable as vector paths, not baked into emoji/font glyphs. */
+const cineNavGeometry={
+ accueil:[["s","M116 255 L256 129 L396 255",42],["s","M161 253 V383 H351 V253",42],["f","M226 389 V308 Q226 294 240 294 H272 Q286 294 286 308 V389 Z",7]],
+ explorer:[["s","M395 250 A139 139 0 1 1 117 250 A139 139 0 1 1 395 250",35],["f","M316 183 L278 285 L188 330 L230 219 Z",8],["dot","256","257","11"]],
+ decouvrir:[["f","M249 100 C260 153 282 195 333 218 C281 229 260 270 249 351 C233 271 217 231 165 218 C219 199 235 154 249 100 Z",9],["f","M366 302 Q374 331 400 340 Q373 348 366 378 Q361 350 335 340 Q359 331 366 302 Z",4],["f","M123 100 Q130 126 153 136 Q130 145 123 169 Q118 144 95 136 Q117 127 123 100 Z",4]],
+ favoris:[["s","M256 114 L301 202 L404 216 L329 287 L348 386 L256 339 L164 386 L183 287 L108 216 L211 202 Z",34]],
+ historique:[["s","M139 190 C177 102 298 91 363 156 C435 229 390 353 308 390 C230 426 151 391 118 325",31],["s","M110 194 L143 190 L152 225",31],["s","M257 176 V258 L322 298",34]],
+ proposer:[["s","M169 124 H343 Q387 124 387 168 V344 Q387 388 343 388 H169 Q125 388 125 344 V168 Q125 124 169 124 Z",33],["s","M256 183 V327 M184 255 H328",47]],
+ apropos:[["s","M404 256 A148 148 0 1 1 108 256 A148 148 0 1 1 404 256",34],["s","M256 255 V331",39],["f","M234 179 a22 22 0 1 0 44 0 a22 22 0 1 0 -44 0",9]],
+ menu:[["s","M119 162 H393",45],["s","M119 256 H393",45],["s","M119 350 H393",45]],
+ fermer:[["s","M149 148 L363 364 M363 148 L149 364",57]],
+ partager:[["s","M153 361 L362 152 M257 152 H362 V257",48],["s","M332 347 H168 Q133 347 133 312 V201",27]]
+};
+let cineNavCounter=0;
+function cineNavIcon(key){
+ const parts=cineNavGeometry[key];
+ if(!parts)throw Error("Unknown navigation icon: "+key);
+ const prefix="cine-nav-"+(++cineNavCounter)+"-";
+ const url=name=>"url(#"+prefix+name+")";
+ const defs='<defs>'+
+  '<linearGradient id="'+prefix+'neon" x1="95" y1="95" x2="420" y2="420" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#B1F9FF"/><stop offset=".18" stop-color="#00D6FF"/><stop offset=".46" stop-color="#1D8DF8"/><stop offset=".76" stop-color="#6343EC"/><stop offset="1" stop-color="#B331FF"/></linearGradient>'+
+  '<linearGradient id="'+prefix+'glass" x1="135" y1="95" x2="405" y2="420" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F6FFFF" stop-opacity=".47"/><stop offset=".38" stop-color="#5FDDFE" stop-opacity=".03"/><stop offset=".82" stop-color="#771AFF" stop-opacity=".11"/><stop offset="1" stop-color="#180A88" stop-opacity=".27"/></linearGradient>'+
+  '<linearGradient id="'+prefix+'shine" x1="90" y1="90" x2="405" y2="405" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F4FFFF"/><stop offset=".45" stop-color="#90F2FF" stop-opacity=".55"/><stop offset="1" stop-color="#CD90FF" stop-opacity=".06"/></linearGradient>'+
+  '<linearGradient id="'+prefix+'edge" x1="90" y1="90" x2="418" y2="418" gradientUnits="userSpaceOnUse"><stop stop-color="#C8FFFF"/><stop offset=".48" stop-color="#39A8FA"/><stop offset="1" stop-color="#8734EE"/></linearGradient>'+
+  '</defs>';
+ const art=parts.map(part=>{
+  if(part[0]==="dot")return '<circle cx="'+part[1]+'" cy="'+part[2]+'" r="'+part[3]+'" fill="#D9F8FF" stroke="#76DDFF" stroke-width="4"/>';
+  const d=part[1],w=part[2];
+  if(part[0]==="f")return '<path d="'+d+'" transform="translate(0 13)" fill="#111052" stroke="#090B37" stroke-width="'+(w+9)+'" stroke-linejoin="round" opacity=".85"/>'+
+    '<path d="'+d+'" fill="'+url("neon")+'" stroke="#1D4AAB" stroke-width="'+(w+5)+'" stroke-linejoin="round"/>'+
+    '<path d="'+d+'" fill="'+url("glass")+'" stroke="'+url("edge")+'" stroke-width="'+w+'" stroke-linejoin="round"/>';
+  return '<path d="'+d+'" transform="translate(1 13)" fill="none" stroke="#0B0C42" stroke-width="'+(w+16)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>'+
+    '<path d="'+d+'" fill="none" stroke="#142B8B" stroke-width="'+(w+12)+'" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path d="'+d+'" fill="none" stroke="'+url("neon")+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path d="'+d+'" fill="none" stroke="'+url("shine")+'" stroke-width="'+(w*.23).toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round" transform="translate(-5 -5)" opacity=".75"/>';
+ }).join("");
+ const holder=node("span","cine-nav-icon");
+ holder.dataset.cineNavIcon=key;
+ holder.setAttribute("aria-hidden","true");
+ holder.innerHTML='<svg viewBox="0 0 512 512" focusable="false">'+defs+art+'</svg>';
+ return holder;
+}
+function favoriteLabel(target,selected,preview=false){
+ target.replaceChildren(cineNavIcon("favoris"),document.createTextNode(selected?(preview?"Retirer des favoris":"Dans mes favoris"):"Ajouter aux favoris"));
+ target.setAttribute("aria-pressed",String(selected));
+}
 const saveKey="cine-radar-favorites-v3",historyKey="cine-radar-history-v3";
 const validChannelLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""))||/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/.test(String(url||""));
 const photoHost=url=>/^\/assets\/channel-avatar\/(?:[a-z][a-z0-9_]{4,31}|[1-9][0-9]{0,9})\.jpg$/i.test(String(url||""))||/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"\x27<>]{1,1200}$/i.test(String(url||""));
@@ -758,7 +823,7 @@ function showChannelImage(img,source,backup,exhausted){
 function linkAvatar(c){const src=String(c.avatar||"");return /^\/assets\/channel-avatar\/([1-9][0-9]{0,9}|[a-z][a-z0-9_]{4,31})\.jpg$/i.test(src)?src:(Number.isSafeInteger(Number(c.id))&&Number(c.id)>0?"/assets/channel-avatar/"+c.id+".jpg":null)}
 function setHash(page){const h="#/"+page;if(location.hash!==h)location.hash=h;else navigate(page)}
 function switchPanel(p){pages.forEach(n=>{panel[n].hidden=n!==p});document.querySelectorAll("[data-go]").forEach(b=>{if(b.dataset.go===p)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});document.title=(p==="accueil"?"Ciné Radar":labels[p]+" | Ciné Radar");window.scrollTo({top:0,behavior:"instant"})}
-function makeNav(label,page,icon){const b=node("button",null);b.type="button";b.dataset.go=page;const glyph=node("span",null,icon);b.append(glyph,document.createTextNode(label));b.onclick=()=>{closeMenu();setHash(page)};return b}
+function makeNav(label,page,icon){const b=node("button",null);b.type="button";b.dataset.go=page;b.append(cineNavIcon(icon),document.createTextNode(label));b.onclick=()=>{closeMenu();setHash(page)};return b}
 function openMenu(){const b=$("cine-menu-backdrop");if(!b)return;oldFocus=document.activeElement;b.hidden=false;drawerOpen=true;$("cine-menu-trigger").setAttribute("aria-expanded","true");document.body.style.overflow="hidden";$("cine-menu-close").focus()}
 function closeMenu(){if(!drawerOpen)return;$("cine-menu-backdrop").hidden=true;drawerOpen=false;$("cine-menu-trigger").setAttribute("aria-expanded","false");document.body.style.overflow="";if(oldFocus&&oldFocus.focus)oldFocus.focus()}
 function releaseSearch(){const input=$("search");if(input&&input.value){input.value="";input.dispatchEvent(new Event("input",{bubbles:true}))}const all=document.querySelector("#tabs [data-type=all]");if(all)all.click();const sort=$("sort");if(sort&&sort.value!=="relevant"){sort.value="relevant";sort.dispatchEvent(new Event("change"))}}
@@ -951,7 +1016,7 @@ function shareCineRadar(){
 }
 function communityTools(home){
  const aside=node("div","cine-community");
- const btn=node("button","cine-community-share","↗ Partager Ciné Radar");btn.type="button";btn.onclick=shareCineRadar;
+ const btn=node("button","cine-community-share");btn.type="button";btn.append(cineNavIcon("partager"),document.createTextNode("Partager Ciné Radar"));btn.onclick=shareCineRadar;
  aside.append(btn,node("small",null,"Tu apprécies Ciné Radar ? Fais-le découvrir à tes proches."));
  home.append(aside);
  let visits=0;
@@ -1061,7 +1126,7 @@ function cardDecorate(){
   if(!card.querySelector(".cine-save")){
    const save=node("button","cine-save");save.type="button";save.setAttribute("aria-label","Enregistrer ce canal dans mes favoris");save.onclick=()=>toggleFavorite(id);card.querySelector(".card-body")?.append(save);
   }
-  const saved=card.querySelector(".cine-save");if(saved){saved.textContent=favorites.includes(id)?"★ Dans mes favoris":"☆ Ajouter aux favoris";saved.setAttribute("aria-pressed",String(favorites.includes(id)))}
+  const saved=card.querySelector(".cine-save");if(saved)favoriteLabel(saved,favorites.includes(id));
  }
  filterCards();
 }
@@ -1076,7 +1141,7 @@ function filterCards(){
  if(counter)counter.textContent=visible+" cana"+(visible===1?"l":"ux");
  const empty=$("cine-private-empty");if(empty)empty.hidden=mode==="explorer"||visible!==0; if(empty&&!empty.hidden)empty.textContent=mode==="favoris"?"Tu n’as aucun favori. Explore les canaux et utilise « Ajouter aux favoris ».":"Aucun canal consulté pour le moment.";
 }
-function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[id,...favorites].slice(0,250);persist();cardDecorate();discover();const b=$("cine-preview-save");if(b&&currentPreview===id)b.textContent=favorites.includes(id)?"★ Retirer des favoris":"☆ Ajouter aux favoris"}
+function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[id,...favorites].slice(0,250);persist();cardDecorate();discover();const b=$("cine-preview-save");if(b&&currentPreview===id)favoriteLabel(b,favorites.includes(id),true)}
 function recordOpen(id){if(!Number.isSafeInteger(id)||id<1)return;metric("channel_open","c:"+id);const first=!recent.includes(id);recent=[id,...recent.filter(x=>x!==id)].slice(0,60);persist();if(first){fetch("/api/engagement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({event:"open",id}),keepalive:true}).catch(()=>{})}filterCards()}
 function previewInfo(){
  const sheet=$("sheet");if(!sheet||!sheet.querySelector(".sheet-detail"))return;
@@ -1093,7 +1158,7 @@ function previewInfo(){
   if(c.last_post_at){const date=Date.parse(c.last_post_at);if(Number.isFinite(date))fields.push("Dernière activité : "+new Date(date).toLocaleDateString("fr-FR"))}
  fields.forEach(v=>box.append(node("div",null,v)));
  const open=detail.querySelector(".sheet-open");if(open)detail.insertBefore(box,open);else detail.append(box);
- const save=node("button","cine-soft-button",favorites.includes(c.id)?"★ Retirer des favoris":"☆ Ajouter aux favoris");save.id="cine-preview-save";save.onclick=()=>toggleFavorite(c.id);
+ const save=node("button","cine-soft-button");save.id="cine-preview-save";favoriteLabel(save,favorites.includes(c.id),true);save.onclick=()=>toggleFavorite(c.id);
  if(open)open.insertAdjacentElement("afterend",save);else detail.append(save);
 }
 function goToList(modeName){
@@ -1114,7 +1179,7 @@ function navigate(name){
 function build(){
  const root=document.querySelector("main.page"),brand=root?.querySelector(".brand"),hero=root?.querySelector(".hero"),nav=$("tabs"),search=document.querySelector("label.search"),tools=root?.querySelector(".v2-tools"),head=root?.querySelector(".heading"),cards=$("cards"),footer=root?.querySelector(".footer");
  if(!root||!brand||!hero||!nav||!search||!tools||!head||!cards)return;
- const menuBtn=node("button","cine-menu-trigger","☰");menuBtn.id="cine-menu-trigger";menuBtn.type="button";menuBtn.setAttribute("aria-label","Ouvrir le menu");menuBtn.setAttribute("aria-expanded","false");menuBtn.onclick=openMenu;brand.append(menuBtn);
+ const menuBtn=node("button","cine-menu-trigger");menuBtn.append(cineNavIcon("menu"));menuBtn.id="cine-menu-trigger";menuBtn.type="button";menuBtn.setAttribute("aria-label","Ouvrir le menu");menuBtn.setAttribute("aria-expanded","false");menuBtn.onclick=openMenu;brand.append(menuBtn);
  const panels=pages.map(buildPanel);footer.before(...panels);
  const home=panel.accueil;hero.classList.add("cine-hero");home.append(hero);
  const art=hero.querySelector(".hero-art");if(art){const collage=node("div","cine-hero-collage");collage.id="cine-hero-collage";art.append(collage)}
@@ -1149,7 +1214,7 @@ function build(){
  const disGrid=node("div","cine-discover-grid");disGrid.id="cine-discover-grid";panel.decouvrir.append(disGrid);
  heading(panel.proposer,"Participer","Contribue à améliorer l’annuaire.");
  const contribute=node("div","cine-helper");contribute.append(node("h3",null,"Tu connais un bon canal ?"),node("p",null,"Partage son lien Telegram pour nous le proposer. Ouvre Ciné Radar depuis Telegram pour participer."));
- const suggest=$("suggest");if(suggest){contribute.append(suggest);suggest.textContent="+ Proposer un canal"}panel.proposer.append(contribute);
+ const suggest=$("suggest");if(suggest){contribute.append(suggest);suggest.replaceChildren(cineNavIcon("proposer"),document.createTextNode("Proposer un canal"))}panel.proposer.append(contribute);
  const report=node("div","cine-helper");report.append(node("h3",null,"Signaler un problème"),node("p",null,"Ouvre la fiche d’un canal pour signaler un lien cassé, une mauvaise catégorie, du spam ou une atteinte aux droits."));const bBrowse=node("button",null,"Parcourir les canaux");bBrowse.onclick=()=>setHash("explorer");report.append(bBrowse);panel.proposer.append(report);
  heading(panel.apropos,"À propos de Ciné Radar","Un annuaire indépendant de canaux publics Telegram.");
  const about=node("div","cine-helper");about.append(node("h3",null,"Comment utiliser Ciné Radar ?"),node("p",null,"Explore les films, séries et animés, consulte la fiche d’un canal et ouvre-le dans Telegram. Ciné Radar ne fournit pas les vidéos et ne garantit pas les contenus des autres canaux."),node("h3",null,"Donner son avis ou signaler un problème"),node("p",null,"Ouvre la fiche d’un canal depuis Telegram pour laisser un avis ou signaler un problème."),node("h3",null,"Tes données"),node("p",null,"Tes favoris et ton historique restent dans ce navigateur. Tu peux les effacer ci-dessous. Nous ne conservons pas le texte de tes recherches."));
@@ -1158,11 +1223,11 @@ function build(){
  // Navigation en tiroir
  const backdrop=node("div","cine-drawer-backdrop");backdrop.id="cine-menu-backdrop";backdrop.hidden=true;
  const drawer=node("aside","cine-drawer");drawer.setAttribute("role","dialog");drawer.setAttribute("aria-modal","true");drawer.setAttribute("aria-label","Menu de navigation");
- const dhead=node("div","cine-drawer-title");dhead.append(node("b",null,"Ciné Radar"));const close=node("button",null,"×");close.id="cine-menu-close";close.setAttribute("aria-label","Fermer le menu");close.onclick=closeMenu;dhead.append(close);drawer.append(dhead);
- const groups=[["Découvrir",[["Accueil","accueil","⌂"],["Explorer les canaux","explorer","⌕"],["Genres et découvertes","decouvrir","✦"]]],["Personnel",[["Mes favoris","favoris","☆"],["Historique","historique","◷"]]],["Communauté",[["Proposer un canal","proposer","＋"],["À propos et confidentialité","apropos","ⓘ"]]]];
+ const dhead=node("div","cine-drawer-title");dhead.append(node("b",null,"Ciné Radar"));const close=node("button");close.append(cineNavIcon("fermer"));close.id="cine-menu-close";close.setAttribute("aria-label","Fermer le menu");close.onclick=closeMenu;dhead.append(close);drawer.append(dhead);
+ const groups=[["Découvrir",[["Accueil","accueil","accueil"],["Explorer les canaux","explorer","explorer"],["Genres et découvertes","decouvrir","decouvrir"]]],["Personnel",[["Mes favoris","favoris","favoris"],["Historique","historique","historique"]]],["Communauté",[["Proposer un canal","proposer","proposer"],["À propos et confidentialité","apropos","apropos"]]]];
  for(const [label,entries] of groups){drawer.append(node("div","cine-drawer-subtitle",label));for(const [title,page,icon] of entries){const item=makeNav(title,page,icon);item.classList.add("cine-drawer-link");drawer.append(item)}}
  drawer.append(node("p","cine-drawer-foot","Ciné Radar · Films, séries, animés"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
- const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","⌂"],["Explorer","explorer","⌕"],["Favoris","favoris","☆"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","☰");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
+ const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","accueil"],["Explorer","explorer","explorer"],["Favoris","favoris","favoris"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","menu");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerOpen){e.preventDefault();closeMenu()}});
  $("cards").addEventListener("click",e=>{const parent=e.target.closest("article[data-channel-id]");if(!parent)return;const id=Number(parent.dataset.channelId);if(e.target.closest(".view"))currentPreview=id;if(e.target.closest(".open"))recordOpen(id)},true);
  $("sheet").addEventListener("click",e=>{if(e.target.closest(".sheet-open"))recordOpen(currentPreview)},true);
