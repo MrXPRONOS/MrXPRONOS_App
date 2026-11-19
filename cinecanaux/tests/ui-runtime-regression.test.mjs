@@ -187,7 +187,7 @@ test('lot 3: original ten-piece cinematic WebP atlas is valid and routed by the 
  assert.ok(worker.includes('"content-type":"image/webp"'));
 });
 
-test('lot 3: every category, genre chip and movie-poster icon uses the generated asset',()=>{
+test('lot 3: category and genre controls use generated icons without placing them over posters',()=>{
  const names=['films','series','animes','action','romance','africain','vostfr','turc','drame','affiches'];
  assert.ok(navigation.includes('function cineCategoryIcon(key){'));
  assert.ok(navigation.includes('icon.setAttribute("aria-hidden","true")'));
@@ -201,8 +201,12 @@ test('lot 3: every category, genre chip and movie-poster icon uses the generated
  assert.ok(navigation.includes('head.append(cineCategoryIcon(iconKey),node("strong",null,label))'));
  assert.ok(navigation.includes('b.onclick=()=>setFilter(query);grid.append(b);'));
  assert.ok(navigation.includes('showcaseLabel.append(cineCategoryIcon("affiches")'));
- assert.ok(navigation.includes('mark.append(entry.type==="series"?cineLot4Icon("series"):cineCategoryIcon(entry.type))'));
- assert.ok(navigation.includes('label.append(entry.type==="series"?cineLot4Icon("series"):cineCategoryIcon(entry.type)'));
+ const poster=navigation.slice(navigation.indexOf('function posterTile('),navigation.indexOf('function renderCinemaShowcase('));
+ assert.ok(!poster.includes('cineCategoryIcon('),'Never cover a film poster with a category icon');
+ assert.ok(!poster.includes('cineLot4Icon('),'Never cover a film poster with a glossy icon');
+ assert.ok(!poster.includes('cine-poster-placeholder'),'Avoid unconditional foreground poster placeholders');
+ assert.ok(!poster.includes('cine-pin-kind'),'Do not cover pinned artwork with category badges');
+ assert.ok(poster.includes('img.onerror=()=>{img.remove();item.classList.add("cine-poster-fallback")}'),'Missing-image fallback must remain available');
  assert.ok(navigation.includes('chip.append(cineCategoryIcon(iconKey),document.createTextNode(title))'));
  assert.ok(!navigation.includes('emoji+" "+label'),'The category grid must not show the legacy emoji list');
  assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Do not regress the lot 1 atlas');
@@ -238,8 +242,9 @@ test('lot 4: the correct original icon is connected to each user action',()=>{
  assert.ok(navigation.includes('cineLot4Icon(info.kind)'),'Promotions should use football, crypto and pronos badges');
  assert.ok(navigation.includes('cineLot4Icon("evaluate")'),'Feedback invitation icon is absent');
  assert.ok(navigation.includes('cineLot4Icon("thanks")'),'Thank-you icon is absent');
- assert.ok(navigation.includes('cineLot4Icon("play")'),'Pin poster play icon is absent');
- assert.ok(navigation.includes('cineLot4Icon("series")'),'Series poster badge is absent');
+ assert.ok(APP_HTML.includes('.cine-lot4-play{background-position-x:'),'Original play icon asset must remain available for future controls');
+ assert.ok(APP_HTML.includes('.cine-lot4-series{background-position-x:'),'Original series icon asset must remain available for categories');
+ assert.ok(!APP_HTML.includes('.cine-film-poster>.cine-lot4-play'),'Play icon should not cover pinned poster artwork');
  assert.ok(navigation.includes('cineLot4Icon("popcorn")'),'Cinema popcorn icon is absent');
  for(const key of ['football','crypto','pronos'])assert.ok(navigation.includes('kind:"'+key+'"'));
  assert.ok(navigation.includes('promoCard(info)'),'Promotion click handling must be preserved');
