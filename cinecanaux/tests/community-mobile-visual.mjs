@@ -3,13 +3,17 @@ import assert from 'node:assert/strict';
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 const url='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app';
-const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const errors=[],metricsRequests=[];
+page.on('pageerror',e=>errors.push(e.message));
+page.on('response',r=>{if(r.url().includes('/api/analytics/event'))metricsRequests.push({status:r.status(),url:r.url()});});
 try{
  const r=await page.goto(url,{waitUntil:'domcontentloaded',timeout:25000});assert.equal(r?.status(),200);
  await page.waitForSelector('#cine-home-picks .cine-pick',{timeout:15000});
  const before=await page.evaluate(()=>{const el=document.querySelector('#cine-home-picks');return {left:el.scrollLeft,max:el.scrollWidth-el.clientWidth,cards:el.querySelectorAll('.cine-pick').length,share:!!document.querySelector('.cine-community-share'),promo:el.querySelectorAll('.cine-promo-slot').length}});
  await page.waitForTimeout(3400);
  const after=await page.evaluate(()=>document.querySelector('#cine-home-picks').scrollLeft);
+ const telemetry=await page.evaluate(()=>({dnt:navigator.doNotTrack,hasUuid:typeof crypto.randomUUID,disabled:localStorage.getItem('cine-radar-analytics-off'),visitor:!!localStorage.getItem('cine-radar-visitor-id-v1')}));
+ console.log('MOBILE_FIRST_PARTY_ANALYTICS:',JSON.stringify({telemetry,metricsRequests}));
  console.log('DISCOVERY_AUTOSCROLL:',JSON.stringify({before,after,errors}));
  assert.ok(before.cards>=4,'Discover channels remain present');
  assert.ok(before.max>100,'Horizontal discovery has scrollable overflow');
