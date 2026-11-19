@@ -118,10 +118,29 @@ def has_verified_button(message, link: str) -> bool:
 
 def archive_buttons(link: str, public_peer=None):
     from .rescue_channels import add_rescue_button_row
-    return add_rescue_button_row([
+    buttons = add_rescue_button_row([
         [url_button("🎬 VOIR LE FILM", link, style="success")],
-        [url_button("👥 REJOINDRE LA TEAM", film_folder_url(), style="danger")],
     ], public_peer)
+    buttons.append([url_button("📁 Rejoindre le dossier", film_folder_url(), style="danger")])
+    return buttons
+
+
+def verified_film_video_pairs(messages):
+    """Only title-matched poster+video pairs count towards the ten-film rotation.
+
+    Unrelated videos, orphan videos and promotions never consume a movie slot.
+    Unmatched videos are retained (fail closed), not silently deleted.
+    """
+    videos = sorted((m for m in messages if is_video_message(m)),
+                    key=lambda m: m.id, reverse=True)
+    matches = []
+    claimed = set()
+    for video in videos:
+        poster = matching_poster(video, messages, claimed=claimed)
+        if poster is not None:
+            matches.append((video, poster))
+            claimed.add(poster.id)
+    return matches
 
 
 async def existing_private_media(client, private, limit: int = MAX_HISTORY) -> dict[int, int]:
@@ -176,16 +195,16 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
         by_id = {m.id: m for m in messages}
         videos = sorted([m for m in messages if is_video_message(m)],
                         key=lambda m: m.id, reverse=True)
-        protected = {m.id for m in videos[:KEEP_COUNT]}
+        film_pairs = verified_film_video_pairs(messages)
+        protected = {video.id for video, _poster in film_pairs[:KEEP_COUNT]}
         report["videos"] = len(videos)
         report["kept"] = len(protected)
-        report["eligible"] = max(0, len(videos) - len(protected))
+        report["eligible"] = max(0, len(film_pairs) - len(protected))
         LOG.info("Canal=%s vidéothèque=%s vidéos=%d conservées=%d candidates=%d",
                  public_id, private_id, len(videos), len(protected), report["eligible"])
         if len(messages) == limit:
             LOG.warning("Historique tronqué à %d messages : vidéos plus anciennes non examinées", limit)
 
-        claimed_posters: set[int] = set()
         private_docs = await existing_private_media(client, private) if apply else {}
         bot = BotHTTPClient(bot_token, client) if apply else None
         if bot:
@@ -204,16 +223,10 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
 
         # Itérer du plus récent des candidats au plus ancien; aucune
         # suppression si une preuve (affiche, média, lien) est absente.
-        for video in videos[KEEP_COUNT:]:
+        for video, poster in film_pairs[KEEP_COUNT:]:
             if max_archived is not None and report["archived"] >= max_archived:
                 LOG.info("Limite de test atteinte : %d vidéo(s) archivées", max_archived)
                 break
-            poster = matching_poster(video, messages, claimed=claimed_posters)
-            if poster is None:
-                report["skipped"] += 1
-                LOG.warning("VIDEO #%s : affiche non associable sans ambiguïté ; conservée", video.id)
-                continue
-            claimed_posters.add(poster.id)
             LOG.info("VIDEO #%s -> AFFICHE #%s (%s)",
                      video.id, poster.id, normalize_title(video_title(video))[:90])
             if not apply:
@@ -241,26 +254,42 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                     raise RuntimeError("Le document privé ne correspond pas à l'original")
                 private_docs[document_id] = destination_id
                 url = private_message_link(private_id, destination_id)
+                from .rescue_channels import read_state, rescue_link_for
+                rescue_state = read_state().get("channels", {}).get("@cinexfilms_vf")
+                rescue_url = rescue_link_for(public) if rescue_state else None
+                if rescue_state and not rescue_url:
+                    raise RuntimeError("Lien Secours indisponible : affiche et vidéo conservées")
                 await bot.edit_reply_markup(public, poster.id, buttons=archive_buttons(url, public))
                 refreshed = await client.get_messages(public, ids=poster.id)
                 if not refreshed or not has_verified_button(refreshed, url):
                     raise RuntimeError("Le bouton Voir le film n'a pas été vérifié")
                 if not has_verified_button(refreshed, film_folder_url()):
-                    raise RuntimeError("Le bouton Rejoindre la team n'a pas été vérifié")
+                    raise RuntimeError("Le bouton Dossier n'a pas été vérifié")
+                if rescue_url and not has_verified_button(refreshed, rescue_url):
+                    raise RuntimeError("Le bouton Secours n'a pas été vérifié")
 
                 # Dernière vérification, pour ne pas effacer une vidéo qui
                 # serait devenue parmi les dix dernières pendant le cycle.
                 # Even when hundreds of poster messages separate videos, find
                 # ALL ten newest videos before deleting any candidate.
-                newest_videos = []
+                newest_messages = []
+                video_count = 0
+                # Scan enough history for matching *film posters*, not just
+                # ten arbitrary video posts. Always keep the 12-message window
+                # behind the last candidate for poster verification.
+                last_candidate_id = None
                 async for latest in client.iter_messages(public, limit=20000):
+                    newest_messages.append(latest)
                     if is_video_message(latest):
-                        newest_videos.append(latest)
-                    if len(newest_videos) >= KEEP_COUNT:
+                        video_count += 1
+                        if video_count == KEEP_COUNT + 30:
+                            last_candidate_id = latest.id
+                    if last_candidate_id is not None and latest.id < last_candidate_id - 12:
                         break
-                recent_ids = {m.id for m in newest_videos}
-                if len(newest_videos) < KEEP_COUNT:
-                    raise RuntimeError("Impossible de confirmer dix vidéos récentes : suppression suspendue")
+                recent_pairs = verified_film_video_pairs(newest_messages)
+                recent_ids = {m.id for m, _ in recent_pairs[:KEEP_COUNT]}
+                if len(recent_ids) < KEEP_COUNT:
+                    raise RuntimeError("Impossible de confirmer dix films récents : suppression suspendue")
                 if video.id in recent_ids:
                     LOG.warning("Vidéo #%s désormais récente : suppression annulée", video.id)
                     report["skipped"] += 1
