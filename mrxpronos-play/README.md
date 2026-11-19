@@ -1,5 +1,14 @@
 # Mr XPRONOS Play — Cloudflare V1
 
+## V2 Phase 1 — Progression hybride et hub Jeux (19 novembre 2026)
+
+**État courant :** la Mini App adopte les niveaux officiels basés sur les XP confirmés et les défis de maîtrise, avec préservation du niveau acquis sous la V1. L'ancien onglet **ROUE** devient **JEUX** : Lucky Wheel reste jouable, Snake est annoncé comme prochain jeu mais **n'est pas encore intégré**. Les 30 défis de maîtrise et leurs sept passages de rang sont calculés par le Worker ; le profil les affiche. **Migration D1 additive requise avant déploiement** : voir `migrations/002_hybrid_progression.sql`.
+
+Documentation fonctionnelle complète : [PROGRESSION_V2_PHASE1.md](PROGRESSION_V2_PHASE1.md).
+
+**Note historique :** les sections antérieures évoquant les niveaux calculés seulement par les tapotages, l'affichage de la photo Telegram et les missions sans récompense décrivent d'anciennes versions et ne reflètent plus le code actuel.
+
+
 ## État de connexion Telegram — vérifié le 18 novembre 2026
 
 - **Worker déployé** : `mrxpronos-play` (Cloudflare Workers, sans Telegram Serverless)
