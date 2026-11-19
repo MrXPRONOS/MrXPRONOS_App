@@ -27,6 +27,8 @@ def token_for(category: str):
         return os.getenv("COMEDIE_BOT_TOKEN") or common
     if category == "anime":
         return os.getenv("DESIR_BOT_TOKEN") or common
+    if category == "action":
+        return os.getenv("ACTION_BOT_TOKEN") or common
     return common
 
 
