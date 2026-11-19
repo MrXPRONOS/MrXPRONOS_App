@@ -371,7 +371,7 @@ body{background:#07111f}
 @media(max-width:350px){.cine-promo-track{grid-auto-columns:minmax(208px,86%)}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
 
 /* Horizontal auto-scroll for home channel discovery, with interactive links preserved. */
-.cine-home-picks{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-snap-type:x proximity;padding:4px 1px 9px;align-items:stretch}
+.cine-home-picks{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-snap-type:none;padding:4px 1px 9px;align-items:stretch}
 .cine-home-picks .cine-pick{flex:0 0 155px;min-width:155px;max-width:155px;min-height:178px;scroll-snap-align:start}
 .cine-home-picks .cine-pick:nth-child(-n+2){flex-basis:165px;min-width:165px;max-width:165px}
 .cine-home-picks .cine-promo-slot{flex:0 0 min(86vw,342px);width:min(86vw,342px);grid-column:auto;scroll-snap-align:start;margin:0;align-self:center}
