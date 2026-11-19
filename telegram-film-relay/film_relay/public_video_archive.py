@@ -133,7 +133,7 @@ async def existing_private_media(client, private, limit: int = MAX_HISTORY) -> d
     return by_document
 
 
-async def execute(*, apply: bool = False, limit: int = MAX_HISTORY) -> dict:
+async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived: int | None = None) -> dict:
     from telethon import TelegramClient, utils
     from telethon.errors import FloodWaitError, PeerFloodError
     from telethon.sessions import StringSession
@@ -197,6 +197,9 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY) -> dict:
         # Itérer du plus récent des candidats au plus ancien; aucune
         # suppression si une preuve (affiche, média, lien) est absente.
         for video in videos[KEEP_COUNT:]:
+            if max_archived is not None and report["archived"] >= max_archived:
+                LOG.info("Limite de test atteinte : %d vidéo(s) archivées", max_archived)
+                break
             poster = matching_poster(video, messages, claimed=claimed_posters)
             if poster is None:
                 report["skipped"] += 1
@@ -306,11 +309,15 @@ def main():
     parser.add_argument("--apply", action="store_true",
                         help="Modifier les affiches et supprimer les anciens médias vérifiés")
     parser.add_argument("--limit", type=int, default=MAX_HISTORY)
+    parser.add_argument("--max-archived", type=int, default=None,
+                        help="Limiter les suppressions réellement confirmées, utile pour les tests")
     args = parser.parse_args()
+    if args.max_archived is not None and not 1 <= args.max_archived <= 100:
+        parser.error("--max-archived doit être compris entre 1 et 100")
     if args.limit < 20 or args.limit > 20000:
         parser.error("--limit doit être compris entre 20 et 20000")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    report = asyncio.run(execute(apply=args.apply, limit=args.limit))
+    report = asyncio.run(execute(apply=args.apply, limit=args.limit, max_archived=args.max_archived))
     if report["errors"]:
         raise SystemExit(1)
 
