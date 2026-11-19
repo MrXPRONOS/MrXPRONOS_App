@@ -91,6 +91,7 @@ test('Telegram default command list has only start, owner receives scoped admin 
   assert.deepEqual(menu[1].body.chat_id,900);
   assert.equal(menu[1].body.menu_button.web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
   assert.ok(f.calls.some(x=>x.method==='setMyDescription'&&/Mini App/.test(x.body.description)));
-  assert.ok(f.writes.some(x=>x.includes("'10'")));
+  assert.ok(f.calls.some(x=>x.method==='setMyShortDescription'&&/films, séries et animés/i.test(x.body.short_description)));
+  assert.ok(f.writes.some(x=>x.includes("'11'")));
  }finally{restore()}
 });

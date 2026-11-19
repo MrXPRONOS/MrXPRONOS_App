@@ -49,15 +49,13 @@ const miniAppKeyboard=(owner=false,privateChat=true)=>{
 const INTRO=[
  "🎬 <b>Bienvenue sur CINÉ RADAR !</b>",
  "",
- "🍿 <b>Tout ton univers cinéma sur Telegram.</b>",
+ "🍿 Découvre des films, séries et animés sur Telegram.",
  "",
- "Avec Ciné Radar, tu peux :",
- "🔎 <b>Rechercher</b> des canaux de films, séries et animés.",
- "🎞 <b>Découvrir</b> les affiches et les sélections mises en avant.",
- "📺 <b>Explorer</b> les catégories et les recommandations.",
- "🔗 <b>Ouvrir</b> directement les canaux et les publications Telegram.",
+ "🔎 <b>Rechercher</b> des canaux selon tes envies.",
+ "🎞️ Voir les affiches et les recommandations.",
+ "🔗 Ouvrir les canaux directement sur Telegram.",
  "",
- "✨ Tout se passe dans la Mini App. Appuie sur le bouton ci-dessous pour commencer 👇"
+ "👉 Appuie sur « Ouvrir la Mini App » pour commencer."
 ].join("\n");
 const isOwner=async(env,user,privateChat)=>{
  if(!privateChat||!Number.isSafeInteger(Number(user))||Number(user)<=0)return false;
@@ -162,7 +160,7 @@ export async function miniAppAPI(env,request,previewFn){
 }
 export async function initializeProfile(env){
  const version=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(version?.value==="10")return;
+ if(version?.value==="11")return;
  const PUBLIC_COMMANDS=[{command:"start",description:"🎬 Ouvrir Ciné Radar"}];
  const OWNER_COMMANDS=[
   ...PUBLIC_COMMANDS,
@@ -175,8 +173,8 @@ export async function initializeProfile(env){
  ];
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
-  ["setMyShortDescription",{short_description:"🎬 Films, séries, animés : découvre des canaux Telegram et leurs sélections dans notre Mini App."}],
-  ["setMyDescription",{description:"🎬 Bienvenue sur Ciné Radar ! Découvre des canaux de films, séries et animés, explore les univers, consulte les affiches à la une et ouvre les publications Telegram depuis notre Mini App. Appuie sur Démarrer, puis sur « Ouvrir la Mini App » pour explorer."}],
+  ["setMyShortDescription",{short_description:"🎬 Découvre des canaux de films, séries et animés sur Telegram."}],
+  ["setMyDescription",{description:"🎬 Explore des canaux de films, séries et animés, consulte les affiches et ouvre les publications sur Telegram. Appuie sur Démarrer puis sur « Ouvrir la Mini App »."}],
   ["setMyCommands",{scope:{type:"default"},commands:PUBLIC_COMMANDS}],
   ["setChatMenuButton",{menu_button:{type:"commands"}}]
  ];
@@ -199,7 +197,7 @@ export async function initializeProfile(env){
   if(!menu.ok)throw Error("Owner menu button update failed");
  }
  if(!ownerRows.length)throw Error("Owner account not found: retry profile configuration later");
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','10') ON CONFLICT(setting_key) DO UPDATE SET value='10',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','11') ON CONFLICT(setting_key) DO UPDATE SET value='11',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){

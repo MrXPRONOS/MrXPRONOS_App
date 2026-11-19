@@ -19,7 +19,7 @@ test('public telemetry rejects malformed events, and Mini App still loads',async
  const html=await page.text();
  assert.match(html,/cine-home-picks/);
  assert.match(html,/shareCineRadar/);
- assert.match(html,/autoScrollDiscover/);
+ assert.match(html,/autoScrollPromos/);
  console.log('TELEMETRY_GUARD_AND_PUBLIC_APP_OK');
 });
 
