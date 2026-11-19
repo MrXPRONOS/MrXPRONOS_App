@@ -1,0 +1,63 @@
+name: CineX - Audit quotidien de securite
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '11 8 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  check:
+    name: Verifier les invitations et la configuration sans modifier Telegram
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-links.json
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dependances de verification
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install PyYAML==6.0.3
+      - name: Audit de securite statique
+        run: python scripts/cinex_phase1_audit.py
+      - name: Verification des invitations existantes (lecture seule)
+        id: invitations
+        run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
+      - name: Rapport GitHub sans liens sensibles
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          p=Path(os.environ["CINEX_RESCUE_RUNTIME_FILE"])
+          ready=0
+          if p.exists():
+              ready=len(json.loads(p.read_text()).get("channels",{}))
+          summary=Path(os.environ["GITHUB_STEP_SUMMARY"])
+          with summary.open("a",encoding="utf-8") as f:
+              f.write("### Cine X — audit de sécurité (lecture seule)\n")
+              f.write(f"- Invitations Telegram vérifiées dans le runner : {ready}\n")
+              f.write("- URLs privées non consignées dans Git ni dans le rapport.\n")
+              f.write("- Le statut du workflow indique une erreur si l'audit ou les liens échouent.\n")
+          PY
