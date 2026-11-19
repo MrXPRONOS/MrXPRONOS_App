@@ -25,6 +25,7 @@ TELEGRAM_WORKFLOWS = [
     "cinex-comedie-test.yml",
     "cinex-anime-test.yml",
     "cinex-channel-audit.yml",
+    "cinex-phase1-health.yml",
 ]
 INVITATION_PATTERN = re.compile(r"https?://t\.me/(?:\+|joinchat/)[A-Za-z0-9_-]{12,}", re.I)
 
