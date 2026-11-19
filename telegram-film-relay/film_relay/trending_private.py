@@ -92,7 +92,14 @@ def read_state() -> dict:
 def save_state(state: dict):
     STATE.parent.mkdir(parents=True, exist_ok=True)
     temporary = STATE.with_suffix(".tmp")
-    temporary.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+    # The checkout is a PUBLIC Git repository; never persist invitation URLs.
+    safe = json.loads(json.dumps(state))
+    from .rescue_links_runtime import fingerprint
+    for row in safe.get("channels", {}).values():
+        link = row.pop("invite", None)
+        if link:
+            row["invite_sha256"] = fingerprint(link)
+    temporary.write_text(json.dumps(safe, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
                          encoding="utf-8")
     temporary.replace(STATE)
 
@@ -223,10 +230,17 @@ async def private_invitation(client, channel, record: dict) -> str:
     from telethon import functions
     if record.get("invite"):
         return str(record["invite"])
-    invitation = await client(functions.messages.ExportChatInviteRequest(peer=channel))
-    invite = str(getattr(invitation, "link", "") or "")
+    from .rescue_links_runtime import get_existing_invite, fingerprint
+    invite = await get_existing_invite(client, channel, expected_sha=record.get("invite_sha256"))
+    if not invite and not record.get("invite_sha256"):
+        # Only for a newly created channel without a previous invitation.
+        invitation = await client(functions.messages.ExportChatInviteRequest(peer=channel))
+        invite = str(getattr(invitation, "link", "") or "")
+    if not invite:
+        raise RuntimeError("Invitation privée enregistrée indisponible ; refus de rotation silencieuse")
     buttons(invite)
-    record["invite"] = invite
+    record["invite"] = invite  # volatile, stripped by save_state
+    record["invite_sha256"] = fingerprint(invite)
     return invite
 
 

@@ -191,8 +191,16 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
         if bot:
             identity = await bot.get_me()
             permissions = await bot.get_permissions(public, identity)
-            if not (permissions.is_creator or permissions.is_admin):
-                raise RuntimeError("Le bot CinéX n'est pas administrateur du canal public")
+            if not (permissions.is_creator or (
+                permissions.is_admin and getattr(permissions, "delete_messages", False)
+            )):
+                raise RuntimeError("Le bot CinéX doit posséder le droit de supprimer les messages")
+            me = await client.get_me()
+            owner_rights = await client.get_permissions(public, me)
+            if not (getattr(owner_rights, "is_creator", False) or
+                    getattr(owner_rights, "is_admin", False) and
+                    getattr(owner_rights, "delete_messages", False)):
+                raise RuntimeError("Le compte principal ne possède pas les droits de suppression")
 
         # Itérer du plus récent des candidats au plus ancien; aucune
         # suppression si une preuve (affiche, média, lien) est absente.
@@ -242,8 +250,17 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
 
                 # Dernière vérification, pour ne pas effacer une vidéo qui
                 # serait devenue parmi les dix dernières pendant le cycle.
-                newest = [m async for m in client.iter_messages(public, limit=80)]
-                recent_ids = last_ten_video_ids(newest)
+                # Even when hundreds of poster messages separate videos, find
+                # ALL ten newest videos before deleting any candidate.
+                newest_videos = []
+                async for latest in client.iter_messages(public, limit=20000):
+                    if is_video_message(latest):
+                        newest_videos.append(latest)
+                    if len(newest_videos) >= KEEP_COUNT:
+                        break
+                recent_ids = {m.id for m in newest_videos}
+                if len(newest_videos) < KEEP_COUNT:
+                    raise RuntimeError("Impossible de confirmer dix vidéos récentes : suppression suspendue")
                 if video.id in recent_ids:
                     LOG.warning("Vidéo #%s désormais récente : suppression annulée", video.id)
                     report["skipped"] += 1

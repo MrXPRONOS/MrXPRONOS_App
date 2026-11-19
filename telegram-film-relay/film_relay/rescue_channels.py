@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import hashlib
 import logging
 import os
 import re
@@ -51,9 +52,18 @@ def read_state(path: Path = STATE_PATH) -> dict:
 
 
 def write_state(state: dict, path: Path = STATE_PATH) -> None:
+    """Never commit any live Telegram invitation to the public repository."""
+    safe = {"channels": {}}
+    for username, original in state.get("channels", {}).items():
+        row = dict(original)
+        link = row.pop("invite_link", None)
+        row.pop("invite", None)
+        if is_invite(link):
+            row["invite_sha256"] = hashlib.sha256(link.encode("utf-8")).hexdigest()
+        safe["channels"][username] = row
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+    temp.write_text(json.dumps(safe, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
                     encoding="utf-8")
     temp.replace(path)
 
@@ -69,10 +79,25 @@ def rescue_link_for(public, *, path: Path = STATE_PATH) -> str | None:
         return None
     if public_username(item.get("public_username")) != username:
         raise ValueError("Rattachement de canal secours non conforme")
-    invite = item.get("invite_link")
+    if not str(item.get("rescue_channel_id", "")).startswith("-100"):
+        return None
+    runtime_path = os.getenv("CINEX_RESCUE_RUNTIME_FILE", "").strip()
+    if not runtime_path:
+        return None
+    runtime = Path(runtime_path)
+    if not runtime.is_file():
+        return None
+    receipt = json.loads(runtime.read_text(encoding="utf-8")).get("channels", {}).get(username)
+    if not isinstance(receipt, dict):
+        return None
+    invite = receipt.get("url")
     if not is_invite(invite):
         return None
-    if not str(item.get("rescue_channel_id", "")).startswith("-100"):
+    if int(receipt.get("rescue_channel_id") or 0) != int(item["rescue_channel_id"]):
+        return None
+    expected = item.get("invite_sha256")
+    if expected and hashlib.sha256(invite.encode("utf-8")).hexdigest() != expected:
+        LOG.warning("Invitation Secours non conforme au canal %s", username)
         return None
     return invite.strip()
 
@@ -200,7 +225,7 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
 
                 if not apply:
                     LOG.info("[SIMULATION] Canal de secours %s pour %s", desired_title, username)
-                    if entry and is_invite(entry.get("invite_link")):
+                    if entry and entry.get("invite_sha256"):
                         report["ready"] += 1
                     continue
 
@@ -212,7 +237,7 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                     raise RuntimeError("ID privé différent de la sauvegarde")
                 if entry and found is None:
                     raise RuntimeError("Canal secours déjà enregistré mais absent de la session")
-                if entry and found is not None and is_invite(entry.get("invite_link", "")):
+                if entry and found is not None and entry.get("invite_sha256"):
                     report["existing"] += 1
                     report["ready"] += 1
                     # Existing channels need ongoing profile synchronization too.
@@ -250,16 +275,22 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                     "public_username": username, "public_id": public_id,
                     "public_title": str(public.title),
                     "rescue_title": desired_title, "rescue_channel_id": rescue_id,
-                    "invite_link": (entry or {}).get("invite_link", ""),
+                    "invite_sha256": (entry or {}).get("invite_sha256", ""),
                 }
                 # Save identity before getting the invite so interruptions don't
                 # create duplicate channels on the next execution.
                 write_state(state)
-                invite = await client(functions.messages.ExportChatInviteRequest(peer=found))
-                link = str(getattr(invite, "link", "") or "")
+                from .rescue_links_runtime import get_existing_invite
+                # Prefer existing owner-generated invitation; avoid replacing old public buttons.
+                link = await get_existing_invite(
+                    client, found, expected_sha=(entry or {}).get("invite_sha256"))
+                if not link and not (entry or {}).get("invite_sha256"):
+                    invite = await client(functions.messages.ExportChatInviteRequest(peer=found))
+                    link = str(getattr(invite, "link", "") or "")
                 if not is_invite(link):
-                    raise RuntimeError("Lien Telegram d'invitation privé inattendu")
-                state["channels"][username]["invite_link"] = link
+                    raise RuntimeError("Lien Telegram d'invitation absent ; aucune nouvelle invitation publique créée")
+                state["channels"][username]["invite_sha256"] = hashlib.sha256(
+                    link.encode("utf-8")).hexdigest()
                 write_state(state)
                 from .channel_profiles import sync_rescue_profile
                 await sync_rescue_profile(client, public, found, state["channels"][username],
@@ -295,7 +326,9 @@ def main():
         parser.error("1 canal nouveau maximum par exécution")
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")
-    asyncio.run(provision(apply=args.apply, max_created=args.max_created))
+    report = asyncio.run(provision(apply=args.apply, max_created=args.max_created))
+    if report["errors"]:
+        raise SystemExit("Un ou plusieurs canaux Secours sont en échec ; état non entièrement opérationnel")
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ permissions:
 concurrency:
   group: mrx-telegram-personal-account
   cancel-in-progress: false
+  queue: max
 
 jobs:
   relay:
@@ -30,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
+      CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-links-${{ github.run_id }}.json
       CINEX_DEFER_MIRROR: 'true'
       CINEX_TORRENT9_PAUSED: 'true'
       CINEX_PARTNERSHIP_ENABLED: 'false'
@@ -78,6 +80,15 @@ jobs:
         working-directory: telegram-film-relay
         run: python -m compileall -q film_relay scripts
 
+      - name: Charger les invitations Secours en mémoire (sans les publier dans Git)
+        id: rescue_links
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+        run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
       - name: Mémoriser les publications déjà connues
         working-directory: telegram-film-relay
         run: python scripts/verify_published_receipts.py --snapshot "$RUNNER_TEMP/cinex-before.json"
@@ -142,6 +153,7 @@ jobs:
         run: python -m film_relay.runner
 
       - name: 2a - Videos directes des 2 derniers films CineX
+        id: showcase
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         continue-on-error: true
         working-directory: telegram-film-relay
@@ -480,8 +492,8 @@ jobs:
           exit 1
 
       - name: 7 - Contrôler le résultat de toutes les catégories
-        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure') }}
+        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure' || steps.showcase.outcome == 'failure' || steps.rescue_links.outcome == 'failure') }}
         shell: bash
         run: |
-          echo '::error::Une ou plusieurs catégories CinéX ont échoué ; les autres ont tout de même été exécutées. Vérifier les étapes précédentes.'
+          echo '::error::CinéX dégradé : catégorie, vidéos publiques, vérification Telegram ou récupération des invitations Secours en échec. Examiner le rapport de cycle.'
           exit 1

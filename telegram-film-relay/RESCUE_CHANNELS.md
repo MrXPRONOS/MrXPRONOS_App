@@ -16,7 +16,7 @@ Le miroir externe Torrent9 est volontairement ignoré tant que les transferts mi
 - Le compte Telegram propriétaire existant (secret `TG_STRING_SESSION` ou alias) récupère la vraie identité et le nom du canal public. Le processus refuse d'agir si le compte n'en est pas le créateur.
 - Il recherche d'abord un canal **privé** portant exactement `<Titre public> Secours`. Un homonyme ambigu est rejeté.
 - Sinon il crée le canal privé via Telegram, récupère son identifiant `-100...`, puis exporte un lien d'invitation Telegram natif.
-- Le processus stocke l'association (username public / ID public / ID privé / titre / lien d'invitation) dans `state/rescue_channels.json`, avec sauvegarde GitHub et fusion sécurisée après chaque exécution. **Jamais de recréation d'un canal déjà enregistré.**
+- Le processus stocke l'association (username public / ID public / ID privé / titre / empreinte SHA-256 de l’invitation) dans `state/rescue_channels.json`, avec sauvegarde GitHub et fusion sécurisée après chaque exécution. **Jamais de recréation d'un canal déjà enregistré.**
 - Chaque nouvelle **fiche de film**, **fiche de série/saisons** et **fiche d'animé** reçoit automatiquement un troisième bouton `🛟 Rejoindre le canal secours` si l'association du canal public existe et est valide. Les boutons de film, des saisons et du dossier de partage restent présents.
 - Les éditions ultérieures (archivage des vidéos et canal privé de tendance) conservent aussi le bouton « Secours ».
 - Le canal Secours est une solution de communication/réorientation, **pas une copie de tous les médias**. Aucun film ni épisode n'est transféré dans les canaux Secours.
@@ -28,7 +28,7 @@ Le miroir externe Torrent9 est volontairement ignoré tant que les transferts mi
 
 GitHub → Actions → `CineX - Creer et verifier les canaux Secours` → Run workflow → `apply=true` pour une exécution manuelle contrôlée.
 
-Les nouveaux boutons ne seront ajoutés qu'aux futures fiches une fois le lien stocké et synchronisé. L'ajout automatique aux publications historiques n'est pas compris dans cette première intégration.
+Les nouveaux boutons utilisent une invitation retrouvée temporairement via Telegram, puis vérifiée contre son empreinte ; le lien ne figure jamais dans Git. Les boutons seront ajoutés aux futures fiches lorsque le lien aura été retrouvé. L'ajout automatique aux publications historiques n'est pas compris dans cette première intégration.
 
 ## Limitations
 - Seuls les canaux publics administrés par le compte propriétaire sont éligibles. Aucun compte extérieur et aucun canal source ne sont utilisés.
@@ -36,3 +36,5 @@ Les nouveaux boutons ne seront ajoutés qu'aux futures fiches une fois le lien s
 - Les liens d'invitation doivent rester valides ; l'opérateur devra mettre à jour une invitation révoquée.
 - La cadence ralentit les opérations mais ne garantit pas zéro restriction Telegram.
 - Le système ne contourne pas les droits de publication ou les restrictions Telegram.
+
+**Sécurité (phase 1) :** les invitations ne sont plus enregistrées en clair dans `state/rescue_channels.json`. Le workflow récupère les URLs auprès de Telegram en mémoire et les place temporairement dans `RUNNER_TEMP`, avec droits `0600`. La rotation des anciennes invitations présentes dans l’historique Git est différée tant que les anciennes fiches ne sont pas remises à jour.

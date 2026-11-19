@@ -35,3 +35,6 @@ python -m unittest discover -s tests -p 'test_trending_private.py' -v
 python -m film_relay.trending_private            # simulation, aucun canal créé
 python -m film_relay.trending_private --apply    # nécessite CINEX_TRENDS_ENABLED=true
 ```
+
+## Sécurité (phase 1)
+Les liens d’invitation des canaux tendance ne sont plus enregistrés dans les fichiers de suivi suivis par Git. Seule leur empreinte SHA-256 est sauvegardée. À chaque reprise, le compte propriétaire retrouve l’invitation auprès de Telegram et vérifie l’empreinte avant de modifier les boutons. Si le lien a disparu ou est révoqué, la publication est interrompue sans inventer de remplacement.

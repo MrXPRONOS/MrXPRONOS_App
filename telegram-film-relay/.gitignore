@@ -4,3 +4,7 @@
 __pycache__/
 .pytest_cache/
 *.py[cod]
+
+# Liens Telegram récupérés uniquement dans le runner ; ne jamais commiter.
+cinex-rescue-links.json
+*rescue*runtime*.json
