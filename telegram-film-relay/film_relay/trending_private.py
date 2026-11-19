@@ -376,6 +376,7 @@ async def work_item(client, bot, item, state, library, public, candidate,
             for button in row
         ):
             raise RuntimeError("Bouton du canal tendance non vérifié")
+        record["public_id"] = int(candidate["public_id"])
         record["announced"] = True
         save_state(state)
         await asyncio.sleep(MIN_PAUSE)
@@ -391,6 +392,37 @@ async def work_item(client, bot, item, state, library, public, candidate,
         record["pinned"] = True
         save_state(state)
     return True, created
+
+
+async def retire_expired_pins(client, bot, state: dict, active: set[str], *, max_unpins: int = 3):
+    """Only unpin posts pinned by this curator. Never delete the private archive."""
+    removed = 0
+    for key, record in state.get("channels", {}).items():
+        if removed >= max_unpins:
+            break
+        if key in active or not record.get("pinned") or not record.get("public_id"):
+            continue
+        kind = record.get("kind")
+        if kind not in PUBLIC:
+            continue
+        primary = await client.get_entity(PUBLIC[kind])
+        msg = await client.get_messages(primary, ids=int(record["public_id"]))
+        if not msg or not getattr(msg, "photo", None):
+            LOG.warning("Ancienne épingle %s sans fiche vérifiable : non modifiée", key)
+            continue
+        try:
+            await bot.unpin_message(primary, int(record["public_id"]))
+        except TelegramBotHTTPError as exc:
+            reason = str(exc).casefold()
+            if not any(s in reason for s in ("not enough rights", "not enough permission", "forbidden")):
+                raise
+            await asyncio.sleep(MIN_PAUSE)
+            await client.unpin_message(primary, msg)
+        record["pinned"] = False
+        save_state(state)
+        removed += 1
+        await asyncio.sleep(MIN_PAUSE)
+    return removed
 
 
 async def execute(*, apply=False):
@@ -465,6 +497,13 @@ async def execute(*, apply=False):
                 report["errors"] += 1
                 LOG.exception("Tendance %s conservée pour une reprise sûre : %s", identity, exc)
             await asyncio.sleep(MIN_PAUSE)
+        if apply and bot is not None:
+            try:
+                report["unpinned_expired"] = await retire_expired_pins(
+                    client, bot, state, {canonical_key(t) for t in trends})
+            except Exception as exc:
+                report["errors"] += 1
+                LOG.exception("Dépinglage des tendances expirées interrompu : %s", exc)
         LOG.info("BILAN %s", report)
         if os.getenv("GITHUB_STEP_SUMMARY"):
             with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as output:
