@@ -1,5 +1,6 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
+import {servePartnerCards,servePartnerAvatar} from "./partner-promotions.mjs";
 import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick,listPinned} from "./pinned-showcase.mjs";
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
@@ -190,6 +191,9 @@ export default {
   if(request.method==="GET"&&u.pathname==="/admin"){
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
+  if(u.pathname==="/api/partner-promos")return servePartnerCards(request);
+  const promoAvatar=/^\/assets\/promo-avatar\/(actufoot_mrxp|ActuCrypto24H|mrxpronosfr)\.jpg$/i.exec(u.pathname);
+  if(promoAvatar)return servePartnerAvatar(request,env,ctx,promoAvatar[1]);
   if(u.pathname==="/api/showcase")return serveShowcase(request);
   if(u.pathname==="/api/pinned-showcase")return servePinned(env,request);
   if(u.pathname==="/api/pinned-click")return registerPinClick(env,request);
