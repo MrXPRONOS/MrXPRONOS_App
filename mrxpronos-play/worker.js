@@ -200,14 +200,14 @@ const MRXP_BALANCE_FIELDS={
  "price_tap-200":{label:"Prix Boost Souverain",min:1,max:10000,default:180,group:"price"},
  "price_energy-100":{label:"Prix Recharge 100",min:1,max:10000,default:20,group:"price"},
  "price_energy-250":{label:"Prix Recharge 250",min:1,max:10000,default:45,group:"price"},
- reward_daily_base:{label:"Crédits par bonus quotidien",min:0,max:500,default:5,group:"reward"},
- reward_daily_quest:{label:"Crédits défi quotidien",min:0,max:500,default:5,group:"reward"},
- reward_wheel_quest:{label:"Crédits défi roue",min:0,max:500,default:5,group:"reward"},
- reward_tap_quest:{label:"Crédits défi 50 tapotages",min:0,max:500,default:5,group:"reward"},
- reward_mission:{label:"Crédits par mission permanente",min:0,max:500,default:10,group:"reward"},
- reward_weekly:{label:"Crédits semaine active",min:0,max:2000,default:30,group:"reward"},
- reward_ordinary_level:{label:"Crédits niveau ordinaire",min:0,max:500,default:10,group:"reward"},
- reward_rank_scale:{label:"Bonus de rang (% du barème)",min:0,max:300,default:100,group:"reward"}
+ reward_daily_base:{label:"Crédits par bonus quotidien",min:1,max:500,default:5,group:"reward"},
+ reward_daily_quest:{label:"Crédits défi quotidien",min:1,max:500,default:5,group:"reward"},
+ reward_wheel_quest:{label:"Crédits défi roue",min:1,max:500,default:5,group:"reward"},
+ reward_tap_quest:{label:"Crédits défi 50 tapotages",min:1,max:500,default:5,group:"reward"},
+ reward_mission:{label:"Crédits par mission permanente",min:1,max:500,default:10,group:"reward"},
+ reward_weekly:{label:"Crédits semaine active",min:1,max:2000,default:30,group:"reward"},
+ reward_ordinary_level:{label:"Crédits niveau ordinaire",min:1,max:500,default:10,group:"reward"},
+ reward_rank_scale:{label:"Bonus de rang (% du barème)",min:10,max:300,default:100,group:"reward"}
 };
 async function mrxpBalanceConfig(env){
  const r=await env.DB.prepare("SELECT key,value,updated_ms FROM bot_settings WHERE key LIKE 'mrxp_balance_%'").all();
@@ -279,7 +279,7 @@ async function mrxpCreditBaseline(env,player,progression){
 }
 async function mrxpWallet(env,player,progression){
  const id=String(player.user_id),p=progression||await v2Progression(env,player);
- const state=await mrxpCreditBaseline(env,player,p);
+ const [state,config]=await Promise.all([mrxpCreditBaseline(env,player,p),mrxpBalanceConfig(env)]);
  const existing=await env.DB.prepare("SELECT event_key FROM mrxp_credit_events WHERE user_id=?").bind(id).all();
  const owned=new Set((existing.results||[]).map(x=>x.event_key));
  const baselineDay=new Date(state.activated_ms).toISOString().slice(0,10),entries=[];
@@ -298,29 +298,29 @@ async function mrxpWallet(env,player,progression){
   const day=String(row.day||"");if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<baselineDay)continue;
   const week=mrxpWeekMonday(day);if(!dailyWeeks.has(week))dailyWeeks.set(week,new Set());
   dailyWeeks.get(week).add(day);
-  add("daily:"+day,"daily",MRXP_CREDIT_POLICY.daily_base,"Bonus quotidien validé",Number(row.created_ms));
-  add("quest:daily:"+day,"quest",MRXP_CREDIT_POLICY.daily_quest,"Défi : bonus quotidien confirmé",Number(row.created_ms))
+  add("daily:"+day,"daily",mrxpBalanceRate(config,"daily_base",Number(row.created_ms)),"Bonus quotidien validé",Number(row.created_ms));
+  add("quest:daily:"+day,"quest",mrxpBalanceRate(config,"daily_quest",Number(row.created_ms)),"Défi : bonus quotidien confirmé",Number(row.created_ms))
  }
  for(const row of w.results||[]){
   const day=String(row.day||"");if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<baselineDay)continue;
-  add("quest:wheel:"+day,"quest",MRXP_CREDIT_POLICY.wheel_quest,"Défi : Lucky Wheel confirmée",Number(row.created_ms))
+  add("quest:wheel:"+day,"quest",mrxpBalanceRate(config,"wheel_quest",Number(row.created_ms)),"Défi : Lucky Wheel confirmée",Number(row.created_ms))
  }
  for(const row of t.results||[]){
   const ms=Number(row.created_ms);
   if(!Number.isFinite(ms)||ms<=0||Number(row.taps)<50)continue;
   const day=new Date(ms).toISOString().slice(0,10);
-  add("quest:taps:"+day,"quest",MRXP_CREDIT_POLICY.tap_quest,"Défi : 50 tapotages synchronisés",ms)
+  add("quest:taps:"+day,"quest",mrxpBalanceRate(config,"tap_quest",ms),"Défi : 50 tapotages synchronisés",ms)
  }
  for(const row of m.results||[]){
   const key=String(row.mission_key||"");if(!/^[a-z][a-z0-9_]{0,79}$/.test(key))continue;
-  add("mission:"+key,"mission",MRXP_CREDIT_POLICY.mission,"Mission validée : "+key,Number(row.created_ms))
+  add("mission:"+key,"mission",mrxpBalanceRate(config,"mission",Number(row.created_ms)),"Mission validée : "+key,Number(row.created_ms))
  }
  for(const [week,days] of dailyWeeks){
-  if(days.size>=4)add("weekly:"+week,"weekly",MRXP_CREDIT_POLICY.weekly,"Semaine active : 4 bonus quotidiens",Date.now())
+  if(days.size>=4){const sorted=[...days].sort(),fourth=Date.parse(sorted[3]+"T23:59:59.000Z");add("weekly:"+week,"weekly",mrxpBalanceRate(config,"weekly",fourth),"Semaine active : 4 bonus quotidiens",fourth)}
  }
  for(let n=state.baseline_level+1;n<=p.level;n++){
   const rankName=V2_RANKS.find(r=>r.from===n)?.name;
-  const amount=MRXP_CREDIT_RANK_BONUSES[n]||MRXP_CREDIT_POLICY.ordinary_level;
+  const amount=MRXP_CREDIT_RANK_BONUSES[n]?mrxpBalanceRankReward(config,MRXP_CREDIT_RANK_BONUSES[n]):mrxpBalanceRate(config,"ordinary_level",Date.now());
   add("level:"+n,rankName?"rank":"level",amount,rankName?"Nouveau rang : "+rankName:"Niveau "+n+" atteint",Date.now())
  }
  for(let n=0;n<entries.length;n+=50){
@@ -333,18 +333,18 @@ async function mrxpWallet(env,player,progression){
  ]);
  return {currency:"MRXP",balance:Math.max(0,Number(balance?.balance)||0),total_events:Number(balance?.event_count)||0,
   ledger:(history.results||[]).map(x=>({key:x.event_key,type:x.event_type,amount:Number(x.amount),label:x.label,created_ms:Number(x.created_ms)})),
-  spend_enabled:false,transfer_enabled:false,cash_value:false,
+  spend_enabled:mrxpBalanceCanBuy(config,id),transfer_enabled:false,cash_value:false,
   today_goals:(()=>{const day=new Date().toISOString().slice(0,10);
    return [
-    {key:"daily",label:"Bonus quotidien synchronisé",done:(d.results||[]).some(r=>r.day===day),reward:MRXP_CREDIT_POLICY.daily_quest},
-    {key:"wheel",label:"Roue du jour confirmée",done:(w.results||[]).some(r=>r.day===day),reward:MRXP_CREDIT_POLICY.wheel_quest},
-    {key:"taps",label:"50 tapotages synchronisés",done:(t.results||[]).some(r=>new Date(Number(r.created_ms)).toISOString().slice(0,10)===day),reward:MRXP_CREDIT_POLICY.tap_quest}
+    {key:"daily",label:"Bonus quotidien synchronisé",done:(d.results||[]).some(r=>r.day===day),reward:mrxpBalanceRate(config,"daily_quest",Date.now())},
+    {key:"wheel",label:"Roue du jour confirmée",done:(w.results||[]).some(r=>r.day===day),reward:mrxpBalanceRate(config,"wheel_quest",Date.now())},
+    {key:"taps",label:"50 tapotages synchronisés",done:(t.results||[]).some(r=>new Date(Number(r.created_ms)).toISOString().slice(0,10)===day),reward:mrxpBalanceRate(config,"tap_quest",Date.now())}
    ]
   })(),
   weekly:{done:(dailyWeeks.get(mrxpWeekMonday(new Date().toISOString().slice(0,10)))?.size||0)>=4,
     days:dailyWeeks.get(mrxpWeekMonday(new Date().toISOString().slice(0,10)))?.size||0,
-    target:4,reward:MRXP_CREDIT_POLICY.weekly},
-  policy:MRXP_CREDIT_POLICY,baseline_level:state.baseline_level,activated_ms:state.activated_ms}
+    target:4,reward:mrxpBalanceRate(config,"weekly",Date.now())},
+  policy:Object.fromEntries(Object.keys(MRXP_CREDIT_POLICY).map(key=>[key,mrxpBalanceRate(config,key,Date.now())])),baseline_level:state.baseline_level,activated_ms:state.activated_ms}
 }
 
 
