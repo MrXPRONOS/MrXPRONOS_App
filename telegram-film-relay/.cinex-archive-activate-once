@@ -1,1 +1,1 @@
-2026-11-19 19:04 UTC: owner confirmed CINEX_RIGHTS_VERIFIED=true in repository Actions variables; rerun activation to verify all three and dispatch live canary archiving max 2 older videos.
+2026-11-19: rerun rights-confirmed CinéX archive canary after PR #464 owner-delete fallback merged. Preserve verified movie, poster, rescue and folder links and 10 recent movies; at most 2 archives.
