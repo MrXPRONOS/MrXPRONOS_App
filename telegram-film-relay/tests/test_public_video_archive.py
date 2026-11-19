@@ -1,5 +1,6 @@
 import unittest
 from types import SimpleNamespace
+from film_relay.public_video_showcase import select_recent_completed
 from film_relay.public_video_archive import (
     is_video_message, last_ten_video_ids, matching_poster,
     normalize_title, title_similarity, archive_buttons,
@@ -44,6 +45,15 @@ class PublicArchiveTests(unittest.TestCase):
     def test_normalize(self):
         self.assertEqual(normalize_title("🎬 FILM : Le Grand Voyage (VF)"), "le grand voyage")
         self.assertGreater(title_similarity("Le Grand Voyage", "Le Grand Voyage VF 2026"), 0.8)
+
+    def test_showcase_only_recent_published_posters(self):
+        records = {
+            "a": {"private_message_id": 100, "public_message_id": 101},
+            "b": {"private_message_id": 200, "public_message_id": 201},
+            "old": {"private_message_id": 300, "public_message_id": 1},
+        }
+        selected = select_recent_completed(records, {101, 201, 202}, count=2)
+        self.assertEqual([r["public_message_id"] for r in selected], [201, 101])
 
     def test_two_buttons(self):
         buttons = archive_buttons("https://t.me/c/1234/5678")
