@@ -58,8 +58,27 @@ def normalize_title(text: str) -> str:
     """Évite d'associer deux films uniquement parce qu'ils sont voisins."""
     title = first_title(text or "")
     title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
-    title = re.sub(r"(?i)\b(?:voir|regarder|film|complet|vf|vostfr|french|hd|1080p|720p|mkv|mp4|avi|mov|webm|m4v)\b", " ", title)
+    title = re.sub(r"(?i)\b(?:voir|regarder|film|complet|vf|vostfr|french|hd|ultra|uhd|4k|2160p|1080p|720p|mkv|mp4|avi|mov|webm|m4v)\b", " ", title)
     return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
+
+
+def poster_heading(message) -> str:
+    """Find an actual movie heading, skipping legacy '#Film' and hashtags.
+
+    Several imported posters contain '#Film' on line one and the actual movie
+    title on line two, so first_title(raw_text) is not enough.
+    """
+    lines = (getattr(message, "raw_text", "") or "").splitlines()
+    for line in lines[:7]:
+        line = re.sub(r"^[🎬🎞🍿📽\s:]+", "", line).strip()
+        if not line or re.fullmatch(r"(?i)#?films?", line):
+            continue
+        if re.match(r"(?i)^(synopsis|résumé|genre|date|année|langue|durée)\s*:", line):
+            continue
+        heading = re.sub(r"(?i)^titre\s*:\s*", "", line).strip()
+        if heading:
+            return heading[:130]
+    return ""
 
 
 def video_title(message) -> str:
@@ -72,7 +91,9 @@ def video_title(message) -> str:
 
 def title_similarity(first: str, second: str) -> float:
     a, b = normalize_title(first), normalize_title(second)
-    if min(len(a), len(b)) < 5:
+    # Four-character exact movie names (e.g. Hope) are legitimate. Short
+    # names must match an entire token, never an arbitrary string fragment.
+    if min(len(a), len(b)) < 4:
         return 0.0
     if a == b:
         return 1.0
@@ -105,7 +126,7 @@ def matching_poster(
         distance = video.id - item.id
         if distance <= 0 or distance > max_gap:
             continue
-        score = title_similarity(title, getattr(item, "raw_text", "") or "")
+        score = title_similarity(title, poster_heading(item))
         threshold = 0.80 if distance <= 12 else (0.91 if distance <= 100 else 0.96)
         if score >= threshold:
             ranked.append((score, distance, item))
@@ -118,7 +139,8 @@ def matching_poster(
                 and abs(best[1] - second[1]) < 25
                 and not (
                     best[0] >= 0.99 and best[1] <= 12
-                    and (second[0] < 0.99 or second[1] > 12)
+                    and (second[0] < 0.99 or second[1] > 12
+                         or (best[1] <= 2 and second[1] >= best[1] + 2))
                 )):
             return None
         if best[0] - second[0] < 0.04 and best[1] == second[1]:
@@ -129,7 +151,7 @@ def matching_poster(
 def is_user_reserved_film(video, poster) -> bool:
     """The owner will handle the remaining John Wick films manually."""
     title = normalize_title(video_title(video))
-    poster_title = normalize_title(getattr(poster, "raw_text", "") or "")
+    poster_title = normalize_title(poster_heading(poster))
     return any(name in title or name in poster_title for name in USER_RESERVED_TITLES)
 
 
@@ -162,6 +184,9 @@ def verified_film_video_pairs(messages):
     matches = []
     claimed = set()
     for video in videos:
+        # TV episodes are handled by the separate series catalogue.
+        if re.search(r"(?i)\\bS\d{1,2}\s*E[P]?\s*\d{1,3}\\b", video_title(video)):
+            continue
         poster = matching_poster(video, messages, claimed=claimed)
         if poster is not None:
             matches.append((video, poster))
