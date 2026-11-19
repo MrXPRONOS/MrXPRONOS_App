@@ -161,17 +161,45 @@ export async function miniAppAPI(env,request,previewFn){
  return json({error:"Route non trouvée"},404);
 }
 export async function initializeProfile(env){
- const v=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(v?.value==="9")return;
+ const version=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
+ if(version?.value==="10")return;
+ const PUBLIC_COMMANDS=[{command:"start",description:"🎬 Ouvrir Ciné Radar"}];
+ const OWNER_COMMANDS=[
+  ...PUBLIC_COMMANDS,
+  {command:"admin",description:"🔐 Administration"},
+  {command:"tendances",description:"📈 Tendances cinéma"},
+  {command:"manquants",description:"📬 Titres à référencer"},
+  {command:"canaux",description:"📡 État des canaux"},
+  {command:"actualiser",description:"🔄 Actualiser les tendances"},
+  {command:"autoriser",description:"✅ Autoriser une fiche"}
+ ];
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
-  ["setMyShortDescription",{short_description:"🎬 Trouve rapidement des canaux publics de films, séries et animés."}],
-  ["setMyDescription",{description:"🎬 Ciné Radar : choisis une catégorie, découvre des canaux Telegram publics et ouvre celui qui t'intéresse."}],
-  ["setMyCommands",{commands:[{command:"start",description:"🎬 Rechercher un canal"},{command:"menu",description:"🍿 Catégories"},{command:"tendances",description:"📈 Tendances (propriétaire)"},{command:"manquants",description:"📬 Titres à rechercher (propriétaire)"},{command:"actualiser",description:"🔄 Actualiser les tendances (propriétaire)"}]}],
-  ["setChatMenuButton",{menu_button:{type:"web_app",text:"🎬 Voir les canaux",web_app:{url:BASE+"/app"}}}]
+  ["setMyShortDescription",{short_description:"🎬 Films, séries, animés : découvre des canaux Telegram et leurs sélections dans notre Mini App."}],
+  ["setMyDescription",{description:"🎬 Bienvenue sur Ciné Radar ! Découvre des canaux de films, séries et animés, explore les univers, consulte les affiches à la une et ouvre les publications Telegram depuis notre Mini App. Appuie sur Démarrer, puis sur « Ouvrir la Mini App » pour explorer."}],
+  ["setMyCommands",{scope:{type:"default"},commands:PUBLIC_COMMANDS}],
+  ["setChatMenuButton",{menu_button:{type:"commands"}}]
  ];
- for(const [method,data] of tasks){const r=await telegram(env,method,data);if(!r.ok)throw Error("Telegram profile update failed: "+method);}
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','9') ON CONFLICT(setting_key) DO UPDATE SET value='9',updated_at=CURRENT_TIMESTAMP").run();
+ for(const [method,data] of tasks){
+  const r=await telegram(env,method,data);
+  if(!r.ok)throw Error("Telegram public profile update failed: "+method);
+ }
+ const ownerRows=(await env.DB.prepare("SELECT user_id FROM admin_users WHERE role='owner' LIMIT 10").all()).results||[];
+ // A per-private-chat command scope wins over the public default command list.
+ // Never expose owner commands to the general/default scope.
+ for(const row of ownerRows){
+  const id=Number(row.user_id);
+  if(!Number.isSafeInteger(id)||id<=0)continue;
+  const scope={type:"chat",chat_id:id};
+  const configured=await telegram(env,"setMyCommands",{scope,commands:OWNER_COMMANDS});
+  if(!configured.ok)throw Error("Owner command scope update failed");
+  const menu=await telegram(env,"setChatMenuButton",{
+   chat_id:id,menu_button:{type:"web_app",text:"🔐 Administration",web_app:{url:BASE+"/admin"}}
+  });
+  if(!menu.ok)throw Error("Owner menu button update failed");
+ }
+ if(!ownerRows.length)throw Error("Owner account not found: retry profile configuration later");
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','10') ON CONFLICT(setting_key) DO UPDATE SET value='10',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){
