@@ -70,12 +70,12 @@ def poster_heading(message) -> str:
     """
     lines = (getattr(message, "raw_text", "") or "").splitlines()
     for line in lines[:7]:
-        line = re.sub(r"^[🎬🎞🍿📽\\s:]+", "", line).strip()
+        line = re.sub(r"^[🎬🎞🍿📽\s:]+", "", line).strip()
         if not line or re.fullmatch(r"(?i)#?films?", line):
             continue
-        if re.match(r"(?i)^(synopsis|résumé|genre|date|année|langue|durée)\\s*:", line):
+        if re.match(r"(?i)^(synopsis|résumé|genre|date|année|langue|durée)\s*:", line):
             continue
-        heading = re.sub(r"(?i)^titre\\s*:\\s*", "", line).strip()
+        heading = re.sub(r"(?i)^titre\s*:\s*", "", line).strip()
         if heading:
             return heading[:130]
     return ""
@@ -185,7 +185,7 @@ def verified_film_video_pairs(messages):
     claimed = set()
     for video in videos:
         # TV episodes are handled by the separate series catalogue.
-        if re.search(r"(?i)\\bS\\d{1,2}\\s*E[P]?\\s*\\d{1,3}\\b", video_title(video)):
+        if re.search(r"(?i)\\bS\d{1,2}\s*E[P]?\s*\d{1,3}\\b", video_title(video)):
             continue
         poster = matching_poster(video, messages, claimed=claimed)
         if poster is not None:
