@@ -107,7 +107,7 @@ async function submitAdminEdit(env,chatId,userId,text){
  await botApi(env,"sendMessage",{chat_id:chatId,text:"✅ Modification enregistrée et appliquée.",reply_markup:{inline_keyboard:[[{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]]}});
  return true;
 }
-async function telegramWebhook(env,update,origin){
+async function telegramWebhook(env,update,origin,ctx){
  const callback=update?.callback_query;
  if(callback){
   const fromId=String(callback.from?.id||"");
@@ -141,6 +141,7 @@ async function telegramWebhook(env,update,origin){
  const cmd=raw.match(/^\/([a-z]+)(?:@MrXpronosPlayBot)?(?:\s|$)/i)?.[1]?.toLowerCase()||"";
  if(cmd==="start"||cmd==="play"){
   const admin=await isBotAdmin(env,fromId);
+  if(admin&&ctx?.waitUntil){const setup=await env.DB.prepare("SELECT status FROM telegram_setup_status WHERE id='onboarding-public-admin-v1'").first();if(setup?.status!=="VERIFIED")ctx.waitUntil(configureTelegramBot(env).catch(()=>{}))}
   const welcome=await getBotText(env,"welcome",PUBLIC_WELCOME);
   await botApi(env,"sendMessage",{chat_id:chatId,text:welcome,reply_markup:openGameKeyboard(origin,admin)});
   return;
@@ -150,7 +151,7 @@ async function telegramWebhook(env,update,origin){
   if(cmd==="help")await botApi(env,"sendMessage",{chat_id:chatId,text:"Pour jouer, appuie sur /start puis sur « Démarrer Mr XPRONOS Play »."});
   return;
  }
- if(cmd==="admin")return adminDashboard(env,chatId,origin);
+ if(cmd==="admin"){if(ctx?.waitUntil){const setup=await env.DB.prepare("SELECT status FROM telegram_setup_status WHERE id=\'onboarding-public-admin-v1\'").first();if(setup?.status!=="VERIFIED")ctx.waitUntil(configureTelegramBot(env).catch(()=>{}))}return adminDashboard(env,chatId,origin)}
  if(cmd==="cancel"){
   await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(fromId).run();
   await botApi(env,"sendMessage",{chat_id:chatId,text:"Modification annulée.",reply_markup:{inline_keyboard:[[{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]]}});
@@ -159,13 +160,51 @@ async function telegramWebhook(env,update,origin){
  if(!cmd)await submitAdminEdit(env,chatId,fromId,raw);
 }
 
-export default {async fetch(request,env){const u=new URL(request.url),p=u.pathname;try{
+async function configureTelegramBot(env){
+  let status="FAILED",details="";
+  try{
+   const rows=(await env.DB.prepare("SELECT telegram_id FROM bot_admins").all()).results||[];
+   if(rows.length!==1)throw Error("Expected exactly one approved admin account");
+   const id=Number(rows[0].telegram_id);
+   if(!Number.isSafeInteger(id)||id<=0)throw Error("Invalid approved admin ID");
+   const allStart=[{command:"start",description:"Démarrer Mr XPRONOS Play"}];
+   const adminCommands=[...allStart,{command:"admin",description:"Gérer le bot (administrateur)"}];
+   await botApi(env,"setMyCommands",{scope:{type:"default"},commands:allStart});
+   await botApi(env,"setMyCommands",{scope:{type:"all_private_chats"},commands:allStart});
+   await botApi(env,"setMyCommands",{scope:{type:"all_group_chats"},commands:allStart});
+   await botApi(env,"setMyCommands",{scope:{type:"chat",chat_id:id},commands:adminCommands});
+   await botApi(env,"setChatMenuButton",{menu_button:{type:"commands"}});
+   await botApi(env,"setChatMenuButton",{chat_id:id,menu_button:{type:"commands"}});
+   await botApi(env,"setMyDescription",{description:await getBotText(env,"description",BOT_DESCRIPTION)});
+   await botApi(env,"setMyShortDescription",{short_description:await getBotText(env,"short_description",BOT_SHORT_DESCRIPTION)});
+   await botApi(env,"setWebhook",{
+    url:"https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook",
+    secret_token:env.WEBHOOK_SECRET,
+    allowed_updates:["message","callback_query"],
+    drop_pending_updates:false
+   });
+   const [pub,privateCommands,wh,menu]=await Promise.all([
+    botApi(env,"getMyCommands",{scope:{type:"all_private_chats"}}),
+    botApi(env,"getMyCommands",{scope:{type:"chat",chat_id:id}}),
+    botApi(env,"getWebhookInfo",{}),
+    botApi(env,"getChatMenuButton",{})
+   ]);
+   if(pub.length!==1||pub[0]?.command!=="start")throw Error("Public commands are not start-only");
+   if(privateCommands.length!==2||privateCommands[0]?.command!=="start"||privateCommands[1]?.command!=="admin")throw Error("Admin commands not scoped correctly");
+   if(!wh?.url?.endsWith("/telegram/webhook")||!wh?.allowed_updates?.includes("callback_query"))throw Error("Webhook callback support not enabled");
+   if(menu?.type!=="commands")throw Error("Global Telegram bot menu not reset to commands");
+   status="VERIFIED";
+  }catch(e){details=String(e?.message||e).slice(0,200)}
+  await env.DB.prepare("INSERT INTO telegram_setup_status(id,status,bot_username,webhook_url,menu_type,error,updated_ms) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,bot_username=excluded.bot_username,webhook_url=excluded.webhook_url,menu_type=excluded.menu_type,error=excluded.error,updated_ms=excluded.updated_ms").bind("onboarding-public-admin-v1",status,"MrXpronosPlayBot","https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook","commands",details,Date.now()).run();
+}
+
+export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
  if(p==="/api/health"){let bot_username=null,telegram_token_valid=false;try{if(env.BOT_TOKEN){const reply=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/getMe");const result=await reply.json();telegram_token_valid=result.ok===true;bot_username=telegram_token_valid?result.result?.username||null:null}}catch{}return json({ok:true,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,telegram_token_valid,bot_username,correct_bot:typeof bot_username==="string"&&bot_username.toLowerCase()==="mrxpronosplaybot",db_connected:!!env.DB,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false})}
  if(p==="/telegram/webhook"&&request.method==="POST"){
   if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);
   const update=await request.json();
-  await telegramWebhook(env,update,u.origin);
+  await telegramWebhook(env,update,u.origin,ctx);
   return json({ok:true});
  }
  if(!p.startsWith("/api/"))return json({error:"Not found"},404);
@@ -233,41 +272,5 @@ export default {async fetch(request,env){const u=new URL(request.url),p=u.pathna
  return json({error:"Route inconnue"},404)
 
  }catch(e){return json({error:"Erreur serveur",detail:env.DEV_MODE==="true"?String(e):undefined},500)}},
- async scheduled(event,env){
-  let status="FAILED",details="";
-  try{
-   const rows=(await env.DB.prepare("SELECT telegram_id FROM bot_admins").all()).results||[];
-   if(rows.length!==1)throw Error("Expected exactly one approved admin account");
-   const id=Number(rows[0].telegram_id);
-   if(!Number.isSafeInteger(id)||id<=0)throw Error("Invalid approved admin ID");
-   const allStart=[{command:"start",description:"Démarrer Mr XPRONOS Play"}];
-   const adminCommands=[...allStart,{command:"admin",description:"Gérer le bot (administrateur)"}];
-   await botApi(env,"setMyCommands",{scope:{type:"default"},commands:allStart});
-   await botApi(env,"setMyCommands",{scope:{type:"all_private_chats"},commands:allStart});
-   await botApi(env,"setMyCommands",{scope:{type:"all_group_chats"},commands:allStart});
-   await botApi(env,"setMyCommands",{scope:{type:"chat",chat_id:id},commands:adminCommands});
-   await botApi(env,"setChatMenuButton",{menu_button:{type:"commands"}});
-   await botApi(env,"setChatMenuButton",{chat_id:id,menu_button:{type:"commands"}});
-   await botApi(env,"setMyDescription",{description:await getBotText(env,"description",BOT_DESCRIPTION)});
-   await botApi(env,"setMyShortDescription",{short_description:await getBotText(env,"short_description",BOT_SHORT_DESCRIPTION)});
-   await botApi(env,"setWebhook",{
-    url:"https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook",
-    secret_token:env.WEBHOOK_SECRET,
-    allowed_updates:["message","callback_query"],
-    drop_pending_updates:false
-   });
-   const [pub,privateCommands,wh,menu]=await Promise.all([
-    botApi(env,"getMyCommands",{scope:{type:"all_private_chats"}}),
-    botApi(env,"getMyCommands",{scope:{type:"chat",chat_id:id}}),
-    botApi(env,"getWebhookInfo",{}),
-    botApi(env,"getChatMenuButton",{})
-   ]);
-   if(pub.length!==1||pub[0]?.command!=="start")throw Error("Public commands are not start-only");
-   if(privateCommands.length!==2||privateCommands[0]?.command!=="start"||privateCommands[1]?.command!=="admin")throw Error("Admin commands not scoped correctly");
-   if(!wh?.url?.endsWith("/telegram/webhook")||!wh?.allowed_updates?.includes("callback_query"))throw Error("Webhook callback support not enabled");
-   if(menu?.type!=="commands")throw Error("Global Telegram bot menu not reset to commands");
-   status="VERIFIED";
-  }catch(e){details=String(e?.message||e).slice(0,200)}
-  await env.DB.prepare("INSERT INTO telegram_setup_status(id,status,bot_username,webhook_url,menu_type,error,updated_ms) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,bot_username=excluded.bot_username,webhook_url=excluded.webhook_url,menu_type=excluded.menu_type,error=excluded.error,updated_ms=excluded.updated_ms").bind("onboarding-public-admin-v1",status,"MrXpronosPlayBot","https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook","commands",details,Date.now()).run();
- }
+ async scheduled(event,env){await configureTelegramBot(env)}
 }
