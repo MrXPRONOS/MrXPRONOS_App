@@ -38,6 +38,7 @@ jobs:
       DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
       COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
       ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
       TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
       CINEX_TORRENT9_PAUSED: 'true'
       CINEX_DEFER_MIRROR: 'true'
