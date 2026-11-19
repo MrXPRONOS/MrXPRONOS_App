@@ -34,7 +34,7 @@ from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
 from .promotions import publish_promotions
 from .matching import filename_of
-from .text import first_title, private_message_link
+from .text import first_title, private_message_link, clean_caption
 from .publication import (
     send_library_poster_with_buttons, verify_library_bot,
     publish_catalog_episode_pairs,
@@ -466,7 +466,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                         cover = await send_library_poster_with_buttons(
                             client, bot, private, public, original_poster,
                             f"📺 {title} — S{row['season']:02d}E{row['episode']:02d}\n"
-                            f"{episode_cover_marker}",
+                            + clean_caption(getattr(original_poster, "raw_text", "") or "")[:650]
+                            + "\n" + episode_cover_marker,
                         )
                         existing_cover = int(cover.id)
                         await asyncio.sleep(pause)
