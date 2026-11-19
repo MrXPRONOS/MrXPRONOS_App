@@ -1,5 +1,15 @@
 # Mr XPRONOS Play — Cloudflare V1
 
+## V2 Phases 3 et 4 — Partage officiel et crédits MRXP gratuits
+
+**Phase 3 :** cartes de profil PNG (1080 × 1080 et 1080 × 1920), aperçu, téléchargement, partage natif, partage par lien Telegram, visibilité du nom contrôlée, et preuve serveur HMAC valable 30 jours. Les XP et niveaux sont issus de D1, jamais des valeurs du téléphone.
+
+**Phase 4 :** économie MRXP **gratuite** et non transférable, solde, historique, trois petits défis quotidiens, bonus hebdomadaire, crédits de missions et de nouveaux niveaux. Aucune valeur financière ; les achats et boosts attendent la phase 5. Le tableau de bord /admin présente les crédits émis et en circulation.
+
+**Migration additive préalable au déploiement :** `migrations/004_free_mrxp_credits.sql`, à appliquer une seule fois (idempotente), qui enregistre le niveau historique de chaque compte avant tout nouveau gain de crédits. Les anciennes récompenses ne sont pas reversées rétroactivement.
+
+Documentation : [SHARE_CREDITS_V2_PHASE3_4.md](SHARE_CREDITS_V2_PHASE3_4.md).
+
 ## V2 Phase 2 — Profils évolutifs et collection (19 novembre 2026)
 
 La page Profil possède une collection complète de **11 avatars africains**, un badge de rang et des étoiles temporaires, des animations légères, ainsi que le détail du prochain rang (XP confirmés et défis de maîtrise). Un joueur peut conserver et afficher un ancien avatar débloqué, sans changer son véritable niveau. Le choix est sauvegardé dans D1 et vérifié par le Worker grâce à l'identité Telegram signée. Le mode automatique sélectionne le meilleur avatar débloqué.
