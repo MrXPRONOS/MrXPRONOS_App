@@ -293,11 +293,13 @@ async function mrxpWallet(env,player,progression){
   env.DB.prepare("SELECT created_ms,taps FROM sync_receipts WHERE user_id=? AND created_ms>=? AND taps>=50 ORDER BY created_ms").bind(id,state.activated_ms).all(),
   env.DB.prepare("SELECT mission_key,created_ms FROM mission_claims WHERE user_id=? AND created_ms>=? ORDER BY created_ms").bind(id,state.activated_ms).all()
  ]);
- const dailyWeeks=new Map();
+ const dailyWeeks=new Map(),dailyWeekTimes=new Map();
  for(const row of d.results||[]){
   const day=String(row.day||"");if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<baselineDay)continue;
   const week=mrxpWeekMonday(day);if(!dailyWeeks.has(week))dailyWeeks.set(week,new Set());
   dailyWeeks.get(week).add(day);
+  if(!dailyWeekTimes.has(week))dailyWeekTimes.set(week,new Map());
+  dailyWeekTimes.get(week).set(day,Number(row.created_ms));
   add("daily:"+day,"daily",mrxpBalanceRate(config,"daily_base",Number(row.created_ms)),"Bonus quotidien validé",Number(row.created_ms));
   add("quest:daily:"+day,"quest",mrxpBalanceRate(config,"daily_quest",Number(row.created_ms)),"Défi : bonus quotidien confirmé",Number(row.created_ms))
  }
@@ -316,7 +318,7 @@ async function mrxpWallet(env,player,progression){
   add("mission:"+key,"mission",mrxpBalanceRate(config,"mission",Number(row.created_ms)),"Mission validée : "+key,Number(row.created_ms))
  }
  for(const [week,days] of dailyWeeks){
-  if(days.size>=4){const sorted=[...days].sort(),fourth=Date.parse(sorted[3]+"T23:59:59.000Z");add("weekly:"+week,"weekly",mrxpBalanceRate(config,"weekly",fourth),"Semaine active : 4 bonus quotidiens",fourth)}
+  if(days.size>=4){const sorted=[...days].sort(),fourth=dailyWeekTimes.get(week)?.get(sorted[3])||Date.parse(sorted[3]+"T23:59:59.000Z");add("weekly:"+week,"weekly",mrxpBalanceRate(config,"weekly",fourth),"Semaine active : 4 bonus quotidiens",fourth)}
  }
  for(let n=state.baseline_level+1;n<=p.level;n++){
   const rankName=V2_RANKS.find(r=>r.from===n)?.name;
@@ -361,6 +363,16 @@ const MRXP_BOOST_CATALOG=[
  {sku:"energy-250",label:"Recharge 250",icon:"🔌",kind:"energy",price:45,energy:250,duration_hours:72,description:"+250 énergie (maximum 500)"}
 ];
 function mrxpBoostSku(sku){return MRXP_BOOST_CATALOG.find(x=>x.sku===sku)||null}
+
+/* Limit request memory and reject excessively large client-supplied actions. */
+async function mrxpParseAction(request,maxBytes=16384){
+ const announced=Number(request.headers.get("content-length")||0);
+ if(announced>maxBytes)throw Error("REQUEST_TOO_LARGE");
+ const body=await request.text();
+ if(new TextEncoder().encode(body).byteLength>maxBytes)throw Error("REQUEST_TOO_LARGE");
+ return JSON.parse(body)
+}
+
 const MRXP_BOOST_PURCHASE_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 async function mrxpBoostExpire(env,id){
  return env.DB.prepare("UPDATE mrxp_boost_inventory SET state='expired' WHERE user_id=? AND state IN ('active','charged') AND expires_ms>0 AND expires_ms<=?").bind(String(id),Date.now()).run()
@@ -889,12 +901,12 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   return json({wallet,shop:await mrxpBoostList(env,player,wallet)});
  }
  if(p==="/api/shop/buy"&&request.method==="POST"){
-  let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  let payload;try{payload=await mrxpParseAction(request,4096)}catch(e){return json({error:String(e?.message)==="REQUEST_TOO_LARGE"?"REQUEST_TOO_LARGE":"JSON_INVALIDE"},String(e?.message)==="REQUEST_TOO_LARGE"?413:400)}
   const result=await mrxpPurchaseBoost(env,player,payload);
   return result.ok?json(result):json({error:result.error,code:result.error,balance:result.balance??undefined},result.status||400);
  }
  if(p==="/api/shop/activate"&&request.method==="POST"){
-  let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  let payload;try{payload=await mrxpParseAction(request,4096)}catch(e){return json({error:String(e?.message)==="REQUEST_TOO_LARGE"?"REQUEST_TOO_LARGE":"JSON_INVALIDE"},String(e?.message)==="REQUEST_TOO_LARGE"?413:400)}
   const result=await mrxpActivateBoost(env,player,payload);
   return result.ok?json(result):json({error:result.error,code:result.error},result.status||400);
  }
@@ -915,7 +927,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  }
  if(p==="/api/missions"&&request.method==="GET")return json({missions:await missionStatus(env,player),progression:await v2Progression(env,player)});
  if(p==="/api/missions/claim"&&request.method==="POST"){
-  let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  let payload;try{payload=await mrxpParseAction(request,4096)}catch(e){return json({error:String(e?.message)==="REQUEST_TOO_LARGE"?"REQUEST_TOO_LARGE":"JSON_INVALIDE"},String(e?.message)==="REQUEST_TOO_LARGE"?413:400)}
   const before=await v2Progression(env,player);await mrxpCreditBaseline(env,player,before);
   const result=await awardPlayMission(env,player,String(payload?.mission_key||""));
   if(!result.ok)return json({error:result.reason,code:result.error},result.status);
@@ -934,7 +946,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   /* Freeze the legacy floor BEFORE applying new taps or XP, even if a client skips bootstrap. */
   const initialProgress=await v2Progression(env,player);
   await mrxpCreditBaseline(env,player,initialProgress);
-  let body;try{body=await request.json()}catch{return json({error:"JSON invalide"},400)}
+  let body;try{body=await mrxpParseAction(request,16384)}catch(e){return json({error:String(e?.message)==="REQUEST_TOO_LARGE"?"REQUEST_TOO_LARGE":"JSON invalide"},String(e?.message)==="REQUEST_TOO_LARGE"?413:400)}
   const now=Date.now(),batch=String(body.batch_id||""),taps=Number(body.taps);
   if(!/^[\w-]{16,100}$/.test(batch)||!Number.isInteger(taps)||taps<0||taps>20000)return json({error:"Lot de tapotages invalide"},400);
   const previous=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();
