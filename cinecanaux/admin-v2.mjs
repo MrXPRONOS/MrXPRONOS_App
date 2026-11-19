@@ -7,6 +7,7 @@ import {adminAnalytics} from './analytics.mjs';
 import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
 import {bindPrimaryRadarChannels,missingRadarTitles} from './radar-owner-ops.mjs';
 import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle} from './trend-radar.mjs';
+import {initializeProfile} from './radar-lean.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -70,6 +71,10 @@ export async function adminAPI(env,request,ctx){
  if(request.method!=='POST')return json({error:'Méthode inconnue'},405);
  try{
   const data=await parseBody(request);
+  if(path==='/api/admin/sync-bot-identity'){
+   await initializeProfile(env);
+   return json({ok:true,message:"Identité Telegram synchronisée. La photo et le message /start sont configurés."});
+  }
   if(path==='/api/admin/radar-refresh'){
    const stamp=await env.DB.prepare("SELECT last_success_at FROM radar_runs WHERE job_name='trends_films'").first();
    if(stamp?.last_success_at&&Date.now()-Date.parse(String(stamp.last_success_at).replace(' ','T')+'Z')<60000)
