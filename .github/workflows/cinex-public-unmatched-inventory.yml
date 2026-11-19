@@ -1,0 +1,76 @@
+name: CineX - Inventaire public medias non apparies (lecture seule)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-inventory-once'
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      PYTHONPATH: .
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Inventorier uniquement les medias publics et leurs titres
+        run: |
+          python - <<'PY'
+          import asyncio, os, re
+          from telethon import TelegramClient
+          from telethon.sessions import StringSession
+          from film_relay.public_video_archive import (
+              is_video_message, verified_film_video_pairs,
+              video_title, normalize_title, title_similarity,
+          )
+          async def run():
+              client = TelegramClient(
+                  StringSession(os.environ["TG_STRING_SESSION"]),
+                  int(os.environ["TG_API_ID"]), os.environ["TG_API_HASH"],
+                  flood_sleep_threshold=0,
+              )
+              await client.connect()
+              try:
+                  public = await client.get_entity("@CineXFilms_vf")
+                  messages = [m async for m in client.iter_messages(public, limit=4000)]
+                  pairs = verified_film_video_pairs(messages)
+                  by_doc = {v.id:p.id for v,p in pairs}
+                  photos = [m for m in messages if m.photo]
+                  videos = [m for m in messages if is_video_message(m)]
+                  def safe(s):
+                      s = (s or "").split("\\n",1)[0][:95]
+                      s = re.sub(r"(?:https?://|t\\.me/)[^ ]+", "[lien]", s)
+                      return s
+                  print(f"INVENTAIRE photos={len(photos)} videos={len(videos)} paires={len(pairs)}")
+                  for m in sorted(videos, key=lambda x:x.id):
+                      title = normalize_title(video_title(m))
+                      best = sorted(
+                          ((round(title_similarity(video_title(m), p.raw_text or ""),3),p.id,safe(p.raw_text))
+                           for p in photos if p.id<m.id),
+                          reverse=True,
+                      )[:3]
+                      print(f"VIDEO id={m.id} paired={by_doc.get(m.id)} title={safe(video_title(m))!r} filename={safe(getattr(getattr(m, 'file',None),'name',''))!r} prior_photos={best}")
+                  print("POSTERS")
+                  for p in sorted(photos,key=lambda x:x.id):
+                      print(f"PHOTO id={p.id} title={safe(p.raw_text)!r}")
+              finally:
+                  await client.disconnect()
+          asyncio.run(run())
+          PY
