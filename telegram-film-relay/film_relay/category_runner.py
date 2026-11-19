@@ -302,16 +302,14 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             media = []
             for _, peer in media_peers:
                 samples = [m async for m in client.iter_messages(peer, limit=140)]
-                media.extend((m, getattr(peer, "title", "") or "") for m in samples)
-            media.extend((msg, getattr(peer, "title", "") or "")
-                         for msg, peer in await follow_authorized_button_posts(
-                             client, approved_action_posters, media_peers))
+                media.extend((m, peer) for m in samples)
+            media.extend(await follow_authorized_button_posts(
+                client, approved_action_posters, media_peers))
             for item in cross_channel_movie_pairs(approved_action_posters, media):
                 # The video really resides in a separately allowlisted channel.
                 # Store its id scoped by the media peer, not the poster feed.
-                peer_of = next((peer for _, peer in media_peers
-                                if getattr(peer, "title", "") in
-                                [name for m, name in media if m is item.video]), None)
+                peer_of = next((peer for m, peer in media
+                                if m is item.video), None)
                 if peer_of is not None:
                     records.append((utils.get_peer_id(peer_of), item))
         def order(record):
