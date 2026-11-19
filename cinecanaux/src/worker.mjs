@@ -1,6 +1,6 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
-import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick} from "./pinned-showcase.mjs";
+import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick,listPinned} from "./pinned-showcase.mjs";
 import {channelPreview} from "./channel-preview.mjs";
 import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache,listPublicChannels} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
@@ -172,6 +172,13 @@ export default {
     console.warn(JSON.stringify({event:"catalog_html_preload_fallback",error:String(e).slice(0,90)}));
     // The client still supports its original /api/catalog fetch.
    }
+   try{
+    // Pin thumbnails are included in initial HTML so À l'affiche is visible
+    // immediately; independent API requests only refresh stale results.
+    const pins=JSON.stringify((await listPinned(env,{limit:24})).items)
+     .replace(/[<>&\u2028\u2029]/g,c=>({"<":"\\u003c",">":"\\u003e","&":"\\u0026","\u2028":"\\u2028","\u2029":"\\u2029"}[c]));
+    html=html.replace("const PRELOADED_PINS=null;","const PRELOADED_PINS="+pins+";");
+   }catch(e){console.warn("pin_html_preload_fallback",String(e).slice(0,80));}
    return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me https://image.tmdb.org https://s4.anilist.co https://static.tvmaze.com https://m.media-amazon.com https://images-na.ssl-images-amazon.com; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&u.pathname==="/admin"){
