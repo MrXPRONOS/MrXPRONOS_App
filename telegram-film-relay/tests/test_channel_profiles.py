@@ -105,7 +105,7 @@ class ProfileTelegramTests(unittest.IsolatedAsyncioTestCase):
         image=Image.new("RGB",(400,400),"white")
         out=io.BytesIO();image.save(out,format="JPEG")
         client.download_profile_photo.return_value=out.getvalue()
-        async def mock_about(channel):
+        async def mock_about(client_arg, channel):
             return "Texte original\nLigne 2"
         async def mock_description(*a,**kw):
             self.assertEqual(kw["preserve_format"],True)
