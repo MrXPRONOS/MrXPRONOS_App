@@ -23,7 +23,7 @@ async function authenticate(req,env){
  let verified=false;
  for(const items of variants){const checkString=items.map(([k,v])=>k+"="+v).join("\n");const signature=hex(await hmac(signingKey,checkString));if(equalSignature(signature,hash)){verified=true;break}}
  if(!verified)return {reason:"SIGNATURE_INVALIDE"};
- try{const user=JSON.parse(p.get("user")||"null");if(!user||typeof user!=="object"||!user.id)return {reason:"UTILISATEUR_ABSENT"};return {user:{id:String(user.id),username:String(user.username||"").slice(0,64),name:([user.first_name,user.last_name].filter(v=>typeof v==="string"&&v.trim()).join(" ").trim()||String(user.username||"Joueur Telegram")).slice(0,90)}}}
+ try{const user=JSON.parse(p.get("user")||"null");if(!user||typeof user!=="object"||!user.id)return {reason:"UTILISATEUR_ABSENT"};return {user:{id:String(user.id),username:String(user.username||"").slice(0,64),name:([user.first_name,user.last_name].filter(v=>typeof v==="string"&&v.trim()).join(" ").trim()||String(user.username||"Joueur Telegram")).slice(0,90),photoUrl:typeof user.photo_url==="string"?user.photo_url.slice(0,1024):""}}}
  catch{return {reason:"UTILISATEUR_INVALIDE"}}
 }
 const DAY=86400000,HALF=43200000;
@@ -77,6 +77,70 @@ async function adminBotHealth(env,chatId,origin){
  const ok=typeof wh?.url==="string"&&wh.url.endsWith("/telegram/webhook")&&wh.allowed_updates?.includes("callback_query");
  await botApi(env,"sendMessage",{chat_id:chatId,text:"🩺 État de Mr XPRONOS Play\n\nWebhook Telegram : "+(ok?"✅ Configuration correcte":"⚠️ Configuration à vérifier")+"\nAccès D1 : ✅ Disponible\nModules actifs : "+Object.values(flags).filter(Boolean).length+"/4\nDernière erreur webhook : "+String(wh?.last_error_message||"aucune signalée").slice(0,180),reply_markup:{inline_keyboard:[[{text:"⚙️ Retour administration",callback_data:"mrxp:admin:home"}],[{text:"🎮 Ouvrir Mini App",web_app:{url:origin}}]]}});
 }
+
+/* Each mission awards once per Telegram account. All missions progress independently. */
+const PLAY_MISSIONS=[
+ {key:"first_open",name:"Découvrir Mr XPRONOS Play",description:"Ouvre l'application depuis Telegram pour la première fois.",xp:25,kind:"welcome"},
+ {key:"tap_50",name:"50 tapotages",description:"Atteins 50 tapotages confirmés.",xp:40,kind:"tap",goal:50},
+ {key:"tap_200",name:"200 tapotages",description:"Atteins 200 tapotages confirmés.",xp:75,kind:"tap",goal:200},
+ {key:"tap_500",name:"500 tapotages",description:"Atteins 500 tapotages confirmés.",xp:150,kind:"tap",goal:500},
+ {key:"join_main",name:"Rejoindre Monsieur XPRONOS",description:"Abonne-toi au canal principal Telegram.",xp:100,kind:"channel",channel:"@mrxpronosfr",url:"https://t.me/mrxpronosfr"},
+ {key:"join_foot",name:"Rejoindre Actu Foot",description:"Abonne-toi au canal d'actualité football.",xp:100,kind:"channel",channel:"@actufoot_mrxp",url:"https://t.me/actufoot_mrxp"}
+];
+async function missionStatus(env,player){
+ const result=await env.DB.prepare("SELECT mission_key FROM mission_claims WHERE user_id=?").bind(player.user_id).all();
+ const done=new Set((result.results||[]).map(x=>x.mission_key));
+ const confirmed=Number(player.confirmed_taps||0);
+ return PLAY_MISSIONS.map(m=>({key:m.key,name:m.name,description:m.description,xp:m.xp,kind:m.kind,goal:m.goal||1,progress:m.kind==="tap"?Math.min(confirmed,m.goal):done.has(m.key)?1:0,claimed:done.has(m.key),url:m.url||null,channel:m.channel||null}));
+}
+async function verifyPlayChannelMember(env,mission,userId){
+ try{
+  const bot=await botApi(env,"getMe",{});
+  if(!Number.isSafeInteger(Number(bot?.id)))return {ok:false,code:"BOT_ACCESS",reason:"Impossible de confirmer l'identité du bot."};
+  const botMembership=await botApi(env,"getChatMember",{chat_id:mission.channel,user_id:Number(bot.id)});
+  if(!["administrator","creator"].includes(botMembership?.status))return {ok:false,code:"BOT_NOT_ADMIN",reason:"Le bot Mr XPRONOS Play doit être administrateur de ce canal pour vérifier les abonnements."};
+  const target=await botApi(env,"getChatMember",{chat_id:mission.channel,user_id:Number(userId)});
+  const member=["creator","administrator","member"].includes(target?.status)||(target?.status==="restricted"&&target?.is_member===true);
+  return member?{ok:true}:{ok:false,code:"NOT_JOINED",reason:"Abonnement non confirmé. Rejoins le canal puis réessaie."};
+ }catch{
+  return {ok:false,code:"CHANNEL_CHECK_UNAVAILABLE",reason:"Vérification Telegram indisponible. Vérifie que le bot est administrateur du canal."};
+ }
+}
+async function awardPlayMission(env,player,key){
+ const mission=PLAY_MISSIONS.find(m=>m.key===key);
+ if(!mission)return {error:"MISSION_UNKNOWN",status:400,reason:"Mission inconnue."};
+ const flags=await getGameFeatures(env);
+ if(!flags.missions)return {error:"MISSIONS_PAUSED",status:423,reason:"Les missions sont temporairement en pause."};
+ const existing=await env.DB.prepare("SELECT mission_key FROM mission_claims WHERE user_id=? AND mission_key=?").bind(player.user_id,key).first();
+ if(existing)return {ok:true,duplicate:true,awarded:0,player};
+ if(mission.kind==="tap"&&Number(player.confirmed_taps||0)<mission.goal)return {error:"TAPS_NOT_CONFIRMED",status:409,reason:"Synchronise d'abord tes tapotages pour débloquer cette mission."};
+ if(mission.kind==="channel"){
+  const status=await verifyPlayChannelMember(env,mission,player.user_id);
+  if(!status.ok)return {error:status.code,status:status.code==="NOT_JOINED"?409:503,reason:status.reason};
+ }
+ const now=Date.now();
+ /* The two statements execute in one atomic D1 batch. changes() refers to the preceding INSERT.
+    Therefore retries and simultaneous requests can never credit the same mission twice. */
+ const result=await env.DB.batch([
+  env.DB.prepare("INSERT OR IGNORE INTO mission_claims(user_id,mission_key,xp_awarded,created_ms) VALUES(?,?,?,?)").bind(player.user_id,mission.key,mission.xp,now),
+  env.DB.prepare("UPDATE players SET confirmed_xp=confirmed_xp+?,updated_ms=? WHERE user_id=? AND changes()=1").bind(mission.xp,now,player.user_id)
+ ]);
+ const awarded=(result[0]?.meta?.changes||0)>0?mission.xp:0;
+ const updated=await env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(player.user_id).first();
+ return {ok:true,duplicate:awarded===0,awarded,player:updated};
+}
+async function channelMissionDiagnostic(env,chatId,origin){
+ const lines=[];
+ for(const mission of PLAY_MISSIONS.filter(m=>m.kind==="channel")){
+  try{
+   const bot=await botApi(env,"getMe",{});
+   const details=await botApi(env,"getChat",{chat_id:mission.channel});
+   const member=await botApi(env,"getChatMember",{chat_id:mission.channel,user_id:Number(bot.id)});
+   lines.push((member?.status==="administrator"||member?.status==="creator"?"✅ ":"⚠️ ")+mission.channel+" — "+String(details?.title||"Canal")+" — droits du bot : "+String(member?.status||"inconnus"));
+  }catch{lines.push("⚠️ "+mission.channel+" — inaccessible au bot : ajoute-le comme administrateur et vérifie l'identifiant du canal.")}
+ }
+ await botApi(env,"sendMessage",{chat_id:chatId,text:"📢 Diagnostic des canaux des missions\n\n"+lines.join("\n")+"\n\nLes récompenses ne sont attribuées qu'après vérification réelle par Telegram.",reply_markup:{inline_keyboard:[[{text:"⚙️ Administration",callback_data:"mrxp:admin:home"},{text:"🎮 Mini App",web_app:{url:origin}}]]}});
+}
 function openGameKeyboard(origin,admin=false){
  const rows=[[{text:"🎮 Ouvrir l’application",web_app:{url:origin}}]];
  if(admin)rows.push([{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]);
@@ -87,6 +151,7 @@ function adminKeyboard(origin){
   [{text:"📊 Statistiques",callback_data:"mrxp:admin:stats"},{text:"📝 Accueil",callback_data:"mrxp:admin:edit_welcome"}],
   [{text:"ℹ️ Description",callback_data:"mrxp:admin:edit_description"},{text:"✍️ Bio courte",callback_data:"mrxp:admin:edit_short"}],
   [{text:"🎮 Réglages du jeu",callback_data:"mrxp:admin:features"},{text:"🩺 État du bot",callback_data:"mrxp:admin:health"}],
+  [{text:"📢 Canaux des missions",callback_data:"mrxp:admin:channels"}],
   [{text:"🎮 Mini App",web_app:{url:origin}},{text:"❌ Fermer",callback_data:"mrxp:admin:close"}]
  ]};
 }
@@ -155,6 +220,7 @@ async function telegramWebhook(env,update,origin,ctx){
   if(task==="stats")return adminStats(env,chat.id,origin);
   if(task==="features")return adminFeatures(env,chat.id,origin);
   if(task==="health")return adminBotHealth(env,chat.id,origin);
+  if(task==="channels")return channelMissionDiagnostic(env,chat.id,origin);
   if(task.startsWith("toggle_"))return changeGameFeature(env,chat.id,origin,task.slice("toggle_".length));
   if(ADMIN_EDITS[task])return startBotAdminEdit(env,chat.id,fromId,task);
   if(task==="close")return botApi(env,"editMessageReplyMarkup",{chat_id:chat.id,message_id:callback.message.message_id,reply_markup:{inline_keyboard:[]}});
@@ -265,11 +331,18 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  }
  let player=await ensurePlayer(env,user);
  if(p==="/api/game-features"&&request.method==="GET")return json({features:await getGameFeatures(env)});
+ if(p==="/api/missions"&&request.method==="GET")return json({missions:await missionStatus(env,player)});
+ if(p==="/api/missions/claim"&&request.method==="POST"){
+  let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  const result=await awardPlayMission(env,player,String(payload?.mission_key||""));
+  if(!result.ok)return json({error:result.reason,code:result.error},result.status);
+  return json(result);
+ }
  if(p==="/api/bootstrap"&&request.method==="GET"){
   const now=Date.now(), plans={},base=Math.floor(now/DAY)*DAY;
   for(let i=0;i<15;i++){const d=dateOf(base+i*DAY);plans[d]=(await wheelOutcome(env,user.id,d)).key}
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
-  return json({user:player,game_features:await getGameFeatures(env),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
+  return json({user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
  }
  if(p==="/api/sync"&&request.method==="POST"){
   let body;try{body=await request.json()}catch{return json({error:"JSON invalide"},400)}
