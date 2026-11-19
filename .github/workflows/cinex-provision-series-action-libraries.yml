@@ -1,0 +1,51 @@
+name: CineX - Creer les videotheques Series et Action
+
+on:
+  push:
+    branches:
+      - feat/cinex-series-action-videotheques-20261119
+    paths:
+      - '.github/workflows/cinex-provision-series-action-libraries.yml'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Creer les deux videotheques et copier leurs profils Telegram'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  provision:
+    name: Series et Action - canaux prives, pas de publication
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Creer les deux videotheques (operation explicite)
+        if: ${{ github.event_name == 'push' || inputs.apply }}
+        run: python scripts/provision_series_action_libraries.py --apply
+      - name: Simulation sans effet
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.apply }}
+        run: python scripts/provision_series_action_libraries.py
