@@ -11,7 +11,8 @@ const adminId = 111;
 
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
- const pending = new Map(),missionClaims=new Map(),channelMembership=new Map();
+ const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map();
+ const v2Counts={daily:0,wheel:0};
  const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
  const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0};
@@ -28,6 +29,8 @@ function harness(){
         if(lower.includes('from bot_admins'))return String(values[0])===String(adminId)?{telegram_id:String(adminId)}:null;
         if(lower.includes('from bot_settings'))return {value:settings.get(values[0])};
         if(lower.includes('from bot_admin_pending'))return pending.get(String(values[0]))||null;
+        if(lower.includes(' as daily_count'))return {daily_count:v2Counts.daily,wheel_count:v2Counts.wheel,mission_count:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')&&!/:(join_main|join_foot)$/.test(x)).length};
+        if(lower.includes('from player_progress_v2'))return v2Progress.get(String(values[0]))||null;
         if(lower.includes('from mission_claims'))return missionClaims.has(String(values[0])+':'+String(values[1]))?{mission_key:String(values[1])}:null;
         if(lower.includes('select * from players'))return {...player};
         if(lower.includes('from players'))return {n:rows.players,xp:180};
@@ -38,6 +41,8 @@ function harness(){
         return null;
        },
        async run(){
+        if(lower.includes('insert or ignore into player_progress_v2')&&!v2Progress.has(String(values[0])))v2Progress.set(String(values[0]),{user_id:String(values[0]),legacy_level_floor:values[1],current_level:values[2]});
+        if(lower.includes('update player_progress_v2 set current_level')){const row=v2Progress.get(String(values[2]));if(row)row.current_level=Math.max(Number(row.current_level),Number(values[0]));}
         if(lower.includes('insert into bot_admin_pending'))pending.set(String(values[0]),{edit_key:values[1],expires_ms:values[2]});
         if(lower.includes('delete from bot_admin_pending'))pending.delete(String(values[0]));
         if(lower.includes('insert into bot_settings'))settings.set(values[0],values[1]);
@@ -87,7 +92,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -575,4 +580,87 @@ test('Mini App actually renders the new information and crowned rank shield imag
   assert.ok(!html.includes('Informations">ⓘ</button>'));
   assert.ok(!html.includes("profile.appendChild(img(asset.crown"));
  }finally{h.restore()}
+});
+
+test('V2 refuses progression queries without a valid signed Telegram identity',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/progression'),h.env);
+  assert.equal(res.status,401);
+ }finally{h.restore()}
+});
+
+test('V2 levels use only confirmed XP and preserve the previous confirmed-taps level',async()=>{
+ const h=harness();h.env.DEV_MODE='true';const init=signedTelegramUser({id:77001,first_name:'Joueuse'});
+ const get=async()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/progression',{headers:{'x-telegram-init-data':init}}),h.env);
+ try{
+  h.player.confirmed_xp=0;h.player.confirmed_taps=0;
+  let r=await get();assert.equal(r.status,200,await r.clone().text());let data=(await r.json()).progression;
+  assert.equal(data.level,1);assert.equal(data.version,2);assert.equal(data.xp_to_next,300);
+  h.player.confirmed_xp=300;r=await get();assert.equal((await r.json()).progression.level,2);
+  h.player.confirmed_xp=764;r=await get();assert.equal((await r.json()).progression.level,3);
+  assert.equal(h.v2Progress.get('77001').legacy_level_floor,1);
+ }finally{h.restore()}
+});
+
+test('V2 migration freezes the legacy level floor without resetting XP or tap counters',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=125;h.player.confirmed_taps=30250;
+ const init=signedTelegramUser({id:77002,first_name:'Ancien'});
+ const get=async()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/progression',{headers:{'x-telegram-init-data':init}}),h.env);
+ try{
+  let r=await get();assert.equal(r.status,200,await r.clone().text());let d=(await r.json()).progression;
+  assert.equal(d.level,12);assert.equal(d.legacy_level_floor,12);
+  assert.equal(h.player.confirmed_xp,125);assert.equal(h.player.confirmed_taps,30250);
+  h.player.confirmed_taps=0;r=await get();d=(await r.json()).progression;
+  assert.equal(d.level,12);assert.equal(d.legacy_level_floor,12);
+ }finally{h.restore()}
+});
+
+test('V2 rank gates block on missing mastery and unlock automatically once independently verified',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=2330;h.player.confirmed_taps=0;
+ const init=signedTelegramUser({id:77003,first_name:'Défis'});
+ const get=async()=>worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/progression',{headers:{'x-telegram-init-data':init}}),h.env);
+ try{
+  let r=await get();assert.equal(r.status,200,await r.clone().text());let d=(await r.json()).progression;
+  assert.equal(d.level,4);assert.equal(d.blocked_by_mastery,true);
+  assert.equal(d.required_mastery,2);
+  h.player.confirmed_taps=200;
+  r=await get();d=(await r.json()).progression;
+  assert.equal(d.level,5);assert.equal(d.blocked_by_mastery,false);
+  assert.ok(d.mastery.completed>=2);
+ }finally{h.restore()}
+});
+
+test('V2 level 50 requires mastery gates and caps at 50 with no Telegram channel dependency',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=1000000;h.player.confirmed_taps=400000;
+ h.v2Counts.daily=80;h.v2Counts.wheel=80;
+ const init=signedTelegramUser({id:77004,first_name:'Souverain'});
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/progression',{headers:{'x-telegram-init-data':init}}),h.env);
+  assert.equal(res.status,200,await res.clone().text());const p=(await res.json()).progression;
+  assert.equal(p.level,50);assert.equal(p.rank,'Souverain MX');
+  assert.equal(p.mastery.next_gate,null);assert.equal(p.xp_to_next,0);
+  assert.ok(p.mastery.completed>=18);assert.equal(h.missionClaims.size,0);
+ }finally{h.restore()}
+});
+
+test('V2 games hub shows Lucky Wheel as playable and Snake as a disabled future game',async()=>{
+ const h=harness();
+ try{
+  const page=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(page.status,200);const html=await page.text();
+  assert.ok(html.includes('>JEUX</button>'));assert.ok(html.includes('id="mrxp-games-hub"'));
+  assert.ok(html.includes('id="mrxp-wheel-game" hidden'));assert.ok(html.includes('id="wheel-button"'));
+  assert.ok(html.includes('id="mrxp-open-wheel"'));assert.ok(html.includes('Snake à venir'));
+  assert.ok(html.includes('window.openWheel=openWheel'));assert.ok(html.includes('mrxp-mastery-list'));
+  assert.ok(html.includes('state.progression=r.progression||null'));
+ }finally{h.restore()}
+});
+
+test('V2 progression migration is strictly additive to D1',async()=>{
+ const sql=await readFile(new URL('../migrations/002_hybrid_progression.sql',import.meta.url),'utf8');
+ assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS player_progress_v2'));
+ assert.ok(!/DROP TABLE|DELETE FROM players|UPDATE players SET confirmed_xp/i.test(sql));
+ const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
+ assert.ok(schema.includes('CREATE TABLE IF NOT EXISTS player_progress_v2'));
 });
