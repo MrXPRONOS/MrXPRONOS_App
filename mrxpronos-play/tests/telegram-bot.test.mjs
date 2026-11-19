@@ -532,3 +532,47 @@ test('rank portrait mapping matches all 11 approved ranks including Souverain MX
   assert.ok(!html.includes('getUserProfilePhotos?user_id'));
  }finally{h.restore()}
 });
+
+test('new information circle and crowned shield icons have intact PNG/WebP files',async()=>{
+ const data=JSON.parse(await readFile(new URL('../assets-manifest-ui-actions.json',import.meta.url),'utf8'));
+ const globalManifest=JSON.parse(await readFile(new URL('../assets-manifest.json',import.meta.url),'utf8'));
+ assert.equal(globalManifest.asset_count,60);
+ assert.equal(globalManifest.assets.length,60);
+ assert.deepEqual(data.assets.map(x=>x.number),[59,60]);
+ for(const item of data.assets){
+  assert.equal(item.transparent,true);
+  assert.deepEqual(item.dimensions_png,[1254,1254]);
+  assert.deepEqual(item.dimensions_webp,[512,512]);
+  for(const type of ['png','webp']){
+   const filename='../'+item[type];
+   const buffer=await readFile(new URL(filename,import.meta.url));
+   assert.equal(buffer.length,item[type+'_bytes'],item[type]);
+   assert.equal(createHash('sha256').update(buffer).digest('hex'),item['sha256_'+type],item[type]);
+   if(type==='png'){
+    assert.equal(buffer.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+    assert.equal(buffer.readUInt32BE(16),1254);
+    assert.equal(buffer.readUInt32BE(20),1254);
+    assert.equal(buffer[25],6);
+   }else{
+    assert.equal(buffer.toString('ascii',0,4),'RIFF');
+    assert.equal(buffer.toString('ascii',8,12),'WEBP');
+   }
+  }
+ }
+});
+
+test('Mini App actually renders the new information and crowned rank shield images',async()=>{
+ const h=harness();
+ try{
+  const response=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(response.status,200);
+  const html=await response.text();
+  assert.ok(html.includes('59-info-circle.webp?v=20261119'));
+  assert.ok(html.includes("rankShield:a('08-ui-actions','60-crowned-shield')+'?v=20261119'"));
+  assert.ok(html.includes("profile.appendChild(img(asset.rankShield,'Bouclier de rang couronné','hero-badge'))"));
+  assert.ok(html.includes('id="info-btn" aria-label="Informations"><img'));
+  assert.ok(html.includes('$("info-btn").onclick='));
+  assert.ok(!html.includes('Informations">ⓘ</button>'));
+  assert.ok(!html.includes("profile.appendChild(img(asset.crown"));
+ }finally{h.restore()}
+});
