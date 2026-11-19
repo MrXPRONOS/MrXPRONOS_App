@@ -32,7 +32,6 @@ jobs:
     timeout-minutes: 300
     env:
       CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-links.json
-    env:
       CINEX_DEFER_MIRROR: 'true'
       CINEX_TORRENT9_PAUSED: 'true'
       CINEX_PARTNERSHIP_ENABLED: 'false'
