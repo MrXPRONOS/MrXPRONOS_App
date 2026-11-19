@@ -1,0 +1,87 @@
+name: CineX - Tendances et videotheques dediees
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Creation de canaux et epingles, sinon simulation'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: '35 2 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  curate:
+    name: Tendances Cine Radar - controle et creation
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      CINEX_TRENDS_ENABLED: ${{ vars.CINEX_TRENDS_ENABLED || 'false' }}
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer Telethon et dependances
+        run: python -m pip install -r requirements.txt
+      - name: Valider le code avant toute action Telegram
+        run: |
+          python -m compileall -q film_relay
+          python -m unittest discover -s tests -p test_trending_private.py -v
+      - name: Cycle Cine Radar (simulation par defaut)
+        env:
+          REQUEST_APPLY: ${{ github.event_name == 'workflow_dispatch' && inputs.apply || github.event_name == 'schedule' && vars.CINEX_TRENDS_ENABLED == 'true' }}
+        run: |
+          if [ "$REQUEST_APPLY" = "true" ]; then
+            python -m film_relay.trending_private --apply
+          else
+            python -m film_relay.trending_private
+          fi
+      - name: Sauvegarder les checkpoints en conservant les commits concurrents
+        if: always()
+        shell: bash
+        working-directory: .
+        run: |
+          set -euo pipefail
+          FILE=telegram-film-relay/state/trending_private.json
+          if [ ! -f "$FILE" ] || git diff --quiet -- "$FILE"; then
+            echo "Aucun checkpoint de tendance a publier."
+            exit 0
+          fi
+          cp "$FILE" "$RUNNER_TEMP/trending-state.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_trending_private.py \
+              "$RUNNER_TEMP/trending-state.json" "$FILE"
+            git add "$FILE"
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m 'state: CineX private trending receipts [skip ci]'
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 10
+          done
+          echo '::error::Echec de la sauvegarde de la progression Telegram'
+          exit 1
