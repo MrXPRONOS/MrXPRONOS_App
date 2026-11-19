@@ -526,6 +526,37 @@ async def execute() -> int:
                             text, url, invitation
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id))
+                        # Publish the public video IMMEDIATELY after its verified
+                        # poster, before handling the next film or any promotion.
+                        # The repair showcase is only a fallback for interrupted runs.
+                        if flag("CINEX_SHOWCASE_ENABLED", False):
+                            from .public_video_archive import (
+                                is_video_message, video_document_id, has_verified_button,
+                            )
+                            posted_poster = await client.get_messages(
+                                destination_public, ids=int(public_post.id))
+                            if (not posted_poster or not getattr(posted_poster, "photo", None)
+                                    or not (getattr(posted_poster, "raw_text", "") or "").strip()
+                                    or not has_verified_button(posted_poster, url)):
+                                raise RuntimeError("Affiche publique non vérifiée : aucune vidéo diffusée")
+                            latest = [m async for m in client.iter_messages(
+                                destination_public, limit=1)]
+                            if not latest or latest[0].id != int(public_post.id):
+                                raise RuntimeError("Affiche non immédiatement précédente : vidéo suspendue")
+                            await asyncio.sleep(max(12.0, float(
+                                os.getenv("CINEX_PAUSE_SECONDS", "20"))))
+                            public_video = await client.send_file(
+                                destination_public, pair.movie.media,
+                                caption=rich_video_title(text), parse_mode="html",
+                            )
+                            confirmed_video = await client.get_messages(
+                                destination_public, ids=int(public_video.id))
+                            if not is_video_message(confirmed_video):
+                                raise RuntimeError("Vidéo publique non confirmée")
+                            if video_document_id(confirmed_video) != video_document_id(pair.movie):
+                                raise RuntimeError("Document public différent de la vidéo source")
+                            LOG.info("Film public complet : affiche #%s puis vidéo #%s",
+                                     public_post.id, public_video.id)
                         if mirror_destination is not None and not flag('CINEX_DEFER_MIRROR', False):
                             try:
                                 copied_id = await forward_public_message(
