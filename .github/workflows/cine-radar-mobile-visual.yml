@@ -6,6 +6,7 @@ on:
     paths:
       - 'cinecanaux/tests/pinned-mobile-visual.mjs'
       - 'cinecanaux/tests/partner-promotions-mobile.mjs'
+      - 'cinecanaux/tests/community-mobile-visual.mjs'
       - '.github/workflows/cine-radar-mobile-visual.yml'
 permissions:
   contents: read
@@ -26,6 +27,8 @@ jobs:
         run: node cinecanaux/tests/pinned-mobile-visual.mjs
       - name: Verify three compact cross-promotions on mobile
         run: node cinecanaux/tests/partner-promotions-mobile.mjs
+      - name: Verify discovery autoplay, share and second visit rating
+        run: node cinecanaux/tests/community-mobile-visual.mjs
       - name: Upload preview (if available)
         if: always()
         uses: actions/upload-artifact@v4
