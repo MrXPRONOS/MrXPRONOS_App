@@ -113,6 +113,35 @@ function harness(){
     };
    },
    async batch(ops){
+    if(ops[0]?._sql?.includes('insert or ignore into mrxp_boost_inventory')){
+     const [id,purchaseId,sku,kind,cost,ms]=ops[0]._values;
+     const key=String(id)+':'+purchaseId,balance=[...creditEvents.values()].filter(x=>x.user_id===String(id)).reduce((a,x)=>a+Number(x.amount),0);
+     if(boostInventory.has(key)||balance<Number(cost))return [{success:true,meta:{changes:0}},{success:true,meta:{changes:0}}];
+     boostInventory.set(key,{user_id:String(id),purchase_id:purchaseId,sku,kind,cost,state:'owned',bought_ms:ms,activated_ms:0,expires_ms:0,carry_milli:0});
+     const eventKey=String(id)+':buy:'+purchaseId;
+     if(creditEvents.has(eventKey))throw Error('Duplicate purchase debit');
+     creditEvents.set(eventKey,{user_id:String(id),event_key:'buy:'+purchaseId,event_type:'purchase',amount:-cost,label:'shop',created_ms:ms});
+     return [{success:true,meta:{changes:1}},{success:true,meta:{changes:1}}];
+    }
+    if(ops[0]?._sql?.includes('update players set confirmed_xp=confirmed_xp+')&&ops[0]?._sql?.includes('confirmed_taps')){
+     const p=ops[0]._values,now=p[2],batchId=p[8],id=String(p[5]),receiptKey=id+':'+batchId;
+     if(boostReceipts.has(receiptKey)||player.next_sync_ms>now)return ops.map(()=>({success:true,meta:{changes:0}}));
+     player.confirmed_xp+=p[0];player.confirmed_taps+=p[1];player.last_sync_ms=now;player.next_sync_ms=p[3];
+     boostReceipts.set(receiptKey,{xp_awarded:p[0],taps:p[1]});
+     for(const op of ops.slice(2)){
+      const row=op._values||[];
+      if(op._sql.includes("update mrxp_boost_inventory set state='active'")){
+       const b=boostInventory.get(String(row[3])+':'+String(row[4]));if(b){
+        if(b.state==='queued'){b.state='active';b.activated_ms=row[0];b.expires_ms=row[1]}
+        b.carry_milli=row[2]
+       }
+      }
+      if(op._sql.includes("update mrxp_boost_inventory set state='used'")){
+       const b=boostInventory.get(String(row[0])+':'+String(row[1]));if(b)b.state='used'
+      }
+     }
+     return ops.map(()=>({success:true,meta:{changes:1}}))
+    }
     if(ops.length&&ops.every(op=>op._sql?.includes('insert or ignore into mrxp_credit_events'))){
       return ops.map(op=>{const [user_id,event_key,event_type,amount,label,created_ms]=op._values,key=String(user_id)+':'+event_key;
        const isNew=!creditEvents.has(key);
