@@ -10,11 +10,11 @@ export async function tryOwnerClaim(env,update){
  if(!message?.from||message.chat?.type!=="private")return {handled:false};
  const command=/^\/lieradmin(?:@[A-Za-z0-9_]+)?(?:\s+(.+))?$/i.exec(String(message.text||"").trim());
  if(!command)return {handled:false};
- const reply=async messageText=>{
+ const reply=async(messageText,includeAdminButton=false)=>{
   const response=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/sendMessage",{
    method:"POST",headers:{"content-type":"application/json"},
    body:JSON.stringify({chat_id:message.chat.id,text:messageText,
-    reply_markup:{inline_keyboard:[[{text:"🔐 Ouvrir l'administration",web_app:{url:"https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin"}}]]}}),
+    ...(includeAdminButton?{reply_markup:{inline_keyboard:[[{text:"🔐 Ouvrir l'administration",web_app:{url:"https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin"}}]]}}:{})}),
    signal:AbortSignal.timeout(7000)});
   if(!response.ok)throw Error("Telegram owner claim reply failed");
  };
@@ -42,6 +42,6 @@ export async function tryOwnerClaim(env,update){
   env.DB.prepare("INSERT INTO admin_users(user_id,role) VALUES(?,'owner') ON CONFLICT(user_id) DO UPDATE SET role='owner'").bind(userId),
   env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','9') ON CONFLICT(setting_key) DO UPDATE SET value='9',updated_at=CURRENT_TIMESTAMP")
  ]);
- await reply("✅ Compte administrateur activé.\n\nOuvre le bouton ci-dessous depuis cette conversation Telegram. Ne partage pas ton code d'activation.");
+ await reply("✅ Compte administrateur activé.\n\nOuvre le bouton ci-dessous depuis cette conversation Telegram. Ne partage pas ton code d'activation.",true);
  return {handled:true,activated:true,ownerId:userId};
 }
