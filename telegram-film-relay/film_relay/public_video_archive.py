@@ -17,7 +17,7 @@ import unicodedata
 from difflib import SequenceMatcher
 from pathlib import PurePath
 
-from .bot_http import BotHTTPClient, url_button
+from .bot_http import BotHTTPClient, TelegramBotHTTPError, url_button
 from .publication import film_folder_url
 from .text import first_title, private_message_link
 
@@ -247,14 +247,34 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY) -> dict:
                 original = await client.get_messages(public, ids=video.id)
                 if not original or video_document_id(original) != document_id:
                     raise RuntimeError("La vidéo publique a changé ou disparu")
-                await client.delete_messages(public, [video.id], revoke=True)
+                # Le bot s'occupe des messages récents, le propriétaire
+                # reprend seulement si Telegram signale explicitement
+                # une restriction d'âge ou de droit Bot API.
+                try:
+                    await bot.delete_message(public, video.id)
+                    LOG.info("Vidéo #%s supprimée par le bot", video.id)
+                except TelegramBotHTTPError as exc:
+                    reason = str(exc).casefold()
+                    known_limitation = any(s in reason for s in (
+                        "message can't be deleted", "message to delete not found",
+                        "not enough rights", "not enough permission",
+                        "message is too old", "forbidden", "have no rights",
+                    ))
+                    if not known_limitation:
+                        # Refus indéterminé, rate-limit ou erreur réseau :
+                        # ne pas forcer une seconde suppression.
+                        raise
+                    LOG.warning("Bot limité sur #%s ; passage au compte propriétaire : %s",
+                                video.id, str(exc)[:120])
+                    await asyncio.sleep(30)  # pause prudente avant relais
+                    await client.delete_messages(public, [video.id], revoke=True)
                 after = await client.get_messages(public, ids=video.id)
                 if after and is_video_message(after):
                     raise RuntimeError("Suppression non confirmée par Telegram")
                 report["archived"] += 1
                 LOG.info("ARCHIVÉ #%s vers vidéothèque #%s ; affiche #%s",
                          video.id, destination_id, poster.id)
-                await asyncio.sleep(2)
+                await asyncio.sleep(30)  # 2x+ marge prudente entre suppressions
             except (FloodWaitError, PeerFloodError):
                 raise
             except Exception as exc:
