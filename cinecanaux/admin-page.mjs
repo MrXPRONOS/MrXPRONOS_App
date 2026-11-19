@@ -36,6 +36,10 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 @media(min-width:660px){.analytics-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:360px){.analytics-controls select{max-width:145px}.analytics-dashboard{padding:10px}}
 
+.bot-brand-preview{display:flex;align-items:start;gap:16px;flex-wrap:wrap}
+.bot-brand-preview figure{margin:5px 0 13px;flex:1 1 140px;max-width:220px}
+.bot-brand-preview img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid #3f5f8f}
+.bot-brand-preview figcaption{font-size:11px;color:#bdd0e7;margin-top:6px}
 /* Private owner announcement composer. Nothing is sent without explicit confirmation. */
 .broadcast-box{background:linear-gradient(145deg,#102443,#101e35);border:1px solid #486ba3;border-radius:14px;padding:15px;margin:15px 0 24px}
 .broadcast-box h2{margin:0 0 8px;font-size:16px}
@@ -94,6 +98,16 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
  <p id="broadcast-status" role="status"></p>
  <h3>Historique des annonces</h3><div id="broadcast-history"></div>
  <button id="broadcast-refresh" type="button">↻ Actualiser l'historique</button>
+</section>
+<section class="broadcast-box" id="bot-branding" aria-label="Identité visuelle du bot">
+ <h2>🎨 Identité du bot Telegram</h2>
+ <p>Ces deux visuels sont ceux que tu as validés : l'avatar du bot et l'affiche du message d'accueil /start.</p>
+ <div class="bot-brand-preview">
+  <figure><img src="/assets/bot-profile.jpg" alt="Photo de profil Ciné Radar"><figcaption>Photo de profil Telegram</figcaption></figure>
+  <figure><img src="/assets/bot-start-poster.jpg" alt="Affiche accompagnant le message /start"><figcaption>Affiche du message d'accueil</figcaption></figure>
+ </div>
+ <button type="button" id="bot-brand-sync">🖼️ Appliquer l'identité sur Telegram</button>
+ <p id="bot-brand-status" role="status">Photo de profil : mise à jour automatique au démarrage du bot.</p>
 </section>
 <section class="broadcast-box" id="radar-ops" aria-label="Gestion des tendances et canaux">
  <h2>🎬 Tendances et canaux officiels</h2>
@@ -303,6 +317,14 @@ $("broadcast-cancel").onclick=async()=>{
 };
 $("broadcast-refresh").onclick=()=>refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));
 
+$("bot-brand-sync").onclick=async()=>{
+ const btn=$("bot-brand-sync");btn.disabled=true;$("bot-brand-status").textContent="Synchronisation Telegram…";
+ try{
+  const response=await api("/api/admin/sync-bot-identity",{});
+  $("bot-brand-status").textContent="✅ "+(response.message||"Identité mise à jour.");
+ }catch(e){$("bot-brand-status").textContent="⚠️ "+String(e.message||e)}
+ finally{btn.disabled=false}
+};
 async function refreshRadarOps(){
  const data=await api("/api/admin/radar-ops");
  const chan=$("radar-ops-channels");chan.replaceChildren();
