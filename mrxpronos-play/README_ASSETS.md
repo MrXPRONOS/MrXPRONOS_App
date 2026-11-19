@@ -1,6 +1,6 @@
 # Mr XPRONOS Play — Ressources graphiques
 
-Ce dossier contient le **catalogue officiel de 58 éléments sélectionnés** pour Mr XPRONOS Play (lots 1 à 6).
+Ce dossier contient le **catalogue officiel de 60 éléments sélectionnés** pour Mr XPRONOS Play (lots 1 à 6 et lot 8 d'interface).
 
 > **État de publication (vérifié le 18 novembre 2026) :** les 50 PNG et les 50 WebP des lots 1 à 5 étaient présents sur `main` dans cinq dossiers (20 fichiers par dossier). Les 100 chemins ont été comparés avec le manifeste : **aucun élément manquant, aucun chemin supplémentaire dans les dossiers des lots et aucun fichier vide**. Cette vérification porte sur la présence, les noms et les tailles, pas sur une comparaison pixel par pixel.
 
