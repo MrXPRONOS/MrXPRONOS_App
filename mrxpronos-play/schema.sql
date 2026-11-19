@@ -154,3 +154,16 @@ CREATE TABLE IF NOT EXISTS mrxp_boost_inventory (
 CREATE INDEX IF NOT EXISTS idx_mrxp_boost_active ON mrxp_boost_inventory(user_id,kind,state,expires_ms);
 -- Purchases debit the phase 4 mrxp_credit_events ledger with a stable buy:<purchase_id> event.
 -- A single D1 transaction pairs every inventory row with its debit; no other account can spend it.
+
+-- Mr XPRONOS Play V2 / Phase 6: security audit for economy balancing.
+-- Additive. No player XP, mission, inventory, rank or credit events are modified.
+CREATE TABLE IF NOT EXISTS mrxp_balance_audit (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ admin_id TEXT NOT NULL,
+ setting_key TEXT NOT NULL,
+ old_value TEXT,
+ new_value TEXT NOT NULL,
+ created_ms INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_mrxp_balance_audit_created ON mrxp_balance_audit(created_ms DESC);
+-- Current settings continue to live in bot_settings with the mrxp_balance_ prefix.
