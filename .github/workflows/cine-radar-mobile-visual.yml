@@ -1,0 +1,33 @@
+name: Cine Radar - Mobile pinned showcase visual check
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/tests/pinned-mobile-visual.mjs'
+      - '.github/workflows/cine-radar-mobile-visual.yml'
+permissions:
+  contents: read
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright client
+        run: npm ci --no-audit --no-fund
+      - name: Check Google Chrome availability
+        run: google-chrome --version
+      - name: Exercise real mobile Mini App
+        run: node cinecanaux/tests/pinned-mobile-visual.mjs
+      - name: Upload preview (if available)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cineradar-mobile-pinned-preview
+          path: /tmp/cineradar-mobile.png
+          if-no-files-found: ignore
+          retention-days: 3
