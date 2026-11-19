@@ -9,16 +9,29 @@ page.on('response',r=>{if(r.url().includes('/api/analytics/event')){let body={};
 try{
  const r=await page.goto(url,{waitUntil:'domcontentloaded',timeout:25000});assert.equal(r?.status(),200);
  await page.waitForSelector('#cine-home-picks .cine-pick',{timeout:15000});
- const before=await page.evaluate(()=>{const el=document.querySelector('#cine-home-picks');return {left:el.scrollLeft,snap:getComputedStyle(el).scrollSnapType,max:el.scrollWidth-el.clientWidth,cards:el.querySelectorAll('.cine-pick').length,share:!!document.querySelector('.cine-community-share'),promo:el.querySelectorAll('.cine-promo-slot').length}});
+ const before=await page.evaluate(()=>{
+  const discovery=document.querySelector('#cine-home-picks'),track=discovery.querySelector('.cine-promo-track');
+  return {grid:getComputedStyle(discovery).display,columns:getComputedStyle(discovery).gridTemplateColumns.split(' ').length,
+   discoveryLeft:discovery.scrollLeft,discoveryOverflow:discovery.scrollWidth-discovery.clientWidth,
+   promoLeft:track.scrollLeft,promoOverflow:track.scrollWidth-track.clientWidth,
+   cards:discovery.querySelectorAll(':scope > .cine-pick').length,
+   promoCards:track.querySelectorAll('.cine-promo-card').length,
+   share:!!document.querySelector('.cine-community-share'),promo:discovery.querySelectorAll('.cine-promo-slot').length};
+ });
  await page.waitForTimeout(3400);
- const after=await page.evaluate(()=>document.querySelector('#cine-home-picks').scrollLeft);
+ const after=await page.evaluate(()=>({discoveryLeft:document.querySelector('#cine-home-picks').scrollLeft,
+  promoLeft:document.querySelector('#cine-home-picks .cine-promo-track').scrollLeft}));
  const telemetry=await page.evaluate(()=>({dnt:navigator.doNotTrack,hasUuid:typeof crypto.randomUUID,disabled:localStorage.getItem('cine-radar-analytics-off'),visitor:!!localStorage.getItem('cine-radar-visitor-id-v1')}));
  console.log('MOBILE_FIRST_PARTY_ANALYTICS:',JSON.stringify({telemetry,metricsRequests}));
- console.log('DISCOVERY_AUTOSCROLL:',JSON.stringify({before,after,errors}));
- assert.ok(before.cards>=4,'Discover channels remain present');
- assert.ok(before.max>100,'Horizontal discovery has scrollable overflow');
- assert.equal(before.snap,'none','Auto-scrolling list must not snap back to the first card');
- assert.ok(after>before.left+25,'Discovery should move automatically across channels');
+ console.log('PROMO_ONLY_AUTOSCROLL:',JSON.stringify({before,after,errors}));
+ assert.ok(before.cards>=4,'Discovery channels remain present');
+ assert.equal(before.grid,'grid','Discovery stays in a vertical responsive grid');
+ assert.equal(before.columns,2,'Mobile discovery has two columns');
+ assert.ok(before.discoveryOverflow<5,'Discovery has no horizontal overflow');
+ assert.equal(after.discoveryLeft,before.discoveryLeft,'Discovery itself does not scroll horizontally');
+ assert.equal(before.promoCards,9,'Three promotional channels are repeated for seamless looping');
+ assert.ok(before.promoOverflow>100,'Only the promotion strip has horizontal overflow');
+ assert.ok(after.promoLeft>before.promoLeft+25,'Promotions automatically advance horizontally');
  assert.equal(before.promo,1);
  assert.equal(before.share,true);
  assert.equal(errors.length,0);

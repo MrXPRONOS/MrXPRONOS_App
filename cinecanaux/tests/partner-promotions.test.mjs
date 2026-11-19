@@ -46,12 +46,22 @@ test('avatar proxy preserves only verified image bytes and never exposes Telegra
   assert.equal((await res.arrayBuffer()).byteLength,jpeg.byteLength);
  }finally{globalThis.fetch=real}
 });
-test('the promotion is embedded after several discoveries, not between poster carousel and search',()=>{
+test('À découvrir stays a static responsive grid while only the promotional carousel auto-scrolls',()=>{
  assert.ok(APP_HTML.includes('function promoBlock(){'));
  assert.ok(APP_HTML.includes('a.append(promoBlock())'));
  assert.ok(APP_HTML.includes('promoAfter=(window.matchMedia'));
  assert.ok(APP_HTML.includes('grid-column:1/-1'));
- assert.ok(APP_HTML.includes('grid-auto-flow:column'));
+ assert.ok(APP_HTML.includes('.cine-home-picks{grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert.ok(APP_HTML.includes('@media(min-width:690px){.cine-home-picks{grid-template-columns:repeat(3,minmax(0,1fr))}}'));
+ assert.ok(!APP_HTML.includes('.cine-home-picks{display:flex'));
+ assert.ok(APP_HTML.includes('function autoScrollPromos(){'));
+ assert.ok(APP_HTML.includes('autoScrollPromos();'));
+ assert.ok(!APP_HTML.includes('autoScrollDiscover'));
+ assert.ok(APP_HTML.includes('const track=$("cine-home-picks")?.querySelector(".cine-promo-track")'));
+ assert.ok(APP_HTML.includes('querySelector(".cine-promo-track")'));
+ assert.ok(APP_HTML.includes('track.scrollLeft+=1;'));
+ assert.ok(APP_HTML.includes('for(let repeat=0;repeat<3;repeat++)'));
+ assert.ok(APP_HTML.includes('card.setAttribute("aria-hidden","true")'));
  assert.ok(APP_HTML.includes('18+ · Joue responsablement'));
  for(const handle of HANDLES)assert.ok(APP_HTML.includes('https://t.me/'+handle));
  const p=APP_HTML.indexOf('sectionTitle(home,"À découvrir"');
