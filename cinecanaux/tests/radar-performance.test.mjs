@@ -7,7 +7,7 @@ import {APP_HTML} from "../app-page.mjs";
 const LINK="https://t.me/CinemaPublic2026";
 function channel(){return {id:7,title:"Cinéma test",link:LINK,content_type:"films",genre:"general",avatar_url:""};}
 function ctx(){const state={queries:0,calls:[],rows:[channel()]};return {state,env:{TELEGRAM_TOKEN:"123:test",DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this},async all(){state.queries++;return {results:state.rows}},async first(){return null}}}}}};}
-test("Category queries are cached across repeated clicks without user tracking",async()=>{
+test("Legacy category callbacks now open Mini App without querying directory categories",async()=>{
  invalidateDirectoryCache();
  const {env,state}=ctx();
  const previous=globalThis.fetch;
@@ -15,17 +15,17 @@ test("Category queries are cached across repeated clicks without user tracking",
  try{
   const update={callback_query:{id:"callback-1",from:{id:10},message:{chat:{id:10},message_id:5},data:"category:films"}};
   await botUpdate(env,update);await botUpdate(env,update);
-  assert.equal(state.queries,1);
+  assert.equal(state.queries,0);
   assert.ok(state.calls.includes("answerCallbackQuery"));
   assert.equal(state.calls.filter(x=>x==="editMessageText").length,2);
  }finally{globalThis.fetch=previous;invalidateDirectoryCache();}
 });
-test("Callback acknowledgement starts while database query is still waiting",async()=>{
+test("Callback acknowledgement begins while owner-role authorization is still pending",async()=>{
  invalidateDirectoryCache();
  let unblock;
  const delayed=new Promise(resolve=>{unblock=resolve;});
  const state={calls:[]};
- const env={TELEGRAM_TOKEN:"123:test",DB:{prepare(){return {bind(){return this},async all(){await delayed;return {results:[channel()]};}}}}};
+ const env={TELEGRAM_TOKEN:"123:test",DB:{prepare(){return {bind(){return this},async first(){await delayed;return null;}}}}};
  const previous=globalThis.fetch;
  globalThis.fetch=async(url)=>{const method=String(url).split("/").pop();state.calls.push(method);return Response.json({ok:true,result:{message_id:5}});};
  try{
