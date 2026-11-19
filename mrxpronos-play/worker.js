@@ -567,11 +567,63 @@ function adminKeyboard(origin){
   [{text:"ℹ️ Description",callback_data:"mrxp:admin:edit_description"},{text:"✍️ Bio courte",callback_data:"mrxp:admin:edit_short"}],
   [{text:"🎮 Réglages du jeu",callback_data:"mrxp:admin:features"},{text:"🩺 État du bot",callback_data:"mrxp:admin:health"}],
   [{text:"📢 Canaux des missions",callback_data:"mrxp:admin:channels"},{text:"🪙 Économie MRXP",callback_data:"mrxp:admin:credits"}],
+  [{text:"⚖️ Équilibrage V2",callback_data:"mrxp:admin:balance_release"},{text:"🔎 Audit",callback_data:"mrxp:admin:balance_audit"}],
   [{text:"🎮 Mini App",web_app:{url:origin}},{text:"❌ Fermer",callback_data:"mrxp:admin:close"}]
  ]};
 }
 async function adminDashboard(env,chatId,origin){
  await botApi(env,"sendMessage",{chat_id:chatId,text:"⚙️ Administration Mr XPRONOS Play\n\nCe menu est visible uniquement sur ton compte Telegram. Tu peux consulter les statistiques, modifier les textes du bot et gérer les modules de jeu.",reply_markup:adminKeyboard(origin)});
+}
+
+
+/* Admin-only Telegram control panel. Callback actions never accept raw SQL or
+   arbitrary settings keys; every edit is restricted by MRXP_BALANCE_FIELDS. */
+async function mrxpAdminBalancePanel(env,chatId,origin,group="release"){
+ const config=await mrxpBalanceConfig(env);
+ const categories={release:"🛡 Sécurité / déploiement",price:"🛍 Prix des boosts",reward:"🎁 Récompenses MRXP"};
+ if(!categories[group])group="release";
+ const buttons=Object.entries(MRXP_BALANCE_FIELDS).filter(([key,rule])=>rule.group===group)
+  .map(([key,rule])=>[{text:rule.label+" : "+config.values[key],callback_data:"mrxp:admin:econ_edit_"+key}]);
+ buttons.push([
+  {text:"🛡 Sécurité",callback_data:"mrxp:admin:balance_release"},
+  {text:"🛍 Prix",callback_data:"mrxp:admin:balance_price"},
+  {text:"🎁 Récompenses",callback_data:"mrxp:admin:balance_reward"}
+ ]);
+ buttons.push([{text:"🔎 Audit et anomalies",callback_data:"mrxp:admin:balance_audit"},
+  {text:"⚙️ Retour administration",callback_data:"mrxp:admin:home"}]);
+ await botApi(env,"sendMessage",{chat_id:chatId,
+  text:"⚖️ ÉQUILIBRAGE V2\n\n"+categories[group]+
+  "\n\nModifications appliquées aux futurs événements ou achats, avec un journal de sécurité. Les crédits et boosts déjà attribués ne sont pas retirés."+
+  "\n\nClique sur la valeur à modifier, puis envoie son nouvel entier par message privé. /cancel annule.",
+  reply_markup:{inline_keyboard:buttons}})
+}
+async function mrxpAdminBalanceEdit(env,chatId,adminId,field){
+ const rule=MRXP_BALANCE_FIELDS[field];
+ if(!rule)return;
+ const config=await mrxpBalanceConfig(env);
+ await env.DB.prepare("INSERT INTO bot_admin_pending(telegram_id,edit_key,expires_ms) VALUES(?,?,?) ON CONFLICT(telegram_id) DO UPDATE SET edit_key=excluded.edit_key,expires_ms=excluded.expires_ms")
+  .bind(String(adminId),"econ:"+field,Date.now()+10*60000).run();
+ await botApi(env,"sendMessage",{chat_id:chatId,text:"🔧 "+rule.label+"\n\nValeur actuelle : "+config.values[field]+
+  "\nValeur autorisée : "+rule.min+" à "+rule.max+
+  "\n\nEnvoie uniquement un nombre entier avant 10 minutes. /cancel pour annuler. Les changements sont journalisés."})
+}
+async function mrxpAdminBalanceAudit(env,chatId){
+ const [audit,negative,buys]=await Promise.all([
+  env.DB.prepare("SELECT admin_id,setting_key,old_value,new_value,created_ms FROM mrxp_balance_audit ORDER BY created_ms DESC,id DESC LIMIT 8").all(),
+  env.DB.prepare("SELECT COUNT(*) AS n FROM (SELECT user_id,SUM(amount) AS balance FROM mrxp_credit_events GROUP BY user_id HAVING SUM(amount)<0)").first(),
+  env.DB.prepare("SELECT COUNT(*) AS n FROM mrxp_boost_inventory WHERE bought_ms>=?").bind(Date.now()-86400000).first()
+ ]);
+ const rows=(audit.results||[]).map(x=>"• "+String(x.setting_key).replace("mrxp_balance_","")+
+  " : "+String(x.old_value??"défaut")+" → "+String(x.new_value)+
+  " · "+new Date(Number(x.created_ms)).toLocaleString("fr-FR",{timeZone:"UTC"}));
+ await botApi(env,"sendMessage",{chat_id:chatId,text:
+  "🛡 AUDIT DE L'ÉCONOMIE V2\n\n"+
+  "⚠️ Soldes MRXP négatifs détectés : "+Number(negative?.n||0)+
+  "\n🧾 Achats dans les dernières 24 h : "+Number(buys?.n||0)+
+  "\n\nDerniers changements administratifs :\n"+(rows.join("\n")||"Aucun changement.")+
+  "\n\nAucun compte ou identifiant Telegram privé n'est affiché ici.",
+  reply_markup:{inline_keyboard:[[{text:"⚖️ Équilibrage",callback_data:"mrxp:admin:balance_release"},
+   {text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]]}})
 }
 
 async function adminCreditStats(env,chatId,origin){
@@ -616,6 +668,24 @@ async function submitAdminEdit(env,chatId,userId,text){
   await botApi(env,"sendMessage",{chat_id:chatId,text:"Modification expirée. Utilise /admin pour recommencer."});
   return true;
  }
+
+ if(String(pending.edit_key||"").startsWith("econ:")){
+  const field=String(pending.edit_key).slice(5),rule=MRXP_BALANCE_FIELDS[field];
+  if(!rule){await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).run();return true}
+  const candidate=String(text||"").trim();
+  const value=/^(0|[1-9]\d{0,6})$/.test(candidate)?Number(candidate):NaN;
+  if(!Number.isSafeInteger(value)||value<rule.min||value>rule.max){
+   await botApi(env,"sendMessage",{chat_id:chatId,text:"Valeur invalide. Entre un entier de "+rule.min+" à "+rule.max+". Le réglage reste inchangé ; /cancel pour annuler."});
+   return true
+  }
+  const result=await mrxpBalanceChange(env,userId,field,value);
+  await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).run();
+  await botApi(env,"sendMessage",{chat_id:chatId,text:result.changed?
+    "✅ "+rule.label+" : "+result.old+" → "+value+". Modification journalisée.":
+    "ℹ️ La valeur était déjà "+value+". Aucun changement.",
+    reply_markup:{inline_keyboard:[[{text:"⚖️ Réglages",callback_data:"mrxp:admin:balance_"+rule.group}]]}});
+  return true
+ }
  const limits={welcome:900,description:512,short_description:120};
  const limit=limits[pending.edit_key];
  if(!limit){await env.DB.prepare("DELETE FROM bot_admin_pending WHERE telegram_id=?").bind(String(userId)).run();return true}
@@ -652,6 +722,11 @@ async function telegramWebhook(env,update,origin,ctx){
   if(task==="home")return adminDashboard(env,chat.id,origin);
   if(task==="stats")return adminStats(env,chat.id,origin);
   if(task==="credits")return adminCreditStats(env,chat.id,origin);
+  if(task==="balance"||task==="balance_release")return mrxpAdminBalancePanel(env,chat.id,origin,"release");
+  if(task==="balance_price")return mrxpAdminBalancePanel(env,chat.id,origin,"price");
+  if(task==="balance_reward")return mrxpAdminBalancePanel(env,chat.id,origin,"reward");
+  if(task==="balance_audit")return mrxpAdminBalanceAudit(env,chat.id);
+  if(task.startsWith("econ_edit_"))return mrxpAdminBalanceEdit(env,chat.id,fromId,task.slice("econ_edit_".length));
   if(task==="features")return adminFeatures(env,chat.id,origin);
   if(task==="health")return adminBotHealth(env,chat.id,origin);
   if(task==="channels")return channelMissionDiagnostic(env,chat.id,origin);
