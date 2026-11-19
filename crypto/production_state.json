@@ -56,6 +56,14 @@
       "message_id": 198,
       "number": 11
     },
+    "1b39dd3727ca97d2a67e": {
+      "message_id": 209,
+      "number": 11
+    },
+    "1b39dd3727ca97d2a67e81bd": {
+      "message_id": 209,
+      "number": 11
+    },
     "219923d8977c84540b652424": {
       "message_id": 124,
       "number": 9
@@ -414,6 +422,29 @@
         "worldwide"
       ],
       "url": "https://cointelegraph.com/news/binance-says-won-65b-worldwide-freezing-order-after-hack"
+    },
+    {
+      "actors": [
+        "coinbase"
+      ],
+      "category": "TECHNOLOGIE",
+      "countries": [],
+      "figures": [],
+      "message_id": 209,
+      "published_at": "2026-11-19T14:45:00+00:00",
+      "sent_at": "2026-11-19T16:46:07.536222+00:00",
+      "source": "Bitcoin Magazine",
+      "title": "Coinbase Launches U.S. Spot Margin Trading With Up to 10x Leverage",
+      "tokens": [
+        "10x",
+        "coinbase",
+        "launch",
+        "leverage",
+        "margin",
+        "spot",
+        "trading"
+      ],
+      "url": "https://bitcoinmagazine.com/news/coinbase-us-spot-margin-10x"
     }
   ],
   "sent": {
@@ -1148,6 +1179,12 @@
       "number": 9,
       "sent_at": "2026-10-25T22:01:14.454402+00:00",
       "source": "NewsBTC"
+    },
+    "news:09:76a28118b54a21d2f6a443d6": {
+      "message_id": 209,
+      "number": 9,
+      "sent_at": "2026-11-19T16:46:07.536222+00:00",
+      "source": "Bitcoin Magazine"
     },
     "news:09:84db441fc203335ef5dfe456": {
       "message_id": 73,
