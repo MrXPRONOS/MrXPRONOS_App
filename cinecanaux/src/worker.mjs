@@ -32,7 +32,7 @@ async function receiveTelegram(request,env,ctx){
   await botUpdate(env,update);
   // Apply public start-only and private owner command scopes on the next /start
   // without delaying the welcome. Scheduled housekeeping remains the backup.
-  if(/^\\/start(?:@[A-Za-z0-9_]+)?(?:\\s|$)/i.test(String(update.message?.text||""))){
+  if(/^\/start(?:@[A-Za-z0-9_]+)?(?:\s|$)/i.test(String(update.message?.text||""))){
    ctx?.waitUntil(initializeProfile(env).catch(e=>console.warn("bot_profile_bootstrap_failed",String(e).slice(0,130))));
   }
   return Response.json({ok:true});}
