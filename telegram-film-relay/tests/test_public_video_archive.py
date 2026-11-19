@@ -95,7 +95,7 @@ class PublicArchiveTests(unittest.TestCase):
 
     def test_legacy_hash_film_heading_matches_mutiny(self):
         video = msg(185, title="Mutiny Ultra HD (2026) VF", video=True)
-        poster = msg(184, title="#Film\\n\\n🎬 MUTINY (2026)\\nSynopsis : aventure", photo=True)
+        poster = msg(184, title="#Film\n\n🎬 MUTINY (2026)\nSynopsis : aventure", photo=True)
         self.assertEqual(poster_heading(poster), "MUTINY (2026)")
         self.assertIs(matching_poster(video, [poster, video]), poster)
 
@@ -107,10 +107,10 @@ class PublicArchiveTests(unittest.TestCase):
 
     def test_short_hope_and_hash_film_mongoose(self):
         hope = msg(276, title="Hope VF 2026.mp4", video=True)
-        hope_poster = msg(275, title="Hope\\n2026 ‧ Thriller/SF", photo=True)
+        hope_poster = msg(275, title="Hope\n2026 ‧ Thriller/SF", photo=True)
         self.assertIs(matching_poster(hope, [hope_poster, hope]), hope_poster)
         mongoose = msg(293, title="The Mongoose (2026) VF", video=True)
-        mongoose_poster = msg(292, title="#Film\\n🎬 THE MONGOOSE (2026)", photo=True)
+        mongoose_poster = msg(292, title="#Film\n🎬 THE MONGOOSE (2026)", photo=True)
         self.assertIs(matching_poster(mongoose, [mongoose_poster, mongoose]), mongoose_poster)
 
     def test_ignore_series_episode_in_movie_count(self):
