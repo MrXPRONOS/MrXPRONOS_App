@@ -102,3 +102,12 @@ INSERT OR IGNORE INTO player_progress_v2(user_id,legacy_level_floor,current_leve
         CAST(strftime('%s','now') AS INTEGER)*1000,
         CAST(strftime('%s','now') AS INTEGER)*1000
  FROM players;
+
+
+-- V2 Phase 2: avatars previously unlocked may be selected cosmetically.
+-- selected_rank = 0: automatically display the current official rank avatar.
+CREATE TABLE IF NOT EXISTS player_avatar_prefs (
+ user_id TEXT PRIMARY KEY REFERENCES players(user_id),
+ selected_rank INTEGER NOT NULL DEFAULT 0 CHECK(selected_rank BETWEEN 0 AND 11),
+ updated_ms INTEGER NOT NULL
+);

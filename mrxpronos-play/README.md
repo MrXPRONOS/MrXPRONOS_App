@@ -1,5 +1,13 @@
 # Mr XPRONOS Play — Cloudflare V1
 
+## V2 Phase 2 — Profils évolutifs et collection (19 novembre 2026)
+
+La page Profil possède une collection complète de **11 avatars africains**, un badge de rang et des étoiles temporaires, des animations légères, ainsi que le détail du prochain rang (XP confirmés et défis de maîtrise). Un joueur peut conserver et afficher un ancien avatar débloqué, sans changer son véritable niveau. Le choix est sauvegardé dans D1 et vérifié par le Worker grâce à l'identité Telegram signée. Le mode automatique sélectionne le meilleur avatar débloqué.
+
+**Migration D1 additive nécessaire avant déploiement :** `migrations/003_avatar_profiles.sql` ; nouveaux endpoints privés `GET /api/profile` et `POST /api/profile/avatar`. Les icônes définitives, les cartes partageables, les crédits MRXP et les boosts ne font pas encore partie de cette phase.
+
+Documentation : [PROFILES_V2_PHASE2.md](PROFILES_V2_PHASE2.md).
+
 ## V2 Phase 1 — Progression hybride et hub Jeux (19 novembre 2026)
 
 **État courant :** la Mini App adopte les niveaux officiels basés sur les XP confirmés et les défis de maîtrise, avec préservation du niveau acquis sous la V1. L'ancien onglet **ROUE** devient **JEUX** : Lucky Wheel reste jouable, Snake est annoncé comme prochain jeu mais **n'est pas encore intégré**. Les 30 défis de maîtrise et leurs sept passages de rang sont calculés par le Worker ; le profil les affiche. **Migration D1 additive requise avant déploiement** : voir `migrations/002_hybrid_progression.sql`.
