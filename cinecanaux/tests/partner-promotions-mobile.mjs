@@ -10,7 +10,8 @@ try{
  assert.equal(r?.status(),200);
  const promo=page.locator('#cine-home-picks .cine-promo-slot');
  await promo.waitFor({state:'visible',timeout:18000});
- await promo.scrollIntoViewIfNeeded();
+ await page.waitForTimeout(2800);
+ await page.evaluate(()=>document.querySelector("#cine-home-picks .cine-promo-slot")?.scrollIntoView({block:"center",inline:"center"}));
  await page.waitForTimeout(2600);
  const state=await page.evaluate(()=>{
   const root=document.querySelector('#cine-home-picks');
@@ -34,7 +35,7 @@ try{
  });
  console.log('MOBILE_CROSS_PROMO_STATE:',JSON.stringify(state));
  console.log('MOBILE_CROSS_PROMO_JS_ERRORS:',JSON.stringify(errors));
- await promo.screenshot({path:'/tmp/cineradar-cross-promo-mobile.png'});
+ await page.screenshot({path:'/tmp/cineradar-cross-promo-mobile.png'});
  assert.equal(state.precedingChannels,4,'Promotion should appear after the first four suggestions');
  assert.equal(state.cardCount,3);
  assert.equal(state.promoOtherPlaces,1);
