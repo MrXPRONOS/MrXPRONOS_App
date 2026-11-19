@@ -8,6 +8,14 @@ test('pinned showcase is live, uses trusted channel message URLs, and can serve 
  assert.ok(Array.isArray(data.items));
  assert.ok(Number.isInteger(data.total));
  console.log('Pinned showcase live:',data.total,'items; per category:',data.items.reduce((x,p)=>(x[p.type]=(x[p.type]||0)+1,x),{}));
+ const home=await fetch(ORIGIN+'/app',{signal:AbortSignal.timeout(15000)});
+ assert.equal(home.status,200);
+ const html=await home.text();
+ const initial=/const PRELOADED_PINS=(\[[^\n]*\]);/.exec(html);
+ assert.ok(initial,'Pinned items should be embedded in initial HTML');
+ const embedded=JSON.parse(initial[1]);
+ assert.equal(embedded.length,data.items.length);
+ console.log('Initial HTML pin preload:',embedded.length,'cards');
  for(const item of data.items){
   assert.match(item.link,/^https:\/\/t\.me\/(?:CineXFilms_vf|seriesvf_cinex|CineXAnimeFR)\/[1-9][0-9]{0,12}$/i);
   assert.match(item.poster,/^\/assets\/pin-cover\/(films|series|animes)\/[1-9][0-9]{0,12}\.jpg$/);
