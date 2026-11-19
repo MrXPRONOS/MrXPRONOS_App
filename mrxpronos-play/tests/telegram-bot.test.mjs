@@ -29,6 +29,7 @@ function harness(){
         if(lower.includes('from bot_admin_pending'))return pending.get(String(values[0]))||null;
         if(lower.includes('select * from players'))return {...player};
         if(lower.includes('from players'))return {n:rows.players,xp:180};
+        if(lower.includes('select xp_awarded from sync_receipts'))return null;
         if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
         if(lower.includes('from wheel_claims'))return {n:rows.wheel_claims};
         if(lower.includes('from daily_claims'))return {n:rows.daily_claims};
@@ -40,7 +41,8 @@ function harness(){
         if(lower.includes('insert into bot_settings'))settings.set(values[0],values[1]);
         if(lower.includes('update players set username')){player.username=values[0];player.display_name=values[1];player.user_id=values[3]}
         return {success:true};
-       }
+       },
+       async all(){return {results:[]}}
       };
      },
      async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
@@ -213,10 +215,11 @@ function signedTelegramUser(user){
 
 test('authenticated Telegram full name is returned for the exact signed user',async()=>{
  const h=harness();
+ h.env.DEV_MODE='true';
  try{
   const signed=signedTelegramUser({id:44001,first_name:'Aya',last_name:'Kouma',username:'aya_tg'});
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
-  assert.equal(res.status,200);
+  assert.equal(res.status,200,await res.clone().text());
   const data=await res.json();
   assert.equal(data.user.display_name,'Aya Kouma');
   assert.equal(data.user.username,'aya_tg');
