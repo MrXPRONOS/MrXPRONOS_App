@@ -65,9 +65,11 @@ class DesirTests(unittest.TestCase):
         user = NS(download_media=get_image)
         poster=NS(photo=object(), media=NS(photo=object()), noforwards=False)
         item=NS(poster=poster)
-        result = asyncio.run(post_public(
-            bot, user, "@CineXDesirfr", item, "Mon Film",
-            "https://t.me/c/123456/45", "https://t.me/+OLD_LINK"))
+        with patch("film_relay.publication.library_button_rows",
+                   return_value=[]):
+            result = asyncio.run(post_public(
+                bot, user, "@CineXDesirfr", item, "Mon Film",
+                "https://t.me/c/123456/45", "https://t.me/+OLD_LINK"))
         self.assertEqual(result.id, 99)
         kwargs = bot.send_file.await_args.kwargs
         self.assertEqual(kwargs["buttons"][0][0].style, "success")
