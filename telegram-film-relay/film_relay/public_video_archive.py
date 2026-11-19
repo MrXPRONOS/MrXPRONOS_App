@@ -58,7 +58,7 @@ def normalize_title(text: str) -> str:
     """Évite d'associer deux films uniquement parce qu'ils sont voisins."""
     title = first_title(text or "")
     title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
-    title = re.sub(r"(?i)\b(?:voir|regarder|film|complet|vf|vostfr|french|hd|1080p|720p|mkv|mp4|avi|mov|webm|m4v)\b", " ", title)
+    title = re.sub(r"(?i)\b(?:voir|regarder|film|complet|vf|vostfr|french|hd|ultra|uhd|4k|2160p|1080p|720p|mkv|mp4|avi|mov|webm|m4v)\b", " ", title)
     return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
 
 
