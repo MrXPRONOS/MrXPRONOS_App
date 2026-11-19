@@ -172,6 +172,14 @@ class BotHTTPClient:
             "disable_notification": "true" if silent else "false",
         })
 
+    async def unpin_message(self, channel, message_id: int):
+        """Unpin only the exact previously curated public message."""
+        from telethon import utils
+        return await self._call("unpinChatMessage", {
+            "chat_id": str(utils.get_peer_id(channel)),
+            "message_id": str(int(message_id)),
+        })
+
     async def disconnect(self):
         # Aucun état d'authentification MTProto à libérer.
         return None
