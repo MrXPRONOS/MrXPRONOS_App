@@ -141,3 +141,28 @@ test('lot 1: all ten original 3D icons are integrated and the sprite is an optim
   assert.ok(navigation.includes('quickButton("'+icon+'","'+kind+'"'),kind+' shortcut is still an emoji');
  assert.ok(APP_HTML.includes('function autoScrollPromos()'),'Existing promotional carousel must be preserved');
 });
+
+
+test('lot 2: all ten approved 3D navigation icons are used in interactive controls',()=>{
+ for(const key of ['accueil','explorer','decouvrir','favoris','historique','proposer','apropos','menu','fermer','partager']){
+  assert.ok(navigation.includes(' '+key+':[['),key+' 3D vector path is missing');
+ }
+ assert.ok(APP_HTML.includes('function cineNavIcon(key){'));
+ assert.ok(APP_HTML.includes('viewBox="0 0 512 512"'));
+ assert.ok(APP_HTML.includes('linearGradient id='));
+ assert.ok(APP_HTML.includes('.cine-nav-icon svg{display:block;width:100%'));
+ assert.ok(navigation.includes('b.append(cineNavIcon(icon),document.createTextNode(label))'),'Menu and bottom tabs must have matching vector icons');
+ for(const key of ['accueil','explorer','decouvrir','favoris','historique','proposer','apropos','menu']){
+  assert.ok(navigation.includes('"'+key+'"]'),key+' navigation entry missing');
+ }
+ assert.ok(navigation.includes('menuBtn.append(cineNavIcon("menu"))'));
+ assert.ok(navigation.includes('close.append(cineNavIcon("fermer"))'));
+ assert.ok(navigation.includes('btn.append(cineNavIcon("partager"),document.createTextNode("Partager Ciné Radar"))'));
+ assert.ok(navigation.includes('suggest.replaceChildren(cineNavIcon("proposer")'));
+ assert.ok(navigation.includes('favoriteLabel(saved,favorites.includes(id))'));
+ assert.ok(navigation.includes('favoriteLabel(b,favorites.includes(id),true)'));
+ assert.ok(navigation.includes('function favoriteLabel(target,selected,preview=false)'));
+ assert.ok(!navigation.includes('makeNav("Menu","accueil","☰")'));
+ assert.ok(!navigation.includes('const glyph=node("span",null,icon);'));
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Lot 1 must stay unchanged');
+});
