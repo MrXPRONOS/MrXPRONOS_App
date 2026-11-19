@@ -23,7 +23,7 @@ from .desir_runner import (
 from .publication import rich_caption, rich_video_title
 from .recovery import snapshot_telegram_posts
 from .runner import resolve_peer
-from .text import private_message_link
+from .text import private_message_link, clean_caption
 from .source_channels import source_list
 
 LOG = logging.getLogger("cinex_categories")
@@ -311,6 +311,10 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 LOG.warning("%s : affiche/vidéo en quarantaine (%s), vidéo=%s", cfg["label"], assessment, item.video.id)
                 continue
             title = film_title(item).strip() or cfg["fallback"]
+            description = clean_caption(
+                getattr(item.poster, "raw_text", "") or title,
+                getattr(item.poster, "entities", None),
+            ) or title
             if not publish:
                 LOG.info("[SIMULATION] %s : vidéo source=%s affiche=%s",
                          cfg["label"], item.video.id, getattr(item.poster, "id", None))
@@ -352,7 +356,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
                     photo = await send_library_poster_with_buttons(
-                        client, bot, private, public, item.poster, title,
+                        client, bot, private, public, item.poster, description,
                     )
                     state.stage(key, "poster", photo.id)
                     await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
@@ -365,7 +369,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             video_url = private_message_link(private_id, private_video_id)
             public_post = await post_public(
-                bot, client, bot_public, item, title, video_url, ""
+                bot, client, bot_public, item, description, video_url, ""
             )
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             public_video = await post_public_video_after_poster(
