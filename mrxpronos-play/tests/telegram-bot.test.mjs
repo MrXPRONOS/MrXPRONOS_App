@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 const code = await readFile(new URL('../worker.js',import.meta.url), 'utf8');
@@ -12,6 +13,7 @@ function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
  const pending = new Map();
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
+ const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0};
  const env={
   BOT_TOKEN:'fake-token',
   WEBHOOK_SECRET:'unit-test-secret',
@@ -25,6 +27,7 @@ function harness(){
         if(lower.includes('from bot_admins'))return String(values[0])===String(adminId)?{telegram_id:String(adminId)}:null;
         if(lower.includes('from bot_settings'))return {value:settings.get(values[0])};
         if(lower.includes('from bot_admin_pending'))return pending.get(String(values[0]))||null;
+        if(lower.includes('select * from players'))return {...player};
         if(lower.includes('from players'))return {n:rows.players,xp:180};
         if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
         if(lower.includes('from wheel_claims'))return {n:rows.wheel_claims};
@@ -35,11 +38,12 @@ function harness(){
         if(lower.includes('insert into bot_admin_pending'))pending.set(String(values[0]),{edit_key:values[1],expires_ms:values[2]});
         if(lower.includes('delete from bot_admin_pending'))pending.delete(String(values[0]));
         if(lower.includes('insert into bot_settings'))settings.set(values[0],values[1]);
+        if(lower.includes('update players set username')){player.username=values[0];player.display_name=values[1];player.user_id=values[3]}
         return {success:true};
        }
       };
      },
-     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};return {results:[]}},
+     async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
      async first(){
       if(lower.includes('from players'))return {n:rows.players,xp:180};
       if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
@@ -197,4 +201,94 @@ test('admin can update Telegram profile description using protected flow',async(
   assert.equal(h.settings.get('description'),'🎮 Jouer gratuitement et collectionner des XP Points.');
   assert.ok(h.calls.some(x=>x.method==='setMyDescription'));
  }finally{h.restore()}
+});
+
+function signedTelegramUser(user){
+ const params=new URLSearchParams({auth_date:String(Math.floor(Date.now()/1000)),user:JSON.stringify(user)});
+ const text=[...params.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,value])=>key+'='+value).join('\n');
+ const secret=createHmac('sha256','WebAppData').update('fake-token').digest();
+ params.set('hash',createHmac('sha256',secret).update(text).digest('hex'));
+ return params.toString();
+}
+
+test('authenticated Telegram full name is returned for the exact signed user',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:44001,first_name:'Aya',last_name:'Kouma',username:'aya_tg'});
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
+  assert.equal(res.status,200);
+  const data=await res.json();
+  assert.equal(data.user.display_name,'Aya Kouma');
+  assert.equal(data.user.username,'aya_tg');
+  assert.deepEqual(data.game_features,{tap:true,wheel:true,daily:true,missions:true});
+ }finally{h.restore()}
+});
+
+test('Mini App uses server-verified display_name and Telegram photo, not brand identity',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  assert.ok(html.includes('state.username=String(r.user.display_name||"").trim()'));
+  assert.ok(html.includes('loadTelegramAvatar()'));
+  assert.ok(html.includes('avatarInitials(state.username)'));
+  assert.ok(!html.includes("avatar.replaceChildren(img(asset.logo,'Logo MX par défaut'))"));
+ }finally{h.restore()}
+});
+
+test('only approved admin can toggle Lucky Wheel and bootstrap exposes flag',async()=>{
+ const h=harness();
+ try{
+  await h.webhook(callback(publicId,'mrxp:admin:toggle_wheel'));
+  assert.equal(h.settings.has('feature_wheel'),false);
+  await h.webhook(callback(adminId,'mrxp:admin:toggle_wheel'));
+  assert.equal(h.settings.get('feature_wheel'),'0');
+  const calls=h.calls.filter(x=>x.method==='sendMessage');
+  assert.ok(calls.some(x=>x.args.text.includes('Lucky Wheel')));
+  assert.ok(calls.some(x=>x.args.reply_markup?.inline_keyboard?.flat().some(b=>b.callback_data==='mrxp:admin:toggle_wheel')));
+  const signed=signedTelegramUser({id:44002,first_name:'Yao',last_name:'Amé',username:'yao_tg'});
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/game-features',{headers:{'x-telegram-init-data':signed}}),h.env);
+  assert.equal(res.status,200);
+  assert.equal((await res.json()).features.wheel,false);
+ }finally{h.restore()}
+});
+
+test('unauthenticated visitors cannot read game feature configuration',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/game-features'),h.env);
+  assert.equal(res.status,401);
+ }finally{h.restore()}
+});
+
+test('new actions of paused game module cannot be synced',async()=>{
+ const h=harness();
+ try{
+  h.settings.set('feature_tap','0');
+  const signed=signedTelegramUser({id:44003,first_name:'Navi',username:'navi'});
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/sync',{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify({batch_id:'1234567890abcdef-abc',taps:1,daily_days:[],wheel_days:[]})}),h.env);
+  assert.equal(res.status,423);
+  assert.equal((await res.json()).code,'GAME_PAUSED');
+ }finally{h.restore()}
+});
+
+test('avatar endpoint reads only authenticated user Telegram picture',async()=>{
+ const h=harness();
+ const oldFetch=globalThis.fetch;
+ try{
+  const signed=signedTelegramUser({id:44004,first_name:'Aya',last_name:'Kouma'});
+  let profileQuery='';
+  globalThis.fetch=async(input,options)=>{
+   const url=String(input);
+   if(url.includes('getUserProfilePhotos')){profileQuery=url;return Response.json({ok:true,result:{photos:[[{file_id:'small'},{file_id:'avatar_id'}]]}})}
+   if(url.includes('/getFile?'))return Response.json({ok:true,result:{file_path:'photos/test_avatar.jpg'}});
+   if(url.includes('/file/bot'))return new Response(new Uint8Array([255,216,255,217]),{status:200,headers:{'content-type':'image/jpeg'}});
+   return oldFetch(input,options);
+  };
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/avatar',{headers:{'x-telegram-init-data':signed}}),h.env);
+  assert.equal(res.status,200);
+  assert.equal(res.headers.get('content-type'),'image/jpeg');
+  assert.ok(profileQuery.includes('user_id=44004'));
+  assert.equal(res.headers.get('cache-control'),'private, no-store');
+ }finally{globalThis.fetch=oldFetch;h.restore()}
 });
