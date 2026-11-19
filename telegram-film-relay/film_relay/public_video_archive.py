@@ -207,13 +207,18 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
 
         private_docs = await existing_private_media(client, private) if apply else {}
         bot = BotHTTPClient(bot_token, client) if apply else None
+        bot_can_delete = False
         if bot:
             identity = await bot.get_me()
             permissions = await bot.get_permissions(public, identity)
-            if not (permissions.is_creator or (
-                permissions.is_admin and getattr(permissions, "delete_messages", False)
-            )):
-                raise RuntimeError("Le bot CinéX doit posséder le droit de supprimer les messages")
+            if not (permissions.is_creator or getattr(permissions, "is_admin", False)):
+                raise RuntimeError("Le bot CinéX doit être administrateur pour modifier les affiches")
+            bot_can_delete = bool(permissions.is_creator or getattr(
+                permissions, "delete_messages", False))
+            if not bot_can_delete:
+                LOG.warning(
+                    "Le bot ne peut pas supprimer ; le compte propriétaire prendra "
+                    "le relais après vérification de la vidéothèque et des boutons")
             me = await client.get_me()
             owner_rights = await client.get_permissions(public, me)
             if not (getattr(owner_rights, "is_creator", False) or
@@ -297,27 +302,29 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                 original = await client.get_messages(public, ids=video.id)
                 if not original or video_document_id(original) != document_id:
                     raise RuntimeError("La vidéo publique a changé ou disparu")
-                # Le bot s'occupe des messages récents, le propriétaire
-                # reprend seulement si Telegram signale explicitement
-                # une restriction d'âge ou de droit Bot API.
-                try:
-                    await bot.delete_message(public, video.id)
-                    LOG.info("Vidéo #%s supprimée par le bot", video.id)
-                except TelegramBotHTTPError as exc:
-                    reason = str(exc).casefold()
-                    known_limitation = any(s in reason for s in (
-                        "message can't be deleted", "message to delete not found",
-                        "not enough rights", "not enough permission",
-                        "message is too old", "forbidden", "have no rights",
-                    ))
-                    if not known_limitation:
-                        # Refus indéterminé, rate-limit ou erreur réseau :
-                        # ne pas forcer une seconde suppression.
-                        raise
-                    LOG.warning("Bot limité sur #%s ; passage au compte propriétaire : %s",
-                                video.id, str(exc)[:120])
-                    await asyncio.sleep(30)  # pause prudente avant relais
+                # Permission Bot API missing? Use the Telegram owner session,
+                # whose actual delete permission was checked above. Never
+                # bypass the verified poster, private copy or latest-ten guards.
+                if not bot_can_delete:
                     await client.delete_messages(public, [video.id], revoke=True)
+                    LOG.info("Vidéo #%s retirée par le compte administrateur", video.id)
+                else:
+                    try:
+                        await bot.delete_message(public, video.id)
+                        LOG.info("Vidéo #%s supprimée par le bot", video.id)
+                    except TelegramBotHTTPError as exc:
+                        reason = str(exc).casefold()
+                        known_limitation = any(s in reason for s in (
+                            "message can't be deleted", "message to delete not found",
+                            "not enough rights", "not enough permission",
+                            "message is too old", "forbidden", "have no rights",
+                        ))
+                        if not known_limitation:
+                            raise
+                        LOG.warning("Bot limité sur #%s ; passage au propriétaire : %s",
+                                    video.id, str(exc)[:120])
+                        await asyncio.sleep(30)
+                        await client.delete_messages(public, [video.id], revoke=True)
                 after = await client.get_messages(public, ids=video.id)
                 if after and is_video_message(after):
                     raise RuntimeError("Suppression non confirmée par Telegram")
