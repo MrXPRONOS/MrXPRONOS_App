@@ -3,12 +3,13 @@
 import {verifiedIdentity,linkUsername} from './v2.mjs';
 import {checkDailyLinks} from './maintenance-v2.mjs';
 import {runLoggedJob} from './job-log.mjs';
+import {adminAnalytics} from './analytics.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
  if(!u)return null;
  const admin=await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(u.telegram_id).first();
- return admin?u:null;
+ return admin?.role==='owner'?u:null;
 }
 async function parseBody(req){
  if(Number(req.headers.get('content-length')||0)>4096)throw Error('oversized');
@@ -18,6 +19,7 @@ async function parseBody(req){
 export async function adminAPI(env,request){
  const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403);
  const u=new URL(request.url),path=u.pathname;
+ if(request.method==='GET'&&path==='/api/admin/analytics')return adminAnalytics(env,request);
  if(request.method==='GET'&&path==='/api/admin/overview'){
   const items=await env.DB.prepare(`SELECT
   (SELECT COUNT(*) FROM channels WHERE status='approved') AS indexed,
