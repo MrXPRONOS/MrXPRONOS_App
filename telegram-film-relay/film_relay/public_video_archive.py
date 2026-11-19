@@ -102,8 +102,29 @@ def title_similarity(first: str, second: str) -> float:
     return SequenceMatcher(None, a, b).ratio()
 
 
+def is_primary_film_video(message) -> bool:
+    """A film video even when its poster is absent or cannot be matched.
+
+    Ignore known GIFs, coupon videos, TV episodes, and John Wick films the
+    owner explicitly handles manually. Unknown video files are counted as
+    films (conservative: protect them rather than accidentally delete them).
+    """
+    if not is_video_message(message):
+        return False
+    heading = normalize_title(video_title(message))
+    filename = (getattr(getattr(message, "file", None), "name", "") or "").lower()
+    if any(term in heading for term in ("john wick", "animation gif", "pronostics mr xpronos")):
+        return False
+    if "animation.gif" in filename or "daily_pronos" in filename:
+        return False
+    if re.search(r"(?i)\bS\d{1,2}\s*E[P]?\s*\d{1,3}\b", video_title(message)):
+        return False
+    return True
+
+
 def last_ten_video_ids(messages, limit: int = KEEP_COUNT) -> set[int]:
-    videos = sorted((m for m in messages if is_video_message(m)),
+    """Protect the latest ten FILM videos, including unpaired film uploads."""
+    videos = sorted((m for m in messages if is_primary_film_video(m)),
                     key=lambda m: m.id, reverse=True)
     return {m.id for m in videos[:limit]}
 
@@ -185,7 +206,7 @@ def verified_film_video_pairs(messages):
     claimed = set()
     for video in videos:
         # TV episodes are handled by the separate series catalogue.
-        if re.search(r"(?i)\\bS\d{1,2}\s*E[P]?\s*\d{1,3}\\b", video_title(video)):
+        if re.search(r"(?i)\bS\d{1,2}\s*E[P]?\s*\d{1,3}\b", video_title(video)):
             continue
         poster = matching_poster(video, messages, claimed=claimed)
         if poster is not None:
@@ -362,10 +383,15 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
         videos = sorted([m for m in messages if is_video_message(m)],
                         key=lambda m: m.id, reverse=True)
         film_pairs = verified_film_video_pairs(messages)
-        protected = {video.id for video, _poster in film_pairs[:KEEP_COUNT]}
-        to_archive = [(video, poster) for video, poster in film_pairs[KEEP_COUNT:]
-                      if not is_user_reserved_film(video, poster)]
-        reserved = sum(is_user_reserved_film(v, p) for v, p in film_pairs[KEEP_COUNT:])
+        # Protect the newest ten actual films, even if some were sent
+        # without a recognizable poster. Otherwise an unpaired recent
+        # movie would not count and an older video could remain by mistake.
+        protected = last_ten_video_ids(messages)
+        to_archive = [(video, poster) for video, poster in film_pairs
+                      if video.id not in protected
+                      and not is_user_reserved_film(video, poster)]
+        reserved = sum(is_user_reserved_film(v, p) for v, p in film_pairs
+                       if v.id not in protected)
         unmatched = len(videos) - len(film_pairs)
         report.update({
             "videos": len(videos), "kept": len(protected),
@@ -379,7 +405,7 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
         )
         paired_ids = {v.id for v, _ in film_pairs}
         for item in videos:
-            if item.id not in paired_ids and item.id not in {v.id for v in videos[:KEEP_COUNT]}:
+            if item.id not in paired_ids and item.id not in protected:
                 LOG.warning("Vidéo ancienne non associable #%s : %s ; laissée intacte",
                             item.id, normalize_title(video_title(item))[:80])
         if len(messages) == limit:
@@ -459,22 +485,13 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                 # serait devenue parmi les dix dernières pendant le cycle.
                 # Even when hundreds of poster messages separate videos, find
                 # ALL ten newest videos before deleting any candidate.
-                newest_messages = []
-                video_count = 0
-                # Scan enough history for matching *film posters*, not just
-                # ten arbitrary video posts. Always keep the 12-message window
-                # behind the last candidate for poster verification.
-                last_candidate_id = None
+                newest_film_videos = []
                 async for latest in client.iter_messages(public, limit=20000):
-                    newest_messages.append(latest)
-                    if is_video_message(latest):
-                        video_count += 1
-                        if video_count == KEEP_COUNT + 30:
-                            last_candidate_id = latest.id
-                    if last_candidate_id is not None and latest.id < last_candidate_id - 12:
+                    if is_primary_film_video(latest):
+                        newest_film_videos.append(latest)
+                    if len(newest_film_videos) >= KEEP_COUNT:
                         break
-                recent_pairs = verified_film_video_pairs(newest_messages)
-                recent_ids = {m.id for m, _ in recent_pairs[:KEEP_COUNT]}
+                recent_ids = {m.id for m in newest_film_videos}
                 if len(recent_ids) < KEEP_COUNT:
                     raise RuntimeError("Impossible de confirmer dix films récents : suppression suspendue")
                 if video.id in recent_ids:
