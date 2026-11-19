@@ -151,7 +151,8 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
+let init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
+let adminBooted=false;
 try{window.Telegram?.WebApp?.ready();window.Telegram?.WebApp?.expand();}catch{}
 const status=t=>{$("status").textContent=t;};
 const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!=null)x.textContent=text;return x;};
@@ -442,7 +443,23 @@ for(const action of ["hide","show","exclude"])$(action).onclick=async()=>{
  if(action==="exclude"&&!confirm("Exclure durablement ce canal ?"))return;
  try{await manage(id,action);}catch(e){status(String(e.message||e));}
 };
-if(!init)status("Ouvre cette page depuis le bot Telegram avec ton compte administrateur.");
-else load().catch(e=>status("Accès refusé ou service indisponible : "+String(e.message||e)));
+function bootstrapAdmin(){
+ if(adminBooted||!init)return;
+ adminBooted=true;
+ load().catch(e=>{
+  adminBooted=false;
+  status("Accès refusé ou service indisponible : "+String(e.message||e));
+ });
+}
+window.addEventListener("message",event=>{
+ if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=="cine-radar-owner-auth")return;
+ const signed=String(event.data.initData||"");
+ if(!signed||signed.length>5000)return;
+ init=signed;
+ try{sessionStorage.setItem("cine-radar-owner-auth",signed)}catch{}
+ bootstrapAdmin();
+});
+if(!init)status("Vérification Telegram : ouvre l'administration depuis le menu Ciné Radar.");
+else bootstrapAdmin();
 })();
 </script></body></html>`;
