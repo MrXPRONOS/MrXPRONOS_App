@@ -34,7 +34,7 @@ async function ensurePlayer(env,u){const now=Date.now();await env.DB.prepare("IN
 function validDay(d,now){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const ms=Date.parse(d+"T00:00:00Z");const todayMs=Math.floor(now/DAY)*DAY;return Number.isFinite(ms)&&ms<=todayMs&&ms>=todayMs-14*DAY;}
 
 /* Telegram Bot interface: public /start -> Mini App; admin D1 allowlist -> private tools. */
-const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\nTapote pour gagner des XP Points, tourne la Lucky Wheel, accomplis des missions et suis ta progression.\n\nAppuie ci-dessous pour démarrer le jeu.";
+const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\n🎯 Tapote pour collecter des XP Points.\n🎡 Tente ta chance avec la Lucky Wheel.\n🎁 Accomplis des missions pour gagner des XP.\n📈 Suis ta progression depuis la Mini App.\n\nLes XP Points sont des points virtuels sans valeur monétaire.\n\nAppuie sur « Ouvrir l’application » pour jouer.";
 const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, tourne la Lucky Wheel, accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
 const BOT_SHORT_DESCRIPTION="🎮 Tapote, gagne des XP, tourne la roue et relève des missions gratuites !";
 async function botApi(env,method,body){
@@ -53,7 +53,7 @@ async function isBotAdmin(env,userId){
  return !!a;
 }
 function openGameKeyboard(origin,admin=false){
- const rows=[[{text:"🎮 Démarrer Mr XPRONOS Play",web_app:{url:origin}}]];
+ const rows=[[{text:"🎮 Ouvrir l’application",web_app:{url:origin}}]];
  if(admin)rows.push([{text:"⚙️ Administration",callback_data:"mrxp:admin:home"}]);
  return {inline_keyboard:rows};
 }
@@ -148,7 +148,7 @@ async function telegramWebhook(env,update,origin,ctx){
  }
  const admin=await isBotAdmin(env,fromId);
  if(!admin){
-  if(cmd==="help")await botApi(env,"sendMessage",{chat_id:chatId,text:"Pour jouer, appuie sur /start puis sur « Démarrer Mr XPRONOS Play »."});
+  if(cmd==="help")await botApi(env,"sendMessage",{chat_id:chatId,text:"Pour jouer, appuie sur /start puis sur « Ouvrir l’application »."});
   return;
  }
  if(cmd==="admin"){if(ctx?.waitUntil){const setup=await env.DB.prepare("SELECT status FROM telegram_setup_status WHERE id=\'onboarding-public-admin-v1\'").first();if(setup?.status!=="VERIFIED")ctx.waitUntil(configureTelegramBot(env).catch(()=>{}))}return adminDashboard(env,chatId,origin)}
