@@ -12,7 +12,9 @@ from .matching import (document_key, filename_of, is_poster, is_video, match_pai
                        match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, film_folder_url,
-                          send_public_poster_with_buttons)
+                          send_public_poster_with_buttons,
+                          send_library_poster_with_buttons, verify_library_bot,
+                          post_public_video_after_poster)
 from .state import State
 from .source_channels import source_list
 from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
@@ -273,6 +275,7 @@ async def execute() -> int:
                     "activer Publier des messages. Aucun nouveau MKV n'a été envoyé."
                 )
             LOG.info("Bot CinéX contrôlé : administrateur autorisé à publier dans le canal public.")
+            await verify_library_bot(bot_client, destination_private)
         mirror_destination = None
         mirror_key = ""
         from .mirror_policy import torrent9_paused
@@ -502,15 +505,15 @@ async def execute() -> int:
                         if "video" in stage:
                             private_post_id = stage["video"]
                         else:
-                            if cfg.get("private_layout", "poster_and_video") == "poster_and_video" and "poster" not in stage:
-                                private_poster = await client.send_file(
-                                    destination_private, pair.poster.media,
-                                    caption=rich_caption(text, private=True), parse_mode="html"
+                            if "poster" not in stage:
+                                private_poster = await send_library_poster_with_buttons(
+                                    client, bot_client, destination_private,
+                                    destination_public, pair.poster, text,
                                 )
                                 state.stage_poster(pair_id, int(private_poster.id))
                                 await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
                                 stage = state.get_staged_posts(pair_id)
-                                LOG.info("Affiche privée envoyée : message %s", private_poster.id)
+                                LOG.info("Fiche privée avec deux boutons envoyée : message %s", private_poster.id)
 
                             private_post = await client.send_file(
                                 destination_private, pair.movie.media,
@@ -525,38 +528,18 @@ async def execute() -> int:
                             client, bot_client, bot_destination, pair.poster,
                             text, url, invitation
                         )
+                        # Every film receives the complete public pair regardless
+                        # of the old opt-in showcase flag. Private copy is already
+                        # verified and the poster links to that exact message.
+                        await asyncio.sleep(max(12.0, float(
+                            os.getenv("CINEX_PAUSE_SECONDS", "20"))))
+                        public_video = await post_public_video_after_poster(
+                            client, destination_public, pair.movie, text,
+                            int(public_post.id), url,
+                        )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id))
-                        # Publish the public video IMMEDIATELY after its verified
-                        # poster, before handling the next film or any promotion.
-                        # The repair showcase is only a fallback for interrupted runs.
-                        if flag("CINEX_SHOWCASE_ENABLED", False):
-                            from .public_video_archive import (
-                                is_video_message, video_document_id, has_verified_button,
-                            )
-                            posted_poster = await client.get_messages(
-                                destination_public, ids=int(public_post.id))
-                            if (not posted_poster or not getattr(posted_poster, "photo", None)
-                                    or not (getattr(posted_poster, "raw_text", "") or "").strip()
-                                    or not has_verified_button(posted_poster, url)):
-                                raise RuntimeError("Affiche publique non vérifiée : aucune vidéo diffusée")
-                            latest = [m async for m in client.iter_messages(
-                                destination_public, limit=1)]
-                            if not latest or latest[0].id != int(public_post.id):
-                                raise RuntimeError("Affiche non immédiatement précédente : vidéo suspendue")
-                            await asyncio.sleep(max(12.0, float(
-                                os.getenv("CINEX_PAUSE_SECONDS", "20"))))
-                            public_video = await client.send_file(
-                                destination_public, pair.movie.media,
-                                caption=rich_video_title(text), parse_mode="html",
-                            )
-                            confirmed_video = await client.get_messages(
-                                destination_public, ids=int(public_video.id))
-                            if not is_video_message(confirmed_video):
-                                raise RuntimeError("Vidéo publique non confirmée")
-                            if video_document_id(confirmed_video) != video_document_id(pair.movie):
-                                raise RuntimeError("Document public différent de la vidéo source")
-                            LOG.info("Film public complet : affiche #%s puis vidéo #%s",
-                                     public_post.id, public_video.id)
+                        LOG.info("Film public complet : fiche #%s puis vidéo #%s",
+                                 public_post.id, public_video.id)
                         if mirror_destination is not None and not flag('CINEX_DEFER_MIRROR', False):
                             try:
                                 copied_id = await forward_public_message(

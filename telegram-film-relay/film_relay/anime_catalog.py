@@ -32,7 +32,11 @@ from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
 from .matching import filename_of
 from .promotions import publish_promotions
-from .text import first_title, private_message_link
+from .text import first_title, private_message_link, clean_caption
+from .publication import (
+    send_library_poster_with_buttons, verify_library_bot,
+    publish_catalog_episode_pairs,
+)
 
 LOG = logging.getLogger("cinex_anime_catalog")
 ROOT = Path(__file__).resolve().parents[1]
@@ -405,6 +409,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 raise RuntimeError("Bot CinéX Anime manquant.")
             bot = BotHTTPClient(token, client)
         sources, private, public, bot_public, mirror, mirror_key = await preflight(client, bot, cfg)
+        if publish:
+            await verify_library_bot(bot, private)
         private_id = utils.get_peer_id(private)
         all_candidates = []
         scan_plans = []
@@ -520,17 +526,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     if original_poster is None:
                         LOG.warning("Affiche absente pour %s : aucun épisode envoyé.", title)
                         continue
-                    raw_poster = await client.download_media(original_poster.media, file=bytes)
-                    if not raw_poster:
-                        LOG.warning("Affiche introuvable pour %s : aucun épisode envoyé.", title)
-                        continue
-                    photo_stream = io.BytesIO(raw_poster)
-                    photo_stream.name = "cinex_private_series.jpg"
-                    sent_poster = await client.send_file(
-                        private, photo_stream,
-                        caption=f"🌸 <b>{escape(title)}</b>\n"
-                                f"<i>Fiche de la série et épisodes ci-dessous.</i>\n{poster_marker}",
-                        parse_mode="html", force_document=False,
+                    sent_poster = await send_library_poster_with_buttons(
+                        client, bot, private, public, original_poster,
+                        f"🌸 {title}\nFiche de la série et épisodes ci-dessous.\n{poster_marker}",
                     )
                     private_poster = int(sent_poster.id)
                     await asyncio.sleep(pause)
@@ -577,6 +575,25 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 if prior_id:
                     private_msg_id = int(prior_id)
                 else:
+                    source_poster = row.get("poster") or next(
+                        (r.get("poster") for r in items if r.get("poster") is not None), None)
+                    if source_poster is None:
+                        raise RuntimeError("Anime : affiche absente pour cet épisode")
+                    episode_cover_marker = episode_marker(row["source_key"]) + "_POSTER"
+                    existing_cover = await find_marked(
+                        client, private, episode_cover_marker, limit=700)
+                    if not existing_cover:
+                        sent_cover = await send_library_poster_with_buttons(
+                            client, bot, private, public, source_poster,
+                            f"🌸 {title} — S{row['season']:02d}E{row['episode']:02d}\n"
+                            + clean_caption(getattr(source_poster, "raw_text", "") or "")[:650]
+                            + "\n" + episode_cover_marker,
+                        )
+                        existing_cover = int(sent_cover.id)
+                        await asyncio.sleep(pause)
+                    series.setdefault("episode_poster_ids", {})[
+                        f"S{row['season']:02d}E{row['episode']:02d}"] = int(existing_cover)
+                    save_catalog(catalogue)
                     caption = (f"🌸 <b>{escape(title)}</b> — "
                                f"S{row['season']:02d}E{row['episode']:02d}\n"
                                f"{episode_marker(row['source_key'])}")
@@ -696,6 +713,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 state.complete(f"anime-season:{key}:S{season_no}",
                                first_ep, int(season_posts[season_no]))
                 save_catalog(catalogue)
+            await publish_catalog_episode_pairs(
+                client, bot, public, private, private_id,
+                series, items, catalogue, save_catalog, pause,
+            )
             completed_series.add(key)
             catalogue["active_batch"] = None
             save_catalog(catalogue)

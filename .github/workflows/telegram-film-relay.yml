@@ -147,31 +147,21 @@ jobs:
           FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
           FILM_MAX_POSTS_PER_RUN: '2'
-          CINEX_SHOWCASE_ENABLED: 'true'
+          # The film relay always sends the public video after its fiche.
           FILM_REQUIRE_PUBLICATION: 'false'
           FILM_RESCAN_HISTORY: 'false'
           PYTHONPATH: .
         run: python -m film_relay.runner
 
-      - name: 2a - Videos directes des 2 derniers films CineX
-        id: showcase
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        continue-on-error: true
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          CINEX_SHOWCASE_ENABLED: 'true'
-          PYTHONPATH: .
-        run: python -m film_relay.public_video_showcase
+      # Videos are now published immediately after each verified poster
+      # within every relay; the old asynchronous showcase caused duplicates.
 
       - name: 2bis - Catalogues de series TV par saison et episode
         id: tvseries
         continue-on-error: true
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        # Never send TV episodes into the Classic film library by fallback.
+        # Independent series video library must have an explicit verified ID.
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && vars.SERIES_PRIVATE_CHANNEL != '' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -180,6 +170,8 @@ jobs:
           CINEX_SERIES_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+          SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
           TG_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
@@ -493,7 +485,7 @@ jobs:
           exit 1
 
       - name: 7 - Contrôler le résultat de toutes les catégories
-        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure' || steps.showcase.outcome == 'failure' || steps.rescue_links.outcome == 'failure') }}
+        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure'  || steps.rescue_links.outcome == 'failure') }}
         shell: bash
         run: |
           echo '::error::CinéX dégradé : catégorie, vidéos publiques, vérification Telegram ou récupération des invitations Secours en échec. Examiner le rapport de cycle.'
