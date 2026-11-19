@@ -99,3 +99,6 @@ jobs:
       - name: Production Telegram pinned showcase smoke (read-only)
         timeout-minutes: 3
         run: node --test cinecanaux/tests/pinned-showcase-live.test.mjs
+      - name: Production partner promotions and Telegram photos smoke (read-only)
+        timeout-minutes: 3
+        run: node --test cinecanaux/tests/partner-promotions-live.test.mjs
