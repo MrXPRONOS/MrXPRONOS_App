@@ -118,13 +118,27 @@ export async function servePinCover(env,request,kind,id){
   const path=String(file.file_path||"");
   if(!/^[a-zA-Z0-9_./-]{1,300}$/.test(path)||path.includes("..")||Number(file.file_size||0)>5000000)throw Error("Invalid image path or size");
   const res=await fetch("https://api.telegram.org/file/bot"+env.TELEGRAM_TOKEN+"/"+path,{signal:AbortSignal.timeout(7000)});
-  const content=String(res.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();
-  if(!res.ok||!["image/jpeg","image/png","image/webp"].includes(content))throw Error("Invalid image response");
+  if(!res.ok)throw Error("file_http_"+res.status);
   const size=Number(res.headers.get("content-length")||0);
-  if(size>5000000)throw Error("Cover too large");
-  const bytes=await res.arrayBuffer();if(!bytes.byteLength||bytes.byteLength>5000000)throw Error("Cover too large");
-  return new Response(bytes,{headers:{"content-type":content,"cache-control":"public,max-age=1800","x-content-type-options":"nosniff"}});
- }catch(e){console.warn("pin_cover_unavailable",kind,Number(id),String(e).slice(0,80));return new Response("Cover temporarily unavailable",{status:503,headers:{"cache-control":"no-store"}});}
+  if(size>5000000)throw Error("file_oversize");
+  const bytes=await res.arrayBuffer();
+  if(!bytes.byteLength||bytes.byteLength>5000000)throw Error("file_oversize");
+  const b=new Uint8Array(bytes);
+  const sniff=b.length>=3&&b[0]===255&&b[1]===216&&b[2]===255?"image/jpeg":
+   b.length>=8&&b[0]===137&&b[1]===80&&b[2]===78&&b[3]===71?"image/png":
+   b.length>=12&&String.fromCharCode(...b.slice(0,4))==="RIFF"&&String.fromCharCode(...b.slice(8,12))==="WEBP"?"image/webp":"";
+  if(!sniff)throw Error("file_not_image");
+  return new Response(bytes,{headers:{"content-type":sniff,"cache-control":"public,max-age=1800","x-content-type-options":"nosniff"}});
+ }catch(e){
+  const message=String(e);
+  const reason=/Telegram \d{3}/.test(message)?"getfile_rejected":
+   /file_http_\d+/.test(message)?message.match(/file_http_\d+/)[0]:
+   /Invalid image path or size/.test(message)?"image_path_invalid":
+   /file_not_image/.test(message)?"file_not_image":
+   /file_oversize/.test(message)?"file_oversize":"network_unavailable";
+  console.warn("pin_cover_unavailable",kind,Number(id),reason);
+  return new Response("Cover unavailable ("+reason+")",{status:503,headers:{"cache-control":"no-store"}});
+ }
 }
 export async function registerPinClick(env,request){
  if(request.method!=="POST")return Response.json({error:"Method not allowed"},{status:405});
