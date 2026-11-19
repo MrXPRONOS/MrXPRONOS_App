@@ -231,8 +231,32 @@ export async function radarFeed(env,kind='all',limit=24){
  }).sort((a,b)=>b.score-a.score).slice(0,Math.max(1,Math.min(36,limit)));
  return {items:result.map(x=>({id:x.id,kind:x.kind,title:x.title,summary:x.summary,year:x.year,poster:x.poster_url,link:x.message_url,source_url:x.source_url,clicks:Number(x.click_count)||0})),total:result.length};
 }
+// Read-only, source-verified ranking for the owner's Telegram publishing workflow.
+// No private channel links, sessions, user identities or video files are exposed.
+export async function exportRadarTrends(env,{limit=12}={}){
+ const n=Math.max(1,Math.min(20,Number(limit)||12));
+ const result=[];
+ for(const kind of ['films','series','animes']){
+  const rows=(await env.DB.prepare(
+   "SELECT id,kind,title,title_original,aliases,year,summary,poster_url,source_url,source,trend_rank,last_seen_at,authorized " +
+   "FROM radar_titles WHERE kind=? AND last_seen_at>=datetime('now','8 days') " +
+   "AND source IN ('tmdb','anilist','simkl') ORDER BY trend_rank ASC,last_seen_at DESC LIMIT ?"
+  ).bind(kind,n).all()).results||[];
+  for(const item of rows)result.push({id:item.id,kind:item.kind,title:item.title,
+   original:item.title_original,aliases:item.aliases,year:item.year,
+   summary:item.summary,poster:item.poster_url,source_url:item.source_url,
+   source:item.source,rank:item.trend_rank,last_seen_at:item.last_seen_at,
+   authorized:Number(item.authorized)===1});
+ }
+ return {items:result,total:result.length,source:'Ciné Radar — classements officiels récents'};
+}
+
 export async function radarApi(env,request){
  const u=new URL(request.url);
+ if(request.method==='GET'&&u.pathname==='/api/radar/trends'){
+  const data=await exportRadarTrends(env,{limit:Number(u.searchParams.get('limit'))||12});
+  return Response.json(data,{headers:{'cache-control':'public,max-age=600'}});
+ }
  if(request.method==='GET'&&u.pathname==='/api/radar'){
   const data=await radarFeed(env,u.searchParams.get('kind')||'all',Number(u.searchParams.get('limit'))||24);
   return Response.json(data,{headers:{'cache-control':'public,max-age=60'}});
