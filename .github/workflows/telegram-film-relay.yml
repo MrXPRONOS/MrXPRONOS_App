@@ -159,7 +159,9 @@ jobs:
       - name: 2bis - Catalogues de series TV par saison et episode
         id: tvseries
         continue-on-error: true
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        # Never send TV episodes into the Classic film library by fallback.
+        # Independent series video library must have an explicit verified ID.
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && vars.SERIES_PRIVATE_CHANNEL != '' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -168,7 +170,7 @@ jobs:
           CINEX_SERIES_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL }}
+          SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
           SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
           TG_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
