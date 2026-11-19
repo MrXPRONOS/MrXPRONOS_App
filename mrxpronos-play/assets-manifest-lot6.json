@@ -1,0 +1,95 @@
+{
+  "project": "Mr XPRONOS Play",
+  "lot": 6,
+  "count": 8,
+  "assets": [
+    {
+      "number": 51,
+      "name": "Cadenas fermé",
+      "slug": "locked-padlock",
+      "usage": "Fonctionnalité verrouillée",
+      "png": "assets/06-game-states/51-locked-padlock.png",
+      "webp": "assets/06-game-states/51-locked-padlock.webp",
+      "sha256_png": "d0f93608fdf5803b78dc3094380af170a5613fe62ec67b78e8956f4e208a3487",
+      "png_size_bytes": 1060885,
+      "webp_size_bytes": 112584
+    },
+    {
+      "number": 52,
+      "name": "Cadenas ouvert",
+      "slug": "unlocked-padlock",
+      "usage": "Fonctionnalité débloquée",
+      "png": "assets/06-game-states/52-unlocked-padlock.png",
+      "webp": "assets/06-game-states/52-unlocked-padlock.webp",
+      "sha256_png": "47ea1c5fd90f0004df38fe3d664633a9c02efe61aade177e2c7a5bb82c26b399",
+      "png_size_bytes": 972694,
+      "webp_size_bytes": 104420
+    },
+    {
+      "number": 53,
+      "name": "Écran de lancement",
+      "slug": "launch-splash",
+      "usage": "Splash Screen vertical",
+      "png": "assets/06-game-states/53-launch-splash.png",
+      "webp": "assets/06-game-states/53-launch-splash.webp",
+      "sha256_png": "40b7a2962204db7aaa72bc276ccfb734fcdffb9025dc23036b6863cf00c0987e",
+      "png_size_bytes": 1827497,
+      "webp_size_bytes": 131050
+    },
+    {
+      "number": 54,
+      "name": "Icône de chargement",
+      "slug": "loading-spinner",
+      "usage": "À animer en rotation par CSS",
+      "png": "assets/06-game-states/54-loading-spinner.png",
+      "webp": "assets/06-game-states/54-loading-spinner.webp",
+      "sha256_png": "6745dc731b374e3ba18f8757f3ddeaa0648716886e4aed5eeb631bf0aee57a52",
+      "png_size_bytes": 1209316,
+      "webp_size_bytes": 231574
+    },
+    {
+      "number": 55,
+      "name": "Mission Telegram",
+      "slug": "telegram-channel",
+      "usage": "Rejoindre les canaux Telegram",
+      "png": "assets/06-game-states/55-telegram-channel.png",
+      "webp": "assets/06-game-states/55-telegram-channel.webp",
+      "sha256_png": "7ee00c42f4c43e59a7bef506ac73da091a74d0e5398dbbd8d5d963dd7967b243",
+      "png_size_bytes": 1272994,
+      "webp_size_bytes": 131402
+    },
+    {
+      "number": 56,
+      "name": "Trophée de victoire",
+      "slug": "victory-trophy",
+      "usage": "Récompense remportée",
+      "png": "assets/06-game-states/56-victory-trophy.png",
+      "webp": "assets/06-game-states/56-victory-trophy.webp",
+      "sha256_png": "176f2d455dc8346f94c31a3941314526a6ef5c64cae113fde359288d87e69836",
+      "png_size_bytes": 1732813,
+      "webp_size_bytes": 242018
+    },
+    {
+      "number": 57,
+      "name": "Énergie épuisée",
+      "slug": "energy-empty",
+      "usage": "Niveau d’énergie insuffisant",
+      "png": "assets/06-game-states/57-energy-empty.png",
+      "webp": "assets/06-game-states/57-energy-empty.webp",
+      "sha256_png": "8c603ad0ce4d24697b59c4a8f9433a547f6f68deafe35f2f7cf734ec177df918",
+      "png_size_bytes": 1486615,
+      "webp_size_bytes": 149530
+    },
+    {
+      "number": 58,
+      "name": "Mission terminée",
+      "slug": "mission-complete",
+      "usage": "Mission validée",
+      "png": "assets/06-game-states/58-mission-complete.png",
+      "webp": "assets/06-game-states/58-mission-complete.webp",
+      "sha256_png": "b99a2eb94c27d62423a601b31fa68900d0df3d313ddfaeb536360a8d4acb3a07",
+      "png_size_bytes": 1359190,
+      "webp_size_bytes": 177002
+    }
+  ]
+}

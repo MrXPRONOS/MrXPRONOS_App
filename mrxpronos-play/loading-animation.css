@@ -1,0 +1,4 @@
+/* Illustration 54 — animation de chargement. */
+.mrxp-loading-icon {width:64px;height:64px;object-fit:contain;animation:mrxp-spin 1.15s linear infinite;}
+@keyframes mrxp-spin {to {transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.mrxp-loading-icon{animation:none}}
