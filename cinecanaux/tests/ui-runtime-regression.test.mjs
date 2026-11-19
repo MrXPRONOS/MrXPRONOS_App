@@ -167,3 +167,42 @@ test('lot 2: all ten approved 3D navigation icons are used in interactive contro
  assert.ok(!navigation.includes('const glyph=node("span",null,icon);'));
  assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Lot 1 must stay unchanged');
 });
+
+
+test('lot 3: original ten-piece cinematic WebP atlas is valid and routed by the Worker',()=>{
+ const atlas=readFileSync(new URL('../assets/ui-icons-lot3.webp',import.meta.url));
+ assert.equal(atlas.subarray(0,4).toString(),'RIFF');
+ assert.equal(atlas.subarray(8,12).toString(),'WEBP');
+ assert.equal(atlas.subarray(12,16).toString(),'VP8X');
+ assert.equal(atlas.readUIntLE(24,3)+1,560,'Lot 3 must contain ten full-width 56px sprites');
+ assert.equal(atlas.readUIntLE(27,3)+1,56,'Sprite cells must remain square');
+ assert.ok(atlas.byteLength<30000,'Do not load large artwork into the Mini App');
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot3.webp')"));
+ assert.ok(APP_HTML.includes('background-size:1000% 100%'));
+ const worker=readFileSync(new URL('../worker.mjs',import.meta.url),'utf8');
+ assert.ok(worker.includes('u.pathname==="/assets/ui-icons-lot3.webp"'));
+ assert.ok(worker.includes('main/cinecanaux/assets/ui-icons-lot3.webp'));
+ assert.ok(worker.includes('"content-type":"image/webp"'));
+});
+
+test('lot 3: every category, genre chip and movie-poster icon uses the generated asset',()=>{
+ const names=['films','series','animes','action','romance','africain','vostfr','turc','drame','affiches'];
+ assert.ok(navigation.includes('function cineCategoryIcon(key){'));
+ assert.ok(navigation.includes('icon.setAttribute("aria-hidden","true")'));
+ for(const name of names){
+  assert.ok(APP_HTML.includes('.cine-cat-'+name+'{background-position-x:'),'Missing '+name+' image slot');
+  assert.ok(navigation.includes('"'+name+'"'),'Category '+name+' not registered');
+ }
+ for(const name of names.slice(0,-1)){
+  assert.ok(navigation.includes('["'+name+'",'),'Category '+name+' tile not configured');
+ }
+ assert.ok(navigation.includes('head.append(cineCategoryIcon(iconKey),node("strong",null,label))'));
+ assert.ok(navigation.includes('b.onclick=()=>setFilter(query);grid.append(b);'));
+ assert.ok(navigation.includes('showcaseLabel.append(cineCategoryIcon("affiches")'));
+ assert.ok(navigation.includes('mark.append(cineCategoryIcon(entry.type))'));
+ assert.ok(navigation.includes('label.append(cineCategoryIcon(entry.type)'));
+ assert.ok(navigation.includes('chip.append(cineCategoryIcon(iconKey),document.createTextNode(title))'));
+ assert.ok(!navigation.includes('emoji+" "+label'),'The category grid must not show the legacy emoji list');
+ assert.ok(APP_HTML.includes("background-image:url('/assets/ui-icons-lot1.webp')"),'Do not regress the lot 1 atlas');
+ assert.ok(navigation.includes('function cineNavIcon(key){'),'Do not regress lot 2 navigation');
+});
