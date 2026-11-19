@@ -1,6 +1,9 @@
 name: CineX - Tendances et videotheques dediees
 
 on:
+  push:
+    branches: [main]
+    paths: ['telegram-film-relay/.cinex-trends-audit-once']
   workflow_dispatch:
     inputs:
       apply:
