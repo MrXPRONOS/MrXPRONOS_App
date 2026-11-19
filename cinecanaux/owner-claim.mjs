@@ -14,7 +14,7 @@ export async function tryOwnerClaim(env,update){
   const response=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/sendMessage",{
    method:"POST",headers:{"content-type":"application/json"},
    body:JSON.stringify({chat_id:message.chat.id,text:messageText,
-    ...(includeAdminButton?{reply_markup:{inline_keyboard:[[{text:"🔐 Ouvrir l'administration",web_app:{url:"https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin"}}]]}}:{})}),
+    ...(includeAdminButton?{reply_markup:{inline_keyboard:[[{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:"https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app"}}]]}}:{})}),
    signal:AbortSignal.timeout(7000)});
   if(!response.ok)throw Error("Telegram owner claim reply failed");
  };
