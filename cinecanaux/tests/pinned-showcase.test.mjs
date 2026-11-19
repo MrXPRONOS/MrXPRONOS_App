@@ -112,3 +112,13 @@ test('requested compact home order and pinned only À l’affiche, no duplicate 
  assert.ok(!APP_HTML.includes('home.append(homeRadar)'));
  assert.ok(!APP_HTML.includes('panel.decouvrir.append(radarSection'));
 });
+
+test('pinned posters render independently of the slower decorative hero API',()=>{
+ const start=APP_HTML.indexOf('async function loadCinemaShowcase(){');
+ const end=APP_HTML.indexOf('function miniFeatured(){',start);
+ assert.ok(start!==-1&&end>start);
+ const segment=APP_HTML.slice(start,end);
+ assert.ok(segment.includes('const pins=fetch("/api/pinned-showcase"'));
+ assert.ok(segment.includes('const art=fetch("/api/showcase"'));
+ assert.equal(segment.split('.finally(renderCinemaShowcase)').length-1,2);
+});
