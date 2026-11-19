@@ -106,3 +106,6 @@ jobs:
       - name: Production partner promotions and Telegram photos smoke (read-only)
         timeout-minutes: 3
         run: node --test cinecanaux/tests/partner-promotions-live.test.mjs
+      - name: Owner-only analytics security smoke (read-only)
+        timeout-minutes: 3
+        run: node --test cinecanaux/tests/owner-analytics-live.test.mjs
