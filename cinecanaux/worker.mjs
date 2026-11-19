@@ -296,8 +296,13 @@ export default {
    try{
     const image=await fetch("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/ui-icons-lot1.webp",
      {signal:AbortSignal.timeout(8000),cf:{cacheEverything:true,cacheTtl:86400}});
-    if(image.ok&&String(image.headers.get("content-type")||"").toLowerCase().includes("image/")){
-     return new Response(image.body,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400,immutable","x-content-type-options":"nosniff"}});
+    if(image.ok){
+     const bytes=new Uint8Array(await image.arrayBuffer());
+     const riff=bytes.length>=12&&String.fromCharCode(...bytes.slice(0,4))==="RIFF";
+     const webp=bytes.length>=12&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
+     if(bytes.byteLength>100&&bytes.byteLength<65536&&riff&&webp){
+      return new Response(bytes,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400,immutable","x-content-type-options":"nosniff"}});
+     }
     }
    }catch(e){console.warn("cine_ui_icon_asset_unavailable",String(e).slice(0,90));}
    return new Response("Image indisponible",{status:503,headers:{"cache-control":"no-store"}});
