@@ -728,6 +728,21 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
    expires_ms:signed.snapshot.issued_ms+MRXP_SHARE_TTL_MS});
  }
 
+
+ if(p==="/api/shop"&&request.method==="GET"){
+  const wallet=await mrxpWallet(env,player);
+  return json({wallet,shop:await mrxpBoostList(env,player,wallet)});
+ }
+ if(p==="/api/shop/buy"&&request.method==="POST"){
+  let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  const result=await mrxpPurchaseBoost(env,player,payload);
+  return result.ok?json(result):json({error:result.error,code:result.error,balance:result.balance??undefined},result.status||400);
+ }
+ if(p==="/api/shop/activate"&&request.method==="POST"){
+  let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
+  const result=await mrxpActivateBoost(env,player,payload);
+  return result.ok?json(result):json({error:result.error,code:result.error},result.status||400);
+ }
  if(p==="/api/credits"&&request.method==="GET"){
   const progression=await v2Progression(env,player);
   return json({wallet:await mrxpWallet(env,player,progression)});
@@ -758,7 +773,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
   const progression=await v2Progression(env,player);
   const wallet=await mrxpWallet(env,player,progression);
-  return json({wallet,user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression,profile:await v2PlayerProfile(env,player,progression),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
+  return json({wallet,shop:await mrxpBoostList(env,player,wallet),user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression,profile:await v2PlayerProfile(env,player,progression),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
  }
  if(p==="/api/sync"&&request.method==="POST"){
   /* Freeze the legacy floor BEFORE applying new taps or XP, even if a client skips bootstrap. */
@@ -772,8 +787,10 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   if(player.next_sync_ms>now)return json({error:"Prochaine synchronisation autorisée : "+new Date(player.next_sync_ms).toISOString(),next_sync_ms:player.next_sync_ms},429);
   const features=await getGameFeatures(env);
   if((!features.tap&&taps>0)||(!features.daily&&Array.isArray(body.daily_days)&&body.daily_days.length>0)||(!features.wheel&&Array.isArray(body.wheel_days)&&body.wheel_days.length>0))return json({error:"Un module du jeu est momentanément en pause. Les XP en attente restent conservés localement jusqu’à sa réactivation.",code:"GAME_PAUSED"},423);
+  const boost=await mrxpBoostSyncContext(env,player,now);
   const elapsed=Math.max(0,now-Math.max(player.last_sync_ms,player.created_ms));
-  const ceiling=Math.min(20000,500+Math.ceil(elapsed/3000));
+  const normalCeiling=Math.min(20000,500+Math.ceil(elapsed/3000));
+  const ceiling=Math.min(20000,normalCeiling+(boost.energyItem?.energy||0));
   if(taps>ceiling)return json({error:"Tapotages incompatibles avec l'énergie régénérée. Vérification requise."},422);
   const daily=[...new Set(Array.isArray(body.daily_days)?body.daily_days:[])].filter(d=>validDay(d,now)&&Date.parse(d+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY).slice(0,15);
   const wheel=[...new Set(Array.isArray(body.wheel_days)?body.wheel_days:[])].filter(d=>validDay(d,now)&&Date.parse(d+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY).slice(0,15);
@@ -781,18 +798,33 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const dExisting=new Set((await env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()).results.map(x=>x.day));
   const newDaily=daily.filter(d=>!dExisting.has(d)),newWheel=wheel.filter(d=>!wExisting.has(d));
   const outcomes=[];for(const d of newWheel)outcomes.push({day:d,...await wheelOutcome(env,user.id,d)});
-  const awarded=taps+newDaily.length*100+outcomes.reduce((n,x)=>n+x.xp,0);
+  const tapMilli=boost.tapItem?.multiplier_milli||1000;
+  const carryBefore=boost.tap?Number(boost.tap.carry_milli)||0:0;
+  const boostFraction=taps*Math.max(0,tapMilli-1000)+carryBefore;
+  const boostBonus=taps>0&&boost.tap?Math.floor(boostFraction/1000):0;
+  const carryAfter=taps>0&&boost.tap?boostFraction%1000:carryBefore;
+  const awarded=taps+boostBonus+newDaily.length*100+outcomes.reduce((n,x)=>n+x.xp,0);
   const ops=[
     env.DB.prepare("UPDATE players SET confirmed_xp=confirmed_xp+?,confirmed_taps=confirmed_taps+?,last_sync_ms=?,next_sync_ms=?,updated_ms=? WHERE user_id=? AND next_sync_ms<=? AND NOT EXISTS(SELECT 1 FROM sync_receipts WHERE user_id=? AND batch_id=?)").bind(awarded,taps,now,now+HALF,now,user.id,now,user.id,batch),
     env.DB.prepare("INSERT INTO sync_receipts(user_id,batch_id,taps,xp_awarded,wheel_count,created_ms) SELECT ?,?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,batch,taps,awarded,outcomes.length,now,user.id,now)
   ];
   for(const d of newDaily)ops.push(env.DB.prepare("INSERT OR IGNORE INTO daily_claims(user_id,day,xp_awarded,created_ms) SELECT ?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,d,100,now,user.id,now));
   for(const r of outcomes)ops.push(env.DB.prepare("INSERT OR IGNORE INTO wheel_claims(user_id,day,reward_key,xp_awarded,created_ms) SELECT ?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,r.day,r.key,r.xp,now,user.id,now));
+  if(boost.tap&&taps>0)ops.push(env.DB.prepare(
+    "UPDATE mrxp_boost_inventory SET state='active',activated_ms=CASE WHEN state='queued' THEN ? ELSE activated_ms END,expires_ms=CASE WHEN state='queued' THEN ? ELSE expires_ms END,carry_milli=? WHERE user_id=? AND purchase_id=? AND (state='queued' OR (state='active' AND expires_ms>?)) AND EXISTS(SELECT 1 FROM sync_receipts WHERE user_id=? AND batch_id=?)"
+   ).bind(now,now+boost.tapItem.duration_hours*3600000,carryAfter,user.id,boost.tap.purchase_id,now,user.id,batch));
+  if(boost.energy&&taps>0)ops.push(env.DB.prepare(
+    "UPDATE mrxp_boost_inventory SET state='used' WHERE user_id=? AND purchase_id=? AND state='charged' AND expires_ms>? AND EXISTS(SELECT 1 FROM sync_receipts WHERE user_id=? AND batch_id=?)"
+   ).bind(user.id,boost.energy.purchase_id,now,user.id,batch));
   const result=await env.DB.batch(ops);
   player=await env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(user.id).first();
   if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found)return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression:await v2Progression(env,player)});return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
   const updatedProgress=await v2Progression(env,player);
-  return json({ok:true,duplicate:false,xp_awarded:awarded,user:player,wheel_outcomes:outcomes,progression:updatedProgress,wallet:await mrxpWallet(env,player,updatedProgress)});
+  const wallet=await mrxpWallet(env,player,updatedProgress);
+  return json({ok:true,duplicate:false,xp_awarded:awarded,boost_bonus_xp:boostBonus,
+    boost_multiplier_milli:tapMilli,energy_charge_used:boost.energy&&taps>0?boost.energyItem.energy:0,
+    user:player,wheel_outcomes:outcomes,progression:updatedProgress,
+    wallet,shop:await mrxpBoostList(env,player,wallet)});
  }
  return json({error:"Route inconnue"},404)
 
