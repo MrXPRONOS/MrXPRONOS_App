@@ -342,6 +342,22 @@ export default {
    return new Response("Image indisponible",{status:503,headers:{"cache-control":"no-store"}});
   }
   if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
+  // The two user-approved images used by Telegram /start and the bot's profile.
+  // Stream them as JPEG from the versioned repository, without exposing bot tokens.
+  if(request.method==="GET"&&["/assets/bot-profile.jpg","/assets/bot-start-poster.jpg"].includes(u.pathname)){
+   const basename=u.pathname.split("/").pop();
+   try{
+    const image=await fetch("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/"+basename,{
+     signal:AbortSignal.timeout(8000),cf:{cacheEverything:true,cacheTtl:300}
+    });
+    if(image.ok&&String(image.headers.get("content-type")||"").toLowerCase().startsWith("image/")){
+     const bytes=new Uint8Array(await image.arrayBuffer());
+     if(bytes.length>=1000&&bytes.length<2000000&&bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff)
+      return new Response(bytes,{headers:{"content-type":"image/jpeg","cache-control":"public,max-age=300","x-content-type-options":"nosniff"}});
+    }
+   }catch(e){console.warn("cine_bot_brand_asset_unavailable",String(e?.name||"error"));}
+   return new Response("Image indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
    const name=u.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
    const image=await fetch("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/"+name,{cf:{cacheTtl:86400,cacheEverything:true}});
