@@ -64,8 +64,20 @@ async def run() -> int:
         for entry in select_recent_completed(state.data["processed"], recent_ids):
             poster_id, private_id = entry["public_message_id"], entry["private_message_id"]
             poster = recent_by_id.get(poster_id)
+            # Never publish a naked video under an unrelated film or ad.
+            # The main relay now publishes each video's poster immediately
+            # before the video, so this fallback only repairs the latest post.
+            if not recent_messages or recent_messages[0].id != poster_id:
+                LOG.warning("Affiche #%s non immédiatement précédente : réparation reportée", poster_id)
+                continue
             if not poster or not getattr(poster, "photo", None):
                 LOG.warning("Affiche #%s manquante : pas de vidéo publique", poster_id)
+                continue
+            from .public_video_archive import has_verified_button
+            from .text import private_message_link
+            expected = private_message_link(utils.get_peer_id(private), private_id)
+            if not (getattr(poster, "raw_text", "") or "").strip() or not has_verified_button(poster, expected):
+                LOG.warning("Affiche #%s sans description ou bouton film : vidéo suspendue", poster_id)
                 continue
             source = await client.get_messages(private, ids=private_id)
             if not source or not is_video_message(source):
