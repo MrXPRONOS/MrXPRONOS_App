@@ -3,7 +3,7 @@ from types import SimpleNamespace
 from film_relay.public_video_showcase import select_recent_completed
 from film_relay.public_video_archive import (
     is_video_message, last_ten_video_ids, matching_poster,
-    normalize_title, title_similarity, archive_buttons,
+    normalize_title, title_similarity, archive_buttons, verified_film_video_pairs,
 )
 
 
@@ -54,6 +54,28 @@ class PublicArchiveTests(unittest.TestCase):
         }
         selected = select_recent_completed(records, {101, 201, 202}, count=2)
         self.assertEqual([r["public_message_id"] for r in selected], [201, 101])
+
+    def test_only_ten_verified_films_count_not_unrelated_videos(self):
+        messages = []
+        for i in range(11):
+            messages.extend([
+                msg(100 + 2 * i, title=f"🎬 Film voyage {i}", photo=True),
+                msg(101 + 2 * i, title=f"🎞️ Film voyage {i}", video=True),
+            ])
+        # Ten noisy standalone videos and unrelated promo posts must not
+        # consume any of the ten protected FILM slots.
+        messages.extend(msg(300 + i, title=f"Clip promo {i}", video=True) for i in range(10))
+        messages.append(msg(500, title="Publicité", photo=True))
+        pairs = verified_film_video_pairs(messages)
+        self.assertEqual(len(pairs), 11)
+        self.assertEqual([video.id for video, _ in pairs[:10]],
+                         [121 - 2 * i for i in range(10)])
+        self.assertEqual(pairs[10][0].id, 101)
+
+    def test_orphan_video_never_becomes_archive_candidate(self):
+        messages = [msg(40, title="Video unique", video=True),
+                    msg(39, title="Autre film", photo=True)]
+        self.assertEqual(verified_film_video_pairs(messages), [])
 
     def test_two_buttons(self):
         buttons = archive_buttons("https://t.me/c/1234/5678")

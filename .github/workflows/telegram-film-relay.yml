@@ -147,6 +147,7 @@ jobs:
           FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
           FILM_MAX_POSTS_PER_RUN: '2'
+          CINEX_SHOWCASE_ENABLED: 'true'
           FILM_REQUIRE_PUBLICATION: 'false'
           FILM_RESCAN_HISTORY: 'false'
           PYTHONPATH: .
