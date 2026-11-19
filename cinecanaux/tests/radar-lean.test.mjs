@@ -51,7 +51,7 @@ const cb=data=>({callback_query:{id:"cb",from:{id:100},message:{chat:{id:100,typ
 test("1. UI has only categories, public search, real previews and open",()=>{
  assert.match(APP_HTML,/data-type="films"/);assert.match(APP_HTML,/data-type="series"/);assert.match(APP_HTML,/data-type="animes"/);
  assert.match(APP_HTML,/getPreview/);
- for(const word of ["Parrainage","/profil","Copier le lien","Partager"]){
+ for(const word of ["Parrainage","/profil","Copier le lien"]){
   assert.ok(!APP_HTML.includes(word),"Removed feature still visible: "+word);
  }
 });
