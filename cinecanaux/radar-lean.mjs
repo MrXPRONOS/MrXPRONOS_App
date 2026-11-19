@@ -39,82 +39,89 @@ async function display(env,chat,callback,text,markup){
  const r=await telegram(env,"sendMessage",{chat_id:chat,text,parse_mode:"HTML",disable_web_page_preview:true,reply_markup:markup});
  if(!r.ok)throw Error("Cannot display Telegram directory");
 }
-const homeButtons=()=>keyboard([
- [button("🎬 Films","category:films"),button("📺 Séries","category:series"),button("🎌 Animés","category:animes")],
- [{text:"🍿 Voir tous les canaux",web_app:{url:BASE+"/app"}}]
-]);
-function categoriesLabel(k){return TYPES.find(x=>x[0]===k)?.[1]||"Films";}
+const miniAppKeyboard=(owner=false,privateChat=true)=>{
+ const rows=[[privateChat
+  ?{text:"🎬 Ouvrir la Mini App",web_app:{url:BASE+"/app"}}
+  :{text:"🎬 Découvrir Ciné Radar",url:BASE+"/app"}]];
+ if(owner&&privateChat)rows.push([{text:"🔐 Administration",web_app:{url:BASE+"/admin"}}]);
+ return keyboard(rows);
+};
+const INTRO=[
+ "🎬 <b>Bienvenue sur CINÉ RADAR !</b>",
+ "",
+ "🍿 <b>Tout ton univers cinéma sur Telegram.</b>",
+ "",
+ "Avec Ciné Radar, tu peux :",
+ "🔎 <b>Rechercher</b> des canaux de films, séries et animés.",
+ "🎞 <b>Découvrir</b> les affiches et les sélections mises en avant.",
+ "📺 <b>Explorer</b> les catégories et les recommandations.",
+ "🔗 <b>Ouvrir</b> directement les canaux et les publications Telegram.",
+ "",
+ "✨ Tout se passe dans la Mini App. Appuie sur le bouton ci-dessous pour commencer 👇"
+].join("\n");
+const isOwner=async(env,user,privateChat)=>{
+ if(!privateChat||!Number.isSafeInteger(Number(user))||Number(user)<=0)return false;
+ const role=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(Number(user)).first();
+ return role?.role==="owner";
+};
 async function processBotUpdate(env,update){
- const cb=update.callback_query, msg=cb?.message||update.message;
+ const callback=update.callback_query, msg=callback?.message||update.message;
  const chat=msg?.chat?.id;
  if(!chat)return;
- const value=String(cb?.data||"");
+ const privateChat=msg?.chat?.type==="private";
+ const sender=callback?.from?.id||update.message?.from?.id;
+ const owner=await isOwner(env,sender,privateChat);
+ const markup=miniAppKeyboard(owner,privateChat);
+ const value=String(callback?.data||"");
  const text=String(update.message?.text||"").trim();
- const ownerCommand=/^\/(tendances|manquants|canaux|autoriser|actualiser)(?:@[A-Za-z0-9_]+)?(?:\s+([a-z0-9-]{6,70}))?$/i.exec(text);
- if(ownerCommand){
-  const uid=update.message?.from?.id;
-  const owner=Number.isSafeInteger(uid)&&msg?.chat?.type==="private"
-   ?await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(uid).first():null;
-  if(owner?.role!=="owner"){await display(env,chat,cb,"Commande réservée au propriétaire en message privé.",homeButtons());return;}
-  if(ownerCommand[1].toLowerCase()==="actualiser"){
-   const binding=await bindPrimaryRadarChannels(env);
-   const result=await runTrendRefresh(env,{force:true});
-   await reconcileRadarPosts(env,120);
-   const notices=await notifyOwnerMissingRadarTitles(env);
-   await display(env,chat,cb,esc("Tendances : "+result.updated+" fiches mises à jour ; "+notices.sent+" digest(s) privés ; "+binding.bound+" canal(aux) rattaché(s) ; "+(result.errors.length+notices.errors.length+binding.errors.length)+" erreur(s)."),homeButtons());return;
-  }
-  if(ownerCommand[1].toLowerCase()==="manquants"){
-   const rows=await missingRadarTitles(env,uid,{limit:24});
-   const count=rows.length?1:Number((await env.DB.prepare("SELECT COUNT(*) AS n FROM radar_titles").first())?.n||0);
-   await display(env,chat,cb,esc(count?formatRadarMissing(rows):"Aucune tendance encore collectée. Utilise /actualiser ou vérifie les sources TMDB/AniList."),homeButtons());return;
-  }
-  if(ownerCommand[1].toLowerCase()==="canaux"){
-   const result=await bindPrimaryRadarChannels(env);
-   const channels=(await env.DB.prepare("SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind").all()).results||[];
-   const report="📡 Vérification des canaux officiels\\n"+
-    channels.map(x=>(Number(x.connected)?"✅ ":"⏳ ")+x.kind+" : @"+x.username).join("\\n")+
-    (result.errors.length?"\\nDétails : "+result.errors.join("; "):"");
-   await display(env,chat,cb,esc(report),homeButtons());return;
-  }
-  if(ownerCommand[1].toLowerCase()==="tendances"){
-   await display(env,chat,cb,esc(await radarOwnerDigest(env)),homeButtons());return;
-  }
-  const id=ownerCommand[2]||"";
-  if(!id){await display(env,chat,cb,"Usage : /autoriser ID_TITRE\nRéservé aux publications dont tu possèdes les droits de diffusion.",homeButtons());return;}
-  const approved=await authorizeRadarTitle(env,id,uid);
-  await display(env,chat,cb,approved?"✅ Titre autorisé pour l’affichage si une publication vidéo correspondante est vérifiée.":"Titre introuvable ou identifiant invalide.",homeButtons());
+
+ // All legacy category/menu callbacks now lead back to the Mini App.
+ // No channel listings or multi-step selection menus remain in the bot chat.
+ if(value){await display(env,chat,callback,INTRO,markup);return;}
+
+ const command=/^\/([a-z_]+)(?:@[A-Za-z0-9_]+)?(?:\s+(.*))?$/i.exec(text);
+ const name=command?.[1]?.toLowerCase()||"";
+ const arg=String(command?.[2]||"").trim();
+
+ // Administrative commands are never shown or executed for other users.
+ if(!owner||!privateChat||!["admin","tendances","manquants","canaux","autoriser","actualiser"].includes(name)){
+  await display(env,chat,null,INTRO,markup);
   return;
  }
- if(/^\/admin(?:@[A-Za-z0-9_]+)?$/i.test(text)){
-  const uid=update.message?.from?.id;
-  const admin=Number.isSafeInteger(uid)?await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(uid).first():null;
-  if(!admin){await display(env,chat,cb,"Accès réservé.",homeButtons());return;}
-  await display(env,chat,cb,"🔐 <b>Ciné Radar — administration</b>",keyboard([[{text:"Ouvrir l'administration",web_app:{url:BASE+"/admin"}}]]));
+ if(name==="admin"){
+  await display(env,chat,null,"🔐 <b>Ciné Radar — espace propriétaire</b>\n\nGère les canaux et le catalogue depuis l'administration.",markup);
   return;
  }
- if(value==="home"||/^\/(start|menu|aide|help|profil|favoris|parrainage|preferences)(?:@[A-Za-z0-9_]+)?(?:\s+.*)?$/i.test(text)||(!value&&!text)){
-  await display(env,chat,cb,"🎬 <b>CINÉ RADAR</b>\n\nChoisis une catégorie 👇",homeButtons());return;
+ if(name==="actualiser"){
+  const binding=await bindPrimaryRadarChannels(env);
+  const result=await runTrendRefresh(env,{force:true});
+  await reconcileRadarPosts(env,120);
+  const notices=await notifyOwnerMissingRadarTitles(env);
+  await display(env,chat,null,esc("Tendances : "+result.updated+" fiches mises à jour ; "+notices.sent+" digest(s) privés ; "+binding.bound+" canal(aux) rattaché(s) ; "+(result.errors.length+notices.errors.length+binding.errors.length)+" erreur(s)."),markup);
+  return;
  }
- let match=/^category:(films|series|animes)(?::([0-9]{1,3}))?$/.exec(value);
- if(!match){
-  // Accept intuitive menu commands, but do not create personal state.
-  const cmd=/^\/(films|series|animes)(?:@[A-Za-z0-9_]+)?$/i.exec(text);
-  if(cmd)match=[text,cmd[1].toLowerCase(),"0"];
+ if(name==="manquants"){
+  const rows=await missingRadarTitles(env,sender,{limit:24});
+  const count=rows.length?1:Number((await env.DB.prepare("SELECT COUNT(*) AS n FROM radar_titles").first())?.n||0);
+  await display(env,chat,null,esc(count?formatRadarMissing(rows):"Aucune tendance encore collectée. Utilise /actualiser ou vérifie les sources TMDB/AniList."),markup);
+  return;
  }
- if(!match){await display(env,chat,cb,"🎬 <b>CINÉ RADAR</b>\n\nChoisis une catégorie 👇",homeButtons());return;}
- const kind=match[1],requested=Math.min(50,Math.max(0,Number(match[2]||0)));
- const rows=await categoryRows(env,kind);
- const filtered=rows.filter(c=>validTelegramLink(c.link));
- const page=Math.min(requested,Math.max(0,Math.ceil(filtered.length/8)-1)),slice=filtered.slice(page*8,page*8+8);
- const nav=slice.map(c=>[button("🎞 "+String(c.title||"Canal public").slice(0,43),null,c.link)]);
- const pages=[];
- if(page>0)pages.push(button("◀ Précédents","category:"+kind+":"+(page-1)));
- if((page+1)*8<filtered.length)pages.push(button("Suivants ▶","category:"+kind+":"+(page+1)));
- if(pages.length)nav.push(pages);
- nav.push([button("⬅ Catégories","home")]);
- const msgText=esc(categoriesLabel(kind))+" <b>— Canaux Telegram</b>\n\n"+
- (slice.length?"Appuie sur un canal pour l'ouvrir 👇":"Aucun canal disponible pour le moment.");
- await display(env,chat,cb,msgText,keyboard(nav));
+ if(name==="canaux"){
+  const result=await bindPrimaryRadarChannels(env);
+  const channels=(await env.DB.prepare("SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind").all()).results||[];
+  const report="📡 Vérification des canaux officiels\n"+
+   channels.map(x=>(Number(x.connected)?"✅ ":"⏳ ")+x.kind+" : @"+x.username).join("\n")+
+   (result.errors.length?"\nDétails : "+result.errors.join("; "):"");
+  await display(env,chat,null,esc(report),markup);
+  return;
+ }
+ if(name==="tendances"){
+  await display(env,chat,null,esc(await radarOwnerDigest(env)),markup);
+  return;
+ }
+ if(!arg){await display(env,chat,null,"Usage : /autoriser ID_TITRE\nRéservé aux publications pour lesquelles tu disposes des droits de diffusion.",markup);return;}
+ const approved=await authorizeRadarTitle(env,arg,sender);
+ await display(env,chat,null,approved?"✅ Titre autorisé pour l’affichage si une publication vidéo correspondante est vérifiée.":"Titre introuvable ou identifiant invalide.",markup);
 }
 // Acknowledge the Telegram tap in parallel with loading and editing the message.
 export async function botUpdate(env,update){
