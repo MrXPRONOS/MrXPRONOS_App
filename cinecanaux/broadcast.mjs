@@ -18,7 +18,10 @@ export async function trackBroadcastSubscriber(env,update){
  if(!start&&!stop)return;
  await ensureBroadcastTables(env);
  if(start)await env.DB.prepare("INSERT INTO cine_broadcast_subscribers(chat_id,active,blocked) VALUES(?,1,0) ON CONFLICT(chat_id) DO UPDATE SET active=1,blocked=0,updated_at=CURRENT_TIMESTAMP").bind(chat).run();
- else await env.DB.prepare("INSERT INTO cine_broadcast_subscribers(chat_id,active,blocked) VALUES(?,0,0) ON CONFLICT(chat_id) DO UPDATE SET active=0,updated_at=CURRENT_TIMESTAMP").bind(chat).run();
+ else{
+  await env.DB.prepare("INSERT INTO cine_broadcast_subscribers(chat_id,active,blocked) VALUES(?,0,0) ON CONFLICT(chat_id) DO UPDATE SET active=0,updated_at=CURRENT_TIMESTAMP").bind(chat).run();
+  await env.DB.prepare("UPDATE cine_broadcast_receipts SET state='skipped',last_error='opted_out' WHERE chat_id=? AND state IN ('pending','failed')").bind(chat).run();
+ }
 }
 const LINK_TAGS=new Set(["b","i","u","s","code","blockquote"]);
 export function validateBroadcastText(value,photo){
@@ -35,7 +38,7 @@ export function validateBroadcastText(value,photo){
   last=tags.lastIndex;
  }
  if(/[<>]/.test(text.slice(last))||stack.length)throw Error("Format HTML incomplet.");
- return text;
+ return text.replace(/&(?!(?:amp|lt|gt|quot);)/g,"&amp;");
 }
 function safeUrl(value){
  const text=String(value||"").trim();if(!text)return "";
@@ -149,11 +152,14 @@ export async function deliverBroadcastBatch(env){
     const code=Number(answer?.error_code||0),blocked=code===403||code===400&&/blocked|chat not found|user is deactivated/i.test(String(answer?.description||""));
     const status=answer?.ok?"sent":blocked?"blocked":"failed";
     await env.DB.prepare("UPDATE cine_broadcast_receipts SET state=?,attempts=attempts+1,last_error=?,retry_at=CASE WHEN ?='failed' THEN datetime('now','+5 minutes') ELSE NULL END WHERE job_id=? AND chat_id=? AND state IN ('pending','failed')").bind(status,answer?.ok?"":blocked?"unavailable":String(code||"network"),status,job.id,row.chat_id).run();
-    if(blocked)await env.DB.prepare("UPDATE cine_broadcast_subscribers SET active=0,blocked=1,updated_at=CURRENT_TIMESTAMP WHERE chat_id=?").bind(row.chat_id).run();
+    if(blocked){
+     await env.DB.prepare("UPDATE cine_broadcast_subscribers SET active=0,blocked=1,updated_at=CURRENT_TIMESTAMP WHERE chat_id=?").bind(row.chat_id).run();
+     await env.DB.prepare("UPDATE cine_broadcast_receipts SET state='skipped',last_error='unavailable' WHERE chat_id=? AND state IN ('pending','failed')").bind(row.chat_id).run();
+    }
     processed++;
    }));
   }
-  const counts=await env.DB.prepare("SELECT SUM(state='sent') sent,SUM(state='blocked') blocked,SUM(state='failed' AND attempts>=3) failed,SUM(state='pending' OR (state='failed' AND attempts<3)) remaining FROM cine_broadcast_receipts WHERE job_id=?").bind(job.id).first();
+  const counts=await env.DB.prepare("SELECT SUM(state='sent') sent,SUM(state='blocked' OR state='skipped') blocked,SUM(state='failed' AND attempts>=3) failed,SUM(state='pending' OR (state='failed' AND attempts<3)) remaining FROM cine_broadcast_receipts WHERE job_id=?").bind(job.id).first();
   const remaining=Number(counts?.remaining||0);
   await env.DB.prepare("UPDATE cine_broadcast_jobs SET delivered=?,blocked=?,failed=?,status=CASE WHEN status='sending' AND ?=0 THEN 'completed' ELSE status END,lease_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(Number(counts?.sent||0),Number(counts?.blocked||0),Number(counts?.failed||0),remaining,job.id).run();
   return {processed,remaining};
