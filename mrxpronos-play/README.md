@@ -141,20 +141,26 @@ mrxpronos-play/
 Les nouveaux visuels sont présents dans `mrxpronos-play/assets/06-game-states/`. Le Splash Screen 53 est volontairement opaque ; les autres visuels sont transparents. Le jeu affiche les icônes de missions et de canal Telegram, utilise le symbole d'énergie vide, et peut afficher l'écran de lancement avec son spinner CSS. Le catalogue global est dans `assets-manifest.json`.
 
 
-## Avatars africains officiels — premiers cinq rangs (19 novembre 2026)
+## Avatars africains officiels — dix rangs approuvés (19 novembre 2026)
 
-Cinq avatars **individuels**, distincts des affiches de groupe et des mockups, ont été vérifiés et importés en **PNG RGBA source transparent 1254 × 1254** et **WebP transparent optimisé 768 × 768**. Ils correspondent aux cinq premières étapes de prestige :
+Dix avatars **individuels** de héros africains ont été vérifiés puis ajoutés en **PNG RGBA source transparent 1254 × 1254** et en **WebP transparent optimisé 768 × 768**. Ils évoluent avec les niveaux selon la table suivante :
 
-| Rang | Niveau affiché | Image WebP |
+| Rang | Niveaux actuels | Portrait WebP |
 |---|---|---|
 | Recrue | 1 | `assets/07-rank-avatars/rank-01-recrue.webp` |
 | Éclaireur | 2 | `assets/07-rank-avatars/rank-02-eclaireur.webp` |
 | Combattant | 3–4 | `assets/07-rank-avatars/rank-03-combattant.webp` |
 | Sentinelle | 5 | `assets/07-rank-avatars/rank-04-sentinelle.webp` |
 | Chevalier | 6–9 | `assets/07-rank-avatars/rank-05-chevalier.webp` |
+| Élite | 10–14 | `assets/07-rank-avatars/rank-06-elite.webp` |
+| Maître | 15–19 | `assets/07-rank-avatars/rank-07-maitre.webp` |
+| Champion | 20–29 | `assets/07-rank-avatars/rank-08-champion.webp` |
+| Légende | 30–39 | `assets/07-rank-avatars/rank-09-legende.webp` |
+| Mythique | 40–49 | `assets/07-rank-avatars/rank-10-mythique.webp` |
+| **Souverain MX** | **50 et au-delà** | **En attente de génération** |
 
-Le nom public du joueur reste vérifié par Telegram, mais **sa photo personnelle n'est plus affichée** : la Mini App utilise l'avatar de rang dans l'en-tête du joueur et sur sa page Profil. Pour les **niveaux 10 et au-delà**, l'emblème MX reste provisoirement visible jusqu'à la création des six personnages restants, sans prétendre que leurs avatars sont terminés.
+Le nom public du joueur reste authentifié par Telegram, mais **sa photo Telegram n'est plus utilisée comme avatar** : le portrait de son rang est affiché sur sa fiche Profil et dans l'en-tête du jeu.
 
-**Périmètre volontairement limité :** l'expérience hybride XP + défis, les crédits MRXP, les boosts et la carte de partage ne font pas partie de ce lot et ne sont pas activés par cette mise à jour. Le niveau utilisé pour choisir l'avatar est **le niveau actuel calculé à partir des tapotages** ; le futur moteur de progression pourra reprendre le même manifeste.
+**Important :** cette intégration est strictement graphique. La progression hybride XP + défis, les crédits MRXP, les boosts et la carte de partage seront développés séparément. La correspondance des images suit pour l'instant les niveaux calculés à partir des tapotages dans `level()`.
 
-L'intégrité des originaux et optimisations est documentée dans `avatars-manifest.json` par fichier SHA-256 et dimensions. Les **58 ressources graphiques historiques** sont conservées séparément dans `assets-manifest.json`. Les tests de non-régression vérifient les cinq correspondances exactes, les dix fichiers réels et l'absence d'utilisation de la photo Telegram dans la page.
+Les **58 ressources graphiques historiques** restent conservées dans `assets-manifest.json` et les dix avatars disposent d'un manifeste indépendant `avatars-manifest.json`, avec leurs dimensions, poids et empreintes SHA-256. Les tests de non-régression couvrent les vingt fichiers PNG/WebP, les dix correspondances de niveaux et le rang restant avec son emblème MX provisoire.

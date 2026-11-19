@@ -1,8 +1,8 @@
 {
   "project": "Mr XPRONOS Play",
-  "purpose": "Five approved Black African 3D portraits for existing level visual display",
-  "avatar_count": 5,
-  "note": "The separate XP+mission hybrid progression and shop are not yet implemented. Levels 10+ retain existing placeholder until future avatar art.",
+  "purpose": "Ten approved Black African 3D rank portraits (existing level selection)",
+  "avatar_count": 10,
+  "note": "Only Souverain MX rank 11 (level 50+) remains to generate. Hybrid XP+missions progression and boost shop are separate future phases.",
   "avatars": [
     {
       "rank": 1,
@@ -68,6 +68,79 @@
       "sha256_png": "8aa28370c2ea6ef890459587a2c9d6e372ef67a140d3921b12d6656539dbde82",
       "sha256_webp": "37e1bb089093c9befa633c9f4a33410ec681c488e3e1af0b95bd55501d1f25f6",
       "transparent": true
+    },
+    {
+      "rank": 6,
+      "slug": "elite",
+      "min_level": 10,
+      "max_level": 14,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-06-elite.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-06-elite.webp",
+      "png_bytes": 2388255,
+      "webp_bytes": 179512,
+      "sha256_png": "2926acaa7826c049ea4e82db385f9351a552a5422ffac7dd2089f4701b2c47d2",
+      "sha256_webp": "5d42afce87b50a0984a6c2980f6428071e2c9eceffa0bb3dcb88ce15df4ed642",
+      "transparent": true
+    },
+    {
+      "rank": 7,
+      "slug": "maitre",
+      "min_level": 15,
+      "max_level": 19,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-07-maitre.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-07-maitre.webp",
+      "png_bytes": 2393266,
+      "webp_bytes": 189968,
+      "sha256_png": "34b6a0b2917ab176c577780a1336472e7ce1297c58a51c7a56b854610a8a2552",
+      "sha256_webp": "00c22eedd9b43a10586a5f210e76e2775f2653acbd5064e71abd197111075f32",
+      "transparent": true
+    },
+    {
+      "rank": 8,
+      "slug": "champion",
+      "min_level": 20,
+      "max_level": 29,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-08-champion.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-08-champion.webp",
+      "png_bytes": 2575966,
+      "webp_bytes": 201778,
+      "sha256_png": "c6599c3687fbadd9807cf08f6e321abec671751740e755dcf9821c8a5b603b81",
+      "sha256_webp": "d18d9e0136be27f0616fcf7267319e241b1a7063ba7d25241c05be05e4d1fd21",
+      "transparent": true
+    },
+    {
+      "rank": 9,
+      "slug": "legende",
+      "min_level": 30,
+      "max_level": 39,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-09-legende.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-09-legende.webp",
+      "png_bytes": 2650864,
+      "webp_bytes": 219064,
+      "sha256_png": "5b19c53011ee8cce275577f9d492d5b8d38d5d5b75889c5c5897ec1939735157",
+      "sha256_webp": "38d72f5cf7043070fec2566d5628b269b542cdca4c6bc13550d459a2fbea58d6",
+      "transparent": true
+    },
+    {
+      "rank": 10,
+      "slug": "mythique",
+      "min_level": 40,
+      "max_level": 49,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-10-mythique.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-10-mythique.webp",
+      "png_bytes": 2427771,
+      "webp_bytes": 205322,
+      "sha256_png": "920c528e7f68d0d18b9cdc9102459b0c4104c55348b5fb01cf017f489081ba0e",
+      "sha256_webp": "f0ee77c8091ebd0b63842aa33a79c38b15d3488b930f1e87c6eed7c133bd3f3d",
+      "transparent": true
     }
-  ]
+  ],
+  "verification": {
+    "ranks": 10,
+    "png_files": 10,
+    "webp_files": 10,
+    "missing_files": 0
+  },
+  "web_optimization": "PNG RGBA 1254x1254 originals; second lot WebP 768x768 transparent.",
+  "updated_on": "2026-11-19"
 }

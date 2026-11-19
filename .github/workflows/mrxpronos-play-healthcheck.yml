@@ -51,7 +51,7 @@ jobs:
           resp=json.loads(Path('/tmp/mrxp-guest-avatar.json').read_text())
           assert resp.get('code')=='INITDATA_ABSENTE',resp
           html=Path('/tmp/mrxp-index.html').read_text()
-          assert 'loadTelegramAvatar' in html,'Client avatar integration missing'
+          assert 'renderRankAvatar' in html,'Rank avatar integration missing'
           assert 'wheel-center img' in html,'Wheel center styling missing'
           assert 'translate(-50%,-50%)' in html,'Wheel not centred'
           assert 'TAPOTER POUR GAGNER' in html,'Tap instruction missing'
@@ -60,5 +60,5 @@ jobs:
           assert '#screen-tap .coin-stage .side-link img{width:25px' in html,'Quick action icons not 25px'
           assert '#screen-tap .coin-stage .side-link img{width:24px' in html,'Small screen action icons not 24px'
           assert '#screen-tap .coin-stage .side-menu{align-self:start;justify-content:flex-start;gap:7px;transform:none' in html,'Quick action position incorrect'
-          print('SUCCESS: avatar endpoint protected, frontend avatar loading and wheel centering deployed')
+          print('SUCCESS: avatar endpoint protected, rank portraits and wheel centering deployed')
           PY
