@@ -95,7 +95,7 @@ class RenderTests(unittest.TestCase):
                    new=AsyncMock(return_value=NS(id=55))) as poster_send, patch(
                    "film_relay.publication.post_public_video_after_poster",
                    new=AsyncMock(return_value=NS(id=56))) as video_send, patch(
-                   "film_relay.publication.asyncio.sleep", new=AsyncMock()):
+                   "asyncio.sleep", new=AsyncMock()):
             asyncio.run(publish_catalog_episode_pairs(
                 client, NS(), "@public", "@private", -1001234567890,
                 series, [row], catalogue, lambda x: saved.append(x), 0))
