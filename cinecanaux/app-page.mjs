@@ -407,6 +407,8 @@ body{background:#07111f}
 @media(max-width:350px){.cine-promo-card{flex-basis:220px}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
 
 /* Discovery cards retain the original responsive grid; only the separate promotion track scrolls. */
+.cine-owner-admin-link{display:flex;width:100%;align-items:center;gap:11px;padding:13px 14px;background:linear-gradient(115deg,#1b3972,#2b2372);color:#f6f9ff;border:1px solid #6682ca;border-radius:10px;font-weight:800;font-size:13px;margin:10px 0}
+.cine-owner-admin-link[hidden]{display:none}
 .cine-community{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;color:#a6bce0}
 .cine-community-share{background:#273f78;color:#eaf4ff;border:1px solid #5876b0;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:750}
 .cine-community small{font-size:10px}
@@ -1362,6 +1364,20 @@ function build(){
  const dhead=node("div","cine-drawer-title");dhead.append(node("b",null,"Ciné Radar"));const close=node("button");close.append(cineNavIcon("fermer"));close.id="cine-menu-close";close.setAttribute("aria-label","Fermer le menu");close.onclick=closeMenu;dhead.append(close);drawer.append(dhead);
  const groups=[["Découvrir",[["Accueil","accueil","accueil"],["Explorer les canaux","explorer","explorer"],["Genres et découvertes","decouvrir","decouvrir"]]],["Personnel",[["Mes favoris","favoris","favoris"],["Historique","historique","historique"]]],["Communauté",[["Proposer un canal","proposer","proposer"],["À propos et confidentialité","apropos","apropos"]]]];
  for(const [label,entries] of groups){drawer.append(node("div","cine-drawer-subtitle",label));for(const [title,page,icon] of entries){const item=makeNav(title,page,icon);item.classList.add("cine-drawer-link");drawer.append(item)}}
+ const ownerAdmin=node("button","cine-owner-admin-link","🔐 Administration");
+ ownerAdmin.type="button";ownerAdmin.hidden=true;
+ ownerAdmin.id="cine-owner-admin-link";
+ ownerAdmin.onclick=()=>{closeMenu();window.location.assign("/admin")};
+ drawer.append(ownerAdmin);
+ // Display privileged navigation only after the server verifies Telegram initData.
+ let init=window.Telegram?.WebApp?.initData||"";
+ if(!init){try{init=sessionStorage.getItem("cine-radar-owner-auth")||""}catch{}}
+ if(init)fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":init},cache:"no-store"})
+  .then(r=>{if(r.ok){
+    ownerAdmin.hidden=false;
+    // Preserve signed initData only for navigation to /admin in this WebView.
+    try{sessionStorage.setItem("cine-radar-owner-auth",init)}catch{}
+   }}).catch(()=>{});
  drawer.append(node("p","cine-drawer-foot","Ciné Radar · Films, séries, animés"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
  const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","accueil"],["Explorer","explorer","explorer"],["Favoris","favoris","favoris"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","menu");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerOpen){e.preventDefault();closeMenu()}});

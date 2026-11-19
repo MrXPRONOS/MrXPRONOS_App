@@ -21,7 +21,12 @@ function setup({ownerId=900}={}){
  return {env,calls,writes, mock(){
   const previous=globalThis.fetch;
   globalThis.fetch=async(url,options={})=>{
-   const method=String(url).split('/').pop(),body=JSON.parse(options.body||'{}');
+   if(String(url).includes('raw.githubusercontent.com/')&&String(url).endsWith('/bot-profile.jpg')){
+    const jpg=new Uint8Array(12000);jpg[0]=255;jpg[1]=216;jpg[2]=255;
+    return new Response(jpg,{headers:{'content-type':'image/jpeg'}});
+   }
+   const method=String(url).split('/').pop();
+   const body=options.body instanceof FormData?Object.fromEntries(options.body.entries()):JSON.parse(options.body||'{}');
    calls.push({method,body});
    return Response.json({ok:true,result:true});
   };
@@ -29,13 +34,15 @@ function setup({ownerId=900}={}){
  }};
 }
 const update=(uid,text)=>({message:{chat:{type:'private',id:uid},from:{id:uid},message_id:3,text}});
-const lastMessage=calls=>calls.filter(x=>x.method==='sendMessage').at(-1)?.body;
+const lastMessage=calls=>{const m=calls.filter(x=>x.method==='sendMessage'||x.method==='sendPhoto').at(-1);return m?{...m.body,text:m.body.text||m.body.caption}:null};
 
 test('a new visitor only sees the Mini App, not categories or admin controls',async()=>{
  const f=setup();const restore=f.mock();
  try{
   await botUpdate(f.env,update(123,'/start'));
   const sent=lastMessage(f.calls);
+  assert.ok(f.calls.some(x=>x.method==='sendPhoto'),'First /start must include the approved poster');
+  assert.equal(sent.photo,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/assets/bot-start-poster.jpg');
   assert.match(sent.text,/BIENVENUE SUR CINÉ RADAR/);
   assert.match(sent.text,/<blockquote>/);
   assert.match(sent.text,/1️⃣/);
@@ -54,17 +61,18 @@ test('a new visitor only sees the Mini App, not categories or admin controls',as
   assert.match(lastMessage(f.calls).text,/Mini App/);
  }finally{restore()}
 });
-test('owner gets a private administration button while retaining the Mini App',async()=>{
+test('owner also gets the Mini App only; administration is inside its verified owner menu',async()=>{
  const f=setup();const restore=f.mock();
  try{
   await botUpdate(f.env,update(900,'/start'));
   const buttons=lastMessage(f.calls).reply_markup.inline_keyboard.flat();
-  assert.equal(buttons.length,2);
+  assert.equal(buttons.length,1);
   assert.equal(buttons[0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
-  assert.equal(buttons[1].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
+  assert.ok(!JSON.stringify(buttons).includes('/admin'));
+  assert.equal(buttons[0].style,'primary');
   await botUpdate(f.env,update(900,'/admin'));
-  assert.match(lastMessage(f.calls).text,/Administration/);
-  assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard.flat().length,2);
+  assert.match(lastMessage(f.calls).text,/BIENVENUE SUR CINÉ RADAR/);
+  assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard.flat().length,1);
  }finally{restore()}
 });
 test('old category inline callbacks are acknowledged and replaced with Mini App shortcut',async()=>{
@@ -72,31 +80,31 @@ test('old category inline callbacks are acknowledged and replaced with Mini App 
  try{
   await botUpdate(f.env,{callback_query:{id:'legacy-42',from:{id:123},message:{message_id:4,chat:{id:123,type:'private'}},data:'category:series:2'}});
   assert.ok(f.calls.some(x=>x.method==='answerCallbackQuery'));
-  const message=f.calls.find(x=>x.method==='editMessageText')?.body;
+  const message=f.calls.filter(x=>x.method==='sendPhoto').at(-1)?.body;
   assert.ok(message);
-  assert.match(message.text,/Mini App/);
+  assert.match(message.caption,/Mini App/);
   assert.equal(message.reply_markup.inline_keyboard.length,1);
   assert.ok(!JSON.stringify(message.reply_markup).includes('category:'));
  }finally{restore()}
 });
-test('Telegram default command list has only start, owner receives scoped admin commands',async()=>{
+test('Telegram menus open Mini App, and deprecated owner chat commands are cleared',async()=>{
  const f=setup();const restore=f.mock();
  try{
   await initializeProfile(f.env);
   const list=f.calls.filter(x=>x.method==='setMyCommands');
-  assert.equal(list.length,2);
+  assert.equal(list.length,1);
   assert.deepEqual(list[0].body.scope,{type:'default'});
   assert.deepEqual(list[0].body.commands.map(x=>x.command),['start','aide','stop','confidentialite']);
-  assert.deepEqual(list[1].body.scope,{type:'chat',chat_id:900});
-  assert.deepEqual(list[1].body.commands.map(x=>x.command),['start','aide','stop','confidentialite','admin','annonces','tendances','manquants','canaux','actualiser','autoriser']);
+  assert.ok(f.calls.some(x=>x.method==='deleteMyCommands'&&x.body.scope.chat_id===900));
   const menu=f.calls.filter(x=>x.method==='setChatMenuButton');
   assert.equal(menu.length,2);
-  assert.equal(menu[0].body.menu_button.type,'commands');
+  assert.equal(menu[0].body.menu_button.type,'web_app');
   assert.deepEqual(menu[1].body.chat_id,900);
-  assert.equal(menu[1].body.menu_button.web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
+  assert.equal(menu[1].body.menu_button.web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
   assert.ok(f.calls.some(x=>x.method==='setMyDescription'&&/Lancer Ciné Radar/.test(x.body.description)));
   assert.ok(f.calls.some(x=>x.method==='setMyShortDescription'&&/films, séries et animés/i.test(x.body.short_description)));
-  assert.ok(f.writes.some(x=>x.includes("'12'")));
+  assert.ok(f.writes.some(x=>x.includes("'13'")));
+  assert.ok(f.calls.some(x=>x.method==='setMyProfilePhoto'),'Telegram bot avatar must be set');
  }finally{restore()}
 });
 

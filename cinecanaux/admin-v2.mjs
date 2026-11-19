@@ -5,6 +5,9 @@ import {checkDailyLinks} from './maintenance-v2.mjs';
 import {runLoggedJob} from './job-log.mjs';
 import {adminAnalytics} from './analytics.mjs';
 import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
+import {bindPrimaryRadarChannels,missingRadarTitles} from './radar-owner-ops.mjs';
+import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle} from './trend-radar.mjs';
+import {initializeProfile} from './radar-lean.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -20,6 +23,14 @@ async function parseBody(req){
 export async function adminAPI(env,request,ctx){
  const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403);
  const u=new URL(request.url),path=u.pathname;
+ if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
+ if(request.method==='GET'&&path==='/api/admin/radar-ops'){
+  const [missing,channels]=await Promise.all([
+   missingRadarTitles(env,admin.telegram_id,{limit:24}),
+   env.DB.prepare('SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind').all()
+  ]);
+  return json({missing,channels:channels.results||[]});
+ }
  if(path==='/api/admin/broadcast-image'||path==='/api/admin/broadcasts'||/^\/api\/admin\/broadcasts\/\d+\/(?:preview|start|cancel)$/.test(path)){
   const answer=await broadcastAdminAPI(env,request,admin.telegram_id);
   if(request.method==='POST'&&/\/start$/.test(path)&&answer.ok&&ctx?.waitUntil){
@@ -60,6 +71,25 @@ export async function adminAPI(env,request,ctx){
  if(request.method!=='POST')return json({error:'Méthode inconnue'},405);
  try{
   const data=await parseBody(request);
+  if(path==='/api/admin/sync-bot-identity'){
+   await initializeProfile(env);
+   return json({ok:true,message:"Identité Telegram synchronisée. La photo et le message /start sont configurés."});
+  }
+  if(path==='/api/admin/radar-refresh'){
+   const stamp=await env.DB.prepare("SELECT last_success_at FROM radar_runs WHERE job_name='trends_films'").first();
+   if(stamp?.last_success_at&&Date.now()-Date.parse(String(stamp.last_success_at).replace(' ','T')+'Z')<60000)
+    return json({error:'Actualisation trop récente. Réessaie dans une minute.'},429);
+   const binding=await bindPrimaryRadarChannels(env);
+   const refreshed=await runTrendRefresh(env,{force:true});
+   const reconciled=await reconcileRadarPosts(env,120);
+   return json({ok:true,bound:binding.bound,updated:refreshed.updated,reconciled:reconciled||{}});
+  }
+  if(path==='/api/admin/radar-authorize'){
+   const id=String(data.id||'').trim();
+   if(!/^[0-9]{1,12}$/.test(id))return json({error:'Identifiant de titre invalide'},400);
+   const authorized=await authorizeRadarTitle(env,id,admin.telegram_id);
+   return json({ok:!!authorized},authorized?200:404);
+  }
   if(path==='/api/admin/run-check'){
    const active=await env.DB.prepare("SELECT id FROM automated_job_runs WHERE job_name='link_check' AND started_at>datetime('now','-15 minutes') LIMIT 1").first();
    if(active)return json({error:'Contrôle déjà exécuté récemment'},429);

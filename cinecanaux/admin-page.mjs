@@ -36,6 +36,10 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 @media(min-width:660px){.analytics-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:360px){.analytics-controls select{max-width:145px}.analytics-dashboard{padding:10px}}
 
+.bot-brand-preview{display:flex;align-items:start;gap:16px;flex-wrap:wrap}
+.bot-brand-preview figure{margin:5px 0 13px;flex:1 1 140px;max-width:220px}
+.bot-brand-preview img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid #3f5f8f}
+.bot-brand-preview figcaption{font-size:11px;color:#bdd0e7;margin-top:6px}
 /* Private owner announcement composer. Nothing is sent without explicit confirmation. */
 .broadcast-box{background:linear-gradient(145deg,#102443,#101e35);border:1px solid #486ba3;border-radius:14px;padding:15px;margin:15px 0 24px}
 .broadcast-box h2{margin:0 0 8px;font-size:16px}
@@ -55,7 +59,7 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 @media(max-width:420px){.broadcast-grid{grid-template-columns:1fr}}
 </style></head>
 <body><div class="page">
-<header><span style="font-size:30px">🎬</span><div><h1>Ciné Radar</h1><small>Modération privée</small></div></header>
+<header><span style="font-size:30px">🎬</span><div><h1>Ciné Radar</h1><small>Administration de la Mini App</small></div><a href="/app" style="margin-left:auto;font-size:12px" aria-label="Retourner à Ciné Radar">← Mini App</a></header>
 <p id="status" role="status">Vérification de l’accès…</p>
 <div id="private" hidden>
 <section class="stats" id="stats"></section>
@@ -95,6 +99,27 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
  <h3>Historique des annonces</h3><div id="broadcast-history"></div>
  <button id="broadcast-refresh" type="button">↻ Actualiser l'historique</button>
 </section>
+<section class="broadcast-box" id="bot-branding" aria-label="Identité visuelle du bot">
+ <h2>🎨 Identité du bot Telegram</h2>
+ <p>Ces deux visuels sont ceux que tu as validés : l'avatar du bot et l'affiche du message d'accueil /start.</p>
+ <div class="bot-brand-preview">
+  <figure><img src="/assets/bot-profile.jpg" alt="Photo de profil Ciné Radar"><figcaption>Photo de profil Telegram</figcaption></figure>
+  <figure><img src="/assets/bot-start-poster.jpg" alt="Affiche accompagnant le message /start"><figcaption>Affiche du message d'accueil</figcaption></figure>
+ </div>
+ <button type="button" id="bot-brand-sync">🖼️ Appliquer l'identité sur Telegram</button>
+ <p id="bot-brand-status" role="status">Photo de profil : mise à jour automatique au démarrage du bot.</p>
+</section>
+<section class="broadcast-box" id="radar-ops" aria-label="Gestion des tendances et canaux">
+ <h2>🎬 Tendances et canaux officiels</h2>
+ <p>Actions déplacées ici depuis les anciennes commandes du bot. Seul le propriétaire peut y accéder.</p>
+ <div class="broadcast-actions">
+  <button type="button" id="radar-ops-refresh">🔄 Actualiser tendances et publications</button>
+  <button type="button" id="radar-ops-reload">📡 Recharger l'état</button>
+ </div>
+ <p id="radar-ops-status" role="status">Chargement des canaux et des titres…</p>
+ <h3>Canaux officiels</h3><div id="radar-ops-channels"></div>
+ <h3>Titres à référencer</h3><div id="radar-ops-missing"></div>
+</section>
 <section class="analytics-dashboard" aria-label="Statistiques de fréquentation">
  <div class="analytics-head"><h2>📊 Fréquentation et engagement</h2><small id="analytics-clock">Actualisation automatique · 30 s</small></div>
  <div class="analytics-controls">
@@ -126,7 +151,7 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const init=window.Telegram?.WebApp?.initData||"";
+const init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
 try{window.Telegram?.WebApp?.ready();window.Telegram?.WebApp?.expand();}catch{}
 const status=t=>{$("status").textContent=t;};
 const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!=null)x.textContent=text;return x;};
@@ -143,7 +168,7 @@ async function manage(id,action){await api("/api/admin/channels/"+id,{action});s
 async function load(){
  const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
- $("private").hidden=false;status("");refreshAnalytics();refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));
+ $("private").hidden=false;status("");refreshAnalytics();refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
@@ -291,6 +316,51 @@ $("broadcast-cancel").onclick=async()=>{
  }catch(e){broadcastStatus(String(e.message||e))}
 };
 $("broadcast-refresh").onclick=()=>refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));
+
+$("bot-brand-sync").onclick=async()=>{
+ const btn=$("bot-brand-sync");btn.disabled=true;$("bot-brand-status").textContent="Synchronisation Telegram…";
+ try{
+  const response=await api("/api/admin/sync-bot-identity",{});
+  $("bot-brand-status").textContent="✅ "+(response.message||"Identité mise à jour.");
+ }catch(e){$("bot-brand-status").textContent="⚠️ "+String(e.message||e)}
+ finally{btn.disabled=false}
+};
+async function refreshRadarOps(){
+ const data=await api("/api/admin/radar-ops");
+ const chan=$("radar-ops-channels");chan.replaceChildren();
+ for(const c of data.channels||[]){
+  const row=el("div","broadcast-row",(c.connected?"✅ ":"⏳ ")+c.kind+" — @"+c.username);
+  chan.append(row);
+ }
+ if(!chan.children.length)chan.append(el("p","muted","Aucun canal officiel détecté."));
+ const missing=$("radar-ops-missing");missing.replaceChildren();
+ for(const title of data.missing||[]){
+  const row=el("div","broadcast-row");
+  row.append(el("b",null,String(title.title||"Titre")+" · "+String(title.kind||"")));
+  const btn=el("button",null,"✅ Autoriser ce titre");btn.type="button";
+  btn.onclick=async()=>{
+   if(!confirm("Autoriser la fiche "+String(title.title||title.id)+" ?"))return;
+   btn.disabled=true;
+   try{await api("/api/admin/radar-authorize",{id:title.id});$("radar-ops-status").textContent="Fiche autorisée.";await refreshRadarOps();}
+   catch(e){$("radar-ops-status").textContent=String(e.message||e);btn.disabled=false;}
+  };
+  row.append(btn);missing.append(row);
+ }
+ if(!missing.children.length)missing.append(el("p","muted","Aucun titre en attente."));
+ $("radar-ops-status").textContent="Canaux et tendances actualisés.";
+}
+$("radar-ops-reload").onclick=()=>refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));
+$("radar-ops-refresh").onclick=async()=>{
+ if(!confirm("Lancer maintenant l'actualisation des tendances et des canaux ?"))return;
+ const b=$("radar-ops-refresh");b.disabled=true;
+ $("radar-ops-status").textContent="Synchronisation en cours…";
+ try{
+  const result=await api("/api/admin/radar-refresh",{});
+  $("radar-ops-status").textContent="Mise à jour terminée : "+Number(result.updated||0)+" titres, "+Number(result.bound||0)+" canaux associés.";
+  await refreshRadarOps();
+ }catch(e){$("radar-ops-status").textContent=String(e.message||e);}
+ finally{b.disabled=false;}
+};
 
 let analyticsCached=null;
 function analyticsList(where,entries,formatValue,formatLabel){
