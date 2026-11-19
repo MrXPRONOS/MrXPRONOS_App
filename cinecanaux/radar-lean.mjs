@@ -24,7 +24,7 @@ async function catalogRows(env){
  try{return await pending;}catch(e){catalogCache=null;throw e;}
 }
 export async function telegram(env,method,data){
- const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/"+method,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data),signal:AbortSignal.timeout(method==="answerCallbackQuery"?3500:7500)});
+ const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/"+method,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data),signal:AbortSignal.timeout(method==="answerCallbackQuery"?3500:method==="sendPhoto"?15000:7500)});
  const d=await r.json();
  if(!d.ok)console.warn(JSON.stringify({event:"telegram_api_error",method,code:d.error_code}));
  return d;
