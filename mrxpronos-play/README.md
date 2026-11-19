@@ -11,7 +11,7 @@
 - **D1 créé** : `mrxpronos-play-v1` (`59d4ecbf-21bc-4221-8909-0213737ab029`).
 - **Maquettes Figma** : https://www.figma.com/design/RlWwR9KutRVBRGhuELDH1N
 - **Backend + UI** : `worker.js`. Interface embarquée dans le Worker pour cette première version.
-- **Icônes** : 50 PNG / 50 WebP présents dans GitHub, visuels WebP déjà intégrés dans la Mini App.
+- **Icônes** : 58 PNG / 58 WebP présents dans GitHub, visuels WebP déjà intégrés dans la Mini App.
 - **État des paiements et tokens** : désactivés / aucun MRXP émis.
 
 **Vérification :** Cloudflare confirme que les deux secrets `BOT_TOKEN` et `WEBHOOK_SECRET` sont présents sans exposer leurs valeurs. Le bot `MrXpronosPlayBot` possède le webhook attendu et un bouton de type `web_app`. La Mini App a déjà été ouverte dans un navigateur de test ; l'ouverture depuis le compte personnel Telegram reste à contrôler par l'utilisateur. La V1 ne doit pas être considérée prête pour des récompenses financières.
@@ -135,3 +135,7 @@ mrxpronos-play/
 - Les missions sont visibles dans l'écran Missions, avec leur progression, leurs boutons `Rejoindre` puis `Vérifier mon adhésion`, et l'état terminé. Le bonus quotidien préexistant (+100 XP) reste géré par `daily_claims` et la synchronisation habituelle, sans double crédit.
 - Le profil privilégie la photo Telegram signée dans `initData.user.photo_url` lorsqu'elle est disponible, puis le serveur `/api/avatar` via `getUserProfilePhotos`. Le joueur peut toucher `Actualiser ma photo`. **Telegram peut masquer la photo selon les réglages de confidentialité** : dans ce cas, les initiales personnelles restent visibles, sans logo générique.
 - **Avant déploiement** : appliquer la migration D1 `CREATE TABLE IF NOT EXISTS mission_claims(...)` et son index. Vérifier `getChatMember` sur les deux canaux en tant qu'administrateur du bot. Tester deux utilisateurs réels : non-abonné, abonné, double tentative, progression des tapotages et affichage photo.
+
+## Lot 6 (51–58) — intégration graphique
+
+Les nouveaux visuels sont présents dans `mrxpronos-play/assets/06-game-states/`. Le Splash Screen 53 est volontairement opaque ; les autres visuels sont transparents. Le jeu affiche les icônes de missions et de canal Telegram, utilise le symbole d'énergie vide, et peut afficher l'écran de lancement avec son spinner CSS. Le catalogue global est dans `assets-manifest.json`.
