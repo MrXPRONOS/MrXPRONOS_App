@@ -116,11 +116,12 @@ def has_verified_button(message, link: str) -> bool:
     return False
 
 
-def archive_buttons(link: str):
-    return [
+def archive_buttons(link: str, public_peer=None):
+    from .rescue_channels import add_rescue_button_row
+    return add_rescue_button_row([
         [url_button("🎬 VOIR LE FILM", link, style="success")],
         [url_button("👥 REJOINDRE LA TEAM", film_folder_url(), style="danger")],
-    ]
+    ], public_peer)
 
 
 async def existing_private_media(client, private, limit: int = MAX_HISTORY) -> dict[int, int]:
@@ -229,7 +230,7 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY) -> dict:
                     raise RuntimeError("Le document privé ne correspond pas à l'original")
                 private_docs[document_id] = destination_id
                 url = private_message_link(private_id, destination_id)
-                await bot.edit_reply_markup(public, poster.id, buttons=archive_buttons(url))
+                await bot.edit_reply_markup(public, poster.id, buttons=archive_buttons(url, public))
                 refreshed = await client.get_messages(public, ids=poster.id)
                 if not refreshed or not has_verified_button(refreshed, url):
                     raise RuntimeError("Le bouton Voir le film n'a pas été vérifié")
