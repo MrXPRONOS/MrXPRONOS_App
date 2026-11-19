@@ -397,6 +397,7 @@ body{background:#07111f}
 .cine-promo-card:hover,.cine-promo-card:focus-visible{border-color:#84aafa;background:#1b3657;outline-offset:2px}
 .cine-promo-avatar{position:relative;flex:0 0 43px;height:43px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#243f69;border:1px solid #6883b0;font-size:21px}
 .cine-promo-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cine-promo-fallback{font-size:18px;font-weight:800;color:#dbe9ff}
 .cine-promo-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .cine-promo-name{font-size:11.5px;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .cine-promo-description{color:#b2c7e4;font-size:10px;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
@@ -1059,7 +1060,10 @@ function promoCard(info){
   const tg=window.Telegram?.WebApp;
   if(tg?.openTelegramLink){e.preventDefault();tg.openTelegramLink(info.url)}
  };
- const avatar=node("div","cine-promo-avatar");avatar.append(cineLot4Icon(info.kind));
+ // A promotion only displays its Telegram profile photo and description.
+ // No bespoke genre/crypto/pronostics icon is required for new promotions.
+ const avatar=node("div","cine-promo-avatar");
+ avatar.append(node("span","cine-promo-fallback",String(info.title||"?").trim().slice(0,1).toUpperCase()));
  const img=document.createElement("img");
  img.alt="Photo du canal "+info.title;img.loading="lazy";img.decoding="async";
  img.src="/assets/promo-avatar/"+info.handle+".jpg";
@@ -1070,7 +1074,7 @@ function promoCard(info){
  const desc=node("small",null,info.desc);desc.classList.add("cine-promo-description");
  copy.append(name,desc);
  if(info.kind==="pronos")copy.append(node("small","cine-promo-age","18+ · Joue responsablement"));
- a.append(avatar,copy,cineLot4Icon(info.kind),node("span","cine-promo-arrow","↗"));
+ a.append(avatar,copy);
  return a;
 }
 function promoBlock(){
