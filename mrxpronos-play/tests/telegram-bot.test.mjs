@@ -1078,3 +1078,149 @@ test('phase 4 economy admin dashboard remains private and never exposes credits 
   assert.ok(lines.some(x=>x.includes('Aucun retrait')));
  }finally{h.restore()}
 });
+
+
+test('phase 5 shop endpoints are authenticated and prices come only from server catalog',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+ const id=94001,auth=signedTelegramUser({id,first_name:'Adama'}),uuid='a0a1a2a3-0000-4000-8000-aabbccddee01';
+ const post=(path,body,headers={'x-telegram-init-data':auth,'content-type':'application/json'})=>worker.fetch(new Request(root+path,{method:'POST',headers,body:JSON.stringify(body)}),h.env);
+ try{
+  assert.equal((await worker.fetch(new Request(root+'/api/shop'),h.env)).status,401);
+  assert.equal((await post('/api/shop/buy',{sku:'tap-110',purchase_id:uuid},{})).status,401);
+  const before=await worker.fetch(new Request(root+'/api/shop',{headers:{'x-telegram-init-data':auth}}),h.env);
+  assert.equal(before.status,200,await before.clone().text());const initial=(await before.json());
+  assert.equal(initial.wallet.balance,0);assert.equal(initial.shop.catalog.length,6);
+  assert.equal(initial.shop.catalog.find(x=>x.sku==='tap-110').price,25);
+  let res=await post('/api/shop/buy',{sku:'tap-110',purchase_id:uuid,price:0,multiplier_milli:100000});
+  assert.equal(res.status,409);
+  res=await post('/api/shop/buy',{sku:'unknown',purchase_id:uuid});
+  assert.equal(res.status,400);
+  res=await post('/api/shop/buy',{sku:'tap-110',purchase_id:'not-a-uuid'});
+  assert.equal(res.status,400);
+  assert.equal(h.boostInventory.size,0);assert.equal(h.creditEvents.size,0);
+ }finally{h.restore()}
+});
+
+test('phase 5 purchase atomically charges correct MRXP once and inventory persists',async()=>{
+ const h=harness();h.env.DEV_MODE='true';const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',id='94002';
+ const auth=signedTelegramUser({id:Number(id),first_name:'Mariam'}),uuid='a0a1a2a3-0000-4000-8000-aabbccddee02';
+ h.creditEvents.set(id+':welcome-credit',{user_id:id,event_key:'welcome-credit',amount:75,event_type:'test',label:'confirmed',created_ms:Date.now()});
+ const post=(body)=>worker.fetch(new Request(root+'/api/shop/buy',{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+ try{
+  let r=await post({sku:'tap-110',purchase_id:uuid,price:1,multiplier_milli:9000});
+  assert.equal(r.status,200,await r.clone().text());
+  let data=await r.json();
+  assert.equal(data.duplicate,false);assert.equal(data.wallet.balance,50);
+  assert.equal(data.shop.inventory.length,1);
+  assert.equal(data.shop.inventory[0].state,'owned');
+  assert.equal(data.shop.inventory[0].item.multiplier_milli,1100);
+  r=await post({sku:'tap-110',purchase_id:uuid});
+  assert.equal(r.status,200);data=await r.json();
+  assert.equal(data.duplicate,true);assert.equal(data.wallet.balance,50);
+  assert.equal(h.boostInventory.size,1);
+  assert.equal([...h.creditEvents.values()].filter(x=>x.amount<0).length,1);
+  assert.equal((await post({sku:'energy-250',purchase_id:uuid})).status,409);
+  assert.equal((await post({sku:'tap-200',purchase_id:'a0a1a2a3-0000-4000-8000-aabbccddee04'})).status,409);
+  assert.equal(h.boostInventory.size,1);
+ }finally{h.restore()}
+});
+
+test('phase 5 only owner activates boosts and conflicting multiplier activations are blocked',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',id='94003',other='94004';
+ const auth=signedTelegramUser({id:Number(id),first_name:'Aïssata'});
+ const different=signedTelegramUser({id:Number(other),first_name:'Téko'});
+ const uuid='a0a1a2a3-0000-4000-8000-aabbccddee05',uuid2='a0a1a2a3-0000-4000-8000-aabbccddee06';
+ h.creditEvents.set(id+':welcome-credit',{user_id:id,event_key:'welcome-credit',amount:100,event_type:'test',label:'confirmed',created_ms:Date.now()});
+ const post=(path,body,header=auth)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':header,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+ try{
+  assert.equal((await post('/api/shop/buy',{sku:'tap-110',purchase_id:uuid})).status,200);
+  assert.equal((await post('/api/shop/buy',{sku:'tap-120',purchase_id:uuid2})).status,200);
+  assert.equal((await post('/api/shop/activate',{purchase_id:uuid},different)).status,404);
+  let res=await post('/api/shop/activate',{purchase_id:uuid});
+  assert.equal(res.status,200,await res.clone().text());
+  assert.equal((await res.json()).shop.active_tap.state,'queued');
+  assert.equal((await post('/api/shop/activate',{purchase_id:uuid2})).status,409);
+  res=await post('/api/shop/activate',{purchase_id:uuid});
+  assert.equal(res.status,200);assert.equal((await res.json()).duplicate,true);
+  assert.equal(h.boostInventory.get(id+':'+uuid).state,'queued');
+  assert.equal(h.boostInventory.get(id+':'+uuid2).state,'owned');
+ }finally{h.restore()}
+});
+
+test('phase 5 applies x1.1 tap XP with exact carry on two server-confirmed syncs and no replay bonus',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',id='94005',uuid='a0a1a2a3-0000-4000-8000-aabbccddee07';
+ const auth=signedTelegramUser({id:Number(id),first_name:'Kouamé'});
+ h.player.created_ms=Date.now()-24*3600000;
+ h.creditEvents.set(id+':welcome-credit',{user_id:id,event_key:'welcome-credit',amount:100,event_type:'test',label:'confirmed',created_ms:Date.now()});
+ const post=(path,body)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+ try{
+  assert.equal((await post('/api/shop/buy',{sku:'tap-110',purchase_id:uuid})).status,200);
+  assert.equal((await post('/api/shop/activate',{purchase_id:uuid})).status,200);
+  let res=await post('/api/sync',{batch_id:'boost-batch-000000001',taps:21,daily_days:[],wheel_days:[]});
+  assert.equal(res.status,200,await res.clone().text());
+  let body=await res.json();
+  assert.equal(body.xp_awarded,23);assert.equal(body.boost_bonus_xp,2);
+  assert.equal(body.boost_multiplier_milli,1100);
+  assert.equal(h.player.confirmed_xp,23);
+  assert.equal(h.boostInventory.get(id+':'+uuid).state,'active');
+  assert.equal(h.boostInventory.get(id+':'+uuid).carry_milli,100);
+  const repeat=await post('/api/sync',{batch_id:'boost-batch-000000001',taps:21,daily_days:[],wheel_days:[]});
+  assert.equal(repeat.status,200);assert.equal((await repeat.json()).duplicate,true);
+  assert.equal(h.player.confirmed_xp,23);
+  h.player.next_sync_ms=0; // artificially advance the test clock to next admissible 12h sync
+  h.player.last_sync_ms=Date.now()-13*3600000;
+  res=await post('/api/sync',{batch_id:'boost-batch-000000002',taps:9,daily_days:[],wheel_days:[]});
+  assert.equal(res.status,200,await res.clone().text());
+  body=await res.json();assert.equal(body.xp_awarded,10);assert.equal(body.boost_bonus_xp,1);
+  assert.equal(h.player.confirmed_xp,33);
+  assert.equal(h.boostInventory.get(id+':'+uuid).carry_milli,0);
+ }finally{h.restore()}
+});
+
+test('phase 5 refills energy once and prevents stacking charged energy packs',async()=>{
+ const h=harness();h.env.DEV_MODE='true';
+ const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev',id='94006';
+ const auth=signedTelegramUser({id:Number(id),first_name:'Agbo'});
+ h.creditEvents.set(id+':credit',{user_id:id,event_key:'credit',amount:150,event_type:'test',label:'confirmed',created_ms:Date.now()});
+ const a='a0a1a2a3-0000-4000-8000-aabbccddee08',b='a0a1a2a3-0000-4000-8000-aabbccddee09';
+ const post=(path,body)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':auth,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+ try{
+  assert.equal((await post('/api/shop/buy',{sku:'energy-100',purchase_id:a})).status,200);
+  assert.equal((await post('/api/shop/buy',{sku:'energy-250',purchase_id:b})).status,200);
+  let r=await post('/api/shop/activate',{purchase_id:a});assert.equal(r.status,200,await r.clone().text());
+  let data=await r.json();assert.equal(data.applied_energy,100);
+  assert.equal(data.shop.energy_charged.state,'charged');
+  r=await post('/api/shop/activate',{purchase_id:a});assert.equal(r.status,200);
+  data=await r.json();assert.equal(data.duplicate,true);assert.equal(data.applied_energy,100);
+  assert.equal((await post('/api/shop/activate',{purchase_id:b})).status,409);
+  const pack=h.boostInventory.get(id+':'+a);
+  pack.expires_ms=Date.now()-10;
+  const page=await worker.fetch(new Request(root+'/api/shop',{headers:{'x-telegram-init-data':auth}}),h.env);
+  assert.equal(page.status,200);assert.equal((await page.json()).shop.energy_charged,null);
+  assert.equal(pack.state,'expired');
+ }finally{h.restore()}
+});
+
+test('phase 5 schema is additive; new shop UI and sync logic preserve signed identity and games hub',async()=>{
+ const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
+ const migration=await readFile(new URL('../migrations/005_boost_store.sql',import.meta.url),'utf8');
+ assert.ok(migration.includes('CREATE TABLE IF NOT EXISTS mrxp_boost_inventory'));
+ assert.ok(migration.includes('PRIMARY KEY(user_id,purchase_id)'));
+ assert.ok(migration.includes("CHECK(kind IN ('tap','energy'))"));
+ assert.ok(!/DROP TABLE|DELETE FROM players|UPDATE players/i.test(migration));
+ assert.ok(schema.includes('mrxp_boost_inventory'));
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  for(const marker of ['screen-shop','mrxp-store-catalog','mrxp-store-inventory','mrxp-shop-balance','mrxp-open-shop',
+    'mrxpApplyEnergyReceipts','mrxpShopBuy','/api/shop','/api/shop/buy','/api/shop/activate','mrxp-games-hub','mrxp-share-create','mrxp-credit-history']){
+   // The actual shop handler is mrxpBuyBoost, not a trusted frontend price function.
+   if(marker==='mrxpShopBuy')assert.ok(html.includes('mrxpBuyBoost'),marker);
+   else assert.ok(html.includes(marker),marker)
+  }
+ }finally{h.restore()}
+});
