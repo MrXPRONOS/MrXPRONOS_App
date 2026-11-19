@@ -243,6 +243,9 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     clients which do not preserve a bot's inline keyboard.
     """
     from .bot_http import url_button
+    from .publication import library_button_rows
+    # Require both public support buttons before publishing anything.
+    library_button_rows(public_peer)
     # Same two buttons as the classic relay. The former private-library
     # invitation is no longer shown in the public message.
     rows = [
