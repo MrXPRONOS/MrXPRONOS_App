@@ -80,48 +80,6 @@ async def sync_description(client, target, desired: str, record: dict, *,
     return True
 
 
-async def sync_photo(client, target, source_photo, record: dict, *,
-                     key: str = "profile_photo_source_id",
-                     pause: int = DEFAULT_PAUSE) -> bool:
-    """Photo must be a verified Telegram photo, not an untrusted external URL."""
-    from telethon import functions, types
-    source = source_photo
-    source_id = int(getattr(source, "id", 0) or getattr(source, "photo_id", 0) or 0)
-    if not source_id:
-        LOG.warning("Aucune photo Telegram vérifiable : profil non modifié")
-        return False
-    if record.get(key) == source_id and getattr(target, "photo", None):
-        return False
-    photo_bytes = await client.download_media(source, file=bytes)
-    if not photo_bytes:
-        raise RuntimeError("Photo de profil Telegram inaccessible")
-    if not 128 <= len(photo_bytes) <= 10_000_000:
-        raise RuntimeError("Photo hors limites autorisées")
-    # Photo sizes can be smaller than a channel avatar; convert to JPEG square.
-    from PIL import Image, ImageOps
-    with Image.open(io.BytesIO(photo_bytes)) as img:
-        img = ImageOps.exif_transpose(img).convert("RGB")
-        # Crop to square so that Telegram's round profile thumbnail remains legible.
-        side = min(img.size)
-        left, top = (img.width - side) // 2, (img.height - side) // 2
-        img = img.crop((left, top, left + side, top + side))
-        img.thumbnail((768, 768), Image.Resampling.LANCZOS)
-        stream = io.BytesIO()
-        img.save(stream, format="JPEG", quality=90, optimize=True)
-    stream.seek(0)
-    stream.name = "cinex_profile.jpg"
-    uploaded = await client.upload_file(stream)
-    await client(functions.channels.EditPhotoRequest(
-        channel=target, photo=types.InputChatUploadedPhoto(file=uploaded)))
-    # Confirm target has an avatar; Telegram assigns a new photo_id on upload.
-    refreshed = await client.get_entity(target)
-    if not getattr(refreshed, "photo", None):
-        raise RuntimeError("Photo de profil Telegram non confirmée")
-    record[key] = source_id
-    await asyncio.sleep(pause)
-    return True
-
-
 async def sync_rescue_profile(client, public, rescue, record: dict, *, pause: int = DEFAULT_PAUSE):
     """Mirror Telegram avatar and *exact* description of the public channel."""
     from telethon import functions
