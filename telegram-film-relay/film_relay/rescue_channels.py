@@ -215,6 +215,10 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                 if entry and found is not None and is_invite(entry.get("invite_link", "")):
                     report["existing"] += 1
                     report["ready"] += 1
+                    # Existing channels need ongoing profile synchronization too.
+                    from .channel_profiles import sync_rescue_profile
+                    await sync_rescue_profile(client, public, found, entry, pause=PAUSE_SECONDS)
+                    write_state(state)
                     continue
 
                 if found is None:
@@ -256,6 +260,10 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                 if not is_invite(link):
                     raise RuntimeError("Lien Telegram d'invitation privé inattendu")
                 state["channels"][username]["invite_link"] = link
+                write_state(state)
+                from .channel_profiles import sync_rescue_profile
+                await sync_rescue_profile(client, public, found, state["channels"][username],
+                                          pause=PAUSE_SECONDS)
                 write_state(state)
                 report["ready"] += 1
                 LOG.info("Secours enregistré : %s, ID=%s", desired_title, rescue_id)
