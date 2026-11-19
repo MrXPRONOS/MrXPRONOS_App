@@ -947,6 +947,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const initialProgress=await v2Progression(env,player);
   await mrxpCreditBaseline(env,player,initialProgress);
   let body;try{body=await mrxpParseAction(request,16384)}catch(e){return json({error:String(e?.message)==="REQUEST_TOO_LARGE"?"REQUEST_TOO_LARGE":"JSON invalide"},String(e?.message)==="REQUEST_TOO_LARGE"?413:400)}
+  if(!body||typeof body!=="object"||Array.isArray(body))return json({error:"Lot de synchronisation invalide"},400);
   const now=Date.now(),batch=String(body.batch_id||""),taps=Number(body.taps);
   if(!/^[\w-]{16,100}$/.test(batch)||!Number.isInteger(taps)||taps<0||taps>20000)return json({error:"Lot de tapotages invalide"},400);
   const previous=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();
