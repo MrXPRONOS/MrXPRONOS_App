@@ -1,4 +1,4 @@
-name: MRXP Sovereign avatar source transfer (temporary)
+name: MRXP Sovereign avatar preview transfer (temporary)
 on:
   push:
     branches: [feat/mrxp-sovereign-avatar-20261119]
@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 9
     steps:
       - uses: actions/checkout@v4
-      - name: Check signed full-size source and import when verified
+      - name: Import verified Telegram-profile-sized fallback image
         env:
           CANVA_ASSET_URL: 'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fdc5b64e4-2604-4a01-a576-81cf6dc0a4e1/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAFL7e8bGYqTMd9EoTm5TppwTgEC5g_fh4T0rhZwiEXFN&exp=1795130043&osig=AAAAAAAAAAAAAAAAAAAAAB8WNBDbR8yW3-07rEjMIt2wF_MbADtC1CFzkAIWkvvK&signer=media-rpc&token=AAIAAU0AJGRjNWI2NGU0LTI2MDQtNGEwMS1hNTc2LTgxY2Y2ZGMwYTRlMQAAAAABofYWqng6zLG8sUnN6jkLhzlB55NWIlVdo-uSAfipn1R3_mTQWw&x-canva-quality=thumbnail'
         run: |
@@ -21,7 +21,7 @@ jobs:
           from PIL import Image
           from pathlib import Path
           url=os.environ['CANVA_ASSET_URL']
-          tests=[('1254',url.replace('height:200','height:1254').replace('width:200','width:1254')),('768',url.replace('height:200','height:768').replace('width:200','width:768')),('original',url)]
+          tests=[('approved_200px_profile_thumbnail',url)]
           selected=None
           for label,link in tests:
             try:
@@ -30,19 +30,19 @@ jobs:
                 data=res.read(7000000)
                 img=Image.open(io.BytesIO(data)).convert('RGBA')
                 print('candidate',label,'status',res.status,'size',img.size,'bytes',len(data),'alpha',img.getchannel('A').getextrema())
-                if min(img.size)>=768 and img.getchannel('A').getextrema()[0]==0:
+                if img.size==(200,200) and img.getchannel('A').getextrema()[0]==0:
                   selected=(data,img)
                   break
             except Exception as e:
               print('candidate',label,'FAILED',str(e)[:220])
           if selected is None:
-            raise SystemExit('Full-resolution image unavailable; no asset committed.')
+            raise SystemExit('Transparent 200px profile thumbnail unavailable; no asset committed.')
           data,img=selected
           dest=Path('mrxpronos-play/assets/07-rank-avatars');dest.mkdir(parents=True,exist_ok=True)
           png=dest/'rank-11-souverain-mx.png'
           png.write_bytes(data)
           webp=dest/'rank-11-souverain-mx.webp'
-          img.resize((768,768),Image.Resampling.LANCZOS).save(webp,'WEBP',quality=85,method=6)
+          img.save(webp,'WEBP',quality=90,method=6)
           for p in (png,webp):
              print('asset',p,len(p.read_bytes()),hashlib.sha256(p.read_bytes()).hexdigest())
           PY
@@ -52,5 +52,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mrxpronos-play/assets/07-rank-avatars/rank-11-souverain-mx.*
           git diff --cached --check
-          git commit -m 'assets(play): add full-resolution Souverain MX avatar' || true
+          git commit -m 'assets(play): add Souverain MX avatar preview (full PNG backed up locally)' || true
           git push origin HEAD:feat/mrxp-sovereign-avatar-20261119
