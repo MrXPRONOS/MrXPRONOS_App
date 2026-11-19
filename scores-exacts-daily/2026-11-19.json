@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-19",
-  "generated_at": "2026-11-19T10:33:40Z",
+  "generated_at": "2026-11-19T14:30:59Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -46,13 +46,13 @@
       "probability": 0.13362853
     },
     {
-      "id": "sportsapipro:4773006",
-      "league": "Second Division",
-      "home": "Baladiyet El Mahallah",
-      "away": "Haras El Hodood",
-      "kickoff_utc": "2026-11-19T12:30:00Z",
-      "score": "1:0",
-      "probability": 0.13010174
+      "id": "sportsapipro:4895951",
+      "league": "Liga de Ascenso - Eastern Region",
+      "home": "Independiente San Vicente",
+      "away": "San Rafael Cedros",
+      "kickoff_utc": "2026-11-19T20:30:00Z",
+      "score": "2:1",
+      "probability": 0.09677374
     }
   ],
   "grouped": [
@@ -87,21 +87,6 @@
       ]
     },
     {
-      "id": "sportsapipro:4773006",
-      "league": "Second Division",
-      "home": "Baladiyet El Mahallah",
-      "away": "Haras El Hodood",
-      "kickoff_utc": "2026-11-19T12:30:00Z",
-      "score": "1:0",
-      "probability": 0.31046915,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
       "id": "sportsapipro:4890778",
       "league": "Ligue 1",
       "home": "JS Kabylie",
@@ -124,6 +109,21 @@
       "kickoff_utc": "2026-11-19T16:45:00Z",
       "score": "1:0",
       "probability": 0.29689784,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4895951",
+      "league": "Liga de Ascenso - Eastern Region",
+      "home": "Independiente San Vicente",
+      "away": "San Rafael Cedros",
+      "kickoff_utc": "2026-11-19T20:30:00Z",
+      "score": "2:1",
+      "probability": 0.26691527,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
