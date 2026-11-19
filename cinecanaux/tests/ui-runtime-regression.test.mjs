@@ -239,7 +239,7 @@ test('lot 4: the correct original icon is connected to each user action',()=>{
  }
  assert.ok(directory.includes('cineLot4Icon("private")'),'Private channels must display the padlock icon');
  assert.ok(directory.includes('cineLot4Icon("star")'),'Reviews must display the actual rating star');
- assert.ok(navigation.includes('cineLot4Icon(info.kind)'),'Promotions should use football, crypto and pronos badges');
+ assert.ok(!navigation.includes('cineLot4Icon(info.kind)'),'Promotions must not display an extra icon beside channel photos');
  assert.ok(navigation.includes('cineLot4Icon("evaluate")'),'Feedback invitation icon is absent');
  assert.ok(navigation.includes('cineLot4Icon("thanks")'),'Thank-you icon is absent');
  assert.ok(APP_HTML.includes('.cine-lot4-play{background-position-x:'),'Original play icon asset must remain available for future controls');
