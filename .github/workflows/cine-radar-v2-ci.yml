@@ -29,6 +29,10 @@ jobs:
           node --check cinecanaux/trend-radar.mjs
           node --check cinecanaux/pinned-showcase.mjs
           node --check cinecanaux/partner-promotions.mjs
+          node --check cinecanaux/owner-claim.mjs
+          node --check cinecanaux/analytics.mjs
+          node --check cinecanaux/admin-v2.mjs
+          node --check cinecanaux/admin-page.mjs
           node --check cinecanaux/radar-owner-ops.mjs
           node --check cinecanaux/channel-avatar.mjs
           node --check cinecanaux/poster-showcase.mjs
@@ -45,7 +49,7 @@ jobs:
       - name: Verify poster and avatar refresh scripts
         run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/bot-miniapp-entry.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs cinecanaux/tests/pinned-showcase.test.mjs cinecanaux/tests/partner-promotions.test.mjs cinecanaux/tests/owner-inbox.test.mjs cinecanaux/tests/trend-fallback.test.mjs cinecanaux/tests/simkl-trends.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/bot-miniapp-entry.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs cinecanaux/tests/pinned-showcase.test.mjs cinecanaux/tests/partner-promotions.test.mjs cinecanaux/tests/owner-analytics.test.mjs cinecanaux/tests/owner-inbox.test.mjs cinecanaux/tests/trend-fallback.test.mjs cinecanaux/tests/simkl-trends.test.mjs
 
       - name: Probe public Simkl trends feeds (non-blocking diagnostic)
         continue-on-error: true
