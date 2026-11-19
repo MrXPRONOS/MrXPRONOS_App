@@ -664,3 +664,45 @@ test('V2 progression migration is strictly additive to D1',async()=>{
  const schema=await readFile(new URL('../schema.sql',import.meta.url),'utf8');
  assert.ok(schema.includes('CREATE TABLE IF NOT EXISTS player_progress_v2'));
 });
+
+test('V2 initializes a legacy migration before a direct /api/sync request, even without bootstrap',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_taps=30250;h.player.confirmed_xp=120;
+ const init=signedTelegramUser({id:77005,first_name:'Synchronisation directe'});
+ try{
+  const req=new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/sync',{method:'POST',headers:{'x-telegram-init-data':init,'content-type':'application/json'},body:JSON.stringify({batch_id:'invalid',taps:999})});
+  const res=await worker.fetch(req,h.env);
+  assert.equal(res.status,400);
+  const migrated=h.v2Progress.get('77005');
+  assert.ok(migrated);assert.equal(migrated.legacy_level_floor,12);
+  assert.equal(h.player.confirmed_taps,30250);
+  h.player.confirmed_taps=0;
+  const get=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/progression',{headers:{'x-telegram-init-data':init}}),h.env);
+  assert.equal((await get.json()).progression.level,12);
+ }finally{h.restore()}
+});
+
+test('V2 bootstrap and missions both return one coherent server-backed progression',async()=>{
+ const h=harness();h.env.DEV_MODE='true';h.player.confirmed_xp=764;h.player.confirmed_taps=200;
+ const init=signedTelegramUser({id:77006,first_name:'Test api'});
+ try{
+  for(const path of ['/api/bootstrap','/api/missions']){
+   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev'+path,{headers:{'x-telegram-init-data':init}}),h.env);
+   assert.equal(res.status,200,await res.clone().text());const data=await res.json();
+   assert.equal(data.progression.level,3);
+   assert.equal(data.progression.confirmed_xp,764);
+   assert.ok(Array.isArray(data.progression.mastery.challenges));
+   assert.ok(data.progression.mastery.challenges.length>=20);
+  }
+ }finally{h.restore()}
+});
+
+test('V2 sent levels never trust browser stored levels for authenticated rankings',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  assert.ok(html.includes('state.progression=null;/* Never trust locally restored ranks as official. */'));
+  assert.ok(html.includes('const source=rank.image?RANK_AVATAR_ROOT+rank.image:RANK_BRAND_FALLBACK'));
+  assert.ok(!html.includes('function level(){return Math.max(1,Math.floor(Math.sqrt('));
+ }finally{h.restore()}
+});
