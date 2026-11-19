@@ -21,7 +21,9 @@ from .runner import resolve_peer
 from .text import private_message_link
 from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
-                          film_folder_url, send_public_poster_with_buttons)
+                          film_folder_url, send_public_poster_with_buttons,
+                          send_library_poster_with_buttons, verify_library_bot,
+                          post_public_video_after_poster)
 from .recovery import snapshot_telegram_posts, existing_native_forwards
 
 LOG = logging.getLogger("cinex_desir")
@@ -354,6 +356,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             from .bot_http import BotHTTPClient
             bot = BotHTTPClient(token, client)
             bot_public = await preflight_bot(bot, public, public_user)
+            await verify_library_bot(bot, library)
             # Validate destination and write rights before ANY private media upload.
             from .mirror_policy import torrent9_paused
             if not torrent9_paused():
@@ -452,9 +455,8 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                     staged = state.data["staged"][key]
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
-                    image = await client.send_file(
-                        library, require_photo(item.poster),
-                        caption=rich_caption(title, private=True), parse_mode="html"
+                    image = await send_library_poster_with_buttons(
+                        client, bot, library, public_user, item.poster, title,
                     )
                     state.stage(key, "poster", image.id)
                     await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
@@ -468,8 +470,17 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             video_url = private_message_link(private_id, private_video_id)
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
             public_post = await post_public(bot, client, bot_public, item, title, video_url, link)
+            # Publish the corresponding video in the public feed as well;
+            # the public fiche must immediately precede its own video.
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
+            public_video = await post_public_video_after_poster(
+                client, public_user, item.video, title,
+                int(public_post.id), video_url,
+            )
             state.complete(key, private_video_id, public_post.id)
-            # Only forward the public bot-authored poster/link, NEVER the private video.
+            LOG.info("CinéX Désir : fiche #%s / vidéo publique #%s",
+                     public_post.id, public_video.id)
+            # Native mirror carries only the bot-authored fiche, not the media.
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             forwarded_id = None
             if mirror_peer is not None and not os.getenv('CINEX_DEFER_MIRROR'):
