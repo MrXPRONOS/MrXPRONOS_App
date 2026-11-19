@@ -1,8 +1,8 @@
 {
   "project": "Mr XPRONOS Play",
   "status": "uploaded_verified",
-  "asset_count": 50,
-  "notes": "Verified on 2026-11-18 against GitHub main: 50 PNG + 50 WebP present in 5 folders, 100 expected paths match, all sizes > 0. No byte-for-byte / image-visual comparison performed.",
+  "asset_count": 58,
+  "notes": "Validated GitHub source paths for 50 original items and 8 imported lot-6 graphics (PNG + WebP). Transparency is not required for vertical splash screen #53.",
   "assets": [
     {
       "number": 1,
@@ -353,13 +353,69 @@
       "slug": "nft-collection-chest",
       "png": "assets/05-mrxp-legends-nft/50-nft-collection-chest.png",
       "webp": "assets/05-mrxp-legends-nft/50-nft-collection-chest.webp"
+    },
+    {
+      "number": 51,
+      "group": "06-game-states",
+      "slug": "locked-padlock",
+      "png": "assets/06-game-states/51-locked-padlock.png",
+      "webp": "assets/06-game-states/51-locked-padlock.webp"
+    },
+    {
+      "number": 52,
+      "group": "06-game-states",
+      "slug": "unlocked-padlock",
+      "png": "assets/06-game-states/52-unlocked-padlock.png",
+      "webp": "assets/06-game-states/52-unlocked-padlock.webp"
+    },
+    {
+      "number": 53,
+      "group": "06-game-states",
+      "slug": "launch-splash",
+      "png": "assets/06-game-states/53-launch-splash.png",
+      "webp": "assets/06-game-states/53-launch-splash.webp"
+    },
+    {
+      "number": 54,
+      "group": "06-game-states",
+      "slug": "loading-spinner",
+      "png": "assets/06-game-states/54-loading-spinner.png",
+      "webp": "assets/06-game-states/54-loading-spinner.webp"
+    },
+    {
+      "number": 55,
+      "group": "06-game-states",
+      "slug": "telegram-channel",
+      "png": "assets/06-game-states/55-telegram-channel.png",
+      "webp": "assets/06-game-states/55-telegram-channel.webp"
+    },
+    {
+      "number": 56,
+      "group": "06-game-states",
+      "slug": "victory-trophy",
+      "png": "assets/06-game-states/56-victory-trophy.png",
+      "webp": "assets/06-game-states/56-victory-trophy.webp"
+    },
+    {
+      "number": 57,
+      "group": "06-game-states",
+      "slug": "energy-empty",
+      "png": "assets/06-game-states/57-energy-empty.png",
+      "webp": "assets/06-game-states/57-energy-empty.webp"
+    },
+    {
+      "number": 58,
+      "group": "06-game-states",
+      "slug": "mission-complete",
+      "png": "assets/06-game-states/58-mission-complete.png",
+      "webp": "assets/06-game-states/58-mission-complete.webp"
     }
   ],
-  "verified_on": "2026-11-18",
+  "verified_on": "2026-11-19",
   "verification": {
-    "expected_files": 100,
-    "png_files": 50,
-    "webp_files": 50,
+    "expected_files": 116,
+    "png_files": 58,
+    "webp_files": 58,
     "missing_files": 0,
     "unexpected_files_in_lot_folders": 0,
     "zero_byte_files": 0

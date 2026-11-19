@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHmac } from 'node:crypto';
+import { createHmac, createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 const code = await readFile(new URL('../worker.js',import.meta.url), 'utf8');
@@ -432,5 +432,39 @@ test('photo URL originates from validated signed Telegram initData',async()=>{
   assert.ok(html.includes('signedPhotoUrl=r.telegram_photo_url||""'));
   assert.ok(html.includes('photo-refresh'));
   assert.ok(html.includes('tryTelegramPhotoFallback()'));
+ }finally{h.restore()}
+});
+
+test('lot 6 contains 16 exact image assets and all 58 catalog entries',async()=>{
+ const main=JSON.parse(await readFile(new URL('../assets-manifest.json',import.meta.url),'utf8'));
+ const lot=JSON.parse(await readFile(new URL('../assets-manifest-lot6.json',import.meta.url),'utf8'));
+ assert.equal(main.asset_count,58);
+ assert.equal(main.assets.length,58);
+ assert.equal(lot.assets.length,8);
+ assert.deepEqual(main.assets.slice(50).map(x=>x.number),[51,52,53,54,55,56,57,58]);
+ for(const x of lot.assets){
+  assert.ok(main.assets.some(y=>y.number===x.number&&y.webp===x.webp&&y.png===x.png));
+  const png=await readFile(new URL('../'+x.png,import.meta.url));
+  const webp=await readFile(new URL('../'+x.webp,import.meta.url));
+  assert.equal(png.length,x.png_size_bytes,x.png);
+  assert.equal(webp.length,x.webp_size_bytes,x.webp);
+  assert.equal(createHash('sha256').update(png).digest('hex'),x.sha256_png,x.png);
+  assert.equal(png.toString('hex',0,8),'89504e470d0a1a0a');
+  assert.equal(webp.toString('ascii',0,4),'RIFF');
+  assert.equal(webp.toString('ascii',8,12),'WEBP');
+ }
+});
+
+test('the Mini App loads lot 6 splash, spinner, mission status, energy and victory assets',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  for(const key of ['51-locked-padlock.webp','52-unlocked-padlock','53-launch-splash.webp','54-loading-spinner.webp','55-telegram-channel','56-victory-trophy.webp','57-energy-empty.webp','58-mission-complete','hideLaunchScreen']){
+   assert.ok(html.includes(key),'Missing UI asset reference: '+key);
+  }
+  assert.ok(html.includes('mrxp-launch-overlay'));
+  assert.ok(html.includes('setTimeout(hideLaunchScreen,9000)'));
  }finally{h.restore()}
 });

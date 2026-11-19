@@ -1,8 +1,8 @@
 # Mr XPRONOS Play — Ressources graphiques
 
-Ce dossier contient le **catalogue officiel de 50 éléments sélectionnés** pour Mr XPRONOS Play (lots 1 à 5).
+Ce dossier contient le **catalogue officiel de 58 éléments sélectionnés** pour Mr XPRONOS Play (lots 1 à 6).
 
-> **État de publication (vérifié le 18 novembre 2026) :** les 50 PNG et les 50 WebP sont présents sur `main` dans les cinq dossiers prévus (20 fichiers par dossier). Les 100 chemins ont été comparés avec le manifeste : **aucun élément manquant, aucun chemin supplémentaire dans les dossiers des lots et aucun fichier vide**. Cette vérification porte sur la présence, les noms et les tailles, pas sur une comparaison pixel par pixel.
+> **État de publication (vérifié le 18 novembre 2026) :** les 50 PNG et les 50 WebP des lots 1 à 5 étaient présents sur `main` dans cinq dossiers (20 fichiers par dossier). Les 100 chemins ont été comparés avec le manifeste : **aucun élément manquant, aucun chemin supplémentaire dans les dossiers des lots et aucun fichier vide**. Cette vérification porte sur la présence, les noms et les tailles, pas sur une comparaison pixel par pixel.
 
 ## Règles
 
@@ -10,7 +10,7 @@ Ce dossier contient le **catalogue officiel de 50 éléments sélectionnés** po
 - Cinq dossiers par fonction : identité, navigation, roue/récompenses, missions/progression, NFT.
 - `.png` : original haute définition ; `.webp` : version optimisée pour le site/Telegram.
 - Les numéros 23, 32, 33, 44, 46, 48 et 49 désignent les versions corrigées et non les premiers essais.
-- Le lot 6 (51–58) est exclu : il n'a pas encore été généré.
+- Le lot 6 (51–58) est maintenant créé : 8 PNG + 8 WebP rangés dans `assets/06-game-states/`, y compris le Splash Screen vertical opaque.
 
 ## Inventaire
 
@@ -68,3 +68,18 @@ Ce dossier contient le **catalogue officiel de 50 éléments sélectionnés** po
 | 50 | nft-collection-chest | 05-mrxp-legends-nft | `assets/05-mrxp-legends-nft/50-nft-collection-chest.png` |
 
 Le fichier `assets-manifest.json` associe chaque identifiant à son chemin PNG et WebP. Vérifier l'intégrité des originaux avec la liste SHA-256 fournie dans l'archive locale avant le commit de publication.
+
+## Lot 6 — État de jeu et notifications (51–58)
+
+| N° | Fichier WebP | Utilisation |
+|---:|---|---|
+| 51 | `51-locked-padlock.webp` | Fonction verrouillée / NFT futurs |
+| 52 | `52-unlocked-padlock.webp` | Déblocage et première mission |
+| 53 | `53-launch-splash.webp` | Écran vertical de lancement ; fond bleu opaque |
+| 54 | `54-loading-spinner.webp` | Chargement, animation via `loading-animation.css` |
+| 55 | `55-telegram-channel.webp` | Mission rejoindre un canal Telegram |
+| 56 | `56-victory-trophy.webp` | Récompense et accomplissement |
+| 57 | `57-energy-empty.webp` | Alerte énergie épuisée |
+| 58 | `58-mission-complete.webp` | Mission terminée |
+
+Les PNG sources se trouvent dans le même dossier, avec les mêmes noms (extension `.png`). Le manifeste global `assets-manifest.json` comprend maintenant 58 entrées ; `assets-manifest-lot6.json` conserve les empreintes SHA-256 des PNG du lot 6. Tous les huit visuels sont importés depuis les originaux : pas de nouvelle génération ni de recompression des fichiers PNG.
