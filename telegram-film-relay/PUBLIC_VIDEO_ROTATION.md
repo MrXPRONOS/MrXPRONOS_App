@@ -28,9 +28,14 @@ Pour une exécution manuelle : GitHub → Actions → **CineX - Rotation quotidi
 
 Variables / secrets repris du workflow existant : `TG_API_ID`, `TG_API_HASH`, `TG_SESSION_STRING` (alias pris en charge), `FOOTBALL_NEWS_BOT_TOKEN` (ou `TELEGRAM_BOT_TOKEN`), `TG_PRIVATE_CHANNEL`, `CINEX_FILM_FOLDER_URL`. **Le bot doit être administrateur du canal public et auteur des affiches à modifier.** Le compte utilisateur doit disposer du droit de suppression et d'accès au canal privé.
 
+## Publications directes des nouveaux films
+
+Le workflow existant `.github/workflows/telegram-film-relay.yml` exécute désormais `python -m film_relay.public_video_showcase` immédiatement après les deux nouveaux films classiques. Il vérifie d’abord les affiches bot et les médias privés ; si une copie du document existe déjà parmi les messages publics récents, il ne la republie pas.
+
 ## Limites délibérées
 
-- Ne publie **pas** automatiquement les futurs films en vidéo dans le canal principal : cette fonctionnalité est distincte du nettoyage et nécessite une adaptation du relais, avec checkpoint et anti-doublons.
+- Le workflow du relais filme désormais les deux films les plus récents directement dans le canal principal, après la publication de leurs affiches. Le module vérifie la vidéothèque et les affiches, recherche le même identifiant de média parmi les vidéos publiques récentes et évite de le publier deux fois. L’option `CINEX_SHOWCASE_ENABLED` permet de désactiver ces envois.
+- La vidéo publique est publiée par la session personnelle Telegram, et non par le bot qui publie les affiches. Il faut donc que ce compte puisse publier dans le canal public.
 - Un poster publié manuellement par un autre compte ou bot peut être impossible à modifier avec le bot configuré : la vidéo reste en place.
 - Vidéo sans titre concordant, vidéo protégée, album ambigu ou affiche introuvable : la vidéo reste en place.
 - Fenêtre historique par défaut de 4 000 messages, ajustable avec `--limit` (20 à 20 000). Les vidéos plus anciennes hors fenêtre ne sont pas touchées.
