@@ -94,3 +94,8 @@ jobs:
           done
           echo '::error::Echec de la sauvegarde de la progression Telegram'
           exit 1
+      - name: Signaler tout chargement Secours incomplet
+        if: ${{ always() && steps.rescue_links.outcome == 'failure' }}
+        run: |
+          echo "::error::Invitations Secours indisponibles ; vérifier le contrôle Telegram."
+          exit 1
