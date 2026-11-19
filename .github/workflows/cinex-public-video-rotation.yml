@@ -1,15 +1,15 @@
-name: CineX - Rotation quotidienne des 10 videos
+name: CineX - Rotation biquotidienne des 10 films
 
 on:
   workflow_dispatch:
     inputs:
       apply:
-        description: 'Activer modifications et suppressions (false = simulation)'
+        description: 'Archiver les anciens films après copie affiche + vidéo (false = simulation)'
         required: false
         type: boolean
         default: false
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0,12 * * *'
 
 permissions:
   contents: read
@@ -72,7 +72,7 @@ jobs:
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-              python -m film_relay.public_video_archive --apply --max-archived 2
+              python -m film_relay.public_video_archive --apply --max-archived 10
             else
               python -m film_relay.public_video_archive --apply --max-archived 10
             fi

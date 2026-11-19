@@ -4,6 +4,7 @@ from film_relay.public_video_showcase import select_recent_completed
 from film_relay.public_video_archive import (
     is_video_message, last_ten_video_ids, matching_poster,
     normalize_title, title_similarity, archive_buttons, verified_film_video_pairs,
+    is_user_reserved_film,
 )
 
 
@@ -37,10 +38,25 @@ class PublicArchiveTests(unittest.TestCase):
         poster = msg(49, title="La fille du roi", photo=True)
         self.assertIsNone(matching_poster(film, [poster, film]))
 
-    def test_skip_when_poster_is_too_old(self):
-        film = msg(50, title="La fille du roi", video=True)
-        poster = msg(30, title="La fille du roi", photo=True)
-        self.assertIsNone(matching_poster(film, [poster, film]))
+    def test_long_gap_requires_strong_title_and_finds_legacy_poster(self):
+        film = msg(380, title="🎞️ La fille du roi", video=True)
+        poster = msg(30, title="🎬 La fille du roi", photo=True)
+        unrelated = msg(379, title="🎬 Une autre fille du roi", photo=True)
+        self.assertIs(matching_poster(film, [poster, unrelated, film]), poster)
+
+    def test_reject_ambiguous_far_posters(self):
+        film = msg(380, title="🎞️ La fille du roi", video=True)
+        poster1 = msg(30, title="🎬 La fille du roi", photo=True)
+        poster2 = msg(31, title="🎬 La fille du roi", photo=True)
+        self.assertIsNone(matching_poster(film, [poster1, poster2, film]))
+
+    def test_john_wick_is_reserved_for_manual_processing(self):
+        video = msg(101, title="John Wick 4.mp4", video=True)
+        poster = msg(100, title="🎬 JOHN WICK 4", photo=True)
+        self.assertTrue(is_user_reserved_film(video, poster))
+        self.assertFalse(is_user_reserved_film(
+            msg(103, title="The Criminal", video=True),
+            msg(102, title="The Criminal", photo=True)))
 
     def test_normalize(self):
         self.assertEqual(normalize_title("🎬 FILM : Le Grand Voyage (VF)"), "le grand voyage")

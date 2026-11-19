@@ -18,13 +18,17 @@ from difflib import SequenceMatcher
 from pathlib import PurePath
 
 from .bot_http import BotHTTPClient, TelegramBotHTTPError, url_button
-from .publication import film_folder_url
-from .text import first_title, private_message_link
+from .publication import film_folder_url, rich_caption, rich_video_title
+from .text import first_title, private_message_link, clean_caption
 
 LOG = logging.getLogger("cinex.public_video_archive")
 EXPECTED_PUBLIC = "@CineXFilms_vf"
 MAX_HISTORY = 4000
 KEEP_COUNT = 10
+# Legacy posts can have many intervening messages between a movie poster
+# and its video. Long-distance matches require significantly stronger titles.
+MAX_POSTER_DISTANCE = 1200
+USER_RESERVED_TITLES = ("john wick",)
 
 
 def video_document_id(message) -> int | None:
@@ -54,7 +58,7 @@ def normalize_title(text: str) -> str:
     """Évite d'associer deux films uniquement parce qu'ils sont voisins."""
     title = first_title(text or "")
     title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
-    title = re.sub(r"(?i)\b(?:voir|regarder|film|complet|vf|vostfr|french|hd|1080p|720p)\b", " ", title)
+    title = re.sub(r"(?i)\b(?:voir|regarder|film|complet|vf|vostfr|french|hd|1080p|720p|mkv|mp4|avi|mov|webm|m4v)\b", " ", title)
     return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
 
 
@@ -83,28 +87,50 @@ def last_ten_video_ids(messages, limit: int = KEEP_COUNT) -> set[int]:
     return {m.id for m in videos[:limit]}
 
 
-def matching_poster(video, messages, *, claimed: set[int] | None = None):
-    """Seulement affiche antérieure, titre concordant et proximité prouvée.
+def matching_poster(
+    video, messages, *, claimed: set[int] | None = None,
+    max_gap: int = MAX_POSTER_DISTANCE,
+):
+    """Match a preceding poster by movie title, never simply by adjacency.
 
-    Les associations ambiguës ou sans titre sont ignorées, jamais devinées.
+    Long-distance associations need an almost identical title. If two
+    plausible posters are too close in rank, preserve the video for review.
     """
     claimed = claimed or set()
     title = video_title(video)
     ranked = []
     for item in messages:
-        if not getattr(item, "photo", None) or item.id in claimed:
+        if not item or not getattr(item, "photo", None) or item.id in claimed:
             continue
-        if item.id >= video.id or video.id - item.id > 12:
+        distance = video.id - item.id
+        if distance <= 0 or distance > max_gap:
             continue
         score = title_similarity(title, getattr(item, "raw_text", "") or "")
-        if score >= 0.80:
-            ranked.append((score, item.id, item))
-    ranked.sort(reverse=True, key=lambda x: (x[0], x[1]))
+        threshold = 0.80 if distance <= 12 else (0.91 if distance <= 100 else 0.96)
+        if score >= threshold:
+            ranked.append((score, distance, item))
+    ranked.sort(key=lambda row: (-row[0], row[1]))
     if not ranked:
         return None
-    if len(ranked) > 1 and ranked[0][0] - ranked[1][0] < 0.10:
-        return None
+    if len(ranked) > 1:
+        best, second = ranked[:2]
+        if (best[0] - second[0] < 0.06
+                and abs(best[1] - second[1]) < 25
+                and not (
+                    best[0] >= 0.99 and best[1] <= 12
+                    and (second[0] < 0.99 or second[1] > 12)
+                )):
+            return None
+        if best[0] - second[0] < 0.04 and best[1] == second[1]:
+            return None
     return ranked[0][2]
+
+
+def is_user_reserved_film(video, poster) -> bool:
+    """The owner will handle the remaining John Wick films manually."""
+    title = normalize_title(video_title(video))
+    poster_title = normalize_title(getattr(poster, "raw_text", "") or "")
+    return any(name in title or name in poster_title for name in USER_RESERVED_TITLES)
 
 
 def has_verified_button(message, link: str) -> bool:
@@ -152,6 +178,72 @@ async def existing_private_media(client, private, limit: int = MAX_HISTORY) -> d
     return by_document
 
 
+
+async def private_video_has_poster(client, private, video_id: int,
+                                   expected_document_id: int) -> bool:
+    """Reuse a private movie only when its own descriptive poster is before it."""
+    current = await client.get_messages(private, ids=video_id)
+    if not is_video_message(current) or video_document_id(current) != expected_document_id:
+        return False
+    previous_ids = list(range(max(1, video_id - 8), video_id))
+    previous = await client.get_messages(private, ids=previous_ids)
+    matching = matching_poster(current, previous or [], max_gap=8)
+    return bool(matching and (getattr(matching, "raw_text", "") or "").strip())
+
+
+async def ensure_private_poster_then_video(
+    client, private, poster, video, private_docs: dict[int, int],
+) -> int:
+    """Ensure the archive points to a verified PHOTO then VIDEO sequence.
+
+    If an old private video exists without a preceding poster, re-publish a
+    complete pair instead of linking to that incomplete entry. Reuse a
+    previously completed pair on retries, preventing duplicate archive posts.
+    """
+    document_id = video_document_id(video)
+    existing_id = private_docs.get(document_id)
+    if existing_id and await private_video_has_poster(
+        client, private, existing_id, document_id
+    ):
+        return existing_id
+    if getattr(poster, "noforwards", False) or getattr(video, "noforwards", False):
+        raise RuntimeError("Affiche ou vidéo protégée : aucune copie autorisée")
+
+    description = clean_caption(getattr(poster, "raw_text", "") or "")
+    if not description or not getattr(poster, "photo", None):
+        raise RuntimeError("Affiche ou description absente : conservation de la vidéo publique")
+
+    # Recovery from an interrupted cycle that sent the private poster but not
+    # yet the video. All Telegram-owner workflows share a single Actions lock.
+    last_private = [m async for m in client.iter_messages(private, limit=1)]
+    pending = last_private[0] if last_private else None
+    if not (pending and getattr(pending, "photo", None)
+            and title_similarity(getattr(pending, "raw_text", "") or "", description) >= 0.95):
+        pending = await client.send_file(
+            private, poster.media, caption=rich_caption(description, private=True),
+            parse_mode="html",
+        )
+    photo_check = await client.get_messages(private, ids=int(pending.id))
+    if not photo_check or not getattr(photo_check, "photo", None) or not (
+        getattr(photo_check, "raw_text", "") or ""
+    ).strip():
+        raise RuntimeError("Affiche privée non confirmée ; vidéo publique conservée")
+
+    await asyncio.sleep(12)
+    posted = await client.send_file(
+        private, video.media, caption=rich_video_title(video_title(video)), parse_mode="html",
+    )
+    confirmed = await client.get_messages(private, ids=int(posted.id))
+    if not is_video_message(confirmed) or video_document_id(confirmed) != document_id:
+        raise RuntimeError("Vidéo privée non confirmée ou document différent")
+    if not (0 < int(confirmed.id) - int(photo_check.id) <= 3):
+        raise RuntimeError("Affiche et vidéo privées non consécutives")
+    if not await private_video_has_poster(client, private, int(confirmed.id), document_id):
+        raise RuntimeError("L'affiche de la vidéothèque n'a pas pu être associée à la vidéo")
+    private_docs[document_id] = int(confirmed.id)
+    return int(confirmed.id)
+
+
 async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived: int | None = None) -> dict:
     from telethon import TelegramClient, utils
     from telethon.errors import FloodWaitError, PeerFloodError
@@ -192,16 +284,29 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
             raise RuntimeError("La vidéothèque doit être un canal Telegram privé distinct")
 
         messages = [m async for m in client.iter_messages(public, limit=limit)]
-        by_id = {m.id: m for m in messages}
         videos = sorted([m for m in messages if is_video_message(m)],
                         key=lambda m: m.id, reverse=True)
         film_pairs = verified_film_video_pairs(messages)
         protected = {video.id for video, _poster in film_pairs[:KEEP_COUNT]}
-        report["videos"] = len(videos)
-        report["kept"] = len(protected)
-        report["eligible"] = max(0, len(film_pairs) - len(protected))
-        LOG.info("Canal=%s vidéothèque=%s vidéos=%d conservées=%d candidates=%d",
-                 public_id, private_id, len(videos), len(protected), report["eligible"])
+        to_archive = [(video, poster) for video, poster in film_pairs[KEEP_COUNT:]
+                      if not is_user_reserved_film(video, poster)]
+        reserved = sum(is_user_reserved_film(v, p) for v, p in film_pairs[KEEP_COUNT:])
+        unmatched = len(videos) - len(film_pairs)
+        report.update({
+            "videos": len(videos), "kept": len(protected),
+            "eligible": len(to_archive), "unmatched": unmatched, "reserved": reserved,
+        })
+        LOG.info(
+            "Canal=%s vidéothèque=%s vidéos=%d films_associes=%d "
+            "conservés=%d candidats=%d non_associes=%d John_Wick_reserves=%d",
+            public_id, private_id, len(videos), len(film_pairs),
+            len(protected), len(to_archive), unmatched, reserved,
+        )
+        paired_ids = {v.id for v, _ in film_pairs}
+        for item in videos:
+            if item.id not in paired_ids and item.id not in {v.id for v in videos[:KEEP_COUNT]}:
+                LOG.warning("Vidéo ancienne non associable #%s : %s ; laissée intacte",
+                            item.id, normalize_title(video_title(item))[:80])
         if len(messages) == limit:
             LOG.warning("Historique tronqué à %d messages : vidéos plus anciennes non examinées", limit)
 
@@ -226,9 +331,9 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                     getattr(owner_rights, "delete_messages", False)):
                 raise RuntimeError("Le compte principal ne possède pas les droits de suppression")
 
-        # Itérer du plus récent des candidats au plus ancien; aucune
-        # suppression si une preuve (affiche, média, lien) est absente.
-        for video, poster in film_pairs[KEEP_COUNT:]:
+        # Rattrapage du plus ANCIEN au plus récent ; les John Wick restants
+        # sont gérés manuellement par le propriétaire.
+        for video, poster in reversed(to_archive):
             if max_archived is not None and report["archived"] >= max_archived:
                 LOG.info("Limite de test atteinte : %d vidéo(s) archivées", max_archived)
                 break
@@ -239,25 +344,15 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
             try:
                 if getattr(video, "noforwards", False):
                     raise RuntimeError("Vidéo protégée contre la redistribution")
-                # Un même document existe souvent déjà en vidéothèque, car
-                # le relais originel y envoie les films en premier.
+                # Private archive must contain the FILM POSTER FIRST,
+                # followed by its VIDEO. Reuse existing verified pairs only.
                 document_id = video_document_id(video)
-                destination_id = private_docs.get(document_id)
-                if destination_id:
-                    archived = await client.get_messages(private, ids=destination_id)
-                    if not archived or video_document_id(archived) != document_id:
-                        destination_id = None
-                if not destination_id:
-                    copied = await client.send_file(
-                        private, video.media, caption=(video_title(video) or "🎬 Film")[:1024]
-                    )
-                    destination_id = int(copied.id)
+                destination_id = await ensure_private_poster_then_video(
+                    client, private, poster, video, private_docs,
+                )
                 proof = await client.get_messages(private, ids=destination_id)
-                if not proof or not is_video_message(proof):
-                    raise RuntimeError("Copie privée absente ou sans média vidéo")
-                if document_id and video_document_id(proof) != document_id:
-                    raise RuntimeError("Le document privé ne correspond pas à l'original")
-                private_docs[document_id] = destination_id
+                if not proof or video_document_id(proof) != document_id:
+                    raise RuntimeError("Paire privée non vérifiée : vidéo publique conservée")
                 url = private_message_link(private_id, destination_id)
                 from .rescue_channels import read_state, rescue_link_for
                 rescue_state = read_state().get("channels", {}).get("@cinexfilms_vf")
@@ -350,6 +445,8 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                     f"- Anciennes vidéos candidates : {report['eligible']}\n"
                     f"- Vidéos archivées et supprimées du public : {report['archived']}\n"
                     f"- Vidéos conservées faute de correspondance : {report['skipped']}\n"
+                    f"- Films réservés (John Wick) : {report['reserved']}\n"
+                    f"- Vidéos sans affiche fiable, laissées intactes : {report['unmatched']}\n"
                     f"- Erreurs : {report['errors']}\n"
                 )
         return report
