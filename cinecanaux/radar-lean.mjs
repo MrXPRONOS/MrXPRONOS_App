@@ -56,7 +56,7 @@ const INTRO=[
  "🔗 Ouvrir les canaux directement sur Telegram.",
  "",
  "👉 Appuie sur « Ouvrir la Mini App » pour commencer."
-].join("\n"););
+].join("\n");
 const isOwner=async(env,user,privateChat)=>{
  if(!privateChat||!Number.isSafeInteger(Number(user))||Number(user)<=0)return false;
  const role=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(Number(user)).first();
