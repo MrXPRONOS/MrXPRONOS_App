@@ -33,9 +33,72 @@ async function wheelOutcome(env,id,day){const b=new Uint8Array(await hmac(env.BO
 async function ensurePlayer(env,u){const now=Date.now();await env.DB.prepare("INSERT OR IGNORE INTO players(user_id,username,display_name,next_sync_ms,created_ms,updated_ms) VALUES(?,?,?,?,?,?)").bind(u.id,u.username,u.name,now,now,now).run();await env.DB.prepare("UPDATE players SET username=?,display_name=?,updated_ms=? WHERE user_id=?").bind(u.username,u.name,now,u.id).run();return env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(u.id).first()}
 function validDay(d,now){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const ms=Date.parse(d+"T00:00:00Z");const todayMs=Math.floor(now/DAY)*DAY;return Number.isFinite(ms)&&ms<=todayMs&&ms>=todayMs-14*DAY;}
 
+
+/* V2 Phase 1: levels are awarded from verified lifetime XP and audited mastery.
+   Legacy users keep their pre-migration *confirmed* tap level as an immutable floor.
+   Do not award XP for mastery itself: these are access conditions, not paid rewards. */
+const V2_MAX_LEVEL=50;
+const V2_LEVEL_THRESHOLDS=[0,0];
+for(let l=1;l<V2_MAX_LEVEL;l++)V2_LEVEL_THRESHOLDS[l+1]=V2_LEVEL_THRESHOLDS[l]+Math.round(200+100*Math.pow(l,1.4));
+const V2_RANKS=[
+ {from:1,to:1,name:"Recrue"},{from:2,to:2,name:"Éclaireur"},{from:3,to:4,name:"Combattant"},
+ {from:5,to:5,name:"Sentinelle"},{from:6,to:9,name:"Chevalier"},{from:10,to:14,name:"Élite"},
+ {from:15,to:19,name:"Maître"},{from:20,to:29,name:"Champion"},
+ {from:30,to:39,name:"Légende"},{from:40,to:49,name:"Mythique"},
+ {from:50,to:50,name:"Souverain MX"}
+];
+const V2_GATES=[{level:5,required:2},{level:10,required:3},{level:15,required:5},
+ {level:20,required:7},{level:30,required:10},{level:40,required:14},{level:50,required:18}];
+const V2_MASTERY=[
+ ...[50,200,500,1000,2500,5000,10000,20000,50000,100000,200000,400000].map(n=>({key:"taps_"+n,name:n.toLocaleString("fr-FR")+" tapotages",kind:"taps",goal:n})),
+ ...[2,5,10,20,40,80,160].map(n=>({key:"daily_"+n,name:n+" bonus quotidiens",kind:"daily",goal:n})),
+ ...[2,5,10,20,40,80,160].map(n=>({key:"wheel_"+n,name:n+" tours de roue",kind:"wheel",goal:n})),
+ ...[1,2,3,4].map(n=>({key:"missions_"+n,name:n+" missions gratuites",kind:"missions",goal:n}))
+];
+function v2Rank(level){return V2_RANKS.find(r=>level>=r.from&&level<=r.to)||V2_RANKS[0]}
+function v2XpLevel(xp){let n=1;while(n<V2_MAX_LEVEL&&xp>=V2_LEVEL_THRESHOLDS[n+1])n++;return n}
+function v2LegacyLevel(taps){return Math.min(V2_MAX_LEVEL,Math.max(1,Math.floor(Math.sqrt(Math.max(0,Number(taps)||0)/250))+1))}
+async function v2Progression(env,player){
+ const id=String(player.user_id),now=Date.now(),xp=Math.max(0,Number(player.confirmed_xp)||0),taps=Math.max(0,Number(player.confirmed_taps)||0);
+ let row=await env.DB.prepare("SELECT * FROM player_progress_v2 WHERE user_id=?").bind(id).first();
+ if(!row){
+  const floor=v2LegacyLevel(taps);
+  await env.DB.prepare("INSERT OR IGNORE INTO player_progress_v2(user_id,legacy_level_floor,current_level,created_ms,updated_ms) VALUES(?,?,?,?,?)").bind(id,floor,floor,now,now).run();
+  row=await env.DB.prepare("SELECT * FROM player_progress_v2 WHERE user_id=?").bind(id).first();
+  if(!row)throw Error("Progression V2 indisponible");
+ }
+ const counted=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM daily_claims WHERE user_id=?) AS daily_count,(SELECT COUNT(*) FROM wheel_claims WHERE user_id=?) AS wheel_count,(SELECT COUNT(*) FROM mission_claims WHERE user_id=? AND mission_key NOT IN ('join_main','join_foot')) AS mission_count").bind(id,id,id).first();
+ const totals={taps,daily:Number(counted?.daily_count||0),wheel:Number(counted?.wheel_count||0),missions:Number(counted?.mission_count||0)};
+ const challenges=V2_MASTERY.map(a=>({key:a.key,name:a.name,kind:a.kind,goal:a.goal,progress:Math.min(a.goal,totals[a.kind]),completed:totals[a.kind]>=a.goal}));
+ const earned=challenges.filter(a=>a.completed).length;
+ const xpEligible=v2XpLevel(xp),floor=Math.max(1,Math.min(V2_MAX_LEVEL,Number(row.legacy_level_floor)||1));
+ let official=Math.max(floor,Math.min(V2_MAX_LEVEL,Number(row.current_level)||1));
+ for(let next=official+1;next<=xpEligible;next++){
+  const gate=V2_GATES.find(g=>g.level===next);
+  if(gate&&earned<gate.required)break;
+  official=next;
+ }
+ if(official>Number(row.current_level||1)){
+  await env.DB.prepare("UPDATE player_progress_v2 SET current_level=MAX(current_level,?),updated_ms=? WHERE user_id=?").bind(official,now,id).run();
+ }
+ const nextLevel=Math.min(V2_MAX_LEVEL,official+1);
+ const nextGate=V2_GATES.find(g=>g.level>official)||null;
+ const stopped=V2_GATES.find(g=>g.level===nextLevel&&earned<g.required)||null;
+ const lower=V2_LEVEL_THRESHOLDS[official]||0,upper=V2_LEVEL_THRESHOLDS[nextLevel]||lower;
+ const progress=official>=V2_MAX_LEVEL?100:Math.round(100*Math.min(1,Math.max(0,(xp-lower)/Math.max(1,upper-lower))));
+ return {
+  version:2,level:official,rank:v2Rank(official).name,max_level:V2_MAX_LEVEL,legacy_level_floor:floor,
+  confirmed_xp:xp,xp_eligible_level:xpEligible,xp_current_threshold:lower,xp_next_threshold:official>=V2_MAX_LEVEL?null:upper,
+  xp_to_next:official>=V2_MAX_LEVEL?0:Math.max(0,upper-xp),xp_progress_percent:progress,
+  blocked_by_mastery:!!stopped,required_mastery:stopped?.required||0,
+  mastery:{completed:earned,total:challenges.length,challenges,next_gate:nextGate?{level:nextGate.level,required:nextGate.required,missing:Math.max(0,nextGate.required-earned)}:null},
+  progress_pending:false
+ };
+}
+
 /* Telegram Bot interface: public /start -> Mini App; admin D1 allowlist -> private tools. */
-const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\n🎯 Tapote pour collecter des XP Points.\n🎡 Tente ta chance avec la Lucky Wheel.\n🎁 Accomplis des missions pour gagner des XP.\n📈 Suis ta progression depuis la Mini App.\n\nLes XP Points sont des points virtuels sans valeur monétaire.\n\nAppuie sur « Ouvrir l’application » pour jouer.";
-const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, tourne la Lucky Wheel, accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
+const PUBLIC_WELCOME="🎮 Bienvenue sur Mr XPRONOS Play !\n\n🎯 Tapote pour collecter des XP Points.\n🎮 Explore les Jeux : commence avec la Lucky Wheel.\n🎁 Accomplis des missions pour gagner des XP.\n📈 Suis ta progression depuis la Mini App.\n\nLes XP Points sont des points virtuels sans valeur monétaire.\n\nAppuie sur « Ouvrir l’application » pour jouer.";
+const BOT_DESCRIPTION="🎮 Mr XPRONOS Play : tapote pour gagner des XP Points, explore les Jeux (Lucky Wheel), accomplis des missions et suis ta progression. Les XP sont des points de jeu sans valeur monétaire.";
 const BOT_SHORT_DESCRIPTION="🎮 Tapote, gagne des XP, tourne la roue et relève des missions gratuites !";
 async function botApi(env,method,body){
  const response=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/"+method,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
@@ -52,7 +115,7 @@ async function isBotAdmin(env,userId){
  const a=await env.DB.prepare("SELECT telegram_id FROM bot_admins WHERE telegram_id=?").bind(String(userId)).first();
  return !!a;
 }
-const GAME_FEATURE_LABELS={tap:"Tapotage",wheel:"Lucky Wheel",daily:"Bonus quotidien",missions:"Missions"};
+const GAME_FEATURE_LABELS={tap:"Tapotage",wheel:"Jeux : Lucky Wheel",daily:"Bonus quotidien",missions:"Missions"};
 async function getGameFeatures(env){
  const result=await env.DB.prepare("SELECT key,value FROM bot_settings WHERE key IN ('feature_tap','feature_wheel','feature_daily','feature_missions')").all();
  const stored=Object.fromEntries((result.results||[]).map(row=>[row.key,row.value]));
@@ -331,25 +394,26 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  }
  let player=await ensurePlayer(env,user);
  if(p==="/api/game-features"&&request.method==="GET")return json({features:await getGameFeatures(env)});
- if(p==="/api/missions"&&request.method==="GET")return json({missions:await missionStatus(env,player)});
+ if(p==="/api/progression"&&request.method==="GET")return json({progression:await v2Progression(env,player)});
+ if(p==="/api/missions"&&request.method==="GET")return json({missions:await missionStatus(env,player),progression:await v2Progression(env,player)});
  if(p==="/api/missions/claim"&&request.method==="POST"){
   let payload;try{payload=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
   const result=await awardPlayMission(env,player,String(payload?.mission_key||""));
   if(!result.ok)return json({error:result.reason,code:result.error},result.status);
-  return json(result);
+  return json({...result,progression:await v2Progression(env,result.player||player)});
  }
  if(p==="/api/bootstrap"&&request.method==="GET"){
   const now=Date.now(), plans={},base=Math.floor(now/DAY)*DAY;
   for(let i=0;i<15;i++){const d=dateOf(base+i*DAY);plans[d]=(await wheelOutcome(env,user.id,d)).key}
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
-  return json({user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
+  return json({user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression:await v2Progression(env,player),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
  }
  if(p==="/api/sync"&&request.method==="POST"){
   let body;try{body=await request.json()}catch{return json({error:"JSON invalide"},400)}
   const now=Date.now(),batch=String(body.batch_id||""),taps=Number(body.taps);
   if(!/^[\w-]{16,100}$/.test(batch)||!Number.isInteger(taps)||taps<0||taps>20000)return json({error:"Lot de tapotages invalide"},400);
   const previous=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();
-  if(previous)return json({ok:true,duplicate:true,xp_awarded:previous.xp_awarded,user:player});
+  if(previous)return json({ok:true,duplicate:true,xp_awarded:previous.xp_awarded,user:player,progression:await v2Progression(env,player)});
   if(player.next_sync_ms>now)return json({error:"Prochaine synchronisation autorisée : "+new Date(player.next_sync_ms).toISOString(),next_sync_ms:player.next_sync_ms},429);
   const features=await getGameFeatures(env);
   if((!features.tap&&taps>0)||(!features.daily&&Array.isArray(body.daily_days)&&body.daily_days.length>0)||(!features.wheel&&Array.isArray(body.wheel_days)&&body.wheel_days.length>0))return json({error:"Un module du jeu est momentanément en pause. Les XP en attente restent conservés localement jusqu’à sa réactivation.",code:"GAME_PAUSED"},423);
@@ -371,8 +435,8 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   for(const r of outcomes)ops.push(env.DB.prepare("INSERT OR IGNORE INTO wheel_claims(user_id,day,reward_key,xp_awarded,created_ms) SELECT ?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,r.day,r.key,r.xp,now,user.id,now));
   const result=await env.DB.batch(ops);
   player=await env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(user.id).first();
-  if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found)return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player});return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
-  return json({ok:true,duplicate:false,xp_awarded:awarded,user:player,wheel_outcomes:outcomes});
+  if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found)return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression:await v2Progression(env,player)});return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
+  return json({ok:true,duplicate:false,xp_awarded:awarded,user:player,wheel_outcomes:outcomes,progression:await v2Progression(env,player)});
  }
  return json({error:"Route inconnue"},404)
 
