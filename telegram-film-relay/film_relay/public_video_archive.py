@@ -115,8 +115,11 @@ def matching_poster(
     if len(ranked) > 1:
         best, second = ranked[:2]
         if (best[0] - second[0] < 0.06
-                and (best[1] > 12 or second[1] > 12)
-                and abs(best[1] - second[1]) < 25):
+                and abs(best[1] - second[1]) < 25
+                and not (
+                    best[0] >= 0.99 and best[1] <= 12
+                    and (second[0] < 0.99 or second[1] > 12)
+                )):
             return None
         if best[0] - second[0] < 0.04 and best[1] == second[1]:
             return None
