@@ -150,7 +150,7 @@ jobs:
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
-          TG_PUBLIC_CHANNEL: '@CineXFilms_vf'
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
           CINEX_SHOWCASE_ENABLED: 'true'
           PYTHONPATH: .
         run: python -m film_relay.public_video_showcase
