@@ -1,0 +1,73 @@
+{
+  "project": "Mr XPRONOS Play",
+  "purpose": "Five approved Black African 3D portraits for existing level visual display",
+  "avatar_count": 5,
+  "note": "The separate XP+mission hybrid progression and shop are not yet implemented. Levels 10+ retain existing placeholder until future avatar art.",
+  "avatars": [
+    {
+      "rank": 1,
+      "slug": "recrue",
+      "min_level": 1,
+      "max_level": 1,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-01-recrue.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-01-recrue.webp",
+      "png_bytes": 1911987,
+      "webp_bytes": 122904,
+      "sha256_png": "969ebb2e49ad3dc53ce86356ec6efab7be023b483704aaafdf313de516d6d96c",
+      "sha256_webp": "2dc21cd32e5218210df7a2fc0fc131870bac5303375e7a4b140e428eebd54759",
+      "transparent": true
+    },
+    {
+      "rank": 2,
+      "slug": "eclaireur",
+      "min_level": 2,
+      "max_level": 2,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-02-eclaireur.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-02-eclaireur.webp",
+      "png_bytes": 2079886,
+      "webp_bytes": 146876,
+      "sha256_png": "8c53b1169433577c5d3bf4ddb473d9542706666ed7ab1faec0c7eba9cf24d422",
+      "sha256_webp": "58bd2a663e2724f98ccc4fdb632597075b4555b0e7e1c0ebb11a3d9a0366fcca",
+      "transparent": true
+    },
+    {
+      "rank": 3,
+      "slug": "combattant",
+      "min_level": 3,
+      "max_level": 4,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-03-combattant.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-03-combattant.webp",
+      "png_bytes": 2325822,
+      "webp_bytes": 162474,
+      "sha256_png": "9232901764f209aa75124f2f3a683c34e59fdaefef1790a4d57b59bf4631f80a",
+      "sha256_webp": "348b99878ca16efa6f4b8af697b83dad17c3fd16a3ea60dae7d849b0795510b3",
+      "transparent": true
+    },
+    {
+      "rank": 4,
+      "slug": "sentinelle",
+      "min_level": 5,
+      "max_level": 5,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-04-sentinelle.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-04-sentinelle.webp",
+      "png_bytes": 2458363,
+      "webp_bytes": 182124,
+      "sha256_png": "d677a353f2f42a028455db80aa2f8773ac08095f732c9d494ca410cf9775d549",
+      "sha256_webp": "4c39416deb17b68351a8eb71fe416d52160a6357f5774f4aebcbe9cfd17df757",
+      "transparent": true
+    },
+    {
+      "rank": 5,
+      "slug": "chevalier",
+      "min_level": 6,
+      "max_level": 9,
+      "png": "mrxpronos-play/assets/07-rank-avatars/rank-05-chevalier.png",
+      "webp": "mrxpronos-play/assets/07-rank-avatars/rank-05-chevalier.webp",
+      "png_bytes": 2329507,
+      "webp_bytes": 166008,
+      "sha256_png": "8aa28370c2ea6ef890459587a2c9d6e372ef67a140d3921b12d6656539dbde82",
+      "sha256_webp": "37e1bb089093c9befa633c9f4a33410ec681c488e3e1af0b95bd55501d1f25f6",
+      "transparent": true
+    }
+  ]
+}
