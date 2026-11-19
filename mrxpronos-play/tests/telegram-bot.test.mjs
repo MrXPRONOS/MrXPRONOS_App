@@ -13,7 +13,7 @@ const adminId = 111;
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]);
  const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map(),creditBaselines=new Map(),creditEvents=new Map();
- const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[];
+ const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map();
  const v2Counts={daily:0,wheel:0};
  const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
@@ -35,18 +35,43 @@ function harness(){
         if(lower.includes('from player_credit_state'))return creditBaselines.get(String(values[0]))||null;
         if(lower.includes('from mrxp_credit_events')&&lower.includes('sum(amount)')){const list=[...creditEvents.values()].filter(x=>x.user_id===String(values[0]));return {balance:list.reduce((a,x)=>a+x.amount,0),event_count:list.length}}
         if(lower.includes('count(*) as total from mission_claims'))return {total:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).length};
+        if(lower.includes('from mrxp_boost_inventory')){
+         const id=String(values[0]),list=[...boostInventory.values()].filter(x=>x.user_id===id);
+         if(lower.includes('purchase_id=?'))return list.find(x=>x.purchase_id===String(values[1]))||null;
+         if(lower.includes("kind='tap'"))return list.find(x=>x.kind==='tap'&&(x.state==='queued'||(x.state==='active'&&x.expires_ms>Number(values[1]))))||null;
+         if(lower.includes("kind='energy'"))return list.find(x=>x.kind==='energy'&&x.state==='charged'&&x.expires_ms>Number(values[1]))||null;
+         if(lower.includes('kind=?'))return list.find(x=>x.kind===String(values[1])&&[String(values[2]),String(values[3])].includes(x.state))||null;
+         return null;
+        }
         if(lower.includes('from player_avatar_prefs'))return avatarPrefs.has(String(values[0]))?{selected_rank:avatarPrefs.get(String(values[0]))}:null;
         if(lower.includes('from player_progress_v2'))return v2Progress.get(String(values[0]))||null;
         if(lower.includes('from mission_claims'))return missionClaims.has(String(values[0])+':'+String(values[1]))?{mission_key:String(values[1])}:null;
         if(lower.includes('select * from players'))return {...player};
         if(lower.includes('from players'))return {n:rows.players,xp:180};
-        if(lower.includes('select xp_awarded from sync_receipts'))return null;
+        if(lower.includes('select xp_awarded from sync_receipts'))return boostReceipts.get(String(values[0])+':'+String(values[1]))||null;
         if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
         if(lower.includes('from wheel_claims'))return {n:rows.wheel_claims};
         if(lower.includes('from daily_claims'))return {n:rows.daily_claims};
         return null;
        },
        async run(){
+        if(lower.includes("update mrxp_boost_inventory set state='expired'")){
+          let changes=0;
+          for(const b of boostInventory.values()){if(b.user_id===String(values[0])&&['active','charged'].includes(b.state)&&b.expires_ms>0&&b.expires_ms<=Number(values[1])){b.state='expired';changes++}}
+          return {success:true,meta:{changes}};
+        }
+        if(lower.includes("update mrxp_boost_inventory set state='queued'")){
+          const b=boostInventory.get(String(values[0])+':'+String(values[1]));
+          const active=[...boostInventory.values()].some(x=>x.user_id===String(values[0])&&x.purchase_id!==String(values[1])&&x.kind==='tap'&&['queued','active'].includes(x.state));
+          if(!b||b.state!=='owned'||active)return {success:true,meta:{changes:0}};
+          b.state='queued';return {success:true,meta:{changes:1}};
+        }
+        if(lower.includes("update mrxp_boost_inventory set state='charged'")){
+          const b=boostInventory.get(String(values[2])+':'+String(values[3]));
+          const active=[...boostInventory.values()].some(x=>x.user_id===String(values[2])&&x.purchase_id!==String(values[3])&&x.kind==='energy'&&x.state==='charged');
+          if(!b||b.state!=='owned'||active)return {success:true,meta:{changes:0}};
+          b.state='charged';b.activated_ms=values[0];b.expires_ms=values[1];return {success:true,meta:{changes:1}};
+        }
         if(lower.includes('insert or ignore into player_credit_state')&&!creditBaselines.has(String(values[0])))creditBaselines.set(String(values[0]),{baseline_level:values[1],activated_ms:values[2]});
         if(lower.includes('insert into player_avatar_prefs'))avatarPrefs.set(String(values[0]),values[1]);
         if(lower.includes('insert or ignore into player_progress_v2')&&!v2Progress.has(String(values[0])))v2Progress.set(String(values[0]),{user_id:String(values[0]),legacy_level_floor:values[1],current_level:values[2]});
@@ -60,6 +85,7 @@ function harness(){
        get _sql(){return lower},get _values(){return values},
        async all(){
         const id=String(values[0]);
+        if(lower.includes('from mrxp_boost_inventory'))return {results:[...boostInventory.values()].filter(x=>x.user_id===id).sort((a,b)=>b.bought_ms-a.bought_ms).slice(0,100)};
         if(lower.includes('from mrxp_credit_events')){
           const list=[...creditEvents.values()].filter(x=>x.user_id===id);
           if(lower.includes('select event_key from'))return {results:list.map(x=>({event_key:x.event_key}))};
@@ -122,7 +148,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -731,7 +757,7 @@ test('V2 sent levels never trust browser stored levels for authenticated ranking
  try{
   const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
   const html=await res.text();
-  assert.ok(html.includes('state.progression=null;state.profile=null;mrxpConfirmedWallet=null;/* Never trust locally restored ranks, avatar choices or credit balances as official. */'));
+  assert.ok(html.includes('state.progression=null;state.profile=null;mrxpConfirmedWallet=null;mrxpShop=null;/* Never trust locally restored ranks, avatar choices, shop objects or credit balances as official. */'));
   assert.ok(html.includes('const source=selectedPortrait.image?RANK_AVATAR_ROOT+selectedPortrait.image:RANK_BRAND_FALLBACK'));
   assert.ok(!html.includes('function level(){return Math.max(1,Math.floor(Math.sqrt('));
  }finally{h.restore()}
@@ -828,7 +854,7 @@ test('V2 phase 2 profile has 11 selectable avatar cards with provisional stars a
   assert.ok(html.includes('async function selectProfileAvatar(rank)'));
   assert.ok(html.includes('"/api/profile/avatar","POST",{rank}'));
   assert.ok(html.includes('state.profile=r.profile||null'));
-  assert.ok(html.includes('state.profile=null;mrxpConfirmedWallet=null;/* Never trust locally restored ranks, avatar choices or credit balances as official. */'));
+  assert.ok(html.includes('state.profile=null;mrxpConfirmedWallet=null;mrxpShop=null;/* Never trust locally restored ranks, avatar choices, shop objects or credit balances as official. */'));
   assert.ok(html.includes('mrxp-rank-up'));
  }finally{h.restore()}
 });
