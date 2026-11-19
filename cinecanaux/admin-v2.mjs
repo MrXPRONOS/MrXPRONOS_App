@@ -4,6 +4,7 @@ import {verifiedIdentity,linkUsername} from './v2.mjs';
 import {checkDailyLinks} from './maintenance-v2.mjs';
 import {runLoggedJob} from './job-log.mjs';
 import {adminAnalytics} from './analytics.mjs';
+import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -16,9 +17,16 @@ async function parseBody(req){
  const text=await req.text();if(text.length>4096)throw Error('oversized');
  return JSON.parse(text);
 }
-export async function adminAPI(env,request){
+export async function adminAPI(env,request,ctx){
  const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403);
  const u=new URL(request.url),path=u.pathname;
+ if(path==='/api/admin/broadcast-image'||path==='/api/admin/broadcasts'||/^\/api\/admin\/broadcasts\/\d+\/(?:preview|start|cancel)$/.test(path)){
+  const answer=await broadcastAdminAPI(env,request,admin.telegram_id);
+  if(request.method==='POST'&&/\/start$/.test(path)&&answer.ok&&ctx?.waitUntil){
+   ctx.waitUntil(deliverBroadcastBatch(env).catch(e=>console.warn('broadcast_batch_failed',String(e?.name||'error'))));
+  }
+  return answer;
+ }
  if(request.method==='GET'&&path==='/api/admin/analytics')return adminAnalytics(env,request);
  if(request.method==='GET'&&path==='/api/admin/overview'){
   const items=await env.DB.prepare(`SELECT
