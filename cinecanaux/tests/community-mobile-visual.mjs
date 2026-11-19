@@ -1,0 +1,28 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+const url='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app';
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+try{
+ const r=await page.goto(url,{waitUntil:'domcontentloaded',timeout:25000});assert.equal(r?.status(),200);
+ await page.waitForSelector('#cine-home-picks .cine-pick',{timeout:15000});
+ const before=await page.evaluate(()=>{const el=document.querySelector('#cine-home-picks');return {left:el.scrollLeft,max:el.scrollWidth-el.clientWidth,cards:el.querySelectorAll('.cine-pick').length,share:!!document.querySelector('.cine-community-share'),promo:el.querySelectorAll('.cine-promo-slot').length}});
+ await page.waitForTimeout(3400);
+ const after=await page.evaluate(()=>document.querySelector('#cine-home-picks').scrollLeft);
+ console.log('DISCOVERY_AUTOSCROLL:',JSON.stringify({before,after,errors}));
+ assert.ok(before.cards>=4,'Discover channels remain present');
+ assert.ok(before.max>100,'Horizontal discovery has scrollable overflow');
+ assert.ok(after>before.left+25,'Discovery should move automatically across channels');
+ assert.equal(before.promo,1);
+ assert.equal(before.share,true);
+ assert.equal(errors.length,0);
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForTimeout(900);
+ const second=await page.evaluate(()=>({share:!!document.querySelector('.cine-community-share'),rating:!!document.querySelector('.cine-community-rating'),notice:document.querySelector('.cine-community-rating')?.textContent?.slice(0,100),privacy:!!document.querySelector('.cine-helper button.cine-soft-button')}));
+ console.log('SECOND_VISIT_COMMUNITY:',JSON.stringify(second));
+ assert.equal(second.share,true);
+ assert.equal(second.rating,true,'Second visit triggers non-modal rating prompt');
+ assert.equal(errors.length,0);
+ console.log('CINE_RADAR_DISCOVERY_SHARE_RATING_OK');
+}finally{await browser.close()}
