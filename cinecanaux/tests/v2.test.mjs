@@ -116,7 +116,7 @@ test('verified admin can access the dashboard without exposing user identity',as
  const {adminAPI}=await import('../admin-v2.mjs');
  const db=fakeDB();const prepare=db.prepare.bind(db);
  db.prepare=function(sql){
-  if(sql.includes('SELECT role FROM admin_users'))return {bind(){return this;},async first(){return {role:'admin'}}};
+  if(sql.includes('SELECT role FROM admin_users'))return {bind(){return this;},async first(){return {role:'owner'}}};
   return prepare(sql);
  };
  const request=new Request('https://example.org/api/admin/overview',{headers:{'X-Telegram-Init-Data':signedData()}});
@@ -129,7 +129,7 @@ test('admin action hides a channel without deleting its review history',async()=
  const {adminAPI}=await import('../admin-v2.mjs');
  const db=fakeDB(),base=db.prepare.bind(db);
  db.prepare=function(sql){
-  if(sql.includes('SELECT role FROM admin_users'))return {bind(){return this;},async first(){return {role:'admin'}}};
+  if(sql.includes('SELECT role FROM admin_users'))return {bind(){return this;},async first(){return {role:'owner'}}};
   if(sql.includes('SELECT id,link FROM channels'))return {bind(){return this;},async first(){return {id:1,link:'https://t.me/FilmsParis75'}}};
   return base(sql);
  };
