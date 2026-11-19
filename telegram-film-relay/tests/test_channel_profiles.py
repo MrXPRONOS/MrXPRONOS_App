@@ -40,9 +40,8 @@ class ProfileTelegramTests(unittest.IsolatedAsyncioTestCase):
     def fake_telethon(self):
         functions=NS(channels=NS(
             GetFullChannelRequest=lambda **kw:("get",kw),
-            EditAboutRequest=lambda **kw:("edit_about",kw),
             EditPhotoRequest=lambda **kw:("edit_photo",kw),
-        ))
+        ), messages=NS(EditChatAboutRequest=lambda **kw:("edit_about",kw)))
         fake=types.ModuleType("telethon")
         fake.functions=functions
         fake.types=NS(InputChatUploadedPhoto=lambda **kw:("uploaded",kw))
