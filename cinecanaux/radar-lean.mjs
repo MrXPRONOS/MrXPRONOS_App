@@ -49,7 +49,7 @@ const miniAppKeyboard=(owner=false,privateChat=true)=>{
 const INTRO=[
  "🎬 <b>Bienvenue sur CINÉ RADAR !</b>",
  "",
- "🍿 Films, séries et animés à découvrir sur Telegram.",
+ "🍿 Découvre des films, séries et animés sur Telegram.",
  "",
  "🔎 <b>Rechercher</b> des canaux selon tes envies.",
  "🎞️ Voir les affiches et les recommandations.",
