@@ -73,7 +73,7 @@ function harness(){
          return {results:[...missionClaims.keys()].filter(x=>x.startsWith(id+':')).map(x=>({mission_key:x.slice(id.length+1)}))}
         }
         return {results:[]}
-       }}
+       }
       };
      },
      async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value}))};return {results:[]}},
