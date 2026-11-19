@@ -99,3 +99,24 @@ test('home and Discover recommendations open their channel preview directly with
  assert.ok(directory.includes('showPreview(c);'));
  assert.ok(!navigation.includes('else setFilter(c.title)'));
 });
+
+test('public visitor screens omit backend explanations and retain actionable information',()=>{
+ for(const unwanted of [
+  'Aucun lien inventé',
+  'Les suggestions sont calculées',
+  'Lien récemment contrôlé',
+  'Statut du lien : non encore vérifié',
+  'publications épinglées',
+  'Version mobile',
+  'Le catalogue des publications vérifiées'
+ ])assert.ok(!APP_HTML.includes(unwanted),'Technical-facing text remains: '+unwanted);
+ for(const useful of [
+  'À découvrir aussi',
+  'Choix de confidentialité',
+  'Désactiver les statistiques',
+  'Supprimer mes favoris et mon historique',
+  'Partage son lien Telegram',
+  'Aucune affiche à présenter pour le moment.'
+ ])assert.ok(APP_HTML.includes(useful),'Missing user-facing feature: '+useful);
+ assert.ok(!APP_HTML.includes('function radarLoad()'),'Unused radar diagnostics should not be shipped to visitors');
+});
