@@ -11,7 +11,7 @@ import os
 import re
 from functools import lru_cache
 
-from .episode_identity import canonical_title
+from .episode_identity import canonical_title, series_title
 
 LOG=logging.getLogger("cinex.download_links")
 TOKEN=re.compile(r"^[a-zA-Z0-9_-]{24}$")
@@ -21,7 +21,7 @@ ID=re.compile(r"^[a-z0-9]{32}$")
 def title_key(category: str, title: str) -> str | None:
     if category not in {"series","action"}:
         return None
-    value=canonical_title(title)
+    value=canonical_title(series_title(title) if category == "series" else title)
     if not value or len(value)<3:
         return None
     return hashlib.sha256((category+"\0"+value).encode()).hexdigest()[:32]
