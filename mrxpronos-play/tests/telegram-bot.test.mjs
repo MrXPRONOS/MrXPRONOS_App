@@ -667,7 +667,9 @@ test('Mini App actually renders the new information and crowned rank shield imag
   const html=await response.text();
   assert.ok(html.includes('59-info-circle.webp?v=20261119'));
   assert.ok(html.includes("rankShield:a('08-ui-actions','60-crowned-shield')+'?v=20261119'"));
-  assert.ok(html.includes("profile.appendChild(img(asset.rankShield,'Bouclier de rang couronné','hero-badge'))"));
+  assert.ok(html.includes("profile.appendChild(img(a('09-rank-badges','61-recrue-badge'),'Badge officiel de rang','hero-badge'))"));
+  assert.ok(html.includes('heroBadge.dataset.rankBadge'),'Hero shield must follow the official rank');
+  assert.ok(html.includes('mrxpV2RankIcon(officialIndex+1)'));
   assert.ok(html.includes('id="info-btn" aria-label="Informations"><img'));
   assert.ok(html.includes('$("info-btn").onclick='));
   assert.ok(!html.includes('Informations">ⓘ</button>'));
