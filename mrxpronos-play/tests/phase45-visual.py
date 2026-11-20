@@ -14,7 +14,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 SRC = (ROOT / "worker.js").read_text(encoding="utf-8")
 START = SRC.index('const html="') + len('const html=')
-END = SRC.index(';\nconst page', START)
+END = SRC.index(';\n', START)
 HTML = json.loads(SRC[START:END])
 SHARE_START = HTML.index("function mrxpCanvasRound(")
 SHARE_END = HTML.index("function mrxpCanvasBlob(", SHARE_START)
