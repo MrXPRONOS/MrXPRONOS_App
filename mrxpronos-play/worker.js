@@ -838,6 +838,40 @@ async function configureTelegramBot(env){
   await env.DB.prepare("INSERT INTO telegram_setup_status(id,status,bot_username,webhook_url,menu_type,error,updated_ms) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,bot_username=excluded.bot_username,webhook_url=excluded.webhook_url,menu_type=excluded.menu_type,error=excluded.error,updated_ms=excluded.updated_ms").bind("onboarding-public-admin-v1",status,"MrXpronosPlayBot","https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook","commands",details,Date.now()).run();
 }
 
+
+/* All daily and wheel XP requires a server-recorded intent. Browser dates
+   are advisory and never authorize credits. */
+async function mrxpRewardIntents(env,userId,now=Date.now()){
+ const r=await env.DB.prepare("SELECT kind,day,reward_key,xp_awarded,claimed_ms FROM mrxp_reward_intents WHERE user_id=? AND day>=? AND day<=? ORDER BY day,kind").bind(String(userId),dateOf(now-14*DAY),dateOf(now)).all();
+ return (r.results||[]).filter(x=>(x.kind==="daily"||x.kind==="wheel")&&validDay(x.day,now)&&Number.isSafeInteger(Number(x.xp_awarded))&&Number(x.xp_awarded)>0)
+}
+async function mrxpClaimReward(env,player,kind){
+ const id=String(player.user_id),now=Date.now(),day=dateOf(now);
+ const table=kind==="daily"?"daily_claims":"wheel_claims";
+ const existing=await env.DB.prepare("SELECT * FROM "+table+" WHERE user_id=? AND day=?").bind(id,day).first();
+ if(existing)return {ok:true,duplicate:true,confirmed:true,day,kind,reward_key:kind==="daily"?"daily":existing.reward_key||"xp10",xp_awarded:Number(existing.xp_awarded)||0};
+ const features=await getGameFeatures(env);
+ if(!features[kind])return {status:423,error:"GAME_PAUSED"};
+ const outcome=kind==="daily"?{key:"daily",xp:100}:await wheelOutcome(env,id,day);
+ const result=await env.DB.prepare("INSERT OR IGNORE INTO mrxp_reward_intents(user_id,kind,day,reward_key,xp_awarded,claimed_ms) VALUES(?,?,?,?,?,?)").bind(id,kind,day,outcome.key,outcome.xp,now).run();
+ const saved=await env.DB.prepare("SELECT reward_key,xp_awarded FROM mrxp_reward_intents WHERE user_id=? AND kind=? AND day=?").bind(id,kind,day).first();
+ if(!saved)throw Error("REWARD_RECEIPT_NOT_WRITTEN");
+ return {ok:true,duplicate:Number(result?.meta?.changes||0)===0,confirmed:false,day,kind,reward_key:saved.reward_key,xp_awarded:Number(saved.xp_awarded)}
+}
+const MRXP_RATE_RULES={
+ "/api/rewards/claim":25,"/api/sync":20,"/api/shop/buy":25,
+ "/api/shop/activate":30,"/api/missions/claim":30,
+ "/api/share/profile":12,"/api/profile/avatar":30
+};
+/* Atomic per-account request buckets, reset every minute. */
+async function mrxpApiRateGuard(env,userId,route){
+ const limit=MRXP_RATE_RULES[route];if(!limit)return true;
+ const now=Date.now(),windowMs=60000;
+ const sql="INSERT INTO mrxp_api_limits(user_id,action,window_start_ms,count) VALUES(?,?,?,1) ON CONFLICT(user_id,action) DO UPDATE SET count=CASE WHEN ?-window_start_ms>=? THEN 1 ELSE count+1 END,window_start_ms=CASE WHEN ?-window_start_ms>=? THEN ? ELSE window_start_ms END WHERE ?-window_start_ms>=? OR count<?";
+ const result=await env.DB.prepare(sql).bind(String(userId),route,now,now,windowMs,now,windowMs,now,now,windowMs,limit).run();
+ return Number(result?.meta?.changes||0)>0
+}
+
 async function mrxpSyncConfirmations(env,userId,body){
  const requestedDaily=[...new Set(Array.isArray(body?.daily_days)?body.daily_days.filter(x=>typeof x==="string"):[])];
  const requestedWheel=[...new Set(Array.isArray(body?.wheel_days)?body.wheel_days.filter(x=>typeof x==="string"):[])];
@@ -930,6 +964,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   }catch{return missing()}
  }
  let player=await ensurePlayer(env,user);
+ if(request.method==="POST"&&MRXP_RATE_RULES[p]&&!await mrxpApiRateGuard(env,user.id,p))return json({error:"Trop de requêtes. Réessaie dans une minute.",code:"RATE_LIMITED"},429);
  if(p==="/api/game-features"&&request.method==="GET")return json({features:await getGameFeatures(env)});
  if(p==="/api/progression"&&request.method==="GET")return json({progression:await v2Progression(env,player)});
  if(p==="/api/profile"&&request.method==="GET"){
@@ -986,13 +1021,20 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const progression=await v2Progression(env,result.player||player);
   return json({...result,progression,wallet:await mrxpWallet(env,result.player||player,progression)});
  }
+ if(p==="/api/rewards/claim"&&request.method==="POST"){
+  let payload;try{payload=await mrxpParseAction(request,2048)}catch(e){const large=e?.message==="REQUEST_TOO_LARGE";return json({error:large?"REQUEST_TOO_LARGE":"JSON_INVALIDE"},large?413:400)}
+  if(!payload||typeof payload!=="object"||Array.isArray(payload)||!["daily","wheel"].includes(payload.kind)||Object.keys(payload).some(k=>k!=="kind"))return json({error:"Seul le type de récompense est accepté.",code:"REWARD_INPUT_INVALID"},400);
+  const result=await mrxpClaimReward(env,player,payload.kind);
+  return result.ok?json(result):json({error:result.error,code:result.error},result.status||400)
+ }
  if(p==="/api/bootstrap"&&request.method==="GET"){
-  const now=Date.now(),plans={};
-  const todayKey=dateOf(now);plans[todayKey]=(await wheelOutcome(env,user.id,todayKey)).key
+  const now=Date.now(),plans={},intents=await mrxpRewardIntents(env,user.id,now);
+  const todayKey=dateOf(now);
+  for(const intent of intents)if(intent.kind==="wheel"&&intent.day===todayKey)plans[intent.day]=intent.reward_key
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
   const progression=await v2Progression(env,player);
   const wallet=await mrxpWallet(env,player,progression);
-  return json({wallet,shop:await mrxpBoostList(env,player,wallet),user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression,profile:await v2PlayerProfile(env,player,progression),wheel_plans:plans,wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
+  return json({wallet,shop:await mrxpBoostList(env,player,wallet),user:player,telegram_photo_url:auth.user.photoUrl||"",game_features:await getGameFeatures(env),missions:await missionStatus(env,player),progression,profile:await v2PlayerProfile(env,player,progression),wheel_plans:plans,reward_intents:intents.map(x=>({kind:x.kind,day:x.day,reward_key:x.reward_key,xp_awarded:Number(x.xp_awarded)})),wheel_claims:w.results.map(x=>x.day),daily_claims:dc.results.map(x=>x.day),server_time:now});
  }
  if(p==="/api/sync"&&request.method==="POST"){
   /* Freeze the legacy floor BEFORE applying new taps or XP, even if a client skips bootstrap. */
