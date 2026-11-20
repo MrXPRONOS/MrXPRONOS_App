@@ -47,6 +47,18 @@ def approved_download_url(category: str, title: str, season: int = 0) -> str | N
           AND b.rights_attested=1 AND b.bot_access='verified'
           AND b.owner_access='verified'
           AND EXISTS (SELECT 1 FROM cine_delivery_media m WHERE m.category=l.category AND m.title_key=l.title_key AND m.observed_at=b.last_scanned_at AND m.availability IN ('pending_review','approved') AND COALESCE(m.season_number,0)=l.season_key)
+          AND (l.season_key=0 OR EXISTS (
+               SELECT 1 FROM cine_delivery_season_evidence e
+               WHERE e.category=l.category AND e.title_key=l.title_key
+                 AND e.season_key=l.season_key
+                 AND e.observed_at=b.last_scanned_at
+                 AND e.expected_episodes=(
+                   SELECT COUNT(*) FROM cine_delivery_media m
+                   WHERE m.category=l.category AND m.title_key=l.title_key
+                     AND m.season_number=l.season_key
+                     AND m.observed_at=b.last_scanned_at
+                 )
+          ))
           AND EXISTS (SELECT 1 FROM bot_settings WHERE setting_key='cine_delivery_enabled' AND value='1')
         LIMIT 1
         """)
