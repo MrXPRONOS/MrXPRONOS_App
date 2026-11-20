@@ -176,6 +176,9 @@ jobs:
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
           SERIES_MEDIA_CHANNELS: ${{ vars.SERIES_MEDIA_CHANNELS }}
           SERIES_RIGHTS_ATTESTED: ${{ vars.SERIES_RIGHTS_ATTESTED }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+          CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           PYTHONPATH: .
         run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 12
@@ -400,6 +403,9 @@ jobs:
           ACTION_MEDIA_CHANNELS: ${{ vars.ACTION_MEDIA_CHANNELS }}
           ACTION_RIGHTS_ATTESTED: ${{ vars.ACTION_RIGHTS_ATTESTED }}
           ACTION_STATE_PATH: state/action_state.json
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+          CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
           ACTION_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           PYTHONPATH: .

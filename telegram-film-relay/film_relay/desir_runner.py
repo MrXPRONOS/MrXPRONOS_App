@@ -236,7 +236,8 @@ def format_title(item):
     return value if value else "Film CinéX Désir"
 
 async def post_public(bot, user, public_peer, item, title, video_url: str,
-                      invite_link: str):
+                      invite_link: str, *, download_category: str | None = None,
+                      download_title: str = ""):
     """Public post: photo, in-caption video link, and native green buttons.
 
     A visible URL inside the caption survives Telegram forwarding even on
@@ -255,6 +256,11 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
          for label, url in row]
         for index, row in enumerate(url_button_rows(video_url, public_peer=public_peer))
     ]
+    if download_category == "action":
+        from .download_links import approved_download_url
+        download = approved_download_url("action", download_title or title, 0)
+        if download:
+            rows.append([url_button("Télécharger", download, style="success")])
     # The link in text must survive the subsequent native forward.
     caption = rich_caption(title)
     if not valid_photo_message(item.poster):
