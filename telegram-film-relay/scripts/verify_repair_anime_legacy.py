@@ -10,6 +10,7 @@ import argparse
 import asyncio
 import logging
 import os
+from datetime import datetime, timezone
 
 from telethon import TelegramClient, utils
 from telethon.sessions import StringSession
@@ -43,6 +44,12 @@ async def run(*, apply=False):
         raise RuntimeError("Réparation limitée aux anciens animés identifiés ; aucune modification.")
     if catalogue.get("active_batch"):
         LOG.warning("Lot Anime actif : réparation interrompue pour éviter toute concurrence.")
+        return 3
+    # Never retry a Telegram ResolveUsername request before the documented
+    # FloodWait cooldown ends; the normal catalogue uses the same guard.
+    until = datetime(2026, 11, 20, 17, 0, tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) < until:
+        LOG.warning("Telegram : période de pause FloodWait encore active ; aucune connexion.")
         return 3
     cfg = category_config("anime")
     api_id = (os.getenv("TG_API_ID") or "").strip()
