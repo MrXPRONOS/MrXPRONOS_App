@@ -87,10 +87,11 @@ def progressive_anime_seasons(groups, catalogue, maximum=25, diagnostics=None):
             # are absent from both the catalogue and the scanned source.
             ordered = []
             for number in range(1, 1000):
-                if number in entries:
-                    ordered.append(entries[number])
-                elif str(number) not in receipts:
+                if str(number) in receipts:
+                    continue
+                if number not in entries:
                     break
+                ordered.append(entries[number])
                 if len(ordered) >= maximum:
                     break
             if not ordered:
