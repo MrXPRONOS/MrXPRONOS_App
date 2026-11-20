@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-20",
-  "generated_at": "2026-11-20T10:13:32Z",
+  "generated_at": "2026-11-20T14:07:57Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -37,15 +37,6 @@
       "probability": 0.14550927
     },
     {
-      "id": "sportsapipro:4823656",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Bandari",
-      "away": "Murang'a Seal",
-      "kickoff_utc": "2026-11-20T11:00:00Z",
-      "score": "1:0",
-      "probability": 0.13785791
-    },
-    {
       "id": "sportsapipro:4890780",
       "league": "Ligue 1",
       "home": "ES Setif",
@@ -53,6 +44,15 @@
       "kickoff_utc": "2026-11-20T16:00:00Z",
       "score": "1:0",
       "probability": 0.13511946
+    },
+    {
+      "id": "sportsapipro:4895033",
+      "league": "Ligue 1",
+      "home": "Mouna",
+      "away": "Tchologo",
+      "kickoff_utc": "2026-11-20T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.13079851
     }
   ],
   "grouped": [
@@ -87,21 +87,6 @@
       ]
     },
     {
-      "id": "sportsapipro:4894684",
-      "league": "Syrian Premier League",
-      "home": "Homs Al Fidaa SC",
-      "away": "Horriya",
-      "kickoff_utc": "2026-11-20T12:00:00Z",
-      "score": "2:0",
-      "probability": 0.326905,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
       "id": "sportsapipro:4782273",
       "league": "Ligi Kuu Bara",
       "home": "Azam FC",
@@ -124,6 +109,21 @@
       "kickoff_utc": "2026-11-20T15:30:00Z",
       "score": "1:0",
       "probability": 0.32423864,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4890781",
+      "league": "Ligue 1",
+      "home": "MC Oran",
+      "away": "JS Saoura",
+      "kickoff_utc": "2026-11-20T19:00:00Z",
+      "score": "1:0",
+      "probability": 0.32361051,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
