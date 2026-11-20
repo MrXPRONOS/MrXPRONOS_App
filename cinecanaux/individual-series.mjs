@@ -201,9 +201,9 @@ export async function processSeriesQueue(env,{limit=5}={}){
  await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE status='sending' AND lock_until<CURRENT_TIMESTAMP").run();
  await env.DB.prepare("UPDATE cine_series_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_series_jobs WHERE status='needs_review')").run();
  const batch=(await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND (c.radar_access='verified' OR NOT EXISTS(
-   SELECT 1 FROM cine_series_job_items x WHERE x.job_id=j.id AND x.source_chat_id=p.chat_id
-  )) ORDER BY j.created_at,j.id LIMIT 2"
+  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND (c.radar_access='verified' OR NOT EXISTS("+
+  "SELECT 1 FROM cine_series_job_items x WHERE x.job_id=j.id AND x.source_chat_id=p.chat_id"+
+  ")) ORDER BY j.created_at,j.id LIMIT 2"
  ).all()).results||[];
  let processed=0,errors=0;
  for(const job of batch){
