@@ -4,7 +4,11 @@ on:
   pull_request:
     paths:
       - 'cinecanaux/tests/navigation-mobile-visual.mjs'
+      - 'cinecanaux/tests/admin-dashboard-visual.mjs'
       - 'cinecanaux/app-page.mjs'
+      - 'cinecanaux/admin-page.mjs'
+      - 'cinecanaux/admin-shell.mjs'
+      - 'cinecanaux/tests/admin-dashboard-visual.mjs'
       - '.github/workflows/cine-radar-mobile-visual.yml'
   push:
     branches: [main]
@@ -29,6 +33,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Check Google Chrome availability
         run: google-chrome --version
+      - name: Verify private admin dashboard in mobile and desktop Chrome
+        run: node cinecanaux/tests/admin-dashboard-visual.mjs
       - name: Verify Accueil, Explorer, Favoris and Menu are visible and work on mobile
         env:
           CINERADAR_VISUAL_SOURCE: ${{ github.event_name == 'pull_request' && 'candidate' || 'production' }}
@@ -48,6 +54,7 @@ jobs:
         with:
           name: cineradar-mobile-pinned-preview
           path: |
+            /tmp/cineradar-admin-v11-*.png
             /tmp/cineradar-navigation-*.png
             /tmp/cineradar-mobile.png
             /tmp/cineradar-cross-promo-mobile.png
