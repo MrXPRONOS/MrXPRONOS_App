@@ -9,7 +9,8 @@ from film_relay.anime_catalog import (
 )
 from film_relay.short_series import short_complete_groups
 from film_relay.anime_policy import (
-    complete_anime_seasons, select_anime_season, anime_movie_slots,
+    complete_anime_seasons, progressive_anime_seasons,
+    select_anime_season, anime_movie_slots,
 )
 
 
@@ -194,6 +195,70 @@ class AnimeBatchPolicyTests(unittest.TestCase):
         results = classify(messages, -10012345)
         self.assertEqual([row["episode"] for row in results], [1, 2, 3, 4, 5])
         self.assertEqual(len({row["series"] for row in results}), 1)
+
+
+
+class AnimeProgressivePolicyTests(unittest.TestCase):
+    def test_ongoing_episodes_can_start_without_false_completion(self):
+        rows = sample_series(6)
+        selection = progressive_anime_seasons({"petite-serie": rows}, {}, maximum=25)
+        self.assertEqual(len(selection), 1)
+        self.assertEqual([row["episode"] for row in selection[0][1]],
+                         [1, 2, 3, 4, 5, 6])
+        self.assertTrue(ready_full_batch(selection[0][1]))
+        self.assertEqual(complete_anime_seasons(
+            {"petite-serie": rows}, {}, maximum=25), [])
+
+    def test_gap_never_publishes_out_of_order(self):
+        rows = sample_series(6)
+        rows.pop(2)
+        selection = progressive_anime_seasons({"petite-serie": rows}, {}, maximum=25)
+        self.assertEqual([row["episode"] for row in selection[0][1]], [1, 2])
+
+    def test_missing_episode_one_blocks_publication(self):
+        rows = sample_series(6)[1:]
+        self.assertEqual(progressive_anime_seasons(
+            {"petite-serie": rows}, {}, maximum=25), [])
+
+    def test_new_episodes_continue_after_stored_receipts(self):
+        rows = sample_series(6)
+        stored = {"series": {"petite-serie": {"episodes": {"1": {
+            str(i): {"message_id": i} for i in range(1, 5)
+        }}}}}
+        selected = progressive_anime_seasons(
+            {"petite-serie": rows}, stored, maximum=25)
+        self.assertEqual([r["episode"] for r in selected[0][1]],
+                         [1, 2, 3, 4, 5, 6])
+        self.assertEqual(progressive_anime_seasons(
+            {"petite-serie": rows[:4]}, stored, maximum=25), [])
+
+    def test_26_episode_season_is_split_into_bounded_batches(self):
+        rows = sample_series(26)
+        selected = progressive_anime_seasons(
+            {"petite-serie": rows}, {}, maximum=25)
+        self.assertEqual([r["episode"] for r in selected[0][1]],
+                         list(range(1, 26)))
+        stored = {"series": {"petite-serie": {"episodes": {"1": {
+            str(i): {"message_id": i} for i in range(1, 26)
+        }}}}}
+        continuation = progressive_anime_seasons(
+            {"petite-serie": rows}, stored, maximum=25)
+        self.assertEqual([r["episode"] for r in continuation[0][1]],
+                         list(range(1, 27)))
+
+    def test_source_prefix_and_episode_suffix_share_identity(self):
+        from film_relay.episode_identity import canonical_title
+        self.assertEqual(
+            canonical_title(series_title("Mangas FV Death Parade EP05.mkv")),
+            canonical_title(series_title("Death Parade Episode 06.mp4")))
+
+    def test_ova_and_special_are_not_feature_movies(self):
+        for title in ("OVA Anime Voyage", "Voyage ONA",
+                      "Voyage Special", "Voyage hors-série"):
+            with self.subTest(title=title):
+                obj = NS(poster=NS(raw_text=title), video=NS(
+                    raw_text=title, file=NS(name="Voyage.mkv", duration=4200)))
+                self.assertFalse(is_anime_movie(obj))
 
 
 class RecoveryPolicyTests(unittest.IsolatedAsyncioTestCase):
