@@ -10,10 +10,12 @@ test('deep links contain exactly a 24-character opaque token, never a channel ID
 });
 test('a season is complete only if all numbered episodes are contiguous',()=>{
  const seq=[1,2,3].map(n=>({season_number:1,episode_number:n}));
- assert.equal(validSequence('series',1,seq),true);
- assert.equal(validSequence('series',1,[seq[0],seq[2]]),false);
- assert.equal(validSequence('series',1,[seq[0],seq[0]]),false);
- assert.equal(validSequence('series',2,seq),false);
+ assert.equal(validSequence('series',1,seq),false); // declared total missing
+ assert.equal(validSequence('series',1,seq,3),true);
+ assert.equal(validSequence('series',1,seq,10),false);
+ assert.equal(validSequence('series',1,[seq[0],seq[2]],3),false);
+ assert.equal(validSequence('series',1,[seq[0],seq[0]],2),false);
+ assert.equal(validSequence('series',2,seq,3),false);
  assert.equal(validSequence('film',0,[{season_number:null,episode_number:null}]),true);
  assert.equal(validSequence('film',0,seq),false);
  assert.equal(validSequence('series',1,Array(101).fill(seq[0])),false);
