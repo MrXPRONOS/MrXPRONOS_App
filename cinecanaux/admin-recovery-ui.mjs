@@ -34,6 +34,7 @@ export const ADMIN_RECOVERY_JS=String.raw`
     const row=add('div',undefined,'ad-cinex-case');
     row.append(add('strong',(names[record.family]||record.family)+' — demande #'+Number(record.job_id)));
     row.append(add('p','Déjà envoyés : '+Number(record.sent||0)+' · En attente : '+Number(record.queued||0)+' · Résultat incertain : '+Number(record.uncertain||0)+' · En cours : '+Number(record.in_flight||0)));
+    if(Array.isArray(record.uncertain_items)&&record.uncertain_items.length)row.append(add('p','Numéros des éléments incertains : '+record.uncertain_items.map(Number).join(', ')));
     if(record.resume_safe){
      const btn=add('button','Reprendre uniquement les copies non envoyées');
      btn.type='button';
@@ -66,7 +67,8 @@ export const ADMIN_RECOVERY_JS=String.raw`
      form.append(checkLabel);
      const send=add('button','Enregistrer la preuve, sans envoyer');send.type='button';
      send.onclick=async()=>{
-      const iso=time.value?new Date(time.value).toISOString().slice(0,19)+'Z':null;
+      let iso=null;
+      if(time.value){const date=new Date(time.value);if(Number.isFinite(date.getTime()))iso=date.toISOString().slice(0,19)+'Z';}
       if(!check.checked||!iso||!Number.isSafeInteger(Number(message.value))||Number(message.value)<=0||(record.family!=='classics'&&(!Number.isSafeInteger(Number(item.value))||Number(item.value)<=0))){status.textContent='Renseigne une preuve complète, valide et vérifiée.';return}
       if(!confirm('Confirmer un message déjà livré ? Une mauvaise référence de message rendrait la suppression ultérieure dangereuse.'))return;
       send.disabled=true;
