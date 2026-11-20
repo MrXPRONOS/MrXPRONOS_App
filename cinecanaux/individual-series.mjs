@@ -84,6 +84,7 @@ export async function ingestIndividualSeriesUpdate(env,update){
    await env.DB.prepare(
     "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET source_message_id=excluded.source_message_id,caption=excluded.caption,observed_at=CURRENT_TIMESTAMP"
    ).bind(chatId,season,Number(pin.message_id),String(pin.caption||pin.text||'').slice(0,1800)).run();
+   await env.DB.prepare("UPDATE cine_series_channels SET expected_seasons=MAX(COALESCE(expected_seasons,0),?) WHERE chat_id=?").bind(season,chatId).run();
    const expected=parseExpectedEpisodes(pin.caption||pin.text||'');
    if(expected)await env.DB.prepare(
     "INSERT INTO cine_series_seasons(chat_id,season,expected_episodes) VALUES(?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET expected_episodes=excluded.expected_episodes,observed_at=CURRENT_TIMESTAMP"
@@ -134,6 +135,7 @@ export async function ingestSeriesOwnerForward(env,message){
  await env.DB.prepare(
   "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET source_message_id=excluded.source_message_id,caption=excluded.caption,observed_at=CURRENT_TIMESTAMP"
  ).bind(chatId,season,Number(origin.message_id),caption.slice(0,1800)).run();
+ await env.DB.prepare("UPDATE cine_series_channels SET expected_seasons=MAX(COALESCE(expected_seasons,0),?) WHERE chat_id=?").bind(season,chatId).run();
  const expected=parseExpectedEpisodes(caption);
  if(expected)await env.DB.prepare(
   "INSERT INTO cine_series_seasons(chat_id,season,expected_episodes) VALUES(?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET expected_episodes=excluded.expected_episodes"
