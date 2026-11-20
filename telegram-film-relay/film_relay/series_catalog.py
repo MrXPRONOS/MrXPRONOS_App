@@ -217,7 +217,7 @@ def public_buttons(private_id: int, series_entry: dict, public_peer=None):
                             style="success")])
     # The existing shared folder is the official way to join the private library.
     from .publication import film_folder_url
-    rows.append([url_button("➕ Rejoindre CinéX", film_folder_url(), style="danger")])
+    rows.append([url_button("➕ Rejoindre CinéX", film_folder_url(), style="primary")])
     from .rescue_channels import add_rescue_button_row
     return add_rescue_button_row(rows, public_peer)
 

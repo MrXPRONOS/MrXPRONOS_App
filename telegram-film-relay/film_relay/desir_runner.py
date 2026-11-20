@@ -252,7 +252,10 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     # Same two buttons as the classic relay. The former private-library
     # invitation is no longer shown in the public message.
     rows = [
-        [url_button(label, url, style="success" if index == 0 else "danger")
+        [url_button(label, url, style=(
+            "success" if "regarder" in label.casefold() or "télécharger" in label.casefold()
+            else "danger" if "secours" in label.casefold()
+            else "primary"))
          for label, url in row]
         for index, row in enumerate(url_button_rows(video_url, public_peer=public_peer))
     ]

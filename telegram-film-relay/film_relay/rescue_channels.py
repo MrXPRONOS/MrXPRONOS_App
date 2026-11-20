@@ -120,7 +120,7 @@ def add_rescue_button_row(rows, public, *, path: Path = STATE_PATH):
         getattr(getattr(button, "button", button), "url", None) == link
         for row in result for button in row
     ):
-        result.append([url_button(BUTTON_TEXT, link, style="primary")])
+        result.append([url_button(BUTTON_TEXT, link, style="danger")])
     return result
 
 

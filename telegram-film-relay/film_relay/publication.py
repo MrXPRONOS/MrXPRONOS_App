@@ -136,9 +136,10 @@ def make_button_keyboard(rows):
     return [
         [url_button(
             label, url, style=(
-                "success" if ("regarder" in label.casefold() or
+                "success" if ("télécharger" in label.casefold() or
+                              "regarder" in label.casefold() or
                               "voir le film" in label.casefold()) else
-                "primary" if "secours" in label.casefold() else "danger"
+                "danger" if "secours" in label.casefold() else "primary"
             ),
         ) for label, url in row]
         for row in rows
