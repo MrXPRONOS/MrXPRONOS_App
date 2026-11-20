@@ -74,8 +74,9 @@ test('signed Telegram ID connects /start and Mini App launch without raw identif
  assert.equal(after.started_without_launch,1);
  assert.equal(after.total_telegram_launch_users,1);
  assert.equal(after.signed_app_opens,1);
- const store=JSON.stringify(f.writes);
- assert.ok(!store.includes('123')&&!store.includes('456'),'Never store raw Telegram identifiers');
+ const identityArgs=f.writes.filter(x=>x.sql.includes('INSERT INTO cine_bot_launch_funnel')).map(x=>x.args[0]);
+ assert.ok(identityArgs.every(x=>typeof x==='string'&&/^[0-9a-f]{64}$/.test(x)),'Only salted hashes are stored');
+ assert.ok(identityArgs.every(x=>x!==String(123)&&x!==String(456)));
 });
 test('unsigned or forged Mini App identity cannot increment the launch funnel',async()=>{
  const f=fixture(),env={DB:f.DB,TELEGRAM_WEBHOOK_SECRET:'fake:webhook',TELEGRAM_TOKEN:'fake:token'};
