@@ -30,6 +30,31 @@ class IndividualSeriesPublishTest(TestCase):
                          ["success","danger","primary"])
         self.assertIn("sr_"+token,buttons["inline_keyboard"][0][0]["url"])
 
+
+    def test_sync_can_index_pinned_poster_without_radar_identity(self):
+        class Publisher:
+            def __init__(self):
+                self.calls=[]
+            def call(self, method, params):
+                self.calls.append((method,params))
+                if method=="getChat":
+                    return {"type":"channel","id":-1001234567890,"title":"Une série",
+                            "pinned_message":{"message_id":101,"photo":[{"file_id":"photo"}],
+                                              "caption":"Saison 1 : 6 épisodes"}}
+                if method=="getChatMember":
+                    self.assert_self=False
+                    return {"status":"administrator"}
+                raise AssertionError(method)
+        bot=Publisher()
+        calls=[]
+        with mock.patch.object(mod,"d1",side_effect=lambda sql,params:calls.append((sql,params)) or []):
+            report=mod.sync_channel(bot,777,None,"-1001234567890",True)
+        self.assertEqual(report["latest_pin_season"],1)
+        self.assertIsNone(report["radar_admin"])
+        self.assertEqual(len([x for x in bot.calls if x[0]=="getChatMember"]),1)
+        self.assertTrue(any("cine_series_channels" in q and p[3]=="unchecked" for q,p in calls))
+        self.assertTrue(any("cine_series_posters" in q and p[2]==101 for q,p in calls))
+
     def test_catalogue_requires_all_seasons_and_episodes(self):
         def query(sql, params):
             if "expected_seasons" in sql:
