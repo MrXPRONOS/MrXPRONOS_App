@@ -34,7 +34,12 @@ def requested_channels():
         "private": classic["private_channel"],
         "public": classic["public_channel"],
     }, os.getenv("CINEX_FILM_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
-    entries.append(("series", series_config(),
+    # Series and Action are activated only after owner-configured sources,
+    # destination and rights attestation. Unconfigured categories are not errors.
+    series_enabled = bool(os.getenv("SERIES_SOURCE_CHANNELS", "").strip()
+                          and os.getenv("SERIES_PRIVATE_CHANNEL", "").strip()
+                          and os.getenv("SERIES_RIGHTS_ATTESTED", "").strip().lower() == "true")
+    entries.append(("series", series_config if series_enabled else None,
                     os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
     entries.append(("desir", {
         "category": "desir",
@@ -46,6 +51,11 @@ def requested_channels():
     for name in ("comedie", "anime"):
         token_var = "COMEDIE_BOT_TOKEN" if name == "comedie" else "CINEX_CATEGORY_BOT_TOKEN"
         entries.append((name, category_config(name), os.getenv(token_var, "")))
+    action_enabled = bool(os.getenv("ACTION_SOURCE_CHANNELS", "").strip()
+                          and os.getenv("ACTION_PRIVATE_CHANNEL", "").strip()
+                          and os.getenv("ACTION_RIGHTS_ATTESTED", "").strip().lower() == "true")
+    entries.append(("action", (lambda: category_config("action")) if action_enabled else None,
+                    os.getenv("ACTION_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
     return entries
 
 
@@ -65,11 +75,18 @@ async def verify():
     try:
         if not await client.is_user_authorized():
             raise RuntimeError("La session personnelle Telegram n'est plus autorisée.")
-        for name, cfg, token in requested_channels():
+        for name, config_or_factory, token in requested_channels():
             diagnostics = {}
+            if config_or_factory is None:
+                report["channels"][name] = {
+                    "status": "not_configured",
+                    "hint": "Catégorie non activée : définir sources, vidéothèque et attestation externe."
+                }
+                LOG.info("Canaux %s : non configuré, contrôle ignoré sans publication", name)
+                continue
             try:
+                cfg = config_or_factory() if callable(config_or_factory) else config_or_factory
                 # Validates actual IDs, distinct destinations, real source handles.
-                diagnostics = {}
                 sources, private, public, _, _, _ = await preflight(
                     client, None, cfg, audit=diagnostics)
                 if len(sources) != len(cfg["sources"]):
@@ -112,7 +129,8 @@ async def verify():
     finally:
         await client.disconnect()
     report["status"] = ("ok" if report["channels"] and
-                        all(s["status"] == "ok" for s in report["channels"].values())
+                        all(s["status"] in ("ok", "not_configured")
+                            for s in report["channels"].values())
                         else "needs_attention")
     return report
 
