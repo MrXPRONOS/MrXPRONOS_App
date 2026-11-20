@@ -50,7 +50,9 @@ jobs:
 
   react:
     needs: test
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.production == true) }}
+    # Also process newly configured bot tokens on the first main-branch push.
+    # Pull-request builds remain test-only and never receive secrets.
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.production == true) }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
