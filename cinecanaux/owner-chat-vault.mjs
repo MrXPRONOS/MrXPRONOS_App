@@ -1,3 +1,4 @@
+import {reserveTelegramSend,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // CinéX Bot-only private owner chat mirror. No user session, Telethon, bytes or file tokens stored.
 // Telegram's copyMessage creates a stable bot-sent message in the owner's private bot chat.
 // No automatic deletion of these owner copies; ONLY subscriber delivery receipts expire.
@@ -87,6 +88,8 @@ export async function captureOwnerForwardInVault(env,msg){
 }
 
 async function telegramCopy(env,destination,source,id){
+ const quota=await reserveTelegramSend(env,{chatId:destination});
+ if(!quota.allowed)return {ok:false,code:429,retry:quota.retryAfter,quotaDeferred:true};
  const r=await fetch(TG+env.TELEGRAM_TOKEN+'/copyMessage',{
   method:'POST',headers:{'content-type':'application/json'},
   body:JSON.stringify({chat_id:destination,from_chat_id:source,message_id:id,disable_notification:true}),
@@ -94,6 +97,7 @@ async function telegramCopy(env,destination,source,id){
  });
  let x;
  try{x=await r.json();}catch{return {ok:false,indeterminate:true}}
+ if(Number(x?.error_code||r.status)===429)await noteTelegramFloodWait(env,Number(x?.parameters?.retry_after||30));
  return {ok:r.ok&&x?.ok===true,id:x?.result?.message_id,code:Number(x?.error_code||r.status),retry:Number(x?.parameters?.retry_after||0)};
 }
 
