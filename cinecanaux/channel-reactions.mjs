@@ -1,3 +1,4 @@
+import {reserveTelegramSend,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 /**
  * Channel-post reactions from two owner-controlled Telegram bots.
  *
@@ -133,6 +134,9 @@ export async function processReactionQueue(env, { limit = MAX_PENDING, request =
       ).bind(row.post_seq).first();
       if (preceding?.state !== "sent") { deferred++; continue; }
     }
+    // Reaction updates also share the global quota, but do not count as new chat messages.
+    const quota=await reserveTelegramSend(env);
+    if(!quota.allowed){deferred++;continue;}
     const claim = await env.DB.prepare(
       "UPDATE channel_reaction_jobs SET state='sending',attempts=attempts+1,updated_at=CURRENT_TIMESTAMP " +
       "WHERE post_seq=? AND bot_role=? AND " +
@@ -148,6 +152,7 @@ export async function processReactionQueue(env, { limit = MAX_PENDING, request =
     } else {
       answer = await deliverReaction(token, row.chat_id, Number(row.message_id), row.emoji, request);
     }
+    if(Number(answer.status)===429)await noteTelegramFloodWait(env,answer.retryAfter||30);
     if (answer.ok) {
       await env.DB.prepare(
         "UPDATE channel_reaction_jobs SET state='sent',sent_at=CURRENT_TIMESTAMP,last_error='',updated_at=CURRENT_TIMESTAMP WHERE post_seq=? AND bot_role=?"
