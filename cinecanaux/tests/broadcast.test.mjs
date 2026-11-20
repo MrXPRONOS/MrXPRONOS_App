@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {DatabaseSync} from 'node:sqlite';
 import {validateBroadcastText,trackBroadcastSubscriber,broadcastAdminAPI,deliverBroadcastBatch} from '../broadcast.mjs';
 import {APP_HTML} from '../app-page.mjs';
 import {ADMIN_HTML} from '../admin-page.mjs';
@@ -131,4 +132,37 @@ test('broadcast API is exclusively owner-authenticated and uses scheduled opt-in
  assert.ok(ADMIN_HTML.includes('id="broadcast-start"'));
  assert.ok(ADMIN_HTML.includes('id="broadcast-photo"'));
  assert.ok(ADMIN_HTML.includes('id="broadcast-button-url"'));
+});
+
+
+test('explicit /stop survives later /start and download deep links; only /abonner re-enables',async()=>{
+ const sqlite=new DatabaseSync(':memory:');
+ const DB={prepare(sql){
+  let args=[];
+  return {bind(...params){args=params;return this},
+   async first(){return sqlite.prepare(sql).get(...args)||null},
+   async all(){return {results:sqlite.prepare(sql).all(...args)}},
+   async run(){const r=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(r.changes)}}},
+  };
+ }};
+ const env={DB};
+ const msg=text=>({message:{chat:{type:'private',id:987654},from:{id:987654},text}});
+ try{
+  await trackBroadcastSubscriber(env,msg('/start'));
+  assert.equal(sqlite.prepare('SELECT active FROM cine_broadcast_subscribers').get().active,1);
+  await trackBroadcastSubscriber(env,msg('/stop'));
+  assert.equal(sqlite.prepare('SELECT active FROM cine_broadcast_subscribers').get().active,0);
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM cine_broadcast_optouts').get().n,1);
+  await trackBroadcastSubscriber(env,msg('/start'));
+  await trackBroadcastSubscriber(env,msg('/start sr_abcdefghijklmnopqrstuvwx'));
+  await trackBroadcastSubscriber(env,msg('/start ffs_abcdefghijklmnopqrstuvwx'));
+  assert.equal(sqlite.prepare('SELECT active FROM cine_broadcast_subscribers').get().active,0);
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM cine_broadcast_optouts').get().n,1);
+  await trackBroadcastSubscriber(env,msg('/abonner'));
+  assert.equal(sqlite.prepare('SELECT active FROM cine_broadcast_subscribers').get().active,1);
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM cine_broadcast_optouts').get().n,0);
+  await trackBroadcastSubscriber(env,msg('/stop'));
+  await trackBroadcastSubscriber(env,msg('/subscribe'));
+  assert.equal(sqlite.prepare('SELECT active FROM cine_broadcast_subscribers').get().active,1);
+ }finally{sqlite.close()}
 });

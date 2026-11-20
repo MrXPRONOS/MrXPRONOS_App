@@ -101,7 +101,7 @@ test('Telegram menus open Mini App, and deprecated owner chat commands are clear
   const list=f.calls.filter(x=>x.method==='setMyCommands');
   assert.equal(list.length,1);
   assert.deepEqual(list[0].body.scope,{type:'default'});
-  assert.deepEqual(list[0].body.commands.map(x=>x.command),['start','aide','stop','confidentialite']);
+  assert.deepEqual(list[0].body.commands.map(x=>x.command),['start','aide','stop','abonner','confidentialite']);
   assert.ok(f.calls.some(x=>x.method==='deleteMyCommands'&&x.body.scope.chat_id===900));
   const menu=f.calls.filter(x=>x.method==='setChatMenuButton');
   assert.equal(menu.length,2);
@@ -110,7 +110,7 @@ test('Telegram menus open Mini App, and deprecated owner chat commands are clear
   assert.equal(menu[1].body.menu_button.web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
   assert.ok(f.calls.some(x=>x.method==='setMyDescription'&&/Lancer Ciné Radar/.test(x.body.description)));
   assert.ok(f.calls.some(x=>x.method==='setMyShortDescription'&&/films, séries et animés/i.test(x.body.short_description)));
-  assert.ok(f.writes.some(x=>x.includes("'13'")));
+  assert.ok(f.writes.some(x=>x.includes("'14'")));
   assert.ok(f.calls.some(x=>x.method==='setMyProfilePhoto'),'Telegram bot avatar must be set');
  }finally{restore()}
 });
@@ -123,6 +123,8 @@ test('visitor help, opt-out and privacy commands use formatted Telegram HTML',as
   assert.match(lastMessage(f.calls).text,/5️⃣/);
   await botUpdate(f.env,update(123,'/stop'));
   assert.match(lastMessage(f.calls).text,/Annonces désactivées/);
+  await botUpdate(f.env,update(123,'/abonner'));
+  assert.match(lastMessage(f.calls).text,/Annonces réactivées/);
   await botUpdate(f.env,update(123,'/confidentialite'));
   assert.match(lastMessage(f.calls).text,/identifiant de conversation/);
   assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard[0][0].style,'primary');
