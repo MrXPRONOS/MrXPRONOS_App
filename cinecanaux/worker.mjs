@@ -325,6 +325,25 @@ export default {
    }
    return new Response("No accessible public avatar",{status:404,headers:{"cache-control":"public,max-age=300"}});
   }
+  // The four independently generated transparent public icons are real WebP
+  // files stored in this repository. Only allowlisted filenames are served.
+  if(request.method==="GET"&&u.pathname.startsWith("/assets/public-ui/")){
+   const match=/^\/assets\/public-ui\/(brand-mark|channel-film-fallback|admin-secure|profile-default)\.webp$/.exec(u.pathname);
+   if(!match)return new Response("Unknown icon",{status:404});
+   try{
+    const response=await fetch("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/public-ui/"+match[1]+".webp",
+     {signal:AbortSignal.timeout(8000),cf:{cacheEverything:true,cacheTtl:3600}});
+    if(response.ok){
+     const bytes=new Uint8Array(await response.arrayBuffer());
+     const riff=bytes.byteLength>=12&&String.fromCharCode(...bytes.slice(0,4))==="RIFF";
+     const webp=bytes.byteLength>=12&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
+     if(bytes.byteLength>100&&bytes.byteLength<65536&&riff&&webp){
+      return new Response(bytes,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600","x-content-type-options":"nosniff"}});
+     }
+    }
+   }catch(error){console.warn("cine_public_icon_unavailable",String(error).slice(0,90))}
+   return new Response("Icon temporarily unavailable",{status:503,headers:{"cache-control":"no-store"}});
+  }
   // Self-hosted glossy controls for the public Telegram Mini App (10 glyphs / 9 KB).
   if(request.method==="GET"&&u.pathname==="/assets/ui-icons-lot1.webp"){
    try{
