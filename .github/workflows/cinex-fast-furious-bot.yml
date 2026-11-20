@@ -1,0 +1,56 @@
+name: CinéX Fast and Furious — catalogue et affiche (bots uniquement)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/.cinex-fast-furious-audit-once'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publier l'affiche Fast and Furious dans CinéX Films et son secours (si des vidéos sont indexées)"
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: cinex-fast-furious-poster-bot-only
+  cancel-in-progress: false
+jobs:
+  fast-furious:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CINEX_FF_PUBLISH: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && 'true' || 'false' }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      ALT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      ALT_DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      ALT_ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      ALT_ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dépendances API bots uniquement
+        run: python -m pip install requests==2.32.5
+      - name: Vérifier le script et tests hors ligne
+        run: |
+          python -m py_compile cinecanaux/scripts/publish_franchise_saga_bot.py
+          python -m unittest discover -s cinecanaux/tests -p 'test_franchise_saga_publisher.py' -v
+      - name: Vérifier Fast and Furious et éventuellement publier (explicite seulement)
+        run: python cinecanaux/scripts/publish_franchise_saga_bot.py
+      - name: Rapport de l'inventaire et des reçus
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-fast-furious-audit-report
+          path: cinex-fast-furious-publish-report.json
+          if-no-files-found: warn
+          retention-days: 14
