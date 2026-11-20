@@ -44,6 +44,7 @@ async function run(viewport,device){
   await page.locator('#ad-menu-bottom').click();
   assert.equal(await page.locator('#ad-nav').evaluate(x=>x.classList.contains('ad-open')),true,'Mobile drawer must open');
   await page.screenshot({path:'/tmp/cineradar-admin-v11-menu.png'});
+  await page.locator('#ad-menu-toggle').click();
  }
  for(const [id,target] of steps){
   if(device)await page.locator('#ad-menu-toggle').click();
@@ -51,7 +52,7 @@ async function run(viewport,device){
   assert.equal(await page.locator('#ad-view-'+id).isVisible(),true,'Expected view '+id);
   assert.equal(await page.locator(target).count()>0,true,'Legacy module missing '+target);
  }
- await page.locator('[data-admin-go="dashboard"]').last().click();
+ await page.locator(device?'#ad-bottom-tabs [data-admin-go="dashboard"]':'#ad-nav [data-admin-go="dashboard"]').click();
  assert.equal(await page.locator('#ad-view-dashboard').isVisible(),true);
  await page.screenshot({path:'/tmp/cineradar-admin-v11-'+(device?'mobile':'desktop')+'.png'});
  const horizontal=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
