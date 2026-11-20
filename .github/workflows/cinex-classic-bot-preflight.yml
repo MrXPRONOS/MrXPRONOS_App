@@ -1,0 +1,67 @@
+name: CineX - Verification Bot API classique sans publication
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BOT: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      PUBLIC: ${{ vars.TG_PUBLIC_CHANNEL }}
+      PRIVATE: ${{ vars.TG_PRIVATE_CHANNEL }}
+      ALT_CINEX_BOT: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      ALT_DESIR_BOT: ${{ secrets.DESIR_BOT_TOKEN }}
+      ALT_ACTION_BOT: ${{ secrets.ACTION_BOT_TOKEN }}
+    steps:
+      - name: Vérifier l'accès du bot, sans copier ni envoyer de média
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request
+          token=os.environ.get('BOT','')
+          if not token:raise RuntimeError('Bot inaccessible')
+          def call(method,payload):
+              data=json.dumps(payload).encode()
+              req=urllib.request.Request('https://api.telegram.org/bot'+token+'/'+method,data=data,headers={'Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=15) as resp: o=json.load(resp)
+              if not o.get('ok'):raise RuntimeError(method+' echec')
+              return o['result']
+          me=call('getMe',{})
+          print('CINEX_PUBLISHING_BOT_USERNAME='+str(me.get('username','')))
+          for label,chat_id in (('PUBLIC',os.environ.get('PUBLIC','')),('PRIVATE',os.environ.get('PRIVATE',''))):
+              if not chat_id:raise RuntimeError(label+' manquant')
+              chat=call('getChat',{'chat_id':chat_id})
+              member=call('getChatMember',{'chat_id':chat['id'],'user_id':me['id']})
+              allowed=member.get('status') in ('administrator','creator') and (member.get('status')=='creator' or member.get('can_post_messages',False))
+              print(label+'_BOT_CAN_POST='+str(allowed).lower()+' | id_valid='+str(str(chat['id']).startswith('-100')).lower())
+              if not allowed:raise RuntimeError(label+' bot non admin')
+          try:
+              radar=call('getChat',{'chat_id':'@CineRadarFr_Bot'})
+              print('CINE_RADAR_ID_RESOLVED=true')
+              member=call('getChatMember',{'chat_id':os.environ.get('PRIVATE',''),'user_id':radar['id']})
+              print('CINE_RADAR_PRIVATE_ROLE='+str(member.get('status','unknown')))
+          except Exception as e:
+              print('CINE_RADAR_PRIVATE_ACCESS_ERROR='+type(e).__name__)
+          rescue_id='-1004357703501'
+          try:
+              info=call('getChat',{'chat_id':rescue_id})
+              role=call('getChatMember',{'chat_id':rescue_id,'user_id':me['id']})
+              print('SECOURS_BOT_ROLE='+str(role.get('status','unknown')))
+              print('SECOURS_EXISTING_INVITE='+str(bool(info.get('invite_link'))).lower())
+              print('SECOURS_BOT_CAN_INVITE='+str(bool(role.get('can_invite_users'))).lower())
+          except Exception as e: print('SECOURS_ACCESS_ERROR='+type(e).__name__)
+          for label,variable in [('RADAR','ALT_CINEX_BOT'),('DESIR','ALT_DESIR_BOT'),('ACTION','ALT_ACTION_BOT')]:
+              alt=os.environ.get(variable,'')
+              if not alt or alt==token:continue
+              try:
+                  rq=urllib.request.Request('https://api.telegram.org/bot'+alt+'/getChat',
+                      data=json.dumps({'chat_id':rescue_id}).encode(),
+                      headers={'Content-Type':'application/json'})
+                  with urllib.request.urlopen(rq,timeout=12) as resp: data=json.load(resp)
+                  if data.get('ok'):
+                      print('SECOURS_ACCESSIBLE_BY_'+label+'=true')
+                      print('SECOURS_INVITE_BY_'+label+'='+str(bool(data['result'].get('invite_link'))).lower())
+                  else:print('SECOURS_ACCESSIBLE_BY_'+label+'=false')
+              except Exception:print('SECOURS_ACCESSIBLE_BY_'+label+'=false')
+          PY

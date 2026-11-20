@@ -1,0 +1,38 @@
+name: CineX - Publication reelle d'un film avec les nouveaux boutons
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-classic-live-publish-once'
+permissions:
+  contents: read
+concurrency:
+  group: cine-classic-one-bot-real-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CINEX_DOWNLOADS_ENABLED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      PYTHONPATH: .
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests==2.32.5
+      - name: Valider le script sans se connecter à Telegram
+        run: python -m py_compile scripts/publish_cinex_classic_bot.py
+      - name: Publier un seul film avec trois boutons et reçu D1
+        run: python scripts/publish_cinex_classic_bot.py

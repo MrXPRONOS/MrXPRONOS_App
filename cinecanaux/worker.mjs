@@ -18,6 +18,7 @@ import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./tr
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
+import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDeliveries} from "./cinex-classic.mjs";
 import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
@@ -106,6 +107,8 @@ async function receiveTelegram(request,env,ctx){
    if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
   }
   if(await handleSaveHelp(env,update))return Response.json({ok:true});
+  const classic=await handleClassicDeliveryStart(env,update);
+  if(classic.handled)return Response.json({ok:true});
   const delivery=await handleDeliveryStart(env,update);
   if(delivery.handled)return Response.json({ok:true});
   await botUpdate(env,update);
@@ -452,6 +455,8 @@ export default {
   })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
   if(controller.cron==="* * * * *"){
    ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(processClassicDeliveryQueue(env).catch(e=>console.warn("cinex_classic_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(cleanupClassicDeliveries(env).catch(e=>console.warn("cinex_classic_expiry_failed",String(e?.name||"error"))));
    ctx.waitUntil(cleanupDeliveredCopies(env).catch(e=>console.warn("cinex_expiry_cleanup_failed",String(e?.name||"error"))));
    return;
   }
