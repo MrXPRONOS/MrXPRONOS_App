@@ -92,7 +92,9 @@ def audit_permissions(bot_candidates, targets, *, publisher_username="", expecte
     required = set(categories)
     expected_categories = set(DESTINATIONS)
     expected_categories.add("franchise_source")
-    if not isinstance(expected_series_count, int) or not 1 <= expected_series_count <= 50:\n        raise ValueError("Expected series source count must be between 1 and 50")\n    expected_categories.update(f"series_source_{i:02d}" for i in range(1, expected_series_count + 1))
+    if not isinstance(expected_series_count, int) or not 1 <= expected_series_count <= 50:
+        raise ValueError("Expected series source count must be between 1 and 50")
+    expected_categories.update(f"series_source_{i:02d}" for i in range(1, expected_series_count + 1))
     report = {
         "bot_count": 0, "channel_categories": len(targets),
         "checks": [], "manual_review_count": 0, "unreachable_count": 0,
