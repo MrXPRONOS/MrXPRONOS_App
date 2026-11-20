@@ -56,9 +56,10 @@ class CrossSourceTests(unittest.TestCase):
         async def main():
             from telethon import utils
             # Resolved username must match the actual public identity.
-            client = NS(get_entity=AsyncMock(return_value=NS(
-                username="DifferentSource", broadcast=True,
-                noforwards=False, id=98765)))
+            from telethon.tl.types import Channel
+            wrong = Channel(id=98765, title="Source", photo=None, date=None,
+                            broadcast=True, username="DifferentSource")
+            client = NS(get_entity=AsyncMock(return_value=wrong))
             with self.assertRaises(RuntimeError):
                 await authorized_peers(client, ["@AllowedOther"])
         asyncio.run(main())
