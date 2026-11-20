@@ -1,6 +1,6 @@
 // Private Ciné Radar moderation API. All requests require valid Telegram Mini App initData
 // AND a matching Telegram user ID in the existing admin_users table.
-import {verifiedIdentity,linkUsername} from './v2.mjs';
+import {verifiedIdentity,telegramAuthStatus,linkUsername} from './v2.mjs';
 import {checkDailyLinks} from './maintenance-v2.mjs';
 import {runLoggedJob} from './job-log.mjs';
 import {adminAnalytics} from './analytics.mjs';
@@ -33,7 +33,14 @@ async function parseBody(req){
  return JSON.parse(text);
 }
 export async function adminAPI(env,request,ctx){
- const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403);
+ let admin;
+ try{admin=await verifyAdmin(request,env)}
+ catch(e){console.warn('cine_admin_verify_error',String(e?.name||'Error'));return json({error:'Vérification administrateur indisponible',code:'server_error'},503)}
+ if(!admin){
+  const status=await telegramAuthStatus(request,env);
+  // Do not disclose the signed identity, role records, bot token or raw initData.
+  return json({error:'Accès réservé',code:status==='verified'?'owner_not_linked':status},status==='server_configuration'?503:403);
+ }
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
  if(request.method==='GET'&&path==='/api/admin/launch-funnel')return json(await launchFunnelStats(env));
