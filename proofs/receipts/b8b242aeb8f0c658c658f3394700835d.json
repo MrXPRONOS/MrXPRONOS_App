@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a51e07ca8698980e:UNDER_35",
+    "recorded_at_utc": "2026-11-20T19:20:23+00:00",
+    "kickoff_utc": "2026-11-22T14:30:00+00:00",
+    "fixture": {
+      "home_team": "Recreativo da Caala",
+      "away_team": "1º de Maio de Benguela",
+      "league": "Girabola"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "e604aa03d440d4dfc5e366e37e5224d76468a9c7ce94885e6aa965237315d2c8"
+}

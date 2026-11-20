@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-93baaedf4e18ab6e:1X",
+    "recorded_at_utc": "2026-11-20T19:20:23+00:00",
+    "kickoff_utc": "2026-11-21T11:00:00+00:00",
+    "fixture": {
+      "home_team": "Atletico CP",
+      "away_team": "Casa Pia",
+      "league": "Portuguese Cup"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 87.1,
+      "odds": 1.762,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "996fdd8030cf263d8addb7b3dac1da00173aced86ca5f7ac839208c56c9a8a04"
+}

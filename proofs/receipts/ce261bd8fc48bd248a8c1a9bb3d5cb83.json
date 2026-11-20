@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-05991e8349fe6d44:1X",
+    "recorded_at_utc": "2026-11-20T19:20:23+00:00",
+    "kickoff_utc": "2026-11-22T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Rosario Central",
+      "away_team": "Gimnasia y Esgrima Mendoza",
+      "league": "Argentine Division 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 83.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "70fa193e5c2a946b68848dd266497131f3c94825a0357b06faea050555ecf450"
+}

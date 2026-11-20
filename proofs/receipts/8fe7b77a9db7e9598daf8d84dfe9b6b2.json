@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-810fe151f98db41d:UNDER_35",
+    "recorded_at_utc": "2026-11-20T19:20:23+00:00",
+    "kickoff_utc": "2026-11-22T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Barau FC",
+      "away_team": "Inter Lagos FC",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "14d12a41936a9b177ee9e581070cc8412934bf223bf9e6b55546a99e92625c95"
+}

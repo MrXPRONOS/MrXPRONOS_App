@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-d8d92b163d5c85c0:1X",
+    "recorded_at_utc": "2026-11-20T19:20:23+00:00",
+    "kickoff_utc": "2026-11-22T14:00:00+00:00",
+    "fixture": {
+      "home_team": "SC Vianense",
+      "away_team": "Rio Ave",
+      "league": "Portuguese Cup"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "f8aac3e9095267c1769a0025c5a17db3de740fe1530e73b5a723a0203ca387ac"
+}
