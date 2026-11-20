@@ -28,6 +28,7 @@ jobs:
           node --check cinecanaux/worker.mjs
           node --check cinecanaux/delivery-catalog.mjs
           node --check cinecanaux/cinex-delivery.mjs
+          node --check cinecanaux/cinex-expiry.mjs
           node --check cinecanaux/trend-radar.mjs
           node --check cinecanaux/pinned-showcase.mjs
           node --check cinecanaux/partner-promotions.mjs
@@ -60,6 +61,9 @@ jobs:
 
       - name: Verify CinéX guarded deliveries and share help
         run: node --test cinecanaux/tests/cinex-delivery.test.mjs
+
+      - name: Verify 24h CineX expiration and safety boundaries
+        run: node --test cinecanaux/tests/cinex-expiry.test.mjs
 
       - name: Probe public Simkl trends feeds (non-blocking diagnostic)
         continue-on-error: true
