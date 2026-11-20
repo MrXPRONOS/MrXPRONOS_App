@@ -29,7 +29,7 @@ async function signedByTelegramForConfiguredBot(params,env){
  const id=String(env.TELEGRAM_TOKEN||"").split(":")[0];
  if(!/^[1-9][0-9]{4,15}$/.test(id))return false;
  const signature=params.get("signature")||"";
- if(!/^[a-zA-Z0-9_-]{80,100}$/.test(signature))return false;
+ if(!/^[a-zA-Z0-9_-]{80,100}={0,2}$/.test(signature))return false;
  let sig;
  try{
   const encoded=signature.replace(/-/g,"+").replace(/_/g,"/");
