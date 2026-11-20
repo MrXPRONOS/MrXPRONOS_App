@@ -48,7 +48,13 @@ export async function handleDeliveryStart(env,update){
   ).bind(token).first();
   if(!link||!CHAT.test(String(link.private_chat_id||''))){await say(env,chat,'Ce téléchargement n’est pas disponible pour le moment.');return {handled:true,accepted:false};}
   const rows=await env.DB.prepare(
-   "SELECT m.source_message_id,m.season_number,m.episode_number FROM cine_delivery_media m JOIN cine_delivery_libraries b ON b.category=m.category WHERE m.title_key=? AND m.category=? AND m.observed_at=b.last_scanned_at AND m.availability IN ('pending_review','approved') AND ((?=0 AND m.season_number IS NULL AND m.episode_number IS NULL) OR (? > 0 AND m.season_number=?)) ORDER BY m.episode_number,m.source_message_id LIMIT 101"
+   "SELECT m.source_message_id,m.season_number,m.episode_number,"+
+   "CASE WHEN a.user_id IS NOT NULL THEN v.owner_chat_id END AS owner_chat_id,"+
+   "CASE WHEN a.user_id IS NOT NULL THEN v.owner_message_id END AS owner_message_id "+
+   "FROM cine_delivery_media m JOIN cine_delivery_libraries b ON b.category=m.category "+
+   "LEFT JOIN cine_owner_vault v ON v.source_chat_id=b.private_chat_id AND v.source_message_id=m.source_message_id AND v.status='stored' "+
+   "LEFT JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
+   "WHERE m.title_key=? AND m.category=? AND m.observed_at=b.last_scanned_at AND m.availability IN ('pending_review','approved') AND ((?=0 AND m.season_number IS NULL AND m.episode_number IS NULL) OR (? > 0 AND m.season_number=?)) ORDER BY m.episode_number,m.source_message_id LIMIT 101"
   ).bind(link.title_key,link.category,link.season_key,link.season_key,link.season_key).all();
   const media=rows.results||[];
   // Reject ANY incomplete season and mismatched records before enqueuing.
@@ -67,7 +73,9 @@ export async function handleDeliveryStart(env,update){
   if(!job?.id)throw Error('job_insert_missing');
   await env.DB.batch(media.map((m,i)=>env.DB.prepare(
    "INSERT OR IGNORE INTO cine_delivery_job_items(job_id,ordinal,source_chat_id,source_message_id) VALUES(?,?,?,?)"
-  ).bind(job.id,i+1,link.private_chat_id,m.source_message_id)));
+  ).bind(job.id,i+1,
+   Number.isSafeInteger(Number(m.owner_chat_id))&&Number(m.owner_chat_id)>0&&Number.isSafeInteger(Number(m.owner_message_id))&&Number(m.owner_message_id)>0?String(m.owner_chat_id):link.private_chat_id,
+   Number.isSafeInteger(Number(m.owner_chat_id))&&Number(m.owner_chat_id)>0&&Number.isSafeInteger(Number(m.owner_message_id))&&Number(m.owner_message_id)>0?Number(m.owner_message_id):m.source_message_id)));
   await say(env,chat,media.length>1?
    '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 24 heures. Pense à les transférer dans Messages enregistrés.':
    '🎬 Le film « '+String(link.display_title).slice(0,85)+' » va être envoyé automatiquement. Cette copie expire après 24 heures. Pense à la transférer dans Messages enregistrés.',
@@ -104,7 +112,20 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   if(!CHAT.test(String(job.private_chat_id||'')))continue;
   const rows=await env.DB.prepare("SELECT ordinal,source_chat_id,source_message_id,state,delivered_message_id FROM cine_delivery_job_items WHERE job_id=? ORDER BY ordinal").bind(job.id).all();
   const items=rows.results||[];
-  if(!items.length||items.some(x=>x.source_chat_id!==job.private_chat_id||!Number.isSafeInteger(Number(x.source_message_id))||Number(x.source_message_id)<1)){
+  let sourcesVerified=items.length>0;
+  for(const x of items){
+   if(!Number.isSafeInteger(Number(x.source_message_id))||Number(x.source_message_id)<1){sourcesVerified=false;break}
+   if(x.source_chat_id===job.private_chat_id)continue;
+   if(!Number.isSafeInteger(Number(x.source_chat_id))||Number(x.source_chat_id)<=0){sourcesVerified=false;break}
+   const receipt=await env.DB.prepare(
+    "SELECT 1 AS ok FROM cine_owner_vault v JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
+    "JOIN cine_delivery_libraries b ON b.private_chat_id=v.source_chat_id "+
+    "JOIN cine_delivery_media m ON m.category=b.category AND m.source_message_id=v.source_message_id "+
+    "WHERE v.owner_chat_id=? AND v.owner_message_id=? AND v.source_chat_id=? AND b.category=? AND m.title_key=? AND v.status='stored'"
+   ).bind(Number(x.source_chat_id),Number(x.source_message_id),job.private_chat_id,job.category,job.title_key).first();
+   if(!receipt?.ok){sourcesVerified=false;break}
+  }
+  if(!sourcesVerified){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;continue;
   }
   const pendingItems=items.filter(x=>x.state==='queued').slice(0,12);
@@ -123,7 +144,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   let response;
   try{
    response=await telegram(env,'copyMessage',{chat_id:job.telegram_chat_id,
-    from_chat_id:job.private_chat_id,message_id:pending.source_message_id,
+    from_chat_id:pending.source_chat_id,message_id:pending.source_message_id,
     protect_content:false,reply_markup:keyboard()});
   }catch{
    // Ambiguous response: Telegram may have sent the file. No automatic retry!

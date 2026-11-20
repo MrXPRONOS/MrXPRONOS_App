@@ -45,17 +45,26 @@ export async function processClassicDeliveryQueue(env,{limit=3}={}){
  // Expired leases are ambiguous: Telegram may have sent despite a lost response.
  await env.DB.prepare("UPDATE cine_classic_deliveries SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE status='sending' AND lock_until<CURRENT_TIMESTAMP").run();
  const rows=await env.DB.prepare(
-  "SELECT d.id,d.telegram_chat_id,l.source_chat_id,l.source_message_id FROM cine_classic_deliveries d JOIN cine_classic_links l ON l.token=d.token WHERE d.status='queued' AND l.status='published' ORDER BY d.id LIMIT ?"
+  "SELECT d.id,d.telegram_chat_id,l.source_chat_id,l.source_message_id,"+
+  "CASE WHEN a.user_id IS NOT NULL THEN v.owner_chat_id END AS owner_chat_id,"+
+  "CASE WHEN a.user_id IS NOT NULL THEN v.owner_message_id END AS owner_message_id "+
+  "FROM cine_classic_deliveries d JOIN cine_classic_links l ON l.token=d.token "+
+  "LEFT JOIN cine_owner_vault v ON v.source_chat_id=l.source_chat_id AND v.source_message_id=l.source_message_id AND v.status='stored' "+
+  "LEFT JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
+  "WHERE d.status='queued' AND l.status='published' ORDER BY d.id LIMIT ?"
  ).bind(Math.min(5,Math.max(1,Number(limit)||3))).all();
  let processed=0,errors=0;
  for(const row of rows.results||[]){
   if(!await enabled(env))break;
   if(!safeChat(row.telegram_chat_id)||!safeChannel(row.source_chat_id)||!Number.isSafeInteger(Number(row.source_message_id)))continue;
+  const ownerCopy=safeChat(row.owner_chat_id)&&safeChat(row.owner_message_id);
+  const sendSource=ownerCopy?Number(row.owner_chat_id):row.source_chat_id;
+  const sendMessageId=ownerCopy?Number(row.owner_message_id):row.source_message_id;
   const lock=await env.DB.prepare("UPDATE cine_classic_deliveries SET status='sending',lock_until=datetime('now','+3 minutes'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='queued'").bind(row.id).run();
   if(Number(lock.meta?.changes||0)!==1)continue;
   let response;
   try{response=await telegram(env,'copyMessage',{
-   chat_id:row.telegram_chat_id,from_chat_id:row.source_chat_id,message_id:row.source_message_id,protect_content:false,
+   chat_id:row.telegram_chat_id,from_chat_id:sendSource,message_id:sendMessageId,protect_content:false,
    reply_markup:{inline_keyboard:[[{text:'💾 Comment enregistrer',callback_data:'cinex:save_help'}]]}
   })}catch{
    await env.DB.prepare("UPDATE cine_classic_deliveries SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(row.id).run();errors++;continue;

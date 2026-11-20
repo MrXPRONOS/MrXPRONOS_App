@@ -9,6 +9,9 @@ const now=Date.now();
 function fixture(){
  const db=new DatabaseSync(':memory:');
  db.exec(readFileSync(new URL('../migrations/018_cinex_classic_delivery.sql',import.meta.url),'utf8'));
+ db.exec("CREATE TABLE cine_series_config(setting_key TEXT PRIMARY KEY,setting_value TEXT NOT NULL)");
+ db.exec(readFileSync(new URL('../migrations/020_cinex_owner_chat_vault.sql',import.meta.url),'utf8'));
+ db.exec("CREATE TABLE admin_users(user_id INTEGER PRIMARY KEY,role TEXT NOT NULL)");
  db.exec("CREATE TABLE bot_settings(setting_key TEXT PRIMARY KEY,value TEXT)");
  db.exec("INSERT INTO bot_settings VALUES('cine_delivery_enabled','1')");
  db.prepare("INSERT INTO cine_classic_links(token,source_chat_id,source_message_id,title,public_handle,status) VALUES(?,?,?,?,?,'published')")
@@ -70,5 +73,21 @@ test('24h cleanup deletes only the delivered private copy, never source or publi
   assert.equal(result.deleted,1);
   assert.deepEqual(calls,[{method:'deleteMessage',body:{chat_id:321,message_id:66}}]);
   assert.equal(db.prepare("SELECT status FROM cine_classic_deliveries").get().status,'deleted');
+ }finally{globalThis.fetch=old;db.close()}
+});
+
+
+test('classic film delivers from owner bot-chat mirror when stored',async()=>{
+ const {db,env}=fixture();const old=globalThis.fetch;const calls=[];
+ globalThis.fetch=async(url,options)=>{calls.push({method:String(url).split('/').at(-1),body:JSON.parse(options.body)});return Response.json({ok:true,result:{message_id:79}})};
+ try{
+  db.prepare("INSERT INTO admin_users(user_id,role) VALUES(?,'owner')").run(500);
+  db.prepare("INSERT INTO cine_owner_vault(source_chat_id,source_message_id,media_kind,owner_chat_id,owner_message_id,status) VALUES(?,?,?,?,?,'stored')")
+    .run('-1004392607284',238,'video',500,902);
+  await handleClassicDeliveryStart(env,request(321,404));
+  const report=await processClassicDeliveryQueue(env);
+  assert.equal(report.processed,1);
+  const copy=calls.find(x=>x.method==='copyMessage').body;
+  assert.deepEqual({to:copy.chat_id,from:copy.from_chat_id,id:copy.message_id},{to:321,from:500,id:902});
  }finally{globalThis.fetch=old;db.close()}
 });
