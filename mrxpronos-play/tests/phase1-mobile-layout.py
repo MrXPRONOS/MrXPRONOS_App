@@ -29,6 +29,7 @@ with sync_playwright() as p:
             page.route("https://**/*", lambda route: route.abort())
             page.set_content(html, wait_until="domcontentloaded")
             page.evaluate("document.querySelector('#mrxp-launch-overlay')?.remove()")
+            page.evaluate("""() => {for(const tab of document.querySelectorAll('.nav .tab .ico')) {const im=document.createElement('img');im.alt='';tab.append(im)}}""")
             page.evaluate("""(src) => {
                 const row = document.createElement('div');
                 row.className = 'mission';
@@ -45,8 +46,8 @@ with sync_playwright() as p:
                 daily.innerHTML='<div class="mission-body"><h4>Bonus quotidien confirmé</h4><p>Récompense confirmée</p></div><span class="reward">+100 XP</span>';
                 document.querySelector('#missions-list').append(daily);
                 const promo=document.createElement('div');
-                promo.className='mrxp-promo';
-                promo.innerHTML='<img alt=""><span>Gagne des <b>XP Points</b>Prépare ta progression sur Mr XPRONOS Play.</span><img alt="">';
+                promo.className='mrxp-promo mrxp-promo-refined';
+                promo.innerHTML='<img alt=""><span class="mrxp-promo-copy"><strong>Gagne des XP Points</strong><small>Progresse et débloque de nouveaux rangs.</small></span>';
                 document.querySelector('#screen-tap').append(promo);
                 document.querySelector('#mrxp-share-actions').hidden=false;
             }""", big_icon)
@@ -89,20 +90,67 @@ with sync_playwright() as p:
                 elif screen == "screen-profile":
                     panel = page.evaluate("""() => {
                        const x=document.querySelector('#mrxp-share-actions');
-                       return {width:x.getBoundingClientRect().width,
-                               right:x.getBoundingClientRect().right};
+                       const art=document.querySelector('.mrxp-profile-hero-art');
+                       const face=document.querySelector('#avatar').getBoundingClientRect();
+                       const shield=document.querySelector('#mrxp-rank-badge').getBoundingClientRect();
+                       const stars=document.querySelector('#mrxp-rank-stars').getBoundingClientRect();
+                       const heading=document.querySelector('#profile-name').getBoundingClientRect();
+                       const pct=document.querySelector('#mrxp-progress-percent');
+                       const track=document.querySelector('.mrxp-v2-progress-track').getBoundingClientRect();
+                       const pill=pct.getBoundingClientRect();
+                       return {actionsRight:x.getBoundingClientRect().right,
+                               artWidth:art.getBoundingClientRect().width, faceRight:face.right,
+                               shieldLeft:shield.left, starsRight:stars.right,
+                               faceBottom:face.bottom,headingTop:heading.top,
+                               pillRight:pill.right,pillWidth:pill.width,
+                               progressBackground:getComputedStyle(pct).backgroundImage,
+                               trackRight:track.right,
+                               progressTitle:document.querySelector('.mrxp-progression-card .section-title').textContent.trim()};
                     }""")
-                    assert panel["right"] <= width + 1, f"Share controls overflow: {width}: {panel}"
+                    assert panel["actionsRight"] <= width + 1, f"Share controls overflow: {width}: {panel}"
+                    assert panel["faceRight"]+8 <= panel["shieldLeft"], f"Portrait and rank shield touch: {width}: {panel}"
+                    assert panel["faceBottom"] <= panel["headingTop"] + 1, f"Avatar overlaps player name: {width}: {panel}"
+                    assert panel["pillWidth"] < 80 and panel["pillRight"] <= width + 1, f"Progress percentage does not fit: {width}: {panel}"
+                    assert panel["progressBackground"] == "none", f"Decorative ring still overlaps percent: {width}: {panel}"
+                    assert panel["progressTitle"] == "MA PROGRESSION", f"Technical jargon still in public progress: {panel}"
                 elif screen == "screen-tap":
                     banner = page.evaluate("""() => {
                       const el=document.querySelector('#wheel-shortcut');
                       const c=el.querySelector('.small-button').getBoundingClientRect();
                       const d=el.getBoundingClientRect();
-                      return {cardRight:d.right,buttonRight:c.right,buttonBottom:c.bottom,cardBottom:d.bottom};
+                      const wheel=el.querySelector('.banner-visual').getBoundingClientRect();
+                      const title=el.querySelector('h3').getBoundingClientRect();
+                      const promo=document.querySelector('.mrxp-promo-refined');
+                      const promoTitle=promo.querySelector('strong');
+                      const titleBounds=promoTitle.getBoundingClientRect();
+                      const titleStyle=getComputedStyle(promoTitle);
+                      return {cardRight:d.right,buttonRight:c.right,buttonBottom:c.bottom,cardBottom:d.bottom,
+                              wheelBottom:wheel.bottom,buttonTop:c.top,
+                              titleRight:title.right,promoRight:promo.getBoundingClientRect().right,
+                              promoTitleRight:titleBounds.right,promoTitleWidth:titleBounds.width,
+                              promoTitleScrollWidth:promoTitle.scrollWidth,
+                              whiteSpace:titleStyle.whiteSpace};
                     }""")
                     assert banner["buttonRight"] <= width + 1 and banner["buttonBottom"] <= banner["cardBottom"] + 1, f"Lucky Wheel overflow: {width}: {banner}"
+                    assert banner["buttonTop"] >= banner["wheelBottom"] - 2, f"Play button beside wheel, should be below: {width}: {banner}"
+                    assert banner["whiteSpace"] == "nowrap", f"XP headline wraps: {width}: {banner}"
+                    assert banner["promoTitleScrollWidth"] <= banner["promoTitleWidth"] + 2, f"XP title clipped: {width}: {banner}"
+                    assert banner["promoRight"] <= width + 1, f"XP promo overflows: {width}: {banner}"
+                if screen in ("screen-tap","screen-wheel","screen-profile"):
+                    nav=page.evaluate("""() => {
+                       const root=document.querySelector('.nav');
+                       const tabs=Array.from(document.querySelectorAll('.nav .tab'));
+                       return {background:getComputedStyle(root).backgroundColor,
+                               tabs:tabs.map(t=>({width:t.getBoundingClientRect().width,
+                                                   labelWidth:t.scrollWidth,
+                                                   iconWidth:t.querySelector('.ico').getBoundingClientRect().width,
+                                                   right:t.getBoundingClientRect().right}))};
+                    }""")
+                    assert len(nav["tabs"])==5
+                    assert all(x["right"]<=width+1 and x["labelWidth"]<=x["width"]+2 for x in nav["tabs"]),f"Bottom navigation overflow at {width}: {nav}"
+                    assert all(x["iconWidth"]<=35 for x in nav["tabs"]),f"Oversized navbar icons: {width}: {nav}"
             print(f"PASS {width}px: all {len(screens)} screens, giant icon and button overflow guards")
             page.close()
     finally:
         browser.close()
-print("SUCCESS: Phase 1 mobile layout checks passed at all widths")
+print("SUCCESS: Phase 1 + 2 + 3 mobile layout checks passed at all widths")
