@@ -19,7 +19,7 @@ from urllib.parse import quote
 
 import requests
 
-from audit_series_bots import BotAPI, is_admin, parse_channel_ids
+from audit_series_bots import BotAPI, is_admin, parse_channel_ids, identify_radar_bot
 
 CHAT = re.compile(r"^-100\d{6,}$")
 INVITE = re.compile(r"^https://t\.me/(?:\+[A-Za-z0-9_-]{12,}|joinchat/[A-Za-z0-9_-]{12,})/?$")
@@ -237,22 +237,18 @@ def main():
         print("CINEX_SERIES_CHANNEL_IDS est vide — rien à modifier")
         return 0
     bot_token = os.getenv("CINEX_PUBLISH_BOT_TOKEN", "").strip()
-    radar_token = os.getenv("CINEX_RADAR_BOT_TOKEN", "").strip()
-    if not bot_token or not radar_token:
-        raise RuntimeError("Les jetons des deux bots sont requis")
+    if not bot_token:
+        raise RuntimeError("CINEX_PUBLISH_BOT_TOKEN est manquant")
     bot = BotAPI(bot_token)
-    radar = BotAPI(radar_token)
     me = bot.call("getMe", {})
-    radar_me = radar.call("getMe", {})
-    if str(radar_me.get("username","")).lower() != "cineradarfr_bot":
-        raise RuntimeError("Le jeton Ciné Radar ne correspond pas au bot officiel")
+    radar_id = identify_radar_bot(os.getenv("CINEX_RADAR_BOT_TOKEN", "").strip())
     rights = os.getenv("CINEX_SERIES_RIGHTS_ATTESTED","").lower() == "true"
     declared_counts = parse_season_counts(os.getenv("CINEX_SERIES_SEASON_COUNTS",""))
     publish = os.getenv("CINEX_SERIES_PUBLISH_ENABLED","").lower() == "true"
     results = []
     for cid in ids:
         try:
-            result = sync_channel(bot,int(me["id"]),int(radar_me["id"]),cid,rights,declared_counts.get(cid))
+            result = sync_channel(bot,int(me["id"]),radar_id,cid,rights,declared_counts.get(cid))
         except Exception as error:
             results.append({"chat_id": cid, "status": "SOURCE_ERROR", "error": str(error)[:150]})
             continue
@@ -289,5 +285,14 @@ def main():
 if __name__=="__main__":
     try:sys.exit(main())
     except Exception as error:
-        print("CINEX_SERIES_BLOCKED",str(error),file=sys.stderr)
+        # Always save a sanitized report, even on a preflight failure.
+        # Never serialize tokens, authorization headers or request URLs.
+        reason = str(error).replace(os.getenv("CINEX_PUBLISH_BOT_TOKEN", "") or "[unavailable-token]", "[redacted]")
+        reason = reason.replace(os.getenv("CINEX_RADAR_BOT_TOKEN", "") or "[unavailable-token]", "[redacted]")
+        Path("cinex-series-sync-report.json").write_text(json.dumps({
+            "mode": "bot_only", "status": "preflight_failed",
+            "stage": "identity_or_configuration", "error": reason[:450],
+            "publication_attempted": False,
+        }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print("CINEX_SERIES_BLOCKED",reason,file=sys.stderr)
         sys.exit(1)
