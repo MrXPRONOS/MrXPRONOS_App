@@ -1,11 +1,29 @@
 {
-  "audit_checked_at": "2026-11-16T22:29:17.344233+00:00",
+  "audit_checked_at": "2026-11-20T22:54:15.283936+00:00",
   "data_note": "Inventaire et reçus enregistrés, pas une preuve de disponibilité des vidéos ni des droits.",
   "schema_version": 1,
   "series": [
     {
       "has_public_card": true,
-      "index_repair_pending": true,
+      "index_repair_pending": false,
+      "legacy_cards_to_review": 0,
+      "private_episodes": 12,
+      "public_episode_pairs": 12,
+      "seasons": [
+        {
+          "last_episode": 12,
+          "numbering_gaps": 0,
+          "private_episodes": 12,
+          "public_episode_pairs": 12,
+          "season": 1,
+          "status": "en_cours"
+        }
+      ],
+      "title": "Dorohedoro et 2 🇨🇵"
+    },
+    {
+      "has_public_card": true,
+      "index_repair_pending": false,
       "legacy_cards_to_review": 5,
       "private_episodes": 6,
       "public_episode_pairs": 0,
@@ -41,7 +59,7 @@
     },
     {
       "has_public_card": true,
-      "index_repair_pending": true,
+      "index_repair_pending": false,
       "legacy_cards_to_review": 1,
       "private_episodes": 2,
       "public_episode_pairs": 0,
@@ -115,15 +133,15 @@
   "stats": {
     "active_batch": false,
     "ambiguous_series_groups": 0,
-    "configured_sources_scanned": 1,
+    "configured_sources_scanned": 2,
     "fragmented_series_groups_reconciled": 2,
     "numbering_gaps": 34,
-    "pending_historical_candidates": 2642,
-    "private_episodes": 105,
-    "public_episode_pairs": 0,
-    "seasons": 6,
-    "source_scan_complete": true,
-    "titles": 6,
-    "unnumbered_skipped": 417
+    "pending_historical_candidates": 2656,
+    "private_episodes": 117,
+    "public_episode_pairs": 12,
+    "seasons": 7,
+    "source_scan_complete": false,
+    "titles": 7,
+    "unnumbered_skipped": 2207
   }
 }
