@@ -20,6 +20,55 @@ CHANNEL_ID = re.compile(r"^-100[0-9]{6,}$")
 SEPARATORS = re.compile(r"[\s,;]+")
 MAX_CHANNELS = 50
 REPORT = Path("cinex-series-bot-inventory.json")
+RADAR_HEALTH_URL = "https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health?telegram=1"
+
+
+def validated_radar_identity(data: dict) -> int:
+    """Accept only the ID actually verified by the deployed CineRadar Worker."""
+    if data.get("service") != "cine-radar":
+        raise ValueError("Le diagnostic ne vient pas de Ciné Radar")
+    identity = data.get("botIdentity")
+    if not isinstance(identity, dict) or identity.get("connected") is not True or identity.get("matchesExpected") is not True:
+        raise ValueError("Le Worker n'a pas confirmé le bot officiel")
+    if str(identity.get("username") or "").lower() != "cineradarfr_bot":
+        raise ValueError("Nom du bot Ciné Radar incohérent")
+    user_id = identity.get("id")
+    if type(user_id) is not int or user_id <= 0 or user_id >= 2**53:
+        raise ValueError("Identifiant public du bot Ciné Radar indisponible")
+    return user_id
+
+
+def identify_radar_bot(configured_token: str = "") -> int:
+    """Use the real Radar bot only; never substitute GitHub's unrelated bot token.
+
+    Optional dedicated token via CINEX_RADAR_BOT_TOKEN, otherwise get the
+    *public bot user ID*, never its token, from Radar's existing Worker health.
+    """
+    if configured_token:
+        try:
+            identity = BotAPI(configured_token).call("getMe", {})
+            if str(identity.get("username") or "").lower() == "cineradarfr_bot":
+                user_id = identity.get("id")
+                if type(user_id) is int and 0 < user_id < 2**53:
+                    return user_id
+            print("CINEX_RADAR_TOKEN_MISMATCH: jeton non officiel ignore; diagnostic public utilise")
+        except (RuntimeError, ValueError):
+            print("CINEX_RADAR_TOKEN_UNAVAILABLE: recours au diagnostic public")
+    try:
+        req = urllib.request.Request(
+            RADAR_HEALTH_URL,
+            headers={"Accept": "application/json", "Cache-Control": "no-cache"},
+            method="GET")
+        with urllib.request.urlopen(req, timeout=14) as response:
+            payload = json.load(response)
+        return validated_radar_identity(payload)
+    except (urllib.error.URLError, TimeoutError, ValueError, TypeError) as error:
+        raise RuntimeError(
+            "Identité officielle Ciné Radar non vérifiable depuis le Worker. "
+            "Vérifier /health?telegram=1 ou fournir le secret GitHub dédié "
+            "CINEX_RADAR_BOT_TOKEN (ne pas utiliser TELEGRAM_BOT_TOKEN)."
+        ) from None
+
 
 
 def parse_channel_ids(raw: str) -> list[str]:
@@ -71,16 +120,17 @@ def identify_pinned_poster(chat: dict) -> int | None:
     return None
 
 
-def audit(ids: list[str], publication_bot: BotAPI, radar_bot: BotAPI | None) -> dict:
+def audit(ids: list[str], publication_bot: BotAPI, radar_bot: BotAPI | None, *, verified_radar_id: int | None = None) -> dict:
     publisher = publication_bot.call("getMe", {})
-    radar_id = None
-    if radar_bot:
+    radar_id = verified_radar_id
+    if radar_bot and radar_id is None:
         identity = radar_bot.call("getMe", {})
         if str(identity.get("username", "")).lower() != "cineradarfr_bot":
             raise RuntimeError("Le bot Radar configuré ne correspond pas à @CineRadarFr_Bot")
         radar_id = identity.get("id")
-    else:
-        # Facultatif : le bot éditeur peut résoudre l'identité publique de Radar.
+    elif radar_id is None:
+        # Compatibilité avec l'ancien audit hors connexion. En production,
+        # verified_radar_id est fourni par le Worker officiel.
         try:
             radar_id = publication_bot.call("getChat", {"chat_id": "@CineRadarFr_Bot"}).get("id")
         except RuntimeError:
@@ -147,8 +197,8 @@ def main() -> int:
             }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             return 0
         bot = BotAPI(os.getenv("CINEX_PUBLISH_BOT_TOKEN", "").strip())
-        radar_token = os.getenv("CINEX_RADAR_BOT_TOKEN", "").strip()
-        report = audit(ids, bot, BotAPI(radar_token) if radar_token else None)
+        radar_id = identify_radar_bot(os.getenv("CINEX_RADAR_BOT_TOKEN", "").strip())
+        report = audit(ids, bot, None, verified_radar_id=radar_id)
         REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                           encoding="utf-8")
         print("INVENTORY_SUMMARY", json.dumps({

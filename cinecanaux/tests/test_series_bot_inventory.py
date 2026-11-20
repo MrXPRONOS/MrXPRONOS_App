@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import io
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("audit_series_bots", ROOT / "scripts/audit_series_bots.py")
@@ -54,6 +56,39 @@ class SeriesBotInventoryTest(unittest.TestCase):
         bot = FakeBot(radar_role="left")
         report = audit.audit(["-1001234567890"], bot, None)
         self.assertEqual(report["counts"]["radar_not_admin"], 1)
+
+
+    def test_worker_health_official_identity(self):
+        payload={"service":"cine-radar","botIdentity":{
+            "connected":True,"matchesExpected":True,"username":"CineRadarFr_Bot","id":768990001}}
+        self.assertEqual(audit.validated_radar_identity(payload),768990001)
+        for wrong in (
+            {"service":"wrong","botIdentity":payload["botIdentity"]},
+            {"service":"cine-radar","botIdentity":{**payload["botIdentity"],"matchesExpected":False}},
+            {"service":"cine-radar","botIdentity":{**payload["botIdentity"],"id":None}},
+        ):
+            with self.assertRaises(ValueError):
+                audit.validated_radar_identity(wrong)
+
+    def test_fallback_ignores_unrelated_github_bot_token(self):
+        payload={"service":"cine-radar","botIdentity":{
+            "connected":True,"matchesExpected":True,"username":"CineRadarFr_Bot","id":768990001}}
+        class Response(io.BytesIO):
+            def __enter__(self):
+                return self
+            def __exit__(self,*args):
+                self.close()
+        with mock.patch.object(audit.BotAPI,"call",return_value={"username":"not_radar_bot","id":42}):
+            with mock.patch.object(audit.urllib.request,"urlopen",return_value=Response(
+                __import__("json").dumps(payload).encode())) as urlopen:
+                self.assertEqual(audit.identify_radar_bot("123:wrong-token"),768990001)
+                self.assertTrue(urlopen.called)
+
+    def test_good_dedicated_radar_token_skips_health_http(self):
+        with mock.patch.object(audit.BotAPI,"call",return_value={"username":"CineRadarFr_Bot","id":768990001}):
+            with mock.patch.object(audit.urllib.request,"urlopen") as urlopen:
+                self.assertEqual(audit.identify_radar_bot("123:real-token"),768990001)
+                urlopen.assert_not_called()
 
 
 if __name__ == "__main__":

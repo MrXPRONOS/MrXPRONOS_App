@@ -28,14 +28,14 @@ let telegramBotIdentityCache=null;
 async function checkBotIdentity(env){
  const now=Date.now();
  if(telegramBotIdentityCache&&now-telegramBotIdentityCache.at<600000)return telegramBotIdentityCache.data;
- let result={connected:false,matchesExpected:false,username:null};
+ let result={connected:false,matchesExpected:false,username:null,id:null};
  if(env.TELEGRAM_TOKEN){
   try{
    const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/getMe",{signal:AbortSignal.timeout(6500)});
    if(r.ok){
     const data=await r.json();
     const username=typeof data?.result?.username==="string"?data.result.username:null;
-    result={connected:data.ok===true,matchesExpected:data.ok===true&&username?.toLowerCase()==="cineradarfr_bot",username};
+    result={connected:data.ok===true,matchesExpected:data.ok===true&&username?.toLowerCase()==="cineradarfr_bot",username,id:data.ok===true&&Number.isSafeInteger(data?.result?.id)&&data.result.id>0?data.result.id:null};
    }
   }catch{ /* Public check remains unavailable; never log token or URL. */ }
  }
