@@ -79,6 +79,16 @@ export async function reserveTelegramSend(env, { chatId = null, now = Date.now()
   }
 }
 
+const OUTGOING = new Set(['sendMessage','sendPhoto','sendVideo','sendDocument','sendAnimation','sendAudio','sendMediaGroup','copyMessage','forwardMessage','setMessageReaction']);
+
+export async function guardTelegramMethod(env, method, payload) {
+  if (!OUTGOING.has(method)) return null;
+  // Reactions change an existing post, and therefore do not need the
+  // stricter per-recipient new-message quota.
+  const chatId = method === 'setMessageReaction' ? null : payload?.chat_id;
+  return reserveTelegramSend(env, { chatId });
+}
+
 export async function noteTelegramFloodWait(env, retryAfter, { now = Date.now() } = {}) {
   const seconds = Math.max(1, Math.min(3600, Math.ceil(Number(retryAfter) || 0)));
   try {
