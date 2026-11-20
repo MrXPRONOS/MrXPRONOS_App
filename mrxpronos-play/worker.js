@@ -26,9 +26,10 @@ async function authenticate(req,env){
  try{const user=JSON.parse(p.get("user")||"null");if(!user||typeof user!=="object"||!user.id)return {reason:"UTILISATEUR_ABSENT"};return {user:{id:String(user.id),username:String(user.username||"").slice(0,64),name:([user.first_name,user.last_name].filter(v=>typeof v==="string"&&v.trim()).join(" ").trim()||String(user.username||"Joueur Telegram")).slice(0,90),photoUrl:typeof user.photo_url==="string"?user.photo_url.slice(0,1024):""}}}
  catch{return {reason:"UTILISATEUR_INVALIDE"}}
 }
+let healthTelegramCache={expires:0,valid:false,username:null};
 const DAY=86400000,HALF=43200000;
 const dateOf=ms=>new Date(ms).toISOString().slice(0,10);
-const rewards=[["xp10",30,10],["xp25",22,25],["bonus",15,0],["xp50",8,50],["ticket",10,0],["xp100",7,100],["shield",5,0],["badge",3,0]];
+const rewards=[["xp10",30,10],["xp25",22,25],["bonus",15,20],["xp50",8,50],["ticket",10,15],["xp100",7,100],["shield",5,30],["badge",3,75]];
 async function wheelOutcome(env,id,day){const b=new Uint8Array(await hmac(env.BOT_TOKEN,"mrxp-play-wheel-v1:"+id+":"+day));let pick=((b[0]<<8)+b[1])%100;for(const r of rewards){if(pick<r[1])return {key:r[0],xp:r[2]};pick-=r[1]}return {key:"xp10",xp:10}}
 async function ensurePlayer(env,u){const now=Date.now();await env.DB.prepare("INSERT OR IGNORE INTO players(user_id,username,display_name,next_sync_ms,created_ms,updated_ms) VALUES(?,?,?,?,?,?)").bind(u.id,u.username,u.name,now,now,now).run();await env.DB.prepare("UPDATE players SET username=?,display_name=?,updated_ms=? WHERE user_id=?").bind(u.username,u.name,now,u.id).run();return env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(u.id).first()}
 function validDay(d,now){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const ms=Date.parse(d+"T00:00:00Z");const todayMs=Math.floor(now/DAY)*DAY;return Number.isFinite(ms)&&ms<=todayMs&&ms>=todayMs-14*DAY;}
@@ -210,8 +211,11 @@ const MRXP_BALANCE_FIELDS={
  reward_rank_scale:{label:"Bonus de rang (% du barème)",min:10,max:300,default:100,group:"reward"}
 };
 async function mrxpBalanceConfig(env){
- const r=await env.DB.prepare("SELECT key,value,updated_ms FROM bot_settings WHERE key LIKE 'mrxp_balance_%'").all();
- const values={},updated={};
+ const [r,audit]=await Promise.all([
+  env.DB.prepare("SELECT key,value,updated_ms FROM bot_settings WHERE key LIKE 'mrxp_balance_%'").all(),
+  env.DB.prepare("SELECT setting_key,old_value,new_value,created_ms FROM mrxp_balance_audit WHERE setting_key LIKE 'mrxp_balance_reward_%' ORDER BY created_ms ASC,rowid ASC").all()
+ ]);
+ const values={},updated={},history={};
  for(const [field,rule] of Object.entries(MRXP_BALANCE_FIELDS)){values[field]=rule.default;updated[field]=0}
  for(const row of r.results||[]){
   const field=String(row.key||"").replace(/^mrxp_balance_/,""),rule=MRXP_BALANCE_FIELDS[field];
@@ -220,7 +224,13 @@ async function mrxpBalanceConfig(env){
   if(!Number.isSafeInteger(n)||n<rule.min||n>rule.max)continue;
   values[field]=n;updated[field]=Number(row.updated_ms)||0
  }
- return {values,updated}
+ for(const row of audit.results||[]){
+  const field=String(row.setting_key||"").replace(/^mrxp_balance_/,""),rule=MRXP_BALANCE_FIELDS[field];
+  const previous=Number(row.old_value),next=Number(row.new_value),at=Number(row.created_ms);
+  if(!rule||rule.group!=="reward"||!Number.isSafeInteger(previous)||!Number.isSafeInteger(next)||previous<rule.min||previous>rule.max||next<rule.min||next>rule.max||!Number.isFinite(at)||at<=0)continue;
+  (history[field]??=[]).push({old:previous,value:next,at})
+ }
+ return {values,updated,history}
 }
 function mrxpBalancePrice(config,sku,fallback){
  return config?.values?.["price_"+sku]??fallback
@@ -228,6 +238,12 @@ function mrxpBalancePrice(config,sku,fallback){
 function mrxpBalanceRate(config,field,eventMs){
  const setting="reward_"+field,base=MRXP_BALANCE_FIELDS[setting];
  if(!base)return 0;
+ const entries=config?.history?.[setting]||[];
+ if(entries.length){
+  let value=entries[0].old;
+  for(const entry of entries){if(eventMs<entry.at)break;value=entry.value}
+  return value
+ }
  const effective=Number(config?.updated?.[setting]||0);
  if(effective>0&&eventMs<effective)return base.default;
  return config?.values?.[setting]??base.default
@@ -290,7 +306,7 @@ async function mrxpWallet(env,player,progression){
  const [d,w,t,m]=await Promise.all([
   env.DB.prepare("SELECT day,created_ms FROM daily_claims WHERE user_id=? AND created_ms>=? ORDER BY day").bind(id,state.activated_ms).all(),
   env.DB.prepare("SELECT day,created_ms FROM wheel_claims WHERE user_id=? AND created_ms>=? ORDER BY day").bind(id,state.activated_ms).all(),
-  env.DB.prepare("SELECT created_ms,taps FROM sync_receipts WHERE user_id=? AND created_ms>=? AND taps>=50 ORDER BY created_ms").bind(id,state.activated_ms).all(),
+  env.DB.prepare("SELECT created_ms,taps FROM sync_receipts WHERE user_id=? AND created_ms>=? AND taps>0 ORDER BY created_ms").bind(id,state.activated_ms).all(),
   env.DB.prepare("SELECT mission_key,created_ms FROM mission_claims WHERE user_id=? AND created_ms>=? ORDER BY created_ms").bind(id,state.activated_ms).all()
  ]);
  const dailyWeeks=new Map(),dailyWeekTimes=new Map();
@@ -307,11 +323,19 @@ async function mrxpWallet(env,player,progression){
   const day=String(row.day||"");if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<baselineDay)continue;
   add("quest:wheel:"+day,"quest",mrxpBalanceRate(config,"wheel_quest",Number(row.created_ms)),"Défi : Lucky Wheel confirmée",Number(row.created_ms))
  }
+ const tapDays=new Map();
  for(const row of t.results||[]){
-  const ms=Number(row.created_ms);
-  if(!Number.isFinite(ms)||ms<=0||Number(row.taps)<50)continue;
-  const day=new Date(ms).toISOString().slice(0,10);
-  add("quest:taps:"+day,"quest",mrxpBalanceRate(config,"tap_quest",ms),"Défi : 50 tapotages synchronisés",ms)
+  const ms=Number(row.created_ms),taps=Number(row.taps);
+  if(!Number.isFinite(ms)||ms<=0||!Number.isSafeInteger(taps)||taps<=0)continue;
+  const day=new Date(ms).toISOString().slice(0,10),previous=tapDays.get(day)||{count:0,achieved_ms:0};
+  previous.count+=taps;
+  if(previous.count>=50&&!previous.achieved_ms)previous.achieved_ms=ms;
+  tapDays.set(day,previous)
+ }
+ for(const [day,total] of tapDays){
+  if(total.count<50)continue;
+  const ms=total.achieved_ms;
+  add("quest:taps:"+day,"quest",mrxpBalanceRate(config,"tap_quest",ms),"Défi : 50 tapotages cumulés et synchronisés",ms)
  }
  for(const row of m.results||[]){
   const key=String(row.mission_key||"");if(!/^[a-z][a-z0-9_]{0,79}$/.test(key))continue;
@@ -340,7 +364,7 @@ async function mrxpWallet(env,player,progression){
    return [
     {key:"daily",label:"Bonus quotidien synchronisé",done:(d.results||[]).some(r=>r.day===day),reward:mrxpBalanceRate(config,"daily_quest",Date.now())},
     {key:"wheel",label:"Roue du jour confirmée",done:(w.results||[]).some(r=>r.day===day),reward:mrxpBalanceRate(config,"wheel_quest",Date.now())},
-    {key:"taps",label:"50 tapotages synchronisés",done:(t.results||[]).some(r=>new Date(Number(r.created_ms)).toISOString().slice(0,10)===day),reward:mrxpBalanceRate(config,"tap_quest",Date.now())}
+    {key:"taps",label:"50 tapotages synchronisés",done:(tapDays.get(day)?.count||0)>=50,reward:mrxpBalanceRate(config,"tap_quest",Date.now())}
    ]
   })(),
   weekly:{done:(dailyWeeks.get(mrxpWeekMonday(new Date().toISOString().slice(0,10)))?.size||0)>=4,
@@ -816,7 +840,19 @@ async function configureTelegramBot(env){
 
 export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
- if(p==="/api/health"){let bot_username=null,telegram_token_valid=false;try{if(env.BOT_TOKEN){const reply=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/getMe");const result=await reply.json();telegram_token_valid=result.ok===true;bot_username=telegram_token_valid?result.result?.username||null:null}}catch{}return json({ok:true,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,telegram_token_valid,bot_username,correct_bot:typeof bot_username==="string"&&bot_username.toLowerCase()==="mrxpronosplaybot",db_connected:!!env.DB,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false})}
+ if(p==="/api/health"){
+  let db_connected=false;try{db_connected=Number((await env.DB.prepare("SELECT 1 AS alive").first())?.alive)===1}catch{}
+  let bot_username=null,telegram_token_valid=false;
+  if(env.BOT_TOKEN){
+   if(Date.now()>=healthTelegramCache.expires){
+    let valid=false,username=null;
+    try{const reply=await fetch("https://api.telegram.org/bot"+env.BOT_TOKEN+"/getMe");const result=await reply.json();valid=result.ok===true;username=valid?result.result?.username||null:null}catch{}
+    healthTelegramCache={expires:Date.now()+120000,valid,username}
+   }
+   telegram_token_valid=healthTelegramCache.valid;bot_username=healthTelegramCache.username
+  }
+  return json({ok:db_connected,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,telegram_token_valid,bot_username,correct_bot:typeof bot_username==="string"&&bot_username.toLowerCase()==="mrxpronosplaybot",db_connected,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false},db_connected?200:503)
+ }
  if(p==="/telegram/webhook"&&request.method==="POST"){
   if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);
   const update=await request.json();
@@ -887,8 +923,8 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
  }
 
  if(p==="/api/share/profile"&&request.method==="POST"){
-  let body={};try{body=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
-  if(body.hide_name!==true&&body.hide_name!==false)return json({error:"Choisir la visibilité du nom.",code:"SHARE_PRIVACY_REQUIRED"},400);
+  let body={};try{body=await mrxpParseAction(request,4096)}catch(e){const large=e?.message==="REQUEST_TOO_LARGE";return json({error:large?"REQUEST_TOO_LARGE":"JSON_INVALIDE"},large?413:400)}
+  if(!body||typeof body!=="object"||Array.isArray(body)||body.hide_name!==true&&body.hide_name!==false)return json({error:"Choisir la visibilité du nom.",code:"SHARE_PRIVACY_REQUIRED"},400);
   const signed=await mrxpShareSnapshot(env,player,body.hide_name);
   return json({snapshot:signed.snapshot,token:signed.token,
    verify_url:u.origin+"/share/verify?token="+encodeURIComponent(signed.token),
@@ -915,8 +951,9 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   return json({wallet:await mrxpWallet(env,player,progression)});
  }
  if(p==="/api/profile/avatar"&&request.method==="POST"){
-  let body;try{body=await request.json()}catch{return json({error:"JSON_INVALIDE"},400)}
-  const selected=body?.rank;
+  let body;try{body=await mrxpParseAction(request,4096)}catch(e){const large=e?.message==="REQUEST_TOO_LARGE";return json({error:large?"REQUEST_TOO_LARGE":"JSON_INVALIDE"},large?413:400)}
+  if(!body||typeof body!=="object"||Array.isArray(body))return json({error:"JSON_INVALIDE"},400);
+  const selected=body.rank;
   if(!Number.isInteger(selected)||selected<0||selected>11)return json({error:"Rang invalide : entier de 0 à 11 requis.",code:"INVALID_AVATAR"},400);
   const progression=await v2Progression(env,player);
   const unlocked=v2CurrentRankIndex(progression.level)+1;
@@ -935,8 +972,8 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   return json({...result,progression,wallet:await mrxpWallet(env,result.player||player,progression)});
  }
  if(p==="/api/bootstrap"&&request.method==="GET"){
-  const now=Date.now(), plans={},base=Math.floor(now/DAY)*DAY;
-  for(let i=0;i<15;i++){const d=dateOf(base+i*DAY);plans[d]=(await wheelOutcome(env,user.id,d)).key}
+  const now=Date.now(),plans={};
+  const todayKey=dateOf(now);plans[todayKey]=(await wheelOutcome(env,user.id,todayKey)).key
   const [w,dc]=await Promise.all([env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all(),env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()]);
   const progression=await v2Progression(env,player);
   const wallet=await mrxpWallet(env,player,progression);
