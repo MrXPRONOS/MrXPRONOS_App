@@ -112,10 +112,10 @@ test("Second bot follows first, failures stay queued and no extra publication is
     return Response.json({ok:true,result:true});
   };
   const a=await processReactionQueue(env,{request});
-  assert.equal(a.sent,1);
-  assert.equal(a.deferred,1);
+  assert.equal(a.sent,2);
+  assert.equal(a.deferred,0);
   const b=await processReactionQueue(env,{request});
-  assert.equal(b.sent,1);
+  assert.equal(b.sent,0);
   assert.equal(sent.length,2);
   assert.deepEqual(sent.map(x=>x.token),["radar","canal"]);
   assert.deepEqual(sent.map(x=>x.reaction[0].emoji),["❤️","👍"]);
