@@ -1,0 +1,334 @@
+{
+  "project": "Mr XPRONOS Play",
+  "bundle": "61-85",
+  "state": "STAGING READY FOR GITHUB — NOT DEPLOYED",
+  "asset_count": 25,
+  "missing": [],
+  "assets": [
+    {
+      "number": 61,
+      "name": "61-recrue-badge",
+      "png": "assets/09-rank-badges/61-recrue-badge.png",
+      "webp": "assets/09-rank-badges/61-recrue-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "d0f84a2b3d47e93bc284a55d1a2c3fd8c8937517842de8627f29b02a2644e9f5",
+      "sha256_webp": "3d4a92ec3617f5dab3e7e8f25c16418b1d2bca7a16bd0d6c8d10e570fb3a8f05"
+    },
+    {
+      "number": 62,
+      "name": "62-eclaireur-badge",
+      "png": "assets/09-rank-badges/62-eclaireur-badge.png",
+      "webp": "assets/09-rank-badges/62-eclaireur-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "d520b890157f1967fac1c0c77d7e98cd7ec3258b5571cae0199a75f6c586451a",
+      "sha256_webp": "a3848577b163d87f2a0c61c99828a977afc953a7900f8dfca28ab1c83355f966"
+    },
+    {
+      "number": 63,
+      "name": "63-combattant-badge",
+      "png": "assets/09-rank-badges/63-combattant-badge.png",
+      "webp": "assets/09-rank-badges/63-combattant-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "9a0f008224fe6e549ddead7cc884b64a74b02bb1288ac7fd861f52d296cb56f8",
+      "sha256_webp": "de896b806f65495703fc46702aa11152544f1846aebc6aea9cd9fb27062e4824"
+    },
+    {
+      "number": 64,
+      "name": "64-sentinelle-badge",
+      "png": "assets/09-rank-badges/64-sentinelle-badge.png",
+      "webp": "assets/09-rank-badges/64-sentinelle-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "7a101b3559c1b4c9dab61a184ef1a35c226ae0b94a084136f2f315ea123e79d2",
+      "sha256_webp": "70eee51093530f6d80b988305e74bbcaa7827ee7a75e778165df34b8fb840b5c"
+    },
+    {
+      "number": 65,
+      "name": "65-chevalier-badge",
+      "png": "assets/09-rank-badges/65-chevalier-badge.png",
+      "webp": "assets/09-rank-badges/65-chevalier-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "201991e5abc8bb41a4966dc3ba9aaa3f3407b3cfe1a03f93622d70087b2011ee",
+      "sha256_webp": "03cd7fec53a1856ffbe38476c644873b6ce681a96426eb8565bb1c4dbb0b366d"
+    },
+    {
+      "number": 66,
+      "name": "66-elite-badge",
+      "png": "assets/09-rank-badges/66-elite-badge.png",
+      "webp": "assets/09-rank-badges/66-elite-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "bd67ee16f6b082a7b11e6e173f6698197e0095ffae1b55fe357647491d9acf0c",
+      "sha256_webp": "a2352d5bbe1b73b4a6aadd30f401d158007f3b89439e321e66c14fca5431c6de"
+    },
+    {
+      "number": 67,
+      "name": "67-maitre-badge",
+      "png": "assets/09-rank-badges/67-maitre-badge.png",
+      "webp": "assets/09-rank-badges/67-maitre-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "d918d41a2cdf04ff72553cf019174de8909accabf7a584f09f19f19aeadb9d2f",
+      "sha256_webp": "1512952073b0fbaed7dc6155548bb508dbc3d9512a3da6ae22daa92bfeb57587"
+    },
+    {
+      "number": 68,
+      "name": "68-champion-badge",
+      "png": "assets/09-rank-badges/68-champion-badge.png",
+      "webp": "assets/09-rank-badges/68-champion-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "fb109ad54f3bb6d3933b01b04650335f80be746666170fc737dbbec2841a3db5",
+      "sha256_webp": "8848dbbd1956b35493dbf72a51c261b950778d4c0fb085b4bba3352b63ecd853"
+    },
+    {
+      "number": 69,
+      "name": "69-legende-badge",
+      "png": "assets/09-rank-badges/69-legende-badge.png",
+      "webp": "assets/09-rank-badges/69-legende-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "2878b5110f0032d2e7604cb2bd629bfba14204d7ddc668e22a53677fe8eac65e",
+      "sha256_webp": "4a071a2087d46a4b3d6232585b36b8d47119816fe9f4b004634116d9bc71689c"
+    },
+    {
+      "number": 70,
+      "name": "70-mythique-badge",
+      "png": "assets/09-rank-badges/70-mythique-badge.png",
+      "webp": "assets/09-rank-badges/70-mythique-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "2a22ba10bce6966c2638820a8c667355ecdda5b894db986646a4af93ec5fb770",
+      "sha256_webp": "ea1a1ead26f8c2b1ae2d2fa0d474eceaa922c5d9613e2b6190f12a913e6ee4ca"
+    },
+    {
+      "number": 71,
+      "name": "71-souverain-mx-badge",
+      "png": "assets/09-rank-badges/71-souverain-mx-badge.png",
+      "webp": "assets/09-rank-badges/71-souverain-mx-badge.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "20675d15cbc4414d737dc4416be1a20b97b89f1a18209c2498dc899b901c1aac",
+      "sha256_webp": "931dcc426ac510fea0aa12c75a0754665688abe519d0f1db3aa3214ae36ff5b3"
+    },
+    {
+      "number": 72,
+      "name": "72-boost-decouverte-110",
+      "png": "assets/10-shop-boosts/72-boost-decouverte-110.png",
+      "webp": "assets/10-shop-boosts/72-boost-decouverte-110.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "e35d9171a3f7780cb014070aaf1bfdbc300482f4be0f0b31e47520fc0754d706",
+      "sha256_webp": "ee9bfe8d0569871e57ae315d1dd99f004dee45b88bf0b0868eb48f2b8a24f00f"
+    },
+    {
+      "number": 73,
+      "name": "73-boost-guerrier-120",
+      "png": "assets/10-shop-boosts/73-boost-guerrier-120.png",
+      "webp": "assets/10-shop-boosts/73-boost-guerrier-120.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "bf78b1af5703f0b5e0e9ec22e2a107a494d5e2398e00f3fb98cf01ad15bc113c",
+      "sha256_webp": "2bfc4d4c36a90dcc9233ba7e536da2e55721a9258299fd17b1c4ef97f6efe826"
+    },
+    {
+      "number": 74,
+      "name": "74-boost-champion-150",
+      "png": "assets/10-shop-boosts/74-boost-champion-150.png",
+      "webp": "assets/10-shop-boosts/74-boost-champion-150.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "1c638b94960a04066c3d534b37a33bd2430bca81e28494c170a282352335d36d",
+      "sha256_webp": "8be78e2f423bacbd5a5624f7fdb3f0c31681a73320703955df547b03bb23a722"
+    },
+    {
+      "number": 75,
+      "name": "75-boost-souverain-200",
+      "png": "assets/10-shop-boosts/75-boost-souverain-200.png",
+      "webp": "assets/10-shop-boosts/75-boost-souverain-200.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "2fc4818e51734e1d4af8d0c9d990a355178fd2e8014f8e98bd0197e9beaec990",
+      "sha256_webp": "6f10f3b5476f7b234351ff463b929912479a9e7f636a0eb9acfcde8a94eb4519"
+    },
+    {
+      "number": 76,
+      "name": "76-energy-recharge-100",
+      "png": "assets/11-progression-vfx/76-energy-recharge-100.png",
+      "webp": "assets/11-progression-vfx/76-energy-recharge-100.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "e8e40747fdad97c25b130b7181e89e4c60499db3907422cf8c0aa2718ee07c7a",
+      "sha256_webp": "e5c4d22a26849dcadad212474d9b453ce8c7d41e6a8df98889e9fdbf287206ba"
+    },
+    {
+      "number": 77,
+      "name": "77-energy-recharge-250",
+      "png": "assets/11-progression-vfx/77-energy-recharge-250.png",
+      "webp": "assets/11-progression-vfx/77-energy-recharge-250.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "0144607693f78c7ec28f94310f00af20523246e9797e375416da080ebede25fc",
+      "sha256_webp": "2e3485437348426afb9ad1c8dd148e540a187db1bac4eb50ea69634c277a51c1"
+    },
+    {
+      "number": 78,
+      "name": "78-prestige-star",
+      "png": "assets/11-progression-vfx/78-prestige-star.png",
+      "webp": "assets/11-progression-vfx/78-prestige-star.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "c83de7f368d36d4af15bd36368af8a4a403e24b31db72ee814814cb97e567418",
+      "sha256_webp": "109678d6862af582e2982e5b2dbbf9abb603dce100d3a5ede33eba601de4431c"
+    },
+    {
+      "number": 79,
+      "name": "79-xp-progress-ring",
+      "png": "assets/11-progression-vfx/79-xp-progress-ring.png",
+      "webp": "assets/11-progression-vfx/79-xp-progress-ring.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "11a358a810b33dfcce16b557f1fec5c386c78665eb9ea18aaca566b885e38a5e",
+      "sha256_webp": "eefbd012791f4d911b92d37b40b612871850fcf9dc850383f74a5eb1aa72e04f"
+    },
+    {
+      "number": 80,
+      "name": "80-mastery-seal",
+      "png": "assets/11-progression-vfx/80-mastery-seal.png",
+      "webp": "assets/11-progression-vfx/80-mastery-seal.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "e13029cd303e2d744876077ac1a616162b56a5f8add288c14766618b85fa118d",
+      "sha256_webp": "939c8374f9a023bfdcd731eee51832464de9b992225f519c3a4bcffee7803b75"
+    },
+    {
+      "number": 81,
+      "name": "81-rank-up-halo",
+      "png": "assets/11-progression-vfx/81-rank-up-halo.png",
+      "webp": "assets/11-progression-vfx/81-rank-up-halo.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "78a462643b586df0f6dbc239aef906dd60f158e54a724a30bf95460c7a5d2ed5",
+      "sha256_webp": "565ae521aa32d3f3f16f7d881d8d43073cd1fdbb4d13cd8097f4b280396ba278"
+    },
+    {
+      "number": 82,
+      "name": "82-xp-spark-burst",
+      "png": "assets/11-progression-vfx/82-xp-spark-burst.png",
+      "webp": "assets/11-progression-vfx/82-xp-spark-burst.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "c8e323068ead66c950cf6aa62ecb3248347c9d37f6f22057c0dd48bf0b17d891",
+      "sha256_webp": "3911767fe2e84ea8f5fd935858f33fc0323b276a4a59f8f0dd84097744dcf38c"
+    },
+    {
+      "number": 83,
+      "name": "83-rank-up-emblem",
+      "png": "assets/11-progression-vfx/83-rank-up-emblem.png",
+      "webp": "assets/11-progression-vfx/83-rank-up-emblem.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "has_transparency": true,
+      "sha256_png": "a99e82c49c4a177680629d576a6edf0668b3ccd13812b92d9a24f3693382564f",
+      "sha256_webp": "8323512a5938c18293eea2a998b596a0fef4004fb72e4aaec4672eae526f4ed4"
+    },
+    {
+      "number": 84,
+      "name": "84-profile-card-square",
+      "png": "assets/12-share-cards/84-profile-card-square.png",
+      "webp": "assets/12-share-cards/84-profile-card-square.webp",
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "has_transparency": true,
+      "sha256_png": "5a7ecb2054f8809bf95ec23613abd2c83688b101c6e45aad5ca84411585fbc76",
+      "sha256_webp": "2d1dc39055688eb538b65a5ba422ef99fc4bfc02ef96e8760b5fc19c02119b3a"
+    },
+    {
+      "number": 85,
+      "name": "85-profile-card-vertical",
+      "png": "assets/12-share-cards/85-profile-card-vertical.png",
+      "webp": "assets/12-share-cards/85-profile-card-vertical.webp",
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "has_transparency": true,
+      "sha256_png": "30703dc034d6e0de9427f02cc640398330f38af220293613af65f905b1cd0d89",
+      "sha256_webp": "f08907f5bc1aaa0a8009c4c7a1b83d463ac89703f4d1390db52b309c78aa8626"
+    }
+  ]
+}
