@@ -1555,9 +1555,13 @@ test('official existing graphics replace repeated Mini App emoji placeholders wi
    '01-brand/07-energy-blue-bolt.webp',
    '06-game-states/55-telegram-channel.webp',
    '04-quests-progression/37-success-green-check.webp',
-   '05-mrxp-legends-nft/50-nft-collection-chest.webp',
-   '12-share-cards/84-profile-card-square.webp'
+   '05-mrxp-legends-nft/50-nft-collection-chest.webp'
   ])assert.ok(html.includes(filename),'missing reused graphic: '+filename);
+  // The two full-card V2 files remain in the SHA-verified asset manifest;
+  // phase 4 correctly replaces their former dark button thumbnails with a camera glyph.
+  assert.ok(html.includes('mrxp-camera-icon'),'new legible camera pictogram missing');
+  assert.ok(!html.includes('<img class="mrxp-ui-pictogram mrxp-profile-card-pictogram"'),
+    'old pre-painted square card thumbnail should not be used as an action glyph');
   for(const placeholder of [
    '<h2>🎡 LUCKY WHEEL</h2>',
    '<h3>🪙 CRÉDITS MRXP</h3>',
