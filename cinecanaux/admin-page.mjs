@@ -1,6 +1,7 @@
 // Private moderation mini-app. The server validates Telegram initData and admin_users.
 import {ADMIN_SHELL_CSS,ADMIN_SHELL_HTML,ADMIN_SHELL_JS} from "./admin-shell.mjs";
 import {ADMIN_CHANNEL_CSS,ADMIN_CHANNEL_HTML,ADMIN_CHANNEL_JS} from "./admin-channel-ui.mjs";
+import {ADMIN_OPS_CSS,ADMIN_OPS_HTML,ADMIN_OPS_JS} from "./admin-ops-ui.mjs";
 export const ADMIN_HTML=String.raw`<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101e"><title>Ciné Radar — Administration</title>
@@ -61,6 +62,7 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 @media(max-width:420px){.broadcast-grid{grid-template-columns:1fr}}
 ${ADMIN_SHELL_CSS}
 ${ADMIN_CHANNEL_CSS}
+${ADMIN_OPS_CSS}
 </style></head>
 <body><div class="page">
 <header><img class="ad-logo" src="/assets/bot-profile.jpg" alt="Logo Ciné Radar"><div><h1>Ciné Radar</h1><small>Administration de la Mini App</small></div><a href="/app" style="margin-left:auto;font-size:12px" aria-label="Retourner à Ciné Radar">← Mini App</a></header>
@@ -68,6 +70,7 @@ ${ADMIN_CHANNEL_CSS}
 <div id="private" hidden>
 ${ADMIN_SHELL_HTML}
 ${ADMIN_CHANNEL_HTML}
+${ADMIN_OPS_HTML}
 <section class="stats" id="stats"></section>
 
 <section class="broadcast-box" id="broadcast-box" aria-label="Envoyer une annonce aux utilisateurs">
@@ -102,6 +105,15 @@ ${ADMIN_CHANNEL_HTML}
   <button id="broadcast-cancel" type="button" disabled>Annuler</button>
  </div>
  <p id="broadcast-status" role="status"></p>
+ <section class="ad-schedule-panel">
+  <h3>🕒 Programmer cette annonce</h3>
+  <p>Après avoir enregistré ton brouillon, choisis l'heure d'envoi. Ciné Radar utilise l'heure locale de ton appareil et déclenche ensuite l'envoi automatiquement.</p>
+  <div class="ad-schedule-row">
+   <label>Jour et heure souhaités<input id="broadcast-schedule-at" type="datetime-local"></label>
+   <button id="broadcast-schedule" type="button" disabled>Programmer l'envoi</button>
+  </div>
+  <p id="ad-broadcast-schedule-status" role="status">Une programmation est possible de 2 minutes à 30 jours à l'avance.</p>
+ </section>
  <h3>Historique des annonces</h3><div id="broadcast-history"></div>
  <button id="broadcast-refresh" type="button">↻ Actualiser l'historique</button>
 </section>
@@ -241,7 +253,7 @@ let activeBroadcastId=null,uploadedPhotoId="",broadcastAudience=0;
 const broadcastStatus=message=>{$("broadcast-status").textContent=message;};
 function broadcastDraftChanged(){
  activeBroadcastId=null;
- $("broadcast-preview-send").disabled=true;$("broadcast-start").disabled=true;$("broadcast-cancel").disabled=true;
+ $("broadcast-preview-send").disabled=true;$("broadcast-start").disabled=true;$("broadcast-cancel").disabled=true;$("broadcast-schedule").disabled=true;
  updateBroadcastPreview();
 }
 function updateBroadcastPreview(){
@@ -265,6 +277,18 @@ async function refreshBroadcasts(){
    el("div",null,"Destinataires : "+Number(item.recipients||0)+" · Envoyés : "+Number(item.delivered||0)+
    " · Bloqués : "+Number(item.blocked||0)+" · Échecs : "+Number(item.failed||0)),
    el("small",null,String(item.created_at||"")+(item.has_photo?" · 🖼️ Image":"")+(item.button_text?" · 🔗 Bouton":"")));
+  if(item.schedule_status==="scheduled"){
+   const planned=new Date(String(item.scheduled_at||"").replace(" ","T")+"Z");
+   row.append(el("p","ad-scheduled-date","🕒 Envoi programmé : "+(Number.isNaN(planned.valueOf())?item.scheduled_at:planned.toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}))));
+   const stop=el("button","danger","Annuler cette programmation");
+   stop.onclick=async()=>{
+    if(!confirm("Annuler l'annonce #"+item.id+" programmée ?"))return;
+    stop.disabled=true;
+    try{await api("/api/admin/broadcasts/"+item.id+"/cancel",{});await refreshBroadcasts()}
+    catch(e){broadcastStatus("Annulation impossible : "+String(e.message||e));stop.disabled=false}
+   };
+   row.append(stop);
+  }
   box.append(row);
  }
  if(!box.children.length)box.append(el("p","muted","Aucune annonce créée."));
@@ -308,7 +332,7 @@ $("broadcast-save").onclick=async()=>{
   const payload=broadcastPayload();
   const data=await api("/api/admin/broadcasts",payload);
   activeBroadcastId=data.id;
-  $("broadcast-preview-send").disabled=false;$("broadcast-start").disabled=false;$("broadcast-cancel").disabled=false;
+  $("broadcast-preview-send").disabled=false;$("broadcast-start").disabled=false;$("broadcast-cancel").disabled=false;$("broadcast-schedule").disabled=!$("broadcast-schedule-at").value;
   broadcastStatus("✅ Brouillon #"+data.id+" enregistré. Tu peux d'abord envoyer un aperçu privé.");
   await refreshBroadcasts();
  }catch(e){broadcastStatus("Erreur : "+String(e.message||e));}
@@ -559,5 +583,6 @@ if(framed){
  status("Ouvre l'administration depuis le bouton du bot Telegram /start ou le menu Ciné Radar.");
 }else bootstrapAdmin();
 ${ADMIN_CHANNEL_JS}
+${ADMIN_OPS_JS}
 })();
 </script><script>${ADMIN_SHELL_JS}</script></body></html>`;
