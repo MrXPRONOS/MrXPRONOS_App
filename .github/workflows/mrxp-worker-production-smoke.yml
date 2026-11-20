@@ -1,4 +1,4 @@
-name: MRXP Worker — production smoke and canary verification
+name: MRXP Worker — production 100% V52 verification
 
 on:
   workflow_dispatch:
@@ -38,7 +38,7 @@ jobs:
                   counts["v51"]+=1
               if i%15==0: time.sleep(0.2)
           print("Cloudflare health responses (90 requests):",dict(counts))
-          assert counts["v52"]>=1, "V52 never observed: check deployment percentage or Cloudflare routing"
+          assert counts["v52"]==90 and counts["v51"]==0, "100% V52 expected for health checks: "+repr(counts)
           for i in range(24):
               status,headers,body=get("/",1000+i)
               assert status==200, (i,status)
@@ -52,7 +52,7 @@ jobs:
               else:
                   counts["csp_v51"]+=1
           print("Browser page / CSP response variants (24 requests):",dict(counts))
-          assert counts["csp_v52"]>=1,"V52 HTML not observed; 10% canary may be sticky at edge"
+          assert counts["csp_v52"]==24 and counts["csp_v51"]==0, "100% V52 expected for CSP pages: "+repr(counts)
           # Unauthenticated claims must be rejected safely; never create data.
           req=urllib.request.Request(base + "/api/rewards/claim",data=b'{"kind":"daily"}',method="POST",headers={"Content-Type":"application/json","User-Agent":"MRXP-Production-Smoke/1.0"})
           try:
