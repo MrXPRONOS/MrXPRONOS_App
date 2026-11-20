@@ -566,6 +566,14 @@ body{background:#07111f}
 const PRELOADED_CATALOG=null;
 window.__CINERADAR_INITIAL_CATALOG__=PRELOADED_CATALOG;
 const telegram=()=>window.Telegram?.WebApp||null;
+// The channel preview runs in the lightweight first script, independently from
+// the enhanced home navigation script loaded later on this page.
+function cinePublicIcon(name){
+ if(!new Set(["brand-mark","channel-film-fallback","admin-secure","profile-default"]).has(name))throw Error("Unknown Ciné Radar icon");
+ const img=document.createElement("img");
+ img.className="cine-custom-icon";img.src="/assets/public-ui/"+name+".webp";
+ img.alt="";img.decoding="async";img.loading="lazy";return img;
+}
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
 const cineLot4Names=new Set(["football","crypto","pronos","private","star","evaluate","play","series","thanks","popcorn"]);
