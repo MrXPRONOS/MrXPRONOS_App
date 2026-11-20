@@ -48,3 +48,15 @@ Les données restent issues du **snapshot serveur signé** ; le nom et le rang n
 La refonte détaillée du tableau Accueil / Jeux (phase 2), de l'identité et de la progression du Profil (phase 3), des cartes officielles (phase 4) et de l'écran Amis / harmonisation générale (phase 5) suivra séparément.
 
 **Aucun changement** dans les règles de crédits MRXP, les montants XP, le comportement des boosts, les protections d'achat, le calcul des rangs, la signature des preuves HMAC ou la fréquence de synchronisation.
+
+## 7. Publication en production (20 novembre 2026)
+
+- **PR :** [#502](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/502) fusionnée dans `main` (commit `580efd7b2f12a37ee13538c60667607eaa46709b`).
+- **Worker :** `mrxpronos-play` — Cloudflare **version 49**, identifiant `8779f1b5-aa91-4e4f-8107-89e740bb642e`.
+- **Trafic :** passage de 10 % à **100 %** après vérification du canari (7/55 requêtes reçues par V49 au palier de 10 %).
+- **Après déploiement :** **55/55 requêtes HTTP V49** vérifiées sur l'interface publique, état `ok`, bot Telegram, signature, identité du bot et base D1 opérationnels.
+- **Automatisation :** 81/81 tests Node réussis ; vérification en Chromium à cinq largeurs et sept écrans (35 cas de rendu), plus validation des ressources graphiques V2.
+- **Liaisons préservées :** `BOT_TOKEN` et `WEBHOOK_SECRET` (secrets), `DB` (D1), `DEV_MODE`.
+- **Recette restante hors automatisation :** ouverture et vérification visuelle tactile dans Telegram Android/iPhone, et test du partage depuis les vrais appareils.
+
+Le lien d'invitation public est `https://t.me/MrXpronosPlayBot`. **Ne jamais partager ni enregistrer un lien contenant `tgWebAppData`.**
