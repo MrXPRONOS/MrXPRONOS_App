@@ -10,6 +10,7 @@ import {adminAPI} from "./admin-v2.mjs";
 import {trackBroadcastSubscriber,deliverBroadcastBatch} from "./broadcast.mjs";
 import {tryOwnerClaim} from "./owner-claim.mjs";
 import {recordBotTouch,analyticsEvent} from "./analytics.mjs";
+import {recordBotStartFunnel,recordSignedAppLaunch} from "./launch-funnel.mjs";
 import {runLoggedJob} from "./job-log.mjs";
 import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
@@ -66,6 +67,10 @@ async function receiveTelegram(request,env,ctx){
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
+   if(/^\/start(?:@[A-Za-z0-9_]+)?(?:\s|$)/i.test(String(update.message?.text||""))){
+    const tally=recordBotStartFunnel(env,update).catch(e=>console.warn("bot_launch_funnel_failed",String(e?.name||"error")));
+    if(ctx?.waitUntil)ctx.waitUntil(tally);else await tally;
+   }
    await trackBroadcastSubscriber(env,update).catch(e=>console.warn("broadcast_subscription_failed",String(e?.name||"error")));
    const claim=await tryOwnerClaim(env,update);
    if(claim.handled){
@@ -249,6 +254,7 @@ export default {
   if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click"||u.pathname==="/api/radar/trends")return radarApi(env,request);
   if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request,ctx);
   if(u.pathname==="/api/analytics/event")return analyticsEvent(env,request);
+  if(u.pathname==="/api/analytics/launch")return recordSignedAppLaunch(env,request);
   const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
   if(request.method==="GET"&&avatarId)return serveChannelAvatar(request,env,ctx,avatarId[1]);
   const avatarMatch=new RegExp("^/assets/channel-avatar/([A-Za-z][A-Za-z0-9_]{4,31})[.]jpg$").exec(u.pathname);
