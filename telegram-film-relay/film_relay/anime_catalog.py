@@ -153,7 +153,7 @@ SERIES_LABEL = re.compile(r"(?i)\b(?:s[eé]rie|saison|season|[eé]pisodes?|\bep[
 
 # Distinguish short-format anime from full-length animated movies.
 NON_MOVIE_FORMAT = re.compile(
-    r"(?i)\\b(?:o\\.?v\\.?a\\.?|o\\.?n\\.?a\\.?|specials?|hors[ -]?s[eé]rie)\\b"
+    r"(?i)\b(?:o\.?v\.?a\.?|o\.?n\.?a\.?|specials?|hors[ -]?s[eé]rie)\b"
 )
 
 
