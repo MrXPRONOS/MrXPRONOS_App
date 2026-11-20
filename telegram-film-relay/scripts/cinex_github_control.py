@@ -21,7 +21,7 @@ def github_enabled(env=None):
     return str(value).strip().lower() == "true"
 
 
-def valid_sequence(kind, season, media):
+def valid_sequence(kind, season, media, expected=None):
     if not media or len(media) > 100:
         return False
     if kind == "film":
@@ -29,6 +29,9 @@ def valid_sequence(kind, season, media):
             x.get("season_number") is None and x.get("episode_number") is None for x in media
         )
     if kind != "series" or not isinstance(season, int) or not 1 <= season <= 50:
+        return False
+    # Never infer season completion from the largest episode number discovered.
+    if not isinstance(expected, int) or not 1 <= expected <= 100 or len(media) != expected:
         return False
     try:
         episodes = sorted(int(x["episode_number"]) for x in media)
@@ -54,8 +57,15 @@ def eligible_links(report):
             if len(key[0]) == 32 and m.get("category") == lib["category"]:
                 grouped[key].append(m)
         for (title, season), media in grouped.items():
-            if valid_sequence("series" if lib["category"] == "series" else "film", season, media):
-                candidates.append((lib["category"], title, season))
+            expected = 0
+            if lib["category"] == "series":
+                claims = {int(m["declared_total"]) for m in media if m.get("declared_total") is not None}
+                if len(claims) != 1 or next(iter(claims)) <= 0:
+                    continue
+                expected = next(iter(claims))
+            if valid_sequence("series" if lib["category"] == "series" else "film", season, media,
+                              expected=expected if season else None):
+                candidates.append((lib["category"], title, season, expected))
     return sorted(set(candidates))
 
 
@@ -64,26 +74,88 @@ def make_token():
     return "".join(secrets.choice(TOKEN_ALPHABET) for _ in range(24))
 
 
+EVIDENCE_SCHEMA = """CREATE TABLE IF NOT EXISTS cine_delivery_season_evidence (
+ category TEXT NOT NULL CHECK(category='series'),
+ title_key TEXT NOT NULL,
+ season_key INTEGER NOT NULL CHECK(season_key BETWEEN 1 AND 50),
+ expected_episodes INTEGER NOT NULL CHECK(expected_episodes BETWEEN 1 AND 100),
+ observed_at TEXT NOT NULL,
+ PRIMARY KEY(category,title_key,season_key)
+)"""
+
+
 def queries_for_report(report):
-    """Disable old links, then create/re-enable only current complete titles."""
+    """Replace current evidence and links, WITHOUT changing the global switch."""
+    eligible = eligible_links(report)
+    scanned_at = report.get("scanned_at")
+    if not scanned_at:
+        raise ValueError("Horodatage d'inventaire absent")
+    yield {"sql": EVIDENCE_SCHEMA}
     yield {"sql": "UPDATE cine_delivery_links SET enabled=0,updated_at=CURRENT_TIMESTAMP WHERE enabled<>0"}
-    for category, title, season in eligible_links(report):
+    yield {"sql": "DELETE FROM cine_delivery_season_evidence"}
+    for category, title, season, expected in eligible:
+        if season:
+            yield {
+                "sql": """INSERT INTO cine_delivery_season_evidence
+                          (category,title_key,season_key,expected_episodes,observed_at)
+                          VALUES(?,?,?,?,?)""",
+                "params": [category, title, season, expected, scanned_at],
+            }
         yield {
             "sql": """INSERT INTO cine_delivery_links(token,title_key,category,season_key,enabled)
                       VALUES(?,?,?,?,1) ON CONFLICT(category,title_key,season_key)
                       DO UPDATE SET enabled=1,updated_at=CURRENT_TIMESTAMP""",
             "params": [make_token(), title, category, season],
         }
-    yield {"sql": """INSERT INTO bot_settings(setting_key,value) VALUES('cine_delivery_enabled','1')
-                    ON CONFLICT(setting_key) DO UPDATE SET value='1',updated_at=CURRENT_TIMESTAMP"""}
+
+
+def toggle_queries(enabled):
+    # The global switch is the ONLY distribution permission. Links remain
+    # indexed when off so that a five-minute sync can switch them back on.
+    queries = [{"sql": EVIDENCE_SCHEMA}]
+    if enabled:
+        # The previous version turned links off on false; restore ONLY those
+        # grounded in the latest verified inventory and explicit season totals.
+        queries.append({"sql": """UPDATE cine_delivery_links SET enabled=1,updated_at=CURRENT_TIMESTAMP
+          WHERE enabled=0 AND EXISTS (
+            SELECT 1 FROM cine_delivery_titles t
+            JOIN cine_delivery_libraries b ON b.category=t.category
+            WHERE t.title_key=cine_delivery_links.title_key
+              AND t.category=cine_delivery_links.category
+              AND t.rights_attested=1 AND b.rights_attested=1
+              AND b.owner_access='verified' AND b.bot_access='verified'
+              AND b.last_scanned_at IS NOT NULL
+              AND (
+                (cine_delivery_links.season_key=0 AND
+                 (SELECT COUNT(*) FROM cine_delivery_media m
+                  WHERE m.title_key=t.title_key AND m.category=b.category
+                    AND m.observed_at=b.last_scanned_at
+                    AND m.season_number IS NULL AND m.episode_number IS NULL)=1)
+                OR
+                (cine_delivery_links.season_key>0 AND EXISTS (
+                  SELECT 1 FROM cine_delivery_season_evidence e
+                  WHERE e.title_key=t.title_key AND e.category=b.category
+                    AND e.season_key=cine_delivery_links.season_key
+                    AND e.observed_at=b.last_scanned_at
+                    AND e.expected_episodes=(
+                      SELECT COUNT(*) FROM cine_delivery_media m
+                      WHERE m.title_key=t.title_key AND m.category=b.category
+                        AND m.season_number=cine_delivery_links.season_key
+                        AND m.observed_at=b.last_scanned_at
+                    )
+                ))
+              )
+          )"""})
+    queries.append({
+        "sql": """INSERT INTO bot_settings(setting_key,value) VALUES('cine_delivery_enabled',?)
+                   ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP""",
+        "params": ["1" if enabled else "0"],
+    })
+    return queries
 
 
 def toggle_off_queries():
-    return [
-        {"sql": """INSERT INTO bot_settings(setting_key,value) VALUES('cine_delivery_enabled','0')
-                   ON CONFLICT(setting_key) DO UPDATE SET value='0',updated_at=CURRENT_TIMESTAMP"""},
-        {"sql": "UPDATE cine_delivery_links SET enabled=0,updated_at=CURRENT_TIMESTAMP WHERE enabled<>0"},
-    ]
+    return toggle_queries(False)
 
 
 def d1_execute(queries, *, token, account, database):
@@ -114,19 +186,19 @@ def main():
         "database": os.getenv("CINERADAR_D1_DATABASE_ID", ""),
     }
     if args.toggle_only:
-        d1_execute(toggle_off_queries(), **credentials)
-        print("CinéX : interrupteur GitHub lu; distribution verrouillée avant inventaire")
+        d1_execute(toggle_queries(enabled), **credentials)
+        print("CinéX : interrupteur GitHub synchronisé (" + str(enabled).lower() + ")")
         return
     if not args.report:
         parser.error("--report est requis pour la réconciliation")
     if not enabled:
-        d1_execute(toggle_off_queries(), **credentials)
+        d1_execute(toggle_queries(False), **credentials)
         print("CinéX : désactivé par GitHub")
         return
     report = json.loads(Path(args.report).read_text(encoding="utf-8"))
     links = eligible_links(report)
     d1_execute(queries_for_report(report), **credentials)
-    print(f"CinéX : GitHub true; {len(links)} films/saisons complets activés automatiquement")
+    print(f"CinéX : inventaire réconcilié; {len(links)} films/saisons vérifiés et indexés")
 
 
 if __name__ == "__main__":

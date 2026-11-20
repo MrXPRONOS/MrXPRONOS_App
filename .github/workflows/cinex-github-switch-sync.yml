@@ -1,0 +1,41 @@
+name: CineX - Interrupteur GitHub (synchronisation rapide)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-github-switch-sync.yml'
+
+permissions:
+  contents: read
+concurrency:
+  group: cinex-d1-toggle-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    name: Appliquer CINEX_DOWNLOADS_ENABLED sur Cloudflare D1
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      CINEX_DOWNLOADS_ENABLED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      PYTHONPATH: .
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer Requests
+        run: python -m pip install requests==2.32.5
+      - name: Vérifier les règles GitHub true / false
+        run: python -m unittest discover -s tests -p 'test_cinex_github_control.py' -v
+      - name: Mettre à jour uniquement le commutateur D1
+        run: python scripts/cinex_github_control.py --toggle-only

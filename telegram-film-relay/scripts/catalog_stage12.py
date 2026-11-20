@@ -18,21 +18,24 @@ from film_relay.public_video_archive import is_video_message, video_title
 from film_relay.runner import resolve_peer
 
 CATEGORIES = {
-    "series": ("SERIES_PRIVATE_CHANNEL", "SERIES_PUBLIC_CHANNEL", "SERIES_RIGHTS_ATTESTED", "@seriesvf_cinex"),
-    "action": ("ACTION_PRIVATE_CHANNEL", "ACTION_PUBLIC_CHANNEL", "ACTION_RIGHTS_ATTESTED", "@filmsaction2026vf"),
+    "series": ("SERIES_PRIVATE_CHANNEL", "SERIES_PUBLIC_CHANNEL", "@seriesvf_cinex"),
+    "action": ("ACTION_PRIVATE_CHANNEL", "ACTION_PUBLIC_CHANNEL", "@filmsaction2026vf"),
 }
 PRIVATE_ID = re.compile(r"^-100[0-9]{5,}$")
 HANDLE = re.compile(r"^@[a-zA-Z0-9_]{5,32}$")
 MAX_SCAN = 250
 MAX_CANDIDATES = 180
+# A contiguous 1..N sequence alone is NOT evidence that N is the final episode.
+EXPLICIT_TOTAL = re.compile(r"(?i)(?:e(?:p(?:isode)?)?|[eé]pisode)[\s._-]*\d{1,3}\s*(?:/|sur|of)\s*(\d{1,3})\b|\b(\d{1,3})\s*(?:[eé]pisodes|episodes|eps)\b")
+FINAL_EPISODE = re.compile(r"(?i)\b(?:fin de (?:la )?saison|dernier [eé]pisode|saison compl[eè]te|season finale)\b")
 
 
 def configured_targets(env: dict) -> list[dict]:
     targets = []
-    for category, (id_var, pub_var, rights_var, default_public) in CATEGORIES.items():
+    for category, (id_var, pub_var, default_public) in CATEGORIES.items():
         channel_id = str(env.get(id_var, "")).strip()
         public = str(env.get(pub_var) or default_public).strip()
-        attested = str(env.get(rights_var, "")).strip().lower() == "true"
+        attested = str(env.get("CINEX_DOWNLOADS_ENABLED", "")).strip().lower() == "true"
         if not PRIVATE_ID.fullmatch(channel_id):
             raise ValueError(f"{id_var} absent ou invalide")
         if not HANDLE.fullmatch(public):
@@ -59,7 +62,10 @@ def classify(message, category: str) -> dict | None:
         if not number:
             return None
         # Never associate a video to a series based on adjacency alone.
-        title = consistent_title("", caption, filename) if filename else consistent_title("", caption, "")
+        # Remove only an explicit E02/10 episode-total suffix for title matching.
+        # The original caption is preserved for checking the declared total.
+        caption_title = re.sub(r"(?i)(?<=\d)\s*(?:/|sur|of)\s*\d{1,3}\b", "", caption)
+        title = consistent_title("", caption_title, filename) if filename else consistent_title("", caption_title, "")
         if not title:
             return None
         season, episode = number
@@ -78,12 +84,23 @@ def classify(message, category: str) -> dict | None:
     size = int(getattr(getattr(message, "file", None), "size", 0) or 0)
     if size < 0:
         return None
+    # Only unambiguous source-declared total or finale evidence can establish a season boundary.
+    declared_total = None
+    if category == "series":
+        claims = [int(a or b) for a, b in EXPLICIT_TOTAL.findall(caption + " " + filename)]
+        if FINAL_EPISODE.search(caption):
+            claims.append(episode)
+        if claims and len(set(claims)) == 1 and 1 <= claims[0] <= 100:
+            declared_total = claims[0]
+        elif claims:
+            declared_total = -1  # conflicting declarations: never enable
     return {
         "category": category, "source_message_id": int(message.id),
         "title_key": title_key, "normalized_title": normalized,
         "display_title": title[:90], "content_kind": "series" if category == "series" else "film",
         "season_number": season, "episode_number": episode, "filename": filename,
         "file_size": size, "media_kind": "video" if getattr(message, "video", None) else "document",
+        "declared_total": declared_total,
     }
 
 

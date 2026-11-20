@@ -14,10 +14,9 @@ class Stage12CatalogTests(unittest.TestCase):
         return {
             "SERIES_PRIVATE_CHANNEL":"-1004455497484",
             "SERIES_PUBLIC_CHANNEL":"@seriesvf_cinex",
-            "SERIES_RIGHTS_ATTESTED":"true",
             "ACTION_PRIVATE_CHANNEL":"-1004462439590",
             "ACTION_PUBLIC_CHANNEL":"@filmsaction2026vf",
-            "ACTION_RIGHTS_ATTESTED":"true",
+            "CINEX_DOWNLOADS_ENABLED":"true",
         }
 
     def test_owner_recreated_ids_are_used_without_hardcoded_fallback(self):
@@ -33,7 +32,8 @@ class Stage12CatalogTests(unittest.TestCase):
 
     def test_missing_rights_do_not_become_approved(self):
         values=self.targets()
-        values["ACTION_RIGHTS_ATTESTED"]="false"
+        values["CINEX_DOWNLOADS_ENABLED"]="false"
+        self.assertFalse(configured_targets(values)[0]["rights_attested"])
         self.assertFalse(configured_targets(values)[1]["rights_attested"])
 
     def test_series_episode_number_and_video_reference(self):
@@ -41,6 +41,14 @@ class Stage12CatalogTests(unittest.TestCase):
         self.assertIsNotNone(row)
         self.assertEqual((row["season_number"],row["episode_number"]),(1,2))
         self.assertEqual(row["source_message_id"],37)
+
+    def test_explicit_season_total_prevents_early_completion(self):
+        row=classify(video(37,"GIGN S01E02/10 VF","GIGN_S01E02.mp4"),"series")
+        self.assertEqual(row["declared_total"],10)
+        row=classify(video(38,"GIGN S01E02 VF","GIGN_S01E02.mp4"),"series")
+        self.assertIsNone(row["declared_total"])
+        row=classify(video(39,"GIGN S01E10 Fin de saison","GIGN_S01E10.mp4"),"series")
+        self.assertEqual(row["declared_total"],10)
 
     def test_series_without_explicit_episode_is_quarantined(self):
         self.assertIsNone(classify(video(39,"GIGN VF","GIGN.mp4"),"series"))
