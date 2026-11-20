@@ -28,7 +28,7 @@ jobs:
           print('Health:',expected)
           assert all(expected.values()),'Cloudflare bot or database degraded'
           root='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/mrxpronos-play/assets/'
-          for asset in ('03-wheel-rewards/21-lucky-wheel-full.webp','01-brand/06-mrxp-token-coin.webp','06-game-states/51-locked-padlock.webp','04-quests-progression/37-success-green-check.webp','06-game-states/55-telegram-channel.webp'):
+          for asset in ('03-wheel-rewards/21-lucky-wheel-full.webp','01-brand/06-mrxp-token-coin.webp','06-game-states/51-locked-padlock.webp','04-quests-progression/37-success-green-check.webp','06-game-states/55-telegram-channel.webp','05-mrxp-legends-nft/50-nft-collection-chest.webp','12-share-cards/84-profile-card-square.webp'):
               status,img,ct=get(root+asset)
               assert status==200 and img[:4]==b'RIFF' and img[8:12]==b'WEBP',asset+' invalid'
           v2=0
@@ -36,9 +36,11 @@ jobs:
               status,payload,_=get(base+'/?mrxp_icons_smoke='+str(i)+'-'+str(time.time_ns()))
               page=payload.decode('utf-8','replace')
               assert status==200 and 'TAPOTER POUR GAGNER' in page
-              if 'id="mrxp-existing-icon-cleanup"' in page:
+              if 'id="mrxp-existing-collection-art"' in page:
                   assert 'heroBadge.dataset.rankBadge' in page
                   assert 'mrxp-game-illustration' in page
+                  assert '50-nft-collection-chest.webp' in page
+                  assert '84-profile-card-square.webp' in page
                   assert '04-quests-progression/31-quests-target.webp' in page
                   v2+=1
           print('New-icon HTML responses:',v2,'of 50')
