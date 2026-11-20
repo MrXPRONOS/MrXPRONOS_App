@@ -50,7 +50,11 @@ button:active{transform:scale(.97)}
 .page{width:min(100%,1000px);margin:0 auto;padding:18px clamp(12px,3.8vw,28px) calc(32px + env(safe-area-inset-bottom))}
 .brand{display:flex;align-items:center;gap:10px;margin:1px 0 19px}
 .brand-mark{height:39px;width:39px;border:1px solid #677efa;border-radius:13px;background:linear-gradient(135deg,#172c63,#0c1329 52%,#211a53);display:grid;place-items:center;box-shadow:0 0 24px #456cfc28,inset 0 0 16px #5978ff19;color:#c8dfff}
-.brand-mark svg{width:27px;height:27px;filter:drop-shadow(0 2px 4px #7756ff88)}
+.brand-mark img{width:33px;height:33px;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px #7756ff88)}
+.cine-custom-icon{width:100%;height:100%;display:block;object-fit:contain}
+.cine-owner-admin-link .cine-custom-icon{width:25px;height:25px;flex:0 0 25px}
+.cine-pick-avatar .cine-custom-icon{width:80%;height:80%;margin:auto}
+.sheet-avatar .cine-custom-icon{width:70%;height:70%;margin:auto}
 .brand h1{margin:0;font-size:19px;font-weight:850;letter-spacing:-.65px;line-height:1.08;background:linear-gradient(95deg,#fff 30%,#75a8ff 70%,#ae88ff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand small{display:block;color:#9aafcc;font-size:10px;letter-spacing:.25px;margin-top:3px}
 .hero{position:relative;height:clamp(124px,34vw,193px);border-radius:18px;overflow:hidden;margin-bottom:17px;background:linear-gradient(112deg,#0b1e45,#182f68 50%,#273a6d);border:1px solid #36559699;box-shadow:0 10px 32px #02081374,inset 0 1px #ffffff12;isolation:isolate}
@@ -497,7 +501,7 @@ body{background:#07111f}
 <body>
 <main class="page">
 <header class="brand">
- <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><defs><linearGradient id="logo-grad" x1="0" x2="1" y1="1" y2="0"><stop stop-color="#925bff"/><stop offset=".5" stop-color="#407cff"/><stop offset="1" stop-color="#b7e9ff"/></linearGradient></defs><circle cx="19" cy="18" r="12" stroke="url(#logo-grad)" stroke-width="4"/><circle cx="15" cy="14" r="2.4" fill="#eff8ff"/><circle cx="24" cy="14" r="2.4" fill="#eff8ff"/><circle cx="19" cy="22" r="2.4" fill="#eff8ff"/><path d="M4 30c8 5 24 5 32-6M29 10l6 4-1-8" stroke="url(#logo-grad)" stroke-width="3.6" stroke-linecap="round"/></svg></div>
+ <div class="brand-mark" aria-hidden="true"><img src="/assets/public-ui/brand-mark.webp" width="33" height="33" alt="" decoding="async"></div>
  <div><h1>Ciné Radar</h1><small>Les canaux cinéma au même endroit.</small></div>
 </header>
 <section class="hero" aria-label="Présentation de Ciné Radar">
@@ -841,9 +845,9 @@ function fillPreview(c,p){
  sheet.append(visual);
  const detail=node("div","sheet-detail");
  const profile=node("div","sheet-profile");
- const avatar=node("div","sheet-avatar");avatar.append(ico(c.type==="series"?"tv":c.type==="animes"?"gamepad":"film"));
+ const avatar=node("div","sheet-avatar");avatar.append(cinePublicIcon("profile-default"));
  const profilePhoto=[c.avatar,p?.photo,c.photo].find(photoHost);
- if(profilePhoto){avatar.textContent="";const img=node("img");img.alt="Photo de profil du canal";showChannelImage(img,profilePhoto,p?.photo,()=>{avatar.textContent="";avatar.append(ico("film"));});avatar.append(img);}
+ if(profilePhoto){avatar.textContent="";const img=node("img");img.alt="Photo de profil du canal";showChannelImage(img,profilePhoto,p?.photo,()=>{avatar.replaceChildren(cinePublicIcon("profile-default"))});avatar.append(img);}
  const names=node("div","sheet-name");names.append(node("h3",null,p?.title||c.title),node("small",null,c.private_channel?"Canal privé Telegram":"Canal Telegram"));
  const tag=node("div","genre-tag",typeLabel(c.type));names.append(tag);profile.append(avatar,names);detail.append(profile);
  const usefulBio=p?.description&&!p.description.startsWith("Canal Telegram public")?p.description:
@@ -1023,7 +1027,19 @@ function setFilter(term){
 }
 function buildPanel(name){const s=node("section","cine-panel");s.id="cine-page-"+name;s.dataset.page=name;s.hidden=true;s.setAttribute("aria-label",labels[name]);panel[name]=s;return s}
 function heading(p,title,desc){const top=node("div","cine-head");const h=node("h2",null,title);top.append(h);if(desc)top.append(node("p",null,desc));p.append(top)}
-function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";showChannelImage(img,url,null,()=>{img.remove();avatar.textContent="🎬"});avatar.append(img)}else avatar.textContent="🎬";
+// Individually generated transparent Ciné Radar icons; do not use emoji fallbacks.
+const cinePublicIconNames=new Set(["brand-mark","channel-film-fallback","admin-secure","profile-default"]);
+function cinePublicIcon(name){
+ if(!cinePublicIconNames.has(name))throw Error("Icône publique Ciné Radar inconnue");
+ const img=document.createElement("img");
+ img.className="cine-custom-icon";
+ img.src="/assets/public-ui/"+name+".webp";
+ img.alt="";
+ img.decoding="async";
+ img.loading="lazy";
+ return img;
+}
+function featuredCard(c,label){const b=node("button","cine-pick");b.type="button";const avatar=node("div","cine-pick-avatar");const url=linkAvatar(c);if(url){const img=document.createElement("img");img.loading="lazy";img.decoding="async";img.alt="";showChannelImage(img,url,null,()=>{img.remove();avatar.replaceChildren(cinePublicIcon("channel-film-fallback"))});avatar.append(img)}else avatar.append(cinePublicIcon("channel-film-fallback"));
  const title=node("strong",null,c.title);const sub=node("small",null,(c.featured?"✦ À la une · ":"")+(label||"Canal Telegram"));b.append(avatar,title,sub);
  if(c.content_verified&&Number(c.content_count)>=1){const count=node("small","cine-pick-stat",Number(c.content_count).toLocaleString("fr-FR")+" publications");b.append(count)}
  b.onclick=()=>previewChannel(c);return b}
@@ -1498,7 +1514,7 @@ function build(){
  const dhead=node("div","cine-drawer-title");dhead.append(node("b",null,"Ciné Radar"));const close=node("button");close.append(cineNavIcon("fermer"));close.id="cine-menu-close";close.setAttribute("aria-label","Fermer le menu");close.onclick=closeMenu;dhead.append(close);drawer.append(dhead);
  const groups=[["Découvrir",[["Accueil","accueil","accueil"],["À l’affiche — Films, séries, animés","affiches","decouvrir"],["Explorer les canaux","explorer","explorer"],["Genres et découvertes","decouvrir","decouvrir"]]],["Personnel",[["Mes favoris","favoris","favoris"],["Historique","historique","historique"]]],["Communauté",[["Proposer un canal","proposer","proposer"],["À propos et confidentialité","apropos","apropos"]]]];
  for(const [label,entries] of groups){drawer.append(node("div","cine-drawer-subtitle",label));for(const [title,page,icon] of entries){const item=makeNav(title,page,icon);item.classList.add("cine-drawer-link");drawer.append(item)}}
- const ownerAdmin=node("button","cine-owner-admin-link","🔐 Administration");
+ const ownerAdmin=node("button","cine-owner-admin-link");ownerAdmin.append(cinePublicIcon("admin-secure"),document.createTextNode("Administration"));
  ownerAdmin.type="button";ownerAdmin.hidden=true;
  ownerAdmin.id="cine-owner-admin-link";
  const openOwnerAdmin=()=>{
