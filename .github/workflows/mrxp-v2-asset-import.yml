@@ -46,7 +46,7 @@ jobs:
           for f in png+webp:
               data=f.read_bytes()
               if len(data)<256: raise SystemExit(f'Image too small: {f}')
-              if f.suffix=='.png' and not data.startswith(b'\\x89PNG\\r\\n\\x1a\\n'): raise SystemExit(f'Invalid PNG: {f}')
+              if f.suffix=='.png' and not data.startswith(b'\x89PNG\r\n\x1a\n'): raise SystemExit(f'Invalid PNG: {f}')
               if f.suffix=='.webp' and not (data[:4]==b'RIFF' and data[8:12]==b'WEBP'): raise SystemExit(f'Invalid WebP: {f}')
           dest=Path('mrxpronos-play')
           for d in ['09-rank-badges','10-shop-boosts','11-progression-vfx','12-share-cards']:
