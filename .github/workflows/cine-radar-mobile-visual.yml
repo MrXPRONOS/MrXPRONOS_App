@@ -1,9 +1,15 @@
 name: Cine Radar - Mobile pinned showcase visual check
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'cinecanaux/tests/navigation-mobile-visual.mjs'
+      - 'cinecanaux/app-page.mjs'
+      - '.github/workflows/cine-radar-mobile-visual.yml'
   push:
     branches: [main]
     paths:
+      - 'cinecanaux/tests/navigation-mobile-visual.mjs'
       - 'cinecanaux/tests/pinned-mobile-visual.mjs'
       - 'cinecanaux/tests/partner-promotions-mobile.mjs'
       - 'cinecanaux/tests/community-mobile-visual.mjs'
@@ -23,11 +29,18 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Check Google Chrome availability
         run: google-chrome --version
+      - name: Verify Accueil, Explorer, Favoris and Menu are visible and work on mobile
+        env:
+          CINERADAR_VISUAL_SOURCE: ${{ github.event_name == 'pull_request' && 'candidate' || 'production' }}
+        run: node cinecanaux/tests/navigation-mobile-visual.mjs
       - name: Exercise real mobile Mini App
+        if: github.event_name != 'pull_request'
         run: node cinecanaux/tests/pinned-mobile-visual.mjs
       - name: Verify three compact cross-promotions on mobile
+        if: github.event_name != 'pull_request'
         run: node cinecanaux/tests/partner-promotions-mobile.mjs
       - name: Verify discovery autoplay, share and second visit rating
+        if: github.event_name != 'pull_request'
         run: node cinecanaux/tests/community-mobile-visual.mjs
       - name: Upload preview (if available)
         if: always()
@@ -35,6 +48,7 @@ jobs:
         with:
           name: cineradar-mobile-pinned-preview
           path: |
+            /tmp/cineradar-navigation-*.png
             /tmp/cineradar-mobile.png
             /tmp/cineradar-cross-promo-mobile.png
           if-no-files-found: ignore

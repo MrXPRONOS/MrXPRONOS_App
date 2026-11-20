@@ -562,28 +562,6 @@ body{background:#07111f}
 const PRELOADED_CATALOG=null;
 window.__CINERADAR_INITIAL_CATALOG__=PRELOADED_CATALOG;
 const telegram=()=>window.Telegram?.WebApp||null;
-// Telegram normally exposes raw initData through the official SDK. Some clients
-// keep the launch parameters only in the initial URL hash, so preserve that
-// signed tgWebAppData before Ciné Radar starts using its own hash router.
-function readTelegramInitData(){
- const sdk=telegram()?.initData||"";
- if(sdk)return sdk;
- const extract=href=>{
-  try{
-   const u=new URL(String(href||""),location.href);
-   const raw=(u.hash||"").replace(/^#/,"");
-   return new URLSearchParams(raw).get("tgWebAppData")||"";
-  }catch{return ""}
- };
- const current=extract(location.href);
- if(current)return current;
- try{
-  const initial=performance.getEntriesByType?.("navigation")?.[0]?.name||"";
-  return extract(initial);
- }catch{return ""}
-}
-let telegramLaunchInitData=readTelegramInitData();
-const signedTelegramInitData=()=>telegramLaunchInitData||(telegramLaunchInitData=readTelegramInitData());
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
 const cineLot4Names=new Set(["football","crypto","pronos","private","star","evaluate","play","series","thanks","popcorn"]);
@@ -913,6 +891,28 @@ load();
 
 (function(){
 "use strict";
+// Telegram normally exposes raw initData through the official SDK. Some clients
+// keep the launch parameters only in the initial URL hash, so preserve that
+// signed tgWebAppData before Ciné Radar starts using its own hash router.
+function readTelegramInitData(){
+ const sdk=window.Telegram?.WebApp?.initData||"";
+ if(sdk)return sdk;
+ const extract=href=>{
+  try{
+   const u=new URL(String(href||""),location.href);
+   const raw=(u.hash||"").replace(/^#/,"");
+   return new URLSearchParams(raw).get("tgWebAppData")||"";
+  }catch{return ""}
+ };
+ const current=extract(location.href);
+ if(current)return current;
+ try{
+  const initial=performance.getEntriesByType?.("navigation")?.[0]?.name||"";
+  return extract(initial);
+ }catch{return ""}
+}
+let telegramLaunchInitData=readTelegramInitData();
+const signedTelegramInitData=()=>telegramLaunchInitData||(telegramLaunchInitData=readTelegramInitData());
 const $=id=>document.getElementById(id);
 const cineLot4Names=new Set(["football","crypto","pronos","private","star","evaluate","play","series","thanks","popcorn"]);
 function cineLot4Icon(key){
