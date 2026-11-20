@@ -11,19 +11,30 @@ const datasets={
  reports:{reports:[]},reviews:{reviews:[]},suggestions:{suggestions:[]},jobs:{jobs:[]},
  broadcasts:{subscribers:{total:21,active:17},jobs:[]},
  "radar-ops":{missing:{items:[]},channels:[],digest:"Tendances : test d'interface"},
- pins:{items:[]},
+ pins:{items:[{kind:"films",message_id:123,title:"Affiche de test",active:true,source:"owner",url:"https://t.me/ExempleFilmVF/123"}]},
+ "channel-list":{channels:[
+  {id:12,title:"Films VF",link:"https://t.me/ExempleFilmVF",description:"Cinéma français",content_type:"films",genre:"general",language:"VF",status:"approved",listing_status:"listed"},
+  {id:13,title:"Animés Manga",link:"https://t.me/AnimeExempleVF",description:"Animés japonais",content_type:"animes",genre:"action",language:"VOSTFR",status:"approved",listing_status:"hidden"}
+ ]},
  "launch-funnel":{counts:{bot_starts:12,app_opens:7}}
 };
 const origin='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev';
 async function run(viewport,device){
  const page=await browser.newPage({viewport,isMobile:device,hasTouch:device});
+ const posted=[];
  page.on('pageerror',e=>errors.push(String(e.message||e)));
  await page.route('https://telegram.org/js/**',r=>r.fulfill({status:200,contentType:'text/javascript',body:"window.Telegram={WebApp:{initData:'browser-test-signed',ready(){},expand(){}}}"}));
  await page.route('**/admin',r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:ADMIN_HTML}));
  await page.route('**/api/admin/**',r=>{
   const path=new URL(r.request().url()).pathname.split('/').at(-1);
+  if(r.request().method()==='POST'){
+   const data=JSON.parse(r.request().postData()||'{}');
+   posted.push({path,data});
+   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,id:44})});
+  }
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(datasets[path]||{})});
  });
+ await page.route('**/assets/pin-cover/**',r=>r.fulfill({status:200,contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jkXcAAAAASUVORK5CYII=','base64')}));
  await page.goto(origin+'/admin',{waitUntil:'domcontentloaded',timeout:25000});
  await page.waitForFunction(()=>document.querySelector('#private')?.hidden===false,{timeout:8000});
  assert.equal(await page.locator('#ad-view-dashboard').isVisible(),true,'Dashboard must be visible by default');
@@ -51,6 +62,24 @@ async function run(viewport,device){
   await page.locator('#ad-nav [data-admin-go="'+id+'"]').click();
   assert.equal(await page.locator('#ad-view-'+id).isVisible(),true,'Expected view '+id);
   assert.equal(await page.locator(target).count()>0,true,'Legacy module missing '+target);
+  if(id==='channels'){
+   await page.waitForFunction(()=>document.querySelector('#ad-channel-list')?.querySelectorAll('.ad-channel-card').length===2);
+   await page.locator('#ad-channel-search').fill('Manga');
+   assert.equal(await page.locator('#ad-channel-list .ad-channel-card').count(),1,'Search must filter channels');
+   await page.locator('#ad-channel-search').fill('');
+   await page.locator('#ad-channel-create').click();
+   assert.equal(await page.locator('#ad-channel-form').isVisible(),true,'New channel form must open');
+   await page.locator('#ad-channel-title').fill('Cinéma test validé');
+   await page.locator('#ad-channel-link').fill('https://t.me/FilmTestVF');
+   await page.locator('#ad-channel-rights').check();
+   await page.locator('#ad-channel-save').click();
+   await page.waitForFunction(()=>document.querySelector('#ad-channel-message')?.textContent?.includes('enregistré'));
+   assert.ok(posted.some(p=>p.path==='channels'&&p.data.action==='add'&&p.data.rights_confirmed===true),'Creating channel must use owner API and rights acknowledgement');
+  }
+  if(id==='pins'){
+   await page.waitForFunction(()=>document.querySelector('#owner-pins-items')?.querySelector('.ad-pin-thumb'));
+   assert.equal(await page.locator('#ad-view-pins .ad-pin-thumb').count(),1,'Pinned poster gallery must render a thumbnail');
+  }
  }
  await page.locator(device?'#ad-bottom-tabs [data-admin-go="dashboard"]':'#ad-nav [data-admin-go="dashboard"]').click();
  assert.equal(await page.locator('#ad-view-dashboard').isVisible(),true);
