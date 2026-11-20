@@ -14,7 +14,6 @@ from .desir_matching import Item, is_supported_video
 from .episode_identity import episode_numbers, consistent_title
 from .matching import filename_of
 from .title_guard import title_assessment, tokens
-from .source_channels import source_list
 
 PUBLIC_POST = re.compile(r"^https?://t\.me/([A-Za-z0-9_]{5,32})/(\d+)(?:\?.*)?$", re.I)
 PRIVATE_POST = re.compile(r"^https?://t\.me/c/(\d+)/(\d+)(?:\?.*)?$", re.I)
@@ -46,18 +45,38 @@ def linked_posts(message, allowed_handles, allowed_private_ids=None):
 
 
 async def authorized_peers(client, handles, *, banned_ids=frozenset()):
-    """Resolve existing members only; never send JoinChannelRequest."""
+    """Resolve ONLY owner-allowlisted, already accessible public/private feeds.
+
+    Media lists support @username and exact -100 Telegram channel IDs.
+    Numeric IDs are never discovered, guessed, or joined automatically.
+    """
     from telethon import utils
+    from .runner import resolve_peer
+    import re
+    raw = ",".join(str(v or "") for v in handles)
+    targets = [x.strip() for x in re.split(r"[,;\\s]+", raw) if x.strip()]
+    if not targets or len(targets) > 12:
+        raise ValueError("Déclarer de 1 à 12 canaux médias dans GitHub.")
     peers = []
-    for handle in source_list(*handles):
-        peer = await client.get_entity(handle)
+    seen = set()
+    for handle in targets:
+        if not (re.fullmatch(r"@[A-Za-z0-9_]{5,32}", handle)
+                or re.fullmatch(r"-100[0-9]{5,}", handle)):
+            raise ValueError("Canal média invalide : @username ou identifiant -100 requis.")
+        peer = await resolve_peer(client, handle)
+        peer_id = utils.get_peer_id(peer)
         if (not getattr(peer, "broadcast", False)
                 or getattr(peer, "noforwards", False)
-                or str(getattr(peer, "username", "") or "").casefold()
-                    != handle[1:].casefold()
-                or utils.get_peer_id(peer) in banned_ids):
-            raise RuntimeError("Canal média absent, protégé ou incorrect : " + handle)
-        peers.append((handle, peer))
+                or peer_id in banned_ids):
+            raise RuntimeError("Canal média absent, protégé ou destination interdite.")
+        if handle.startswith("@"):
+            if str(getattr(peer, "username", "") or "").casefold() != handle[1:].casefold():
+                raise RuntimeError("Identité du canal média public incohérente.")
+        elif peer_id != int(handle):
+            raise RuntimeError("Identifiant du canal média privé incohérent.")
+        if peer_id not in seen:
+            peers.append((handle, peer))
+            seen.add(peer_id)
     return peers
 
 
