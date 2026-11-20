@@ -112,7 +112,7 @@ def queries_for_report(report):
 def toggle_queries(enabled):
     # The global switch is the ONLY distribution permission. Links remain
     # indexed when off so that a five-minute sync can switch them back on.
-    return [{
+    return [{"sql": EVIDENCE_SCHEMA}, {
         "sql": """INSERT INTO bot_settings(setting_key,value) VALUES('cine_delivery_enabled',?)
                    ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP""",
         "params": ["1" if enabled else "0"],
