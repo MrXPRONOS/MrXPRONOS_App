@@ -3,6 +3,12 @@ on:
   pull_request:
     paths:
       - 'cinecanaux/individual-series.mjs'
+      - 'cinecanaux/franchise-films.mjs'
+      - 'cinecanaux/scripts/publish_franchise_saga_bot.py'
+      - 'cinecanaux/tests/test_franchise_saga_publisher.py'
+      - '.github/workflows/cinex-fast-furious-bot.yml'
+      - 'cinecanaux/tests/franchise-films.test.mjs'
+      - 'cinecanaux/migrations/021_cinex_franchise_films.sql'
       - 'cinecanaux/scripts/publish_series_showcase_bot.py'
       - 'cinecanaux/tests/test_series_showcase_publish.py'
       - '.github/workflows/cinex-series-showcase-publish.yml'
@@ -42,22 +48,27 @@ jobs:
         run: |
           node --check cinecanaux/worker.mjs
           node --check cinecanaux/individual-series.mjs
+          node --check cinecanaux/franchise-films.mjs
           node --check cinecanaux/owner-chat-vault.mjs
           node --check cinecanaux/cinex-classic.mjs
           node --check cinecanaux/cinex-delivery.mjs
-          node --test cinecanaux/tests/individual-series.test.mjs cinecanaux/tests/individual-series-download.test.mjs cinecanaux/tests/owner-chat-vault.test.mjs
+          node --test cinecanaux/tests/individual-series.test.mjs cinecanaux/tests/individual-series-download.test.mjs cinecanaux/tests/owner-chat-vault.test.mjs cinecanaux/tests/franchise-films.test.mjs
       - name: Python syntax and offline bot tests
         run: |
-          python -m py_compile cinecanaux/scripts/audit_series_bots.py cinecanaux/scripts/publish_individual_series_bot.py cinecanaux/scripts/publish_series_showcase_bot.py
+          python -m py_compile cinecanaux/scripts/audit_series_bots.py cinecanaux/scripts/publish_individual_series_bot.py cinecanaux/scripts/publish_series_showcase_bot.py cinecanaux/scripts/publish_franchise_saga_bot.py
           python -m unittest discover -s cinecanaux/tests -p 'test_series_bot_inventory.py' -v
           python -m unittest discover -s cinecanaux/tests -p 'test_individual_series_publish.py' -v
           python -m unittest discover -s cinecanaux/tests -p 'test_series_showcase_publish.py' -v
+          python -m unittest discover -s cinecanaux/tests -p 'test_franchise_saga_publisher.py' -v
       - name: Assert no user session imported by Series workflows
         run: |
           python - <<'PY'
           from pathlib import Path
           targets=[
               Path('cinecanaux/individual-series.mjs'),
+              Path('cinecanaux/franchise-films.mjs'),
+              Path('cinecanaux/scripts/publish_franchise_saga_bot.py'),
+              Path('.github/workflows/cinex-fast-furious-bot.yml'),
               Path('cinecanaux/owner-chat-vault.mjs'),
               Path('cinecanaux/scripts/audit_series_bots.py'),
               Path('cinecanaux/scripts/publish_individual_series_bot.py'),

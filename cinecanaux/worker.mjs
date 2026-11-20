@@ -22,6 +22,7 @@ import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDel
 import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
 import {ingestIndividualSeriesUpdate,ingestSeriesOwnerForward,handleSeriesStart,processSeriesQueue,cleanupSeriesCopies} from "./individual-series.mjs";
 import {enqueueOwnerVaultUpdate,captureOwnerForwardInVault,processOwnerVaultQueue} from "./owner-chat-vault.mjs";
+import {ingestFranchiseOwnerForward,ingestFranchiseChannelPost,handleFranchiseOwnerCommand,handleFranchiseDownloadStart,processFranchiseQueue,cleanupFranchiseCopies} from "./franchise-films.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
 // never expose or log the Telegram token itself.
@@ -89,7 +90,7 @@ async function receiveTelegram(request,env,ctx){
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  try{
-  if(update.channel_post||update.edited_channel_post){await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await enqueueOwnerVaultUpdate(env,update);return Response.json({ok:true});}
+  if(update.channel_post||update.edited_channel_post){await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
@@ -105,13 +106,22 @@ async function receiveTelegram(request,env,ctx){
    }
   }
   if(update.message?.forward_origin?.type==="channel"){
+   const franchise=await ingestFranchiseOwnerForward(env,update.message);
    await captureOwnerForwardInVault(env,update.message);
+   if(franchise.handled){
+    await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:franchise.message||"Film Fast and Furious reçu."});
+    return Response.json({ok:true});
+   }
    const series=await ingestSeriesOwnerForward(env,update.message);
    if(series.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:series.stored?("✅ "+(series.episode?"S"+series.season+"E"+series.episode+" enregistrée.":"Affiche de la saison "+series.season+" enregistrée.")+" CinéX Séries."):"⚠️ "+series.reason});return Response.json({ok:true});}
    const result=await ingestOwnerForward(env,update.message);
    if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
   }
   if(await handleSaveHelp(env,update))return Response.json({ok:true});
+  const ffCommand=await handleFranchiseOwnerCommand(env,update);
+  if(ffCommand.handled)return Response.json({ok:true});
+  const ffDownload=await handleFranchiseDownloadStart(env,update);
+  if(ffDownload.handled)return Response.json({ok:true});
   const series=await handleSeriesStart(env,update);
   if(series.handled)return Response.json({ok:true});
   const classic=await handleClassicDeliveryStart(env,update);
@@ -475,6 +485,8 @@ export default {
    ctx.waitUntil(cleanupDeliveredCopies(env).catch(e=>console.warn("cinex_expiry_cleanup_failed",String(e?.name||"error"))));
    ctx.waitUntil(processSeriesQueue(env).catch(e=>console.warn("cinex_series_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processOwnerVaultQueue(env).catch(e=>console.warn("cinex_owner_vault_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(processFranchiseQueue(env).catch(e=>console.warn("cinex_franchise_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(cleanupFranchiseCopies(env).catch(e=>console.warn("cinex_franchise_expiry_failed",String(e?.name||"error"))));
    ctx.waitUntil(cleanupSeriesCopies(env).catch(e=>console.warn("cinex_series_expiry_failed",String(e?.name||"error"))));
    return;
   }
