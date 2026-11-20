@@ -112,10 +112,18 @@ def publish():
         chat=api(bot,"getChat",{"chat_id":cid})
         if str(chat.get("id"))!=cid:
             raise RuntimeError("Destination Telegram incompatible avec le registre")
+        if cid==PUBLIC and str(chat.get("username","")).lower()!=HANDLE:
+            raise RuntimeError("Canal public CineX non conforme")
         membership=api(bot,"getChatMember",{"chat_id":cid,"user_id":me["id"]})
         if membership.get("status") not in ("creator","administrator") or (
             membership.get("status")=="administrator" and not membership.get("can_post_messages",False)):
             raise RuntimeError("Le bot n'est pas autorisé à publier dans le canal "+cid)
+    # Cine Radar is a DIFFERENT bot from the publishing account.
+    # Block publication until the delivery bot can actually read this library.
+    radar=api(bot,"getChat",{"chat_id":"@CineRadarFr_Bot"})
+    member=api(bot,"getChatMember",{"chat_id":private,"user_id":radar["id"]})
+    if member.get("status") not in ("creator","administrator"):
+        raise RuntimeError("BOT_ACCESS_REQUIRED: ajouter @CineRadarFr_Bot en administrateur de la vidéothèque privée CinéX")
     help_link=rescue_url(bot)
     key,video_id,poster_id=source_pair()
     source_id=private
