@@ -169,6 +169,7 @@ export async function handleFranchiseOwnerCommand(env,update){
   await notify(env,msg.chat.id,'🎬 Fast and Furious VF\nCanal : https://t.me/'+HANDLE+
    '\nAffiche : '+(row?.poster_source_message_id?'✅':'❌')+
    '\nFilms enregistrés : '+(media.length?media.map(x=>x.part).join(', '):'aucun')+
+   '\nLien de test privé : https://t.me/CineRadarFr_Bot?start=ffs_'+String(row?.token||'')+
    '\nPour un titre non reconnu : réponds à la vidéo transférée par /ff N.');
   return {handled:true};
  }
@@ -198,9 +199,11 @@ export async function handleFranchiseDownloadStart(env,update){
  if(msg?.chat?.type!=='private'||chat!==msg.from?.id||!isId(chat)||!isId(update.update_id))return {handled:true,accepted:false};
  const gate=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
  if(gate?.value!=='1'){await notify(env,chat,'Les téléchargements sont temporairement désactivés.');return {handled:true,accepted:false}}
+ const isOwner=await owner(env,chat);
  const row=await env.DB.prepare(
-  "SELECT slug,title,source_chat_id FROM cine_franchise_catalog WHERE token=? AND status='published' AND rights_attested=1"
- ).bind(match[1]).first();
+  "SELECT slug,title,source_chat_id FROM cine_franchise_catalog WHERE token=? AND rights_attested=1 "+
+  "AND (status='published' OR (status='draft' AND ?=1))"
+ ).bind(match[1],isOwner?1:0).first();
  if(!row||!CHAT.test(String(row.source_chat_id))){await notify(env,chat,'Saga temporairement indisponible.');return {handled:true,accepted:false}}
  const media=(await env.DB.prepare(
   "SELECT f.part,f.source_chat_id,f.source_message_id,"+
