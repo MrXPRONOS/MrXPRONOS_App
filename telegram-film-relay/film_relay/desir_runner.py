@@ -506,7 +506,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             completed += 1
             LOG.info("CinéX Désir : film privé=%s, affiche publique=%s, miroir=%s",
                      private_video_id, public_post.id, forwarded_id)
-            await asyncio.sleep(max(20.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
+            await asyncio.sleep(max(60.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             if completed >= limit:
                 break
         # Count films separately from CinéX classique. Publications are after
