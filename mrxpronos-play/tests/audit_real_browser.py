@@ -107,8 +107,15 @@ with sync_playwright() as playwright:
         assert page.locator("#xp-value").inner_text().strip() == "37"
         # Real button handlers: no simulated fake XP is considered confirmed.
         page.locator("#daily-button").evaluate("(el)=>el.click()")
-        page.wait_for_function("document.querySelector('#daily-button')?.disabled===true", timeout=8000)
-        assert "daily" in claims, "Daily did not create a server intent"
+        page.wait_for_timeout(1200)
+        diagnostic = {"events": events, "errors": errors,
+                      "notice": page.locator("#notice").inner_text(),
+                      "button": page.locator("#daily-button").inner_text(),
+                      "disabled": page.locator("#daily-button").is_disabled(),
+                      "online": page.evaluate("navigator.onLine"),
+                      "date": page.evaluate("new Date().toISOString().slice(0,10)")}
+        assert "daily" in claims, "Daily did not create a server intent: "+repr(diagnostic)
+        assert page.locator("#daily-button").is_disabled(), "Daily action not disabled: "+repr(diagnostic)
         assert page.locator("#xp-value").inner_text().strip() == "37"
         page.locator("#mrxp-wheel-shortcut-button").evaluate("(el)=>el.click()")
         assert page.locator("#mrxp-wheel-game").is_visible()
