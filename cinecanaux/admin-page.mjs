@@ -118,6 +118,8 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
  </div>
  <p id="radar-ops-status" role="status">Chargement des canaux et des titres…</p>
  <h3>Canaux officiels</h3><div id="radar-ops-channels"></div>
+ <h3>📋 Récapitulatif des tendances</h3>
+ <pre id="radar-ops-digest" class="broadcast-row" style="white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:12px;line-height:1.6" aria-live="polite">Chargement des tendances…</pre>
  <h3>Titres à référencer</h3><div id="radar-ops-missing"></div>
 </section>
 <section class="broadcast-box" id="owner-pinned">
@@ -373,6 +375,7 @@ async function refreshOwnerPins(){
 $("owner-pins-refresh").onclick=()=>refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
 async function refreshRadarOps(){
  const data=await api("/api/admin/radar-ops");
+ $("radar-ops-digest").textContent=String(data.digest||"Aucune tendance indexée.");
  const chan=$("radar-ops-channels");chan.replaceChildren();
  for(const c of data.channels||[]){
   const row=el("div","broadcast-row",(c.connected?"✅ ":"⏳ ")+c.kind+" — @"+c.username);
@@ -402,7 +405,8 @@ $("radar-ops-refresh").onclick=async()=>{
  $("radar-ops-status").textContent="Synchronisation en cours…";
  try{
   const result=await api("/api/admin/radar-refresh",{});
-  $("radar-ops-status").textContent="Mise à jour terminée : "+Number(result.updated||0)+" titres, "+Number(result.bound||0)+" canaux associés.";
+  const n=result.notifications||{};
+  $("radar-ops-status").textContent="Mise à jour terminée : "+Number(result.updated||0)+" titres, "+Number(result.bound||0)+" canaux associés, "+Number(n.sent||0)+" notification(s) privée(s) envoyée(s)."+(Number(result.warnings||0)?" Vérifie les avertissements du service.":"");
   await refreshRadarOps();
  }catch(e){$("radar-ops-status").textContent=String(e.message||e);}
  finally{b.disabled=false;}
