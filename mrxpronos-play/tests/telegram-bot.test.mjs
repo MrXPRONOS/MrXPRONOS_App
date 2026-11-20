@@ -122,6 +122,7 @@ function harness(){
      },
      async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value,updated_ms:settingUpdated.get(key)||0}))};return {results:[]}},
      async first(){
+      if(lower.includes('select 1 as alive'))return {alive:1};
       if(lower.includes('from players'))return {n:rows.players,xp:180};
       if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
       if(lower.includes('from wheel_claims'))return {n:rows.wheel_claims};
@@ -1966,5 +1967,57 @@ test('audit P0: new D1 schema is additive and UI uses server claim actions',asyn
   assert.ok(html.includes('mrxpReconcileServerRewards(r)'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
   for(const snippet of scripts)assert.doesNotThrow(()=>new vm.Script(snippet));
+ }finally{h.restore()}
+});
+
+test('audit: HTML has strict hashed script CSP with no inline attribute handlers',async()=>{
+ const h=harness();
+ try{
+  const response=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(response.status,200);
+  const csp=response.headers.get('content-security-policy');
+  const scriptSource=csp.split('script-src ')[1].split(';')[0];
+  assert.ok(!scriptSource.includes("'unsafe-inline'"));
+  assert.equal([...scriptSource.matchAll(/'sha256-[A-Za-z0-9+/=]+'/g)].length,2);
+  const html=await response.text();
+  assert.ok(!/\bon(click|load|submit|error)="/i.test(html));
+  assert.ok(html.includes('id="mrxp-wheel-shortcut-button"'));
+  assert.ok(html.includes('id="mrxp-collection-shortcut-button"'));
+ }finally{h.restore()}
+});
+
+test('audit: a chunked request larger than 4 KB is rejected before parsing JSON',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:64001,first_name:'Chunked'});
+  const data=new TextEncoder().encode('x'.repeat(7000));
+  const body=new ReadableStream({start(c){c.enqueue(data.slice(0,3000));c.enqueue(data.slice(3000));c.close()}});
+  const request=new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/profile/avatar',{
+   method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},
+   duplex:'half',body
+  });
+  const response=await worker.fetch(request,h.env);
+  assert.equal(response.status,413,await response.clone().text());
+  assert.equal((await response.json()).error,'REQUEST_TOO_LARGE');
+ }finally{h.restore()}
+});
+
+test('audit: readiness checks reject missing D1 reward migration',async()=>{
+ const h=harness();
+ try{
+  const url='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/health';
+  const healthy=await worker.fetch(new Request(url),h.env);
+  assert.equal(healthy.status,200,await healthy.clone().text());
+  assert.equal((await healthy.json()).reward_schema_ready,true);
+  const original=h.env.DB.prepare;
+  h.env.DB.prepare=sql=>{
+   if(sql.includes('FROM mrxp_reward_intents LIMIT 1'))throw Error('missing migration');
+   return original(sql)
+  };
+  const broken=await worker.fetch(new Request(url),h.env);
+  assert.equal(broken.status,503);
+  const status=await broken.json();
+  assert.equal(status.ok,false);
+  assert.equal(status.reward_schema_ready,false);
  }finally{h.restore()}
 });
