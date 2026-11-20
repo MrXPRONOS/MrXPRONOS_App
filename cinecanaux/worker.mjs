@@ -20,6 +20,7 @@ import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
 import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDeliveries} from "./cinex-classic.mjs";
 import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
+import {allowPublicEvent,publicRateLimited,purgeOldPublicEventBuckets} from "./public-event-limiter.mjs";
 import {ingestIndividualSeriesUpdate,ingestSeriesOwnerForward,handleSeriesStart,processSeriesQueue,cleanupSeriesCopies} from "./individual-series.mjs";
 import {enqueueOwnerVaultUpdate,captureOwnerForwardInVault,processOwnerVaultQueue} from "./owner-chat-vault.mjs";
 import {ingestFranchiseOwnerForward,ingestFranchiseChannelPost,handleFranchiseOwnerCommand,handleFranchiseDownloadStart,processFranchiseQueue,cleanupFranchiseCopies} from "./franchise-films.mjs";
@@ -445,6 +446,7 @@ export default {
     if(payload?.event!=="open"||!Number.isSafeInteger(id)||id<1)return Response.json({error:"Invalid event"},{status:400});
     const active=await env.DB.prepare("SELECT c.id FROM channels c LEFT JOIN channel_index_meta m ON m.channel_id=c.id WHERE c.id=? AND c.status='approved' AND COALESCE(m.listing_status,'listed')='listed'").bind(id).first();
     if(!active)return Response.json({error:"Channel unavailable"},{status:404});
+    if(!await allowPublicEvent(env,request,'engagement',{cap:30}))return publicRateLimited();
     await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=opens+1").bind(id).run();
     return Response.json({ok:true},{headers:{"Cache-Control":"no-store"}});
   }
@@ -498,7 +500,10 @@ export default {
    await cleanup(env);
    return {inspected:discovered.inspected||0,inserted:(discovered.inserted||0)+(suggested.indexed||0),errors:discovered.unverifiable||0};
   }));
-  else if(controller.cron==="0 3 * * *")ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
+  else if(controller.cron==="0 3 * * *"){
+   ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
+   ctx.waitUntil(purgeOldPublicEventBuckets(env).catch(e=>console.warn('cine_public_limits_expiry_failed',String(e?.name||'error'))));
+  }
   else if(controller.cron==="0 */6 * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
    const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
    const jobs=[provisionTelegramWebhook(env),initializeProfile(env)];
