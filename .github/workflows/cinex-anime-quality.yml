@@ -32,6 +32,26 @@ jobs:
       - name: Vérifier la syntaxe du relais, des scripts et des tests
         working-directory: telegram-film-relay
         run: python -m compileall -q film_relay scripts tests
+      - name: Exporter le vrai catalogue sans identifiants Telegram
+        run: python telegram-film-relay/scripts/generate_anime_dashboard.py --catalogue telegram-film-relay/state/anime_catalog.json --output "$RUNNER_TEMP/anime-test.json"
+      - name: Vérifier confidentialité et comptages de l'export
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          data = json.loads((Path(os.environ['RUNNER_TEMP']) / 'anime-test.json').read_text())
+          assert data['schema_version'] == 1
+          assert data['stats']['titles'] >= 1
+          assert data['stats']['private_episodes'] >= 1
+          text = json.dumps(data)
+          for secret in ('t.me/', 'message_id', 'source_items', 'private_poster_id', '-1001787980027'):
+              assert secret not in text, secret
+          print('Export Anime sans données Telegram privées : OK')
+          PY
+      - name: Vérifier le rapport santé en mode sans accès Telegram
+        run: python telegram-film-relay/scripts/anime_health_report.py --catalogue telegram-film-relay/state/anime_catalog.json
       - name: Exécuter les tests de la politique Anime
         working-directory: telegram-film-relay
         run: python -m unittest discover -s tests -p 'test_anime*.py' -v
