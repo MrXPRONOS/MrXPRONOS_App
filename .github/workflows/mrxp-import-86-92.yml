@@ -1,0 +1,106 @@
+name: Import MRXP game UI assets 86-92
+on:
+  push:
+    branches: [feat/mrxp-icons-86-92]
+    paths: [.github/workflows/mrxp-import-86-92.yml]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/mrxp-icons-86-92
+          persist-credentials: true
+      - name: Retrieve approved graphics from Adobe transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mrxp-86-92
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 150 --silent --show-error 'https://at.adobe.com/HLdMCrks0uXDnQtr' -o /tmp/mrxp-86-92/86.png
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 150 --silent --show-error 'https://at.adobe.com/oC3jfTmUQdnX0pLb' -o /tmp/mrxp-86-92/87.png
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 150 --silent --show-error 'https://at.adobe.com/p3Re0KrcrjewVeEJ' -o /tmp/mrxp-86-92/88.png
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 150 --silent --show-error 'https://at.adobe.com/gs8P2sRWJVRCN3DV' -o /tmp/mrxp-86-92/89.png
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 150 --silent --show-error 'https://at.adobe.com/1NE5RwPRHLXhG97W' -o /tmp/mrxp-86-92/90.png
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 150 --silent --show-error 'https://at.adobe.com/Q4cRtBzEwMC3S1nr' -o /tmp/mrxp-86-92/91-92.zip
+          file /tmp/mrxp-86-92/*
+      - name: Install image conversion dependency
+        run: |
+          python3 -m venv /tmp/mrxp-86-92/venv
+          /tmp/mrxp-86-92/venv/bin/pip install -q Pillow
+      - name: Verify source SHA256 and create 7 independent transparent icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/mrxp-86-92/venv/bin/python <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          from zipfile import ZipFile
+          import hashlib,io,json
+          work=Path("/tmp/mrxp-86-92")
+          assets=Path("mrxpronos-play/assets")
+          sha={
+            "86":"66f6f71e62c5cd12ab01c225a6c21d3675aa144cf8ddaa452b733764ec056015",
+            "87":"af3c2f4a983134a7462f2d15ec686e529008646ddde676fc760de17da18788a1",
+            "88":"0241c72078ddb33a8e563840b49d9f521ff9aa46aa07f48f9c27cb4626fbb96d",
+            "89":"b2022c0d1df7a41efca3d5538f92d062e56fd8027f0d37c8acbe5b355c27aab6",
+            "90":"c076b8a46c3f5b1ae7578c7fdd881b54618134a354c7559b3cb9f0e16c5989cf",
+            "zip":"a102765d4b379c54b6122b79f687b6ce6252ae68ff4b5d7bd644a26f41ebeb77"
+          }
+          def digest(data):return hashlib.sha256(data).hexdigest()
+          for n in range(86,91):
+              path=work/(str(n)+".png")
+              actual=digest(path.read_bytes())
+              assert actual==sha[str(n)], f"Wrong source for #{n}: {actual}"
+          assert digest((work/"91-92.zip").read_bytes())==sha["zip"],"Navigation icon ZIP mismatch"
+          names={86:"86-snake-mignon",87:"87-boutique-sac",88:"88-telecharger-png",89:"89-partager-image",90:"90-copier-preuve",91:"91-retour-navigation",92:"92-actualiser-navigation"}
+          descriptions={86:"Friendly smiling Snake game mascot",87:"Boutique de boosts gratuite",88:"Enregistrer la carte PNG",89:"Partager image de profil",90:"Copier lien de preuve",91:"Retour",92:"Actualiser"}
+          manifest={"project":"Mr XPRONOS Play","version":1,"range":"86-92","transparent":True,"assets":[]}
+          with ZipFile(work/"91-92.zip") as z:
+              for n in range(86,93):
+                  folder="13-ui-actions" if n<=90 else "13-navigation-actions"
+                  stem=names[n]
+                  dest=assets/folder
+                  dest.mkdir(parents=True,exist_ok=True)
+                  if n<=90:
+                      img=Image.open(work/(str(n)+".png")).convert("RGBA")
+                  else:
+                      path="assets/13-navigation-actions/"+stem+".png"
+                      img=Image.open(io.BytesIO(z.read(path))).convert("RGBA")
+                  assert img.width>=1024 and img.height>=1024 and img.getchannel("A").getextrema()==(0,255), f"Not transparent: #{n}"
+                  if img.size!=(1024,1024):
+                      img=img.resize((1024,1024),Image.Resampling.LANCZOS)
+                  img.save(dest/(stem+".png"))
+                  webp=img.resize((512,512),Image.Resampling.LANCZOS)
+                  webp.save(dest/(stem+".webp"),format="WEBP",quality=88,method=3)
+                  files={}
+                  for ext in ["png","webp"]:
+                      path=dest/(stem+"."+ext)
+                      with Image.open(path) as check:
+                          assert check.getchannel("A").getextrema()[0]==0, f"No transparency: {path}"
+                      files[ext]="assets/"+folder+"/"+stem+"."+ext
+                      files["sha256_"+ext]=digest(path.read_bytes())
+                  if n>=91:
+                      svgname="assets/13-navigation-actions/"+stem+".svg"
+                      svgbytes=z.read(svgname)
+                      assert svgbytes.lstrip().startswith(b"<svg") or b"<svg" in svgbytes[:500]
+                      (dest/(stem+".svg")).write_bytes(svgbytes)
+                      files["svg"]=svgname
+                      files["sha256_svg"]=digest(svgbytes)
+                  manifest["assets"].append({"number":n,"name":stem,"description":descriptions[n],**files})
+          assert len(manifest["assets"])==7
+          Path("mrxpronos-play/assets-manifest-86-92.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("SUCCESS: prepared",len(manifest["assets"]),"transparent image sets")
+          PY
+      - name: Commit verified icons to integration branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mrxpronos-play/assets/13-ui-actions mrxpronos-play/assets/13-navigation-actions mrxpronos-play/assets-manifest-86-92.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'assets(mrxp): add seven approved transparent UI icons 86-92'
+          git push origin HEAD:feat/mrxp-icons-86-92
