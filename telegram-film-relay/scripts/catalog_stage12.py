@@ -64,7 +64,7 @@ def classify(message, category: str) -> dict | None:
         # Never associate a video to a series based on adjacency alone.
         # Remove only an explicit E02/10 episode-total suffix for title matching.
         # The original caption is preserved for checking the declared total.
-        caption_title = re.sub(r"(?i)(?<=\\d)\\s*(?:/|sur|of)\\s*\\d{1,3}\\b", "", caption)
+        caption_title = re.sub(r"(?i)(?<=\d)\s*(?:/|sur|of)\s*\d{1,3}\b", "", caption)
         title = consistent_title("", caption_title, filename) if filename else consistent_title("", caption_title, "")
         if not title:
             return None
