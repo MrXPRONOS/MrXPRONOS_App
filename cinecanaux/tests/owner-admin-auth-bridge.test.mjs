@@ -11,8 +11,7 @@ async function hmac(key,message){
  const k=await crypto.subtle.importKey('raw',typeof key==='string'?enc.encode(key):key,{name:'HMAC',hash:'SHA-256'},false,['sign']);
  return new Uint8Array(await crypto.subtle.sign('HMAC',k,enc.encode(message)));
 }
-async function signed(id,token='bot:test',username='mr_xpronos'){
- const auth_date=Math.floor(Date.now()/1000);
+async function signed(id,token='bot:test',username='mr_xpronos',auth_date=Math.floor(Date.now()/1000)){
  const user=JSON.stringify({id,username,first_name:'Owner'});
  const data='auth_date='+auth_date+'\nuser='+user;
  const secret=await hmac('WebAppData',token);
@@ -131,4 +130,31 @@ test('admin UI differentiates signature rejection, expired sessions, and wrong a
  assert.ok(APP_HTML.includes('const official=window.Telegram?.WebApp?.initData||""'));
  assert.ok(APP_HTML.includes('if(official&&official!==init){init=official;r=await check(init)}'));
  assert.ok(APP_HTML.includes('if(wantsAdmin)openOwnerAdmin()'));
+});
+
+
+test('recent admin signature is required for mutations but old verified sessions remain read-only',async()=>{
+ const {freshAdminMutationSession}=await import('../admin-v2.mjs');
+ const ROOT_ADMIN=ROOT+'/api/admin/';
+ const env={TELEGRAM_TOKEN:'bot:test',TELEGRAM_WEBHOOK_SECRET:'secret',DB:{prepare(sql){
+  let args=[];
+  const q={bind(...x){args=x;return q},async first(){
+   if(sql.includes('SELECT role FROM admin_users'))return args[0]===900?{role:'owner'}:null;
+   return null;
+  }};
+  return q;
+ }}};
+ const now=Math.floor(Date.now()/1000);
+ const expired=await signed(900,'bot:test','mr_xpronos',now-7201);
+ const recent=await signed(900,'bot:test','mr_xpronos',now-120);
+ const read=new Request(ROOT_ADMIN+'access',{headers:{'X-Telegram-Init-Data':expired}});
+ const oldWrite=new Request(ROOT_ADMIN+'not-a-route',{method:'POST',headers:{'X-Telegram-Init-Data':expired,'Content-Type':'application/json'},body:'{}'});
+ const newWrite=new Request(ROOT_ADMIN+'not-a-route',{method:'POST',headers:{'X-Telegram-Init-Data':recent,'Content-Type':'application/json'},body:'{}'});
+ assert.equal((await adminAPI(env,read)).status,200);
+ const blocked=await adminAPI(env,oldWrite);
+ assert.equal(blocked.status,403);
+ assert.equal((await blocked.json()).code,'expired_session');
+ assert.notEqual((await adminAPI(env,newWrite)).status,403);
+ assert.equal(freshAdminMutationSession(new Request(ROOT_ADMIN+'x',{headers:{'X-Telegram-Init-Data':recent}})),true);
+ assert.equal(freshAdminMutationSession(new Request(ROOT_ADMIN+'x',{headers:{'X-Telegram-Init-Data':expired}})),false);
 });
