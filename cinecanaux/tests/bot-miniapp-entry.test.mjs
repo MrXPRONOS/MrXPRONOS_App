@@ -72,6 +72,11 @@ test('owner receives two blue buttons after /start, visitor only the Mini App bu
   assert.equal(buttons[0].style,'primary');
   assert.equal(buttons[1].style,'primary');
   assert.match(buttons[1].text,/Administration/);
+  // Changing username without changing the enrolled ID must never grant privileges.
+  await botUpdate(f.env,{message:{chat:{id:901,type:'private'},from:{id:901,username:'mr_xpronos'},text:'/start'}});
+  const impostor=lastMessage(f.calls);
+  assert.equal(impostor.reply_markup.inline_keyboard.length,1);
+  assert.ok(!JSON.stringify(impostor.reply_markup).includes('Administration'));
   await botUpdate(f.env,update(900,'/admin'));
   assert.match(lastMessage(f.calls).text,/BIENVENUE SUR CINÉ RADAR/);
   assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard.flat().length,1);
