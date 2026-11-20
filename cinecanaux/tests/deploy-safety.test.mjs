@@ -14,6 +14,11 @@ test('production deploy never runs on an untested direct push',()=>{
  assert.match(deploy,/ref: \$\{\{ github\.event\.workflow_run\.head_sha \}\}/);
  assert.match(deploy,/persist-credentials: false/);
 });
+test('Wrangler deploy and token update use the exact known-good version',()=>{
+ const calls=[...deploy.matchAll(/npx --yes wrangler@([^\s]+)\s+(?:deploy|secret put)/g)].map(x=>x[1]);
+ assert.deepEqual(calls,['4.165.0','4.165.0']);
+ assert.doesNotMatch(deploy,/wrangler@4\s/);
+});
 test('CI actually runs when deployment policy changes',()=>{
  const triggers=ci.split('  pull_request:')[0]||'';
  assert.match(triggers,/cine-radar-production-deploy\.yml/);

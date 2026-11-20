@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN" || { echo '::error::Cloudflare token unavailable'; exit 1; }
-          npx --yes wrangler@4 deploy --config wrangler.jsonc
+          npx --yes wrangler@4.165.0 deploy --config wrangler.jsonc
       - name: Resolve existing Canal bot identity and configure reaction token
         shell: bash
         working-directory: cinecanaux
@@ -89,7 +89,7 @@ jobs:
                   break
           PY
           if [ -s "$SECRET_FILE" ]; then
-            cat "$SECRET_FILE" | npx --yes wrangler@4 secret put CANAL_BOT_TOKEN --config wrangler.jsonc > /dev/null
+            cat "$SECRET_FILE" | npx --yes wrangler@4.165.0 secret put CANAL_BOT_TOKEN --config wrangler.jsonc > /dev/null
             echo 'Verified @mrxpronos_canal_bot token installed in Cloudflare.'
           else
             echo '::warning::No existing GitHub Telegram token matches @mrxpronos_canal_bot; dual reactions remain inactive.'
