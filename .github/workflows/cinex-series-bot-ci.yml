@@ -24,6 +24,8 @@ on:
       - 'cinecanaux/scripts/audit_cinex_bot_permissions.py'
       - 'cinecanaux/tests/test_cinex_bot_permissions.py'
       - '.github/workflows/cinex-bot-permissions-audit.yml'
+      - '.github/workflows/cinex-series-bot-inventory.yml'
+      - '.github/workflows/cinex-one-classic-bot-real.yml'
       - 'cinecanaux/scripts/publish_individual_series_bot.py'
       - 'cinecanaux/tests/test_series_bot_inventory.py'
       - 'cinecanaux/tests/test_individual_series_publish.py'
