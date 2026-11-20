@@ -1,0 +1,58 @@
+name: MRXP 86-92 UI production smoke
+on:
+  push:
+    paths:
+      - '.github/workflows/mrxp-icons-86-92-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check live Worker, seven images and HTML UI rollout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,json,time
+          base='https://mrxpronos-play.cinecanaux-xpronos.workers.dev'
+          assets='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/mrxpronos-play/assets/'
+          images=[
+             '13-ui-actions/86-snake-mignon.webp',
+             '13-ui-actions/87-boutique-sac.webp',
+             '13-ui-actions/88-telecharger-png.webp',
+             '13-ui-actions/89-partager-image.webp',
+             '13-ui-actions/90-copier-preuve.webp',
+             '13-navigation-actions/91-retour-navigation.webp',
+             '13-navigation-actions/92-actualiser-navigation.webp']
+          def get(url):
+             q=urllib.request.Request(url,headers={'User-Agent':'MRXP-86-92-Release-Sanity/1.0','Cache-Control':'no-cache'})
+             with urllib.request.urlopen(q,timeout=22) as r:
+                return r.status,r.read()
+          code,data=get(base+'/api/health')
+          assert code==200
+          health=json.loads(data)
+          required=['ok','bot_connected','telegram_token_valid','correct_bot','db_connected']
+          assert all(health.get(k) for k in required),{k:health.get(k) for k in required}
+          print('Health:',{k:health.get(k) for k in required})
+          for name in images:
+              status,b=get(assets+name)
+              assert status==200 and len(b)>3000 and b[:4]==b'RIFF' and b[8:12]==b'WEBP',name+' invalid'
+          print('PASS: 7 existing separate WebP images load and are valid')
+          v48=0
+          for i in range(55):
+              code,b=get(base+'/?mrxp86='+str(i)+'-'+str(time.time_ns()))
+              html=b.decode('utf-8','replace')
+              assert code==200 and 'TAPOTER POUR GAGNER' in html
+              if 'id="mrxp-icons-86-92-style"' in html:
+                 v48+=1
+                 for item in images:
+                    assert item in html,'Icon not wired: '+item
+                 assert 'mrxpDownloadShareCard' in html
+                 assert 'mrxpCopyShareLink' in html
+                 assert 'mrxpRefreshShop' in html
+          print('V48 UI rendered:',v48,'of 55')
+          assert v48>0,'No new icon version in canary'
+          PY
