@@ -1,0 +1,61 @@
+name: Import Mr XPRONOS Play V2 graphic assets
+on:
+  push:
+    branches: [feat/mrxp-v2-assets-61-85]
+    paths: [.github/workflows/mrxp-v2-asset-import.yml]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/mrxp-v2-assets-61-85
+          persist-credentials: true
+      - name: Download approved 25-asset package
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 --connect-timeout 20 --max-time 120 --silent --show-error \
+            'https://at.adobe.com/sDMBoeAmrV8UL7wU' --output /tmp/mrxp-v2-assets.zip
+          file /tmp/mrxp-v2-assets.zip
+          unzip -t /tmp/mrxp-v2-assets.zip | tail -n 2
+      - name: Validate and install graphics
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mrxp-v2-import
+          unzip -q /tmp/mrxp-v2-assets.zip -d /tmp/mrxp-v2-import
+          python - <<'PY'
+          from pathlib import Path
+          import json, shutil
+          source=Path('/tmp/mrxp-v2-import')
+          maps=list(source.rglob('mrxpronos-play/assets-manifest-v2.json'))
+          if len(maps)!=1: raise SystemExit(f'Expected exactly one manifest, found {len(maps)}')
+          project=maps[0].parent
+          assets=project/'assets'
+          png=list(assets.rglob('*.png'));webp=list(assets.rglob('*.webp'))
+          if len(png)<25 or len(webp)!=25: raise SystemExit(f'Asset count mismatch PNG={len(png)} WebP={len(webp)}')
+          from PIL import Image
+          for f in png+webp:
+              with Image.open(f) as im:
+                  im.verify()
+          dest=Path('mrxpronos-play')
+          for d in ['09-rank-badges','10-shop-boosts','11-progression-vfx','12-share-cards']:
+              shutil.copytree(assets/d,dest/'assets'/d,dirs_exist_ok=True)
+          for n in ['assets-manifest-v2.json','assets-v2-map.js']:
+              shutil.copy2(project/n,dest/n)
+          print('Validated',len(png),'PNGs and',len(webp),'WebPs')
+          PY
+      - name: Commit imported assets to feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mrxpronos-play/assets/09-rank-badges mrxpronos-play/assets/10-shop-boosts mrxpronos-play/assets/11-progression-vfx mrxpronos-play/assets/12-share-cards mrxpronos-play/assets-manifest-v2.json mrxpronos-play/assets-v2-map.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'assets(mrxp): add 25 transparent V2 rank, boost and profile graphics'
+          git push origin HEAD:feat/mrxp-v2-assets-61-85
