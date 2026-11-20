@@ -9,6 +9,12 @@ on:
   # This still executes the reaction logic only inside GitHub Actions.
   repository_dispatch:
     types: [telegram_reactions_tick]
+  # Existing cron-job.org-triggered BSD V2 workflow runs every 15 minutes.
+  # It is a safety fallback if GitHub drops this workflow's own schedule.
+  # The downstream runner still executes only trusted default-branch code.
+  workflow_run:
+    workflows: ['BSD V2 - Coupons Telegram (cron-job.org)']
+    types: [completed]
   workflow_dispatch:
     inputs:
       production:
@@ -42,6 +48,8 @@ concurrency:
 
 jobs:
   test:
+    # No need to run the entire offline test suite on every scheduled wake-up.
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -59,7 +67,7 @@ jobs:
     needs: test
     # Also process newly configured bot tokens on the first main-branch push.
     # Pull-request builds remain test-only and never receive secrets.
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'repository_dispatch' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.production == true) }}
+    if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') && (github.event_name == 'schedule' || github.event_name == 'repository_dispatch' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.production == true) || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.repository.full_name == 'MrXPRONOS/MrXPRONOS_App')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
