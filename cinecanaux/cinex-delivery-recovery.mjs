@@ -113,8 +113,8 @@ export async function attestExistingCopy(env,data,ownerId,{now=Date.now()}={}){
   const open=await env.DB.prepare(`SELECT 1 ok FROM ${jobs} WHERE id=? AND status='needs_review'`).bind(id).first();
   if(!open?.ok)return {ok:false,status:409,code:'case_already_resolved_or_changed'};
   const change=await env.DB.prepare(
-   `UPDATE ${items} SET state='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,'+24 hours'),delete_retry_at=datetime(?,'+24 hours'),delete_state='pending',delete_attempts=0,delete_retry_at=datetime(?,'+24 hours') WHERE job_id=? AND ${item}=? AND state='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING job_id`
-  ).bind(messageId,sentAt,sentAt,sentAt,sentAt,id,itemNo).first();
+   `UPDATE ${items} SET state='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,'+24 hours'),delete_retry_at=datetime(?,'+24 hours'),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ${item}=? AND state='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING job_id`
+  ).bind(messageId,sentAt,sentAt,sentAt,id,itemNo).first();
   if(!change)return {ok:false,status:409,code:'item_already_resolved_or_changed'};
   const {queued,uncertain}=conditions(items,jobs);
   // Refresh progress from actual sent receipts, not from a second increment.
