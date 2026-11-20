@@ -1,7 +1,7 @@
 {
   "project": "Mr XPRONOS Play",
   "bundle": "61-85",
-  "state": "STAGING READY FOR GITHUB — NOT DEPLOYED",
+  "state": "PRODUCTION DEPLOYED — 2026-11-20",
   "asset_count": 25,
   "missing": [],
   "assets": [
@@ -330,5 +330,16 @@
       "sha256_png": "30703dc034d6e0de9427f02cc640398330f38af220293613af65f905b1cd0d89",
       "sha256_webp": "f08907f5bc1aaa0a8009c4c7a1b83d463ac89703f4d1390db52b309c78aa8626"
     }
-  ]
+  ],
+  "release": {
+    "source_pr": 486,
+    "github_merge_commit": "55f0f11296d947b4770260220e98f936e6db8e46",
+    "cloudflare_worker": "mrxpronos-play",
+    "cloudflare_version": 45,
+    "cloudflare_version_id": "0f1722b5-19da-48b9-b2ad-3f93e54c1797",
+    "production_rollout_percentage": 100,
+    "regression_tests_passed": 77,
+    "http_smoke_responses_v2": 45,
+    "http_smoke_responses_total": 45
+  }
 }
