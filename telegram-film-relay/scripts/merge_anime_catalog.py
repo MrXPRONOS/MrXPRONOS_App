@@ -52,10 +52,11 @@ def merge(remote: dict, local: dict, *, consolidate_anime=False) -> dict:
         target["revisit_last_checked"] = chosen.get("revisit_last_checked")
         target["revisit_cycles"] = max(
             int(older.get("revisit_cycles", 0)), int(incoming.get("revisit_cycles", 0)))
-    result["series_aliases"] = {**remote.get("series_aliases", {}),
-                                **local.get("series_aliases", {})}
-    result["legacy_series_records"] = {**remote.get("legacy_series_records", {}),
-                                      **local.get("legacy_series_records", {})}
+    if consolidate_anime:
+        result["series_aliases"] = {**remote.get("series_aliases", {}),
+                                    **local.get("series_aliases", {})}
+        result["legacy_series_records"] = {**remote.get("legacy_series_records", {}),
+                                          **local.get("legacy_series_records", {})}
     rseries = remote.get("series", {})
     lseries = local.get("series", {})
     for key in set(rseries) | set(lseries):
