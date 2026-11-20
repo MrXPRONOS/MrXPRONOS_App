@@ -231,9 +231,18 @@ def public_buttons(private_id: int, series_entry: dict, public_peer=None):
 
 
 def read_catalog():
+    from .anime_identity import consolidate_catalog
     if not CATALOG.exists():
         return {"series": {}}
-    return json.loads(CATALOG.read_text(encoding="utf-8"))
+    data = json.loads(CATALOG.read_text(encoding="utf-8"))
+    data, report = consolidate_catalog(data)
+    if report["merged_groups"]:
+        LOG.info("Anime : consolidation historique %s", report["merged_groups"])
+    if report["skipped_collisions"]:
+        LOG.warning("Anime : groupes historiques ambigus, non fusionnés : %s",
+                    report["skipped_collisions"])
+    data["identity_review"] = report["skipped_collisions"]
+    return data
 
 
 def save_catalog(data: dict):
@@ -465,6 +474,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                  len(groups), len(eligible), excluded_totals)
         LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
                  "anime_catalog", len(eligible), episode_cap)
+        # Ambiguous old receipts must never be resolved by guessing.
+        collisions = {row["canonical"] for row in catalogue.get("identity_review", [])}
+        eligible = [(key, rows) for key, rows in eligible if key not in collisions]
         active = catalogue.get("active_batch")
         if active:
             # Resume exactly the batch pinned before a crash, even if the
@@ -480,7 +492,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             selected = pending_anime_series(eligible, catalogue)
             if not selected:
                 progressive = progressive_anime_seasons(
-                    groups, catalogue, maximum=episode_cap)
+                    {key: rows for key, rows in groups.items()
+                     if key not in collisions},
+                    catalogue, maximum=episode_cap)
                 selected = pending_anime_series(progressive, catalogue)
                 if selected:
                     LOG.info("Anime : nouveaux épisodes en cours pour %s (%s épisodes)",
@@ -493,6 +507,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         for key, items in ([selected] if selected else []):
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
+            if key not in catalogue["series"]:
+                from .anime_identity import resolve_series_key
+                resolved = resolve_series_key(catalogue, key)
+                if resolved in catalogue["series"]:
+                    key = resolved
             if key not in catalogue["series"]:
                 previous = next((
                     older_key for older_key, older in catalogue["series"].items()
