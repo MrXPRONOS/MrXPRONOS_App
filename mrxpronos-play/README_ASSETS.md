@@ -117,3 +117,17 @@ Le portrait africain **Souverain MX** complète les onze rangs officiels dès le
 Images 3D bleu et or, fonds transparents et WebP 512 × 512. Les deux icônes sont intégrées dans la Mini App. Le bouton d'information conserve sa fonction, et le bouclier remplace l'ancien visuel `38-level-crown` uniquement dans le bandeau du joueur. Les paramètres `?v=20261119` permettent de différencier la version affichée du cache. Les hachages SHA-256 des 4 fichiers figurent dans `assets-manifest-ui-actions.json`.
 
 **Inventaire actuel :** 60 éléments d'interface PNG + 60 WebP ; 11 avatars de rang PNG + WebP. Les cartes partageables, les badges de rang indépendants, les cosmétiques et les visuels de boutique de la V2 demeurent en phase de conception, hors de cet inventaire.
+
+
+## V2 — Nouveaux visuels 61–85 (20 novembre 2026)
+
+La bibliothèque V2 est intégrée au dépôt depuis la pull request [#486](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/486) et déployée à **100 %** sur le Worker Cloudflare `mrxpronos-play` (version 45).
+
+- `assets/09-rank-badges/` : 11 badges officiels des rangs Recrue → Souverain MX, n°61–71.
+- `assets/10-shop-boosts/` : 4 icônes de boosts XP, n°72–75.
+- `assets/11-progression-vfx/` : 2 recharges d'énergie et 6 visuels/effets de progression, n°76–83, avec animation GIF.
+- `assets/12-share-cards/` : modèles carré et vertical, n°84–85, et calques d'encadrement.
+
+Les 25 visuels possèdent un original PNG et un WebP optimisé, tous contrôlés par les empreintes SHA-256 de `assets-manifest-v2.json`. Les anciennes ressources 01–60 et les 11 portraits de rang demeurent inchangés. Les images sont utilisées pour les rangs, les étoiles, les récompenses, les défis, les boosts, et les cartes de profil ; les statistiques et noms restent issus des données signées du serveur. Des replis visuels conservent l'affichage en cas d'échec d'une image.
+
+**Vérifications :** 77/77 tests de non-régression, tests d'intégrité, contrôles de syntaxe, santé du bot/Cloudflare/D1, puis contrôle public de 45/45 réponses V2 après déploiement. Validation tactile et visuelle spécifique Android/iOS dans Telegram toujours recommandée avant de considérer la recette mobile comme terminée.
