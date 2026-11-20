@@ -123,7 +123,8 @@ async def in_saved_messages(client, marker: str) -> bool:
     return False
 
 
-async def run() -> int:
+async def run(client=None) -> int:
+    """Execute the daily discovery using a shared authenticated session if provided."""
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     marker = "CINEX-DECOUVERTE-" + day
     settings = read_json(CONFIG)
@@ -139,9 +140,11 @@ async def run() -> int:
            or os.getenv("TG_STREAM_SESSION"))
     if not (api_id and api_hash and sid):
         raise RuntimeError("Identifiants Telegram non configurés.")
-    client = TelegramClient(StringSession(sid), int(api_id), api_hash,
-                            request_retries=0, connection_retries=2,
-                            flood_sleep_threshold=0, receive_updates=False)
+    own_client = client is None
+    if own_client:
+        client = TelegramClient(StringSession(sid), int(api_id), api_hash,
+                                request_retries=0, connection_retries=2,
+                                flood_sleep_threshold=0, receive_updates=False)
     sections = []
     previous_known = set(state.get("known_usernames", []))
     if not previous_known:
@@ -150,7 +153,8 @@ async def run() -> int:
                               for v in legacy.get("channels", []) if v.get("username"))
     offsets = state.get("offsets") or {}
     all_names = set()
-    await client.connect()
+    if own_client:
+        await client.connect()
     try:
         if not await client.is_user_authorized():
             raise RuntimeError("Session Telegram expirée.")
@@ -204,7 +208,8 @@ async def run() -> int:
         LOG.error("Telegram a limité le compte (%s) : aucun retry.", type(exc).__name__)
         return 2
     finally:
-        await client.disconnect()
+        if own_client:
+            await client.disconnect()
 
 
 if __name__ == "__main__":

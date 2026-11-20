@@ -12,11 +12,14 @@ import asyncio
 import json
 import os
 import sys
+from datetime import datetime, timezone
+from pathlib import Path
 from collections import Counter
 from urllib.parse import urlparse
 
 import requests
 from telethon import TelegramClient
+from telethon.errors import FloodWaitError, PeerFloodError
 from telethon.sessions import StringSession
 from telethon.tl.types import Channel
 from audit_mrxpronos_canal_bot import find_exact_bot, Telegram
@@ -77,7 +80,8 @@ def save_row(row, session):
         raise RuntimeError("secure_registry_result_invalid") from None
 
 
-async def scan():
+async def scan(client=None, public_export_path=None):
+    """Scan on an already connected client, or create one for standalone use."""
     api_id = env("TG_API_ID")
     api_hash = env("TG_API_HASH")
     string = env("TG_SESSION_STRING") or env("TG_STRING_SESSION") or env("TG_STREAM_SESSION")
@@ -97,11 +101,14 @@ async def scan():
 
     counts = Counter()
     public_rows = []
-    client = TelegramClient(StringSession(string), int(api_id), api_hash,
-                            request_retries=1, connection_retries=2,
-                            flood_sleep_threshold=0, receive_updates=False)
+    own_client = client is None
+    if own_client:
+        client = TelegramClient(StringSession(string), int(api_id), api_hash,
+                                request_retries=1, connection_retries=2,
+                                flood_sleep_threshold=0, receive_updates=False)
     try:
-        await client.connect()
+        if own_client:
+            await client.connect()
         if not await client.is_user_authorized():
             raise RuntimeError("personal_telegram_session_not_authorized")
         me = await client.get_me()
@@ -118,6 +125,8 @@ async def scan():
             try:
                 # Verify account permissions on Telegram, not just channel membership.
                 permissions = await client.get_permissions(channel, me)
+            except (FloodWaitError, PeerFloodError):
+                raise
             except Exception as exc:
                 counts["personal_role_unavailable"] += 1
                 print("PERSONAL_ADMIN_CHECK_UNAVAILABLE", type(exc).__name__)
@@ -174,7 +183,8 @@ async def scan():
             else:
                 counts["private"] += 1
     finally:
-        await client.disconnect()
+        if own_client:
+            await client.disconnect()
         http.close()
 
     # Never leak private titles, IDs or invitation links in public Actions.
@@ -193,6 +203,17 @@ async def scan():
         "public_channels":public_rows,
         "broadcast_enabled_by_scan": False
     },ensure_ascii=False))
+    if public_export_path is not None:
+        # Export ONLY already-public metadata; private IDs/titles remain inside Vault.
+        output = Path(public_export_path)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        temporary = output.with_suffix(output.suffix + ".tmp")
+        temporary.write_text(json.dumps({
+            "verified_at": datetime.now(timezone.utc).isoformat(),
+            "public_channels": public_rows,
+        }, ensure_ascii=False), encoding="utf-8")
+        temporary.chmod(0o600)
+        temporary.replace(output)
     if counts["personal_role_unavailable"] or counts["bot_check_unavailable"]:
         print("WARNING_INCOMPLETE_PERMISSION_CHECKS")
     return 0
