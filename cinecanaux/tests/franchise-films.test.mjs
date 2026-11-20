@@ -56,6 +56,11 @@ test('parse only a verifiable Fast and Furious film number',()=>{
   ['Fast Five VF',5],['Furious 7 VF',7],['The Fate of the Furious',8],
   ['F9 The Fast Saga 2021',9],['Fast X VF',10],
   ['clip générique sans numéro',null],
+  ['Fast and Furious 1 à 10 VF',null],
+  ['Fast and Furious 1-9 VF',null],
+  ['Fast and Furious 1 – 10 VF',null],
+  ['Fast and Furious 1 + Fast and Furious 2',null],
+  ['FF 1 to 9 compilation',null],
  ]){
   assert.equal(parseFranchiseFilmNumber(caption),part,caption);
  }
@@ -81,6 +86,16 @@ test('owner forwards exactly one poster and numbered films, and vault keeps priv
   const stranger={...forwarded({messageId:16,originId:106}),chat:{type:'private',id:99},from:{id:99}};
   assert.equal((await ingestFranchiseOwnerForward(env,stranger)).handled,false);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_films").get().n,2);
+ }finally{db.close()}
+});
+test('ambiguously numbered saga compilation is kept pending instead of being indexed as film 1',async()=>{
+ const {db,env}=fixture();
+ try{
+  const video=forwarded({messageId:55,originId:455,caption:'Fast and Furious 1 à 10 VF'});
+  const result=await ingestFranchiseOwnerForward(env,video);
+  assert.equal(result.pending,true);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM cine_franchise_films').get().n,0);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM cine_franchise_pending').get().n,1);
  }finally{db.close()}
 });
 test('unknown video name goes to pending; owner reply /ff 2 assigns the correct part',async()=>{
