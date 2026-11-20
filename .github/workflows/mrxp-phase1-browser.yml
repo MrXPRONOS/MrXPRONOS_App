@@ -27,6 +27,8 @@ jobs:
       - name: Install browser and runner dependencies
         run: |
           python -m pip install --quiet playwright
-          python -m playwright install --with-deps chromium
+          if ! command -v google-chrome >/dev/null 2>&1 && ! command -v chromium >/dev/null 2>&1; then
+            python -m playwright install chromium
+          fi
       - name: Test phase-1 Mini App mobile layout
         run: python mrxpronos-play/tests/phase1-mobile-layout.py
