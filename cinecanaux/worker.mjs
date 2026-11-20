@@ -438,6 +438,14 @@ export default {
   }
   if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
   if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env,ctx);
+  // Public bot identity only: Telegram bot ID and username are not secrets.
+  // Separate path avoids Cloudflare rules that reject /health?telegram=1.
+  if(request.method==="GET"&&u.pathname==="/health/bot-identity"){
+   const identity=await checkBotIdentity(env);
+   return Response.json({service:"cine-radar",botIdentity:identity},{
+    headers:{"cache-control":"no-store","x-content-type-options":"nosniff"}
+   });
+  }
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
