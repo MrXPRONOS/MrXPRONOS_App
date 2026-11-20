@@ -77,7 +77,7 @@ export function seriesButtons(token,rescue,folder){
  if(!TOKEN.test(token)||!/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/.test(rescue)||
  !/^https:\/\/t\.me\/addlist\/[A-Za-z0-9_-]{8,}$/.test(folder))throw Error('series_buttons_config_invalid');
  return {inline_keyboard:[
-  [{text:'📥 Télécharger toutes les saisons',url:'https://t.me/CineRadarFr_Bot?start=sr_'+token,style:'success'}],
+  [{text:'📥 Télécharger les épisodes disponibles',url:'https://t.me/CineRadarFr_Bot?start=sr_'+token,style:'success'}],
   [{text:'🛟 Rejoindre le canal de secours',url:rescue,style:'danger'}],
   [{text:'📂 Rejoindre le dossier',url:folder,style:'primary'}]
  ]};
@@ -108,9 +108,10 @@ export async function ingestIndividualSeriesUpdate(env,update){
  if(isPoster(pin)){
   const season=parseSeason(pin.caption||pin.text||'');
   if(season){
-   await env.DB.prepare(
-    "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET source_message_id=excluded.source_message_id,caption=excluded.caption,observed_at=CURRENT_TIMESTAMP"
+   const posterReceipt=await env.DB.prepare(
+    "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET caption=excluded.caption,observed_at=CURRENT_TIMESTAMP WHERE cine_series_posters.source_message_id=excluded.source_message_id"
    ).bind(chatId,season,Number(pin.message_id),String(pin.caption||pin.text||'').slice(0,1800)).run();
+   if(Number(posterReceipt.meta?.changes||0)!==1){console.warn('cinex_series_poster_conflict_preserved');return false;}
    await env.DB.prepare("UPDATE cine_series_channels SET expected_seasons=MAX(COALESCE(expected_seasons,0),?) WHERE chat_id=?").bind(season,chatId).run();
    const expected=parseExpectedEpisodes(pin.caption||pin.text||'');
    if(expected)await env.DB.prepare(
@@ -123,9 +124,10 @@ export async function ingestIndividualSeriesUpdate(env,update){
  if(isEpisode(message)){
   const parsed=parseEpisode(text);
   if(parsed&&parsed.episode<=100){
-   await env.DB.prepare(
-    "INSERT INTO cine_series_episodes(chat_id,season,episode,source_message_id) VALUES(?,?,?,?) ON CONFLICT(chat_id,season,episode) DO UPDATE SET source_message_id=excluded.source_message_id,observed_at=CURRENT_TIMESTAMP"
+   const receipt=await env.DB.prepare(
+    "INSERT INTO cine_series_episodes(chat_id,season,episode,source_message_id) VALUES(?,?,?,?) ON CONFLICT(chat_id,season,episode) DO UPDATE SET observed_at=CURRENT_TIMESTAMP WHERE cine_series_episodes.source_message_id=excluded.source_message_id"
    ).bind(chatId,parsed.season,parsed.episode,Number(message.message_id)).run();
+   if(Number(receipt.meta?.changes||0)!==1){console.warn('cinex_series_episode_conflict_preserved');return false;}
    return true;
   }
  }
@@ -156,16 +158,18 @@ export async function ingestSeriesOwnerForward(env,message){
  if(isEpisode(message)){
   const item=parseEpisode(caption);
   if(!item||item.episode>100)return {handled:true,stored:false,reason:'Indique la saison ET l’épisode dans la légende, par exemple S01E02.'};
-  await env.DB.prepare(
-   "INSERT INTO cine_series_episodes(chat_id,season,episode,source_message_id) VALUES(?,?,?,?) ON CONFLICT(chat_id,season,episode) DO UPDATE SET source_message_id=excluded.source_message_id,observed_at=CURRENT_TIMESTAMP"
+  const receipt=await env.DB.prepare(
+   "INSERT INTO cine_series_episodes(chat_id,season,episode,source_message_id) VALUES(?,?,?,?) ON CONFLICT(chat_id,season,episode) DO UPDATE SET observed_at=CURRENT_TIMESTAMP WHERE cine_series_episodes.source_message_id=excluded.source_message_id"
   ).bind(chatId,item.season,item.episode,Number(origin.message_id)).run();
+  if(Number(receipt.meta?.changes||0)!==1)return {handled:true,stored:false,reason:'Cet épisode possède déjà une autre vidéo enregistrée. Vérification manuelle nécessaire avant tout remplacement.'};
   return {handled:true,stored:true,season:item.season,episode:item.episode};
  }
  const season=parseSeason(caption);
  if(!season)return {handled:true,stored:false,reason:'Ajoute « Saison 1 », « Saison 2 »… à la description de l’affiche avant de la transférer.'};
- await env.DB.prepare(
-  "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET source_message_id=excluded.source_message_id,caption=excluded.caption,observed_at=CURRENT_TIMESTAMP"
+ const posterReceipt=await env.DB.prepare(
+  "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET caption=excluded.caption,observed_at=CURRENT_TIMESTAMP WHERE cine_series_posters.source_message_id=excluded.source_message_id"
  ).bind(chatId,season,Number(origin.message_id),caption.slice(0,1800)).run();
+ if(Number(posterReceipt.meta?.changes||0)!==1)return {handled:true,stored:false,reason:'Une affiche différente est déjà enregistrée pour cette saison. Remplacement bloqué en attente de vérification.'};
  await env.DB.prepare("UPDATE cine_series_channels SET expected_seasons=MAX(COALESCE(expected_seasons,0),?) WHERE chat_id=?").bind(season,chatId).run();
  const expected=parseExpectedEpisodes(caption);
  if(expected)await env.DB.prepare(
