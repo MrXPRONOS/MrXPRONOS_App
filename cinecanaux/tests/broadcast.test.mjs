@@ -34,6 +34,7 @@ function dbFixture(){
     return {meta:{changes:1}};
    },
    async first(){
+    if(sql.startsWith('INSERT INTO cine_telegram_send_quota'))return {used:1};
     if(sql.includes('SELECT * FROM cine_broadcast_jobs'))return {...job};
     if(sql.includes('SELECT COUNT(*) n FROM cine_broadcast_receipts'))return {n:receipts.length};
     if(sql.includes('FROM cine_broadcast_subscribers')&&sql.includes('COUNT(*)'))return {total:users.size,active:[...users.values()].filter(v=>v.active).length};
