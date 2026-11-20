@@ -9,6 +9,8 @@ on:
       - 'telegram-film-relay/tests/test_anime*.py'
       - 'telegram-film-relay/scripts/merge_anime_catalog.py'
       - 'telegram-film-relay/scripts/generate_anime_dashboard.py'
+      - 'telegram-film-relay/scripts/verify_repair_anime_legacy.py'
+      - '.github/workflows/cinex-anime-legacy-repair.yml'
       - 'anime-dashboard.html'
       - 'anime-dashboard-data.json'
       - '.github/workflows/telegram-film-relay.yml'
