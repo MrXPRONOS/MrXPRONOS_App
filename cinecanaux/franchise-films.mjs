@@ -1,3 +1,4 @@
+import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // Fast & Furious VF: public-channel saga indexed by Telegram Bot API only.
 // Owner forwards create permanent receipts in their private CineRadar chat.
 // The subscriber receives only actually indexed films, each removed after 24h.
@@ -17,11 +18,14 @@ const isPoster=x=>Array.isArray(x?.photo)&&x.photo.length>0;
 const TG='https://api.telegram.org/bot';
 
 async function telegram(env,method,payload){
+ const quota=await guardTelegramMethod(env,method,payload);
+ if(quota&&!quota.allowed)return {ok:false,code:429,retry:quota.retryAfter,quotaDeferred:true};
  const reply=await fetch(TG+env.TELEGRAM_TOKEN+'/'+method,{
   method:'POST',headers:{'content-type':'application/json'},
   body:JSON.stringify(payload),signal:AbortSignal.timeout(13000),
  });
  let body;try{body=await reply.json()}catch{throw Error('telegram_response_unknown')}
+ if(Number(body?.error_code||reply.status)===429)await noteTelegramFloodWait(env,Number(body?.parameters?.retry_after||30));
  return {ok:reply.ok&&body?.ok===true,result:body?.result,
   code:Number(body?.error_code||reply.status),description:String(body?.description||'').slice(0,100),
   retry:Number(body?.parameters?.retry_after||0)};

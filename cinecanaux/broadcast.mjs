@@ -1,3 +1,4 @@
+import {reserveTelegramSend,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // Owner-only Telegram announcements. Anonymous analytics remain separate from delivery IDs.
 import {recordAdminAudit} from './admin-ops.mjs';
 const response=(body,status=200)=>Response.json(body,{status,headers:{"cache-control":"no-store"}});
@@ -82,12 +83,16 @@ function validateDraft(body){
 }
 const markup=draft=>draft.button_text?{inline_keyboard:[[{text:draft.button_text,url:draft.button_url,style:"primary"}]]}:undefined;
 async function send(env,chat,draft){
+ const quota=await reserveTelegramSend(env,{chatId:chat});
+ if(!quota.allowed)return {ok:false,error_code:429,quotaDeferred:true,parameters:{retry_after:quota.retryAfter}};
  const data={chat_id:chat,parse_mode:"HTML",reply_markup:markup(draft)};
  let method="sendMessage";
  if(draft.photo_id){method="sendPhoto";data.photo=draft.photo_id;data.caption=draft.text_html;}
  else{data.text=draft.text_html;data.link_preview_options={is_disabled:true};}
  const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/"+method,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(data),signal:AbortSignal.timeout(6500)});
- return r.json();
+ const result=await r.json();
+ if(Number(result?.error_code||r.status)===429){await noteTelegramFloodWait(env,result?.parameters?.retry_after||30);return {...result,quotaDeferred:true};}
+ return result;
 }
 export async function uploadAnnouncementImage(env,request,owner){
  if(Number(request.headers.get("content-length")||0)>2500000)return response({error:"Fichier limité à 2 Mo."},413);
@@ -103,9 +108,12 @@ export async function uploadAnnouncementImage(env,request,owner){
  formData.append("chat_id",String(owner));
  formData.append("photo",new Blob([bytes],{type:photo.type}),"cineradar-image."+({"image/png":"png","image/jpeg":"jpg","image/webp":"webp"}[photo.type]));
  formData.append("caption","🖼️ Aperçu privé de l'image. Aucun utilisateur du bot ne l'a reçue.");
+ const uploadQuota=await reserveTelegramSend(env,{chatId:owner});
+ if(!uploadQuota.allowed)return response({error:"Quota Telegram temporairement occupé. Réessaie."},429);
  let result;
  try{const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/sendPhoto",{method:"POST",body:formData,signal:AbortSignal.timeout(14000)});result=await r.json();}
  catch{return response({error:"Impossible de téléverser l'image vers Telegram."},502)}
+ if(Number(result?.error_code||0)===429){await noteTelegramFloodWait(env,result?.parameters?.retry_after||30);return response({error:"Telegram limite temporairement les envois."},429);}
  const photo_id=Array.isArray(result?.result?.photo)?result.result.photo.at(-1)?.file_id:null;
  return result?.ok&&photo_id?response({ok:true,photo_id}):response({error:"Telegram a refusé l'image."},502);
 }
@@ -215,7 +223,7 @@ export async function deliverBroadcastBatch(env){
  if(!job)return {processed:0};
  const claim=await env.DB.prepare("UPDATE cine_broadcast_jobs SET lease_until=datetime('now','+45 seconds') WHERE id=? AND status='sending' AND (lease_until IS NULL OR lease_until<datetime('now'))").bind(job.id).run();
  if(!Number(claim.meta?.changes||0))return {processed:0};
- let processed=0;
+ let processed=0,deferred=0;
  try{
   const r=await env.DB.prepare("SELECT r.chat_id FROM cine_broadcast_receipts r JOIN cine_broadcast_subscribers u ON u.chat_id=r.chat_id WHERE r.job_id=? AND r.state IN ('pending','failed') AND r.attempts<3 AND (r.retry_at IS NULL OR r.retry_at<=CURRENT_TIMESTAMP) AND u.active=1 AND u.blocked=0 ORDER BY r.chat_id LIMIT 12").bind(job.id).all();
   const rows=r.results||[];
@@ -224,6 +232,7 @@ export async function deliverBroadcastBatch(env){
     const state=await env.DB.prepare("SELECT status FROM cine_broadcast_jobs WHERE id=?").bind(job.id).first();
     if(state?.status!=="sending")return;
     let answer;try{answer=await send(env,row.chat_id,job);}catch{answer={ok:false,error_code:0,description:"network"}}
+    if(answer?.quotaDeferred){deferred++;return;} // No send: preserve receipt and retry budget.
     const code=Number(answer?.error_code||0),blocked=code===403||code===400&&/blocked|chat not found|user is deactivated/i.test(String(answer?.description||""));
     const status=answer?.ok?"sent":blocked?"blocked":"failed";
     await env.DB.prepare("UPDATE cine_broadcast_receipts SET state=?,attempts=attempts+1,last_error=?,retry_at=CASE WHEN ?='failed' THEN datetime('now','+5 minutes') ELSE NULL END WHERE job_id=? AND chat_id=? AND state IN ('pending','failed')").bind(status,answer?.ok?"":blocked?"unavailable":String(code||"network"),status,job.id,row.chat_id).run();
@@ -237,7 +246,7 @@ export async function deliverBroadcastBatch(env){
   const counts=await env.DB.prepare("SELECT SUM(state='sent') sent,SUM(state='blocked' OR state='skipped') blocked,SUM(state='failed' AND attempts>=3) failed,SUM(state='pending' OR (state='failed' AND attempts<3)) remaining FROM cine_broadcast_receipts WHERE job_id=?").bind(job.id).first();
   const remaining=Number(counts?.remaining||0);
   await env.DB.prepare("UPDATE cine_broadcast_jobs SET delivered=?,blocked=?,failed=?,status=CASE WHEN status='sending' AND ?=0 THEN 'completed' ELSE status END,lease_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(Number(counts?.sent||0),Number(counts?.blocked||0),Number(counts?.failed||0),remaining,job.id).run();
-  return {processed,remaining};
+  return {processed,remaining,deferred};
  }finally{
   await env.DB.prepare("UPDATE cine_broadcast_jobs SET lease_until=NULL WHERE id=?").bind(job.id).run().catch(()=>{});
  }

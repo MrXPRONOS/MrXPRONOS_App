@@ -1,3 +1,4 @@
+import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // CinéX -> existing Ciné Radar bot. No video bytes pass through Cloudflare.
 // GitHub CINEX_DOWNLOADS_ENABLED is synchronized to D1; no in-bot approval.
 // Telegram /start is authenticated by the existing webhook secret in worker.mjs.
@@ -21,11 +22,14 @@ function keyboard(){
  ]};
 }
 async function telegram(env,method,payload){
+ const quota=await guardTelegramMethod(env,method,payload);
+ if(quota&&!quota.allowed)return {ok:false,error_code:429,retry_after:quota.retryAfter,quotaDeferred:true};
  const r=await fetch(TG+env.TELEGRAM_TOKEN+'/'+method,{
   method:'POST',headers:{'content-type':'application/json'},
   body:JSON.stringify(payload),signal:AbortSignal.timeout(12000)
  });
  let data;try{data=await r.json()}catch{throw Error('telegram_response_unknown')}
+ if(Number(data?.error_code||r.status)===429)await noteTelegramFloodWait(env,Number(data?.parameters?.retry_after||30));
  if(!r.ok||!data?.ok)return {ok:false,error_code:Number(data?.error_code||r.status),retry_after:Number(data?.parameters?.retry_after||0)};
  return data;
 }

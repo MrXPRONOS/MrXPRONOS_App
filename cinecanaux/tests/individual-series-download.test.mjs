@@ -85,6 +85,7 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
   assert.match(notice.body.text,/actuellement disponibles/i);
   assert.match(notice.body.text,/S3: 2 ép/i);
   assert.match(notice.body.text,/ne sont pas promises complètes/i);
+  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
   assert.equal((await processSeriesQueue(env)).processed,2);
   assert.equal((await processSeriesQueue(env)).processed,0);
   assert.equal(db.prepare('SELECT status,delivered_items FROM cine_series_jobs').get().status,'complete');

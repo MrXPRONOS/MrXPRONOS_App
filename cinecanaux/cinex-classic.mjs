@@ -1,3 +1,4 @@
+import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // CinéX classic films: safe private Telegram copies from verified library media.
 // Public video/poster messages are never deleted; only the bot's private copies.
 import {deletionDecision} from './cinex-expiry.mjs';
@@ -5,11 +6,14 @@ const TOKEN=/^[A-Za-z0-9_-]{24}$/;
 const START=/^\/start(?:@[A-Za-z0-9_]+)?\s+d_([A-Za-z0-9_-]{24})\s*$/i;
 const BASE='https://api.telegram.org/bot';
 async function telegram(env,method,payload){
+ const quota=await guardTelegramMethod(env,method,payload);
+ if(quota&&!quota.allowed)return {ok:false,error_code:429,retry_after:quota.retryAfter,quotaDeferred:true};
  const response=await fetch(BASE+env.TELEGRAM_TOKEN+'/'+method,{
   method:'POST',headers:{'content-type':'application/json'},
   body:JSON.stringify(payload),signal:AbortSignal.timeout(15000)
  });
  let body;try{body=await response.json()}catch{throw Error('telegram_response_unknown')}
+ if(Number(body?.error_code||response.status)===429)await noteTelegramFloodWait(env,Number(body?.parameters?.retry_after||30));
  return {ok:response.ok&&body?.ok===true,result:body?.result,
   error_code:Number(body?.error_code||response.status),
   description:String(body?.description||'').slice(0,140),

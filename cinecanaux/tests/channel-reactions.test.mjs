@@ -15,6 +15,7 @@ function memoryDB() {
       const stmt={
         bind(...v){p=v;return stmt;},
         async run(){
+          if(sql.startsWith('CREATE TABLE IF NOT EXISTS cine_telegram_send_quota'))return {meta:{changes:0}};
           if(sql.startsWith("INSERT OR IGNORE INTO channel_reaction_posts")){
             const [chat_id,message_id,media_group_id]=p;
             if(!posts.some(x=>x.chat_id===chat_id && (x.message_id===message_id || (media_group_id && x.media_group_id===media_group_id)))){
@@ -46,6 +47,7 @@ function memoryDB() {
           throw new Error("Unexpected SQL run: "+sql);
         },
         async first(){
+          if(sql.startsWith('INSERT INTO cine_telegram_send_quota'))return {used:1};
           if(sql.startsWith("SELECT seq,message_id FROM channel_reaction_posts")){
             return posts.find(x=>x.chat_id===p[0]&&(x.message_id===p[1]||(p[2]&&x.media_group_id===p[2])))||null;
           }

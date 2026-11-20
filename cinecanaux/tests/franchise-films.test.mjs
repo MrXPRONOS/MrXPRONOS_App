@@ -143,6 +143,7 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
   assert.equal(accepted.planned,2);
   assert.equal((await handleFranchiseDownloadStart(env,userStart(90))).duplicate,true);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_jobs").get().n,1);
+  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
   const output=await processFranchiseQueue(env);
   assert.equal(output.processed,2);
   assert.equal((await processFranchiseQueue(env)).processed,0);
@@ -188,6 +189,7 @@ test('owner draft bot link delivers a private test while non-owner cannot access
    update_id:99,message:{chat:{type:'private',id:OWNER},from:{id:OWNER},text:'/start ffs_'+TOKEN}
   };
   assert.equal((await handleFranchiseDownloadStart(env,privateStart)).accepted,true);
+  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
   assert.equal((await processFranchiseQueue(env)).processed,1);
   assert.deepEqual(calls.filter(x=>x.method==='copyMessage').map(x=>x.body),[
    {chat_id:OWNER,from_chat_id:String(OWNER),message_id:40,protect_content:false}
