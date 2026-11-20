@@ -4,6 +4,7 @@ import base64
 import json
 from pathlib import Path
 import re
+import shutil
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,7 +23,8 @@ screens = [
 widths = (320, 360, 375, 390, 430)
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+    system_browser = shutil.which('google-chrome') or shutil.which('chromium')
+    browser = p.chromium.launch(headless=True, executable_path=system_browser if system_browser else None, args=['--no-sandbox'])
     try:
         for width in widths:
             page = browser.new_page(viewport={"width": width, "height": 780}, device_scale_factor=1)
