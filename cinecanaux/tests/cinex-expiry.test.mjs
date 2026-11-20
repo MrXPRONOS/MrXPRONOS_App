@@ -7,7 +7,7 @@ const prior=h=>new Date(now.getTime()-h*3600000).toISOString();
 test('only explicit success or confirmed missing messages mark cleanup complete',()=>{
  assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(25),now:now.getTime()}).state,'deleted');
  assert.equal(deletionDecision({ok:false,error_code:400,description:'Bad Request: message to delete not found'},{sentAt:prior(25),now:now.getTime()}).state,'already_gone');
- assert.equal(deletionDecision({ok:false,error_code:400,description:'message can\\'t be deleted'},{sentAt:prior(25),now:now.getTime()}).state,'manual_review');
+ assert.equal(deletionDecision({ok:false,error_code:400,description:"message can\'t be deleted"},{sentAt:prior(25),now:now.getTime()}).state,'manual_review');
 });
 test('not before 24 hours, 48h safety deadline and retry budget',()=>{
  assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(23),now:now.getTime()}).state,'retry');
