@@ -16,6 +16,12 @@ class OptionalCategoryAuditTests(unittest.TestCase):
         })
         stub.start()
         self.addCleanup(stub.stop)
+        legacy = patch("scripts.channel_audit.category_config", return_value={
+            "sources": [], "private": "-1001234567890",
+            "public": "@cinexcomediefr",
+        })
+        legacy.start()
+        self.addCleanup(legacy.stop)
 
     def test_unconfigured_series_action_do_not_raise(self):
         env = {
