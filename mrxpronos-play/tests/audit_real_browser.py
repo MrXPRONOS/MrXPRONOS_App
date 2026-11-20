@@ -37,7 +37,7 @@ with sync_playwright() as playwright:
         page = browser.new_page(viewport={"width": 390, "height": 844})
         page.on("pageerror", lambda error: errors.append(str(error)))
         # Initial JS runs ahead of application scripts at navigation.
-        page.add_init_script("""() => {
+        page.add_init_script("""(() => {
            const bucket = {};
            window.Telegram = {WebApp:{
              initData: 'test-signed-initdata',
@@ -49,7 +49,7 @@ with sync_playwright() as playwright:
              },
              HapticFeedback:{impactOccurred(){},notificationOccurred(){}}
            }};
-        }""")
+        })()""")
         def route_handler(route):
             req = route.request
             url = req.url
