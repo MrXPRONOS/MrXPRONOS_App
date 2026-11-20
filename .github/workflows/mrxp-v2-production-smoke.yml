@@ -1,0 +1,39 @@
+name: MRXP V2 production canary smoke
+on:
+  push:
+    paths:
+      - '.github/workflows/mrxp-v2-production-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify Cloudflare public health and graphics canary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,time,urllib.request
+          base="https://mrxpronos-play.cinecanaux-xpronos.workers.dev"
+          def get(path):
+              req=urllib.request.Request(base+path,headers={"User-Agent":"MRXP-Graphics-Canary-Check/1.0","Cache-Control":"no-cache"})
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  return r.status,r.read().decode('utf-8','replace')
+          status,body=get('/api/health')
+          assert status==200
+          health=json.loads(body)
+          fields={k:health.get(k) for k in ('ok','bot_connected','telegram_token_valid','correct_bot','db_connected')}
+          print("Health check:",fields)
+          assert all(fields.values()),"Cloudflare/Telegram/D1 health check failed"
+          seen_v2=0
+          for i in range(45):
+              status,html=get('/?mrxp_canary='+str(i)+'-'+str(time.time_ns()))
+              assert status==200 and 'TAPOTER POUR GAGNER' in html
+              if 'MRXP_V2_RANK_BADGES' in html and 'MRXP_V2_SHOP_ICONS' in html:
+                  seen_v2+=1
+          print("Canary graphic responses:",seen_v2,"of 45")
+          assert seen_v2>0,"No V2 canary response detected at the public URL"
+          PY
