@@ -8,7 +8,7 @@ import {launchFunnelStats} from './launch-funnel.mjs';
 import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
 import {bindPrimaryRadarChannels,missingRadarTitles,notifyOwnerMissingRadarTitles} from './radar-owner-ops.mjs';
 import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle,radarOwnerDigest} from './trend-radar.mjs';
-import {initializeProfile} from './radar-lean.mjs';
+import {initializeProfile,invalidateDirectoryCache} from './radar-lean.mjs';
 import {ownerPinnedList,ownerRemovePin} from './pinned-showcase.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
@@ -27,6 +27,18 @@ async function verifyAdmin(request,env){
  ]);
  return u;
 }
+// Owner can edit directory metadata, but not bypass exclusion or rights checks.
+function validAdminChannel(data){
+ const title=String(data.title||'').trim(),description=String(data.description||'').trim();
+ const content_type=String(data.content_type||''),genre=String(data.genre||'').trim().toLowerCase();
+ const language=String(data.language||'').trim();
+ if(title.length<3||title.length>120)return {error:'Nom du canal : entre 3 et 120 caractères.'};
+ if(description.length>600)return {error:'Description limitée à 600 caractères.'};
+ if(!['films','series','animes'].includes(content_type))return {error:'Catégorie invalide.'};
+ if(!/^[a-z0-9_-]{1,40}$/.test(genre))return {error:'Genre invalide (lettres minuscules, chiffres ou tirets).'};
+ if(!/^[A-Za-z0-9 ,/+-]{1,30}$/.test(language))return {error:'Langue invalide.'};
+ return {title,description,content_type,genre,language};
+}
 async function parseBody(req){
  if(Number(req.headers.get('content-length')||0)>4096)throw Error('oversized');
  const text=await req.text();if(text.length>4096)throw Error('oversized');
@@ -43,6 +55,10 @@ export async function adminAPI(env,request,ctx){
  }
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
+ if(request.method==='GET'&&path==='/api/admin/channel-list'){
+  const rows=await env.DB.prepare("SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,c.status,COALESCE(m.listing_status,'listed') listing_status,COALESCE(m.link_status,'unknown') link_status FROM channels c LEFT JOIN channel_index_meta m ON m.channel_id=c.id ORDER BY c.updated_at DESC,c.id DESC LIMIT 350").all();
+  return json({channels:rows.results||[]});
+ }
  if(request.method==='GET'&&path==='/api/admin/launch-funnel')return json(await launchFunnelStats(env));
  if(request.method==='GET'&&path==='/api/admin/pins')return json(await ownerPinnedList(env));
  if(request.method==='GET'&&path==='/api/admin/radar-ops'){
@@ -93,6 +109,23 @@ export async function adminAPI(env,request,ctx){
  if(request.method!=='POST')return json({error:'Méthode inconnue'},405);
  try{
   const data=await parseBody(request);
+  if(path==='/api/admin/channels'){
+   if(data.action!=='add')return json({error:'Action inconnue'},400);
+   if(data.rights_confirmed!==true)return json({error:'Confirme que tu disposes du droit de référencer ce canal.'},400);
+   const fields=validAdminChannel(data);
+   if(fields.error)return json({error:fields.error},400);
+   const username=linkUsername(String(data.link||'').trim());
+   if(!username)return json({error:'Entre un lien public Telegram valide (https://t.me/nomducanal).'},400);
+   const normalized='https://t.me/'+username;
+   const excluded=await env.DB.prepare('SELECT username FROM channel_exclusions WHERE username=?').bind(username).first();
+   if(excluded)return json({error:'Canal précédemment exclu. Révision nécessaire avant ajout.'},409);
+   const exists=await env.DB.prepare('SELECT id FROM channels WHERE LOWER(link)=?').bind(normalized.toLowerCase()).first();
+   if(exists)return json({error:'Ce canal existe déjà (#'+exists.id+').'},409);
+   const created=await env.DB.prepare("INSERT INTO channels(title,link,description,content_type,genre,language,status,rights_confirmed) VALUES(?,?,?,?,?,?,'approved',1)")
+    .bind(fields.title,normalized,fields.description,fields.content_type,fields.genre,fields.language).run();
+   invalidateDirectoryCache();
+   return json({ok:true,id:Number(created.meta?.last_row_id||0)},201);
+  }
   const pinAction=/^\/api\/admin\/pins\/(films|series|animes)\/([1-9][0-9]{0,12})\/(hide|unpin)$/.exec(path);
   if(pinAction){
    const kind=pinAction[1],id=Number(pinAction[2]);
@@ -150,9 +183,17 @@ export async function adminAPI(env,request,ctx){
   const cm=/^\/api\/admin\/channels\/(\d+)$/.exec(path);
   if(cm){
    const id=Number(cm[1]),action=String(data.action||'');
-   if(!Number.isSafeInteger(id)||id<1||!['hide','show','exclude'].includes(action))return json({error:'Action invalide'},400);
+   if(!Number.isSafeInteger(id)||id<1||!['hide','show','exclude','update'].includes(action))return json({error:'Action invalide'},400);
    const channel=await env.DB.prepare('SELECT id,link FROM channels WHERE id=?').bind(id).first();
    if(!channel)return json({error:'Canal inexistant'},404);
+   if(action==='update'){
+    const fields=validAdminChannel(data);
+    if(fields.error)return json({error:fields.error},400);
+    await env.DB.prepare("UPDATE channels SET title=?,description=?,content_type=?,genre=?,language=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
+     .bind(fields.title,fields.description,fields.content_type,fields.genre,fields.language,id).run();
+    invalidateDirectoryCache();
+    return json({ok:true,id});
+   }
    if(action==='exclude'){
     const username=linkUsername(channel.link);
     if(!username)return json({error:'Lien du canal invalide'},400);
