@@ -106,6 +106,10 @@ export async function ingestIndividualSeriesUpdate(env,update){
   const known=await env.DB.prepare("SELECT season FROM cine_series_posters WHERE chat_id=? AND source_message_id=?").bind(chatId,Number(message.message_id)).first();
   if(known){
    await env.DB.prepare("UPDATE cine_series_posters SET caption=?,observed_at=CURRENT_TIMESTAMP WHERE chat_id=? AND source_message_id=?").bind(text.slice(0,1800),chatId,Number(message.message_id)).run();
+   const expected=parseExpectedEpisodes(text);
+   if(expected)await env.DB.prepare(
+    "INSERT INTO cine_series_seasons(chat_id,season,expected_episodes) VALUES(?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET expected_episodes=excluded.expected_episodes,observed_at=CURRENT_TIMESTAMP"
+   ).bind(chatId,Number(known.season),expected).run();
    return true;
   }
  }
