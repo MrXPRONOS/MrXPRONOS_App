@@ -838,6 +838,21 @@ async function configureTelegramBot(env){
   await env.DB.prepare("INSERT INTO telegram_setup_status(id,status,bot_username,webhook_url,menu_type,error,updated_ms) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,bot_username=excluded.bot_username,webhook_url=excluded.webhook_url,menu_type=excluded.menu_type,error=excluded.error,updated_ms=excluded.updated_ms").bind("onboarding-public-admin-v1",status,"MrXpronosPlayBot","https://mrxpronos-play.cinecanaux-xpronos.workers.dev/telegram/webhook","commands",details,Date.now()).run();
 }
 
+async function mrxpSyncConfirmations(env,userId,body){
+ const requestedDaily=[...new Set(Array.isArray(body?.daily_days)?body.daily_days.filter(x=>typeof x==="string"):[])];
+ const requestedWheel=[...new Set(Array.isArray(body?.wheel_days)?body.wheel_days.filter(x=>typeof x==="string"):[])];
+ const [daily,wheel]=await Promise.all([
+  env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=?").bind(userId).all(),
+  env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=?").bind(userId).all()
+ ]);
+ const confirmedDaily=new Set((daily.results||[]).map(x=>x.day)),confirmedWheel=new Set((wheel.results||[]).map(x=>x.day));
+ return {
+  accepted_daily_days:requestedDaily.filter(x=>confirmedDaily.has(x)),
+  rejected_daily_days:requestedDaily.filter(x=>!confirmedDaily.has(x)),
+  accepted_wheel_days:requestedWheel.filter(x=>confirmedWheel.has(x)),
+  rejected_wheel_days:requestedWheel.filter(x=>!confirmedWheel.has(x))
+ }
+}
 export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
  if(p==="/api/health"){
@@ -988,7 +1003,11 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const now=Date.now(),batch=String(body.batch_id||""),taps=Number(body.taps);
   if(!/^[\w-]{16,100}$/.test(batch)||!Number.isInteger(taps)||taps<0||taps>20000)return json({error:"Lot de tapotages invalide"},400);
   const previous=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();
-  if(previous){const progression=await v2Progression(env,player),wallet=await mrxpWallet(env,player,progression);return json({ok:true,duplicate:true,xp_awarded:previous.xp_awarded,user:player,progression,wallet,shop:await mrxpBoostList(env,player,wallet)});}
+  if(previous){
+   const confirmation=await mrxpSyncConfirmations(env,user.id,body);
+   const progression=await v2Progression(env,player),wallet=await mrxpWallet(env,player,progression);
+   return json({ok:true,duplicate:true,xp_awarded:previous.xp_awarded,user:player,progression,wallet,shop:await mrxpBoostList(env,player,wallet),...confirmation})
+  }
   if(player.next_sync_ms>now)return json({error:"Prochaine synchronisation autorisée : "+new Date(player.next_sync_ms).toISOString(),next_sync_ms:player.next_sync_ms},429);
   const features=await getGameFeatures(env);
   if((!features.tap&&taps>0)||(!features.daily&&Array.isArray(body.daily_days)&&body.daily_days.length>0)||(!features.wheel&&Array.isArray(body.wheel_days)&&body.wheel_days.length>0))return json({error:"Un module du jeu est momentanément en pause. Les XP en attente restent conservés localement jusqu’à sa réactivation.",code:"GAME_PAUSED"},423);
@@ -1023,12 +1042,13 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
    ).bind(user.id,boost.energy.purchase_id,now,user.id,batch));
   const result=await env.DB.batch(ops);
   player=await env.DB.prepare("SELECT * FROM players WHERE user_id=?").bind(user.id).first();
-  if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found){const progression=await v2Progression(env,player),wallet=await mrxpWallet(env,player,progression);return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression,wallet,shop:await mrxpBoostList(env,player,wallet)});}return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
+  if(!result[0]?.meta?.changes){const found=await env.DB.prepare("SELECT xp_awarded FROM sync_receipts WHERE user_id=? AND batch_id=?").bind(user.id,batch).first();if(found){const progression=await v2Progression(env,player),wallet=await mrxpWallet(env,player,progression);return json({ok:true,duplicate:true,xp_awarded:found.xp_awarded,user:player,progression,wallet,shop:await mrxpBoostList(env,player,wallet),...await mrxpSyncConfirmations(env,user.id,body)});}return json({error:"Synchronisation simultanée ou délai de 12 heures non écoulé",next_sync_ms:player.next_sync_ms},409)}
   const updatedProgress=await v2Progression(env,player);
   const wallet=await mrxpWallet(env,player,updatedProgress);
   return json({ok:true,duplicate:false,xp_awarded:awarded,boost_bonus_xp:boostBonus,
     boost_multiplier_milli:tapMilli,energy_charge_used:boost.energy&&taps>0?boost.energyItem.energy:0,
     user:player,wheel_outcomes:outcomes,progression:updatedProgress,
+    ...await mrxpSyncConfirmations(env,user.id,body),
     wallet,shop:await mrxpBoostList(env,player,wallet)});
  }
  return json({error:"Route inconnue"},404)
