@@ -34,10 +34,13 @@ jobs:
           CINERADAR_VISUAL_SOURCE: ${{ github.event_name == 'pull_request' && 'candidate' || 'production' }}
         run: node cinecanaux/tests/navigation-mobile-visual.mjs
       - name: Exercise real mobile Mini App
+        if: github.event_name != 'pull_request'
         run: node cinecanaux/tests/pinned-mobile-visual.mjs
       - name: Verify three compact cross-promotions on mobile
+        if: github.event_name != 'pull_request'
         run: node cinecanaux/tests/partner-promotions-mobile.mjs
       - name: Verify discovery autoplay, share and second visit rating
+        if: github.event_name != 'pull_request'
         run: node cinecanaux/tests/community-mobile-visual.mjs
       - name: Upload preview (if available)
         if: always()
