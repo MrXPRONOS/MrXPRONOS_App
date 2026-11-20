@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
 import {parseSeason,parseEpisode,parseExpectedEpisodes,validSeriesPlan,seriesButtons,ingestIndividualSeriesUpdate,ingestSeriesOwnerForward} from '../individual-series.mjs';
 
 test('saisons présentes dans la description des affiches',()=>{
@@ -80,4 +82,45 @@ test('le propriétaire peut indexer une ancienne affiche et un ancien épisode p
  assert.equal(episode.stored,true);
  assert.ok(calls.some(x=>x.sql.includes('INSERT INTO cine_series_posters')&&x.args[2]===5));
  assert.ok(calls.some(x=>x.sql.includes('INSERT INTO cine_series_episodes')&&x.args[3]===35));
+});
+
+
+test('an existing season and episode cannot silently be replaced by different Telegram messages',async()=>{
+ const db=new DatabaseSync(':memory:');
+ db.exec(readFileSync(new URL('../migrations/019_cinex_individual_series.sql',import.meta.url),'utf8'));
+ db.exec("CREATE TABLE admin_users(user_id INTEGER PRIMARY KEY,role TEXT NOT NULL)");
+ db.exec("INSERT INTO admin_users VALUES(101,'owner')");
+ db.prepare("INSERT INTO cine_series_channels(chat_id,title,rights_attested) VALUES(?,'Test Série',1)").run('-1001234567890');
+ const DB={
+  prepare(sql){
+   let params=[];
+   return {
+    bind(...args){params=args;return this},
+    async first(){return db.prepare(sql).get(...params)||null},
+    async all(){return {results:db.prepare(sql).all(...params)}},
+    async run(){const a=db.prepare(sql).run(...params);return {meta:{changes:Number(a.changes)}}},
+   };
+  }
+ };
+ const env={DB},make=(messageId,caption,photo=false)=>({
+  chat:{type:'private',id:101},from:{id:101},
+  forward_origin:{type:'channel',chat:{id:-1001234567890},message_id:messageId},
+  caption,...(photo?{photo:[{file_id:'img'}]}:{video:{file_id:'video'}})
+ });
+ try{
+  assert.equal((await ingestSeriesOwnerForward(env,make(11,'S01E01'))).stored,true);
+  const different=await ingestSeriesOwnerForward(env,make(12,'S01E01'));
+  assert.equal(different.stored,false);
+  assert.match(different.reason,/déjà une autre vidéo/);
+  assert.equal(db.prepare("SELECT source_message_id FROM cine_series_episodes WHERE season=1 AND episode=1").get().source_message_id,11);
+  assert.equal((await ingestSeriesOwnerForward(env,make(11,'S01E01'))).stored,true);
+  assert.equal((await ingestIndividualSeriesUpdate(env,{channel_post:{chat:{type:'channel',id:-1001234567890},message_id:13,video:{file_id:'v'},caption:'S01E01'}})),false);
+  assert.equal(db.prepare("SELECT source_message_id FROM cine_series_episodes WHERE season=1 AND episode=1").get().source_message_id,11);
+  assert.equal((await ingestSeriesOwnerForward(env,make(31,'Saison 1 • 10 épisodes',true))).stored,true);
+  const cover=await ingestSeriesOwnerForward(env,make(32,'Saison 1 • nouvelle affiche',true));
+  assert.equal(cover.stored,false);
+  assert.equal(db.prepare("SELECT source_message_id FROM cine_series_posters WHERE season=1").get().source_message_id,31);
+  const mark=seriesButtons('abcdefghijklmnopqrstuvwx','https://t.me/+abcdefghijkL','https://t.me/addlist/ABCDEFGHIJK');
+  assert.match(mark.inline_keyboard[0][0].text,/épisodes disponibles/);
+ }finally{db.close()}
 });
