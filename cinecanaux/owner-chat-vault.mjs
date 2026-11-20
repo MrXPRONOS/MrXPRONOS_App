@@ -15,11 +15,13 @@ async function sourceAllowed(env,sourceId,messageId,kind,caption){
  const source=await env.DB.prepare(
   "SELECT (SELECT rights_attested FROM cine_series_channels WHERE chat_id=? AND enabled=1) AS series_rights,"+
   "(SELECT rights_attested FROM cine_delivery_libraries WHERE private_chat_id=? AND bot_access='verified') AS library_rights,"+
-  "(SELECT COUNT(*) FROM cine_classic_links WHERE source_chat_id=? AND source_message_id=? AND status='published') AS classic_link"
- ).bind(sourceId,sourceId,sourceId,Number(messageId)).first();
+  "(SELECT COUNT(*) FROM cine_classic_links WHERE source_chat_id=? AND source_message_id=? AND status='published') AS classic_link,"+
+  "(SELECT rights_attested FROM cine_franchise_catalog WHERE source_chat_id=? AND status!='disabled') AS franchise_rights"
+ ).bind(sourceId,sourceId,sourceId,Number(messageId),sourceId).first();
  const isSeries=Number(source?.series_rights)===1;
  const isLibrary=Number(source?.library_rights)===1;
  const classic=Number(source?.classic_link)>0;
+ const isFranchise=Number(source?.franchise_rights)===1;
  // Photographs are mirrored only when clearly identified as a series season poster,
  // or when they have been indexed as an actual approved poster.
  if(kind==='poster'){
@@ -27,10 +29,17 @@ async function sourceAllowed(env,sourceId,messageId,kind,caption){
    const known=await env.DB.prepare("SELECT 1 AS ok FROM cine_series_posters WHERE chat_id=? AND source_message_id=?").bind(sourceId,Number(messageId)).first();
    return Boolean(known?.ok)||/(?:saison|season|S)\s*0?[1-9]\d?\b/i.test(caption);
   }
+  // The franchise source has ONE main poster; all approved media are private.
+  if(isFranchise){
+   const poster=await env.DB.prepare(
+    "SELECT 1 AS ok FROM cine_franchise_catalog WHERE source_chat_id=? AND poster_source_message_id=?"
+   ).bind(sourceId,Number(messageId)).first();
+   return Boolean(poster?.ok);
+  }
   // Dedicated approved film/series libraries also contain their own posters.
   return isLibrary;
  }
- return isSeries||isLibrary||classic;
+ return isSeries||isLibrary||classic||isFranchise;
 }
 
 async function ownerId(env){
