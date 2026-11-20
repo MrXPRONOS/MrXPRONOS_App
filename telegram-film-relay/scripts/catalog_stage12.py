@@ -89,9 +89,9 @@ def classify(message, category: str) -> dict | None:
     }
 
 
-def describe_result(target: dict, media: list[dict], scanned: int, ignored: int) -> dict:
+def describe_result(target: dict, media: list[dict], scanned: int, ignored: int, *, bot_access: str = "unchecked") -> dict:
     return {
-        **target, "owner_access": "verified", "status": "scanned",
+        **target, "owner_access": "verified", "bot_access": bot_access, "status": "scanned",
         "scanned_messages": scanned, "candidate_count": len(media),
         "ignored_messages": ignored, "media": media,
     }
@@ -113,6 +113,17 @@ async def audit_targets(targets: list[dict], *, max_scan: int = MAX_SCAN) -> dic
         if not await client.is_user_authorized():
             raise RuntimeError("Session Telegram utilisateur expirée")
         me = await client.get_me()
+        # Resolve the actual public Cine Radar bot using the owner session:
+        # no bot token is needed, and the publishing bots are not substitutes.
+        radar_bot = None
+        try:
+            candidate = await client.get_entity("@CineRadarFr_Bot")
+            if (getattr(candidate, "bot", False)
+                    and str(getattr(candidate, "username", "") or "").casefold()
+                    == "cineradarfr_bot"):
+                radar_bot = candidate
+        except Exception:
+            pass
         for target in targets:
             item = {**target, "owner_access": "error", "status": "error", "media": [],
                     "candidate_count": 0, "scanned_messages": 0}
@@ -130,6 +141,17 @@ async def audit_targets(targets: list[dict], *, max_scan: int = MAX_SCAN) -> dic
                     raise RuntimeError("Le compte utilisateur n'est pas administrateur de la vidéothèque")
                 if not target["rights_attested"]:
                     raise RuntimeError("Attestation des droits non confirmée")
+                bot_access = "error" if radar_bot is None else "not_member"
+                if radar_bot is not None:
+                    try:
+                        bot_permissions = await client.get_permissions(peer, radar_bot)
+                        if (getattr(bot_permissions, "is_creator", False) or
+                                getattr(bot_permissions, "is_admin", False)):
+                            bot_access = "verified"
+                    except Exception:
+                        # Bot absent: inventory remains available for review,
+                        # but must NEVER be treated as delivery-ready.
+                        bot_access = "not_member"
                 found = []
                 observed = 0
                 for message in [m async for m in client.iter_messages(peer, limit=max_scan)]:
@@ -139,7 +161,7 @@ async def audit_targets(targets: list[dict], *, max_scan: int = MAX_SCAN) -> dic
                         found.append(media)
                     if len(found) >= MAX_CANDIDATES:
                         break
-                item = describe_result(target, found, observed, observed-len(found))
+                item = describe_result(target, found, observed, observed-len(found), bot_access=bot_access)
             except Exception as exc:
                 # No private Telegram IDs, usernames or tokens in log outputs.
                 item["error_type"] = type(exc).__name__
@@ -156,22 +178,21 @@ def sql_queries(report: dict):
         if lib.get("status") != "scanned":
             continue
         yield {"sql": """INSERT INTO cine_delivery_libraries
-          (category,public_handle,private_chat_id,rights_attested,owner_access,bot_access,observed_videos,last_scanned_at)
-          VALUES(?,?,?,?,?,'unchecked',?,?)
+          (category,public_handle,private_chat_id,rights_attested,owner_access,bot_access,observed_videos,last_scanned_at,last_bot_checked_at)
+          VALUES(?,?,?,?,?,?,?,?,?)
           ON CONFLICT(category) DO UPDATE SET
           public_handle=excluded.public_handle,
           private_chat_id=excluded.private_chat_id,
           rights_attested=excluded.rights_attested,
           owner_access=excluded.owner_access,
-          bot_access=CASE WHEN cine_delivery_libraries.private_chat_id=excluded.private_chat_id
-                     THEN cine_delivery_libraries.bot_access ELSE 'unchecked' END,
-          last_bot_checked_at=CASE WHEN cine_delivery_libraries.private_chat_id=excluded.private_chat_id
-                     THEN cine_delivery_libraries.last_bot_checked_at ELSE NULL END,
+          bot_access=excluded.bot_access,
+          last_bot_checked_at=excluded.last_bot_checked_at,
           observed_videos=excluded.observed_videos,
           last_scanned_at=excluded.last_scanned_at,updated_at=CURRENT_TIMESTAMP""",
           "params": [lib["category"],lib["public_handle"],lib["private_chat_id"],
                      str(int(lib["rights_attested"])),lib["owner_access"],
-                     str(len(lib["media"])),report["scanned_at"]]}
+                     lib.get("bot_access","unchecked"),str(len(lib["media"])),
+                     report["scanned_at"],report["scanned_at"]]}
         for m in lib["media"]:
             yield {"sql": """INSERT INTO cine_delivery_titles
              (title_key,category,normalized_title,display_title,content_kind,rights_attested)
@@ -227,7 +248,8 @@ def main():
     path = Path(args.output)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    safe = {x["category"]: {"status":x["status"],"candidates":x["candidate_count"],
+    safe = {x["category"]: {"status":x["status"],"bot_access":x.get("bot_access","unchecked"),
+                             "candidates":x["candidate_count"],
                              "observed":x["scanned_messages"],
                              "error_type":x.get("error_type")} for x in report["libraries"]}
     print("CATALOG_STAGE12_AUDIT: " + json.dumps(safe))
