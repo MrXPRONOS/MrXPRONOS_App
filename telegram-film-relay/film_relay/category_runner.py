@@ -426,7 +426,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             LOG.info("%s : film publié privé=%s public=%s Torrent9=%s",
                      cfg["label"], private_video_id, public_post.id, mirrored_id)
             completed += 1
-            await asyncio.sleep(max(20.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
+            await asyncio.sleep(max(60.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             if completed >= limit:
                 break
         if publish:
