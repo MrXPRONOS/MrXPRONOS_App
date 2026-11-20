@@ -131,3 +131,31 @@ La bibliothèque V2 est intégrée au dépôt depuis la pull request [#486](http
 Les 25 visuels possèdent un original PNG et un WebP optimisé, tous contrôlés par les empreintes SHA-256 de `assets-manifest-v2.json`. Les anciennes ressources 01–60 et les 11 portraits de rang demeurent inchangés. Les images sont utilisées pour les rangs, les étoiles, les récompenses, les défis, les boosts, et les cartes de profil ; les statistiques et noms restent issus des données signées du serveur. Des replis visuels conservent l'affichage en cas d'échec d'une image.
 
 **Vérifications :** 77/77 tests de non-régression, tests d'intégrité, contrôles de syntaxe, santé du bot/Cloudflare/D1, puis contrôle public de 45/45 réponses V2 après déploiement. Validation tactile et visuelle spécifique Android/iOS dans Telegram toujours recommandée avant de considérer la recette mobile comme terminée.
+
+
+## V47 — Remplacement des émojis par les ressources déjà générées (20 novembre 2026)
+
+Changements fusionnés par les pull requests [#491](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/491) et [#495](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/495), déployés sur `mrxpronos-play` à 100 % (version Cloudflare 47).
+
+- Lucky Wheel : `21-lucky-wheel-full.webp` et `20-nav-lucky-wheel.webp` dans le hub et le titre.
+- Crédits MRXP : `06-mrxp-token-coin.webp` dans les sections Missions, Profil et Boutique.
+- Récompenses / défis : `25-gift-box.webp`, `31-quests-target.webp`, `80-mastery-seal.webp`, `37-success-green-check.webp`, `58-mission-complete.webp`.
+- Progression / verrouillage : `78-prestige-star.webp`, `51-locked-padlock.webp`, `38-level-crown.webp`.
+- Boutique / Telegram : `07-energy-blue-bolt.webp`, `55-telegram-channel.webp`.
+- En-tête du joueur : le bouclier générique `60-crowned-shield.webp` est désormais un **visuel de secours** ; l'image principale suit le rang officiel avec `61` à `71`.
+- Inventaire : coffre existant `50-nft-collection-chest.webp`, au lieu de l'émoji de sac.
+- Partager le profil et créer sa carte : modèle de carte existant `84-profile-card-square.webp`.
+
+Les libellés fonctionnels, droits Telegram, règles XP, crédits et synchronisations sont inchangés. Tests GitHub : **78/78 réussis**. Contrôles du Worker et de la base D1 réussis ; le test public a confirmé **50/50 réponses avec les images V47** après le déploiement complet. La vérification visuelle tactile dans Telegram sur Android/iPhone reste à réaliser.
+
+### Nouveau lot 6 de cinq visuels à générer (aucun fichier encore créé)
+
+| N° prévu | Élément restant | Besoin |
+|---|---|---|
+| 86 | Snake | Icône 3D autonome du jeu Snake dans le hub |
+| 87 | Boutique | Sac de boutique premium bleu/or pour les boutons d'accès |
+| 88 | Télécharger PNG | Petite icône nette et identifiable de téléchargement |
+| 89 | Partager l'image | Icône premium d'export/partage d'image |
+| 90 | Copier la preuve | Icône copie de lien vérifiable |
+
+Ces cinq ressources nécessitent de nouvelles images. Les émojis associés restent provisoirement visibles à leur emplacement tant que ce lot n'est pas créé et intégré. La navigation et les messages natifs Telegram ne font pas partie de ce lot.
