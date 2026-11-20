@@ -33,6 +33,9 @@ def api(bot,method,params):
     except ValueError as e:
         raise RuntimeError("Réponse Telegram indéterminée, aucun réessai automatique") from e
     if not response.ok or not obj.get("ok"):
+        # Reapplying an already-current colored keyboard is a successful no-op.
+        if method=="editMessageReplyMarkup" and "message is not modified" in str(obj.get("description","")).lower():
+            return True
         raise RuntimeError("Telegram "+method+" refusé (code "+str(obj.get("error_code",response.status_code))+")")
     return obj["result"]
 
@@ -97,6 +100,35 @@ def source_pair():
     return key,private_video,public_poster
 
 
+def poster_buttons(download,secours,folder):
+    """One dedicated native Telegram color per action."""
+    return {"inline_keyboard":[
+        [{"text":"⬇️ Télécharger","url":download,"style":"success"}],
+        [{"text":"🛟 Rejoindre le canal secours","url":secours,"style":"danger"}],
+        [{"text":"📁 Rejoindre le dossier","url":folder,"style":"primary"}],
+    ]}
+
+
+def save_buttons(public_video_id):
+    url="https://t.me/"+HANDLE+"/"+str(int(public_video_id))
+    return {"inline_keyboard":[[{
+        "text":"💾 Enregistrer / partager",
+        "url":"https://t.me/share/url?url="+quote(url,safe=""),
+        "style":"primary",
+    }]]}
+
+
+def previous_classic_publication(state, private_video):
+    """A historical GitHub receipt is evidence the media was ALREADY posted.
+    Never republish it just because the new D1 ledger is missing.
+    """
+    for key,row in state.get("processed",{}).items():
+        if isinstance(row,dict) and int(row.get("private_message_id") or 0)==int(private_video):
+            if int(row.get("public_message_id") or 0)>0:
+                return key,int(row["public_message_id"])
+    return None
+
+
 def publish():
     if os.environ.get("CINEX_DOWNLOADS_ENABLED","").lower()!="true":
         raise RuntimeError("GitHub CINEX_DOWNLOADS_ENABLED n'est pas à true")
@@ -127,6 +159,7 @@ def publish():
     help_link=rescue_url(bot)
     key,video_id,poster_id=source_pair()
     source_id=private
+    legacy_state=json.loads((ROOT/"state/state.json").read_text(encoding="utf-8"))
     title="Film CinéX (sélection vérifiée)"
     existing=d1(
         "SELECT token,status,public_poster_message_id,public_video_message_id FROM cine_classic_links WHERE source_chat_id=? AND source_message_id=?",
@@ -135,11 +168,33 @@ def publish():
         record=existing[0]
         token=record["token"]
         if record["status"]=="published":
-            print("ALREADY_PUBLISHED : le film enregistré ne sera pas copié en double")
-            print("FICHE_TELEGRAM : https://t.me/"+HANDLE+"/"+str(record["public_poster_message_id"]))
-            print("VIDEO_TELEGRAM : https://t.me/"+HANDLE+"/"+str(record["public_video_message_id"]))
+            poster_id_existing=int(record["public_poster_message_id"] or 0)
+            video_id_existing=int(record["public_video_message_id"] or 0)
+            if poster_id_existing<=0 or video_id_existing<=0:
+                raise RuntimeError("Reçu D1 publié incomplet : diagnostic requis, pas de republication")
+            # Edit in place: NEVER repost a published film just to change button colors.
+            url_download="https://t.me/CineRadarFr_Bot?start=d_"+token
+            api(bot,"editMessageReplyMarkup",{
+                "chat_id":PUBLIC,"message_id":poster_id_existing,
+                "reply_markup":poster_buttons(url_download,help_link,folder),
+            })
+            api(bot,"editMessageReplyMarkup",{
+                "chat_id":PUBLIC,"message_id":video_id_existing,
+                "reply_markup":save_buttons(video_id_existing),
+            })
+            print("ALREADY_PUBLISHED : boutons colorés mis à jour sur les messages existants ; 0 nouvelle publication")
+            print("FICHE_TELEGRAM : https://t.me/"+HANDLE+"/"+str(poster_id_existing))
+            print("VIDEO_TELEGRAM : https://t.me/"+HANDLE+"/"+str(video_id_existing))
             return
+        # A timeout after sending may leave pending with an unknown Telegram ID.
+        # Never guess and repost; require manual reconciliation of the receipt.
+        raise RuntimeError("PUBLICATION_PENDING_REVIEW : publication partielle ; aucun réessai automatique")
     else:
+        previous=previous_classic_publication(legacy_state,video_id)
+        if previous:
+            print("ALREADY_PUBLISHED_LEGACY : cette vidéo figure déjà dans le registre GitHub : "+str(previous[0]))
+            print("PUBLICATION_SKIPPED : aucune nouvelle affiche ni vidéo envoyée")
+            return
         token=secrets.token_urlsafe(18)
         if not TOKEN.fullmatch(token):
             raise RuntimeError("Token de livraison invalide")
@@ -147,11 +202,7 @@ def publish():
            [token,source_id,video_id,title,"@"+HANDLE])
         record={"token":token,"status":"pending","public_poster_message_id":None,"public_video_message_id":None}
     download="https://t.me/CineRadarFr_Bot?start=d_"+token
-    rows={"inline_keyboard":[
-        [{"text":"⬇️ Télécharger","url":download}],
-        [{"text":"🛟 Rejoindre le canal secours","url":help_link}],
-        [{"text":"📁 Rejoindre le dossier","url":folder}]
-    ]}
+    rows=poster_buttons(download,help_link,folder)
     poster_new=record["public_poster_message_id"]
     if not poster_new:
         poster_new=api(bot,"copyMessage",{
@@ -169,14 +220,9 @@ def publish():
         d1("UPDATE cine_classic_links SET public_video_message_id=?,updated_at=CURRENT_TIMESTAMP WHERE token=? AND status='pending'",
            [video_new,token])
     url="https://t.me/"+HANDLE+"/"+str(video_new)
-    # This opens Telegram's share destination picker. Selecting Saved Messages
-    # saves the public post LINK; saving the file requires native Forward.
-    share="https://t.me/share/url?url="+quote(url,safe="")
     api(bot,"editMessageReplyMarkup",{
         "chat_id":PUBLIC,"message_id":video_new,
-        "reply_markup":{"inline_keyboard":[[
-            {"text":"💾 Enregistrer / partager","url":share}
-        ]]},
+        "reply_markup":save_buttons(video_new),
     })
     d1("UPDATE cine_classic_links SET status='published',updated_at=CURRENT_TIMESTAMP WHERE token=? AND public_poster_message_id=? AND public_video_message_id=?",
        [token,poster_new,video_new])
