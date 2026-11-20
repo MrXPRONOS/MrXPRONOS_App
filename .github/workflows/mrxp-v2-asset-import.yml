@@ -37,7 +37,12 @@ jobs:
           project=maps[0].parent
           assets=project/'assets'
           png=list(assets.rglob('*.png'));webp=list(assets.rglob('*.webp'))
-          if len(png)<25 or len(webp)!=25: raise SystemExit(f'Asset count mismatch PNG={len(png)} WebP={len(webp)}')
+          if len(png)!=27 or len(webp)!=26: raise SystemExit(f'Asset count mismatch PNG={len(png)} WebP={len(webp)}')
+          import re
+          for n in range(61,86):
+              matching_png=[f for f in png if f.name.startswith(f'{n}-') and not f.name.endswith('-foreground.png')]
+              matching_webp=[f for f in webp if f.name.startswith(f'{n}-')]
+              if len(matching_png)!=1 or len(matching_webp)!=1: raise SystemExit(f'Missing or duplicate image #{n}')
           from PIL import Image
           for f in png+webp:
               with Image.open(f) as im:
