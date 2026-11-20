@@ -358,6 +358,12 @@ async def repair_legacy_indexes(client, bot, private, public, bot_public,
                 success = False
         else:
             success = False
+        if not success:
+            # The old cards remain untouched if the target private indexes
+            # are not proven healthy; never point viewers to broken pages.
+            LOG.warning("Anime : index %s non confirmé, anciennes fiches inchangées", key)
+            save_catalog(catalogue)
+            continue
         redirected = {int(i) for i in series.get("legacy_cards_redirected", [])}
         for legacy_id in series.get("legacy_public_ids", []):
             if int(legacy_id) in redirected:
