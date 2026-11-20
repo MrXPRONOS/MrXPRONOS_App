@@ -1,3 +1,5 @@
 CineX series bot-only diagnostic trigger
 Run after verified Radar Worker deployment of commit 726688260629960732195968327f55c6ee7f3ee4.
 No Telegram personal session or publication permitted on this push.
+
+Second bot-only diagnostic run after safe Radar-independent indexing fix commit 59ac8cb35f065aeb6e030404555b342966806453.
