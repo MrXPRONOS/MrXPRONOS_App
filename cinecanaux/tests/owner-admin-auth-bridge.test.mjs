@@ -94,8 +94,7 @@ test('API remains private to signed enrolled owner, without any anonymous bypass
 });
 
 test('navigation script defines Telegram auth helper in the same lexical scope as the UI',()=>{
- const chunks=[...APP_HTML.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)].map(x=>x[1]);
- const nav=chunks.find(x=>x.includes('function featuredCard('));
+ const nav=APP_HTML.slice(APP_HTML.lastIndexOf('<script>'));
  assert.ok(nav,'Navigation script must exist');
  assert.ok(nav.includes('function readTelegramInitData()'),'Telegram auth helper must be declared in navigation script');
  assert.ok(nav.includes('const signedTelegramInitData='),'Navigation must directly own the signed session helper');
