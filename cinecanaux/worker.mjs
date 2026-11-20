@@ -18,6 +18,7 @@ import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./tr
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
+import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
 // never expose or log the Telegram token itself.
@@ -432,6 +433,7 @@ export default {
   })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
   if(controller.cron==="* * * * *"){
    ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(cleanupDeliveredCopies(env).catch(e=>console.warn("cinex_expiry_cleanup_failed",String(e?.name||"error"))));
    return;
   }
   else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{

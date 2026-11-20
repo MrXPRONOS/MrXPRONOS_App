@@ -57,6 +57,13 @@ export async function adminAPI(env,request,ctx){
  }
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
+ if(request.method==='GET'&&path==='/api/admin/cinex/expiry'){
+  const [stats,history]=await Promise.all([
+   env.DB.prepare("SELECT COUNT(*) AS tracked,COUNT(CASE WHEN i.delete_state='deleted' THEN 1 END) AS deleted,COUNT(CASE WHEN i.delete_state='already_gone' THEN 1 END) AS already_gone,COUNT(CASE WHEN i.delete_state='manual_review' THEN 1 END) AS manual_review,COUNT(CASE WHEN i.delete_state IN ('pending','retry','deleting') AND i.delete_after<=CURRENT_TIMESTAMP THEN 1 END) AS overdue,COUNT(CASE WHEN i.delete_state IN ('pending','retry') AND i.delete_after>CURRENT_TIMESTAMP THEN 1 END) AS awaiting FROM cine_delivery_job_items i WHERE i.state='sent' AND i.delivered_message_id IS NOT NULL").first(),
+   env.DB.prepare("SELECT run_at,claimed,deleted,already_gone,retries,manual_review FROM cine_delivery_cleanup_runs ORDER BY id DESC LIMIT 10").all()
+  ]);
+  return json({stats:stats||{},history:history.results||[]});
+ }
  if(request.method==='GET'&&path==='/api/admin/cinex/catalog'){
   const [flag,entries,libraries]=await Promise.all([
    env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first(),

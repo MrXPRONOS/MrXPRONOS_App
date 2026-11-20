@@ -68,8 +68,8 @@ export async function handleDeliveryStart(env,update){
    "INSERT OR IGNORE INTO cine_delivery_job_items(job_id,ordinal,source_chat_id,source_message_id) VALUES(?,?,?,?)"
   ).bind(job.id,i+1,link.private_chat_id,m.source_message_id)));
   await say(env,chat,media.length>1?
-   '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre.':
-   '🎬 Le film « '+String(link.display_title).slice(0,85)+' » va être envoyé automatiquement.',
+   '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 24 heures. Pense à les transférer dans Messages enregistrés.':
+   '🎬 Le film « '+String(link.display_title).slice(0,85)+' » va être envoyé automatiquement. Cette copie expire après 24 heures. Pense à la transférer dans Messages enregistrés.',
    {inline_keyboard:[[{text:'🍿 Explorer Ciné Radar',web_app:{url:MINI_APP}}]]});
   return {handled:true,accepted:true,job_id:job.id};
  }catch(e){
@@ -143,7 +143,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;break;
   }
   await env.DB.batch([
-   env.DB.prepare("UPDATE cine_delivery_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP WHERE job_id=? AND ordinal=?").bind(copied,job.id,pending.ordinal),
+   env.DB.prepare("UPDATE cine_delivery_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,delete_after=datetime('now','+24 hours'),delete_retry_at=datetime('now','+24 hours'),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ordinal=? AND state='sending'").bind(copied,job.id,pending.ordinal),
    env.DB.prepare("UPDATE cine_delivery_jobs SET delivered_items=delivered_items+1,status='queued',lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id)
   ]);
   const remaining=items.filter(x=>x.state==='queued'&&Number(x.ordinal)>Number(pending.ordinal)).length;

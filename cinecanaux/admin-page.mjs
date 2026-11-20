@@ -136,6 +136,10 @@ ${ADMIN_OPS_HTML}
   <button type="button" id="cinex-disable" class="danger">Désactiver les téléchargements</button>
  </div>
  <p id="cinex-catalog-status" role="status">Chargement de la disponibilité…</p>
+ <h3>⏳ Expiration après 24 heures</h3>
+ <p>Seules les copies envoyées par Ciné Radar dans les conversations privées sont supprimées. Les vidéothèques et les Messages enregistrés ne sont pas concernés.</p>
+ <p id="cinex-expiry-status" role="status">Chargement du nettoyage…</p>
+ <button type="button" id="cinex-expiry-refresh">↻ Vérifier les expirations</button>
  <div id="cinex-catalog-list"></div>
 </section>
 <section class="broadcast-box" id="radar-ops" aria-label="Gestion des tendances et canaux">
@@ -561,7 +565,18 @@ for(const action of ["hide","show","exclude"])$(action).onclick=async()=>{
  if(action==="exclude"&&!confirm("Exclure durablement ce canal ?"))return;
  try{await manage(id,action);}catch(e){status(String(e.message||e));}
 };
+async function refreshCineXExpiry(){
+ const result=await api("/api/admin/cinex/expiry"),s=result.stats||{};
+ $("cinex-expiry-status").textContent="Copies suivies : "+Number(s.tracked||0)+
+ " · supprimées : "+Number(s.deleted||0)+
+ " · déjà absentes : "+Number(s.already_gone||0)+
+ " · en attente : "+Number(s.awaiting||0)+
+ " · en retard : "+Number(s.overdue||0)+
+ " · contrôle manuel : "+Number(s.manual_review||0);
+}
+$("cinex-expiry-refresh").onclick=()=>refreshCineXExpiry().catch(e=>$("cinex-expiry-status").textContent=String(e.message||e));
 async function refreshCineXCatalog(){
+ refreshCineXExpiry().catch(e=>$("cinex-expiry-status").textContent=String(e.message||e));
  const data=await api("/api/admin/cinex/catalog");
  const stat=$("cinex-catalog-status");
  stat.textContent=data.enabled?"Distribution activée : seuls les contenus validés sont disponibles.":"Distribution désactivée : aucune nouvelle demande acceptée.";
