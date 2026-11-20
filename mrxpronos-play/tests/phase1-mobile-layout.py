@@ -107,7 +107,7 @@ with sync_playwright() as p:
                                pillRight:pill.right,pillWidth:pill.width,
                                progressBackground:getComputedStyle(pct).backgroundImage,
                                trackRight:track.right,
-                               progressTitle:document.querySelector('.mrxp-progression-card .section-title').textContent.trim()};
+                               progressTitle:document.querySelector('#screen-profile .mrxp-progression-card .section-title').textContent.trim()};
                     }""")
                     assert panel["actionsRight"] <= width + 1, f"Share controls overflow: {width}: {panel}"
                     assert panel["faceRight"]+8 <= panel["shieldLeft"], f"Portrait and rank shield touch: {width}: {panel}"
