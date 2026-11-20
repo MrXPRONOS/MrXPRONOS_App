@@ -21,6 +21,7 @@ import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-d
 import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDeliveries} from "./cinex-classic.mjs";
 import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
 import {allowPublicEvent,publicRateLimited,purgeOldPublicEventBuckets} from "./public-event-limiter.mjs";
+import {pruneFinalizedCineReceipts} from "./receipt-retention.mjs";
 import {ingestIndividualSeriesUpdate,ingestSeriesOwnerForward,handleSeriesStart,processSeriesQueue,cleanupSeriesCopies} from "./individual-series.mjs";
 import {enqueueOwnerVaultUpdate,captureOwnerForwardInVault,processOwnerVaultQueue} from "./owner-chat-vault.mjs";
 import {ingestFranchiseOwnerForward,ingestFranchiseChannelPost,handleFranchiseOwnerCommand,handleFranchiseDownloadStart,processFranchiseQueue,cleanupFranchiseCopies} from "./franchise-films.mjs";
@@ -503,6 +504,7 @@ export default {
   else if(controller.cron==="0 3 * * *"){
    ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
    ctx.waitUntil(purgeOldPublicEventBuckets(env).catch(e=>console.warn('cine_public_limits_expiry_failed',String(e?.name||'error'))));
+   ctx.waitUntil(pruneFinalizedCineReceipts(env).catch(e=>console.warn('cine_receipt_retention_failed',String(e?.name||'error'))));
   }
   else if(controller.cron==="0 */6 * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
    const hour=new Date(controller.scheduledTime||Date.now()).getUTCHours();
