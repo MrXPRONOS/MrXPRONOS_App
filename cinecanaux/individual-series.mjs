@@ -306,7 +306,7 @@ export async function cleanupSeriesCopies(env,{limit=12,now=Date.now()}={}){
    await env.DB.prepare("UPDATE cine_series_job_items SET delete_state='manual_review',delete_last_error='invalid_private_receipt' WHERE job_id=? AND ordinal=? AND state='sent' AND delete_state IN ('pending','retry') AND delete_after<=CURRENT_TIMESTAMP AND COALESCE(delete_retry_at,delete_after)<=CURRENT_TIMESTAMP").bind(row.job_id,row.ordinal).run();
    result.manual_review++;continue;
   }
-  const claimed=await env.DB.prepare("UPDATE cine_series_job_items SET delete_state='deleting',delete_lock_until=datetime('now','+2 minutes'),delete_attempts=delete_attempts+1 WHERE job_id=? AND ordinal=? AND delete_state IN ('pending','retry')").bind(row.job_id,row.ordinal).run();
+  const claimed=await env.DB.prepare("UPDATE cine_series_job_items SET delete_state='deleting',delete_lock_until=datetime('now','+2 minutes'),delete_attempts=delete_attempts+1 WHERE job_id=? AND ordinal=? AND state='sent' AND delete_state IN ('pending','retry') AND delete_after<=CURRENT_TIMESTAMP AND COALESCE(delete_retry_at,delete_after)<=CURRENT_TIMESTAMP").bind(row.job_id,row.ordinal).run();
   if(Number(claimed.meta?.changes)!==1)continue;
   const attempt=Number(row.delete_attempts||0)+1;
   const opts={sentAt:row.sent_at,now,attempt};
