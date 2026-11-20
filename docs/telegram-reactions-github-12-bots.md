@@ -65,6 +65,16 @@ Le job GitHub `coverage_audit`, lancé lors d'une modification ou d'un déclench
 
 Aucun post Telegram de test n'est envoyé. Les permissions et les paramètres du canal se règlent dans Telegram par son propriétaire.
 
+## Bots 03 à 16 : numéros manquants et reprise d'accès
+
+Les secrets numérotés ne doivent **pas** être consécutifs : si seuls `TELEGRAM_REACTION_BOT_03_TOKEN`, `TELEGRAM_REACTION_BOT_07_TOKEN`, `TELEGRAM_REACTION_BOT_13_TOKEN` et `TELEGRAM_REACTION_BOT_16_TOKEN` sont renseignés, le workflow utilise ces quatre bots et ignore les autres numéros.
+
+Pour chaque nouveau message reçu par le webhook Ciné Radar, les bots dont `getMe` confirme l'identité reçoivent une tâche de réaction, avec leur propre ❤️ ou 👍. Un bot ajouté après la publication d'un message ne rattrape pas les anciens posts antérieurs à sa première activation.
+
+**Telegram reste responsable des autorisations** : chaque bot doit être administrateur des canaux ciblés et les réactions ❤️ / 👍 doivent être permises. L'ajout d'un secret dans GitHub ne fait pas entrer le bot dans un canal. Si Telegram renvoie `chat_not_found` ou `not enough rights`, la réaction est désormais conservée pour un nouvel essai après **15 à 60 minutes**. Les messages supprimés ou les emojis interdits restent bloqués.
+
+Lors de chaque exécution, le journal GitHub indique les numéros configurés de 03 à 16 et les numéros dont l'identité Telegram est validée. Un secret de bot invalide, redondant ou attribué au mauvais bot doit être corrigé dans GitHub. Le programme ne crée ni jeton ni bot.
+
 ## Vérification
 
 Workflow GitHub : `.github/workflows/telegram-reactions-github.yml`.
