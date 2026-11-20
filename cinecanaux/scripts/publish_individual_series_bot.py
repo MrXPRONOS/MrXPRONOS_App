@@ -152,14 +152,16 @@ def keyboard(token, rescue, folder):
     ]}
 
 
-def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int, chat_id: str, rights: bool, expected_seasons: int | None = None):
+def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int | None, chat_id: str, rights: bool, expected_seasons: int | None = None):
     chat = publisher.call("getChat", {"chat_id": chat_id})
     if str(chat.get("id")) != chat_id or chat.get("type") != "channel":
         raise RuntimeError("Canal privé inaccessible ou différent du registre")
     role = publisher.call("getChatMember", {"chat_id": chat_id, "user_id": publisher_id})
-    radar = publisher.call("getChatMember", {"chat_id": chat_id, "user_id": radar_id})
     publisher_ok = is_admin(role)
-    radar_ok = is_admin(radar)
+    radar_ok = None
+    if radar_id is not None:
+        radar = publisher.call("getChatMember", {"chat_id": chat_id, "user_id": radar_id})
+        radar_ok = is_admin(radar)
     title = str(chat.get("title") or "").strip()[:150]
     pin = chat.get("pinned_message") or {}
     caption = str(pin.get("caption") or pin.get("text") or "").strip()
@@ -169,7 +171,9 @@ def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int, chat_id: s
        "ON CONFLICT(chat_id) DO UPDATE SET title=excluded.title,publisher_access=excluded.publisher_access,"
        "radar_access=excluded.radar_access,rights_attested=excluded.rights_attested,"
        "expected_seasons=CASE WHEN COALESCE(excluded.expected_seasons,0)>COALESCE(cine_series_channels.expected_seasons,0) THEN excluded.expected_seasons ELSE cine_series_channels.expected_seasons END,verified_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP",
-       [chat_id, title, "verified" if publisher_ok else "not_admin", "verified" if radar_ok else "not_admin", 1 if rights else 0,expected_seasons])
+       [chat_id, title, "verified" if publisher_ok else "not_admin",
+        "unchecked" if radar_ok is None else "verified" if radar_ok else "not_admin",
+        1 if rights else 0,expected_seasons])
 
     got_pin = bool(pin.get("photo"))
     if got_pin and season and int(pin.get("message_id") or 0) > 0:
@@ -241,10 +245,20 @@ def main():
         raise RuntimeError("CINEX_PUBLISH_BOT_TOKEN est manquant")
     bot = BotAPI(bot_token)
     me = bot.call("getMe", {})
-    radar_id = identify_radar_bot(os.getenv("CINEX_RADAR_BOT_TOKEN", "").strip())
     rights = os.getenv("CINEX_SERIES_RIGHTS_ATTESTED","").lower() == "true"
     declared_counts = parse_season_counts(os.getenv("CINEX_SERIES_SEASON_COUNTS",""))
     publish = os.getenv("CINEX_SERIES_PUBLISH_ENABLED","").lower() == "true"
+    radar_id = None
+    radar_warning = None
+    try:
+        radar_id = identify_radar_bot(os.getenv("CINEX_RADAR_BOT_TOKEN", "").strip())
+    except RuntimeError as error:
+        if publish:
+            raise RuntimeError("Publication bloquée : identité Ciné Radar non vérifiée") from None
+        # Indexing posters is read-only on Telegram: do not block all sources
+        # just because the delivery bot health endpoint is unavailable.
+        radar_warning = str(error)[:220]
+        print("CINEX_RADAR_UNVERIFIED: synchronisation des affiches autorisée sans publication")
     results = []
     for cid in ids:
         try:
@@ -276,6 +290,8 @@ def main():
                 entry.update({"status":"PUBLICATION_REQUIRES_REVIEW","error":str(error)[:150]})
     Path("cinex-series-sync-report.json").write_text(json.dumps({
         "mode":"bot_only", "publish_enabled":publish,"rights_attested":rights,
+        "radar_identity_verified":radar_id is not None,
+        "radar_warning":radar_warning,
         "count":len(ids),"channels":results},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     for item in results:
         print("SERIE_SYNC",item["chat_id"],item["status"],item.get("latest_pin_season",""))
