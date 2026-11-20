@@ -44,7 +44,7 @@ async function run(viewport,device){
   await page.locator('#ad-menu-bottom').click();
   assert.equal(await page.locator('#ad-nav').evaluate(x=>x.classList.contains('ad-open')),true,'Mobile drawer must open');
   await page.screenshot({path:'/tmp/cineradar-admin-v11-menu.png'});
-  await page.locator('#ad-menu-toggle').click();
+  await page.locator('#ad-nav-close').click();
  }
  for(const [id,target] of steps){
   if(device)await page.locator('#ad-menu-toggle').click();
