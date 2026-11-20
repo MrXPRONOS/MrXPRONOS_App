@@ -71,4 +71,4 @@ CREATE INDEX IF NOT EXISTS idx_cine_franchise_item_expiry
 -- Explicitly authorized by owner for the linked public channel. One token
 -- can be safely published after actual media and poster have been indexed.
 INSERT OR IGNORE INTO cine_franchise_catalog(slug,public_username,title,token)
- VALUES('fast-and-furious','fastandfuriousvffr','Fast and Furious — Saga VF','ffFurious2026CineRadarXX');
+ VALUES('fast-and-furious','fastandfuriousvffr','Fast and Furious — Saga VF',lower(hex(randomblob(12))));
