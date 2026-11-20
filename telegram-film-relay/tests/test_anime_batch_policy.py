@@ -159,6 +159,14 @@ class AnimeBatchPolicyTests(unittest.TestCase):
         descriptor["episodes"].pop()
         self.assertFalse(ready_full_batch(rows, descriptor))
 
+    def test_duration_alone_never_proves_anime_movie(self):
+        long_special = NS(
+            poster=NS(raw_text="Voyage - diffusion unique"),
+            video=NS(raw_text="Voyage Animation",
+                     file=NS(name="Voyage.mkv", duration=7200)),
+        )
+        self.assertFalse(is_anime_movie(long_special))
+
     def test_movie_classification_never_accepts_numbered_episodes(self):
         movie = NS(poster=NS(raw_text="Film Anime Voyage"), video=NS(
             raw_text="Voyage Film", file=NS(name="Voyage.mp4", duration=4200)))
