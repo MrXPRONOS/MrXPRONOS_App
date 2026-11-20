@@ -20,13 +20,13 @@ import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./tr
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
-import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDeliveries} from "./cinex-classic.mjs";
-import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
+import {handleClassicDeliveryStart,processClassicDeliveryQueue} from "./cinex-classic.mjs";
+import {runCopyExpirySweep} from "./cinex-cleanup-coordinator.mjs";
 import {allowPublicEvent,publicRateLimited,purgeOldPublicEventBuckets} from "./public-event-limiter.mjs";
 import {pruneFinalizedCineReceipts} from "./receipt-retention.mjs";
-import {ingestIndividualSeriesUpdate,ingestSeriesOwnerForward,handleSeriesStart,processSeriesQueue,cleanupSeriesCopies} from "./individual-series.mjs";
+import {ingestIndividualSeriesUpdate,ingestSeriesOwnerForward,handleSeriesStart,processSeriesQueue} from "./individual-series.mjs";
 import {enqueueOwnerVaultUpdate,captureOwnerForwardInVault,processOwnerVaultQueue} from "./owner-chat-vault.mjs";
-import {ingestFranchiseOwnerForward,ingestFranchiseChannelPost,handleFranchiseOwnerCommand,handleFranchiseDownloadStart,processFranchiseQueue,cleanupFranchiseCopies} from "./franchise-films.mjs";
+import {ingestFranchiseOwnerForward,ingestFranchiseChannelPost,handleFranchiseOwnerCommand,handleFranchiseDownloadStart,processFranchiseQueue} from "./franchise-films.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
 // never expose or log the Telegram token itself.
@@ -492,13 +492,10 @@ export default {
    ctx.waitUntil((async()=>{await processReactionQueue(env);await processReactionQueue(env);})().catch(e=>console.warn("channel_reactions_cron_failed",String(e?.name||"error"))));
    ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processClassicDeliveryQueue(env).catch(e=>console.warn("cinex_classic_queue_failed",String(e?.name||"error"))));
-   ctx.waitUntil(cleanupClassicDeliveries(env).catch(e=>console.warn("cinex_classic_expiry_failed",String(e?.name||"error"))));
-   ctx.waitUntil(cleanupDeliveredCopies(env).catch(e=>console.warn("cinex_expiry_cleanup_failed",String(e?.name||"error"))));
    ctx.waitUntil(processSeriesQueue(env).catch(e=>console.warn("cinex_series_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processOwnerVaultQueue(env).catch(e=>console.warn("cinex_owner_vault_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processFranchiseQueue(env).catch(e=>console.warn("cinex_franchise_queue_failed",String(e?.name||"error"))));
-   ctx.waitUntil(cleanupFranchiseCopies(env).catch(e=>console.warn("cinex_franchise_expiry_failed",String(e?.name||"error"))));
-   ctx.waitUntil(cleanupSeriesCopies(env).catch(e=>console.warn("cinex_series_expiry_failed",String(e?.name||"error"))));
+   ctx.waitUntil(runCopyExpirySweep(env).catch(e=>console.warn("cinex_private_expiry_sweep_failed",String(e?.name||"error"))));
    return;
   }
   else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{

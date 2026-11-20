@@ -1,3 +1,4 @@
+import {cleanupHealthOverview} from './cinex-cleanup-coordinator.mjs';
 // V1.3 — minimal owner-only operational alerts and activity journal.
 // Only bounded action names and targets are persisted. Never log Telegram initData
 // or raw messages, access tokens, personal Telegram IDs, IPs or private chats.
@@ -68,6 +69,16 @@ export async function ownerOperationsOverview(env){
  cinex.total_needs_review=cinex.families.reduce((a,x)=>a+x.needs_review,0);
  cinex.total_overdue=cinex.families.reduce((a,x)=>a+x.overdue,0);
  cinex.total_deletion_manual_review=cinex.families.reduce((a,x)=>a+x.manual_review,0);
+ // T03: actual cleanup heartbeat and outcomes, not just overdue alerts.
+ const expiryHealth=await cleanupHealthOverview(env);
+ cinex.cleanup_health=expiryHealth;
+ cinex.cleanup_healthy=expiryHealth.active;
+ if(!expiryHealth.active)alerts.push({level:'warning',title:'CinéX : nettoyage privé à vérifier',
+  detail:'Aucun passage récent et réussi des quatre suppressions à 24 h n’est confirmé.'});
+ for(const family of expiryHealth.families.filter(x=>x.status==='error'))
+  alerts.push({level:'warning',title:'CinéX : suppression interrompue ('+family.family+')',
+   detail:'Une file de suppression a échoué lors du dernier contrôle ; la prochaine minute relancera les copies éligibles.'});
+
  if(cinex.total_needs_review)alerts.push({level:'warning',title:'CinéX : files d’envoi à vérifier',detail:cinex.total_needs_review+' demande(s) en erreur sur l’ensemble des catalogues.'});
  if(cinex.total_overdue)alerts.push({level:'warning',title:'CinéX : nettoyage en retard',detail:cinex.total_overdue+' copie(s) à supprimer sur l’ensemble des catalogues.'});
  if(cinex.total_deletion_manual_review)alerts.push({level:'warning',title:'CinéX : suppressions en révision manuelle',detail:cinex.total_deletion_manual_review+' copie(s) non supprimées automatiquement.'});

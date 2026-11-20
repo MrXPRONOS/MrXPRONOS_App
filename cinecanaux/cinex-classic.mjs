@@ -101,22 +101,22 @@ export async function cleanupClassicDeliveries(env,{limit=12,now=Date.now()}={})
   if(!safeChat(row.telegram_chat_id)||!Number.isSafeInteger(Number(row.delivered_message_id))||Number(row.delivered_message_id)<=0){
    await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='manual_review',delete_last_error='invalid_receipt' WHERE id=?").bind(row.id).run();out.manual_review++;continue;
   }
-  const lease=await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='deleting',delete_lock_until=datetime('now','+2 minutes'),delete_attempts=delete_attempts+1 WHERE id=? AND delete_state IN ('pending','retry')").bind(row.id).run();
+  const lease=await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='deleting',delete_lock_until=datetime('now','+2 minutes'),delete_attempts=delete_attempts+1 WHERE id=? AND status='sent' AND delete_state IN ('pending','retry') AND delete_after<=CURRENT_TIMESTAMP AND COALESCE(delete_retry_at,delete_after)<=CURRENT_TIMESTAMP").bind(row.id).run();
   if(Number(lease.meta?.changes||0)!==1)continue;
   let decision=deletionDecision({networkError:true},{sentAt:row.sent_at,now:stamp,attempt:Number(row.delete_attempts||0)+1});
   if(decision.reason!=='telegram_48h_window'&&decision.reason!=='invalid_sent_at'&&decision.reason!=='not_due'&&decision.reason!=='retry_limit'){
    let api;
    try{api=await telegram(env,'deleteMessage',{chat_id:row.telegram_chat_id,message_id:row.delivered_message_id})}catch{api={networkError:true}}
-   decision=deletionDecision(api,{sentAt:row.sent_at,now:stamp,attempt:Number(row.delete_attempts||0)+1});
+   decision=deletionDecision(api?.ok?api:{...api,parameters:{retry_after:api?.retry_after||0}},{sentAt:row.sent_at,now:stamp,attempt:Number(row.delete_attempts||0)+1});
   }
   if(decision.state==='deleted'||decision.state==='already_gone'){
-   await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state=?,status='deleted',delete_lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(decision.state,row.id).run();
+   await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state=?,status='deleted',delete_lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=? AND delete_state='deleting'").bind(decision.state,row.id).run();
    out[decision.state]++;continue;
   }
   if(decision.state==='retry'){
-   await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='retry',delete_retry_at=datetime('now',?),delete_last_error=?,delete_lock_until=NULL WHERE id=?").bind('+'+Math.max(60,Math.min(3600,decision.retrySeconds||90))+' seconds',decision.reason,row.id).run();out.retries++;
+   await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='retry',delete_retry_at=datetime('now',?),delete_last_error=?,delete_lock_until=NULL WHERE id=? AND delete_state='deleting'").bind('+'+Math.max(60,Math.min(3600,decision.retrySeconds||90))+' seconds',decision.reason,row.id).run();out.retries++;
   }else{
-   await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='manual_review',delete_last_error=?,delete_lock_until=NULL WHERE id=?").bind(decision.reason||'unknown',row.id).run();out.manual_review++;
+   await env.DB.prepare("UPDATE cine_classic_deliveries SET delete_state='manual_review',delete_last_error=?,delete_lock_until=NULL WHERE id=? AND delete_state='deleting'").bind(decision.reason||'unknown',row.id).run();out.manual_review++;
   }
  }
  return out;

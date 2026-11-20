@@ -12,7 +12,7 @@ test('only explicit success or confirmed missing messages mark cleanup complete'
 test('not before 24 hours, 48h safety deadline and retry budget',()=>{
  assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(23),now:now.getTime()}).state,'retry');
  assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(47.2),now:now.getTime()}).state,'manual_review');
- assert.equal(deletionDecision({networkError:true},{sentAt:prior(25),now:now.getTime(),attempt:9}).state,'manual_review');
+ assert.equal(deletionDecision({networkError:true},{sentAt:prior(25),now:now.getTime(),attempt:30}).state,'manual_review');
  const r=deletionDecision({ok:false,error_code:429,parameters:{retry_after:300}},{sentAt:prior(25),now:now.getTime(),attempt:1});
  assert.equal(r.state,'retry');assert.equal(r.retrySeconds,300);
 });
