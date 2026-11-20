@@ -1,1 +1,6 @@
-{"status":"pending","empty_streak":0,"last_checked":null,"last_run_id":null}\n
+{
+  "status": "pending",
+  "empty_streak": 0,
+  "last_checked": null,
+  "last_run_id": null
+}
