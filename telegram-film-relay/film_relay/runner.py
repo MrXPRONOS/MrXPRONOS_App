@@ -194,7 +194,7 @@ async def execute() -> int:
     seen_count = published_count = proposed_count = failed_count = 0
     # Hard safety cap: at most TWO completed films across all sources in one run.
     max_posts = min(2, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 2)))))
-    pause_seconds = max(20.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20')), 2 * float(cfg.get("publication_pause_seconds", 5)))
+    pause_seconds = max(60.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60')), 2 * float(cfg.get("publication_pause_seconds", 5)))
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]), credentials[1],
                             request_retries=1, connection_retries=2, flood_sleep_threshold=0)
     bot_client = None
@@ -514,7 +514,7 @@ async def execute() -> int:
                                     destination_public, pair.poster, text,
                                 )
                                 state.stage_poster(pair_id, int(private_poster.id))
-                                await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
+                                await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
                                 stage = state.get_staged_posts(pair_id)
                                 LOG.info("Fiche privée avec deux boutons envoyée : message %s", private_poster.id)
 
@@ -526,7 +526,7 @@ async def execute() -> int:
                             state.stage(pair_id, private_post_id)
                             LOG.info("Vidéo privée envoyée : message %s", private_post_id)
                         url = private_message_link(private_id, private_post_id)
-                        await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
+                        await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
                         public_post = await send_public_poster_with_buttons(
                             client, bot_client, bot_destination, pair.poster,
                             text, url, invitation
@@ -534,8 +534,7 @@ async def execute() -> int:
                         # Every film receives the complete public pair regardless
                         # of the old opt-in showcase flag. Private copy is already
                         # verified and the poster links to that exact message.
-                        await asyncio.sleep(max(12.0, float(
-                            os.getenv("CINEX_PAUSE_SECONDS", "20"))))
+                        await asyncio.sleep(max(36.0, float(os.getenv("CINEX_PAUSE_SECONDS", "60"))))
                         public_video = await post_public_video_after_poster(
                             client, destination_public, pair.movie, text,
                             int(public_post.id), url,
