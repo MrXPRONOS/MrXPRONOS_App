@@ -175,7 +175,7 @@ export async function adminDeliveryAction(env,path,data){
  const items=media.results||[];
  if(!validSequence(title.content_kind,season,items))return {status:409,body:{error:'Catalogue incomplet ou ambigu (épisodes manquants)'}};
  const previous=await env.DB.prepare("SELECT token FROM cine_delivery_links WHERE category=? AND title_key=? AND season_key=?").bind(title.category,titleKey,season).first();
- const token=previous?.token||Array.from(crypto.getRandomValues(new Uint8Array(18)),x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'[x%64]).join('');
+ const token=previous?.token||Array.from(crypto.getRandomValues(new Uint8Array(24)),x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'[x%64]).join('');
  await env.DB.batch([
   env.DB.prepare("UPDATE cine_delivery_titles SET approval='approved',rights_attested=1 WHERE title_key=?").bind(titleKey),
   ...items.map(x=>env.DB.prepare("UPDATE cine_delivery_media SET availability='approved' WHERE category=? AND source_message_id=? AND title_key=?").bind(title.category,x.source_message_id,titleKey)),
