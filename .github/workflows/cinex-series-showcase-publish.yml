@@ -29,6 +29,11 @@ jobs:
       CINEX_SHOWCASE_PUBLISH: ${{ (github.event_name == 'push' && contains(github.event.head_commit.message, '[CINEX-PUBLISH]')) && 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish && 'true' || 'false') }}
       CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      ALT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      ALT_DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      ALT_ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      ALT_ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      ALT_SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
       CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
