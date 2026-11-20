@@ -19,13 +19,14 @@ async function state(stage){
    const el=document.querySelector('#cine-page-'+name);
    return [name,{exists:!!el,hidden:el?.hidden,visible:vis(el),length:el?.textContent?.trim().length||0}];
   }));
-  return {stage,href:location.href,bottomBar:vis(bar),tabs:tabs.map(e=>({label:e.textContent.trim(),visible:vis(e),width:Math.round(e.getBoundingClientRect().width)})),
+  return {stage,href:location.href,brand:!!document.querySelector('main.page .brand'),hero:!!document.querySelector('main.page .hero'),tabsRoot:!!document.querySelector('#tabs'),search:!!document.querySelector('label.search'),tools:!!document.querySelector('main.page .v2-tools'),heading:!!document.querySelector('main.page .heading'),cards:!!document.querySelector('#cards'),footer:!!document.querySelector('main.page .footer'),bottomBar:vis(bar),tabs:tabs.map(e=>({label:e.textContent.trim(),visible:vis(e),width:Math.round(e.getBoundingClientRect().width)})),
    panels,homeHero:vis(document.querySelector('#cine-page-accueil .cine-hero')),
    explorerSearch:vis(document.querySelector('#cine-page-explorer .cine-home-search, #cine-page-explorer label.search')),
    explorerCards:document.querySelectorAll('#cine-page-explorer article[data-channel-id]:not([hidden])').length,
    favoritesText:document.querySelector('#cine-page-favoris')?.textContent?.slice(0,150)};
  },stage);
  console.log('NAVIGATION_VISUAL_STATE',JSON.stringify(snapshot));
+ console.log('NAVIGATION_BROWSER_ERRORS',JSON.stringify(errors));
  await page.screenshot({path:'/tmp/cineradar-navigation-'+stage+'.png',fullPage:false});
  return snapshot;
 }
