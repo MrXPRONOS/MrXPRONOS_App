@@ -1,0 +1,75 @@
+{
+  "project": "Mr XPRONOS Play",
+  "version": 1,
+  "range": "86-92",
+  "transparent": true,
+  "assets": [
+    {
+      "number": 86,
+      "name": "86-snake-mignon",
+      "description": "Friendly smiling Snake game mascot",
+      "png": "assets/13-ui-actions/86-snake-mignon.png",
+      "sha256_png": "10a5ce6887ee7a906e057d9cac30d0e5bd764d3ec0082fbbb9f94ce746ee2edc",
+      "webp": "assets/13-ui-actions/86-snake-mignon.webp",
+      "sha256_webp": "aab056547a523f852bc5277de1609ecd15617209ea40a4edfc0c46a5cd53018c"
+    },
+    {
+      "number": 87,
+      "name": "87-boutique-sac",
+      "description": "Boutique de boosts gratuite",
+      "png": "assets/13-ui-actions/87-boutique-sac.png",
+      "sha256_png": "c0ccf43782ffebe99208df2a74689bb2ef9a75255979de07f5b219a7f9e0c4ce",
+      "webp": "assets/13-ui-actions/87-boutique-sac.webp",
+      "sha256_webp": "b63a800c38955b5e4bb72594b7623e98268e85f295a3f114d6b6d287a362f31d"
+    },
+    {
+      "number": 88,
+      "name": "88-telecharger-png",
+      "description": "Enregistrer la carte PNG",
+      "png": "assets/13-ui-actions/88-telecharger-png.png",
+      "sha256_png": "e1b249f7ea32507986a890955f082fb7527f2a9cffee7bab20f1135f2005fca3",
+      "webp": "assets/13-ui-actions/88-telecharger-png.webp",
+      "sha256_webp": "a0e016c9fc83e7642573d6d573743e538132ee707cf178bc42ac0b0454123eb3"
+    },
+    {
+      "number": 89,
+      "name": "89-partager-image",
+      "description": "Partager image de profil",
+      "png": "assets/13-ui-actions/89-partager-image.png",
+      "sha256_png": "5bbe6adc8206ab02946d2a8efd920b3fcd7b32a407154dc39e01c21c52369674",
+      "webp": "assets/13-ui-actions/89-partager-image.webp",
+      "sha256_webp": "11688030a2b1d7421420d6906d96f3e1dc08ed0674102cc7328a6d9df80ba25b"
+    },
+    {
+      "number": 90,
+      "name": "90-copier-preuve",
+      "description": "Copier lien de preuve",
+      "png": "assets/13-ui-actions/90-copier-preuve.png",
+      "sha256_png": "183572e05589d398b5470c1f6a344c54989e09c8cb0ff56a016f9ea3681dab63",
+      "webp": "assets/13-ui-actions/90-copier-preuve.webp",
+      "sha256_webp": "bac2e02b1286001ae5e38630557550fe08d7ffc1c7fbd77379bf6549b8d3fe8a"
+    },
+    {
+      "number": 91,
+      "name": "91-retour-navigation",
+      "description": "Retour",
+      "png": "assets/13-navigation-actions/91-retour-navigation.png",
+      "sha256_png": "140590e08c891b15089daf1270351a8e5b0e62267cd50136999c8f362b5bcb34",
+      "webp": "assets/13-navigation-actions/91-retour-navigation.webp",
+      "sha256_webp": "699381f2b6aa98cef1fc43fb24bd0fa3766939c46fcee720174700e008956342",
+      "svg": "assets/13-navigation-actions/91-retour-navigation.svg",
+      "sha256_svg": "e89c30ed387eacab752177a32de0fbfbd848835ced634ebd6e3dab85da47a891"
+    },
+    {
+      "number": 92,
+      "name": "92-actualiser-navigation",
+      "description": "Actualiser",
+      "png": "assets/13-navigation-actions/92-actualiser-navigation.png",
+      "sha256_png": "ab1f1132720b2562ddeb5221206c80591f5794cc69f6bc3f277dc80ca40c0f66",
+      "webp": "assets/13-navigation-actions/92-actualiser-navigation.webp",
+      "sha256_webp": "3e2f382fe06300f89aabaab80a497276c6f7af4d984a6c455760e0a522b653a8",
+      "svg": "assets/13-navigation-actions/92-actualiser-navigation.svg",
+      "sha256_svg": "3dccfe7d4a1abac8519186617b53ede2f851c4b6e791e88d068e184b3f54a0ad"
+    }
+  ]
+}
