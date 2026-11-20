@@ -62,6 +62,12 @@ def rescue_url(bot):
         raise RuntimeError("Identité du canal Secours non conforme")
     url=os.getenv("CINEX_RESCUE_INVITE_URL","").strip()
     if not url:
+        rows=d1(
+            "SELECT rescue_chat_id,invite_url FROM cine_classic_rescue_config WHERE public_handle=?",
+            ["@"+HANDLE])
+        if rows and str(rows[0].get("rescue_chat_id"))==RESCUE:
+            url=str(rows[0].get("invite_url") or "").strip()
+    if not url:
         # Bot getChat works only after the bot is actually admitted to Secours.
         try:
             url=str(api(bot,"getChat",{"chat_id":RESCUE}).get("invite_link") or "")
