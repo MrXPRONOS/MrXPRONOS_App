@@ -21,6 +21,7 @@ from telethon.errors import FloodWaitError, PeerFloodError
 from telethon.sessions import StringSession
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from inventory_mrxpronos_shared_admin_channels import scan as inventory_scan  # noqa: E402
