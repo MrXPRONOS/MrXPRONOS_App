@@ -11,7 +11,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 DEFAULT_PATH = Path("state/cycle_monitor.json")
-CATEGORIES = ("films", "series", "desir", "comedie", "anime")
+REQUIRED_CATEGORIES = ("films", "desir", "comedie", "anime")
+OPTIONAL_CATEGORIES = ("series", "action")
+CATEGORIES = ("films", "series", "desir", "comedie", "anime", "action")
 
 
 def update_monitor(previous: dict, *, run_id: str, verification: str,
@@ -22,7 +24,9 @@ def update_monitor(previous: dict, *, run_id: str, verification: str,
         raise ValueError("verified posts must be nonnegative")
     if previous.get("last_run_id") == str(run_id):
         return previous  # idempotent retry, never increment the streak twice
-    if any(outcomes.get(c) not in ("success",) for c in CATEGORIES):
+    if (any(outcomes.get(c) != "success" for c in REQUIRED_CATEGORIES)
+            or any(outcomes.get(c) not in ("success", "skipped")
+                   for c in OPTIONAL_CATEGORIES)):
         status = "category_failed"
     elif verification not in ("verified", "no_new_posts"):
         status = "verification_failed"
@@ -50,6 +54,21 @@ def update_monitor(previous: dict, *, run_id: str, verification: str,
         "outcomes": {c: outcomes.get(c, "missing") for c in CATEGORIES},
     }
     return report
+
+
+def load_monitor_state(path: Path) -> dict:
+    """Read monitor state, including the historical file ending in literal '\\n'."""
+    if not path.exists():
+        return {}
+    raw = path.read_text(encoding="utf-8")
+    # The initial committed checkpoint mistakenly contained the two characters
+    # backslash+n after the JSON object, making an otherwise valid run fail.
+    if raw.endswith("\\n"):
+        raw = raw[:-2] + "\n"
+    previous = json.loads(raw)
+    if not isinstance(previous, dict):
+        raise ValueError("Cycle monitor state must be a JSON object")
+    return previous
 
 
 def catalogue_health(folder: Path) -> dict:
@@ -84,9 +103,7 @@ def main():
     outcomes = json.loads(args.outcomes)
     if not isinstance(outcomes, dict):
         raise ValueError("outcomes must be an object")
-    previous = {}
-    if args.path.exists():
-        previous = json.loads(args.path.read_text(encoding="utf-8"))
+    previous = load_monitor_state(args.path)
     report = update_monitor(
         previous, run_id=args.run_id, verification=args.verification,
         verified_posts=args.verified_posts, outcomes=outcomes,
