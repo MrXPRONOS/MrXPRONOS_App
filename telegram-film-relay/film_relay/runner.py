@@ -42,7 +42,7 @@ def config_from(path: str) -> dict:
     # confirmed permission for channels they add to these lists.
     added = source_list(
         os.getenv("FILM_SOURCE_CHANNELS", ""),
-        max_sources=12,
+        max_sources=16,  # the total cap below remains 16 including baseline feeds
     )
     known = {str(x.get("channel", "")).casefold() for x in sources}
     for username in added:
