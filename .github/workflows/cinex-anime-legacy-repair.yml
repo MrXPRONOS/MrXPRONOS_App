@@ -1,0 +1,106 @@
+name: CinéX Anime - Réparation ciblée des anciennes fiches
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Réparer les anciens index et boutons ; jamais republier des vidéos"
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-anime-legacy-repair-once'
+
+permissions:
+  contents: write
+
+# No concurrent Telegram user session with films, series or promotions.
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  legacy-repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Charger la branche principale
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Préparer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances du relais
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Exécuter les tests de sécurité hors ligne
+        working-directory: telegram-film-relay
+        run: |
+          python -m compileall -q film_relay scripts
+          python -m unittest discover -s tests -p 'test_anime_legacy_repair.py' -v
+      - name: Vérifier et réparer SEULEMENT les anciennes fiches CineX Anime
+        id: repair
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+          CINEX_PAUSE_SECONDS: '12'
+          CINEX_TORRENT9_PAUSED: 'true'
+          CINEX_DEFER_MIRROR: 'true'
+          PYTHONPATH: .
+        run: |
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.apply }}" == "true" ]]; then
+            python scripts/verify_repair_anime_legacy.py --apply
+          else
+            python scripts/verify_repair_anime_legacy.py
+          fi
+      - name: Sauvegarder les reçus restaurés sans écraser les cycles concurrents
+        if: always() && steps.repair.outcome != 'skipped'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=telegram-film-relay/state/anime_catalog.json
+          cp "$STATE" "$RUNNER_TEMP/cinex-anime-repair-state.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5 6; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/cinex-anime-repair-state.json" "$STATE"
+            python telegram-film-relay/scripts/generate_anime_dashboard.py --catalogue "$STATE" --output anime-dashboard-data.json
+            git add "$STATE" anime-dashboard-data.json
+            if git diff --cached --quiet; then
+              echo 'Aucune modification des reçus ou du tableau de bord.'
+              exit 0
+            fi
+            git commit -m 'state: checkpoints réparation CinéX Anime [skip ci]'
+            if git push origin HEAD:main; then
+              echo 'État réparé sauvegardé sur GitHub.'
+              exit 0
+            fi
+            echo "Conflit d'écriture GitHub ($attempt/6), nouvelle fusion."
+            sleep 4
+          done
+          echo '::error::Impossible de conserver les reçus de réparation.'
+          exit 1
+      - name: Publier le diagnostic final du cycle
+        if: always()
+        env:
+          REPAIR_OUTCOME: ${{ steps.repair.outcome }}
+        run: |
+          if [[ "$REPAIR_OUTCOME" != "success" ]]; then
+            echo '::error::Certains anciens index/boutons restent à contrôler. Aucun nouveau film ni épisode n’a été publié.'
+            exit 1
+          fi
+          echo 'Réparation ciblée terminée ou diagnostic lecture seule réussi.'
