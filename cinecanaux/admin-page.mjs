@@ -115,6 +115,17 @@ ${ADMIN_CHANNEL_HTML}
  <button type="button" id="bot-brand-sync">🖼️ Appliquer l'identité sur Telegram</button>
  <p id="bot-brand-status" role="status">Photo de profil : mise à jour automatique au démarrage du bot.</p>
 </section>
+<section class="broadcast-box" id="cinex-download-admin" aria-label="Distribution CinéX">
+ <h2>⬇️ Téléchargements CinéX</h2>
+ <p>Les liens « Télécharger » sont inactifs tant que tu n'as pas vérifié les fichiers et confirmé les droits de redistribution. Les fichiers restent sur Telegram.</p>
+ <div class="broadcast-actions">
+  <button type="button" id="cinex-catalog-refresh">↻ Actualiser le catalogue</button>
+  <button type="button" id="cinex-enable" class="broadcast-primary">Activer les téléchargements</button>
+  <button type="button" id="cinex-disable" class="danger">Désactiver les téléchargements</button>
+ </div>
+ <p id="cinex-catalog-status" role="status">Chargement de la disponibilité…</p>
+ <div id="cinex-catalog-list"></div>
+</section>
 <section class="broadcast-box" id="radar-ops" aria-label="Gestion des tendances et canaux">
  <h2>🎬 Tendances et canaux officiels</h2>
  <p>Actions déplacées ici depuis les anciennes commandes du bot. Seul le propriétaire peut y accéder.</p>
@@ -194,7 +205,7 @@ async function manage(id,action){await api("/api/admin/channels/"+id,{action});s
 async function load(){
  const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
- $("private").hidden=false;status("");refreshAnalytics();refreshLaunchFunnel().catch(e=>$("cine-launch-funnel-note").textContent=String(e.message||e));refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
+ $("private").hidden=false;status("");refreshCineXCatalog().catch(e=>$("cinex-catalog-status").textContent=String(e.message||e));refreshAnalytics();refreshLaunchFunnel().catch(e=>$("cine-launch-funnel-note").textContent=String(e.message||e));refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
@@ -525,6 +536,49 @@ for(const action of ["hide","show","exclude"])$(action).onclick=async()=>{
  const id=Number($("channelId").value);if(!Number.isSafeInteger(id)||id<1){status("Identifiant invalide.");return;}
  if(action==="exclude"&&!confirm("Exclure durablement ce canal ?"))return;
  try{await manage(id,action);}catch(e){status(String(e.message||e));}
+};
+async function refreshCineXCatalog(){
+ const data=await api("/api/admin/cinex/catalog");
+ const stat=$("cinex-catalog-status");
+ stat.textContent=data.enabled?"Distribution activée : seuls les contenus validés sont disponibles.":"Distribution désactivée : aucune nouvelle demande acceptée.";
+ const container=$("cinex-catalog-list");container.textContent="";
+ for(const lib of data.libraries||[]){
+  const card=el("div","analytics-row");
+  card.append(el("strong",null,lib.category+" · bot : "+lib.bot_access+
+     " · vidéos repérées : "+lib.observed_videos));
+  container.append(card);
+ }
+ for(const item of data.entries||[]){
+  const card=el("div","item");
+  const season=item.season_number==null?"Film":"Saison "+item.season_number;
+  card.append(el("div","name",item.display_title+" · "+season),
+              el("div","muted",item.category+" · "+item.media_count+" fichier(s) · "+item.approval));
+  const acts=el("div","actions");
+  if(item.link_enabled&&item.token){
+   const link=el("a",null,"Tester le bouton Télécharger");
+   link.href="https://t.me/CineRadarFr_Bot?start=d_"+item.token;
+   link.rel="noopener noreferrer";link.target="_blank";acts.append(link);
+  }else{
+   addButton(acts,"Confirmer les droits et autoriser",async()=>{
+    if(!confirm("Confirmer que tu possèdes les droits de redistribution de TOUS les fichiers de ce film ou de cette saison, et que les épisodes sont exacts ?"))return;
+    await api("/api/admin/cinex/approve",{title_key:item.title_key,
+      season:item.season_number??0,rights_confirmed:true});
+    await refreshCineXCatalog();
+   });
+  }
+  card.append(acts);container.append(card);
+ }
+ if(!(data.entries||[]).length)container.append(el("p","muted","Aucun film ni épisode validable dans les nouvelles vidéothèques. L'inventaire automatique continuera de vérifier les fichiers."));
+}
+$("cinex-catalog-refresh").onclick=()=>refreshCineXCatalog().catch(e=>$("cinex-catalog-status").textContent=String(e.message||e));
+$("cinex-enable").onclick=async()=>{
+ if(!confirm("Activer les téléchargements uniquement pour les contenus dont les droits ont été confirmés ?"))return;
+ try{await api("/api/admin/cinex/state",{action:"enable"});await refreshCineXCatalog();}
+ catch(e){$("cinex-catalog-status").textContent=String(e.message||e)}
+};
+$("cinex-disable").onclick=async()=>{
+ try{await api("/api/admin/cinex/state",{action:"disable"});await refreshCineXCatalog();}
+ catch(e){$("cinex-catalog-status").textContent=String(e.message||e)}
 };
 function bootstrapAdmin(){
  if(adminBooted||!init)return;
