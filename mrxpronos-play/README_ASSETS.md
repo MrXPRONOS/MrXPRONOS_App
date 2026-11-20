@@ -148,7 +148,7 @@ Changements fusionnés par les pull requests [#491](https://github.com/MrXPRONOS
 
 Les libellés fonctionnels, droits Telegram, règles XP, crédits et synchronisations sont inchangés. Tests GitHub : **78/78 réussis**. Contrôles du Worker et de la base D1 réussis ; le test public a confirmé **50/50 réponses avec les images V47** après le déploiement complet. La vérification visuelle tactile dans Telegram sur Android/iPhone reste à réaliser.
 
-### Nouveau lot 6 de cinq visuels à générer (aucun fichier encore créé)
+### Historique du lot 6 — cinq visuels créés et intégrés (86–90)
 
 | N° prévu | Élément restant | Besoin |
 |---|---|---|
@@ -158,7 +158,7 @@ Les libellés fonctionnels, droits Telegram, règles XP, crédits et synchronisa
 | 89 | Partager l'image | Icône premium d'export/partage d'image |
 | 90 | Copier la preuve | Icône copie de lien vérifiable |
 
-Ces cinq ressources nécessitent de nouvelles images. Les émojis associés restent provisoirement visibles à leur emplacement tant que ce lot n'est pas créé et intégré. La navigation et les messages natifs Telegram ne font pas partie de ce lot.
+Ces cinq ressources ont été créées et publiées avec la pull request #497. Les icônes Retour et Actualiser (91–92) ont également été intégrées. Les messages natifs Telegram restent distincts de cette bibliothèque graphique.
 
 
 ## Lot 86–92 — Actions du jeu et navigation (20 novembre 2026)
@@ -177,4 +177,4 @@ Ces cinq ressources nécessitent de nouvelles images. Les émojis associés rest
 
 Chaque visuel existe en **PNG transparent 1024×1024** et en **WebP transparent 512×512**. Les flèches 91 et 92 ont également un fichier **SVG modifiable**. Les images ne remplacent que la présentation ; les handlers de navigation, d'achat, de synchronisation et de création de cartes restent inchangés.
 
-Les anciens visuels 1–85, les 11 portraits de rang et les données réelles des profils sont conservés. Après import et connexion des icônes, exécuter la suite de tests Mini App et les vérifications HTTP en production, puis la recette sur téléphones Android et iPhone.
+Les anciens visuels 1–85, les 11 portraits de rang et les données réelles des profils sont conservés. Le lot 86–92 a été fusionné via la [PR #497](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/497) et déployé sur **Cloudflare Worker V48 à 100 %** le 20 novembre 2026. Vérifications réussies : **79/79 tests de non-régression**, **7/7 WebP publics valides**, **55/55 pages publiques servies en V48**, état sain du bot Telegram et de la base D1. La recette tactile/visuelle réelle dans Telegram Android et iOS n'a pas encore été effectuée.
