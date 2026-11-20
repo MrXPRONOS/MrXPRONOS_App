@@ -21,6 +21,31 @@ function equalHex(a,b){
  let mismatch=0;for(let i=0;i<a.length;i++)mismatch|=a.charCodeAt(i)^b.charCodeAt(i);
  return mismatch===0;
 }
+// Telegram's official third-party verification is independent of the bot
+// secret but MUST bind the signature to our own server-configured bot ID.
+// Never accept a bot ID or a public key supplied by the browser.
+const TELEGRAM_PRODUCTION_ED25519_KEY="e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d";
+async function signedByTelegramForConfiguredBot(params,env){
+ const id=String(env.TELEGRAM_TOKEN||"").split(":")[0];
+ if(!/^[1-9][0-9]{4,15}$/.test(id))return false;
+ const signature=params.get("signature")||"";
+ if(!/^[a-zA-Z0-9_-]{80,100}$/.test(signature))return false;
+ let sig;
+ try{
+  const encoded=signature.replace(/-/g,"+").replace(/_/g,"/");
+  const raw=atob(encoded+"=".repeat((4-encoded.length%4)%4));
+  sig=Uint8Array.from(raw,letter=>letter.charCodeAt(0));
+ }catch{return false}
+ if(sig.length!==64)return false;
+ const signed=Array.from(params.entries()).filter(([k])=>k!=="hash"&&k!=="signature")
+  .sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+"="+v).join("\n");
+ const message=id+":WebAppData\n"+signed;
+ const pub=Uint8Array.from(TELEGRAM_PRODUCTION_ED25519_KEY.match(/../g),x=>parseInt(x,16));
+ try{
+  const key=await crypto.subtle.importKey("raw",pub,{name:"Ed25519"},false,["verify"]);
+  return await crypto.subtle.verify("Ed25519",key,sig,enc.encode(message));
+ }catch{return false}
+}
 async function identity(request,env){
  const raw=request.headers.get('X-Telegram-Init-Data')||'';
  if(!raw||raw.length>5000||!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET)return null;
@@ -29,7 +54,7 @@ async function identity(request,env){
  const signed=Array.from(params.entries()).filter(([k])=>k!=='hash'&&k!=='signature').sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\n');
  const secret=await hmac('WebAppData',env.TELEGRAM_TOKEN);
  const signedHash=hex(await hmac(secret,signed));
- if(!equalHex(hash.toLowerCase(),signedHash))return null;
+ if(!equalHex(hash.toLowerCase(),signedHash)&&!await signedByTelegramForConfiguredBot(params,env))return null;
  let user;try{user=JSON.parse(params.get('user')||'null');}catch{return null;}
  if(!Number.isSafeInteger(user?.id)||user.id<=0)return null;
  return hex(await crypto.subtle.digest('SHA-256',enc.encode(env.TELEGRAM_WEBHOOK_SECRET+':'+user.id)));
@@ -51,7 +76,7 @@ export async function telegramAuthStatus(request,env){
   .sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\n');
  const secret=await hmac('WebAppData',env.TELEGRAM_TOKEN);
  const expected=hex(await hmac(secret,signed));
- return equalHex(hash.toLowerCase(),expected)?'verified':'invalid_signature';
+ return equalHex(hash.toLowerCase(),expected)||await signedByTelegramForConfiguredBot(params,env)?'verified':'invalid_signature';
 }
 export async function verifiedIdentity(request,env){
  const hash=await identity(request,env);
