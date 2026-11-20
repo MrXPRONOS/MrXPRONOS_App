@@ -39,6 +39,13 @@ jobs:
               allowed=member.get('status') in ('administrator','creator') and (member.get('status')=='creator' or member.get('can_post_messages',False))
               print(label+'_BOT_CAN_POST='+str(allowed).lower()+' | id_valid='+str(str(chat['id']).startswith('-100')).lower())
               if not allowed:raise RuntimeError(label+' bot non admin')
+          try:
+              radar=call('getChat',{'chat_id':'@CineRadarFr_Bot'})
+              print('CINE_RADAR_ID_RESOLVED=true')
+              member=call('getChatMember',{'chat_id':os.environ.get('PRIVATE',''),'user_id':radar['id']})
+              print('CINE_RADAR_PRIVATE_ROLE='+str(member.get('status','unknown')))
+          except Exception as e:
+              print('CINE_RADAR_PRIVATE_ACCESS_ERROR='+type(e).__name__)
           rescue_id='-1004357703501'
           try:
               info=call('getChat',{'chat_id':rescue_id})
