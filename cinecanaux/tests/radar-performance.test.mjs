@@ -83,7 +83,7 @@ test("First Mini App HTML embeds the directory safely without another client req
  assert.ok(html.includes("\\u003c/script\\u003e"));
  assert.ok(!html.includes('Cinema </script><script>alert(1)</script>'));
  assert.ok(html.includes('const telegram=()=>window.Telegram?.WebApp||null'));
- assert.ok(html.includes('<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>'));
+ assert.ok(html.includes('<script src="https://telegram.org/js/telegram-web-app.js?64"></script>'),'Telegram SDK must load before inline auth bootstrap');
  invalidateDirectoryCache();
 });
 test("A cached channel profile uses one D1 read, not two",async()=>{
