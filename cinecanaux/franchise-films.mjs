@@ -334,7 +334,7 @@ export async function cleanupFranchiseCopies(env,{limit=12,now=Date.now()}={}){
  if(!env?.DB||!env.TELEGRAM_TOKEN)return {deleted:0,disabled:true};
  const result={deleted:0,already_gone:0,retried:0,manual_review:0};
  await env.DB.prepare(
-  "UPDATE cine_franchise_job_items SET delete_state='retry',delete_lock_until=NULL "+
+  "UPDATE cine_franchise_job_items SET delete_state='retry',delete_retry_at=CURRENT_TIMESTAMP,delete_lock_until=NULL "+
   "WHERE delete_state='deleting' AND delete_lock_until<CURRENT_TIMESTAMP"
  ).run();
  const rows=(await env.DB.prepare(
@@ -342,7 +342,7 @@ export async function cleanupFranchiseCopies(env,{limit=12,now=Date.now()}={}){
   "FROM cine_franchise_job_items i JOIN cine_franchise_jobs j ON j.id=i.job_id "+
   "WHERE i.state='sent' AND i.delivered_message_id IS NOT NULL AND "+
   "i.delete_after<=CURRENT_TIMESTAMP AND COALESCE(i.delete_retry_at,i.delete_after)<=CURRENT_TIMESTAMP "+
-  "AND i.delete_state IN ('pending','retry') ORDER BY i.delete_after LIMIT ?"
+  "AND i.delete_state IN ('pending','retry') ORDER BY i.delete_after,i.job_id,i.part LIMIT ?"
  ).bind(Math.min(24,Math.max(1,Number(limit)||12))).all()).results||[];
  for(const row of rows){
   if(!isId(row.telegram_chat_id)||!isId(row.delivered_message_id)){
@@ -354,29 +354,34 @@ export async function cleanupFranchiseCopies(env,{limit=12,now=Date.now()}={}){
   }
   const lock=await env.DB.prepare(
    "UPDATE cine_franchise_job_items SET delete_state='deleting',delete_lock_until=datetime('now','+2 minutes'),delete_attempts=delete_attempts+1 "+
-   "WHERE job_id=? AND part=? AND delete_state IN ('pending','retry')"
+   "WHERE job_id=? AND part=? AND state='sent' AND delete_state IN ('pending','retry') AND delete_after<=CURRENT_TIMESTAMP AND COALESCE(delete_retry_at,delete_after)<=CURRENT_TIMESTAMP"
   ).bind(row.job_id,row.part).run();
   if(Number(lock.meta?.changes||0)!==1)continue;
   const attempt=Number(row.delete_attempts||0)+1;
-  let answer;
-  try{answer=await telegram(env,'deleteMessage',{chat_id:row.telegram_chat_id,message_id:row.delivered_message_id})}
-  catch{answer={networkError:true}}
-  const decision=deletionDecision(answer.ok?{ok:true,result:answer.result}:
-    {networkError:answer.networkError,error_code:answer.code,description:answer.description},
-    {sentAt:row.sent_at,now,attempt});
+  const opts={sentAt:row.sent_at,now,attempt};
+  let decision=deletionDecision({networkError:true},opts);
+  if(!['telegram_48h_window','invalid_sent_at','not_due','retry_limit'].includes(decision.reason)){
+   let answer;
+   try{answer=await telegram(env,'deleteMessage',{chat_id:row.telegram_chat_id,message_id:row.delivered_message_id})}
+   catch{answer={networkError:true}}
+   decision=deletionDecision(answer?.ok?{ok:true,result:answer.result}:{
+    networkError:answer?.networkError,error_code:answer?.code,
+    description:answer?.description,parameters:{retry_after:answer?.retry}
+   },opts);
+  }
   if(decision.state==='deleted'||decision.state==='already_gone'){
    await env.DB.prepare(
-    "UPDATE cine_franchise_job_items SET delete_state=?,delete_lock_until=NULL,delete_retry_at=NULL,delete_last_error=NULL WHERE job_id=? AND part=?"
+    "UPDATE cine_franchise_job_items SET delete_state=?,delete_lock_until=NULL,delete_retry_at=NULL,delete_last_error=NULL WHERE job_id=? AND part=? AND delete_state='deleting'"
    ).bind(decision.state,row.job_id,row.part).run();
    result[decision.state==='deleted'?'deleted':'already_gone']++;
   }else if(decision.state==='retry'){
    await env.DB.prepare(
-    "UPDATE cine_franchise_job_items SET delete_state='retry',delete_retry_at=datetime('now',?),delete_last_error=?,delete_lock_until=NULL WHERE job_id=? AND part=?"
+    "UPDATE cine_franchise_job_items SET delete_state='retry',delete_retry_at=datetime('now',?),delete_last_error=?,delete_lock_until=NULL WHERE job_id=? AND part=? AND delete_state='deleting'"
    ).bind('+'+Math.min(3600,Math.max(60,decision.retrySeconds||90))+' seconds',decision.reason||'retry',row.job_id,row.part).run();
    result.retried++;
   }else{
    await env.DB.prepare(
-    "UPDATE cine_franchise_job_items SET delete_state='manual_review',delete_last_error=?,delete_lock_until=NULL WHERE job_id=? AND part=?"
+    "UPDATE cine_franchise_job_items SET delete_state='manual_review',delete_last_error=?,delete_lock_until=NULL WHERE job_id=? AND part=? AND delete_state='deleting'"
    ).bind(decision.reason||'unresolved',row.job_id,row.part).run();
    result.manual_review++;
   }
