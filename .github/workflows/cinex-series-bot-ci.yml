@@ -1,0 +1,59 @@
+name: CineX Series Bot-only Regression CI
+on:
+  pull_request:
+    paths:
+      - 'cinecanaux/individual-series.mjs'
+      - 'cinecanaux/worker.mjs'
+      - 'cinecanaux/tests/individual-series.test.mjs'
+      - 'cinecanaux/scripts/audit_series_bots.py'
+      - 'cinecanaux/scripts/publish_individual_series_bot.py'
+      - 'cinecanaux/tests/test_series_bot_inventory.py'
+      - 'cinecanaux/tests/test_individual_series_publish.py'
+      - '.github/workflows/cinex-series-bot-sync.yml'
+      - '.github/workflows/cinex-series-bot-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests==2.32.5
+      - name: JavaScript syntax and no-session regression
+        run: |
+          node --check cinecanaux/worker.mjs
+          node --check cinecanaux/individual-series.mjs
+          node --test cinecanaux/tests/individual-series.test.mjs
+      - name: Python syntax and offline bot tests
+        run: |
+          python -m py_compile cinecanaux/scripts/audit_series_bots.py cinecanaux/scripts/publish_individual_series_bot.py
+          python -m unittest discover -s cinecanaux/tests -p 'test_series_bot_inventory.py' -v
+          python -m unittest discover -s cinecanaux/tests -p 'test_individual_series_publish.py' -v
+      - name: Assert no user session imported by Series workflows
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          targets=[
+              Path('cinecanaux/individual-series.mjs'),
+              Path('cinecanaux/scripts/audit_series_bots.py'),
+              Path('cinecanaux/scripts/publish_individual_series_bot.py'),
+              Path('.github/workflows/cinex-series-bot-sync.yml'),
+              Path('.github/workflows/cinex-series-bot-inventory.yml')]
+          for path in targets:
+              content=path.read_text()
+              if path.suffix=='.yml' and ('TG_SESSION_STRING' in content or 'TG_API_HASH' in content):
+                  raise AssertionError('Session variable in workflow '+str(path))
+              if path.suffix=='.py' and ('from telethon import ' in content or 'import telethon' in content):
+                  raise AssertionError('Telethon in bot-only source '+str(path))
+          print('No personal Telegram session credentials in Series workflows')
+          PY

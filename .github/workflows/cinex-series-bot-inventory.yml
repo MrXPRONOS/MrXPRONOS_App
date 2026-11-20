@@ -1,0 +1,37 @@
+name: CineX Séries — inventorier les canaux avec les bots uniquement
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cinex-series-bot-inventory
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CINEX_SERIES_CHANNEL_IDS: ${{ vars.CINEX_SERIES_CHANNEL_IDS }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contrôler le script et ses tests hors connexion
+        run: |
+          python -m py_compile cinecanaux/scripts/audit_series_bots.py
+          python -m unittest discover -s cinecanaux/tests -p 'test_series_bot_inventory.py' -v
+      - name: Vérifier les canaux via la Bot API (aucune publication)
+        run: python cinecanaux/scripts/audit_series_bots.py
+      - name: Publier le rapport technique de vérification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-series-bot-inventory
+          path: cinex-series-bot-inventory.json
+          if-no-files-found: warn
+          retention-days: 7
