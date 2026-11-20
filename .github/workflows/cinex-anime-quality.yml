@@ -1,0 +1,32 @@
+name: CinéX Anime - Qualité sans publication
+
+on:
+  pull_request:
+    paths:
+      - 'telegram-film-relay/film_relay/anime_*.py'
+      - 'telegram-film-relay/film_relay/episode_identity.py'
+      - 'telegram-film-relay/film_relay/short_series.py'
+      - 'telegram-film-relay/tests/test_anime*.py'
+      - '.github/workflows/cinex-anime-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  anime-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances sans secrets
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Vérifier la syntaxe du relais et de ses tests
+        working-directory: telegram-film-relay
+        run: python -m compileall -q film_relay tests
+      - name: Exécuter les tests de la politique Anime
+        working-directory: telegram-film-relay
+        run: python -m unittest discover -s tests -p 'test_anime*.py' -v

@@ -26,7 +26,8 @@ from telethon.sessions import StringSession
 from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
-from .anime_policy import complete_anime_seasons, select_anime_season, anime_movie_slots
+from .anime_policy import (complete_anime_seasons, progressive_anime_seasons,
+                           select_anime_season, anime_movie_slots)
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -150,6 +151,12 @@ MOVIE_LABEL = re.compile(r"(?i)\b(?:film|movie|long[ -]?m[eé]trage)\b")
 SERIES_LABEL = re.compile(r"(?i)\b(?:s[eé]rie|saison|season|[eé]pisodes?|\bep[ ._-]*\d{1,3})\b")
 
 
+# Distinguish short-format anime from full-length animated movies.
+NON_MOVIE_FORMAT = re.compile(
+    r"(?i)\b(?:o\.?v\.?a\.?|o\.?n\.?a\.?|specials?|hors[ -]?s[eé]rie)\b"
+)
+
+
 def is_anime_movie(item) -> bool:
     """Only standalone anime features, never a numbered series episode."""
     video = item.video
@@ -159,7 +166,8 @@ def is_anime_movie(item) -> bool:
     details = " ".join((caption, filename, poster_text))
     if episode_numbers(caption) or episode_numbers(filename):
         return False
-    if SERIES_LABEL.search(details) or SEASON_HEADER.search(details):
+    if (SERIES_LABEL.search(details) or SEASON_HEADER.search(details)
+            or NON_MOVIE_FORMAT.search(details)):
         return False
     duration = getattr(getattr(video, "file", None), "duration", None)
     try:
@@ -470,6 +478,13 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                             and ready_full_batch(recovered, active)) else None)
         else:
             selected = pending_anime_series(eligible, catalogue)
+            if not selected:
+                progressive = progressive_anime_seasons(
+                    groups, catalogue, maximum=episode_cap)
+                selected = pending_anime_series(progressive, catalogue)
+                if selected:
+                    LOG.info("Anime : nouveaux épisodes en cours pour %s (%s épisodes)",
+                             selected[0], len(selected[1]))
         if active and selected is None:
             LOG.warning("Anime : série %s interrompue, épisodes introuvables ou "
                         "incomplets ; AUCUNE autre série ou film ne sera envoyé.",
@@ -495,6 +510,14 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     and all_episodes_uploaded(existing, items)):
                 continue
             title = str(existing.get("title") or items[0]["title"])
+            # Preserve mode from an interrupted batch, including legacy batches.
+            is_complete_season = (
+                bool(active.get("complete", True)) if active else
+                any(k == selected[0] and
+                    {(r["season"], r["episode"]) for r in batch} ==
+                    {(r["season"], r["episode"]) for r in items}
+                    for k, batch in eligible)
+            )
             series_attempted = True
             if not ready_full_batch(items, active):
                 LOG.warning("Anime %s : liste complète des épisodes indisponible ; "
@@ -507,6 +530,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 break
             if not active:
                 catalogue["active_batch"] = batch_descriptor(key, items)
+                catalogue["active_batch"]["complete"] = is_complete_season
                 save_catalog(catalogue)
                 active = catalogue["active_batch"]
 
@@ -697,9 +721,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     season_link = private_message_link(
                         private_id, int(series["season_indices"][season_no]))
                     caption = (f"🌸 <b>{escape(title)} — Saison {int(season_no)}</b>\n\n"
-                               "<i>Nouvelle saison complète disponible.</i>\n"
-                               f'📺 <a href="{season_link}">VOIR LES ÉPISODES</a>\n'
-                               f"{season_marker}")
+                               + ("<i>Nouvelle saison complète disponible.</i>\n" if is_complete_season else "<i>Nouveaux épisodes disponibles — saison en cours.</i>\n")
+                               + f'📺 <a href="{season_link}">VOIR LES ÉPISODES</a>\n'
+                               + f"{season_marker}")
                     public_post = await bot.send_file(
                         bot_public, picture, caption=caption, parse_mode="html",
                         buttons=public_buttons(private_id, series, public), force_document=False)
@@ -717,6 +741,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 client, bot, public, private, private_id,
                 series, items, catalogue, save_catalog, pause,
             )
+            if season_no:
+                series.setdefault("season_status", {})[season_no] = (
+                    "complete" if is_complete_season else "en_cours"
+                )
             completed_series.add(key)
             catalogue["active_batch"] = None
             save_catalog(catalogue)
@@ -744,9 +772,12 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 LOG.info("Publicités Anime : %s", report)
         LOG.info("FIN : %s séries mises à jour, %s fiches nouvelles, %s épisodes privés",
                  len(completed_series), posted_cards, copied_episodes)
-        film_slots = anime_movie_slots(
-            limit, finished_series=bool(completed_series),
-            active_batch=bool(catalogue.get("active_batch")))
+        film_slots = min(
+            anime_movie_slots(
+                limit, finished_series=bool(completed_series),
+                active_batch=bool(catalogue.get("active_batch"))),
+            max(0, min(2, int(os.getenv("ANIME_MAX_MOVIES_PER_CYCLE", "1")))),
+        )
         if publish and film_slots and (not series_attempted or completed_series):
             LOG.info("Anime : %s saison terminée ; %s film(s) prévu(s).",
                      int(bool(completed_series)), film_slots)
