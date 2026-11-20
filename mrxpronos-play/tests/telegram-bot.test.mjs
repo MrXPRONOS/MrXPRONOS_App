@@ -1785,3 +1785,62 @@ test('phase 5 friends and missions are compact, real-data-driven, and retain ser
   for(const code of scripts)assert.doesNotThrow(()=>new vm.Script(code),'Frontend JS must parse after phase 5');
  }finally{h.restore()}
 });
+
+ 
+test('audit: bootstrap reveals only the current UTC wheel day, not 15 future outcomes',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:600051,first_name:'Audit'});
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
+  assert.equal(res.status,200,await res.clone().text());
+  const body=await res.json();
+  assert.deepEqual(Object.keys(body.wheel_plans),[new Date().toISOString().slice(0,10)]);
+ }finally{h.restore()}
+});
+
+test('audit: every Lucky Wheel outcome grants real XP, including previously cosmetic rewards',async()=>{
+ const serverRewards=code.match(/const rewards=\[\["xp10"[\s\S]*?\]\];/);
+ assert.ok(serverRewards,'Server wheel reward table missing');
+ const values=[...serverRewards[0].matchAll(/\["([^"]+)",\d+,(\d+)\]/g)];
+ assert.equal(values.length,8);
+ for(const [full,key,amount] of values){
+  assert.ok(Number(amount)>0,'Non-payable wheel reward: '+key);
+  assert.ok(full.includes(key))
+ }
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  for(const [full,key,amount] of values)
+   assert.ok(html.includes('key:"'+key+'"')&&html.includes('amount:'+amount),'Wheel client disagrees with server: '+key);
+  assert.ok(html.includes('id="mrxp-audit-readability"'));
+  assert.ok(html.includes('state.confirmedXp);$("xp-detail")'));
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
+  for(const script of scripts)assert.doesNotThrow(()=>new vm.Script(script));
+ }finally{h.restore()}
+});
+
+test('audit: profile share validates null payloads and rejects oversized requests',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:600052,first_name:'Audit'});
+  const endpoint='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/share/profile';
+  const header={'x-telegram-init-data':signed,'content-type':'application/json'};
+  const invalid=await worker.fetch(new Request(endpoint,{method:'POST',headers:header,body:'null'}),h.env);
+  assert.equal(invalid.status,400);
+  const huge=await worker.fetch(new Request(endpoint,{method:'POST',headers:header,body:JSON.stringify({hide_name:false,extra:'x'.repeat(5500)})}),h.env);
+  assert.equal(huge.status,413)
+ }finally{h.restore()}
+});
+
+test('audit: reward-change history, cumulative taps and explicit sync receipts remain server-controlled',async()=>{
+ for(const marker of [
+  'FROM mrxp_balance_audit WHERE setting_key LIKE',
+  'previous.count+=taps',
+  'accepted_daily_days:',
+  'rejected_wheel_days:',
+  'await mrxpSyncConfirmations(env,user.id,body)',
+  'REQUEST_TOO_LARGE',
+  'SELECT 1 AS alive'
+ ])assert.ok(code.includes(marker),'Missing audited behavior: '+marker);
+});
