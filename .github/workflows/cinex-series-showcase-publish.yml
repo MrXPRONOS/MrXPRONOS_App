@@ -27,7 +27,7 @@ jobs:
       CINEX_SERIES_RESCUE_INVITE_URL: ${{ secrets.CINEX_SERIES_RESCUE_INVITE_URL }}
       CINEX_SERIES_RIGHTS_ATTESTED: ${{ vars.CINEX_SERIES_RIGHTS_ATTESTED || 'false' }}
       CINEX_SHOWCASE_PUBLISH: ${{ (github.event_name == 'push' && contains(github.event.head_commit.message, '[CINEX-PUBLISH]')) && 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish && 'true' || 'false') }}
-      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
       ALT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       ALT_DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
