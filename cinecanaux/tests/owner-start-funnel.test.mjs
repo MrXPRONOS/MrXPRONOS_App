@@ -111,7 +111,7 @@ test('owner receives the blue Administration button, an ordinary visitor never d
   const owner=messages.filter(x=>x.method==='sendPhoto').at(-1).body;
   assert.equal(owner.reply_markup.inline_keyboard.length,2);
   assert.equal(owner.reply_markup.inline_keyboard[0][0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
-  assert.equal(owner.reply_markup.inline_keyboard[1][0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
+  assert.equal(owner.reply_markup.inline_keyboard[1][0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app?admin=1');
   assert.equal(owner.reply_markup.inline_keyboard[1][0].style,'primary');
   await botUpdate(env,{message:{chat:{id:901,type:'private'},from:{id:901,username:'mr_xpronos'},text:'/start'}});
   assert.equal(messages.filter(x=>x.method==='sendPhoto').at(-1).body.reply_markup.inline_keyboard.length,2);
