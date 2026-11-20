@@ -42,7 +42,15 @@ function safeCaption(msg){
 }
 
 export function parseFranchiseFilmNumber(caption){
- const s=String(caption||'').slice(0,450).replace(/[_-]/g,' ');
+ const raw=String(caption||'').slice(0,450);
+ // An owner may forward a compilation or a shared cover with ranges
+ // such as "1 à 10", "1-9" or multiple named movies. Never silently
+ // attribute that file to one film; it must be assigned by /ff N instead.
+ if(/\b(?:10|[1-9])\s*(?:[-–—]|à|au|to|through|jusqu['’]?à)\s*(?:10|[1-9])\b/i.test(raw))
+  return null;
+ const s=raw.replace(/[_-]/g,' ');
+ const distinct=new Set([...s.matchAll(/(?:fast\s*(?:and|&)\s*furious|furious|ff|film|partie|part)\s*[#.: -]?\s*(10|0?[1-9])(?=$|[^0-9])/gi)].map(m=>Number(m[1])));
+ if(distinct.size>1)return null;
  const patterns=[
   /(?:^|\s)(?:ff|f&f|film|partie|part)\s*[#.: -]?\s*(10|0?[1-9])(?=$|[^0-9])/i,
   /fast\s*(?:and|&)\s*furious\s*[#.: -]?\s*(10|0?[1-9])(?=$|[^0-9])/i,
