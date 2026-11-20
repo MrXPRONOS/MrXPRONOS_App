@@ -39,6 +39,14 @@
       "rescue_channel_id": -1004357703501,
       "rescue_title": "Films & Série 2026 vf | CinéX 🎬 Secours"
     },
+    "@filmsaction2026vf": {
+      "invite_sha256": "a8d5a4ee5b5d9cc489e22e68a7e7af3fa94fd5ca2559a1801930aeab51fd480d",
+      "public_id": -1004333321591,
+      "public_title": "FILMS D’ACTION 2026 | CINÉ X",
+      "public_username": "@filmsaction2026vf",
+      "rescue_channel_id": -1004470086587,
+      "rescue_title": "FILMS D’ACTION 2026 | CINÉ X Secours"
+    },
     "@seriesvf_cinex": {
       "description_digest": "c1e9c406d51024690de6676a01690b4aa39184e2dc2292b73b792e07f51a40fc",
       "invite_sha256": "f12e9f619005615ca3fa074a6b1d9438cb5f6ad9ed0684313bb0e47ef2e6d912",
