@@ -1,1 +1,3 @@
 Activation ponctuelle du parcours réel CinéX classique : une fiche à trois boutons et une vidéo avec Enregistrer. Sécurité : CineRadarFr_Bot doit être admin de la vidéothèque privée. Aucun contournement.
+
+Mise à jour des seules couleurs sur les messages déjà publiés, exécution idempotente sans nouveau film.
