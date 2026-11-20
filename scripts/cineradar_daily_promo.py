@@ -14,6 +14,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
+from pathlib import Path
 import sys
 import time
 from datetime import date, datetime, timezone
@@ -65,6 +67,61 @@ BUTTON = {
 }
 assert len(CAPTION) <= 1024
 assert len(set(x[0].casefold() for x in TARGETS)) == len(TARGETS)
+
+
+def classify_new_public_channel(username: str, title: str) -> str | None:
+    """Only add clearly relevant NEW public channels; never bot groups or private IDs."""
+    text = (username + " " + title).casefold()
+    if any(x in text for x in ("prono", "pari sportif", "football", "actufoot", "sport",
+                               "betting", "gambling", "coupon")):
+        return None
+    if re.search(r"crypto|bitcoin|blockchain|usdt|ethereum", text):
+        return "crypto"
+    if re.search(r"anime|anim[eé]s?|mangas?|otaku|shonen|vostfr", text):
+        return "anime"
+    if re.search(r"s[eé]ries?|saisons?|drama", text):
+        return "series"
+    if re.search(r"films?|cin[eé]ma|cin[eé]x", text):
+        return "films"
+    return None
+
+
+def eligible_targets() -> tuple[tuple[str, str], ...]:
+    """Use the SAME day's verified PUBLIC inventory if the coordinator supplies it.
+
+    No private identifiers ever enter this file. Missing/stale export fails closed.
+    In manual fallback, retain the previously approved 13 public targets.
+    """
+    source = os.getenv("CINERADAR_PUBLIC_INVENTORY_FILE", "").strip()
+    if not source:
+        return TARGETS
+    try:
+        data = json.loads(Path(source).read_text(encoding="utf-8"))
+        rows = data["public_channels"]
+        verified_at = str(data["verified_at"])
+    except (OSError, ValueError, KeyError, TypeError):
+        raise RuntimeError("verified_public_inventory_unavailable") from None
+    if not isinstance(rows, list) or not verified_at.startswith(datetime.now(timezone.utc).date().isoformat()):
+        raise RuntimeError("verified_public_inventory_stale")
+    current = {}
+    for row in rows:
+        if not isinstance(row, dict) or row.get("bot_can_post") is not True:
+            continue
+        name = str(row.get("username", "")).lstrip("@").strip()
+        if not re.fullmatch(r"[A-Za-z0-9_]{5,32}", name):
+            continue
+        current[name.casefold()] = (name, str(row.get("title", "")))
+    results = [(name, kind) for name, kind in TARGETS if name.casefold() in current]
+    seen = {name.casefold() for name, _ in results}
+    for key, (name, title) in sorted(current.items()):
+        if key in seen:
+            continue
+        kind = classify_new_public_channel(name, title)
+        if kind:
+            seen.add(key)
+            results.append((name, kind))
+    print("VERIFIED_PUBLIC_PROMO_TARGETS", len(results), "of", len(current), "public channels.")
+    return tuple(results)
 
 
 def api(token: str, method: str, payload: dict) -> dict:
@@ -167,12 +224,13 @@ def run(*, dry_run: bool) -> int:
         return 0
     token, bot_id = find_publisher()
     print("Publisher verified: @" + BOT_USERNAME)
-    if len(TARGETS) != 13:
-        raise RuntimeError("target_list_incomplete")
+    targets = eligible_targets()
+    if not targets:
+        raise RuntimeError("no_approved_public_channels")
     endpoint, session = ("", None) if dry_run else ledger_session()
     counts = {"verified": 0, "sent": 0, "already_reserved": 0, "skipped": 0, "errors": 0}
     try:
-        for username, kind in TARGETS:
+        for username, kind in targets:
             try:
                 channel_id, handle = eligible_channel(token, bot_id, username)
                 counts["verified"] += 1
@@ -226,7 +284,7 @@ def run(*, dry_run: bool) -> int:
             "| {verified} | {sent} | {already_reserved} | {skipped} | {errors} |\n".format(**counts)
         )
     if dry_run:
-        return 0 if counts["verified"] == len(TARGETS) else 1
+        return 0 if counts["verified"] == len(targets) else 1
     return 1 if counts["errors"] or counts["skipped"] else 0
 
 
