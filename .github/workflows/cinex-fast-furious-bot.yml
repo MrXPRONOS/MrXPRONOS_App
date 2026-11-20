@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 12
     env:
       CINEX_FF_PUBLISH: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && 'true' || 'false' }}
-      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
       ALT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       ALT_DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}

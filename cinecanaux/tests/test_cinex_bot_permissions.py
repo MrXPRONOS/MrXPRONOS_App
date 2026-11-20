@@ -32,7 +32,8 @@ class BotPermissionsTests(TestCase):
         self.assertEqual(x["bot_count"],1)
         self.assertEqual(x["manual_review_count"],1)
         self.assertEqual(x["unreachable_count"],0)
-        self.assertEqual(len(x["checks"]),2)
+        self.assertEqual(len(x["checks"]),3)
+        self.assertEqual(x["checks"][2]["access"],"duplicate_secret")
         self.assertEqual(x["checks"][0]["dangerous"],["can_delete_messages","can_promote_members"])
         self.assertTrue(x["checks"][0]["can_publish"])
         self.assertIsNone(x["checks"][1]["can_publish"])
@@ -60,3 +61,76 @@ class BotPermissionsTests(TestCase):
         self.assertEqual(r["unreachable_count"],1)
         self.assertEqual(r["checks"][0]["access"],"unavailable")
         self.assertNotIn("-1001234567890",json.dumps(r))
+
+    def test_dedicated_publisher_requires_verified_username_and_all_destinations(self):
+        targets=[
+            ("series_main","a"),("series_rescue","b"),
+            ("films_main","c"),("films_rescue","d"),
+            ("franchise_source","e"),("series_source_01","f"),
+        ]
+        class Fake:
+            def __init__(self,token): self.token=token
+            def call(self,method,params):
+                if method=="getMe":
+                    return {"is_bot":True,"id":123,"username":"CineXPublishBot"}
+                if method=="getChatMember":
+                    return {"status":"administrator","can_post_messages":True}
+                raise AssertionError(method)
+        with mock.patch.object(mod,"BotAPI",Fake):
+            r=mod.audit_permissions([("publisher","123:secret")],targets,publisher_username="@CineXPublishBot",expected_series_count=1)
+        self.assertTrue(r["publisher"]["ready"])
+        self.assertEqual(r["publisher"]["identity"],"verified")
+        self.assertTrue(r["publisher"]["destinations_verified"])
+        self.assertTrue(r["publisher"]["source_access_verified"])
+        self.assertNotIn("123:secret",json.dumps(r))
+        with mock.patch.object(mod,"BotAPI",Fake):
+            bad=mod.audit_permissions([("publisher","123:secret")],targets,publisher_username="DifferentBot",expected_series_count=1)
+        self.assertEqual(bad["publisher"]["identity"],"mismatch")
+        self.assertFalse(bad["publisher"]["ready"])
+
+    def test_missing_rights_or_target_fail_closed(self):
+        targets=[
+            ("series_main","a"),("series_rescue","b"),
+            ("films_main","c"),("films_rescue","d"),
+            ("franchise_source","e"),("series_source_01","f"),
+        ]
+        class Fake:
+            def __init__(self,token):pass
+            def call(self,method,params):
+                if method=="getMe": return {"is_bot":True,"id":321,"username":"SafePublisher"}
+                if method=="getChatMember":
+                    if params["chat_id"]=="b":
+                        return {"status":"administrator","can_post_messages":False}
+                    return {"status":"administrator","can_post_messages":True}
+                raise AssertionError(method)
+        with mock.patch.object(mod,"BotAPI",Fake):
+            missing_post=mod.audit_permissions([("publisher","321:x")],targets,publisher_username="SafePublisher",expected_series_count=1)
+            missing_channel=mod.audit_permissions([("publisher","321:x")],targets[:-1],publisher_username="SafePublisher",expected_series_count=1)
+        self.assertFalse(missing_post["publisher"]["ready"])
+        self.assertFalse(missing_post["publisher"]["destinations_verified"])
+        self.assertFalse(missing_channel["publisher"]["ready"])
+        self.assertIn("series_source_01",missing_channel["publisher"]["missing_categories"])
+
+    def test_reject_nonbot_identity_and_never_expose_secret(self):
+        class Fake:
+            def __init__(self,token):pass
+            def call(self,method,params):
+                if method=="getMe":return {"id":123,"is_bot":False,"username":"person"}
+                raise AssertionError(method)
+        with mock.patch.object(mod,"BotAPI",Fake):
+            r=mod.audit_permissions([("publisher","123:sensitive")],[],publisher_username="CineXPublishBot")
+        self.assertEqual(r["publisher"]["identity"],"unavailable")
+        self.assertFalse(r["publisher"]["ready"])
+        self.assertNotIn("123:sensitive",json.dumps(r))
+
+    def test_readonly_methods_are_whitelisted_by_test(self):
+        class Fake:
+            def __init__(self,token):pass
+            def call(self,method,params):
+                if method=="getMe":return {"id":987,"is_bot":True,"username":"TestPublisher"}
+                if method=="getChatMember":
+                    return {"status":"administrator","can_post_messages":True}
+                raise AssertionError("Unexpected mutating Telegram method: "+method)
+        with mock.patch.object(mod,"BotAPI",Fake):
+            mod.audit_permissions([("publisher","987:test")],[("series_main","a")],
+                                  publisher_username="TestPublisher",expected_series_count=1)
