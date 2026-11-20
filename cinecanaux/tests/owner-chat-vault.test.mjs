@@ -11,6 +11,7 @@ function fakeDb({gate=true,queue=[],existing=null}={}){
   const statement={
    bind(...v){params=v;return statement},
    async first(){
+    if(sql.startsWith('INSERT INTO cine_telegram_send_quota'))return {used:1};
     if(sql.includes('FROM cine_series_config'))return {setting_value:gate?'true':'false'};
     if(sql.includes('AS series_rights'))return {series_rights:1,library_rights:null,classic_link:0};
     if(sql.includes('FROM cine_series_posters'))return {ok:1};
