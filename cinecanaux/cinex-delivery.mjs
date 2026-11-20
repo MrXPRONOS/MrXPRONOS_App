@@ -7,10 +7,11 @@ const CHAT=/^-100[0-9]{5,}$/;
 const TG='https://api.telegram.org/bot';
 const MINI_APP='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app';
 export const downloadUrl=token=>TOKEN.test(String(token||''))?'https://t.me/CineRadarFr_Bot?start=d_'+token:null;
-export function validSequence(kind,season,items){
+export function validSequence(kind,season,items,expectedEpisodes){
  if(!Array.isArray(items)||!items.length||items.length>100)return false;
  if(kind==='film')return season===0&&items.length===1&&items[0].season_number===null&&items[0].episode_number===null;
  if(kind!=='series'||!Number.isInteger(season)||season<1||season>50)return false;
+ if(!Number.isInteger(expectedEpisodes)||expectedEpisodes<1||expectedEpisodes>100||items.length!==expectedEpisodes)return false;
  return items.every((x,i)=>Number(x.season_number)===season&&Number(x.episode_number)===i+1);
 }
 function keyboard(){
@@ -43,7 +44,7 @@ export async function handleDeliveryStart(env,update){
   const feature=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
   if(feature?.value!=='1'){await say(env,chat,'🎬 Le téléchargement CinéX est en préparation. Les vidéothèques restent accessibles depuis les canaux.');return {handled:true,accepted:false};}
   const link=await env.DB.prepare(
-   "SELECT l.token,l.season_key,l.category,t.title_key,t.display_title,t.content_kind,b.private_chat_id FROM cine_delivery_links l JOIN cine_delivery_titles t ON t.title_key=l.title_key AND t.category=l.category JOIN cine_delivery_libraries b ON b.category=l.category WHERE l.token=? AND l.enabled=1 AND t.rights_attested=1 AND b.rights_attested=1 AND b.owner_access='verified' AND b.bot_access='verified'"
+   "SELECT l.token,l.season_key,l.category,t.title_key,t.display_title,t.content_kind,b.private_chat_id,e.expected_episodes FROM cine_delivery_links l JOIN cine_delivery_titles t ON t.title_key=l.title_key AND t.category=l.category JOIN cine_delivery_libraries b ON b.category=l.category LEFT JOIN cine_delivery_season_evidence e ON e.category=l.category AND e.title_key=l.title_key AND e.season_key=l.season_key AND e.observed_at=b.last_scanned_at WHERE l.token=? AND l.enabled=1 AND t.rights_attested=1 AND b.rights_attested=1 AND b.owner_access='verified' AND b.bot_access='verified'"
   ).bind(token).first();
   if(!link||!CHAT.test(String(link.private_chat_id||''))){await say(env,chat,'Ce téléchargement n’est pas disponible pour le moment.');return {handled:true,accepted:false};}
   const rows=await env.DB.prepare(
@@ -51,7 +52,7 @@ export async function handleDeliveryStart(env,update){
   ).bind(link.title_key,link.category,link.season_key,link.season_key,link.season_key).all();
   const media=rows.results||[];
   // Reject ANY incomplete season and mismatched records before enqueuing.
-  if(!validSequence(link.content_kind,Number(link.season_key),media)){
+  if(!validSequence(link.content_kind,Number(link.season_key),media,Number(link.expected_episodes))){
    await say(env,chat,'La saison ou le film est incomplet. Le téléchargement est momentanément indisponible.');
    return {handled:true,accepted:false};
   }
@@ -96,7 +97,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
  await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE status='sending' AND lock_until<datetime('now')").run();
  await env.DB.prepare("UPDATE cine_delivery_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_delivery_jobs WHERE status='needs_review')").run();
  const candidates=await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,j.token,l.category,l.title_key,l.season_key,b.private_chat_id FROM cine_delivery_jobs j JOIN cine_delivery_links l ON l.token=j.token JOIN cine_delivery_titles t ON t.title_key=l.title_key JOIN cine_delivery_libraries b ON b.category=l.category WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND l.enabled=1 AND t.rights_attested=1 AND b.bot_access='verified' AND b.rights_attested=1 ORDER BY j.created_at,j.id LIMIT ?"
+  "SELECT j.id,j.telegram_chat_id,j.token,l.category,l.title_key,l.season_key,b.private_chat_id FROM cine_delivery_jobs j JOIN cine_delivery_links l ON l.token=j.token JOIN cine_delivery_titles t ON t.title_key=l.title_key JOIN cine_delivery_libraries b ON b.category=l.category LEFT JOIN cine_delivery_season_evidence e ON e.category=l.category AND e.title_key=l.title_key AND e.season_key=l.season_key AND e.observed_at=b.last_scanned_at WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND l.enabled=1 AND t.rights_attested=1 AND b.bot_access='verified' AND b.rights_attested=1 AND (l.season_key=0 OR e.expected_episodes=j.planned_items) ORDER BY j.created_at,j.id LIMIT ?"
  ).bind(Math.min(4,Math.max(1,Number(limit)||2))).all();
  let processed=0,errors=0;
  for(const job of candidates.results||[]){
