@@ -7,7 +7,7 @@ import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,inva
 import {APP_HTML} from "./app-page.mjs";
 import {ADMIN_HTML} from "./admin-page.mjs";
 import {adminAPI} from "./admin-v2.mjs";
-import {trackBroadcastSubscriber,deliverBroadcastBatch,launchScheduledBroadcasts} from "./broadcast.mjs";
+import {trackBroadcastSubscriber,deliverBroadcastBatch,launchScheduledBroadcasts,recordBroadcastSchedulerTick} from "./broadcast.mjs";
 import {tryOwnerClaim} from "./owner-claim.mjs";
 import {recordBotTouch,analyticsEvent} from "./analytics.mjs";
 import {recordBotStartFunnel,recordSignedAppLaunch} from "./launch-funnel.mjs";
@@ -416,7 +416,16 @@ export default {
   return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  if(controller.cron==="* * * * *")ctx.waitUntil((async()=>{await launchScheduledBroadcasts(env);await deliverBroadcastBatch(env)})().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
+  if(controller.cron==="* * * * *")ctx.waitUntil((async()=>{
+   try{
+    const result=await launchScheduledBroadcasts(env);
+    await deliverBroadcastBatch(env);
+    await recordBroadcastSchedulerTick(env,result.errors?"warning":"ok",result.errors||0);
+   }catch(e){
+    await recordBroadcastSchedulerTick(env,"error",1).catch(()=>{});
+    throw e;
+   }
+  })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
   else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
    const discovered=await indexQualifiedChannels(env);

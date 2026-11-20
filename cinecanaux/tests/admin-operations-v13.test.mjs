@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
-import {broadcastAdminAPI,ensureBroadcastTables,launchScheduledBroadcasts} from '../broadcast.mjs';
+import {readFileSync} from 'node:fs';
+import {broadcastAdminAPI,ensureBroadcastTables,launchScheduledBroadcasts,recordBroadcastSchedulerTick} from '../broadcast.mjs';
 import {ownerOperationsOverview} from '../admin-ops.mjs';
 import {adminAPI} from '../admin-v2.mjs';
 import {ADMIN_HTML} from '../admin-page.mjs';
@@ -85,4 +86,49 @@ test('V1.3 operational journal is owner-only and contains no raw Telegram sessio
   assert.ok(ADMIN_HTML.includes('id="broadcast-schedule-at"'));
   assert.ok(ADMIN_HTML.includes('id="broadcast-schedule"'));
  }finally{sqlite.close()}
+});
+
+
+test('V1.3.1 minute scheduler heartbeat is bounded, owner-visible and warns if stale',async()=>{
+ const {env,sqlite}=fixture();
+ try{
+  await ensureBroadcastTables(env);
+  sqlite.prepare("CREATE TABLE radar_ops_status(job_name TEXT,status TEXT,last_attempt_at TEXT,last_success_at TEXT)").run();
+  sqlite.prepare("CREATE TABLE automated_job_runs(id INTEGER,job_name TEXT,status TEXT,errors INTEGER,started_at TEXT)").run();
+  sqlite.prepare("CREATE TABLE bot_webhook_status(id INTEGER PRIMARY KEY,status TEXT,updated_at TEXT)").run();
+  sqlite.prepare("INSERT INTO bot_webhook_status VALUES(1,'ok',CURRENT_TIMESTAMP)").run();
+  await recordBroadcastSchedulerTick(env,'ok',0);
+  let overview=await ownerOperationsOverview(env);
+  assert.equal(overview.scheduler.healthy,true);
+  assert.equal(overview.scheduler.status,'ok');
+  assert.equal(overview.alerts.some(x=>x.title.includes('Horloge des annonces')),false);
+  const first=sqlite.prepare("SELECT last_tick_at FROM cine_broadcast_scheduler_status WHERE id=1").get();
+  await recordBroadcastSchedulerTick(env,'ok',0);
+  const second=sqlite.prepare("SELECT last_tick_at FROM cine_broadcast_scheduler_status WHERE id=1").get();
+  assert.equal(second.last_tick_at,first.last_tick_at,'Healthy scheduler heartbeat is throttled');
+  sqlite.prepare("UPDATE cine_broadcast_scheduler_status SET last_tick_at=datetime('now','-30 minutes') WHERE id=1").run();
+  overview=await ownerOperationsOverview(env);
+  assert.equal(overview.scheduler.healthy,false);
+  assert.ok(overview.alerts.some(x=>x.title.includes('Horloge des annonces')));
+  await recordBroadcastSchedulerTick(env,'warning',2);
+  overview=await ownerOperationsOverview(env);
+  assert.equal(overview.scheduler.status,'warning');
+  assert.equal(overview.scheduler.error_count,2);
+  assert.ok(overview.alerts.some(x=>x.title.includes('Horloge des annonces')));
+  await recordBroadcastSchedulerTick(env,'ok',0);
+  overview=await ownerOperationsOverview(env);
+  assert.equal(overview.scheduler.healthy,true);
+  assert.equal(overview.scheduler.error_count,0);
+ }finally{sqlite.close()}
+});
+test('V1.3.1 declared Worker cron patterns match maintained scheduled routes',()=>{
+ const conf=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+ const worker=readFileSync(new URL('../worker.mjs',import.meta.url),'utf8');
+ assert.ok(conf.triggers.crons.includes('* * * * *'));
+ assert.ok(conf.triggers.crons.includes('0 3 * * *'));
+ assert.ok(conf.triggers.crons.includes('0 */6 * * *'));
+ assert.ok(!conf.triggers.crons.includes('15 */6 * * *'));
+ assert.ok(worker.includes('controller.cron==="0 3 * * *"'));
+ assert.ok(worker.includes('recordBroadcastSchedulerTick(env'));
+ assert.ok(ADMIN_HTML.includes('Programmation'));
 });

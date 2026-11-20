@@ -16,18 +16,24 @@ export async function recordAdminAudit(env,owner,action,target,detail=''){
 }
 export async function ownerOperationsOverview(env){
  await ensureAdminAuditTable(env);
- const [actions,operations,jobs,webhook]=await Promise.all([
+ const [actions,operations,jobs,webhook,scheduler]=await Promise.all([
   env.DB.prepare("SELECT id,action,target,detail,created_at FROM cine_admin_audit ORDER BY id DESC LIMIT 40").all(),
   env.DB.prepare("SELECT job_name,status,last_attempt_at,last_success_at FROM radar_ops_status ORDER BY job_name LIMIT 30").all(),
   env.DB.prepare("SELECT job_name,status,errors,started_at FROM automated_job_runs ORDER BY id DESC LIMIT 15").all(),
-  env.DB.prepare("SELECT status,updated_at FROM bot_webhook_status WHERE id=1").first()
+  env.DB.prepare("SELECT status,updated_at FROM bot_webhook_status WHERE id=1").first(),
+  env.DB.prepare("SELECT last_tick_at,status,error_count FROM cine_broadcast_scheduler_status WHERE id=1").first().catch(()=>null)
  ]);
  const statuses=operations.results||[],runs=jobs.results||[];
+ const now=Date.now();
+ const age=scheduler?.last_tick_at?now-Date.parse(String(scheduler.last_tick_at).replace(' ','T')+'Z'):Infinity;
+ const schedulerHealthy=Number.isFinite(age)&&age>=0&&age<15*60000&&scheduler?.status==='ok';
+ const scheduleState={last_tick_at:scheduler?.last_tick_at||null,status:scheduler?.status||'waiting',error_count:Number(scheduler?.error_count||0),healthy:schedulerHealthy};
  const alerts=[];
+ if(!schedulerHealthy)alerts.push({level:'warning',title:'Horloge des annonces à contrôler',detail:!scheduler?.last_tick_at?'Aucun passage du déclencheur encore confirmé.':scheduler.status!=='ok'?'Le dernier passage a signalé une erreur.':'Le dernier passage est trop ancien.'});
  if(webhook&&webhook.status!=='ok')alerts.push({level:'warning',title:'Connexion Telegram à contrôler',detail:'Le contrôle du webhook ne signale pas un état normal.'});
  for(const item of statuses.filter(x=>['error','partial'].includes(x.status)).slice(0,4))
   alerts.push({level:'warning',title:'Automatisation à contrôler : '+item.job_name,detail:'Dernier contrôle : '+String(item.last_attempt_at||'inconnu')});
  for(const item of runs.filter(x=>Number(x.errors||0)>0).slice(0,3))
   alerts.push({level:'warning',title:'Exécution partiellement réussie : '+item.job_name,detail:Number(item.errors||0)+' erreur(s) · '+String(item.started_at||'')});
- return {alerts,operations:statuses,jobs:runs,actions:actions.results||[],checked_at:new Date().toISOString()};
+ return {alerts,scheduler:scheduleState,operations:statuses,jobs:runs,actions:actions.results||[],checked_at:new Date().toISOString()};
 }
