@@ -8,6 +8,9 @@ on:
       - 'cinecanaux/app-page.mjs'
       - 'cinecanaux/admin-page.mjs'
       - 'cinecanaux/admin-shell.mjs'
+      - 'cinecanaux/admin-channel-ui.mjs'
+      - 'cinecanaux/admin-v2.mjs'
+      - 'cinecanaux/tests/admin-channel-manager.test.mjs'
       - 'cinecanaux/tests/admin-dashboard-visual.mjs'
       - '.github/workflows/cine-radar-mobile-visual.yml'
   push:
