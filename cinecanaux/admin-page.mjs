@@ -2,6 +2,7 @@
 import {ADMIN_SHELL_CSS,ADMIN_SHELL_HTML,ADMIN_SHELL_JS} from "./admin-shell.mjs";
 import {ADMIN_CHANNEL_CSS,ADMIN_CHANNEL_HTML,ADMIN_CHANNEL_JS} from "./admin-channel-ui.mjs";
 import {ADMIN_OPS_CSS,ADMIN_OPS_HTML,ADMIN_OPS_JS} from "./admin-ops-ui.mjs";
+import {ADMIN_RECOVERY_CSS,ADMIN_RECOVERY_HTML,ADMIN_RECOVERY_JS} from "./admin-recovery-ui.mjs";
 export const ADMIN_HTML=String.raw`<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101e"><title>Ciné Radar — Administration</title>
@@ -63,6 +64,7 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 ${ADMIN_SHELL_CSS}
 ${ADMIN_CHANNEL_CSS}
 ${ADMIN_OPS_CSS}
+${ADMIN_RECOVERY_CSS}
 </style></head>
 <body><div class="page">
 <header><img class="ad-logo" src="/assets/bot-profile.jpg" alt="Logo Ciné Radar"><div><h1>Ciné Radar</h1><small>Administration de la Mini App</small></div><a href="/app" style="margin-left:auto;font-size:12px" aria-label="Retourner à Ciné Radar">← Mini App</a></header>
@@ -71,6 +73,7 @@ ${ADMIN_OPS_CSS}
 ${ADMIN_SHELL_HTML}
 ${ADMIN_CHANNEL_HTML}
 ${ADMIN_OPS_HTML}
+${ADMIN_RECOVERY_HTML}
 <section class="stats" id="stats"></section>
 
 <section class="broadcast-box" id="broadcast-box" aria-label="Envoyer une annonce aux utilisateurs">
@@ -584,5 +587,6 @@ if(framed){
 }else bootstrapAdmin();
 ${ADMIN_CHANNEL_JS}
 ${ADMIN_OPS_JS}
+${ADMIN_RECOVERY_JS}
 })();
 </script><script>${ADMIN_SHELL_JS}</script></body></html>`;
