@@ -150,6 +150,12 @@ MOVIE_LABEL = re.compile(r"(?i)\b(?:film|movie|long[ -]?m[eé]trage)\b")
 SERIES_LABEL = re.compile(r"(?i)\b(?:s[eé]rie|saison|season|[eé]pisodes?|\bep[ ._-]*\d{1,3})\b")
 
 
+# Distinguish short-format anime from full-length animated movies.
+NON_MOVIE_FORMAT = re.compile(
+    r"(?i)\\b(?:o\\.?v\\.?a\\.?|o\\.?n\\.?a\\.?|specials?|hors[ -]?s[eé]rie)\\b"
+)
+
+
 def is_anime_movie(item) -> bool:
     """Only standalone anime features, never a numbered series episode."""
     video = item.video
@@ -159,7 +165,8 @@ def is_anime_movie(item) -> bool:
     details = " ".join((caption, filename, poster_text))
     if episode_numbers(caption) or episode_numbers(filename):
         return False
-    if SERIES_LABEL.search(details) or SEASON_HEADER.search(details):
+    if (SERIES_LABEL.search(details) or SEASON_HEADER.search(details)
+            or NON_MOVIE_FORMAT.search(details)):
         return False
     duration = getattr(getattr(video, "file", None), "duration", None)
     try:
