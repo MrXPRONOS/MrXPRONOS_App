@@ -61,13 +61,24 @@ def identify_radar_bot(configured_token: str = "") -> int:
             method="GET")
         with urllib.request.urlopen(req, timeout=14) as response:
             payload = json.load(response)
+        if isinstance(payload, dict):
+            identity = payload.get("botIdentity")
+            identity = identity if isinstance(identity, dict) else {}
+            # Telegram bot usernames and IDs are public, tokens are never logged.
+            print("CINEX_RADAR_HEALTH", json.dumps({
+                "service": payload.get("service"),
+                "connected": identity.get("connected"),
+                "matchesExpected": identity.get("matchesExpected"),
+                "username": identity.get("username"),
+                "has_bot_id": isinstance(identity.get("id"), int) and identity["id"] > 0,
+            }, ensure_ascii=False))
         return validated_radar_identity(payload)
-    except (urllib.error.URLError, TimeoutError, ValueError, TypeError) as error:
-        raise RuntimeError(
-            "Identité officielle Ciné Radar non vérifiable depuis le Worker. "
-            "Vérifier /health?telegram=1 ou fournir le secret GitHub dédié "
-            "CINEX_RADAR_BOT_TOKEN (ne pas utiliser TELEGRAM_BOT_TOKEN)."
-        ) from None
+    except urllib.error.HTTPError as error:
+        raise RuntimeError("CineRadar Worker HTTP " + str(error.code)) from None
+    except (urllib.error.URLError, TimeoutError):
+        raise RuntimeError("CineRadar Worker injoignable depuis GitHub Actions") from None
+    except (ValueError, TypeError) as error:
+        raise RuntimeError("Diagnostic CineRadar Worker non valide: " + str(error)[:155]) from None
 
 
 
