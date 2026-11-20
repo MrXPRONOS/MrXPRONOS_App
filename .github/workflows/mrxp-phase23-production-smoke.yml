@@ -1,0 +1,47 @@
+name: MRXP phases 2 and 3 - Production UI smoke
+on:
+  push:
+    paths:
+      - .github/workflows/mrxp-phase23-production-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Validate public health, phase 2-3 UI and existing gameplay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,time,urllib.request
+          host='https://mrxpronos-play.cinecanaux-xpronos.workers.dev'
+          def get(path):
+              req=urllib.request.Request(host+path,headers={'User-Agent':'MRXP-Phase23-Production-Smoke/1.0','Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=24) as r:
+                  return r.status,r.read().decode('utf-8','replace')
+          status,body=get('/api/health')
+          assert status==200
+          health=json.loads(body)
+          required=['ok','bot_connected','telegram_token_valid','correct_bot','db_connected']
+          fields={k:health.get(k) for k in required}
+          assert all(fields.values()), 'Telegram/D1 degraded: '+str(fields)
+          print('Public health:',fields)
+          seen=0
+          for i in range(60):
+              status,html=get('/?phase23='+str(i)+'-'+str(time.time_ns()))
+              assert status==200 and 'TAPOTER POUR GAGNER' in html,'Home not available'
+              if 'id="mrxp-mobile-phase2-3"' in html:
+                  seen+=1
+                  for marker in ['mrxp-wheel-feature-copy','mrxp-promo-refined','mrxp-profile-hero-art',
+                                 'mrxp-profile-rank-stack','MA PROGRESSION','SOLDE MRXP',
+                                 'mrxp-open-wheel','mrxp-share-create','mrxp-next-rank-details',
+                                 'mrxp-v2-progress-track','const MRXP_PUBLIC_BOT_LINK="https://t.me/MrXpronosPlayBot"']:
+                      assert marker in html,'V50 UI missing '+marker
+                  assert '> PROGRESSION V2</span>' not in html
+                  assert 'Gagne des <b>XP Points</b>Prépare ta progression' not in html
+          print('V50 UI responses:',seen,'/ 60')
+          assert seen>0,'New Worker version not observed during canary'
+          PY
