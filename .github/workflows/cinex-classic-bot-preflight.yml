@@ -14,6 +14,9 @@ jobs:
       BOT: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       PUBLIC: ${{ vars.TG_PUBLIC_CHANNEL }}
       PRIVATE: ${{ vars.TG_PRIVATE_CHANNEL }}
+      ALT_CINEX_BOT: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      ALT_DESIR_BOT: ${{ secrets.DESIR_BOT_TOKEN }}
+      ALT_ACTION_BOT: ${{ secrets.ACTION_BOT_TOKEN }}
     steps:
       - name: Vérifier l'accès du bot, sans copier ni envoyer de média
         run: |
@@ -43,4 +46,17 @@ jobs:
               print('SECOURS_EXISTING_INVITE='+str(bool(info.get('invite_link'))).lower())
               print('SECOURS_BOT_CAN_INVITE='+str(bool(role.get('can_invite_users'))).lower())
           except Exception as e: print('SECOURS_ACCESS_ERROR='+type(e).__name__)
+          for label,variable in [('RADAR','ALT_CINEX_BOT'),('DESIR','ALT_DESIR_BOT'),('ACTION','ALT_ACTION_BOT')]:
+              alt=os.environ.get(variable,'')
+              if not alt or alt==token:continue
+              try:
+                  rq=urllib.request.Request('https://api.telegram.org/bot'+alt+'/getChat',
+                      data=json.dumps({'chat_id':rescue_id}).encode(),
+                      headers={'Content-Type':'application/json'})
+                  with urllib.request.urlopen(rq,timeout=12) as resp: data=json.load(resp)
+                  if data.get('ok'):
+                      print('SECOURS_ACCESSIBLE_BY_'+label+'=true')
+                      print('SECOURS_INVITE_BY_'+label+'='+str(bool(data['result'].get('invite_link'))).lower())
+                  else:print('SECOURS_ACCESSIBLE_BY_'+label+'=false')
+              except Exception:print('SECOURS_ACCESSIBLE_BY_'+label+'=false')
           PY
