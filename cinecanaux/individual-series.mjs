@@ -114,13 +114,21 @@ export async function ingestIndividualSeriesUpdate(env,update){
 // Backfill of old posters via owner forwarding them to the existing bot.
 export async function ingestSeriesOwnerForward(env,message){
  const origin=message?.forward_origin;
- if(message?.chat?.type!=='private'||origin?.type!=='channel'||!origin.chat?.id||!origin.message_id||!isPoster(message))return {handled:false};
+ if(message?.chat?.type!=='private'||origin?.type!=='channel'||!origin.chat?.id||!origin.message_id||(!isPoster(message)&&!isEpisode(message)))return {handled:false};
  const owner=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(message.from?.id||0).first();
  if(owner?.role!=='owner')return {handled:false};
  const chatId=String(origin.chat.id);
  const allowed=await env.DB.prepare("SELECT chat_id FROM cine_series_channels WHERE chat_id=? AND enabled=1").bind(chatId).first();
  if(!allowed)return {handled:false};
- const caption=String(message.caption||message.text||'');
+ const caption=String(message.caption||message.text||message.document?.file_name||message.video?.file_name||'');
+ if(isEpisode(message)){
+  const item=parseEpisode(caption);
+  if(!item||item.episode>100)return {handled:true,stored:false,reason:'Indique la saison ET l’épisode dans la légende, par exemple S01E02.'};
+  await env.DB.prepare(
+   "INSERT INTO cine_series_episodes(chat_id,season,episode,source_message_id) VALUES(?,?,?,?) ON CONFLICT(chat_id,season,episode) DO UPDATE SET source_message_id=excluded.source_message_id,observed_at=CURRENT_TIMESTAMP"
+  ).bind(chatId,item.season,item.episode,Number(origin.message_id)).run();
+  return {handled:true,stored:true,season:item.season,episode:item.episode};
+ }
  const season=parseSeason(caption);
  if(!season)return {handled:true,stored:false,reason:'Ajoute « Saison 1 », « Saison 2 »… à la description de l’affiche avant de la transférer.'};
  await env.DB.prepare(
