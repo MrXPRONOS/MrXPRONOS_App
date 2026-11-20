@@ -48,7 +48,7 @@ async def run(*, apply=False):
     api_id = (os.getenv("TG_API_ID") or "").strip()
     api_hash = (os.getenv("TG_API_HASH") or "").strip()
     session = (os.getenv("TG_STRING_SESSION") or os.getenv("TG_SESSION_STRING")
-               or os.getenv("TG_SESSION_STRING") or "").strip()
+               or os.getenv("TG_STREAM_SESSION") or "").strip()
     token = (os.getenv("CINEX_CATEGORY_BOT_TOKEN") or "").strip()
     if not (api_id and api_hash and session and token):
         raise RuntimeError("Secrets Telegram absents : aucune opération lancée.")
