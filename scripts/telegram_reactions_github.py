@@ -28,6 +28,8 @@ TOKEN_KEY_RE = re.compile(r"^TELEGRAM_REACTION_BOT_([0-9]{2,4})_TOKEN$")
 SLOT_BATCH_SIZE = 25
 BLOCKED_IDENTITIES = {"cineradarfr_bot", "mrxpronos_canal_bot"}
 MAX_JOBS_PER_RUN = 100
+RECENT_JOBS_PER_RUN = 80
+OLDEST_JOBS_PER_RUN = MAX_JOBS_PER_RUN - RECENT_JOBS_PER_RUN
 MAX_NEW_JOBS_PER_RUN = 600
 NETWORK_TIMEOUT = 20
 
@@ -149,7 +151,7 @@ def telegram_call(token: str, method: str, data: dict[str, Any],
 def verify_bots(tokens: dict[int, str], transport=_request_json) -> dict[int, str]:
     """Check all bot IDs are unique and exclude the two existing production bots."""
     accepted = {}
-    ids = set()
+    ids: dict[int,int] = {}
     for slot, token in tokens.items():
         try:
             status, answer = telegram_call(token, "getMe", {}, transport)
@@ -159,12 +161,19 @@ def verify_bots(tokens: dict[int, str], transport=_request_json) -> dict[int, st
         bot = answer.get("result") or {}
         bot_id = bot.get("id")
         username = str(bot.get("username") or "").casefold()
-        if (status != 200 or answer.get("ok") is not True or
-            not bot.get("is_bot") or not isinstance(bot_id, int) or
-            not username or username in BLOCKED_IDENTITIES or bot_id in ids):
-            print(f"bot_slot={slot:02d} identity=invalid_or_duplicate")
+        if status != 200 or answer.get("ok") is not True:
+            print(f"bot_slot={slot:02d} identity=getme_failed_http_{status}")
             continue
-        ids.add(bot_id)
+        if not bot.get("is_bot") or not isinstance(bot_id, int) or not username:
+            print(f"bot_slot={slot:02d} identity=invalid_bot_information")
+            continue
+        if username in BLOCKED_IDENTITIES:
+            print(f"bot_slot={slot:02d} identity=reserved_existing_bot")
+            continue
+        if bot_id in ids:
+            print(f"bot_slot={slot:02d} identity=duplicate_of_slot_{ids[bot_id]:02d}")
+            continue
+        ids[bot_id] = slot
         accepted[slot] = token
     return accepted
 
@@ -200,25 +209,77 @@ def prepare_jobs(db: D1, slots: tuple[int, ...]) -> None:
             SELECT 1 FROM channel_reaction_extra_jobs AS j
             WHERE j.post_seq=p.seq AND j.bot_slot=b.column1
           )
-          ORDER BY p.seq,b.column1
+          -- Include the latest observed posts first even when history is large.
+          ORDER BY p.seq DESC,b.column1
           LIMIT {MAX_NEW_JOBS_PER_RUN}
         """)
 
 
 def due_jobs(db: D1, slots: tuple[int, ...]) -> list[dict[str, Any]]:
+    """Process 80 newest jobs and 20 oldest due jobs each run.
+
+    The previous ascending FIFO left recently published posts behind hundreds
+    of stale jobs. Keep some capacity for the historical backlog without
+    replaying already-sent or blocked reactions.
+    """
     if not slots:
         return []
     marks = ",".join("?" for _ in slots)
-    query = f"""
-      SELECT j.post_seq,j.bot_slot,j.emoji,j.attempts,p.chat_id,p.message_id
-      FROM channel_reaction_extra_jobs AS j
-      JOIN channel_reaction_posts AS p ON p.seq=j.post_seq
-      WHERE j.bot_slot IN ({marks})
-        AND j.state IN ('pending','retry')
-        AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP
-      ORDER BY j.post_seq,j.bot_slot LIMIT {MAX_JOBS_PER_RUN}
-    """
-    return db.query(query, slots).get("results") or []
+    rows: list[dict[str, Any]] = []
+    seen: set[tuple[int, int]] = set()
+    for direction, batch_size in (("DESC", RECENT_JOBS_PER_RUN),
+                                  ("ASC", OLDEST_JOBS_PER_RUN)):
+        query = f"""
+          SELECT j.post_seq,j.bot_slot,j.emoji,j.attempts,p.chat_id,p.message_id
+          FROM channel_reaction_extra_jobs AS j
+          JOIN channel_reaction_posts AS p ON p.seq=j.post_seq
+          WHERE j.bot_slot IN ({marks})
+            AND j.state IN ('pending','retry')
+            AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP
+          ORDER BY j.post_seq {direction},j.bot_slot ASC LIMIT ?
+        """
+        subset = db.query(query, (*slots, batch_size)).get("results") or []
+        for row in subset:
+            key = (int(row["post_seq"]), int(row["bot_slot"]))
+            if key not in seen:
+                seen.add(key)
+                rows.append(row)
+    return rows
+
+
+def audit_primary_channel_access(db: D1, bots: dict[int, str],
+                                 transport=_request_json) -> None:
+    """Read-only membership test; called only on push/manual workflow runs."""
+    primaries = db.query(
+        "SELECT kind,chat_id FROM radar_primary_channels ORDER BY kind"
+    ).get("results") or []
+    for slot, token in sorted(bots.items()):
+        try:
+            status, info = telegram_call(token, "getMe", {}, transport)
+            bot_id = (info.get("result") or {}).get("id")
+            if status != 200 or not isinstance(bot_id, int):
+                print(f"access_bot={slot:02d} status=identity_unavailable")
+                continue
+            for channel in primaries:
+                kind = str(channel.get("kind") or "unknown")
+                chat_id = channel.get("chat_id")
+                if not chat_id:
+                    print(f"access_bot={slot:02d} channel={kind} status=not_bound")
+                    continue
+                try:
+                    code, answer = telegram_call(token, "getChatMember", {
+                        "chat_id": str(chat_id), "user_id": bot_id,
+                    }, transport)
+                    member = (answer.get("result") or {}).get("status")
+                    level = ("admin" if (code == 200 and answer.get("ok") and
+                              member in ("administrator","creator")) else
+                             "not_admin" if (code == 200 and answer.get("ok")) else
+                             "not_accessible")
+                    print(f"access_bot={slot:02d} channel={kind} status={level}")
+                except APIError:
+                    print(f"access_bot={slot:02d} channel={kind} status=network_unavailable")
+        except APIError:
+            print(f"access_bot={slot:02d} status=network_unavailable")
 
 
 def retry_delay(attempts: int, retry_after: int = 0) -> int:
@@ -303,6 +364,8 @@ def run(env: dict[str, str], transport=_request_json) -> int:
         return 0
     db = D1(env.get("CLOUDFLARE_API_TOKEN", "") or env.get("CF_API_TOKEN", ""),
             env.get("CLOUDFLARE_ACCOUNT_ID", ""), transport)
+    if env.get("REACTION_ACCESS_AUDIT", "").lower() == "true":
+        audit_primary_channel_access(db, bots, transport)
     prepare_jobs(db, tuple(sorted(bots)))
     rows = due_jobs(db, tuple(sorted(bots)))
     updates = []
