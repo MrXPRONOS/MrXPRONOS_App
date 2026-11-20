@@ -137,7 +137,7 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(bot.opts["buttons"][0][0].url, "https://t.me/c/12345/6")
         self.assertEqual(bot.opts["buttons"][1][0].url, DEFAULT_FILM_FOLDER_URL)
         self.assertEqual(bot.opts["buttons"][0][0].style, "success")
-        self.assertEqual(bot.opts["buttons"][1][0].style, "danger")
+        self.assertEqual(bot.opts["buttons"][1][0].style, "primary")
         self.assertNotIn("https://t.me/c/", bot.opts["caption"])
         self.assertIn(DEFAULT_FILM_FOLDER_URL, bot.opts["caption"])
         self.assertIn("DÉCOUVRE ENCORE PLUS DE FILMS", bot.opts["caption"])
