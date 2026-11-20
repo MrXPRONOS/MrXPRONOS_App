@@ -37,7 +37,7 @@ CATALOGUES = {
     "series": ROOT / "state/series_catalog.json",
     "animes": ROOT / "state/anime_catalog.json",
 }
-MIN_PAUSE = 30
+MIN_PAUSE = 90
 MAX_NEW_CHANNELS = 1
 MAX_EPISODES_PER_RUN = 12
 
@@ -331,7 +331,7 @@ async def work_item(client, bot, item, state, library, public, candidate,
     save_state(state)
     if created:
         LOG.info("Nouveau canal privé : %s", record["channel_title"])
-        await asyncio.sleep(60)
+        await asyncio.sleep(180)
     invite = await private_invitation(client, channel, record)
     save_state(state)
     # Profile is based on this title's actual Telegram poster, not a generic logo.
