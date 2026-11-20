@@ -27,7 +27,8 @@ async function sourceAllowed(env,sourceId,messageId,kind,caption){
    const known=await env.DB.prepare("SELECT 1 AS ok FROM cine_series_posters WHERE chat_id=? AND source_message_id=?").bind(sourceId,Number(messageId)).first();
    return Boolean(known?.ok)||/(?:saison|season|S)\s*0?[1-9]\d?\b/i.test(caption);
   }
-  return false;
+  // Dedicated approved film/series libraries also contain their own posters.
+  return isLibrary;
  }
  return isSeries||isLibrary||classic;
 }
