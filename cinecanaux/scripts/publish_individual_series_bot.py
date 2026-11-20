@@ -146,7 +146,7 @@ def keyboard(token, rescue, folder):
     if not TOKEN.fullmatch(token) or not INVITE.fullmatch(rescue) or not FOLDER.fullmatch(folder):
         raise RuntimeError("Paramètres des boutons invalides")
     return {"inline_keyboard": [
-        [{"text": "📥 Télécharger toutes les saisons", "url": "https://t.me/CineRadarFr_Bot?start=sr_" + token, "style": "success"}],
+        [{"text": "📥 Télécharger les épisodes disponibles", "url": "https://t.me/CineRadarFr_Bot?start=sr_" + token, "style": "success"}],
         [{"text": "🛟 Rejoindre le canal de secours", "url": rescue, "style": "danger"}],
         [{"text": "📂 Rejoindre le dossier", "url": folder, "style": "primary"}],
     ]}
@@ -176,12 +176,21 @@ def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int | None, cha
         1 if rights else 0,expected_seasons])
 
     got_pin = bool(pin.get("photo"))
+    poster_conflict = False
     if got_pin and season and int(pin.get("message_id") or 0) > 0:
-        d1("INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) "
-           "ON CONFLICT(chat_id,season) DO UPDATE SET source_message_id=excluded.source_message_id,"
-           "caption=excluded.caption,observed_at=CURRENT_TIMESTAMP",
-           [chat_id,season,int(pin["message_id"]),caption[:1800]])
-        expected = parse_expected(caption)
+        # An existing validated poster is immutable. A different pinned photo
+        # may be an intentional update or the wrong season; never remap it
+        # silently and never refresh expected episode totals from a conflict.
+        existing = d1(
+            "SELECT source_message_id FROM cine_series_posters WHERE chat_id=? AND season=?",
+            [chat_id,season])
+        poster_conflict = bool(existing and int(existing[0]["source_message_id"]) != int(pin["message_id"]))
+        if not poster_conflict:
+            d1("INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) "
+               "ON CONFLICT(chat_id,season) DO UPDATE SET caption=excluded.caption,"
+               "observed_at=CURRENT_TIMESTAMP WHERE cine_series_posters.source_message_id=excluded.source_message_id",
+               [chat_id,season,int(pin["message_id"]),caption[:1800]])
+        expected = parse_expected(caption) if not poster_conflict else None
         if expected:
             d1("INSERT INTO cine_series_seasons(chat_id,season,expected_episodes) VALUES(?,?,?) "
                "ON CONFLICT(chat_id,season) DO UPDATE SET expected_episodes=excluded.expected_episodes,observed_at=CURRENT_TIMESTAMP",
@@ -190,6 +199,7 @@ def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int | None, cha
         "chat_id": chat_id, "title": title, "publisher_admin": publisher_ok, "radar_admin": radar_ok,
         "latest_pin": (int(pin["message_id"]) if pin.get("message_id") else None),
         "latest_pin_season": season, "latest_pin_is_photo": got_pin,
+        "poster_conflict": poster_conflict,
     }
 
 
@@ -266,7 +276,7 @@ def main():
         except Exception as error:
             results.append({"chat_id": cid, "status": "SOURCE_ERROR", "error": str(error)[:150]})
             continue
-        results.append({**result, "status": "INDEXED"})
+        results.append({**result, "status": "POSTER_CONFLICT_MANUAL_REVIEW" if result.get("poster_conflict") else "INDEXED"})
     # Validate full public/rescue prerequisites BEFORE the first publication.
     if publish:
         if not rights:raise RuntimeError("CINEX_SERIES_RIGHTS_ATTESTED doit valoir true")
