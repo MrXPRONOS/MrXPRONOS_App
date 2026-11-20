@@ -5,3 +5,5 @@ No Telegram personal session or publication permitted on this push.
 Second bot-only diagnostic run after safe Radar-independent indexing fix commit 59ac8cb35f065aeb6e030404555b342966806453.
 
 Third verification, new public Radar bot-identity health path deployed via PR #527; publish=false mandatory.
+
+Bot-only owner vault production integration completed; one-shot series indexing readiness check, explicitly publish=false.
