@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'cinecanaux/individual-series.mjs'
+      - 'cinecanaux/scripts/publish_series_showcase_bot.py'
+      - 'cinecanaux/tests/test_series_showcase_publish.py'
+      - '.github/workflows/cinex-series-showcase-publish.yml'
       - 'cinecanaux/owner-chat-vault.mjs'
       - 'cinecanaux/cinex-classic.mjs'
       - 'cinecanaux/cinex-delivery.mjs'
@@ -44,9 +47,10 @@ jobs:
           node --test cinecanaux/tests/individual-series.test.mjs cinecanaux/tests/owner-chat-vault.test.mjs
       - name: Python syntax and offline bot tests
         run: |
-          python -m py_compile cinecanaux/scripts/audit_series_bots.py cinecanaux/scripts/publish_individual_series_bot.py
+          python -m py_compile cinecanaux/scripts/audit_series_bots.py cinecanaux/scripts/publish_individual_series_bot.py cinecanaux/scripts/publish_series_showcase_bot.py
           python -m unittest discover -s cinecanaux/tests -p 'test_series_bot_inventory.py' -v
           python -m unittest discover -s cinecanaux/tests -p 'test_individual_series_publish.py' -v
+          python -m unittest discover -s cinecanaux/tests -p 'test_series_showcase_publish.py' -v
       - name: Assert no user session imported by Series workflows
         run: |
           python - <<'PY'
@@ -56,6 +60,8 @@ jobs:
               Path('cinecanaux/owner-chat-vault.mjs'),
               Path('cinecanaux/scripts/audit_series_bots.py'),
               Path('cinecanaux/scripts/publish_individual_series_bot.py'),
+              Path('cinecanaux/scripts/publish_series_showcase_bot.py'),
+              Path('.github/workflows/cinex-series-showcase-publish.yml'),
               Path('.github/workflows/cinex-series-bot-sync.yml'),
               Path('.github/workflows/cinex-series-bot-inventory.yml')]
           for path in targets:
