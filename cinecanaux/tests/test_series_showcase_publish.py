@@ -19,7 +19,7 @@ class SeriesShowcaseTests(TestCase):
         self.assertEqual(pending[1][0]["url"],link)
         complete=showcase.markup(tok,link,"https://t.me/addlist/ABCDEFGHIJK",ready=True)["inline_keyboard"]
         self.assertEqual(len(complete),3)
-        self.assertIn("Télécharger toutes",complete[0][0]["text"])
+        self.assertEqual(complete[0][0]["text"],"📥 Télécharger")
         self.assertEqual([x[0]["style"] for x in complete],["success","danger","primary"])
 
     def test_plan_selects_earliest_known_poster_even_when_first_season_unavailable(self):
@@ -32,7 +32,7 @@ class SeriesShowcaseTests(TestCase):
             if "FROM cine_series_publications" in sql:
                 return []
             raise AssertionError(sql)
-        with mock.patch.object(showcase,"d1",side_effect=query), mock.patch.object(showcase,"catalogue_complete",return_value={"ready":False}):
+        with mock.patch.object(showcase,"d1",side_effect=query), mock.patch.object(showcase,"downloadable_index",return_value={"ready":False}):
             found=showcase.plan_one("-1001234567890")
         self.assertEqual(found["season"],3)
         self.assertEqual(found["status"],"READY_TO_POST")
@@ -74,3 +74,37 @@ class SeriesShowcaseTests(TestCase):
                 with mock.patch.object(showcase,"check_publisher",side_effect=allowed):
                     with self.assertRaisesRegex(RuntimeError,"secours"):
                         showcase.find_authorized_publisher(ids)
+
+    def test_downloadable_index_accepts_only_currently_indexed_seasons(self):
+        def query(sql, values):
+            self.assertIn("FROM cine_series_episodes",sql)
+            return [
+                {"season":3,"episode":1,"source_message_id":101},
+                {"season":3,"episode":2,"source_message_id":102},
+            ]
+        with mock.patch.object(showcase,"d1",side_effect=query):
+            result=showcase.downloadable_index("-1001234567890")
+        self.assertTrue(result["ready"])
+        self.assertEqual(result["count"],2)
+        self.assertEqual(result["seasons"],[{"season":3,"episodes":2}])
+
+    def test_downloadable_index_rejects_gaps_and_empty_catalogue(self):
+        for episodes in ([],[
+            {"season":1,"episode":1,"source_message_id":10},
+            {"season":1,"episode":3,"source_message_id":12},
+        ],[{"season":2,"episode":2,"source_message_id":12}]):
+            with self.subTest(episodes=episodes):
+                with mock.patch.object(showcase,"d1",return_value=episodes):
+                    self.assertFalse(showcase.downloadable_index("-1001234567890")["ready"])
+
+    def test_ready_existing_poster_switches_to_download_without_new_publication(self):
+        old={"chat_id":"-1001234567890","status":"ALREADY_PUBLISHED","ready":True,
+             "existing":{"token":"abcdefghijklmnopqrstuvwx","state":"published","public_post_id":44,"rescue_post_id":55}}
+        with mock.patch.object(showcase,"request_bot",return_value=True) as api:
+            result=showcase.publish_one("123:token",old,"https://t.me/+abcdefghijkL","https://t.me/addlist/ABCDEFGHIJK")
+        self.assertEqual(result["status"],"UPDATED_EXISTING")
+        self.assertTrue(result["download_ready"])
+        self.assertEqual(api.call_count,2)
+        for call in api.call_args_list:
+            self.assertEqual(call.args[1],"editMessageReplyMarkup")
+            self.assertEqual(call.args[2]["reply_markup"]["inline_keyboard"][0][0]["text"],"📥 Télécharger")
