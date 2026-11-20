@@ -1,5 +1,6 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {enqueueChannelReactions,processReactionQueue} from "./channel-reactions.mjs";
+import {pruneTelegramQuota} from "./telegram-global-quota.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
 import {servePartnerCards,servePartnerAvatar} from "./partner-promotions.mjs";
 import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick,listPinned} from "./pinned-showcase.mjs";
@@ -511,6 +512,7 @@ export default {
   else if(controller.cron==="0 3 * * *"){
    ctx.waitUntil(runLoggedJob(env,'link_check',()=>checkDailyLinks(env,10)));
    ctx.waitUntil(purgeOldPublicEventBuckets(env).catch(e=>console.warn('cine_public_limits_expiry_failed',String(e?.name||'error'))));
+    ctx.waitUntil(pruneTelegramQuota(env).catch(e=>console.warn('cine_telegram_quota_prune_failed',String(e?.name||'error'))));
    ctx.waitUntil(pruneFinalizedCineReceipts(env).catch(e=>console.warn('cine_receipt_retention_failed',String(e?.name||'error'))));
   }
   else if(controller.cron==="0 */6 * * *")ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
