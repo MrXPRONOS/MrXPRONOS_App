@@ -912,7 +912,13 @@ function readTelegramInitData(){
  }catch{return ""}
 }
 let telegramLaunchInitData=readTelegramInitData();
-const signedTelegramInitData=()=>telegramLaunchInitData||(telegramLaunchInitData=readTelegramInitData());
+const signedTelegramInitData=()=>{
+ // Prefer the official Telegram SDK whenever it becomes available; a URL
+ // fragment captured early must not permanently override a fresher signature.
+ const official=window.Telegram?.WebApp?.initData||"";
+ if(official)telegramLaunchInitData=official;
+ return telegramLaunchInitData||(telegramLaunchInitData=readTelegramInitData());
+};
 const $=id=>document.getElementById(id);
 const cineLot4Names=new Set(["football","crypto","pronos","private","star","evaluate","play","series","thanks","popcorn"]);
 function cineLot4Icon(key){
@@ -1537,26 +1543,44 @@ function build(){
  if(!init&&!wantsAdmin){try{init=sessionStorage.getItem("cine-radar-owner-auth")||""}catch{}}
  const adminHelp=reason=>{
   if(!wantsAdmin)return;
-  const message=reason==="rejected"
-   ?"🔐 Telegram a bien transmis ta session, mais l’accès administrateur a été refusé. Renvoie /start au bot puis réessaie."
-   :"🔐 Telegram n’a pas transmis la session signée à Ciné Radar. Ferme cette fenêtre, renvoie /start au bot et utilise le nouveau bouton Administration.";
+  const messages={
+   missing_session:"🔐 Telegram n’a pas transmis de session signée. Ouvre @CineRadarFr_Bot, renvoie /start et utilise le nouveau bouton Administration.",
+   invalid_session:"🔐 Session Telegram incomplète ou incorrecte. Ouvre la Mini App depuis @CineRadarFr_Bot, puis utilise le bouton Administration.",
+   expired_session:"🔐 La session Telegram a expiré. Ferme la Mini App et ouvre-la de nouveau depuis /start dans @CineRadarFr_Bot.",
+   invalid_signature:"🔐 Signature Telegram non reconnue par ce bot. Vérifie que tu ouvres Ciné Radar depuis @CineRadarFr_Bot. Si cela persiste, la configuration du bot doit être contrôlée.",
+   owner_not_linked:"🔐 Ce compte Telegram est authentifié, mais il ne correspond pas au propriétaire enregistré. Connecte-toi avec le compte administrateur habituel.",
+   server_configuration:"🔐 La configuration de vérification Telegram est incomplète sur le serveur.",
+   server_error:"🔐 Le service d’administration est temporairement indisponible. Aucune donnée n’a été supprimée.",
+   network:"🔐 Impossible de contacter le service d’administration. Vérifie ta connexion puis réessaie."
+  };
+  const message=messages[reason]||"🔐 Accès administrateur refusé (raison non déterminée).";
   const note=node("div","cine-admin-entry-note",message);
   const destination=panel.accueil||document.querySelector("main.page");
   destination?.querySelector(".cine-admin-entry-note")?.remove();
   destination?.prepend(note);
  };
  const verifyOwnerAccess=async()=>{
-  // A few Telegram clients expose tgWebAppData a fraction later than the DOM.
-  // Retry briefly before concluding that the signed launch context is absent.
+  // The SDK can become ready after the HTML. Do not mistake delayed init for
+  // a missing or invalid identity; always validate credentials on the server.
   const until=Date.now()+2500;
   while(!init&&Date.now()<until){
    await new Promise(resolve=>setTimeout(resolve,100));
    init=signedTelegramInitData();
   }
-  if(!init){adminHelp("missing");return}
+  if(!init){adminHelp("missing_session");return}
   try{
-   const r=await fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":init},cache:"no-store"});
-   if(!r.ok){adminHelp("rejected");return}
+   const check=token=>fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":token},cache:"no-store"});
+   let r=await check(init);
+   // A launch-hash value may precede Telegram SDK initialization. When the
+   // SDK supplies a different signed payload, retry it exactly once.
+   if(!r.ok){
+    const official=window.Telegram?.WebApp?.initData||"";
+    if(official&&official!==init){init=official;r=await check(init)}
+   }
+   if(!r.ok){
+    const body=await r.json().catch(()=>({}));
+    adminHelp(typeof body?.code==="string"?body.code:"server_error");return;
+   }
    ownerAdmin.hidden=false;
    try{sessionStorage.setItem("cine-radar-owner-auth",init)}catch{}
    if(wantsAdmin)openOwnerAdmin();
