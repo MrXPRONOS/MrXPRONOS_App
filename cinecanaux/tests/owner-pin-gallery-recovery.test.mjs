@@ -101,7 +101,7 @@ test('owner operations preserve the former Telegram trend summary and missing-ti
  assert.ok(source.includes('radarOwnerDigest(env)'), 'owner-only API must return the historic trend digest');
  assert.ok(source.includes('notifyOwnerMissingRadarTitles(env)'), 'manual refresh must still send private, deduplicated missing-title notifications');
  assert.ok(source.includes('notifications:{sent:notices.sent,listed:notices.listed,errors:notices.errors.length}'));
- assert.ok(source.includes('if(!admin)return json({error:\'Accès réservé\'},403)'), 'admin routes must stay signed and owner restricted');
+ assert.ok(source.includes("if(!admin){")&&source.includes("code:status==='verified'?'owner_not_linked':status"), 'admin routes must stay signed and owner restricted');
  assert.ok(ADMIN_HTML.includes('id="radar-ops-digest"'));
  assert.ok(ADMIN_HTML.includes('String(data.digest||"Aucune tendance indexée.")'));
  assert.ok(ADMIN_HTML.includes('notification(s) privée(s) envoyée(s)'));
