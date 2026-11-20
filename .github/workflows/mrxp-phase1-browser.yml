@@ -1,0 +1,32 @@
+name: MRXP Phase 1 - Mobile visual regression
+on:
+  push:
+    branches:
+      - fix/mrxp-phase1-mobile-layout-share
+    paths:
+      - .github/workflows/mrxp-phase1-browser.yml
+      - mrxpronos-play/tests/phase1-mobile-layout.py
+  pull_request:
+    paths:
+      - mrxpronos-play/worker.js
+      - mrxpronos-play/tests/phase1-mobile-layout.py
+      - .github/workflows/mrxp-phase1-browser.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobile-layout:
+    name: Chromium 320-430px - seven Mini App screens
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser and runner dependencies
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+      - name: Test phase-1 Mini App mobile layout
+        run: python mrxpronos-play/tests/phase1-mobile-layout.py
