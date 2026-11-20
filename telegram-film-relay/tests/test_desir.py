@@ -56,7 +56,7 @@ class DesirTests(unittest.TestCase):
         self.assertEqual(len(pair), 1)
         self.assertIsNone(pair[0].poster)
 
-    def test_public_desir_post_has_green_watch_and_red_folder_button(self):
+    def test_public_desir_post_has_green_watch_and_blue_folder_button(self):
         from film_relay.desir_runner import post_public
         from film_relay.publication import DEFAULT_FILM_FOLDER_URL
         async def get_image(media, file):
@@ -73,7 +73,7 @@ class DesirTests(unittest.TestCase):
         self.assertEqual(result.id, 99)
         kwargs = bot.send_file.await_args.kwargs
         self.assertEqual(kwargs["buttons"][0][0].style, "success")
-        self.assertEqual(kwargs["buttons"][1][0].style, "danger")
+        self.assertEqual(kwargs["buttons"][1][0].style, "primary")
         self.assertEqual(kwargs["buttons"][1][0].url, DEFAULT_FILM_FOLDER_URL)
         self.assertNotIn("+OLD_LINK", kwargs["caption"])
         self.assertIn(DEFAULT_FILM_FOLDER_URL, kwargs["caption"])
