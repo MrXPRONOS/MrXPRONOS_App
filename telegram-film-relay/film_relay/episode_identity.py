@@ -26,7 +26,7 @@ RELEASE_PREFIX = re.compile(
     r"(?i)^(?:(?:mangas[ ._-]*fv|animes[ ._-]*canal|animeisekaic|"
     r"animeuniverselvfvostfr|animes[ ._-]*vf[ ._-]*vosfr)[ ._-]+)+"
 )
-BARE_EP_SUFFIX = re.compile(r"(?i)(?:[ ._-]+(?:ep|e)0*\\d{1,3})+$")
+BARE_EP_SUFFIX = re.compile(r"(?i)(?:[ ._-]+(?:ep|e)0*\d{1,3})+$")
 
 EP_LABEL = re.compile(r"(?i)\b(?:[eé](?:p(?:isode)?)?[ ._-]*0*\d{1,3}|"
                       r"s\d{1,2}[ ._-]*e\d{1,3}|\d{1,2}x\d{1,3})\b")
