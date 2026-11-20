@@ -34,4 +34,13 @@
 
 ## Publication
 
-À remplir uniquement après réussite des tests de la branche, fusion GitHub et contrôle du Worker en production. La recette réelle Telegram Android/iOS reste distincte des tests Chromium.
+**Statut : en production à 100 %** le 20 novembre 2026.
+
+- GitHub : [PR #506](https://github.com/MrXPRONOS/MrXPRONOS_App/pull/506) fusionnée avec le commit `3d02ec2e9a5f2ef1268635cb3311b8ccf412246f`.
+- Cloudflare : Worker `mrxpronos-play` **version 50**, identifiant de version `fa6517ff-a161-4fab-a414-c770f19dc971`, 100 % du trafic.
+- Contrôles avant fusion : tests Telegram/Worker verts, contrôle des 25 ressources graphiques et de leurs SHA-256 vert, matrice Chromium **5 largeurs × 7 sections** réussie.
+- Le test navigateur vérifie explicitement que Lucky Wheel a le bouton au-dessous de l'image, que le titre promotionnel XP ne déborde pas, que le portrait et le badge sont espacés, que le pourcentage ne possède plus de cercle décoratif, et que la navigation reste lisible.
+- Contrôle réel du canari 10 % : 6 réponses V50 sur 60, état de santé Telegram/D1 positif.
+- Contrôle après bascule à 100 % : **60 réponses V50 sur 60**, bot, identité, signature et base D1 toujours opérationnels.
+- Liaisons `BOT_TOKEN`, `WEBHOOK_SECRET`, `DB` et `DEV_MODE` préservées par héritage strict.
+- Recette visuelle et tactile spécifique Telegram Android/iPhone : encore à faire depuis les appareils. Le rendu local Chromium ne reproduit pas toutes les particularités des WebViews mobiles.
