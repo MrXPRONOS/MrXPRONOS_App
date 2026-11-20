@@ -83,22 +83,28 @@ def progressive_anime_seasons(groups, catalogue, maximum=25, diagnostics=None):
         for season in sorted(by_season):
             entries = by_season[season]
             receipts = existing.get("episodes", {}).get(str(season), {})
+            public_posts = existing.get("public_episode_posts", {})
             # Start at episode one. Never publish episode 12 while 1..11
             # are absent from both the catalogue and the scanned source.
             ordered = []
             for number in range(1, 1000):
                 if str(number) in receipts:
-                    continue
-                if number not in entries:
+                    public_key = f"S{season:02d}E{number:02d}"
+                    if public_key not in public_posts and number in entries:
+                        ordered.append(entries[number])
+                elif number in entries:
+                    ordered.append(entries[number])
+                else:
                     break
-                ordered.append(entries[number])
                 if len(ordered) >= maximum:
                     break
             if not ordered:
                 if diagnostics is not None:
                     diagnostics[f"{key}:S{season:02d}"] = "debut_ou_suite_indisponible"
                 continue
-            if all(str(row["episode"]) in receipts for row in ordered):
+            if all(str(row["episode"]) in receipts and
+                   f"S{season:02d}E{int(row['episode']):02d}" in public_posts
+                   for row in ordered):
                 continue
             result.append((key, ordered))
     return result
@@ -119,9 +125,11 @@ def select_anime_season(eligible, catalogue):
             ), {})
         season = str(rows[0]["season"])
         episode_receipts = existing.get("episodes", {}).get(season, {})
+        public_receipts = existing.get("public_episode_posts", {}) or {}
         if (not existing.get("public_id")
                 or not existing.get("season_indices", {}).get(season)
                 or any(str(row["episode"]) not in episode_receipts
+                       or f"S{int(row['season']):02d}E{int(row['episode']):02d}" not in public_receipts
                        for row in rows)):
             return (key, rows)
     return None
