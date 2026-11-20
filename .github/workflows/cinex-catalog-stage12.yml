@@ -1,4 +1,5 @@
 name: CineX - Inventaire lecture seule et catalogue D1 (etapes 1-2)
+# Revalidate the newly-authorized CineRadar bot membership after PR #503.
 on:
   workflow_dispatch:
   push:
