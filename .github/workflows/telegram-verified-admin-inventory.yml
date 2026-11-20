@@ -2,6 +2,10 @@ name: Telegram - Verified shared admin inventory (encrypted)
 
 on:
   workflow_dispatch:
+  # Relance unique du 20 novembre 2026 après le FloodWait.
+  # Les années suivantes, le job de garde ignorera le déclenchement.
+  schedule:
+    - cron: '27 17 20 11 *'
 
 permissions:
   contents: read
@@ -12,7 +16,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  onetime-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      allowed: ${{ steps.date-check.outputs.allowed }}
+    steps:
+      - name: Autoriser le manuel et uniquement le 20 novembre 2026 en automatique
+        id: date-check
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == 'schedule' && "$(date -u +%F)" != '2026-11-20' ]]; then
+            echo 'allowed=false' >> "$GITHUB_OUTPUT"
+            echo 'Déclenchement récurrent ignoré après la relance unique de 2026.'
+          else
+            echo 'allowed=true' >> "$GITHUB_OUTPUT"
+          fi
   audit-and-encrypt:
+    needs: onetime-gate
+    if: needs.onetime-gate.outputs.allowed == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 18
     env:
@@ -35,6 +56,7 @@ jobs:
           sparse-checkout: |
             scripts/audit_mrxpronos_canal_bot.py
             scripts/inventory_mrxpronos_shared_admin_channels.py
+            telegram-film-relay/scripts/check_personal_cooldown.py
           sparse-checkout-cone-mode: false
       - name: Respecter le delai FloodWait du compte Telegram personnel
         env:
