@@ -19,27 +19,34 @@ async function telegramInitData(username='mr_xpronos',id=4201,token='test_telegr
  const hash=Array.from(await hmac(secret,value)).map(n=>n.toString(16).padStart(2,'0')).join('');
  return new URLSearchParams({auth_date:String(auth_date),user,hash}).toString();
 }
-function ownerDatabase(){
+function ownerDatabase(enrolledId=null){
  const changes=[];
  const DB={prepare(sql){let args=[];
   const query={bind(...v){args=v;return query},
-   async first(){if(sql.includes('SELECT role FROM admin_users'))return null;return null},
+   async first(){
+    if(sql.includes('SELECT role FROM admin_users'))return args[0]===enrolledId?{role:'owner'}:null;
+    return null;
+   },
    async run(){changes.push({sql,args});return {meta:{changes:1}}}
   };return query;
  },async batch(items){for(const i of items)await i.run();}};
  return {DB,changes};
 }
-test('only signed @mr_xpronos can recover owner rights; arbitrary usernames cannot',async()=>{
- const f=ownerDatabase(),env={DB:f.DB,TELEGRAM_TOKEN:'test_telegram_token',TELEGRAM_WEBHOOK_SECRET:'test_secret'};
- const make=async username=>new Request('https://cineradar.test/api/admin/access',{headers:{'X-Telegram-Init-Data':await telegramInitData(username)}});
- const foreign=await adminAPI(env,await make('not_mr_xpronos'));
- assert.equal(foreign.status,403);
- assert.equal(f.changes.length,0);
+test('only the enrolled Telegram owner ID has administration privileges, not the username alone',async()=>{
+ const make=async(username,id=4201)=>new Request('https://cineradar.test/api/admin/access',{headers:{'X-Telegram-Init-Data':await telegramInitData(username,id)}});
+ const empty=ownerDatabase(),environment={DB:empty.DB,TELEGRAM_TOKEN:'test_telegram_token',TELEGRAM_WEBHOOK_SECRET:'test_secret'};
+ const noEnrollment=await adminAPI(environment,await make('mr_xpronos'));
+ assert.equal(noEnrollment.status,403,'Signed username without owner enrollment has no access');
+ assert.equal(empty.changes.length,0,'Admin access must never silently assign an owner');
+ const owner=ownerDatabase(4201),env={...environment,DB:owner.DB};
  const legitimate=await adminAPI(env,await make('mr_xpronos'));
  assert.equal(legitimate.status,200);
  assert.equal((await legitimate.json()).role,'owner');
- assert.ok(f.changes.some(x=>x.sql.startsWith("DELETE FROM admin_users WHERE role='owner'")));
- assert.ok(f.changes.some(x=>x.sql.startsWith('INSERT INTO admin_users')));
+ const foreign=await adminAPI(env,await make('not_mr_xpronos',7777));
+ assert.equal(foreign.status,403);
+ const sameHandleOtherId=await adminAPI(env,await make('mr_xpronos',7777));
+ assert.equal(sameHandleOtherId.status,403);
+ assert.equal(owner.changes.length,0,'Admin GET must be read-only and cannot transfer ownership');
  const tampered=await telegramInitData('mr_xpronos');
  const fake=new URLSearchParams(tampered);fake.set('user',JSON.stringify({id:999,username:'mr_xpronos'}));
  const invalid=await adminAPI(env,new Request('https://cineradar.test/api/admin/access',{headers:{'X-Telegram-Init-Data':fake.toString()}}));
