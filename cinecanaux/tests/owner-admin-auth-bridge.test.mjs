@@ -92,3 +92,12 @@ test('API remains private to signed enrolled owner, without any anonymous bypass
  const fake=new URLSearchParams(await signed(123,'wrong:token'));
  assert.equal((await adminAPI(env,new Request(ROOT+'/api/admin/access',{headers:{'X-Telegram-Init-Data':fake.toString()}}))).status,403);
 });
+
+test('navigation script defines Telegram auth helper in the same lexical scope as the UI',()=>{
+ const chunks=[...APP_HTML.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)].map(x=>x[1]);
+ const nav=chunks.find(x=>x.includes('function featuredCard('));
+ assert.ok(nav,'Navigation script must exist');
+ assert.ok(nav.includes('function readTelegramInitData()'),'Telegram auth helper must be declared in navigation script');
+ assert.ok(nav.includes('const signedTelegramInitData='),'Navigation must directly own the signed session helper');
+ assert.ok(nav.includes('const signed=signedTelegramInitData()'),'Navigation must call the helper in the same scope');
+});
