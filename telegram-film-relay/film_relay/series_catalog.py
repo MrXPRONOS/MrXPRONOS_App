@@ -203,10 +203,17 @@ def main_index_text(title: str, private_id: int, season_indices: dict) -> str:
 def public_buttons(private_id: int, series_entry: dict, public_peer=None):
     seasons = series_entry.get("season_indices", {})
     rows = []
+    from .download_links import approved_download_url
     for season, index_id in sorted(seasons.items(), key=lambda x: int(x[0])):
-        rows.append([url_button("📺 Saison " + str(int(season)),
-                                private_message_link(private_id, index_id),
-                                style="primary")])
+        # Preserve the two-access model: private archive link + optional
+        # approved bot download. The label remains simply "Télécharger".
+        row = [url_button("📺 Saison " + str(int(season)),
+                          private_message_link(private_id, index_id),
+                          style="primary")]
+        download = approved_download_url("series", str(series_entry.get("title") or ""), int(season))
+        if download:
+            row.append(url_button("Télécharger", download, style="success"))
+        rows.append(row)
     rows.append([url_button("📚 Tous les épisodes",
                             private_message_link(private_id, series_entry["main_index_id"]),
                             style="success")])
