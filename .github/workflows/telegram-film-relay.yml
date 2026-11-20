@@ -40,6 +40,7 @@ jobs:
       CINEX_FORWARD_PAUSE_SECONDS: '54'
       CINEX_SERIES_CATALOG_ENABLED: 'true'
       CINEX_CATALOG_PAGE_SIZE: '160'
+      CINEX_CATALOG_REQUEST_PAUSE_SECONDS: '12'
       CINEX_CATALOG_RESCAN: 'false'
     steps:
       - name: Charger le code
