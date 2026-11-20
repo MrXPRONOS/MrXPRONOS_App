@@ -3,7 +3,7 @@
 // outside this table and never passed to deleteMessage.
 const TG='https://api.telegram.org/bot';
 const MAX_AGE_HOURS=47; // Telegram standard deletion window is 48h.
-const MAX_RETRIES=9;
+const MAX_RETRIES=30; // Keep retrying transient failures while the 48-hour Bot API deletion window remains open.
 const RETRY_DELAY_SECONDS=[90,180,300,600,900,1800,2700,3600,3600];
 const VALID_STATES=new Set(['pending','retry','deleting']);
 const RETRYABLE_CODES=new Set([429,500,502,503,504]);
