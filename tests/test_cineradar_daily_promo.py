@@ -1,5 +1,9 @@
 import importlib.util
+import json
+import os
+import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch, Mock
 
@@ -64,6 +68,35 @@ class CineradarDailyPromoTests(unittest.TestCase):
                                    "2026-11-21", "-1001234567"))
         self.assertEqual(session.post.call_args.kwargs["params"]["on_conflict"],
                          "campaign,delivery_day,chat_id")
+
+    def test_new_public_channels_from_same_day_are_included_but_not_private(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "verified_public.json"
+            path.write_text(json.dumps({
+                "verified_at": datetime.now(timezone.utc).isoformat(),
+                "public_channels": [
+                    {"username": "@CineXFilms_vf", "title": "Films VF", "bot_can_post": True},
+                    {"username": "@CineXAnimeFR", "title": "Manga Anime VF", "bot_can_post": True},
+                    {"username": "@CineXNewSeries", "title": "Séries VF CinéX", "bot_can_post": True},
+                    {"username": "@actufoot_mrxp", "title": "Actu Foot", "bot_can_post": True},
+                    {"username": "@CryptoSansDroit", "title": "Crypto", "bot_can_post": False},
+                    {"username": "", "title": "Canal privé", "bot_can_post": True},
+                ],
+            }), encoding="utf-8")
+            with patch.dict(os.environ, {"CINERADAR_PUBLIC_INVENTORY_FILE": str(path)}):
+                targets = p.eligible_targets()
+            self.assertEqual({name.casefold() for name, _ in targets},
+                             {"cinexfilms_vf", "cinexanimefr", "cinexnewseries"})
+            self.assertIn(("CineXNewSeries", "series"), targets)
+
+    def test_stale_public_inventory_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "old.json"
+            path.write_text(json.dumps({"verified_at": "2026-10-10T10:00:00Z",
+                                        "public_channels": []}), encoding="utf-8")
+            with patch.dict(os.environ, {"CINERADAR_PUBLIC_INVENTORY_FILE": str(path)}):
+                with self.assertRaisesRegex(RuntimeError, "verified_public_inventory_stale"):
+                    p.eligible_targets()
 
     def test_dry_run_does_not_write_or_send(self):
         with patch.object(p, "find_publisher", return_value=("token", 101)), \
