@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -47,9 +48,12 @@ def dashboard_snapshot(catalogue):
                 "last_episode": max(numbers),
                 "status": statuses.get(str(season), "non_verifie"),
             })
-        title = series_title(str(entry.get("title") or "")) or str(entry.get("title") or "")
+        title = series_title(str(entry.get("title") or ""))
+        title = re.sub(r"(?i)(?:https?://|t\\.me/|telegram\\.me/)\\S+", "", title)
+        title = re.sub(r"(?<!\\w)@[a-zA-Z0-9_]{5,32}\\b", "", title).strip()
+        title = title[:90] or "Titre non identifié"
         series_rows.append({
-            "title": title[:90],
+            "title": title,
             "private_episodes": sum(s["private_episodes"] for s in seasons),
             "public_episode_pairs": sum(s["public_episode_pairs"] for s in seasons),
             "seasons": seasons,
