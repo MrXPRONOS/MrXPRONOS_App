@@ -108,9 +108,10 @@ export async function ingestIndividualSeriesUpdate(env,update){
  if(isPoster(pin)){
   const season=parseSeason(pin.caption||pin.text||'');
   if(season){
-   await env.DB.prepare(
+   const posterReceipt=await env.DB.prepare(
     "INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) ON CONFLICT(chat_id,season) DO UPDATE SET caption=excluded.caption,observed_at=CURRENT_TIMESTAMP WHERE cine_series_posters.source_message_id=excluded.source_message_id"
    ).bind(chatId,season,Number(pin.message_id),String(pin.caption||pin.text||'').slice(0,1800)).run();
+   if(Number(posterReceipt.meta?.changes||0)!==1){console.warn('cinex_series_poster_conflict_preserved');return false;}
    await env.DB.prepare("UPDATE cine_series_channels SET expected_seasons=MAX(COALESCE(expected_seasons,0),?) WHERE chat_id=?").bind(season,chatId).run();
    const expected=parseExpectedEpisodes(pin.caption||pin.text||'');
    if(expected)await env.DB.prepare(
@@ -123,9 +124,10 @@ export async function ingestIndividualSeriesUpdate(env,update){
  if(isEpisode(message)){
   const parsed=parseEpisode(text);
   if(parsed&&parsed.episode<=100){
-   await env.DB.prepare(
+   const receipt=await env.DB.prepare(
     "INSERT INTO cine_series_episodes(chat_id,season,episode,source_message_id) VALUES(?,?,?,?) ON CONFLICT(chat_id,season,episode) DO UPDATE SET observed_at=CURRENT_TIMESTAMP WHERE cine_series_episodes.source_message_id=excluded.source_message_id"
    ).bind(chatId,parsed.season,parsed.episode,Number(message.message_id)).run();
+   if(Number(receipt.meta?.changes||0)!==1){console.warn('cinex_series_episode_conflict_preserved');return false;}
    return true;
   }
  }
