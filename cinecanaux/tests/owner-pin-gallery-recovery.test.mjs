@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {adminAPI} from '../admin-v2.mjs';
@@ -92,4 +93,16 @@ test('pin moderation in Mini App uses explicit owner-only route with confirmatio
  assert.ok(ADMIN_HTML.includes('Désépingler sur Telegram'));
  assert.ok(ADMIN_HTML.includes("Retirer de l\'affiche"));
  assert.ok(ADMIN_HTML.includes('"/api/admin/pins/"'));
+});
+
+
+test('owner operations preserve the former Telegram trend summary and missing-title alert behavior',()=>{
+ const source=readFileSync(new URL('../admin-v2.mjs',import.meta.url),'utf8');
+ assert.ok(source.includes('radarOwnerDigest(env)'), 'owner-only API must return the historic trend digest');
+ assert.ok(source.includes('notifyOwnerMissingRadarTitles(env)'), 'manual refresh must still send private, deduplicated missing-title notifications');
+ assert.ok(source.includes('notifications:{sent:notices.sent,listed:notices.listed,errors:notices.errors.length}'));
+ assert.ok(source.includes('if(!admin)return json({error:\'Accès réservé\'},403)'), 'admin routes must stay signed and owner restricted');
+ assert.ok(ADMIN_HTML.includes('id="radar-ops-digest"'));
+ assert.ok(ADMIN_HTML.includes('String(data.digest||"Aucune tendance indexée.")'));
+ assert.ok(ADMIN_HTML.includes('notification(s) privée(s) envoyée(s)'));
 });
