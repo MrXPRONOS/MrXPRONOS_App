@@ -48,7 +48,7 @@ export async function telegramAuthStatus(request,env){
  let user;try{user=JSON.parse(params.get('user')||'null');}catch{return 'invalid_session';}
  if(!Number.isSafeInteger(user?.id)||user.id<=0||!/^[a-f0-9]{64}$/i.test(hash))return 'invalid_session';
  const signed=Array.from(params.entries()).filter(([k])=>k!=='hash'&&k!=='signature')
-  .sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\\n');
+  .sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\n');
  const secret=await hmac('WebAppData',env.TELEGRAM_TOKEN);
  const expected=hex(await hmac(secret,signed));
  return equalHex(hash.toLowerCase(),expected)?'verified':'invalid_signature';
