@@ -8,6 +8,28 @@ const scripts=[...APP_HTML.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)
 const directory=scripts.find(s=>s.includes('function buildCard('));
 const navigation=scripts.find(s=>s.includes('function featuredCard('));
 
+
+test('four independently generated transparent public icons are available and wired to their correct UI slots',()=>{
+ const required=['brand-mark','channel-film-fallback','admin-secure','profile-default'];
+ const worker=readFileSync(new URL('../worker.mjs',import.meta.url),'utf8');
+ for(const name of required){
+  const file=readFileSync(new URL('../assets/public-ui/'+name+'.webp',import.meta.url));
+  assert.ok(file.length>100&&file.length<65536, name+' must be a small standalone image');
+  assert.equal(file.subarray(0,4).toString(),'RIFF', name+' is not a WebP');
+  assert.equal(file.subarray(8,12).toString(),'WEBP', name+' is not a WebP');
+  assert.ok(worker.includes(name),name+' should be allowlisted on the Worker');
+ }
+ assert.ok(APP_HTML.includes('<img src="/assets/public-ui/brand-mark.webp"'));
+ assert.ok(!APP_HTML.includes('<div class="brand-mark" aria-hidden="true"><svg'),'Old inline logo should be replaced');
+ assert.ok(directory.includes('function cinePublicIcon(name)'), 'Directory script must own its image helper');
+ assert.ok(navigation.includes('function cinePublicIcon(name)'), 'Navigation script must own its image helper');
+ assert.ok(directory.includes('cinePublicIcon("profile-default")'));
+ assert.ok(navigation.includes('cinePublicIcon("channel-film-fallback")'));
+ assert.ok(navigation.includes('cinePublicIcon("admin-secure")'));
+ assert.ok(!navigation.includes('avatar.textContent="🎬"'), 'Never use emoji for missing channel avatar');
+ assert.ok(!navigation.includes('"🔐 Administration"'),'Admin access icon must be a standalone image');
+});
+
 test('every inline UI script parses as JavaScript, not just the surrounding mjs wrapper',()=>{
  assert.ok(scripts.length>=2,'Expected directory and navigation scripts');
  for(const source of scripts)assert.doesNotThrow(()=>new Script(source));
