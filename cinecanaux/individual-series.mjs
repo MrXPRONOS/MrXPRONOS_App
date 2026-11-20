@@ -47,6 +47,32 @@ export function validSeriesPlan(seasons,media){
  }
  return total===media.length&&total<=300;
 }
+// Downloads are based on actual indexed messages, not an assumed final episode
+// count. A live series may legitimately have only S3 episodes 1..N indexed.
+// Never imply that all seasons are complete or silently skip a gap.
+export function availableSeriesPlan(media){
+ if(!Array.isArray(media)||media.length<1||media.length>300)return {ready:false,count:0,seasons:[],reason:'empty_or_too_large'};
+ const sorted=[...media].sort((a,b)=>Number(a.season)-Number(b.season)||Number(a.episode)-Number(b.episode));
+ const seasons=[];
+ let previousSeason=0,previousEpisode=0;
+ for(const row of sorted){
+  const season=Number(row.season),episode=Number(row.episode),messageId=Number(row.source_message_id);
+  if(!Number.isInteger(season)||season<1||season>50||
+     !Number.isInteger(episode)||episode<1||episode>100||
+     !Number.isSafeInteger(messageId)||messageId<=0)return {ready:false,count:0,seasons:[],reason:'invalid_reference'};
+  if(season!==previousSeason){
+   if(episode!==1)return {ready:false,count:0,seasons:[],reason:'season_starts_after_episode_1'};
+   seasons.push({season,episodes:1});
+   previousSeason=season;previousEpisode=episode;
+  }else{
+   if(episode!==previousEpisode+1)return {ready:false,count:0,seasons:[],reason:'episode_gap_or_duplicate'};
+   seasons[seasons.length-1].episodes++;
+   previousEpisode=episode;
+  }
+ }
+ return {ready:true,count:sorted.length,seasons,reason:null};
+}
+
 export function seriesButtons(token,rescue,folder){
  if(!TOKEN.test(token)||!/^https:\/\/t\.me\/(?:\+[A-Za-z0-9_-]{12,}|joinchat\/[A-Za-z0-9_-]{12,})\/?$/.test(rescue)||
  !/^https:\/\/t\.me\/addlist\/[A-Za-z0-9_-]{8,}$/.test(folder))throw Error('series_buttons_config_invalid');
@@ -160,7 +186,7 @@ export async function handleSeriesStart(env,update){
    "SELECT p.chat_id,c.title,c.expected_seasons,c.radar_access FROM cine_series_publications p JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE p.token=? AND p.state='published' AND c.enabled=1 AND c.rights_attested=1"
   ).bind(token).first();
   if(!source||!CHAT.test(String(source.chat_id))){await notify(env,chat,'Série indisponible pour le moment.');return {handled:true,accepted:false}}
-  const seasons=(await env.DB.prepare("SELECT season,expected_episodes FROM cine_series_seasons WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
+
   const media=(await env.DB.prepare(
    "SELECT e.season,e.episode,e.source_message_id,CASE WHEN a.user_id IS NOT NULL THEN v.owner_chat_id END AS owner_chat_id,CASE WHEN a.user_id IS NOT NULL THEN v.owner_message_id END AS owner_message_id "+
    "FROM cine_series_episodes e LEFT JOIN cine_owner_vault v ON v.source_chat_id=e.chat_id "+
@@ -168,10 +194,9 @@ export async function handleSeriesStart(env,update){
    "LEFT JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
    "WHERE e.chat_id=? ORDER BY e.season,e.episode"
   ).bind(source.chat_id).all()).results||[];
-  const posters=(await env.DB.prepare("SELECT season FROM cine_series_posters WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
-  if(!Number.isInteger(Number(source.expected_seasons))||Number(source.expected_seasons)<1||posters.length!==Number(source.expected_seasons)||seasons.length!==Number(source.expected_seasons)||!validSeriesPlan(seasons,media)||posters.length!==seasons.length||
-   posters.some((x,i)=>Number(x.season)!==i+1)){
-   await notify(env,chat,'⏳ Toutes les saisons ne sont pas encore vérifiées. Le téléchargement est indisponible pour éviter les épisodes manquants.');
+  const available=availableSeriesPlan(media);
+  if(!available.ready){
+   await notify(env,chat,'⏳ Aucun téléchargement prêt pour cette série : épisodes manquants ou indexation à compléter. Réessaie lorsque les épisodes disponibles seront vérifiés.');
    return {handled:true,accepted:false};
   }
   if(source.radar_access!=='verified'&&media.some(x=>!hasOwnerCopy(x))){
@@ -189,7 +214,13 @@ export async function handleSeriesStart(env,update){
    "INSERT OR IGNORE INTO cine_series_job_items(job_id,ordinal,source_chat_id,source_message_id) VALUES(?,?,?,?)"
   ).bind(job.id,i+1,hasOwnerCopy(item)?String(item.owner_chat_id):source.chat_id,
    hasOwnerCopy(item)?Number(item.owner_message_id):item.source_message_id)));
-  await notify(env,chat,'📥 '+String(source.title||'Ta série').slice(0,80)+': '+seasons.length+' saison(s), '+media.length+' épisodes. Livraison automatique en plusieurs lots. Chaque copie du bot sera supprimée après 24 heures.');
+  const detail=available.seasons.map(x=>'S'+x.season+': '+x.episodes+' ép.').join(' · ');
+  await notify(env,chat,
+   '📥 '+String(source.title||'Ta série').slice(0,70)+'\n'+
+   'Téléchargement des '+available.count+' épisodes actuellement disponibles : '+detail+'.\n'+
+   'Les saisons en cours ou absentes du catalogue ne sont pas promises complètes. '+
+   'Envoi progressif, copies retirées de cette conversation 24 h après chaque envoi.');
+  
   return {handled:true,accepted:true};
  }catch(e){console.warn('series_start_error',String(e?.name||'Error'));await notify(env,chat,'Service temporairement indisponible.');return {handled:true,accepted:false}}
 }
