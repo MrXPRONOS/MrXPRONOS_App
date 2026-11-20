@@ -7,9 +7,17 @@ export async function ensureBroadcastTables(env){
   "CREATE TABLE IF NOT EXISTS cine_broadcast_subscribers (chat_id INTEGER PRIMARY KEY, active INTEGER NOT NULL DEFAULT 1, blocked INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)",
   "CREATE TABLE IF NOT EXISTS cine_broadcast_jobs (id INTEGER PRIMARY KEY AUTOINCREMENT, owner_id INTEGER NOT NULL, text_html TEXT NOT NULL, photo_id TEXT NOT NULL DEFAULT '', button_text TEXT NOT NULL DEFAULT '', button_url TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'draft', recipients INTEGER NOT NULL DEFAULT 0, delivered INTEGER NOT NULL DEFAULT 0, failed INTEGER NOT NULL DEFAULT 0, blocked INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP, lease_until TEXT)",
   "CREATE TABLE IF NOT EXISTS cine_broadcast_receipts (job_id INTEGER NOT NULL, chat_id INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT NOT NULL DEFAULT '', retry_at TEXT, PRIMARY KEY(job_id,chat_id))",
-  "CREATE TABLE IF NOT EXISTS cine_broadcast_schedules (job_id INTEGER PRIMARY KEY, send_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'scheduled', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+  "CREATE TABLE IF NOT EXISTS cine_broadcast_schedules (job_id INTEGER PRIMARY KEY, send_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'scheduled', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+  "CREATE TABLE IF NOT EXISTS cine_broadcast_scheduler_status (id INTEGER PRIMARY KEY CHECK(id=1),last_tick_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,status TEXT NOT NULL DEFAULT 'ok',error_count INTEGER NOT NULL DEFAULT 0)"
  ];
  for(const query of sql)await env.DB.prepare(query).run();
+}
+// A lightweight heartbeat every ~5 minutes makes the Cloudflare Cron verifiable
+// even when there are zero announcement jobs. No subscriber IDs are recorded.
+export async function recordBroadcastSchedulerTick(env,status='ok',errors=0){
+ if(!['ok','warning','error'].includes(status))throw Error('Invalid scheduler status');
+ await env.DB.prepare("INSERT INTO cine_broadcast_scheduler_status(id,status,error_count) VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET last_tick_at=CURRENT_TIMESTAMP,status=excluded.status,error_count=excluded.error_count WHERE cine_broadcast_scheduler_status.last_tick_at<=datetime('now','-5 minutes') OR cine_broadcast_scheduler_status.status<>'ok' OR excluded.status<>'ok'")
+  .bind(status,Math.max(0,Math.floor(Number(errors)||0))).run();
 }
 export async function trackBroadcastSubscriber(env,update){
  const msg=update?.message,chat=msg?.chat?.id;
