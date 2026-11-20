@@ -174,8 +174,11 @@ def is_anime_movie(item) -> bool:
         feature_length = float(duration or 0) >= 50 * 60
     except (TypeError, ValueError):
         feature_length = False
-    # An explicit film label also supports MKV files without duration metadata.
-    return bool(MOVIE_LABEL.search(details) or feature_length)
+    # Never infer MOVIE from runtime alone: a long ONA/compilation can
+    # exceed an hour. Require an explicit movie/film/feature label.
+    # Unknown duration is allowed for correctly labelled MKV documents.
+    return bool(MOVIE_LABEL.search(details) and
+                (not duration or feature_length))
 
 
 def pending_anime_series(eligible, catalogue):
