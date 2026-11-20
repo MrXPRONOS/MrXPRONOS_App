@@ -164,7 +164,11 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-let init=window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
+const framed=window.parent!==window;
+// In an iframe Telegram does not supply a fresh launch signature. Never
+// bootstrap from old sessionStorage here; request the current launch signature
+// from the verified same-origin parent Mini App instead.
+let init=framed?"":window.Telegram?.WebApp?.initData||(()=>{try{return sessionStorage.getItem("cine-radar-owner-auth")||""}catch{return ""}})();
 let adminBooted=false;
 try{window.Telegram?.WebApp?.ready();window.Telegram?.WebApp?.expand();}catch{}
 const status=t=>{$("status").textContent=t;};
@@ -509,21 +513,35 @@ for(const action of ["hide","show","exclude"])$(action).onclick=async()=>{
 };
 function bootstrapAdmin(){
  if(adminBooted||!init)return;
+ const activeToken=init;
  adminBooted=true;
+ status("🔐 Vérification sécurisée de ton compte Telegram…");
  load().catch(e=>{
+  // Responses from a stale request must not replace the result of a newer
+  // initData handoff. Retry once with the freshly supplied signed identity.
+  if(init===activeToken){
+   status("Authentification Telegram refusée ou expirée. Ferme l'administration, retourne au bot et renvoie /start. Détail : "+String(e.message||e));
+  }
+ }).finally(()=>{
   adminBooted=false;
-  status("Accès refusé ou service indisponible : "+String(e.message||e));
+  if(init&&init!==activeToken)bootstrapAdmin();
  });
 }
 window.addEventListener("message",event=>{
  if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=="cine-radar-owner-auth")return;
  const signed=String(event.data.initData||"");
  if(!signed||signed.length>5000)return;
+ // Only accept a fresh credential transferred by our Mini App iframe parent.
+ const changed=init!==signed;
  init=signed;
  try{sessionStorage.setItem("cine-radar-owner-auth",signed)}catch{}
- bootstrapAdmin();
+ if(changed||$("private").hidden)bootstrapAdmin();
 });
-if(!init)status("Vérification Telegram : ouvre l'administration depuis le menu Ciné Radar.");
-else bootstrapAdmin();
+if(framed){
+ status("🔐 Récupération de ton accès depuis Ciné Radar…");
+ window.parent.postMessage({type:"cine-radar-admin-ready"},location.origin);
+}else if(!init){
+ status("Ouvre l'administration depuis le bouton du bot Telegram /start ou le menu Ciné Radar.");
+}else bootstrapAdmin();
 })();
 </script></body></html>`;

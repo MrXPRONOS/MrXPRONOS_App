@@ -41,7 +41,7 @@ const BOT_PROFILE_PHOTO_URL=BASE+"/assets/bot-profile.jpg";
 const BOT_START_POSTER_URL=BASE+"/assets/bot-start-poster.jpg";
 const miniAppKeyboard=(owner=false)=>keyboard([
  [{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:BASE+"/app"}}],
- ...(owner?[[{text:"🔐 Administration",style:"primary",web_app:{url:BASE+"/admin"}}]]:[])
+ ...(owner?[[{text:"🔐 Administration",style:"primary",web_app:{url:BASE+"/app?admin=1"}}]]:[])
 ]);
 async function ownerForBotStart(env,msg){
  const from=msg?.from;

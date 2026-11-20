@@ -6,7 +6,7 @@ export const APP_HTML=String.raw`<!doctype html>
 <title>Ciné Radar — Trouve ton canal</title>
 <meta name="theme-color" content="#070f20">
 <meta name="description" content="Découvrez les canaux publics Telegram de films, séries et animés.">
-<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>
+<script src="https://telegram.org/js/telegram-web-app.js?64"></script>
 <style>
 :root{color-scheme:dark;--bg:#07101e;--surface:#111e34;--raised:#152640;--border:#2b4166;--muted:#a4b7d5;--blue:#398aff;--violet:#8558fa;--white:#f4f8ff;--heroA:#11295d;--heroB:#1c366b;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--white);background:var(--bg)}
 *{box-sizing:border-box}
@@ -409,6 +409,7 @@ body{background:#07111f}
 @media(max-width:350px){.cine-promo-card{flex-basis:220px}.cine-promo-slot{padding:9px}.cine-promo-head small{font-size:8px}}
 
 /* Discovery cards retain the original responsive grid; only the separate promotion track scrolls. */
+.cine-admin-entry-note{margin:12px 0;padding:12px;border:1px solid #6382b7;border-radius:10px;background:#192b49;color:#ecf4ff;font-size:12px;line-height:1.5}
 .cine-owner-admin-overlay{position:fixed;inset:0;z-index:1500;background:#07101e;display:flex;flex-direction:column}
 .cine-owner-admin-overlay[hidden]{display:none}
 .cine-owner-admin-toolbar{flex:none;display:flex;align-items:center;padding:9px 13px;min-height:44px;background:#0e1d34;border-bottom:1px solid #354f7e}
@@ -1472,7 +1473,7 @@ function build(){
  const ownerAdmin=node("button","cine-owner-admin-link","🔐 Administration");
  ownerAdmin.type="button";ownerAdmin.hidden=true;
  ownerAdmin.id="cine-owner-admin-link";
- ownerAdmin.onclick=()=>{
+ const openOwnerAdmin=()=>{
   closeMenu();
   let overlay=$("cine-owner-admin-overlay");
   if(!overlay){
@@ -1496,16 +1497,36 @@ function build(){
   const signed=window.Telegram?.WebApp?.initData||"";
   if(signed)frame?.contentWindow?.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
  };
+ ownerAdmin.onclick=openOwnerAdmin;
+ // Receive a fresh auth request from the embedded admin page, not stale
+ // sessionStorage. Only the actual same-origin admin iframe receives initData.
+ window.addEventListener("message",event=>{
+  const frame=$("cine-owner-admin-overlay")?.querySelector(".cine-owner-admin-frame");
+  if(event.origin!==location.origin||event.source!==frame?.contentWindow||event.data?.type!=="cine-radar-admin-ready")return;
+  const signed=window.Telegram?.WebApp?.initData||"";
+  if(signed)frame.contentWindow.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
+ });
  drawer.append(ownerAdmin);
  // Display privileged navigation only after the server verifies Telegram initData.
+ const wantsAdmin=new URLSearchParams(location.search).get("admin")==="1";
+ // A direct Telegram Web App launch receives signed initData, whereas opening
+ // /admin by navigation or in an iframe may lose that launch context.
  let init=window.Telegram?.WebApp?.initData||"";
- if(!init){try{init=sessionStorage.getItem("cine-radar-owner-auth")||""}catch{}}
+ if(!init&&!wantsAdmin){try{init=sessionStorage.getItem("cine-radar-owner-auth")||""}catch{}}
+ const adminHelp=()=>{
+  if(!wantsAdmin)return;
+  const note=node("div","cine-admin-entry-note","🔐 Impossible de vérifier la session Telegram. Ferme cette fenêtre, renvoie /start au bot et utilise le nouveau bouton Administration.");
+  const destination=panel.accueil||document.querySelector("main.page");
+  destination?.prepend(note);
+ };
  if(init)fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":init},cache:"no-store"})
-  .then(r=>{if(r.ok){
-    ownerAdmin.hidden=false;
-    // Preserve signed initData only for navigation to /admin in this WebView.
-    try{sessionStorage.setItem("cine-radar-owner-auth",init)}catch{}
-   }}).catch(()=>{});
+  .then(r=>{
+   if(!r.ok){adminHelp();return}
+   ownerAdmin.hidden=false;
+   try{sessionStorage.setItem("cine-radar-owner-auth",init)}catch{}
+   if(wantsAdmin)openOwnerAdmin();
+  }).catch(adminHelp);
+ else adminHelp();
  drawer.append(node("p","cine-drawer-foot","Ciné Radar · Films, séries, animés"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
  const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","accueil"],["Explorer","explorer","explorer"],["Favoris","favoris","favoris"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","menu");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerOpen){e.preventDefault();closeMenu()}});

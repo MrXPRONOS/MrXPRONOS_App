@@ -68,7 +68,7 @@ test('owner receives two blue buttons after /start, visitor only the Mini App bu
   const buttons=lastMessage(f.calls).reply_markup.inline_keyboard.flat();
   assert.equal(buttons.length,2);
   assert.equal(buttons[0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
-  assert.equal(buttons[1].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
+  assert.equal(buttons[1].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app?admin=1');
   assert.equal(buttons[0].style,'primary');
   assert.equal(buttons[1].style,'primary');
   assert.match(buttons[1].text,/Administration/);
