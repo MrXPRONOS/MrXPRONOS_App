@@ -76,3 +76,48 @@ class IndividualSeriesPublishTest(TestCase):
              [{"expected_seasons":3}] if "expected_seasons" in sql else query(sql,p)):
             result = mod.catalogue_complete("-1001234567890")
         self.assertFalse(result["ready"])
+
+
+    def test_legacy_sync_cannot_remap_pinned_poster_and_uses_available_download_title(self):
+        class FakePublisher:
+            def call(self,method,params):
+                if method=="getChat":
+                    return {"id":-1001234567890,"type":"channel","title":"Ma série",
+                            "pinned_message":{"message_id":202,"photo":[{"file_id":"x"}],
+                                              "caption":"Saison 1 : 10 épisodes"}}
+                if method=="getChatMember":return {"status":"administrator"}
+                raise AssertionError(method)
+        queries=[]
+        def query(sql,params):
+            queries.append((sql,params))
+            if "SELECT source_message_id FROM cine_series_posters" in sql:
+                return [{"source_message_id":101}]
+            return []
+        with mock.patch.object(mod,"d1",side_effect=query):
+            result=mod.sync_channel(FakePublisher(),777,None,"-1001234567890",True)
+        self.assertTrue(result["poster_conflict"])
+        self.assertFalse(any("INSERT INTO cine_series_posters" in sql for sql,_ in queries))
+        self.assertFalse(any("INSERT INTO cine_series_seasons" in sql for sql,_ in queries))
+        buttons=mod.keyboard("abcdefghijklmnopqrstuvwx","https://t.me/+abcdefghijkL","https://t.me/addlist/ABCDEFGHIJK")
+        self.assertEqual(buttons["inline_keyboard"][0][0]["text"],"📥 Télécharger les épisodes disponibles")
+
+    def test_legacy_same_poster_may_update_its_caption_only(self):
+        class FakePublisher:
+            def call(self,method,params):
+                if method=="getChat":
+                    return {"id":-1001234567890,"type":"channel","title":"Ma série",
+                            "pinned_message":{"message_id":101,"photo":[{"file_id":"x"}],
+                                              "caption":"Saison 1 : 10 épisodes"}}
+                if method=="getChatMember":return {"status":"administrator"}
+                raise AssertionError(method)
+        queries=[]
+        def query(sql,params):
+            queries.append(sql)
+            if "SELECT source_message_id FROM cine_series_posters" in sql:
+                return [{"source_message_id":101}]
+            return []
+        with mock.patch.object(mod,"d1",side_effect=query):
+            result=mod.sync_channel(FakePublisher(),777,None,"-1001234567890",True)
+        self.assertFalse(result["poster_conflict"])
+        self.assertTrue(any("INSERT INTO cine_series_posters" in sql and
+                            "source_message_id=excluded.source_message_id" not in sql for sql in queries))
