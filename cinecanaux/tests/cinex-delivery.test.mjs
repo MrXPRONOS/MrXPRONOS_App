@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {downloadUrl,validSequence,handleDeliveryStart,handleSaveHelp,processDeliveryQueue,adminDeliveryAction} from '../cinex-delivery.mjs';
+import {downloadUrl,validSequence,handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from '../cinex-delivery.mjs';
 const TOKEN='ABCDEFGHIJKLMNOPQRSTUVWX';
 const message=(text,chat=123,update_id=45)=>({update_id,message:{chat:{id:chat,type:'private'},from:{id:chat},text}});
 test('deep links contain exactly a 24-character opaque token, never a channel ID',()=>{
@@ -44,13 +44,12 @@ test('save-help callback only gives instructions, cannot forward user files sile
   assert.equal(await handleSaveHelp({TELEGRAM_TOKEN:'fake'},{callback_query:{id:'b',data:'category:series:2'}}),false);
  }finally{globalThis.fetch=old;}
 });
-test('approval blocks missing or incomplete media, even if rights_confirmed=true',async()=>{
- const DB={prepare(q){return {bind(){return this},first:async()=>{
-  if(q.includes('FROM cine_delivery_titles'))return{title_key:'a'.repeat(32),category:'series',content_kind:'series',bot_access:'verified',owner_access:'verified',rights_attested:1};
-  return null;
- },all:async()=>({results:[{source_message_id:51,season_number:1,episode_number:2}]})}}};
- const r=await adminDeliveryAction({DB},'/api/admin/cinex/approve',{title_key:'a'.repeat(32),season:1,rights_confirmed:true});
- assert.equal(r.status,409);
+test('download code has no legacy per-title manual approval endpoint',async()=>{
+ const fs=await import('node:fs/promises');
+ const source=await fs.readFile(new URL('../cinex-delivery.mjs',import.meta.url),'utf8');
+ assert.equal(source.includes('/api/admin/cinex/approve'),false);
+ assert.equal(source.includes("t.approval='approved'"),false);
+ assert.equal(source.includes("availability='approved'"),false);
 });
 test('worker cron stops without even touching Telegram when disabled',async()=>{
  const DB={prepare(sql){return{first:async()=>({value:'0'})}}};

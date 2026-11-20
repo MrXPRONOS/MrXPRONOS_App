@@ -1,5 +1,5 @@
 // CinéX -> existing Ciné Radar bot. No video bytes pass through Cloudflare.
-// A deep link only enqueues a delivery after explicit owner approval in D1.
+// GitHub CINEX_DOWNLOADS_ENABLED is synchronized to D1; no in-bot approval.
 // Telegram /start is authenticated by the existing webhook secret in worker.mjs.
 const TOKEN=/^[a-zA-Z0-9_-]{24}$/;
 const PAYLOAD=/^\/start(?:@[A-Za-z0-9_]+)?\s+d_([a-zA-Z0-9_-]{24})\s*$/i;
@@ -43,11 +43,11 @@ export async function handleDeliveryStart(env,update){
   const feature=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
   if(feature?.value!=='1'){await say(env,chat,'🎬 Le téléchargement CinéX est en préparation. Les vidéothèques restent accessibles depuis les canaux.');return {handled:true,accepted:false};}
   const link=await env.DB.prepare(
-   "SELECT l.token,l.season_key,l.category,t.title_key,t.display_title,t.content_kind,b.private_chat_id FROM cine_delivery_links l JOIN cine_delivery_titles t ON t.title_key=l.title_key AND t.category=l.category JOIN cine_delivery_libraries b ON b.category=l.category WHERE l.token=? AND l.enabled=1 AND t.approval='approved' AND t.rights_attested=1 AND b.rights_attested=1 AND b.owner_access='verified' AND b.bot_access='verified'"
+   "SELECT l.token,l.season_key,l.category,t.title_key,t.display_title,t.content_kind,b.private_chat_id FROM cine_delivery_links l JOIN cine_delivery_titles t ON t.title_key=l.title_key AND t.category=l.category JOIN cine_delivery_libraries b ON b.category=l.category WHERE l.token=? AND l.enabled=1 AND t.rights_attested=1 AND b.rights_attested=1 AND b.owner_access='verified' AND b.bot_access='verified'"
   ).bind(token).first();
   if(!link||!CHAT.test(String(link.private_chat_id||''))){await say(env,chat,'Ce téléchargement n’est pas disponible pour le moment.');return {handled:true,accepted:false};}
   const rows=await env.DB.prepare(
-   "SELECT source_message_id,season_number,episode_number,availability FROM cine_delivery_media WHERE title_key=? AND category=? AND availability='approved' AND ((?=0 AND season_number IS NULL AND episode_number IS NULL) OR (? > 0 AND season_number=?)) ORDER BY episode_number,source_message_id LIMIT 101"
+   "SELECT m.source_message_id,m.season_number,m.episode_number FROM cine_delivery_media m JOIN cine_delivery_libraries b ON b.category=m.category WHERE m.title_key=? AND m.category=? AND m.observed_at=b.last_scanned_at AND m.availability IN ('pending_review','approved') AND ((?=0 AND m.season_number IS NULL AND m.episode_number IS NULL) OR (? > 0 AND m.season_number=?)) ORDER BY m.episode_number,m.source_message_id LIMIT 101"
   ).bind(link.title_key,link.category,link.season_key,link.season_key,link.season_key).all();
   const media=rows.results||[];
   // Reject ANY incomplete season and mismatched records before enqueuing.
@@ -96,7 +96,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
  await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE status='sending' AND lock_until<datetime('now')").run();
  await env.DB.prepare("UPDATE cine_delivery_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_delivery_jobs WHERE status='needs_review')").run();
  const candidates=await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,j.token,l.category,l.title_key,l.season_key,b.private_chat_id FROM cine_delivery_jobs j JOIN cine_delivery_links l ON l.token=j.token JOIN cine_delivery_titles t ON t.title_key=l.title_key JOIN cine_delivery_libraries b ON b.category=l.category WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND l.enabled=1 AND t.approval='approved' AND t.rights_attested=1 AND b.bot_access='verified' AND b.rights_attested=1 ORDER BY j.created_at,j.id LIMIT ?"
+  "SELECT j.id,j.telegram_chat_id,j.token,l.category,l.title_key,l.season_key,b.private_chat_id FROM cine_delivery_jobs j JOIN cine_delivery_links l ON l.token=j.token JOIN cine_delivery_titles t ON t.title_key=l.title_key JOIN cine_delivery_libraries b ON b.category=l.category WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND l.enabled=1 AND t.rights_attested=1 AND b.bot_access='verified' AND b.rights_attested=1 ORDER BY j.created_at,j.id LIMIT ?"
  ).bind(Math.min(4,Math.max(1,Number(limit)||2))).all();
  let processed=0,errors=0;
  for(const job of candidates.results||[]){
@@ -156,36 +156,4 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   } // pending items in this one requested season
  } // jobs
  return {processed,errors};
-}
-// Owner-only toggling and approval are wrapped by admin-v2's signed-initData verification.
-export async function adminDeliveryAction(env,path,data){
- if(path==='/api/admin/cinex/state'){
-  if(data.action!=='enable'&&data.action!=='disable')return {status:400,body:{error:'Action inconnue'}};
-  await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('cine_delivery_enabled',?) ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP").bind(data.action==='enable'?'1':'0').run();
-  return {status:200,body:{ok:true,enabled:data.action==='enable'}};
- }
- if(path!=='/api/admin/cinex/approve')return {status:404,body:{error:'Route inconnue'}};
- if(data.rights_confirmed!==true)return {status:400,body:{error:'Droits de redistribution non confirmés'}};
- const titleKey=String(data.title_key||'');
- const season=Number(data.season??0);
- if(!/^[a-f0-9]{32}$/.test(titleKey)||!Number.isInteger(season)||season<0||season>50)return {status:400,body:{error:'Référence invalide'}};
- const title=await env.DB.prepare(
-  "SELECT t.title_key,t.category,t.content_kind,b.bot_access,b.owner_access,b.rights_attested FROM cine_delivery_titles t JOIN cine_delivery_libraries b ON b.category=t.category WHERE t.title_key=?"
- ).bind(titleKey).first();
- if(!title||title.bot_access!=='verified'||title.owner_access!=='verified'||Number(title.rights_attested)!==1)
-  return {status:409,body:{error:'Vidéothèque ou bot non vérifié'}};
- if((title.content_kind==='series')!== (season>0))return {status:400,body:{error:'Saison invalide'}};
- const media=await env.DB.prepare(
-  "SELECT source_message_id,season_number,episode_number FROM cine_delivery_media WHERE title_key=? AND category=? AND ((?=0 AND season_number IS NULL) OR (season_number=? AND ?>0)) ORDER BY episode_number,source_message_id LIMIT 101"
- ).bind(titleKey,title.category,season,season,season).all();
- const items=media.results||[];
- if(!validSequence(title.content_kind,season,items))return {status:409,body:{error:'Catalogue incomplet ou ambigu (épisodes manquants)'}};
- const previous=await env.DB.prepare("SELECT token FROM cine_delivery_links WHERE category=? AND title_key=? AND season_key=?").bind(title.category,titleKey,season).first();
- const token=previous?.token||Array.from(crypto.getRandomValues(new Uint8Array(24)),x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'[x%64]).join('');
- await env.DB.batch([
-  env.DB.prepare("UPDATE cine_delivery_titles SET approval='approved',rights_attested=1 WHERE title_key=?").bind(titleKey),
-  ...items.map(x=>env.DB.prepare("UPDATE cine_delivery_media SET availability='approved' WHERE category=? AND source_message_id=? AND title_key=?").bind(title.category,x.source_message_id,titleKey)),
-  env.DB.prepare("INSERT INTO cine_delivery_links(token,title_key,category,season_key,enabled) VALUES(?,?,?,?,1) ON CONFLICT(category,title_key,season_key) DO UPDATE SET enabled=1,updated_at=CURRENT_TIMESTAMP").bind(token,titleKey,title.category,season)
- ]);
- return {status:200,body:{ok:true,url:downloadUrl(token),media_count:items.length,category:title.category}};
 }

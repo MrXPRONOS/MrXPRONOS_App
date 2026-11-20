@@ -1,9 +1,7 @@
-"""Stages 1-2 only: read-only Telegram private-library audit and D1 metadata sync.
+"""Read-only Telegram private-library audit and D1 metadata sync.
 
-Neither this module nor its workflow sends, copies, forwards, edits or deletes
-Telegram messages. All catalogue records are PENDING_REVIEW until a separate
-future approval and delivery implementation. Existing historical catalogue
-message IDs are intentionally not trusted or imported.
+Never sends, copies, forwards, edits or deletes Telegram media. GitHub controls
+link publication separately; inventory remains technical and non-destructive.
 """
 from __future__ import annotations
 import argparse
@@ -173,7 +171,7 @@ async def audit_targets(targets: list[dict], *, max_scan: int = MAX_SCAN) -> dic
 
 
 def sql_queries(report: dict):
-    """One-way idempotent D1 upserts. Never approve titles/media for delivery."""
+    """One-way idempotent inventory upserts; GitHub controls delivery separately."""
     for lib in report["libraries"]:
         if lib.get("status") != "scanned":
             continue
