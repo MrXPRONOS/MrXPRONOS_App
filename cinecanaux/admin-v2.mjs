@@ -20,6 +20,16 @@ async function verifyAdmin(request,env){
  const admin=await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(u.telegram_id).first();
  return admin?.role==='owner'?u:null;
 }
+// Public signed Telegram initData can remain valid for 24 hours for read-only
+// access. Privileged WRITES require a recently opened Telegram Mini App.
+// Does not alter public /start, channel publishing or background cron jobs.
+export function freshAdminMutationSession(request,{maxAgeSeconds=7200,now=Date.now()}={}){
+ const data=request.headers.get('X-Telegram-Init-Data')||'';
+ if(!data||data.length>5000)return false;
+ const auth=Number(new URLSearchParams(data).get('auth_date'));
+ const age=now/1000-auth;
+ return Number.isSafeInteger(auth)&&auth>0&&Number.isFinite(age)&&age>=-60&&age<=maxAgeSeconds;
+}
 // Owner can edit directory metadata, but not bypass exclusion or rights checks.
 function validAdminChannel(data){
  const title=String(data.title||'').trim(),description=String(data.description||'').trim();
@@ -46,6 +56,10 @@ export async function adminAPI(env,request,ctx){
   // Do not disclose the signed identity, role records, bot token or raw initData.
   return json({error:'Accès réservé',code:status==='verified'?'owner_not_linked':status},status==='server_configuration'?503:403);
  }
+ // Keep existing read-only admin dashboards working until Telegram's normal
+ // signature expiry; block replay of old initData for any state-changing API.
+ if(request.method!=='GET'&&!freshAdminMutationSession(request))
+  return json({error:'Session administrateur expirée. Ferme puis rouvre Ciné Radar depuis Telegram avant de modifier des données.',code:'expired_session'},403);
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
  if(request.method==='GET'&&path==='/api/admin/channel-list'){
