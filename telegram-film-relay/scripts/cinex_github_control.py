@@ -112,11 +112,46 @@ def queries_for_report(report):
 def toggle_queries(enabled):
     # The global switch is the ONLY distribution permission. Links remain
     # indexed when off so that a five-minute sync can switch them back on.
-    return [{"sql": EVIDENCE_SCHEMA}, {
+    queries = [{"sql": EVIDENCE_SCHEMA}]
+    if enabled:
+        # The previous version turned links off on false; restore ONLY those
+        # grounded in the latest verified inventory and explicit season totals.
+        queries.append({"sql": """UPDATE cine_delivery_links SET enabled=1,updated_at=CURRENT_TIMESTAMP
+          WHERE enabled=0 AND EXISTS (
+            SELECT 1 FROM cine_delivery_titles t
+            JOIN cine_delivery_libraries b ON b.category=t.category
+            WHERE t.title_key=cine_delivery_links.title_key
+              AND t.category=cine_delivery_links.category
+              AND t.rights_attested=1 AND b.rights_attested=1
+              AND b.owner_access='verified' AND b.bot_access='verified'
+              AND b.last_scanned_at IS NOT NULL
+              AND (
+                (cine_delivery_links.season_key=0 AND
+                 (SELECT COUNT(*) FROM cine_delivery_media m
+                  WHERE m.title_key=t.title_key AND m.category=b.category
+                    AND m.observed_at=b.last_scanned_at
+                    AND m.season_number IS NULL AND m.episode_number IS NULL)=1)
+                OR
+                (cine_delivery_links.season_key>0 AND EXISTS (
+                  SELECT 1 FROM cine_delivery_season_evidence e
+                  WHERE e.title_key=t.title_key AND e.category=b.category
+                    AND e.season_key=cine_delivery_links.season_key
+                    AND e.observed_at=b.last_scanned_at
+                    AND e.expected_episodes=(
+                      SELECT COUNT(*) FROM cine_delivery_media m
+                      WHERE m.title_key=t.title_key AND m.category=b.category
+                        AND m.season_number=cine_delivery_links.season_key
+                        AND m.observed_at=b.last_scanned_at
+                    )
+                ))
+              )
+          )"""})
+    queries.append({
         "sql": """INSERT INTO bot_settings(setting_key,value) VALUES('cine_delivery_enabled',?)
                    ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP""",
         "params": ["1" if enabled else "0"],
-    }]
+    })
+    return queries
 
 
 def toggle_off_queries():
