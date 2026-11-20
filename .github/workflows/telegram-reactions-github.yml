@@ -49,7 +49,7 @@ concurrency:
 jobs:
   test:
     # No need to run the entire offline test suite on every scheduled wake-up.
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
