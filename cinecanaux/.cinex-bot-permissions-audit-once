@@ -1,0 +1,1 @@
+2026-11-20 one-time read-only Bot API audit, inventory current access and excessive admin privileges. No Telegram messages, no user session, no permissions changes.
