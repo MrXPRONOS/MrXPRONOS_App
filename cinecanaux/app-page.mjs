@@ -562,6 +562,28 @@ body{background:#07111f}
 const PRELOADED_CATALOG=null;
 window.__CINERADAR_INITIAL_CATALOG__=PRELOADED_CATALOG;
 const telegram=()=>window.Telegram?.WebApp||null;
+// Telegram normally exposes raw initData through the official SDK. Some clients
+// keep the launch parameters only in the initial URL hash, so preserve that
+// signed tgWebAppData before Ciné Radar starts using its own hash router.
+function readTelegramInitData(){
+ const sdk=telegram()?.initData||"";
+ if(sdk)return sdk;
+ const extract=href=>{
+  try{
+   const u=new URL(String(href||""),location.href);
+   const raw=(u.hash||"").replace(/^#/,"");
+   return new URLSearchParams(raw).get("tgWebAppData")||"";
+  }catch{return ""}
+ };
+ const current=extract(location.href);
+ if(current)return current;
+ try{
+  const initial=performance.getEntriesByType?.("navigation")?.[0]?.name||"";
+  return extract(initial);
+ }catch{return ""}
+}
+let telegramLaunchInitData=readTelegramInitData();
+const signedTelegramInitData=()=>telegramLaunchInitData||(telegramLaunchInitData=readTelegramInitData());
 document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
 const cineLot4Names=new Set(["football","crypto","pronos","private","star","evaluate","play","series","thanks","popcorn"]);
@@ -1209,7 +1231,7 @@ function visitorTracking(){
  if(!metricsAllowed())return;
  // Only Telegram-signed Mini App launches can be matched to a /start.
  // Never trust a client-provided Telegram ID; the Worker verifies initData.
- const signed=window.Telegram?.WebApp?.initData||"";
+ const signed=signedTelegramInitData();
  if(signed)fetch("/api/analytics/launch",{
   method:"POST",headers:{"X-Telegram-Init-Data":signed},keepalive:true
  }).catch(()=>{});
@@ -1487,14 +1509,14 @@ function build(){
    // Keep the original Telegram WebView alive: direct page navigation loses
    // Telegram.WebApp.initData on some clients, even for legitimate owners.
    frame.addEventListener("load",()=>{
-    const signed=window.Telegram?.WebApp?.initData||"";
+    const signed=signedTelegramInitData();
     if(signed)frame.contentWindow?.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
    });
    overlay.append(bar,frame);document.body.append(overlay);
   }
   overlay.hidden=false;document.body.style.overflow="hidden";
   const frame=overlay.querySelector("iframe");
-  const signed=window.Telegram?.WebApp?.initData||"";
+  const signed=signedTelegramInitData();
   if(signed)frame?.contentWindow?.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
  };
  ownerAdmin.onclick=openOwnerAdmin;
@@ -1503,7 +1525,7 @@ function build(){
  window.addEventListener("message",event=>{
   const frame=$("cine-owner-admin-overlay")?.querySelector(".cine-owner-admin-frame");
   if(event.origin!==location.origin||event.source!==frame?.contentWindow||event.data?.type!=="cine-radar-admin-ready")return;
-  const signed=window.Telegram?.WebApp?.initData||"";
+  const signed=signedTelegramInitData();
   if(signed)frame.contentWindow.postMessage({type:"cine-radar-owner-auth",initData:signed},location.origin);
  });
  drawer.append(ownerAdmin);
@@ -1511,22 +1533,36 @@ function build(){
  const wantsAdmin=new URLSearchParams(location.search).get("admin")==="1";
  // A direct Telegram Web App launch receives signed initData, whereas opening
  // /admin by navigation or in an iframe may lose that launch context.
- let init=window.Telegram?.WebApp?.initData||"";
+ let init=signedTelegramInitData();
  if(!init&&!wantsAdmin){try{init=sessionStorage.getItem("cine-radar-owner-auth")||""}catch{}}
- const adminHelp=()=>{
+ const adminHelp=reason=>{
   if(!wantsAdmin)return;
-  const note=node("div","cine-admin-entry-note","🔐 Impossible de vérifier la session Telegram. Ferme cette fenêtre, renvoie /start au bot et utilise le nouveau bouton Administration.");
+  const message=reason==="rejected"
+   ?"🔐 Telegram a bien transmis ta session, mais l’accès administrateur a été refusé. Renvoie /start au bot puis réessaie."
+   :"🔐 Telegram n’a pas transmis la session signée à Ciné Radar. Ferme cette fenêtre, renvoie /start au bot et utilise le nouveau bouton Administration.";
+  const note=node("div","cine-admin-entry-note",message);
   const destination=panel.accueil||document.querySelector("main.page");
+  destination?.querySelector(".cine-admin-entry-note")?.remove();
   destination?.prepend(note);
  };
- if(init)fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":init},cache:"no-store"})
-  .then(r=>{
-   if(!r.ok){adminHelp();return}
+ const verifyOwnerAccess=async()=>{
+  // A few Telegram clients expose tgWebAppData a fraction later than the DOM.
+  // Retry briefly before concluding that the signed launch context is absent.
+  const until=Date.now()+2500;
+  while(!init&&Date.now()<until){
+   await new Promise(resolve=>setTimeout(resolve,100));
+   init=signedTelegramInitData();
+  }
+  if(!init){adminHelp("missing");return}
+  try{
+   const r=await fetch("/api/admin/access",{headers:{"X-Telegram-Init-Data":init},cache:"no-store"});
+   if(!r.ok){adminHelp("rejected");return}
    ownerAdmin.hidden=false;
    try{sessionStorage.setItem("cine-radar-owner-auth",init)}catch{}
    if(wantsAdmin)openOwnerAdmin();
-  }).catch(adminHelp);
- else adminHelp();
+  }catch{adminHelp("network")}
+ };
+ verifyOwnerAccess();
  drawer.append(node("p","cine-drawer-foot","Ciné Radar · Films, séries, animés"));backdrop.append(drawer);document.body.append(backdrop);backdrop.addEventListener("click",e=>{if(e.target===backdrop)closeMenu()});
  const bottom=node("nav","cine-bottom-nav");bottom.setAttribute("aria-label","Navigation principale");for(const [title,page,icon] of [["Accueil","accueil","accueil"],["Explorer","explorer","explorer"],["Favoris","favoris","favoris"]])bottom.append(makeNav(title,page,icon));const menu=makeNav("Menu","accueil","menu");menu.onclick=openMenu;menu.removeAttribute("data-go");bottom.append(menu);document.body.append(bottom);
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerOpen){e.preventDefault();closeMenu()}});

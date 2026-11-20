@@ -63,6 +63,19 @@ test('iframe requests signed auth from the parent instead of racing stale sessio
  ])assert.ok(APP_HTML.includes(fragment),fragment);
 });
 
+
+test('Mini App can recover signed Telegram launch data from the initial URL hash',()=>{
+ for(const fragment of [
+  'function readTelegramInitData()',
+  'new URLSearchParams(raw).get("tgWebAppData")',
+  'performance.getEntriesByType?.("navigation")?.[0]?.name',
+  'const signedTelegramInitData=()=>telegramLaunchInitData',
+  'const until=Date.now()+2500',
+  'await new Promise(resolve=>setTimeout(resolve,100))'
+ ])assert.ok(APP_HTML.includes(fragment),fragment);
+ assert.ok(!APP_HTML.includes('let init=window.Telegram?.WebApp?.initData||""'));
+});
+
 test('API remains private to signed enrolled owner, without any anonymous bypass',async()=>{
  const env={TELEGRAM_TOKEN:'bot:test',TELEGRAM_WEBHOOK_SECRET:'secret',DB:{prepare(sql){
   let args=[];const p={bind(...v){args=v;return p},async first(){
