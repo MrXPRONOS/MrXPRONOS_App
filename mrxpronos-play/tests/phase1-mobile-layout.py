@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 source = (ROOT / "worker.js").read_text(encoding="utf-8")
 start = source.index('const html="') + len("const html=")
-end = source.index(';\nconst page', start)
+end = source.index(';\n', start)
 html = json.loads(source[start:end])
 html = re.sub(r"<script\b[^>]*>[\s\S]*?</script>", "", html, flags=re.I)
 svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024"><rect width="1024" height="1024" fill="#e9ca68"/></svg>'
