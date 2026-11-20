@@ -47,6 +47,18 @@ def parse_expected(s: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
+def parse_season_counts(value: str) -> dict[str,int]:
+    mapping = {}
+    for term in re.split(r"[\s,;]+", str(value or "").strip()):
+        if not term:
+            continue
+        match = re.fullmatch(r"(-100[0-9]{6,}):([1-9][0-9]?)", term)
+        if not match or not 1 <= int(match.group(2)) <= 50:
+            raise ValueError("CINEX_SERIES_SEASON_COUNTS : format ID:NB_SAISONS invalide")
+        mapping[match.group(1)] = int(match.group(2))
+    return mapping
+
+
 def d1(sql: str, params: list | None = None) -> list[dict]:
     token = os.getenv("CLOUDFLARE_API_TOKEN", "").strip()
     account = os.getenv("CLOUDFLARE_ACCOUNT_ID", "").strip()
@@ -106,10 +118,12 @@ def rescue_link(publisher: BotAPI, me_id: int) -> str:
 
 
 def catalogue_complete(chat_id: str) -> dict:
+    source = d1("SELECT expected_seasons FROM cine_series_channels WHERE chat_id=?", [chat_id])
+    declared = int(source[0].get("expected_seasons") or 0) if source else 0
     seasons = d1("SELECT season,expected_episodes FROM cine_series_seasons WHERE chat_id=? ORDER BY season", [chat_id])
     posters = d1("SELECT season,source_message_id,caption FROM cine_series_posters WHERE chat_id=? ORDER BY season", [chat_id])
     media = d1("SELECT season,episode,source_message_id FROM cine_series_episodes WHERE chat_id=? ORDER BY season,episode", [chat_id])
-    if not seasons or len(seasons) != len(posters) or len(seasons) > 50 or len(media) > 300:
+    if not declared or not seasons or len(seasons) != declared or len(posters) != declared or len(seasons) > 50 or len(media) > 300:
         return {"ready": False, "reason": "saisons, affiches ou épisodes manquants"}
     total = 0
     for n, season in enumerate(seasons, 1):
@@ -138,7 +152,7 @@ def keyboard(token, rescue, folder):
     ]}
 
 
-def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int, chat_id: str, rights: bool):
+def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int, chat_id: str, rights: bool, expected_seasons: int | None = None):
     chat = publisher.call("getChat", {"chat_id": chat_id})
     if str(chat.get("id")) != chat_id or chat.get("type") != "channel":
         raise RuntimeError("Canal privé inaccessible ou différent du registre")
@@ -147,10 +161,11 @@ def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int, chat_id: s
     publisher_ok = is_admin(role)
     radar_ok = is_admin(radar)
     title = str(chat.get("title") or "").strip()[:150]
-    d1("INSERT INTO cine_series_channels(chat_id,title,publisher_access,radar_access,rights_attested,verified_at) VALUES(?,?,?,?,?,CURRENT_TIMESTAMP) "
+    d1("INSERT INTO cine_series_channels(chat_id,title,publisher_access,radar_access,rights_attested,expected_seasons,verified_at) VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP) "
        "ON CONFLICT(chat_id) DO UPDATE SET title=excluded.title,publisher_access=excluded.publisher_access,"
-       "radar_access=excluded.radar_access,rights_attested=excluded.rights_attested,verified_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP",
-       [chat_id, title, "verified" if publisher_ok else "not_admin", "verified" if radar_ok else "not_admin", 1 if rights else 0])
+       "radar_access=excluded.radar_access,rights_attested=excluded.rights_attested,"
+       "expected_seasons=COALESCE(excluded.expected_seasons,cine_series_channels.expected_seasons),verified_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP",
+       [chat_id, title, "verified" if publisher_ok else "not_admin", "verified" if radar_ok else "not_admin", 1 if rights else 0,expected_seasons])
 
     pin = chat.get("pinned_message") or {}
     caption = str(pin.get("caption") or pin.get("text") or "").strip()
@@ -231,11 +246,12 @@ def main():
     if str(radar_me.get("username","")).lower() != "cineradarfr_bot":
         raise RuntimeError("Le jeton Ciné Radar ne correspond pas au bot officiel")
     rights = os.getenv("CINEX_SERIES_RIGHTS_ATTESTED","").lower() == "true"
+    declared_counts = parse_season_counts(os.getenv("CINEX_SERIES_SEASON_COUNTS",""))
     publish = os.getenv("CINEX_SERIES_PUBLISH_ENABLED","").lower() == "true"
     results = []
     for cid in ids:
         try:
-            result = sync_channel(bot,int(me["id"]),int(radar_me["id"]),cid,rights)
+            result = sync_channel(bot,int(me["id"]),int(radar_me["id"]),cid,rights,declared_counts.get(cid))
         except Exception as error:
             results.append({"chat_id": cid, "status": "SOURCE_ERROR", "error": str(error)[:150]})
             continue
