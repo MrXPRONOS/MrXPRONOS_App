@@ -19,7 +19,8 @@ class ReactionTests(unittest.TestCase):
         self.assertIn("workflows: ['BSD V2 - Diffusion Telegram aux 15 minutes']", reactions)
         self.assertNotIn("workflows: ['BSD V2 - Coupons Telegram (cron-job.org)']", reactions)
         self.assertIn("types: [completed]", reactions)
-        self.assertIn("github.event.workflow_run.conclusion == 'success'", reactions)
+        # A BSD publishing failure must not disable the reaction fallback.
+        self.assertNotIn("github.event.workflow_run.conclusion == 'success'", reactions)
         self.assertIn("github.event.workflow_run.repository.full_name == 'MrXPRONOS/MrXPRONOS_App'", reactions)
         self.assertIn("github.event.workflow_run.event == 'workflow_dispatch'", reactions)
 
