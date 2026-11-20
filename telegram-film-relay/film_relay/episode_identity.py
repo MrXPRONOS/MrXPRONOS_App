@@ -20,6 +20,14 @@ SEASON_HEADER = re.compile(
     r"(?i)(?<![a-z0-9])s(?:aison|eason)?[ ._-]*0*(\d{1,2})(?!\d)"
 )
 SOURCE_SIGNATURE = re.compile(r"(?i)^@[a-z0-9_]{5,32}\s+(?:vf|fv|vostfr)?\s*")
+# Source-channel labels and episode codes occur inside actual filenames.
+# Limit removal to explicit, known source signatures; never strip generic titles.
+RELEASE_PREFIX = re.compile(
+    r"(?i)^(?:(?:mangas[ ._-]*fv|animes[ ._-]*canal|animeisekaic|"
+    r"animeuniverselvfvostfr|animes[ ._-]*vf[ ._-]*vosfr)[ ._-]+)+"
+)
+BARE_EP_SUFFIX = re.compile(r"(?i)(?:[ ._-]+(?:ep|e)0*\\d{1,3})+$")
+
 EP_LABEL = re.compile(r"(?i)\b(?:[eé](?:p(?:isode)?)?[ ._-]*0*\d{1,3}|"
                       r"s\d{1,2}[ ._-]*e\d{1,3}|\d{1,2}x\d{1,3})\b")
 SEASON_LABEL = re.compile(r"(?i)\b(?:saison|season)[ ._-]*0*\d{1,2}\b|"
@@ -52,6 +60,8 @@ def series_title(text: str):
         return ""
     value = first_title(text)
     value = SOURCE_SIGNATURE.sub("", value).split("@", 1)[0]
+    value = RELEASE_PREFIX.sub("", value)
+    value = BARE_EP_SUFFIX.sub("", value)
     value = re.sub(r"(?i)\bs(?:aison|eason)?[ ._-]*0*\d{1,2}[ .:_-]+compl[eè]te\b",
                    " ", value)
     value = EPISODE.sub(" ", value)
