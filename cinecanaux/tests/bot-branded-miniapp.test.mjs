@@ -79,7 +79,7 @@ test('old owner commands do not run in chat; Mini App is always the entry point'
 });
 
 test('owner authorization on server guards all administration and its new cinema controls',()=>{
- assert.ok(admin.includes("const admin=await verifyAdmin(request,env);if(!admin"));
+ assert.ok(admin.includes("try{admin=await verifyAdmin(request,env)}")&&admin.includes("if(!admin){"));
  assert.ok(admin.includes("path==='/api/admin/access'"));
  assert.ok(admin.includes("path==='/api/admin/radar-ops'"));
  assert.ok(admin.includes("path==='/api/admin/radar-refresh'"));

@@ -34,6 +34,25 @@ async function identity(request,env){
  if(!Number.isSafeInteger(user?.id)||user.id<=0)return null;
  return hex(await crypto.subtle.digest('SHA-256',enc.encode(env.TELEGRAM_WEBHOOK_SECRET+':'+user.id)));
 }
+// Safe admin diagnostics: never echo raw initData, usernames, user IDs or HMACs.
+// This diagnoses the reason for an access failure without weakening validation.
+export async function telegramAuthStatus(request,env){
+ const raw=request.headers.get('X-Telegram-Init-Data')||'';
+ if(!raw)return 'missing_session';
+ if(raw.length>5000)return 'invalid_session';
+ if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET)return 'server_configuration';
+ const params=new URLSearchParams(raw);
+ const auth=Number(params.get('auth_date')||0);
+ if(!Number.isFinite(auth)||!auth||Math.abs(Date.now()/1000-auth)>86400)return 'expired_session';
+ const hash=params.get('hash')||'';
+ let user;try{user=JSON.parse(params.get('user')||'null');}catch{return 'invalid_session';}
+ if(!Number.isSafeInteger(user?.id)||user.id<=0||!/^[a-f0-9]{64}$/i.test(hash))return 'invalid_session';
+ const signed=Array.from(params.entries()).filter(([k])=>k!=='hash'&&k!=='signature')
+  .sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\n');
+ const secret=await hmac('WebAppData',env.TELEGRAM_TOKEN);
+ const expected=hex(await hmac(secret,signed));
+ return equalHex(hash.toLowerCase(),expected)?'verified':'invalid_signature';
+}
 export async function verifiedIdentity(request,env){
  const hash=await identity(request,env);
  if(!hash)return null;

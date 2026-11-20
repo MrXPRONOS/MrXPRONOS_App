@@ -118,7 +118,7 @@ test('all public promo cards use Telegram avatars and text only, not decorative 
  assert.ok(APP_HTML.includes('function autoScrollPromos()'));
 });
 test('broadcast API is exclusively owner-authenticated and uses scheduled opt-in batches',()=>{
- assert.ok(ROUTES.includes("const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403)"));
+ assert.ok(ROUTES.includes("try{admin=await verifyAdmin(request,env)}")&&ROUTES.includes("if(!admin){"));
  assert.ok(ROUTES.includes('broadcastAdminAPI(env,request,admin.telegram_id)'));
  assert.ok(WORKER.includes('trackBroadcastSubscriber(env,update)'));
  assert.ok(WORKER.includes('deliverBroadcastBatch(env)'));
