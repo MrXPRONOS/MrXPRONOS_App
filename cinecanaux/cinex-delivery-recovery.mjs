@@ -41,6 +41,7 @@ export async function listDeliveryRecovery(env,{limit=15}={}){
   (SELECT COUNT(*) FROM ${items} i WHERE i.job_id=j.id AND i.state='queued') queued,
   (SELECT COUNT(*) FROM ${items} i WHERE i.job_id=j.id AND i.state='sent') sent,
   (SELECT COUNT(*) FROM ${items} i WHERE i.job_id=j.id AND i.state='needs_review') uncertain,
+  (SELECT GROUP_CONCAT(i.${FAMILIES[family].item}) FROM ${items} i WHERE i.job_id=j.id AND i.state='needs_review') uncertain_items,
   (SELECT COUNT(*) FROM ${items} i WHERE i.job_id=j.id AND i.state='sending') in_flight,
   (SELECT COUNT(*) FROM ${items} i WHERE i.job_id=j.id AND i.state='queued' AND (i.delivered_message_id IS NOT NULL OR i.sent_at IS NOT NULL)) inconsistent
   FROM ${jobs} j WHERE j.status='needs_review' ORDER BY j.id DESC LIMIT ?`;
@@ -50,6 +51,7 @@ export async function listDeliveryRecovery(env,{limit=15}={}){
    const uncertain=Number(row.uncertain||0),inFlight=Number(row.in_flight||0);
    return {family,job_id:Number(row.id),created_at:row.created_at,
     queued,sent,uncertain,in_flight:inFlight,
+    uncertain_items:String(row.uncertain_items||'').split(',').filter(Boolean).map(Number).filter(Number.isSafeInteger),
     resume_safe:uncertain===0&&inFlight===0&&Number(row.inconsistent||0)===0,
     diagnosis:uncertain||inFlight?'delivery_result_uncertain':'sources_or_queue_need_recheck'};
   }));
