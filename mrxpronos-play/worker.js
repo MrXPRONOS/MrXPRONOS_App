@@ -5,7 +5,7 @@ const html="<!DOCTYPE html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><me
 let mrxpCspPromise=null;
 async function mrxpPageCsp(){
  if(!mrxpCspPromise)mrxpCspPromise=Promise.all(
-  [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+  [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
    .map(m=>m[1]).filter(Boolean).map(async script=>{
     const bytes=new Uint8Array(await crypto.subtle.digest("SHA-256",encoder.encode(script)));
     return "'sha256-"+btoa(String.fromCharCode(...bytes))+"'"
