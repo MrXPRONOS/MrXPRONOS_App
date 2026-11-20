@@ -6,7 +6,7 @@ export const APP_HTML=String.raw`<!doctype html>
 <title>Ciné Radar — Trouve ton canal</title>
 <meta name="theme-color" content="#070f20">
 <meta name="description" content="Découvrez les canaux publics Telegram de films, séries et animés.">
-<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>
+<script src="https://telegram.org/js/telegram-web-app.js?64"></script>
 <style>
 :root{color-scheme:dark;--bg:#07101e;--surface:#111e34;--raised:#152640;--border:#2b4166;--muted:#a4b7d5;--blue:#398aff;--violet:#8558fa;--white:#f4f8ff;--heroA:#11295d;--heroB:#1c366b;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--white);background:var(--bg)}
 *{box-sizing:border-box}
