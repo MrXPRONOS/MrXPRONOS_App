@@ -68,7 +68,11 @@ class AnimeBatchPolicyTests(unittest.TestCase):
                         for i in range(1, 13)}
         saved = {"series": {"petite-serie": {
             "public_id": 555, "season_indices": {"1": 444},
-            "episodes": {"1": completed_s1}}}}
+            "episodes": {"1": completed_s1},
+            "public_episode_posts": {
+                f"S01E{i:02d}": {"poster": i + 500, "video": i + 700}
+                for i in range(1, 13)
+            }}}}
         second = select_anime_season(eligible, saved)
         self.assertEqual(second[1][0]["season"], 2)
         self.assertEqual(len(second[1]), 15)
@@ -155,6 +159,14 @@ class AnimeBatchPolicyTests(unittest.TestCase):
         descriptor["episodes"].pop()
         self.assertFalse(ready_full_batch(rows, descriptor))
 
+    def test_duration_alone_never_proves_anime_movie(self):
+        long_special = NS(
+            poster=NS(raw_text="Voyage - diffusion unique"),
+            video=NS(raw_text="Voyage Animation",
+                     file=NS(name="Voyage.mkv", duration=7200)),
+        )
+        self.assertFalse(is_anime_movie(long_special))
+
     def test_movie_classification_never_accepts_numbered_episodes(self):
         movie = NS(poster=NS(raw_text="Film Anime Voyage"), video=NS(
             raw_text="Voyage Film", file=NS(name="Voyage.mp4", duration=4200)))
@@ -222,9 +234,15 @@ class AnimeProgressivePolicyTests(unittest.TestCase):
 
     def test_new_episodes_continue_after_stored_receipts(self):
         rows = sample_series(6)
-        stored = {"series": {"petite-serie": {"episodes": {"1": {
-            str(i): {"message_id": i} for i in range(1, 5)
-        }}}}}
+        stored = {"series": {"petite-serie": {
+            "episodes": {"1": {
+                str(i): {"message_id": i} for i in range(1, 5)
+            }},
+            "public_episode_posts": {
+                f"S01E{i:02d}": {"poster": i + 500, "video": i + 700}
+                for i in range(1, 5)
+            },
+        }}}
         selected = progressive_anime_seasons(
             {"petite-serie": rows}, stored, maximum=25)
         self.assertEqual([r["episode"] for r in selected[0][1]], [5, 6])
@@ -237,12 +255,33 @@ class AnimeProgressivePolicyTests(unittest.TestCase):
             {"petite-serie": rows}, {}, maximum=25)
         self.assertEqual([r["episode"] for r in selected[0][1]],
                          list(range(1, 26)))
-        stored = {"series": {"petite-serie": {"episodes": {"1": {
-            str(i): {"message_id": i} for i in range(1, 26)
-        }}}}}
+        stored = {"series": {"petite-serie": {
+            "episodes": {"1": {
+                str(i): {"message_id": i} for i in range(1, 26)
+            }},
+            "public_episode_posts": {
+                f"S01E{i:02d}": {"poster": i + 500, "video": i + 700}
+                for i in range(1, 26)
+            },
+        }}}
         continuation = progressive_anime_seasons(
             {"petite-serie": rows}, stored, maximum=25)
         self.assertEqual([r["episode"] for r in continuation[0][1]], [26])
+
+    def test_private_backlog_without_public_pairs_is_resumed(self):
+        rows = sample_series(4)
+        stored = {"series": {"petite-serie": {
+            "public_id": 55, "season_indices": {"1": 66},
+            "episodes": {"1": {
+                str(i): {"message_id": i} for i in range(1, 5)
+            }},
+        }}}
+        pending = progressive_anime_seasons(
+            {"petite-serie": rows}, stored, maximum=25)
+        self.assertEqual([r["episode"] for r in pending[0][1]],
+                         [1, 2, 3, 4])
+        chosen = select_anime_season(pending, stored)
+        self.assertEqual(chosen[0], "petite-serie")
 
     def test_source_prefix_and_episode_suffix_share_identity(self):
         from film_relay.episode_identity import canonical_title

@@ -174,8 +174,11 @@ def is_anime_movie(item) -> bool:
         feature_length = float(duration or 0) >= 50 * 60
     except (TypeError, ValueError):
         feature_length = False
-    # An explicit film label also supports MKV files without duration metadata.
-    return bool(MOVIE_LABEL.search(details) or feature_length)
+    # Never infer MOVIE from runtime alone: a long ONA/compilation can
+    # exceed an hour. Require an explicit movie/film/feature label.
+    # Unknown duration is allowed for correctly labelled MKV documents.
+    return bool(MOVIE_LABEL.search(details) and
+                (not duration or feature_length))
 
 
 def pending_anime_series(eligible, catalogue):
@@ -231,9 +234,18 @@ def public_buttons(private_id: int, series_entry: dict, public_peer=None):
 
 
 def read_catalog():
+    from .anime_identity import consolidate_catalog
     if not CATALOG.exists():
         return {"series": {}}
-    return json.loads(CATALOG.read_text(encoding="utf-8"))
+    data = json.loads(CATALOG.read_text(encoding="utf-8"))
+    data, report = consolidate_catalog(data)
+    if report["merged_groups"]:
+        LOG.info("Anime : consolidation historique %s", report["merged_groups"])
+    if report["skipped_collisions"]:
+        LOG.warning("Anime : groupes historiques ambigus, non fusionnés : %s",
+                    report["skipped_collisions"])
+    data["identity_review"] = report["skipped_collisions"]
+    return data
 
 
 def save_catalog(data: dict):
@@ -294,6 +306,84 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
         entry["private_poster_id"] = int(recovered)
         save_catalog(catalogue)
         LOG.info("Fiche privée historique réparée pour %s : %s", key, recovered)
+
+
+async def repair_legacy_indexes(client, bot, private, public, bot_public,
+                                private_id, catalogue, pause):
+    """Reconnect historical cards to ONE surviving index, with no new posts.
+
+    We first verify the original deterministic marker and message existence;
+    an uneditable card stays pending for manual review. Never delete posts.
+    """
+    repaired = 0
+    for key, series in catalogue.get("series", {}).items():
+        if not series.get("index_repair_pending"):
+            continue
+        marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15]
+        title = str(series.get("title") or key)
+        success = True
+        for season, index_id in sorted(
+                series.get("season_indices", {}).items(), key=lambda pair: int(pair[0])):
+            episodes = series.get("episodes", {}).get(str(season), {})
+            if not episodes:
+                continue
+            try:
+                msg = await client.get_messages(private, ids=int(index_id))
+                if not msg or marker + "_S" + str(season) not in (
+                        getattr(msg, "raw_text", "") or ""):
+                    raise ValueError("index saison sans marqueur d'origine")
+                body = season_text(title, int(season), episodes)
+                await edit_message_if_changed(
+                    client, private, int(index_id),
+                    body + "\n" + marker + "_S" + str(season),
+                    parse_mode="html", link_preview=False)
+                await asyncio.sleep(pause)
+            except Exception as exc:
+                LOG.warning("Réparation saison %s/%s différée : %s", key, season, exc)
+                success = False
+        main_index = series.get("main_index_id")
+        if main_index:
+            try:
+                msg = await client.get_messages(private, ids=int(main_index))
+                if not msg or marker not in (getattr(msg, "raw_text", "") or ""):
+                    raise ValueError("index principal sans marqueur d'origine")
+                await edit_message_if_changed(
+                    client, private, int(main_index),
+                    main_index_text(title, private_id, series.get("season_indices", {}))
+                    + "\n" + marker,
+                    parse_mode="html", link_preview=False)
+                await asyncio.sleep(pause)
+            except Exception as exc:
+                LOG.warning("Réparation index principal %s différée : %s", key, exc)
+                success = False
+        else:
+            success = False
+        redirected = {int(i) for i in series.get("legacy_cards_redirected", [])}
+        for legacy_id in series.get("legacy_public_ids", []):
+            if int(legacy_id) in redirected:
+                continue
+            try:
+                msg = await client.get_messages(public, ids=int(legacy_id))
+                if not msg or not getattr(msg, "photo", None):
+                    raise ValueError("ancienne fiche publique absente")
+                await bot.edit_reply_markup(
+                    bot_public, int(legacy_id),
+                    buttons=public_buttons(private_id, series, public))
+                redirected.add(int(legacy_id))
+                series["legacy_cards_redirected"] = sorted(redirected)
+                save_catalog(catalogue)
+                await asyncio.sleep(pause)
+            except Exception as exc:
+                LOG.warning("Redirection ancienne fiche %s différée : %s",
+                            legacy_id, exc)
+                success = False
+        if success:
+            series["index_repair_pending"] = False
+            repaired += 1
+            save_catalog(catalogue)
+    if repaired:
+        LOG.info("Anime : %s anciens catalogues redirigés vers un index commun", repaired)
+    return repaired
 
 
 def batch_descriptor(key, items):
@@ -420,6 +510,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         if publish:
             await verify_library_bot(bot, private)
         private_id = utils.get_peer_id(private)
+        if publish:
+            await repair_legacy_indexes(
+                client, bot, private, public, bot_public,
+                private_id, catalogue, pause)
         all_candidates = []
         scan_plans = []
         unnumbered_skipped = 0
@@ -465,6 +559,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                  len(groups), len(eligible), excluded_totals)
         LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
                  "anime_catalog", len(eligible), episode_cap)
+        # Ambiguous old receipts must never be resolved by guessing.
+        collisions = {row["canonical"] for row in catalogue.get("identity_review", [])}
+        eligible = [(key, rows) for key, rows in eligible if key not in collisions]
         active = catalogue.get("active_batch")
         if active:
             # Resume exactly the batch pinned before a crash, even if the
@@ -480,7 +577,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             selected = pending_anime_series(eligible, catalogue)
             if not selected:
                 progressive = progressive_anime_seasons(
-                    groups, catalogue, maximum=episode_cap)
+                    {key: rows for key, rows in groups.items()
+                     if key not in collisions},
+                    catalogue, maximum=episode_cap)
                 selected = pending_anime_series(progressive, catalogue)
                 if selected:
                     LOG.info("Anime : nouveaux épisodes en cours pour %s (%s épisodes)",
@@ -493,6 +592,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         for key, items in ([selected] if selected else []):
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
+            if key not in catalogue["series"]:
+                from .anime_identity import resolve_series_key
+                resolved = resolve_series_key(catalogue, key)
+                if resolved in catalogue["series"]:
+                    key = resolved
             if key not in catalogue["series"]:
                 previous = next((
                     older_key for older_key, older in catalogue["series"].items()
@@ -507,7 +611,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             # A locked batch might already have all private episodes but still
             # need its public season announcement after a crash.
             if (not active and not pending and existing.get("public_id")
-                    and all_episodes_uploaded(existing, items)):
+                    and all_episodes_uploaded(existing, items)
+                    and all(
+                        f"S{int(row['season']):02d}E{int(row['episode']):02d}"
+                        in existing.get("public_episode_posts", {})
+                        for row in items)):
                 continue
             title = str(existing.get("title") or items[0]["title"])
             # Preserve mode from an interrupted batch, including legacy batches.

@@ -3,8 +3,12 @@ import json
 import sys
 from pathlib import Path
 
+# The merge helper runs from the repo root, not from the package directory.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from film_relay.anime_identity import consolidate_catalog
 
-def merge(remote: dict, local: dict) -> dict:
+
+def merge(remote: dict, local: dict, *, consolidate_anime=False) -> dict:
     # Preserve audit and cursor metadata during the workflow's state merge.
     result = {**remote, **local, "series": {}}
     result["source_observed"] = {}
@@ -48,6 +52,11 @@ def merge(remote: dict, local: dict) -> dict:
         target["revisit_last_checked"] = chosen.get("revisit_last_checked")
         target["revisit_cycles"] = max(
             int(older.get("revisit_cycles", 0)), int(incoming.get("revisit_cycles", 0)))
+    if consolidate_anime:
+        result["series_aliases"] = {**remote.get("series_aliases", {}),
+                                    **local.get("series_aliases", {})}
+        result["legacy_series_records"] = {**remote.get("legacy_series_records", {}),
+                                          **local.get("legacy_series_records", {})}
     rseries = remote.get("series", {})
     lseries = local.get("series", {})
     for key in set(rseries) | set(lseries):
@@ -63,6 +72,10 @@ def merge(remote: dict, local: dict) -> dict:
                                **newer.get("episodes", {}).get(season, {})}
         series["episodes"] = seasons
         result["series"][key] = series
+    # If a concurrent GitHub state merge resurrects a legacy title, normalize
+    # the complete union again without dropping any Telegram receipt.
+    if consolidate_anime:
+        result, _ = consolidate_catalog(result)
     return result
 
 
@@ -70,7 +83,8 @@ def main():
     local_path, remote_path = (Path(value) for value in sys.argv[1:3])
     local = json.loads(local_path.read_text(encoding="utf-8"))
     remote = json.loads(remote_path.read_text(encoding="utf-8")) if remote_path.exists() else {}
-    updated = merge(remote, local)
+    updated = merge(remote, local,
+                    consolidate_anime=(remote_path.name == 'anime_catalog.json'))
     temp = remote_path.with_suffix(".merging")
     temp.write_text(json.dumps(updated, sort_keys=True, ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8")
