@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 8
     env:
       CINEX_SERIES_CHANNEL_IDS: ${{ vars.CINEX_SERIES_CHANNEL_IDS }}
-      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
     steps:
       - uses: actions/checkout@v4
