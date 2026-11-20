@@ -56,6 +56,15 @@ export async function adminAPI(env,request,ctx){
  }
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
+ if(request.method==='GET'&&path==='/api/admin/cinex/catalog'){
+  const [flag,entries,libraries]=await Promise.all([
+   env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first(),
+   env.DB.prepare("SELECT t.title_key,t.category,t.display_title,t.content_kind,t.approval,m.season_number,COUNT(m.source_message_id) AS media_count,COALESCE(l.enabled,0) AS link_enabled,l.token FROM cine_delivery_titles t LEFT JOIN cine_delivery_media m ON m.title_key=t.title_key AND m.category=t.category LEFT JOIN cine_delivery_links l ON l.title_key=t.title_key AND l.category=t.category AND l.season_key=COALESCE(m.season_number,0) GROUP BY t.title_key,m.season_number ORDER BY t.category,t.display_title,m.season_number LIMIT 200").all(),
+   env.DB.prepare("SELECT category,owner_access,bot_access,observed_videos,last_scanned_at FROM cine_delivery_libraries ORDER BY category").all()
+  ]);
+  return json({enabled:flag?.value==='1',entries:entries.results||[],libraries:libraries.results||[]});
+ }
+
  if(request.method==='GET'&&path==='/api/admin/channel-list'){
   const rows=await env.DB.prepare("SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,c.status,COALESCE(m.listing_status,'listed') listing_status,COALESCE(m.link_status,'unknown') link_status FROM channels c LEFT JOIN channel_index_meta m ON m.channel_id=c.id ORDER BY c.updated_at DESC,c.id DESC LIMIT 350").all();
   return json({channels:rows.results||[]});
