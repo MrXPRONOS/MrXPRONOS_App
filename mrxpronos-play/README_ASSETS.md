@@ -159,3 +159,22 @@ Les libellés fonctionnels, droits Telegram, règles XP, crédits et synchronisa
 | 90 | Copier la preuve | Icône copie de lien vérifiable |
 
 Ces cinq ressources nécessitent de nouvelles images. Les émojis associés restent provisoirement visibles à leur emplacement tant que ce lot n'est pas créé et intégré. La navigation et les messages natifs Telegram ne font pas partie de ce lot.
+
+
+## Lot 86–92 — Actions du jeu et navigation (20 novembre 2026)
+
+7 ressources transparentes en fichiers séparés, avec vérification SHA-256 dans `assets-manifest-86-92.json` :
+
+| N° | Visuel officiel | Emplacement dans la Mini App |
+|---|---|---|
+| 86 | `13-ui-actions/86-snake-mignon.webp` | Tuile Snake « À VENIR », serpent souriant (ne débloque pas le jeu) |
+| 87 | `13-ui-actions/87-boutique-sac.webp` | 3 boutons « Boutique de boosts » (Accueil, Missions, Profil) |
+| 88 | `13-ui-actions/88-telecharger-png.webp` | Bouton Enregistrer PNG dans Partager mon profil |
+| 89 | `13-ui-actions/89-partager-image.webp` | Bouton Partager l'image |
+| 90 | `13-ui-actions/90-copier-preuve.webp` | Bouton Copier la preuve |
+| 91 | `13-navigation-actions/91-retour-navigation.webp` | Retour aux jeux et retour au profil depuis la boutique |
+| 92 | `13-navigation-actions/92-actualiser-navigation.webp` | Actualiser la boutique et les crédits depuis Missions et Profil |
+
+Chaque visuel existe en **PNG transparent 1024×1024** et en **WebP transparent 512×512**. Les flèches 91 et 92 ont également un fichier **SVG modifiable**. Les images ne remplacent que la présentation ; les handlers de navigation, d'achat, de synchronisation et de création de cartes restent inchangés.
+
+Les anciens visuels 1–85, les 11 portraits de rang et les données réelles des profils sont conservés. Après import et connexion des icônes, exécuter la suite de tests Mini App et les vérifications HTTP en production, puis la recette sur téléphones Android et iPhone.
