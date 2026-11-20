@@ -126,6 +126,13 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
  <div class="broadcast-actions"><button id="owner-pins-refresh" type="button">↻ Actualiser les épingles</button></div>
  <p id="owner-pins-status" role="status"></p><div id="owner-pins-items"></div>
 </section>
+<section class="broadcast-box" id="cine-launch-funnel" aria-label="Démarrage du bot et conversion Mini App">
+ <h2>🚀 Du bot à la Mini App</h2>
+ <p>Suivi des personnes ayant utilisé /start, puis réellement ouvert Ciné Radar dans Telegram.</p>
+ <div class="stats analytics-metrics" id="cine-launch-funnel-metrics"></div>
+ <p id="cine-launch-funnel-note" class="analytics-notice">Chargement des conversions…</p>
+ <button id="cine-launch-funnel-refresh" type="button">↻ Actualiser les conversions</button>
+</section>
 <section class="analytics-dashboard" aria-label="Statistiques de fréquentation">
  <div class="analytics-head"><h2>📊 Fréquentation et engagement</h2><small id="analytics-clock">Actualisation automatique · 30 s</small></div>
  <div class="analytics-controls">
@@ -175,7 +182,7 @@ async function manage(id,action){await api("/api/admin/channels/"+id,{action});s
 async function load(){
  const [overview,reportData,suggestionData,reviewData,jobData]=await Promise.all([
   api("/api/admin/overview"),api("/api/admin/reports"),api("/api/admin/suggestions"),api("/api/admin/reviews"),api("/api/admin/jobs")]);
- $("private").hidden=false;status("");refreshAnalytics();refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
+ $("private").hidden=false;status("");refreshAnalytics();refreshLaunchFunnel().catch(e=>$("cine-launch-funnel-note").textContent=String(e.message||e));refreshBroadcasts().catch(e=>broadcastStatus(String(e.message||e)));refreshRadarOps().catch(e=>$("radar-ops-status").textContent=String(e.message||e));refreshOwnerPins().catch(e=>$("owner-pins-status").textContent=String(e.message||e));
  const stats=$("stats");stats.textContent="";
  for(const [key,title] of [["indexed","Référencés"],["visible","Visibles"],["hidden","Masqués"],["reviews","Avis"],["open_reports","Signalements"],["checks_24h","Contrôles 24 h"],["searches_today","Recherches"],["empty_searches_today","Sans résultat"]]){
   const box=el("div","metric");box.append(el("strong",null,String(overview[key]||0)),el("small",null,title));stats.append(box);
@@ -396,6 +403,29 @@ $("radar-ops-refresh").onclick=async()=>{
  }catch(e){$("radar-ops-status").textContent=String(e.message||e);}
  finally{b.disabled=false;}
 };
+
+async function refreshLaunchFunnel(){
+ const summary=await api("/api/admin/launch-funnel");
+ const values=[
+  ["started_users","Ont démarré le bot (/start)"],
+  ["launched_after_start","Ont ensuite ouvert la Mini App"],
+  ["started_without_launch","Démarrés, sans ouverture confirmée"],
+  ["total_telegram_launch_users","Mini App ouverte dans Telegram · total"],
+  ["start_commands","Commandes /start reçues"],
+  ["signed_app_opens","Ouvertures signées de la Mini App"]
+ ];
+ const root=$("cine-launch-funnel-metrics");root.replaceChildren();
+ for(const [key,label] of values){
+  const box=el("div","metric");
+  box.append(el("strong",null,Number(summary[key]||0).toLocaleString("fr-FR")),el("small",null,label));
+  root.append(box);
+ }
+ $("cine-launch-funnel-note").textContent=summary.note+
+  " Les personnes ayant seulement consulté le profil du bot, sans cliquer sur Démarrer, ne peuvent pas être comptées par Telegram. Les comptes antérieurs à l'activation ne sont pas reconstitués.";
+}
+$("cine-launch-funnel-refresh").onclick=()=>refreshLaunchFunnel().catch(e=>{
+ $("cine-launch-funnel-note").textContent="Mesure indisponible : "+String(e.message||e);
+});
 
 let analyticsCached=null;
 function analyticsList(where,entries,formatValue,formatLabel){
