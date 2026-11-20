@@ -25,7 +25,7 @@ test('a disabled download never copies media or creates a job',async()=>{
  const old=globalThis.fetch;
  globalThis.fetch=async(url,opt)=>{calls.push(String(url).split('/').pop());return Response.json({ok:true,result:{message_id:3}})};
  let sql=[];
- const DB={prepare(query){sql.push(query);return{first:async()=>({value:'0'})}}};
+ const DB={prepare(query){sql.push(query);return{bind(){return this},run:async()=>({meta:{changes:1}}),first:async()=>query.startsWith('INSERT INTO cine_telegram_send_quota')?{used:1}:{value:'0'}}}};
  try{
   const result=await handleDeliveryStart({DB,TELEGRAM_TOKEN:'fake'},message('/start d_'+TOKEN));
   assert.equal(result.handled,true);assert.equal(result.accepted,false);
