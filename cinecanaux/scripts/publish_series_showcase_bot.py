@@ -120,12 +120,13 @@ def find_authorized_publisher(ids: list[str]):
         if not token or token in seen:continue
         seen.add(token)
         bot=BotAPI(token)
+        user=""
         try:
             me=bot.call("getMe",{})
             user=str(me.get("username") or "")[:50]
             check_publisher(bot,PUBLIC,me["id"])
         except Exception:
-            print("CINEX_SHOWCASE_ACCESS",label,"@"+(user if 'user' in locals() else "unknown"),"principal=NOT_ADMIN_OR_INACCESSIBLE")
+            print("CINEX_SHOWCASE_ACCESS",label,"@"+(user or "unknown"),"principal=NOT_ADMIN_OR_INACCESSIBLE")
             failures.append(label+": principal")
             continue
         try:
