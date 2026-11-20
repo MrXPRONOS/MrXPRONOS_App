@@ -721,9 +721,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     season_link = private_message_link(
                         private_id, int(series["season_indices"][season_no]))
                     caption = (f"🌸 <b>{escape(title)} — Saison {int(season_no)}</b>\n\n"
-                               ("<i>Nouvelle saison complète disponible.</i>\n" if is_complete_season else "<i>Nouveaux épisodes disponibles — saison en cours.</i>\n")
-                               f'📺 <a href="{season_link}">VOIR LES ÉPISODES</a>\n'
-                               f"{season_marker}")
+                               + ("<i>Nouvelle saison complète disponible.</i>\n" if is_complete_season else "<i>Nouveaux épisodes disponibles — saison en cours.</i>\n")
+                               + f'📺 <a href="{season_link}">VOIR LES ÉPISODES</a>\n'
+                               + f"{season_marker}")
                     public_post = await bot.send_file(
                         bot_public, picture, caption=caption, parse_mode="html",
                         buttons=public_buttons(private_id, series, public), force_document=False)
