@@ -38,6 +38,7 @@ jobs:
           node --check cinecanaux/admin-recovery-ui.mjs
           node --check cinecanaux/cinex-classic.mjs
           node --check cinecanaux/cinex-expiry.mjs
+          node --check cinecanaux/cinex-cleanup-coordinator.mjs
           node --check cinecanaux/trend-radar.mjs
           node --check cinecanaux/pinned-showcase.mjs
           node --check cinecanaux/partner-promotions.mjs
@@ -85,6 +86,8 @@ jobs:
 
       - name: Verify 24h CineX expiration and safety boundaries
         run: node --test cinecanaux/tests/cinex-expiry.test.mjs cinecanaux/tests/cinex-classic.test.mjs cinecanaux/tests/cinex-operations-readonly.test.mjs
+      - name: Verify T03 real private deletions and cleanup heartbeat
+        run: node --test cinecanaux/tests/cinex-cleanup-coordinator.test.mjs
 
       - name: Probe public Simkl trends feeds (non-blocking diagnostic)
         continue-on-error: true
