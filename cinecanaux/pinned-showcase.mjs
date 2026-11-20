@@ -1,4 +1,5 @@
 // Cine Radar - covers of pinned posts from three verified public channels.
+import {allowPublicEvent,publicRateLimited} from './public-event-limiter.mjs';
 // Bot API getChat returns only the most recent pin, not all historic pins.
 // Owner can forward older pinned posts privately to backfill. No video files are copied.
 export const PRIMARY_PINS=Object.freeze([
@@ -184,6 +185,7 @@ export async function registerPinClick(env,request){
  if(Number(request.headers.get("content-length")||0)>300)return Response.json({error:"Too large"},{status:413});
  let data;try{data=await request.json()}catch{return Response.json({error:"Invalid data"},{status:400})}
  if(!covers(data?.kind)||!Number.isSafeInteger(data?.message_id)||data.message_id<1)return Response.json({error:"Invalid pin"},{status:400});
+ if(!await allowPublicEvent(env,request,'pin_click',{cap:30}))return publicRateLimited();
  await env.DB.prepare("UPDATE cine_pinned_posts SET click_count=click_count+1 WHERE kind=? AND message_id=? AND active=1").bind(data.kind,data.message_id).run();
  return Response.json({ok:true},{headers:{"cache-control":"no-store"}});
 }
