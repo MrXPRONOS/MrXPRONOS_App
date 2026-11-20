@@ -47,3 +47,16 @@ jobs:
             https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health \
             -o /tmp/cine-radar-prod-health.json
           python -c 'import json; x=json.load(open("/tmp/cine-radar-prod-health.json")); assert x.get("service")=="cine-radar" and x.get("database") is True'
+      - name: Confirm deployed owner dashboard exists and remains private
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev"
+          curl --retry 2 --fail --silent --show-error --max-time 15 "$URL/admin" -o /tmp/cineradar-prod-admin.html
+          grep -q 'id="ad-view-dashboard"' /tmp/cineradar-prod-admin.html
+          grep -q 'id="ad-ops-panel"' /tmp/cineradar-prod-admin.html
+          grep -q 'id="broadcast-schedule-at"' /tmp/cineradar-prod-admin.html
+          status=$(curl --silent --show-error --max-time 15 -o /dev/null -w '%{http_code}' "$URL/api/admin/operations")
+          test "$status" = "403"
+          echo "Admin production controls present; private operations endpoint denies anonymous access"
+
