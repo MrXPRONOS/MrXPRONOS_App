@@ -110,6 +110,28 @@ class ReactionTests(unittest.TestCase):
         self.assertEqual(params[-2:], (65, 3))
         self.assertGreaterEqual(datetime.strptime(params[0], "%Y-%m-%d %H:%M:%S"), datetime(2026, 1, 1))
 
+    def test_temporary_channel_access_loss_is_retryable(self):
+        for response in (
+            {"description": "Bad Request: chat not found"},
+            {"description": "Bad Request: not enough rights"},
+            {"description": "Bad Request: bot is not a member"},
+        ):
+            row = {"post_seq": 72, "bot_slot": 13, "attempts": 1}
+            sql, params = react.make_update(row, 400, response)
+            self.assertIn("state='retry'", sql)
+            self.assertEqual(params[-2:], (72, 13))
+            seconds = (datetime.strptime(params[0], "%Y-%m-%d %H:%M:%S")
+                       - datetime.utcnow()).total_seconds()
+            self.assertGreater(seconds, 850)
+            self.assertLess(seconds, 3700)
+
+    def test_missing_slots_between_03_and_16_are_not_required(self):
+        self.assertEqual(react.configured_tokens({
+            "TELEGRAM_REACTION_BOT_03_TOKEN": "token-three",
+            "TELEGRAM_REACTION_BOT_13_TOKEN": "token-thirteen",
+            "TELEGRAM_REACTION_BOT_16_TOKEN": "token-sixteen",
+        }), {3: "token-three", 13: "token-thirteen", 16: "token-sixteen"})
+
     def test_permanent_rejection_is_blocked_not_retried(self):
         row = {"post_seq": 65, "bot_slot": 12, "attempts": 0}
         sql, params = react.make_update(row, 403, {"description": "Forbidden"})

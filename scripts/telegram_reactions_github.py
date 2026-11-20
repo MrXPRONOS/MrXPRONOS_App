@@ -258,9 +258,17 @@ def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
         """, (seq, slot))
     code = status
     error = str(response.get("description") or "network_or_api_error").lower()
-    # Permanent rejection means a bot is missing from a channel, an emoji is
-    # disabled or the post was deleted. Avoid repetitive Telegram API traffic.
-    permanent = (not network_error and code in (400, 403, 404) and
+    # Access can become available later after an owner adds the bot as an
+    # administrator. Never abandon chat_not_found / missing-rights forever.
+    # These are retried with a slow backoff, avoiding a storm of failed calls.
+    recoverable_access = (not network_error and code in (400, 403) and
+        any(term in error for term in (
+            "chat not found", "bot is not a member", "bot is not a participant",
+            "user is not a participant", "not enough rights", "bot was kicked",
+        )))
+    # Other 4xx failures (deleted message, disabled emoji, etc.) are final.
+    permanent = (not recoverable_access and not network_error and
+                 code in (400, 403, 404) and
                  not any(x in error for x in ("retry", "temporar", "flood")))
     if permanent:
         return ("""
@@ -271,6 +279,8 @@ def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
         """, (safe_reaction_error(code, response), seq, slot))
     param = response.get("parameters") or {}
     delay = retry_delay(int(row["attempts"]), int(param.get("retry_after") or 0))
+    if recoverable_access:
+        delay = max(900, delay)
     return ("""
       UPDATE channel_reaction_extra_jobs
       SET state='retry',next_try_at=?,last_error=?,attempts=attempts+1,
@@ -285,6 +295,9 @@ def run(env: dict[str, str], transport=_request_json) -> int:
         print("No extra reaction tokens configured: safe no-op.")
         return 0
     bots = verify_bots(candidates, transport)
+    visible = [slot for slot in sorted(candidates) if 3 <= slot <= 16]
+    print("reaction_slots_03_16_configured=" + ",".join(f"{slot:02d}" for slot in visible))
+    print("reaction_slots_verified=" + ",".join(f"{slot:02d}" for slot in sorted(bots)))
     if not bots:
         print("No additional bot identities verified: safe no-op.")
         return 0
