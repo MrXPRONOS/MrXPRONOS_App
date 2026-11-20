@@ -13,11 +13,11 @@ const adminId = 111;
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]),balanceAudit=[],settingUpdated=new Map();
  const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map(),creditBaselines=new Map(),creditEvents=new Map();
- const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map();
+ const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map(),rewardIntents=new Map(),rateBuckets=new Map();
  const v2Counts={daily:0,wheel:0};
  const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
- const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0};
+ const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0,created_ms:Date.now()-86400000};
  const env={
   BOT_TOKEN:'fake-token',
   WEBHOOK_SECRET:'unit-test-secret',
@@ -34,6 +34,9 @@ function harness(){
         if(lower.includes(' as daily_count'))return {daily_count:v2Counts.daily,wheel_count:v2Counts.wheel,mission_count:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')&&!/:(join_main|join_foot)$/.test(x)).length};
         if(lower.includes('from player_credit_state'))return creditBaselines.get(String(values[0]))||null;
         if(lower.includes('from mrxp_credit_events')&&lower.includes('sum(amount)')){const list=[...creditEvents.values()].filter(x=>x.user_id===String(values[0]));return {balance:list.reduce((a,x)=>a+x.amount,0),event_count:list.length}}
+        if(lower.includes('from mrxp_reward_intents'))return rewardIntents.get(String(values[0])+':'+String(values[1])+':'+String(values[2]))||null;
+        if(lower.includes('select * from daily_claims'))return verifiedDaily.find(x=>x.user_id===String(values[0])&&x.day===String(values[1]))||null;
+        if(lower.includes('select * from wheel_claims'))return verifiedWheel.find(x=>x.user_id===String(values[0])&&x.day===String(values[1]))||null;
         if(lower.includes('count(*) as total from mission_claims'))return {total:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).length};
         if(lower.includes('from mrxp_boost_inventory')){
          const id=String(values[0]),list=[...boostInventory.values()].filter(x=>x.user_id===id);
@@ -56,6 +59,19 @@ function harness(){
         return null;
        },
        async run(){
+        if(lower.startsWith('insert into mrxp_api_limits')){
+         const [userId,route,now,,,,,,,,,limit]=values,key=String(userId)+':'+route,old=rateBuckets.get(key);
+         const windowMs=60000,existing=old&&now-old.start<windowMs;
+         if(existing&&old.count>=Number(limit))return {success:true,meta:{changes:0}};
+         rateBuckets.set(key,{start:existing?old.start:now,count:existing?old.count+1:1});
+         return {success:true,meta:{changes:1}};
+        }
+        if(lower.startsWith('insert or ignore into mrxp_reward_intents')){
+         const [user_id,kind,day,reward_key,xp_awarded,claimed_ms]=values,key=String(user_id)+':'+kind+':'+day;
+         if(rewardIntents.has(key))return {success:true,meta:{changes:0}};
+         rewardIntents.set(key,{user_id:String(user_id),kind,day,reward_key,xp_awarded,claimed_ms});
+         return {success:true,meta:{changes:1}};
+        }
         if(lower.includes("update mrxp_boost_inventory set state='expired'")){
           let changes=0;
           for(const b of boostInventory.values()){if(b.user_id===String(values[0])&&['active','charged'].includes(b.state)&&b.expires_ms>0&&b.expires_ms<=Number(values[1])){b.state='expired';changes++}}
@@ -92,9 +108,10 @@ function harness(){
           if(lower.includes('select event_key from'))return {results:list.map(x=>({event_key:x.event_key}))};
           return {results:list.sort((a,b)=>b.created_ms-a.created_ms).slice(0,50).map(x=>({...x}))};
         }
-        if(lower.includes('from daily_claims'))return {results:verifiedDaily.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1]))};
-        if(lower.includes('from wheel_claims'))return {results:verifiedWheel.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1]))};
-        if(lower.includes('from sync_receipts'))return {results:verifiedTaps.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1])&&x.taps>=50)};
+        if(lower.includes('from mrxp_reward_intents'))return {results:[...rewardIntents.values()].filter(x=>x.user_id===id&&x.day>=String(values[1])&&x.day<=String(values[2]))};
+        if(lower.includes('from daily_claims'))return {results:verifiedDaily.filter(x=>x.user_id===id&&(typeof values[1]==='string'?x.day>=values[1]:!Number.isFinite(Number(values[1]))||x.created_ms>=Number(values[1])))};
+        if(lower.includes('from wheel_claims'))return {results:verifiedWheel.filter(x=>x.user_id===id&&(typeof values[1]==='string'?x.day>=values[1]:!Number.isFinite(Number(values[1]))||x.created_ms>=Number(values[1])))};
+        if(lower.includes('from sync_receipts'))return {results:verifiedTaps.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1])&&x.taps>0)};
         if(lower.includes('from mission_claims')){
          if(lower.includes('select mission_key,created_ms'))return {results:[...missionClaims.entries()].filter(([k,v])=>k.startsWith(id+':')&&Number(v.created_ms||0)>=Number(values[1])).map(([k,v])=>({mission_key:k.slice(id.length+1),created_ms:v.created_ms}))};
          return {results:[...missionClaims.keys()].filter(x=>x.startsWith(id+':')).map(x=>({mission_key:x.slice(id.length+1)}))}
@@ -138,7 +155,15 @@ function harness(){
      boostReceipts.set(receiptKey,{xp_awarded:p[0],taps:p[1]});
      for(const op of ops.slice(2)){
       const row=op._values||[];
-      if(op._sql.includes("update mrxp_boost_inventory set state='active'")){
+      if(op._sql.includes('insert or ignore into daily_claims')){
+        const [uid,day,xp,created_ms]=row;
+        if(rewardIntents.has(String(uid)+':daily:'+day)&&!verifiedDaily.some(x=>x.user_id===String(uid)&&x.day===day))verifiedDaily.push({user_id:String(uid),day,xp_awarded:xp,created_ms});
+       }
+       if(op._sql.includes('insert or ignore into wheel_claims')){
+        const [uid,day,reward_key,xp_awarded,created_ms]=row;
+        if(rewardIntents.has(String(uid)+':wheel:'+day)&&!verifiedWheel.some(x=>x.user_id===String(uid)&&x.day===day))verifiedWheel.push({user_id:String(uid),day,reward_key,xp_awarded,created_ms});
+       }
+       if(op._sql.includes("update mrxp_boost_inventory set state='active'")){
        const b=boostInventory.get(String(row[3])+':'+String(row[4]));if(b){
         if(b.state==='queued'){b.state='active';b.activated_ms=row[0];b.expires_ms=row[1]}
         b.carry_milli=row[2]
@@ -185,7 +210,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,balanceAudit,settingUpdated,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,balanceAudit,settingUpdated,rewardIntents,rateBuckets,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
