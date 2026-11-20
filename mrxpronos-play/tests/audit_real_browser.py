@@ -4,6 +4,7 @@ No production calls, Telegram secrets, or real-user data.
 """
 import json
 from pathlib import Path
+import shutil
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,8 @@ errors = []
 today = None
 
 with sync_playwright() as playwright:
-    browser = playwright.chromium.launch(headless=True, args=["--no-sandbox"])
+    system_browser = shutil.which("google-chrome") or shutil.which("chromium")
+    browser = playwright.chromium.launch(headless=True, executable_path=system_browser if system_browser else None, args=["--no-sandbox"])
     try:
         page = browser.new_page(viewport={"width": 390, "height": 844})
         page.on("pageerror", lambda error: errors.append(str(error)))
