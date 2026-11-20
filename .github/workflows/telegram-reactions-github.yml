@@ -1,0 +1,75 @@
+name: Telegram - 10 bots de reactions supplementaires (GitHub)
+
+on:
+  # GitHub Actions cannot schedule below 5 minutes. The 3-minute offset
+  # reduces collision with workflows triggering at the top of the hour.
+  schedule:
+    - cron: '3/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      production:
+        type: boolean
+        required: true
+        default: false
+        description: 'Autoriser les nouvelles reactions Telegram'
+  pull_request:
+    paths:
+      - 'scripts/telegram_reactions_github.py'
+      - 'tests/test_telegram_reactions_github.py'
+      - 'cinecanaux/migrations/023_github_extra_reaction_bots.sql'
+      - '.github/workflows/telegram-reactions-github.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/telegram_reactions_github.py'
+      - 'tests/test_telegram_reactions_github.py'
+      - 'cinecanaux/migrations/023_github_extra_reaction_bots.sql'
+      - '.github/workflows/telegram-reactions-github.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-extra-reaction-bots
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and offline unit tests
+        run: |
+          python -m py_compile scripts/telegram_reactions_github.py tests/test_telegram_reactions_github.py
+          python -m unittest discover -s tests -p 'test_telegram_reactions_github.py' -v
+
+  react:
+    needs: test
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.production == true) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          TELEGRAM_REACTION_BOT_03_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_03_TOKEN }}
+          TELEGRAM_REACTION_BOT_04_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_04_TOKEN }}
+          TELEGRAM_REACTION_BOT_05_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_05_TOKEN }}
+          TELEGRAM_REACTION_BOT_06_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_06_TOKEN }}
+          TELEGRAM_REACTION_BOT_07_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_07_TOKEN }}
+          TELEGRAM_REACTION_BOT_08_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_08_TOKEN }}
+          TELEGRAM_REACTION_BOT_09_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_09_TOKEN }}
+          TELEGRAM_REACTION_BOT_10_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_10_TOKEN }}
+          TELEGRAM_REACTION_BOT_11_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_11_TOKEN }}
+          TELEGRAM_REACTION_BOT_12_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_12_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reagir aux nouvelles publications des canaux autorises
+        run: python scripts/telegram_reactions_github.py
