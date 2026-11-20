@@ -156,15 +156,25 @@ export async function handleSeriesStart(env,update){
   const gate=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
   if(gate?.value!=='1'){await notify(env,chat,'📺 Les téléchargements CinéX sont temporairement désactivés.');return {handled:true,accepted:false}}
   const source=await env.DB.prepare(
-   "SELECT p.chat_id,c.title,c.expected_seasons FROM cine_series_publications p JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE p.token=? AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND c.radar_access='verified'"
+   "SELECT p.chat_id,c.title,c.expected_seasons,c.radar_access FROM cine_series_publications p JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE p.token=? AND p.state='published' AND c.enabled=1 AND c.rights_attested=1"
   ).bind(token).first();
   if(!source||!CHAT.test(String(source.chat_id))){await notify(env,chat,'Série indisponible pour le moment.');return {handled:true,accepted:false}}
   const seasons=(await env.DB.prepare("SELECT season,expected_episodes FROM cine_series_seasons WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
-  const media=(await env.DB.prepare("SELECT season,episode,source_message_id FROM cine_series_episodes WHERE chat_id=? ORDER BY season,episode").bind(source.chat_id).all()).results||[];
+  const media=(await env.DB.prepare(
+   "SELECT e.season,e.episode,e.source_message_id,v.owner_chat_id,v.owner_message_id "+
+   "FROM cine_series_episodes e LEFT JOIN cine_owner_vault v ON v.source_chat_id=e.chat_id "+
+   "AND v.source_message_id=e.source_message_id AND v.status='stored' "+
+   "LEFT JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
+   "WHERE e.chat_id=? ORDER BY e.season,e.episode"
+  ).bind(source.chat_id).all()).results||[];
   const posters=(await env.DB.prepare("SELECT season FROM cine_series_posters WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
   if(!Number.isInteger(Number(source.expected_seasons))||Number(source.expected_seasons)<1||posters.length!==Number(source.expected_seasons)||seasons.length!==Number(source.expected_seasons)||!validSeriesPlan(seasons,media)||posters.length!==seasons.length||
    posters.some((x,i)=>Number(x.season)!==i+1)){
    await notify(env,chat,'⏳ Toutes les saisons ne sont pas encore vérifiées. Le téléchargement est indisponible pour éviter les épisodes manquants.');
+   return {handled:true,accepted:false};
+  }
+  if(source.radar_access!=='verified'&&media.some(x=>!Number.isSafeInteger(Number(x.owner_chat_id))||!Number.isSafeInteger(Number(x.owner_message_id)))){
+   await notify(env,chat,'⏳ L’accès aux vidéos sources n’est pas encore vérifié et toutes les copies propriétaires ne sont pas disponibles.');
    return {handled:true,accepted:false};
   }
   const old=await env.DB.prepare("SELECT id FROM cine_series_jobs WHERE telegram_update_id=?").bind(update.update_id).first();
@@ -176,7 +186,8 @@ export async function handleSeriesStart(env,update){
   if(!job?.id)throw Error('series_job_missing');
   await env.DB.batch(media.map((item,i)=>env.DB.prepare(
    "INSERT OR IGNORE INTO cine_series_job_items(job_id,ordinal,source_chat_id,source_message_id) VALUES(?,?,?,?)"
-  ).bind(job.id,i+1,source.chat_id,item.source_message_id)));
+  ).bind(job.id,i+1,Number.isSafeInteger(Number(item.owner_chat_id))&&Number.isSafeInteger(Number(item.owner_message_id))?String(item.owner_chat_id):source.chat_id,
+   Number.isSafeInteger(Number(item.owner_chat_id))&&Number.isSafeInteger(Number(item.owner_message_id))?Number(item.owner_message_id):item.source_message_id)));
   await notify(env,chat,'📥 '+String(source.title||'Ta série').slice(0,80)+': '+seasons.length+' saison(s), '+media.length+' épisodes. Livraison automatique en plusieurs lots. Chaque copie du bot sera supprimée après 24 heures.');
   return {handled:true,accepted:true};
  }catch(e){console.warn('series_start_error',String(e?.name||'Error'));await notify(env,chat,'Service temporairement indisponible.');return {handled:true,accepted:false}}
@@ -189,14 +200,26 @@ export async function processSeriesQueue(env,{limit=5}={}){
  await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE status='sending' AND lock_until<CURRENT_TIMESTAMP").run();
  await env.DB.prepare("UPDATE cine_series_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_series_jobs WHERE status='needs_review')").run();
  const batch=(await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND c.radar_access='verified' ORDER BY j.created_at,j.id LIMIT 2"
+  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND (c.radar_access='verified' OR NOT EXISTS(
+   SELECT 1 FROM cine_series_job_items x WHERE x.job_id=j.id AND x.source_chat_id=p.chat_id
+  )) ORDER BY j.created_at,j.id LIMIT 2"
  ).all()).results||[];
  let processed=0,errors=0;
  for(const job of batch){
   const items=(await env.DB.prepare("SELECT ordinal,source_chat_id,source_message_id FROM cine_series_job_items WHERE job_id=? AND state='queued' ORDER BY ordinal LIMIT ?").bind(job.id,Math.max(1,Math.min(8,Number(limit)||5))).all()).results||[];
   if(!items.length){await env.DB.prepare("UPDATE cine_series_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();continue}
   for(const item of items){
-   if(item.source_chat_id!==job.source_chat_id||!CHAT.test(String(item.source_chat_id))){errors++;await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();break}
+   let verifiedSource=item.source_chat_id===job.source_chat_id&&CHAT.test(String(item.source_chat_id));
+   if(!verifiedSource&&Number.isSafeInteger(Number(item.source_chat_id))&&Number(item.source_chat_id)>0){
+    const receipt=await env.DB.prepare(
+     "SELECT 1 AS ok FROM cine_owner_vault v JOIN cine_series_episodes e ON "+
+     "e.chat_id=v.source_chat_id AND e.source_message_id=v.source_message_id "+
+     "JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
+     "WHERE e.chat_id=? AND v.owner_chat_id=? AND v.owner_message_id=? AND v.status='stored'"
+    ).bind(job.source_chat_id,Number(item.source_chat_id),Number(item.source_message_id)).first();
+    verifiedSource=Boolean(receipt?.ok);
+   }
+   if(!verifiedSource){errors++;await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();break}
    const still=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
    if(still?.value!=='1')return {processed,errors,disabled:true};
    const claimed=await env.DB.prepare("UPDATE cine_series_jobs SET status='sending',lock_until=datetime('now','+4 minutes') WHERE id=? AND status='queued'").bind(job.id).run();
