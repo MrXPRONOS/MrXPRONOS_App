@@ -50,9 +50,9 @@ async function ownerForBotStart(env,msg){
  // The /admin API separately verifies Telegram-signed Mini App initData.
  try{
   const owner=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(from.id).first();
-  if(owner?.role==="owner")return true;
+  return owner?.role==="owner";
  }catch(e){console.warn("cine_owner_lookup_unavailable",String(e?.name||"error"))}
- return String(from.username||"").toLowerCase()==="mr_xpronos";
+ return false;
 }
 async function welcomePhoto(env,chat,markup){
  // Caption and button are attached directly below the user-approved image.

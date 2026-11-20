@@ -91,6 +91,11 @@ test('API remains private to signed enrolled owner, without any anonymous bypass
  // The username by itself never authenticates a forged Telegram signature.
  const fake=new URLSearchParams(await signed(123,'wrong:token'));
  assert.equal((await adminAPI(env,new Request(ROOT+'/api/admin/access',{headers:{'X-Telegram-Init-Data':fake.toString()}}))).status,403);
+ // A valid Telegram signature AND the owner's public username still cannot
+ // authorize an entirely different Telegram account that is not enrolled.
+ const impostor=await adminAPI(env,await make(123));
+ assert.equal(impostor.status,403);
+ assert.equal((await impostor.json()).code,'owner_not_linked');
 });
 
 test('navigation script defines Telegram auth helper in the same lexical scope as the UI',()=>{

@@ -15,18 +15,10 @@ const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Contr
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
  if(!u)return null;
+ // The single enrolled Telegram user ID is authoritative. Never authorize or
+ // rebind an owner using a username, URL parameter, or browser state.
  const admin=await env.DB.prepare('SELECT role FROM admin_users WHERE user_id=?').bind(u.telegram_id).first();
- if(admin?.role==='owner')return u;
- // Recovery for the designated account: identity AND username are validated
- // inside the HMAC-signed Telegram initData. Never trust a URL-supplied handle.
- if(u.telegram_username!=='mr_xpronos')return null;
- // Rebind the unique owner to the authenticated Telegram user ID, removing
- // obsolete owner rows; this does not grant access by plain username alone.
- await env.DB.batch([
-  env.DB.prepare("DELETE FROM admin_users WHERE role='owner' AND user_id<>?").bind(u.telegram_id),
-  env.DB.prepare("INSERT INTO admin_users(user_id,role) VALUES(?,'owner') ON CONFLICT(user_id) DO UPDATE SET role='owner'").bind(u.telegram_id)
- ]);
- return u;
+ return admin?.role==='owner'?u:null;
 }
 // Owner can edit directory metadata, but not bypass exclusion or rights checks.
 function validAdminChannel(data){
