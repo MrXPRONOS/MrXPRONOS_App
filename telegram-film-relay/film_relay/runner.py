@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 
 from .title_guard import title_assessment
+from .film_identity import film_fingerprint
 from .matching import (document_key, filename_of, is_poster, is_video, match_pairs,
                        match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
@@ -470,7 +471,8 @@ async def execute() -> int:
                         continue
                     pair_id = f"{channel_key}:{pair.poster.id}:{pair.movie.id}"
                     media_id = document_key(pair.movie)
-                    if state.recorded(pair_id, media_id):
+                    film_key = film_fingerprint(description_of(pair), filename_of(pair.movie))
+                    if state.recorded(pair_id, media_id, film_key):
                         continue
                     if publish:
                         # GitHub push conflicts can lose checkpoint JSON even after
@@ -489,6 +491,7 @@ async def execute() -> int:
                             recovery_cache, state, pair_id, media_id, pair.movie, logger=LOG
                         )
                         if recovered == "complete":
+                            state.mark_film(pair_id, film_key)
                             continue
                     text = clean_caption(description_of(pair), description_entities_of(pair))
                     if len(text) < 12:
@@ -537,7 +540,7 @@ async def execute() -> int:
                             client, destination_public, pair.movie, text,
                             int(public_post.id), url,
                         )
-                        state.add(pair_id, media_id, private_post_id, int(public_post.id))
+                        state.add(pair_id, media_id, private_post_id, int(public_post.id), film_key)
                         LOG.info("Film public complet : fiche #%s puis vidéo #%s",
                                  public_post.id, public_video.id)
                         if mirror_destination is not None and not flag('CINEX_DEFER_MIRROR', False):
