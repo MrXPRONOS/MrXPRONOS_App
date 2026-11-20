@@ -38,7 +38,7 @@ class GitHubControlTests(unittest.TestCase):
         self.assertIn("CREATE TABLE", queries[0]["sql"])
         self.assertIn("enabled=0", queries[1]["sql"])
         self.assertIn("DELETE FROM cine_delivery_season_evidence", queries[2]["sql"])
-        self.assertEqual(queries[3]["params"][3], 2)
+        self.assertEqual(queries[4]["params"][3], 2)
 
     def test_incomplete_season_is_not_enabled(self):
         r = self.report()
