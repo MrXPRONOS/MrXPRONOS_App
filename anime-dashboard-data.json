@@ -1,129 +1,129 @@
 {
-  "schema_version": 1,
   "audit_checked_at": "2026-11-16T22:29:17.344233+00:00",
   "data_note": "Inventaire et reçus enregistrés, pas une preuve de disponibilité des vidéos ni des droits.",
-  "stats": {
-    "titles": 6,
-    "seasons": 6,
-    "private_episodes": 105,
-    "public_episode_pairs": 0,
-    "numbering_gaps": 34,
-    "pending_historical_candidates": 2642,
-    "unnumbered_skipped": 417,
-    "source_scan_complete": true,
-    "configured_sources_scanned": 1,
-    "active_batch": false,
-    "fragmented_series_groups_reconciled": 2,
-    "ambiguous_series_groups": 0
-  },
+  "schema_version": 1,
   "series": [
     {
-      "title": "Death Parade",
-      "private_episodes": 6,
-      "public_episode_pairs": 0,
-      "seasons": [
-        {
-          "season": 1,
-          "private_episodes": 6,
-          "public_episode_pairs": 0,
-          "numbering_gaps": 0,
-          "last_episode": 10,
-          "status": "non_verifie"
-        }
-      ],
       "has_public_card": true,
+      "index_repair_pending": true,
       "legacy_cards_to_review": 5,
-      "index_repair_pending": true
-    },
-    {
-      "title": "No Longer Rangers",
       "private_episodes": 6,
       "public_episode_pairs": 0,
       "seasons": [
         {
-          "season": 2,
+          "last_episode": 10,
+          "numbering_gaps": 0,
           "private_episodes": 6,
           "public_episode_pairs": 0,
-          "numbering_gaps": 0,
-          "last_episode": 6,
+          "season": 1,
           "status": "non_verifie"
         }
       ],
-      "has_public_card": true,
-      "legacy_cards_to_review": 0,
-      "index_repair_pending": false
+      "title": "Death Parade"
     },
     {
-      "title": "Sword Gai The Animation",
-      "private_episodes": 12,
+      "has_public_card": true,
+      "index_repair_pending": false,
+      "legacy_cards_to_review": 0,
+      "private_episodes": 6,
       "public_episode_pairs": 0,
       "seasons": [
         {
-          "season": 1,
-          "private_episodes": 12,
-          "public_episode_pairs": 0,
+          "last_episode": 6,
           "numbering_gaps": 0,
-          "last_episode": 12,
+          "private_episodes": 6,
+          "public_episode_pairs": 0,
+          "season": 2,
           "status": "non_verifie"
         }
       ],
-      "has_public_card": true,
-      "legacy_cards_to_review": 0,
-      "index_repair_pending": false
+      "title": "No Longer Rangers"
     },
     {
-      "title": "Tomb Raider King",
+      "has_public_card": true,
+      "index_repair_pending": true,
+      "legacy_cards_to_review": 1,
       "private_episodes": 2,
       "public_episode_pairs": 0,
       "seasons": [
         {
-          "season": 1,
+          "last_episode": 12,
+          "numbering_gaps": 0,
           "private_episodes": 2,
           "public_episode_pairs": 0,
-          "numbering_gaps": 0,
-          "last_episode": 12,
+          "season": 1,
           "status": "non_verifie"
         }
       ],
-      "has_public_card": true,
-      "legacy_cards_to_review": 1,
-      "index_repair_pending": true
+      "title": "Tomb Raider King"
     },
     {
-      "title": "Yu-Gi-Oh",
+      "has_public_card": false,
+      "index_repair_pending": false,
+      "legacy_cards_to_review": 0,
       "private_episodes": 25,
       "public_episode_pairs": 0,
       "seasons": [
         {
-          "season": 1,
+          "last_episode": 180,
+          "numbering_gaps": 0,
           "private_episodes": 25,
           "public_episode_pairs": 0,
-          "numbering_gaps": 0,
-          "last_episode": 180,
+          "season": 1,
           "status": "non_verifie"
         }
       ],
-      "has_public_card": false,
-      "legacy_cards_to_review": 0,
-      "index_repair_pending": false
+      "title": "Yu-Gi-Oh"
     },
     {
-      "title": "Yu-Gi-Oh! Duel Monsters",
+      "has_public_card": true,
+      "index_repair_pending": false,
+      "legacy_cards_to_review": 0,
       "private_episodes": 54,
       "public_episode_pairs": 0,
       "seasons": [
         {
-          "season": 1,
+          "last_episode": 88,
+          "numbering_gaps": 34,
           "private_episodes": 54,
           "public_episode_pairs": 0,
-          "numbering_gaps": 34,
-          "last_episode": 88,
+          "season": 1,
           "status": "non_verifie"
         }
       ],
+      "title": "Yu-Gi-Oh! Duel Monsters"
+    },
+    {
       "has_public_card": true,
+      "index_repair_pending": false,
       "legacy_cards_to_review": 0,
-      "index_repair_pending": false
+      "private_episodes": 12,
+      "public_episode_pairs": 0,
+      "seasons": [
+        {
+          "last_episode": 12,
+          "numbering_gaps": 0,
+          "private_episodes": 12,
+          "public_episode_pairs": 0,
+          "season": 1,
+          "status": "non_verifie"
+        }
+      ],
+      "title": "Sword Gai The Animation"
     }
-  ]
+  ],
+  "stats": {
+    "active_batch": false,
+    "ambiguous_series_groups": 0,
+    "configured_sources_scanned": 1,
+    "fragmented_series_groups_reconciled": 2,
+    "numbering_gaps": 34,
+    "pending_historical_candidates": 2642,
+    "private_episodes": 105,
+    "public_episode_pairs": 0,
+    "seasons": 6,
+    "source_scan_complete": true,
+    "titles": 6,
+    "unnumbered_skipped": 417
+  }
 }
