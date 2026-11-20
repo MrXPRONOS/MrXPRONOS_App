@@ -35,4 +35,12 @@ jobs:
               allowed=member.get('status') in ('administrator','creator') and (member.get('status')=='creator' or member.get('can_post_messages',False))
               print(label+'_BOT_CAN_POST='+str(allowed).lower()+' | id_valid='+str(str(chat['id']).startswith('-100')).lower())
               if not allowed:raise RuntimeError(label+' bot non admin')
+          rescue_id='-1004357703501'
+          try:
+              info=call('getChat',{'chat_id':rescue_id})
+              role=call('getChatMember',{'chat_id':rescue_id,'user_id':me['id']})
+              print('SECOURS_BOT_ROLE='+str(role.get('status','unknown')))
+              print('SECOURS_EXISTING_INVITE='+str(bool(info.get('invite_link'))).lower())
+              print('SECOURS_BOT_CAN_INVITE='+str(bool(role.get('can_invite_users'))).lower())
+          except Exception as e: print('SECOURS_ACCESS_ERROR='+type(e).__name__)
           PY
