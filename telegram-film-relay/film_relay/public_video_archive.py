@@ -190,7 +190,7 @@ def archive_buttons(link: str, public_peer=None):
     buttons = add_rescue_button_row([
         [url_button("🎬 VOIR LE FILM", link, style="success")],
     ], public_peer)
-    buttons.append([url_button("📁 Rejoindre le dossier", film_folder_url(), style="danger")])
+    buttons.append([url_button("📁 Rejoindre le dossier", film_folder_url(), style="primary")])
     return buttons
 
 
