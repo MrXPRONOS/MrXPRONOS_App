@@ -1,8 +1,7 @@
-"""Resolve only OWNER-approved CinéX deep links from existing D1, without
-putting Cloudflare credentials or private-channel identifiers in Telegram posts.
+"""Resolve GitHub-controlled CinéX links from Cloudflare D1.
 
-Fail closed: the previous working private-library button remains unchanged when
-a title has not yet passed media inventory, approval and bot-access checks.
+The GitHub toggle is synchronized to bot_settings; no Cine Radar owner-screen
+approval is required. Technical library/rights/bot/scan checks remain mandatory.
 """
 from __future__ import annotations
 import hashlib
@@ -44,9 +43,10 @@ def approved_download_url(category: str, title: str, season: int = 0) -> str | N
         JOIN cine_delivery_titles t ON t.title_key=l.title_key
         JOIN cine_delivery_libraries b ON b.category=l.category
         WHERE l.title_key=? AND l.category=? AND l.season_key=?
-          AND l.enabled=1 AND t.approval='approved' AND t.rights_attested=1
+          AND l.enabled=1 AND t.rights_attested=1
           AND b.rights_attested=1 AND b.bot_access='verified'
           AND b.owner_access='verified'
+          AND EXISTS (SELECT 1 FROM cine_delivery_media m WHERE m.category=l.category AND m.title_key=l.title_key AND m.observed_at=b.last_scanned_at AND m.availability IN ('pending_review','approved') AND COALESCE(m.season_number,0)=l.season_key)
           AND EXISTS (SELECT 1 FROM bot_settings WHERE setting_key='cine_delivery_enabled' AND value='1')
         LIMIT 1
         """)
