@@ -14,7 +14,9 @@ test('pinned showcase is live, uses trusted channel message URLs, and can serve 
  const initial=/const PRELOADED_PINS=(\[[^\n]*\]);/.exec(html);
  assert.ok(initial,'Pinned items should be embedded in initial HTML');
  const embedded=JSON.parse(initial[1]);
- assert.equal(embedded.length,data.items.length);
+ // The home page intentionally preloads at most 24 cards, whereas the
+ // full pinned-showcase API can return 25 or more. Compare the same window.
+ assert.equal(embedded.length,Math.min(24,data.items.length));
  console.log('Initial HTML pin preload:',embedded.length,'cards');
  for(const item of data.items){
   assert.match(item.link,/^https:\/\/t\.me\/(?:CineXFilms_vf|seriesvf_cinex|CineXAnimeFR)\/[1-9][0-9]{0,12}$/i);
