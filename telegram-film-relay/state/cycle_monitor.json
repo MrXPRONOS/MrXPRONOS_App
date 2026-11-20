@@ -1,6 +1,35 @@
 {
-  "status": "pending",
+  "last_run_id": "44694462394",
+  "last_checked": "2026-11-20T07:23:41.902973+00:00",
+  "status": "category_failed",
+  "verification": "no_new_posts",
+  "verified_posts": 0,
   "empty_streak": 0,
-  "last_checked": null,
-  "last_run_id": null
+  "alert": true,
+  "outcomes": {
+    "films": "failure",
+    "series": "failure",
+    "desir": "skipped",
+    "comedie": "skipped",
+    "anime": "skipped",
+    "action": "skipped"
+  },
+  "catalogues": {
+    "series": {
+      "audit_date": "2026-11-16T22:14:16.822162+00:00",
+      "history_scan_complete": true,
+      "observed_not_indexed": 20,
+      "unnumbered_videos": 1,
+      "source_gap_seasons": 1,
+      "active_batch": false
+    },
+    "anime": {
+      "audit_date": "2026-11-16T22:29:17.344233+00:00",
+      "history_scan_complete": true,
+      "observed_not_indexed": 2642,
+      "unnumbered_videos": 417,
+      "source_gap_seasons": 70,
+      "active_batch": false
+    }
+  }
 }
