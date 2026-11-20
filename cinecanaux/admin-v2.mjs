@@ -4,6 +4,7 @@ import {verifiedIdentity,linkUsername} from './v2.mjs';
 import {checkDailyLinks} from './maintenance-v2.mjs';
 import {runLoggedJob} from './job-log.mjs';
 import {adminAnalytics} from './analytics.mjs';
+import {launchFunnelStats} from './launch-funnel.mjs';
 import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
 import {bindPrimaryRadarChannels,missingRadarTitles} from './radar-owner-ops.mjs';
 import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle} from './trend-radar.mjs';
@@ -35,6 +36,7 @@ export async function adminAPI(env,request,ctx){
  const admin=await verifyAdmin(request,env);if(!admin)return json({error:'Accès réservé'},403);
  const u=new URL(request.url),path=u.pathname;
  if(request.method==='GET'&&path==='/api/admin/access')return json({ok:true,role:'owner'});
+ if(request.method==='GET'&&path==='/api/admin/launch-funnel')return json(await launchFunnelStats(env));
  if(request.method==='GET'&&path==='/api/admin/pins')return json(await ownerPinnedList(env));
  if(request.method==='GET'&&path==='/api/admin/radar-ops'){
   const [missing,channels]=await Promise.all([
