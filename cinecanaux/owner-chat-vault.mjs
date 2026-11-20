@@ -149,7 +149,7 @@ export async function queueKnownVaultSources(env,{limit=25}={}){
   "UNION ALL SELECT p.chat_id,p.source_message_id,'poster' "+
   "FROM cine_series_posters p JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE c.rights_attested=1 AND c.enabled=1 "+
   "UNION ALL SELECT l.source_chat_id,l.source_message_id,'video' FROM cine_classic_links l WHERE l.status='published'"+
-  ") x ORDER BY x.chat_id,x.message_id LIMIT ?"
+  ") x WHERE NOT EXISTS(SELECT 1 FROM cine_owner_vault v WHERE v.source_chat_id=x.chat_id AND v.source_message_id=x.message_id) ORDER BY x.chat_id,x.message_id LIMIT ?"
  ).bind(cap).run();
  return {queued:Number(result.meta?.changes||0)};
 }
