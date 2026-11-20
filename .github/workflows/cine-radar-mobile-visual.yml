@@ -30,6 +30,8 @@ jobs:
       - name: Check Google Chrome availability
         run: google-chrome --version
       - name: Verify Accueil, Explorer, Favoris and Menu are visible and work on mobile
+        env:
+          CINERADAR_VISUAL_SOURCE: ${{ github.event_name == 'pull_request' && 'candidate' || 'production' }}
         run: node cinecanaux/tests/navigation-mobile-visual.mjs
       - name: Exercise real mobile Mini App
         run: node cinecanaux/tests/pinned-mobile-visual.mjs
