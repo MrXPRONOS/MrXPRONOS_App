@@ -26,7 +26,7 @@ HANDLE = re.compile(r"^@[a-zA-Z0-9_]{5,32}$")
 MAX_SCAN = 250
 MAX_CANDIDATES = 180
 # A contiguous 1..N sequence alone is NOT evidence that N is the final episode.
-EXPLICIT_TOTAL = re.compile(r"(?i)\b(?:e(?:p(?:isode)?)?|[eé]pisode)[\s._-]*\d{1,3}\s*(?:/|sur|of)\s*(\d{1,3})\b|\b(\d{1,3})\s*(?:[eé]pisodes|episodes|eps)\b")
+EXPLICIT_TOTAL = re.compile(r"(?i)(?:e(?:p(?:isode)?)?|[eé]pisode)[\s._-]*\d{1,3}\s*(?:/|sur|of)\s*(\d{1,3})\b|\b(\d{1,3})\s*(?:[eé]pisodes|episodes|eps)\b")
 FINAL_EPISODE = re.compile(r"(?i)\b(?:fin de (?:la )?saison|dernier [eé]pisode|saison compl[eè]te|season finale)\b")
 
 
