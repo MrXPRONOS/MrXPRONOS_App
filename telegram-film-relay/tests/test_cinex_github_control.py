@@ -77,7 +77,8 @@ class GitHubControlTests(unittest.TestCase):
 
     def test_true_restores_master_switch_without_scan(self):
         from scripts.cinex_github_control import toggle_queries
-        self.assertEqual(toggle_queries(True)[1]["params"], ["1"])
+        self.assertEqual(toggle_queries(True)[-1]["params"], ["1"])
+        self.assertIn("UPDATE cine_delivery_links", toggle_queries(True)[1]["sql"])
         self.assertFalse(any("UPDATE cine_delivery_links" in q["sql"] for q in toggle_queries(False)))
 
     def test_season_sequence_limit(self):
