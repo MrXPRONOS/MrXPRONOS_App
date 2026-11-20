@@ -1533,3 +1533,42 @@ test('phase 6 oversized or non-object inputs are rejected before reaching credit
   assert.equal(h.player.confirmed_xp,0)
  }finally{h.restore()}
 });
+
+test('official existing graphics replace repeated Mini App emoji placeholders without changing game actions',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  assert.ok(html.includes('id="mrxp-existing-icon-cleanup"'));
+  for(const filename of [
+   '03-wheel-rewards/21-lucky-wheel-full.webp',
+   '01-brand/06-mrxp-token-coin.webp',
+   '03-wheel-rewards/25-gift-box.webp',
+   '04-quests-progression/31-quests-target.webp',
+   '11-progression-vfx/80-mastery-seal.webp',
+   '11-progression-vfx/78-prestige-star.webp',
+   '06-game-states/51-locked-padlock.webp',
+   '04-quests-progression/38-level-crown.webp',
+   '01-brand/07-energy-blue-bolt.webp',
+   '06-game-states/55-telegram-channel.webp',
+   '04-quests-progression/37-success-green-check.webp'
+  ])assert.ok(html.includes(filename),'missing reused graphic: '+filename);
+  for(const placeholder of [
+   '<h2>🎡 LUCKY WHEEL</h2>',
+   '<h3>🪙 CRÉDITS MRXP</h3>',
+   '<span class="section-title">🏆 DÉFIS DE MAÎTRISE</span>',
+   '<span class="section-title">⭐ PROGRESSION V2</span>',
+   '<h3>🔒 PROCHAIN RANG</h3>',
+   '<strong>👑 COLLECTION DES AVATARS</strong>',
+   '<span class="section-title">⚡ BOOSTS DISPONIBLES</span>',
+   'id="mrxp-share-telegram">✈️ Lien Telegram'
+  ])assert.ok(!html.includes(placeholder),'obsolete emoji remains: '+placeholder);
+  assert.ok(html.includes('heroBadge.dataset.rankBadge'),'dynamic official rank shield not wired');
+  assert.ok(html.includes('mrxp-avatar-lock'),'avatar lock handler missing');
+  const inline=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+    .map(m=>m[1]).filter(Boolean);
+  assert.ok(inline.length>=2,'inline Mini App scripts missing');
+  for(const source of inline)assert.doesNotThrow(()=>new vm.Script(source),'inline UI JavaScript must parse');
+ }finally{h.restore()}
+});
