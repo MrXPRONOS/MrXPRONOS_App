@@ -1,1 +1,2 @@
 2026-11-20 one-time read-only Bot API audit, inventory current access and excessive admin privileges. No Telegram messages, no user session, no permissions changes.
+2026-11-20 S03 post-merge verification PR #552: read-only identity and permissions preflight (no messages, no role mutations).
