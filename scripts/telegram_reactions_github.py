@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""GitHub Actions delivery for 10 optional, owner-controlled Telegram bot reactions.
+"""GitHub Actions delivery for extensible owner-controlled Telegram bot reactions.
 
 Cloudflare's existing Cine Radar channel_post webhook supplies the publication IDs;
 the existing 2 bots retain their low-latency Cloudflare delivery. This job sends
-only slots 03..12. It does NOT create, edit, publish, or delete any Telegram post.
+any configured slot from 03 onward. It does NOT create, edit, publish, or delete any Telegram post.
 
 Runs at best every five minutes: GitHub Actions is not a realtime scheduler.
 Never log API URLs that contain Telegram bot tokens.
@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -20,7 +21,11 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 D1_DATABASE_ID = "fa8b5009-bc1a-4a6e-b143-7a487c7297a5"
-EXTRA_SLOTS = tuple(range(3, 13))
+MIN_SLOT = 3
+MAX_SLOT = 9999
+EXTRA_SLOTS = range(MIN_SLOT, MAX_SLOT + 1)
+TOKEN_KEY_RE = re.compile(r"^TELEGRAM_REACTION_BOT_([0-9]{2,4})_TOKEN$")
+SLOT_BATCH_SIZE = 25
 BLOCKED_IDENTITIES = {"cineradarfr_bot", "mrxpronos_canal_bot"}
 MAX_JOBS_PER_RUN = 100
 MAX_NEW_JOBS_PER_RUN = 600
@@ -39,12 +44,44 @@ def reaction_for(post_seq: int, slot: int) -> str:
 
 
 def configured_tokens(env: dict[str, str]) -> dict[int, str]:
-    tokens = {}
+    """Read numbered GitHub secrets and an optional single JSON bundle.
+
+    The GitHub workflow exposes slots 03..99 explicitly. For higher slots,
+    TELEGRAM_REACTION_BOTS_JSON can be a map, for example
+    {"100":"token-one-hundred","101":"token-one-hundred-one"}.
+    No secret value is ever printed.
+    """
+    candidates: dict[int, str] = {}
+    for name, raw_token in env.items():
+        match = TOKEN_KEY_RE.fullmatch(name)
+        if match is None:
+            continue
+        slot = int(match.group(1))
+        if slot in EXTRA_SLOTS and isinstance(raw_token, str) and raw_token.strip():
+            candidates[slot] = raw_token.strip()
+    bundle = env.get("TELEGRAM_REACTION_BOTS_JSON", "").strip()
+    if bundle:
+        try:
+            parsed = json.loads(bundle)
+            if not isinstance(parsed, dict):
+                raise ValueError("Not a mapping")
+            for key, token in parsed.items():
+                if (not isinstance(key, str) or not key.isdecimal()
+                    or not isinstance(token, str)):
+                    raise ValueError("Invalid slot or token type")
+                slot = int(key)
+                if slot not in EXTRA_SLOTS:
+                    raise ValueError("Out-of-range slot")
+                if token.strip() and slot not in candidates:
+                    candidates[slot] = token.strip()
+        except (ValueError, TypeError) as exc:
+            raise APIError("Malformed TELEGRAM_REACTION_BOTS_JSON secret") from None
+
     seen = set()
-    for slot in EXTRA_SLOTS:
-        name = f"TELEGRAM_REACTION_BOT_{slot:02d}_TOKEN"
-        token = env.get(name, "").strip()
-        if token and token not in seen:
+    tokens: dict[int, str] = {}
+    for slot in sorted(candidates):
+        token = candidates[slot]
+        if token not in seen:
             seen.add(token)
             tokens[slot] = token
     return tokens
@@ -133,37 +170,39 @@ def verify_bots(tokens: dict[int, str], transport=_request_json) -> dict[int, st
 
 
 def prepare_jobs(db: D1, slots: tuple[int, ...]) -> None:
-    """Only enqueue for verified bot slots, starting at each bot's activation.
+    """Queue reactions for verified bots with their individual activation dates.
 
-    D1's SQLite compound-SELECT limit can reject 10 UNION clauses; use VALUES.
-    The five first bot slots retain the watermark from installation. A later
-    verified bot starts at the *current* message sequence, without backfill.
+    A bot added to GitHub for the first time starts AFTER the latest already
+    observed post. Existing bots retain their earlier watermarks. SQL VALUES
+    avoids SQLite's compound SELECT limits, and batches bound query size.
     """
     if not slots:
         return
     if len(slots) != len(set(slots)) or any(s not in EXTRA_SLOTS for s in slots):
         raise ValueError("Invalid configured bot slots")
-    bots = ",".join("(" + str(slot) + ")" for slot in slots)
-    db.query(f"""
-      INSERT OR IGNORE INTO channel_reaction_extra_bot_activation(bot_slot,start_after_seq)
-      SELECT b.column1, (SELECT COALESCE(MAX(seq),0) FROM channel_reaction_posts)
-      FROM (VALUES{bots}) AS b
-    """)
-    db.query(f"""
-      INSERT OR IGNORE INTO channel_reaction_extra_jobs(post_seq,bot_slot,emoji)
-      SELECT p.seq,b.column1,
-        CASE WHEN (p.seq % 2) = (b.column1 % 2) THEN '❤️' ELSE '👍' END
-      FROM channel_reaction_posts AS p
-      CROSS JOIN (VALUES{bots}) AS b
-      JOIN channel_reaction_extra_bot_activation AS a ON a.bot_slot=b.column1
-      WHERE p.seq > a.start_after_seq
-      AND NOT EXISTS (
-        SELECT 1 FROM channel_reaction_extra_jobs AS j
-        WHERE j.post_seq=p.seq AND j.bot_slot=b.column1
-      )
-      ORDER BY p.seq,b.column1
-      LIMIT {MAX_NEW_JOBS_PER_RUN}
-    """)
+    for offset in range(0, len(slots), SLOT_BATCH_SIZE):
+        group = slots[offset:offset + SLOT_BATCH_SIZE]
+        bots = ",".join("(" + str(slot) + ")" for slot in group)
+        db.query(f"""
+          INSERT OR IGNORE INTO channel_reaction_extra_bot_activation(bot_slot,start_after_seq)
+          SELECT b.column1, (SELECT COALESCE(MAX(seq),0) FROM channel_reaction_posts)
+          FROM (VALUES{bots}) AS b
+        """)
+        db.query(f"""
+          INSERT OR IGNORE INTO channel_reaction_extra_jobs(post_seq,bot_slot,emoji)
+          SELECT p.seq,b.column1,
+            CASE WHEN (p.seq % 2) = (b.column1 % 2) THEN '❤️' ELSE '👍' END
+          FROM channel_reaction_posts AS p
+          CROSS JOIN (VALUES{bots}) AS b
+          JOIN channel_reaction_extra_bot_activation AS a ON a.bot_slot=b.column1
+          WHERE p.seq > a.start_after_seq
+          AND NOT EXISTS (
+            SELECT 1 FROM channel_reaction_extra_jobs AS j
+            WHERE j.post_seq=p.seq AND j.bot_slot=b.column1
+          )
+          ORDER BY p.seq,b.column1
+          LIMIT {MAX_NEW_JOBS_PER_RUN}
+        """)
 
 
 def due_jobs(db: D1, slots: tuple[int, ...]) -> list[dict[str, Any]]:
@@ -190,6 +229,23 @@ def next_retry(seconds: int) -> str:
     return (datetime.now(timezone.utc) + timedelta(seconds=seconds)).strftime("%Y-%m-%d %H:%M:%S")
 
 
+def safe_reaction_error(status: int, response: dict[str, Any]) -> str:
+    """A fixed diagnostic label, never Telegram response text or credentials."""
+    description = str(response.get("description") or "").casefold()
+    categories = [
+        ("message to react not found", "message_not_found"),
+        ("chat not found", "chat_not_found"),
+        ("not enough rights", "not_enough_rights"),
+        ("forbidden", "forbidden"),
+        ("reactions are disabled", "reactions_disabled"),
+        ("reaction is not allowed", "reaction_not_allowed"),
+        ("reaction_invalid", "reaction_invalid"),
+        ("reaction", "reaction_rejected"),
+    ]
+    category = next((code for needle, code in categories if needle in description), "unknown")
+    return f"telegram_http_{status}:{category}"
+
+
 def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
                 network_error: bool = False) -> tuple[str, tuple[Any, ...]]:
     seq, slot = int(row["post_seq"]), int(row["bot_slot"])
@@ -212,7 +268,7 @@ def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
           SET state='blocked',last_error=?,attempts=attempts+1,
               updated_at=CURRENT_TIMESTAMP
           WHERE post_seq=? AND bot_slot=?
-        """, (f"telegram_http_{code}", seq, slot))
+        """, (safe_reaction_error(code, response), seq, slot))
     param = response.get("parameters") or {}
     delay = retry_delay(int(row["attempts"]), int(param.get("retry_after") or 0))
     return ("""
@@ -220,7 +276,7 @@ def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
       SET state='retry',next_try_at=?,last_error=?,attempts=attempts+1,
           updated_at=CURRENT_TIMESTAMP
       WHERE post_seq=? AND bot_slot=?
-    """, (next_retry(delay), f"telegram_http_{code or 0}", seq, slot))
+    """, (next_retry(delay), safe_reaction_error(code or 0, response), seq, slot))
 
 
 def run(env: dict[str, str], transport=_request_json) -> int:

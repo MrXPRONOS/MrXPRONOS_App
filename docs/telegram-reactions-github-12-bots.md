@@ -1,67 +1,83 @@
-# Réactions automatiques Telegram — 12 bots (2 existants + 10 sur GitHub)
+# Réactions Telegram extensibles — Ciné Radar + bots ajoutés progressivement
 
-## Couverture
+## Architecture et couverture
 
-L'API Telegram délivre les nouveaux `channel_post` au webhook existant de **Ciné Radar** seulement dans les canaux où ce bot est administrateur et reçoit les événements. Cela comprend les publications faites **manuellement par le propriétaire**, par un autre administrateur ou par un autre bot. Les publications anciennes ne sont pas parcourues.
+Deux bots de réaction historiques continuent à utiliser le webhook Cloudflare Ciné Radar. Leurs réactions ❤️ / 👍 et leur journal D1 sont conservés. Les bots supplémentaires sont servis par GitHub Actions et réagissent environ toutes les cinq minutes, **uniquement** aux nouveaux messages que le webhook reçoit.
 
-- **Bots n°1 et n°2** : déjà actifs via le Worker Cloudflare `cinecanaux-bot`, réactions cœur/pouce en alternance.
-- **Bots n°03 à n°12** : GitHub Actions lit les identifiants de messages dans Cloudflare D1 et appelle directement l'API officielle `setMessageReaction`.
-- Chaque publication peut obtenir 6 cœurs + 6 pouces au total si **tous** les bots disposent des autorisations nécessaires et si les 12 appels sont acceptés par Telegram.
-- Les albums sont regroupés en une publication par le détecteur existant.
-- Le système ne republie aucun message et ne s'appuie sur aucune session Telegram personnelle.
+Les publications faites manuellement par le propriétaire, par d'autres administrateurs, par les bots de publication ou via une API sont toutes éligibles dès qu'un événement `channel_post` arrive au webhook. Un bot qui figure dans un canal ne reçoit pas nécessairement son historique ; pour recevoir les nouveaux `channel_post`, Ciné Radar doit y disposer de l'accès requis.
 
-Les 10 nouveaux bots utilisent 10 secrets dans **GitHub → Settings → Secrets and variables → Actions → Repository secrets** :
+Ce système ne crée pas d'abonnés et ne constitue pas une mesure authentique d'engagement.
+
+## Ajouter les bots progressivement, sans changer le code
+
+Les secrets GitHub de la forme `TELEGRAM_REACTION_BOT_NN_TOKEN` sont **déjà déclarés dans le workflow pour les emplacements 03 à 99**. Exemples :
 
 ```text
 TELEGRAM_REACTION_BOT_03_TOKEN
-TELEGRAM_REACTION_BOT_04_TOKEN
-TELEGRAM_REACTION_BOT_05_TOKEN
-TELEGRAM_REACTION_BOT_06_TOKEN
 TELEGRAM_REACTION_BOT_07_TOKEN
 TELEGRAM_REACTION_BOT_08_TOKEN
-TELEGRAM_REACTION_BOT_09_TOKEN
-TELEGRAM_REACTION_BOT_10_TOKEN
-TELEGRAM_REACTION_BOT_11_TOKEN
 TELEGRAM_REACTION_BOT_12_TOKEN
+TELEGRAM_REACTION_BOT_13_TOKEN
+TELEGRAM_REACTION_BOT_14_TOKEN
+TELEGRAM_REACTION_BOT_15_TOKEN
+TELEGRAM_REACTION_BOT_16_TOKEN
+...
+TELEGRAM_REACTION_BOT_99_TOKEN
 ```
 
-Ces secrets doivent être **10 jetons Telegram différents** issus de **10 bots différents**. Ne renseignez jamais le jeton Ciné Radar ou Canal Bots dans ces 10 emplacements. La validation `getMe` exclut les deux bots existants.
+Dans GitHub, ouvrir `MrXPRONOS/MrXPRONOS_App → Settings → Secrets and variables → Actions → New repository secret` et copier le jeton que `@BotFather` a généré **dans la valeur du secret**.
 
-## Création et autorisations des bots
+Chaque bot doit posséder son propre token et son identité vérifiée via `getMe`. Les noms 13, 14, 15, 16, etc. sont détectés lors du **passage GitHub suivant** (généralement cinq minutes, retard possible). Il n'est pas nécessaire de remplir les emplacements intermédiaires.
 
-1. Dans Telegram, ouvrir `@BotFather`, taper `/newbot` et créer chacun des dix bots.
-2. Enregistrer chaque jeton via les secrets GitHub ci-dessus (pas dans un fichier, une issue ou une conversation).
-3. Ajouter les dix bots dans **chaque canal de votre propriété** concerné, avec les autorisations nécessaires selon Telegram. S'assurer que **Ciné Radar** fait aussi partie des administrateurs du canal pour que les nouveaux posts soient détectés.
-4. Autoriser les réactions ❤️ et 👍 dans les paramètres du canal.
-5. Vérifier dans GitHub Actions le workflow `Telegram - 10 bots de reactions supplementaires (GitHub)`.
+**Pour dépasser 99 ou préserver les quotas de secrets GitHub :** créer un seul secret `TELEGRAM_REACTION_BOTS_JSON` dont la valeur est un objet JSON contenant les indices (de 3 à 9999) et leurs jetons. Par exemple, remplacer les exemples par des jetons réels directement **dans le secret GitHub** :
 
-Le workflow utilise aussi un secret Cloudflare existant `CLOUDFLARE_API_TOKEN` ou `CF_API_TOKEN`, si celui-ci a les droits de lecture/écriture D1 ; dans le cas contraire, configurer un jeton restreint dédié `CLOUDFLARE_D1_TOKEN` (accès D1 à la base `cinecanaux-directory`). Ne pas publier ce jeton.
+```json
+{"100":"TOKEN_DU_BOT_100","101":"TOKEN_DU_BOT_101"}
+```
 
-## Exploitation
+Ne jamais copier ce JSON avec de vrais jetons dans GitHub source, les logs, les issues ou une discussion publique. Les secrets individuels prévalent en cas de doublon d'indice ; les jetons identiques attribués à plusieurs indices sont ignorés. GitHub limite le nombre de secrets qu'un dépôt peut stocker : le JSON évite d'avoir besoin d'un secret pour chaque nouveau bot.
 
-La migration `cinecanaux/migrations/023_github_extra_reaction_bots.sql` doit être appliquée **avant** la fusion du workflow. Elle garde la position de départ afin de ne pas ajouter de réactions aux publications antérieures.
+## Règles d'activation
 
-**Activation progressive :** les bots 03 à 07 ont leur point de départ conservé à la publication n°63. Les bots 08 à 12 seront enregistrés lors de leur première vérification d'identité réussie, et ne réagiront qu'aux publications suivantes ; ils ne rattraperont pas les messages parus avant leur activation. L'absence d'un secret n'empêche jamais les bots déjà opérationnels de fonctionner.
+Chaque nouveau bot doit aussi être ajouté aux canaux visés, avec le niveau d'accès requis par Telegram. Les réactions ❤️ et 👍 doivent être autorisées dans les réglages du canal.
 
-Le workflow GitHub `.github/workflows/telegram-reactions-github.yml` :
-- s'exécute environ toutes les cinq minutes (les déclenchements GitHub peuvent subir des retards) ;
-- ne réagit qu'aux publications **postérieures à l'installation** de la migration ;
-- n'envoie aucune réaction si aucun jeton supplémentaire n'est défini ;
-- empêche les tentatives en double grâce à une clé D1 `(post_seq,bot_slot)` et à la sémantique idempotente de `setMessageReaction` ;
-- met de côté les refus permanents de Telegram ; réessaie progressivement les erreurs temporaires et HTTP 429 ;
-- conserve un journal de résultat sans exposer les jetons.
+- Emplacements **03–07** : ils conservent leur position d'activation initiale (63).
+- Chaque bot ajouté ultérieurement se voit attribuer la position du dernier post reçu au moment de sa première identification valide ; il ne réagit **pas** à l'historique antérieur.
+- Leurs réactions alternent selon la parité du message et du numéro du bot ; les numéros pairs et impairs se répartissent les ❤️ / 👍.
+- Le traitement D1 ne crée qu'un job par paire (publication, bot). Les erreurs de droits ou de réaction sont enregistrées comme des diagnostics sans fuite de token.
+- Les appels Telegram sont soumis à ses propres limites, même si le workflow est exécuté sur GitHub.
 
-La fréquence et les limites sont celles de **GitHub Actions ET de Telegram** : GitHub ne supprime pas les limites Telegram. Pour des réactions quasi instantanées, maintenir le système Cloudflare existant des deux premiers bots ; la dizaine supplémentaire suit le cycle GitHub.
+## Canaux principaux Films et Séries
 
-Ces réactions sont automatisées, **pas des réactions spontanées de vrais abonnés**. Signalez ce fonctionnement aux membres pour ne pas confondre les chiffres avec une mesure réelle de popularité.
+Les identifiants réels vérifiés en D1 :
+- Films : `@CineXFilms_vf`, `-1003921647496`.
+- Séries : `@seriesvf_cinex`, `-1004406527554`.
+- Animés : `@CineXAnimeFR`, `-1004347937458`.
 
-## Vérification D1
+Le 20 novembre, le journal de Ciné Radar montrait des posts Films jusqu'à 00:50 UTC et des posts Séries jusqu'à 13:10 UTC : **tous avant l'activation des réactions**. Le webhook de Ciné Radar n'est donc pas encore prouvé défaillant dans ces canaux.
+
+Le job GitHub `coverage_audit`, lancé lors d'une modification ou d'un déclenchement manuel du workflow, vérifie en lecture seule :
+1. si le jeton Ciné Radar est disponible dans les secrets GitHub (sinon audit indisponible) ;
+2. si son webhook est configuré pour `channel_post` ;
+3. si le bot est actuellement administrateur des trois canaux ;
+4. si Telegram annonce que les réactions sont autorisées ;
+5. si des publications ont été reçues dans le journal des réactions.
+
+Aucun post Telegram de test n'est envoyé. Les permissions et les paramètres du canal se règlent dans Telegram par son propriétaire.
+
+## Vérification
+
+Workflow GitHub : `.github/workflows/telegram-reactions-github.yml`.
+Script : `scripts/telegram_reactions_github.py`.
+Audit : `scripts/telegram_reaction_coverage_audit.py`.
+
+Statuts D1 des nouveaux bots :
 
 ```sql
-SELECT state, bot_slot, COUNT(*) AS n
+SELECT bot_slot,state,last_error,COUNT(*) n
 FROM channel_reaction_extra_jobs
-GROUP BY state, bot_slot
-ORDER BY bot_slot, state;
+GROUP BY bot_slot,state,last_error
+ORDER BY bot_slot,state;
 ```
 
-Ce workflow ne peut pas réagir aux publications des canaux où le bot Ciné Radar ne reçoit aucun événement `channel_post`.
+Attention : `blocked` indique qu'un appel Telegram a été refusé ; l'ajout d'un nouveau bot ne peut pas corriger automatiquement un refus de droits ou un canal dans lequel le bot n'a pas accès au message.

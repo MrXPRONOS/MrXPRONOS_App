@@ -12,9 +12,12 @@ SPEC.loader.exec_module(react)
 
 class ReactionTests(unittest.TestCase):
     def test_10_distinct_slots_and_emoji_parity(self):
-        self.assertEqual(react.EXTRA_SLOTS, tuple(range(3, 13)))
+        self.assertEqual(tuple(react.EXTRA_SLOTS[:10]), tuple(range(3, 13)))
+        self.assertIn(13, react.EXTRA_SLOTS)
+        self.assertIn(99, react.EXTRA_SLOTS)
+        self.assertIn(1000, react.EXTRA_SLOTS)
         for seq in (1, 2, 3, 48):
-            emojis = [react.reaction_for(seq, s) for s in react.EXTRA_SLOTS]
+            emojis = [react.reaction_for(seq, s) for s in react.EXTRA_SLOTS[:10]]
             self.assertEqual(emojis.count("❤️"), 5)
             self.assertEqual(emojis.count("👍"), 5)
         self.assertEqual(react.reaction_for(1, 3), "❤️")
@@ -50,6 +53,39 @@ class ReactionTests(unittest.TestCase):
         }
         self.assertEqual(react.configured_tokens(env), {3: "token-three", 5: "token-five"})
 
+    def test_extended_numbered_and_bundled_tokens(self):
+        env = {
+            "TELEGRAM_REACTION_BOT_03_TOKEN": "three",
+            "TELEGRAM_REACTION_BOT_13_TOKEN": "thirteen",
+            "TELEGRAM_REACTION_BOT_16_TOKEN": "sixteen",
+            "TELEGRAM_REACTION_BOT_99_TOKEN": "ninety-nine",
+            "TELEGRAM_REACTION_BOTS_JSON": '{"100":"one-hundred","101":"one-hundred-one"}',
+        }
+        self.assertEqual(react.configured_tokens(env), {
+            3: "three", 13: "thirteen", 16: "sixteen",
+            99: "ninety-nine", 100: "one-hundred", 101: "one-hundred-one",
+        })
+
+    def test_bundle_duplicate_and_bad_json_fail_closed(self):
+        env = {
+            "TELEGRAM_REACTION_BOT_13_TOKEN": "first",
+            "TELEGRAM_REACTION_BOTS_JSON": '{"13":"ignored","100":"first","101":"new"}',
+        }
+        self.assertEqual(react.configured_tokens(env), {13: "first", 101: "new"})
+        with self.assertRaises(react.APIError):
+            react.configured_tokens({"TELEGRAM_REACTION_BOTS_JSON": "not-json"})
+
+    def test_safe_telegram_error_classification(self):
+        self.assertEqual(react.safe_reaction_error(
+            400, {"description": "Bad Request: message to react not found"}
+        ), "telegram_http_400:message_not_found")
+        self.assertEqual(react.safe_reaction_error(
+            400, {"description": "Bad Request: chat not found"}
+        ), "telegram_http_400:chat_not_found")
+        self.assertEqual(react.safe_reaction_error(
+            400, {"description": "Bot token SENSITIVEVALUE"}
+        ), "telegram_http_400:unknown")
+
     def test_existing_two_bots_are_not_registered_as_extras(self):
         def fake(url, data, headers):
             key = "existing" if "existing" in url else "fresh"
@@ -78,7 +114,7 @@ class ReactionTests(unittest.TestCase):
         row = {"post_seq": 65, "bot_slot": 12, "attempts": 0}
         sql, params = react.make_update(row, 403, {"description": "Forbidden"})
         self.assertIn("state='blocked'", sql)
-        self.assertEqual(params, ("telegram_http_403", 65, 12))
+        self.assertEqual(params, ("telegram_http_403:forbidden", 65, 12))
 
     def test_successful_delivery_creates_only_one_update(self):
         row = {"post_seq": 65, "bot_slot": 5, "attempts": 0}
