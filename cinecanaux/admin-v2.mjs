@@ -6,8 +6,8 @@ import {runLoggedJob} from './job-log.mjs';
 import {adminAnalytics} from './analytics.mjs';
 import {launchFunnelStats} from './launch-funnel.mjs';
 import {broadcastAdminAPI,deliverBroadcastBatch} from './broadcast.mjs';
-import {bindPrimaryRadarChannels,missingRadarTitles} from './radar-owner-ops.mjs';
-import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle} from './trend-radar.mjs';
+import {bindPrimaryRadarChannels,missingRadarTitles,notifyOwnerMissingRadarTitles} from './radar-owner-ops.mjs';
+import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle,radarOwnerDigest} from './trend-radar.mjs';
 import {initializeProfile} from './radar-lean.mjs';
 import {ownerPinnedList,ownerRemovePin} from './pinned-showcase.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -39,11 +39,12 @@ export async function adminAPI(env,request,ctx){
  if(request.method==='GET'&&path==='/api/admin/launch-funnel')return json(await launchFunnelStats(env));
  if(request.method==='GET'&&path==='/api/admin/pins')return json(await ownerPinnedList(env));
  if(request.method==='GET'&&path==='/api/admin/radar-ops'){
-  const [missing,channels]=await Promise.all([
+  const [missing,channels,digest]=await Promise.all([
    missingRadarTitles(env,admin.telegram_id,{limit:24}),
-   env.DB.prepare('SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind').all()
+   env.DB.prepare('SELECT kind,username,chat_id IS NOT NULL AS connected FROM radar_primary_channels ORDER BY kind').all(),
+   radarOwnerDigest(env)
   ]);
-  return json({missing,channels:channels.results||[]});
+  return json({missing,channels:channels.results||[],digest});
  }
  if(path==='/api/admin/broadcast-image'||path==='/api/admin/broadcasts'||/^\/api\/admin\/broadcasts\/\d+\/(?:preview|start|cancel)$/.test(path)){
   const answer=await broadcastAdminAPI(env,request,admin.telegram_id);
@@ -105,7 +106,12 @@ export async function adminAPI(env,request,ctx){
    const binding=await bindPrimaryRadarChannels(env);
    const refreshed=await runTrendRefresh(env,{force:true});
    const reconciled=await reconcileRadarPosts(env,120);
-   return json({ok:true,bound:binding.bound,updated:refreshed.updated,reconciled:reconciled||{}});
+   // Preserve the owner-only missing-title alerts that the former /actualiser
+   // command delivered. Deduplication is maintained by radar_notice_log.
+   const notices=await notifyOwnerMissingRadarTitles(env);
+   return json({ok:true,bound:binding.bound,updated:refreshed.updated,reconciled:reconciled||{},
+    notifications:{sent:notices.sent,listed:notices.listed,errors:notices.errors.length},
+    warnings:(binding.errors?.length||0)+(refreshed.errors?.length||0)+notices.errors.length});
   }
   if(path==='/api/admin/radar-authorize'){
    const id=String(data.id||'').trim();
