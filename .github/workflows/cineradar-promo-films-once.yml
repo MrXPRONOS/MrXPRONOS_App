@@ -1,0 +1,86 @@
+name: Cine Radar - Publication unique canal Films
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-promo-films-once.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cineradar-promo-films-once-20261120
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Install Python requests
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Publier une seule photo avec legende HTML et bouton bleu
+        env:
+          CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+          DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+          PROMO_PHOTO_URL: 'https://at.adobe.com/u4XPUDj2H2kcGNwL'
+        run: |
+          python - <<'PY'
+          import os,json,sys,requests,html
+          chat='@CineXFilms_vf'
+          tokens=[os.environ.get(k,'').strip() for k in (
+            'CINE_RADAR_BOT_TOKEN','TELEGRAM_BOT_TOKEN',
+            'FOOTBALL_NEWS_BOT_TOKEN','ACTION_BOT_TOKEN','DESIR_BOT_TOKEN')]
+          def call(token,method,**kw):
+            return requests.post('https://api.telegram.org/bot'+token+'/'+method,timeout=20,**kw).json()
+          token=None; bot_username=None; seen=set()
+          for candidate in tokens:
+            if not candidate or candidate in seen: continue
+            seen.add(candidate)
+            try:
+              me=call(candidate,'getMe',json={})
+              if not me.get('ok'):continue
+              member=call(candidate,'getChatMember',json={'chat_id':chat,'user_id':me['result']['id']})
+              if not member.get('ok'):continue
+              role=member['result']
+              if role.get('status') not in ('administrator','creator') or role.get('can_post_messages') is False:continue
+              token=candidate;bot_username=me['result'].get('username','unknown')
+              break
+            except Exception as exc:
+              print('Bot candidate unavailable:',type(exc).__name__)
+          if not token:sys.exit('No configured Telegram bot has confirmed permission to post in '+chat)
+          print('Validated publisher:',bot_username,'channel:',chat)
+          photo=requests.get(os.environ['PROMO_PHOTO_URL'],timeout=35,allow_redirects=True)
+          photo.raise_for_status()
+          if not photo.content.startswith(b'\x89PNG\r\n\x1a\n'):
+            sys.exit('Promotional artwork URL did not return PNG image')
+          if len(photo.content)>10_000_000:sys.exit('Image too large')
+          caption='\n'.join([
+            '🎬 <b>CINÉ RADAR — Ton NETFLIX sur Telegram !</b>',
+            '',
+            '<blockquote>🔎 Trouve facilement les <b>bons canaux</b> de films, séries et animés.</blockquote>',
+            '🔥 Découvre les <b>contenus</b> et les <i>chaînes tendance du moment</i>.',
+            '🍿 <i>Tout ton univers cinéma, réuni au même endroit !</i>',
+            '',
+            '👇 <b>Plus besoin de chercher partout !</b>'
+          ])
+          if len(caption)>1024:sys.exit('Caption too long')
+          markup={'inline_keyboard':[[{
+            'text':'🎬 Ouvrir le bot',
+            'url':'https://t.me/CineRadarFr_Bot?start=cinexfilms',
+            'style':'primary'
+          }]]}
+          result=call(token,'sendPhoto',data={
+            'chat_id':chat,
+            'caption':caption,
+            'parse_mode':'HTML',
+            'reply_markup':json.dumps(markup,ensure_ascii=False)
+          },files={'photo':('cineradar-promo.png',photo.content,'image/png')})
+          if not result.get('ok'):
+            sys.exit('Telegram rejected publication: '+str(result.get('description','unknown'))[:350])
+          msg=result['result']; mid=msg['message_id']
+          print('PUBLICATION_SUCCESS',json.dumps({'channel':chat,'message_id':mid,'publisher':bot_username,'link':'https://t.me/CineXFilms_vf/'+str(mid)}))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+            f.write('## Ciné Radar — publication envoyée\n\nCanal : '+chat+'\n\nMessage : https://t.me/CineXFilms_vf/'+str(mid)+'\n\nBot : @'+bot_username+'\n')
+          PY
