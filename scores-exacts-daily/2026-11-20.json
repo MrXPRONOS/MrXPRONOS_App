@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-20",
-  "generated_at": "2026-11-19T14:30:59Z",
+  "generated_at": "2026-11-20T10:13:32Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -16,7 +16,7 @@
       "away": "Primeiro De Agosto",
       "kickoff_utc": "2026-11-20T14:30:00Z",
       "score": "1:0",
-      "probability": 0.15318166
+      "probability": 0.15302743
     },
     {
       "id": "sportsapipro:4890781",
@@ -25,7 +25,7 @@
       "away": "JS Saoura",
       "kickoff_utc": "2026-11-20T19:00:00Z",
       "score": "1:0",
-      "probability": 0.15215751
+      "probability": 0.15290006
     },
     {
       "id": "sportsapipro:4894129",
@@ -34,7 +34,7 @@
       "away": "AS Kayes",
       "kickoff_utc": "2026-11-20T18:00:00Z",
       "score": "1:0",
-      "probability": 0.14565735
+      "probability": 0.14550927
     },
     {
       "id": "sportsapipro:4823656",
@@ -43,16 +43,16 @@
       "away": "Murang'a Seal",
       "kickoff_utc": "2026-11-20T11:00:00Z",
       "score": "1:0",
-      "probability": 0.13800341
+      "probability": 0.13785791
     },
     {
-      "id": "sportsapipro:4772999",
-      "league": "Second Division",
-      "home": "Maleyeit Kafr El Zayiat",
-      "away": "Mega Sport",
-      "kickoff_utc": "2026-11-20T12:30:00Z",
+      "id": "sportsapipro:4890780",
+      "league": "Ligue 1",
+      "home": "ES Setif",
+      "away": "Us Biskra",
+      "kickoff_utc": "2026-11-20T16:00:00Z",
       "score": "1:0",
-      "probability": 0.13650385
+      "probability": 0.13511946
     }
   ],
   "grouped": [
@@ -63,7 +63,7 @@
       "away": "Primeiro De Agosto",
       "kickoff_utc": "2026-11-20T14:30:00Z",
       "score": "1:0",
-      "probability": 0.35452216,
+      "probability": 0.35415925,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -78,7 +78,7 @@
       "away": "AS Kayes",
       "kickoff_utc": "2026-11-20T18:00:00Z",
       "score": "1:0",
-      "probability": 0.33161154,
+      "probability": 0.33126084,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -93,7 +93,7 @@
       "away": "Horriya",
       "kickoff_utc": "2026-11-20T12:00:00Z",
       "score": "2:0",
-      "probability": 0.32736475,
+      "probability": 0.326905,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -108,7 +108,7 @@
       "away": "Singida Black Stars SC",
       "kickoff_utc": "2026-11-20T18:00:00Z",
       "score": "1:0",
-      "probability": 0.32533712,
+      "probability": 0.32503589,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -123,7 +123,7 @@
       "away": "Mbeya City",
       "kickoff_utc": "2026-11-20T15:30:00Z",
       "score": "1:0",
-      "probability": 0.32456126,
+      "probability": 0.32423864,
       "group": "H_LOW",
       "group_scores": [
         "1:0",

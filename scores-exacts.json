@@ -2,68 +2,68 @@
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
   "status": "published",
-  "date": "2026-11-19",
-  "generated_at": "2026-11-19T14:30:59Z",
+  "date": "2026-11-20",
+  "generated_at": "2026-11-20T10:13:32Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4890777",
-      "league": "Ligue 1",
-      "home": "MC Alger",
-      "away": "Olympique Akbou",
-      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "id": "sportsapipro:4848803",
+      "league": "Liga Unitel Girabola",
+      "home": "Cd São Salvador Do Kongo",
+      "away": "Primeiro De Agosto",
+      "kickoff_utc": "2026-11-20T14:30:00Z",
       "score": "1:0",
-      "probability": 0.16015298
+      "probability": 0.15302743
     },
     {
-      "id": "sportsapipro:4895470",
+      "id": "sportsapipro:4890781",
       "league": "Ligue 1",
-      "home": "ASC Linguère",
-      "away": "Teungueth",
-      "kickoff_utc": "2026-11-19T16:30:00Z",
+      "home": "MC Oran",
+      "away": "JS Saoura",
+      "kickoff_utc": "2026-11-20T19:00:00Z",
       "score": "1:0",
-      "probability": 0.15695959
+      "probability": 0.15290006
     },
     {
-      "id": "sportsapipro:4890778",
-      "league": "Ligue 1",
-      "home": "JS Kabylie",
-      "away": "USM Alger",
-      "kickoff_utc": "2026-11-19T19:00:00Z",
+      "id": "sportsapipro:4894129",
+      "league": "Premiere Division",
+      "home": "Diarra",
+      "away": "AS Kayes",
+      "kickoff_utc": "2026-11-20T18:00:00Z",
       "score": "1:0",
-      "probability": 0.1355131
+      "probability": 0.14550927
     },
     {
-      "id": "sportsapipro:4890776",
-      "league": "Ligue 1",
-      "home": "MB Rouisset",
-      "away": "CR Belouizdad",
-      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "id": "sportsapipro:4823656",
+      "league": "SportPesa Premier League - Regular Season",
+      "home": "Bandari",
+      "away": "Murang'a Seal",
+      "kickoff_utc": "2026-11-20T11:00:00Z",
       "score": "1:0",
-      "probability": 0.13362853
+      "probability": 0.13785791
     },
     {
-      "id": "sportsapipro:4895951",
-      "league": "Liga de Ascenso - Eastern Region",
-      "home": "Independiente San Vicente",
-      "away": "San Rafael Cedros",
-      "kickoff_utc": "2026-11-19T20:30:00Z",
-      "score": "2:1",
-      "probability": 0.09677374
+      "id": "sportsapipro:4890780",
+      "league": "Ligue 1",
+      "home": "ES Setif",
+      "away": "Us Biskra",
+      "kickoff_utc": "2026-11-20T16:00:00Z",
+      "score": "1:0",
+      "probability": 0.13511946
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4890777",
-      "league": "Ligue 1",
-      "home": "MC Alger",
-      "away": "Olympique Akbou",
-      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "id": "sportsapipro:4848803",
+      "league": "Liga Unitel Girabola",
+      "home": "Cd São Salvador Do Kongo",
+      "away": "Primeiro De Agosto",
+      "kickoff_utc": "2026-11-20T14:30:00Z",
       "score": "1:0",
-      "probability": 0.34538227,
+      "probability": 0.35415925,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -72,13 +72,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4895470",
-      "league": "Ligue 1",
-      "home": "ASC Linguère",
-      "away": "Teungueth",
-      "kickoff_utc": "2026-11-19T16:30:00Z",
+      "id": "sportsapipro:4894129",
+      "league": "Premiere Division",
+      "home": "Diarra",
+      "away": "AS Kayes",
+      "kickoff_utc": "2026-11-20T18:00:00Z",
       "score": "1:0",
-      "probability": 0.33745066,
+      "probability": 0.33126084,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -87,13 +87,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4890778",
-      "league": "Ligue 1",
-      "home": "JS Kabylie",
-      "away": "USM Alger",
-      "kickoff_utc": "2026-11-19T19:00:00Z",
-      "score": "1:0",
-      "probability": 0.29809699,
+      "id": "sportsapipro:4894684",
+      "league": "Syrian Premier League",
+      "home": "Homs Al Fidaa SC",
+      "away": "Horriya",
+      "kickoff_utc": "2026-11-20T12:00:00Z",
+      "score": "2:0",
+      "probability": 0.326905,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -102,13 +102,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4890776",
-      "league": "Ligue 1",
-      "home": "MB Rouisset",
-      "away": "CR Belouizdad",
-      "kickoff_utc": "2026-11-19T16:45:00Z",
+      "id": "sportsapipro:4782273",
+      "league": "Ligi Kuu Bara",
+      "home": "Azam FC",
+      "away": "Singida Black Stars SC",
+      "kickoff_utc": "2026-11-20T18:00:00Z",
       "score": "1:0",
-      "probability": 0.29689784,
+      "probability": 0.32503589,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -117,13 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4895951",
-      "league": "Liga de Ascenso - Eastern Region",
-      "home": "Independiente San Vicente",
-      "away": "San Rafael Cedros",
-      "kickoff_utc": "2026-11-19T20:30:00Z",
-      "score": "2:1",
-      "probability": 0.26691527,
+      "id": "sportsapipro:4782274",
+      "league": "Ligi Kuu Bara",
+      "home": "Namungo FC",
+      "away": "Mbeya City",
+      "kickoff_utc": "2026-11-20T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.32423864,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
