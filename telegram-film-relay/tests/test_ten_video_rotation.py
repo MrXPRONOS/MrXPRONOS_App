@@ -38,6 +38,17 @@ class TenVideoRotationTests(unittest.TestCase):
         poster.buttons.append([NS(url="https://t.me/c/4392607284/123")])
         self.assertIsNone(movie_button_target(poster, -1004392607284))
 
+    def test_download_button_does_not_change_verified_private_video_target(self):
+        # Additional external bot download links never replace the exact
+        # private archive link required before rotation may delete public videos.
+        poster = NS(buttons=[
+            [NS(url="https://t.me/c/4455497484/42")],
+            [NS(url="https://t.me/CineRadarFr_Bot?start=d_" + "A" * 24)],
+            [NS(url="https://t.me/addlist/example")]
+        ])
+        self.assertEqual(movie_button_target(poster, -1004455497484), 42)
+        self.assertIsNone(movie_button_target(poster, -1004462439590))
+
     def test_unconfigured_categories_are_skipped_without_invented_channel(self):
         targets = category_targets({
             "TG_PRIVATE_CHANNEL": "-1004392607284",
