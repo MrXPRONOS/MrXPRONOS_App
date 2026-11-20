@@ -106,8 +106,11 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   if(!items.length||items.some(x=>x.source_chat_id!==job.private_chat_id||!Number.isSafeInteger(Number(x.source_message_id))||Number(x.source_message_id)<1)){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;continue;
   }
-  const pending=items.find(x=>x.state==='queued');
-  if(!pending){await env.DB.prepare("UPDATE cine_delivery_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();processed++;continue;}
+  const pendingItems=items.filter(x=>x.state==='queued').slice(0,12);
+  if(!pendingItems.length){await env.DB.prepare("UPDATE cine_delivery_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();processed++;continue;}
+  // Each user requests the entire season once: this job can progress through
+  // twelve episodes automatically without any further bot interaction.
+  for(const pending of pendingItems){
   // Short lease makes concurrent cron workers mutually exclusive.
   const lock=await env.DB.prepare("UPDATE cine_delivery_jobs SET status='sending',lock_until=datetime('now','+4 minutes'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='queued'").bind(job.id).run();
   if(Number(lock.meta?.changes||0)!==1)continue;
@@ -143,12 +146,15 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    env.DB.prepare("UPDATE cine_delivery_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP WHERE job_id=? AND ordinal=?").bind(copied,job.id,pending.ordinal),
    env.DB.prepare("UPDATE cine_delivery_jobs SET delivered_items=delivered_items+1,status='queued',lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id)
   ]);
-  const remaining=items.filter(x=>x.state==='queued').length-1;
+  const remaining=items.filter(x=>x.state==='queued'&&Number(x.ordinal)>Number(pending.ordinal)).length;
   if(remaining===0){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='complete',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id).run();
   }
   processed++;
- }
+  // Telegram recommends roughly one media message per second per private chat.
+  if(remaining)await new Promise(resolve=>setTimeout(resolve,1100));
+  } // pending items in this one requested season
+ } // jobs
  return {processed,errors};
 }
 // Owner-only toggling and approval are wrapped by admin-v2's signed-initData verification.
