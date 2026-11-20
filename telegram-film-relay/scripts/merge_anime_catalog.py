@@ -3,6 +3,10 @@ import json
 import sys
 from pathlib import Path
 
+# The merge helper runs from the repo root, not from the package directory.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from film_relay.anime_identity import consolidate_catalog
+
 
 def merge(remote: dict, local: dict) -> dict:
     # Preserve audit and cursor metadata during the workflow's state merge.
@@ -48,6 +52,10 @@ def merge(remote: dict, local: dict) -> dict:
         target["revisit_last_checked"] = chosen.get("revisit_last_checked")
         target["revisit_cycles"] = max(
             int(older.get("revisit_cycles", 0)), int(incoming.get("revisit_cycles", 0)))
+    result["series_aliases"] = {**remote.get("series_aliases", {}),
+                                **local.get("series_aliases", {})}
+    result["legacy_series_records"] = {**remote.get("legacy_series_records", {}),
+                                      **local.get("legacy_series_records", {})}
     rseries = remote.get("series", {})
     lseries = local.get("series", {})
     for key in set(rseries) | set(lseries):
@@ -63,6 +71,9 @@ def merge(remote: dict, local: dict) -> dict:
                                **newer.get("episodes", {}).get(season, {})}
         series["episodes"] = seasons
         result["series"][key] = series
+    # If a concurrent GitHub state merge resurrects a legacy title, normalize
+    # the complete union again without dropping any Telegram receipt.
+    result, _ = consolidate_catalog(result)
     return result
 
 
