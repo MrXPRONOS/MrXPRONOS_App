@@ -105,7 +105,7 @@ async function receiveTelegram(request,env,ctx){
   }
   if(update.message?.forward_origin?.type==="channel"){
    const series=await ingestSeriesOwnerForward(env,update.message);
-   if(series.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:series.stored?"✅ Affiche de la saison "+series.season+" enregistrée pour CinéX Séries.":"⚠️ "+series.reason});return Response.json({ok:true});}
+   if(series.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:series.stored?("✅ "+(series.episode?"S"+series.season+"E"+series.episode+" enregistrée.":"Affiche de la saison "+series.season+" enregistrée.")+" CinéX Séries."):"⚠️ "+series.reason});return Response.json({ok:true});}
    const result=await ingestOwnerForward(env,update.message);
    if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
   }
