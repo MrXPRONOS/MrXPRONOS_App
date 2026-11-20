@@ -5,6 +5,7 @@ gap, and scanning alone never publishes anything.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 from datetime import datetime, timezone
@@ -21,6 +22,15 @@ def _page_size() -> int:
     except ValueError:
         return 160
 
+
+async def _pace_between_pages():
+    """Space MTProto archive requests in production; tests may opt out."""
+    try:
+        pause = max(0.0, float(os.getenv("CINEX_CATALOG_REQUEST_PAUSE_SECONDS", "0")))
+    except ValueError:
+        pause = 0.0
+    if pause:
+        await asyncio.sleep(pause)
 
 def _oldest(messages):
     return min((int(m.id) for m in messages), default=None)
@@ -55,6 +65,7 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
         cursor = _oldest(recent) if not scan.get("cursor") or rescan else int(scan["cursor"])
     archive = []
     complete = False
+    await _pace_between_pages()
     # Some 25-episode series contain text announcements between batches.
     # A bounded multi-page window lets us assemble the whole batch without
     # treating those announcements as episode breaks.
@@ -65,6 +76,7 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
             break
         archive.extend(page)
         cursor = _oldest(page)
+        await _pace_between_pages()
         if len(page) < size:
             complete = True
             break
@@ -76,6 +88,7 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
                         "recent_ids": recent_ids, "revisit": revisit}
 
     # Context preceding the oldest page preserves its opening title/season.
+    await _pace_between_pages()
     lookbehind = [m async for m in client.iter_messages(
         source, limit=40, max_id=_oldest(archive))]
     combined = {int(m.id): m for m in (*recent, *archive, *lookbehind)}
