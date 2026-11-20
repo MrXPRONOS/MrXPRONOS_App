@@ -17,6 +17,7 @@ import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncC
 import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
+import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
 // never expose or log the Telegram token itself.
@@ -103,6 +104,9 @@ async function receiveTelegram(request,env,ctx){
    const result=await ingestOwnerForward(env,update.message);
    if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
   }
+  if(await handleSaveHelp(env,update))return Response.json({ok:true});
+  const delivery=await handleDeliveryStart(env,update);
+  if(delivery.handled)return Response.json({ok:true});
   await botUpdate(env,update);
   // Apply public start-only and private owner command scopes on the next /start
   // without delaying the welcome. Scheduled housekeeping remains the backup.
@@ -426,6 +430,9 @@ export default {
     throw e;
    }
   })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
+  if(controller.cron==="* * * * *"){
+   ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
+  }
   else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
    const discovered=await indexQualifiedChannels(env);
