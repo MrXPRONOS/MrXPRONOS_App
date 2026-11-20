@@ -5,6 +5,7 @@ import {deletionDecision} from './cinex-expiry.mjs';
 
 const CHAT=/^-100[0-9]{6,}$/;
 const TOKEN=/^[a-zA-Z0-9_-]{24}$/;
+const hasOwnerCopy=x=>Number.isSafeInteger(Number(x?.owner_chat_id))&&Number(x.owner_chat_id)>0&&Number.isSafeInteger(Number(x?.owner_message_id))&&Number(x.owner_message_id)>0;
 const START=/^\/start(?:@[a-zA-Z0-9_]+)?\s+sr_([a-zA-Z0-9_-]{24})\s*$/i;
 const TG='https://api.telegram.org/bot';
 
@@ -161,7 +162,7 @@ export async function handleSeriesStart(env,update){
   if(!source||!CHAT.test(String(source.chat_id))){await notify(env,chat,'Série indisponible pour le moment.');return {handled:true,accepted:false}}
   const seasons=(await env.DB.prepare("SELECT season,expected_episodes FROM cine_series_seasons WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
   const media=(await env.DB.prepare(
-   "SELECT e.season,e.episode,e.source_message_id,v.owner_chat_id,v.owner_message_id "+
+   "SELECT e.season,e.episode,e.source_message_id,CASE WHEN a.user_id IS NOT NULL THEN v.owner_chat_id END AS owner_chat_id,CASE WHEN a.user_id IS NOT NULL THEN v.owner_message_id END AS owner_message_id "+
    "FROM cine_series_episodes e LEFT JOIN cine_owner_vault v ON v.source_chat_id=e.chat_id "+
    "AND v.source_message_id=e.source_message_id AND v.status='stored' "+
    "LEFT JOIN admin_users a ON a.role='owner' AND a.user_id=v.owner_chat_id "+
@@ -173,7 +174,7 @@ export async function handleSeriesStart(env,update){
    await notify(env,chat,'⏳ Toutes les saisons ne sont pas encore vérifiées. Le téléchargement est indisponible pour éviter les épisodes manquants.');
    return {handled:true,accepted:false};
   }
-  if(source.radar_access!=='verified'&&media.some(x=>!Number.isSafeInteger(Number(x.owner_chat_id))||!Number.isSafeInteger(Number(x.owner_message_id)))){
+  if(source.radar_access!=='verified'&&media.some(x=>!hasOwnerCopy(x))){
    await notify(env,chat,'⏳ L’accès aux vidéos sources n’est pas encore vérifié et toutes les copies propriétaires ne sont pas disponibles.');
    return {handled:true,accepted:false};
   }
@@ -186,8 +187,8 @@ export async function handleSeriesStart(env,update){
   if(!job?.id)throw Error('series_job_missing');
   await env.DB.batch(media.map((item,i)=>env.DB.prepare(
    "INSERT OR IGNORE INTO cine_series_job_items(job_id,ordinal,source_chat_id,source_message_id) VALUES(?,?,?,?)"
-  ).bind(job.id,i+1,Number.isSafeInteger(Number(item.owner_chat_id))&&Number.isSafeInteger(Number(item.owner_message_id))?String(item.owner_chat_id):source.chat_id,
-   Number.isSafeInteger(Number(item.owner_chat_id))&&Number.isSafeInteger(Number(item.owner_message_id))?Number(item.owner_message_id):item.source_message_id)));
+  ).bind(job.id,i+1,hasOwnerCopy(item)?String(item.owner_chat_id):source.chat_id,
+   hasOwnerCopy(item)?Number(item.owner_message_id):item.source_message_id)));
   await notify(env,chat,'📥 '+String(source.title||'Ta série').slice(0,80)+': '+seasons.length+' saison(s), '+media.length+' épisodes. Livraison automatique en plusieurs lots. Chaque copie du bot sera supprimée après 24 heures.');
   return {handled:true,accepted:true};
  }catch(e){console.warn('series_start_error',String(e?.name||'Error'));await notify(env,chat,'Service temporairement indisponible.');return {handled:true,accepted:false}}
