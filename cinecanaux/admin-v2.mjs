@@ -10,6 +10,7 @@ import {bindPrimaryRadarChannels,missingRadarTitles,notifyOwnerMissingRadarTitle
 import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle,radarOwnerDigest} from './trend-radar.mjs';
 import {initializeProfile,invalidateDirectoryCache} from './radar-lean.mjs';
 import {ownerPinnedList,ownerRemovePin} from './pinned-showcase.mjs';
+import {adminDeliveryAction} from './cinex-delivery.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -152,6 +153,10 @@ export async function adminAPI(env,request,ctx){
    return json({ok:true,bound:binding.bound,updated:refreshed.updated,reconciled:reconciled||{},
     notifications:{sent:notices.sent,listed:notices.listed,errors:notices.errors.length},
     warnings:(binding.errors?.length||0)+(refreshed.errors?.length||0)+notices.errors.length});
+  }
+  if(path==='/api/admin/cinex/state'||path==='/api/admin/cinex/approve'){
+   const answer=await adminDeliveryAction(env,path,data);
+   return json(answer.body,answer.status);
   }
   if(path==='/api/admin/radar-authorize'){
    const id=String(data.id||'').trim();
