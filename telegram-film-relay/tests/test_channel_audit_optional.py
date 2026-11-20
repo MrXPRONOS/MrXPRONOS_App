@@ -7,6 +7,16 @@ from scripts.channel_audit import requested_channels
 
 
 class OptionalCategoryAuditTests(unittest.TestCase):
+    def setUp(self):
+        # CI has no classic channel IDs in local config. These tests only
+        # inspect optional-category gating, not the production destinations.
+        stub = patch("scripts.channel_audit.config_from", return_value={
+            "sources": [], "private_channel": "-1001234567890",
+            "public_channel": "@cinexfilms_vf",
+        })
+        stub.start()
+        self.addCleanup(stub.stop)
+
     def test_unconfigured_series_action_do_not_raise(self):
         env = {
             "SERIES_SOURCE_CHANNELS": "",
