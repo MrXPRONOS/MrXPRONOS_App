@@ -28,6 +28,7 @@ jobs:
       - name: Validate syntax
         run: |
           node --check cinecanaux/worker.mjs
+          node --check cinecanaux/public-event-limiter.mjs
           node --check cinecanaux/delivery-catalog.mjs
           node --check cinecanaux/cinex-delivery.mjs
           node --check cinecanaux/cinex-classic.mjs
@@ -56,6 +57,8 @@ jobs:
           node --check cinecanaux/job-log.mjs
       - name: Guard CI-before-deploy invariants
         run: node --test cinecanaux/tests/deploy-safety.test.mjs
+      - name: Verify privacy-preserving public metrics rate-limit
+        run: node --test cinecanaux/tests/public-event-limiter.test.mjs
       - name: Verify poster and avatar refresh scripts
         run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Run isolated Telegram and Mini App tests
