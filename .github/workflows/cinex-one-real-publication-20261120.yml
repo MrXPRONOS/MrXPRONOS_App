@@ -37,7 +37,7 @@ jobs:
       CINEX_PARTNERSHIP_ENABLED: 'false'
       CINEX_SAFE_MODE: 'true'
       CINEX_PAUSE_SECONDS: '20'
-      CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-${{ github.run_id }}.json
+      CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-${{ github.run_id }}.json
       PYTHONPATH: .
     defaults:
       run:
