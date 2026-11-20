@@ -1,4 +1,4 @@
-name: CineX - Inventaire lecture seule et catalogue D1 (etapes 1-2)
+name: CineX - Inventaire et téléchargements contrôlés par GitHub
 # Revalidate the newly-authorized CineRadar bot membership after PR #503.
 on:
   workflow_dispatch:
@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/cinex-catalog-stage12.yml'
       - 'telegram-film-relay/scripts/catalog_stage12.py'
+      - 'telegram-film-relay/scripts/cinex_github_control.py'
       - 'cinecanaux/migrations/014_cinex_delivery_catalog.sql'
   schedule:
     - cron: '23 2 * * *'
@@ -17,7 +18,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   catalog:
-    name: Valider les nouvelles videotheques et synchroniser D1 sans media
+    name: Synchroniser les téléchargements depuis GitHub puis inventorier
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -25,6 +26,7 @@ jobs:
         working-directory: telegram-film-relay
     env:
       PYTHONPATH: .
+      CINEX_DOWNLOADS_ENABLED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
       TG_API_ID: ${{ secrets.TG_API_ID }}
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
@@ -45,15 +47,21 @@ jobs:
       - name: Installer Telethon et Requests
         run: python -m pip install -r requirements.txt
       - name: Tests locaux sans connexion Telegram
-        run: python -m unittest discover -s tests -p 'test_catalog_stage12.py' -v
-      - name: Interdire une execution sans secrets de lecture et D1
+        run: |
+          python -m unittest discover -s tests -p 'test_catalog_stage12.py' -v
+          python -m unittest discover -s tests -p 'test_cinex_github_control.py' -v
+      - name: Vérifier les secrets, les canaux et les attestations globales
         shell: bash
         run: |
           test -n "$TG_API_ID" && test -n "$TG_API_HASH" && test -n "$TG_STRING_SESSION" || { echo "::error::Identifiants Telegram absents"; exit 1; }
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Token Cloudflare D1 indisponible"; exit 1; }
           test "$SERIES_RIGHTS_ATTESTED" = true && test "$ACTION_RIGHTS_ATTESTED" = true || { echo "::error::Autorisations propriétaires non confirmées"; exit 1; }
-      - name: Auditer uniquement les nouveaux canaux puis importer des metadonnees non actives
+      - name: Appliquer d'abord la sécurité GitHub (verrou pendant la synchronisation)
+        run: python scripts/cinex_github_control.py --toggle-only
+      - name: Auditer les vidéothèques puis synchroniser le catalogue D1
         run: python scripts/catalog_stage12.py --scan-limit 250 --sync --output "$RUNNER_TEMP/cinex-stage12-report.json"
+      - name: Créer automatiquement les liens complets selon GitHub true ou false
+        run: python scripts/cinex_github_control.py --report "$RUNNER_TEMP/cinex-stage12-report.json"
       - name: Retirer le rapport temporaire des espaces partages
         if: always()
         shell: bash
