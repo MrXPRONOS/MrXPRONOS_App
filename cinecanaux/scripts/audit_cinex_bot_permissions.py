@@ -177,7 +177,8 @@ def main():
     targets = channel_targets()
     report = audit_permissions(
         candidates, targets,
-        publisher_username=os.getenv("CINEX_PUBLISH_BOT_USERNAME", ""),\n        expected_series_count=int(os.getenv("CINEX_EXPECTED_SERIES_SOURCE_COUNT", "11")),
+        publisher_username=os.getenv("CINEX_PUBLISH_BOT_USERNAME", ""),
+        expected_series_count=int(os.getenv("CINEX_EXPECTED_SERIES_SOURCE_COUNT", "11")),
     )
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("CINEX_BOT_RIGHTS_SUMMARY", json.dumps(
