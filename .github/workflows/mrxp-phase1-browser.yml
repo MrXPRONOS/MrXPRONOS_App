@@ -10,6 +10,8 @@ on:
     paths:
       - mrxpronos-play/worker.js
       - mrxpronos-play/tests/phase1-mobile-layout.py
+      - mrxpronos-play/tests/phase45-visual.py
+      - mrxpronos-play/tests/audit_real_browser.py
       - .github/workflows/mrxp-phase1-browser.yml
   workflow_dispatch:
 permissions:
@@ -30,6 +32,8 @@ jobs:
           if ! command -v google-chrome >/dev/null 2>&1 && ! command -v chromium >/dev/null 2>&1; then
             python -m playwright install chromium
           fi
+      - name: Test real Mini App JavaScript against mocked authenticated API
+        run: python mrxpronos-play/tests/audit_real_browser.py
       - name: Test phase-1 Mini App mobile layout
         run: python mrxpronos-play/tests/phase1-mobile-layout.py
       - name: Test official square/story PNG and phase 5 mobile pages

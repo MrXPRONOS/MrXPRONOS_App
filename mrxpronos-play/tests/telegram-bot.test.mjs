@@ -13,11 +13,11 @@ const adminId = 111;
 function harness(){
  const calls = [], settings = new Map([['welcome','🎮 Bienvenue sur Mr XPRONOS Play. Tapote et gagne des XP.']]),balanceAudit=[],settingUpdated=new Map();
  const pending = new Map(),missionClaims=new Map(),channelMembership=new Map(),v2Progress=new Map(),avatarPrefs=new Map(),creditBaselines=new Map(),creditEvents=new Map();
- const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map();
+ const verifiedDaily=[],verifiedWheel=[],verifiedTaps=[],boostInventory=new Map(),boostReceipts=new Map(),rewardIntents=new Map(),rateBuckets=new Map();
  const v2Counts={daily:0,wheel:0};
  const membership={botAdmin:true};
  const rows = {players:3,sync_receipts:1,wheel_claims:2,daily_claims:1};
- const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0};
+ const player={user_id:'',username:'',display_name:'',confirmed_xp:0,confirmed_taps:0,last_sync_ms:0,next_sync_ms:0,created_ms:Date.now()-86400000};
  const env={
   BOT_TOKEN:'fake-token',
   WEBHOOK_SECRET:'unit-test-secret',
@@ -34,6 +34,9 @@ function harness(){
         if(lower.includes(' as daily_count'))return {daily_count:v2Counts.daily,wheel_count:v2Counts.wheel,mission_count:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')&&!/:(join_main|join_foot)$/.test(x)).length};
         if(lower.includes('from player_credit_state'))return creditBaselines.get(String(values[0]))||null;
         if(lower.includes('from mrxp_credit_events')&&lower.includes('sum(amount)')){const list=[...creditEvents.values()].filter(x=>x.user_id===String(values[0]));return {balance:list.reduce((a,x)=>a+x.amount,0),event_count:list.length}}
+        if(lower.includes('from mrxp_reward_intents'))return rewardIntents.get(String(values[0])+':'+String(values[1])+':'+String(values[2]))||null;
+        if(lower.includes('select * from daily_claims'))return verifiedDaily.find(x=>x.user_id===String(values[0])&&x.day===String(values[1]))||null;
+        if(lower.includes('select * from wheel_claims'))return verifiedWheel.find(x=>x.user_id===String(values[0])&&x.day===String(values[1]))||null;
         if(lower.includes('count(*) as total from mission_claims'))return {total:[...missionClaims.keys()].filter(x=>x.startsWith(String(values[0])+':')).length};
         if(lower.includes('from mrxp_boost_inventory')){
          const id=String(values[0]),list=[...boostInventory.values()].filter(x=>x.user_id===id);
@@ -56,6 +59,19 @@ function harness(){
         return null;
        },
        async run(){
+        if(lower.startsWith('insert into mrxp_api_limits')){
+         const [userId,route,now]=values,limit=Number(values.at(-1)),key=String(userId)+':'+route,old=rateBuckets.get(key);
+         const windowMs=60000,existing=old&&now-old.start<windowMs;
+         if(existing&&old.count>=Number(limit))return {success:true,meta:{changes:0}};
+         rateBuckets.set(key,{start:existing?old.start:now,count:existing?old.count+1:1});
+         return {success:true,meta:{changes:1}};
+        }
+        if(lower.startsWith('insert or ignore into mrxp_reward_intents')){
+         const [user_id,kind,day,reward_key,xp_awarded,claimed_ms]=values,key=String(user_id)+':'+kind+':'+day;
+         if(rewardIntents.has(key))return {success:true,meta:{changes:0}};
+         rewardIntents.set(key,{user_id:String(user_id),kind,day,reward_key,xp_awarded,claimed_ms});
+         return {success:true,meta:{changes:1}};
+        }
         if(lower.includes("update mrxp_boost_inventory set state='expired'")){
           let changes=0;
           for(const b of boostInventory.values()){if(b.user_id===String(values[0])&&['active','charged'].includes(b.state)&&b.expires_ms>0&&b.expires_ms<=Number(values[1])){b.state='expired';changes++}}
@@ -92,9 +108,10 @@ function harness(){
           if(lower.includes('select event_key from'))return {results:list.map(x=>({event_key:x.event_key}))};
           return {results:list.sort((a,b)=>b.created_ms-a.created_ms).slice(0,50).map(x=>({...x}))};
         }
-        if(lower.includes('from daily_claims'))return {results:verifiedDaily.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1]))};
-        if(lower.includes('from wheel_claims'))return {results:verifiedWheel.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1]))};
-        if(lower.includes('from sync_receipts'))return {results:verifiedTaps.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1])&&x.taps>=50)};
+        if(lower.includes('from mrxp_reward_intents'))return {results:[...rewardIntents.values()].filter(x=>x.user_id===id&&x.day>=String(values[1])&&x.day<=String(values[2]))};
+        if(lower.includes('from daily_claims'))return {results:verifiedDaily.filter(x=>x.user_id===id&&(typeof values[1]==='string'?x.day>=values[1]:!Number.isFinite(Number(values[1]))||x.created_ms>=Number(values[1])))};
+        if(lower.includes('from wheel_claims'))return {results:verifiedWheel.filter(x=>x.user_id===id&&(typeof values[1]==='string'?x.day>=values[1]:!Number.isFinite(Number(values[1]))||x.created_ms>=Number(values[1])))};
+        if(lower.includes('from sync_receipts'))return {results:verifiedTaps.filter(x=>x.user_id===id&&x.created_ms>=Number(values[1])&&x.taps>0)};
         if(lower.includes('from mission_claims')){
          if(lower.includes('select mission_key,created_ms'))return {results:[...missionClaims.entries()].filter(([k,v])=>k.startsWith(id+':')&&Number(v.created_ms||0)>=Number(values[1])).map(([k,v])=>({mission_key:k.slice(id.length+1),created_ms:v.created_ms}))};
          return {results:[...missionClaims.keys()].filter(x=>x.startsWith(id+':')).map(x=>({mission_key:x.slice(id.length+1)}))}
@@ -105,6 +122,7 @@ function harness(){
      },
      async all(){if(lower.includes('from bot_admins'))return {results:[{telegram_id:String(adminId)}]};if(lower.includes('from bot_settings'))return {results:[...settings].map(([key,value])=>({key,value,updated_ms:settingUpdated.get(key)||0}))};return {results:[]}},
      async first(){
+      if(lower.includes('select 1 as alive'))return {alive:1};
       if(lower.includes('from players'))return {n:rows.players,xp:180};
       if(lower.includes('from sync_receipts'))return {n:rows.sync_receipts};
       if(lower.includes('from wheel_claims'))return {n:rows.wheel_claims};
@@ -138,7 +156,15 @@ function harness(){
      boostReceipts.set(receiptKey,{xp_awarded:p[0],taps:p[1]});
      for(const op of ops.slice(2)){
       const row=op._values||[];
-      if(op._sql.includes("update mrxp_boost_inventory set state='active'")){
+      if(op._sql.includes('insert or ignore into daily_claims')){
+        const [uid,day,xp,created_ms]=row;
+        if(rewardIntents.has(String(uid)+':daily:'+day)&&!verifiedDaily.some(x=>x.user_id===String(uid)&&x.day===day))verifiedDaily.push({user_id:String(uid),day,xp_awarded:xp,created_ms});
+       }
+       if(op._sql.includes('insert or ignore into wheel_claims')){
+        const [uid,day,reward_key,xp_awarded,created_ms]=row;
+        if(rewardIntents.has(String(uid)+':wheel:'+day)&&!verifiedWheel.some(x=>x.user_id===String(uid)&&x.day===day))verifiedWheel.push({user_id:String(uid),day,reward_key,xp_awarded,created_ms});
+       }
+       if(op._sql.includes("update mrxp_boost_inventory set state='active'")){
        const b=boostInventory.get(String(row[3])+':'+String(row[4]));if(b){
         if(b.state==='queued'){b.state='active';b.activated_ms=row[0];b.expires_ms=row[1]}
         b.carry_milli=row[2]
@@ -185,7 +211,7 @@ function harness(){
   return Response.json({ok:true,result});
  };
  return {
-  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,balanceAudit,settingUpdated,
+  env,calls,settings,pending,missionClaims,channelMembership,membership,player,v2Progress,v2Counts,avatarPrefs,creditBaselines,creditEvents,verifiedDaily,verifiedWheel,verifiedTaps,boostInventory,boostReceipts,balanceAudit,settingUpdated,rewardIntents,rateBuckets,
   restore(){globalThis.fetch=oldFetch},
   async webhook(update,secret='unit-test-secret',ctx){
    return worker.fetch(new Request(url,{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret,'content-type':'application/json'},body:JSON.stringify(update)}),env,ctx);
@@ -1783,5 +1809,215 @@ test('phase 5 friends and missions are compact, real-data-driven, and retain ser
     assert.ok(html.includes(marker),'Existing rewards/sync path removed: '+marker);
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
   for(const code of scripts)assert.doesNotThrow(()=>new vm.Script(code),'Frontend JS must parse after phase 5');
+ }finally{h.restore()}
+});
+
+ 
+test('audit: wheel outcome remains secret until server-logged spin, then persists across bootstrap',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:600051,first_name:'Audit'});
+  const url='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+  const get=()=>worker.fetch(new Request(url+'/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
+  const before=await get();assert.equal(before.status,200,await before.clone().text());
+  assert.deepEqual(Object.keys((await before.json()).wheel_plans),[]);
+  const claim=await worker.fetch(new Request(url+'/api/rewards/claim',{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify({kind:'wheel'})}),h.env);
+  assert.equal(claim.status,200,await claim.clone().text());
+  const receipt=await claim.json();
+  assert.ok(receipt.xp_awarded>0);
+  const after=await get(),state=await after.json();
+  assert.deepEqual(Object.keys(state.wheel_plans),[new Date().toISOString().slice(0,10)]);
+  assert.equal(state.wheel_plans[receipt.day],receipt.reward_key);
+  assert.ok(state.reward_intents.some(x=>x.kind==='wheel'&&x.day===receipt.day));
+ }finally{h.restore()}
+});
+
+test('audit: every Lucky Wheel outcome grants real XP, including previously cosmetic rewards',async()=>{
+ const serverRewards=code.match(/const rewards=\[\["xp10"[\s\S]*?\]\];/);
+ assert.ok(serverRewards,'Server wheel reward table missing');
+ const values=[...serverRewards[0].matchAll(/\["([^"]+)",\d+,(\d+)\]/g)];
+ assert.equal(values.length,8);
+ for(const [full,key,amount] of values){
+  assert.ok(Number(amount)>0,'Non-payable wheel reward: '+key);
+  assert.ok(full.includes(key))
+ }
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await res.text();
+  for(const [full,key,amount] of values)
+   assert.ok(html.includes('key:"'+key+'"')&&html.includes('amount:'+amount),'Wheel client disagrees with server: '+key);
+  assert.ok(html.includes('id="mrxp-audit-readability"'));
+  assert.ok(html.includes('state.confirmedXp);$("xp-detail")'));
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
+  for(const script of scripts)assert.doesNotThrow(()=>new vm.Script(script));
+ }finally{h.restore()}
+});
+
+test('audit: profile share validates null payloads and rejects oversized requests',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:600052,first_name:'Audit'});
+  const endpoint='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/share/profile';
+  const header={'x-telegram-init-data':signed,'content-type':'application/json'};
+  const invalid=await worker.fetch(new Request(endpoint,{method:'POST',headers:header,body:'null'}),h.env);
+  assert.equal(invalid.status,400);
+  const huge=await worker.fetch(new Request(endpoint,{method:'POST',headers:header,body:JSON.stringify({hide_name:false,extra:'x'.repeat(5500)})}),h.env);
+  assert.equal(huge.status,413)
+ }finally{h.restore()}
+});
+
+test('audit: reward-change history, cumulative taps and explicit sync receipts remain server-controlled',async()=>{
+ for(const marker of [
+  'FROM mrxp_balance_audit WHERE setting_key LIKE',
+  'previous.count+=taps',
+  'accepted_daily_days:',
+  'rejected_wheel_days:',
+  'await mrxpSyncConfirmations(env,user.id,body)',
+  'REQUEST_TOO_LARGE',
+  'SELECT 1 AS alive'
+ ])assert.ok(code.includes(marker),'Missing audited behavior: '+marker);
+});
+
+ 
+test('audit P0: forged reward-day arrays do not grant XP without a server claim',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62001,first_name:'Fraud check'});
+  const day=new Date().toISOString().slice(0,10);
+  const req=new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/sync',{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify({batch_id:'fraud-days-batch-62001',taps:0,daily_days:[day],wheel_days:[day]})});
+  const res=await worker.fetch(req,h.env);
+  assert.equal(res.status,200,await res.clone().text());
+  const body=await res.json();
+  assert.equal(body.xp_awarded,0);
+  assert.deepEqual(body.accepted_daily_days,[]);assert.deepEqual(body.accepted_wheel_days,[]);
+  assert.deepEqual(body.rejected_daily_days,[day]);assert.deepEqual(body.rejected_wheel_days,[day]);
+  assert.equal(h.verifiedDaily.length,0);assert.equal(h.verifiedWheel.length,0);
+ }finally{h.restore()}
+});
+
+test('audit P0: server claims are idempotent and pay once at next 12h sync',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62002,first_name:'Verified'});
+  const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+  const post=(path,body)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+  const daily=await post('/api/rewards/claim',{kind:'daily'});
+  assert.equal(daily.status,200,await daily.clone().text());
+  const d=await daily.json();assert.equal(d.xp_awarded,100);assert.equal(d.duplicate,false);
+  const repeat=await post('/api/rewards/claim',{kind:'daily'});
+  assert.equal((await repeat.json()).duplicate,true);
+  const wheel=await post('/api/rewards/claim',{kind:'wheel'});
+  assert.equal(wheel.status,200,await wheel.clone().text());
+  const w=await wheel.json();assert.ok(w.xp_awarded>0);
+  assert.equal(h.rewardIntents.size,2);
+  const sync=await post('/api/sync',{batch_id:'verified-claim-sync-62002',taps:3,daily_days:[],wheel_days:[]});
+  assert.equal(sync.status,200,await sync.clone().text());
+  const result=await sync.json();
+  assert.equal(result.xp_awarded,3+100+w.xp_awarded);
+  assert.deepEqual(result.accepted_daily_days,[d.day]);assert.deepEqual(result.accepted_wheel_days,[w.day]);
+  assert.equal(h.verifiedDaily.length,1);assert.equal(h.verifiedWheel.length,1);
+  assert.equal(h.player.confirmed_xp,3+100+w.xp_awarded);
+  const dup=await post('/api/sync',{batch_id:'verified-claim-sync-62002',taps:3,daily_days:[],wheel_days:[]});
+  assert.equal(dup.status,200);assert.equal((await dup.json()).duplicate,true);
+  assert.equal(h.player.confirmed_xp,3+100+w.xp_awarded);
+ }finally{h.restore()}
+});
+
+test('audit P0: arbitrary dates, JSON null and forged reward values are rejected',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62003,first_name:'Input'});
+  const url='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/rewards/claim';
+  const post=body=>worker.fetch(new Request(url,{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body}),h.env);
+  for(const payload of ['null','[]','{}',JSON.stringify({kind:'wheel',day:'2000-01-01'}),JSON.stringify({kind:'daily',xp_awarded:1000000})]){
+   const res=await post(payload);assert.equal(res.status,400,await res.clone().text());
+  }
+  const unauthorized=await worker.fetch(new Request(url,{method:'POST',headers:{'content-type':'application/json'},body:'{"kind":"daily"}'}),h.env);
+  assert.equal(unauthorized.status,401);
+  assert.equal(h.rewardIntents.size,0)
+ }finally{h.restore()}
+});
+
+test('audit P0: account-scoped request throttling rejects excessive repeated claims',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62004,first_name:'Throttle'});
+  const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/rewards/claim';
+  let blocked=0;
+  for(let i=0;i<30;i++){
+   const r=await worker.fetch(new Request(root,{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:'{"kind":"daily"}'}),h.env);
+   if(r.status===429)blocked++;else assert.equal(r.status,200,await r.clone().text());
+  }
+  assert.equal(blocked,5);assert.equal(h.rewardIntents.size,1);
+ }finally{h.restore()}
+});
+
+test('audit P0: new D1 schema is additive and UI uses server claim actions',async()=>{
+ const sql=await readFile(new URL('../migrations/007_server_reward_intents.sql',import.meta.url),'utf8');
+ assert.match(sql,/PRIMARY KEY\(user_id,kind,day\)/);
+ assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS mrxp_api_limits'));
+ assert.ok(!/DROP TABLE|DELETE FROM players|DELETE FROM (?:daily_claims|wheel_claims)|UPDATE players/i.test(sql));
+ const h=harness();
+ try{
+  const response=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await response.text();
+  assert.ok(html.includes('authFetch("/api/rewards/claim","POST",{kind:"daily"})'));
+  assert.ok(html.includes('authFetch("/api/rewards/claim","POST",{kind:"wheel"})'));
+  assert.ok(html.includes('mrxpReconcileServerRewards(r)'));
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
+  for(const snippet of scripts)assert.doesNotThrow(()=>new vm.Script(snippet));
+ }finally{h.restore()}
+});
+
+test('audit: HTML has strict hashed script CSP with no inline attribute handlers',async()=>{
+ const h=harness();
+ try{
+  const response=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(response.status,200);
+  const csp=response.headers.get('content-security-policy');
+  const scriptSource=csp.split('script-src ')[1].split(';')[0];
+  assert.ok(!scriptSource.includes("'unsafe-inline'"));
+  assert.equal([...scriptSource.matchAll(/'sha256-[A-Za-z0-9+/=]+'/g)].length,2);
+  const html=await response.text();
+  assert.ok(!/\bon(click|load|submit|error)="/i.test(html));
+  assert.ok(html.includes('id="mrxp-wheel-shortcut-button"'));
+  assert.ok(html.includes('id="mrxp-collection-shortcut-button"'));
+ }finally{h.restore()}
+});
+
+test('audit: a chunked request larger than 4 KB is rejected before parsing JSON',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:64001,first_name:'Chunked'});
+  const data=new TextEncoder().encode('x'.repeat(7000));
+  const body=new ReadableStream({start(c){c.enqueue(data.slice(0,3000));c.enqueue(data.slice(3000));c.close()}});
+  const request=new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/profile/avatar',{
+   method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},
+   duplex:'half',body
+  });
+  const response=await worker.fetch(request,h.env);
+  assert.equal(response.status,413,await response.clone().text());
+  assert.equal((await response.json()).error,'REQUEST_TOO_LARGE');
+ }finally{h.restore()}
+});
+
+test('audit: readiness checks reject missing D1 reward migration',async()=>{
+ const h=harness();
+ try{
+  const url='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/health';
+  const healthy=await worker.fetch(new Request(url),h.env);
+  assert.equal(healthy.status,200,await healthy.clone().text());
+  assert.equal((await healthy.json()).reward_schema_ready,true);
+  const original=h.env.DB.prepare;
+  h.env.DB.prepare=sql=>{
+   if(sql.includes('FROM mrxp_reward_intents LIMIT 1'))throw Error('missing migration');
+   return original(sql)
+  };
+  const broken=await worker.fetch(new Request(url),h.env);
+  assert.equal(broken.status,503);
+  const status=await broken.json();
+  assert.equal(status.ok,false);
+  assert.equal(status.reward_schema_ready,false);
  }finally{h.restore()}
 });

@@ -167,3 +167,25 @@ CREATE TABLE IF NOT EXISTS mrxp_balance_audit (
 );
 CREATE INDEX IF NOT EXISTS idx_mrxp_balance_audit_created ON mrxp_balance_audit(created_ms DESC);
 -- Current settings continue to live in bot_settings with the mrxp_balance_ prefix.
+
+-- Audit 2026-11-20: server-authorized free XP reward receipts.
+-- Also deployed separately as additive migration 007_server_reward_intents.sql.
+CREATE TABLE IF NOT EXISTS mrxp_reward_intents (
+ user_id TEXT NOT NULL,
+ kind TEXT NOT NULL CHECK(kind IN ('daily','wheel')),
+ day TEXT NOT NULL,
+ reward_key TEXT NOT NULL,
+ xp_awarded INTEGER NOT NULL CHECK(xp_awarded BETWEEN 1 AND 100),
+ claimed_ms INTEGER NOT NULL,
+ PRIMARY KEY(user_id,kind,day)
+);
+CREATE INDEX IF NOT EXISTS idx_mrxp_reward_intents_user_day
+ ON mrxp_reward_intents(user_id,day);
+
+CREATE TABLE IF NOT EXISTS mrxp_api_limits (
+ user_id TEXT NOT NULL,
+ action TEXT NOT NULL,
+ window_start_ms INTEGER NOT NULL,
+ count INTEGER NOT NULL CHECK(count>=1),
+ PRIMARY KEY(user_id,action)
+);
