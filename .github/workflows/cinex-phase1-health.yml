@@ -43,6 +43,12 @@ jobs:
           python -m pip install PyYAML==6.0.3
       - name: Audit de securite statique
         run: python scripts/cinex_phase1_audit.py
+      # Ce contrôle est impératif même pour un audit "lecture seule" :
+      # rescue_links_runtime ouvre réellement la session Telegram personnelle.
+      - name: Vérifier le délai FloodWait AVANT toute connexion personnelle
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
       - name: Verification des invitations existantes (lecture seule)
         id: invitations
         run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"

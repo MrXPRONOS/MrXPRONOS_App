@@ -1,0 +1,31 @@
+name: CineX — CI de protection des sessions personnelles (hors ligne)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cinex-*'
+      - '.github/workflows/telegram-film-*'
+      - '.github/workflows/telegram-discovery-daily.yml'
+      - 'telegram-film-relay/tests/test_cinex_workflow_cooldown.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-*'
+      - '.github/workflows/telegram-film-*'
+      - '.github/workflows/telegram-discovery-daily.yml'
+      - 'telegram-film-relay/tests/test_cinex_workflow_cooldown.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Vérifier les protections FloodWait sans ouvrir une session Telegram
+        run: python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_workflow_cooldown.py' -v
