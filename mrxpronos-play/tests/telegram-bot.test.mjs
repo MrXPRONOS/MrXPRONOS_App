@@ -1554,7 +1554,9 @@ test('official existing graphics replace repeated Mini App emoji placeholders wi
    '04-quests-progression/38-level-crown.webp',
    '01-brand/07-energy-blue-bolt.webp',
    '06-game-states/55-telegram-channel.webp',
-   '04-quests-progression/37-success-green-check.webp'
+   '04-quests-progression/37-success-green-check.webp',
+   '05-mrxp-legends-nft/50-nft-collection-chest.webp',
+   '12-share-cards/84-profile-card-square.webp'
   ])assert.ok(html.includes(filename),'missing reused graphic: '+filename);
   for(const placeholder of [
    '<h2>🎡 LUCKY WHEEL</h2>',
@@ -1564,7 +1566,10 @@ test('official existing graphics replace repeated Mini App emoji placeholders wi
    '<h3>🔒 PROCHAIN RANG</h3>',
    '<strong>👑 COLLECTION DES AVATARS</strong>',
    '<span class="section-title">⚡ BOOSTS DISPONIBLES</span>',
-   'id="mrxp-share-telegram">✈️ Lien Telegram'
+   'id="mrxp-share-telegram">✈️ Lien Telegram',
+   '<h3>📸 PARTAGER MON PROFIL</h3>',
+   'id="mrxp-share-create">🎨 CRÉER MA CARTE OFFICIELLE',
+   '<span class="section-title">🎒 MON INVENTAIRE</span>'
   ])assert.ok(!html.includes(placeholder),'obsolete emoji remains: '+placeholder);
   assert.ok(html.includes('heroBadge.dataset.rankBadge'),'dynamic official rank shield not wired');
   assert.ok(html.includes('mrxp-avatar-lock'),'avatar lock handler missing');
