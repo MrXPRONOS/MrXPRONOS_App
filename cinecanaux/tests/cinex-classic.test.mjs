@@ -51,6 +51,7 @@ test('queue copies only from a verified negative library id into a positive priv
  globalThis.fetch=async(url,options)=>{calls.push({method:String(url).split('/').at(-1),body:JSON.parse(options.body)});return Response.json({ok:true,result:{message_id:66}})};
  try{
   await handleClassicDeliveryStart(env,request(321,43));
+  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
   const report=await processClassicDeliveryQueue(env);
   assert.equal(report.processed,1);
   const record=db.prepare('SELECT status,delivered_message_id,delete_after FROM cine_classic_deliveries').get();
@@ -85,6 +86,7 @@ test('classic film delivers from owner bot-chat mirror when stored',async()=>{
   db.prepare("INSERT INTO cine_owner_vault(source_chat_id,source_message_id,media_kind,owner_chat_id,owner_message_id,status) VALUES(?,?,?,?,?,'stored')")
     .run('-1004392607284',238,'video',500,902);
   await handleClassicDeliveryStart(env,request(321,404));
+  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
   const report=await processClassicDeliveryQueue(env);
   assert.equal(report.processed,1);
   const copy=calls.find(x=>x.method==='copyMessage').body;
