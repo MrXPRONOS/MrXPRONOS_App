@@ -24,7 +24,7 @@ INVITE_RE = re.compile(r"^https://t\.me/(?:\+[A-Za-z0-9_-]{12,}|joinchat/[A-Za-z
 HANDLE_RE = re.compile(r"^@[A-Za-z][A-Za-z0-9_]{4,31}$")
 BUTTON_TEXT = "🛟 Rejoindre le canal secours"
 MAX_CREATED = 1
-PAUSE_SECONDS = 60
+PAUSE_SECONDS = 180
 
 
 def public_username(public) -> str | None:
