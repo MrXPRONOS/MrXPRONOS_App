@@ -45,6 +45,69 @@ class ReactionTests(unittest.TestCase):
         self.assertIn("(VALUES(8))", statements[0])
         self.assertIn("p.seq > a.start_after_seq", statements[1])
 
+    def test_pending_jobs_prioritize_newest_but_do_not_starve_oldest(self):
+        sql_seen = []
+        class FakeDB:
+            def query(self, sql, params):
+                sql_seen.append((sql, params))
+                if "DESC" in sql:
+                    return {"results": [
+                        {"post_seq": 199, "bot_slot": 13},
+                        {"post_seq": 198, "bot_slot": 14},
+                    ]}
+                if "ASC" in sql:
+                    return {"results": [
+                        {"post_seq": 84, "bot_slot": 3},
+                        {"post_seq": 198, "bot_slot": 14},
+                    ]}
+                raise AssertionError("Unexpected sort direction")
+        selected = react.due_jobs(FakeDB(), (3, 13, 14))
+        self.assertEqual([(r["post_seq"],r["bot_slot"]) for r in selected],
+                         [(199,13), (198,14), (84,3)])
+        self.assertIn("ORDER BY j.post_seq DESC", sql_seen[0][0])
+        self.assertIn("ORDER BY j.post_seq ASC", sql_seen[1][0])
+        self.assertEqual(sql_seen[0][1], (3,13,14,80))
+        self.assertEqual(sql_seen[1][1], (3,13,14,20))
+
+    def test_enqueue_newest_posts_first(self):
+        statements = []
+        class FakeDB:
+            def query(self, sql):
+                statements.append(sql)
+                return {"results": []}
+        react.prepare_jobs(FakeDB(), (3,13))
+        self.assertIn("ORDER BY p.seq DESC", statements[1])
+
+    def test_diagnose_primary_channel_admin_access_without_posting(self):
+        import contextlib
+        import io
+        calls = []
+        class FakeDB:
+            def query(self, sql):
+                self_sql = str(sql)
+                self_assert = self_sql.startswith("SELECT kind,chat_id")
+                if not self_assert:
+                    raise AssertionError("Unexpected audit SQL")
+                return {"results": [
+                    {"kind": "films", "chat_id": "-100123"},
+                    {"kind": "series", "chat_id": "-100124"},
+                ]}
+        def transport(url, data, headers):
+            method=url.rsplit("/",1)[-1]
+            calls.append(method)
+            if method == "getMe":
+                return 200, {"ok":True,"result":{"id":1234,"is_bot":True,"username":"demo_bot"}}
+            if data["chat_id"] == "-100123":
+                return 200, {"ok":True,"result":{"status":"administrator"}}
+            return 400, {"ok":False,"description":"Bad Request: chat not found"}
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output):
+            react.audit_primary_channel_access(FakeDB(), {13:"test-token"}, transport)
+        self.assertIn("channel=films status=admin",output.getvalue())
+        self.assertIn("channel=series status=not_accessible",output.getvalue())
+        self.assertEqual(calls,["getMe","getChatMember","getChatMember"])
+        self.assertNotIn("test-token", output.getvalue())
+
     def test_token_selection_skips_empty_and_duplicate(self):
         env = {
             "TELEGRAM_REACTION_BOT_03_TOKEN": "token-three",
