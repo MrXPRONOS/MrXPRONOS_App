@@ -16,6 +16,7 @@ import {v2API,getCatalog} from "./v2.mjs";
 import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncCategoryTags} from "./maintenance-v2.mjs";
 import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
+import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
 // never expose or log the Telegram token itself.
@@ -455,6 +456,15 @@ export default {
    // Owner digests are sent on the daily 06:00 pass or the first successful bootstrap.
    const report=await runRadarOperationalVerification(env,{sendNotices:hour===6||!first?.last_success_at});
    errors+=report.errors;
+   // New libraries: verify the CineRadar bot's OWN membership, not the
+   // distinct publishing bots used by GitHub Actions. No content is sent.
+   try {
+    const audit=await auditCineRadarLibraryMembership(env);
+    if(audit.blocked)console.warn('cinex_library_bot_access_blocked',audit.blocked);
+   } catch (e) {
+    errors++;
+    console.warn('cinex_library_membership_audit_failed',String(e?.name||'error'));
+   }
    return {errors};
   }));
   else ctx.waitUntil(runLoggedJob(env,'housekeeping',async()=>{
