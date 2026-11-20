@@ -402,11 +402,23 @@ function mrxpBoostSku(sku){return MRXP_BOOST_CATALOG.find(x=>x.sku===sku)||null}
 
 /* Limit request memory and reject excessively large client-supplied actions. */
 async function mrxpParseAction(request,maxBytes=16384){
- const announced=Number(request.headers.get("content-length")||0);
- if(announced>maxBytes)throw Error("REQUEST_TOO_LARGE");
- const body=await request.text();
- if(new TextEncoder().encode(body).byteLength>maxBytes)throw Error("REQUEST_TOO_LARGE");
- return JSON.parse(body)
+ const len=request.headers.get("content-length");
+ if(len!==null&&(!/^\d+$/.test(len)||Number(len)>maxBytes))throw Error("REQUEST_TOO_LARGE");
+ if(!request.body)throw Error("JSON_INVALIDE");
+ const reader=request.body.getReader(),parts=[];
+ let size=0;
+ try{
+  for(;;){
+   const {value,done}=await reader.read();if(done)break;
+   if(!value)continue;
+   size+=value.byteLength;
+   if(size>maxBytes){try{await reader.cancel()}catch{}throw Error("REQUEST_TOO_LARGE")}
+   parts.push(value)
+  }
+ }finally{reader.releaseLock()}
+ const bytes=new Uint8Array(size);let offset=0;
+ for(const part of parts){bytes.set(part,offset);offset+=part.byteLength}
+ return JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes))
 }
 
 const MRXP_BOOST_PURCHASE_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -902,7 +914,15 @@ async function mrxpSyncConfirmations(env,userId,body){
 export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pathname;try{
  if(p==="/"||p==="/index.html")return page();
  if(p==="/api/health"){
-  let db_connected=false;try{db_connected=Number((await env.DB.prepare("SELECT 1 AS alive").first())?.alive)===1}catch{}
+  let db_connected=false,reward_schema_ready=false;
+  try{
+   db_connected=Number((await env.DB.prepare("SELECT 1 AS alive").first())?.alive)===1;
+   if(db_connected){
+    await env.DB.prepare("SELECT 1 FROM mrxp_reward_intents LIMIT 1").all();
+    await env.DB.prepare("SELECT 1 FROM mrxp_api_limits LIMIT 1").all();
+    reward_schema_ready=true
+   }
+  }catch{}
   let bot_username=null,telegram_token_valid=false;
   if(env.BOT_TOKEN){
    if(Date.now()>=healthTelegramCache.expires){
@@ -912,7 +932,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
    }
    telegram_token_valid=healthTelegramCache.valid;bot_username=healthTelegramCache.username
   }
-  return json({ok:db_connected,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,telegram_token_valid,bot_username,correct_bot:typeof bot_username==="string"&&bot_username.toLowerCase()==="mrxpronosplaybot",db_connected,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false},db_connected?200:503)
+  return json({ok:db_connected&&reward_schema_ready,app:"Mr XPRONOS Play",bot_connected:!!env.BOT_TOKEN,telegram_token_valid,bot_username,correct_bot:typeof bot_username==="string"&&bot_username.toLowerCase()==="mrxpronosplaybot",db_connected,reward_schema_ready,minimum_sync_interval_hours:12,payments_enabled:false,token_issued:false},db_connected&&reward_schema_ready?200:503)
  }
  if(p==="/telegram/webhook"&&request.method==="POST"){
   if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||request.headers.get("X-Telegram-Bot-Api-Secret-Token")!==env.WEBHOOK_SECRET)return json({error:"Forbidden"},403);
@@ -976,7 +996,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   }catch{return missing()}
  }
  let player=await ensurePlayer(env,user);
- if(request.method==="POST"&&MRXP_RATE_RULES[p]&&!await mrxpApiRateGuard(env,user.id,p))return json({error:"Trop de requêtes. Réessaie dans une minute.",code:"RATE_LIMITED"},429);
+ if(request.method==="POST"&&MRXP_RATE_RULES[p]&&!await mrxpApiRateGuard(env,user.id,p))return json({error:"Trop de requêtes. Réessaie dans une minute.",code:"RATE_LIMITED",retry_after_seconds:60},429);
  if(p==="/api/game-features"&&request.method==="GET")return json({features:await getGameFeatures(env)});
  if(p==="/api/progression"&&request.method==="GET")return json({progression:await v2Progression(env,player)});
  if(p==="/api/profile"&&request.method==="GET"){
