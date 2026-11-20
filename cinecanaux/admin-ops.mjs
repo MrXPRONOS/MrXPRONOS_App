@@ -27,6 +27,25 @@ export async function ownerOperationsOverview(env){
   env.DB.prepare("SELECT value,updated_at FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first().catch(()=>null),
   env.DB.prepare("SELECT COALESCE(delete_last_error,'not_specified') AS reason,COUNT(*) AS count FROM cine_delivery_job_items WHERE delete_state='manual_review' GROUP BY COALESCE(delete_last_error,'not_specified') ORDER BY count DESC LIMIT 5").all().catch(()=>({results:[]}))
  ]);
+ // Include every active CineX Bot API queue, not just legacy libraries.
+ // Read-only aggregations: no chat IDs, tokens, or private message IDs returned.
+ const extraQuery=[
+  "SELECT 'series' family,(SELECT COUNT(*) FROM cine_series_jobs WHERE status='queued') queued,"+
+  "(SELECT COUNT(*) FROM cine_series_jobs WHERE status='needs_review') needs_review,"+
+  "(SELECT COUNT(*) FROM cine_series_job_items WHERE state='sent' AND delete_after<CURRENT_TIMESTAMP AND delete_state IN ('pending','retry','deleting')) overdue,"+
+  "(SELECT COUNT(*) FROM cine_series_job_items WHERE delete_state='manual_review') manual_review",
+  "SELECT 'classics' family,(SELECT COUNT(*) FROM cine_classic_deliveries WHERE status='queued') queued,"+
+  "(SELECT COUNT(*) FROM cine_classic_deliveries WHERE status='needs_review') needs_review,"+
+  "(SELECT COUNT(*) FROM cine_classic_deliveries WHERE status='sent' AND delete_after<CURRENT_TIMESTAMP AND delete_state IN ('pending','retry','deleting')) overdue,"+
+  "(SELECT COUNT(*) FROM cine_classic_deliveries WHERE delete_state='manual_review') manual_review",
+  "SELECT 'franchise' family,(SELECT COUNT(*) FROM cine_franchise_jobs WHERE status='queued') queued,"+
+  "(SELECT COUNT(*) FROM cine_franchise_jobs WHERE status='needs_review') needs_review,"+
+  "(SELECT COUNT(*) FROM cine_franchise_job_items WHERE state='sent' AND delete_after<CURRENT_TIMESTAMP AND delete_state IN ('pending','retry','deleting')) overdue,"+
+  "(SELECT COUNT(*) FROM cine_franchise_job_items WHERE delete_state='manual_review') manual_review",
+  "SELECT 'owner_archive' family,(SELECT COUNT(*) FROM cine_owner_vault WHERE status='queued') queued,"+
+  "(SELECT COUNT(*) FROM cine_owner_vault WHERE status='needs_review') needs_review,0 overdue,0 manual_review",
+ ].join(" UNION ALL ");
+ const extra=await env.DB.prepare(extraQuery).all().catch(()=>({results:[]}));
  const statuses=operations.results||[],runs=jobs.results||[];
  const now=Date.now();
  const age=scheduler?.last_tick_at?now-Date.parse(String(scheduler.last_tick_at).replace(' ','T')+'Z'):Infinity;
@@ -37,6 +56,21 @@ export async function ownerOperationsOverview(env){
   queued:Number(deliveryJobs?.queued||0),needs_review:Number(deliveryJobs?.needs_review||0),
   deletion_manual_review:Number(deliveryCopies?.manual_review||0),deletion_retries:Number(deliveryCopies?.retries||0),
   overdue:Number(deliveryCopies?.overdue||0),reasons:(issues?.results||[]).map(x=>({reason:String(x.reason||'unknown').slice(0,55),count:Number(x.count||0)}))};
+ cinex.families=[
+  {family:'libraries',queued:cinex.queued,needs_review:cinex.needs_review,
+   overdue:cinex.overdue,manual_review:cinex.deletion_manual_review},
+  ...(extra.results||[]).filter(x=>['series','classics','franchise','owner_archive'].includes(x.family)).map(x=>({
+   family:x.family,queued:Number(x.queued||0),needs_review:Number(x.needs_review||0),
+   overdue:Number(x.overdue||0),manual_review:Number(x.manual_review||0),
+  }))
+ ];
+ cinex.total_queued=cinex.families.reduce((a,x)=>a+x.queued,0);
+ cinex.total_needs_review=cinex.families.reduce((a,x)=>a+x.needs_review,0);
+ cinex.total_overdue=cinex.families.reduce((a,x)=>a+x.overdue,0);
+ cinex.total_deletion_manual_review=cinex.families.reduce((a,x)=>a+x.manual_review,0);
+ if(cinex.total_needs_review)alerts.push({level:'warning',title:'CinéX : files d’envoi à vérifier',detail:cinex.total_needs_review+' demande(s) en erreur sur l’ensemble des catalogues.'});
+ if(cinex.total_overdue)alerts.push({level:'warning',title:'CinéX : nettoyage en retard',detail:cinex.total_overdue+' copie(s) à supprimer sur l’ensemble des catalogues.'});
+ if(cinex.total_deletion_manual_review)alerts.push({level:'warning',title:'CinéX : suppressions en révision manuelle',detail:cinex.total_deletion_manual_review+' copie(s) non supprimées automatiquement.'});
  if(cinex.needs_review)alerts.push({level:'warning',title:'CinéX : envois nécessitant un diagnostic',detail:cinex.needs_review+' demandes à examiner dans les journaux techniques (aucune autorisation manuelle de film).'});
  if(cinex.deletion_manual_review)alerts.push({level:'warning',title:'CinéX : copies non supprimées automatiquement',detail:cinex.deletion_manual_review+' suppressions exigent un diagnostic technique.'});
  if(cinex.overdue)alerts.push({level:'warning',title:'CinéX : suppressions en retard',detail:cinex.overdue+' copies attendent le nettoyage après leur échéance.'});
