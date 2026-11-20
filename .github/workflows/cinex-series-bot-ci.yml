@@ -21,6 +21,9 @@ on:
       - 'cinecanaux/tests/individual-series.test.mjs'
       - 'cinecanaux/tests/individual-series-download.test.mjs'
       - 'cinecanaux/scripts/audit_series_bots.py'
+      - 'cinecanaux/scripts/audit_cinex_bot_permissions.py'
+      - 'cinecanaux/tests/test_cinex_bot_permissions.py'
+      - '.github/workflows/cinex-bot-permissions-audit.yml'
       - 'cinecanaux/scripts/publish_individual_series_bot.py'
       - 'cinecanaux/tests/test_series_bot_inventory.py'
       - 'cinecanaux/tests/test_individual_series_publish.py'
@@ -60,6 +63,7 @@ jobs:
           python -m unittest discover -s cinecanaux/tests -p 'test_individual_series_publish.py' -v
           python -m unittest discover -s cinecanaux/tests -p 'test_series_showcase_publish.py' -v
           python -m unittest discover -s cinecanaux/tests -p 'test_franchise_saga_publisher.py' -v
+          python -m unittest discover -s cinecanaux/tests -p 'test_cinex_bot_permissions.py' -v
       - name: Assert no user session imported by Series workflows
         run: |
           python - <<'PY'
@@ -71,6 +75,8 @@ jobs:
               Path('.github/workflows/cinex-fast-furious-bot.yml'),
               Path('cinecanaux/owner-chat-vault.mjs'),
               Path('cinecanaux/scripts/audit_series_bots.py'),
+              Path('cinecanaux/scripts/audit_cinex_bot_permissions.py'),
+              Path('.github/workflows/cinex-bot-permissions-audit.yml'),
               Path('cinecanaux/scripts/publish_individual_series_bot.py'),
               Path('cinecanaux/scripts/publish_series_showcase_bot.py'),
               Path('.github/workflows/cinex-series-showcase-publish.yml'),
