@@ -1,5 +1,10 @@
 name: CineX Séries — synchroniser affiches et publier avec les bots
 on:
+  # A one-shot marker may safely rerun diagnostics after a fix; never publishes.
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/.cinex-series-sync-diagnostic-once'
   workflow_dispatch:
     inputs:
       publish:
@@ -22,7 +27,7 @@ jobs:
       CINEX_SERIES_FOLDER_URL: ${{ vars.CINEX_SERIES_FOLDER_URL }}
       CINEX_SERIES_RESCUE_INVITE_URL: ${{ secrets.CINEX_SERIES_RESCUE_INVITE_URL }}
       CINEX_SERIES_RIGHTS_ATTESTED: ${{ vars.CINEX_SERIES_RIGHTS_ATTESTED || 'false' }}
-      CINEX_SERIES_PUBLISH_ENABLED: ${{ inputs.publish && vars.CINEX_SERIES_PUBLISH_ENABLED == 'true' && 'true' || 'false' }}
+      CINEX_SERIES_PUBLISH_ENABLED: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && vars.CINEX_SERIES_PUBLISH_ENABLED == 'true' && 'true' || 'false' }}
       CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
