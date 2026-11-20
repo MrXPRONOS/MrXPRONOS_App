@@ -12,7 +12,7 @@ spec.loader.exec_module(p)
 class CineradarDailyPromoTests(unittest.TestCase):
     def test_targets_exact_public_subset(self):
         handles = {name.casefold() for name, _ in p.TARGETS}
-        self.assertEqual(len(handles), 14)
+        self.assertEqual(len(handles), 13)
         self.assertIn("cinexfilms_vf", handles)
         self.assertIn("actucrypto24h", handles)
         self.assertIn("seriesvf_cinex", handles)

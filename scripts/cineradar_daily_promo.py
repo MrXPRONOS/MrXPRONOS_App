@@ -35,7 +35,6 @@ BOT_SECRETS = (
 TARGETS = (
     ("actucrypto_mrxp", "crypto"),
     ("ActuCrypto24H", "crypto"),
-    ("ActuCryptoNewsFR", "crypto"),
     ("CryptoActuLive", "crypto"),
     ("bleachvffr", "anime"),
     ("CineXAnimeFR", "anime"),
@@ -168,7 +167,7 @@ def run(*, dry_run: bool) -> int:
         return 0
     token, bot_id = find_publisher()
     print("Publisher verified: @" + BOT_USERNAME)
-    if len(TARGETS) != 14:
+    if len(TARGETS) != 13:
         raise RuntimeError("target_list_incomplete")
     endpoint, session = ("", None) if dry_run else ledger_session()
     counts = {"verified": 0, "sent": 0, "already_reserved": 0, "skipped": 0, "errors": 0}

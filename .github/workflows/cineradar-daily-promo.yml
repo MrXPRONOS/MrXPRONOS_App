@@ -59,7 +59,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check 'requests>=2.31,<3'
-      - name: Vérifier les 14 canaux via Telegram (aucun envoi)
+      - name: Vérifier les 13 canaux via Telegram (aucun envoi)
         run: python scripts/cineradar_daily_promo.py --dry-run
 
   publish:
