@@ -1,0 +1,50 @@
+name: CineX - Autoriser CineRadar dans les nouvelles videotheques (une fois)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-radar-library-access.yml'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Accorder les permissions minimales au vrai bot CineRadar'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+jobs:
+  access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      PYTHONPATH: .
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      SERIES_RIGHTS_ATTESTED: ${{ vars.SERIES_RIGHTS_ATTESTED }}
+      ACTION_RIGHTS_ATTESTED: ${{ vars.ACTION_RIGHTS_ATTESTED }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Tester la logique de permissions en mode hors ligne
+        run: python -m unittest discover -s tests -p 'test_cineradar_access.py' -v
+      - name: Operation idempotente sur les canaux exacts du proprietaire
+        run: |
+          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.apply }}" == "true" ]]; then
+            python scripts/grant_cineradar_access.py --apply
+          else
+            python scripts/grant_cineradar_access.py
+          fi
