@@ -1,0 +1,179 @@
+"""Publish ONE already-checkpointed licensed CineX classic film using Bot API only.
+
+No Telethon/user session, uploads, archive deletion, publicity, mirrors or ads.
+Failure to confirm the exact private rescue invitation prevents ANY publication.
+D1 checkpoints make successful posters/videos reusable on a later retry.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import secrets
+import sys
+from pathlib import Path
+from urllib.parse import quote
+
+import requests
+
+ROOT=Path(__file__).resolve().parents[1]
+TOKEN=re.compile(r"^[A-Za-z0-9_-]{24}$")
+INVITE=re.compile(r"^https://t\.me/(?:\+[A-Za-z0-9_-]{12,}|joinchat/[A-Za-z0-9_-]{12,})/?$")
+HANDLE="cinexfilms_vf"
+PUBLIC="-1003921647496"
+RESCUE="-1004357703501"
+
+
+def api(bot,method,params):
+    response=requests.post("https://api.telegram.org/bot"+bot+"/"+method,
+                           json=params,timeout=30)
+    try:
+        obj=response.json()
+    except ValueError as e:
+        raise RuntimeError("Réponse Telegram indéterminée, aucun réessai automatique") from e
+    if not response.ok or not obj.get("ok"):
+        raise RuntimeError("Telegram "+method+" refusé (code "+str(obj.get("error_code",response.status_code))+")")
+    return obj["result"]
+
+
+def d1(sql,params=None):
+    token=os.environ.get("CLOUDFLARE_API_TOKEN","")
+    account=os.environ.get("CLOUDFLARE_ACCOUNT_ID","")
+    database=os.environ.get("CINERADAR_D1_DATABASE_ID","")
+    if not token or not account or not database:
+        raise RuntimeError("Configuration D1 absente")
+    response=requests.post(
+        f"https://api.cloudflare.com/client/v4/accounts/{account}/d1/database/{database}/query",
+        headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"},
+        json={"sql":sql,"params":params or []},timeout=25)
+    if not response.ok:
+        raise RuntimeError("Cloudflare D1 indisponible : HTTP "+str(response.status_code))
+    obj=response.json()
+    if not obj.get("success") or not obj.get("result") or not obj["result"][0].get("success"):
+        raise RuntimeError("Cloudflare D1 n'a pas confirmé la requête")
+    return obj["result"][0].get("results") or []
+
+
+def rescue_url(bot):
+    channels=json.loads((ROOT/"state/rescue_channels.json").read_text())["channels"]
+    expected=channels["@cinexfilms_vf"]
+    if str(expected["rescue_channel_id"])!=RESCUE or int(expected["public_id"])!=int(PUBLIC):
+        raise RuntimeError("Identité du canal Secours non conforme")
+    url=os.getenv("CINEX_RESCUE_INVITE_URL","").strip()
+    if not url:
+        # Bot getChat works only after the bot is actually admitted to Secours.
+        try:
+            url=str(api(bot,"getChat",{"chat_id":RESCUE}).get("invite_link") or "")
+        except RuntimeError:
+            url=""
+    if not INVITE.fullmatch(url):
+        raise RuntimeError("Invitation Secours privée absente : publication refusée avant tout envoi")
+    digest=hashlib.sha256(url.encode("utf-8")).hexdigest()
+    if digest!=expected["invite_sha256"]:
+        raise RuntimeError("Invitation Secours différente du lien vérifié enregistré : refus")
+    return url
+
+
+def source_pair():
+    records=json.loads((ROOT/"state/state.json").read_text())["processed"]
+    # Use one existing checkpoint (verified paired video + public poster).
+    available=[(key,record) for key,record in records.items()
+               if isinstance(record,dict) and record.get("private_message_id")
+               and record.get("public_message_id")]
+    if not available:
+        raise RuntimeError("Aucun ancien film vérifié dans le registre, aucun nouvel envoi")
+    key,record=available[-1]
+    private_video=int(record["private_message_id"])
+    public_poster=int(record["public_message_id"])
+    if private_video<=0 or public_poster<=0:
+        raise RuntimeError("Reçus source invalides")
+    return key,private_video,public_poster
+
+
+def publish():
+    if os.environ.get("CINEX_DOWNLOADS_ENABLED","").lower()!="true":
+        raise RuntimeError("GitHub CINEX_DOWNLOADS_ENABLED n'est pas à true")
+    bot=os.environ.get("CINEX_BOT_TOKEN","").strip()
+    private=os.environ.get("TG_PRIVATE_CHANNEL","")
+    if not bot or not re.fullmatch(r"-100\d{5,}",private):
+        raise RuntimeError("Identifiants du bot ou vidéothèque classique manquants")
+    folder=os.environ.get("CINEX_FILM_FOLDER_URL","").strip()
+    if not folder.startswith("https://t.me/addlist/"):
+        raise RuntimeError("Lien du dossier CinéX invalide")
+    me=api(bot,"getMe",{})
+    for cid in (PUBLIC,private):
+        chat=api(bot,"getChat",{"chat_id":cid})
+        if str(chat.get("id"))!=cid:
+            raise RuntimeError("Destination Telegram incompatible avec le registre")
+        membership=api(bot,"getChatMember",{"chat_id":cid,"user_id":me["id"]})
+        if membership.get("status") not in ("creator","administrator") or (
+            membership.get("status")=="administrator" and not membership.get("can_post_messages",False)):
+            raise RuntimeError("Le bot n'est pas autorisé à publier dans le canal "+cid)
+    help_link=rescue_url(bot)
+    key,video_id,poster_id=source_pair()
+    source_id=private
+    title="Film CinéX (sélection vérifiée)"
+    existing=d1(
+        "SELECT token,status,public_poster_message_id,public_video_message_id FROM cine_classic_links WHERE source_chat_id=? AND source_message_id=?",
+        [source_id,video_id])
+    if existing:
+        record=existing[0]
+        token=record["token"]
+        if record["status"]=="published":
+            print("ALREADY_PUBLISHED : le film enregistré ne sera pas copié en double")
+            print("FICHE_TELEGRAM : https://t.me/"+HANDLE+"/"+str(record["public_poster_message_id"]))
+            print("VIDEO_TELEGRAM : https://t.me/"+HANDLE+"/"+str(record["public_video_message_id"]))
+            return
+    else:
+        token=secrets.token_urlsafe(18)
+        if not TOKEN.fullmatch(token):
+            raise RuntimeError("Token de livraison invalide")
+        d1("INSERT INTO cine_classic_links(token,source_chat_id,source_message_id,title,public_handle,status) VALUES(?,?,?,?,?,'pending')",
+           [token,source_id,video_id,title,"@"+HANDLE])
+        record={"token":token,"status":"pending","public_poster_message_id":None,"public_video_message_id":None}
+    download="https://t.me/CineRadarFr_Bot?start=d_"+token
+    rows={"inline_keyboard":[
+        [{"text":"⬇️ Télécharger","url":download}],
+        [{"text":"🛟 Rejoindre le canal secours","url":help_link}],
+        [{"text":"📁 Rejoindre le dossier","url":folder}]
+    ]}
+    poster_new=record["public_poster_message_id"]
+    if not poster_new:
+        poster_new=api(bot,"copyMessage",{
+            "chat_id":PUBLIC,"from_chat_id":PUBLIC,"message_id":poster_id,
+            "reply_markup":rows,"disable_notification":True,
+        })["message_id"]
+        d1("UPDATE cine_classic_links SET public_poster_message_id=?,updated_at=CURRENT_TIMESTAMP WHERE token=? AND status='pending'",
+           [poster_new,token])
+    video_new=record["public_video_message_id"]
+    if not video_new:
+        video_new=api(bot,"copyMessage",{
+            "chat_id":PUBLIC,"from_chat_id":source_id,"message_id":video_id,
+            "disable_notification":True,
+        })["message_id"]
+        d1("UPDATE cine_classic_links SET public_video_message_id=?,updated_at=CURRENT_TIMESTAMP WHERE token=? AND status='pending'",
+           [video_new,token])
+    url="https://t.me/"+HANDLE+"/"+str(video_new)
+    # This opens Telegram's share destination picker. Selecting Saved Messages
+    # saves the public post LINK; saving the file requires native Forward.
+    share="https://t.me/share/url?url="+quote(url,safe="")
+    api(bot,"editMessageReplyMarkup",{
+        "chat_id":PUBLIC,"message_id":video_new,
+        "reply_markup":{"inline_keyboard":[[
+            {"text":"💾 Enregistrer / partager","url":share}
+        ]]},
+    })
+    d1("UPDATE cine_classic_links SET status='published',updated_at=CURRENT_TIMESTAMP WHERE token=? AND public_poster_message_id=? AND public_video_message_id=?",
+       [token,poster_new,video_new])
+    print("FICHE_TELEGRAM : https://t.me/"+HANDLE+"/"+str(poster_new))
+    print("VIDEO_TELEGRAM : "+url)
+    print("TROIS_BOUTONS_AFFICHE : Télécharger, Secours, Dossier")
+    print("BOUTON_VIDEO : Enregistrer / partager via Telegram (lien du post)")
+
+
+if __name__=="__main__":
+    try:publish()
+    except Exception as e:
+        print("CINEX_PUBLISH_BLOCKED : "+str(e),file=sys.stderr)
+        raise SystemExit(1)
