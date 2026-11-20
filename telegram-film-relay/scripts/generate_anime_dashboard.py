@@ -7,8 +7,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
+# Supports the workflow invocation from the repository root.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from film_relay.anime_identity import consolidate_catalog
 from film_relay.episode_identity import series_title
 
