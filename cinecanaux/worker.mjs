@@ -17,6 +17,26 @@ import {checkDailyLinks,integrateSuggestions,integrateDiscoveredCandidates,syncC
 import {ingestRadarPost,radarApi,runTrendRefresh,reconcileRadarPosts} from "./trend-radar.mjs";
 import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-owner-ops.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
+// Public bot identity is not a secret. Cache this server-side sanity check;
+// never expose or log the Telegram token itself.
+let telegramBotIdentityCache=null;
+async function checkBotIdentity(env){
+ const now=Date.now();
+ if(telegramBotIdentityCache&&now-telegramBotIdentityCache.at<600000)return telegramBotIdentityCache.data;
+ let result={connected:false,matchesExpected:false,username:null};
+ if(env.TELEGRAM_TOKEN){
+  try{
+   const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/getMe",{signal:AbortSignal.timeout(6500)});
+   if(r.ok){
+    const data=await r.json();
+    const username=typeof data?.result?.username==="string"?data.result.username:null;
+    result={connected:data.ok===true,matchesExpected:data.ok===true&&username?.toLowerCase()==="cineradarfr_bot",username};
+   }
+  }catch{ /* Public check remains unavailable; never log token or URL. */ }
+ }
+ telegramBotIdentityCache={at:now,data:result};
+ return result;
+}
 // Durable, non-sensitive Telegram diagnostics visible from D1 (no tokens or user IDs).
 async function saveRadarOperationalStatus(env,job,status,detail){
  await env.DB.prepare(
@@ -388,7 +408,9 @@ export default {
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
-   return Response.json({service:"cine-radar",version:6,database:!!env.DB,webhook:state?.webhook||"waiting",publicChannels:Number(state?.n||0),miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
+   const status={service:"cine-radar",version:6,database:!!env.DB,webhook:state?.webhook||"waiting",publicChannels:Number(state?.n||0),miniApp:APP_URL};
+   if(u.searchParams.get("telegram")==="1")status.botIdentity=await checkBotIdentity(env);
+   return Response.json(status,{headers:{"cache-control":"no-store"}});
   }
   return new Response("Not found",{status:404});
  },
