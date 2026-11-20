@@ -11,6 +11,7 @@ import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle,radarOwnerDigest
 import {initializeProfile,invalidateDirectoryCache} from './radar-lean.mjs';
 import {ownerPinnedList,ownerRemovePin} from './pinned-showcase.mjs';
 import {recordAdminAudit,ownerOperationsOverview} from './admin-ops.mjs';
+import {listDeliveryRecovery,resumeProvenQueued,attestExistingCopy} from './cinex-delivery-recovery.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -102,6 +103,19 @@ export async function adminAPI(env,request,ctx){
   return json(items||{});
  }
  if(request.method==='GET'&&path==='/api/admin/operations')return json(await ownerOperationsOverview(env));
+ if(path==='/api/admin/cinex/recovery'){
+  if(request.method==='GET')return json(await listDeliveryRecovery(env));
+  if(request.method!=='POST')return json({error:'Méthode refusée'},405);
+  let data;
+  try{data=await parseBody(request)}
+  catch{return json({error:'Requête de réconciliation invalide'},400)}
+  let result;
+  if(data?.action==='resume_safe')result=await resumeProvenQueued(env,data,admin.telegram_id);
+  else if(data?.action==='confirm_existing_copy')result=await attestExistingCopy(env,data,admin.telegram_id);
+  else return json({error:'Action de récupération inconnue'},400);
+  return json(result,result.status||500);
+ }
+
  if(request.method==='GET'&&path==='/api/admin/jobs'){
   const r=await env.DB.prepare("SELECT id,job_name,started_at,finished_at,status,examined,inserted,updated,errors,details FROM automated_job_runs ORDER BY id DESC LIMIT 35").all();
   return json({jobs:r.results||[]});
