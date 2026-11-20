@@ -346,7 +346,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category anime --phase before
 
-      - name: 5 - CineX Anime (une saison complète 1-25 épisodes + un film, ou deux films)
+      - name: 5 - CineX Anime (priorité séries et épisodes suivis, 1 film maximum)
         id: anime
         continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
@@ -362,6 +362,7 @@ jobs:
           ANIME_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
           ANIME_STATE_PATH: state/anime_state.json
           CINEX_ANIME_CATALOG_ENABLED: 'true'
+          ANIME_MAX_MOVIES_PER_CYCLE: '1'
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           PYTHONPATH: .
         run: python -m film_relay.anime_catalog --publish --limit 2 --episode-cap 25
