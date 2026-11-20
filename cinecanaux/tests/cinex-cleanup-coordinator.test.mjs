@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {runCopyExpirySweep,cleanupHealthOverview} from '../cinex-cleanup-coordinator.mjs';
+import {ADMIN_OPS_JS} from '../admin-ops-ui.mjs';
 
 function fixture({due=true,recipient=321}={}){
  const db=new DatabaseSync(':memory:');
@@ -145,4 +146,9 @@ test('T03: negative channel recipient is never sent to Telegram for deletion',as
   assert.equal(result.deleted,0);
   assert.equal(result.families.reduce((sum,x)=>sum+x.manual_review,0),4);
  }finally{globalThis.fetch=old;db.close()}
+});
+
+test('T03: owner cleanup dashboard script is syntactically valid',()=>{
+ assert.doesNotThrow(()=>new Function(ADMIN_OPS_JS));
+ assert.match(ADMIN_OPS_JS,/Suppression des copies privées après 24 h/);
 });
