@@ -503,10 +503,12 @@ jobs:
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-state.json" "$STATE/anime_state.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/action-state.json" "$STATE/action_state.json"
             python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/anime-catalog.json" "$STATE/anime_catalog.json"
+            # Snapshot public expurgé : aucun Telegram ID ou lien privé.
+            python telegram-film-relay/scripts/generate_anime_dashboard.py --catalogue "$STATE/anime_catalog.json" --output anime-dashboard-data.json
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/series-state.json" "$STATE/series_state.json"
             python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/series-catalog.json" "$STATE/series_catalog.json"
             python telegram-film-relay/scripts/merge_cycle_monitor.py "$RUNNER_TEMP/cinex-cycle-monitor.json" "$STATE/cycle_monitor.json"
-            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/action_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json" "$STATE/cycle_monitor.json"
+            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/action_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json" "$STATE/cycle_monitor.json" anime-dashboard-data.json
             if git diff --cached --quiet; then
               echo 'Historiques deja synchronises.'
               exit 0
