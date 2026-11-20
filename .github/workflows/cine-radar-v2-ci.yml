@@ -34,6 +34,8 @@ jobs:
           node --check cinecanaux/receipt-retention.mjs
           node --check cinecanaux/delivery-catalog.mjs
           node --check cinecanaux/cinex-delivery.mjs
+          node --check cinecanaux/cinex-delivery-recovery.mjs
+          node --check cinecanaux/admin-recovery-ui.mjs
           node --check cinecanaux/cinex-classic.mjs
           node --check cinecanaux/cinex-expiry.mjs
           node --check cinecanaux/trend-radar.mjs
@@ -78,6 +80,8 @@ jobs:
 
       - name: Verify CinéX guarded deliveries and share help
         run: node --test cinecanaux/tests/cinex-delivery.test.mjs
+      - name: Verify T02 safe recovery and no-double-send reconciliation
+        run: node --test cinecanaux/tests/cinex-delivery-recovery.test.mjs
 
       - name: Verify 24h CineX expiration and safety boundaries
         run: node --test cinecanaux/tests/cinex-expiry.test.mjs cinecanaux/tests/cinex-classic.test.mjs cinecanaux/tests/cinex-operations-readonly.test.mjs
