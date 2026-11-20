@@ -5,10 +5,12 @@ on:
     paths:
       - 'cinecanaux/**'
       - '.github/workflows/cine-radar-v2-ci.yml'
+      - '.github/workflows/cine-radar-production-deploy.yml'
   pull_request:
     paths:
       - 'cinecanaux/**'
       - '.github/workflows/cine-radar-v2-ci.yml'
+      - '.github/workflows/cine-radar-production-deploy.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -52,6 +54,8 @@ jobs:
           node --check cinecanaux/admin-page.mjs
           node --check cinecanaux/channel-identity.mjs
           node --check cinecanaux/job-log.mjs
+      - name: Guard CI-before-deploy invariants
+        run: node --test cinecanaux/tests/deploy-safety.test.mjs
       - name: Verify poster and avatar refresh scripts
         run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Run isolated Telegram and Mini App tests
