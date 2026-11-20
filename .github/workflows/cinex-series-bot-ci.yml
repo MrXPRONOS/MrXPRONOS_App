@@ -5,6 +5,7 @@ on:
       - 'cinecanaux/individual-series.mjs'
       - 'cinecanaux/owner-chat-vault.mjs'
       - 'cinecanaux/cinex-classic.mjs'
+      - 'cinecanaux/cinex-delivery.mjs'
       - 'cinecanaux/tests/owner-chat-vault.test.mjs'
       - 'cinecanaux/migrations/020_cinex_owner_chat_vault.sql'
       - 'cinecanaux/worker.mjs'
@@ -39,6 +40,7 @@ jobs:
           node --check cinecanaux/individual-series.mjs
           node --check cinecanaux/owner-chat-vault.mjs
           node --check cinecanaux/cinex-classic.mjs
+          node --check cinecanaux/cinex-delivery.mjs
           node --test cinecanaux/tests/individual-series.test.mjs cinecanaux/tests/owner-chat-vault.test.mjs
       - name: Python syntax and offline bot tests
         run: |
