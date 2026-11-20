@@ -1,0 +1,38 @@
+name: CineX - Verification Bot API classique sans publication
+on:
+  push:
+    branches: [feat/cinex-poster-download-video-save-real-20261120]
+    paths:
+      - 'telegram-film-relay/.cinex-classic-bot-preflight-once'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BOT: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      PUBLIC: ${{ vars.TG_PUBLIC_CHANNEL }}
+      PRIVATE: ${{ vars.TG_PRIVATE_CHANNEL }}
+    steps:
+      - name: Vérifier l'accès du bot, sans copier ni envoyer de média
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request
+          token=os.environ.get('BOT','')
+          if not token:raise RuntimeError('Bot inaccessible')
+          def call(method,payload):
+              data=json.dumps(payload).encode()
+              req=urllib.request.Request('https://api.telegram.org/bot'+token+'/'+method,data=data,headers={'Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=15) as resp: o=json.load(resp)
+              if not o.get('ok'):raise RuntimeError(method+' echec')
+              return o['result']
+          me=call('getMe',{})
+          for label,chat_id in (('PUBLIC',os.environ.get('PUBLIC','')),('PRIVATE',os.environ.get('PRIVATE',''))):
+              if not chat_id:raise RuntimeError(label+' manquant')
+              chat=call('getChat',{'chat_id':chat_id})
+              member=call('getChatMember',{'chat_id':chat['id'],'user_id':me['id']})
+              allowed=member.get('status') in ('administrator','creator') and (member.get('status')=='creator' or member.get('can_post_messages',False))
+              print(label+'_BOT_CAN_POST='+str(allowed).lower()+' | id_valid='+str(str(chat['id']).startswith('-100')).lower())
+              if not allowed:raise RuntimeError(label+' bot non admin')
+          PY
