@@ -246,7 +246,8 @@ export async function processFranchiseQueue(env,{limit=2}={}){
  const rows=(await env.DB.prepare(
   "SELECT j.id,j.slug,j.telegram_chat_id,c.source_chat_id AS original_chat "+
   "FROM cine_franchise_jobs j JOIN cine_franchise_catalog c ON c.slug=j.slug "+
-  "WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND c.status='published' AND c.rights_attested=1 "+
+  "WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND c.rights_attested=1 "+
+  "AND (c.status='published' OR (c.status='draft' AND EXISTS(SELECT 1 FROM admin_users a WHERE a.user_id=j.telegram_chat_id AND a.role='owner'))) "+
   "ORDER BY j.id LIMIT 2"
  ).all()).results||[];
  let processed=0,errors=0;
