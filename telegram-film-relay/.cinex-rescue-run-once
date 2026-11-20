@@ -1,1 +1,1 @@
-2026-11-19: second owner-requested provisioning pass for remaining CinéX private Secours channels. One new channel max per pass. Reuse checkpoint, no duplicates.
+2026-11-20: vérification/creation idempotente du canal Secours Action après fusion du relais Action. Un seul canal maximum, aucune publication de média.
