@@ -1,0 +1,65 @@
+name: MRXP Worker — production smoke and canary verification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/mrxp-worker-production-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify Cloudflare live traffic, Telegram identity, D1 and CSP
+        run: |
+          python3 - <<'PY'
+          import collections, json, time, urllib.request, urllib.error
+          base = "https://mrxpronos-play.cinecanaux-xpronos.workers.dev"
+          counts = collections.Counter()
+          def get(path, n):
+              req=urllib.request.Request(base + path + ("&" if "?" in path else "?") + "smoke=" + str(n),headers={"User-Agent":"MRXP-Production-Smoke/1.0","Accept":"application/json","Cache-Control":"no-cache"})
+              with urllib.request.urlopen(req, timeout=20) as resp:
+                  return resp.status,dict(resp.headers),resp.read()
+          # Each fresh request is validated independently, regardless of canary fraction.
+          for i in range(90):
+              status,headers,body=get("/api/health",i)
+              assert status==200, (i,status,body[:300])
+              info=json.loads(body)
+              assert info.get("ok") is True and info.get("db_connected") is True, (i,info)
+              assert info.get("bot_connected") is True and info.get("telegram_token_valid") is True and info.get("correct_bot") is True,(i,info)
+              if "reward_schema_ready" in info:
+                  assert info["reward_schema_ready"] is True, (i,info)
+                  counts["v52"]+=1
+              else:
+                  counts["v51"]+=1
+              if i%15==0: time.sleep(0.2)
+          print("Cloudflare health responses (90 requests):",dict(counts))
+          assert counts["v52"]>=1, "V52 never observed: check deployment percentage or Cloudflare routing"
+          for i in range(24):
+              status,headers,body=get("/",1000+i)
+              assert status==200, (i,status)
+              csp=headers.get("Content-Security-Policy",headers.get("content-security-policy",""))
+              assert "script-src" in csp and "frame-ancestors" in csp,(i,csp[:300])
+              script_policy=csp.split("script-src ",1)[1].split(";",1)[0]
+              if "'sha256-" in script_policy:
+                  assert "'unsafe-inline'" not in script_policy
+                  assert b'/api/rewards/claim' in body
+                  counts["csp_v52"]+=1
+              else:
+                  counts["csp_v51"]+=1
+          print("Browser page / CSP response variants (24 requests):",dict(counts))
+          assert counts["csp_v52"]>=1,"V52 HTML not observed; 10% canary may be sticky at edge"
+          # Unauthenticated claims must be rejected safely; never create data.
+          req=urllib.request.Request(base + "/api/rewards/claim",data=b'{"kind":"daily"}',method="POST",headers={"Content-Type":"application/json","User-Agent":"MRXP-Production-Smoke/1.0"})
+          try:
+              with urllib.request.urlopen(req,timeout=20) as resp:
+                  code=resp.status
+          except urllib.error.HTTPError as e:
+              code=e.code
+          assert code==401, "Unauthenticated daily claim should be 401, got "+str(code)
+          print("SUCCESS: live Cloudflare Worker V52, Telegram identity, D1 schema, CSP, anonymous claim rejection")
+          PY
