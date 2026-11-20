@@ -15,6 +15,7 @@ class State:
         self.data.setdefault("last_seen", {})
         self.data.setdefault("processed", {})
         self.data.setdefault("videos", {})
+        self.data.setdefault("film_fingerprints", {})
         self.data.setdefault("staged", {})
         self.data.setdefault("history", {})
         self.data.setdefault("mirrors", {})
@@ -36,15 +37,26 @@ class State:
         }
         self.save()
 
-    def recorded(self, pair_id: str, media_id: str | None) -> bool:
-        return pair_id in self.data["processed"] or bool(media_id and media_id in self.data["videos"])
+    def recorded(self, pair_id: str, media_id: str | None, film_key: str | None = None) -> bool:
+        return (pair_id in self.data["processed"]
+                or bool(media_id and media_id in self.data["videos"])
+                or bool(film_key and film_key in self.data["film_fingerprints"]))
 
-    def add(self, pair_id: str, media_id: str | None, private_id: int, public_id: int) -> None:
+    def add(self, pair_id: str, media_id: str | None, private_id: int, public_id: int, film_key: str | None = None) -> None:
         entry = {"private_message_id": private_id, "public_message_id": public_id}
         self.data["processed"][pair_id] = entry
         self.data["staged"].pop(pair_id, None)
         if media_id:
             self.data["videos"][media_id] = pair_id
+        if film_key:
+            self.data["film_fingerprints"].setdefault(film_key, pair_id)
+        self.save()
+
+    def mark_film(self, pair_id: str, film_key: str | None) -> None:
+        """Attach a verified title identity to an already confirmed release."""
+        if not film_key or pair_id not in self.data["processed"]:
+            return
+        self.data["film_fingerprints"].setdefault(film_key, pair_id)
         self.save()
 
     def mirrored(self, pair_id: str, target: str) -> bool:
