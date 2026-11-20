@@ -5,6 +5,7 @@ const validId=x=>Number.isSafeInteger(Number(x))&&Number(x)>0?Number(x):null;
 export async function ensureBroadcastTables(env){
  const sql=[
   "CREATE TABLE IF NOT EXISTS cine_broadcast_subscribers (chat_id INTEGER PRIMARY KEY, active INTEGER NOT NULL DEFAULT 1, blocked INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)",
+  "CREATE TABLE IF NOT EXISTS cine_broadcast_optouts (chat_id INTEGER PRIMARY KEY, opted_out_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
   "CREATE TABLE IF NOT EXISTS cine_broadcast_jobs (id INTEGER PRIMARY KEY AUTOINCREMENT, owner_id INTEGER NOT NULL, text_html TEXT NOT NULL, photo_id TEXT NOT NULL DEFAULT '', button_text TEXT NOT NULL DEFAULT '', button_url TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'draft', recipients INTEGER NOT NULL DEFAULT 0, delivered INTEGER NOT NULL DEFAULT 0, failed INTEGER NOT NULL DEFAULT 0, blocked INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP, lease_until TEXT)",
   "CREATE TABLE IF NOT EXISTS cine_broadcast_receipts (job_id INTEGER NOT NULL, chat_id INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT NOT NULL DEFAULT '', retry_at TEXT, PRIMARY KEY(job_id,chat_id))",
   "CREATE TABLE IF NOT EXISTS cine_broadcast_schedules (job_id INTEGER PRIMARY KEY, send_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'scheduled', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
@@ -25,13 +26,25 @@ export async function trackBroadcastSubscriber(env,update){
  const text=String(msg.text||"").trim();
  const start=/^\/start(?:@[A-Za-z0-9_]+)?(?:\s|$)/i.test(text);
  const stop=/^\/stop(?:@[A-Za-z0-9_]+)?\s*$/i.test(text);
- if(!start&&!stop)return;
+ const resubscribe=/^\/(?:abonner|subscribe)(?:@[A-Za-z0-9_]+)?\s*$/i.test(text);
+ if(!start&&!stop&&!resubscribe)return;
  await ensureBroadcastTables(env);
- if(start)await env.DB.prepare("INSERT INTO cine_broadcast_subscribers(chat_id,active,blocked) VALUES(?,1,0) ON CONFLICT(chat_id) DO UPDATE SET active=1,blocked=0,updated_at=CURRENT_TIMESTAMP").bind(chat).run();
- else{
+ if(stop){
+  // Explicit opt-out persists across later /start commands, including deep links
+  // used for downloads. Never reactivate an opted-out subscriber implicitly.
+  await env.DB.prepare("INSERT OR IGNORE INTO cine_broadcast_optouts(chat_id) VALUES(?)").bind(chat).run();
   await env.DB.prepare("INSERT INTO cine_broadcast_subscribers(chat_id,active,blocked) VALUES(?,0,0) ON CONFLICT(chat_id) DO UPDATE SET active=0,updated_at=CURRENT_TIMESTAMP").bind(chat).run();
   await env.DB.prepare("UPDATE cine_broadcast_receipts SET state='skipped',last_error='opted_out' WHERE chat_id=? AND state IN ('pending','failed')").bind(chat).run();
+  return;
  }
+ if(start){
+  const previous=await env.DB.prepare("SELECT chat_id FROM cine_broadcast_optouts WHERE chat_id=?").bind(chat).first();
+  if(previous)return;
+ }else{
+  // Only an intentional /abonner or /subscribe clears a previous /stop.
+  await env.DB.prepare("DELETE FROM cine_broadcast_optouts WHERE chat_id=?").bind(chat).run();
+ }
+ await env.DB.prepare("INSERT INTO cine_broadcast_subscribers(chat_id,active,blocked) VALUES(?,1,0) ON CONFLICT(chat_id) DO UPDATE SET active=1,blocked=0,updated_at=CURRENT_TIMESTAMP").bind(chat).run();
 }
 const LINK_TAGS=new Set(["b","i","u","s","code","blockquote"]);
 export function validateBroadcastText(value,photo){
