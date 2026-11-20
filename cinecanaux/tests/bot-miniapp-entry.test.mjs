@@ -61,15 +61,17 @@ test('a new visitor only sees the Mini App, not categories or admin controls',as
   assert.match(lastMessage(f.calls).text,/Mini App/);
  }finally{restore()}
 });
-test('owner also gets the Mini App only; administration is inside its verified owner menu',async()=>{
+test('owner receives two blue buttons after /start, visitor only the Mini App button',async()=>{
  const f=setup();const restore=f.mock();
  try{
   await botUpdate(f.env,update(900,'/start'));
   const buttons=lastMessage(f.calls).reply_markup.inline_keyboard.flat();
-  assert.equal(buttons.length,1);
+  assert.equal(buttons.length,2);
   assert.equal(buttons[0].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app');
-  assert.ok(!JSON.stringify(buttons).includes('/admin'));
+  assert.equal(buttons[1].web_app.url,'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/admin');
   assert.equal(buttons[0].style,'primary');
+  assert.equal(buttons[1].style,'primary');
+  assert.match(buttons[1].text,/Administration/);
   await botUpdate(f.env,update(900,'/admin'));
   assert.match(lastMessage(f.calls).text,/BIENVENUE SUR CINÉ RADAR/);
   assert.equal(lastMessage(f.calls).reply_markup.inline_keyboard.flat().length,1);

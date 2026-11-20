@@ -39,7 +39,21 @@ async function display(env,chat,callback,text,markup){
 }
 const BOT_PROFILE_PHOTO_URL=BASE+"/assets/bot-profile.jpg";
 const BOT_START_POSTER_URL=BASE+"/assets/bot-start-poster.jpg";
-const miniAppKeyboard=()=>keyboard([[{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:BASE+"/app"}}]]);
+const miniAppKeyboard=(owner=false)=>keyboard([
+ [{text:"▶️ Lancer Ciné Radar",style:"primary",web_app:{url:BASE+"/app"}}],
+ ...(owner?[[{text:"🔐 Administration",style:"primary",web_app:{url:BASE+"/admin"}}]]:[])
+]);
+async function ownerForBotStart(env,msg){
+ const from=msg?.from;
+ if(msg?.chat?.type!=="private"||!Number.isSafeInteger(from?.id)||from.id!==msg.chat.id)return false;
+ // Only Telegram's authenticated webhook supplies from.id and from.username.
+ // The /admin API separately verifies Telegram-signed Mini App initData.
+ try{
+  const owner=await env.DB.prepare("SELECT role FROM admin_users WHERE user_id=?").bind(from.id).first();
+  if(owner?.role==="owner")return true;
+ }catch(e){console.warn("cine_owner_lookup_unavailable",String(e?.name||"error"))}
+ return String(from.username||"").toLowerCase()==="mr_xpronos";
+}
 async function welcomePhoto(env,chat,markup){
  // Caption and button are attached directly below the user-approved image.
  const result=await telegram(env,"sendPhoto",{
@@ -84,12 +98,13 @@ async function processBotUpdate(env,update){
  const chat=msg?.chat?.id;
  if(!chat)return;
  const privateChat=msg?.chat?.type==="private";
- const markup=miniAppKeyboard();
  const text=String(update.message?.text||"").trim();
- // The bot chat is now an entry point only: all channel management, trends,
- // announcements and owner administration live in the authenticated Mini App.
- if(cb?.data){await welcomePhoto(env,chat,markup);return;}
+ // The bot chat remains an entry point: owner commands execute only in the
+ // authenticated Mini App, but its owner receives a direct admin button.
+ if(cb?.data){await welcomePhoto(env,chat,miniAppKeyboard());return;}
  const name=/^\/([a-z_]+)(?:@[A-Za-z0-9_]+)?(?:\s|$)/i.exec(text)?.[1]?.toLowerCase()||"";
+ const owner=privateChat&&name==="start"&&await ownerForBotStart(env,update.message);
+ const markup=miniAppKeyboard(Boolean(owner));
  if(privateChat&&name==="stop"){
   await display(env,chat,null,"🔕 <b>Annonces désactivées</b>\n\nTu ne recevras plus les annonces de Ciné Radar. Tape /start pour les réactiver.",markup);return;
  }
