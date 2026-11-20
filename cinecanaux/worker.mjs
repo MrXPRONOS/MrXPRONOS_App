@@ -1,4 +1,5 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
+import {enqueueChannelReactions,processReactionQueue} from "./channel-reactions.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
 import {servePartnerCards,servePartnerAvatar} from "./partner-promotions.mjs";
 import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick,listPinned} from "./pinned-showcase.mjs";
@@ -90,7 +91,12 @@ async function receiveTelegram(request,env,ctx){
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  try{
-  if(update.channel_post||update.edited_channel_post){await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);return Response.json({ok:true});}
+  if(update.channel_post||update.edited_channel_post){
+   if(update.channel_post){
+    await enqueueChannelReactions(env,update.channel_post);
+    if(ctx?.waitUntil)ctx.waitUntil((async()=>{await processReactionQueue(env);await processReactionQueue(env);})().catch(e=>console.warn("channel_reaction_delivery_failed",String(e?.name||"error"))));
+   }
+   await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
@@ -479,6 +485,7 @@ export default {
    }
   })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
   if(controller.cron==="* * * * *"){
+   ctx.waitUntil((async()=>{await processReactionQueue(env);await processReactionQueue(env);})().catch(e=>console.warn("channel_reactions_cron_failed",String(e?.name||"error"))));
    ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processClassicDeliveryQueue(env).catch(e=>console.warn("cinex_classic_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(cleanupClassicDeliveries(env).catch(e=>console.warn("cinex_classic_expiry_failed",String(e?.name||"error"))));
