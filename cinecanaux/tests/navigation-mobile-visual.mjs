@@ -1,5 +1,6 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import {APP_HTML} from '../app-page.mjs';
 
 // This test checks what the mobile user actually sees and can tap.
 // It intentionally loads production, not a mocked HTML string.
@@ -7,6 +8,12 @@ const URL='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app';
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 const errors=[];
+const source=process.env.CINERADAR_VISUAL_SOURCE||'candidate';
+if(source==='candidate'){
+ // Test the PR's HTML before it is deployed; same public data API and assets.
+ await page.route('**/app',route=>route.fulfill({status:200,contentType:'text/html',body:APP_HTML}));
+}
+console.log('NAVIGATION_VISUAL_SOURCE',source);
 page.on('pageerror',e=>errors.push(String(e.message||e)));
 async function state(stage){
  const snapshot=await page.evaluate((stage)=>{
