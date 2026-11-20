@@ -7,6 +7,11 @@ on:
       - 'telegram-film-relay/film_relay/episode_identity.py'
       - 'telegram-film-relay/film_relay/short_series.py'
       - 'telegram-film-relay/tests/test_anime*.py'
+      - 'telegram-film-relay/scripts/merge_anime_catalog.py'
+      - 'telegram-film-relay/scripts/generate_anime_dashboard.py'
+      - 'anime-dashboard.html'
+      - 'anime-dashboard-data.json'
+      - '.github/workflows/telegram-film-relay.yml'
       - '.github/workflows/cinex-anime-quality.yml'
   workflow_dispatch:
 
@@ -24,9 +29,9 @@ jobs:
           python-version: '3.12'
       - name: Installer les dépendances sans secrets
         run: python -m pip install -r telegram-film-relay/requirements.txt
-      - name: Vérifier la syntaxe du relais et de ses tests
+      - name: Vérifier la syntaxe du relais, des scripts et des tests
         working-directory: telegram-film-relay
-        run: python -m compileall -q film_relay tests
+        run: python -m compileall -q film_relay scripts tests
       - name: Exécuter les tests de la politique Anime
         working-directory: telegram-film-relay
         run: python -m unittest discover -s tests -p 'test_anime*.py' -v
