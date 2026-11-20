@@ -37,5 +37,5 @@ jobs:
           TG_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
           SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
           SERIES_SOURCE_CHANNEL: ${{ vars.SERIES_SOURCE_CHANNEL }}
-          CINEX_PAUSE_SECONDS: '20'
+          CINEX_PAUSE_SECONDS: '60'
         run: python -m film_relay.series_catalog --limit 2 --episode-cap 6
