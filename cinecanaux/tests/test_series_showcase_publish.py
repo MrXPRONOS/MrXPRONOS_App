@@ -54,3 +54,23 @@ class SeriesShowcaseTests(TestCase):
         self.assertEqual(result["status"],"UPDATED_EXISTING")
         self.assertEqual(telegram.call_count,2)
         self.assertTrue(all(call.args[1]=="editMessageReplyMarkup" for call in telegram.call_args_list))
+
+
+    def test_publisher_needs_both_destination_rights(self):
+        ids=["-1001234567890"]
+        class FakeBot:
+            def __init__(self, token):
+                self.token=token
+            def call(self,method,data):
+                if method=="getMe":return {"id":111,"username":"ExampleBot"}
+                if method=="getChat":return {"id":int(data["chat_id"]),"type":"channel","title":"Test"}
+                if method=="getChatMember":return {"status":"administrator"}
+                raise AssertionError(method)
+        def allowed(bot,cid,uid):
+            if cid==showcase.RESCUE:raise RuntimeError("Telegram 400")
+            return {"id":int(cid),"type":"channel"}
+        with mock.patch.dict("os.environ",{"CINEX_PUBLISH_BOT_TOKEN":"111:abc"},clear=True):
+            with mock.patch.object(showcase,"BotAPI",FakeBot):
+                with mock.patch.object(showcase,"check_publisher",side_effect=allowed):
+                    with self.assertRaisesRegex(RuntimeError,"secours"):
+                        showcase.find_authorized_publisher(ids)

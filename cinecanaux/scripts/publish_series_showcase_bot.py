@@ -102,18 +102,65 @@ def publish_one(bot_token: str,entry: dict,rescue_url: str,folder_url: str):
             "rescue_message_id":rescue_id}
 
 
+def find_authorized_publisher(ids: list[str]):
+    """Pick only a bot known to be admin in *both destinations and all sources*."""
+    candidates=[
+        ("FOOTBALL_NEWS_BOT_TOKEN",os.getenv("CINEX_PUBLISH_BOT_TOKEN","")),
+        ("CINEX_RADAR_BOT_TOKEN",os.getenv("CINEX_RADAR_BOT_TOKEN","")),
+        ("TELEGRAM_BOT_TOKEN",os.getenv("ALT_TELEGRAM_BOT_TOKEN","")),
+        ("DESIR_BOT_TOKEN",os.getenv("ALT_DESIR_BOT_TOKEN","")),
+        ("ACTION_BOT_TOKEN",os.getenv("ALT_ACTION_BOT_TOKEN","")),
+        ("ANIME_BOT_TOKEN",os.getenv("ALT_ANIME_BOT_TOKEN","")),
+        ("SERIES_BOT_TOKEN",os.getenv("ALT_SERIES_BOT_TOKEN","")),
+    ]
+    seen=set()
+    failures=[]
+    for label,token in candidates:
+        token=token.strip()
+        if not token or token in seen:continue
+        seen.add(token)
+        bot=BotAPI(token)
+        user=""
+        try:
+            me=bot.call("getMe",{})
+            user=str(me.get("username") or "")[:50]
+            check_publisher(bot,PUBLIC,me["id"])
+        except Exception:
+            print("CINEX_SHOWCASE_ACCESS",label,"@"+(user or "unknown"),"principal=NOT_ADMIN_OR_INACCESSIBLE")
+            failures.append(label+": principal")
+            continue
+        try:
+            check_publisher(bot,RESCUE,me["id"])
+        except Exception:
+            print("CINEX_SHOWCASE_ACCESS",label,"@"+user,"principal=OK secours=NOT_ADMIN_OR_INACCESSIBLE")
+            failures.append(label+": secours")
+            continue
+        bad=[]
+        for cid in ids:
+            try:
+                bot.call("getChat",{"chat_id":cid})
+                role=bot.call("getChatMember",{"chat_id":cid,"user_id":me["id"]})
+                if role.get("status") not in ("administrator","creator"):bad.append(cid)
+            except Exception:bad.append(cid)
+        if bad:
+            print("CINEX_SHOWCASE_ACCESS",label,"@"+user,"principal=OK secours=OK private_sources_not_admin="+str(len(bad)))
+            failures.append(label+": sources="+str(len(bad)))
+            continue
+        print("CINEX_SHOWCASE_PUBLISHER_SELECTED",label,"@"+user,"sources="+str(len(ids)))
+        return bot,token,me
+    raise RuntimeError("Aucun bot autorisé pour principal + secours + 11 sources. Diagnostics: "+"; ".join(failures)[:320])
+
+
 def execute(*,publish:bool=False):
     ids=parse_channel_ids(os.getenv("CINEX_SERIES_CHANNEL_IDS",""))
     if not ids:raise RuntimeError("Variable CINEX_SERIES_CHANNEL_IDS vide")
     if os.getenv("CINEX_SERIES_RIGHTS_ATTESTED","").lower()!="true":
         raise RuntimeError("Les droits de diffusion ne sont pas attestés")
-    token=os.getenv("CINEX_PUBLISH_BOT_TOKEN","").strip()
-    if not token:raise RuntimeError("Jeton du bot publicateur manquant")
-    bot=BotAPI(token)
-    me=bot.call("getMe",{})
     actual_id=identify_radar_bot(os.getenv("CINEX_RADAR_BOT_TOKEN","").strip())
-    if not isinstance(actual_id,int) or actual_id<=0:raise RuntimeError("Cin é Radar identity not verified")
-    # Verify actual rights before writing. No personal session.
+    if not isinstance(actual_id,int) or actual_id<=0:raise RuntimeError("Cine Radar identity not verified")
+    # Never substitute an unrelated bot for the source/destination bot.
+    bot,token,me=find_authorized_publisher(ids)
+    # Verified Telegram access to every source and BOTH destinations.
     main=check_publisher(bot,PUBLIC,me["id"])
     if str(main.get("username") or "").lower()!=HANDLE:raise RuntimeError("Mauvais canal principal")
     backup=check_publisher(bot,RESCUE,me["id"])
