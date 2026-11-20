@@ -54,7 +54,7 @@ async def authorized_peers(client, handles, *, banned_ids=frozenset()):
     from .runner import resolve_peer
     import re
     raw = ",".join(str(v or "") for v in handles)
-    targets = [x.strip() for x in re.split(r"[,;\\s]+", raw) if x.strip()]
+    targets = [x.strip() for x in re.split(r"[,;\s]+", raw) if x.strip()]
     if not targets or len(targets) > 12:
         raise ValueError("Déclarer de 1 à 12 canaux médias dans GitHub.")
     peers = []
