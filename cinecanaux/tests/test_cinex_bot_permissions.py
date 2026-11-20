@@ -76,14 +76,14 @@ class BotPermissionsTests(TestCase):
                     return {"status":"administrator","can_post_messages":True}
                 raise AssertionError(method)
         with mock.patch.object(mod,"BotAPI",Fake):
-            r=mod.audit_permissions([("publisher","123:secret")],targets,publisher_username="@CineXPublishBot")
+            r=mod.audit_permissions([("publisher","123:secret")],targets,publisher_username="@CineXPublishBot",expected_series_count=1)
         self.assertTrue(r["publisher"]["ready"])
         self.assertEqual(r["publisher"]["identity"],"verified")
         self.assertTrue(r["publisher"]["destinations_verified"])
         self.assertTrue(r["publisher"]["source_access_verified"])
         self.assertNotIn("123:secret",json.dumps(r))
         with mock.patch.object(mod,"BotAPI",Fake):
-            bad=mod.audit_permissions([("publisher","123:secret")],targets,publisher_username="DifferentBot")
+            bad=mod.audit_permissions([("publisher","123:secret")],targets,publisher_username="DifferentBot",expected_series_count=1)
         self.assertEqual(bad["publisher"]["identity"],"mismatch")
         self.assertFalse(bad["publisher"]["ready"])
 
@@ -103,12 +103,12 @@ class BotPermissionsTests(TestCase):
                     return {"status":"administrator","can_post_messages":True}
                 raise AssertionError(method)
         with mock.patch.object(mod,"BotAPI",Fake):
-            missing_post=mod.audit_permissions([("publisher","321:x")],targets,publisher_username="SafePublisher")
-            missing_channel=mod.audit_permissions([("publisher","321:x")],targets[:-1],publisher_username="SafePublisher")
+            missing_post=mod.audit_permissions([("publisher","321:x")],targets,publisher_username="SafePublisher",expected_series_count=1)
+            missing_channel=mod.audit_permissions([("publisher","321:x")],targets[:-1],publisher_username="SafePublisher",expected_series_count=1)
         self.assertFalse(missing_post["publisher"]["ready"])
         self.assertFalse(missing_post["publisher"]["destinations_verified"])
         self.assertFalse(missing_channel["publisher"]["ready"])
-        self.assertEqual(missing_channel["publisher"]["missing_categories"],[])
+        self.assertIn("series_source_01",missing_channel["publisher"]["missing_categories"])
 
     def test_reject_nonbot_identity_and_never_expose_secret(self):
         class Fake:
@@ -132,4 +132,4 @@ class BotPermissionsTests(TestCase):
                 raise AssertionError("Unexpected mutating Telegram method: "+method)
         with mock.patch.object(mod,"BotAPI",Fake):
             mod.audit_permissions([("publisher","987:test")],[("series_main","a")],
-                                  publisher_username="TestPublisher")
+                                  publisher_username="TestPublisher",expected_series_count=1)
