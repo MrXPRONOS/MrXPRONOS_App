@@ -38,20 +38,61 @@ jobs:
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN" || { echo '::error::Cloudflare token unavailable'; exit 1; }
           npx --yes wrangler@4 deploy --config wrangler.jsonc
-      - name: Provision second bot token for channel reactions
+      - name: Resolve existing Canal bot identity and configure reaction token
         shell: bash
         working-directory: cinecanaux
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
-          CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+          MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+          PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+          CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+          CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "$CANAL_BOT_TOKEN" ]; then
-            echo '::warning::Canal bot secret unavailable: reactions remain inactive until configured.'
+          SECRET_FILE="$(mktemp)"
+          chmod 600 "$SECRET_FILE"
+          export SECRET_FILE
+          trap 'rm -f "$SECRET_FILE"' EXIT
+          python3 - <<'PY'
+          import json
+          import os
+          from urllib.request import urlopen
+          from urllib.error import URLError
+          candidates = (
+              "MRXPRONOS_CANAL_BOT_TOKEN",
+              "PARTNERSHIP_BOT_TOKEN",
+              "CINE_RADAR_BOT_TOKEN",
+              "TELEGRAM_BOT_TOKEN",
+              "FOOTBALL_NEWS_BOT_TOKEN",
+              "EDITORIAL_TELEGRAM_BOT_TOKEN",
+              "CINEX_BOT_TOKEN",
+          )
+          target = "mrxpronos_canal_bot"
+          seen = set()
+          for name in candidates:
+              token = os.environ.get(name, "").strip()
+              if not token or token in seen:
+                  continue
+              seen.add(token)
+              try:
+                  with urlopen("https://api.telegram.org/bot" + token + "/getMe", timeout=10) as response:
+                      result = json.load(response)
+              except (OSError, ValueError, URLError):
+                  continue
+              if result.get("ok") and str(result.get("result", {}).get("username", "")).casefold() == target:
+                  with open(os.environ["SECRET_FILE"], "w", encoding="utf-8") as out:
+                      out.write(token)
+                  break
+          PY
+          if [ -s "$SECRET_FILE" ]; then
+            cat "$SECRET_FILE" | npx --yes wrangler@4 secret put CANAL_BOT_TOKEN --config wrangler.jsonc > /dev/null
+            echo 'Verified @mrxpronos_canal_bot token installed in Cloudflare.'
           else
-            printf '%s' "$CANAL_BOT_TOKEN" | npx --yes wrangler@4 secret put CANAL_BOT_TOKEN --config wrangler.jsonc > /dev/null
-            echo 'Reaction bot secret stored securely.'
+            echo '::warning::No existing GitHub Telegram token matches @mrxpronos_canal_bot; dual reactions remain inactive.'
           fi
       - name: Verify production health without sending Telegram
         shell: bash
