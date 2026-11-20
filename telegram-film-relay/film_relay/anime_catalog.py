@@ -608,7 +608,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             # A locked batch might already have all private episodes but still
             # need its public season announcement after a crash.
             if (not active and not pending and existing.get("public_id")
-                    and all_episodes_uploaded(existing, items)):
+                    and all_episodes_uploaded(existing, items)
+                    and all(
+                        f"S{int(row['season']):02d}E{int(row['episode']):02d}"
+                        in existing.get("public_episode_posts", {})
+                        for row in items)):
                 continue
             title = str(existing.get("title") or items[0]["title"])
             # Preserve mode from an interrupted batch, including legacy batches.
