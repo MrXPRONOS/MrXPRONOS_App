@@ -63,3 +63,14 @@ Les copies privées sont supprimées, jamais les vidéos sources, ni les affiche
 - Tests : cinecanaux/tests/individual-series.test.mjs et test_individual_series_publish.py
 
 Tous ces nouveaux scripts fonctionnent **sans** Telethon et **sans** session personnelle Telegram.
+
+## Correctif du 20 novembre 2026 — identité du bot Ciné Radar
+
+Le workflow a échoué à 11:13 UTC parce que le secret générique TELEGRAM_BOT_TOKEN dans GitHub n'était **pas** celui du bot officiel @CineRadarFr_Bot.
+
+Le workflow utilise désormais :
+- le jeton du **bot de publication** uniquement pour getMe / getChat / getChatMember / copyMessage ;
+- l'**identifiant numérique public du véritable Cine Radar** contrôlé par le Worker Cloudflare déjà connecté à son jeton, via https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health?telegram=1 ;
+- facultativement un secret **spécifique** CINEX_RADAR_BOT_TOKEN si le même vrai jeton est présent dans GitHub. Un jeton générique non reconnu ne sert plus à identifier Radar.
+
+Le diagnostic public ne retourne **jamais le jeton**. Les vérifications des droits d'administration continuent à utiliser getChatMember pour chaque source. Le rapport JSON sera produit même si le contrôle de l'identité échoue avant le premier canal.
