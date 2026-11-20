@@ -7,6 +7,9 @@ on:
     paths:
       - 'telegram-film-relay/film_relay/category_runner.py'
       - 'telegram-film-relay/film_relay/catalog_scan.py'
+      - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/film_relay/series_catalog.py'
+      - 'telegram-film-relay/film_relay/source_channels.py'
       - 'telegram-film-relay/scripts/channel_audit.py'
       - '.github/workflows/cinex-channel-audit.yml'
 
