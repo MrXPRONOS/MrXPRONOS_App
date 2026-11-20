@@ -1075,7 +1075,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const awarded=taps+boostBonus+newDaily.length*100+outcomes.reduce((n,x)=>n+x.xp,0);
   const ops=[
     env.DB.prepare("UPDATE players SET confirmed_xp=confirmed_xp+?,confirmed_taps=confirmed_taps+?,last_sync_ms=?,next_sync_ms=?,updated_ms=? WHERE user_id=? AND next_sync_ms<=? AND NOT EXISTS(SELECT 1 FROM sync_receipts WHERE user_id=? AND batch_id=?)").bind(awarded,taps,now,now+HALF,now,user.id,now,user.id,batch),
-    env.DB.prepare("INSERT INTO sync_receipts(user_id,batch_id,taps,xp_awarded,wheel_count,created_ms) SELECT ?,?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,batch,taps,awarded,outcomes.length,now,user.id,now)
+    env.DB.prepare("INSERT OR IGNORE INTO sync_receipts(user_id,batch_id,taps,xp_awarded,wheel_count,created_ms) SELECT ?,?,?,?,?,? WHERE changes()=1 AND (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,batch,taps,awarded,outcomes.length,now,user.id,now)
   ];
   for(const d of newDaily)ops.push(env.DB.prepare("INSERT OR IGNORE INTO daily_claims(user_id,day,xp_awarded,created_ms) SELECT ?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=? AND EXISTS(SELECT 1 FROM mrxp_reward_intents WHERE user_id=? AND kind='daily' AND day=?)").bind(user.id,d,100,now,user.id,now,user.id,d));
   for(const r of outcomes)ops.push(env.DB.prepare("INSERT OR IGNORE INTO wheel_claims(user_id,day,reward_key,xp_awarded,created_ms) SELECT ?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=? AND EXISTS(SELECT 1 FROM mrxp_reward_intents WHERE user_id=? AND kind='wheel' AND day=? AND reward_key=? AND xp_awarded=?)").bind(user.id,r.day,r.key,r.xp,now,user.id,now,user.id,r.day,r.key,r.xp));
