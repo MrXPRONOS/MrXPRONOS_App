@@ -13,6 +13,7 @@ on:
       - 'cinecanaux/migrations/020_cinex_owner_chat_vault.sql'
       - 'cinecanaux/worker.mjs'
       - 'cinecanaux/tests/individual-series.test.mjs'
+      - 'cinecanaux/tests/individual-series-download.test.mjs'
       - 'cinecanaux/scripts/audit_series_bots.py'
       - 'cinecanaux/scripts/publish_individual_series_bot.py'
       - 'cinecanaux/tests/test_series_bot_inventory.py'
@@ -44,7 +45,7 @@ jobs:
           node --check cinecanaux/owner-chat-vault.mjs
           node --check cinecanaux/cinex-classic.mjs
           node --check cinecanaux/cinex-delivery.mjs
-          node --test cinecanaux/tests/individual-series.test.mjs cinecanaux/tests/owner-chat-vault.test.mjs
+          node --test cinecanaux/tests/individual-series.test.mjs cinecanaux/tests/individual-series-download.test.mjs cinecanaux/tests/owner-chat-vault.test.mjs
       - name: Python syntax and offline bot tests
         run: |
           python -m py_compile cinecanaux/scripts/audit_series_bots.py cinecanaux/scripts/publish_individual_series_bot.py cinecanaux/scripts/publish_series_showcase_bot.py

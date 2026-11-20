@@ -26,11 +26,45 @@ REPORT=Path("cinex-series-showcase-publish-report.json")
 CHAT=re.compile(r"^-100[0-9]{6,}$")
 
 
+def downloadable_index(chat_id: str):
+    """An available episode is downloadable even if the season is ongoing.
+
+    Require contiguous 1..N episode references in each *indexed* season. Do
+    not invent the final episode count, missing prior seasons, or future media.
+    """
+    rows=d1("SELECT season,episode,source_message_id FROM cine_series_episodes WHERE chat_id=? ORDER BY season,episode",[chat_id])
+    if not rows or len(rows)>300:
+        return {"ready":False,"count":0,"seasons":[],"reason":"no_indexed_episodes"}
+    previous_season=0
+    previous_episode=0
+    groups=[]
+    for row in rows:
+        try:
+            season=int(row["season"])
+            episode=int(row["episode"])
+            message=int(row["source_message_id"])
+        except (KeyError,TypeError,ValueError):
+            return {"ready":False,"count":0,"seasons":[],"reason":"invalid_media_reference"}
+        if not (1<=season<=50 and 1<=episode<=100 and message>0):
+            return {"ready":False,"count":0,"seasons":[],"reason":"invalid_media_reference"}
+        if season != previous_season:
+            if episode!=1:
+                return {"ready":False,"count":0,"seasons":[],"reason":"season_index_does_not_start_at_one"}
+            groups.append({"season":season,"episodes":1})
+            previous_season,previous_episode=season,episode
+        else:
+            if episode!=previous_episode+1:
+                return {"ready":False,"count":0,"seasons":[],"reason":"episode_gap"}
+            groups[-1]["episodes"]+=1
+            previous_episode=episode
+    return {"ready":True,"count":len(rows),"seasons":groups,"reason":None}
+
+
 def markup(token: str, rescue_url: str, folder_url: str, *, ready: bool):
     if not TOKEN.fullmatch(token) or not INVITE.fullmatch(rescue_url):
         raise ValueError("Boutons série: token ou secours non valide")
     rows=[
-        [{"text": "📥 Télécharger toutes les saisons" if ready else "🎬 Disponibilité sur Ciné Radar",
+        [{"text": "📥 Télécharger" if ready else "🎬 Disponibilité sur Ciné Radar",
           "url": "https://t.me/CineRadarFr_Bot?start=sr_"+token,
           "style": "success" if ready else "primary"}],
         [{"text":"🛟 Canal de secours", "url":rescue_url,"style":"danger"}],
@@ -52,7 +86,7 @@ def plan_one(chat_id: str):
     poster=int(posters[0]["source_message_id"])
     if not (1<=season<=50 and poster>0):return {"chat_id":chat_id,"status":"INVALID_POSTER"}
     current=d1("SELECT token,state,public_post_id,rescue_post_id FROM cine_series_publications WHERE chat_id=?",[chat_id])
-    ready=catalogue_complete(chat_id)["ready"]
+    ready=downloadable_index(chat_id)["ready"]
     return {"chat_id":chat_id,"title":src["title"],"season":season,"poster":poster,
             "ready":ready,"status":"ALREADY_PUBLISHED" if current and current[0]["state"]=="published"
                      else "REQUIRES_MANUAL_REVIEW" if current else "READY_TO_POST",
