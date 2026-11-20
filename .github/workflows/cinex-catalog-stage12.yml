@@ -50,17 +50,22 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_catalog_stage12.py' -v
           python -m unittest discover -s tests -p 'test_cinex_github_control.py' -v
-      - name: Vérifier les secrets, les canaux et les attestations globales
+      - name: Vérifier l'accès Cloudflare D1
+        shell: bash
+        run: test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Token Cloudflare D1 indisponible"; exit 1; }
+      - name: Appliquer GitHub true/false immédiatement dans D1 (verrou)
+        run: python scripts/cinex_github_control.py --toggle-only
+      - name: Vérifier Telegram et les attestations de droits si true
+        if: ${{ env.CINEX_DOWNLOADS_ENABLED == 'true' }}
         shell: bash
         run: |
           test -n "$TG_API_ID" && test -n "$TG_API_HASH" && test -n "$TG_STRING_SESSION" || { echo "::error::Identifiants Telegram absents"; exit 1; }
-          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Token Cloudflare D1 indisponible"; exit 1; }
-          test "$SERIES_RIGHTS_ATTESTED" = true && test "$ACTION_RIGHTS_ATTESTED" = true || { echo "::error::Autorisations propriétaires non confirmées"; exit 1; }
-      - name: Appliquer d'abord la sécurité GitHub (verrou pendant la synchronisation)
-        run: python scripts/cinex_github_control.py --toggle-only
-      - name: Auditer les vidéothèques puis synchroniser le catalogue D1
+          test "$SERIES_RIGHTS_ATTESTED" = true && test "$ACTION_RIGHTS_ATTESTED" = true || { echo "::error::Attestations globales des droits absentes"; exit 1; }
+      - name: Auditer les vidéothèques puis synchroniser le catalogue D1 si true
+        if: ${{ env.CINEX_DOWNLOADS_ENABLED == 'true' }}
         run: python scripts/catalog_stage12.py --scan-limit 250 --sync --output "$RUNNER_TEMP/cinex-stage12-report.json"
-      - name: Créer automatiquement les liens complets selon GitHub true ou false
+      - name: Créer automatiquement les liens complets si true
+        if: ${{ env.CINEX_DOWNLOADS_ENABLED == 'true' }}
         run: python scripts/cinex_github_control.py --report "$RUNNER_TEMP/cinex-stage12-report.json"
       - name: Retirer le rapport temporaire des espaces partages
         if: always()
