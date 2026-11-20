@@ -22,6 +22,7 @@ function fixture(){
  db.exec("CREATE TABLE cine_delivery_libraries(private_chat_id TEXT,rights_attested INTEGER,bot_access TEXT)");
  db.prepare("INSERT INTO admin_users VALUES(?,'owner')").run(OWNER);
  db.exec("INSERT INTO bot_settings VALUES('cine_delivery_enabled','1')");
+ db.prepare("UPDATE cine_franchise_catalog SET token=? WHERE slug='fast-and-furious'").run(TOKEN);
  db.exec("UPDATE cine_series_config SET setting_value='true' WHERE setting_key='owner_chat_vault_enabled'");
  const DB={
   prepare(sql){
