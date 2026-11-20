@@ -4,8 +4,11 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from film_relay.anime_identity import consolidate_catalog
+
 
 def summarize(catalogue):
+    catalogue, migration = consolidate_catalog(catalogue)
     series = catalogue.get("series", {}) or {}
     counts = Counter()
     for key, entry in series.items():
@@ -29,7 +32,15 @@ def summarize(catalogue):
     return {
         **dict(counts),
         "active_batch": bool(catalogue.get("active_batch")),
-        "last_audit": audit,
+        "last_audit": {
+            "checked_at": audit.get("checked_at"),
+            "not_yet_indexed_total": audit.get("not_yet_indexed_total", 0),
+            "unnumbered_videos_skipped": audit.get("unnumbered_videos_skipped", 0),
+            "numbering_gap_seasons": audit.get("numbering_gap_seasons", 0),
+            "source_scan_complete": audit.get("source_scan_complete", False),
+        },
+        "historical_groups_merged": len(migration["merged_groups"]),
+        "identity_collisions_quarantined": len(migration["skipped_collisions"]),
         "sources_scanned": len(catalogue.get("scans", {}) or {}),
         "advice": "Les totaux d'audit sont historiques; ils ne prouvent pas la disponibilite ou les droits."
     }
