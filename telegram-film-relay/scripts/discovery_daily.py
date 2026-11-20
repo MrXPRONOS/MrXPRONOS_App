@@ -58,7 +58,7 @@ def make_category_cfg(category: dict, settings: dict) -> dict:
     cfg["results_per_query"] = max(1, min(10, int(settings.get("results_per_query", 8))))
     cfg["max_channels_per_run"] = max(1, min(10, int(settings.get("max_channels_per_category", 6))))
     cfg["sample_messages"] = max(10, min(65, int(settings.get("sample_messages", 55))))
-    cfg["request_pause_seconds"] = max(10.0, float(settings.get("pause_seconds", 12)))
+    cfg["request_pause_seconds"] = max(30.0, float(settings.get("pause_seconds", 36)))
     cfg["include_unverified"] = True  # Indiquer explicitement la vérification du format.
     if category["id"] == "anime":
         cfg["min_video_minutes"] = 10
@@ -185,7 +185,7 @@ async def run() -> int:
                              "channels":valid,"statistics":stats})
             LOG.info("Catégorie %s : %s résultat(s), %s canaux lus",
                      ident, len(valid), stats.get("checked", 0))
-            await asyncio.sleep(max(10.0, float(settings.get("pause_seconds", 12))))
+            await asyncio.sleep(max(30.0, float(settings.get("pause_seconds", 36))))
 
         digest = format_report(day, sections, previous_known)
         await client.send_message("me", digest, parse_mode="html", link_preview=False)
