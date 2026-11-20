@@ -1661,3 +1661,48 @@ test('phase 1 protects mobile missions, controls and profile card artwork from o
   for(const text of scripts)assert.doesNotThrow(()=>new vm.Script(text),'Inline JS must parse after phase 1');
  }finally{h.restore()}
 });
+
+
+test('phases 2 and 3 keep live home, wheel and profile actions while restoring mobile hierarchy',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const page=await res.text();
+  for(const need of [
+   'id="mrxp-mobile-phase2-3"',
+   'mrxp-wheel-feature-copy',
+   'mrxp-promo-refined',
+   'mrxp-promo-copy',
+   'Gagne des XP Points',
+   'mrxp-games-grid-refined',
+   'mrxp-profile-hero-art',
+   'mrxp-profile-rank-stack',
+   'MA PROGRESSION',
+   'id="mrxp-progress-percent"',
+   'background:none!important',
+   'SOLDE MRXP',
+   'BOUTIQUE DE BOOSTS',
+   'id="mrxp-rank-stars"',
+   'id="mrxp-next-rank-details"',
+   'id="mrxp-refresh-progress"',
+   'id="sync-button"',
+   'id="tap-button"',
+   'id="mrxp-open-wheel"',
+   'id="mrxp-back-games"',
+   'id="mrxp-share-create"',
+   'id="mrxp-credit-history"'
+  ]) assert.ok(page.includes(need),'Missing or renamed game/UI control '+need);
+  for(const obsolete of ['> PROGRESSION V2</span>','> MON SOLDE MRXP</h3>','> OUVRIR LA BOUTIQUE DE BOOSTS</button>',
+    'Gagne des <b>XP Points</b>Prépare ta progression'])
+   assert.ok(!page.includes(obsolete),'Old presentation remains: '+obsolete);
+  assert.ok(page.includes('promo.append(ps);'),'XP promotion must not load extra distracting rocket');
+  assert.ok(page.includes('window.openWheel=openWheel'),'Wheel entry must preserve real click handler');
+  assert.ok(page.includes('renderProfileCollection()'),'Profile collection must remain dynamic');
+  assert.ok(page.includes('renderProgressionSummary()'),'Server progress must remain dynamic');
+  assert.ok(page.includes('mrxpRefreshCredits()'),'Credit refresh must remain functional');
+  assert.ok(page.includes('mrxpDrawShareImage(snapshot,vertical,avatar)'),'Share card rendering unaffected');
+  for(const js of [...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean))
+   assert.doesNotThrow(()=>new vm.Script(js),'Inline game code must parse after phases 2 and 3');
+ }finally{h.restore()}
+});
