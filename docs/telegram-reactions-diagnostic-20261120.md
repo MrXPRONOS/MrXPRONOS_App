@@ -15,7 +15,9 @@
 2. **Traitement équitable** : un passage réserve au plus 80 places aux jobs les plus récents et 20 aux plus anciens encore éligibles. Les jobs envoyés et bloqués sont ignorés ; une même paire message/bot n'est jamais renvoyée parce qu'elle apparaît dans les deux lots.
 3. **Horaire GitHub standard** : liste explicite des minutes 03, 08, 13, 18, ... 58 (une fois toutes les cinq minutes). Toujours sujet aux retards et abandons possibles de GitHub.
 4. **Déclencheur de secours** : `repository_dispatch` de type `telegram_reactions_tick`. Un éventuel service externe de planification comme cron-job.org peut appeler l'API GitHub sans exécuter les réactions hors de GitHub. **Ce secours doit être configuré séparément** ; ajouter le trigger seul ne le rend pas actif.
-5. **Vérification d'accès en lecture seule** sur chaque `push` ou lancement manuel : les comptes supplémentaires dont l'identité est valide sont vérifiés avec `getChatMember` dans les canaux principaux Films, Séries et Animés. Les logs montrent `admin`, `not_admin`, `not_accessible`, sans jeton.
+5. **Secours réellement automatisé** : le workflow Github de réactions est aussi lancé à la fin du workflow existant **BSD V2 - Coupons Telegram (cron-job.org)**, déclenché toutes les 15 minutes par cron-job.org. Il ne récupère aucun code d'une branche externe ; seuls les événements ayant `head_branch=main`, `event=workflow_dispatch`, `conclusion=success` et le dépôt source attendu sont autorisés. Cela reste un déclencheur GitHub : les réactions s'exécutent dans GitHub Actions avec ses secrets, pas dans cron-job.org. La cadence native de cinq minutes reste la voie privilégiée.
+6. **Coût réduit** : le job de tests est exécuté sur `push`, `pull_request` et `workflow_dispatch` manuels, mais pas à chaque réveil planifié ou par secours.
+7. **Vérification d'accès en lecture seule** sur chaque `push` ou lancement manuel : les comptes supplémentaires dont l'identité est valide sont vérifiés avec `getChatMember` dans les canaux principaux Films, Séries et Animés. Les logs montrent `admin`, `not_admin`, `not_accessible`, sans jeton.
 
 ## Contrôler le succès après déploiement
 
