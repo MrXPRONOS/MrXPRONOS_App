@@ -54,9 +54,9 @@ assert.ok(app.body.includes("fillPreview(c,images.get(c.id))"));
 console.log("PASS V2 multi-category search and immediate preview shell");
 assert.ok(app.body.includes("const PRELOADED_CATALOG=["),
   "Production HTML should include real channels; no second fetch necessary on first paint");
-assert.ok(app.body.includes('<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>'),
-  "Telegram SDK should not block first render");
-console.log("PASS actual initial channel list embedded into the HTML and non-blocking Telegram SDK");
+assert.ok(app.body.includes('<script src="https://telegram.org/js/telegram-web-app.js?64"></script>'),
+  "Telegram SDK must initialize before Mini App authentication bootstrap");
+console.log("PASS actual initial channel list embedded and Telegram SDK initialized before auth");
 
 for(const type of ["films","series","animes"]){
  const start=performance.now();
