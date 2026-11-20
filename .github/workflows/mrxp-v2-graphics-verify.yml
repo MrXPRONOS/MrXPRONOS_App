@@ -1,0 +1,51 @@
+name: MRXP V2 graphics integration tests
+on:
+  push:
+    branches: [feat/mrxp-v2-assets-61-85]
+    paths:
+      - 'mrxpronos-play/**'
+      - '.github/workflows/mrxp-v2-graphics-verify.yml'
+  pull_request:
+    paths:
+      - 'mrxpronos-play/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Worker syntax
+        run: node --check mrxpronos-play/worker.js
+      - name: Check all 25 V2 assets exist and match SHA256
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import {readFileSync,existsSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          import assert from 'node:assert/strict';
+          const dir='mrxpronos-play/';
+          const manifest=JSON.parse(readFileSync(dir+'assets-manifest-v2.json','utf8'));
+          assert.equal(manifest.assets.length,25);
+          const ids=manifest.assets.map(x=>x.number).sort((a,b)=>a-b);
+          assert.deepEqual(ids,Array.from({length:25},(_,i)=>i+61));
+          for(const x of manifest.assets){
+            for(const ext of ['png','webp']){
+              const filename=dir+x[ext];
+              assert.ok(existsSync(filename),'missing '+filename);
+              const bytes=readFileSync(filename);
+              const hash=createHash('sha256').update(bytes).digest('hex');
+              assert.equal(hash,x['sha256_'+ext],filename+' integrity');
+            }
+          }
+          const src=readFileSync(dir+'worker.js','utf8');
+          for(const marker of ['MRXP_V2_RANK_BADGES','MRXP_V2_SHOP_ICONS','79-xp-progress-ring.webp','80-mastery-seal.webp','82-xp-spark-burst.webp','83-rank-up-animation.gif','84-profile-card-square.webp','85-profile-card-vertical.webp']) assert.ok(src.includes(marker),'missing integration '+marker);
+          console.log('All 25 V2 graphics verified against manifest');
+          JS
+      - name: Run Telegram and Mini App regression tests
+        run: node --test mrxpronos-play/tests/telegram-bot.test.mjs
