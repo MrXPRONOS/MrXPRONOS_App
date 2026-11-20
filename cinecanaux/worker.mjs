@@ -88,7 +88,7 @@ async function receiveTelegram(request,env,ctx){
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  try{
-  if(update.channel_post||update.edited_channel_post){await ingestIndividualSeriesUpdate(env,update);await ingestPinUpdate(env,update);await ingestRadarPost(env,update);return Response.json({ok:true});}
+  if(update.channel_post||update.edited_channel_post){await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
