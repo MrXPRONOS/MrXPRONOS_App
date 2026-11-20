@@ -21,7 +21,7 @@ initial = {
              "last_sync_ms": now, "next_sync_ms": now + 43200000},
     "game_features": {"tap": True, "wheel": True, "daily": True, "missions": True},
     "missions": [], "progression": {"level": 1, "confirmed_xp": 37,"xp_progress_percent":12,"xp_to_next":63, "mastery":{"completed":0,"total":0,"challenges":[],"next_gate":None},"next_rank":None,"blocked_by_mastery":False},
-    "profile": {}, "wallet": {"balance": 5, "total_events": 0,
+    "profile": {"collection":[],"unlocked_count":0,"total_count":11,"selected_rank_id":0,"selection_mode":"auto"}, "wallet": {"balance": 5, "total_events": 0,
                              "today_goals": [], "weekly": {"days": 0, "target": 4}},
     "shop": {"catalog": [], "inventory": [], "balance": 5, "available": True},
     "reward_intents": [], "wheel_plans": {},
