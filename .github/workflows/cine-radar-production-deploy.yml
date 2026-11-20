@@ -1,11 +1,9 @@
 name: Cine Radar - Deploy production after green CI
 # Deployment refresh for the verified Cine Radar public-source fallback (#435).
 # Redeploy 2026-11-19: publish verified read-only trends endpoint and owner-curation integration (#446).
+# A workflow-file change must NEVER deploy a Worker without a green CI run.
+# cine-radar-v2-ci.yml explicitly tests changes to this file on main.
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/cine-radar-production-deploy.yml'
   workflow_run:
     workflows: ['Cine Radar - Minimal directory CI']
     types: [completed]
@@ -17,14 +15,15 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: ${{ github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - name: Checkout exact CI-tested commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'push' && github.sha || github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
       - name: Setup Node.js 22 for Wrangler 4
         uses: actions/setup-node@v4
         with:
