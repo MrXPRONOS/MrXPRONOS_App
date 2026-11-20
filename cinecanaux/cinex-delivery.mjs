@@ -112,6 +112,10 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   // Each user requests the entire season once: this job can progress through
   // twelve episodes automatically without any further bot interaction.
   for(const pending of pendingItems){
+  // Recheck the GitHub-synchronized kill switch before every media copy,
+  // not only at the start of a multi-episode batch.
+  const currentGate=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
+  if(currentGate?.value!=='1')break;
   // Short lease makes concurrent cron workers mutually exclusive.
   const lock=await env.DB.prepare("UPDATE cine_delivery_jobs SET status='sending',lock_until=datetime('now','+4 minutes'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='queued'").bind(job.id).run();
   if(Number(lock.meta?.changes||0)!==1)break;
