@@ -1655,8 +1655,9 @@ test('phase 1 protects mobile missions, controls and profile card artwork from o
   assert.ok(html.includes('picture.className="mrxp-mission-reward-check"'));
   assert.ok(html.includes('daily.className="mission mrxp-daily-mission"'));
   assert.ok(!html.includes('c.drawImage(art,0,0,W,H)'),'Old illustrated card must not be overdrawn beneath live text');
-  for(const safeFooter of ['vertical?1740:969','vertical?1795:997','vertical?1853:1025'])
-    assert.ok(html.includes(safeFooter),'Share card square footer is too close to lower border');
+  // Phase 4 has independent vertical / square footer geometry. All captions must fit.
+  for(const safeFooter of ['vertical?1695:933','vertical?1750:963','vertical?1810:994','vertical?1863:1026'])
+    assert.ok(html.includes(safeFooter),'Share card captions must remain within 1080×1080 and 1080×1920 bounds');
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean);
   for(const text of scripts)assert.doesNotThrow(()=>new vm.Script(text),'Inline JS must parse after phase 1');
  }finally{h.restore()}
