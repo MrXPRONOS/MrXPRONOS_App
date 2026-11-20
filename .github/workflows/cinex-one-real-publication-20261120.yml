@@ -1,0 +1,153 @@
+name: CineX - Test reel isole (un film, sans pubs ni suppression)
+on:
+  push:
+    branches: [test/cinex-one-real-publication-20261120]
+    paths:
+      - 'telegram-film-relay/.cinex-one-film-test-once'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  one-film:
+    name: Publier et verifier une seule fiche et sa video
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+      FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      CINEX_DOWNLOADS_ENABLED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
+      FILM_PUBLISH_ENABLED: 'true'
+      FILM_MAX_POSTS_PER_RUN: '1'
+      FILM_REQUIRE_PUBLICATION: 'true'
+      FILM_RESCAN_HISTORY: 'false'
+      CINEX_PROMOS_ENABLED: 'false'
+      CINEX_DEFER_MIRROR: 'true'
+      CINEX_TORRENT9_PAUSED: 'true'
+      CINEX_PARTNERSHIP_ENABLED: 'false'
+      CINEX_SAFE_MODE: 'true'
+      CINEX_PAUSE_SECONDS: '20'
+      CINEX_RESCUE_RUNTIME_FILE: ${{ runner.temp }}/cinex-rescue-${{ github.run_id }}.json
+      PYTHONPATH: .
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Tests de securite avant publication
+        run: |
+          python -m unittest discover -s tests -p 'test_torrent9_suspension.py' -q
+          python -m unittest discover -s tests -p 'test_title_guard.py' -q
+      - name: Controle global et destinations sans publier
+        shell: bash
+        env:
+          TG_RIGHTS_ATTESTED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
+        run: |
+          set -euo pipefail
+          test "$CINEX_DOWNLOADS_ENABLED" = true || { echo "::error::CINEX_DOWNLOADS_ENABLED doit être true"; exit 1; }
+          [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" && -n "$CINEX_BOT_TOKEN" ]] || { echo "::error::Secrets Telegram manquants"; exit 1; }
+          [[ "$TG_PRIVATE_CHANNEL" =~ ^-100[0-9]+$ ]] || { echo "::error::Vidéothèque privée invalide"; exit 1; }
+          [[ "$TG_PUBLIC_CHANNEL" =~ ^@[a-zA-Z0-9_]{5,32}$ ]] || { echo "::error::Canal public invalide"; exit 1; }
+          python - <<'PY'
+          from film_relay.runner import config_from
+          cfg=config_from("config/channels.json")
+          assert any(x.get("redistribution_authorized") is True for x in cfg["sources"])
+          print("Préparation : 1 film au maximum, sans publicité, sans miroir, sans rotation.")
+          PY
+      - name: Charger les liens Secours deja autorises
+        run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
+      - name: Capturer les reçus avant essai
+        run: cp state/state.json "$RUNNER_TEMP/cinex-one-film-before.json"
+      - name: Publier exactement un film autorise
+        id: send
+        continue-on-error: true
+        env:
+          TG_RIGHTS_ATTESTED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
+        run: python -m film_relay.runner
+      - name: Verifier la nouvelle publication via Telegram, pas seulement les logs
+        id: verify
+        if: ${{ steps.send.outcome == 'success' }}
+        env:
+          CINEX_BEFORE_STATE: ${{ runner.temp }}/cinex-one-film-before.json
+        run: |
+          python - <<'PY'
+          import asyncio, json, os
+          from pathlib import Path
+          from telethon import TelegramClient
+          from telethon.sessions import StringSession
+          from film_relay.public_video_archive import is_video_message
+
+          before=json.loads(Path(os.environ["CINEX_BEFORE_STATE"]).read_text())
+          after=json.loads(Path("state/state.json").read_text())
+          news=[(key,row) for key,row in after.get("processed",{}).items()
+                if key not in before.get("processed",{})]
+          if len(news) != 1:
+              raise SystemExit(f"Publication non prouvée: {len(news)} nouvelles paires au lieu d'une.")
+          _,row=news[0]
+          async def run():
+              async with TelegramClient(StringSession(os.environ["TG_STRING_SESSION"]),
+                  int(os.environ["TG_API_ID"]),os.environ["TG_API_HASH"]) as client:
+                  private=await client.get_entity(int(os.environ["TG_PRIVATE_CHANNEL"]))
+                  public=await client.get_entity(os.environ["TG_PUBLIC_CHANNEL"])
+                  video=await client.get_messages(private,ids=int(row["private_message_id"]))
+                  photo=await client.get_messages(public,ids=int(row["public_message_id"]))
+                  if not video or not is_video_message(video) or not photo or not photo.photo:
+                      raise RuntimeError("Telegram ne confirme pas les copies privée et publique")
+                  following=[m async for m in client.iter_messages(public,min_id=int(photo.id),limit=12)]
+                  if not any(is_video_message(m) and m.id>photo.id for m in following):
+                      raise RuntimeError("Vidéo publique introuvable après la fiche")
+                  name=str(getattr(public,"username","") or "").strip()
+                  if not name: raise RuntimeError("Canal public sans identifiant")
+                  print("PUBLICATION_TELEGRAM_VERIFIEE : https://t.me/"+name+"/"+str(photo.id))
+                  print("VIDEO_PRIVEE_VERIFIEE : identifiant reconnu, non divulgué")
+          asyncio.run(run())
+          PY
+      - name: Conserver le checkpoint des nouveaux envois pour eviter les doublons
+        if: always()
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          F=telegram-film-relay/state/state.json
+          if git diff --quiet -- "$F"; then
+            echo "Aucun nouvel état enregistré."
+            exit 0
+          fi
+          cp "$F" "$RUNNER_TEMP/cinex-film-new-state.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_state.py "$RUNNER_TEMP/cinex-film-new-state.json" "$F"
+            git add "$F"
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m 'state: verified CinéX one-film publication receipt [skip ci]'
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 5
+          done
+          echo "::error::Echec de sauvegarde des reçus; risque de nouvelle tentative"
+          exit 1
+      - name: Résultat du test réel
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Résultat d'envoi : ${{ steps.send.outcome }}"
+          echo "Résultat de vérification : ${{ steps.verify.outcome }}"
+          test "${{ steps.send.outcome }}" = success
+          test "${{ steps.verify.outcome }}" = success
