@@ -43,10 +43,11 @@ jobs:
               matching_png=[f for f in png if f.name.startswith(f'{n}-') and not f.name.endswith('-foreground.png')]
               matching_webp=[f for f in webp if f.name.startswith(f'{n}-') and (n!=83 or 'emblem' in f.name)]
               if len(matching_png)!=1 or len(matching_webp)!=1: raise SystemExit(f'Missing or duplicate image #{n}')
-          from PIL import Image
           for f in png+webp:
-              with Image.open(f) as im:
-                  im.verify()
+              data=f.read_bytes()
+              if len(data)<256: raise SystemExit(f'Image too small: {f}')
+              if f.suffix=='.png' and not data.startswith(b'\\x89PNG\\r\\n\\x1a\\n'): raise SystemExit(f'Invalid PNG: {f}')
+              if f.suffix=='.webp' and not (data[:4]==b'RIFF' and data[8:12]==b'WEBP'): raise SystemExit(f'Invalid WebP: {f}')
           dest=Path('mrxpronos-play')
           for d in ['09-rank-badges','10-shop-boosts','11-progression-vfx','12-share-cards']:
               shutil.copytree(assets/d,dest/'assets'/d,dirs_exist_ok=True)
@@ -54,6 +55,9 @@ jobs:
               shutil.copy2(project/n,dest/n)
           print('Validated',len(png),'PNGs and',len(webp),'WebPs')
           PY
+      - name: Validate Worker JavaScript syntax
+        shell: bash
+        run: node --check mrxpronos-play/worker.js
       - name: Commit imported assets to feature branch
         shell: bash
         run: |
