@@ -34,3 +34,12 @@ CREATE TABLE IF NOT EXISTS cine_classic_deliveries (
 );
 CREATE INDEX IF NOT EXISTS idx_cine_classic_queue ON cine_classic_deliveries(status,created_at);
 CREATE INDEX IF NOT EXISTS idx_cine_classic_expiry ON cine_classic_deliveries(delete_state,delete_after);
+
+-- The invite belongs to the already verified private rescue channel.
+-- NEVER commit a live invitation here: this table is populated privately via D1.
+CREATE TABLE IF NOT EXISTS cine_classic_rescue_config (
+ public_handle TEXT PRIMARY KEY,
+ rescue_chat_id TEXT NOT NULL CHECK(rescue_chat_id GLOB '-100[0-9]*'),
+ invite_url TEXT NOT NULL,
+ updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
