@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+ <radialGradient id="plate" cx="40%" cy="18%" r="93%"><stop offset="0" stop-color="#2577d0"/><stop offset=".34" stop-color="#0b4b9d"/><stop offset=".75" stop-color="#071f58"/><stop offset="1" stop-color="#040e28"/></radialGradient>
+ <linearGradient id="gold" x1=".12" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#fff5a7"/><stop offset=".12" stop-color="#ffc84f"/><stop offset=".32" stop-color="#c77705"/><stop offset=".47" stop-color="#fff2a2"/><stop offset=".65" stop-color="#ffbc19"/><stop offset=".82" stop-color="#955000"/><stop offset="1" stop-color="#ffe47b"/></linearGradient>
+ <linearGradient id="goldInside" x1=".18" y1=".04" x2=".83" y2=".95"><stop offset="0" stop-color="#fff0a0"/><stop offset=".2" stop-color="#ffcf46"/><stop offset=".56" stop-color="#f9ad12"/><stop offset="1" stop-color="#a85b06"/></linearGradient>
+ <linearGradient id="blueMetal" x1=".1" y1="0" x2=".88" y2="1"><stop offset="0" stop-color="#96e7ff"/><stop offset=".17" stop-color="#35a5fc"/><stop offset=".53" stop-color="#0c61c6"/><stop offset=".88" stop-color="#001e70"/><stop offset="1" stop-color="#44bcff"/></linearGradient>
+ <radialGradient id="aura"><stop offset="0" stop-color="#13a6ff" stop-opacity=".33"/><stop offset="1" stop-color="#13a6ff" stop-opacity="0"/></radialGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+ <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="9"/></filter>
+ </defs>
+ <!-- transparent canvas, no opaque rectangle -->
+ <ellipse cx="514" cy="540" rx="420" ry="415" fill="url(#aura)"/>
+ <!-- polished raised game medallion -->
+ <path d="M286 100 Q512 44 738 100 L899 274 Q943 500 899 750 L745 916 Q512 974 279 916 L122 748 Q81 508 123 272 Z" fill="#01285c" opacity=".54" filter="url(#shadow)" transform="translate(0 18)"/>
+ <path d="M286 100 Q512 44 738 100 L899 274 Q943 500 899 750 L745 916 Q512 974 279 916 L122 748 Q81 508 123 272 Z" fill="url(#gold)" stroke="#ffe7a0" stroke-width="5"/>
+ <path d="M303 137 Q513 93 719 137 L862 294 Q898 512 862 728 L722 879 Q512 931 298 879 L160 725 Q127 513 161 292 Z" fill="#02183f" stroke="#7c3a04" stroke-width="6"/>
+ <path d="M316 156 Q514 111 705 156 L840 307 Q875 511 838 712 L713 861 Q510 906 315 861 L184 712 Q148 511 184 309 Z" fill="url(#plate)" stroke="#2e9df4" stroke-width="6"/>
+ <path d="M209 332 Q367 162 594 155" fill="none" stroke="#9deaff" stroke-width="10" opacity=".55" stroke-linecap="round"/>
+ <path d="M824 694 Q710 844 536 872" fill="none" stroke="#3dc5ff" stroke-width="10" opacity=".27" stroke-linecap="round"/>
+ <!-- small top and bottom jewel crown -->
+ <path d="M449 98 L512 58 L575 98 L550 158 L472 158 Z" fill="url(#gold)" stroke="#fff1ab" stroke-width="4"/>
+ <path d="M512 84 L543 120 L512 149 L481 120 Z" fill="url(#blueMetal)" stroke="#b5f0ff" stroke-width="4"/>
+ <path d="M460 908 L512 963 L564 908 L512 861 Z" fill="url(#gold)" stroke="#fff1ab" stroke-width="4"/>
+ <path d="M484 907 L512 938 L540 907 L512 884 Z" fill="url(#blueMetal)" stroke="#b4eeff" stroke-width="3"/>
+
+ <!-- round REFRESH / SYNC arrow, not share or download -->
+ <circle cx="512" cy="514" r="245" fill="none" stroke="#00143e" stroke-width="143" opacity=".58" filter="url(#shadow)"/>
+ <!-- circular arrow follows a broad counter-clockwise arc, broken at upper-right -->
+ <path d="M724 361 A247 247 0 1 0 742 631" fill="none" stroke="#724000" stroke-width="138" stroke-linecap="round"/>
+ <path d="M724 361 A247 247 0 1 0 742 631" fill="none" stroke="url(#gold)" stroke-width="124" stroke-linecap="round"/>
+ <path d="M724 361 A247 247 0 1 0 742 631" fill="none" stroke="url(#blueMetal)" stroke-width="87" stroke-linecap="round"/>
+ <path d="M721 364 A246 246 0 1 0 740 631" fill="none" stroke="#abf1ff" stroke-width="12" stroke-linecap="round" opacity=".77"/>
+ <!-- visible angular arrowhead pointing to the lower-right, integrated with circular motion -->
+ <path d="M681 586 L852 610 L759 777 Z" fill="url(#gold)" stroke="#fff0ad" stroke-width="10" stroke-linejoin="round"/>
+ <path d="M725 623 L809 637 L768 721 Z" fill="url(#blueMetal)" stroke="#60d7ff" stroke-width="5" stroke-linejoin="round"/>
+ <circle cx="512" cy="514" r="85" fill="#0e438c" opacity=".7" stroke="#6acdf6" stroke-width="5"/>
+ <path d="M512 458 L552 514 L512 570 L472 514 Z" fill="url(#gold)" stroke="#fff5b8" stroke-width="5"/>
+ <path d="M512 478 L538 514 L512 550 L486 514 Z" fill="url(#blueMetal)" stroke="#baf1ff" stroke-width="3"/>
+
+ <path d="M160 659 Q175 741 244 807 Q204 790 179 765 M864 659 Q850 742 779 807 Q817 790 845 767" fill="none" stroke="url(#gold)" stroke-width="17" stroke-linecap="round" opacity=".7"/>
+ <circle cx="199" cy="304" r="8" fill="#fff0a0"/><circle cx="828" cy="303" r="8" fill="#fff0a0"/>
+ </svg>

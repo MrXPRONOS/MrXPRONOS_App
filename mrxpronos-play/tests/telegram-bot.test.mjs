@@ -1579,3 +1579,38 @@ test('official existing graphics replace repeated Mini App emoji placeholders wi
   for(const source of inline)assert.doesNotThrow(()=>new vm.Script(source),'inline UI JavaScript must parse');
  }finally{h.restore()}
 });
+
+
+test('approved icon library 86-92 is complete, transparent and wired to each action',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  assert.ok(html.includes('id="mrxp-icons-86-92-style"'));
+  const manifest=JSON.parse(await readFile(new URL('../assets-manifest-86-92.json',import.meta.url),'utf8'));
+  assert.equal(manifest.assets.length,7);
+  assert.deepEqual(manifest.assets.map(x=>x.number),[86,87,88,89,90,91,92]);
+  for(const item of manifest.assets){
+   for(const ext of ['png','webp']){
+    const bytes=await readFile(new URL('../'+item[ext],import.meta.url));
+    assert.ok(bytes.length>1000,'icon too small: '+item[ext]);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'),item['sha256_'+ext]);
+   }
+   assert.ok(html.includes(item.webp),'icon not referenced from page: '+item.webp);
+  }
+  assert.ok(html.includes('id="mrxp-open-wheel"')&&html.includes('86-snake-mignon.webp'),'new cute Snake art missing');
+  assert.ok(html.includes('id="mrxp-share-download"')&&html.includes('88-telecharger-png.webp'));
+  assert.ok(html.includes('id="mrxp-share-native"')&&html.includes('89-partager-image.webp'));
+  assert.ok(html.includes('id="mrxp-share-copy"')&&html.includes('90-copier-preuve.webp'));
+  assert.ok(html.includes('id="mrxp-shop-back"')&&html.includes('91-retour-navigation.webp'));
+  assert.ok(html.includes('id="mrxp-shop-refresh"')&&html.includes('92-actualiser-navigation.webp'));
+  for(const text of ['>🐍</span>','🛍️ BOUTIQUE DE BOOSTS GRATUITS','🛍️ OUVRIR LA BOUTIQUE DE BOOSTS','⬇️ Enregistrer PNG','📤 Partager l\'image','🔗 Copier la preuve','← RETOUR AUX JEUX','↻ ACTUALISER'])
+   assert.ok(!html.includes(text),'obsolete icon placeholder: '+text);
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean);
+  assert.ok(scripts.length>=2);
+  for(const source of scripts)assert.doesNotThrow(()=>new vm.Script(source),'Mini App inline script must remain valid');
+  for(const handler of ['mrxpDownloadShareCard','mrxpNativeShareCard','mrxpCopyShareLink','mrxpRefreshShop'])
+   assert.ok(html.includes(handler),'existing button handler missing: '+handler);
+ }finally{h.restore()}
+});
