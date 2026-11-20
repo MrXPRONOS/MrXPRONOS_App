@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081325">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>CinéX Anime · Tableau de bord</title>
+  <style>
+    :root{color-scheme:dark;--bg:#081325;--surface:#12223a;--surface2:#162a45;--border:#273d58;--ink:#f3f7fc;--muted:#9fb2c9;--accent:#6ce3cc;--gold:#ffc77c}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#173558 0%,transparent 40%),var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+    a{color:var(--accent)}.shell{max-width:1190px;margin:auto;padding:30px 22px 70px}
+    header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:24px}
+    .brand{font-size:13px;letter-spacing:.18em;color:var(--accent);font-weight:900;text-transform:uppercase}
+    h1{font-size:clamp(26px,4vw,42px);margin:6px 0 5px;letter-spacing:-.04em;line-height:1.15}
+    h2{font-size:20px;margin:0 0 16px}p{margin:6px 0;color:var(--muted)}
+    .actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+    button,.file-control{background:var(--surface2);color:var(--ink);border:1px solid var(--border);padding:10px 15px;border-radius:10px;cursor:pointer;font:inherit;font-weight:650}
+    button:hover,.file-control:hover{border-color:var(--accent)}button:focus-visible,select:focus-visible,input:focus-visible,.file-control:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+    .file-control input{display:none}.notice{padding:12px 15px;border:1px solid var(--border);border-radius:12px;background:rgba(18,34,58,.65);margin-top:18px;color:var(--muted)}
+    .notice.err{border-color:#e08e82;color:#ffada8}.notice.ok{border-color:#2e796d}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:20px 0}
+    .metric,.panel{border:1px solid var(--border);border-radius:16px;background:rgba(18,34,58,.93);box-shadow:0 10px 25px #0002}
+    .metric{padding:18px}.metric .value{font-size:clamp(24px,3vw,36px);font-weight:850;letter-spacing:-.05em}.metric .name{font-size:12px;color:var(--muted);margin-top:3px}
+    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.panel{padding:20px;margin-top:3px}
+    .bar-row{display:grid;grid-template-columns:minmax(130px,1fr) 2fr 40px;align-items:center;gap:12px;margin:13px 0}
+    .bar-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.track{height:11px;background:#233f5b;border-radius:50px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#3c9cd5,#6ce3cc);border-radius:50px}
+    .bar-value{font-size:13px;color:var(--muted);text-align:right}
+    .substats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 3px}
+    .substat{background:#102038;border-radius:12px;padding:12px}.substat strong{display:block;color:var(--ink);font-size:20px}.substat span{font-size:12px;color:var(--muted)}
+    .tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+    input[type=search],select{background:#102038;color:var(--ink);padding:11px 13px;border:1px solid var(--border);border-radius:10px;font:inherit}
+    input[type=search]{min-width:190px;flex:1}select{min-width:140px}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+    table{border-collapse:collapse;width:100%;min-width:720px;text-align:left}
+    th,td{padding:13px 14px;border-bottom:1px solid #2b3e55}th{color:var(--muted);font-size:11px;letter-spacing:.04em;text-transform:uppercase}td{font-size:13px}tr:last-child td{border:0}
+    td:first-child{font-weight:700;max-width:360px}.state{display:inline-block;padding:3px 9px;border-radius:25px;background:#243950;color:#c8d8ee;font-size:11px}
+    .state.warn{color:var(--gold);background:#4e3d26}.empty{text-align:center;color:var(--muted);padding:30px}
+    footer{padding-top:20px;color:var(--muted);font-size:12px}
+    @media(max-width:850px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}}
+    @media(max-width:500px){.shell{padding:18px 12px 40px}.metric{padding:13px}.actions{width:100%}button,.file-control{flex:1;text-align:center}.bar-row{grid-template-columns:110px 1fr 30px;gap:7px}.panel{padding:15px}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <div class="brand">CinéX · Anime</div>
+      <h1>Tableau de bord du catalogue</h1>
+      <p>Suivi des séries, épisodes, index et publications Telegram.</p>
+    </div>
+    <div class="actions">
+      <button id="refresh" type="button">↻ Actualiser</button>
+      <label class="file-control" for="local-file">Ouvrir un rapport JSON
+        <input id="local-file" type="file" accept=".json,application/json">
+      </label>
+    </div>
+  </header>
+  <div id="status" role="status" aria-live="polite" class="notice">Chargement du dernier rapport validé…</div>
+  <div class="metrics" aria-label="Statistiques principales">
+    <div class="metric"><div id="m-titles" class="value">—</div><div class="name">Animés distincts</div></div>
+    <div class="metric"><div id="m-private" class="value">—</div><div class="name">Épisodes indexés en privé</div></div>
+    <div class="metric"><div id="m-public" class="value">—</div><div class="name">Épisodes vérifiés en public</div></div>
+    <div class="metric"><div id="m-seasons" class="value">—</div><div class="name">Saisons suivies</div></div>
+  </div>
+  <div class="two">
+    <section class="panel" aria-labelledby="chart-title">
+      <h2 id="chart-title">Animés les plus fournis</h2>
+      <div id="chart" role="group" aria-label="Histogramme des épisodes indexés"></div>
+    </section>
+    <section class="panel" aria-labelledby="health-title">
+      <h2 id="health-title">Santé du catalogue</h2>
+      <div class="substats">
+        <div class="substat"><strong id="h-pending">—</strong><span>Candidats historiques à examiner</span></div>
+        <div class="substat"><strong id="h-unnum">—</strong><span>Vidéos sans numéro exploitable</span></div>
+        <div class="substat"><strong id="h-gaps">—</strong><span>Trous entre épisodes indexés</span></div>
+        <div class="substat"><strong id="h-alias">—</strong><span>Séries historiques regroupées</span></div>
+      </div>
+      <p id="audit-date"></p>
+      <p id="audit-context"></p>
+    </section>
+  </div>
+  <section class="panel" aria-labelledby="list-title">
+    <h2 id="list-title">Détail par animé</h2>
+    <div class="tools">
+      <input id="search" type="search" placeholder="Rechercher un animé…" aria-label="Rechercher un animé">
+      <select id="filter" aria-label="Filtrer les fiches">
+        <option value="all">Tous</option>
+        <option value="published">Avec fiche publique</option>
+        <option value="ongoing">Saison en cours</option>
+        <option value="needs-repair">Index à réconcilier</option>
+      </select>
+      <select id="sort" aria-label="Trier les animés">
+        <option value="episodes">Nombre d'épisodes</option>
+        <option value="name">Titre A–Z</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Animé</th><th>Saisons</th><th>Épisodes privés</th><th>Paires publiques</th><th>État</th></tr></thead>
+        <tbody id="series-list"><tr><td colspan="5" class="empty">Rapport en cours de chargement</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>Rapport agrégé en lecture seule. Aucun identifiant Telegram, lien privé ni jeton n'est exposé par cette interface. Les chiffres sont des reçus enregistrés, pas une preuve de droits de redistribution ni de disponibilité des médias.</footer>
+</div>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const fmt = n => Number(n || 0).toLocaleString("fr-FR");
+  let data = null;
+  const number = (id, n) => { $(id).textContent = fmt(n); };
+  const status = (message, kind) => {
+    $("status").textContent = message;
+    $("status").className = "notice" + (kind ? " " + kind : "");
+  };
+  function validate(d) {
+    if (!d || d.schema_version !== 1 || !d.stats || !Array.isArray(d.series))
+      throw new Error("Format du rapport non reconnu.");
+    return d;
+  }
+  function health(d) {
+    const s = d.stats;
+    number("m-titles", s.titles);
+    number("m-private", s.private_episodes);
+    number("m-public", s.public_episode_pairs);
+    number("m-seasons", s.seasons);
+    number("h-pending", s.pending_historical_candidates);
+    number("h-unnum", s.unnumbered_skipped);
+    number("h-gaps", s.numbering_gaps);
+    number("h-alias", s.fragmented_series_groups_reconciled);
+    $("audit-date").textContent = d.audit_checked_at
+      ? "Dernier audit du catalogue : " + new Date(d.audit_checked_at).toLocaleString("fr-FR", {dateStyle:"medium", timeStyle:"short"})
+      : "Aucun horodatage d'audit disponible.";
+    $("audit-context").textContent = d.data_note || "";
+  }
+  function graph(d) {
+    const el = $("chart");
+    el.replaceChildren();
+    const rows = d.series.slice().sort((a,b) => b.private_episodes - a.private_episodes).slice(0,8);
+    const max = Math.max(1, ...rows.map(r => r.private_episodes));
+    if (!rows.length) { const p = document.createElement("p"); p.textContent = "Aucun animé indexé."; el.append(p); return; }
+    rows.forEach(r => {
+      const row = document.createElement("div");row.className = "bar-row";
+      const label = document.createElement("div");label.className = "bar-label";label.textContent = r.title;label.title = r.title;
+      const track = document.createElement("div");track.className = "track";
+      const fill = document.createElement("div");fill.className = "fill";
+      fill.style.width = String(Math.round(100 * r.private_episodes/max)) + "%";
+      fill.setAttribute("role","img");fill.setAttribute("aria-label",r.title + ": " + fmt(r.private_episodes) + " épisodes");
+      track.append(fill);
+      const value = document.createElement("div");value.className = "bar-value";value.textContent = fmt(r.private_episodes);
+      row.append(label,track,value);el.append(row);
+    });
+  }
+  function rows() {
+    if (!data) return;
+    const q = $("search").value.trim().toLocaleLowerCase("fr");
+    const filter = $("filter").value, sort = $("sort").value;
+    const list = data.series.filter(r => {
+      const textMatch = r.title.toLocaleLowerCase("fr").includes(q);
+      const typeMatch = filter === "all"
+        || (filter === "published" && r.has_public_card)
+        || (filter === "ongoing" && r.seasons.some(s => s.status === "en_cours"))
+        || (filter === "needs-repair" && (r.index_repair_pending || r.legacy_cards_to_review));
+      return textMatch && typeMatch;
+    }).sort((a,b) => sort === "name"
+       ? a.title.localeCompare(b.title,"fr")
+       : b.private_episodes - a.private_episodes || a.title.localeCompare(b.title,"fr"));
+    const body = $("series-list"); body.replaceChildren();
+    if (!list.length) {const tr = document.createElement("tr"),td = document.createElement("td");td.colSpan=5;td.className="empty";td.textContent="Aucun animé correspondant.";tr.append(td);body.append(tr);return;}
+    list.forEach(r => {
+      const tr=document.createElement("tr");
+      const values=[r.title,String(r.seasons.length),fmt(r.private_episodes),fmt(r.public_episode_pairs)];
+      values.forEach(v => {const td=document.createElement("td");td.textContent=v;tr.append(td);});
+      const td=document.createElement("td");const tag=document.createElement("span");tag.className="state";
+      const needs=r.index_repair_pending || r.legacy_cards_to_review;
+      tag.textContent=needs ? "Index historique à vérifier" : r.seasons.some(s=>s.status==="en_cours") ? "En cours" : r.has_public_card ? "Fiche disponible" : "À suivre";
+      if (needs) tag.className += " warn";td.append(tag);tr.append(td);body.append(tr);
+    });
+  }
+  function display(raw,label) {
+    data=validate(raw);health(data);graph(data);rows();
+    status("Rapport chargé : " + label + " · Données en lecture seule", "ok");
+  }
+  async function refresh() {
+    status("Chargement du rapport depuis GitHub Pages…");
+    try {
+      const r=await fetch("./anime-dashboard-data.json?nocache="+Date.now(),{cache:"no-store",credentials:"omit"});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      display(await r.json(),"source publique agrégée");
+    } catch(e) {
+      status("Rapport indisponible : "+e.message+". Vous pouvez ouvrir un export JSON local.", "err");
+    }
+  }
+  $("refresh").addEventListener("click",refresh);
+  $("search").addEventListener("input",rows);
+  $("filter").addEventListener("change",rows);
+  $("sort").addEventListener("change",rows);
+  $("local-file").addEventListener("change",async e => {
+    const file=e.target.files && e.target.files[0];if(!file)return;
+    try{display(JSON.parse(await file.text()),"fichier local");}
+    catch(error){status("Fichier invalide : "+error.message,"err");}
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
