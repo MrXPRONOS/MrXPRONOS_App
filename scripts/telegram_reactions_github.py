@@ -132,27 +132,38 @@ def verify_bots(tokens: dict[int, str], transport=_request_json) -> dict[int, st
     return accepted
 
 
-def prepare_jobs(db: D1) -> None:
-    # This operation inserts only rows for posts AFTER the migration watermark.
-    # Without the watermark, previously delivered posts would be reacted to again.
-    bots = " UNION ALL ".join("SELECT " + str(i) + " AS slot" for i in EXTRA_SLOTS)
-    query = f"""
+def prepare_jobs(db: D1, slots: tuple[int, ...]) -> None:
+    """Only enqueue for verified bot slots, starting at each bot's activation.
+
+    D1's SQLite compound-SELECT limit can reject 10 UNION clauses; use VALUES.
+    The five first bot slots retain the watermark from installation. A later
+    verified bot starts at the *current* message sequence, without backfill.
+    """
+    if not slots:
+        return
+    if len(slots) != len(set(slots)) or any(s not in EXTRA_SLOTS for s in slots):
+        raise ValueError("Invalid configured bot slots")
+    bots = ",".join("(" + str(slot) + ")" for slot in slots)
+    db.query(f"""
+      INSERT OR IGNORE INTO channel_reaction_extra_bot_activation(bot_slot,start_after_seq)
+      SELECT b.column1, (SELECT COALESCE(MAX(seq),0) FROM channel_reaction_posts)
+      FROM (VALUES{bots}) AS b
+    """)
+    db.query(f"""
       INSERT OR IGNORE INTO channel_reaction_extra_jobs(post_seq,bot_slot,emoji)
-      SELECT p.seq,b.slot,
-        CASE WHEN (p.seq % 2) = (b.slot % 2) THEN '❤️' ELSE '👍' END
+      SELECT p.seq,b.column1,
+        CASE WHEN (p.seq % 2) = (b.column1 % 2) THEN '❤️' ELSE '👍' END
       FROM channel_reaction_posts AS p
-      CROSS JOIN ({bots}) AS b
-      WHERE p.seq > (
-        SELECT start_after_seq FROM channel_reaction_extra_config WHERE id=1
-      )
+      CROSS JOIN (VALUES{bots}) AS b
+      JOIN channel_reaction_extra_bot_activation AS a ON a.bot_slot=b.column1
+      WHERE p.seq > a.start_after_seq
       AND NOT EXISTS (
         SELECT 1 FROM channel_reaction_extra_jobs AS j
-        WHERE j.post_seq=p.seq AND j.bot_slot=b.slot
+        WHERE j.post_seq=p.seq AND j.bot_slot=b.column1
       )
-      ORDER BY p.seq,b.slot
+      ORDER BY p.seq,b.column1
       LIMIT {MAX_NEW_JOBS_PER_RUN}
-    """
-    db.query(query)
+    """)
 
 
 def due_jobs(db: D1, slots: tuple[int, ...]) -> list[dict[str, Any]]:
@@ -223,7 +234,7 @@ def run(env: dict[str, str], transport=_request_json) -> int:
         return 0
     db = D1(env.get("CLOUDFLARE_API_TOKEN", "") or env.get("CF_API_TOKEN", ""),
             env.get("CLOUDFLARE_ACCOUNT_ID", ""), transport)
-    prepare_jobs(db)
+    prepare_jobs(db, tuple(sorted(bots)))
     rows = due_jobs(db, tuple(sorted(bots)))
     updates = []
     ok = 0

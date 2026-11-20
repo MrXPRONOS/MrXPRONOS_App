@@ -20,6 +20,28 @@ class ReactionTests(unittest.TestCase):
         self.assertEqual(react.reaction_for(1, 3), "❤️")
         self.assertEqual(react.reaction_for(2, 3), "👍")
 
+    def test_progressive_registration_uses_d1_values_and_only_verified_bots(self):
+        statements = []
+        class FakeD1:
+            def query(self, sql):
+                statements.append(sql)
+                return {"results": []}
+
+        react.prepare_jobs(FakeD1(), (3, 4, 5, 6, 7))
+        self.assertEqual(len(statements), 2)
+        self.assertIn("(VALUES(3),(4),(5),(6),(7))", statements[0])
+        self.assertIn("(VALUES(3),(4),(5),(6),(7))", statements[1])
+        self.assertIn("channel_reaction_extra_bot_activation", statements[0])
+        self.assertIn("p.seq > a.start_after_seq", statements[1])
+        self.assertNotIn("UNION", statements[1])
+
+        statements.clear()
+        react.prepare_jobs(FakeD1(), ())
+        self.assertEqual(statements, [])
+        react.prepare_jobs(FakeD1(), (8,))
+        self.assertIn("(VALUES(8))", statements[0])
+        self.assertIn("p.seq > a.start_after_seq", statements[1])
+
     def test_token_selection_skips_empty_and_duplicate(self):
         env = {
             "TELEGRAM_REACTION_BOT_03_TOKEN": "token-three",
