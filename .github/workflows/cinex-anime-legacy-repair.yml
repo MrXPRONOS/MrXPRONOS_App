@@ -55,7 +55,7 @@ jobs:
           ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
           ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
-          CINEX_PAUSE_SECONDS: '12'
+          CINEX_PAUSE_SECONDS: '36'
           CINEX_TORRENT9_PAUSED: 'true'
           CINEX_DEFER_MIRROR: 'true'
           PYTHONPATH: .
