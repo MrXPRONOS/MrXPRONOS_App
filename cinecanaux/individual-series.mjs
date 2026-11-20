@@ -92,7 +92,7 @@ async function telegram(env,method,payload){
  });
  let data;try{data=await response.json();}catch{throw Error('telegram_response_unknown')}
  if(Number(data?.error_code||response.status)===429)await noteTelegramFloodWait(env,Number(data?.parameters?.retry_after||30));
- if(!response.ok||!data?.ok)return {ok:false,code:Number(data?.error_code||response.status),retry_after:Number(data?.parameters?.retry_after||0)};
+ if(!response.ok||!data?.ok)return {ok:false,code:Number(data?.error_code||response.status),retry_after:Number(data?.parameters?.retry_after||0),description:String(data?.description||'').slice(0,140)};
  return data;
 }
 async function notify(env,chat,message){
