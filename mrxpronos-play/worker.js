@@ -1058,12 +1058,15 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   const normalCeiling=Math.min(20000,500+Math.ceil(elapsed/3000));
   const ceiling=Math.min(20000,normalCeiling+(boost.energyItem?.energy||0));
   if(taps>ceiling)return json({error:"Tapotages incompatibles avec l'énergie régénérée. Vérification requise."},422);
-  const daily=[...new Set(Array.isArray(body.daily_days)?body.daily_days:[])].filter(d=>validDay(d,now)&&Date.parse(d+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY).slice(0,15);
-  const wheel=[...new Set(Array.isArray(body.wheel_days)?body.wheel_days:[])].filter(d=>validDay(d,now)&&Date.parse(d+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY).slice(0,15);
+  /* Enforce a durable server-issued claim. Never mint XP from user-reported days. */
+  const intents=await mrxpRewardIntents(env,user.id,now);
+  const eligible=intents.filter(x=>Date.parse(x.day+"T00:00:00Z")>=Math.floor(player.created_ms/DAY)*DAY);
+  const daily=eligible.filter(x=>x.kind==="daily").map(x=>x.day);
+  const wheel=eligible.filter(x=>x.kind==="wheel").map(x=>x.day);
   const wExisting=new Set((await env.DB.prepare("SELECT day FROM wheel_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()).results.map(x=>x.day));
   const dExisting=new Set((await env.DB.prepare("SELECT day FROM daily_claims WHERE user_id=? AND day>=?").bind(user.id,dateOf(now-14*DAY)).all()).results.map(x=>x.day));
   const newDaily=daily.filter(d=>!dExisting.has(d)),newWheel=wheel.filter(d=>!wExisting.has(d));
-  const outcomes=[];for(const d of newWheel)outcomes.push({day:d,...await wheelOutcome(env,user.id,d)});
+  const outcomes=[];for(const day of newWheel){const intent=eligible.find(x=>x.kind==="wheel"&&x.day===day);if(intent)outcomes.push({day,key:intent.reward_key,xp:Number(intent.xp_awarded)})}
   const tapMilli=boost.tapItem?.multiplier_milli||1000;
   const carryBefore=boost.tap?Number(boost.tap.carry_milli)||0:0;
   const boostFraction=taps*Math.max(0,tapMilli-1000)+carryBefore;
@@ -1074,8 +1077,8 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
     env.DB.prepare("UPDATE players SET confirmed_xp=confirmed_xp+?,confirmed_taps=confirmed_taps+?,last_sync_ms=?,next_sync_ms=?,updated_ms=? WHERE user_id=? AND next_sync_ms<=? AND NOT EXISTS(SELECT 1 FROM sync_receipts WHERE user_id=? AND batch_id=?)").bind(awarded,taps,now,now+HALF,now,user.id,now,user.id,batch),
     env.DB.prepare("INSERT INTO sync_receipts(user_id,batch_id,taps,xp_awarded,wheel_count,created_ms) SELECT ?,?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,batch,taps,awarded,outcomes.length,now,user.id,now)
   ];
-  for(const d of newDaily)ops.push(env.DB.prepare("INSERT OR IGNORE INTO daily_claims(user_id,day,xp_awarded,created_ms) SELECT ?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,d,100,now,user.id,now));
-  for(const r of outcomes)ops.push(env.DB.prepare("INSERT OR IGNORE INTO wheel_claims(user_id,day,reward_key,xp_awarded,created_ms) SELECT ?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=?").bind(user.id,r.day,r.key,r.xp,now,user.id,now));
+  for(const d of newDaily)ops.push(env.DB.prepare("INSERT OR IGNORE INTO daily_claims(user_id,day,xp_awarded,created_ms) SELECT ?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=? AND EXISTS(SELECT 1 FROM mrxp_reward_intents WHERE user_id=? AND kind='daily' AND day=?)").bind(user.id,d,100,now,user.id,now,user.id,d));
+  for(const r of outcomes)ops.push(env.DB.prepare("INSERT OR IGNORE INTO wheel_claims(user_id,day,reward_key,xp_awarded,created_ms) SELECT ?,?,?,?,? WHERE (SELECT last_sync_ms FROM players WHERE user_id=?)=? AND EXISTS(SELECT 1 FROM mrxp_reward_intents WHERE user_id=? AND kind='wheel' AND day=? AND reward_key=? AND xp_awarded=?)").bind(user.id,r.day,r.key,r.xp,now,user.id,now,user.id,r.day,r.key,r.xp));
   if(boost.tap&&taps>0)ops.push(env.DB.prepare(
     "UPDATE mrxp_boost_inventory SET state='active',activated_ms=CASE WHEN state='queued' THEN ? ELSE activated_ms END,expires_ms=CASE WHEN state='queued' THEN ? ELSE expires_ms END,carry_milli=? WHERE user_id=? AND purchase_id=? AND (state='queued' OR (state='active' AND expires_ms>?)) AND EXISTS(SELECT 1 FROM sync_receipts WHERE user_id=? AND batch_id=?)"
    ).bind(now,now+boost.tapItem.duration_hours*3600000,carryAfter,user.id,boost.tap.purchase_id,now,user.id,batch));
@@ -1090,7 +1093,7 @@ export default {async fetch(request,env,ctx){const u=new URL(request.url),p=u.pa
   return json({ok:true,duplicate:false,xp_awarded:awarded,boost_bonus_xp:boostBonus,
     boost_multiplier_milli:tapMilli,energy_charge_used:boost.energy&&taps>0?boost.energyItem.energy:0,
     user:player,wheel_outcomes:outcomes,progression:updatedProgress,
-    ...await mrxpSyncConfirmations(env,user.id,body),
+    ...await mrxpSyncConfirmations(env,user.id,{daily_days:[...(Array.isArray(body.daily_days)?body.daily_days:[]),...newDaily],wheel_days:[...(Array.isArray(body.wheel_days)?body.wheel_days:[]),...newWheel]}),
     wallet,shop:await mrxpBoostList(env,player,wallet)});
  }
  return json({error:"Route inconnue"},404)
