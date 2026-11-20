@@ -161,15 +161,16 @@ def sync_channel(publisher: BotAPI, publisher_id: int, radar_id: int, chat_id: s
     publisher_ok = is_admin(role)
     radar_ok = is_admin(radar)
     title = str(chat.get("title") or "").strip()[:150]
-    d1("INSERT INTO cine_series_channels(chat_id,title,publisher_access,radar_access,rights_attested,expected_seasons,verified_at) VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP) "
-       "ON CONFLICT(chat_id) DO UPDATE SET title=excluded.title,publisher_access=excluded.publisher_access,"
-       "radar_access=excluded.radar_access,rights_attested=excluded.rights_attested,"
-       "expected_seasons=COALESCE(excluded.expected_seasons,cine_series_channels.expected_seasons),verified_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP",
-       [chat_id, title, "verified" if publisher_ok else "not_admin", "verified" if radar_ok else "not_admin", 1 if rights else 0,expected_seasons])
-
     pin = chat.get("pinned_message") or {}
     caption = str(pin.get("caption") or pin.get("text") or "").strip()
     season = parse_season(caption)
+    expected_seasons = max(expected_seasons or 0,season or 0) or None
+    d1("INSERT INTO cine_series_channels(chat_id,title,publisher_access,radar_access,rights_attested,expected_seasons,verified_at) VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP) "
+       "ON CONFLICT(chat_id) DO UPDATE SET title=excluded.title,publisher_access=excluded.publisher_access,"
+       "radar_access=excluded.radar_access,rights_attested=excluded.rights_attested,"
+       "expected_seasons=CASE WHEN COALESCE(excluded.expected_seasons,0)>COALESCE(cine_series_channels.expected_seasons,0) THEN excluded.expected_seasons ELSE cine_series_channels.expected_seasons END,verified_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP",
+       [chat_id, title, "verified" if publisher_ok else "not_admin", "verified" if radar_ok else "not_admin", 1 if rights else 0,expected_seasons])
+
     got_pin = bool(pin.get("photo"))
     if got_pin and season and int(pin.get("message_id") or 0) > 0:
         d1("INSERT INTO cine_series_posters(chat_id,season,source_message_id,caption) VALUES(?,?,?,?) "
