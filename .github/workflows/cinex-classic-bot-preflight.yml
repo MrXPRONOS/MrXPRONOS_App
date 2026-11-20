@@ -1,9 +1,6 @@
 name: CineX - Verification Bot API classique sans publication
 on:
-  push:
-    branches: [feat/cinex-poster-download-video-save-real-20261120]
-    paths:
-      - 'telegram-film-relay/.cinex-classic-bot-preflight-once'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
