@@ -80,7 +80,7 @@ def expected_username(value: str):
     return value.lower()
 
 
-def audit_permissions(bot_candidates, targets, *, publisher_username=""):
+def audit_permissions(bot_candidates, targets, *, publisher_username="", expected_series_count=11):
     """Each checked identity is bound to its own token. No cross-bot substitutions.
 
     A dedicated publisher is ready only if the configured public username
@@ -92,7 +92,7 @@ def audit_permissions(bot_candidates, targets, *, publisher_username=""):
     required = set(categories)
     expected_categories = set(DESTINATIONS)
     expected_categories.add("franchise_source")
-    expected_categories.update(x for x in categories if x.startswith("series_source_"))
+    if not isinstance(expected_series_count, int) or not 1 <= expected_series_count <= 50:\n        raise ValueError("Expected series source count must be between 1 and 50")\n    expected_categories.update(f"series_source_{i:02d}" for i in range(1, expected_series_count + 1))
     report = {
         "bot_count": 0, "channel_categories": len(targets),
         "checks": [], "manual_review_count": 0, "unreachable_count": 0,
@@ -175,7 +175,7 @@ def main():
     targets = channel_targets()
     report = audit_permissions(
         candidates, targets,
-        publisher_username=os.getenv("CINEX_PUBLISH_BOT_USERNAME", ""),
+        publisher_username=os.getenv("CINEX_PUBLISH_BOT_USERNAME", ""),\n        expected_series_count=int(os.getenv("CINEX_EXPECTED_SERIES_SOURCE_COUNT", "11")),
     )
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("CINEX_BOT_RIGHTS_SUMMARY", json.dumps(
