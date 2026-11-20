@@ -49,8 +49,8 @@ def dashboard_snapshot(catalogue):
                 "status": statuses.get(str(season), "non_verifie"),
             })
         title = series_title(str(entry.get("title") or ""))
-        title = re.sub(r"(?i)(?:https?://|t\\.me/|telegram\\.me/)\\S+", "", title)
-        title = re.sub(r"(?<!\\w)@[a-zA-Z0-9_]{5,32}\\b", "", title).strip()
+        title = re.sub(r"(?i)(?:https?://|t\.me/|telegram\.me/)\S+", "", title)
+        title = re.sub(r"(?<!\w)@[a-zA-Z0-9_]{5,32}\b", "", title).strip()
         title = title[:90] or "Titre non identifié"
         series_rows.append({
             "title": title,
