@@ -156,3 +156,26 @@ test('unregistered saga never queues subscriber deliveries',async()=>{
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_jobs").get().n,0);
  }finally{globalThis.fetch=old;db.close()}
 });
+
+
+test('owner draft bot link delivers a private test while non-owner cannot access unpublished saga',async()=>{
+ const {db,env}=fixture(),old=globalThis.fetch,calls=[];
+ globalThis.fetch=async(url,opt)=>{
+  const method=String(url).split('/').at(-1),body=JSON.parse(opt.body);
+  calls.push({method,body});return Response.json({ok:true,result:{message_id:1000}});
+ };
+ try{
+  const sample=forwarded({messageId:40,originId:350,caption:'Fast and Furious 4 VF'});
+  assert.equal((await ingestFranchiseOwnerForward(env,sample)).stored,true);
+  assert.equal((await captureOwnerForwardInVault(env,sample)).captured,true);
+  assert.equal((await handleFranchiseDownloadStart(env,userStart(98))).accepted,false);
+  const privateStart={
+   update_id:99,message:{chat:{type:'private',id:OWNER},from:{id:OWNER},text:'/start ffs_'+TOKEN}
+  };
+  assert.equal((await handleFranchiseDownloadStart(env,privateStart)).accepted,true);
+  assert.equal((await processFranchiseQueue(env)).processed,1);
+  assert.deepEqual(calls.filter(x=>x.method==='copyMessage').map(x=>x.body),[
+   {chat_id:OWNER,from_chat_id:String(OWNER),message_id:40,protect_content:false}
+  ]);
+ }finally{globalThis.fetch=old;db.close()}
+});
