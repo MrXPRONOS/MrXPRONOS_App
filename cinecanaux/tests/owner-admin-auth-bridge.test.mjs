@@ -11,9 +11,9 @@ async function hmac(key,message){
  const k=await crypto.subtle.importKey('raw',typeof key==='string'?enc.encode(key):key,{name:'HMAC',hash:'SHA-256'},false,['sign']);
  return new Uint8Array(await crypto.subtle.sign('HMAC',k,enc.encode(message)));
 }
-async function signed(id,token='bot:test'){
+async function signed(id,token='bot:test',username='mr_xpronos'){
  const auth_date=Math.floor(Date.now()/1000);
- const user=JSON.stringify({id,username:'mr_xpronos',first_name:'Owner'});
+ const user=JSON.stringify({id,username,first_name:'Owner'});
  const data='auth_date='+auth_date+'\nuser='+user;
  const secret=await hmac('WebAppData',token);
  const hash=Array.from(await hmac(secret,data),n=>n.toString(16).padStart(2,'0')).join('');
@@ -69,7 +69,7 @@ test('Mini App can recover signed Telegram launch data from the initial URL hash
   'function readTelegramInitData()',
   'new URLSearchParams(raw).get("tgWebAppData")',
   'performance.getEntriesByType?.("navigation")?.[0]?.name',
-  'const signedTelegramInitData=()=>telegramLaunchInitData',
+  'const signedTelegramInitData=()=>{',
   'const until=Date.now()+2500',
   'await new Promise(resolve=>setTimeout(resolve,100))'
  ])assert.ok(APP_HTML.includes(fragment),fragment);
@@ -99,4 +99,31 @@ test('navigation script defines Telegram auth helper in the same lexical scope a
  assert.ok(nav.includes('function readTelegramInitData()'),'Telegram auth helper must be declared in navigation script');
  assert.ok(nav.includes('const signedTelegramInitData='),'Navigation must directly own the signed session helper');
  assert.ok(nav.includes('const signed=signedTelegramInitData()'),'Navigation must call the helper in the same scope');
+});
+
+
+test('admin access reports the actual signed-session failure without exposing credentials',async()=>{
+ const env={TELEGRAM_TOKEN:'bot:test',TELEGRAM_WEBHOOK_SECRET:'secret',DB:{prepare(){return {bind(){return this},async first(){return null}}}}};
+ const req=(data)=>new Request(ROOT+'/api/admin/access',data?{headers:{'X-Telegram-Init-Data':data}}:{});
+ const expect=async(request,code)=>{
+  const r=await adminAPI(env,request);
+  assert.equal(r.status,403);
+  const b=await r.json();
+  assert.equal(b.code,code);
+  assert.ok(!JSON.stringify(b).includes('bot:test'),'Bot secret must never be echoed');
+  assert.ok(!JSON.stringify(b).includes('auth_date='),'Signed session must never be echoed');
+ };
+ await expect(req(),'missing_session');
+ await expect(req(await signed(123,'wrong:token')),'invalid_signature');
+ const stale=new URLSearchParams(await signed(123));stale.set('auth_date','1000000000');
+ await expect(req(stale.toString()),'expired_session');
+ await expect(req(await signed(123,'bot:test','not_the_owner')),'owner_not_linked');
+});
+
+test('admin UI differentiates signature rejection, expired sessions, and wrong accounts',()=>{
+ for(const code of ['missing_session','invalid_session','expired_session','invalid_signature','owner_not_linked','server_configuration','server_error','network'])
+  assert.ok(APP_HTML.includes(code),code);
+ assert.ok(APP_HTML.includes('const official=window.Telegram?.WebApp?.initData||""'));
+ assert.ok(APP_HTML.includes('if(official&&official!==init){init=official;r=await check(init)}'));
+ assert.ok(APP_HTML.includes('if(wantsAdmin)openOwnerAdmin()'));
 });
