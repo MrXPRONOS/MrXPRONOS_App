@@ -404,7 +404,9 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             video_url = private_message_link(private_id, private_video_id)
             public_post = await post_public(
-                bot, client, bot_public, item, description, video_url, ""
+                bot, client, bot_public, item, description, video_url, "",
+                download_category="action" if category == "action" else None,
+                download_title=title,
             )
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             public_video = await post_public_video_after_poster(
