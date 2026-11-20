@@ -19,7 +19,7 @@ class ClassicFilmSourceLimitTests(unittest.TestCase):
                 {"channel": "@baselineone", "redistribution_authorized": True},
                 {"channel": "@baselinetwo", "redistribution_authorized": True}
             ],
-            "private_channel": "-1001234567890",
+            "private_channel": "-1009876543210",
             "public_channel": "@cinexfilms_vf",
             "mirror_channel": "@Torrent9SeriesFilms"
         }), encoding="utf-8")
@@ -27,7 +27,7 @@ class ClassicFilmSourceLimitTests(unittest.TestCase):
     def test_fourteen_external_plus_two_baseline_allowed(self):
         sources = " ".join(f"@filmsource{i:02d}" for i in range(14))
         with patch.dict(os.environ, {"FILM_SOURCE_CHANNELS": sources,
-                                      "TG_PRIVATE_CHANNEL": "-1001234567890",
+                                      "TG_PRIVATE_CHANNEL": "-1009876543210",
                                       "TG_PUBLIC_CHANNEL": "@cinexfilms_vf"}):
             config = config_from(str(self.path))
         self.assertEqual(len(config["sources"]), 16)
@@ -36,7 +36,7 @@ class ClassicFilmSourceLimitTests(unittest.TestCase):
     def test_fifteen_external_plus_two_baseline_rejected(self):
         sources = " ".join(f"@filmsource{i:02d}" for i in range(15))
         with patch.dict(os.environ, {"FILM_SOURCE_CHANNELS": sources,
-                                      "TG_PRIVATE_CHANNEL": "-1001234567890",
+                                      "TG_PRIVATE_CHANNEL": "-1009876543210",
                                       "TG_PUBLIC_CHANNEL": "@cinexfilms_vf"}):
             with self.assertRaisesRegex(ValueError, "Maximum 16 sources"):
                 config_from(str(self.path))
