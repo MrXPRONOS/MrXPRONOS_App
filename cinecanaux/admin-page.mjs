@@ -1,5 +1,6 @@
 // Private moderation mini-app. The server validates Telegram initData and admin_users.
 import {ADMIN_SHELL_CSS,ADMIN_SHELL_HTML,ADMIN_SHELL_JS} from "./admin-shell.mjs";
+import {ADMIN_CHANNEL_CSS,ADMIN_CHANNEL_HTML,ADMIN_CHANNEL_JS} from "./admin-channel-ui.mjs";
 export const ADMIN_HTML=String.raw`<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101e"><title>Ciné Radar — Administration</title>
@@ -59,12 +60,14 @@ a{color:#91bbff}#status{color:#b5cfff;min-height:20px;margin:12px 0}
 #broadcast-history .broadcast-row{border:1px solid #344b71;border-radius:9px;background:#11233d;padding:10px;margin-top:7px;font-size:11px;line-height:1.55}
 @media(max-width:420px){.broadcast-grid{grid-template-columns:1fr}}
 ${ADMIN_SHELL_CSS}
+${ADMIN_CHANNEL_CSS}
 </style></head>
 <body><div class="page">
 <header><img class="ad-logo" src="/assets/bot-profile.jpg" alt="Logo Ciné Radar"><div><h1>Ciné Radar</h1><small>Administration de la Mini App</small></div><a href="/app" style="margin-left:auto;font-size:12px" aria-label="Retourner à Ciné Radar">← Mini App</a></header>
 <p id="status" role="status">Vérification de l’accès…</p>
 <div id="private" hidden>
 ${ADMIN_SHELL_HTML}
+${ADMIN_CHANNEL_HTML}
 <section class="stats" id="stats"></section>
 
 <section class="broadcast-box" id="broadcast-box" aria-label="Envoyer une annonce aux utilisateurs">
@@ -353,6 +356,11 @@ async function refreshOwnerPins(){
  for(const item of data.items||[]){
   if(!item.active)continue;
   const line=el("article","broadcast-row");
+  if(["films","series","animes"].includes(item.kind)&&Number.isSafeInteger(Number(item.message_id))){
+   const poster=el("img","ad-pin-thumb");poster.loading="lazy";poster.alt="Affiche de "+item.title;
+   poster.src="/assets/pin-cover/"+item.kind+"/"+Number(item.message_id)+".jpg";
+   poster.onerror=()=>poster.remove();line.append(poster);
+  }
   line.append(el("strong",null,({films:"🎬 Films",series:"📺 Séries",animes:"🎌 Animés"}[item.kind]||item.kind)+" · "+item.title),
    el("div","muted","#"+item.message_id+" · "+item.source));
   const actions=el("div","broadcast-actions");
@@ -550,5 +558,6 @@ if(framed){
 }else if(!init){
  status("Ouvre l'administration depuis le bouton du bot Telegram /start ou le menu Ciné Radar.");
 }else bootstrapAdmin();
+${ADMIN_CHANNEL_JS}
 })();
 </script><script>${ADMIN_SHELL_JS}</script></body></html>`;
