@@ -90,7 +90,7 @@ async def run(*, apply=False):
             return 0
         fixed = await repair_legacy_indexes(
             client, bot, private, public, bot_public, pid,
-            catalogue, max(12.0, float(os.getenv("CINEX_PAUSE_SECONDS", "12"))))
+            catalogue, max(36.0, float(os.getenv("CINEX_PAUSE_SECONDS", "36"))))
         save_catalog(catalogue)
         remaining = pending_keys(catalogue)
         LOG.info("Bilan réparation Anime : corrigées=%d ; restantes=%d ; "
