@@ -74,7 +74,7 @@ def load_config(path: str) -> dict:
     cfg["max_channels_per_run"] = min(16, max(1, int(cfg.get("max_channels_per_run", 16))))
     cfg["sample_messages"] = min(150, max(10, int(cfg.get("sample_messages", 80))))
     cfg["results_per_query"] = min(20, max(1, int(cfg.get("results_per_query", 10))))
-    cfg["request_pause_seconds"] = max(4.0, 2 * float(cfg.get("request_pause_seconds", 3.0)))
+    cfg["request_pause_seconds"] = max(12.0, 6 * float(cfg.get("request_pause_seconds", 3.0)))
     cfg["min_verified_pairs"] = max(2, min(5, int(cfg.get("min_verified_pairs", 2))))
     cfg["min_video_minutes"] = max(30, int(cfg.get("min_video_minutes", 40)))
     cfg["min_video_megabytes"] = max(100, int(cfg.get("min_video_megabytes", 150)))

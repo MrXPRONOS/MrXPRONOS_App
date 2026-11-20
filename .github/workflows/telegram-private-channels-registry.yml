@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: telegram-private-channels-registry
+  group: mrx-telegram-personal-account
   cancel-in-progress: false
 
 jobs:
@@ -50,6 +50,10 @@ jobs:
             scripts/register_telegram_private_channels.py
           sparse-checkout-cone-mode: false
           fetch-depth: 1
+      - name: Respecter le delai FloodWait du compte Telegram personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

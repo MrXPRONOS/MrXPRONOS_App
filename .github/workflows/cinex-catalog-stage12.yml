@@ -40,6 +40,10 @@ jobs:
       CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
     steps:
       - uses: actions/checkout@v4
+      - name: Respecter le delai FloodWait du compte Telegram personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

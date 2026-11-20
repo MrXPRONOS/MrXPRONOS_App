@@ -117,7 +117,7 @@ async def collect_avatars(handles: list[str]) -> dict:
                     print(f"Avatar unavailable for {handle}: {type(exc).__name__}", flush=True)
                 finally:
                     # Gentle pace, share the existing Telegram account with other project jobs.
-                    await asyncio.sleep(1.5)
+                    await asyncio.sleep(4.5)
 
     INDEX_FILE.parent.mkdir(parents=True, exist_ok=True)
     INDEX_FILE.write_text(json.dumps({

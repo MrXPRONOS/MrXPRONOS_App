@@ -117,7 +117,7 @@ async def run():
             except Exception:
                 metrics[id]["audit_status"]="unavailable"
             finally:
-                await asyncio.sleep(0.8)
+                await asyncio.sleep(2.4)
 
         async for dialog in client.iter_dialogs():
             entity=dialog.entity

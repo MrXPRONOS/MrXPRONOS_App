@@ -95,6 +95,7 @@ async def backfill():
                 skipped += 1
                 print("CINE_RADAR_BACKFILL_SKIPPED", kind, "channel_not_verified")
                 continue
+            await asyncio.sleep(8)  # espacer les résolutions des canaux Telegram
             entity = await client.get_entity(username)
             channel_id = str(utils.get_peer_id(entity))
             if channel_id != str(record["chat_id"]):
@@ -129,7 +130,7 @@ async def backfill():
                 if len(pending) >= 35:
                     query_d1_batch(pending)
                     pending.clear()
-                await asyncio.sleep(0.04)
+                await asyncio.sleep(0.12)
             if pending:
                 query_d1_batch(pending)
             count += seen

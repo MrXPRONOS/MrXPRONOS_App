@@ -27,6 +27,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Respecter le delai FloodWait du compte Telegram personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -67,7 +71,7 @@ jobs:
           ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
           ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
           ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
-          CINEX_PAUSE_SECONDS: '12'
+          CINEX_PAUSE_SECONDS: '36'
         run: python scripts/channel_audit.py
       - name: Archiver le rapport anonyme
         if: always()

@@ -31,6 +31,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+      - name: Respecter le delai FloodWait du compte Telegram personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
       - name: Préparer Python
         uses: actions/setup-python@v5
         with:
@@ -55,7 +59,7 @@ jobs:
           ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
           ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
-          CINEX_PAUSE_SECONDS: '12'
+          CINEX_PAUSE_SECONDS: '36'
           CINEX_TORRENT9_PAUSED: 'true'
           CINEX_DEFER_MIRROR: 'true'
           PYTHONPATH: .

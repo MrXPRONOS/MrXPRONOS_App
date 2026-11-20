@@ -306,7 +306,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                             request_retries=0, connection_retries=2,
                             flood_sleep_threshold=0, receive_updates=False)
     bot = None
-    pause = max(12.0, float(os.getenv("CINEX_PAUSE_SECONDS", "20")))
+    pause = max(36.0, float(os.getenv("CINEX_PAUSE_SECONDS", "60")))
     completed_series = set()
     posted_cards = 0
     copied_episodes = 0

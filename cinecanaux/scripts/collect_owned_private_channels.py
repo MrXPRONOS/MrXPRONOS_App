@@ -171,6 +171,9 @@ async def run():
                 # Never print private IDs, titles, links, session, or Telegram response strings.
                 unavailable+=1
                 reasons[type(exc).__name__]=reasons.get(type(exc).__name__,0)+1
+            finally:
+                # A single personal MTProto session is shared with all CineX jobs.
+                await asyncio.sleep(3)
     finally:
         await client.disconnect()
         s.close()

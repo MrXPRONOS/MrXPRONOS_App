@@ -189,7 +189,7 @@ async def rotate_channel(client, category: str, public, private,
         report["deleted"] += 1
         LOG.info("%s : ancienne vidéo #%s supprimée ; fiche #%s conservée",
                  category, video.id, public_poster.id)
-        await asyncio.sleep(12)
+        await asyncio.sleep(36)
     LOG.info("BILAN %s", report)
     return report
 

@@ -36,14 +36,19 @@ jobs:
       CINEX_TORRENT9_PAUSED: 'true'
       CINEX_PARTNERSHIP_ENABLED: 'false'
       CINEX_SAFE_MODE: 'true'
-      CINEX_PAUSE_SECONDS: '20'
-      CINEX_FORWARD_PAUSE_SECONDS: '18'
+      CINEX_PAUSE_SECONDS: '60'
+      CINEX_FORWARD_PAUSE_SECONDS: '54'
       CINEX_SERIES_CATALOG_ENABLED: 'true'
       CINEX_CATALOG_PAGE_SIZE: '160'
+      CINEX_CATALOG_REQUEST_PAUSE_SECONDS: '12'
       CINEX_CATALOG_RESCAN: 'false'
     steps:
       - name: Charger le code
         uses: actions/checkout@v4
+      - name: Respecter le delai FloodWait du compte Telegram personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
       - name: Configurer Python
         uses: actions/setup-python@v5
         with:
@@ -109,7 +114,7 @@ jobs:
       # Torrent9 and pre-content partnership adverts are currently paused.
       - name: Pause de securite avant publication
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        run: sleep 20
+        run: sleep 60
 
       - name: "Partenariat AVANT films (désactivé)"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
@@ -185,7 +190,7 @@ jobs:
 
       - name: Pause de securite avant transfert du film CinéX
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        run: sleep 25
+        run: sleep 75
 
       - name: "Un seul film CinéX transféré vers Torrent9 (avec attribution)"
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
@@ -207,7 +212,7 @@ jobs:
       # retain attribution to that channel in @Torrent9SeriesFilms.
       - name: Intervalle de securite avant desir
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        run: sleep 45
+        run: sleep 135
 
       - name: "Partenariat AVANT desir (désactivé)"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
@@ -246,7 +251,7 @@ jobs:
 
       - name: Pause de securite avant transfert desir
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        run: sleep 25
+        run: sleep 75
 
       - name: "Transfert ordonné APRÈS desir vers Torrent9"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
@@ -268,7 +273,7 @@ jobs:
       # Source channels are owner-configured (singular and bulk variables).
       - name: Intervalle de securite avant comedie
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        run: sleep 45
+        run: sleep 135
 
       - name: "Partenariat AVANT comedie (désactivé)"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
@@ -308,7 +313,7 @@ jobs:
 
       - name: Pause de securite avant transfert comedie
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        run: sleep 25
+        run: sleep 75
 
       - name: "Transfert ordonné APRÈS comedie vers Torrent9"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
@@ -328,7 +333,7 @@ jobs:
 
       - name: Intervalle de securite avant anime
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        run: sleep 45
+        run: sleep 135
 
       - name: "Partenariat AVANT anime (désactivé)"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
@@ -376,7 +381,7 @@ jobs:
 
       - name: Pause de securite avant transfert anime
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        run: sleep 25
+        run: sleep 75
 
       - name: "Transfert ordonné APRÈS anime vers Torrent9"
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}

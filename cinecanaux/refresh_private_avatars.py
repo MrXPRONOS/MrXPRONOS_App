@@ -89,7 +89,7 @@ async def run():
             except Exception as e:
                 errors+=1
                 print("PRIVATE_AVATAR_UNAVAILABLE",type(e).__name__)
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
     finally:
         await client.disconnect()
     print("PRIVATE_AVATAR_REFRESH",{"matched":len(jobs),"accessed":len(seen),"refreshed":refreshed,"without_photo":no_photo,"errors":errors})
