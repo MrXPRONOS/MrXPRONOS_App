@@ -140,7 +140,7 @@ export async function ingestFranchiseOwnerForward(env,msg){
 
 export async function ingestFranchiseChannelPost(env,update){
  const msg=update?.channel_post||update?.edited_channel_post;
- if(msg?.chat?.type!=='channel'||(!isVideo(msg)&&!isPoster(msg)))return {handled:false};
+ if(msg?.chat?.type!=='channel'||(!isVideo(msg)&&!isPoster(msg)&&!isPoster(msg?.pinned_message)))return {handled:false};
  const row=await catalogue(env);
  const id=String(msg.chat.id);
  if(!row||!CHAT.test(id)||(row.source_chat_id!==id&&String(msg.chat.username||'').toLowerCase()!==HANDLE))
