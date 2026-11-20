@@ -44,7 +44,11 @@ jobs:
             }
           }
           const src=readFileSync(dir+'worker.js','utf8');
-          for(const marker of ['MRXP_V2_RANK_BADGES','MRXP_V2_SHOP_ICONS','79-xp-progress-ring.webp','80-mastery-seal.webp','82-xp-spark-burst.webp','83-rank-up-animation.gif','84-profile-card-square.webp','85-profile-card-vertical.webp']) assert.ok(src.includes(marker),'missing integration '+marker);
+          // Assets 84/85 remain SHA-verified above. The old full-card PNG/WebP
+          // templates contain pre-drawn text and must NOT be layered beneath
+          // dynamic signed data: that caused duplicate titles and overlapping UI.
+          for(const marker of ['MRXP_V2_RANK_BADGES','MRXP_V2_SHOP_ICONS','79-xp-progress-ring.webp','80-mastery-seal.webp','82-xp-spark-burst.webp','83-rank-up-animation.gif','84-profile-card-square.webp','mrxpDrawShareImage(snapshot,vertical,avatar)']) assert.ok(src.includes(marker),'missing integration '+marker);
+          assert.ok(!src.includes('c.drawImage(art,0,0,W,H)'),'obsolete profile artwork must not be overlaid on signed snapshot');
           console.log('All 25 V2 graphics verified against manifest');
           JS
       - name: Run Telegram and Mini App regression tests
