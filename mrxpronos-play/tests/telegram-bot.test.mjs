@@ -1555,9 +1555,13 @@ test('official existing graphics replace repeated Mini App emoji placeholders wi
    '01-brand/07-energy-blue-bolt.webp',
    '06-game-states/55-telegram-channel.webp',
    '04-quests-progression/37-success-green-check.webp',
-   '05-mrxp-legends-nft/50-nft-collection-chest.webp',
-   '12-share-cards/84-profile-card-square.webp'
+   '05-mrxp-legends-nft/50-nft-collection-chest.webp'
   ])assert.ok(html.includes(filename),'missing reused graphic: '+filename);
+  // The two full-card V2 files remain in the SHA-verified asset manifest;
+  // phase 4 correctly replaces their former dark button thumbnails with a camera glyph.
+  assert.ok(html.includes('mrxp-camera-icon'),'new legible camera pictogram missing');
+  assert.ok(!html.includes('<img class="mrxp-ui-pictogram mrxp-profile-card-pictogram"'),
+    'old pre-painted square card thumbnail should not be used as an action glyph');
   for(const placeholder of [
    '<h2>🎡 LUCKY WHEEL</h2>',
    '<h3>🪙 CRÉDITS MRXP</h3>',
@@ -1655,8 +1659,9 @@ test('phase 1 protects mobile missions, controls and profile card artwork from o
   assert.ok(html.includes('picture.className="mrxp-mission-reward-check"'));
   assert.ok(html.includes('daily.className="mission mrxp-daily-mission"'));
   assert.ok(!html.includes('c.drawImage(art,0,0,W,H)'),'Old illustrated card must not be overdrawn beneath live text');
-  for(const safeFooter of ['vertical?1740:969','vertical?1795:997','vertical?1853:1025'])
-    assert.ok(html.includes(safeFooter),'Share card square footer is too close to lower border');
+  // Phase 4 has independent vertical / square footer geometry. All captions must fit.
+  for(const safeFooter of ['vertical?1695:933','vertical?1750:963','vertical?1810:994','vertical?1863:1026'])
+    assert.ok(html.includes(safeFooter),'Share card captions must remain within 1080×1080 and 1080×1920 bounds');
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean);
   for(const text of scripts)assert.doesNotThrow(()=>new vm.Script(text),'Inline JS must parse after phase 1');
  }finally{h.restore()}
@@ -1704,5 +1709,79 @@ test('phases 2 and 3 keep live home, wheel and profile actions while restoring m
   assert.ok(page.includes('mrxpDrawShareImage(snapshot,vertical,avatar)'),'Share card rendering unaffected');
   for(const js of [...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean))
    assert.doesNotThrow(()=>new vm.Script(js),'Inline game code must parse after phases 2 and 3');
+ }finally{h.restore()}
+});
+
+
+test('phase 4 final share card layouts keep signed server data and two real PNG formats',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  assert.ok(html.includes('id="mrxp-phase4-5-ui"'));
+  for(const marker of [
+   'function mrxpDrawShareImage(snapshot,vertical,avatar)',
+   'const W=1080,H=vertical?1920:1080',
+   'function mrxpShareBadgeArt(level)',
+   'avatar.mrxpOfficialBadge=await mrxpShareBadgeArt(answer.snapshot.level)',
+   'mrxpDrawShareImage(answer.snapshot,vertical,avatar)',
+   'snapshot.display_name',
+   'snapshot.xp',
+   'snapshot.missions',
+   'snapshot.mastery',
+   'snapshot.issued_ms',
+   'authFetch("/api/share/profile","POST",{hide_name:hide})',
+   'mrxpSharedCard={blob,name,preview_url,snapshot:answer.snapshot,verify_url:answer.verify_url}',
+   'mrxpCanvasBlob(canvas)',
+   'navigator.share({title:"Mon profil Mr XPRONOS Play",text,files:[file]})',
+   'mrxp-share-copy',
+   'mrxp-share-download',
+   'mrxp-share-native',
+   'mrxp-share-telegram',
+   'mrxp-camera-icon',
+   'Preuve officielle accessible via le lien partagé'
+  ])assert.ok(html.includes(marker),'Missing signed share feature '+marker);
+  const renderer=html.slice(html.indexOf('function mrxpDrawShareImage('),html.indexOf('function mrxpCanvasBlob('));
+  assert.ok(!renderer.includes('c.drawImage(art,0,0,W,H)'),'Pre-painted template causes duplicate text');
+  for(const old of [
+   '<img class="mrxp-ui-pictogram mrxp-profile-card-pictogram"',
+   '<img class="mrxp-ui-pictogram mrxp-profile-card-button"'
+  ]) assert.ok(!html.includes(old),'A dark old share thumbnail remains: '+old);
+  const section=html.slice(html.indexOf('async function mrxpBuildShareCard('),html.indexOf('function mrxpDownloadShareCard('));
+  assert.ok(!section.includes('location.href')&&!section.includes('window.Telegram.WebApp.initDataUnsafe'),
+    'Share renderer must never serialize the Telegram session URL');
+ }finally{h.restore()}
+});
+
+test('phase 5 friends and missions are compact, real-data-driven, and retain server rewards',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  const friends=html.slice(html.indexOf('<section class="section" id="screen-friends">'),
+                           html.indexOf('<section class="section" id="screen-profile">'));
+  for(const marker of ['id="share-button"','id="mrxp-friends-copy"',
+                       't.me/MrXpronosPlayBot','14-nav-friends.webp','mrxp-friends-actions',
+                       'Aucune récompense de parrainage'])
+    assert.ok(friends.includes(marker),'Friends screen missing '+marker);
+  assert.ok(!friends.includes('TABLEAU DE BORD')&&!friends.includes('récompenses sociales seront disponibles'),
+     'Do not invent referral dashboards or rewards');
+  assert.ok(html.includes('$("mrxp-friends-copy").onclick=async()=>{'));
+  assert.ok(html.includes('navigator.clipboard.writeText(MRXP_PUBLIC_BOT_LINK)'));
+  assert.ok(html.includes('encodeURIComponent(MRXP_PUBLIC_BOT_LINK)'));
+  assert.ok(html.includes('mrxp-credit-rules'));
+  assert.ok(html.includes('mrxp-legends-teaser'));
+  assert.ok(html.includes('mrxp-weekly-track'));
+  assert.ok(html.includes('wallet.weekly||{}'));
+  assert.ok(html.includes('meter.setAttribute("aria-valuenow"'));
+  assert.ok(html.includes('if(m.kind==="tap")middle.append(bar)'), 'Non-numeric mission must not show false 0% bar');
+  assert.ok(html.includes('mrxp-mission-reward-check'));
+  for(const marker of ['mrxp-credit-daily-goals','mrxp-credit-weekly','mrxp-credit-history',
+                       'missionServer','claimMission(m.key)','mrxpRefreshCredits()','mrxpRenderWallet()'])
+    assert.ok(html.includes(marker),'Existing rewards/sync path removed: '+marker);
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
+  for(const code of scripts)assert.doesNotThrow(()=>new vm.Script(code),'Frontend JS must parse after phase 5');
  }finally{h.restore()}
 });
