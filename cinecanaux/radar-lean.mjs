@@ -90,9 +90,9 @@ const HELP=[
  "5️⃣ 📝 <b>Évaluer</b> ou signaler un canal.",
  "",
  "💡 <i>Utilise le bouton « Lancer Ciné Radar » ci-dessous.</i>",
- "🔕 /stop — arrêter les annonces · /start — les réactiver"
+ "🔕 /stop — arrêter les annonces · /abonner — les réactiver"
 ].join("\n");
-const PRIVACY="🔐 <b>Confidentialité</b>\n\nLes statistiques restent anonymisées. Ton identifiant de conversation Telegram est conservé séparément pour pouvoir t'envoyer des annonces après /start.\n\n🔕 /stop pour arrêter les annonces ; /start pour les réactiver.";
+const PRIVACY="🔐 <b>Confidentialité</b>\n\nLes statistiques restent anonymisées. Ton identifiant de conversation Telegram est conservé séparément pour pouvoir t'envoyer des annonces après /start.\n\n🔕 /stop pour arrêter les annonces ; /abonner pour les réactiver. Le bouton Télécharger ne réactive jamais un désabonnement.";
 async function processBotUpdate(env,update){
  const cb=update.callback_query, msg=cb?.message||update.message;
  const chat=msg?.chat?.id;
@@ -106,7 +106,10 @@ async function processBotUpdate(env,update){
  const owner=privateChat&&name==="start"&&await ownerForBotStart(env,update.message);
  const markup=miniAppKeyboard(Boolean(owner));
  if(privateChat&&name==="stop"){
-  await display(env,chat,null,"🔕 <b>Annonces désactivées</b>\n\nTu ne recevras plus les annonces de Ciné Radar. Tape /start pour les réactiver.",markup);return;
+  await display(env,chat,null,"🔕 <b>Annonces désactivées</b>\n\nTu ne recevras plus les annonces de Ciné Radar. Tape /abonner pour les réactiver.",markup);return;
+ }
+ if(privateChat&&(name==="abonner"||name==="subscribe")){
+  await display(env,chat,null,"🔔 <b>Annonces réactivées</b>\n\nTu peux de nouveau recevoir les annonces. Utilise /stop à tout moment pour te désabonner.",markup);return;
  }
  if(name==="aide"||name==="help"){await display(env,chat,null,HELP,markup);return;}
  if(name==="confidentialite"){await display(env,chat,null,PRIVACY,markup);return;}
@@ -174,11 +177,12 @@ export async function syncBotProfilePhoto(env){
 }
 export async function initializeProfile(env){
  const version=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(version?.value==="13")return;
+ if(version?.value==="14")return;
  const PUBLIC_COMMANDS=[
   {command:"start",description:"🎬 Lancer Ciné Radar"},
   {command:"aide",description:"📖 Comment utiliser la Mini App"},
   {command:"stop",description:"🔕 Arrêter les annonces"},
+  {command:"abonner",description:"🔔 Réactiver volontairement les annonces"},
   {command:"confidentialite",description:"🔐 Confidentialité"}
  ];
  const tasks=[
@@ -206,7 +210,7 @@ export async function initializeProfile(env){
  }
  // Run exactly once, with safe retries when Telegram or the image host is unavailable.
  await syncBotProfilePhoto(env);
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','13') ON CONFLICT(setting_key) DO UPDATE SET value='13',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','14') ON CONFLICT(setting_key) DO UPDATE SET value='14',updated_at=CURRENT_TIMESTAMP").run();
 }
 // Health probes may be incomplete on Telegram; two independent checks are needed before deleting.
 export async function maintenance(env){
