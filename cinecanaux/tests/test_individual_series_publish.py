@@ -53,7 +53,7 @@ class IndividualSeriesPublishTest(TestCase):
         self.assertIsNone(report["radar_admin"])
         self.assertEqual(len([x for x in bot.calls if x[0]=="getChatMember"]),1)
         self.assertTrue(any("cine_series_channels" in q and p[3]=="unchecked" for q,p in calls))
-        self.assertTrue(any("cine_series_posters" in q and p[2]==101 for q,p in calls))
+        self.assertTrue(any("INSERT INTO cine_series_posters" in q and p[2]==101 for q,p in calls))
 
     def test_catalogue_requires_all_seasons_and_episodes(self):
         def query(sql, params):
@@ -120,4 +120,4 @@ class IndividualSeriesPublishTest(TestCase):
             result=mod.sync_channel(FakePublisher(),777,None,"-1001234567890",True)
         self.assertFalse(result["poster_conflict"])
         self.assertTrue(any("INSERT INTO cine_series_posters" in sql and
-                            "source_message_id=excluded.source_message_id" not in sql for sql in queries))
+                            "DO UPDATE SET source_message_id=" not in sql for sql in queries))
