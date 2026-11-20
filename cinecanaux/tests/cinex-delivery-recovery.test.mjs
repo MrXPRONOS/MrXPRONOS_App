@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import {listDeliveryRecovery,resumeProvenQueued,attestExistingCopy} from '../cinex-delivery-recovery.mjs';
+import {ADMIN_RECOVERY_JS,ADMIN_RECOVERY_HTML} from '../admin-recovery-ui.mjs';
 
 function fixture(){
  const sqlite=new DatabaseSync(':memory:');
@@ -126,4 +127,6 @@ test('T02: source files never add Telegram sends or bypass the admin mutation se
  assert.match(api,/freshAdminMutationSession\(request\)/);
  assert.match(api,/path==='\/api\/admin\/cinex\/recovery'/);
  assert.match(ui,/confirmed_existing_copy/);
+ assert.doesNotThrow(()=>new Function(ADMIN_RECOVERY_JS),'Embedded owner controls must parse as valid JS');
+ assert.match(ADMIN_RECOVERY_HTML,/ad-cinex-recover-refresh/);
 });
