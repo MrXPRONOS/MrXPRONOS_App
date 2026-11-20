@@ -21,6 +21,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test public /start and private admin authorization
         run: node --test mrxpronos-play/tests/telegram-bot.test.mjs
+      - name: Test D1-like SQLite atomicity under concurrent requests (offline)
+        run: python3 mrxpronos-play/tests/audit_sqlite_concurrency.py
       - name: Check bot token identity and backend health (no secrets)
         run: |
           set -euo pipefail
