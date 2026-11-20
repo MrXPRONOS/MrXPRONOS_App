@@ -1,4 +1,5 @@
 // Privacy-first first-party analytics, no IP, message content or raw Telegram IDs stored.
+import {allowPublicEvent,publicRateLimited} from './public-event-limiter.mjs';
 const enc=new TextEncoder(),hex=a=>[...new Uint8Array(a)].map(x=>x.toString(16).padStart(2,'0')).join('');
 const sha=async x=>hex(await crypto.subtle.digest('SHA-256',enc.encode(x)));
 const reply=(x,status=200)=>Response.json(x,{status,headers:{'cache-control':'no-store'}});
@@ -21,6 +22,7 @@ export async function analyticsEvent(env,request){
  const event=String(p?.event||''),id=String(p?.id||'');
  if(event==='visit'||event==='ping'){
   if(!UUID.test(id))return reply({error:'ID'},400);
+  if(!await allowPublicEvent(env,request,'analytics',{cap:40}))return publicRateLimited();
   const hash=await visitor(env,'app',id);
   await env.DB.prepare('INSERT INTO analytics_app_visitors(visitor_hash) VALUES(?) ON CONFLICT(visitor_hash) DO UPDATE SET last_seen_at=CURRENT_TIMESTAMP').bind(hash).run();
   if(event==='visit')await env.DB.prepare("INSERT INTO analytics_app_days(visitor_hash,day_utc,visits) VALUES(?,date('now'),1) ON CONFLICT(visitor_hash,day_utc) DO UPDATE SET visits=visits+1").bind(hash).run();
@@ -28,6 +30,7 @@ export async function analyticsEvent(env,request){
  }
  const target=String(p?.target||'');
  if(!valid(event,target))return reply({error:'Event'},400);
+ if(!await allowPublicEvent(env,request,'analytics',{cap:40}))return publicRateLimited();
  if(event==='channel_open'){
   const exists=await env.DB.prepare("SELECT id FROM channels WHERE id=? AND status='approved'").bind(Number(target.slice(2))).first();
   if(!exists)return reply({error:'Channel'},404);
