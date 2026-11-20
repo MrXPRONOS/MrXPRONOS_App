@@ -1,0 +1,50 @@
+name: CineX — audit lecture seule des droits bots
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/.cinex-bot-permissions-audit-once'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cinex-bot-permissions-readonly
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CINEX_SERIES_CHANNEL_IDS: ${{ vars.CINEX_SERIES_CHANNEL_IDS }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      ALT_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      ALT_DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      ALT_ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      ALT_ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer le client HTTP pour lecture seule Cloudflare D1
+        run: python -m pip install requests==2.32.5
+      - name: Tester sans Telegram
+        run: |
+          python -m py_compile cinecanaux/scripts/audit_cinex_bot_permissions.py
+          python -m unittest discover -s cinecanaux/tests -p 'test_cinex_bot_permissions.py' -v
+      - name: Lire seulement les rôles et permissions déjà accordés aux bots
+        run: python cinecanaux/scripts/audit_cinex_bot_permissions.py
+      - name: Rapport expurgé (aucun jeton, identifiant ou lien d'invitation)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-bot-permissions-readonly-report
+          path: cinex-bot-permissions-report.json
+          if-no-files-found: warn
+          retention-days: 7
