@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-47f87cbb1e840027:UNDER_35",
+    "recorded_at_utc": "2026-11-20T00:18:15+00:00",
+    "kickoff_utc": "2026-11-21T20:30:00+00:00",
+    "fixture": {
+      "home_team": "Vitória SC",
+      "away_team": "Sporting Braga",
+      "league": "Portuguese Cup"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "b6550ebcb97bd1a6a1d3b609b9e0b7e464ff23a75be951858ebb9a0bc109ce1d"
+}
