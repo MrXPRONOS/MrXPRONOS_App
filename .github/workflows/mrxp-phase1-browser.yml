@@ -1,4 +1,4 @@
-name: MRXP Phase 1 - Mobile visual regression
+name: MRXP Mobile visual regression (phases 1-5)
 on:
   push:
     branches:
@@ -32,3 +32,13 @@ jobs:
           fi
       - name: Test phase-1 Mini App mobile layout
         run: python mrxpronos-play/tests/phase1-mobile-layout.py
+      - name: Test official square/story PNG and phase 5 mobile pages
+        run: python mrxpronos-play/tests/phase45-visual.py
+      - name: Keep PNG visual samples for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxp-phase45-visual-samples
+          path: mrxpronos-play/tests/visual-previews-phase45/*.png
+          if-no-files-found: ignore
+          retention-days: 14
