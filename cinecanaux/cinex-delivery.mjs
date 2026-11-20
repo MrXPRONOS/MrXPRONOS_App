@@ -113,7 +113,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   for(const pending of pendingItems){
   // Short lease makes concurrent cron workers mutually exclusive.
   const lock=await env.DB.prepare("UPDATE cine_delivery_jobs SET status='sending',lock_until=datetime('now','+4 minutes'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='queued'").bind(job.id).run();
-  if(Number(lock.meta?.changes||0)!==1)continue;
+  if(Number(lock.meta?.changes||0)!==1)break;
   await env.DB.prepare("UPDATE cine_delivery_job_items SET state='sending',attempts=attempts+1 WHERE job_id=? AND ordinal=? AND state='queued'").bind(job.id,pending.ordinal).run();
   let response;
   try{
@@ -124,7 +124,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    // Ambiguous response: Telegram may have sent the file. No automatic retry!
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id).run();
    await env.DB.prepare("UPDATE cine_delivery_job_items SET state='needs_review' WHERE job_id=? AND ordinal=?").bind(job.id,pending.ordinal).run();
-   errors++;continue;
+   errors++;break;
   }
   if(!response.ok){
    if(response.error_code===429&&response.retry_after>0){
@@ -136,11 +136,11 @@ export async function processDeliveryQueue(env,{limit=4}={}){
     await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();
     await env.DB.prepare("UPDATE cine_delivery_job_items SET state='needs_review' WHERE job_id=? AND ordinal=?").bind(job.id,pending.ordinal).run();
    }
-   errors++;continue;
+   errors++;break;
   }
   const copied=Number(response.result?.message_id||0);
   if(!Number.isSafeInteger(copied)||copied<1){
-   await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;continue;
+   await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;break;
   }
   await env.DB.batch([
    env.DB.prepare("UPDATE cine_delivery_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP WHERE job_id=? AND ordinal=?").bind(copied,job.id,pending.ordinal),
