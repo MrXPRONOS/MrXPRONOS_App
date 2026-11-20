@@ -1,0 +1,79 @@
+name: CineX - Telegram Bot publication de test (sans media)
+on:
+  push:
+    branches: [test/cinex-one-real-publication-20261120]
+    paths:
+      - 'telegram-film-relay/.cinex-one-bot-publication-proof-once'
+
+permissions:
+  contents: read
+concurrency:
+  group: cinex-bot-publication-proof
+  cancel-in-progress: false
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CINEX_DOWNLOADS_ENABLED: ${{ vars.CINEX_DOWNLOADS_ENABLED || 'false' }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests==2.32.5
+      - name: Verifier le bot, l'autorisation GitHub et le canal CineX exact
+        run: |
+          python - <<'PY'
+          import os,requests
+          if os.environ.get('CINEX_DOWNLOADS_ENABLED')!='true':
+              raise SystemExit('CINEX_DOWNLOADS_ENABLED doit etre true')
+          token=os.environ.get('CINEX_BOT_TOKEN') or ''
+          if not token: raise SystemExit('Bot Telegram absent')
+          base='https://api.telegram.org/bot'+token+'/'
+          def call(method,body):
+              r=requests.post(base+method,json=body,timeout=15)
+              data=r.json()
+              if not data.get('ok'): raise RuntimeError(method+' refused: '+str(data.get('error_code'))+' '+str(data.get('description',''))[:130])
+              return data['result']
+          me=call('getMe',{})
+          chat=call('getChat',{'chat_id':'@CineXFilms_vf'})
+          if chat.get('type')!='channel' or str(chat.get('username','')).lower()!='cinexfilms_vf':
+              raise RuntimeError('Le canal de destination ne correspond pas à @CineXFilms_vf')
+          membership=call('getChatMember',{'chat_id':chat['id'],'user_id':me['id']})
+          if membership.get('status') not in ('administrator','creator'):
+              raise RuntimeError('Bot sans role administrateur dans le canal CineX')
+          if membership.get('status')=='administrator' and membership.get('can_post_messages') is False:
+              raise RuntimeError('Bot sans autorisation de publier')
+          print('PREFLIGHT_TELEGRAM_OK : bot administrateur et canal public CineX authentifie')
+          PY
+      - name: Publier un seul message de test neutre (aucune video)
+        run: |
+          python - <<'PY'
+          import os,requests
+          token=os.environ['CINEX_BOT_TOKEN']
+          payload={
+            'chat_id':'@CineXFilms_vf',
+            'text':'🧪 TEST TECHNIQUE CINÉX\n\nVérification en direct de la publication GitHub → Telegram.\n\nAucun film ni épisode n’est envoyé dans ce test.',
+            'disable_notification':True,
+            'link_preview_options':{'is_disabled':True},
+            'reply_markup':{'inline_keyboard':[[{'text':'🍿 Ouvrir Ciné Radar','url':'https://t.me/CineRadarFr_Bot'}]]},
+          }
+          r=requests.post('https://api.telegram.org/bot'+token+'/sendMessage',json=payload,timeout=25)
+          data=r.json()
+          if not r.ok or not data.get('ok'):
+              raise RuntimeError('Message non confirme par Telegram (HTTP '+str(r.status_code)+', code '+str(data.get('error_code','?'))+')')
+          message=data['result']
+          if int(message['chat']['id'])>=0 or not message.get('message_id'):
+              raise RuntimeError('Telegram ne confirme pas un message de canal valide')
+          name=str(message['chat'].get('username','')).lower()
+          if name!='cinexfilms_vf':raise RuntimeError('Destination Telegram non conforme')
+          url='https://t.me/'+name+'/'+str(message['message_id'])
+          print('PUBLICATION_TEST_TELEGRAM_CONFIRMEE : '+url)
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('### CineX : publication bot test confirmee\n\n')
+              out.write('Message Telegram : '+url+'\n\n')
+              out.write('Aucun film, aucune copie, aucune suppression.\n')
+          PY
