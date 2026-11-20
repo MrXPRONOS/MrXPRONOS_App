@@ -1205,7 +1205,14 @@ function metric(event,target){
  fetch("/api/analytics/event",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload),keepalive:true}).catch(()=>{});
 }
 function visitorTracking(){
- if(!metricsAllowed()||!window.crypto?.randomUUID)return;
+ if(!metricsAllowed())return;
+ // Only Telegram-signed Mini App launches can be matched to a /start.
+ // Never trust a client-provided Telegram ID; the Worker verifies initData.
+ const signed=window.Telegram?.WebApp?.initData||"";
+ if(signed)fetch("/api/analytics/launch",{
+  method:"POST",headers:{"X-Telegram-Init-Data":signed},keepalive:true
+ }).catch(()=>{});
+ if(!window.crypto?.randomUUID)return;
  let id;
  try{
   id=localStorage.getItem(ANALYTICS_ID_KEY);
