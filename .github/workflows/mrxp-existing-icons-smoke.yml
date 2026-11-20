@@ -1,0 +1,46 @@
+name: MRXP existing icons production smoke
+on:
+  push:
+    paths: ['.github/workflows/mrxp-existing-icons-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check public Worker, icon rollout and image assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, time, urllib.request
+          base="https://mrxpronos-play.cinecanaux-xpronos.workers.dev"
+          def get(url):
+              req=urllib.request.Request(url,headers={'User-Agent':'MRXP-UI-Art-Canary/1.0','Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=20) as resp:
+                  return resp.status,resp.read(),resp.headers.get('content-type','')
+          code,data,_=get(base+'/api/health')
+          assert code==200
+          health=json.loads(data)
+          expected={k:health.get(k) for k in ('ok','bot_connected','telegram_token_valid','correct_bot','db_connected')}
+          print('Health:',expected)
+          assert all(expected.values()),'Cloudflare bot or database degraded'
+          root='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/mrxpronos-play/assets/'
+          for asset in ('03-wheel-rewards/21-lucky-wheel-full.webp','01-brand/06-mrxp-token-coin.webp','06-game-states/51-locked-padlock.webp','04-quests-progression/37-success-green-check.webp','06-game-states/55-telegram-channel.webp'):
+              status,img,ct=get(root+asset)
+              assert status==200 and img[:4]==b'RIFF' and img[8:12]==b'WEBP',asset+' invalid'
+          v2=0
+          for i in range(50):
+              status,payload,_=get(base+'/?mrxp_icons_smoke='+str(i)+'-'+str(time.time_ns()))
+              page=payload.decode('utf-8','replace')
+              assert status==200 and 'TAPOTER POUR GAGNER' in page
+              if 'id="mrxp-existing-icon-cleanup"' in page:
+                  assert 'heroBadge.dataset.rankBadge' in page
+                  assert 'mrxp-game-illustration' in page
+                  assert '04-quests-progression/31-quests-target.webp' in page
+                  v2+=1
+          print('New-icon HTML responses:',v2,'of 50')
+          assert v2>0,'New icon version never served in canary'
+          PY
