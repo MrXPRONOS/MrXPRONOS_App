@@ -20,6 +20,7 @@ import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
 import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDeliveries} from "./cinex-classic.mjs";
 import {cleanupDeliveredCopies} from "./cinex-expiry.mjs";
+import {ingestIndividualSeriesUpdate,ingestSeriesOwnerForward,handleSeriesStart,processSeriesQueue,cleanupSeriesCopies} from "./individual-series.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 // Public bot identity is not a secret. Cache this server-side sanity check;
 // never expose or log the Telegram token itself.
@@ -87,7 +88,7 @@ async function receiveTelegram(request,env,ctx){
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  try{
-  if(update.channel_post||update.edited_channel_post){await ingestPinUpdate(env,update);await ingestRadarPost(env,update);return Response.json({ok:true});}
+  if(update.channel_post||update.edited_channel_post){await ingestIndividualSeriesUpdate(env,update);await ingestPinUpdate(env,update);await ingestRadarPost(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
@@ -103,10 +104,14 @@ async function receiveTelegram(request,env,ctx){
    }
   }
   if(update.message?.forward_origin?.type==="channel"){
+   const series=await ingestSeriesOwnerForward(env,update.message);
+   if(series.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:series.stored?"✅ Affiche de la saison "+series.season+" enregistrée pour CinéX Séries.":"⚠️ "+series.reason});return Response.json({ok:true});}
    const result=await ingestOwnerForward(env,update.message);
    if(result.handled){await telegram(env,"sendMessage",{chat_id:update.message.chat.id,text:result.stored?"✅ Affiche enregistrée pour À l’affiche.":"⚠️ "+result.reason});return Response.json({ok:true});}
   }
   if(await handleSaveHelp(env,update))return Response.json({ok:true});
+  const series=await handleSeriesStart(env,update);
+  if(series.handled)return Response.json({ok:true});
   const classic=await handleClassicDeliveryStart(env,update);
   if(classic.handled)return Response.json({ok:true});
   const delivery=await handleDeliveryStart(env,update);
@@ -458,6 +463,8 @@ export default {
    ctx.waitUntil(processClassicDeliveryQueue(env).catch(e=>console.warn("cinex_classic_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(cleanupClassicDeliveries(env).catch(e=>console.warn("cinex_classic_expiry_failed",String(e?.name||"error"))));
    ctx.waitUntil(cleanupDeliveredCopies(env).catch(e=>console.warn("cinex_expiry_cleanup_failed",String(e?.name||"error"))));
+   ctx.waitUntil(processSeriesQueue(env).catch(e=>console.warn("cinex_series_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(cleanupSeriesCopies(env).catch(e=>console.warn("cinex_series_expiry_failed",String(e?.name||"error"))));
    return;
   }
   else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
