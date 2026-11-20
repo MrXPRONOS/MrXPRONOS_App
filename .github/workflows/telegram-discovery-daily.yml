@@ -2,8 +2,14 @@ name: CineX - Découverte quotidienne des canaux
 
 on:
   schedule:
-    - cron: '33 7 * * *'
+    - cron: '17 19 * * *' # Une seule recherche quotidienne, après le FloodWait du 20/11
   workflow_dispatch:
+    inputs:
+      publish_promo:
+        description: "Publier aussi la campagne Cine Radar (sinon audit uniquement)"
+        required: false
+        default: false
+        type: boolean
   push:
     branches: [main]
     paths:
@@ -19,9 +25,9 @@ concurrency:
 
 jobs:
   discover:
-    name: Chercher 4 catégories puis envoyer un seul récapitulatif privé
+    name: Inventaire sécurisé, recherche publique et campagne Bot API
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - name: Charger le dépôt
         uses: actions/checkout@v4
@@ -37,21 +43,47 @@ jobs:
           cache-dependency-path: telegram-film-relay/requirements.txt
       - name: Installer Telethon
         run: python -m pip install -r telegram-film-relay/requirements.txt
-      - name: Vérifier le programme sans réseau
+      - name: Vérifier les 3 programmes sans réseau
         working-directory: telegram-film-relay
         env:
           PYTHONPATH: .
         run: |
           python -m compileall -q film_relay scripts tests
+          python -m py_compile ../scripts/inventory_mrxpronos_shared_admin_channels.py ../scripts/cineradar_daily_promo.py
           python -m unittest discover -s tests -p 'test_daily_discovery.py' -v
-      - name: Recherche publique et rapport privé
-        working-directory: telegram-film-relay
+          python -m unittest discover -s tests -p 'test_discovery_inventory_coordinator.py' -v
+          python -m unittest discover -s ../tests -p 'test_cineradar_daily_promo.py' -v
+      - name: Recenser canaux publics/prives + decouvrir CINEX avec UNE seule connexion MTProto
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          PYTHONPATH: .
-        run: python scripts/discovery_daily.py
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+          CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+          PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+          CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CINERADAR_PUBLIC_INVENTORY_FILE: ${{ runner.temp }}/cineradar-verified-public.json
+          PYTHONPATH: telegram-film-relay
+        run: python telegram-film-relay/scripts/discovery_inventory_daily.py
+      - name: Publier Cine Radar sur les canaux publics reels (Bot API, aucune session utilisateur)
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish_promo == true) }}
+        env:
+          MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+          CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+          PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+          CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CINERADAR_PUBLIC_INVENTORY_FILE: ${{ runner.temp }}/cineradar-verified-public.json
+        run: python scripts/cineradar_daily_promo.py
       - name: Sauvegarder les découvertes sans doublonner
         if: always()
         shell: bash
