@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: telegram-private-channels-registry
+  group: mrx-telegram-personal-account
   cancel-in-progress: false
 
 jobs:
