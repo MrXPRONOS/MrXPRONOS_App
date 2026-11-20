@@ -20,7 +20,7 @@ CHANNEL_ID = re.compile(r"^-100[0-9]{6,}$")
 SEPARATORS = re.compile(r"[\s,;]+")
 MAX_CHANNELS = 50
 REPORT = Path("cinex-series-bot-inventory.json")
-RADAR_HEALTH_URL = "https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health?telegram=1"
+RADAR_HEALTH_URL = "https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health/bot-identity"
 
 
 def validated_radar_identity(data: dict) -> int:
@@ -76,7 +76,7 @@ def identify_radar_bot(configured_token: str = "") -> int:
     except urllib.error.HTTPError as error:
         raise RuntimeError("CineRadar Worker HTTP " + str(error.code)) from None
     except (urllib.error.URLError, TimeoutError):
-        raise RuntimeError("CineRadar Worker injoignable depuis GitHub Actions") from None
+        raise RuntimeError("CineRadar Worker /health/bot-identity injoignable depuis GitHub Actions") from None
     except (ValueError, TypeError) as error:
         raise RuntimeError("Diagnostic CineRadar Worker non valide: " + str(error)[:155]) from None
 
