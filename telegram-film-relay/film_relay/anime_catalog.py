@@ -305,6 +305,84 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
         LOG.info("Fiche privée historique réparée pour %s : %s", key, recovered)
 
 
+async def repair_legacy_indexes(client, bot, private, public, bot_public,
+                                private_id, catalogue, pause):
+    """Reconnect historical cards to ONE surviving index, with no new posts.
+
+    We first verify the original deterministic marker and message existence;
+    an uneditable card stays pending for manual review. Never delete posts.
+    """
+    repaired = 0
+    for key, series in catalogue.get("series", {}).items():
+        if not series.get("index_repair_pending"):
+            continue
+        marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15]
+        title = str(series.get("title") or key)
+        success = True
+        for season, index_id in sorted(
+                series.get("season_indices", {}).items(), key=lambda pair: int(pair[0])):
+            episodes = series.get("episodes", {}).get(str(season), {})
+            if not episodes:
+                continue
+            try:
+                msg = await client.get_messages(private, ids=int(index_id))
+                if not msg or marker + "_S" + str(season) not in (
+                        getattr(msg, "raw_text", "") or ""):
+                    raise ValueError("index saison sans marqueur d'origine")
+                body = season_text(title, int(season), episodes)
+                await edit_message_if_changed(
+                    client, private, int(index_id),
+                    body + "\n" + marker + "_S" + str(season),
+                    parse_mode="html", link_preview=False)
+                await asyncio.sleep(pause)
+            except Exception as exc:
+                LOG.warning("Réparation saison %s/%s différée : %s", key, season, exc)
+                success = False
+        main_index = series.get("main_index_id")
+        if main_index:
+            try:
+                msg = await client.get_messages(private, ids=int(main_index))
+                if not msg or marker not in (getattr(msg, "raw_text", "") or ""):
+                    raise ValueError("index principal sans marqueur d'origine")
+                await edit_message_if_changed(
+                    client, private, int(main_index),
+                    main_index_text(title, private_id, series.get("season_indices", {}))
+                    + "\n" + marker,
+                    parse_mode="html", link_preview=False)
+                await asyncio.sleep(pause)
+            except Exception as exc:
+                LOG.warning("Réparation index principal %s différée : %s", key, exc)
+                success = False
+        else:
+            success = False
+        redirected = {int(i) for i in series.get("legacy_cards_redirected", [])}
+        for legacy_id in series.get("legacy_public_ids", []):
+            if int(legacy_id) in redirected:
+                continue
+            try:
+                msg = await client.get_messages(public, ids=int(legacy_id))
+                if not msg or not getattr(msg, "photo", None):
+                    raise ValueError("ancienne fiche publique absente")
+                await bot.edit_reply_markup(
+                    bot_public, int(legacy_id),
+                    buttons=public_buttons(private_id, series, public))
+                redirected.add(int(legacy_id))
+                series["legacy_cards_redirected"] = sorted(redirected)
+                save_catalog(catalogue)
+                await asyncio.sleep(pause)
+            except Exception as exc:
+                LOG.warning("Redirection ancienne fiche %s différée : %s",
+                            legacy_id, exc)
+                success = False
+        if success:
+            series["index_repair_pending"] = False
+            repaired += 1
+            save_catalog(catalogue)
+    if repaired:
+        LOG.info("Anime : %s anciens catalogues redirigés vers un index commun", repaired)
+    return repaired
+
+
 def batch_descriptor(key, items):
     """Persist just Telegram IDs, never source videos, for crash recovery."""
     return {
@@ -429,6 +507,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         if publish:
             await verify_library_bot(bot, private)
         private_id = utils.get_peer_id(private)
+        if publish:
+            await repair_legacy_indexes(
+                client, bot, private, public, bot_public,
+                private_id, catalogue, pause)
         all_candidates = []
         scan_plans = []
         unnumbered_skipped = 0
