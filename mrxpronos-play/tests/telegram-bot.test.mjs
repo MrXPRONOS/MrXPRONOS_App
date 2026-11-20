@@ -60,7 +60,7 @@ function harness(){
        },
        async run(){
         if(lower.startsWith('insert into mrxp_api_limits')){
-         const [userId,route,now,,,,,,,,,limit]=values,key=String(userId)+':'+route,old=rateBuckets.get(key);
+         const [userId,route,now]=values,limit=Number(values.at(-1)),key=String(userId)+':'+route,old=rateBuckets.get(key);
          const windowMs=60000,existing=old&&now-old.start<windowMs;
          if(existing&&old.count>=Number(limit))return {success:true,meta:{changes:0}};
          rateBuckets.set(key,{start:existing?old.start:now,count:existing?old.count+1:1});
@@ -1812,14 +1812,22 @@ test('phase 5 friends and missions are compact, real-data-driven, and retain ser
 });
 
  
-test('audit: bootstrap reveals only the current UTC wheel day, not 15 future outcomes',async()=>{
+test('audit: wheel outcome remains secret until server-logged spin, then persists across bootstrap',async()=>{
  const h=harness();
  try{
   const signed=signedTelegramUser({id:600051,first_name:'Audit'});
-  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
-  assert.equal(res.status,200,await res.clone().text());
-  const body=await res.json();
-  assert.deepEqual(Object.keys(body.wheel_plans),[new Date().toISOString().slice(0,10)]);
+  const url='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+  const get=()=>worker.fetch(new Request(url+'/api/bootstrap',{headers:{'x-telegram-init-data':signed}}),h.env);
+  const before=await get();assert.equal(before.status,200,await before.clone().text());
+  assert.deepEqual(Object.keys((await before.json()).wheel_plans),[]);
+  const claim=await worker.fetch(new Request(url+'/api/rewards/claim',{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify({kind:'wheel'})}),h.env);
+  assert.equal(claim.status,200,await claim.clone().text());
+  const receipt=await claim.json();
+  assert.ok(receipt.xp_awarded>0);
+  const after=await get(),state=await after.json();
+  assert.deepEqual(Object.keys(state.wheel_plans),[new Date().toISOString().slice(0,10)]);
+  assert.equal(state.wheel_plans[receipt.day],receipt.reward_key);
+  assert.ok(state.reward_intents.some(x=>x.kind==='wheel'&&x.day===receipt.day));
  }finally{h.restore()}
 });
 
@@ -1868,4 +1876,95 @@ test('audit: reward-change history, cumulative taps and explicit sync receipts r
   'REQUEST_TOO_LARGE',
   'SELECT 1 AS alive'
  ])assert.ok(code.includes(marker),'Missing audited behavior: '+marker);
+});
+
+ 
+test('audit P0: forged reward-day arrays do not grant XP without a server claim',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62001,first_name:'Fraud check'});
+  const day=new Date().toISOString().slice(0,10);
+  const req=new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/sync',{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify({batch_id:'fraud-days-batch-62001',taps:0,daily_days:[day],wheel_days:[day]})});
+  const res=await worker.fetch(req,h.env);
+  assert.equal(res.status,200,await res.clone().text());
+  const body=await res.json();
+  assert.equal(body.xp_awarded,0);
+  assert.deepEqual(body.accepted_daily_days,[]);assert.deepEqual(body.accepted_wheel_days,[]);
+  assert.deepEqual(body.rejected_daily_days,[day]);assert.deepEqual(body.rejected_wheel_days,[day]);
+  assert.equal(h.verifiedDaily.length,0);assert.equal(h.verifiedWheel.length,0);
+ }finally{h.restore()}
+});
+
+test('audit P0: server claims are idempotent and pay once at next 12h sync',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62002,first_name:'Verified'});
+  const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev';
+  const post=(path,body)=>worker.fetch(new Request(root+path,{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:JSON.stringify(body)}),h.env);
+  const daily=await post('/api/rewards/claim',{kind:'daily'});
+  assert.equal(daily.status,200,await daily.clone().text());
+  const d=await daily.json();assert.equal(d.xp_awarded,100);assert.equal(d.duplicate,false);
+  const repeat=await post('/api/rewards/claim',{kind:'daily'});
+  assert.equal((await repeat.json()).duplicate,true);
+  const wheel=await post('/api/rewards/claim',{kind:'wheel'});
+  assert.equal(wheel.status,200,await wheel.clone().text());
+  const w=await wheel.json();assert.ok(w.xp_awarded>0);
+  assert.equal(h.rewardIntents.size,2);
+  const sync=await post('/api/sync',{batch_id:'verified-claim-sync-62002',taps:3,daily_days:[],wheel_days:[]});
+  assert.equal(sync.status,200,await sync.clone().text());
+  const result=await sync.json();
+  assert.equal(result.xp_awarded,3+100+w.xp_awarded);
+  assert.deepEqual(result.accepted_daily_days,[d.day]);assert.deepEqual(result.accepted_wheel_days,[w.day]);
+  assert.equal(h.verifiedDaily.length,1);assert.equal(h.verifiedWheel.length,1);
+  assert.equal(h.player.confirmed_xp,3+100+w.xp_awarded);
+  const dup=await post('/api/sync',{batch_id:'verified-claim-sync-62002',taps:3,daily_days:[],wheel_days:[]});
+  assert.equal(dup.status,200);assert.equal((await dup.json()).duplicate,true);
+  assert.equal(h.player.confirmed_xp,3+100+w.xp_awarded);
+ }finally{h.restore()}
+});
+
+test('audit P0: arbitrary dates, JSON null and forged reward values are rejected',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62003,first_name:'Input'});
+  const url='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/rewards/claim';
+  const post=body=>worker.fetch(new Request(url,{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body}),h.env);
+  for(const payload of ['null','[]','{}',JSON.stringify({kind:'wheel',day:'2000-01-01'}),JSON.stringify({kind:'daily',xp_awarded:1000000})]){
+   const res=await post(payload);assert.equal(res.status,400,await res.clone().text());
+  }
+  const unauthorized=await worker.fetch(new Request(url,{method:'POST',headers:{'content-type':'application/json'},body:'{"kind":"daily"}'}),h.env);
+  assert.equal(unauthorized.status,401);
+  assert.equal(h.rewardIntents.size,0)
+ }finally{h.restore()}
+});
+
+test('audit P0: account-scoped request throttling rejects excessive repeated claims',async()=>{
+ const h=harness();
+ try{
+  const signed=signedTelegramUser({id:62004,first_name:'Throttle'});
+  const root='https://mrxpronos-play.cinecanaux-xpronos.workers.dev/api/rewards/claim';
+  let blocked=0;
+  for(let i=0;i<30;i++){
+   const r=await worker.fetch(new Request(root,{method:'POST',headers:{'x-telegram-init-data':signed,'content-type':'application/json'},body:'{"kind":"daily"}'}),h.env);
+   if(r.status===429)blocked++;else assert.equal(r.status,200,await r.clone().text());
+  }
+  assert.equal(blocked,5);assert.equal(h.rewardIntents.size,1);
+ }finally{h.restore()}
+});
+
+test('audit P0: new D1 schema is additive and UI uses server claim actions',async()=>{
+ const sql=await readFile(new URL('../migrations/007_server_reward_intents.sql',import.meta.url),'utf8');
+ assert.match(sql,/PRIMARY KEY\(user_id,kind,day\)/);
+ assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS mrxp_api_limits'));
+ assert.ok(!/DROP TABLE|DELETE FROM players|DELETE FROM (?:daily_claims|wheel_claims)|UPDATE players/i.test(sql));
+ const h=harness();
+ try{
+  const response=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  const html=await response.text();
+  assert.ok(html.includes('authFetch("/api/rewards/claim","POST",{kind:"daily"})'));
+  assert.ok(html.includes('authFetch("/api/rewards/claim","POST",{kind:"wheel"})'));
+  assert.ok(html.includes('mrxpReconcileServerRewards(r)'));
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(Boolean);
+  for(const snippet of scripts)assert.doesNotThrow(()=>new vm.Script(snippet));
+ }finally{h.restore()}
 });
