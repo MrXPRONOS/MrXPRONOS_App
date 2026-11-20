@@ -41,6 +41,8 @@ Le workflow utilise aussi un secret Cloudflare existant `CLOUDFLARE_API_TOKEN` o
 
 La migration `cinecanaux/migrations/023_github_extra_reaction_bots.sql` doit être appliquée **avant** la fusion du workflow. Elle garde la position de départ afin de ne pas ajouter de réactions aux publications antérieures.
 
+**Activation progressive :** les bots 03 à 07 ont leur point de départ conservé à la publication n°63. Les bots 08 à 12 seront enregistrés lors de leur première vérification d'identité réussie, et ne réagiront qu'aux publications suivantes ; ils ne rattraperont pas les messages parus avant leur activation. L'absence d'un secret n'empêche jamais les bots déjà opérationnels de fonctionner.
+
 Le workflow GitHub `.github/workflows/telegram-reactions-github.yml` :
 - s'exécute environ toutes les cinq minutes (les déclenchements GitHub peuvent subir des retards) ;
 - ne réagit qu'aux publications **postérieures à l'installation** de la migration ;
