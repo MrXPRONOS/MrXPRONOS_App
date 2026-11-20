@@ -109,7 +109,7 @@ test('channel photo pin update and numbered channel videos work without Telegram
   assert.equal(db.prepare("SELECT part FROM cine_franchise_films").get().part,6);
  }finally{db.close()}
 });
-test('CineRadar saga link queues only stored films, delivers owner's copies and deletes ONLY subscriber receipts after 24h',async()=>{
+test("CineRadar saga link queues only stored films, delivers owner's copies and deletes ONLY subscriber receipts after 24h",async()=>{
  const {db,env}=fixture(),old=globalThis.fetch,calls=[];let next=900;
  globalThis.fetch=async(url,opts)=>{
   const method=String(url).split('/').at(-1),body=JSON.parse(opts.body);
