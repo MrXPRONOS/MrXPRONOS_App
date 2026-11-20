@@ -227,8 +227,7 @@ class AnimeProgressivePolicyTests(unittest.TestCase):
         }}}}}
         selected = progressive_anime_seasons(
             {"petite-serie": rows}, stored, maximum=25)
-        self.assertEqual([r["episode"] for r in selected[0][1]],
-                         [1, 2, 3, 4, 5, 6])
+        self.assertEqual([r["episode"] for r in selected[0][1]], [5, 6])
         self.assertEqual(progressive_anime_seasons(
             {"petite-serie": rows[:4]}, stored, maximum=25), [])
 
@@ -243,8 +242,7 @@ class AnimeProgressivePolicyTests(unittest.TestCase):
         }}}}}
         continuation = progressive_anime_seasons(
             {"petite-serie": rows}, stored, maximum=25)
-        self.assertEqual([r["episode"] for r in continuation[0][1]],
-                         list(range(1, 27)))
+        self.assertEqual([r["episode"] for r in continuation[0][1]], [26])
 
     def test_source_prefix_and_episode_suffix_share_identity(self):
         from film_relay.episode_identity import canonical_title
