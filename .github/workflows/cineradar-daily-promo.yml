@@ -2,8 +2,7 @@ name: Cine Radar - Promo quotidienne tous canaux eligibles
 # Affiche validee : message officiel @CineXFilms_vf/373.
 # Les publications ne se lancent PAS sur un push de code.
 on:
-  schedule:
-    - cron: '17 19 * * *'   # 19h17 UTC = heure du Togo
+# Calendrier transféré à telegram-discovery-daily.yml : un seul déclencheur quotidien.
   workflow_dispatch:
     inputs:
       dry_run:
@@ -65,7 +64,7 @@ jobs:
   publish:
     name: Envoi quotidien avec anti-doublons Supabase
     needs: tests
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false) }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

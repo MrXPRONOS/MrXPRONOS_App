@@ -1,11 +1,9 @@
 name: Telegram - Verified shared admin inventory (encrypted)
 
+# L'inventaire planifié est désormais effectué par telegram-discovery-daily.yml
+# dans la MEME session personnelle que la découverte. Ce workflow reste manuel.
 on:
   workflow_dispatch:
-  # Relance unique du 20 novembre 2026 après le FloodWait.
-  # Les années suivantes, le job de garde ignorera le déclenchement.
-  schedule:
-    - cron: '27 17 20 11 *'
 
 permissions:
   contents: read
