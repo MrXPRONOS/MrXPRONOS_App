@@ -432,6 +432,7 @@ export default {
   })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
   if(controller.cron==="* * * * *"){
    ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
+   return;
   }
   else if(controller.cron==="0 */4 * * *")ctx.waitUntil(runLoggedJob(env,'discovery',async()=>{
    try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
