@@ -1,3 +1,4 @@
+import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // CinéX séries individuelles — Bot API et D1 uniquement.
 // Messages entrants: le bot Ciné Radar doit déjà être admin dans les canaux privés.
 // getChat NE permet PAS de récupérer l'ensemble des anciens messages épinglés.
@@ -83,11 +84,14 @@ export function seriesButtons(token,rescue,folder){
  ]};
 }
 async function telegram(env,method,payload){
+ const quota=await guardTelegramMethod(env,method,payload);
+ if(quota&&!quota.allowed)return {ok:false,code:429,retry_after:quota.retryAfter,quotaDeferred:true};
  const response=await fetch(TG+env.TELEGRAM_TOKEN+'/'+method,{
   method:'POST',headers:{'content-type':'application/json'},
   body:JSON.stringify(payload),signal:AbortSignal.timeout(12000)
  });
  let data;try{data=await response.json();}catch{throw Error('telegram_response_unknown')}
+ if(Number(data?.error_code||response.status)===429)await noteTelegramFloodWait(env,Number(data?.parameters?.retry_after||30));
  if(!response.ok||!data?.ok)return {ok:false,code:Number(data?.error_code||response.status),retry_after:Number(data?.parameters?.retry_after||0)};
  return data;
 }
