@@ -1,11 +1,13 @@
 // Owner-only Telegram announcements. Anonymous analytics remain separate from delivery IDs.
+import {recordAdminAudit} from './admin-ops.mjs';
 const response=(body,status=200)=>Response.json(body,{status,headers:{"cache-control":"no-store"}});
 const validId=x=>Number.isSafeInteger(Number(x))&&Number(x)>0?Number(x):null;
 export async function ensureBroadcastTables(env){
  const sql=[
   "CREATE TABLE IF NOT EXISTS cine_broadcast_subscribers (chat_id INTEGER PRIMARY KEY, active INTEGER NOT NULL DEFAULT 1, blocked INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)",
   "CREATE TABLE IF NOT EXISTS cine_broadcast_jobs (id INTEGER PRIMARY KEY AUTOINCREMENT, owner_id INTEGER NOT NULL, text_html TEXT NOT NULL, photo_id TEXT NOT NULL DEFAULT '', button_text TEXT NOT NULL DEFAULT '', button_url TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'draft', recipients INTEGER NOT NULL DEFAULT 0, delivered INTEGER NOT NULL DEFAULT 0, failed INTEGER NOT NULL DEFAULT 0, blocked INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP, lease_until TEXT)",
-  "CREATE TABLE IF NOT EXISTS cine_broadcast_receipts (job_id INTEGER NOT NULL, chat_id INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT NOT NULL DEFAULT '', retry_at TEXT, PRIMARY KEY(job_id,chat_id))"
+  "CREATE TABLE IF NOT EXISTS cine_broadcast_receipts (job_id INTEGER NOT NULL, chat_id INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT NOT NULL DEFAULT '', retry_at TEXT, PRIMARY KEY(job_id,chat_id))",
+  "CREATE TABLE IF NOT EXISTS cine_broadcast_schedules (job_id INTEGER PRIMARY KEY, send_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'scheduled', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
  ];
  for(const query of sql)await env.DB.prepare(query).run();
 }
@@ -93,7 +95,7 @@ export async function broadcastAdminAPI(env,request,owner){
  if(path==="/api/admin/broadcasts"&&request.method==="GET"){
   const [users,jobs]=await Promise.all([
    env.DB.prepare("SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN active=1 AND blocked=0 THEN 1 ELSE 0 END),0) active FROM cine_broadcast_subscribers").first(),
-   env.DB.prepare("SELECT id,status,recipients,delivered,failed,blocked,created_at,button_text,CASE WHEN photo_id<>'' THEN 1 ELSE 0 END has_photo FROM cine_broadcast_jobs ORDER BY id DESC LIMIT 15").all()
+   env.DB.prepare("SELECT b.id,b.status,b.recipients,b.delivered,b.failed,b.blocked,b.created_at,b.button_text,CASE WHEN b.photo_id<>'' THEN 1 ELSE 0 END has_photo,s.send_at AS scheduled_at,s.status AS schedule_status FROM cine_broadcast_jobs b LEFT JOIN cine_broadcast_schedules s ON s.job_id=b.id ORDER BY b.id DESC LIMIT 20").all()
   ]);
   return response({subscribers:{total:Number(users?.total||0),active:Number(users?.active||0)},jobs:jobs.results||[]});
  }
@@ -105,11 +107,24 @@ export async function broadcastAdminAPI(env,request,owner){
   const r=await env.DB.prepare("INSERT INTO cine_broadcast_jobs(owner_id,text_html,photo_id,button_text,button_url) VALUES(?,?,?,?,?)").bind(owner,draft.text_html,draft.photo_id,draft.button_text,draft.button_url).run();
   return response({ok:true,id:r.meta?.last_row_id,status:"draft"},201);
  }
- const match=/^\/api\/admin\/broadcasts\/(\d+)\/(preview|start|cancel)$/.exec(path);
+ const match=/^\/api\/admin\/broadcasts\/(\d+)\/(preview|start|cancel|schedule)$/.exec(path);
  if(!match)return response({error:"Route inconnue."},404);
  const id=Number(match[1]),op=match[2];
  const row=await env.DB.prepare("SELECT * FROM cine_broadcast_jobs WHERE id=?").bind(id).first();
  if(!row)return response({error:"Annonce introuvable."},404);
+ if(op==="schedule"){
+  if(row.status!=="draft")return response({error:"Seuls les brouillons peuvent être programmés."},409);
+  const value=String(data.send_at||"");
+  if(!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/.test(value))return response({error:"Date UTC invalide."},400);
+  const ms=Date.parse(value);
+  if(!Number.isFinite(ms)||ms<Date.now()+120000||ms>Date.now()+30*86400000)
+   return response({error:"Choisis une date entre 2 minutes et 30 jours dans le futur."},400);
+  const sendAt=new Date(ms).toISOString().replace("T"," ").slice(0,19);
+  const scheduled=await env.DB.prepare("INSERT INTO cine_broadcast_schedules(job_id,send_at,status) VALUES(?,?,'scheduled') ON CONFLICT(job_id) DO UPDATE SET send_at=excluded.send_at,status='scheduled',updated_at=CURRENT_TIMESTAMP WHERE cine_broadcast_schedules.status IN ('scheduled','cancelled')")
+   .bind(id,sendAt).run();
+  if(Number(scheduled.meta?.changes||0)<1)return response({error:"Annonce déjà lancée, programmation impossible."},409);
+  return response({ok:true,status:"scheduled",scheduled_at:sendAt});
+ }
  if(op==="preview"){
   if(row.status!=="draft")return response({error:"Prévisualisation réservée aux brouillons."},409);
   try{const result=await send(env,owner,row);return result.ok?response({ok:true}):response({error:"Telegram a refusé l'aperçu."},502);}
@@ -118,21 +133,60 @@ export async function broadcastAdminAPI(env,request,owner){
  if(op==="cancel"){
   if(!["draft","preparing","sending"].includes(row.status))return response({error:"Annonce déjà terminée."},409);
   await env.DB.prepare("UPDATE cine_broadcast_jobs SET status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE id=? AND status IN ('draft','preparing','sending')").bind(id).run();
+  await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status IN ('scheduled','dispatching','started')").bind(id).run();
   return response({ok:true,status:"cancelled"});
  }
  if(row.status!=="draft")return response({error:"Cette annonce a déjà été lancée."},409);
+ const launched=await startBroadcastDraft(env,id);
+ if(launched.ok)await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='started',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status='scheduled'").bind(id).run();
+ return response(launched,launched.ok?200:launched.http||503);
+}
+// The same idempotent draft-to-receipts transition is used by manual and
+// scheduled sends. A claimed job can never create recipients twice.
+export async function startBroadcastDraft(env,id){
  const claimed=await env.DB.prepare("UPDATE cine_broadcast_jobs SET status='preparing' WHERE id=? AND status='draft'").bind(id).run();
- if(!Number(claimed.meta?.changes||0))return response({error:"Envoi déjà démarré."},409);
+ if(!Number(claimed.meta?.changes||0))return {ok:false,error:"Envoi déjà démarré.",http:409};
  try{
   await env.DB.prepare("INSERT OR IGNORE INTO cine_broadcast_receipts(job_id,chat_id) SELECT ?,chat_id FROM cine_broadcast_subscribers WHERE active=1 AND blocked=0").bind(id).run();
   const c=await env.DB.prepare("SELECT COUNT(*) n FROM cine_broadcast_receipts WHERE job_id=?").bind(id).first();
   const recipients=Number(c?.n||0);
-  await env.DB.prepare("UPDATE cine_broadcast_jobs SET status=?,recipients=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='preparing'").bind(recipients?"sending":"completed",recipients,id).run();
-  return response({ok:true,status:recipients?"sending":"completed",recipients});
+  await env.DB.prepare("UPDATE cine_broadcast_jobs SET status=?,recipients=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='preparing'")
+   .bind(recipients?"sending":"completed",recipients,id).run();
+  return {ok:true,status:recipients?"sending":"completed",recipients};
  }catch{
   await env.DB.prepare("UPDATE cine_broadcast_jobs SET status='draft' WHERE id=? AND status='preparing'").bind(id).run().catch(()=>{});
-  return response({error:"Impossible de préparer les destinataires."},503);
+  return {ok:false,error:"Impossible de préparer les destinataires.",http:503};
  }
+}
+export async function launchScheduledBroadcasts(env){
+ await ensureBroadcastTables(env);
+ // Recover interrupted claims, even if the Worker was terminated mid-flight.
+ await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='scheduled',updated_at=CURRENT_TIMESTAMP WHERE status='dispatching' AND updated_at<datetime('now','-5 minutes')").run();
+ const due=await env.DB.prepare("SELECT s.job_id,b.owner_id,b.status AS job_status FROM cine_broadcast_schedules s JOIN cine_broadcast_jobs b ON b.id=s.job_id WHERE s.status='scheduled' AND s.send_at<=datetime('now') ORDER BY s.send_at LIMIT 3").all();
+ let started=0,errors=0;
+ for(const item of due.results||[]){
+  const claim=await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='dispatching',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status='scheduled' AND send_at<=datetime('now')").bind(item.job_id).run();
+  if(!Number(claim.meta?.changes||0))continue;
+  try{
+   let result;
+   if(item.job_status==="draft")result=await startBroadcastDraft(env,item.job_id);
+   else result={ok:["sending","preparing","completed"].includes(item.job_status)};
+   if(result.ok){
+    await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='started',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status='dispatching'").bind(item.job_id).run();
+    await recordAdminAudit(env,item.owner_id,'broadcast.auto_start',String(item.job_id));
+    started++;
+   }else if(item.job_status==="cancelled"){
+    await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status='dispatching'").bind(item.job_id).run();
+   }else{
+    await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='scheduled',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status='dispatching'").bind(item.job_id).run();
+    errors++;
+   }
+  }catch{
+   await env.DB.prepare("UPDATE cine_broadcast_schedules SET status='scheduled',updated_at=CURRENT_TIMESTAMP WHERE job_id=? AND status='dispatching'").bind(item.job_id).run().catch(()=>{});
+   errors++;
+  }
+ }
+ return {started,errors};
 }
 export async function deliverBroadcastBatch(env){
  await ensureBroadcastTables(env);

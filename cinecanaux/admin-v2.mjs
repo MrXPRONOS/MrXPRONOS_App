@@ -10,6 +10,7 @@ import {bindPrimaryRadarChannels,missingRadarTitles,notifyOwnerMissingRadarTitle
 import {runTrendRefresh,reconcileRadarPosts,authorizeRadarTitle,radarOwnerDigest} from './trend-radar.mjs';
 import {initializeProfile,invalidateDirectoryCache} from './radar-lean.mjs';
 import {ownerPinnedList,ownerRemovePin} from './pinned-showcase.mjs';
+import {recordAdminAudit,ownerOperationsOverview} from './admin-ops.mjs';
 const json=(value,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function verifyAdmin(request,env){
  const u=await verifiedIdentity(request,env);
@@ -69,10 +70,14 @@ export async function adminAPI(env,request,ctx){
   ]);
   return json({missing,channels:channels.results||[],digest});
  }
- if(path==='/api/admin/broadcast-image'||path==='/api/admin/broadcasts'||/^\/api\/admin\/broadcasts\/\d+\/(?:preview|start|cancel)$/.test(path)){
+ if(path==='/api/admin/broadcast-image'||path==='/api/admin/broadcasts'||/^\/api\/admin\/broadcasts\/\d+\/(?:preview|start|cancel|schedule)$/.test(path)){
   const answer=await broadcastAdminAPI(env,request,admin.telegram_id);
   if(request.method==='POST'&&/\/start$/.test(path)&&answer.ok&&ctx?.waitUntil){
    ctx.waitUntil(deliverBroadcastBatch(env).catch(e=>console.warn('broadcast_batch_failed',String(e?.name||'error'))));
+  }
+  if(request.method==='POST'&&answer.ok){
+   const event=/^\/api\/admin\/broadcasts\/(\d+)\/(start|cancel|schedule)$/.exec(path);
+   if(event)await recordAdminAudit(env,admin.telegram_id,'broadcast.'+event[2],event[1]);
   }
   return answer;
  }
@@ -90,6 +95,7 @@ export async function adminAPI(env,request,ctx){
   (SELECT COALESCE(SUM(empty_results),0) FROM search_daily_stats WHERE date_utc=date('now')) AS empty_searches_today`).first();
   return json(items||{});
  }
+ if(request.method==='GET'&&path==='/api/admin/operations')return json(await ownerOperationsOverview(env));
  if(request.method==='GET'&&path==='/api/admin/jobs'){
   const r=await env.DB.prepare("SELECT id,job_name,started_at,finished_at,status,examined,inserted,updated,errors,details FROM automated_job_runs ORDER BY id DESC LIMIT 35").all();
   return json({jobs:r.results||[]});
@@ -124,6 +130,7 @@ export async function adminAPI(env,request,ctx){
    const created=await env.DB.prepare("INSERT INTO channels(title,link,description,content_type,genre,language,status,rights_confirmed) VALUES(?,?,?,?,?,?,'approved',1)")
     .bind(fields.title,normalized,fields.description,fields.content_type,fields.genre,fields.language).run();
    invalidateDirectoryCache();
+   await recordAdminAudit(env,admin.telegram_id,'channel.create',String(created.meta?.last_row_id||0),fields.content_type);
    return json({ok:true,id:Number(created.meta?.last_row_id||0)},201);
   }
   const pinAction=/^\/api\/admin\/pins\/(films|series|animes)\/([1-9][0-9]{0,12})\/(hide|unpin)$/.exec(path);
@@ -132,11 +139,13 @@ export async function adminAPI(env,request,ctx){
    if(!Number.isSafeInteger(id))return json({error:'Identifiant invalide'},400);
    try{
     const result=await ownerRemovePin(env,kind,id,{unpinTelegram:pinAction[3]==='unpin'});
+    if(result.ok)await recordAdminAudit(env,admin.telegram_id,'pin.'+pinAction[3],kind+':'+id);
     return json(result,result.ok?200:404);
    }catch(e){return json({error:"Telegram n'a pas confirmé le désépinglage. Vérifie que le bot est administrateur du canal et dispose des droits nécessaires."},502)}
   }
   if(path==='/api/admin/sync-bot-identity'){
    await initializeProfile(env);
+   await recordAdminAudit(env,admin.telegram_id,'bot.profile.sync','cineradar');
    return json({ok:true,message:"Identité Telegram synchronisée. La photo et le message /start sont configurés."});
   }
   if(path==='/api/admin/radar-refresh'){
@@ -149,6 +158,7 @@ export async function adminAPI(env,request,ctx){
    // Preserve the owner-only missing-title alerts that the former /actualiser
    // command delivered. Deduplication is maintained by radar_notice_log.
    const notices=await notifyOwnerMissingRadarTitles(env);
+   await recordAdminAudit(env,admin.telegram_id,'radar.refresh','manual');
    return json({ok:true,bound:binding.bound,updated:refreshed.updated,reconciled:reconciled||{},
     notifications:{sent:notices.sent,listed:notices.listed,errors:notices.errors.length},
     warnings:(binding.errors?.length||0)+(refreshed.errors?.length||0)+notices.errors.length});
@@ -171,6 +181,7 @@ export async function adminAPI(env,request,ctx){
    const id=Number(rev[1]),visibility=String(data.visibility||'');
    if(!Number.isSafeInteger(id)||id<1||!['visible','held','hidden'].includes(visibility))return json({error:'Avis invalide'},400);
    await env.DB.prepare('UPDATE channel_reviews SET visibility=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(visibility,id).run();
+   await recordAdminAudit(env,admin.telegram_id,'review.'+visibility,String(id));
    return json({ok:true});
   }
   const rm=/^\/api\/admin\/reports\/(\d+)$/.exec(path);
@@ -178,6 +189,7 @@ export async function adminAPI(env,request,ctx){
    const id=Number(rm[1]),status=String(data.status||'');
    if(!Number.isSafeInteger(id)||id<1||!['reviewing','resolved','dismissed'].includes(status))return json({error:'Données invalides'},400);
    await env.DB.prepare('UPDATE channel_reports SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(status,id).run();
+   await recordAdminAudit(env,admin.telegram_id,'report.'+status,String(id));
    return json({ok:true});
   }
   const cm=/^\/api\/admin\/channels\/(\d+)$/.exec(path);
@@ -192,6 +204,7 @@ export async function adminAPI(env,request,ctx){
     await env.DB.prepare("UPDATE channels SET title=?,description=?,content_type=?,genre=?,language=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
      .bind(fields.title,fields.description,fields.content_type,fields.genre,fields.language,id).run();
     invalidateDirectoryCache();
+    await recordAdminAudit(env,admin.telegram_id,'channel.update',String(id));
     return json({ok:true,id});
    }
    if(action==='exclude'){
@@ -207,6 +220,7 @@ export async function adminAPI(env,request,ctx){
     if(action==='show'&&check?.listing_status==='excluded')return json({error:'Exclusion permanente : demande de révision nécessaire'},409);
     await env.DB.prepare("INSERT INTO channel_index_meta(channel_id,listing_status,admin_hidden) VALUES(?,?,?) ON CONFLICT(channel_id) DO UPDATE SET listing_status=excluded.listing_status,admin_hidden=excluded.admin_hidden,updated_at=CURRENT_TIMESTAMP").bind(id,action==='show'?'listed':'hidden',action==='show'?0:1).run();
    }
+   await recordAdminAudit(env,admin.telegram_id,'channel.'+action,String(id));
    return json({ok:true});
   }
   return json({error:'Route inconnue'},404);

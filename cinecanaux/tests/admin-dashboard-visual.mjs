@@ -16,13 +16,15 @@ const datasets={
   {id:12,title:"Films VF",link:"https://t.me/ExempleFilmVF",description:"Cinéma français",content_type:"films",genre:"general",language:"VF",status:"approved",listing_status:"listed"},
   {id:13,title:"Animés Manga",link:"https://t.me/AnimeExempleVF",description:"Animés japonais",content_type:"animes",genre:"action",language:"VOSTFR",status:"approved",listing_status:"hidden"}
  ]},
- "launch-funnel":{counts:{bot_starts:12,app_opens:7}}
+ "launch-funnel":{counts:{bot_starts:12,app_opens:7}},
+ operations:{alerts:[{title:"Contrôle de test",detail:"Une tâche nécessite une vérification"}],jobs:[{job_name:"link_check",status:"ok",started_at:"2026-11-20",errors:0}],actions:[{action:"channel.update",target:"12",created_at:"2026-11-20"}],checked_at:new Date().toISOString()}
 };
 const origin='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev';
 async function run(viewport,device){
  const page=await browser.newPage({viewport,isMobile:device,hasTouch:device});
  const posted=[];
  page.on('pageerror',e=>errors.push(String(e.message||e)));
+ page.on('dialog',dialog=>dialog.accept());
  await page.route('https://telegram.org/js/**',r=>r.fulfill({status:200,contentType:'text/javascript',body:"window.Telegram={WebApp:{initData:'browser-test-signed',ready(){},expand(){}}}"}));
  await page.route('**/admin',r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:ADMIN_HTML}));
  await page.route('**/api/admin/**',r=>{
@@ -79,6 +81,21 @@ async function run(viewport,device){
   if(id==='pins'){
    await page.waitForFunction(()=>document.querySelector('#owner-pins-items')?.querySelector('.ad-pin-thumb'));
    assert.equal(await page.locator('#ad-view-pins .ad-pin-thumb').count(),1,'Pinned poster gallery must render a thumbnail');
+  }
+  if(id==='broadcast'){
+   await page.locator('#broadcast-text').fill('Bonjour Ciné Radar');
+   await page.locator('#broadcast-save').click();
+   await page.waitForFunction(()=>!document.querySelector('#broadcast-preview-send')?.disabled);
+   const date=new Date(Date.now()+3600000);
+   const inputDate=new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+   await page.locator('#broadcast-schedule-at').fill(inputDate);
+   await page.locator('#broadcast-schedule').click();
+   await page.waitForFunction(()=>document.querySelector('#ad-broadcast-schedule-status')?.textContent?.includes('programmée'));
+   assert.ok(posted.some(p=>p.path==='schedule'&&p.data.send_at?.endsWith('Z')),'Broadcast must schedule with a UTC timestamp');
+  }
+  if(id==='automations'){
+   await page.waitForFunction(()=>document.querySelector('#ad-ops-history')?.querySelector('.ad-ops-row'));
+   assert.equal(await page.locator('#ad-ops-alerts .ad-ops-alert').count(),1,'Automation alerts must be visible');
   }
  }
  await page.locator(device?'#ad-bottom-tabs [data-admin-go="dashboard"]':'#ad-nav [data-admin-go="dashboard"]').click();
