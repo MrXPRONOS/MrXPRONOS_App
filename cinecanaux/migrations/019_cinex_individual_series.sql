@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS cine_series_channels (
  title TEXT NOT NULL DEFAULT '',
  publisher_access TEXT NOT NULL DEFAULT 'unchecked',
  radar_access TEXT NOT NULL DEFAULT 'unchecked',
+ expected_seasons INTEGER CHECK(expected_seasons BETWEEN 1 AND 50),
  rights_attested INTEGER NOT NULL DEFAULT 0 CHECK(rights_attested IN(0,1)),
  enabled INTEGER NOT NULL DEFAULT 1 CHECK(enabled IN(0,1)),
  verified_at TEXT,
