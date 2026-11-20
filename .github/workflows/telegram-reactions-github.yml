@@ -13,7 +13,7 @@ on:
   # It is a safety fallback if GitHub drops this workflow's own schedule.
   # The downstream runner still executes only trusted default-branch code.
   workflow_run:
-    workflows: ['BSD V2 - Coupons Telegram (cron-job.org)']
+    workflows: ['BSD V2 - Diffusion Telegram aux 15 minutes']
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -73,7 +73,7 @@ jobs:
     env:
       CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
-      REACTION_ACCESS_AUDIT: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+      REACTION_ACCESS_AUDIT: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run' }}
       TELEGRAM_REACTION_BOT_03_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_03_TOKEN }}
       TELEGRAM_REACTION_BOT_04_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_04_TOKEN }}
       TELEGRAM_REACTION_BOT_05_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_05_TOKEN }}

@@ -11,6 +11,18 @@ SPEC.loader.exec_module(react)
 
 
 class ReactionTests(unittest.TestCase):
+    def test_automatic_fallback_matches_actual_bsd_workflow_name(self):
+        root = pathlib.Path(__file__).resolve().parents[1]
+        upstream = (root / ".github/workflows/bsd-v2-telegram-hourly.yml").read_text(encoding="utf-8")
+        reactions = (root / ".github/workflows/telegram-reactions-github.yml").read_text(encoding="utf-8")
+        self.assertIn("name: BSD V2 - Diffusion Telegram aux 15 minutes", upstream)
+        self.assertIn("workflows: ['BSD V2 - Diffusion Telegram aux 15 minutes']", reactions)
+        self.assertNotIn("workflows: ['BSD V2 - Coupons Telegram (cron-job.org)']", reactions)
+        self.assertIn("types: [completed]", reactions)
+        self.assertIn("github.event.workflow_run.conclusion == 'success'", reactions)
+        self.assertIn("github.event.workflow_run.repository.full_name == 'MrXPRONOS/MrXPRONOS_App'", reactions)
+        self.assertIn("github.event.workflow_run.event == 'workflow_dispatch'", reactions)
+
     def test_10_distinct_slots_and_emoji_parity(self):
         self.assertEqual(tuple(react.EXTRA_SLOTS[:10]), tuple(range(3, 13)))
         self.assertIn(13, react.EXTRA_SLOTS)
