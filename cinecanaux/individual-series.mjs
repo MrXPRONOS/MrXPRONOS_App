@@ -142,13 +142,13 @@ export async function handleSeriesStart(env,update){
   const gate=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'").first();
   if(gate?.value!=='1'){await notify(env,chat,'📺 Les téléchargements CinéX sont temporairement désactivés.');return {handled:true,accepted:false}}
   const source=await env.DB.prepare(
-   "SELECT p.chat_id,c.title FROM cine_series_publications p JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE p.token=? AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND c.radar_access='verified'"
+   "SELECT p.chat_id,c.title,c.expected_seasons FROM cine_series_publications p JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE p.token=? AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND c.radar_access='verified'"
   ).bind(token).first();
   if(!source||!CHAT.test(String(source.chat_id))){await notify(env,chat,'Série indisponible pour le moment.');return {handled:true,accepted:false}}
   const seasons=(await env.DB.prepare("SELECT season,expected_episodes FROM cine_series_seasons WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
   const media=(await env.DB.prepare("SELECT season,episode,source_message_id FROM cine_series_episodes WHERE chat_id=? ORDER BY season,episode").bind(source.chat_id).all()).results||[];
   const posters=(await env.DB.prepare("SELECT season FROM cine_series_posters WHERE chat_id=? ORDER BY season").bind(source.chat_id).all()).results||[];
-  if(!validSeriesPlan(seasons,media)||posters.length!==seasons.length||
+  if(!Number.isInteger(Number(source.expected_seasons))||Number(source.expected_seasons)<1||posters.length!==Number(source.expected_seasons)||seasons.length!==Number(source.expected_seasons)||!validSeriesPlan(seasons,media)||posters.length!==seasons.length||
    posters.some((x,i)=>Number(x.season)!==i+1)){
    await notify(env,chat,'⏳ Toutes les saisons ne sont pas encore vérifiées. Le téléchargement est indisponible pour éviter les épisodes manquants.');
    return {handled:true,accepted:false};
@@ -175,7 +175,7 @@ export async function processSeriesQueue(env,{limit=5}={}){
  await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE status='sending' AND lock_until<CURRENT_TIMESTAMP").run();
  await env.DB.prepare("UPDATE cine_series_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_series_jobs WHERE status='needs_review')").run();
  const batch=(await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND c.radar_access='verified' ORDER BY j.created_at,j.id LIMIT 4"
+  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND c.radar_access='verified' ORDER BY j.created_at,j.id LIMIT 2"
  ).all()).results||[];
  let processed=0,errors=0;
  for(const job of batch){
