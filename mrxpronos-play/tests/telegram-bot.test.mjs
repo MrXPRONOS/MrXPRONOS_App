@@ -1614,3 +1614,50 @@ test('approved icon library 86-92 is complete, transparent and wired to each act
    assert.ok(html.includes(handler),'existing button handler missing: '+handler);
  }finally{h.restore()}
 });
+
+
+test('phase 1 shares only the short public Telegram bot link without session data',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  assert.ok(html.includes('const MRXP_PUBLIC_BOT_LINK="https://t.me/MrXpronosPlayBot"'));
+  const begin=html.indexOf('const MRXP_PUBLIC_BOT_LINK=');
+  const end=html.indexOf('async function authFetch(',begin);
+  assert.ok(begin>0&&end>begin,'Public share handler not located');
+  const handler=html.slice(begin,end);
+  assert.ok(handler.includes('encodeURIComponent(MRXP_PUBLIC_BOT_LINK)'));
+  for(const forbidden of ['location.href','location.hash','initData','tgWebAppData','window.Telegram.WebApp.initData'])
+    assert.ok(!handler.includes(forbidden),'Session data must not be copied into share links: '+forbidden);
+  assert.ok(html.includes('mrxpTelegramShareLink'),'Public profile proof share stays available and separate');
+  assert.ok(html.includes('mrxpSharedCard.verify_url'),'Proof token remains distinct from bot invite');
+ }finally{h.restore()}
+});
+
+test('phase 1 protects mobile missions, controls and profile card artwork from overflowing',async()=>{
+ const h=harness();
+ try{
+  const res=await worker.fetch(new Request('https://mrxpronos-play.cinecanaux-xpronos.workers.dev/'),h.env);
+  assert.equal(res.status,200);
+  const html=await res.text();
+  assert.ok(html.includes('id="mrxp-phase1-mobile-safety"'),'Responsive fix stylesheet missing');
+  for(const css of [
+   '#screen-missions .mission .reward img',
+   'width:17px!important;height:17px!important',
+   '#screen-missions .mission.mrxp-daily-mission',
+   '#screen-missions>.banner',
+   '#screen-tap #wheel-shortcut',
+   '.nav{background:#07162f',
+   '@media(max-width:350px)',
+   '#screen-profile #mrxp-share-preview'
+  ])assert.ok(html.includes(css),'Missing mobile protection: '+css);
+  assert.ok(html.includes('picture.className="mrxp-mission-reward-check"'));
+  assert.ok(html.includes('daily.className="mission mrxp-daily-mission"'));
+  assert.ok(!html.includes('c.drawImage(art,0,0,W,H)'),'Old illustrated card must not be overdrawn beneath live text');
+  for(const safeFooter of ['vertical?1740:969','vertical?1795:997','vertical?1853:1025'])
+    assert.ok(html.includes(safeFooter),'Share card square footer is too close to lower border');
+  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean);
+  for(const text of scripts)assert.doesNotThrow(()=>new vm.Script(text),'Inline JS must parse after phase 1');
+ }finally{h.restore()}
+});
