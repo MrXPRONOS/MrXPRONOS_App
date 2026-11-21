@@ -159,9 +159,9 @@ class AdjacentLegacyPairTests(unittest.TestCase):
                                 extra_text=pair.extra_text)
         self.assertIn("Synopsis : un ninja", caption)
 
-    def test_intervening_photo_blocks_pair(self):
-        poster = media(100, "🎬 Série A", photo=True)
-        another = media(101, "🎬 Série B", photo=True)
+    def test_only_nearest_cover_is_used(self):
+        poster = media(100, "🎬 Les Chroniques du Nord", photo=True)
+        another = media(101, "🎬 Les Chroniques du Sud", photo=True)
         video = media(102, "Vidéo complète", video=True)
         # The only adjacent poster must be the actually neighbouring one.
         pair = find_neighbor_pair(video, [poster, another, video], "series")
