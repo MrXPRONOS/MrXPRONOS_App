@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7d475bcae67217b0:UNDER_35",
+    "recorded_at_utc": "2026-11-21T00:15:07+00:00",
+    "kickoff_utc": "2026-11-22T22:00:00+00:00",
+    "fixture": {
+      "home_team": "River Plate",
+      "away_team": "CA Lanús",
+      "league": "Argentine Division 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "7dbcf615e538ae677bb71d7b0e3e9f2a734491d3cba1a0ef6051b21f3edfc57f"
+}

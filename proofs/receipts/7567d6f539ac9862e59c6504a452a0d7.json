@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-d0a2b8392c978c37:UNDER_35",
+    "recorded_at_utc": "2026-11-21T00:15:07+00:00",
+    "kickoff_utc": "2026-11-22T21:30:00+00:00",
+    "fixture": {
+      "home_team": "Atlético Goianiense",
+      "away_team": "Vila Nova FC",
+      "league": "Brazilian Serie B"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "8d4054d7bf67a529b2ae447432e83d598d88ae7d9ea0957f80e23f8988bd5acd"
+}
