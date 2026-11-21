@@ -61,6 +61,11 @@ jobs:
           node --check cinecanaux/admin-page.mjs
           node --check cinecanaux/channel-identity.mjs
           node --check cinecanaux/job-log.mjs
+      - name: Verify T04 encrypted backup and safe local restore (synthetic data only)
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'cryptography==46.0.3'
+          python3 -m unittest discover -s cinecanaux/tests -p test_cinex_t04_backup.py -v
       - name: Guard CI-before-deploy invariants
         run: node --test cinecanaux/tests/deploy-safety.test.mjs
       - name: Verify privacy-preserving public metrics rate-limit
