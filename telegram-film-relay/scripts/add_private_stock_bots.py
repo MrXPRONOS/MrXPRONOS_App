@@ -41,7 +41,7 @@ CREATE = """CREATE TABLE IF NOT EXISTS cine_private_stock_bots(
 RIGHT_KEYS = (
     "change_info", "edit_messages", "delete_messages", "ban_users",
     "invite_users", "pin_messages", "add_admins", "anonymous",
-    "manage_call", "other", "manage_topics", "post_stories",
+    "manage_call", "manage_topics", "post_stories",
     "edit_stories", "delete_stories",
 )
 
@@ -101,6 +101,9 @@ def _exact_stock_record():
 
 
 def _minimal_rights(rights):
+    # Telegram may set its implicit `other` flag for all channel admins; it is
+    # not an additional transferable permission. Require only post_messages
+    # and reject EVERY explicit elevated administrative permission.
     if rights is None or not getattr(rights, "post_messages", False):
         return False
     return not any(bool(getattr(rights, name, False)) for name in RIGHT_KEYS)
@@ -121,7 +124,8 @@ async def attach(*, apply=False, pause=13):
     candidates, absent, invalid = discover_bot_candidates()
     # Never disclose the actual stock channel ID, bot tokens or invitations.
     print("CINEX_STOCK_BOT_INVENTORY", "verified_distinct", len(candidates),
-          "missing_secrets", len(absent), "invalid_or_unverified", len(invalid))
+          "missing_secrets", len(absent), "invalid_or_unverified", len(invalid),
+          "missing_labels", ",".join(absent) or "none")
     if not apply:
         return {"mode": "dry_run", "verified": len(candidates),
                 "missing": len(absent), "invalid": len(invalid)}
@@ -227,9 +231,16 @@ async def attach(*, apply=False, pause=13):
             except (FloodWaitError, PeerFloodError):
                 # Account safety: never work around Telegram's restriction.
                 raise
-            except Exception:
+            except Exception as exc:
                 failed += 1
                 failed_labels.append(bot["label"])
+                # Fixed-label and allowlisted error categories ONLY, never Telegram URLs,
+                # channel IDs, token values or raw exception messages.
+                safe_codes={"bot_identity_changed","minimal_post_only_permission_not_confirmed",
+                            "private_d1_statement_failed","private_d1_query_failed",
+                            "telegram_bot_identity_unavailable"}
+                code=str(exc) if isinstance(exc,RuntimeError) and str(exc) in safe_codes else type(exc).__name__
+                print("CINEX_STOCK_BOT_FAILURE", "label",bot["label"],"code",code)
         # Confirm that NO unexpected human or bot was granted membership.
         await verify_members(client, stock, expected_owner, candidates)
         print("CINEX_STOCK_BOTS_VERIFIED", "total", verified,
