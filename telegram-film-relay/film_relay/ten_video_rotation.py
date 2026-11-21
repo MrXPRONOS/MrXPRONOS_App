@@ -202,10 +202,13 @@ async def rotate_channel(client, category: str, public, private,
         if not apply:
             LOG.info("[SIMULATION] %s : ancienne vidéo #%s", category, video.id)
             continue
-        unknown = purge_unmatched and unmatched_candidate(video, messages, category)
-        public_poster = None if unknown else await verify_existing_pair(
+        # A known verified archive ALWAYS takes precedence over an unknown
+        # classification, even when its repaired cover was published later.
+        public_poster = await verify_existing_pair(
             client, public, private, private_id, video, posters, category,
             messages=messages)
+        unknown = (not public_poster and purge_unmatched
+                   and unmatched_candidate(video, messages, category))
         if not public_poster and not unknown:
             report["unverified"] += 1
             LOG.warning("%s : ancienne vidéo #%s gardée (archive absente ou non vérifiée)",
