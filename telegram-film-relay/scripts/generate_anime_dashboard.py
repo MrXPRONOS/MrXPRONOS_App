@@ -36,7 +36,7 @@ def dashboard_snapshot(catalogue):
                 1 for n in numbers
                 if f"S{int(season):02d}E{n:02d}" in receipts
             )
-            missing = len(set(range(min(numbers), max(numbers) + 1)) - set(numbers))
+            missing = len(set(range(1, max(numbers) + 1)) - set(numbers))
             total_private += len(numbers)
             total_public += posted
             total_gaps += missing
