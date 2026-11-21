@@ -68,6 +68,7 @@ def associate_anime_messages(messages: dict):
     for source_id, rows in sorted(by_source.items()):
         rows.sort(key=lambda pair: int(pair[1]["message_id"]))
         active = None
+        active_title = ""
         season = 1
         poster = None
         poster_index = -10000
@@ -81,6 +82,7 @@ def associate_anime_messages(messages: dict):
                 poster = source_key
                 poster_index = index
                 active = canonical_title(title) if title and not problem else None
+                active_title = title if active else ""
                 season = _season(description)
                 frequency = cadence_hint(description)
                 active_gif = None
@@ -110,6 +112,7 @@ def associate_anime_messages(messages: dict):
                     # Named text announces a new show without verified art:
                     # quarantine its bare episodes until new cover arrives.
                     active = canonical_title(explicit)
+                    active_title = explicit
                     poster = None
                     active_gif = None
                     season = _season(description)
@@ -149,7 +152,8 @@ def associate_anime_messages(messages: dict):
                 continue
             candidates.append({
                 "source_key": source_key, "source_id": source_id,
-                "message_id": int(record["message_id"]), "title": title or identity,
+                "message_id": int(record["message_id"]),
+                "title": title or active_title or identity,
                 "series": identity, "season": season_no, "episode": number,
                 "poster_source_key": poster,
                 "file_unique_id": record.get("file_unique_id") or "",
