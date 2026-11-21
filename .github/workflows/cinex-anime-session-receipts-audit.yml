@@ -1,0 +1,62 @@
+name: "CinéX Anime — audit des reçus avec compte autorisé (lecture seule)"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/scripts/anime_user_session_audit.py'
+      - 'telegram-film-relay/tests/test_anime_user_session_audit.py'
+      - '.github/workflows/cinex-anime-session-receipts-audit.yml'
+
+permissions:
+  contents: read
+
+# Same serialized session lock as all the historical CineX workflows.
+# Never connect simultaneously with the film relay or the channel audit.
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  source-and-receipts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PYTHONPATH: .
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_STOCK_APPROVED_SHA256: '57b1f0a97d7db124ab9f72f470f7d63b92960e06b876397795e5780f5c5cc2b8'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Respecter tout cooldown Telegram existant
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 telegram-film-relay/scripts/check_personal_cooldown.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Tests de l'audit hors connexion
+        working-directory: telegram-film-relay
+        run: python -m unittest discover -s tests -p 'test_anime_user_session_audit.py' -v
+      - name: Vérifier les sources, archives et reçus réellement sur Telegram
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+        run: python scripts/anime_user_session_audit.py
+      - name: Archiver le rapport anonyme sans publication
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anime-user-session-receipts-audit
+          path: telegram-film-relay/state/anime_user_session_audit.json
+          if-no-files-found: ignore
+          retention-days: 7
