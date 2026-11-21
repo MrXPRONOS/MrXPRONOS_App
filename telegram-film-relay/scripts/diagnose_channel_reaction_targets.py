@@ -92,11 +92,17 @@ def audit_webhook_state() -> None:
         error_ts = int(info.get("last_error_date") or 0)
         last_error_utc = (datetime.fromtimestamp(error_ts, timezone.utc).isoformat()
                           if error_ts else None)
+        # Last error is Telegram-generated, but redact transport addresses and
+        # token-like substrings before emitting it to GitHub job logs.
+        safe_description = re.sub(r"https?://[^\\s]+", "[url]", str(info.get("last_error_message") or ""), flags=re.I)
+        safe_description = safe_description.replace(token, "[redacted]")
+        safe_description = re.sub(r"(?<![A-Za-z0-9])[0-9]{6,}:[A-Za-z0-9_-]{18,}", "[redacted]", safe_description)
         print("WEBHOOK_DIAGNOSTIC " + json.dumps({
             "valid_target": info.get("url") == "https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/telegram",
             "pending_updates": int(info.get("pending_update_count") or 0),
             "last_error_utc": last_error_utc,
             "last_error_category": error_kind,
+            "last_error_redacted": safe_description[:220],
             "last_error_http_code": code.group(1) if code else None,
             "max_connections": info.get("max_connections"),
             "subscribed_channel_posts": "channel_post" in (info.get("allowed_updates") or []),
