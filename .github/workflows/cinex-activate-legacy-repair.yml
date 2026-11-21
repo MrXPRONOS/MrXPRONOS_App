@@ -16,21 +16,21 @@ concurrency:
 
 jobs:
   activate:
-    if: \${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.actor == 'MrXPRONOS' }}
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.actor == 'MrXPRONOS' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Verifier les trois autorisations et demander un rattrapage SANS suppression
         shell: bash
         env:
-          GH_TOKEN: \${{ github.token }}
-          CINEX_RIGHTS_VERIFIED: \${{ vars.CINEX_RIGHTS_VERIFIED }}
-          CINEX_ARCHIVE_ENABLED: \${{ vars.CINEX_ARCHIVE_ENABLED }}
-          CINEX_ARCHIVE_DELETE_APPROVED: \${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
+          GH_TOKEN: ${{ github.token }}
+          CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+          CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
+          CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
         run: |
           set -euo pipefail
           for name in CINEX_RIGHTS_VERIFIED CINEX_ARCHIVE_ENABLED CINEX_ARCHIVE_DELETE_APPROVED; do
-            if [[ "\${!name:-}" != "true" ]]; then
+            if [[ "${!name:-}" != "true" ]]; then
               echo "::error::$name doit etre defini a true ; aucune mutation Telegram."
               exit 1
             fi
