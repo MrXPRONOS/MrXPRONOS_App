@@ -411,7 +411,8 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             video_url = private_message_link(private_id, private_video_id)
             download_url = await unified.store(
-                item.video, category=category, title=title, public=public)
+                item.video, category=category, title=title, public=public,
+                poster=item.poster, description=description)
             public_post = await post_public(
                 bot, client, bot_public, item, description, video_url, "",
                 download_category="action" if category == "action" else None,
