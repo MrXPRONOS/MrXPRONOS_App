@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from film_relay.unified_download import UnifiedLibrary, configured_private_id
+from film_relay.unified_library_backfill import archive_cover_for_video
 from film_relay.publication import url_button_rows
 from film_relay.radar_download_registry import is_bot_download_url, RadarRegistry
 
@@ -109,6 +110,14 @@ class CentralLibraryTests(unittest.TestCase):
                         public=NS(id=-1001234567890, username='CineXFilms_vf')))
                 self.assertEqual(result, BOT_LINK)
                 self.assertEqual(len(client.sent), 1)
+
+    def test_historical_backfill_requires_an_authentic_adjacent_poster(self):
+        video = media(23, 700, title="Les Aventuriers 2026")
+        matching = NS(id=22, photo=object(), raw_text="Les Aventuriers 2026")
+        unrelated = NS(id=21, photo=object(), raw_text="Une autre histoire")
+        self.assertIs(archive_cover_for_video(video, [video, matching, unrelated]), matching)
+        self.assertIsNone(archive_cover_for_video(video, [video, unrelated]))
+        self.assertIsNone(archive_cover_for_video(video, [video]))
 
     def test_existing_document_is_reused_without_second_upload(self):
         client = DummyClient(rows=[media(25, 555)])
