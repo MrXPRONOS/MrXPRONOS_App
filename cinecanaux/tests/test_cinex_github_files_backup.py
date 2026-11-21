@@ -101,7 +101,7 @@ class GitHubFileBackupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.discover(self.root)
         link.unlink()
-        large = self.root / "cinecanaux/assets/verybig.mp4"
+        large = self.root / "cinecanaux/assets/verybig.jpg"
         with open(large, "wb") as fp:
             fp.truncate(module.MAX_ONE + 1)
         with self.assertRaises(ValueError):
