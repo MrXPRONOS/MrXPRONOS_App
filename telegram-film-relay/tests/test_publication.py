@@ -27,7 +27,7 @@ class RenderTests(unittest.TestCase):
 
     def test_telegram_keyboard_rows(self):
         r = url_button_rows("https://t.me/c/1234/56", "https://t.me/+ABC123")
-        self.assertEqual(r[0][0], ("🎬 REGARDER LE FILM", "https://t.me/c/1234/56"))
+        self.assertEqual(r[0][0], ("🎬 VOIR LE FILM", "https://t.me/c/1234/56"))
         self.assertEqual(len(r), 2)
         self.assertEqual(len(url_button_rows("https://t.me/c/1234/56")), 2)
         self.assertEqual(r[1][0], (FILM_FOLDER_BUTTON_TEXT, DEFAULT_FILM_FOLDER_URL))
@@ -67,7 +67,8 @@ class RenderTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "Secours"):
                 asyncio.run(send_public_poster_with_buttons(
                     reader, bot, "@public", NS(media="photo"), "Mon Film",
-                    "https://t.me/c/123456/12"))
+                    "https://t.me/c/123456/12",
+                    download_url="https://t.me/CineRadarFr_Bot?start=d_" + "A"*24))
         bot.send_file.assert_not_awaited()
 
     def test_complete_series_episode_public_pair_is_receipted_and_not_duplicated(self):
@@ -88,7 +89,8 @@ class RenderTests(unittest.TestCase):
 
         client = NS(get_messages=get_messages)
         series = {"title": "Série exemple", "episodes": {
-            "1": {"2": {"message_id": 35}}}}
+            "1": {"2": {"message_id": 35, "download_url":
+                         "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24}}}}
         catalogue = {"series": {"test": series}}
         saved = []
         with patch("film_relay.publication.send_public_poster_with_buttons",
@@ -107,6 +109,10 @@ class RenderTests(unittest.TestCase):
                 series, [row], catalogue, lambda x: saved.append(x), 0))
             poster_send.assert_awaited_once()
             video_send.assert_awaited_once()
+            self.assertEqual(poster_send.await_args.kwargs["watch_label"],
+                             "📺 VOIR L'ÉPISODE")
+            self.assertEqual(video_send.await_args.kwargs["download_url"],
+                             "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)
 
     def test_send_photo_with_inline_keyboard(self):
         class FakeReader:
@@ -123,21 +129,27 @@ class RenderTests(unittest.TestCase):
         mocktelethon.Button = NS(url=lambda label, url, **kw: (label, url, kw.get("style")))
         user, bot = FakeReader(), FakeBot()
         with patch.dict(sys.modules, {"telethon": mocktelethon}), patch(
-                "film_relay.publication.library_button_rows",
-                return_value=[[("Secours", "https://t.me/+test")],
-                              [(FILM_FOLDER_BUTTON_TEXT, DEFAULT_FILM_FOLDER_URL)]]):
+                "film_relay.rescue_channels.rescue_link_for",
+                return_value="https://t.me/+VerifiedRescueDemo123"):
             result = asyncio.run(send_public_poster_with_buttons(
                 user, bot, "@cinex", NS(media="photo"),
                 "🎬 Mon film\nGenre: Action",
                 "https://t.me/c/12345/6", "https://t.me/+TEST",
+                download_url="https://t.me/CineRadarFr_Bot?start=d_" + "A"*24,
             ))
         self.assertEqual(result.id, 66)
         self.assertEqual(bot.bytes, b"image data")
         self.assertEqual(bot.opts["parse_mode"], "html")
         self.assertEqual(bot.opts["buttons"][0][0].url, "https://t.me/c/12345/6")
-        self.assertEqual(bot.opts["buttons"][1][0].url, DEFAULT_FILM_FOLDER_URL)
+        self.assertEqual(bot.opts["buttons"][1][0].url,
+                         "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)
+        self.assertEqual(bot.opts["buttons"][2][0].url, "https://t.me/+VerifiedRescueDemo123")
+        self.assertEqual(bot.opts["buttons"][3][0].url, DEFAULT_FILM_FOLDER_URL)
+        self.assertEqual(len(bot.opts["buttons"]), 4)
         self.assertEqual(bot.opts["buttons"][0][0].style, "success")
-        self.assertEqual(bot.opts["buttons"][1][0].style, "primary")
+        self.assertEqual(bot.opts["buttons"][1][0].style, "success")
+        self.assertEqual(bot.opts["buttons"][2][0].style, "danger")
+        self.assertEqual(bot.opts["buttons"][3][0].style, "primary")
         self.assertNotIn("https://t.me/c/", bot.opts["caption"])
         self.assertIn(DEFAULT_FILM_FOLDER_URL, bot.opts["caption"])
         self.assertIn("DÉCOUVRE ENCORE PLUS DE FILMS", bot.opts["caption"])
