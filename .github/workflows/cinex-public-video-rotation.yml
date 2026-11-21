@@ -8,8 +8,13 @@ on:
         required: false
         type: boolean
         default: false
+      purge_unmatched:
+        description: 'Supprimer les ANCIENNES vidéos non identifiables (sans sauvegarde ; action irréversible) ; manuel seulement'
+        required: false
+        type: boolean
+        default: false
       apply:
-        description: 'Retirer uniquement les anciennes videos déjà présentes avec fiche et preuve en videotheque (false = simulation)'
+        description: 'Retirer les anciennes vidéos après vérification (false = simulation)'
         required: false
         type: boolean
         default: false
@@ -105,7 +110,11 @@ jobs:
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-              python -m film_relay.ten_video_rotation --apply --max-deleted 10
+              if [[ "${{ inputs.purge_unmatched }}" == "true" ]]; then
+                python -m film_relay.ten_video_rotation --apply --purge-unmatched --max-deleted 10
+              else
+                python -m film_relay.ten_video_rotation --apply --max-deleted 10
+              fi
             else
               python -m film_relay.ten_video_rotation --apply --max-deleted 10
             fi
@@ -114,7 +123,11 @@ jobs:
             exit 1
           else
             echo "Simulation : archivage destructif non autorisé par les trois contrôles indépendants."
-            python -m film_relay.ten_video_rotation
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.purge_unmatched }}" == "true" ]]; then
+              python -m film_relay.ten_video_rotation --purge-unmatched
+            else
+              python -m film_relay.ten_video_rotation
+            fi
           fi
       - name: Vérifier le chargement des invitations
         if: ${{ always() && steps.rescue_links.outcome == 'failure' }}
