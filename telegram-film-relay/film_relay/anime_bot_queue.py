@@ -109,6 +109,20 @@ def ingest_channel_updates(updates: list, previous: dict,
             old = messages[key]
             record["status"] = old.get("status", "pending")
             if is_edit:
+                if old.get("status") == "published":
+                    # A remote edit cannot invalidate an already published
+                    # receipt or replace the source media evidence silently.
+                    if (record.get("file_unique_id") and
+                            record.get("file_unique_id") !=
+                            old.get("file_unique_id")):
+                        state.setdefault("alerts", []).append({
+                            "code": "published_source_media_changed",
+                            "source_key": key,
+                        })
+                        record = old
+                elif old.get("status") == "review":
+                    # A corrected caption may resolve previous ambiguity.
+                    record["status"] = "pending"
                 messages[key] = record
                 summary["edited"] += 1
             else:
@@ -123,3 +137,27 @@ def ingest_channel_updates(updates: list, previous: dict,
         cursor = update_id
     state["last_update_id"] = cursor
     return state, summary
+
+
+def mark_bot_review(state: dict, source_review: list, media_review: list):
+    """Persist review status without touching already published source items."""
+    messages = state.setdefault("messages", {})
+    reasons = {}
+    for entry in source_review:
+        key = str(entry.get("source_key") or "")
+        if key:
+            reasons[key] = str(entry.get("reason") or "ambiguous")
+    for collision in media_review:
+        for key in collision.get("source_keys", []):
+            reasons[str(key)] = str(collision.get("reason") or "media_conflict")
+    changed = 0
+    for key, reason in reasons.items():
+        target = messages.get(key)
+        if target is not None and target.get("status") not in (
+                "published", "ignored", "revoked"):
+            if (target.get("status") != "review" or
+                    target.get("review_reason") != reason):
+                target["status"] = "review"
+                target["review_reason"] = reason
+                changed += 1
+    return changed
