@@ -74,7 +74,7 @@ def rich_video_title(description: str) -> str:
 
 
 def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=None,
-                    download_url: str | None = None) -> list[list[tuple[str, str]]]:
+                    download_url: str | None = None, watch_label: str = "🎬 VOIR LE FILM") -> list[list[tuple[str, str]]]:
     """Historic optional rows; new public media use complete_public_video_rows.
 
     Order: watch in category library, CineRadar download, channel Secours,
@@ -83,7 +83,7 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
     if not movie_url.startswith("https://t.me/c/"):
         raise ValueError("Le lien vidéo privé doit être un lien t.me/c validé.")
     from .rescue_channels import add_rescue_tuple_row
-    buttons = [[("🎬 REGARDER LE FILM", movie_url)]]
+    buttons = [[(watch_label, movie_url)]]
     if download_url:
         # This points to a verified copy in the owner's central private
         # Telegram library. Never label an unverified/external URL as a download.
@@ -95,7 +95,8 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
     rows.append([(FILM_FOLDER_BUTTON_TEXT, film_folder_url())])
     return rows
 
-def complete_public_video_rows(movie_url: str, download_url: str, *, public_peer):
+def complete_public_video_rows(movie_url: str, download_url: str, *, public_peer,
+                               watch_label: str = "🎬 VOIR LE FILM"):
     """Fail closed unless all four public media buttons are independently valid."""
     if not download_url:
         raise RuntimeError("Téléchargement CineRadar absent : fiche publique non publiée.")
@@ -104,7 +105,8 @@ def complete_public_video_rows(movie_url: str, download_url: str, *, public_peer
     rescue = rescue_link_for(public_peer)
     if not rescue:
         raise RuntimeError("Canal Secours dédié introuvable : fiche publique non publiée.")
-    rows = url_button_rows(movie_url, public_peer=public_peer, download_url=download_url)
+    rows = url_button_rows(movie_url, public_peer=public_peer,
+                           download_url=download_url, watch_label=watch_label)
     links = [url for row in rows for _, url in row]
     required = (movie_url, download_url, rescue, film_folder_url())
     if (not is_bot_download_url(download_url) or len(rows) != 4
@@ -140,7 +142,7 @@ def verify_complete_public_video_poster(poster, public_peer,
 async def send_public_poster_with_buttons(
     user_client, bot_client, public_peer, poster_message,
     description: str, private_movie_link: str, invite_link: str = "",
-    *, download_url: str | None = None,
+    *, download_url: str | None = None, watch_label: str = "🎬 VOIR LE FILM",
 ):
     """Bot sends a NEW photo with a caption and embedded URL keyboard.
 
@@ -148,7 +150,8 @@ async def send_public_poster_with_buttons(
     video so a later workflow can finish the public post without duplicates.
     """
     rows = complete_public_video_rows(
-        private_movie_link, download_url, public_peer=public_peer)
+        private_movie_link, download_url, public_peer=public_peer,
+        watch_label=watch_label)
     contents = await user_client.download_media(poster_message.media, file=bytes)
     if not contents:
         raise RuntimeError("Affiche inaccessible : photo non téléchargée ; aucune publication publique.")
@@ -188,7 +191,8 @@ def make_button_keyboard(rows):
             label, url, style=(
                 "success" if ("télécharger" in label.casefold() or
                               "regarder" in label.casefold() or
-                              "voir le film" in label.casefold()) else
+                              "voir le film" in label.casefold() or
+                              "voir l'épisode" in label.casefold()) else
                 "danger" if "secours" in label.casefold() else "primary"
             ),
         ) for label, url in row]
@@ -460,6 +464,7 @@ async def publish_catalog_episode_pairs(
                     user_client, bot_client, public_peer, source_poster,
                     description, video_url,
                     download_url=private_record.get("download_url"),
+                    watch_label="📺 VOIR L'ÉPISODE",
                 )
                 entry["poster"] = int(public_poster.id)
                 save_catalog(catalogue)
