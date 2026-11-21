@@ -310,11 +310,11 @@ async def repair_channel(client, bot, category: str, public, private,
                 private_messages.append(verified_video)
                 report["private_created"] += 1
             target = private_message_link(private_id, private_video_id)
+            descriptive_caption = cover_caption(
+                poster, video, category, identity=identity, extra_text=extra)
             download_url = (await unified.store(
-                video, category=category,
-                title=cover_caption(poster, video, category,
-                                    identity=identity, extra_text=extra),
-                public=public,
+                video, category=category, title=descriptive_caption,
+                public=public, poster=poster, description=descriptive_caption,
             )) if unified is not None else None
             # NEVER create a new photo in the public channel. The historical
             # photo's ID, location, description and links must be preserved.
