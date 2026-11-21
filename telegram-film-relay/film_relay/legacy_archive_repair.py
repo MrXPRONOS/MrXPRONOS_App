@@ -175,17 +175,32 @@ async def repair_channel(client, bot, category: str, public, private,
                 raw = await client.download_media(poster.media, file=bytes)
                 if not raw:
                     raise RuntimeError("Affiche inaccessible")
-                # Never make assumptions about historical captions. This
-                # exact cover plus documentary receipt permits a safe retry.
-                private_image = io.BytesIO(raw)
-                private_image.name = "cinex_archivage.jpg"
-                private_photo = await bot.send_file(
-                    private, private_image,
-                    caption=rich_caption(caption, private=True),
-                    parse_mode="html",
-                    buttons=make_button_keyboard(library_button_rows(public)),
-                )
-                verified_photo = await client.get_messages(private, ids=private_photo.id)
+                # Resume an interrupted copy only when the very last private
+                # message is a matching, button-verified photo. Any competing
+                # message defeats the retry, preventing accidental mispairing.
+                latest_private = sorted(private_messages, key=lambda m: m.id, reverse=True)
+                pending = next((item for item in latest_private[:1]
+                    if getattr(item, "photo", None)
+                    and compatible(video_identity(video, category),
+                                   poster_identity(item, category)) >= 0.95
+                    and all(has_verified_button(item, link) for link in
+                            (rescue, film_folder_url()))), None)
+                if pending:
+                    verified_photo = pending
+                    LOG.info("%s : photo privée inachevée #%s reprise",
+                             category, pending.id)
+                else:
+                    private_image = io.BytesIO(raw)
+                    private_image.name = "cinex_archivage.jpg"
+                    private_photo = await bot.send_file(
+                        private, private_image,
+                        caption=rich_caption(caption, private=True),
+                        parse_mode="html",
+                        buttons=make_button_keyboard(library_button_rows(public)),
+                    )
+                    verified_photo = await client.get_messages(private, ids=private_photo.id)
+                    if verified_photo:
+                        private_messages.append(verified_photo)
                 if not getattr(verified_photo, "photo", None):
                     raise RuntimeError("Photo privée non vérifiée")
                 await asyncio.sleep(12)
@@ -229,7 +244,9 @@ async def repair_channel(client, bot, category: str, public, private,
             LOG.info("%s : archive vidéo #%s -> privé #%s, affiche publique #%s",
                      category, video.id, private_video_id, verified_public.id)
             await asyncio.sleep(30)
-        except Exception:
+        except Exception as exc:
+            if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
+                raise
             report["errors"] += 1
             LOG.exception("%s : ancien média #%s conservé pour réparation", category, video.id)
     LOG.info("BILAN RATTRAPAGE %s", report)
@@ -269,7 +286,9 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
                     client, bot, category, public, private, apply=apply,
                     max_repaired=max_repaired, history=history,
                 ))
-            except Exception:
+            except Exception as exc:
+                if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
+                    raise
                 LOG.exception("%s: réparation interrompue sans suppression", category)
                 reports.append({"category": category, "errors": 1})
     finally:
