@@ -123,7 +123,7 @@ export async function processReactionQueue(env, { limit = MAX_PENDING, request =
     "WHERE NOT EXISTS (SELECT 1 FROM channel_reaction_terminal_posts t WHERE t.post_seq=j.post_seq) " +
     "AND ((j.state IN ('pending','retry') AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP) " +
     "OR (j.state='sending' AND datetime(j.updated_at)<=datetime('now','-2 minutes'))) " +
-    "ORDER BY j.post_seq ASC,CASE j.bot_role WHEN 'radar' THEN 0 ELSE 1 END LIMIT ?"
+    "ORDER BY j.post_seq DESC,CASE j.bot_role WHEN 'radar' THEN 0 ELSE 1 END LIMIT ?"
   ).bind(Math.min(MAX_PENDING, Math.max(1, Math.trunc(limit) || 1))).all();
   let sent = 0, failed = 0, deferred = 0;
   for (const row of rows.results || []) {
