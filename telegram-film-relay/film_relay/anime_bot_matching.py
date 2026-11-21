@@ -95,10 +95,16 @@ def associate_anime_messages(messages: dict):
                     complete[(active, _season(description, season))] = max(
                         _complete_count(description),
                         complete.get((active, _season(description, season)), 0))
-                explicit = title if not problem else ""
+                # Ordinary text between poster and episode ("bientôt",
+                # release schedule, synopsis) must not hijack its identity.
+                # Only an explicit title declaration changes series context.
+                title_declaration = re.search(
+                    r"(?i)^\\s*(?:titre|title|anim[eé])\\s*:\\s*",
+                    str(record.get("text") or ""))
+                explicit = title if title_declaration and not problem else ""
                 if explicit and canonical_title(explicit) != active:
-                    # Text announces a new series but its artwork may be absent.
-                    # Do not borrow the prior poster to publish its episodes.
+                    # Named text announces a new show without verified art:
+                    # quarantine its bare episodes until new cover arrives.
                     active = canonical_title(explicit)
                     poster = None
                     season = _season(description)
