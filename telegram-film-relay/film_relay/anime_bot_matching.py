@@ -72,6 +72,7 @@ def associate_anime_messages(messages: dict):
         poster = None
         poster_index = -10000
         frequency = "unknown"
+        active_gif = None
         for index, (source_key, record) in enumerate(rows):
             kind = record.get("kind")
             description = _label(record)
@@ -82,6 +83,7 @@ def associate_anime_messages(messages: dict):
                 active = canonical_title(title) if title and not problem else None
                 season = _season(description)
                 frequency = cadence_hint(description)
+                active_gif = None
                 if active and (count := _complete_count(description)):
                     complete[(active, season)] = max(
                         count, complete.get((active, season), 0))
@@ -91,6 +93,8 @@ def associate_anime_messages(messages: dict):
                 if active and detected != "unknown":
                     frequency = detected
                     cadence[active] = detected
+                    if kind == "animation":
+                        active_gif = source_key
                 if active and _complete_count(description):
                     complete[(active, _season(description, season))] = max(
                         _complete_count(description),
@@ -107,6 +111,7 @@ def associate_anime_messages(messages: dict):
                     # quarantine its bare episodes until new cover arrives.
                     active = canonical_title(explicit)
                     poster = None
+                    active_gif = None
                     season = _season(description)
                 elif active:
                     season = _season(description, season)
@@ -150,6 +155,7 @@ def associate_anime_messages(messages: dict):
                 "file_unique_id": record.get("file_unique_id") or "",
                 "date": int(record.get("date") or 0),
                 "cadence_hint": frequency,
+                "cadence_source_key": active_gif,
                 "status": record.get("status", "pending"),
             })
             if frequency != "unknown":
