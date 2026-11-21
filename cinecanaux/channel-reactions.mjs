@@ -120,8 +120,9 @@ export async function processReactionQueue(env, { limit = MAX_PENDING, request =
   const rows = await env.DB.prepare(
     "SELECT j.post_seq,j.bot_role,j.emoji,j.attempts,p.chat_id,p.message_id " +
     "FROM channel_reaction_jobs j JOIN channel_reaction_posts p ON p.seq=j.post_seq " +
-    "WHERE (j.state IN ('pending','retry') AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP) " +
-    "OR (j.state='sending' AND datetime(j.updated_at)<=datetime('now','-2 minutes')) " +
+    "WHERE NOT EXISTS (SELECT 1 FROM channel_reaction_terminal_posts t WHERE t.post_seq=j.post_seq) " +
+    "AND ((j.state IN ('pending','retry') AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP) " +
+    "OR (j.state='sending' AND datetime(j.updated_at)<=datetime('now','-2 minutes'))) " +
     "ORDER BY j.post_seq ASC,CASE j.bot_role WHEN 'radar' THEN 0 ELSE 1 END LIMIT ?"
   ).bind(Math.min(MAX_PENDING, Math.max(1, Math.trunc(limit) || 1))).all();
   let sent = 0, failed = 0, deferred = 0;
@@ -153,6 +154,22 @@ export async function processReactionQueue(env, { limit = MAX_PENDING, request =
       answer = await deliverReaction(token, row.chat_id, Number(row.message_id), row.emoji, request);
     }
     if(Number(answer.status)===429)await noteTelegramFloodWait(env,answer.retryAfter||30);
+    // A channel message that Telegram can no longer find will not become
+    // reactable through retries. Quarantine the entire post (both bot roles),
+    // without deleting it from the audit ledger or blocking newer posts.
+    if (Number(answer.status) === 400 && /message to react not found/i.test(String(answer.error || ""))) {
+      await env.DB.prepare(
+        "INSERT OR IGNORE INTO channel_reaction_terminal_posts(post_seq,reason) VALUES(?,?)"
+      ).bind(row.post_seq, "telegram_message_not_found").run();
+      await env.DB.prepare(
+        "UPDATE channel_reaction_jobs SET state='retry',next_try_at='9999-12-31 23:59:59'," +
+        "last_error='terminal:message_not_found',updated_at=CURRENT_TIMESTAMP " +
+        "WHERE post_seq=? AND bot_role=?"
+      ).bind(row.post_seq, role).run();
+      console.warn("channel_reaction_terminal_post", Number(row.post_seq));
+      failed++;
+      continue;
+    }
     if (answer.ok) {
       await env.DB.prepare(
         "UPDATE channel_reaction_jobs SET state='sent',sent_at=CURRENT_TIMESTAMP,last_error='',updated_at=CURRENT_TIMESTAMP WHERE post_seq=? AND bot_role=?"
