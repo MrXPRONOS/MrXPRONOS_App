@@ -25,30 +25,30 @@
   },
   "alert_levels": {
     "BNB": {
-      "direction": "down",
-      "level": 5
+      "direction": "up",
+      "level": 0
     },
     "BTC": {
-      "direction": "down",
-      "level": 5
+      "direction": "up",
+      "level": 0
     },
     "ETH": {
-      "direction": "down",
-      "level": 5
+      "direction": "up",
+      "level": 0
     },
     "SOL": {
-      "direction": "down",
-      "level": 5
+      "direction": "up",
+      "level": 0
     },
     "XRP": {
-      "direction": "down",
-      "level": 5
+      "direction": "up",
+      "level": 0
     }
   },
   "alert_rearmed": {
     "BNB": true,
     "BTC": true,
-    "ETH": false,
+    "ETH": true,
     "SOL": true,
     "XRP": true
   },
