@@ -58,29 +58,29 @@ class ReactionTests(unittest.TestCase):
         self.assertIn("(VALUES(8))", statements[0])
         self.assertIn("p.seq > a.start_after_seq", statements[1])
 
-    def test_pending_jobs_prioritize_newest_but_do_not_starve_oldest(self):
-        sql_seen = []
+    def test_due_jobs_uses_full_capacity_on_newest_posts(self):
+        seen = []
         class FakeDB:
             def query(self, sql, params):
-                sql_seen.append((sql, params))
-                if "DESC" in sql:
-                    return {"results": [
-                        {"post_seq": 199, "bot_slot": 13},
-                        {"post_seq": 198, "bot_slot": 14},
-                    ]}
-                if "ASC" in sql:
-                    return {"results": [
-                        {"post_seq": 84, "bot_slot": 3},
-                        {"post_seq": 198, "bot_slot": 14},
-                    ]}
-                raise AssertionError("Unexpected sort direction")
+                seen.append((sql, params))
+                return {"results": [
+                    {"post_seq": 199, "bot_slot": 13},
+                    {"post_seq": 199, "bot_slot": 14},
+                    {"post_seq": 198, "bot_slot": 13},
+                ]}
         selected = react.due_jobs(FakeDB(), (3, 13, 14))
         self.assertEqual([(r["post_seq"],r["bot_slot"]) for r in selected],
-                         [(199,13), (198,14), (84,3)])
-        self.assertIn("ORDER BY j.post_seq DESC", sql_seen[0][0])
-        self.assertIn("ORDER BY j.post_seq ASC", sql_seen[1][0])
-        self.assertEqual(sql_seen[0][1], (3,13,14,80))
-        self.assertEqual(sql_seen[1][1], (3,13,14,20))
+                         [(199,13), (199,14), (198,13)])
+        self.assertEqual(len(seen), 1)
+        self.assertIn("ORDER BY j.post_seq DESC,j.bot_slot ASC LIMIT ?", seen[0][0])
+        self.assertNotIn("ORDER BY j.post_seq ASC", seen[0][0])
+        self.assertEqual(seen[0][1], (3,13,14,react.MAX_JOBS_PER_RUN))
+
+    def test_no_configured_bot_means_no_query(self):
+        class FakeDB:
+            def query(self, sql, params):
+                self.fail("unexpected database call")
+        self.assertEqual(react.due_jobs(FakeDB(), ()), [])
 
     def test_enqueue_newest_posts_first(self):
         statements = []
