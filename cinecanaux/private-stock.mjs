@@ -73,7 +73,7 @@ export async function queueKnownStockSources(env,{limit=20}={}){
   const result=await env.DB.prepare(
    "INSERT OR IGNORE INTO cine_private_stock_items(source_chat_id,source_message_id,media_kind,source_family) "+
    "SELECT source_chat_id,source_message_id,media_kind,? FROM ("+sql+") "+
-   "WHERE source_chat_id GLOB '-100[0-9]*' AND source_message_id>0 LIMIT ?"
+   "WHERE source_chat_id GLOB '-100[0-9]*' AND source_message_id>0 AND NOT EXISTS (SELECT 1 FROM cine_private_stock_items prior WHERE prior.source_chat_id=source_chat_id AND prior.source_message_id=source_message_id) LIMIT ?"
   ).bind(family,max-queued).run();
   queued+=Number(result.meta?.changes||0);
  }
