@@ -157,6 +157,24 @@ def original_public_poster_verified(message, source_poster, video, category,
     ))
 
 
+def shared_legacy_cover(video, poster, old, posters, category, messages) -> bool:
+    """True when one legacy cover ambiguously describes two older videos.
+
+    This read-only preflight MUST run before copying an image, uploading video,
+    or registering a download token; false positives fail closed for review.
+    """
+    for other in old:
+        if other.id == video.id:
+            continue
+        candidate = find_legacy_poster(other, posters, category)
+        if candidate is None:
+            adjacent = find_neighbor_pair(other, messages, category)
+            candidate = adjacent.poster if adjacent else None
+        if candidate and candidate.id == poster.id:
+            return True
+    return False
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
                          history: int = MAX_HISTORY, unified=None):
@@ -221,6 +239,16 @@ async def repair_channel(client, bot, category: str, public, private,
         if getattr(video, "noforwards", False) or getattr(poster, "noforwards", False):
             report["skipped"] += 1
             continue
+        # A shared historic poster cannot be bound to multiple videos.
+        # Reject it BEFORE any private upload or bot download registration.
+        # The previous placement of this check occurred after creating media
+        # and caused orphaned duplicate private copies on each repair run.
+        if shared_legacy_cover(video, poster, old, posters, category, messages):
+            report["ambiguous"] += 1
+            LOG.warning("%s : affiche #%s associée à plusieurs vidéos; "
+                        "aucun nouvel archivage ni modification sans appariement manuel",
+                        category, poster.id)
+            continue
         report["recognized"] += 1
         if not apply:
             LOG.info("[SIMULATION] %s old video #%s -> poster #%s (%s)",
@@ -282,30 +310,14 @@ async def repair_channel(client, bot, category: str, public, private,
                 private_messages.append(verified_video)
                 report["private_created"] += 1
             target = private_message_link(private_id, private_video_id)
+            descriptive_caption = cover_caption(
+                poster, video, category, identity=identity, extra_text=extra)
             download_url = (await unified.store(
-                video, category=category,
-                title=cover_caption(poster, video, category,
-                                    identity=identity, extra_text=extra),
-                public=public,
+                video, category=category, title=descriptive_caption,
+                public=public, poster=poster, description=descriptive_caption,
             )) if unified is not None else None
             # NEVER create a new photo in the public channel. The historical
             # photo's ID, location, description and links must be preserved.
-            # If several legacy videos share one candidate cover, do not
-            # overwrite the previous video's button: manual pairing required.
-            collisions = 0
-            for other in old:
-                if other.id == video.id:
-                    continue
-                candidate = find_legacy_poster(other, posters, category)
-                if candidate is None:
-                    adjacent = find_neighbor_pair(other, messages, category)
-                    candidate = adjacent.poster if adjacent else None
-                if candidate and candidate.id == poster.id:
-                    collisions += 1
-                    break
-            if collisions:
-                raise RuntimeError(
-                    "Même affiche pour plusieurs vidéos : ne pas écraser les boutons existants")
             required = (target, rescue, film_folder_url()) + (
                 (download_url,) if download_url else ())
             if all(has_verified_button(poster, link) for link in required) and (
