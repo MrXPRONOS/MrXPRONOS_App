@@ -73,7 +73,8 @@ def rich_video_title(description: str) -> str:
     return f"<b>🎞️ {escape(first_title(description))}</b>"
 
 
-def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=None) -> list[list[tuple[str, str]]]:
+def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=None,
+                    download_url: str | None = None) -> list[list[tuple[str, str]]]:
     """Two movie buttons: film in green; Telegram movie folder in red.
 
     The old invitation URL is intentionally ignored: the second button is
@@ -82,9 +83,14 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
     if not movie_url.startswith("https://t.me/c/"):
         raise ValueError("Le lien vidéo privé doit être un lien t.me/c validé.")
     from .rescue_channels import add_rescue_tuple_row
-    rows = add_rescue_tuple_row([
-        [("🎬 REGARDER LE FILM", movie_url)],
-    ], public_peer)
+    buttons = [[("🎬 REGARDER LE FILM", movie_url)]]
+    if download_url:
+        # This points to a verified copy in the owner's central private
+        # Telegram library. Never label an unverified/external URL as a download.
+        if not download_url.startswith("https://t.me/c/"):
+            raise ValueError("Téléchargement : lien Telegram privé vérifié requis.")
+        buttons.append([("⬇️ TÉLÉCHARGER LA VIDÉO", download_url)])
+    rows = add_rescue_tuple_row(buttons, public_peer)
     rows.append([(FILM_FOLDER_BUTTON_TEXT, film_folder_url())])
     return rows
 
@@ -92,6 +98,7 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
 async def send_public_poster_with_buttons(
     user_client, bot_client, public_peer, poster_message,
     description: str, private_movie_link: str, invite_link: str = "",
+    *, download_url: str | None = None,
 ):
     """Bot sends a NEW photo with a caption and embedded URL keyboard.
 
@@ -106,7 +113,8 @@ async def send_public_poster_with_buttons(
     # A missing Secours link is a publication blocker, never omit a required
     # button silently. The link is loaded transiently from the safe runtime.
     library_button_rows(public_peer)
-    rows = url_button_rows(private_movie_link, invite_link, public_peer=public_peer)
+    rows = url_button_rows(private_movie_link, invite_link,
+                           public_peer=public_peer, download_url=download_url)
     keyboard = make_button_keyboard(rows)
     return await bot_client.send_file(
         public_peer, photo, caption=rich_caption(description),
@@ -279,6 +287,7 @@ async def publish_catalog_episode_pairs(
         public_poster = await send_public_poster_with_buttons(
             user_client, bot_client, public_peer, source_poster,
             description, video_url,
+            download_url=private_record.get("download_url"),
         )
         await asyncio.sleep(pause)
         public_video = await post_public_video_after_poster(
