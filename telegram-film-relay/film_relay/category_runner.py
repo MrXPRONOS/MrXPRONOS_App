@@ -20,7 +20,10 @@ from .desir_runner import (
     ReceiptState, DesirPromotionsState, finish_mirrors, forward_public_poster,
     post_public, preflight_mirror,
 )
-from .publication import rich_caption, rich_video_title
+from .publication import (
+    rich_caption, rich_video_title, verify_library_bot,
+    send_library_poster_with_buttons, post_public_video_after_poster,
+)
 from .recovery import snapshot_telegram_posts
 from .runner import resolve_peer
 from .text import private_message_link, clean_caption
