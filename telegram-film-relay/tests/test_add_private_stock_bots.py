@@ -3,6 +3,8 @@ import asyncio
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import TestCase, mock
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts import add_private_stock_bots as app
 
 
