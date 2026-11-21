@@ -40,9 +40,16 @@ def identity_for_pair(video, poster, category: str, text: str = "") -> Identity:
         return Identity("", "conflict")
     if media.safe and cover.safe and compatible(media, cover) < 0.95:
         return Identity("", "conflict")
-    if media.safe and supplemental.safe and compatible(media, supplemental) < 0.95:
+    # The intervening text is often a synopsis, not an independent title.
+    # Accept that metadata as description unless it explicitly claims to be a
+    # different title, episode or part. Never invent numbering from a synopsis.
+    cue = (text or "").strip().casefold()
+    explicit = cue.startswith(("titre:", "title:")) or (
+        supplemental.episode is not None or supplemental.part is not None
+    )
+    if explicit and media.safe and supplemental.safe and compatible(media, supplemental) < 0.95:
         return Identity("", "conflict")
-    if cover.safe and supplemental.safe and compatible(cover, supplemental) < 0.95:
+    if explicit and cover.safe and supplemental.safe and compatible(cover, supplemental) < 0.95:
         return Identity("", "conflict")
     # An explicit episode or part on the media takes priority over the
     # general series/movie cover; otherwise prefer an identified cover.
