@@ -20,12 +20,12 @@ Le workflow **`.github/workflows/cinex-t04-github-files-backup.yml`** crée tous
 
 - `telegram-film-relay/state/*.json` — états et catalogues existants ;
 - `telegram-film-relay/config/*.json` — paramètres de la diffusion ;
-- `telegram-film-relay/assets/` — images, affiches et éventuellement vidéos réellement présentes ;
-- `cinecanaux/assets/` — images, avatars, JSON, et éventuellement vidéos réellement présentes.
+- `telegram-film-relay/assets/` — images et affiches uniquement ; les vidéos sont exclues de GitHub ;
+- `cinecanaux/assets/` — images, avatars et JSON seulement, sans vidéo.
 
 **Important :** l'inventaire du dépôt GitHub effectué le 21/11/2026 ne trouve actuellement aucun fichier MP4/MKV/WebM/MOV/AVI réellement commité dans ce périmètre. **Une référence vers un message Telegram ou un `file_id` n'est pas une copie vidéo.** La sauvegarde GitHub est donc utile dès maintenant pour les catalogues et visuels, mais elle **ne permet pas encore de restaurer les octets des films ou épisodes**.
 
-Le script refuse les fichiers individuels supérieurs à 48 MiB, les volumes supérieurs à 128 MiB et les liens symboliques ; ces limites protègent les artefacts et évitent de confondre GitHub avec une vidéothèque illimitée. **Ne jamais déposer des vidéos privées directement dans l'historique public de ce dépôt :** les objets Git restent récupérables après leur suppression apparente. N'ajouter que des médias que tu as le droit de stocker et de diffuser.
+Conformément au choix du propriétaire, le script **n'ajoute jamais de fichiers vidéo à l'archive GitHub**, même si un fichier média apparaît ultérieurement dans le dépôt. Le stock privé Telegram conservera les médias, tandis que D1 et ses sauvegardes GitHub chiffrées conserveront les références `source_chat_id/source_message_id` et `stock_chat_id/stock_message_id`, sans octets vidéo.\n\nLe script refuse les fichiers individuels supérieurs à 48 MiB, les volumes supérieurs à 128 MiB et les liens symboliques ; ces limites protègent les artefacts et évitent de confondre GitHub avec une vidéothèque illimitée. **Ne jamais déposer des vidéos privées directement dans l'historique public de ce dépôt :** les objets Git restent récupérables après leur suppression apparente. N'ajouter que des médias que tu as le droit de stocker et de diffuser.
 
 ### Restauration locale de cet artefact GitHub
 
