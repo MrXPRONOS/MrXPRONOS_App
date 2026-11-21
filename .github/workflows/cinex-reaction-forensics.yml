@@ -1,0 +1,40 @@
+name: CineX - Diagnostic lecture seule des messages sans réactions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-reaction-forensics.yml'
+      - 'telegram-film-relay/scripts/diagnose_channel_reaction_targets.py'
+      - 'telegram-film-relay/tests/test_cinex_reaction_forensics.py'
+
+permissions:
+  contents: read
+
+# Same Telegram account concurrency as the rotation workflow.
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Telethon dependency
+        run: python -m pip install 'telethon==1.45.0'
+      - name: Offline pure metadata tests
+        run: python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_reaction_forensics.py' -v
+      - name: Inspect public channel message types and existence (read-only)
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+        run: python telegram-film-relay/scripts/diagnose_channel_reaction_targets.py
