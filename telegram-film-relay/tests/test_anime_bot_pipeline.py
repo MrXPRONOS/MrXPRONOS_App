@@ -53,6 +53,7 @@ class AnimeBotMatchingTests(unittest.TestCase):
         self.assertEqual([(row["season"], row["episode"])
                           for row in found], [(2, 1), (2, 2), (2, 3)])
         self.assertEqual({row["series"] for row in found}, {"naruto"})
+        self.assertEqual({row["title"] for row in found}, {"Naruto"})
         self.assertEqual(cadence["naruto"], "weekly")
         self.assertEqual(full[("naruto", 2)], 3)
         selected, diag = consolidate_source_candidates(found)
