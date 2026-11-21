@@ -28,6 +28,12 @@ from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
 from .anime_policy import (complete_anime_seasons, progressive_anime_seasons,
                            select_anime_season, anime_movie_slots)
+from .anime_dedup import (
+    deduplicate_anime_candidates, pending_ongoing_episodes,
+    reconcile_known_source_duplicates,
+)
+from .anime_cadence import cadence_from_message
+from .anime_archive_queue import recover_archive_queue
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -94,6 +100,7 @@ def classify(messages, source_id: int):
     """
     latest_poster = None
     current_season = 1
+    current_cadence = "unknown"
     candidates = []
     season_header = SEASON_HEADER
     for msg in sorted(messages, key=lambda x: int(x.id)):
@@ -103,11 +110,16 @@ def classify(messages, source_id: int):
         if getattr(msg, "photo", None):
             latest_poster = msg
             current_season = 1
+            current_cadence = cadence_from_message(msg)
             found = season_header.search(caption)
             if found:
                 current_season = int(found.group(1))
             continue
         if not is_supported_video(msg):
+            # GIF/text cadence banners are schedule hints, not episodes.
+            inferred_cadence = cadence_from_message(msg)
+            if inferred_cadence != "unknown" and latest_poster is not None:
+                current_cadence = inferred_cadence
             # Text-only season banners are not new series or videos.
             found = season_header.search(caption)
             if found and 1 <= int(found.group(1)) <= 50:
@@ -141,6 +153,8 @@ def classify(messages, source_id: int):
             "source_key": f"{source_id}:{int(msg.id)}",
             "series": series_key, "title": title,
             "season": season, "episode": episode,
+            "cadence_hint": cadence_from_message(msg) if
+                cadence_from_message(msg) != "unknown" else current_cadence,
             "video": msg, "poster": latest_poster,
             "timestamp": (getattr(msg, "date", None).timestamp()
                           if isinstance(getattr(msg, "date", None), datetime) else 0),
@@ -550,12 +564,28 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await asyncio.sleep(pause)
         all_candidates = await recover_active_rows(
             client, sources, all_candidates, catalogue.get("active_batch"))
+        archive_queue_enabled = os.getenv(
+            "CINEX_ANIME_ARCHIVE_QUEUE_ENABLED", "").lower() in ("true", "1", "yes")
+        if archive_queue_enabled:
+            recovered_archive = await recover_archive_queue(
+                client, sources, catalogue, all_candidates, limit=80)
+            LOG.info("Anime archive : %s queued old episodes recovered by exact source ID",
+                     recovered_archive)
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
+        # Resolve duplicate episode identities BEFORE selecting any upload.
+        unique_candidates, dedup_report = deduplicate_anime_candidates(
+            all_candidates, catalogue)
+        dedup_report["existing_reposts"] = reconcile_known_source_duplicates(
+            all_candidates, catalogue)
+        catalogue["last_dedup_audit"] = dedup_report
         groups = {}
-        for row in all_candidates:
+        for row in unique_candidates:
             groups.setdefault(row["series"], []).append(row)
+        LOG.info("Anime dedup : %s sources -> %s unique episodes, %s conflicts",
+                 len(all_candidates), len(unique_candidates),
+                 dedup_report["media_variants"])
         LOG.info("CinéX Anime : %s séries, %s épisodes identifiables, sources=%s",
-                 len(groups), len(all_candidates), cfg["sources"])
+                 len(groups), len(unique_candidates), cfg["sources"])
         # No unrelated historical cover repairs during a locked series batch.
         # A full 1-25 episode run is validated before any new upload.
         eligibility_reasons = {}
@@ -573,6 +603,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         collisions = {row["canonical"] for row in catalogue.get("identity_review", [])}
         eligible = [(key, rows) for key, rows in eligible if key not in collisions]
         active = catalogue.get("active_batch")
+        ongoing_mode = False
+        selections = []
         if active:
             # Resume exactly the batch pinned before a crash, even if the
             # source window has moved or the old batch had multiple seasons.
@@ -585,21 +617,25 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                             and ready_full_batch(recovered, active)) else None)
         else:
             selected = pending_anime_series(eligible, catalogue)
-            if not selected:
-                progressive = progressive_anime_seasons(
+            if selected:
+                selections = [selected]
+            else:
+                ongoing_mode = True
+                selections = pending_ongoing_episodes(
                     {key: rows for key, rows in groups.items()
                      if key not in collisions},
-                    catalogue, maximum=episode_cap)
-                selected = pending_anime_series(progressive, catalogue)
-                if selected:
-                    LOG.info("Anime : nouveaux épisodes en cours pour %s (%s épisodes)",
-                             selected[0], len(selected[1]))
+                    catalogue, maximum=4)
+                if selections:
+                    LOG.info("Anime : nouvelles sorties de %s séries distinctes",
+                             len(selections))
+        if active and selected is not None:
+            selections = [selected]
         if active and selected is None:
             LOG.warning("Anime : série %s interrompue, épisodes introuvables ou "
                         "incomplets ; AUCUNE autre série ou film ne sera envoyé.",
                         active.get("key"))
         series_attempted = False
-        for key, items in ([selected] if selected else []):
+        for key, items in selections:
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
             if key not in catalogue["series"]:
@@ -631,7 +667,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             # Preserve mode from an interrupted batch, including legacy batches.
             is_complete_season = (
                 bool(active.get("complete", True)) if active else
-                any(k == selected[0] and
+                any(k == key and
                     {(r["season"], r["episode"]) for r in batch} ==
                     {(r["season"], r["episode"]) for r in items}
                     for k, batch in eligible)
@@ -655,6 +691,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             series = catalogue["series"].setdefault(
                 key, {"title": title, "public_id": None, "main_index_id": None,
                       "season_indices": {}, "episodes": {}, "source_items": {}})
+            cadence_hints = {row.get("cadence_hint") for row in items}
+            cadence_hints.discard("unknown")
+            cadence_hints.discard(None)
+            if len(cadence_hints) == 1:
+                series["cadence_hint"] = next(iter(cadence_hints))
             marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15]
             # Save the original series illustration in the PRIVATE channel too.
             # Its deterministic caption marker prevents duplicate posters after a crash.
@@ -707,7 +748,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 ep = series["episodes"].setdefault(season_key, {})
                 if number_key in ep:
                     # Even when another source has the same episode, do not re-upload.
-                    series["source_items"][row["source_key"]] = ep[number_key]["message_id"]
+                    for source_key in [row["source_key"], *row.get("alternative_source_keys", [])]:
+                        series["source_items"][source_key] = ep[number_key]["message_id"]
                     save_catalog(catalogue)
                     continue
                 legacy = state.data["completed"].get(row["source_key"], {})
@@ -752,7 +794,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                                   "url": private_message_link(private_id, private_msg_id)}
                 if download_url:
                     ep[number_key]["download_url"] = download_url
-                series["source_items"][row["source_key"]] = private_msg_id
+                for source_key in [row["source_key"], *row.get("alternative_source_keys", [])]:
+                    series["source_items"][source_key] = private_msg_id
                 copied_episodes += 1
                 save_catalog(catalogue)
                 season_msg_id = int(series["season_indices"][season_key])
@@ -872,13 +915,17 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 )
             completed_series.add(key)
             catalogue["active_batch"] = None
+            active = None
             save_catalog(catalogue)
             LOG.info("Anime : lot %s terminé et verrou libéré (%s épisodes)", title, len(items))
             await asyncio.sleep(pause)
-            break  # Never start a second anime series in this cycle.
+            if not ongoing_mode:
+                break  # Full-season and resumed batches remain exclusive.
 
         if publish:
-            scan_progress = finalize_scan(catalogue, scan_plans, all_candidates)
+            scan_progress = finalize_scan(
+                catalogue, scan_plans, all_candidates,
+                queue_enabled=archive_queue_enabled)
             audit = episode_audit(catalogue, all_candidates, category="anime_catalog",
                                   ignored_unnumbered=unnumbered_skipped,
                                   eligibility_reasons=eligibility_reasons)
@@ -898,7 +945,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         LOG.info("FIN : %s séries mises à jour, %s fiches nouvelles, %s épisodes privés",
                  len(completed_series), posted_cards, copied_episodes)
         film_slots = min(
-            anime_movie_slots(
+            0 if ongoing_mode and completed_series else anime_movie_slots(
                 limit, finished_series=bool(completed_series),
                 active_batch=bool(catalogue.get("active_batch"))),
             max(0, min(2, int(os.getenv("ANIME_MAX_MOVIES_PER_CYCLE", "1")))),

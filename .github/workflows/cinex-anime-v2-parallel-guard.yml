@@ -1,0 +1,40 @@
+name: CinéX Anime V2 - Parallel work guard (read-only)
+
+on:
+  pull_request:
+    paths:
+      - 'telegram-film-relay/film_relay/anime_*.py'
+      - 'telegram-film-relay/film_relay/catalog_scan.py'
+      - 'telegram-film-relay/film_relay/publication.py'
+      - 'telegram-film-relay/film_relay/category_runner.py'
+      - 'telegram-film-relay/scripts/anime_bot_v2.py'
+      - 'telegram-film-relay/scripts/check_anime_parallel_changes.py'
+      - 'telegram-film-relay/scripts/merge_anime_catalog.py'
+      - 'telegram-film-relay/tests/test_anime*.py'
+      - '.github/workflows/cinex-anime-v2-parallel-guard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  overlap-check:
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'fix/cinex-anime-v2-') || startsWith(github.head_ref, 'release/cinex-anime-v2-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact Anime V2 commit and full merge history
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Fetch latest main without modifying it
+        run: git fetch origin main
+      - name: Detect concurrent changes and draft PR overlaps
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CINEX_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          CINEX_BASE_REF: origin/main
+          CINEX_PR_NUMBER: ${{ github.event.pull_request.number || '0' }}
+        run: python telegram-film-relay/scripts/check_anime_parallel_changes.py

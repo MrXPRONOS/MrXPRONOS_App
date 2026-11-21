@@ -22,6 +22,17 @@ def merge(remote: dict, local: dict, *, consolidate_anime=False) -> dict:
                     for ref in refs:
                         if ref not in item:
                             item.append(ref)
+    # Durable old-media discovery queue must survive concurrent GitHub state
+    # merges; keys are immutable source-message IDs. Never drop a queue item
+    # until the corresponding private upload receipt is present.
+    result["archive_pending"] = {
+        **remote.get("archive_pending", {}),
+        **local.get("archive_pending", {}),
+    }
+    result["archive_review"] = {
+        **remote.get("archive_review", {}),
+        **local.get("archive_review", {}),
+    }
     result["scans"] = {**remote.get("scans", {})}
     for source, incoming in local.get("scans", {}).items():
         prior = result["scans"].get(source)
@@ -72,6 +83,11 @@ def merge(remote: dict, local: dict, *, consolidate_anime=False) -> dict:
                                **newer.get("episodes", {}).get(season, {})}
         series["episodes"] = seasons
         result["series"][key] = series
+    # Reconcile the queue only against merged receipts, never against source
+    # observations alone. A merge cannot resurrect a fully receipted upload.
+    for record in result["series"].values():
+        for source_key in record.get("source_items", {}):
+            result["archive_pending"].pop(source_key, None)
     # If a concurrent GitHub state merge resurrects a legacy title, normalize
     # the complete union again without dropping any Telegram receipt.
     if consolidate_anime:

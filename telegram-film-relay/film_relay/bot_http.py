@@ -140,6 +140,26 @@ class BotHTTPClient:
         result = await self._call("sendMessage", data)
         return SimpleNamespace(id=int(result["message_id"]))
 
+    async def copy_message(self, destination, source, message_id: int,
+                           *, caption: str = "", parse_mode=None):
+        """Bot API server-side copy from an authorized source channel.
+
+        The bot must be a member/admin with sufficient access to both chats.
+        It cannot copy protected messages or read arbitrary channel histories.
+        """
+        from telethon import utils
+        data = {
+            "chat_id": str(utils.get_peer_id(destination)),
+            "from_chat_id": str(utils.get_peer_id(source)),
+            "message_id": str(int(message_id)),
+        }
+        if caption:
+            data["caption"] = str(caption)
+        if parse_mode and str(parse_mode).lower() == "html":
+            data["parse_mode"] = "HTML"
+        result = await self._call("copyMessage", data)
+        return SimpleNamespace(id=int(result["message_id"]))
+
     async def edit_reply_markup(self, channel, message_id: int, *, buttons):
         """Mettre à jour les saisons sans publier une nouvelle affiche publique."""
         from telethon import utils
