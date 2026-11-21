@@ -105,6 +105,7 @@ jobs:
           python -m film_relay.legacy_archive_repair --apply --max-repaired 2
       - name: Analyser puis archiver
         env:
+          CINEX_MANUAL_PURGE_REQUEST: ${{ github.event_name == 'workflow_dispatch' && inputs.apply == true && inputs.purge_unmatched == true }}
           RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
         shell: bash
         run: |
