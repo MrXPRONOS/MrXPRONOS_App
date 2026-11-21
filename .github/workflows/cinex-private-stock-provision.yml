@@ -1,0 +1,66 @@
+name: CineX - creer le stock Telegram prive owner et bots
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-private-stock-provision-once'
+  workflow_dispatch:
+    inputs:
+      apply:
+        type: boolean
+        default: false
+        required: false
+        description: 'Creation unique si les bots et le compte sont verifies (simulation sinon)'
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+jobs:
+  private-stock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_USERNAME: ${{ vars.CINEX_PUBLISH_BOT_USERNAME }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      PYTHONPATH: .
+    steps:
+      - name: Checkout without reusing git credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Respecter le delai FloodWait de la session personnelle
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python scripts/check_personal_cooldown.py
+      - name: Installer Telethon du projet
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dependances verrouillees
+        run: python -m pip install -r requirements.txt
+      - name: Verifier hors ligne la non-creation de canaux en simulation
+        run: python -m unittest discover -s tests -p 'test_private_stock_provision.py' -v
+      - name: Confirmer les credentials SANS les afficher
+        run: |
+          test -n "${TG_API_ID:-}" && test -n "${TG_API_HASH:-}" &&
+          test -n "${TG_STRING_SESSION:-}" && test -n "${CLOUDFLARE_API_TOKEN:-}"
+      - name: Creer une seule fois le canal prive avec les bots verifies
+        if: ${{ github.event_name == 'push' || inputs.apply }}
+        run: python scripts/provision_private_stock.py --apply
+      - name: Simuler sans ouvrir la session personnelle
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.apply }}
+        run: python scripts/provision_private_stock.py

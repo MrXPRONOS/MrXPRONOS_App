@@ -20,12 +20,12 @@ Le workflow **`.github/workflows/cinex-t04-github-files-backup.yml`** crée tous
 
 - `telegram-film-relay/state/*.json` — états et catalogues existants ;
 - `telegram-film-relay/config/*.json` — paramètres de la diffusion ;
-- `telegram-film-relay/assets/` — images, affiches et éventuellement vidéos réellement présentes ;
-- `cinecanaux/assets/` — images, avatars, JSON, et éventuellement vidéos réellement présentes.
+- `telegram-film-relay/assets/` — images et affiches uniquement ; les vidéos sont exclues de GitHub ;
+- `cinecanaux/assets/` — images, avatars et JSON seulement, sans vidéo.
 
 **Important :** l'inventaire du dépôt GitHub effectué le 21/11/2026 ne trouve actuellement aucun fichier MP4/MKV/WebM/MOV/AVI réellement commité dans ce périmètre. **Une référence vers un message Telegram ou un `file_id` n'est pas une copie vidéo.** La sauvegarde GitHub est donc utile dès maintenant pour les catalogues et visuels, mais elle **ne permet pas encore de restaurer les octets des films ou épisodes**.
 
-Le script refuse les fichiers individuels supérieurs à 48 MiB, les volumes supérieurs à 128 MiB et les liens symboliques ; ces limites protègent les artefacts et évitent de confondre GitHub avec une vidéothèque illimitée. **Ne jamais déposer des vidéos privées directement dans l'historique public de ce dépôt :** les objets Git restent récupérables après leur suppression apparente. N'ajouter que des médias que tu as le droit de stocker et de diffuser.
+Conformément au choix du propriétaire, le script **n'ajoute jamais de fichiers vidéo à l'archive GitHub**, même si un fichier média apparaît ultérieurement dans le dépôt. Le stock privé Telegram conservera les médias, tandis que D1 et ses sauvegardes GitHub chiffrées conserveront les références `source_chat_id/source_message_id` et `stock_chat_id/stock_message_id`, sans octets vidéo.\n\nLe script refuse les fichiers individuels supérieurs à 48 MiB, les volumes supérieurs à 128 MiB et les liens symboliques ; ces limites protègent les artefacts et évitent de confondre GitHub avec une vidéothèque illimitée. **Ne jamais déposer des vidéos privées directement dans l'historique public de ce dépôt :** les objets Git restent récupérables après leur suppression apparente. N'ajouter que des médias que tu as le droit de stocker et de diffuser.
 
 ### Restauration locale de cet artefact GitHub
 
@@ -46,6 +46,23 @@ La restauration crée un **nouveau dossier local** ; elle n'écrase jamais les f
 
 ---
 
+## Stock Telegram privé pour les fichiers lourds (sans vidéo dans GitHub)
+
+Le propriétaire a choisi le **21 novembre 2026** de conserver dans GitHub **seulement les références** et les affiches. Le stock de vidéos proprement dit sera un **canal de diffusion Telegram privé réservé au propriétaire et aux bots CinéX autorisés**. La création unique suit `.github/workflows/cinex-private-stock-provision.yml`, sous le verrou de la session personnelle et la protection FloodWait déjà en place.
+
+- **Création :** une seule fois via Telethon et la session personnelle du propriétaire. Nom `CinéX — Stock privé`, sans nom d'utilisateur public, sans exportation de lien d'invitation. Si un canal du même nom existe, son identité et sa propriété sont vérifiées au lieu de créer un doublon.
+- **Droits :** seul le propriétaire est humain ; les bots doivent correspondre à leurs jetons officiels vérifiés. Les droits d'administration accordés sont limités à `post_messages`. Le bot Radar est requis ; le bot de publication dédié n'est ajouté que si son identité est configurée et vérifiée.
+- **Fichiers :** le Worker place au maximum **un film par minute** dans le stock, en utilisant `copyMessage` depuis les messages Telegram déjà identifiés, avec autorisations/approbations présentes dans D1. Aucun téléchargement vidéo, réencodage ou upload GitHub.
+- **Sources :** pour commencer, films classiques publiés, saga Fast and Furious publiée et films approuvés des vidéothèques. Les séries non autorisées et les contenus en révision ne sont pas transférés.
+- **Index :** les tables `cine_private_stock_config` et `cine_private_stock_items` dans D1 conservent la correspondance entre référence originale `source_chat_id/source_message_id` et copie de stock `stock_message_id`. Le canal privé n'est pas identifié publiquement dans le dépôt GitHub. Les sauvegardes D1 **chiffrées** sur GitHub incluent ces références.
+- **Récupération :** lorsqu'une copie stock est confirmée, les livraisons du bot peuvent faire `copyMessage` **depuis le stock**, sans dépendre de l'original. Tant que la copie n'est pas confirmée, la livraison conserve sa source existante.
+- **Erreurs :** l'état `needs_review` empêche toute nouvelle tentative automatique si la réponse Telegram était ambiguë ; un cas en échec reste visible dans le tableau de bord propriétaire. Les quotas T01 continuent de s'appliquer et les copies envoyées aux abonnés expirent suivant T03.
+
+**Une chaîne Telegram privée n'est PAS une sauvegarde indépendante de Telegram.** Si Telegram supprime les fichiers, suspend la session, ou retire les droits d'accès aux médias, les références dans D1 et GitHub ne permettent pas de reconstruire les octets des films. Ce système préserve les copies des originaux d'autres canaux au sein de Telegram ; pour une sauvegarde totalement indépendante, il faudrait plus tard un stockage externe privé autorisé.
+
+Le canal ne doit pas être ouvert au public et ne doit contenir que des médias que le propriétaire est autorisé à conserver et à partager. Ne jamais publier son identifiant numérique, ses messages sources, les tokens des bots ou un lien d'invitation dans une issue ou un dépôt public.
+
+---
 ## Clé privée de récupération
 
 Le fichier **`cinex_t04_recovery_private.pem`** est créé séparément et doit être téléchargé depuis la conversation privée où la sauvegarde a été mise en place. Ne jamais copier cette clé dans GitHub, une variable Actions, Cloudflare D1, un message Telegram ni le dépôt du projet.
