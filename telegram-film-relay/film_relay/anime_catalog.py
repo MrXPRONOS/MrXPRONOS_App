@@ -802,6 +802,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     row["video"], category="anime",
                     title=f"{title} S{row['season']:02d}E{row['episode']:02d}",
                     public=public,
+                    poster=row.get("poster") or next((r.get("poster") for r in items if r.get("poster") is not None), None),
+                    description=f"{title} S{row['season']:02d}E{row['episode']:02d}",
                 ) if publish else None
                 ep[number_key] = {"message_id": private_msg_id,
                                   "url": private_message_link(private_id, private_msg_id)}

@@ -230,6 +230,10 @@ export async function handleFranchiseDownloadStart(env,update){
  if(!media.length||media.length>10){await notify(env,chat,'Aucun film disponible pour le moment.');return {handled:true,accepted:false}}
  const old=await env.DB.prepare("SELECT id FROM cine_franchise_jobs WHERE telegram_update_id=?").bind(update.update_id).first();
  if(old)return {handled:true,accepted:true,duplicate:true};
+ const recentSame=await env.DB.prepare(
+  "SELECT id FROM cine_franchise_jobs WHERE telegram_chat_id=? AND slug=? AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review') ORDER BY id DESC LIMIT 1"
+ ).bind(chat,row.slug).first();
+ if(recentSame)return {handled:true,accepted:true,duplicate:true};
  const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM cine_franchise_jobs WHERE telegram_chat_id=? AND created_at>=datetime('now','-1 hour')").bind(chat).first();
  if(Number(recent?.n||0)>=2){await notify(env,chat,'Trop de demandes récentes. Réessaie plus tard.');return {handled:true,accepted:false}}
  await env.DB.prepare(

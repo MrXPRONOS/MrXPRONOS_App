@@ -213,6 +213,10 @@ export async function handleSeriesStart(env,update){
   }
   const old=await env.DB.prepare("SELECT id FROM cine_series_jobs WHERE telegram_update_id=?").bind(update.update_id).first();
   if(old)return {handled:true,accepted:true,duplicate:true};
+  const recentSame=await env.DB.prepare(
+   "SELECT id FROM cine_series_jobs WHERE telegram_chat_id=? AND token=? AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review') ORDER BY id DESC LIMIT 1"
+  ).bind(chat,token).first();
+  if(recentSame)return {handled:true,accepted:true,duplicate:true};
   const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM cine_series_jobs WHERE telegram_chat_id=? AND created_at>=datetime('now','-1 hour')").bind(chat).first();
   if(Number(recent?.n||0)>=2){await notify(env,chat,'Trop de demandes récentes. Réessaie plus tard.');return {handled:true,accepted:false}}
   await env.DB.prepare("INSERT OR IGNORE INTO cine_series_jobs(token,telegram_chat_id,telegram_update_id,planned_items) VALUES(?,?,?,?)").bind(token,chat,update.update_id,media.length).run();

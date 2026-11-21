@@ -129,14 +129,23 @@ async function receiveTelegram(request,env,ctx){
   if(await handleSaveHelp(env,update))return Response.json({ok:true});
   const ffCommand=await handleFranchiseOwnerCommand(env,update);
   if(ffCommand.handled)return Response.json({ok:true});
+  // Deliver accepted requests immediately after their durable DB receipt is
+  // committed. The minute cron remains a fallback for rate limits/restarts.
+  // Never replay duplicate updates or activate a rejected delivery.
+  const startDelivery=async (answer,processor,label)=>{
+   if(answer.accepted===true&&!answer.duplicate){
+    const pending=processor(env).catch(e=>console.warn(label,String(e?.name||"error")));
+    if(ctx?.waitUntil)ctx.waitUntil(pending);else await pending;
+   }
+  };
   const ffDownload=await handleFranchiseDownloadStart(env,update);
-  if(ffDownload.handled)return Response.json({ok:true});
+  if(ffDownload.handled){await startDelivery(ffDownload,processFranchiseQueue,"cinex_franchise_immediate_failed");return Response.json({ok:true});}
   const series=await handleSeriesStart(env,update);
-  if(series.handled)return Response.json({ok:true});
+  if(series.handled){await startDelivery(series,processSeriesQueue,"cinex_series_immediate_failed");return Response.json({ok:true});}
   const classic=await handleClassicDeliveryStart(env,update);
-  if(classic.handled)return Response.json({ok:true});
+  if(classic.handled){await startDelivery(classic,processClassicDeliveryQueue,"cinex_classic_immediate_failed");return Response.json({ok:true});}
   const delivery=await handleDeliveryStart(env,update);
-  if(delivery.handled)return Response.json({ok:true});
+  if(delivery.handled){await startDelivery(delivery,processDeliveryQueue,"cinex_delivery_immediate_failed");return Response.json({ok:true});}
   await botUpdate(env,update);
   // Apply public start-only and private owner command scopes on the next /start
   // without delaying the welcome. Scheduled housekeeping remains the backup.
