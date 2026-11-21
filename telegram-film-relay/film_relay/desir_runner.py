@@ -18,6 +18,7 @@ from .media_guard import valid_photo_message, require_photo
 from .title_guard import title_assessment
 from .matching import document_key
 from .runner import resolve_peer
+from .unified_download import UnifiedLibrary
 from .text import private_message_link, clean_caption
 from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
@@ -237,7 +238,7 @@ def format_title(item):
 
 async def post_public(bot, user, public_peer, item, title, video_url: str,
                       invite_link: str, *, download_category: str | None = None,
-                      download_title: str = ""):
+                      download_title: str = "", download_url: str | None = None):
     """Public post: photo, in-caption video link, and native green buttons.
 
     A visible URL inside the caption survives Telegram forwarding even on
@@ -257,13 +258,11 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
             else "danger" if "secours" in label.casefold()
             else "primary"))
          for label, url in row]
-        for index, row in enumerate(url_button_rows(video_url, public_peer=public_peer))
+        for index, row in enumerate(url_button_rows(
+            video_url, public_peer=public_peer, download_url=download_url))
     ]
-    if download_category == "action":
-        from .download_links import approved_download_url
-        download = approved_download_url("action", download_title or title, 0)
-        if download:
-            rows.append([url_button("Télécharger", download, style="success")])
+    # The download button goes only to a verified owner's Telegram library,
+    # never to a guessed external title-search URL.
     # The link in text must survive the subsequent native forward.
     caption = rich_caption(title)
     if not valid_photo_message(item.poster):
@@ -331,6 +330,9 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
         # First historical handle may have expired: use the next readable source.
         selected_source, src, library, public_user = await first_available_source(
             client, sources, private, public)
+        unified = UnifiedLibrary(client)
+        if publish:
+            await unified.prepare(public=public_user)
         source_peers = [src]
         for extra_name in sources:
             if extra_name.casefold() == selected_source.casefold():
@@ -483,8 +485,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             private_video_id = int(state.data["staged"][key]["video"])
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             video_url = private_message_link(private_id, private_video_id)
+            download_url = await unified.store(
+                item.video, category="desir", title=title, public=public_user)
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
-            public_post = await post_public(bot, client, bot_public, item, description, video_url, link)
+            public_post = await post_public(
+                bot, client, bot_public, item, description, video_url, link,
+                download_url=download_url)
             # Publish the corresponding video in the public feed as well;
             # the public fiche must immediately precede its own video.
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
