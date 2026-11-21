@@ -213,8 +213,12 @@ def select_bot_anime_batches(candidates, state, complete_evidence,
                                 str(season), {}) for n in range(1, count+1)):
             continue
         receipts = series.get(key, {}).get("public_episode_posts", {})
+        unverified = set(series.get(key, {}).get(
+            "legacy_unverified_episode_keys", []))
         pending = [row for n, row in sorted(numbered.items())
-                   if n <= count and f"S{season:02d}E{n:02d}" not in receipts]
+                   if n <= count
+                   and f"S{season:02d}E{n:02d}" not in receipts
+                   and f"S{season:02d}E{n:02d}" not in unverified]
         if pending:
             priority.append((key, season, pending))
     if priority:
@@ -228,9 +232,10 @@ def select_bot_anime_batches(candidates, state, complete_evidence,
         entry = series.get(key, {})
         published = entry.get("public_episode_posts", {})
         existing = entry.get("episodes", {}).get(str(season), {})
+        unverified = set(entry.get("legacy_unverified_episode_keys", []))
         for n in range(1, 1000):
             marker = f"S{season:02d}E{n:02d}"
-            if marker in published:
+            if marker in published or marker in unverified:
                 continue
             if n in numbered:
                 # Do not allow skips over missing prior episode receipts.
