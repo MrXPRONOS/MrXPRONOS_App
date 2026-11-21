@@ -65,16 +65,22 @@ class DesirTests(unittest.TestCase):
         user = NS(download_media=get_image)
         poster=NS(photo=object(), media=NS(photo=object()), noforwards=False)
         item=NS(poster=poster)
-        with patch("film_relay.publication.library_button_rows",
-                   return_value=[]):
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value="https://t.me/+DedicatedRescue123"):
             result = asyncio.run(post_public(
                 bot, user, "@CineXDesirfr", item, "Mon Film",
-                "https://t.me/c/123456/45", "https://t.me/+OLD_LINK"))
+                "https://t.me/c/123456/45", "https://t.me/+OLD_LINK",
+                download_url="https://t.me/CineRadarFr_Bot?start=d_"+"A"*24))
         self.assertEqual(result.id, 99)
         kwargs = bot.send_file.await_args.kwargs
         self.assertEqual(kwargs["buttons"][0][0].style, "success")
-        self.assertEqual(kwargs["buttons"][1][0].style, "primary")
-        self.assertEqual(kwargs["buttons"][1][0].url, DEFAULT_FILM_FOLDER_URL)
+        self.assertEqual(len(kwargs["buttons"]), 4)
+        self.assertEqual(kwargs["buttons"][0][0].url, "https://t.me/c/123456/45")
+        self.assertEqual(kwargs["buttons"][1][0].style, "success")
+        self.assertEqual(kwargs["buttons"][1][0].url,
+                         "https://t.me/CineRadarFr_Bot?start=d_"+"A"*24)
+        self.assertEqual(kwargs["buttons"][2][0].url, "https://t.me/+DedicatedRescue123")
+        self.assertEqual(kwargs["buttons"][3][0].url, DEFAULT_FILM_FOLDER_URL)
         self.assertNotIn("+OLD_LINK", kwargs["caption"])
         self.assertIn(DEFAULT_FILM_FOLDER_URL, kwargs["caption"])
 
