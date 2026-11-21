@@ -1,0 +1,33 @@
+name: 'CinéX - Arrêter une ancienne rotation non conforme'
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-stop-duplicate-poster-run-once'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  stop-old:
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.actor == 'MrXPRONOS' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Annuler uniquement la rotation au code ancien
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run cancel 44958955146 --repo "$GITHUB_REPOSITORY" || {
+            state="$(gh run view 44958955146 --repo "$GITHUB_REPOSITORY" --json status --jq '.status')"
+            if [[ "$state" == "completed" ]]; then
+              echo "La rotation était déjà terminée, aucune nouvelle action."
+              exit 0
+            fi
+            echo "::error::Échec de l'arrêt de la rotation ancienne."
+            exit 1
+          }
