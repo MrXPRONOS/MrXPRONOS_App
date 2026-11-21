@@ -90,11 +90,13 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
     return paired[0] if len(paired) == 1 else None
 
 
-def public_buttons(url: str, public, poster, *, category: str):
+def public_buttons(url: str, public, poster, *, category: str, extra_text: str = ""):
+    from types import SimpleNamespace
     from .rescue_channels import add_rescue_button_row
     name = "📺 REGARDER L'ÉPISODE" if category in ("anime", "series") else "🎬 VOIR LE FILM"
     result = [[url_button(name, url, style="success")]]
-    youtube = youtube_url_for(poster)
+    youtube = youtube_url_for(poster) or youtube_url_for(
+        SimpleNamespace(raw_text=extra_text, buttons=None))
     if youtube:
         result.append([url_button("▶️ YouTube", youtube, style="primary")])
     result = add_rescue_button_row(result, public)
@@ -254,7 +256,8 @@ async def repair_channel(client, bot, category: str, public, private,
                 caption=rich_caption(cover_caption(
                     poster, video, category, identity=identity, extra_text=extra)),
                 parse_mode="html",
-                buttons=public_buttons(target, public, poster, category=category),
+                buttons=public_buttons(target, public, poster, category=category,
+                                       extra_text=extra),
             )
             verified_public = await client.get_messages(public, ids=new_post.id)
             if not public_poster_verified(
