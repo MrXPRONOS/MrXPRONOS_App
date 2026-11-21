@@ -1,5 +1,5 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
-import {enqueueChannelReactions} from "./channel-reactions.mjs";
+import {enqueueChannelReactions,processReactionQueue} from "./channel-reactions.mjs";
 import {pruneTelegramQuota} from "./telegram-global-quota.mjs";
 import {queueKnownStockSources,processPrivateStockQueue} from "./private-stock.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
@@ -98,6 +98,8 @@ async function receiveTelegram(request,env,ctx){
   if(update.channel_post||update.edited_channel_post){
    if(update.channel_post){
     await enqueueChannelReactions(env,update.channel_post);
+    // Temporary fallback: keep immediate reactions until both primary bot tokens are verified on GitHub.
+    if(ctx?.waitUntil)ctx.waitUntil((async()=>{await processReactionQueue(env);await processReactionQueue(env);})().catch(e=>console.warn("channel_reaction_delivery_failed",String(e?.name||"error"))));
    }
    await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
