@@ -83,6 +83,37 @@ def deduplicate_anime_candidates(rows: list, catalogue: dict):
     return chosen, report
 
 
+
+def reconcile_known_source_duplicates(rows: list, catalogue: dict):
+    """Receipt an alternate source ONLY if the same numbered private episode exists.
+
+    This prevents archive cursors from being blocked indefinitely by source
+    reposts. Conflicting historical source receipts are never overwritten.
+    """
+    newly_linked, collisions = 0, []
+    series = catalogue.get("series", {}) or {}
+    for row in rows:
+        key = canonical_series_key(catalogue, row)
+        entry = series.get(key)
+        if not entry:
+            continue
+        private = entry.get("episodes", {}).get(
+            str(row["season"]), {}).get(str(row["episode"]))
+        if not private or not private.get("message_id"):
+            continue
+        actual_id = int(private["message_id"])
+        receipts = entry.setdefault("source_items", {})
+        for source_key in [row["source_key"], *row.get("alternative_source_keys", [])]:
+            prior = receipts.get(str(source_key))
+            if prior is not None and int(prior) != actual_id:
+                collisions.append(str(source_key))
+                continue
+            if prior is None:
+                receipts[str(source_key)] = actual_id
+                newly_linked += 1
+    return {"new_source_receipts": newly_linked, "conflicting_source_receipts": collisions}
+
+
 def pending_ongoing_episodes(groups: dict, catalogue: dict, *, maximum: int = 4):
     """Select at most one new contiguous episode per distinct ongoing anime.
 
