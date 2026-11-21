@@ -30,6 +30,7 @@ from .anime_policy import (complete_anime_seasons, progressive_anime_seasons,
                            select_anime_season, anime_movie_slots)
 from .anime_dedup import (deduplicate_anime_candidates, pending_ongoing_episodes,
                           reconcile_known_source_duplicates)
+from .anime_cadence import cadence_from_message
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -95,6 +96,7 @@ def classify(messages, source_id: int):
     """
     latest_poster = None
     current_season = 1
+    current_cadence = "unknown"
     candidates = []
     season_header = SEASON_HEADER
     for msg in sorted(messages, key=lambda x: int(x.id)):
@@ -104,11 +106,16 @@ def classify(messages, source_id: int):
         if getattr(msg, "photo", None):
             latest_poster = msg
             current_season = 1
+            current_cadence = cadence_from_message(msg)
             found = season_header.search(caption)
             if found:
                 current_season = int(found.group(1))
             continue
         if not is_supported_video(msg):
+            # Text/GIF cadence banners may accompany the current anime.
+            inferred_cadence = cadence_from_message(msg)
+            if inferred_cadence != "unknown" and latest_poster is not None:
+                current_cadence = inferred_cadence
             # Text-only season banners are not new series or videos.
             found = season_header.search(caption)
             if found and 1 <= int(found.group(1)) <= 50:
@@ -142,6 +149,8 @@ def classify(messages, source_id: int):
             "source_key": f"{source_id}:{int(msg.id)}",
             "series": series_key, "title": title,
             "season": season, "episode": episode,
+            "cadence_hint": (cadence_from_message(msg) if
+                             cadence_from_message(msg) != "unknown" else current_cadence),
             "video": msg, "poster": latest_poster,
             "timestamp": (getattr(msg, "date", None).timestamp()
                           if isinstance(getattr(msg, "date", None), datetime) else 0),
@@ -667,6 +676,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             series = catalogue["series"].setdefault(
                 key, {"title": title, "public_id": None, "main_index_id": None,
                       "season_indices": {}, "episodes": {}, "source_items": {}})
+            cadence_hints = {row.get("cadence_hint") for row in items}
+            cadence_hints.discard("unknown")
+            cadence_hints.discard(None)
+            if len(cadence_hints) == 1:
+                series["cadence_hint"] = next(iter(cadence_hints))
             marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15]
             # Save the original series illustration in the PRIVATE channel too.
             # Its deterministic caption marker prevents duplicate posters after a crash.
