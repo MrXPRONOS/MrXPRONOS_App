@@ -28,6 +28,7 @@ from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
 from .anime_policy import (complete_anime_seasons, progressive_anime_seasons,
                            select_anime_season, anime_movie_slots)
+from .anime_dedup import deduplicate_anime_candidates
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -547,11 +548,18 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         all_candidates = await recover_active_rows(
             client, sources, all_candidates, catalogue.get("active_batch"))
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
+        unique_candidates, dedup_report = deduplicate_anime_candidates(
+            all_candidates, catalogue)
+        catalogue["last_dedup_audit"] = dedup_report
         groups = {}
-        for row in all_candidates:
+        for row in unique_candidates:
             groups.setdefault(row["series"], []).append(row)
+        LOG.info("Anime dedup : %s sources candidates -> %s épisodes uniques ; "
+                 "%s doublons, %s variantes de médias",
+                 len(all_candidates), len(unique_candidates),
+                 dedup_report["source_duplicates"], dedup_report["media_variants"])
         LOG.info("CinéX Anime : %s séries, %s épisodes identifiables, sources=%s",
-                 len(groups), len(all_candidates), cfg["sources"])
+                 len(groups), len(unique_candidates), cfg["sources"])
         # No unrelated historical cover repairs during a locked series batch.
         # A full 1-25 episode run is validated before any new upload.
         eligibility_reasons = {}
@@ -703,7 +711,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 ep = series["episodes"].setdefault(season_key, {})
                 if number_key in ep:
                     # Even when another source has the same episode, do not re-upload.
-                    series["source_items"][row["source_key"]] = ep[number_key]["message_id"]
+                    for source_key in [row["source_key"], *row.get("alternative_source_keys", [])]:
+                        series["source_items"][source_key] = ep[number_key]["message_id"]
                     save_catalog(catalogue)
                     continue
                 legacy = state.data["completed"].get(row["source_key"], {})
@@ -741,7 +750,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     await asyncio.sleep(pause)
                 ep[number_key] = {"message_id": private_msg_id,
                                   "url": private_message_link(private_id, private_msg_id)}
-                series["source_items"][row["source_key"]] = private_msg_id
+                for source_key in [row["source_key"], *row.get("alternative_source_keys", [])]:
+                    series["source_items"][source_key] = private_msg_id
                 copied_episodes += 1
                 save_catalog(catalogue)
                 season_msg_id = int(series["season_indices"][season_key])
