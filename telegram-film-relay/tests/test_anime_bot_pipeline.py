@@ -96,6 +96,19 @@ class AnimeBotMatchingTests(unittest.TestCase):
         self.assertEqual(unique[0]["source_key"], "a:2")
         self.assertFalse(quarantined)
 
+    def test_one_bot_video_mislabeled_as_multiple_episodes_is_quarantined(self):
+        rows = [
+            {"series": "naruto", "season": 1, "episode": 1,
+             "source_key": "a:1", "file_unique_id": "exact-video"},
+            {"series": "naruto", "season": 1, "episode": 2,
+             "source_key": "a:2", "file_unique_id": "exact-video"},
+        ]
+        selected, review = consolidate_source_candidates(rows)
+        self.assertFalse(selected)
+        self.assertEqual(len(review), 2)
+        self.assertEqual({x["reason"] for x in review},
+                         {"one_video_labeled_as_distinct_episodes"})
+
     def test_only_four_different_ongoing_anime(self):
         source = []
         for index in range(6):
