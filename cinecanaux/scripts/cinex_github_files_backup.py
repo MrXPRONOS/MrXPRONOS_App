@@ -69,9 +69,9 @@ def selected_path(relative):
     if relative.startswith("telegram-film-relay/config/"):
         return PurePosixPath(relative).suffix.lower() in JSON
     if relative.startswith("telegram-film-relay/assets/"):
-        return PurePosixPath(relative).suffix.lower() in IMAGE | MEDIA
+        return PurePosixPath(relative).suffix.lower() in IMAGE
     if relative.startswith("cinecanaux/assets/"):
-        return PurePosixPath(relative).suffix.lower() in IMAGE | JSON | MEDIA
+        return PurePosixPath(relative).suffix.lower() in IMAGE | JSON
     return False
 
 
