@@ -171,11 +171,25 @@ def consolidate_source_candidates(rows, *, reviewed_variants=None):
     """Produce one canonical episode; quarantine conflicting media variants."""
     reviewed_variants = reviewed_variants or {}
     grouped = defaultdict(list)
+    media_labels = defaultdict(set)
     for row in rows:
-        grouped[(row["series"], int(row["season"]),
-                 int(row["episode"]))].append(row)
+        key = (row["series"], int(row["season"]), int(row["episode"]))
+        grouped[key].append(row)
+        if row.get("file_unique_id"):
+            media_labels[row["file_unique_id"]].add(key)
+    cross_label_conflicts = {
+        key for identities in media_labels.values()
+        if len(identities) > 1 for key in identities
+    }
     selected, review = [], []
     for key, variants in sorted(grouped.items()):
+        if key in cross_label_conflicts:
+            review.append({
+                "series": key[0], "season": key[1], "episode": key[2],
+                "reason": "one_video_labeled_as_distinct_episodes",
+                "source_keys": sorted(row["source_key"] for row in variants),
+            })
+            continue
         fingerprints = {row["file_unique_id"] for row in variants
                         if row.get("file_unique_id")}
         allowed = reviewed_variants.get(
