@@ -3,67 +3,67 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-21",
-  "generated_at": "2026-11-20T14:07:57Z",
+  "generated_at": "2026-11-21T10:00:57Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
+      "id": "sportsapipro:4894187",
+      "league": "Premiere Division",
+      "home": "AS Real Bamako",
+      "away": "Bakaridjan",
+      "kickoff_utc": "2026-11-21T16:00:00Z",
+      "score": "1:0",
+      "probability": 0.15163855
+    },
+    {
+      "id": "sportsapipro:4896594",
+      "league": "Ligue 1",
+      "home": "Dakar SC",
+      "away": "Génération Foot",
+      "kickoff_utc": "2026-11-21T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.14761828
+    },
+    {
+      "id": "sportsapipro:4891553",
+      "league": "Ligue 1",
+      "home": "AFAD-Plateau",
+      "away": "ISCA",
+      "kickoff_utc": "2026-11-21T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.13834921
+    },
+    {
       "id": "sportsapipro:4871359",
       "league": "SportPesa Premier League - Regular Season",
       "home": "Mombasa United FC",
       "away": "Ulinzi Stars",
       "kickoff_utc": "2026-11-21T12:00:00Z",
       "score": "1:0",
-      "probability": 0.13884924
+      "probability": 0.13817589
     },
     {
-      "id": "sportsapipro:4825730",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Police",
-      "away": "Aps Bomet",
-      "kickoff_utc": "2026-11-21T12:00:00Z",
+      "id": "sportsapipro:4895035",
+      "league": "Ligue 1",
+      "home": "CO Korhogo",
+      "away": "ASEC Mimosas",
+      "kickoff_utc": "2026-11-21T15:30:00Z",
       "score": "1:0",
-      "probability": 0.13703048
-    },
-    {
-      "id": "sportsapipro:4675420",
-      "league": "Vysshaya Liga",
-      "home": "Gomel",
-      "away": "BATE Borisov",
-      "kickoff_utc": "2026-11-21T11:00:00Z",
-      "score": "1:0",
-      "probability": 0.11934373
-    },
-    {
-      "id": "sportsapipro:4763745",
-      "league": "Super Lig",
-      "home": "Genclerbirligi",
-      "away": "Gaziantep FK",
-      "kickoff_utc": "2026-11-21T10:30:00Z",
-      "score": "2:1",
-      "probability": 0.0951566
-    },
-    {
-      "id": "sportsapipro:4730388",
-      "league": "Pershaya Liga",
-      "home": "Energetik BGU",
-      "away": "FC Slutsk",
-      "kickoff_utc": "2026-11-21T11:00:00Z",
-      "score": "2:1",
-      "probability": 0.09442345
+      "probability": 0.13709665
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4871359",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Mombasa United FC",
-      "away": "Ulinzi Stars",
-      "kickoff_utc": "2026-11-21T12:00:00Z",
+      "id": "sportsapipro:4891553",
+      "league": "Ligue 1",
+      "home": "AFAD-Plateau",
+      "away": "ISCA",
+      "kickoff_utc": "2026-11-21T15:30:00Z",
       "score": "1:0",
-      "probability": 0.31364644,
+      "probability": 0.33667181,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -72,13 +72,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4825730",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Police",
-      "away": "Aps Bomet",
-      "kickoff_utc": "2026-11-21T12:00:00Z",
+      "id": "sportsapipro:4896594",
+      "league": "Ligue 1",
+      "home": "Dakar SC",
+      "away": "Génération Foot",
+      "kickoff_utc": "2026-11-21T17:00:00Z",
       "score": "1:0",
-      "probability": 0.31321236,
+      "probability": 0.33240285,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -87,13 +87,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4675420",
-      "league": "Vysshaya Liga",
-      "home": "Gomel",
-      "away": "BATE Borisov",
-      "kickoff_utc": "2026-11-21T11:00:00Z",
+      "id": "sportsapipro:4892510",
+      "league": "Botola 2",
+      "home": "Olympique Khouribga",
+      "away": "KAC Kenitra",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
       "score": "1:0",
-      "probability": 0.30895858,
+      "probability": 0.32289972,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -102,13 +102,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4825831",
-      "league": "Premier A - Group A",
-      "home": "Santiago",
-      "away": "Dragones de Oaxaca",
-      "kickoff_utc": "2026-11-21T00:00:00Z",
-      "score": "2:1",
-      "probability": 0.26335236,
+      "id": "sportsapipro:4848805",
+      "league": "Liga Unitel Girabola",
+      "home": "FC Cabinda",
+      "away": "Bravos Do Maquis",
+      "kickoff_utc": "2026-11-21T14:00:00Z",
+      "score": "1:0",
+      "probability": 0.31852602,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -117,13 +117,13 @@
       ]
     },
     {
-      "id": "sportsapipro:4763745",
-      "league": "Super Lig",
-      "home": "Genclerbirligi",
-      "away": "Gaziantep FK",
-      "kickoff_utc": "2026-11-21T10:30:00Z",
-      "score": "2:1",
-      "probability": 0.2475213,
+      "id": "sportsapipro:4894187",
+      "league": "Premiere Division",
+      "home": "AS Real Bamako",
+      "away": "Bakaridjan",
+      "kickoff_utc": "2026-11-21T16:00:00Z",
+      "score": "1:0",
+      "probability": 0.31380594,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
