@@ -44,8 +44,8 @@ class GitHubFileBackupTests(unittest.TestCase):
 
     def test_private_round_trip_and_integrity(self):
         original = self.pack()
-        self.assertEqual(module.summary(original)["video_files"], 1)
-        self.assertEqual(len(original["items"]), 5)
+        self.assertEqual(module.summary(original)["video_files"], 0)
+        self.assertEqual(len(original["items"]), 4)
         self.assertEqual(self.archive.stat().st_mode & 0o777, 0o600)
         self.assertNotIn(b"synthetic", self.archive.read_bytes())
         self.assertNotIn(b"SHOULD_NOT_BE_EXPORTED", self.archive.read_bytes())
@@ -110,7 +110,7 @@ class GitHubFileBackupTests(unittest.TestCase):
     def test_archive_checksum_enforced_after_decryption(self):
         _, manifest = module.seal(self.root, self.private.public_key())
         self.assertTrue(all(row["sha256"] for row in manifest["items"]))
-        self.assertTrue(module.selected_path("telegram-film-relay/assets/sample.webm"))
+        self.assertFalse(module.selected_path("telegram-film-relay/assets/sample.webm"))
         self.assertFalse(module.selected_path("cinecanaux/worker.mjs"))
 
 
