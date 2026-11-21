@@ -7,6 +7,7 @@ never a blind automatic retry. This module never accesses user sessions.
 from __future__ import annotations
 
 import asyncio
+import os
 from html import escape
 
 
@@ -194,7 +195,7 @@ class AnimeBotPublisher:
         entry = self._series(row)
         if (entry.get("migrated_from_legacy")
                 and entry.get("public_id")
-                and __import__("os").environ.get(
+                and os.environ.get(
                     "CINEX_ANIME_LEGACY_PUBLIC_CARD_OWNERSHIP_VERIFIED") != "true"):
             raise RuntimeError(
                 "Legacy public card author is unverified; bot publishing is blocked.")
