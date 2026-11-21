@@ -309,3 +309,57 @@ existants ne doit être faite pour simplement masquer ce blocage.
    d'archive.
 5. Désactiver le publicateur historique **seulement après** vérification de
    la disponibilité et des permissions de son successeur.
+
+
+## Décision explicite du propriétaire — source Anime via compte utilisateur (21/11/2026)
+
+Le propriétaire confirme que les **10 sources Anime appartiennent à ses amis**.
+Les administrateurs ont **autorisé son compte Telegram personnel à consulter et
+transférer les publications**, mais n'ont **pas autorisé l'ajout d'un bot aux
+sources**. Il demande explicitement de garder la collecte via son compte
+utilisateur, comme avant.
+
+**Cette instruction remplace la précédente exigence de collecte 100 % Bot API.**
+
+- Conserver `TG_STRING_SESSION`, `TG_API_ID`, `TG_API_HASH` et le
+  relais `film_relay.anime_catalog`, uniquement pour les sources et usages
+  effectivement autorisés ; ne pas ajouter de bots aux sources.
+- Les bots CineRadar / publication continuent leurs rôles distincts dans
+  les destinations dont ils sont administrateurs et leurs webhooks.
+  Ne jamais appeler `getUpdates` sur ces bots.
+- Ne **pas désactiver** l'ancien relais fonctionnel pour basculer sur
+  `scripts/anime_bot_v2.py`, qui reste une implémentation expérimentale
+  non activée et non requise par la décision actuelle.
+- Les 4 cycles quotidiens (00:17, 06:17, 12:17 et 18:17 UTC) sont conservés.
+  Le traitement reste lent pour respecter FloodWait, avec une seule session
+  en cours grâce au verrou `mrx-telegram-personal-account`.
+- Le nouvel audit **`scripts/anime_user_session_audit.py`** lit au plus
+  trois messages récents par source, contrôle les reçus privés/publics du
+  catalogue, les documents Telegram, les marqueurs anti-doublons et l'identité
+  du stock CineRadar. Il ne publie, ne supprime, ne copie, ne télécharge et
+  ne change aucune permission, et n'expose pas les identifiants sources.
+- Le workflow de diagnostic `cinex-anime-user-session-audit.yml` utilise
+  le **même verrou Telegram** et respecte `TG_PERSONAL_COOLDOWN_UNTIL_UTC`.
+- Les droits de **consultation/transfert autorisés** par les amis sont
+  différents d'une permission de republier leurs créations sur n'importe
+  quel canal ; vérifier le périmètre autorisé avant la diffusion.
+- Les anciens épisodes sans nouveaux reçus publics ne sont jamais
+  considérés automatiquement comme absents : le nouveau diagnostic
+  confronte leurs IDs exacts et leurs identifiants médias.
+- Conserver impérativement la vidéothèque centrale CineRadar, ses boutons
+  Télécharger, les webhooks existants, la rotation de dix vidéos/canal,
+  le plafond de dix suppressions/cycle, et les garde-fous contre l'effacement
+  de stock privé.
+
+### Nouvelle définition de clôture du chantier 22
+
+Le point 22 doit désormais être évalué sur **l'architecture hybride
+autorisée par le propriétaire (compte utilisateur pour lire les sources,
+bots existants pour les destinations)**. Le blocage « bot non administrateur
+des sources » n'est PLUS un préalable. Il faut cependant confirmer sur
+Telegram, avec cette session, que les sources, fichiers, reçu de publication,
+boutons et sauvegardes fonctionnent réellement et qu'aucun doublon n'est
+réémis après interruption.
+
+**État à ce stade : code et workflow audit préparés ; résultat Telegram live
+encore à examiner avant de déclarer le point #22 entièrement clos.**
