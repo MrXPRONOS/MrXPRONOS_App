@@ -98,8 +98,9 @@ def public_buttons(url: str, public, poster, *, category: str,
     name = "📺 REGARDER L'ÉPISODE" if category in ("anime", "series") else "🎬 VOIR LE FILM"
     result = [[url_button(name, url, style="success")]]
     if download_url:
-        if not download_url.startswith("https://t.me/c/"):
-            raise ValueError("Téléchargement privé Telegram invalide.")
+        from .radar_download_registry import is_bot_download_url
+        if not is_bot_download_url(download_url):
+            raise ValueError("Téléchargement CinéRadar invalide.")
         result.append([url_button("⬇️ TÉLÉCHARGER LA VIDÉO", download_url, style="success")])
     youtube = youtube_url_for(poster) or youtube_url_for(
         SimpleNamespace(raw_text=extra_text, buttons=None))
