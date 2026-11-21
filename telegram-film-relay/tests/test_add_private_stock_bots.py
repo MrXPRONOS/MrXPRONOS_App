@@ -60,6 +60,9 @@ class StockBotTests(TestCase):
         minimal = SimpleNamespace(post_messages=True, delete_messages=False,
                                   invite_users=False, add_admins=False)
         self.assertTrue(app._minimal_rights(minimal))
+        # Telegram can set the implicit 'other' bit on a channel administrator
+        # without granting any extra actionable rights.
+        self.assertTrue(app._minimal_rights(SimpleNamespace(post_messages=True, other=True)))
         self.assertFalse(app._minimal_rights(None))
         self.assertFalse(app._minimal_rights(SimpleNamespace(post_messages=True,
                                                              delete_messages=True)))
