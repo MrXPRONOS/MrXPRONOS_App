@@ -13,6 +13,12 @@ on:
         required: false
         type: boolean
         default: false
+      purge_max:
+        description: 'Maximum de suppressions par canal lors d une purge manuelle'
+        required: false
+        type: choice
+        options: ['2', '5', '10']
+        default: '2'
       apply:
         description: 'Retirer les anciennes vidéos après vérification (false = simulation)'
         required: false
@@ -112,7 +118,7 @@ jobs:
           if [[ "$RUN_APPLY" == "true" ]]; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
               if [[ "${{ inputs.purge_unmatched }}" == "true" ]]; then
-                python -m film_relay.ten_video_rotation --apply --purge-unmatched --max-deleted 10
+                python -m film_relay.ten_video_rotation --apply --purge-unmatched --max-deleted "${{ inputs.purge_max }}"
               else
                 python -m film_relay.ten_video_rotation --apply --max-deleted 10
               fi
