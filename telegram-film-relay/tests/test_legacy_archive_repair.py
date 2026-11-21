@@ -34,7 +34,9 @@ class LegacyMediaIdentityTests(unittest.TestCase):
                  for i in (1, 2, 3)]
         self.assertEqual([p.part for p in parts], [1, 2, 3])
         self.assertEqual({p.title for p in parts}, {"le grand"})
-        self.assertEqual(compatible(parts[0], parts[1]), 1.0)
+        self.assertEqual(compatible(parts[0], parts[1]), 0.0)
+        self.assertEqual(compatible(parts[0], parse_identity(
+            "Le Grand Film Partie 1", "action")), 1.0)
         self.assertEqual(compatible(parts[0], parse_identity(
             "Le Grand Film Partie 2", "action")), 0.0)
 
