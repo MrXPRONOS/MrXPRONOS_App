@@ -80,6 +80,7 @@ class BotHTTPClient:
             is_creator=(status == "creator"),
             is_admin=(status == "administrator"),
             post_messages=bool(data.get("can_post_messages", False)),
+            edit_messages=bool(data.get("can_edit_messages", False)),
         )
 
     @staticmethod
@@ -159,6 +160,32 @@ class BotHTTPClient:
             data["parse_mode"] = "HTML"
         result = await self._call("copyMessage", data)
         return SimpleNamespace(id=int(result["message_id"]))
+
+    async def edit_photo_caption(self, channel, message_id: int, *,
+                                 caption: str, buttons, parse_mode=None):
+        """Edit an EXISTING channel photo and its buttons, without reposting.
+
+        If Telegram refuses to edit a message published by a different bot or
+        channel administrator, propagate the error. The caller must NOT clone
+        the photo or delete the associated video in that case.
+        """
+        from telethon import utils
+        if not isinstance(caption, str):
+            raise TypeError("Description d'affiche invalide")
+        data = {"chat_id": str(utils.get_peer_id(channel)),
+                "message_id": str(int(message_id)),
+                "caption": caption}
+        if parse_mode and str(parse_mode).lower() == "html":
+            data["parse_mode"] = "HTML"
+        markup = self._keyboard(buttons)
+        data["reply_markup"] = json.dumps(markup or {"inline_keyboard": []},
+                                           ensure_ascii=False)
+        try:
+            return await self._call("editMessageCaption", data)
+        except TelegramBotHTTPError as exc:
+            if "message is not modified" in str(exc).casefold():
+                return False
+            raise
 
     async def edit_reply_markup(self, channel, message_id: int, *, buttons):
         """Mettre à jour les saisons sans publier une nouvelle affiche publique."""

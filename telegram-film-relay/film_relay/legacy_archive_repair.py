@@ -1,8 +1,9 @@
 """Repair safely recognizable legacy CinéX media across configured channels.
 
-Default is read-only. In apply mode, create/verify PRIVATE poster+video and a
-PUBLIC bot-owned poster pointing to that exact saved video. This module NEVER
-deletes any Telegram message. Rotation remains a separate verified operation.
+Default is read-only. In apply mode, create/verify a PRIVATE poster+video and
+EDIT the EXISTING PUBLIC photo in place to point to that saved video. Never
+repost the public photo. If Telegram denies edits, leave the old public video
+untouched. Rotation alone may delete after verifying the original photo.
 """
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ import logging
 import os
 
 from .bot_http import BotHTTPClient, url_button
+from .original_poster_edit import edit_original_cover
 from .unified_download import UnifiedLibrary
 from .legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from .legacy_media_identity import (
@@ -125,6 +127,36 @@ def public_poster_verified(message, video, category, url: str, public,
     )
 
 
+def original_public_poster_verified(message, source_poster, video, category,
+                                   url, public, *, all_messages=(),
+                                   reference=None, download_url=None,
+                                   extra_text=""):
+    """Verify the exact original post, not a newly published copy."""
+    from .legacy_neighbor_matching import find_neighbor_pair
+    if not message or not getattr(message, "photo", None):
+        return False
+    if message.id != source_poster.id:
+        return False
+    if getattr(message.photo, "id", None) != getattr(source_poster.photo, "id", None):
+        return False
+    before = str(getattr(source_poster, "raw_text", "") or "")
+    after = str(getattr(message, "raw_text", "") or "")
+    if not after.startswith(before):
+        return False
+    if extra_text.strip() and extra_text.strip() not in after:
+        return False
+    nearby = find_neighbor_pair(video, all_messages, category) if all_messages else None
+    association = (compatible(reference or video_identity(video, category),
+                              poster_identity(message, category)) >= 0.95
+                   or bool(nearby and nearby.poster.id == source_poster.id))
+    rescue = rescue_link_for(public)
+    return bool(association and rescue and all(
+        has_verified_button(message, link)
+        for link in (url, rescue, film_folder_url())
+        + ((download_url,) if download_url else ())
+    ))
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
                          history: int = MAX_HISTORY, unified=None):
@@ -139,6 +171,7 @@ async def repair_channel(client, bot, category: str, public, private,
         "category": category, "public": public_id, "private": private_id,
         "protected": len(recent), "older": len(old), "recognized": 0,
         "private_existing": 0, "private_created": 0, "public_linked": 0,
+        "public_edited": 0, "public_edit_failed": 0,
         "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
@@ -255,45 +288,60 @@ async def repair_channel(client, bot, category: str, public, private,
                                     identity=identity, extra_text=extra),
                 public=public,
             )) if unified is not None else None
-            # Old poster may be uneditable and far from its media. A new,
-            # bot-owned cover is created without removing the old one.
-            existing_public = find_verified_public_link(
-                posters, video, category, private_id, private_video_id, rescue,
-                reference=identity)
-            if existing_public and (
-                    not download_url or has_verified_button(existing_public, download_url)):
+            # NEVER create a new photo in the public channel. The historical
+            # photo's ID, location, description and links must be preserved.
+            # If several legacy videos share one candidate cover, do not
+            # overwrite the previous video's button: manual pairing required.
+            collisions = 0
+            for other in old:
+                if other.id == video.id:
+                    continue
+                candidate = find_legacy_poster(other, posters, category)
+                if candidate is None:
+                    adjacent = find_neighbor_pair(other, messages, category)
+                    candidate = adjacent.poster if adjacent else None
+                if candidate and candidate.id == poster.id:
+                    collisions += 1
+                    break
+            if collisions:
+                raise RuntimeError(
+                    "Même affiche pour plusieurs vidéos : ne pas écraser les boutons existants")
+            required = (target, rescue, film_folder_url()) + (
+                (download_url,) if download_url else ())
+            if all(has_verified_button(poster, link) for link in required) and (
+                not extra.strip() or extra.strip() in (poster.raw_text or "")):
                 report["public_linked"] += 1
                 repaired += 1
                 continue
-            public_image = io.BytesIO(await client.download_media(poster.media, file=bytes))
-            public_image.name = "cinex_archivage.jpg"
-            if not public_image.getbuffer().nbytes:
-                raise RuntimeError("Affiche publique inaccessible")
-            new_post = await bot.send_file(
-                public, public_image,
-                caption=rich_caption(cover_caption(
-                    poster, video, category, identity=identity, extra_text=extra)),
-                parse_mode="html",
-                buttons=public_buttons(target, public, poster, category=category,
-                                       extra_text=extra,
-                                       download_url=download_url),
+            verified_public = await edit_original_cover(
+                client, bot, public, poster, video,
+                buttons=public_buttons(
+                    target, public, poster, category=category,
+                    extra_text=extra, download_url=download_url),
+                private_video_url=target,
+                extra_text=extra,
             )
-            verified_public = await client.get_messages(public, ids=new_post.id)
-            if not public_poster_verified(
-                    verified_public, video, category, target, public,
-                    reference=identity, download_url=download_url):
-                raise RuntimeError("Boutons publics non vérifiés")
-            posters.append(verified_public)
+            if not original_public_poster_verified(
+                    verified_public, poster, video, category, target, public,
+                    all_messages=messages, reference=identity,
+                    download_url=download_url, extra_text=extra):
+                raise RuntimeError(
+                    "L'affiche originale ou ses boutons n'ont pas été vérifiés")
+            posters = [verified_public if item.id == poster.id else item for item in posters]
+            messages = [verified_public if item.id == poster.id else item for item in messages]
             report["public_linked"] += 1
+            report["public_edited"] += 1
             repaired += 1
-            LOG.info("%s : archive vidéo #%s -> privé #%s, affiche publique #%s",
-                     category, video.id, private_video_id, verified_public.id)
+            LOG.info("%s : vidéo #%s archivée privée #%s ; fiche originale #%s modifiée",
+                     category, video.id, private_video_id, poster.id)
             await asyncio.sleep(30)
         except Exception as exc:
             if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
                 raise
             report["errors"] += 1
-            LOG.exception("%s : ancien média #%s conservé pour réparation", category, video.id)
+            report["public_edit_failed"] += 1
+            LOG.exception("%s : ancienne fiche non modifiée pour vidéo #%s, "
+                          "vidéo publique conservée pour réparation", category, video.id)
     LOG.info("BILAN RATTRAPAGE %s", report)
     return report
 

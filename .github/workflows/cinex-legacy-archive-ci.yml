@@ -8,6 +8,9 @@ on:
       - 'telegram-film-relay/film_relay/legacy_neighbor_matching.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
       - 'telegram-film-relay/tests/test_legacy_archive_repair.py'
+      - 'telegram-film-relay/tests/test_original_poster_edit.py'
+      - 'telegram-film-relay/film_relay/original_poster_edit.py'
+      - 'telegram-film-relay/film_relay/bot_http.py'
       - 'telegram-film-relay/tests/test_ten_video_rotation.py'
       - '.github/workflows/cinex-legacy-archive-ci.yml'
       - '.github/workflows/cinex-public-video-rotation.yml'
@@ -19,6 +22,9 @@ on:
       - 'telegram-film-relay/film_relay/legacy_neighbor_matching.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
       - 'telegram-film-relay/tests/test_legacy_archive_repair.py'
+      - 'telegram-film-relay/tests/test_original_poster_edit.py'
+      - 'telegram-film-relay/film_relay/original_poster_edit.py'
+      - 'telegram-film-relay/film_relay/bot_http.py'
       - '.github/workflows/cinex-legacy-archive-ci.yml'
       - '.github/workflows/cinex-public-video-rotation.yml'
   workflow_dispatch:
@@ -43,6 +49,8 @@ jobs:
         run: python -m compileall -q film_relay
       - name: Tests reconnaissance et archivage sûrs
         run: python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Tests mise à jour de la fiche originale sans publication
+        run: python -m unittest discover -s tests -p 'test_original_poster_edit.py' -v
       - name: Tests conservation dix vidéos
         run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
       - name: Tests ancienne rotation
