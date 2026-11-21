@@ -23,6 +23,7 @@ from .desir_runner import (
 from .publication import rich_caption, rich_video_title
 from .recovery import snapshot_telegram_posts
 from .runner import resolve_peer
+from .unified_download import UnifiedLibrary
 from .text import private_message_link, clean_caption
 from .source_channels import source_list
 
@@ -263,6 +264,9 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         )
         if publish:
             await verify_library_bot(bot, private)
+        unified = UnifiedLibrary(client)
+        if publish:
+            await unified.prepare(public=public)
         if publish and mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
@@ -403,10 +407,12 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             private_video_id = int(state.data["staged"][key]["video"])
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             video_url = private_message_link(private_id, private_video_id)
+            download_url = await unified.store(
+                item.video, category=category, title=title, public=public)
             public_post = await post_public(
                 bot, client, bot_public, item, description, video_url, "",
                 download_category="action" if category == "action" else None,
-                download_title=title,
+                download_title=title, download_url=download_url,
             )
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             public_video = await post_public_video_after_poster(
