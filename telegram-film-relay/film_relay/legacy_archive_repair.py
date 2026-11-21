@@ -157,6 +157,24 @@ def original_public_poster_verified(message, source_poster, video, category,
     ))
 
 
+def shared_legacy_cover(video, poster, old, posters, category, messages) -> bool:
+    """True when one legacy cover ambiguously describes two older videos.
+
+    This read-only preflight MUST run before copying an image, uploading video,
+    or registering a download token; false positives fail closed for review.
+    """
+    for other in old:
+        if other.id == video.id:
+            continue
+        candidate = find_legacy_poster(other, posters, category)
+        if candidate is None:
+            adjacent = find_neighbor_pair(other, messages, category)
+            candidate = adjacent.poster if adjacent else None
+        if candidate and candidate.id == poster.id:
+            return True
+    return False
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
                          history: int = MAX_HISTORY, unified=None):
@@ -225,18 +243,7 @@ async def repair_channel(client, bot, category: str, public, private,
         # Reject it BEFORE any private upload or bot download registration.
         # The previous placement of this check occurred after creating media
         # and caused orphaned duplicate private copies on each repair run.
-        collisions = 0
-        for other in old:
-            if other.id == video.id:
-                continue
-            candidate = find_legacy_poster(other, posters, category)
-            if candidate is None:
-                adjacent = find_neighbor_pair(other, messages, category)
-                candidate = adjacent.poster if adjacent else None
-            if candidate and candidate.id == poster.id:
-                collisions += 1
-                break
-        if collisions:
+        if shared_legacy_cover(video, poster, old, posters, category, messages):
             report["ambiguous"] += 1
             LOG.warning("%s : affiche #%s associée à plusieurs vidéos; "
                         "aucun nouvel archivage ni modification sans appariement manuel",
