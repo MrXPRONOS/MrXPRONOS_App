@@ -1,11 +1,13 @@
 {
   "active_batch": null,
+  "archive_pending": {},
+  "archive_review": {},
   "audit": {
     "canonical_titles": 355,
     "category": "anime_catalog",
-    "checked_at": "2026-11-21T09:27:12.490232+00:00",
+    "checked_at": "2026-11-21T20:58:14.748154+00:00",
     "eligibility_rejections": {
-      "completude_non_confirmee": 36,
+      "completude_non_confirmee": 35,
       "episodes_indisponibles": 13,
       "hors_limite_episodes": 5,
       "numerotation_incomplete": 24
@@ -612,7 +614,7 @@
         "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2645,
+    "not_yet_indexed_total": 2641,
     "note": "La présence de trous n'est pas la preuve d'épisodes manquants ; titres normalisés pour le diagnostic sans rendre une copie automatiquement autorisée.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -658,7 +660,7 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 812,
+    "scanned_episode_candidates": 797,
     "source_episode_numbers_observed": 2773,
     "source_numbering_gap_seasons": 58,
     "source_numbering_gaps": [
@@ -1241,7 +1243,7 @@
     "source_scan_complete": false,
     "source_title_variants": 681,
     "source_title_variants_collapsed": 326,
-    "unnumbered_videos_skipped": 2154
+    "unnumbered_videos_skipped": 2168
   },
   "identity_review": [],
   "legacy_series_records": {
@@ -1413,8 +1415,8 @@
       "last_checked": "2026-10-20T05:04:52.126367+00:00",
       "pages": 1,
       "revisit_cursor": null,
-      "revisit_cycles": 2,
-      "revisit_last_checked": "2026-11-21T09:27:12.479014+00:00"
+      "revisit_cycles": 3,
+      "revisit_last_checked": "2026-11-21T20:58:14.733951+00:00"
     },
     "-1002069851953": {
       "complete": false,
@@ -2280,6 +2282,79 @@
         "-1001595907308:13602": 73
       },
       "title": "@Mangas fv Yu-Gi-Oh! Duel Monsters"
+    },
+    "my-hero-academia-vigilantes-et-2": {
+      "episode_poster_ids": {
+        "S01E01": 249,
+        "S01E02": 251,
+        "S01E03": 253,
+        "S01E04": 255
+      },
+      "episodes": {
+        "1": {
+          "1": {
+            "download_url": "https://t.me/CineRadarFr_Bot?start=d_yVNCIORD2MG31QGPHXnQv2oy",
+            "message_id": 250,
+            "url": "https://t.me/c/4416009337/250"
+          },
+          "2": {
+            "download_url": "https://t.me/CineRadarFr_Bot?start=d_9YnFjs1Dav2BzVhQrYQFpvYs",
+            "message_id": 252,
+            "url": "https://t.me/c/4416009337/252"
+          },
+          "3": {
+            "download_url": "https://t.me/CineRadarFr_Bot?start=d_Z8aWAdFlOtxQxERqATbi3xd7",
+            "message_id": 254,
+            "url": "https://t.me/c/4416009337/254"
+          },
+          "4": {
+            "download_url": "https://t.me/CineRadarFr_Bot?start=d_deUiiz5DS5FsVf5qnv6U8er-",
+            "message_id": 256,
+            "url": "https://t.me/c/4416009337/256"
+          }
+        }
+      },
+      "main_index_id": 247,
+      "private_poster_id": 246,
+      "public_episode_posts": {
+        "S01E01": {
+          "poster": 312,
+          "private_video": 250,
+          "video": 313
+        },
+        "S01E02": {
+          "poster": 314,
+          "private_video": 252,
+          "video": 315
+        },
+        "S01E03": {
+          "poster": 316,
+          "private_video": 254,
+          "video": 317
+        },
+        "S01E04": {
+          "poster": 318,
+          "private_video": 256,
+          "video": 319
+        }
+      },
+      "public_id": 311,
+      "season_indices": {
+        "1": 248
+      },
+      "season_public_ids": {
+        "1": 311
+      },
+      "season_status": {
+        "1": "en_cours"
+      },
+      "source_items": {
+        "-1001595907308:14764": 250,
+        "-1001595907308:14765": 252,
+        "-1001595907308:14766": 254,
+        "-1001595907308:14767": 256
+      },
+      "title": "My Hero Academia Vigilantes et 2"
     },
     "sword-gai-the-animation": {
       "episodes": {
@@ -15453,6 +15528,15 @@
         "1": [
           "-1001595907308:14715"
         ],
+        "10": [
+          "-1001595907308:14724"
+        ],
+        "11": [
+          "-1001595907308:14725"
+        ],
+        "12": [
+          "-1001595907308:14726"
+        ],
         "2": [
           "-1001595907308:14716"
         ],
@@ -15464,6 +15548,18 @@
         ],
         "5": [
           "-1001595907308:14719"
+        ],
+        "6": [
+          "-1001595907308:14720"
+        ],
+        "7": [
+          "-1001595907308:14721"
+        ],
+        "8": [
+          "-1001595907308:14722"
+        ],
+        "9": [
+          "-1001595907308:14723"
         ]
       }
     },

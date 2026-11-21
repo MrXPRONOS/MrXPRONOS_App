@@ -1,9 +1,10 @@
 {
-  "audit_checked_at": "2026-11-21T09:27:12.490232+00:00",
+  "audit_checked_at": "2026-11-21T20:58:14.748154+00:00",
   "data_note": "Inventaire et reçus enregistrés, pas une preuve de disponibilité des vidéos ni des droits.",
   "schema_version": 1,
   "series": [
     {
+      "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 0,
@@ -30,6 +31,7 @@
       "title": "Dorohedoro et 2 🇨🇵"
     },
     {
+      "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 5,
@@ -38,7 +40,7 @@
       "seasons": [
         {
           "last_episode": 10,
-          "numbering_gaps": 0,
+          "numbering_gaps": 4,
           "private_episodes": 6,
           "public_episode_pairs": 0,
           "season": 1,
@@ -48,6 +50,7 @@
       "title": "Death Parade"
     },
     {
+      "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 0,
@@ -66,6 +69,7 @@
       "title": "No Longer Rangers"
     },
     {
+      "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 1,
@@ -74,7 +78,7 @@
       "seasons": [
         {
           "last_episode": 12,
-          "numbering_gaps": 0,
+          "numbering_gaps": 10,
           "private_episodes": 2,
           "public_episode_pairs": 0,
           "season": 1,
@@ -84,6 +88,7 @@
       "title": "Tomb Raider King"
     },
     {
+      "cadence_hint": "unknown",
       "has_public_card": false,
       "index_repair_pending": false,
       "legacy_cards_to_review": 0,
@@ -92,7 +97,7 @@
       "seasons": [
         {
           "last_episode": 180,
-          "numbering_gaps": 0,
+          "numbering_gaps": 155,
           "private_episodes": 25,
           "public_episode_pairs": 0,
           "season": 1,
@@ -102,6 +107,7 @@
       "title": "Yu-Gi-Oh"
     },
     {
+      "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 0,
@@ -120,6 +126,26 @@
       "title": "Yu-Gi-Oh! Duel Monsters"
     },
     {
+      "cadence_hint": "unknown",
+      "has_public_card": true,
+      "index_repair_pending": false,
+      "legacy_cards_to_review": 0,
+      "private_episodes": 4,
+      "public_episode_pairs": 4,
+      "seasons": [
+        {
+          "last_episode": 4,
+          "numbering_gaps": 0,
+          "private_episodes": 4,
+          "public_episode_pairs": 4,
+          "season": 1,
+          "status": "en_cours"
+        }
+      ],
+      "title": "My Hero Academia Vigilantes et 2"
+    },
+    {
+      "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 0,
@@ -142,14 +168,17 @@
     "active_batch": false,
     "ambiguous_series_groups": 0,
     "configured_sources_scanned": 2,
+    "existing_source_reposts_reconciled": 0,
     "fragmented_series_groups_reconciled": 2,
-    "numbering_gaps": 34,
-    "pending_historical_candidates": 2645,
-    "private_episodes": 128,
-    "public_episode_pairs": 23,
-    "seasons": 8,
+    "numbering_gaps": 203,
+    "pending_historical_candidates": 2641,
+    "private_episodes": 132,
+    "public_episode_pairs": 27,
+    "seasons": 9,
+    "source_duplicates_detected": 0,
+    "source_media_variants_to_review": 0,
     "source_scan_complete": false,
-    "titles": 7,
-    "unnumbered_skipped": 2154
+    "titles": 8,
+    "unnumbered_skipped": 2168
   }
 }
