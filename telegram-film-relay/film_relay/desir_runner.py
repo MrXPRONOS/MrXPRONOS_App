@@ -245,7 +245,7 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     clients which do not preserve a bot's inline keyboard.
     """
     from .bot_http import url_button
-    from .publication import library_button_rows
+    from .publication import library_button_rows, complete_public_video_rows
     if not valid_photo_message(item.poster):
         raise ValueError("Publication annulée : affiche Telegram réelle obligatoire.")
     # Require both public support buttons before publishing anything.
@@ -254,12 +254,12 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     # invitation is no longer shown in the public message.
     rows = [
         [url_button(label, url, style=(
-            "success" if "regarder" in label.casefold() or "télécharger" in label.casefold()
+            "success" if "regarder" in label.casefold() or "télécharger" in label.casefold() or "voir le film" in label.casefold()
             else "danger" if "secours" in label.casefold()
             else "primary"))
          for label, url in row]
-        for index, row in enumerate(url_button_rows(
-            video_url, public_peer=public_peer, download_url=download_url))
+        for index, row in enumerate(complete_public_video_rows(
+            video_url, download_url, public_peer=public_peer))
     ]
     # The download button goes only to a verified owner's Telegram library,
     # never to a guessed external title-search URL.
@@ -496,7 +496,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             public_video = await post_public_video_after_poster(
                 client, public_user, item.video, title,
-                int(public_post.id), video_url,
+                int(public_post.id), video_url, download_url=download_url,
             )
             state.complete(key, private_video_id, public_post.id)
             LOG.info("CinéX Désir : fiche #%s / vidéo publique #%s",
