@@ -71,6 +71,9 @@ test('an edited pinned poster is updated but an unrelated edited channel post is
   const updated=await ingestPinUpdate({DB:known.DB},{edited_channel_post:{chat,...pinned,caption:'Nouveau titre officiel'}});
   assert.equal(updated,true);
   assert.ok(known.writes.some(w=>w.sql.includes('INSERT INTO cine_pinned_posts')&&w.args[3]==='Nouveau titre officiel'));
+  const editedWrite=known.writes.find(w=>w.sql.includes('INSERT INTO cine_pinned_posts'));
+  assert.equal(editedWrite.args[7],'pin_event','D1 CHECK source must accept edited pinned-post updates');
+  assert.ok(['getchat','pin_event','owner_forward'].includes(editedWrite.args[7]));
   const unrelated=dbFixture({edit:false});
   assert.equal(await ingestPinUpdate({DB:unrelated.DB},{edited_channel_post:{chat,...pinned}}),false);
   assert.ok(!unrelated.writes.some(w=>w.sql.includes('INSERT INTO cine_pinned_posts')));
