@@ -85,6 +85,38 @@ class ReceiptsTests(unittest.TestCase):
         self.assertNotIn("S01E07", entry["pending_public_episode_posts"])
         self.assertGreaterEqual(len(saves), 2)
 
+    def test_bot_copy_is_selected_when_explicitly_enabled(self):
+        from unittest.mock import patch
+        entry = {"title": "Naruto",
+                 "episodes": {"1": {"7": {"message_id": 27}}},
+                 "pending_public_episode_posts": {
+                     "S01E07": {
+                         "poster": 70,
+                     },
+                 }}
+        marker = catalog_public_marker("Naruto", 1, 7)
+        async def get_messages(peer, ids):
+            if peer == "@private":
+                return NS(id=27, video=object(),
+                          document=NS(id=111, attributes=[]))
+            return NS(id=70, photo=object(), raw_text=marker)
+        client = NS(get_messages=get_messages)
+        bot = NS(copy_message=AsyncMock())
+        row = {"season": 1, "episode": 7,
+               "poster": NS(photo=object(), raw_text="Naruto"),
+               "video": video(111), "title": "Naruto"}
+        with patch.dict("os.environ", {"CINEX_ANIME_BOT_PUBLIC_COPY": "true"}), patch(
+             "film_relay.publication.post_public_video_by_bot_copy",
+             new=AsyncMock(return_value=NS(id=71))) as copy, patch(
+             "film_relay.publication.post_public_video_after_poster",
+             new=AsyncMock()) as personal, patch("asyncio.sleep", new=AsyncMock()):
+            asyncio.run(publish_catalog_episode_pairs(
+                client, bot, "@public", "@private", -1001234567890,
+                entry, [row], {"series": {"naruto": entry}},
+                lambda _: None, 0))
+        copy.assert_awaited_once()
+        personal.assert_not_awaited()
+
     def test_uncertain_video_send_never_retries_blindly(self):
         marker = catalog_public_marker("Naruto", 1, 7)
         entry = {"title": "Naruto",
