@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import os
+from pathlib import Path
 import re
 import sys
 
@@ -46,6 +48,45 @@ RIGHT_KEYS = (
 )
 
 
+def _candidates_from_verified_manifest(path, expected_publisher=""):
+    """Manifest has ONLY Telegram user IDs and public usernames, never tokens.
+
+    The inventory step used every GitHub secret value but dropped non-bot
+    secrets and sealed this token-free manifest to runner-local mode 0600.
+    """
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if payload.get("version") != 1 or not isinstance(payload.get("verified_bots"), list):
+        raise RuntimeError("invalid_repo_bot_manifest")
+    candidates = []
+    seen = set()
+    for row in payload["verified_bots"]:
+        if not isinstance(row, dict):
+            raise RuntimeError("invalid_repo_bot_manifest_entry")
+        user_id, username, label = row.get("id"), row.get("username"), row.get("label")
+        if (type(user_id) is not int or user_id <= 0
+            or not isinstance(username, str) or not USERNAME.fullmatch(username)
+            or not isinstance(label, str) or not re.fullmatch(r"[A-Z][A-Z0-9_]{0,127}", label)):
+            raise RuntimeError("invalid_repo_bot_identity")
+        if user_id in seen:
+            raise RuntimeError("duplicate_bot_identity_in_manifest")
+        seen.add(user_id)
+        if label == "CINEX_PUBLISH_BOT_TOKEN" and (
+            not expected_publisher or username.casefold() != expected_publisher.lstrip("@").casefold()
+        ):
+            raise RuntimeError("publisher_manifest_identity_mismatch")
+        if label == "CINEX_RADAR_BOT_TOKEN" and username.casefold() != "cineradarfr_bot":
+            raise RuntimeError("radar_manifest_identity_mismatch")
+        candidates.append({"id": user_id, "username": username, "label": label})
+    if not any(x["username"].casefold() == "cineradarfr_bot" for x in candidates):
+        raise RuntimeError("radar_identity_missing_or_unverified")
+    invalid = payload.get("invalid_secret_labels") or []
+    if (not isinstance(invalid, list) or
+        any(not isinstance(x,str) or not re.fullmatch(r"[A-Z][A-Z0-9_]{0,127}",x)
+            for x in invalid)):
+        raise RuntimeError("invalid_secret_label_manifest")
+    return candidates, [], invalid
+
+
 def discover_bot_candidates(env=None, identify=None):
     """Return (valid, unavailable, invalid); duplicates share ONE bot identity.
 
@@ -53,6 +94,11 @@ def discover_bot_candidates(env=None, identify=None):
     An S03 publisher is accepted ONLY when its expected identity matches.
     """
     env = os.environ if env is None else env
+    if env.get('CINEX_BOT_MANIFEST_PATH'):
+        return _candidates_from_verified_manifest(
+            env['CINEX_BOT_MANIFEST_PATH'],
+            expected_publisher=env.get('CINEX_PUBLISH_BOT_USERNAME', ''),
+        )
     identify = bot_identity if identify is None else identify
     candidates, invalid, unavailable = [], [], []
     seen = set()
@@ -222,7 +268,7 @@ async def attach(*, apply=False, pause=13):
                     raise RuntimeError("minimal_post_only_permission_not_confirmed")
                 _record_bot(bot)
                 verified += 1
-                if bot["label"] == "publisher":
+                if bot["label"] in ("publisher", "CINEX_PUBLISH_BOT_TOKEN"):
                     d1_query(
                         "UPDATE cine_private_stock_config SET publisher_bot_id=? "
                         "WHERE singleton=1 AND stock_chat_id=? AND owner_id=?",
