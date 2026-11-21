@@ -235,7 +235,9 @@ async def repair_channel(client, bot, category: str, public, private,
                         or not 0 < verified_video.id - verified_photo.id <= 3):
                     raise RuntimeError("Vidéo privée non vérifiée")
                 private_video_id = verified_video.id
-                private_messages.extend((verified_photo, verified_video))
+                if not any(int(m.id) == int(verified_photo.id) for m in private_messages):
+                    private_messages.append(verified_photo)
+                private_messages.append(verified_video)
                 report["private_created"] += 1
             target = private_message_link(private_id, private_video_id)
             # Old poster may be uneditable and far from its media. A new,
