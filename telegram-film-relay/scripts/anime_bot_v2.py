@@ -17,6 +17,7 @@ import sys
 from film_relay.anime_bot_queue import ingest_channel_updates, mark_bot_review
 from film_relay.anime_bot_aliases import resolve_alias, add_alias
 from film_relay.anime_bot_migration import migrate_legacy_catalogue
+from film_relay.anime_bot_monitor import health_snapshot, evaluate_alerts
 from film_relay.anime_bot_matching import (
     associate_anime_messages, consolidate_source_candidates,
     select_bot_anime_batches,
@@ -74,8 +75,11 @@ async def run(mode: str, *, state_path: str, max_poll_batches=20,
         state = BotStateStore(state_path).load()
         selected, report = prepare(state)
         # Only aggregate data. Never expose channel IDs, message IDs or file IDs.
-        return {k: v for k, v in report.items()
+        safe = {k: v for k, v in report.items()
                 if k not in ("source_review", "media_review")}
+        safe["health"] = health_snapshot(state)
+        safe["alerts"] = evaluate_alerts(state)
+        return safe
 
     if mode == "alias-apply":
         if os.environ.get("CINEX_ANIME_ALIAS_APPROVED") != "true":
