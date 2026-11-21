@@ -34,6 +34,12 @@ export async function handleClassicDeliveryStart(env,update){
  const link=await env.DB.prepare("SELECT token,source_chat_id,source_message_id,title FROM cine_classic_links WHERE token=? AND status='published'").bind(token).first();
  if(!link)return {handled:false}; // normal Action/Series download is handled elsewhere
  if(!safeChannel(link.source_chat_id)||!Number.isSafeInteger(Number(link.source_message_id)))return {handled:true,accepted:false};
+ // Repeated taps create new Telegram update IDs. Reject a second copy of
+ // the same film while the first request is active/recently fulfilled.
+ const recentSame=await env.DB.prepare(
+  "SELECT id FROM cine_classic_deliveries WHERE telegram_chat_id=? AND token=? AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','sent','needs_review') ORDER BY id DESC LIMIT 1"
+ ).bind(msg.chat.id,token).first();
+ if(recentSame)return {handled:true,accepted:true,duplicate:true};
  const count=await env.DB.prepare("SELECT COUNT(*) AS n FROM cine_classic_deliveries WHERE telegram_chat_id=? AND created_at>=datetime('now','-1 hour')").bind(msg.chat.id).first();
  if(Number(count?.n||0)>=4){
   await telegram(env,'sendMessage',{chat_id:msg.chat.id,text:'Trop de téléchargements récents. Réessaie plus tard.'}).catch(()=>{});
