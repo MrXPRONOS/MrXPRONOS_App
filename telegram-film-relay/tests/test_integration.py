@@ -144,6 +144,9 @@ class RelayEndToEndTests(unittest.TestCase):
                  patch("film_relay.mirror_policy.assert_torrent9_enabled"), \
                  patch("film_relay.rescue_channels.rescue_link_for",
                        return_value="https://t.me/+VerifiedRescueDemo123"), \
+                 patch("film_relay.unified_download.UnifiedLibrary.store",
+                       new=AsyncMock(return_value=
+                         "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)), \
                  patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
                 return asyncio.run(runner.execute())
 
@@ -179,6 +182,11 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertNotIn('http', client.sent[1].caption)
             self.assertNotIn('https://t.me/c/1020304050/102', client.sent[2].caption)
             self.assertEqual(client.sent[2].options['buttons'][0][0].url, 'https://t.me/c/1020304050/102')
+            self.assertEqual([len(row) for row in client.sent[2].options["buttons"]], [1, 1, 1, 1])
+            self.assertEqual(client.sent[2].options["buttons"][1][0].url,
+                             "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)
+            self.assertEqual(client.sent[2].options["buttons"][2][0].url,
+                             "https://t.me/+VerifiedRescueDemo123")
             self.assertIn('<b>', client.sent[2].caption)
             self.assertEqual(State(str(state)).seen(str(SRC)), 11)
             second_client = FakeTelegramClient(sample_messages())
