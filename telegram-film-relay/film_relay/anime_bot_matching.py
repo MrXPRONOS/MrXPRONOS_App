@@ -99,7 +99,7 @@ def associate_anime_messages(messages: dict):
                 # release schedule, synopsis) must not hijack its identity.
                 # Only an explicit title declaration changes series context.
                 title_declaration = re.search(
-                    r"(?i)^\\s*(?:titre|title|anim[eé])\\s*:\\s*",
+                    r"(?i)^\s*(?:titre|title|anim[eé])\s*:\s*",
                     str(record.get("text") or ""))
                 explicit = title if title_declaration and not problem else ""
                 if explicit and canonical_title(explicit) != active:
