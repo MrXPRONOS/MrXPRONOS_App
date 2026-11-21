@@ -290,6 +290,36 @@ async def _recover_episode_public_video(client, public_peer, poster_id: int,
     return None
 
 
+
+async def _recover_legacy_episode_pair(client, public_peer, document_id,
+                                       private_url: str, season: int, episode: int):
+    """Conservatively match an old, unreceipted public photo+video.
+
+    Historical posts predate CXPAIR markers. Require matching Telegram media
+    AND explicit SxxExx in the video caption AND a neighboring authentic
+    photo whose button links to the *exact* private episode. Otherwise never
+    infer an old receipt.
+    """
+    from .public_video_archive import (
+        has_verified_button, is_video_message, video_document_id,
+    )
+    if not hasattr(client, "iter_messages"):
+        return None
+    code = f"S{int(season):02d}E{int(episode):02d}".casefold()
+    async for msg in client.iter_messages(public_peer, limit=400):
+        if (not is_video_message(msg)
+                or video_document_id(msg) != document_id
+                or code not in (getattr(msg, "raw_text", "") or "").casefold()):
+            continue
+        # Original pipeline posts poster immediately before each episode.
+        poster_id = int(msg.id) - 1
+        poster = await client.get_messages(public_peer, ids=poster_id)
+        if (getattr(poster, "photo", None)
+                and has_verified_button(poster, private_url)):
+            return {"poster": poster_id, "video": int(msg.id)}
+    return None
+
+
 async def publish_catalog_episode_pairs(
     user_client, bot_client, public_peer, private_peer, private_id: int,
     series: dict, items: list, catalogue: dict, save_catalog, pause: float,
@@ -333,6 +363,17 @@ async def publish_catalog_episode_pairs(
                 continue
             raise RuntimeError(
                 f"Série {key} : reçu public incohérent ; aucune republication automatique")
+
+        recovered_legacy = await _recover_legacy_episode_pair(
+            user_client, public_peer, reference_doc, video_url,
+            int(season), int(episode))
+        if recovered_legacy:
+            receipts[key] = {
+                **recovered_legacy, "private_video": video_id,
+            }
+            staged.pop(key, None)
+            save_catalog(catalogue)
+            continue
 
         title = str(series.get("title") or row.get("title") or "")
         marker = catalog_public_marker(title, int(season), int(episode))
