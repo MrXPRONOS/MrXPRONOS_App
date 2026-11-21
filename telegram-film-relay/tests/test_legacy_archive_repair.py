@@ -12,6 +12,7 @@ from film_relay.ten_video_rotation import verify_existing_pair, unmatched_candid
 from film_relay.legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
+    shared_legacy_cover,
 )
 
 
@@ -71,6 +72,20 @@ class LegacyMediaIdentityTests(unittest.TestCase):
     def test_conflicting_episode_numbers_cannot_be_mislabeled(self):
         video = media(10, "Naruto S01E02", video=True, name="Naruto.S01E03.mkv")
         self.assertFalse(video_identity(video, "anime").safe)
+
+    def test_one_legacy_poster_cannot_archive_two_videos(self):
+        poster = media(10, "Saga Supergirl", photo=True)
+        first = media(11, "Saga Supergirl", video=True, doc=101)
+        second = media(12, "Saga Supergirl", video=True, doc=102)
+        self.assertTrue(shared_legacy_cover(
+            first, poster, [first, second], [poster], "films",
+            [first, second, poster],
+        ))
+        distinct = media(20, "Un autre film", video=True, doc=103)
+        self.assertFalse(shared_legacy_cover(
+            first, poster, [first, distinct], [poster], "films",
+            [first, distinct, poster],
+        ))
 
     def test_ambiguous_duplicate_legacy_covers_are_quarantined(self):
         video = media(300, "Le Voyageur", video=True)
