@@ -13,7 +13,7 @@ import os
 import re
 
 from .public_video_archive import is_video_message, video_document_id
-from .text import private_message_link
+from .radar_download_registry import RadarRegistry
 
 LOG = logging.getLogger("cinex.unified_download")
 VARIABLE = "CINEX_UNIFIED_PRIVATE_CHANNEL"
@@ -36,12 +36,14 @@ def configured_private_id(env=None) -> int | None:
 class UnifiedLibrary:
     """One per Telegram-client run, with document-ID deduplication."""
 
-    def __init__(self, client, *, env=None, history: int = 4000):
+    def __init__(self, client, *, env=None, history: int = 4000, registry=None):
         self.client = client
-        self.target_id = configured_private_id(env)
+        self.env = env if env is not None else os.environ
+        self.target_id = configured_private_id(self.env)
         self.history = history
         self.peer = None
         self.index: dict[int, int] | None = None
+        self.registry = registry
 
     async def prepare(self, *, public=None):
         if self.target_id is None:
@@ -78,7 +80,7 @@ class UnifiedLibrary:
         return self.peer
 
     async def store(self, source, *, category: str, title: str, public=None):
-        """Return a real https://t.me/c/... URL or None when not enabled.
+        """Return a verified CineRadar bot deep link or None when not enabled.
 
         Never return a URL for a failed send. Re-read an existing receipt or a
         newly sent message to verify that the document is identical.
@@ -87,6 +89,12 @@ class UnifiedLibrary:
             return None
         if category not in _ALLOWED:
             raise ValueError("Catégorie centrale inconnue.")
+        # CineRadar is the download client, NOT a direct private-channel link.
+        handle = getattr(public, "username", None)
+        if not isinstance(handle, str) or not handle:
+            raise RuntimeError("Téléchargement CineRadar : canal public sans @username fiable.")
+        handle = "@" + handle.lstrip("@")
+        registry = self.registry or RadarRegistry(env=self.env if hasattr(self, "env") else None)
         if not is_video_message(source) or getattr(source, "noforwards", False):
             raise RuntimeError("Média privé central : vidéo source inaccessible ou protégée.")
         doc_id = video_document_id(source)
@@ -99,7 +107,9 @@ class UnifiedLibrary:
             existing = await self.client.get_messages(self.peer, ids=mid)
             if (is_video_message(existing)
                     and video_document_id(existing) == doc_id):
-                return private_message_link(self.target_id, mid)
+                return registry.register(
+                    private_channel=self.target_id, message_id=mid,
+                    title=title, public_handle=handle)
             raise RuntimeError("Reçu de vidéothèque centrale incohérent ; aucun nouveau lien publié.")
 
         description = escape((title or "Vidéo CinéX").strip()[:700])
@@ -116,4 +126,6 @@ class UnifiedLibrary:
         self.index[doc_id] = mid
         LOG.info("CinéX bibliothèque centrale : vidéo confirmée catégorie=%s message=%s",
                  category, mid)
-        return private_message_link(self.target_id, mid)
+        return registry.register(
+            private_channel=self.target_id, message_id=mid,
+            title=title, public_handle=handle)
