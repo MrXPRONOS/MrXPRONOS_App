@@ -173,5 +173,71 @@ class CentralLibraryTests(unittest.TestCase):
                              for label, url in row))
 
 
+
+
+class RadarRegistrationTests(unittest.TestCase):
+    def test_existing_token_registered_on_verified_bot_stock(self):
+        known = "ABCDEFGHIJKLMNOPQRSTUVWX"
+        statements = []
+        class Session:
+            def post(self, url, *, headers, json, timeout):
+                statements.append(json["sql"])
+                sql = json["sql"]
+                if "FROM cine_private_stock_config" in sql:
+                    rows = [{"stock_chat_id": str(CENTRAL), "radar_bot_id": 1234}]
+                elif "FROM bot_settings" in sql:
+                    rows = [{"value": "1"}]
+                else:
+                    rows = [{"token": known, "status": "published"}]
+                return NS(ok=True, json=lambda: {"success": True,
+                    "result": [{"success": True, "results": rows}]})
+        registry = RadarRegistry(env={"CLOUDFLARE_API_TOKEN": "testtoken"},
+                                 session=Session())
+        link = registry.register(private_channel=CENTRAL, message_id=99,
+                                 title="Le film", public_handle="@CineXFilms_vf")
+        self.assertEqual(link, BOT_LINK)
+        self.assertEqual(len(statements), 3)
+        self.assertFalse(any("INSERT" in q for q in statements))
+
+    def test_mismatched_stock_channel_prevents_bot_link(self):
+        class Session:
+            def post(self, url, *, headers, json, timeout):
+                return NS(ok=True, json=lambda: {"success": True,
+                    "result": [{"success": True, "results": [
+                        {"stock_chat_id": "-1004000000000", "radar_bot_id": 1234}
+                    ]}]})
+        registry = RadarRegistry(env={"CLOUDFLARE_API_TOKEN": "testtoken"},
+                                 session=Session())
+        with self.assertRaisesRegex(RuntimeError, "stock privé"):
+            registry.register(private_channel=CENTRAL, message_id=99,
+                              title="Le film", public_handle="@CineXFilms_vf")
+
+    def test_new_registration_gets_receipt_and_reuses_document_key(self):
+        saved_token = "ABCDEFGHIJKLMNOPQRSTUVWX"
+        statements = []
+        class Session:
+            def post(self, url, *, headers, json, timeout):
+                sql = json["sql"]
+                statements.append(sql)
+                if "FROM cine_private_stock_config" in sql:
+                    rows = [{"stock_chat_id": str(CENTRAL), "radar_bot_id": 1234}]
+                elif "FROM bot_settings" in sql:
+                    rows = [{"value": "1"}]
+                elif "INSERT OR IGNORE" in sql:
+                    rows = []
+                elif statements.count("SELECT token,status FROM cine_classic_links WHERE source_chat_id=? AND source_message_id=? LIMIT 1") == 1:
+                    rows = []
+                else:
+                    rows = [{"token": saved_token, "status": "published"}]
+                return NS(ok=True, json=lambda: {"success": True,
+                    "result": [{"success": True, "results": rows}]})
+        registry = RadarRegistry(env={"CLOUDFLARE_API_TOKEN": "testtoken"},
+                                 session=Session())
+        url = registry.register(private_channel=CENTRAL, message_id=555,
+                                title="Episode 7", public_handle="@seriesvf_cinex")
+        self.assertEqual(url, BOT_LINK)
+        self.assertEqual(sum("INSERT OR IGNORE" in sql for sql in statements), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
