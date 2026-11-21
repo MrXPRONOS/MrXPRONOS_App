@@ -46,6 +46,17 @@ test('classic deep link queues exactly one private copy and is idempotent',async
   assert.deepEqual(methods,['sendMessage']);
  }finally{globalThis.fetch=old;db.close()}
 });
+test('two separate Telegram taps for the same film never queue duplicate copies',async()=>{
+ const {db,env}=fixture();const old=globalThis.fetch;const methods=[];
+ globalThis.fetch=async url=>{methods.push(String(url).split('/').at(-1));return Response.json({ok:true,result:{message_id:99}})};
+ try{
+  assert.equal((await handleClassicDeliveryStart(env,request(321,110))).accepted,true);
+  const repeated=await handleClassicDeliveryStart(env,request(321,111));
+  assert.equal(repeated.duplicate,true);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM cine_classic_deliveries").get().n,1);
+  assert.deepEqual(methods,['sendMessage']);
+ }finally{globalThis.fetch=old;db.close()}
+});
 test('queue copies only from a verified negative library id into a positive private chat',async()=>{
  const {db,env}=fixture();const old=globalThis.fetch;const calls=[];
  globalThis.fetch=async(url,options)=>{calls.push({method:String(url).split('/').at(-1),body:JSON.parse(options.body)});return Response.json({ok:true,result:{message_id:66}})};
