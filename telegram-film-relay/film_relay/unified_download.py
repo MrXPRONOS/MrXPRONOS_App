@@ -101,7 +101,7 @@ class UnifiedLibrary:
             LOG.info("CinéX bibliothèque centrale : %s vidéos distinctes indexées", len(self.index))
         return self.peer
 
-    async def store(self, source, *, category: str, title: str, public=None):
+    async def store(self, source, *, category: str, title: str, public=None, poster=None, description: str = ""):
         """Return a verified CineRadar bot deep link or None when not enabled.
 
         Never return a URL for a failed send. Re-read an existing receipt or a
@@ -134,6 +134,31 @@ class UnifiedLibrary:
                     title=title, public_handle=handle)
             raise RuntimeError("Reçu de vidéothèque centrale incohérent ; aucun nouveau lien publié.")
 
+        # For NEW uploads with a source poster, the verified central archive
+        # must contain the original PHOTO + readable description followed by
+        # its VIDEO. The marker permits safe resumption if the photo succeeded
+        # but a later step failed. Existing video receipts are never duplicated.
+        if poster is not None:
+            if not getattr(poster, "photo", None) or getattr(poster, "noforwards", False):
+                raise RuntimeError("Affiche du stock central absente ou protégée.")
+            from .publication import rich_caption
+            marker = "#CXSTOCK_" + hashlib.sha256(str(doc_id).encode()).hexdigest()[:16]
+            details = str(description or getattr(poster, "raw_text", "") or title).strip()[:650]
+            cover_caption = rich_caption(details, private=True) + "\n" + marker
+            recent = [m async for m in self.client.iter_messages(self.peer, limit=1)]
+            previous = recent[0] if recent else None
+            if (previous and getattr(previous, "photo", None)
+                    and marker in str(getattr(previous, "raw_text", "") or "")):
+                LOG.info("CinéX stock: affiche en attente réutilisée sans doublon")
+            else:
+                cover = await self.client.send_file(
+                    self.peer, poster.media, caption=cover_caption,
+                    parse_mode="html",
+                )
+                checked = await self.client.get_messages(self.peer, ids=int(cover.id))
+                if (not getattr(checked, "photo", None)
+                        or marker not in str(getattr(checked, "raw_text", "") or "")):
+                    raise RuntimeError("Affiche du stock central non vérifiée ; vidéo non envoyée.")
         description = escape((title or "Vidéo CinéX").strip()[:700])
         label = category.title()
         caption = f"🎞️ <b>{description}</b>\n📚 CinéX · {label}"
