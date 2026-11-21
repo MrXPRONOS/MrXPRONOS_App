@@ -1,0 +1,62 @@
+name: CinéX T04 - sauvegarde chiffrée des fichiers GitHub
+# Project-owned catalogue JSON, posters and media ALREADY in GitHub.
+# Never fetches user-session Telegram messages or publishes plaintext media.
+on:
+  schedule:
+    - cron: '12 3 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-t04-github-files-backup.yml'
+      - 'cinecanaux/scripts/cinex_github_files_backup.py'
+      - 'cinecanaux/backup-public-key.txt'
+      - 'cinecanaux/assets/**'
+      - 'telegram-film-relay/state/**'
+      - 'telegram-film-relay/config/**'
+      - 'telegram-film-relay/assets/**'
+
+permissions:
+  contents: read
+concurrency:
+  group: cinex-t04-github-files-sealed
+  cancel-in-progress: false
+
+jobs:
+  sealed_files:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout snapshot with no persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python cryptography
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'cryptography==46.0.3'
+      - name: Pack and encrypt existing CinéX GitHub files before upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          out="$RUNNER_TEMP/cinex-github-files-sealed"
+          mkdir -p "$out"
+          python3 cinecanaux/scripts/cinex_github_files_backup.py pack \
+            --root . --public-key cinecanaux/backup-public-key.txt \
+            --out "$out/files.enc"
+          test -s "$out/files.enc"
+          echo "CineX: authenticated encrypted archive of existing repository files created."
+      - name: Upload encrypted GitHub files snapshot ONLY
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-t04-github-files-sealed-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cinex-github-files-sealed/files.enc
+          retention-days: 90
+          compression-level: 0
+          if-no-files-found: error
+      - name: Declare successful GitHub backup
+        run: |
+          echo "CINEX_GITHUB_FILES_SEALED_UPLOAD_OK"
+          echo "Only existing repository file bytes included. Unavailable Telegram videos cannot be recovered from this archive."
