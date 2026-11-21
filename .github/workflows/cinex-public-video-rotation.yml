@@ -3,6 +3,11 @@ name: CineX - Rotation biquotidienne des 10 videos par canal
 on:
   workflow_dispatch:
     inputs:
+      repair:
+        description: 'Réparer les anciennes archives privées/affiches (sans supprimer de vidéos)'
+        required: false
+        type: boolean
+        default: false
       apply:
         description: 'Retirer uniquement les anciennes videos déjà présentes avec fiche et preuve en videotheque (false = simulation)'
         required: false
@@ -82,6 +87,17 @@ jobs:
         id: rescue_links
         continue-on-error: true
         run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
+      - name: Rattraper les archives anciennes (aucune suppression)
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.repair == true) || (github.event_name == 'schedule' && vars.CINEX_LEGACY_REPAIR_ENABLED == 'true') }}
+        env:
+          RUN_REPAIR_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' }}
+        shell: bash
+        run: |
+          if [[ "$RUN_REPAIR_APPLY" != "true" ]]; then
+            echo "::error::Réparation réelle refusée : vérifier les trois autorisations CinéX."
+            exit 1
+          fi
+          python -m film_relay.legacy_archive_repair --apply --max-repaired 2
       - name: Analyser puis archiver
         env:
           RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
