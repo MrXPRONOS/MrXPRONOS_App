@@ -1,3 +1,4 @@
+import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // CinéX classic films: safe private Telegram copies from verified library media.
 // Public video/poster messages are never deleted; only the bot's private copies.
@@ -62,8 +63,9 @@ export async function processClassicDeliveryQueue(env,{limit=3}={}){
   if(!await enabled(env))break;
   if(!safeChat(row.telegram_chat_id)||!safeChannel(row.source_chat_id)||!Number.isSafeInteger(Number(row.source_message_id)))continue;
   const ownerCopy=safeChat(row.owner_chat_id)&&safeChat(row.owner_message_id);
-  const sendSource=ownerCopy?Number(row.owner_chat_id):row.source_chat_id;
-  const sendMessageId=ownerCopy?Number(row.owner_message_id):row.source_message_id;
+  const stock=await sourceFromPrivateStock(env,row.source_chat_id,row.source_message_id);
+  const sendSource=stock.fromStock?stock.chatId:(ownerCopy?Number(row.owner_chat_id):row.source_chat_id);
+  const sendMessageId=stock.fromStock?stock.messageId:(ownerCopy?Number(row.owner_message_id):row.source_message_id);
   const lock=await env.DB.prepare("UPDATE cine_classic_deliveries SET status='sending',lock_until=datetime('now','+3 minutes'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='queued'").bind(row.id).run();
   if(Number(lock.meta?.changes||0)!==1)continue;
   let response;
