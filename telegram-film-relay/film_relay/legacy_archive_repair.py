@@ -297,11 +297,11 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
     summary_path = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as summary:
-            summary.write("\\n### CinéX — Rattrapage sûr des anciennes vidéos\\n")
-            summary.write("| Canal | Anciennes | Reconnues | Vidéos privées créées | Liens publics vérifiés | Sans affiche | Erreurs |\\n")
-            summary.write("|---|---:|---:|---:|---:|---:|---:|\\n")
+            summary.write("\n### CinéX — Rattrapage sûr des anciennes vidéos\n")
+            summary.write("| Canal | Anciennes | Reconnues | Vidéos privées créées | Liens publics vérifiés | Sans affiche | Erreurs |\n")
+            summary.write("|---|---:|---:|---:|---:|---:|---:|\n")
             for row in reports:
-                summary.write("| {category} | {older} | {recognized} | {private_created} | {public_linked} | {unmatched} | {errors} |\\n".format(
+                summary.write("| {category} | {older} | {recognized} | {private_created} | {public_linked} | {unmatched} | {errors} |\n".format(
                     **{k: row.get(k, 0) for k in (
                         "category", "older", "recognized", "private_created",
                         "public_linked", "unmatched", "errors")}))
