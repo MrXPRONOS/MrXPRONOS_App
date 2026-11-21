@@ -120,8 +120,8 @@ class LegacyMediaIdentityTests(unittest.TestCase):
             async def get_messages(self, channel, ids):
                 return [private_poster] if isinstance(ids, list) else private_video
 
-        with patch("film_relay.ten_video_rotation.rescue_link_for", return_value=rescue), \\
-             patch("film_relay.ten_video_rotation.film_folder_url", return_value=folder):
+        with (patch("film_relay.ten_video_rotation.rescue_link_for", return_value=rescue),
+              patch("film_relay.ten_video_rotation.film_folder_url", return_value=folder)):
             matched = asyncio.run(verify_existing_pair(
                 FakeClient(), "public", "private", -1004392607284,
                 public_video, [public_poster], "films"))
