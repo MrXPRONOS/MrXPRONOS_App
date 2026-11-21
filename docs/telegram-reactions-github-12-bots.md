@@ -91,3 +91,7 @@ ORDER BY bot_slot,state;
 ```
 
 Attention : `blocked` indique qu'un appel Telegram a été refusé ; l'ajout d'un nouveau bot ne peut pas corriger automatiquement un refus de droits ou un canal dans lequel le bot n'a pas accès au message.
+
+## Ordre de priorité des publications (21 novembre 2026)
+
+Les deux réactions du Worker Ciné Radar et les réactions supplémentaires du workflow GitHub traitent maintenant **les nouvelles publications avant les anciennes** : numéros de publication décroissants (`DESC`). En cas de limite de traitement, toute la capacité du passage va aux tâches les plus récentes admissibles, sans réserver une part aux anciennes. Une fois les tâches récentes traitées, les anciennes restent en attente et sont traitées progressivement. Dans chaque publication, Ciné Radar précède Canal Bots ; l'alternance ❤️/👍 et la protection contre les doublons sont conservées. La limite représente un nombre d'**actions de réaction**, pas un nombre de messages indépendants, car plusieurs bots réagissent à un message.
