@@ -71,6 +71,23 @@ class RadarRegistry:
         description = " ".join(str(title or "").split())[:180]
         if len(description) < 3:
             raise ValueError("Titre de téléchargement vide.")
+        # Bot delivery copies only from the owner-verified stock channel.
+        # A Telegram user session being able to upload is not proof that the
+        # CineRadar bot can copy its media. Fail closed on a different channel.
+        stock = self._query(
+            "SELECT stock_chat_id,radar_bot_id FROM cine_private_stock_config "
+            "WHERE singleton=1 AND ready=1 LIMIT 1"
+        ).get("results") or []
+        if (len(stock) != 1 or str(stock[0].get("stock_chat_id")) != str(private_channel)
+                or int(stock[0].get("radar_bot_id") or 0) <= 0):
+            raise RuntimeError(
+                "Le canal central ne correspond pas au stock privé vérifié du bot CineRadar.")
+        gate = self._query(
+            "SELECT value FROM bot_settings "
+            "WHERE setting_key='cine_delivery_enabled' LIMIT 1"
+        ).get("results") or []
+        if len(gate) != 1 or str(gate[0].get("value")) != "1":
+            raise RuntimeError("Téléchargements CineRadar désactivés.")
         existing = self._query(
             "SELECT token,status FROM cine_classic_links "
             "WHERE source_chat_id=? AND source_message_id=? LIMIT 1",
