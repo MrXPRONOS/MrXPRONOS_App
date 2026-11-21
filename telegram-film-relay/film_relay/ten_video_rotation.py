@@ -252,6 +252,10 @@ async def execute(*, apply: bool = False, max_deleted: int = 10,
     from .runner import resolve_peer
     if purge_unmatched and not apply:
         LOG.info("Simulation : candidats non reconnus seulement ; aucune suppression")
+    if (apply and purge_unmatched
+            and os.getenv("CINEX_MANUAL_PURGE_REQUEST", "").lower() != "true"):
+        raise RuntimeError(
+            "Purge inconnus interdite hors workflow manuel explicitement confirmé")
     if apply and not all(os.getenv(v, "").lower() == "true" for v in
                          ("CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
                           "CINEX_RIGHTS_VERIFIED")):
@@ -286,6 +290,19 @@ async def execute(*, apply: bool = False, max_deleted: int = 10,
     finally:
         await client.disconnect()
     LOG.info("RÉSULTAT GLOBAL %s", reports)
+    summary_path = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as summary:
+            summary.write("\n### CinéX — Rotation et nettoyage des anciennes vidéos\n")
+            summary.write("| Canal | Anciennes | Supprimées | Inconnues supprimées | "
+                          "Inconnues détectées | Non vérifiées |\n")
+            summary.write("|---|---:|---:|---:|---:|---:|\n")
+            for row in reports:
+                summary.write("| {category} | {older} | {deleted} | {purged_unmatched} | "
+                              "{unmatched_candidates} | {unverified} |\n".format(
+                    **{key: row.get(key, 0) for key in (
+                        "category", "older", "deleted", "purged_unmatched",
+                        "unmatched_candidates", "unverified")}))
     if any(report.get("error") for report in reports):
         raise RuntimeError("Une ou plusieurs catégories nécessitent une correction")
     return reports
