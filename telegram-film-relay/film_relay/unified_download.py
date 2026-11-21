@@ -8,6 +8,7 @@ No automatic creation, invitations, downloads to disk, or deletions.
 from __future__ import annotations
 
 from html import escape
+import hashlib
 import logging
 import os
 import re
@@ -21,15 +22,36 @@ _ALLOWED = {"films", "series", "anime", "action", "comedie", "desir"}
 
 
 def configured_private_id(env=None) -> int | None:
+    """Opt in only to the owner-confirmed private channel (SHA-256 receipt).
+
+    If GitHub's variable has not yet been configured, use only the *already
+    verified* CineRadar stock ID from D1, provided that its SHA-256 equals
+    the explicit owner-approved digest from the workflow. Do not discover
+    arbitrary Telegram channels or silently accept a different ID.
+    """
     env = env if env is not None else os.environ
     value = str(env.get(VARIABLE, "") or "").strip()
-    if not value:
+    approved = str(env.get("CINEX_UNIFIED_STOCK_APPROVED_SHA256", "") or "").strip().lower()
+    if not value and not approved:
         return None
+    if approved and not re.fullmatch(r"[a-f0-9]{64}", approved):
+        raise RuntimeError("Empreinte du canal central invalide.")
+    if not value:
+        registry = RadarRegistry(env=env)
+        rows = registry._query(
+            "SELECT stock_chat_id FROM cine_private_stock_config "
+            "WHERE singleton=1 AND ready=1 AND radar_bot_id>0 LIMIT 1"
+        ).get("results") or []
+        if len(rows) != 1:
+            raise RuntimeError("Stock prive CineRadar non valide : aucune destination active.")
+        value = str(rows[0].get("stock_chat_id") or "")
     if not re.fullmatch(r"-100[0-9]{5,}", value):
         raise RuntimeError(
             VARIABLE + " doit être l'identifiant numérique exact -100... "
             "du nouveau canal privé (aucune déduction depuis son nom)."
         )
+    if approved and hashlib.sha256(value.encode("utf-8")).hexdigest() != approved:
+        raise RuntimeError("Le canal privé ne correspond pas à celui confirmé par le propriétaire.")
     return int(value)
 
 
