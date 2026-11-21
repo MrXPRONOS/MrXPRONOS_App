@@ -7,6 +7,8 @@ on:
       - '.github/workflows/telegram-discovery-daily.yml'
       - 'telegram-film-relay/tests/test_cinex_workflow_cooldown.py'
       - 'telegram-film-relay/tests/test_private_stock_provision.py'
+      - 'telegram-film-relay/tests/test_add_private_stock_bots.py'
+      - 'telegram-film-relay/scripts/add_private_stock_bots.py'
       - 'telegram-film-relay/scripts/provision_private_stock.py'
   push:
     branches: [main]
@@ -34,3 +36,4 @@ jobs:
           python -m pip install --disable-pip-version-check --quiet requests==2.32.5
           python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_workflow_cooldown.py' -v
           python -m unittest discover -s telegram-film-relay/tests -p 'test_private_stock_provision.py' -v
+          python -m unittest discover -s telegram-film-relay/tests -p 'test_add_private_stock_bots.py' -v
