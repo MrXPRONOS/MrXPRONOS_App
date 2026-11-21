@@ -77,12 +77,14 @@ système ; le préflight le refuse.
 
 ## Conflits détectés avec les autres travaux
 
-- **PR #578** — *CinéX vidéothèque privée commune et bouton Télécharger*,
-  en développement parallèle. Recouvrement avec notre PR sur
-  `anime_catalog.py`, `category_runner.py`, `publication.py`.
-  Cet autre projet introduit une **vidéothèque centrale**, qui doit être
-  prise en compte au moment du basculement pour éviter deux copies ou
-  des liens Télécharger incompatibles.
+- **PR #578 fusionnée dans main le 21/11/2026 vers 13:53 UTC** —
+  *CinéX vidéothèque privée commune et bouton Télécharger* :
+  **conflit réel de fusion GitHub** sur `anime_catalog.py`,
+  `category_runner.py` et `publication.py`. Les nouveaux liens
+  Télécharger passent par la vidéothèque commune / CineRadarFr_Bot.
+  **Ne pas forcer le merge ou revenir à l'ancienne version de ces fichiers.**
+  Réconcilier soigneusement l'antidoublon Anime, les reçus publics,
+  `UnifiedLibrary` et les boutons de téléchargement avant tout déploiement.
 - **PR #388** — *réactions après nouveau film* (ancienne PR encore ouverte),
   recouvrement avec `bot_http.py` et `category_runner.py`.
 - Les modifications déjà sur `main` concernent aussi les webhooks et la
