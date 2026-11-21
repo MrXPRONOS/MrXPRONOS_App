@@ -90,7 +90,9 @@ export async function ingestPinUpdate(env,update){
  const known=await env.DB.prepare("SELECT message_id FROM cine_pinned_posts WHERE kind=? AND chat_id=? AND message_id=? AND active=1")
   .bind(channel.kind,String(post.chat.id),Number(post.message_id)).first();
  if(!known)return false;
- return insertPin(env,asPin(channel,post,"edited_pin",post.chat.id));
+ // D1 source CHECK permits getchat/pin_event/owner_forward only.
+ // Edits received from Telegram are also webhook pin events, not a fourth source.
+ return insertPin(env,asPin(channel,post,"pin_event",post.chat.id));
 }
 export async function ingestOwnerForward(env,message){
  if(message?.chat?.type!=="private"||!message?.from?.id)return {handled:false};
