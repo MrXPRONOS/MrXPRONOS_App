@@ -31,6 +31,7 @@ from .anime_policy import (complete_anime_seasons, progressive_anime_seasons,
 from .anime_dedup import (deduplicate_anime_candidates, pending_ongoing_episodes,
                           reconcile_known_source_duplicates)
 from .anime_cadence import cadence_from_message
+from .anime_archive_queue import recover_archive_queue
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -557,6 +558,13 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await asyncio.sleep(pause)
         all_candidates = await recover_active_rows(
             client, sources, all_candidates, catalogue.get("active_batch"))
+        archive_queue_enabled = os.getenv(
+            "CINEX_ANIME_ARCHIVE_QUEUE_ENABLED", "").lower() in ("true", "1", "yes")
+        if archive_queue_enabled:
+            recovered_archive = await recover_archive_queue(
+                client, sources, catalogue, all_candidates, limit=80)
+            LOG.info("Anime archive : %s queued old episodes recovered by exact source ID",
+                     recovered_archive)
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
         unique_candidates, dedup_report = deduplicate_anime_candidates(
             all_candidates, catalogue)
@@ -901,7 +909,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 break  # An entire complete season retains exclusive priority.
 
         if publish:
-            scan_progress = finalize_scan(catalogue, scan_plans, all_candidates)
+            scan_progress = finalize_scan(
+                catalogue, scan_plans, all_candidates,
+                queue_enabled=archive_queue_enabled)
             audit = episode_audit(catalogue, all_candidates, category="anime_catalog",
                                   ignored_unnumbered=unnumbered_skipped,
                                   eligibility_reasons=eligibility_reasons)
