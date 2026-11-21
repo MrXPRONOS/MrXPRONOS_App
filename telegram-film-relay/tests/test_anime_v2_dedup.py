@@ -73,7 +73,7 @@ class AnimeCrossSourceDedupTests(unittest.TestCase):
         rows = [
             row("naruto", 7, "a", 401),
             row("naruto", 7, "b", 402, season=2),
-            row("bleach", 7, "c", 401),
+            row("bleach", 7, "c", 403),
         ]
         unique, report = deduplicate_anime_candidates(rows, {})
         self.assertEqual(len(unique), 3)
