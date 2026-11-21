@@ -92,7 +92,7 @@ class CentralLibraryTests(unittest.TestCase):
         with (patch("film_relay.runner.resolve_peer", return_value=client.target),
               patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
             result = asyncio.run(library.store(
-                media(1, 555), category="anime", title="Episode 3"))
+                media(1, 555), category="anime", title="Episode 3", public=NS(id=-1009999999999, username="CineXAnimeFR")))
         self.assertEqual(result, BOT_LINK)
         self.assertEqual(client.sent, [])
 
@@ -106,7 +106,7 @@ class CentralLibraryTests(unittest.TestCase):
               patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
             with self.assertRaisesRegex(RuntimeError, "incohérent"):
                 asyncio.run(library.store(
-                    media(1, 555), category="films", title="Film"))
+                    media(1, 555), category="films", title="Film", public=NS(id=-1009999999999, username="CineXFilms_vf")))
         self.assertFalse(client.sent)
 
     def test_private_channel_must_be_admin_accessible(self):
@@ -142,7 +142,7 @@ class CentralLibraryTests(unittest.TestCase):
               patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
             with self.assertRaisesRegex(RuntimeError, "non vérifiée"):
                 asyncio.run(library.store(
-                    media(1, 700), category="series", title="Episode"))
+                    media(1, 700), category="series", title="Episode", public=NS(id=-1009999999999, username="seriesvf_cinex")))
 
     def test_download_button_points_to_central_receipt(self):
         main = "https://t.me/c/4392607284/20"
