@@ -87,8 +87,9 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
     if download_url:
         # This points to a verified copy in the owner's central private
         # Telegram library. Never label an unverified/external URL as a download.
-        if not download_url.startswith("https://t.me/c/"):
-            raise ValueError("Téléchargement : lien Telegram privé vérifié requis.")
+        from .radar_download_registry import is_bot_download_url
+        if not is_bot_download_url(download_url):
+            raise ValueError("Téléchargement : véritable lien du bot CinéRadar requis.")
         buttons.append([("⬇️ TÉLÉCHARGER LA VIDÉO", download_url)])
     rows = add_rescue_tuple_row(buttons, public_peer)
     rows.append([(FILM_FOLDER_BUTTON_TEXT, film_folder_url())])
