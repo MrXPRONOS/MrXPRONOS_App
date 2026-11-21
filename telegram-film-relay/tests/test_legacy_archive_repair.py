@@ -168,6 +168,35 @@ class AdjacentLegacyPairTests(unittest.TestCase):
         self.assertIsNotNone(pair)
         self.assertIs(pair.poster, another)
 
+    def test_untitled_neighbour_pair_gets_explicit_non_fabricated_label(self):
+        cover = media(210, "", photo=True)
+        video = media(211, "Vidéo complète", video=True, name="video.mp4")
+        paired = find_neighbor_pair(video, [cover, video], "films")
+        self.assertIsNotNone(paired)
+        self.assertEqual(paired.identity.kind, "unknown")
+        self.assertEqual(paired.identity.title, "contenu sans titre 211")
+        self.assertIn("contenu sans titre 211",
+                      cover_caption(cover, video, "films", identity=paired.identity))
+
+    def test_description_only_text_not_used_as_movie_title(self):
+        cover = media(220, "", photo=True)
+        text = media(221, "Synopsis : Une histoire de vengeance")
+        video = media(222, "Vidéo complète", video=True, name="video.mp4")
+        paired = find_neighbor_pair(video, [cover, text, video], "films")
+        self.assertIsNotNone(paired)
+        self.assertEqual(paired.identity.kind, "unknown")
+
+    def test_link_preview_still_counts_as_plain_text(self):
+        class MessageMediaWebPage:
+            pass
+        cover = media(230, "🎬 La Ville de Jade", photo=True)
+        text = media(231, "Le résumé avec https://youtu.be/dQw4w9WgXcQ")
+        text.media = MessageMediaWebPage()
+        video = media(232, "Vidéo complète", video=True)
+        paired = find_neighbor_pair(video, [cover, text, video], "films")
+        self.assertIsNotNone(paired)
+        self.assertEqual(paired.mode, "poster_text_video")
+
     def test_conflicting_film_part_not_reassigned_by_proximity(self):
         photo = media(10, "Film Partie 2", photo=True)
         video = media(11, "Film Partie 1", video=True, name="film.partie.1.mkv")
