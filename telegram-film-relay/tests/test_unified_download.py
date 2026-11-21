@@ -52,9 +52,14 @@ class DummyClient:
             return media(ids, -1)
         return result
     async def send_file(self, channel, video, *, caption, parse_mode):
-        self.sent.append(len(self.rows)+1)
-        msg = media(self.sent[-1], self.current_doc)
-        self.rows.append(msg)
+        mid = max((m.id for m in self.rows), default=0) + 1
+        self.sent.append(mid)
+        if getattr(video, "is_poster", False):
+            msg = NS(id=mid, photo=object(), media=video, raw_text=caption,
+                     video=None, document=None)
+        else:
+            msg = media(mid, self.current_doc)
+        self.rows.insert(0, msg)
         return NS(id=msg.id)
 
 
@@ -109,6 +114,49 @@ class CentralLibraryTests(unittest.TestCase):
                         public=NS(id=-1001234567890, username='CineXFilms_vf')))
                 self.assertEqual(result, BOT_LINK)
                 self.assertEqual(len(client.sent), 1)
+
+    def test_new_stock_contains_real_described_poster_before_video_and_no_extra_copy(self):
+        client = DummyClient()
+        client.current_doc = 700
+        registry = DummyRegistry()
+        lib = UnifiedLibrary(client, env={
+            "CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)
+        }, registry=registry)
+        poster = NS(photo=object(), noforwards=False,
+                    media=NS(is_poster=True),
+                    raw_text="Supergirl France 2026\\nGenre : Aventure")
+        kwargs = dict(category="films", title="Supergirl", poster=poster,
+                      description=poster.raw_text,
+                      public=NS(id=-1001234567890, username="CineXFilms_vf"))
+        with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+              patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
+            url = asyncio.run(lib.store(media(1, 700), **kwargs))
+            again = asyncio.run(lib.store(media(1, 700), **kwargs))
+        self.assertEqual(url, BOT_LINK)
+        self.assertEqual(again, BOT_LINK)
+        self.assertEqual(len(client.sent), 2)
+        chronological = list(reversed(client.rows))
+        self.assertTrue(chronological[0].photo)
+        self.assertIn("Genre : Aventure", chronological[0].raw_text)
+        self.assertIn("#CXSTOCK_", chronological[0].raw_text)
+        self.assertEqual(chronological[1].document.id, 700)
+        self.assertEqual(len(registry.calls), 2)
+        self.assertEqual(registry.calls[0]["message_id"], chronological[1].id)
+
+    def test_invalid_source_cover_blocks_any_central_video_upload(self):
+        client = DummyClient()
+        client.current_doc = 700
+        lib = UnifiedLibrary(client, env={
+            "CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)
+        }, registry=DummyRegistry())
+        invalid = NS(photo=None, noforwards=False, media=NS(is_poster=True))
+        with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+              patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
+            with self.assertRaisesRegex(RuntimeError, "Affiche"):
+                asyncio.run(lib.store(media(1, 700), category="films",
+                          title="Film", poster=invalid,
+                          public=NS(id=-1001234567890, username="CineXFilms_vf")))
+        self.assertEqual(client.sent, [])
 
     def test_existing_document_is_reused_without_second_upload(self):
         client = DummyClient(rows=[media(25, 555)])
