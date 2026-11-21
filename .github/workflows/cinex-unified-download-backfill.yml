@@ -1,6 +1,11 @@
 name: 'CineX - Vidéothèque centrale : diagnostic et copies limitées'
 
 on:
+  # One-shot NON-DESTRUCTIVE diagnostic when the owner-confirmed channel goes live.
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-unified-stock-diagnostic-once'
   workflow_dispatch:
     inputs:
       apply:
@@ -36,6 +41,7 @@ jobs:
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
       CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_STOCK_APPROVED_SHA256: '57b1f0a97d7db124ab9f72f470f7d63b92960e06b876397795e5780f5c5cc2b8'
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
       CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
       TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
@@ -64,10 +70,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          [[ "$CINEX_UNIFIED_PRIVATE_CHANNEL" =~ ^-100[0-9]{5,}$ ]] || {
-            echo "::error::Ajouter l'identifiant exact -100... dans CINEX_UNIFIED_PRIVATE_CHANNEL."
-            exit 1
-          }
+          # The private ID can be read from the existing verified CineRadar D1
+          # record, but only when its SHA-256 matches the owner's confirmation.
+          python3 - <<'PY'
+          from film_relay.unified_download import configured_private_id
+          approved = configured_private_id()
+          if approved is None:
+              raise SystemExit("No owner-approved central private stock")
+          print("Canal privé CinéRadar confirmé par le registre et empreinte SHA-256.")
+          PY
           [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]] || {
             echo "::error::Secrets de session Telegram manquants."
             exit 1
@@ -78,8 +89,8 @@ jobs:
           RUN_APPLY: ${{ inputs.apply }}
         run: |
           set -euo pipefail
-          if [[ "$RUN_APPLY" == "true" ]]; then
-            python -m film_relay.unified_library_backfill --apply --per-channel "${{ inputs.per_channel }}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && "$RUN_APPLY" == "true" ]]; then
+            python -m film_relay.unified_library_backfill --apply --per-channel "${{ inputs.per_channel || '1' }}" --history 1000
           else
-            python -m film_relay.unified_library_backfill --per-channel "${{ inputs.per_channel }}"
+            python -m film_relay.unified_library_backfill --per-channel "${{ inputs.per_channel || '1' }}" --history 1000
           fi
