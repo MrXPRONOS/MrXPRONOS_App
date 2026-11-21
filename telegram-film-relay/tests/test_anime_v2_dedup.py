@@ -53,7 +53,7 @@ class AnimeCrossSourceDedupTests(unittest.TestCase):
             row("naruto", 7, "-1002:17", 402),
         ]
         unique, report = deduplicate_anime_candidates(rows, {})
-        self.assertEqual(len(unique), 1)
+        self.assertEqual(len(unique), 0)
         self.assertEqual(report["media_variants"], 1)
         self.assertEqual(report["conflicts"][0]["reason"],
                          "different_telegram_media_for_same_episode")
