@@ -66,6 +66,11 @@ jobs:
           set -euo pipefail
           python3 -m pip install --disable-pip-version-check --quiet 'cryptography==46.0.3'
           python3 -m unittest discover -s cinecanaux/tests -p test_cinex_t04_backup.py -v
+      - name: Verify GitHub-native encrypted CineX catalogue and assets snapshot
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'cryptography==46.0.3'
+          python3 -m unittest discover -s cinecanaux/tests -p test_cinex_github_files_backup.py -v
       - name: Guard CI-before-deploy invariants
         run: node --test cinecanaux/tests/deploy-safety.test.mjs
       - name: Verify privacy-preserving public metrics rate-limit
