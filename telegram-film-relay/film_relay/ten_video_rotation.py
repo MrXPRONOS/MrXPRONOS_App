@@ -124,15 +124,27 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
     cover alone is NEVER sufficient for deletion; the private Telegram media,
     its preceding private cover and the public URL buttons must all agree.
     """
-    from .legacy_media_identity import compatible, poster_identity, video_identity
+    from .legacy_media_identity import (
+        compatible, poster_identity, video_identity, find_legacy_poster,
+    )
+    from .legacy_neighbor_matching import find_neighbor_pair
     ident = video_identity(video, category)
-    if not ident.safe and messages is not None:
-        from .legacy_neighbor_matching import find_neighbor_pair
-        nearby = find_neighbor_pair(video, messages, category)
-        if nearby:
-            ident = nearby.identity
+    nearby = find_neighbor_pair(video, messages, category) if messages is not None else None
+    if not ident.safe and nearby:
+        ident = nearby.identity
     if not ident.safe:
         return None
+    # An old bot-created duplicate cover published AFTER the old video may
+    # contain valid links, but it must not authorize deletion while the
+    # ORIGINAL photo remains unchanged. Only an original preceding the video
+    # can permit rotation after its buttons have been verified.
+    source_photo = None
+    if messages is not None:
+        originals = [m for m in posters if m.id < video.id]
+        source_photo = (nearby.poster if nearby else
+                        find_legacy_poster(video, originals, category))
+        if not source_photo:
+            return None
     rescue_url = rescue_link_for(public)
     if not rescue_url:
         raise RuntimeError("Invitation Secours manquante pour ce canal")
@@ -141,7 +153,11 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
     for poster in posters:
         if not getattr(poster, "photo", None):
             continue
-        if compatible(ident, poster_identity(poster, category)) < 0.95:
+        if source_photo is not None and poster.id != source_photo.id:
+            continue
+        identity_matches = compatible(ident, poster_identity(poster, category)) >= 0.95
+        adjacency_matches = bool(nearby and nearby.poster.id == poster.id)
+        if not (identity_matches or adjacency_matches):
             continue
         private_video_id = movie_button_target(poster, private_id)
         if not private_video_id:
