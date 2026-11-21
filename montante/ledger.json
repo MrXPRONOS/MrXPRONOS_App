@@ -1,4 +1,42 @@
 {
   "schema": "bsd-v2-montante-daily-1",
-  "days": {}
+  "days": {
+    "2026-11-21": {
+      "id": "bsd:209636",
+      "source_event_id": 209636,
+      "date": "2026-11-21",
+      "kickoff_utc": "2026-11-21T15:00:00+00:00",
+      "league": "Premier League",
+      "home_team": "Bournemouth",
+      "away_team": "Nottingham Forest",
+      "selection_key": "1X",
+      "market_label": "1X",
+      "market": "double_chance",
+      "odds": 1.236,
+      "odds_source": "bsd_consensus",
+      "bookmaker": "consensus",
+      "quote_updated_at": "2026-11-21T00:05:08+00:00",
+      "model_probability_percent": 87.1,
+      "conservative_probability_percent": 84.1,
+      "implied_probability_percent": 80.91,
+      "conservative_edge_points": 3.19,
+      "history_lower_bound_percent": 71.62,
+      "score": 0.702837,
+      "requires_manual_bookmaker_verification": true,
+      "not_a_placed_bet": true,
+      "selected_at_utc": "2026-11-21T00:16:25.877091+00:00",
+      "nim_review": {
+        "policy": "bsd-v2-montante-nim-review-v1",
+        "model": "nvidia/nemotron-3-ultra-550b-a55b",
+        "verdict": "approve",
+        "relative_risk": "low",
+        "risk_flags": [
+          "unavailable_lineups",
+          "unavailable_team_news"
+        ],
+        "reviewed_at_utc": "2026-11-21T00:16:25.877091+00:00",
+        "not_a_calibrated_probability": true
+      }
+    }
+  }
 }
