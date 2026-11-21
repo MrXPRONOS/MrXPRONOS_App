@@ -63,7 +63,7 @@ def find_verified_public_link(posts, video, category: str, private_id: int,
     return found[0] if len(found) == 1 else None
 
 
-def find_verified_private_pair(private_messages, video, category: str):
+def find_verified_private_pair(private_messages, video, category: str, *, rescue_url=None):
     """Prefer exact Telegram document ID, never a same-title substitute."""
     expected = video_document_id(video)
     if not expected:
@@ -76,8 +76,10 @@ def find_verified_private_pair(private_messages, video, category: str):
         for photo in photos:
             if not (0 < item.id - photo.id <= 3):
                 continue
-            if compatible(video_identity(video, category),
-                          poster_identity(photo, category)) >= 0.95:
+            if (compatible(video_identity(video, category),
+                           poster_identity(photo, category)) >= 0.95
+                    and (not rescue_url or all(has_verified_button(photo, link)
+                       for link in (rescue_url, film_folder_url())))): 
                 paired.append((item, photo))
     return paired[0] if len(paired) == 1 else None
 
@@ -163,7 +165,8 @@ async def repair_channel(client, bot, category: str, public, private,
                      category, video.id, poster.id, identity)
             continue
         try:
-            pair = find_verified_private_pair(private_messages, video, category)
+            pair = find_verified_private_pair(private_messages, video, category,
+                                              rescue_url=rescue)
             if pair:
                 private_video_id = pair[0].id
                 report["private_existing"] += 1
