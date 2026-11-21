@@ -258,3 +258,54 @@ test réel sans doublon ne sont PAS terminés.**
 contrôlés n'ont pas accès aux 10 sources Anime. Aucune nouvelle publication,
 suppression, édition de droit Telegram ou désactivation des workflows
 existants ne doit être faite pour simplement masquer ce blocage.
+
+
+## Contrôles Telegram réels — 21 novembre 2026
+
+- **Audit global des bots exécuté et réussi** :
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44945348162
+  (pas de modification de messages, permissions ni webhook).
+- Inventaire : deux bots existants accessibles (legacy football et CineRadar),
+  16 catégories/cibles de contrôle, **aucune cible inaccessible** dans
+  l'inventaire Séries/Films ; le bot dédié « publisher » n'est **pas**
+  configuré (ni secret ni nom d'utilisateur attendu).
+- **32 observations de permissions administrateur étendues** sur les deux
+  bots ; à examiner pour le principe du moindre privilège mais **aucune
+  modification automatique**, afin de conserver les fonctions de l'autre chat.
+- **Audit spécial Anime** :
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44943796210
+  confirme **10 sources Anime configurées, 0 source accessible comme
+  administrateur par les 2 bots testés**. Ils peuvent publier dans les
+  destinations Anime et le stock central, mais ont des webhooks actifs.
+  **Ne pas utiliser getUpdates avec ces tokens**.
+- Diagnostic Bot V2 :
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44942650177
+  indique readiness=false : source bot dédié, allowlist, autorisations
+  de redistribution, stockage privé durable, migration/cutover non attestés.
+- Le workflow de publication classique
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44940445156
+  était toujours en cours lors des contrôles ; l'audit des canaux par
+  session historique
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44942650196
+  était encore en file.
+- La rotation 10 vidéos/canal et le stock CineRadar unique restent régis
+  par les workflows déjà fusionnés. Aucune suppression, aucune copie,
+  aucune publication ni bascule Bot API réalisée par ces audits.
+- **Le chantier 22 est toujours OUVERT** : l'accès Bot API aux sources
+  tierces ne peut pas être acquis par une modification de code. Ne pas
+  prétendre que les épisodes historiques sans nouveaux reçus sont absents
+  des chaînes ; vérifier leurs IDs réels avant toute réémission.
+
+### Séquence de fermeture avec preuve
+
+1. Administration autorisée des sources Anime ou flux d'ingestion consenti,
+   attestations de redistribution et bot dédié sans webhook concurrent.
+2. Stockage privé réellement persistant et intégration explicite du registre
+   CineRadar D1 avec les copies et liens existants.
+3. Réconciliation vérifiée des anciens reçus et des éventuels doublons
+   historiques ; aucun nettoyage du stock privé.
+4. Test réel sur support autorisé, puis répétition du même cycle **sans
+   doublon**, surveillance des quatre horaires, FloodWait et reprise
+   d'archive.
+5. Désactiver le publicateur historique **seulement après** vérification de
+   la disponibilité et des permissions de son successeur.
