@@ -5,6 +5,7 @@ on:
     paths:
       - 'telegram-film-relay/film_relay/legacy_media_identity.py'
       - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
+      - 'telegram-film-relay/film_relay/legacy_neighbor_matching.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
       - 'telegram-film-relay/tests/test_legacy_archive_repair.py'
       - 'telegram-film-relay/tests/test_ten_video_rotation.py'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'telegram-film-relay/film_relay/legacy_media_identity.py'
       - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
+      - 'telegram-film-relay/film_relay/legacy_neighbor_matching.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
       - 'telegram-film-relay/tests/test_legacy_archive_repair.py'
       - '.github/workflows/cinex-legacy-archive-ci.yml'
