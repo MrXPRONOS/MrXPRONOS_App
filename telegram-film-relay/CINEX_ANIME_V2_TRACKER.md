@@ -174,3 +174,30 @@ système ; le préflight le refuse.
 
 **Ne pas déclarer le point #22 achevé si ces vérifications externes
 ne sont pas démontrées.**
+
+## Résultat réel après fusion du 21/11/2026 (lecture seule)
+
+- PR #585 **fusionnée** : `9ee3eccfbca722bfd3c95e1c9dcabc42250bcf03`.
+- Validation post-fusion du relais **réussie** sur `main`.
+- Préflight Bot API :
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44942650177
+  (workflow réussi comme **diagnostic**, mais `ready_to_publish=false`).
+- **0 canaux sources numériques autorisés configurés** pour le nouveau bot ;
+  `CINEX_ANIME_SOURCE_BOT_TOKEN` et son identité attendue ne sont pas
+  configurés ; les IDs numériques des destinations manquent.
+- Attestation des droits de publication, du stockage privé durable,
+  du basculement et de la compatibilité vidéothèque commune **absentes**
+  de la configuration attendue.
+- L'ancien relais Anime est **encore actif**. Le remplacer maintenant
+  sans accès aux canaux sources créerait un risque de rupture de service.
+- Prévisualisation de migration : **7 séries, 128 épisodes privés,
+  23 paires publiques vérifiées**, **105 épisodes historiques sans reçus
+  publics de type nouveau format**. Cela ne prouve pas que les 105 sont
+  absents de Telegram ; toute republication en aveugle reste interdite.
+- Aucun test de publication réelle par le nouveau bot n'a été exécuté.
+
+**Conclusion :** l'intégration du code de V2 est déployée, mais le chantier
+22 ne peut pas être considéré comme « complètement terminé ». La
+configuration externe et la réconciliation des anciens reçus restent
+obligatoires. Ne jamais contourner les gardes de sécurité pour produire
+artificiellement un feu vert.
