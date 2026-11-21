@@ -6,6 +6,8 @@ on:
       - '.github/workflows/telegram-film-*'
       - '.github/workflows/telegram-discovery-daily.yml'
       - 'telegram-film-relay/tests/test_cinex_workflow_cooldown.py'
+      - 'telegram-film-relay/tests/test_private_stock_provision.py'
+      - 'telegram-film-relay/scripts/provision_private_stock.py'
   push:
     branches: [main]
     paths:
@@ -28,4 +30,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Vérifier les protections FloodWait sans ouvrir une session Telegram
-        run: python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_workflow_cooldown.py' -v
+        run: |
+          python -m pip install --disable-pip-version-check --quiet requests==2.32.5
+          python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_workflow_cooldown.py' -v
+          python -m unittest discover -s telegram-film-relay/tests -p 'test_private_stock_provision.py' -v
