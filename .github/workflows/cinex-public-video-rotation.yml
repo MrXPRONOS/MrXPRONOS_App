@@ -8,8 +8,19 @@ on:
         required: false
         type: boolean
         default: false
+      purge_unmatched:
+        description: 'Supprimer les ANCIENNES vidéos non identifiables (sans sauvegarde ; action irréversible) ; manuel seulement'
+        required: false
+        type: boolean
+        default: false
+      purge_max:
+        description: 'Maximum de suppressions par canal lors d une purge manuelle'
+        required: false
+        type: choice
+        options: ['2', '5', '10']
+        default: '2'
       apply:
-        description: 'Retirer uniquement les anciennes videos déjà présentes avec fiche et preuve en videotheque (false = simulation)'
+        description: 'Retirer les anciennes vidéos après vérification (false = simulation)'
         required: false
         type: boolean
         default: false
@@ -100,12 +111,17 @@ jobs:
           python -m film_relay.legacy_archive_repair --apply --max-repaired 2
       - name: Analyser puis archiver
         env:
+          CINEX_MANUAL_PURGE_REQUEST: ${{ github.event_name == 'workflow_dispatch' && inputs.apply == true && inputs.purge_unmatched == true }}
           RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
         shell: bash
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-              python -m film_relay.ten_video_rotation --apply --max-deleted 10
+              if [[ "${{ inputs.purge_unmatched }}" == "true" ]]; then
+                python -m film_relay.ten_video_rotation --apply --purge-unmatched --max-deleted "${{ inputs.purge_max }}"
+              else
+                python -m film_relay.ten_video_rotation --apply --max-deleted 10
+              fi
             else
               python -m film_relay.ten_video_rotation --apply --max-deleted 10
             fi
@@ -114,7 +130,11 @@ jobs:
             exit 1
           else
             echo "Simulation : archivage destructif non autorisé par les trois contrôles indépendants."
-            python -m film_relay.ten_video_rotation
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.purge_unmatched }}" == "true" ]]; then
+              python -m film_relay.ten_video_rotation --purge-unmatched
+            else
+              python -m film_relay.ten_video_rotation
+            fi
           fi
       - name: Vérifier le chargement des invitations
         if: ${{ always() && steps.rescue_links.outcome == 'failure' }}

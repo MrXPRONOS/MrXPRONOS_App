@@ -8,7 +8,8 @@ from film_relay.legacy_media_identity import (
     parse_identity, video_identity, poster_identity, compatible,
     find_legacy_poster, youtube_url_for,
 )
-from film_relay.ten_video_rotation import verify_existing_pair
+from film_relay.ten_video_rotation import verify_existing_pair, unmatched_candidate, split_recent_and_old
+from film_relay.legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
 )
@@ -135,6 +136,109 @@ class LegacyMediaIdentityTests(unittest.TestCase):
         self.assertIsNone(find_verified_public_link(
             [public], source, "films", -1004392607284, 30,
             "https://t.me/+SomeValidInvite"))
+
+
+class AdjacentLegacyPairTests(unittest.TestCase):
+    def test_photo_then_video_with_generic_video_caption(self):
+        photo = media(40, "🎬 Le Secret de Jade", photo=True)
+        video = media(41, "Vidéo complète", video=True, name="video.mp4")
+        pair = find_neighbor_pair(video, [photo, video], "films")
+        self.assertIsNotNone(pair)
+        self.assertEqual(pair.mode, "poster_video")
+        self.assertEqual(pair.identity.title, "le secret de jade")
+
+    def test_photo_text_video_preserves_description(self):
+        cover = media(20, "🎬 Naruto", photo=True)
+        description = media(21, "Synopsis : un ninja et ses amis")
+        episode = media(22, "Naruto S02E03", video=True, name="naruto.S02E03.mkv")
+        pair = find_neighbor_pair(episode, [episode, cover, description], "anime")
+        self.assertIsNotNone(pair)
+        self.assertEqual(pair.mode, "poster_text_video")
+        self.assertEqual((pair.identity.season, pair.identity.episode), (2, 3))
+        caption = cover_caption(cover, episode, "anime", identity=pair.identity,
+                                extra_text=pair.extra_text)
+        self.assertIn("Synopsis : un ninja", caption)
+
+    def test_only_nearest_cover_is_used(self):
+        poster = media(100, "🎬 Les Chroniques du Nord", photo=True)
+        another = media(101, "🎬 Les Chroniques du Sud", photo=True)
+        video = media(102, "Vidéo complète", video=True)
+        # The only adjacent poster must be the actually neighbouring one.
+        pair = find_neighbor_pair(video, [poster, another, video], "series")
+        self.assertIsNotNone(pair)
+        self.assertIs(pair.poster, another)
+
+    def test_untitled_neighbour_pair_gets_explicit_non_fabricated_label(self):
+        cover = media(210, "", photo=True)
+        video = media(211, "Vidéo complète", video=True, name="video.mp4")
+        paired = find_neighbor_pair(video, [cover, video], "films")
+        self.assertIsNotNone(paired)
+        self.assertEqual(paired.identity.kind, "unknown")
+        self.assertEqual(paired.identity.title, "contenu sans titre 211")
+        self.assertIn("contenu sans titre 211",
+                      cover_caption(cover, video, "films", identity=paired.identity))
+
+    def test_description_only_text_not_used_as_movie_title(self):
+        cover = media(220, "", photo=True)
+        text = media(221, "Synopsis : Une histoire de vengeance")
+        video = media(222, "Vidéo complète", video=True, name="video.mp4")
+        paired = find_neighbor_pair(video, [cover, text, video], "films")
+        self.assertIsNotNone(paired)
+        self.assertEqual(paired.identity.kind, "unknown")
+
+    def test_link_preview_still_counts_as_plain_text(self):
+        class MessageMediaWebPage:
+            pass
+        cover = media(230, "🎬 La Ville de Jade", photo=True)
+        text = media(231, "Le résumé avec https://youtu.be/dQw4w9WgXcQ")
+        text.media = MessageMediaWebPage()
+        video = media(232, "Vidéo complète", video=True)
+        paired = find_neighbor_pair(video, [cover, text, video], "films")
+        self.assertIsNotNone(paired)
+        self.assertEqual(paired.mode, "poster_text_video")
+
+    def test_conflicting_film_part_not_reassigned_by_proximity(self):
+        photo = media(10, "Film Partie 2", photo=True)
+        video = media(11, "Film Partie 1", video=True, name="film.partie.1.mkv")
+        self.assertIsNone(find_neighbor_pair(video, [photo, video], "films"))
+
+    def test_only_missing_evidence_is_unmatched_purge_candidate(self):
+        video = media(11, "Film inconnu", video=True)
+        self.assertTrue(unmatched_candidate(video, [video], "films"))
+        photo = media(10, "🎬 Film inconnu", photo=True)
+        self.assertFalse(unmatched_candidate(video, [photo, video], "films"))
+        promo = media(12, "Bande-annonce du programme", video=True)
+        self.assertFalse(unmatched_candidate(promo, [promo], "films"))
+
+    def test_ten_recent_remain_protected_under_unmatched_option(self):
+        videos = [media(n, "film inconnu", video=True) for n in range(1, 14)]
+        recent, old = split_recent_and_old(videos, "films")
+        self.assertEqual({v.id for v in recent}, set(range(4, 14)))
+        self.assertEqual({v.id for v in old}, {1, 2, 3})
+
+    def test_unlabeled_public_video_verified_after_neighbour_repair(self):
+        rescue = "https://t.me/+ABCdefghi123456"
+        folder = "https://t.me/addlist/AAA"
+        url = "https://t.me/c/4392607284/55"
+        source_cover = media(10, "🎬 Les Aventures de Jade", photo=True)
+        source_video = media(11, "Vidéo complète", video=True, doc=777)
+        repaired = media(900, "🎬 Les Aventures de Jade", photo=True, buttons=[
+            [NS(url=url)], [NS(url=rescue)], [NS(url=folder)]
+        ])
+        private_cover = media(54, "🎬 Les Aventures de Jade", photo=True, buttons=[
+            [NS(url=rescue)], [NS(url=folder)]
+        ])
+        private_video = media(55, "vidéo", video=True, doc=777)
+        class Client:
+            async def get_messages(self, channel, ids):
+                return [private_cover] if isinstance(ids, list) else private_video
+        with (patch("film_relay.ten_video_rotation.rescue_link_for", return_value=rescue),
+              patch("film_relay.ten_video_rotation.film_folder_url", return_value=folder)):
+            linked = asyncio.run(verify_existing_pair(
+                Client(), "public", "private", -1004392607284, source_video,
+                [source_cover, repaired], "films",
+                messages=[source_cover, source_video, repaired]))
+        self.assertIs(linked, repaired)
 
 
 if __name__ == "__main__":

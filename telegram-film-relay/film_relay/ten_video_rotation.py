@@ -93,8 +93,31 @@ def category_targets(env: dict | None = None):
     return selected
 
 
+def unmatched_candidate(video, messages, category: str) -> bool:
+    """Only old movie-like media lacking *both* title- and sequence-pairing.
+
+    Never purge a recognizable but not-yet-archived movie. Such a video
+    requires archive repair first, rather than an irreversible purge.
+    """
+    from .legacy_media_identity import find_legacy_poster
+    from .legacy_neighbor_matching import find_neighbor_pair
+    if not is_rotatable_video(video, category):
+        return False
+    raw = (video_title(video) + " " +
+           str(getattr(getattr(video, "file", None), "name", "") or "")).casefold()
+    if any(marker in raw for marker in (
+        "bande annonce", "bande-annonce", "trailer", "teaser",
+        "promo", "publicité", "publicite", "clip", "advert",
+        "daily pronos", "animation gif",
+    )):
+        return False
+    posters = [m for m in messages if getattr(m, "photo", None)]
+    return (find_legacy_poster(video, posters, category) is None
+            and find_neighbor_pair(video, messages, category) is None)
+
+
 async def verify_existing_pair(client, public, private, private_id, video, posters,
-                               category: str = "films"):
+                               category: str = "films", messages=None):
     """Allow later repair covers while requiring exact source-document identity.
 
     A repair poster may have been created AFTER the legacy video. A nearby
@@ -103,6 +126,11 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
     """
     from .legacy_media_identity import compatible, poster_identity, video_identity
     ident = video_identity(video, category)
+    if not ident.safe and messages is not None:
+        from .legacy_neighbor_matching import find_neighbor_pair
+        nearby = find_neighbor_pair(video, messages, category)
+        if nearby:
+            ident = nearby.identity
     if not ident.safe:
         return None
     rescue_url = rescue_link_for(public)
@@ -141,7 +169,8 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
     return matched[0] if len(matched) == 1 else None
 
 async def rotate_channel(client, category: str, public, private,
-                         *, apply: bool, max_deleted: int = 10, history: int = 4000):
+                         *, apply: bool, max_deleted: int = 10, history: int = 4000,
+                         purge_unmatched: bool = False):
     from telethon import utils
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id:
@@ -150,7 +179,8 @@ async def rotate_channel(client, category: str, public, private,
     recent, old = split_recent_and_old(messages, category)
     report = {"category": category, "videos": len(recent) + len(old),
               "protected": len(recent), "older": len(old), "deleted": 0,
-              "unverified": 0}
+              "unverified": 0, "purged_unmatched": 0,
+              "unmatched_candidates": 0}
     if len(recent) < KEEP:
         LOG.info("%s : moins de dix vidéos, aucune suppression", category)
         return report
@@ -160,19 +190,28 @@ async def rotate_channel(client, category: str, public, private,
                       (getattr(permissions, "is_admin", False)
                        and getattr(permissions, "delete_messages", False))):
         raise RuntimeError(f"{category}: absence de droits de suppression")
-    # Oldest first; no copy, forward, or edit operation in this workflow.
+    # Oldest first. Unknown candidates are reported in simulation; only
+    # explicitly requested destructive runs can remove them.
     posters = [m for m in messages if getattr(m, "photo", None)]
+    report["unmatched_candidates"] = sum(
+        unmatched_candidate(v, messages, category) for v in old
+    )
     for video in reversed(old):
         if report["deleted"] >= max_deleted:
             break
         if not apply:
             LOG.info("[SIMULATION] %s : ancienne vidéo #%s", category, video.id)
             continue
+        # A known verified archive ALWAYS takes precedence over an unknown
+        # classification, even when its repaired cover was published later.
         public_poster = await verify_existing_pair(
-            client, public, private, private_id, video, posters, category)
-        if not public_poster:
+            client, public, private, private_id, video, posters, category,
+            messages=messages)
+        unknown = (not public_poster and purge_unmatched
+                   and unmatched_candidate(video, messages, category))
+        if not public_poster and not unknown:
             report["unverified"] += 1
-            LOG.warning("%s : ancienne vidéo #%s gardée (fiche ou média non vérifié)",
+            LOG.warning("%s : ancienne vidéo #%s gardée (archive absente ou non vérifiée)",
                         category, video.id)
             continue
         # Newly added movies may have moved the 10-film boundary. Re-evaluate
@@ -196,17 +235,30 @@ async def rotate_channel(client, category: str, public, private,
         if after and is_video_message(after):
             raise RuntimeError(f"{category}: la suppression #{video.id} n'est pas confirmée")
         report["deleted"] += 1
-        LOG.info("%s : ancienne vidéo #%s supprimée ; fiche #%s conservée",
-                 category, video.id, public_poster.id)
+        if unknown:
+            report["purged_unmatched"] += 1
+            LOG.warning("%s : vidéo NON IDENTIFIÉE #%s supprimée du public "
+                        "(aucune copie privée ; action explicitement demandée)",
+                        category, video.id)
+        else:
+            LOG.info("%s : ancienne vidéo #%s supprimée ; fiche #%s conservée",
+                     category, video.id, public_poster.id)
         await asyncio.sleep(36)
     LOG.info("BILAN %s", report)
     return report
 
 
-async def execute(*, apply: bool = False, max_deleted: int = 10):
+async def execute(*, apply: bool = False, max_deleted: int = 10,
+                  purge_unmatched: bool = False):
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
     from .runner import resolve_peer
+    if purge_unmatched and not apply:
+        LOG.info("Simulation : candidats non reconnus seulement ; aucune suppression")
+    if (apply and purge_unmatched
+            and os.getenv("CINEX_MANUAL_PURGE_REQUEST", "").lower() != "true"):
+        raise RuntimeError(
+            "Purge inconnus interdite hors workflow manuel explicitement confirmé")
     if apply and not all(os.getenv(v, "").lower() == "true" for v in
                          ("CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
                           "CINEX_RIGHTS_VERIFIED")):
@@ -234,13 +286,26 @@ async def execute(*, apply: bool = False, max_deleted: int = 10):
                 seen_public.add(utils.get_peer_id(public))
                 reports.append(await rotate_channel(
                     client, category, public, private, apply=apply,
-                    max_deleted=max_deleted))
+                    max_deleted=max_deleted, purge_unmatched=purge_unmatched))
             except Exception:
                 LOG.exception("Rotation %s interrompue, autres catégories conservées", category)
                 reports.append({"category": category, "error": True})
     finally:
         await client.disconnect()
     LOG.info("RÉSULTAT GLOBAL %s", reports)
+    summary_path = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as summary:
+            summary.write("\n### CinéX — Rotation et nettoyage des anciennes vidéos\n")
+            summary.write("| Canal | Anciennes | Supprimées | Inconnues supprimées | "
+                          "Inconnues détectées | Non vérifiées |\n")
+            summary.write("|---|---:|---:|---:|---:|---:|\n")
+            for row in reports:
+                summary.write("| {category} | {older} | {deleted} | {purged_unmatched} | "
+                              "{unmatched_candidates} | {unverified} |\n".format(
+                    **{key: row.get(key, 0) for key in (
+                        "category", "older", "deleted", "purged_unmatched",
+                        "unmatched_candidates", "unverified")}))
     if any(report.get("error") for report in reports):
         raise RuntimeError("Une ou plusieurs catégories nécessitent une correction")
     return reports
@@ -250,12 +315,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--max-deleted", type=int, default=10)
+    parser.add_argument("--purge-unmatched", action="store_true",
+                        help="Supprimer aussi les anciens médias non reconnus ; uniquement manuel")
     options = parser.parse_args()
     if not 1 <= options.max_deleted <= 10:
         parser.error("Limite par canal : de 1 à 10")
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
-    asyncio.run(execute(apply=options.apply, max_deleted=options.max_deleted))
+    asyncio.run(execute(apply=options.apply, max_deleted=options.max_deleted,
+                        purge_unmatched=options.purge_unmatched))
 
 
 if __name__ == "__main__":

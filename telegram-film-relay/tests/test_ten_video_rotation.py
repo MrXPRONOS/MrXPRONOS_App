@@ -1,9 +1,11 @@
 """Offline tests for the simple multi-channel ten-video rotation."""
 import unittest
+import asyncio
+from unittest.mock import patch
 from types import SimpleNamespace as NS
 from film_relay.ten_video_rotation import (
     split_recent_and_old, category_targets, movie_button_target,
-    is_rotatable_video,
+    is_rotatable_video, execute,
 )
 
 
@@ -48,6 +50,11 @@ class TenVideoRotationTests(unittest.TestCase):
         ])
         self.assertEqual(movie_button_target(poster, -1004455497484), 42)
         self.assertIsNone(movie_button_target(poster, -1004462439590))
+
+    def test_public_unknown_purge_requires_real_manual_dispatch(self):
+        with patch.dict("os.environ", {"CINEX_MANUAL_PURGE_REQUEST": ""}, clear=True):
+            with self.assertRaisesRegex(RuntimeError, "workflow manuel"):
+                asyncio.run(execute(apply=True, purge_unmatched=True))
 
     def test_unconfigured_categories_are_skipped_without_invented_channel(self):
         targets = category_targets({

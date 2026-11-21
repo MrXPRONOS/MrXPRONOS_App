@@ -13,6 +13,7 @@ import logging
 import os
 
 from .bot_http import BotHTTPClient, url_button
+from .legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from .legacy_media_identity import (
     compatible, find_legacy_poster, poster_identity, video_identity, youtube_url_for,
 )
@@ -28,11 +29,16 @@ LOG = logging.getLogger("cinex.legacy_archive_repair")
 MAX_HISTORY = 4000
 
 
-def cover_caption(poster, video, category: str) -> str:
+def cover_caption(poster, video, category: str, *, identity=None, extra_text: str = "") -> str:
     """Preserve original description, inserting episode/part identity above it."""
-    ident = video_identity(video, category)
+    ident = identity or identity_for_pair(video, poster, category, extra_text)
     raw = clean_caption(getattr(poster, "raw_text", "") or "").strip()
-    if ident.kind == "episode":
+    if extra_text.strip():
+        raw = (raw + "\n" + clean_caption(extra_text)).strip()
+    if ident.kind == "unknown":
+        symbol = "📺" if category in ("anime", "series") else "🎬"
+        prefix = f"{symbol} {ident.title}"
+    elif ident.kind == "episode":
         prefix = f"📺 {ident.title} — S{ident.season:02d}E{ident.episode:02d}"
     elif ident.kind == "film_part":
         prefix = f"🎬 {ident.title} — Partie {ident.part}"
@@ -46,7 +52,7 @@ def cover_caption(poster, video, category: str) -> str:
 
 
 def find_verified_public_link(posts, video, category: str, private_id: int,
-                              private_video_id: int, rescue_url: str):
+                              private_video_id: int, rescue_url: str, *, reference=None):
     target = private_message_link(private_id, private_video_id)
     found = []
     for post in posts:
@@ -54,7 +60,7 @@ def find_verified_public_link(posts, video, category: str, private_id: int,
             continue
         if movie_button_target(post, private_id) != private_video_id:
             continue
-        if compatible(video_identity(video, category),
+        if compatible(reference or video_identity(video, category),
                       poster_identity(post, category)) < 0.95:
             continue
         if all(has_verified_button(post, link)
@@ -63,7 +69,7 @@ def find_verified_public_link(posts, video, category: str, private_id: int,
     return found[0] if len(found) == 1 else None
 
 
-def find_verified_private_pair(private_messages, video, category: str, *, rescue_url=None):
+def find_verified_private_pair(private_messages, video, category: str, *, rescue_url=None, reference=None):
     """Prefer exact Telegram document ID, never a same-title substitute."""
     expected = video_document_id(video)
     if not expected:
@@ -76,7 +82,7 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
         for photo in photos:
             if not (0 < item.id - photo.id <= 3):
                 continue
-            if (compatible(video_identity(video, category),
+            if (compatible(reference or video_identity(video, category),
                            poster_identity(photo, category)) >= 0.95
                     and (not rescue_url or all(has_verified_button(photo, link)
                        for link in (rescue_url, film_folder_url())))): 
@@ -84,11 +90,13 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
     return paired[0] if len(paired) == 1 else None
 
 
-def public_buttons(url: str, public, poster, *, category: str):
+def public_buttons(url: str, public, poster, *, category: str, extra_text: str = ""):
+    from types import SimpleNamespace
     from .rescue_channels import add_rescue_button_row
     name = "📺 REGARDER L'ÉPISODE" if category in ("anime", "series") else "🎬 VOIR LE FILM"
     result = [[url_button(name, url, style="success")]]
-    youtube = youtube_url_for(poster)
+    youtube = youtube_url_for(poster) or youtube_url_for(
+        SimpleNamespace(raw_text=extra_text, buttons=None))
     if youtube:
         result.append([url_button("▶️ YouTube", youtube, style="primary")])
     result = add_rescue_button_row(result, public)
@@ -96,11 +104,11 @@ def public_buttons(url: str, public, poster, *, category: str):
     return result
 
 
-def public_poster_verified(message, video, category, url: str, public):
+def public_poster_verified(message, video, category, url: str, public, *, reference=None):
     rescue = rescue_link_for(public)
     return bool(
         getattr(message, "photo", None)
-        and compatible(video_identity(video, category),
+        and compatible(reference or video_identity(video, category),
                        poster_identity(message, category)) >= 0.95
         and rescue
         and all(has_verified_button(message, link)
@@ -122,7 +130,7 @@ async def repair_channel(client, bot, category: str, public, private,
         "category": category, "public": public_id, "private": private_id,
         "protected": len(recent), "older": len(old), "recognized": 0,
         "private_existing": 0, "private_created": 0, "public_linked": 0,
-        "unmatched": 0, "ambiguous": 0, "skipped": 0, "errors": 0,
+        "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
     if len(recent) < 10:
@@ -153,7 +161,19 @@ async def repair_channel(client, bot, category: str, public, private,
             break
         identity = video_identity(video, category)
         poster = find_legacy_poster(video, posters, category)
-        if not identity.safe or poster is None:
+        neighbor = None
+        if poster is None:
+            neighbor = find_neighbor_pair(video, messages, category)
+            if neighbor:
+                poster = neighbor.poster
+                identity = neighbor.identity
+                report["adjacent_recognized"] += 1
+        if poster is None or not identity.safe:
+            report["unmatched"] += 1
+            continue
+        extra = neighbor.extra_text if neighbor else ""
+        identity = identity_for_pair(video, poster, category, extra)
+        if not identity.safe:
             report["unmatched"] += 1
             continue
         if getattr(video, "noforwards", False) or getattr(poster, "noforwards", False):
@@ -166,12 +186,13 @@ async def repair_channel(client, bot, category: str, public, private,
             continue
         try:
             pair = find_verified_private_pair(private_messages, video, category,
-                                              rescue_url=rescue)
+                                              rescue_url=rescue, reference=identity)
             if pair:
                 private_video_id = pair[0].id
                 report["private_existing"] += 1
             else:
-                caption = cover_caption(poster, video, category)
+                caption = cover_caption(poster, video, category,
+                                        identity=identity, extra_text=extra)
                 raw = await client.download_media(poster.media, file=bytes)
                 if not raw:
                     raise RuntimeError("Affiche inaccessible")
@@ -181,7 +202,7 @@ async def repair_channel(client, bot, category: str, public, private,
                 latest_private = sorted(private_messages, key=lambda m: m.id, reverse=True)
                 pending = next((item for item in latest_private[:1]
                     if getattr(item, "photo", None)
-                    and compatible(video_identity(video, category),
+                    and compatible(identity,
                                    poster_identity(item, category)) >= 0.95
                     and all(has_verified_button(item, link) for link in
                             (rescue, film_folder_url()))), None)
@@ -214,13 +235,16 @@ async def repair_channel(client, bot, category: str, public, private,
                         or not 0 < verified_video.id - verified_photo.id <= 3):
                     raise RuntimeError("Vidéo privée non vérifiée")
                 private_video_id = verified_video.id
-                private_messages.extend((verified_photo, verified_video))
+                if not any(int(m.id) == int(verified_photo.id) for m in private_messages):
+                    private_messages.append(verified_photo)
+                private_messages.append(verified_video)
                 report["private_created"] += 1
             target = private_message_link(private_id, private_video_id)
             # Old poster may be uneditable and far from its media. A new,
             # bot-owned cover is created without removing the old one.
             existing_public = find_verified_public_link(
-                posters, video, category, private_id, private_video_id, rescue)
+                posters, video, category, private_id, private_video_id, rescue,
+                reference=identity)
             if existing_public:
                 report["public_linked"] += 1
                 repaired += 1
@@ -231,12 +255,16 @@ async def repair_channel(client, bot, category: str, public, private,
                 raise RuntimeError("Affiche publique inaccessible")
             new_post = await bot.send_file(
                 public, public_image,
-                caption=rich_caption(cover_caption(poster, video, category)),
+                caption=rich_caption(cover_caption(
+                    poster, video, category, identity=identity, extra_text=extra)),
                 parse_mode="html",
-                buttons=public_buttons(target, public, poster, category=category),
+                buttons=public_buttons(target, public, poster, category=category,
+                                       extra_text=extra),
             )
             verified_public = await client.get_messages(public, ids=new_post.id)
-            if not public_poster_verified(verified_public, video, category, target, public):
+            if not public_poster_verified(
+                    verified_public, video, category, target, public,
+                    reference=identity):
                 raise RuntimeError("Boutons publics non vérifiés")
             posters.append(verified_public)
             report["public_linked"] += 1
