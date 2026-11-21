@@ -44,7 +44,7 @@ class AnimeBotReadinessTests(unittest.TestCase):
         with patch("scripts.anime_bot_readiness.AnimeBotTransport",
                    return_value=client):
             verified = asyncio.run(remote_read_only(BASE))
-        self.assertTrue(verified["ready_to_publish"])
+        self.assertTrue(verified["ready_to_publish"], verified)
         self.assertEqual(verified["live_bot_checks"], "permissions_validated")
         client.assert_permissions.assert_awaited_once()
         self.assertEqual(client.call.await_args.args[0], "getWebhookInfo")
