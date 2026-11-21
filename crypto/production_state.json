@@ -723,6 +723,12 @@
       "sent_at": "2026-11-20T16:04:31.933708+00:00",
       "source": "CoinPaprika"
     },
+    "daily:01:2026-11-21:evening": {
+      "message_id": 227,
+      "number": 1,
+      "sent_at": "2026-11-21T00:05:36.656038+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:02:2026-10-19:default": {
       "message_id": 12,
       "number": 2,
