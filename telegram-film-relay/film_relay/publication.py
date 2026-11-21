@@ -221,20 +221,59 @@ async def post_public_video_after_poster(
     return sent
 
 
+def catalog_public_marker(title: str, season: int, episode: int) -> str:
+    """Stable marker across source-channel reposts and interrupted transfers."""
+    import hashlib
+    from .episode_identity import canonical_title
+    canonical = canonical_title(title)
+    if not canonical:
+        raise ValueError("Série sans identité canonique : publication impossible.")
+    identity = f"{canonical}:S{int(season):02d}E{int(episode):02d}"
+    return "#CXPAIR_" + hashlib.sha256(identity.encode()).hexdigest()[:18]
+
+
+async def _find_recent_episode_poster(client, public_peer, marker: str):
+    """Recover a previously bot-authored photo even if its response was lost."""
+    if not hasattr(client, "iter_messages"):
+        return None
+    async for msg in client.iter_messages(public_peer, limit=300):
+        if (getattr(msg, "photo", None)
+                and marker in (getattr(msg, "raw_text", "") or "")):
+            return int(msg.id)
+    return None
+
+
+async def _recover_episode_public_video(client, public_peer, poster_id: int,
+                                        expected_document_id):
+    """Recover a video sent after the known poster without sending another."""
+    from .public_video_archive import is_video_message, video_document_id
+    if not hasattr(client, "iter_messages"):
+        return None
+    async for msg in client.iter_messages(public_peer, limit=300):
+        if int(msg.id) <= int(poster_id):
+            break
+        if (is_video_message(msg)
+                and video_document_id(msg) == expected_document_id):
+            return int(msg.id)
+    return None
+
+
 async def publish_catalog_episode_pairs(
     user_client, bot_client, public_peer, private_peer, private_id: int,
     series: dict, items: list, catalogue: dict, save_catalog, pause: float,
 ):
-    """Publish a real cover+synopsis then video for every new TV/anime episode.
+    """Publish each public pair exactly once, with crash-safe staged receipts.
 
-    The existing season-index cards stay intact. Per-episode Telegram receipts
-    are saved after both public messages are verified, so interrupted runs can
-    resume without reposting completed episodes.
+    All media checks use the already-saved PRIVATE episode as reference: a
+    newer source repost may use a different document or encoding without
+    invalidating a previously verified public episode.
     """
     import asyncio
     from .public_video_archive import is_video_message, video_document_id
     from .text import clean_caption, private_message_link
+
     receipts = series.setdefault("public_episode_posts", {})
+    staged = series.setdefault("pending_public_episode_posts", {})
     fallback = next((r.get("poster") for r in items
                      if r.get("poster") is not None), None)
     for row in sorted(items, key=lambda r: (r["season"], r["episode"])):
@@ -245,6 +284,10 @@ async def publish_catalog_episode_pairs(
             raise RuntimeError(f"Série : vidéo privée absente pour {key}")
         video_id = int(private_record["message_id"])
         video_url = private_message_link(private_id, video_id)
+        private_video = await user_client.get_messages(private_peer, ids=video_id)
+        reference_doc = video_document_id(private_video)
+        if not is_video_message(private_video) or not reference_doc:
+            raise RuntimeError(f"Série : reçu privé invalide pour {key}")
         existing = receipts.get(key)
         if existing:
             stored_poster = await user_client.get_messages(
@@ -253,41 +296,83 @@ async def publish_catalog_episode_pairs(
                 public_peer, ids=int(existing["video"]))
             if (getattr(stored_poster, "photo", None)
                     and is_video_message(stored_video)
-                    and video_document_id(stored_video) == video_document_id(row["video"])):
+                    and video_document_id(stored_video) == reference_doc):
+                staged.pop(key, None)
                 continue
             raise RuntimeError(
-                f"Série {key} : reçu public incohérent ; reprise bloquée pour éviter un doublon")
-        source_poster = row.get("poster") or fallback
-        if not source_poster or not getattr(source_poster, "photo", None):
-            raise RuntimeError(f"Série : vraie affiche manquante pour {key}")
-        private_video = await user_client.get_messages(private_peer, ids=video_id)
-        if (not is_video_message(private_video)
-                or video_document_id(private_video) != video_document_id(row["video"])):
-            raise RuntimeError(f"Série : vidéothèque non confirmée pour {key}")
+                f"Série {key} : reçu public incohérent ; aucune republication automatique")
 
-        title = str(series.get("title") or row.get("title") or "Série")
-        source_description = clean_caption(
-            getattr(source_poster, "raw_text", "") or title,
-            getattr(source_poster, "entities", None),
-        ) or title
-        # Include episode number in the poster heading so viewers and the
-        # rotation can distinguish all episodes of one season.
-        description = (
-            f"📺 {title} — S{int(season):02d}E{int(episode):02d}\n\n"
-            + source_description
-        )
-        public_poster = await send_public_poster_with_buttons(
-            user_client, bot_client, public_peer, source_poster,
-            description, video_url,
-        )
-        await asyncio.sleep(pause)
-        public_video = await post_public_video_after_poster(
-            user_client, public_peer, row["video"], description,
-            int(public_poster.id), video_url,
-        )
+        title = str(series.get("title") or row.get("title") or "")
+        marker = catalog_public_marker(title, int(season), int(episode))
+        source_poster = row.get("poster") or fallback
+        entry = staged.setdefault(key, {})
+        if entry.get("poster"):
+            poster = await user_client.get_messages(
+                public_peer, ids=int(entry["poster"]))
+            if (not getattr(poster, "photo", None)
+                    or marker not in (getattr(poster, "raw_text", "") or "")):
+                raise RuntimeError(
+                    f"Série {key} : affiche en cours introuvable, reprise bloquée")
+        else:
+            # Also protects a timeout after Telegram accepted the photo but
+            # before the client obtained its response and could save the ID.
+            found = await _find_recent_episode_poster(
+                user_client, public_peer, marker)
+            if found:
+                entry["poster"] = int(found)
+                save_catalog(catalogue)
+            else:
+                if not source_poster or not getattr(source_poster, "photo", None):
+                    staged.pop(key, None)
+                    raise RuntimeError(f"Série : vraie affiche manquante pour {key}")
+                source_description = clean_caption(
+                    getattr(source_poster, "raw_text", "") or title,
+                    getattr(source_poster, "entities", None),
+                ) or title
+                description = (
+                    f"📺 {title} — S{int(season):02d}E{int(episode):02d}\n"
+                    + marker + "\n\n" + source_description
+                )
+                public_poster = await send_public_poster_with_buttons(
+                    user_client, bot_client, public_peer, source_poster,
+                    description, video_url,
+                )
+                entry["poster"] = int(public_poster.id)
+                save_catalog(catalogue)
+                await asyncio.sleep(pause)
+
+        # A prior send may have succeeded even though the video response was
+        # lost; check Telegram before any attempt to send again.
+        found_video = await _recover_episode_public_video(
+            user_client, public_peer, int(entry["poster"]), reference_doc)
+        if found_video:
+            entry["video"] = int(found_video)
+            save_catalog(catalogue)
+        if not entry.get("video"):
+            if entry.get("video_send_uncertain"):
+                raise RuntimeError(
+                    f"Série {key} : transfert public incertain ; vérification "
+                    "manuelle nécessaire avant une autre tentative")
+            description = f"📺 {title} — S{int(season):02d}E{int(episode):02d}"
+            try:
+                # Send the VERIFIED private copy, never a mismatched source
+                # repost whose document ID or encoding could have changed.
+                public_video = await post_public_video_after_poster(
+                    user_client, public_peer, private_video, description,
+                    int(entry["poster"]), video_url,
+                )
+            except Exception:
+                entry["video_send_uncertain"] = True
+                save_catalog(catalogue)
+                raise
+            entry["video"] = int(public_video.id)
+            entry.pop("video_send_uncertain", None)
+            save_catalog(catalogue)
+
         receipts[key] = {
-            "poster": int(public_poster.id), "video": int(public_video.id),
+            "poster": int(entry["poster"]), "video": int(entry["video"]),
             "private_video": video_id,
         }
+        staged.pop(key, None)
         save_catalog(catalogue)
         await asyncio.sleep(pause)
