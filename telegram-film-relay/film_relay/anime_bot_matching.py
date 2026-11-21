@@ -17,7 +17,7 @@ from .episode_identity import (
 
 
 _SPECIAL = re.compile(
-    r"(?i)\b(?:OVA|ONA|special|hors[ -]?s[eé]rie|recap|compilation)\b")
+    r"(?i)(?<![a-z0-9])(?:OVA|ONA|special|hors[ _-]?s[eé]rie|recap|compilation)(?![a-z0-9])")
 _DECLARED_COUNT = re.compile(
     r"(?i)\b(?:compl[eè]te?|int[eé]grale)\b.{0,32}\b(\d{1,3})\s*"
     r"(?:[eé]pisodes?|eps)\b|\b(\d{1,3})\s*(?:[eé]pisodes?|eps)"
