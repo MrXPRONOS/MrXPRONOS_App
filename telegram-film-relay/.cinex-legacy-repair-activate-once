@@ -1,1 +1,3 @@
-Activation unique 2026-11-21 : rattrapage prive limite a 2 videos par canal, sans suppression publique. Workflow cinex-public-video-rotation.yml avec repair=true et apply=false.
+Validation du nouveau comportement le 21 novembre 2026 apres fusion PR #588.
+Objectif : editer la fiche originale au meme ID avec boutons CineRadar, conserver photo et description.
+Limite : 2 anciennes fiches par categorie ; aucun nouveau public poster ; apply=false pour la rotation donc aucune suppression publique.
