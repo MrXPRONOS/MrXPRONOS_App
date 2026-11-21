@@ -163,10 +163,6 @@ class AdjacentLegacyPairTests(unittest.TestCase):
         poster = media(100, "🎬 Série A", photo=True)
         another = media(101, "🎬 Série B", photo=True)
         video = media(102, "Vidéo complète", video=True)
-        self.assertIsNone(find_neighbor_pair(video, [poster, another, video], "series")
-                          if False else find_neighbor_pair(
-                              video, [poster, another, video], "series")
-                          if another.id == video.id-2 else None)
         # The only adjacent poster must be the actually neighbouring one.
         pair = find_neighbor_pair(video, [poster, another, video], "series")
         self.assertIsNotNone(pair)
