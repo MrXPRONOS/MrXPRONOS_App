@@ -62,6 +62,50 @@ async def audit_channel(client: Any, username: str, expected_chat_id: int,
         raise RuntimeError("Incomplete Telegram batch; no inference about missing messages")
 
 
+
+def audit_webhook_state() -> None:
+    """Read-only Bot API webhook status, without logging the token or raw URL."""
+    from datetime import datetime, timezone
+    from urllib.request import urlopen
+    import re
+
+    token = (os.getenv("CINE_RADAR_BOT_TOKEN") or "").strip()
+    if not token:
+        print("WEBHOOK_DIAGNOSTIC missing_bot_token")
+        return
+    try:
+        with urlopen("https://api.telegram.org/bot" + token + "/getWebhookInfo", timeout=15) as response:
+            payload = json.load(response)
+        if not payload.get("ok"):
+            print("WEBHOOK_DIAGNOSTIC telegram_query_rejected")
+            return
+        info = payload.get("result") or {}
+        message = str(info.get("last_error_message") or "").casefold()
+        code = re.search(r"(?<!\\d)([45]\\d{2})(?!\\d)", message)
+        error_kind = (
+            "timeout" if any(x in message for x in ("timeout", "timed out", "deadline"))
+            else "forbidden" if "forbidden" in message
+            else "http_error" if code
+            else "connection_error" if any(x in message for x in ("connect", "refused", "reset"))
+            else "other_error" if message else "none"
+        )
+        error_ts = int(info.get("last_error_date") or 0)
+        last_error_utc = (datetime.fromtimestamp(error_ts, timezone.utc).isoformat()
+                          if error_ts else None)
+        print("WEBHOOK_DIAGNOSTIC " + json.dumps({
+            "valid_target": info.get("url") == "https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/telegram",
+            "pending_updates": int(info.get("pending_update_count") or 0),
+            "last_error_utc": last_error_utc,
+            "last_error_category": error_kind,
+            "last_error_http_code": code.group(1) if code else None,
+            "max_connections": info.get("max_connections"),
+            "subscribed_channel_posts": "channel_post" in (info.get("allowed_updates") or []),
+        }))
+    except Exception as exc:
+        print("WEBHOOK_DIAGNOSTIC_ERROR " + type(exc).__name__)
+
+
+
 async def main() -> int:
     from telethon import TelegramClient
     from telethon.sessions import StringSession
@@ -72,6 +116,7 @@ async def main() -> int:
     if not api_id or not api_hash or not session:
         print("FORENSIC_ERROR missing_existing_telegram_session")
         return 2
+    audit_webhook_state()
     client = TelegramClient(StringSession(session), int(api_id), api_hash,
                             request_retries=2, connection_retries=2)
     try:
