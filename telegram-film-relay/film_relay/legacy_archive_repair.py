@@ -249,8 +249,9 @@ async def repair_channel(client, bot, category: str, public, private,
                 report["private_created"] += 1
             target = private_message_link(private_id, private_video_id)
             download_url = (await unified.store(
-                video, category=category, title=caption if "caption" in locals()
-                else (getattr(video, "raw_text", "") or identity.title),
+                video, category=category,
+                title=cover_caption(poster, video, category,
+                                    identity=identity, extra_text=extra),
                 public=public,
             )) if unified is not None else None
             # Old poster may be uneditable and far from its media. A new,
