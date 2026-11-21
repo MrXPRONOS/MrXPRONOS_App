@@ -1,4 +1,5 @@
 import {cleanupHealthOverview} from './cinex-cleanup-coordinator.mjs';
+import {privateStockOverview} from './private-stock.mjs';
 // V1.3 — minimal owner-only operational alerts and activity journal.
 // Only bounded action names and targets are persisted. Never log Telegram initData
 // or raw messages, access tokens, personal Telegram IDs, IPs or private chats.
@@ -73,6 +74,8 @@ export async function ownerOperationsOverview(env){
  const expiryHealth=await cleanupHealthOverview(env);
  cinex.cleanup_health=expiryHealth;
  cinex.cleanup_healthy=expiryHealth.active;
+ cinex.private_stock=await privateStockOverview(env);
+ if(cinex.private_stock.review)alerts.push({level:'warning',title:'CinéX : copies en stock à vérifier',detail:cinex.private_stock.review+' transfert(s) ambigus vers le stock Telegram privé ; aucun renvoi automatique.'});
  if(!expiryHealth.active)alerts.push({level:'warning',title:'CinéX : nettoyage privé à vérifier',
   detail:'Aucun passage récent et réussi des quatre suppressions à 24 h n’est confirmé.'});
  for(const family of expiryHealth.families.filter(x=>x.status==='error'))
