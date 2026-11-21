@@ -1,0 +1,46 @@
+name: CineX Anime V2 - Verifier la bascule bot sans publier
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/scripts/anime_bot_readiness.py'
+      - 'telegram-film-relay/film_relay/anime_bot_*.py'
+      - '.github/workflows/cinex-anime-v2-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cinex-anime-v2-bot-readiness-readonly
+  cancel-in-progress: false
+
+jobs:
+  rights-and-migration:
+    name: Contrôle Bot API en lecture seule (aucune publication)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONPATH: .
+      CINEX_ANIME_SOURCE_BOT_TOKEN: ${{ secrets.CINEX_ANIME_SOURCE_BOT_TOKEN }}
+      CINEX_ANIME_EXPECTED_BOT_ID: ${{ vars.CINEX_ANIME_EXPECTED_BOT_ID }}
+      ANIME_AUTHORIZED_SOURCE_IDS: ${{ vars.ANIME_AUTHORIZED_SOURCE_IDS }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL_ID: ${{ vars.ANIME_PUBLIC_CHANNEL_ID }}
+      ANIME_RIGHTS_ATTESTED: ${{ vars.ANIME_RIGHTS_ATTESTED }}
+      CINEX_ANIME_PRIVATE_PERSISTENCE_ATTESTED: ${{ vars.CINEX_ANIME_PRIVATE_PERSISTENCE_ATTESTED }}
+      CINEX_ANIME_BOT_STATE_PATH: ${{ vars.CINEX_ANIME_BOT_STATE_PATH }}
+      CINEX_ANIME_LEGACY_RELAY_DISABLED: ${{ vars.CINEX_ANIME_LEGACY_RELAY_DISABLED }}
+      CINEX_ANIME_CUTOVER_VERIFIED: ${{ vars.CINEX_ANIME_CUTOVER_VERIFIED }}
+      CINEX_ANIME_UNIFIED_LIBRARY_RECONCILED: ${{ vars.CINEX_ANIME_UNIFIED_LIBRARY_RECONCILED }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dependances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Verifier le catalogue et les permissions Bot API sans publier
+        working-directory: telegram-film-relay
+        run: python scripts/anime_bot_readiness.py
