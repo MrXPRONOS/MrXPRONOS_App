@@ -11,9 +11,11 @@ import argparse
 import asyncio
 import json
 import os
+from pathlib import Path
 import sys
 
 from film_relay.anime_bot_queue import ingest_channel_updates
+from film_relay.anime_bot_migration import migrate_legacy_catalogue
 from film_relay.anime_bot_matching import (
     associate_anime_messages, consolidate_source_candidates,
     select_bot_anime_batches,
@@ -58,13 +60,33 @@ def prepare(state):
                      "source_review": review, "media_review": ambiguous}
 
 
-async def run(mode: str, *, state_path: str, max_poll_batches=20):
+async def run(mode: str, *, state_path: str, max_poll_batches=20,
+              legacy_catalogue: str = ""):
     if mode == "audit":
         state = BotStateStore(state_path).load()
         selected, report = prepare(state)
         # Only aggregate data. Never expose channel IDs, message IDs or file IDs.
         return {k: v for k, v in report.items()
                 if k not in ("source_review", "media_review")}
+
+    if mode in ("migration-preview", "migration-apply"):
+        if not legacy_catalogue:
+            raise RuntimeError("Path to explicit legacy catalogue required.")
+        older = json.loads(Path(legacy_catalogue).read_text(encoding="utf-8"))
+        if mode == "migration-preview":
+            state = BotStateStore(state_path).load()
+            _, report = migrate_legacy_catalogue(state, older)
+            return {"mode": mode, **report}
+        if os.environ.get("CINEX_ANIME_IMPORT_APPROVED") != "true":
+            raise RuntimeError("Offline legacy import requires explicit approval.")
+        store = require_durable_store(state_path)
+        with store.exclusive():
+            state = store.load()
+            new_state, report = migrate_legacy_catalogue(state, older)
+            if report["collisions"]:
+                raise RuntimeError("Legacy state has conflicting V2 keys.")
+            store.save(new_state)
+            return {"mode": mode, **report}
 
     token = verify_anime_bot_guard()
     sources, private, public = _channels()
@@ -136,13 +158,18 @@ async def run(mode: str, *, state_path: str, max_poll_batches=20):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("audit", "poll", "publish"),
+    parser.add_argument("--mode",
+                        choices=("audit", "poll", "publish",
+                                 "migration-preview", "migration-apply"),
                         required=True)
+    parser.add_argument("--legacy-catalogue", default="")
     parser.add_argument("--state-path", default=os.environ.get(
         "CINEX_ANIME_BOT_STATE_PATH", "state/anime_bot_v2.json"))
     opts = parser.parse_args()
     try:
-        report = asyncio.run(run(opts.mode, state_path=opts.state_path))
+        report = asyncio.run(run(
+            opts.mode, state_path=opts.state_path,
+            legacy_catalogue=opts.legacy_catalogue))
         print(json.dumps(report, ensure_ascii=False, sort_keys=True))
     except Exception as exc:
         # Don't include token, private source IDs or potentially sensitive
