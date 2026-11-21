@@ -1,6 +1,6 @@
 {
-  "last_run_id": "44811334247",
-  "last_checked": "2026-11-20T23:11:24.857153+00:00",
+  "last_run_id": "44879389858",
+  "last_checked": "2026-11-21T09:44:25.349509+00:00",
   "status": "category_failed",
   "verification": "verified",
   "verified_posts": 1,
@@ -24,10 +24,10 @@
       "active_batch": false
     },
     "anime": {
-      "audit_date": "2026-11-20T22:54:15.283936+00:00",
+      "audit_date": "2026-11-21T09:27:12.490232+00:00",
       "history_scan_complete": false,
-      "observed_not_indexed": 2656,
-      "unnumbered_videos": 2207,
+      "observed_not_indexed": 2645,
+      "unnumbered_videos": 2154,
       "source_gap_seasons": 58,
       "active_batch": false
     }

@@ -1,5 +1,5 @@
 {
-  "audit_checked_at": "2026-11-20T22:54:15.283936+00:00",
+  "audit_checked_at": "2026-11-21T09:27:12.490232+00:00",
   "data_note": "Inventaire et reçus enregistrés, pas une preuve de disponibilité des vidéos ni des droits.",
   "schema_version": 1,
   "series": [
@@ -7,8 +7,8 @@
       "has_public_card": true,
       "index_repair_pending": false,
       "legacy_cards_to_review": 0,
-      "private_episodes": 12,
-      "public_episode_pairs": 12,
+      "private_episodes": 23,
+      "public_episode_pairs": 23,
       "seasons": [
         {
           "last_episode": 12,
@@ -16,6 +16,14 @@
           "private_episodes": 12,
           "public_episode_pairs": 12,
           "season": 1,
+          "status": "en_cours"
+        },
+        {
+          "last_episode": 11,
+          "numbering_gaps": 0,
+          "private_episodes": 11,
+          "public_episode_pairs": 11,
+          "season": 2,
           "status": "en_cours"
         }
       ],
@@ -136,12 +144,12 @@
     "configured_sources_scanned": 2,
     "fragmented_series_groups_reconciled": 2,
     "numbering_gaps": 34,
-    "pending_historical_candidates": 2656,
-    "private_episodes": 117,
-    "public_episode_pairs": 12,
-    "seasons": 7,
+    "pending_historical_candidates": 2645,
+    "private_episodes": 128,
+    "public_episode_pairs": 23,
+    "seasons": 8,
     "source_scan_complete": false,
     "titles": 7,
-    "unnumbered_skipped": 2207
+    "unnumbered_skipped": 2154
   }
 }

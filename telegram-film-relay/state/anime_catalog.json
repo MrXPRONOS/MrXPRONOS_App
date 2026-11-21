@@ -3,14 +3,26 @@
   "audit": {
     "canonical_titles": 355,
     "category": "anime_catalog",
-    "checked_at": "2026-11-20T22:54:15.283936+00:00",
+    "checked_at": "2026-11-21T09:27:12.490232+00:00",
     "eligibility_rejections": {
       "completude_non_confirmee": 36,
       "episodes_indisponibles": 13,
       "hors_limite_episodes": 5,
-      "numerotation_incomplete": 23
+      "numerotation_incomplete": 24
     },
     "not_yet_indexed": [
+      {
+        "episode": 1,
+        "season": "2",
+        "series": "2",
+        "source_instances": 2
+      },
+      {
+        "episode": 2,
+        "season": "2",
+        "series": "2",
+        "source_instances": 2
+      },
       {
         "episode": 2,
         "season": "1",
@@ -598,21 +610,9 @@
         "season": "1",
         "series": "konosuba-trilogie",
         "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "1",
-        "series": "konosuba-trilogie",
-        "source_instances": 1
-      },
-      {
-        "episode": 3,
-        "season": "1",
-        "series": "konosuba-trilogie",
-        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2656,
+    "not_yet_indexed_total": 2645,
     "note": "La présence de trous n'est pas la preuve d'épisodes manquants ; titres normalisés pour le diagnostic sans rendre une copie automatiquement autorisée.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -658,7 +658,7 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 798,
+    "scanned_episode_candidates": 812,
     "source_episode_numbers_observed": 2773,
     "source_numbering_gap_seasons": 58,
     "source_numbering_gaps": [
@@ -832,6 +832,14 @@
         ],
         "season": "2",
         "series": "les-carnets-de-l-apothicaire",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          3
+        ],
+        "season": "1",
+        "series": "les-gouttes-de-dieu",
         "truncated": false
       },
       {
@@ -1223,14 +1231,6 @@
       },
       {
         "not_observed_between_known": [
-          3
-        ],
-        "season": "1",
-        "series": "les-gouttes-de-dieu",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
           12
         ],
         "season": "1",
@@ -1241,7 +1241,7 @@
     "source_scan_complete": false,
     "source_title_variants": 681,
     "source_title_variants_collapsed": 326,
-    "unnumbered_videos_skipped": 2207
+    "unnumbered_videos_skipped": 2154
   },
   "identity_review": [],
   "legacy_series_records": {
@@ -1413,8 +1413,8 @@
       "last_checked": "2026-10-20T05:04:52.126367+00:00",
       "pages": 1,
       "revisit_cursor": null,
-      "revisit_cycles": 1,
-      "revisit_last_checked": "2026-11-20T22:54:15.274597+00:00"
+      "revisit_cycles": 2,
+      "revisit_last_checked": "2026-11-21T09:27:12.479014+00:00"
     },
     "-1002069851953": {
       "complete": false,
@@ -1437,7 +1437,18 @@
         "S01E09": 209,
         "S01E10": 211,
         "S01E11": 213,
-        "S01E12": 215
+        "S01E12": 215,
+        "S02E01": 218,
+        "S02E02": 220,
+        "S02E03": 222,
+        "S02E04": 224,
+        "S02E05": 226,
+        "S02E06": 228,
+        "S02E07": 230,
+        "S02E08": 232,
+        "S02E09": 234,
+        "S02E10": 236,
+        "S02E11": 238
       },
       "episodes": {
         "1": {
@@ -1488,6 +1499,52 @@
           "9": {
             "message_id": 210,
             "url": "https://t.me/c/4416009337/210"
+          }
+        },
+        "2": {
+          "1": {
+            "message_id": 219,
+            "url": "https://t.me/c/4416009337/219"
+          },
+          "10": {
+            "message_id": 237,
+            "url": "https://t.me/c/4416009337/237"
+          },
+          "11": {
+            "message_id": 239,
+            "url": "https://t.me/c/4416009337/239"
+          },
+          "2": {
+            "message_id": 221,
+            "url": "https://t.me/c/4416009337/221"
+          },
+          "3": {
+            "message_id": 223,
+            "url": "https://t.me/c/4416009337/223"
+          },
+          "4": {
+            "message_id": 225,
+            "url": "https://t.me/c/4416009337/225"
+          },
+          "5": {
+            "message_id": 227,
+            "url": "https://t.me/c/4416009337/227"
+          },
+          "6": {
+            "message_id": 229,
+            "url": "https://t.me/c/4416009337/229"
+          },
+          "7": {
+            "message_id": 231,
+            "url": "https://t.me/c/4416009337/231"
+          },
+          "8": {
+            "message_id": 233,
+            "url": "https://t.me/c/4416009337/233"
+          },
+          "9": {
+            "message_id": 235,
+            "url": "https://t.me/c/4416009337/235"
           }
         }
       },
@@ -1553,17 +1610,75 @@
           "poster": 279,
           "private_video": 216,
           "video": 280
+        },
+        "S02E01": {
+          "poster": 283,
+          "private_video": 219,
+          "video": 284
+        },
+        "S02E02": {
+          "poster": 285,
+          "private_video": 221,
+          "video": 286
+        },
+        "S02E03": {
+          "poster": 287,
+          "private_video": 223,
+          "video": 288
+        },
+        "S02E04": {
+          "poster": 289,
+          "private_video": 225,
+          "video": 290
+        },
+        "S02E05": {
+          "poster": 291,
+          "private_video": 227,
+          "video": 292
+        },
+        "S02E06": {
+          "poster": 293,
+          "private_video": 229,
+          "video": 294
+        },
+        "S02E07": {
+          "poster": 295,
+          "private_video": 231,
+          "video": 296
+        },
+        "S02E08": {
+          "poster": 297,
+          "private_video": 233,
+          "video": 298
+        },
+        "S02E09": {
+          "poster": 299,
+          "private_video": 235,
+          "video": 300
+        },
+        "S02E10": {
+          "poster": 301,
+          "private_video": 237,
+          "video": 302
+        },
+        "S02E11": {
+          "poster": 303,
+          "private_video": 239,
+          "video": 304
         }
       },
       "public_id": 256,
       "season_indices": {
-        "1": 192
+        "1": 192,
+        "2": 217
       },
       "season_public_ids": {
-        "1": 256
+        "1": 256,
+        "2": 282
       },
       "season_status": {
-        "1": "en_cours"
+        "1": "en_cours",
+        "2": "en_cours"
       },
       "source_items": {
         "-1001595907308:14839": 194,
@@ -1577,7 +1692,18 @@
         "-1001595907308:14847": 210,
         "-1001595907308:14848": 212,
         "-1001595907308:14849": 214,
-        "-1001595907308:14850": 216
+        "-1001595907308:14850": 216,
+        "-1001595907308:14852": 219,
+        "-1001595907308:14853": 221,
+        "-1001595907308:14854": 223,
+        "-1001595907308:14855": 225,
+        "-1001595907308:14856": 227,
+        "-1001595907308:14857": 229,
+        "-1001595907308:14858": 231,
+        "-1001595907308:14859": 233,
+        "-1001595907308:14860": 235,
+        "-1001595907308:14861": 237,
+        "-1001595907308:14862": 239
       },
       "title": "Dorohedoro et 2 🇨🇵"
     },
@@ -15335,6 +15461,9 @@
         ],
         "4": [
           "-1001595907308:14718"
+        ],
+        "5": [
+          "-1001595907308:14719"
         ]
       }
     },
