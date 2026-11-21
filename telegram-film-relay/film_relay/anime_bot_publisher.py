@@ -215,12 +215,13 @@ class AnimeBotPublisher:
         key = row["series"]
         marker = episode_key(row)
         entry = self._series(row)
-        if (entry.get("migrated_from_legacy")
-                and entry.get("public_id")
-                and os.environ.get(
-                    "CINEX_ANIME_LEGACY_PUBLIC_CARD_OWNERSHIP_VERIFIED") != "true"):
-            raise RuntimeError(
-                "Legacy public card author is unverified; bot publishing is blocked.")
+        # An imported public card may have been written by an unrelated bot.
+        # Never modify or replace its buttons before bot ownership is checked.
+        if entry.get("migrated_from_legacy") and entry.get("public_id"):
+            if os.environ.get(
+                    "CINEX_ANIME_LEGACY_PUBLIC_CARD_OWNERSHIP_VERIFIED") != "true":
+                raise RuntimeError(
+                    "Legacy public card author is unverified; bot publishing is blocked.")
         poster = self._poster(row)
         source = self.state.get("messages", {}).get(row["source_key"], {})
         if source.get("kind") != "video":
