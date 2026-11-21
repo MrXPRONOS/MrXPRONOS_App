@@ -235,6 +235,21 @@ class AnimeBotPublisher:
                 "poster": cover, "video": video, "private_video": private_msg}
             self.store.save(self.state)
         await self._series_card(row, entry, poster)
+        # Optional: repost the authenticated source weekly GIF only once.
+        # No fabricated GIF or automatic media upload. This switch stays off
+        # until rights for the animation itself have been confirmed.
+        gif_key = row.get("cadence_source_key")
+        if (gif_key and os.environ.get(
+                "CINEX_ANIME_GIF_REPOST_ENABLED", "").lower() == "true"
+                and not entry.get("cadence_gif_public_id")):
+            gif = self.state.get("messages", {}).get(gif_key)
+            if (gif and gif.get("kind") == "animation"
+                    and gif.get("source_id") == source.get("source_id")):
+                entry["cadence_gif_public_id"] = await self._operation(
+                    f"weekly-gif:{key}", lambda: self.transport.copy_message(
+                        self.public_id, gif["source_id"], gif["message_id"],
+                        caption=f"📅 <b>{escape(entry['title'])}</b> — Hebdomadaire"))
+                self.store.save(self.state)
         source["status"] = "published"
         for other in row.get("alternate_source_keys", []):
             self.state.get("messages", {}).get(other, {})["status"] = "published"
