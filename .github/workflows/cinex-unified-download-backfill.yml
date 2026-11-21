@@ -1,6 +1,10 @@
 name: 'CineX - Vidéothèque centrale : diagnostic et copies limitées'
 
 on:
+  # Owner-approved gradual media consolidation. Automatically stops after Dec 16,
+  # and never deletes or touches historical original videos.
+  schedule:
+    - cron: '45 2,14 * * *'
   # One-shot NON-DESTRUCTIVE diagnostic when the owner-confirmed channel goes live.
   push:
     branches: [main]
@@ -89,7 +93,15 @@ jobs:
           RUN_APPLY: ${{ inputs.apply }}
         run: |
           set -euo pipefail
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && "$RUN_APPLY" == "true" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            # Explicit 25-day safeguard. A stale cron cannot resume copying
+            # many months later without an owner reviewing the remaining stock.
+            if [[ "$(date -u +%F)" > "2026-12-16" ]]; then
+              echo "Fenêtre de migration terminée ; aucune nouvelle copie."
+              exit 0
+            fi
+            python -m film_relay.unified_library_backfill --apply --per-channel 5 --history 4000
+          elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && "$RUN_APPLY" == "true" ]]; then
             python -m film_relay.unified_library_backfill --apply --per-channel "${{ inputs.per_channel || '1' }}" --history 1000
           else
             python -m film_relay.unified_library_backfill --per-channel "${{ inputs.per_channel || '1' }}" --history 1000
