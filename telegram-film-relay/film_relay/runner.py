@@ -16,6 +16,7 @@ from .publication import (rich_caption, rich_video_title, film_folder_url,
                           send_public_poster_with_buttons,
                           send_library_poster_with_buttons, verify_library_bot,
                           post_public_video_after_poster)
+from .unified_download import UnifiedLibrary
 from .state import State
 from .source_channels import source_list
 from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
@@ -309,6 +310,9 @@ async def execute() -> int:
                 "Super Mario Film (destination publique) ne possède pas de @username public. "
                 "Vérifier la confidentialité du canal ou corriger TG_PUBLIC_CHANNEL."
             )
+        unified = UnifiedLibrary(client)
+        if publish:
+            await unified.prepare(public=destination_public)
         # Public posts now direct viewers to the shared films folder.
         # Stop exporting private invitation links on each two-hour run.
         invitation = film_folder_url()
@@ -526,10 +530,15 @@ async def execute() -> int:
                             state.stage(pair_id, private_post_id)
                             LOG.info("Vidéo privée envoyée : message %s", private_post_id)
                         url = private_message_link(private_id, private_post_id)
+                        download_url = await unified.store(
+                            pair.movie, category="films", title=text,
+                            public=destination_public,
+                        )
                         await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
                         public_post = await send_public_poster_with_buttons(
                             client, bot_client, bot_destination, pair.poster,
-                            text, url, invitation
+                            text, url, invitation,
+                            download_url=download_url,
                         )
                         # Every film receives the complete public pair regardless
                         # of the old opt-in showcase flag. Private copy is already
