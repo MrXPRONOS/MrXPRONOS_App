@@ -533,6 +533,7 @@ async def execute() -> int:
                         download_url = await unified.store(
                             pair.movie, category="films", title=text,
                             public=destination_public,
+                            poster=pair.poster, description=text,
                         )
                         await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
                         public_post = await send_public_poster_with_buttons(
