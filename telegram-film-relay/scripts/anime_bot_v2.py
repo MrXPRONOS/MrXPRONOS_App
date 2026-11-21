@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sys
 
-from film_relay.anime_bot_queue import ingest_channel_updates
+from film_relay.anime_bot_queue import ingest_channel_updates, mark_bot_review
 from film_relay.anime_bot_migration import migrate_legacy_catalogue
 from film_relay.anime_bot_matching import (
     associate_anime_messages, consolidate_source_candidates,
@@ -124,11 +124,20 @@ async def run(mode: str, *, state_path: str, max_poll_batches=20,
                     totals[key] += report.get(key, 0)
                 if len(updates) < 100:
                     break
+            _, review = prepare(state)
+            marked = mark_bot_review(
+                state, review["source_review"], review["media_review"])
+            if marked:
+                store.save(state)
             return {"mode": "poll", "counts": totals,
                     "queued_messages": len(state.get("messages", {}))}
         if mode != "publish":
             raise ValueError("Unsupported mode.")
         batches, report = prepare(state)
+        marked = mark_bot_review(
+            state, report["source_review"], report["media_review"])
+        if marked:
+            store.save(state)
         # Do not publish while any candidate is ambiguous and conflicts with
         # the same canonical key; ambiguous rows are explicitly excluded.
         publisher = AnimeBotPublisher(
