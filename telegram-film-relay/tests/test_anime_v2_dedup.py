@@ -58,6 +58,17 @@ class AnimeCrossSourceDedupTests(unittest.TestCase):
         self.assertEqual(report["conflicts"][0]["reason"],
                          "different_telegram_media_for_same_episode")
 
+    def test_one_source_file_mislabeled_as_two_different_episodes_is_quarantined(self):
+        rows = [
+            row("naruto", 7, "a:7", 555),
+            row("naruto", 8, "a:8", 555),
+        ]
+        selected, report = deduplicate_anime_candidates(rows, {})
+        self.assertEqual(selected, [])
+        self.assertEqual(report["cross_episode_media_conflicts"], 2)
+        self.assertEqual({r["reason"] for r in report["conflicts"]},
+                         {"identical_document_used_for_distinct_episodes"})
+
     def test_separate_season_or_separate_anime_must_never_be_merged(self):
         rows = [
             row("naruto", 7, "a", 401),
