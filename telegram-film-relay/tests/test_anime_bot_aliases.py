@@ -31,7 +31,10 @@ class BotAliasesTests(unittest.TestCase):
                 "public_episode_posts": {"S01E01": {
                     "poster": 10, "video": 11}},
             }},
-            "series_aliases": {"naruto-anime-vf": "naruto"},
+            "series_aliases": {
+                "naruto-anime-vf": "naruto",
+                "naruto-anime": "naruto",
+            },
             "messages": {
                 "-1001234567890:2": {
                     "source_id": "-1001234567890", "message_id": 2,
