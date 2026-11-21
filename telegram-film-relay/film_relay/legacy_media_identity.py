@@ -63,7 +63,8 @@ def _ascii(text: str) -> str:
 
 
 def cleaned_title(text: str) -> str:
-    value = _ascii(text).splitlines()[0]
+    lines = _ascii(text).splitlines()
+    value = lines[0] if lines else ""
     value = re.sub(r"(?i)^(?:@[\w]{5,32}\s+)", "", value)
     value = re.sub(
         r"(?i)^(?:(?:mangas[ ._-]*fv|animes[ ._-]*canal|"
