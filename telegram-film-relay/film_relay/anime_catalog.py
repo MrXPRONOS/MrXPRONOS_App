@@ -34,6 +34,7 @@ from .anime_dedup import (
 )
 from .anime_cadence import cadence_from_message
 from .anime_archive_queue import recover_archive_queue
+from .anime_download_repair import repair_existing_download_links
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -533,6 +534,18 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         unified = UnifiedLibrary(client)
         if publish:
             await unified.prepare(public=public)
+            # Deliberate opt-in: never sweep historical media during the
+            # ordinary live publication cycle without an explicit release
+            # gate. The original Anime private post and public IDs are stable.
+            if os.getenv("CINEX_ANIME_DOWNLOAD_BACKFILL_ENABLED", "").lower() in (
+                    "true", "1", "yes"):
+                repair_stats = await repair_existing_download_links(
+                    client, private, public, unified, catalogue, save_catalog,
+                    limit=min(4, max(0, int(os.getenv(
+                        "CINEX_ANIME_DOWNLOAD_BACKFILL_LIMIT", "2")))),
+                    pause_seconds=pause,
+                )
+                LOG.info("Anime download legacy receipts reconciled: %s", repair_stats)
         private_id = utils.get_peer_id(private)
         if publish:
             await repair_legacy_indexes(
