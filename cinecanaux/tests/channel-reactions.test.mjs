@@ -69,9 +69,10 @@ function memoryDB() {
         },
         async all(){
           if(sql.startsWith("SELECT j.post_seq,j.bot_role")){
+            assert.match(sql,/ORDER BY j.post_seq DESC/);
             return {results:jobs
               .filter(x=>x.state==="pending"&&!terminal.some(t=>t.post_seq===x.post_seq))
-              .sort((a,b)=>a.post_seq-b.post_seq || (a.bot_role==="radar"?-1:1))
+              .sort((a,b)=>b.post_seq-a.post_seq || (a.bot_role==="radar"?-1:1))
               .slice(0,p[0]).map(x=>({...x,...posts.find(y=>y.seq===x.post_seq)}))};
           }
           throw new Error("Unexpected SQL all: "+sql);
@@ -173,4 +174,30 @@ test("Telegram missing messages are quarantined without blocking later channel p
   assert.equal(next.sent,2);
   assert.deepEqual(calls,[901,902,902]);
   assert.equal(jobs.filter(j=>j.state==="sent").length,2);
+});
+
+test("With capacity for 4 reactions, newest channel publications are processed first",async()=>{
+  const {DB,jobs}=memoryDB();
+  const env={DB,TELEGRAM_TOKEN:"radar-token",CANAL_BOT_TOKEN:"canal-token"};
+  for(let id=10;id<=14;id++)await enqueueChannelReactions(env,post(id));
+  const observed=[];
+  const request=async(url,opts)=>{
+    const method=url.split("/").at(-1);
+    if(method==="getMe")return Response.json({ok:true,result:{
+      username:url.includes("botradar-token")?"CineRadarFr_Bot":"mrxpronos_canal_bot",
+    }});
+    const payload=JSON.parse(opts.body);
+    observed.push(payload.message_id);
+    return Response.json({ok:true,result:true});
+  };
+  const first=await processReactionQueue(env,{limit:4,request});
+  assert.equal(first.sent,4);
+  assert.deepEqual(observed,[14,14,13,13]);
+  assert.equal(jobs.filter(j=>j.state==="sent").length,4);
+  const second=await processReactionQueue(env,{limit:4,request});
+  assert.equal(second.sent,4);
+  assert.deepEqual(observed.slice(4),[12,12,11,11]);
+  const third=await processReactionQueue(env,{limit:4,request});
+  assert.equal(third.sent,2);
+  assert.deepEqual(observed.slice(8),[10,10]);
 });
