@@ -1,4 +1,4 @@
-name: CineX - Videotheque unifiee : tests sans Telegram
+name: 'CineX - Videotheque unifiee : tests sans Telegram'
 
 on:
   pull_request:
