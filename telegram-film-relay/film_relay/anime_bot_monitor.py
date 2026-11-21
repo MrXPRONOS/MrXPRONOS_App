@@ -16,13 +16,9 @@ def health_snapshot(state: dict, *, now: int | None = None, overdue_days=14) -> 
         hint = entry.get("cadence_hint")
         if hint not in ("weekly", "fortnightly"):
             continue
-        published = [
-            item for item in rows.values()
-            if item.get("status") == "published"
-            and item.get("kind") == "video"
-            and item.get("date")
-        ]
-        last = max((int(item["date"]) for item in published), default=0)
+        # Cadence belongs to this individual series, never to the latest
+        # publication across unrelated titles.
+        last = int(entry.get("last_published_source_date") or 0)
         if not last:
             continue
         threshold_days = 14 if hint == "weekly" else 28
