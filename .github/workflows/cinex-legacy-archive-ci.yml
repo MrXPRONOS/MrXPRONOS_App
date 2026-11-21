@@ -1,0 +1,47 @@
+name: CineX - CI archivage legacy intelligent (hors ligne)
+
+on:
+  pull_request:
+    paths:
+      - 'telegram-film-relay/film_relay/legacy_media_identity.py'
+      - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
+      - 'telegram-film-relay/film_relay/ten_video_rotation.py'
+      - 'telegram-film-relay/tests/test_legacy_archive_repair.py'
+      - 'telegram-film-relay/tests/test_ten_video_rotation.py'
+      - '.github/workflows/cinex-legacy-archive-ci.yml'
+      - '.github/workflows/cinex-public-video-rotation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/film_relay/legacy_media_identity.py'
+      - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
+      - 'telegram-film-relay/film_relay/ten_video_rotation.py'
+      - 'telegram-film-relay/tests/test_legacy_archive_repair.py'
+      - '.github/workflows/cinex-legacy-archive-ci.yml'
+      - '.github/workflows/cinex-public-video-rotation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+      - name: Vérifier les imports et la syntaxe
+        run: python -m compileall -q film_relay
+      - name: Tests reconnaissance et archivage sûrs
+        run: python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Tests conservation dix vidéos
+        run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
+      - name: Tests ancienne rotation
+        run: python -m unittest discover -s tests -p 'test_public_video_archive.py' -v

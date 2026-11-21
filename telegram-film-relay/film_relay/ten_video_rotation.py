@@ -93,18 +93,27 @@ def category_targets(env: dict | None = None):
     return selected
 
 
-async def verify_existing_pair(client, public, private, private_id, video, posters):
-    """Fail closed unless public+private poster, description and links exist."""
-    candidates = [p for p in posters if 0 < video.id - p.id <= 3]
-    candidates.sort(key=lambda p: p.id, reverse=True)
+async def verify_existing_pair(client, public, private, private_id, video, posters,
+                               category: str = "films"):
+    """Allow later repair covers while requiring exact source-document identity.
+
+    A repair poster may have been created AFTER the legacy video. A nearby
+    cover alone is NEVER sufficient for deletion; the private Telegram media,
+    its preceding private cover and the public URL buttons must all agree.
+    """
+    from .legacy_media_identity import compatible, poster_identity, video_identity
+    ident = video_identity(video, category)
+    if not ident.safe:
+        return None
     rescue_url = rescue_link_for(public)
     if not rescue_url:
         raise RuntimeError("Invitation Secours manquante pour ce canal")
     folder_url = film_folder_url()
-    for poster in candidates:
-        if not getattr(poster, "photo", None) or not (
-            getattr(poster, "raw_text", "") or ""
-        ).strip():
+    matched = []
+    for poster in posters:
+        if not getattr(poster, "photo", None):
+            continue
+        if compatible(ident, poster_identity(poster, category)) < 0.95:
             continue
         private_video_id = movie_button_target(poster, private_id)
         if not private_video_id:
@@ -117,19 +126,19 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
         if (not is_video_message(private_video)
                 or video_document_id(private_video) != video_document_id(video)):
             continue
-        # Private library poster must have both buttons and precede this video.
-        prior_ids = list(range(max(1, private_video_id - 5), private_video_id))
+        prior_ids = list(range(max(1, private_video_id - 8), private_video_id))
         private_posters = await client.get_messages(private, ids=prior_ids)
         for private_poster in private_posters or []:
             if (getattr(private_poster, "photo", None)
                     and (getattr(private_poster, "raw_text", "") or "").strip()
-                    and title_similarity(poster_heading(private_poster),
-                                         poster_heading(poster)) >= 0.80
+                    and compatible(ident, poster_identity(
+                        private_poster, category)) >= 0.95
                     and has_verified_button(private_poster, rescue_url)
                     and has_verified_button(private_poster, folder_url)):
-                return poster
-    return None
-
+                matched.append(poster)
+                break
+    # Any ambiguity stops deletion: one verified public cover per media.
+    return matched[0] if len(matched) == 1 else None
 
 async def rotate_channel(client, category: str, public, private,
                          *, apply: bool, max_deleted: int = 10, history: int = 4000):
@@ -160,7 +169,7 @@ async def rotate_channel(client, category: str, public, private,
             LOG.info("[SIMULATION] %s : ancienne vidéo #%s", category, video.id)
             continue
         public_poster = await verify_existing_pair(
-            client, public, private, private_id, video, posters)
+            client, public, private, private_id, video, posters, category)
         if not public_poster:
             report["unverified"] += 1
             LOG.warning("%s : ancienne vidéo #%s gardée (fiche ou média non vérifié)",
