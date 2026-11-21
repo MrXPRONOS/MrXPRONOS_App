@@ -18,6 +18,15 @@ SQL = {
     "owner_unique_destinations": (
         "SELECT COUNT(DISTINCT owner_chat_id) AS n FROM cine_owner_vault WHERE status='stored'"
     ),
+    "owner_vault_switch": "SELECT setting_value FROM cine_series_config WHERE setting_key='owner_chat_vault_enabled'",
+    "owner_pending_older_1h": "SELECT COUNT(*) AS n FROM cine_owner_vault WHERE status='queued' AND created_at<datetime('now','-1 hour')",
+    "owner_pending_older_24h": "SELECT COUNT(*) AS n FROM cine_owner_vault WHERE status='queued' AND created_at<datetime('now','-24 hours')",
+    "series_repeat_statuses": (
+        "SELECT COUNT(*) AS attempts,MIN(created_at) AS oldest,MAX(created_at) AS newest, "
+        "GROUP_CONCAT(status) AS states FROM cine_series_jobs "
+        "WHERE created_at>=datetime('now','-1 hour') "
+        "GROUP BY telegram_chat_id,token HAVING COUNT(*)>1"
+    ),
     "owner_same_source": (
         "SELECT COUNT(*) AS n FROM (SELECT source_chat_id,source_message_id "
         "FROM cine_owner_vault GROUP BY source_chat_id,source_message_id HAVING COUNT(*)>1)"
