@@ -28,7 +28,8 @@ from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
 from .anime_policy import (complete_anime_seasons, progressive_anime_seasons,
                            select_anime_season, anime_movie_slots)
-from .anime_dedup import deduplicate_anime_candidates, pending_ongoing_episodes
+from .anime_dedup import (deduplicate_anime_candidates, pending_ongoing_episodes,
+                          reconcile_known_source_duplicates)
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -549,6 +550,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             client, sources, all_candidates, catalogue.get("active_batch"))
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
         unique_candidates, dedup_report = deduplicate_anime_candidates(
+            all_candidates, catalogue)
+        dedup_report["existing_reposts"] = reconcile_known_source_duplicates(
             all_candidates, catalogue)
         catalogue["last_dedup_audit"] = dedup_report
         groups = {}
