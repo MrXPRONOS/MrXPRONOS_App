@@ -9,6 +9,7 @@ function memoryDB() {
   let serial=0;
   const posts=[];
   const jobs=[];
+  const terminal=[];
   const DB={
     prepare(sql){
       let p=[];
@@ -28,6 +29,16 @@ function memoryDB() {
             const [post_seq,bot_role,emoji]=p;
             if(!jobs.some(j=>j.post_seq===post_seq&&j.bot_role===bot_role))
               jobs.push({post_seq,bot_role,emoji,state:"pending",attempts:0});
+            return {meta:{changes:1}};
+          }
+          if(sql.startsWith("INSERT OR IGNORE INTO channel_reaction_terminal_posts")){
+            if(!terminal.some(t=>t.post_seq===p[0]))terminal.push({post_seq:p[0],reason:p[1]});
+            return {meta:{changes:1}};
+          }
+          if(sql.startsWith("UPDATE channel_reaction_jobs SET state='retry',next_try_at='9999-12-31")){
+            const j=jobs.find(x=>x.post_seq===p[0]&&x.bot_role===p[1]);
+            if(!j)return {meta:{changes:0}};
+            j.state="retry";j.last_error="terminal:message_not_found";
             return {meta:{changes:1}};
           }
           if(sql.startsWith("UPDATE channel_reaction_jobs SET state='sending'")){
@@ -59,7 +70,7 @@ function memoryDB() {
         async all(){
           if(sql.startsWith("SELECT j.post_seq,j.bot_role")){
             return {results:jobs
-              .filter(x=>x.state==="pending")
+              .filter(x=>x.state==="pending"&&!terminal.some(t=>t.post_seq===x.post_seq))
               .sort((a,b)=>a.post_seq-b.post_seq || (a.bot_role==="radar"?-1:1))
               .slice(0,p[0]).map(x=>({...x,...posts.find(y=>y.seq===x.post_seq)}))};
           }
@@ -69,7 +80,7 @@ function memoryDB() {
     },
     async batch(items){for(const item of items)await item.run();return [];},
   };
-  return {DB,posts,jobs};
+  return {DB,posts,jobs,terminal};
 }
 const post=(id,group)=>({
   chat:{id:-1001234567890,type:"channel"},message_id:id,
@@ -130,4 +141,36 @@ test("Missing second bot token never sends a partial pair",async()=>{
   const env={DB,TELEGRAM_TOKEN:"radar-token"};
   await enqueueChannelReactions(env,post(106));
   assert.deepEqual(await processReactionQueue(env),{skipped:"missing_bot_credentials_or_database"});
+});
+
+test("Telegram missing messages are quarantined without blocking later channel publications",async()=>{
+  const {DB,jobs,terminal}=memoryDB();
+  const env={DB,TELEGRAM_TOKEN:"radar-token",CANAL_BOT_TOKEN:"canal-token"};
+  await enqueueChannelReactions(env,post(901));
+  const calls=[];
+  const request=async(url,opts)=>{
+    const method=url.split("/").at(-1);
+    if(method==="getMe")return Response.json({ok:true,result:{
+      username:url.includes("botradar-token")?"CineRadarFr_Bot":"mrxpronos_canal_bot",
+    }});
+    const payload=JSON.parse(opts.body);
+    calls.push(payload.message_id);
+    if(payload.message_id===901)return Response.json(
+      {ok:false,description:"Bad Request: message to react not found"},{status:400}
+    );
+    return Response.json({ok:true,result:true});
+  };
+  const first=await processReactionQueue(env,{request});
+  assert.equal(first.failed,1);
+  assert.deepEqual(terminal,[{post_seq:1,reason:"telegram_message_not_found"}]);
+  assert.equal(jobs[0].last_error,"terminal:message_not_found");
+  assert.equal(jobs[1].state,"pending");
+  const repeat=await processReactionQueue(env,{request});
+  assert.equal(repeat.sent,0);
+  assert.deepEqual(calls,[901]);
+  await enqueueChannelReactions(env,post(902));
+  const next=await processReactionQueue(env,{request});
+  assert.equal(next.sent,2);
+  assert.deepEqual(calls,[901,902,902]);
+  assert.equal(jobs.filter(j=>j.state==="sent").length,2);
 });
