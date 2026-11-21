@@ -1,8 +1,8 @@
 # CinéX Anime V2 — suivi des 22 chantiers et intégration sécurisée
 
 Préparation ouverte le **21 novembre 2026** sur une branche isolée :
-`fix/cinex-anime-v2-dedup-followup-20261121`.
-PR de préparation : https://github.com/MrXPRONOS/MrXPRONOS_App/pull/576
+`release/cinex-anime-v2-integration-20261121`.
+PR de préparation : https://github.com/MrXPRONOS/MrXPRONOS_App/pull/585
 
 > **Aucun déploiement ni fusion.** Les modules Bot API sont verrouillés par défaut.
 > Un test hors ligne réussi ne démontre pas les permissions Telegram ni les
@@ -27,7 +27,7 @@ PR de préparation : https://github.com/MrXPRONOS/MrXPRONOS_App/pull/576
 
 ## État exact des chantiers
 
-| # | Correction / amélioration | Code sur PR #576 | Ce qui manque pour la clôture définitive |
+| # | Correction / amélioration | Code sur PR #585 | Ce qui manque pour la clôture définitive |
 |---|---|---|---|
 | 1 | Crash `verify_library_bot` | Corrigé ; tests hors ligne | Validation pendant un cycle Telegram réel |
 | 2 | Antidoublons multi-sources série+saison+épisode | Implémenté, avec quarantaine | Contrôle de la vraie base des publications |
@@ -79,10 +79,10 @@ système ; le préflight le refuse.
 
 - **PR #578 fusionnée dans main le 21/11/2026 vers 13:53 UTC** —
   *CinéX vidéothèque privée commune et bouton Télécharger* :
-  **conflit réel de fusion GitHub** sur `anime_catalog.py`,
+  **conflit de fusion initial résolu sur la branche d'intégration** sur `anime_catalog.py`,
   `category_runner.py` et `publication.py`. Les nouveaux liens
   Télécharger passent par la vidéothèque commune / CineRadarFr_Bot.
-  **Ne pas forcer le merge ou revenir à l'ancienne version de ces fichiers.**
+  **Ne pas écraser ou revenir à l'ancienne version de ces fichiers.**
   Réconcilier soigneusement l'antidoublon Anime, les reçus publics,
   `UnifiedLibrary` et les boutons de téléchargement avant tout déploiement.
 - **PR #388** — *réactions après nouveau film* (ancienne PR encore ouverte),
@@ -129,3 +129,48 @@ système ; le préflight le refuse.
 - L'intégration de la vidéothèque centrale (#578), l'envoi effectif de
   notifications de supervision et la validation réelle des droits sont
   **des travaux ouverts** ; ne pas les déclarer terminés.
+
+## Phase d'intégration du 21/11/2026 (PR #585)
+
+- Nouvelle branche reconstruite depuis le `main` contenant les mises à
+  jour récentes, notamment la vidéothèque commune (#578), le registre CineRadar
+  et les corrections webhook.
+- Les trois fichiers conflictuels ont été intégrés manuellement. L'envoi
+  vers la vidéothèque unifiée et les boutons `download_url` sont préservés ;
+  l'ancienne PR #576 ne doit plus être fusionnée indépendamment.
+- Le scanner historique a une protection supplémentaire : un identifiant de
+  vidéo associé à plusieurs numéros d'épisodes distincts est mis en
+  quarantaine. Même protection du côté des `file_unique_id` du Bot API.
+- `scripts/anime_bot_readiness.py` + workflow
+  `cinex-anime-v2-readiness.yml` : contrôles **en lecture seule** des
+  autorisations, de l'identité du bot, des droits, du stockage privé et des
+  reçus historiques, sans consommation de `getUpdates`.
+- **La fusion du code sur main n'active pas le nouveau Bot API** : aucun
+  canal source, token dédié, transfert vers la vidéothèque commune ou
+  migration des reçus ne doit être deviné.
+- Le calendrier existant des **4 cycles par jour** reste inchangé.
+- Contrôle de la production avant bascule : `main` et la liste des PR
+  pertinentes doivent être consultés une nouvelle fois. La fin des
+  traitements GitHub Actions en cours doit être vérifiée, ainsi que les
+  éventuels rapports de santé, avant de déclarer le système opérationnel.
+
+### Critères indispensables pour dire « chantier 22 terminé »
+
+1. Tous les tests CI sur le SHA exact intégrable sont verts et le scan
+   historique est passé en lecture seule.
+2. Le contrôle réel des permissions Bot API valide **tous** les canaux
+   sources, la vidéothèque privée et le canal Anime public.
+3. Les droits de redistribution des médias et GIF sont vérifiés, pas
+   déduits du seul accès Telegram.
+4. Les anciennes fiches et épisodes sont réconciliés sur Telegram ; aucune
+   copie supposée sans reçu. Les résultats d'envoi incertains sont résolus.
+5. La même vidéo reste disponible via le dossier privé et, si activé,
+   via le vrai bot de téléchargement CineRadar, sans lien cassé.
+6. L'ancien publicateur Anime est désactivé avant l'activation du nouveau.
+7. Un test de publication réel, limité et autorisé, est suivi d'un
+   second cycle idempotent sans nouveau doublon.
+8. Les quatre exécutions quotidiennes, la file de rattrapage et les
+   alertes sont observées sur la durée.
+
+**Ne pas déclarer le point #22 achevé si ces vérifications externes
+ne sont pas démontrées.**
