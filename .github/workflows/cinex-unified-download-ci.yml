@@ -14,6 +14,7 @@ on:
       - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
       - 'telegram-film-relay/tests/test_unified_download.py'
       - '.github/workflows/cinex-unified-download-ci.yml'
+      - '.github/workflows/cinex-unified-download-backfill.yml'
   push:
     branches: [main]
     paths:
