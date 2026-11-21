@@ -1,0 +1,77 @@
+name: CinéX T04 - sauvegarde D1 chiffree et verifiee
+# Encrypted backup of full D1 only. No Telegram sessions, messages or movie bytes.
+on:
+  schedule:
+    - cron: '37 2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-t04-backup.yml'
+      - 'cinecanaux/scripts/cinex_backup_crypto.py'
+      - 'cinecanaux/backup-public-key.txt'
+
+permissions:
+  contents: read
+concurrency:
+  group: cinex-t04-encrypted-db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        shell: bash
+        working-directory: cinecanaux
+    steps:
+      - name: Checkout exact commit (no credentials retained)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned Python cryptography
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'cryptography==46.0.3'
+      - name: Export full production D1, validate locally and encrypt BEFORE upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || {
+            echo '::error::Cloudflare API token is missing; NO plaintext backup was uploaded.'
+            exit 1
+          }
+          test -s backup-public-key.txt
+          output_dir="$RUNNER_TEMP/cinex-t04-sealed"
+          mkdir -m 700 -p "$output_dir"
+          sql="$RUNNER_TEMP/cinex-t04-d1-${GITHUB_RUN_ID}.sql"
+          trap 'rm -f "$sql"' EXIT
+          # Full snapshot: schema AND all data; no --no-data or --table filter.
+          npx --yes wrangler@4.165.0 d1 export cinecanaux-directory --remote \
+            --config wrangler.jsonc --output "$sql"
+          test -s "$sql"
+          # Fails closed if SQL cannot build a valid SQLite DB or lacks
+          # required CinéX tables. Private X25519 key is NEVER present in CI.
+          python3 scripts/cinex_backup_crypto.py encrypt \
+            --sql "$sql" --public-key backup-public-key.txt \
+            --out "$output_dir/backup.enc"
+          rm -f "$sql"
+          test -s "$output_dir/backup.enc"
+          echo "T04: encrypted DB snapshot verified, ready for artifact upload."
+      - name: Upload ONLY ciphertext (90-day GitHub artifact retention)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-t04-d1-sealed-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cinex-t04-sealed/backup.enc
+          retention-days: 90
+          compression-level: 0
+          if-no-files-found: error
+      - name: Confirm uploaded artifact reference (no private identifiers)
+        run: |
+          echo "T04 archive encrypted and published as an Actions artifact."
+          echo "Restore locally using the OFFLINE private recovery key; never upload the key to this repository."
