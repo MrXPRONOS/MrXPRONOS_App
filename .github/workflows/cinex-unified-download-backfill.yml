@@ -1,4 +1,4 @@
-name: CineX - Vidéothèque centrale : diagnostic et copies limitées
+name: 'CineX - Vidéothèque centrale : diagnostic et copies limitées'
 
 on:
   workflow_dispatch:
