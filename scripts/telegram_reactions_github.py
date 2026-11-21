@@ -28,8 +28,6 @@ TOKEN_KEY_RE = re.compile(r"^TELEGRAM_REACTION_BOT_([0-9]{2,4})_TOKEN$")
 SLOT_BATCH_SIZE = 25
 BLOCKED_IDENTITIES = {"cineradarfr_bot", "mrxpronos_canal_bot"}
 MAX_JOBS_PER_RUN = 100
-RECENT_JOBS_PER_RUN = 80
-OLDEST_JOBS_PER_RUN = MAX_JOBS_PER_RUN - RECENT_JOBS_PER_RUN
 MAX_NEW_JOBS_PER_RUN = 600
 NETWORK_TIMEOUT = 20
 
@@ -216,35 +214,25 @@ def prepare_jobs(db: D1, slots: tuple[int, ...]) -> None:
 
 
 def due_jobs(db: D1, slots: tuple[int, ...]) -> list[dict[str, Any]]:
-    """Process 80 newest jobs and 20 oldest due jobs each run.
+    """Select only the newest due publications, then work backwards.
 
-    The previous ascending FIFO left recently published posts behind hundreds
-    of stale jobs. Keep some capacity for the historical backlog without
-    replaying already-sent or blocked reactions.
+    A capacity of 10 picks the 10 most recent eligible reaction jobs, not
+    8 recent and 2 historical ones. Older jobs remain in D1 and are processed
+    when newer jobs no longer consume the available capacity.
     """
     if not slots:
         return []
     marks = ",".join("?" for _ in slots)
-    rows: list[dict[str, Any]] = []
-    seen: set[tuple[int, int]] = set()
-    for direction, batch_size in (("DESC", RECENT_JOBS_PER_RUN),
-                                  ("ASC", OLDEST_JOBS_PER_RUN)):
-        query = f"""
-          SELECT j.post_seq,j.bot_slot,j.emoji,j.attempts,p.chat_id,p.message_id
-          FROM channel_reaction_extra_jobs AS j
-          JOIN channel_reaction_posts AS p ON p.seq=j.post_seq
-          WHERE j.bot_slot IN ({marks})
-            AND j.state IN ('pending','retry')
-            AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP
-          ORDER BY j.post_seq {direction},j.bot_slot ASC LIMIT ?
-        """
-        subset = db.query(query, (*slots, batch_size)).get("results") or []
-        for row in subset:
-            key = (int(row["post_seq"]), int(row["bot_slot"]))
-            if key not in seen:
-                seen.add(key)
-                rows.append(row)
-    return rows
+    query = f"""
+      SELECT j.post_seq,j.bot_slot,j.emoji,j.attempts,p.chat_id,p.message_id
+      FROM channel_reaction_extra_jobs AS j
+      JOIN channel_reaction_posts AS p ON p.seq=j.post_seq
+      WHERE j.bot_slot IN ({marks})
+        AND j.state IN ('pending','retry')
+        AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP
+      ORDER BY j.post_seq DESC,j.bot_slot ASC LIMIT ?
+    """
+    return db.query(query, (*slots, MAX_JOBS_PER_RUN)).get("results") or []
 
 
 def audit_primary_channel_access(db: D1, bots: dict[int, str],
