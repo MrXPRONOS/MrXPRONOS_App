@@ -70,10 +70,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          [[ "$CINEX_UNIFIED_PRIVATE_CHANNEL" =~ ^-100[0-9]{5,}$ ]] || {
-            echo "::error::Ajouter l'identifiant exact -100... dans CINEX_UNIFIED_PRIVATE_CHANNEL."
-            exit 1
-          }
+          # The private ID can be read from the existing verified CineRadar D1
+          # record, but only when its SHA-256 matches the owner's confirmation.
+          python3 - <<'PY'
+          from film_relay.unified_download import configured_private_id
+          approved = configured_private_id()
+          if approved is None:
+              raise SystemExit("No owner-approved central private stock")
+          print("Canal privé CinéRadar confirmé par le registre et empreinte SHA-256.")
+          PY
           [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]] || {
             echo "::error::Secrets de session Telegram manquants."
             exit 1
