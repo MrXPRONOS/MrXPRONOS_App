@@ -1,11 +1,14 @@
 """Regression tests for the safe CineX legacy recognition and linking."""
 import unittest
+import asyncio
+from unittest.mock import patch
 from types import SimpleNamespace as NS
 
 from film_relay.legacy_media_identity import (
     parse_identity, video_identity, poster_identity, compatible,
     find_legacy_poster, youtube_url_for,
 )
+from film_relay.ten_video_rotation import verify_existing_pair
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
 )
@@ -99,6 +102,30 @@ class LegacyMediaIdentityTests(unittest.TestCase):
         bad = media(1, "https://youtube.com.evil.com/watch?v=dQw4w9WgXcQ",
                     photo=True)
         self.assertIsNone(youtube_url_for(bad))
+
+    def test_repaired_public_poster_after_video_is_validated_by_exact_private_copy(self):
+        rescue = "https://t.me/+ABCdefghi123456"
+        folder = "https://t.me/addlist/AAA"
+        url = "https://t.me/c/4392607284/55"
+        public_video = media(12, "Saga Partie 2", video=True, doc=777)
+        public_poster = media(900, "🎬 Saga Partie 2", photo=True, buttons=[
+            [NS(url=url)], [NS(url=rescue)], [NS(url=folder)]
+        ])
+        private_video = media(55, "Saga Partie 2", video=True, doc=777)
+        private_poster = media(54, "🎬 Saga Partie 2", photo=True, buttons=[
+            [NS(url=rescue)], [NS(url=folder)]
+        ])
+
+        class FakeClient:
+            async def get_messages(self, channel, ids):
+                return [private_poster] if isinstance(ids, list) else private_video
+
+        with patch("film_relay.ten_video_rotation.rescue_link_for", return_value=rescue), \\
+             patch("film_relay.ten_video_rotation.film_folder_url", return_value=folder):
+            matched = asyncio.run(verify_existing_pair(
+                FakeClient(), "public", "private", -1004392607284,
+                public_video, [public_poster], "films"))
+        self.assertIs(matched, public_poster)
 
     def test_no_public_link_without_all_verified_buttons(self):
         source = media(41, "Saga Partie 2", video=True, doc=111)
