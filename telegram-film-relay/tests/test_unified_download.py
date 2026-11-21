@@ -67,6 +67,30 @@ class CentralLibraryTests(unittest.TestCase):
             media(1, 700), category="films", title="Film")))
         self.assertFalse(client.sent)
 
+    def test_approved_stock_is_resolved_only_from_matching_d1_receipt(self):
+        import hashlib
+        digest = hashlib.sha256(str(CENTRAL).encode()).hexdigest()
+        approved_env = {"CINEX_UNIFIED_STOCK_APPROVED_SHA256": digest}
+        with patch("film_relay.unified_download.RadarRegistry") as registry:
+            registry.return_value._query.return_value = {
+                "results": [{"stock_chat_id": str(CENTRAL)}]}
+            self.assertEqual(configured_private_id(approved_env), CENTRAL)
+            registry.assert_called_once()
+        with patch("film_relay.unified_download.RadarRegistry") as registry:
+            registry.return_value._query.return_value = {
+                "results": [{"stock_chat_id": "-1004000000000"}]}
+            with self.assertRaisesRegex(RuntimeError, "ne correspond pas"):
+                configured_private_id(approved_env)
+
+    def test_explicit_destination_cannot_override_owner_approval(self):
+        import hashlib
+        digest = hashlib.sha256(str(CENTRAL).encode()).hexdigest()
+        with self.assertRaisesRegex(RuntimeError, "ne correspond pas"):
+            configured_private_id({
+                "CINEX_UNIFIED_STOCK_APPROVED_SHA256": digest,
+                "CINEX_UNIFIED_PRIVATE_CHANNEL": "-1004999999999",
+            })
+
     def test_malformed_private_id_is_rejected(self):
         for val in ("@my_channel", "-100123", "1004987123456", "https://t.me/c/123"):
             with self.subTest(val=val), self.assertRaises(RuntimeError):
