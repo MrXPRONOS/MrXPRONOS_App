@@ -1,0 +1,85 @@
+name: 'CineX - Vidéothèque centrale : diagnostic et copies limitées'
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Copier réellement les vidéos déjà archivées vers le nouveau canal privé"
+        type: boolean
+        default: false
+        required: false
+      per_channel:
+        description: "Maximum par catégorie pour le premier passage"
+        type: choice
+        options: ['1', '2', '5', '10']
+        default: '2'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      PYTHONPATH: .
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Respecter le délai Telegram
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 scripts/check_personal_cooldown.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+      - name: Vérifier la configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CINEX_UNIFIED_PRIVATE_CHANNEL" =~ ^-100[0-9]{5,}$ ]] || {
+            echo "::error::Ajouter l'identifiant exact -100... dans CINEX_UNIFIED_PRIVATE_CHANNEL."
+            exit 1
+          }
+          [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]] || {
+            echo "::error::Secrets de session Telegram manquants."
+            exit 1
+          }
+      - name: Auditer sans suppression, puis copier seulement si demandé
+        shell: bash
+        env:
+          RUN_APPLY: ${{ inputs.apply }}
+        run: |
+          set -euo pipefail
+          if [[ "$RUN_APPLY" == "true" ]]; then
+            python -m film_relay.unified_library_backfill --apply --per-channel "${{ inputs.per_channel }}"
+          else
+            python -m film_relay.unified_library_backfill --per-channel "${{ inputs.per_channel }}"
+          fi
