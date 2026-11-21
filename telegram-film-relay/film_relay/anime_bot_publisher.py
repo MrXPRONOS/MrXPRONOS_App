@@ -92,39 +92,61 @@ class AnimeBotPublisher:
         if not sorted_nums:
             return
         pages = entry.setdefault("index_pages", {}).setdefault(season, {})
-        # Stable index pages of 25 episodes: edits never exceed 4096 characters.
-        for start in range(0, len(sorted_nums), 25):
-            nums = sorted_nums[start:start + 25]
-            page_no = str(start // 25 + 1)
-            title = escape(entry["title"])
-            lines = [f"📚 <b>{title} — Saison {int(season)}</b>",
-                     f"Page {page_no}", ""]
-            for n in nums:
-                item = existing[str(n)]
+        groups = [sorted_nums[i:i+25]
+                  for i in range(0, len(sorted_nums), 25)]
+
+        def contents(index, *, navigation):
+            page_no = index + 1
+            numbers = groups[index]
+            lines = [
+                f"📚 <b>{escape(entry['title'])} — Saison {int(season)}</b>",
+                f"Page {page_no} / {len(groups)}", "",
+            ]
+            for n in numbers:
+                record = existing[str(n)]
                 lines.append(
-                    f'🎞️ <a href="{message_url(self.private_id, item["message_id"])}">'
+                    f'🎞️ <a href="{message_url(self.private_id, record["message_id"])}">'
                     f'Épisode {n:02d}</a>')
+            if navigation:
+                lines.extend(["", "📖 Navigation :"])
+                if page_no > 1:
+                    previous = pages[str(page_no - 1)]
+                    lines.append(
+                        f'⬅️ <a href="{message_url(self.private_id, previous)}">'
+                        f'Page {page_no-1}</a>')
+                if page_no < len(groups):
+                    following = pages[str(page_no + 1)]
+                    lines.append(
+                        f'➡️ <a href="{message_url(self.private_id, following)}">'
+                        f'Page {page_no+1}</a>')
             text = "\n".join(lines)
             if len(text.encode("utf-8")) > 3900:
                 raise RuntimeError("Episode index page too large.")
-            ref = pages.get(page_no)
-            if ref:
-                # editMessageText is idempotent; "message is not modified"
-                # must be tolerated without reposting.
-                try:
-                    await self.transport.edit_message(self.private_id, ref, text)
-                except Exception as exc:
-                    if "not modified" not in str(exc):
-                        raise
-            else:
-                ref = await self._operation(
+            return text
+
+        # First allocate all pages to obtain their IDs without guessing any
+        # Telegram URL. Each send is persisted before the next operation.
+        for index in range(len(groups)):
+            page_no = str(index + 1)
+            if page_no not in pages:
+                body = contents(index, navigation=False)
+                page_id = await self._operation(
                     f"index:{row['series']}:{season}:{page_no}",
-                    lambda content=text: self.transport.send_message(
-                        self.private_id, content))
-                pages[page_no] = int(ref)
+                    lambda text=body: self.transport.send_message(
+                        self.private_id, text))
+                pages[page_no] = int(page_id)
                 self.store.save(self.state)
 
-        # Each season keeps one stable visible index plus additional pages.
+        # Second pass links all pages in both directions; the first private
+        # season index always provides access to later pages and episodes.
+        for index in range(len(groups)):
+            page_id = int(pages[str(index + 1)])
+            text = contents(index, navigation=True)
+            try:
+                await self.transport.edit_message(self.private_id, page_id, text)
+            except Exception as exc:
+                if "not modified" not in str(exc):
+                    raise
         entry.setdefault("season_index_ids", {})[season] = int(pages["1"])
         self.store.save(self.state)
 
