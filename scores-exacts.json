@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-21",
-  "generated_at": "2026-11-21T10:00:57Z",
+  "generated_at": "2026-11-21T13:34:50Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -37,15 +37,6 @@
       "probability": 0.13834921
     },
     {
-      "id": "sportsapipro:4871359",
-      "league": "SportPesa Premier League - Regular Season",
-      "home": "Mombasa United FC",
-      "away": "Ulinzi Stars",
-      "kickoff_utc": "2026-11-21T12:00:00Z",
-      "score": "1:0",
-      "probability": 0.13817589
-    },
-    {
       "id": "sportsapipro:4895035",
       "league": "Ligue 1",
       "home": "CO Korhogo",
@@ -53,6 +44,15 @@
       "kickoff_utc": "2026-11-21T15:30:00Z",
       "score": "1:0",
       "probability": 0.13709665
+    },
+    {
+      "id": "sportsapipro:4895037",
+      "league": "Ligue 1",
+      "home": "Stella Adjame",
+      "away": "San Pédro",
+      "kickoff_utc": "2026-11-21T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.13493324
     }
   ],
   "grouped": [
@@ -87,6 +87,21 @@
       ]
     },
     {
+      "id": "sportsapipro:4895037",
+      "league": "Ligue 1",
+      "home": "Stella Adjame",
+      "away": "San Pédro",
+      "kickoff_utc": "2026-11-21T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.32760549,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
       "id": "sportsapipro:4892510",
       "league": "Botola 2",
       "home": "Olympique Khouribga",
@@ -109,21 +124,6 @@
       "kickoff_utc": "2026-11-21T14:00:00Z",
       "score": "1:0",
       "probability": 0.31852602,
-      "group": "H_LOW",
-      "group_scores": [
-        "1:0",
-        "2:0",
-        "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4894187",
-      "league": "Premiere Division",
-      "home": "AS Real Bamako",
-      "away": "Bakaridjan",
-      "kickoff_utc": "2026-11-21T16:00:00Z",
-      "score": "1:0",
-      "probability": 0.31380594,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
