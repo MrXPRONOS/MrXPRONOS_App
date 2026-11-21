@@ -4005,11 +4005,11 @@
       "revalidated_at": "2026-11-12T00:06:33.714594+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-21T08:21:26.448609+00:00",
+      "settlement_checked_at": "2026-11-21T16:21:41.011865+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-21T12:21:26.448609+00:00"
+        "next_retry_after": "2026-11-21T20:21:41.011865+00:00"
       }
     },
     {
@@ -6902,11 +6902,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-21T08:21:26.448609+00:00",
+      "settlement_checked_at": "2026-11-21T16:21:41.011865+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-21T12:21:26.448609+00:00"
+        "next_retry_after": "2026-11-21T20:21:41.011865+00:00"
       }
     },
     {
@@ -7359,12 +7359,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -7468,7 +7468,12 @@
       "generated_at": "2026-11-20T19:07:52.360233+00:00",
       "combo_only": false,
       "revalidated_at": "2026-11-21T00:06:51.649865+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-11-21T16:21:41.011865+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:654357",
@@ -13470,16 +13475,17 @@
       "bsd:606200:1X:2026-11-18T00:00:00+00:00",
       "bsd:654353:UNDER_35:2026-11-20T13:30:00+00:00",
       "bsd:211961:1X:2026-11-20T17:00:00+00:00",
-      "bsd:655421:UNDER_35:2026-11-21T01:40:00+00:00"
+      "bsd:655421:UNDER_35:2026-11-21T01:40:00+00:00",
+      "bsd:643073:1X:2026-11-21T11:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 183,
-        "wins": 145,
-        "sum_pred": 147.84000000000012,
-        "penalty": 0.007415,
-        "hit_rate": 0.79235,
-        "average_predicted": 0.807869
+        "n": 184,
+        "wins": 146,
+        "sum_pred": 148.71100000000013,
+        "penalty": 0.00706,
+        "hit_rate": 0.793478,
+        "average_predicted": 0.808212
       },
       "BTTS_YES": {
         "n": 1,
@@ -13532,12 +13538,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 195,
-        "wins": 152,
-        "sum_pred": 156.82100000000008,
-        "penalty": 0.012205,
-        "hit_rate": 0.779487,
-        "average_predicted": 0.80421
+        "n": 196,
+        "wins": 153,
+        "sum_pred": 157.6920000000001,
+        "penalty": 0.011848,
+        "hit_rate": 0.780612,
+        "average_predicted": 0.804551
       },
       "btts": {
         "n": 1,
@@ -13557,7 +13563,7 @@
       }
     },
     "last_added": 1,
-    "updated_at": "2026-11-21T08:21:26.448609+00:00",
+    "updated_at": "2026-11-21T16:21:41.011865+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -14481,6 +14487,14 @@
         "penalty": 0.0,
         "hit_rate": 1.0,
         "average_predicted": 0.84
+      },
+      "Portuguese Cup|1X": {
+        "n": 1,
+        "wins": 1,
+        "sum_pred": 0.871,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.871
       }
     }
   },
@@ -83100,7 +83114,7 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-11-21T08:21:26.448609+00:00",
+    "updated_at": "2026-11-21T16:21:41.011865+00:00",
     "checked": 3,
     "settled": 1,
     "pending": 2,
