@@ -1,0 +1,57 @@
+name: CineX - Contrôle puis purge manuelle des anciennes vidéos inconnues
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-unknown-cleanup-request'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: cinex-unknown-cleanup-activation
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.actor == 'MrXPRONOS' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lire le mode demandé et lancer une opération bornée
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
+          CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
+          CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+        run: |
+          set -euo pipefail
+          MODE="$(tr -d '\r\n' < telegram-film-relay/.cinex-unknown-cleanup-request)"
+          case "$MODE" in
+            PREVIEW)
+              gh workflow run cinex-public-video-rotation.yml \
+                --repo "$GITHUB_REPOSITORY" --ref main \
+                -f repair=false -f apply=false -f purge_unmatched=true -f purge_max=2
+              echo "Simulation du nettoyage des anciennes vidéos inconnues demandée."
+              ;;
+            APPLY_LIMITED)
+              for key in CINEX_ARCHIVE_ENABLED CINEX_ARCHIVE_DELETE_APPROVED CINEX_RIGHTS_VERIFIED; do
+                if [[ "${!key:-}" != "true" ]]; then
+                  echo "::error::$key n'est pas true : pas de suppression."
+                  exit 1
+                fi
+              done
+              gh workflow run cinex-public-video-rotation.yml \
+                --repo "$GITHUB_REPOSITORY" --ref main \
+                -f repair=true -f apply=true -f purge_unmatched=true -f purge_max=2
+              echo "Archivage puis purge limitée à deux vidéos par canal demandée."
+              ;;
+            *)
+              echo "::error::Mode interdit : utiliser PREVIEW ou APPLY_LIMITED uniquement."
+              exit 1
+              ;;
+          esac
