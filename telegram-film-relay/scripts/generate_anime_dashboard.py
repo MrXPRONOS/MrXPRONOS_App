@@ -36,7 +36,7 @@ def dashboard_snapshot(catalogue):
                 1 for n in numbers
                 if f"S{int(season):02d}E{n:02d}" in receipts
             )
-            missing = len(set(range(min(numbers), max(numbers) + 1)) - set(numbers))
+            missing = len(set(range(1, max(numbers) + 1)) - set(numbers))
             total_private += len(numbers)
             total_public += posted
             total_gaps += missing
@@ -60,8 +60,11 @@ def dashboard_snapshot(catalogue):
             "has_public_card": bool(entry.get("public_id")),
             "legacy_cards_to_review": len(entry.get("legacy_public_ids", []) or []),
             "index_repair_pending": bool(entry.get("index_repair_pending")),
+            "cadence_hint": (entry.get("cadence_hint") if entry.get("cadence_hint")
+                             in {"weekly", "fortnightly"} else "unknown"),
         })
     audit = catalogue.get("audit", {}) or {}
+    dedup = catalogue.get("last_dedup_audit", {}) or {}
     scan_date = str(audit.get("checked_at") or "")
     return {
         "schema_version": 1,
@@ -83,6 +86,10 @@ def dashboard_snapshot(catalogue):
                 + sum(bool(e.get("legacy_public_ids")) for e in
                       catalogue.get("series", {}).values()),
             "ambiguous_series_groups": len(migration["skipped_collisions"]),
+            "source_duplicates_detected": int(dedup.get("source_duplicates") or 0),
+            "source_media_variants_to_review": int(dedup.get("media_variants") or 0),
+            "existing_source_reposts_reconciled": int(
+                (dedup.get("existing_reposts") or {}).get("new_source_receipts") or 0),
         },
         "series": series_rows,
     }

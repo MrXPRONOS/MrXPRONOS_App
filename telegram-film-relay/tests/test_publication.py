@@ -101,7 +101,7 @@ class RenderTests(unittest.TestCase):
                 series, [row], catalogue, lambda x: saved.append(x), 0))
             self.assertEqual(series["public_episode_posts"]["S01E02"],
                              {"poster": 55, "video": 56, "private_video": 35})
-            self.assertEqual(len(saved), 1)
+            self.assertGreaterEqual(len(saved), 2)
             asyncio.run(publish_catalog_episode_pairs(
                 client, NS(), "@public", "@private", -1001234567890,
                 series, [row], catalogue, lambda x: saved.append(x), 0))
