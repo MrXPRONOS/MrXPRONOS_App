@@ -6,7 +6,7 @@ from types import SimpleNamespace as NS
 
 from film_relay.anime_dedup import (
     canonical_series_key, deduplicate_anime_candidates,
-    pending_ongoing_episodes,
+    pending_ongoing_episodes, reconcile_known_source_duplicates,
 )
 
 
@@ -82,6 +82,29 @@ class AnimeCrossSourceDedupTests(unittest.TestCase):
                 "series_aliases": {"mangas-vf-naruto": "naruto"}}
         source = row("mangas-vf-naruto", 7, "a", 401)
         self.assertEqual(canonical_series_key(data, source), "naruto")
+
+    def test_existing_episode_receipts_all_alternate_sources_without_reupload(self):
+        stored = {"series": {"naruto": completed_entry(6)}}
+        aliases = [
+            row("naruto", 6, "source-a:6", 600),
+            row("naruto", 6, "source-b:6", 601),
+        ]
+        report = reconcile_known_source_duplicates(aliases, stored)
+        self.assertEqual(report["new_source_receipts"], 2)
+        self.assertEqual(stored["series"]["naruto"]["source_items"], {
+            "source-a:6": 1006, "source-b:6": 1006,
+        })
+        self.assertEqual(reconcile_known_source_duplicates(
+            aliases, stored)["new_source_receipts"], 0)
+
+    def test_conflicting_stored_source_id_is_quarantined(self):
+        stored = {"series": {"naruto": {
+            **completed_entry(6), "source_items": {"source-a:6": 999}
+        }}}
+        report = reconcile_known_source_duplicates(
+            [row("naruto", 6, "source-a:6", 600)], stored)
+        self.assertEqual(report["conflicting_source_receipts"], ["source-a:6"])
+        self.assertEqual(stored["series"]["naruto"]["source_items"]["source-a:6"], 999)
 
     def test_four_distinct_series_max_one_episode_each(self):
         groups = {}
