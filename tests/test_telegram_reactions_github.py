@@ -198,8 +198,8 @@ class ReactionTests(unittest.TestCase):
             self.assertEqual(params[-2:], (72, 13))
             seconds = (datetime.strptime(params[0], "%Y-%m-%d %H:%M:%S")
                        - datetime.utcnow()).total_seconds()
-            self.assertGreater(seconds, 850)
-            self.assertLess(seconds, 3700)
+            self.assertGreater(seconds, 43000)
+            self.assertLess(seconds, 43500)
 
     def test_missing_slots_between_03_and_16_are_not_required(self):
         self.assertEqual(react.configured_tokens({
@@ -219,6 +219,61 @@ class ReactionTests(unittest.TestCase):
         sql, params = react.make_update(row, 200, {"ok": True, "result": True})
         self.assertIn("state='sent'", sql)
         self.assertEqual(params, (65, 5))
+
+
+    def test_primary_verification_requires_both_expected_owners(self):
+        def fake(url, data, headers):
+            token = url.split("/bot", 1)[1].split("/")[0]
+            names = {"radar-key": "CineRadarFr_Bot", "canal-key": "mrxpronos_canal_bot"}
+            return 200, {"ok": True, "result": {
+                "id": 111 if token == "radar-key" else 222,
+                "is_bot": True, "username": names.get(token, "wrong_bot"),
+            }}
+        valid = {"CINE_RADAR_BOT_TOKEN": "radar-key", "MRXPRONOS_CANAL_BOT_TOKEN": "canal-key"}
+        self.assertEqual(react.verify_primary_bots(valid, fake), {"radar": "radar-key", "canal": "canal-key"})
+        self.assertEqual(react.verify_primary_bots({"CINE_RADAR_BOT_TOKEN": "radar-key"}, fake), {})
+
+    def test_primary_jobs_ordering_and_terminal_exclusion(self):
+        queries = []
+        class FakeDB:
+            def query(self, sql, params=()):
+                queries.append((sql, params))
+                return {"results": []}
+        db = FakeDB()
+        react.prepare_primary_jobs(db)
+        self.assertEqual(len(queries), 2)
+        self.assertIn("ORDER BY p.seq DESC", queries[0][0])
+        self.assertIn("channel_reaction_terminal_posts", queries[0][0])
+        react.due_primary_jobs(db)
+        self.assertIn("ORDER BY j.post_seq DESC", queries[2][0])
+        self.assertIn("WHEN 'radar' THEN 0 ELSE 1", queries[2][0])
+        self.assertEqual(queries[2][1], (react.MAX_PRIMARY_JOBS_PER_RUN,))
+
+    def test_missing_message_on_primary_quarantines_all_bot_jobs(self):
+        class FakeDB:
+            def __init__(self):
+                self.updates = []
+            def query(self, sql, params=()):
+                return {"results": [
+                    {"post_seq": 22, "bot_role": "radar", "emoji": "❤️",
+                     "attempts": 0, "chat_id": "-100123", "message_id": 371,
+                     "radar_state": "pending"},
+                    {"post_seq": 22, "bot_role": "canal", "emoji": "👍",
+                     "attempts": 0, "chat_id": "-100123", "message_id": 371,
+                     "radar_state": "pending"},
+                ]}
+            def batch(self, updates):
+                self.updates.extend(updates)
+        db = FakeDB()
+        def telegram(url, data, headers):
+            return 400, {"ok": False, "description": "Bad Request: message to react not found"}
+        import unittest.mock
+        with unittest.mock.patch.object(react.time, "sleep", return_value=None):
+            result = react.process_primary_jobs(db, {"radar": "a", "canal": "b"}, telegram)
+        self.assertEqual(result, (0, 1, 0))
+        self.assertEqual(len(db.updates), 3)
+        self.assertIn("channel_reaction_terminal_posts", db.updates[0][0])
+        self.assertIn("channel_reaction_extra_jobs", db.updates[2][0])
 
     def test_d1_does_not_log_secret(self):
         calls = []
