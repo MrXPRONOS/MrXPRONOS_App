@@ -201,3 +201,60 @@ ne sont pas démontrées.**
 configuration externe et la réconciliation des anciens reçus restent
 obligatoires. Ne jamais contourner les gardes de sécurité pour produire
 artificiellement un feu vert.
+
+## Audit complémentaire du 21/11/2026 — préserver le chantier parallèle
+
+**PR #586 fusionnée** : https://github.com/MrXPRONOS/MrXPRONOS_App/pull/586
+**Audit réel des bots** :
+https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44943796210
+(succès du workflow de lecture seule ; **aucune autorisation de publication V2**).
+
+- **10 sources Anime configurées** dans l'ancien système, mais **0/10**
+  accessibles comme administrateur aux **deux bots effectivement exposés**
+  par les secrets GitHub de ce workflow (`radar` et `legacy`).
+- Ces deux bots disposent de droits de publication dans les destinations
+  Anime et le stock privé central ; leurs **webhooks sont actifs**.
+  **Ne pas utiliser `getUpdates` avec ces tokens** : cela perturberait la
+  consommation de mises à jour de CineRadar/l'ancien relais.
+- Ce diagnostic ne prouve PAS qu'aucun autre bot existe dans Telegram : seuls
+  les **deux secrets disponibles** ont pu être contrôlés. Il faut soit un
+  accès Bot API autorisé aux sources, soit un flux entrant fourni par celles-ci,
+  sans inventer l'historique inaccessible par bot.
+- Le stock privé unique **CinéX — Stock privé**, son empreinte SHA256
+  approuvée et les bots déjà administrateurs **ne doivent pas être remplacés**
+  par un nouveau canal ou des permissions élargies.
+- D1 CineRadar lu directement en mode **SELECT uniquement** : **7 liens
+  publiés**, **11 reçus de livraison** (5 `sent`, 6 `deleted`),
+  **1 configuration de stock privé marquée prête**, et le service de
+  téléchargement est **activé**. L'inventaire comporte des références à
+  **2 ID de canaux source distincts** : elles ne sont pas une preuve de deux
+  stocks privés actuels. Vérifier chaque ancien lien et sa destination avant
+  modification ; ne supprimer aucune référence historique automatiquement.
+
+### Règles impératives reprises de l'autre discussion
+
+1. Conserver la vidéothèque commune, `@CineRadarFr_Bot`, le registre D1,
+   les boutons `Télécharger`, les liens existants et les correctifs webhook.
+2. Maintenir la rotation : dix dernières vidéos publiques par canal ;
+   dix suppressions **maximum** par canal et cycle, uniquement après
+   validation complète du couple affiche/vidéo et de l'archive privée.
+   Ne jamais effacer les vidéos du stock central.
+3. Reconnaître affiche → vidéo et affiche → texte → vidéo. Refuser toute
+   association ambiguë, et préserver les anciennes publications non
+   identifiées plutôt que de les détruire par défaut.
+4. Préserver les workflows de publication, les délais anti-FloodWait et les
+   mécanismes de sauvegarde/réconciliation existants.
+5. Ne pas affirmer que les **105 épisodes sans nouveau reçu public** sont
+   absents : une partie peut être représentée par des fiches historiques.
+
+### État du chantier 22 après ce contrôle
+
+Le **code Anime V2 a été intégré**, les validations CI sont passées, et le
+contrôle des bots existants a réellement été exécuté. **La bascule 100 % bots,
+la vérification des droits de distribution pour toutes les sources et le
+test réel sans doublon ne sont PAS terminés.**
+
+**Blocage externe vérifié, non contournable par code seul :** les bots
+contrôlés n'ont pas accès aux 10 sources Anime. Aucune nouvelle publication,
+suppression, édition de droit Telegram ou désactivation des workflows
+existants ne doit être faite pour simplement masquer ce blocage.
