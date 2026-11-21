@@ -13,6 +13,7 @@ import logging
 import os
 
 from .bot_http import BotHTTPClient, url_button
+from .unified_download import UnifiedLibrary
 from .legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from .legacy_media_identity import (
     compatible, find_legacy_poster, poster_identity, video_identity, youtube_url_for,
@@ -90,11 +91,16 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
     return paired[0] if len(paired) == 1 else None
 
 
-def public_buttons(url: str, public, poster, *, category: str, extra_text: str = ""):
+def public_buttons(url: str, public, poster, *, category: str,
+                   extra_text: str = "", download_url: str | None = None):
     from types import SimpleNamespace
     from .rescue_channels import add_rescue_button_row
     name = "📺 REGARDER L'ÉPISODE" if category in ("anime", "series") else "🎬 VOIR LE FILM"
     result = [[url_button(name, url, style="success")]]
+    if download_url:
+        if not download_url.startswith("https://t.me/c/"):
+            raise ValueError("Téléchargement privé Telegram invalide.")
+        result.append([url_button("⬇️ TÉLÉCHARGER LA VIDÉO", download_url, style="success")])
     youtube = youtube_url_for(poster) or youtube_url_for(
         SimpleNamespace(raw_text=extra_text, buttons=None))
     if youtube:
@@ -104,7 +110,8 @@ def public_buttons(url: str, public, poster, *, category: str, extra_text: str =
     return result
 
 
-def public_poster_verified(message, video, category, url: str, public, *, reference=None):
+def public_poster_verified(message, video, category, url: str, public,
+                           *, reference=None, download_url=None):
     rescue = rescue_link_for(public)
     return bool(
         getattr(message, "photo", None)
@@ -112,13 +119,14 @@ def public_poster_verified(message, video, category, url: str, public, *, refere
                        poster_identity(message, category)) >= 0.95
         and rescue
         and all(has_verified_button(message, link)
-                for link in (url, rescue, film_folder_url()))
+                for link in (url, rescue, film_folder_url())
+                + ((download_url,) if download_url else ()))
     )
 
 
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
-                         history: int = MAX_HISTORY):
+                         history: int = MAX_HISTORY, unified=None):
     from telethon import utils
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id or not str(private_id).startswith("-100"):
@@ -240,12 +248,18 @@ async def repair_channel(client, bot, category: str, public, private,
                 private_messages.append(verified_video)
                 report["private_created"] += 1
             target = private_message_link(private_id, private_video_id)
+            download_url = (await unified.store(
+                video, category=category, title=caption if "caption" in locals()
+                else (getattr(video, "raw_text", "") or identity.title),
+                public=public,
+            )) if unified is not None else None
             # Old poster may be uneditable and far from its media. A new,
             # bot-owned cover is created without removing the old one.
             existing_public = find_verified_public_link(
                 posters, video, category, private_id, private_video_id, rescue,
                 reference=identity)
-            if existing_public:
+            if existing_public and (
+                    not download_url or has_verified_button(existing_public, download_url)):
                 report["public_linked"] += 1
                 repaired += 1
                 continue
@@ -259,12 +273,13 @@ async def repair_channel(client, bot, category: str, public, private,
                     poster, video, category, identity=identity, extra_text=extra)),
                 parse_mode="html",
                 buttons=public_buttons(target, public, poster, category=category,
-                                       extra_text=extra),
+                                       extra_text=extra,
+                                       download_url=download_url),
             )
             verified_public = await client.get_messages(public, ids=new_post.id)
             if not public_poster_verified(
                     verified_public, video, category, target, public,
-                    reference=identity):
+                    reference=identity, download_url=download_url):
                 raise RuntimeError("Boutons publics non vérifiés")
             posters.append(verified_public)
             report["public_linked"] += 1
@@ -306,6 +321,7 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
         if not await client.is_user_authorized():
             raise RuntimeError("Session Telegram expirée")
         bot = BotHTTPClient(bot_token, client) if apply else None
+        unified = UnifiedLibrary(client) if apply else None
         for category, public_username, private_id in category_targets():
             try:
                 public = await resolve_peer(client, public_username)
@@ -313,6 +329,7 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
                 reports.append(await repair_channel(
                     client, bot, category, public, private, apply=apply,
                     max_repaired=max_repaired, history=history,
+                    unified=unified,
                 ))
             except Exception as exc:
                 if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
