@@ -117,6 +117,40 @@ class ReceiptsTests(unittest.TestCase):
         copy.assert_awaited_once()
         personal.assert_not_awaited()
 
+    def test_recover_legacy_public_pair_without_copying_old_episode(self):
+        from film_relay.publication import _recover_legacy_episode_pair
+        private_url = "https://t.me/c/1234567890/27"
+        public_video = NS(id=71, video=object(),
+                          document=NS(id=111, attributes=[]),
+                          raw_text="Naruto — S01E07")
+        poster = NS(id=70, photo=object(), raw_text="Naruto",
+                    buttons=[NS(buttons=[
+                        NS(url=private_url, text="VOIR LA VIDÉO")
+                    ])])
+        async def messages(peer, limit):
+            yield public_video
+        async def get_messages(peer, ids):
+            return poster if ids == 70 else None
+        client = NS(iter_messages=messages, get_messages=get_messages)
+        result = asyncio.run(_recover_legacy_episode_pair(
+            client, "@public", 111, private_url, 1, 7))
+        self.assertEqual(result, {"poster": 70, "video": 71})
+
+    def test_legacy_pair_with_wrong_private_link_is_not_claimed(self):
+        from film_relay.publication import _recover_legacy_episode_pair
+        public_video = NS(id=71, video=object(),
+                          document=NS(id=111, attributes=[]),
+                          raw_text="Naruto — S01E07")
+        poster = NS(id=70, photo=object(), raw_text="Naruto", buttons=[])
+        async def messages(peer, limit):
+            yield public_video
+        async def get_messages(peer, ids):
+            return poster
+        client = NS(iter_messages=messages, get_messages=get_messages)
+        result = asyncio.run(_recover_legacy_episode_pair(
+            client, "@public", 111, "https://t.me/c/1234567890/27", 1, 7))
+        self.assertIsNone(result)
+
     def test_uncertain_video_send_never_retries_blindly(self):
         marker = catalog_public_marker("Naruto", 1, 7)
         entry = {"title": "Naruto",
