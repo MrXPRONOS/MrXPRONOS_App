@@ -1,0 +1,51 @@
+name: "CineX Anime V2 - Audit des bots existants (lecture seule)"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/scripts/anime_existing_bots_audit.py'
+      - 'telegram-film-relay/tests/test_anime_existing_bots_audit.py'
+      - '.github/workflows/cinex-anime-existing-bots-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cinex-anime-existing-bots-readonly
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONPATH: .
+      ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+      ANIME_SOURCE_CHANNELS: ${{ vars.ANIME_SOURCE_CHANNELS }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python HTTP dependency
+        run: python -m pip install requests==2.32.5
+      - name: Validate safe audit and privacy
+        working-directory: telegram-film-relay
+        run: python -m unittest discover -s tests -p 'test_anime_existing_bots_audit.py' -v
+      - name: Examine current existing bots (no publishing, no getUpdates)
+        working-directory: telegram-film-relay
+        run: python scripts/anime_existing_bots_audit.py
