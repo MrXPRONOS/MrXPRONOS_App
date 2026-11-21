@@ -363,3 +363,32 @@ réémis après interruption.
 
 **État à ce stade : code et workflow audit préparés ; résultat Telegram live
 encore à examiner avant de déclarer le point #22 entièrement clos.**
+
+
+## Mise en service de la vérification hybride — 21/11/2026
+
+- **PR #587 fusionnée dans main** : commit `8662c5327cc4a34e49858baacb00989944cfb53e`.
+- Le collecteur Anime conserve la session personnelle autorisée du propriétaire
+  pour les 10 sources de ses amis. Aucune demande d'administration bot.
+- Workflow `cinex-anime-user-session-audit.yml` installé ; vérifie en lecture
+  seule les accès sources et les reçus vidéo/photo réels, les doublons exacts
+  et l'identité de la bibliothèque CineRadar.
+- Workflow réel :
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44947695210
+  **état au contrôle : pending**. Il attend le verrou de session utilisé par
+  https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/44940445156,
+  dont l'étape Anime était encore en cours. Ne jamais court-circuiter le verrou.
+- Réparation optionnelle des liens de téléchargement des épisodes privés
+  existants : `CINEX_ANIME_DOWNLOAD_BACKFILL_ENABLED=true` et plafond
+  `CINEX_ANIME_DOWNLOAD_BACKFILL_LIMIT` (2 par défaut, maximum 4).
+  **Non activée sur le workflow de production** avant l'audit réel :
+  ne pas envoyer de copies supplémentaires sans reçus vérifiés.
+- Tous les tests de la PR #587 ont réussi (general, Anime, offline, relay).
+- Rien n'a été supprimé des canaux privés ; CineRadar et les webhooks ont
+  été préservés. La reprise des publications et les horaires habituels
+  restent inchangés.
+- **Clôture du chantier 22 encore conditionnée au rapport LIVE** :
+  vérification effective des sources et anciens IDs, identification des
+  conflits réels, éventuel rattrapage contrôlé puis second passage
+  démontrant l'absence de doubles envois. Un workflow en attente ne
+  constitue pas une vérification terminée.
