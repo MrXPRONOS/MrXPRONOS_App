@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   overlap-check:
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'fix/cinex-anime-v2-') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'fix/cinex-anime-v2-') || startsWith(github.head_ref, 'release/cinex-anime-v2-') }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
