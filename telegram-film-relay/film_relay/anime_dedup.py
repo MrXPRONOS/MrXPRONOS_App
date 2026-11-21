@@ -48,10 +48,36 @@ def deduplicate_anime_candidates(rows: list, catalogue: dict):
     for row in rows:
         key = canonical_series_key(catalogue, row)
         groups[(key, int(row["season"]), int(row["episode"]))].append(row)
+    # An identical Telegram document attached to different numbered episodes
+    # is stronger evidence of bad source labeling than the filename/title.
+    # Never choose one of those records for a NEW publication automatically.
+    media_identities = defaultdict(set)
+    for identity, variants in groups.items():
+        for candidate in variants:
+            file_id = document_id(candidate)
+            if file_id:
+                media_identities[file_id].add(identity)
+    unsafe_cross_labels = {
+        identity for identities in media_identities.values()
+        if len(identities) > 1 for identity in identities
+    }
     chosen = []
     report = {"candidate_rows": len(rows), "unique_episodes": len(groups),
-              "source_duplicates": 0, "media_variants": 0, "conflicts": []}
+              "source_duplicates": 0, "media_variants": 0,
+              "cross_episode_media_conflicts": 0, "conflicts": []}
     for (key, season, episode), variants in sorted(groups.items()):
+        if (key, season, episode) in unsafe_cross_labels:
+            known_entry = existing.get(key, {})
+            has_receipt = str(episode) in (
+                known_entry.get("episodes", {}).get(str(season), {}))
+            if not has_receipt:
+                report["cross_episode_media_conflicts"] += 1
+                report["conflicts"].append({
+                    "series": key, "season": season, "episode": episode,
+                    "reason": "identical_document_used_for_distinct_episodes",
+                    "source_keys": sorted(str(row["source_key"]) for row in variants),
+                })
+                continue
         entry = existing.get(key, {})
         known = entry.get("source_items", {}) or {}
         # Never discard source evidence: keep alternate source keys for audit.
