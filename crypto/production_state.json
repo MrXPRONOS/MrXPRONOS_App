@@ -729,6 +729,12 @@
       "sent_at": "2026-11-21T00:05:36.656038+00:00",
       "source": "CoinPaprika"
     },
+    "daily:01:2026-11-21:morning": {
+      "message_id": 231,
+      "number": 1,
+      "sent_at": "2026-11-21T15:16:53.607277+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:02:2026-10-19:default": {
       "message_id": 12,
       "number": 2,
@@ -1059,6 +1065,12 @@
       "sent_at": "2026-11-20T16:04:35.129261+00:00",
       "source": "Alternative.me"
     },
+    "daily:05:2026-11-21:default": {
+      "message_id": 232,
+      "number": 5,
+      "sent_at": "2026-11-21T15:16:55.717427+00:00",
+      "source": "Alternative.me"
+    },
     "daily:06:2026-10-19:default": {
       "message_id": 11,
       "number": 6,
@@ -1165,6 +1177,12 @@
       "message_id": 221,
       "number": 6,
       "sent_at": "2026-11-20T16:04:39.530638+00:00",
+      "source": "CoinPaprika"
+    },
+    "daily:06:2026-11-21:default": {
+      "message_id": 233,
+      "number": 6,
+      "sent_at": "2026-11-21T15:16:57.804861+00:00",
       "source": "CoinPaprika"
     },
     "initial_history_01": {
