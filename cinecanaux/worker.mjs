@@ -1,6 +1,7 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {enqueueChannelReactions,processReactionQueue} from "./channel-reactions.mjs";
 import {pruneTelegramQuota} from "./telegram-global-quota.mjs";
+import {queueKnownStockSources,processPrivateStockQueue} from "./private-stock.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
 import {servePartnerCards,servePartnerAvatar} from "./partner-promotions.mjs";
 import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick,listPinned} from "./pinned-showcase.mjs";
@@ -495,6 +496,7 @@ export default {
    ctx.waitUntil(processSeriesQueue(env).catch(e=>console.warn("cinex_series_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processOwnerVaultQueue(env).catch(e=>console.warn("cinex_owner_vault_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processFranchiseQueue(env).catch(e=>console.warn("cinex_franchise_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil((async()=>{await queueKnownStockSources(env,{limit:10});await processPrivateStockQueue(env,{limit:1})})().catch(e=>console.warn("cinex_stock_sync_failed",String(e?.name||"error"))));
    ctx.waitUntil(runCopyExpirySweep(env).catch(e=>console.warn("cinex_private_expiry_sweep_failed",String(e?.name||"error"))));
    return;
   }
