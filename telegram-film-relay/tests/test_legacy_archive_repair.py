@@ -216,7 +216,7 @@ class AdjacentLegacyPairTests(unittest.TestCase):
         self.assertEqual({v.id for v in recent}, set(range(4, 14)))
         self.assertEqual({v.id for v in old}, {1, 2, 3})
 
-    def test_unlabeled_public_video_verified_after_neighbour_repair(self):
+    def test_old_reposted_cover_cannot_replace_unedited_original(self):
         rescue = "https://t.me/+ABCdefghi123456"
         folder = "https://t.me/addlist/AAA"
         url = "https://t.me/c/4392607284/55"
@@ -238,7 +238,17 @@ class AdjacentLegacyPairTests(unittest.TestCase):
                 Client(), "public", "private", -1004392607284, source_video,
                 [source_cover, repaired], "films",
                 messages=[source_cover, source_video, repaired]))
-        self.assertIs(linked, repaired)
+        self.assertIsNone(linked)
+        # Once the SAME historic image has been edited and carries the links,
+        # the original ID is recognized and the public video can be rotated.
+        source_cover.buttons = repaired.buttons
+        with (patch("film_relay.ten_video_rotation.rescue_link_for", return_value=rescue),
+              patch("film_relay.ten_video_rotation.film_folder_url", return_value=folder)):
+            linked_original = asyncio.run(verify_existing_pair(
+                Client(), "public", "private", -1004392607284, source_video,
+                [source_cover, repaired], "films",
+                messages=[source_cover, source_video, repaired]))
+        self.assertIs(linked_original, source_cover)
 
 
 if __name__ == "__main__":
