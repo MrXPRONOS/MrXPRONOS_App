@@ -35,7 +35,10 @@ def cover_caption(poster, video, category: str, *, identity=None, extra_text: st
     raw = clean_caption(getattr(poster, "raw_text", "") or "").strip()
     if extra_text.strip():
         raw = (raw + "\n" + clean_caption(extra_text)).strip()
-    if ident.kind == "episode":
+    if ident.kind == "unknown":
+        symbol = "📺" if category in ("anime", "series") else "🎬"
+        prefix = f"{symbol} Contenu non identifié — message #{video.id}"
+    elif ident.kind == "episode":
         prefix = f"📺 {ident.title} — S{ident.season:02d}E{ident.episode:02d}"
     elif ident.kind == "film_part":
         prefix = f"🎬 {ident.title} — Partie {ident.part}"
