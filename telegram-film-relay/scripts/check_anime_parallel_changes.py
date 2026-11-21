@@ -88,14 +88,17 @@ def main():
         "main_colliding_files": len(result["overlap"]),
         "concurrent_cinex_prs": [p["pr"] for p in overlaps],
     }, sort_keys=True))
-    if result["overlap"] or overlaps:
-        print("CineX Anime V2: concurrent edits require reconciliation before merge.",
-              file=sys.stderr)
+    # A concurrent change *merged into main* can overwrite deployed code:
+    # hard block. An unfinished draft PR has not changed production and is
+    # reported for review, but cannot veto a reconciled release forever.
+    for row in overlaps:
+        print("UNMERGED PR " + str(row["pr"]) + " OVERLAP (review only) " +
+              ", ".join(row["paths"]), file=sys.stderr)
+    if result["overlap"]:
+        print("CineX Anime V2: main was changed after the tested base; "
+              "reconcile before merge.", file=sys.stderr)
         for item in result["overlap"]:
             print("MAIN COLLISION " + item, file=sys.stderr)
-        for row in overlaps:
-            print("PR " + str(row["pr"]) + " COLLISION " +
-                  ", ".join(row["paths"]), file=sys.stderr)
         return 1
     return 0
 
