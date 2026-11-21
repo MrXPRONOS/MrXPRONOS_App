@@ -1,0 +1,47 @@
+name: CineX - Videotheque unifiee : tests sans Telegram
+
+on:
+  pull_request:
+    paths:
+      - 'telegram-film-relay/film_relay/unified_download.py'
+      - 'telegram-film-relay/film_relay/unified_library_backfill.py'
+      - 'telegram-film-relay/film_relay/publication.py'
+      - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/film_relay/desir_runner.py'
+      - 'telegram-film-relay/film_relay/category_runner.py'
+      - 'telegram-film-relay/film_relay/series_catalog.py'
+      - 'telegram-film-relay/film_relay/anime_catalog.py'
+      - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
+      - 'telegram-film-relay/tests/test_unified_download.py'
+      - '.github/workflows/cinex-unified-download-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/film_relay/unified_download.py'
+      - 'telegram-film-relay/film_relay/unified_library_backfill.py'
+      - 'telegram-film-relay/film_relay/publication.py'
+      - 'telegram-film-relay/tests/test_unified_download.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+      - name: Vérifier tout le code
+        run: python -m compileall -q film_relay
+      - name: Tests vidéothèque commune et liens Télécharger
+        run: python -m unittest discover -s tests -p 'test_unified_download.py' -v
+      - name: Suite complète du relais sans connexion Telegram
+        run: python -m unittest discover -s tests -v
