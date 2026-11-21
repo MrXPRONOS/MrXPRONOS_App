@@ -44,7 +44,7 @@ ni l'accès aux canaux sources, ni la permission de republier leurs contenus.
 | 14 | Archives/cursors et arriérés | Partiel | Rapprochement de reposts déjà publiés réduit les blocages ; file d'ingestion indépendante à faire |
 | 15 | Saisons partielles / hors-série / numéros manquants | Partiel | Traitement progressif sans sauter les trous ; hors-séries et OVA non intégrés |
 | 16 | Index, cartes et boutons enrichis | Existant, à améliorer | Mise à jour d'index conservée ; annonces de nouveautés plus explicites à concevoir |
-| 17 | Collecte et publication 100 % bots | Partiel, non activé | Copie vidéo privée→publique par Bot API via `CINEX_ANIME_BOT_PUBLIC_COPY=true` ajoutée ; la collecte et les envois privés utilisent encore la session utilisateur, accès bot aux sources à qualifier |
+| 17 | Collecte et publication 100 % bots | Partiel, non activé | Copie vidéo privée→publique Bot API (option protégée) et file d'ingestion des `channel_post` autorisés ajoutées ; le poller, les accès source et la publication privée 100 % bots restent à faire |
 | 18 | Quatre cycles / FloodWait | Conservé, amélioration restante | Cron `17 */6 * * *` et pacing existant; cooldown dynamique unifié à revoir |
 | 19 | Statistiques du tableau de bord | Partiel | Comptage des premiers épisodes absents corrigé ; métriques de doublons/cadence ajoutées |
 | 20 | Alertes, retards et santé réelle | Partiel | `cycle_monitor` existant ; alertes dédiées doublons/envois incertains à intégrer |
