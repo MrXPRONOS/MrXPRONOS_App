@@ -120,6 +120,29 @@ class AnimeBotMatchingTests(unittest.TestCase):
                  "date": 2, "source_key": "a:2"}]
         self.assertEqual(select_bot_anime_batches(rows, state, {}), [])
 
+    def test_complete_30_episode_season_resumes_after_first_25(self):
+        rows = [{"series": "naruto", "season": 1, "episode": n,
+                 "source_key": f"source:{n}", "date": n}
+                for n in range(1, 31)]
+        full = {("naruto", 1): 30}
+        initial = select_bot_anime_batches(rows, {}, full)
+        self.assertEqual(len(initial), 1)
+        self.assertEqual(len(initial[0][1]), 25)
+        self.assertTrue(initial[0][2])
+        saved = {"series": {"naruto": {
+            "episodes": {"1": {
+                str(n): {"message_id": 1000+n} for n in range(1, 26)
+            }},
+            "public_episode_posts": {
+                f"S01E{n:02d}": {"poster": 200+n, "video": 300+n}
+                for n in range(1, 26)
+            },
+        }}}
+        continuation = select_bot_anime_batches(rows, saved, full)
+        self.assertEqual([r["episode"] for r in continuation[0][1]],
+                         [26, 27, 28, 29, 30])
+        self.assertTrue(continuation[0][2])
+
     def test_missing_episode_1_blocks_episode_2(self):
         state = {}
         rows = [{"series": "naruto", "season": 1, "episode": 2,
@@ -199,6 +222,23 @@ class AnimeBotPublisherTests(unittest.TestCase):
         self.assertEqual(bot.copy_message.await_count, 4)
         self.assertEqual(bot.send_message.await_count, 2)
         self.assertEqual(store.load(), state)
+
+    def test_episode_26_is_reachable_from_first_season_index(self):
+        bot, store, state, row, publisher = self._setup()
+        series = publisher._series(row)
+        series["episodes"] = {"1": {
+            str(n): {"message_id": 1000 + n}
+            for n in range(1, 27)
+        }}
+        bot.send_message = AsyncMock(side_effect=[151, 152])
+        asyncio.run(publisher._season_index(row, series))
+        self.assertEqual(series["index_pages"]["1"], {"1": 151, "2": 152})
+        self.assertEqual(bot.send_message.await_count, 2)
+        first_edit = bot.edit_message.await_args_list[0].args[2]
+        last_edit = bot.edit_message.await_args_list[1].args[2]
+        self.assertIn("/152", first_edit)
+        self.assertIn("/151", last_edit)
+        self.assertIn("Épisode 26", last_edit)
 
     def test_uncertain_send_never_retries_after_restart(self):
         bot, store, state, row, publisher = self._setup()
