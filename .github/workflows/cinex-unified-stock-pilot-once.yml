@@ -1,0 +1,42 @@
+name: 'CineX - Envoi unique du pilote stock prive'
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-unified-stock-pilot-once'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: cinex-unified-stock-pilot-one-shot
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    name: 'Confirmer les droits puis lancer au maximum 1 copie par categorie'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RIGHTS: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+    steps:
+      - name: Verifier le droit de transfert deja declare
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RIGHTS" = "true" || {
+            echo "::error::Droits CineX non attestes : pilote interdit."
+            exit 1
+          }
+          echo "Controle des droits OK. La copie reste limitee a une video par canal."
+      - name: Declencher le workflow manuel existant avec petites limites
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run cinex-unified-download-backfill.yml \
+            --repo "$GITHUB_REPOSITORY" --ref main \
+            -f apply=true -f per_channel=1
+          echo "Pilote demande : le workflow de copie prouve l'identite du canal avant chaque envoi."
