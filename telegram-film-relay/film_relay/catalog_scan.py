@@ -124,15 +124,26 @@ def source_window_ids(messages, plan):
     return set(plan["allowed_ids"])
 
 
-def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
-    """Commit a page only after EVERY numbered item in that archive page is saved.
+def finalize_scan(catalogue: dict, plans: list, observed: list,
+                  *, queue_enabled: bool = False) -> dict:
+    """Advance only after publication receipts or durable queue checkpoints.
 
-    A 6-episode publication cap therefore cannot lose the rest of a page.
+    By default the old conservative behavior remains. With the opt-in
+    archive queue, scan cursor progress is independent of upload quota.
     """
     scans = catalogue.setdefault("scans", {})
     receipted = set()
     for entry in catalogue.get("series", {}).values():
         receipted.update(entry.get("source_items", {}))
+    queue_added = 0
+    queued = set()
+    if queue_enabled:
+        from .anime_archive_queue import (
+            enqueue_archive_candidates, prune_receipted_archive,
+        )
+        queue_added = enqueue_archive_candidates(catalogue, plans, observed)
+        prune_receipted_archive(catalogue)
+        queued = set(catalogue.get("archive_pending", {}))
     done, waiting, revisited = 0, 0, 0
     for plan in plans:
         if plan is None:
@@ -149,7 +160,7 @@ def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
         eligible = {row["source_key"] for row in observed
                     if str(row["source_key"]).rsplit(":", 1)[0] == plan["source_id"]
                     and int(row["video"].id) in plan["archive_ids"]}
-        outstanding = eligible - receipted
+        outstanding = eligible - receipted - queued
         if outstanding:
             waiting += len(outstanding)
             LOG.info("Historique source : page conservée, %s épisodes restent à publier",
@@ -164,6 +175,8 @@ def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
         }
         done += 1
     return {"pages_saved": done, "episodes_waiting": waiting,
+            "archive_queued": queue_added,
+            "archive_pending": len(queued),
             "revisit_windows": revisited,
             "history_complete_sources": sum(1 for s in scans.values() if s.get("complete"))}
 
