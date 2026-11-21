@@ -546,7 +546,7 @@ async def execute() -> int:
                         await asyncio.sleep(max(36.0, float(os.getenv("CINEX_PAUSE_SECONDS", "60"))))
                         public_video = await post_public_video_after_poster(
                             client, destination_public, pair.movie, text,
-                            int(public_post.id), url,
+                            int(public_post.id), url, download_url=download_url,
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id), film_key)
                         LOG.info("Film public complet : fiche #%s puis vidéo #%s",
