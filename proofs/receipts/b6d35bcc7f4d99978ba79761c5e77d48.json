@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-106c8e9fe5f64ea8:1X",
+    "recorded_at_utc": "2026-11-21T18:10:35+00:00",
+    "kickoff_utc": "2026-11-22T21:00:00+00:00",
+    "fixture": {
+      "home_team": "Nashville SC",
+      "away_team": "FC Cincinnati",
+      "league": "United States Major League Soccer"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "e83b5d9596b6634f23aaeda17e6157eee4c1bfa94b2c25dc15875df3f2a32aed"
+}

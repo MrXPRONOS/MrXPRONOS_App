@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0f21ea62ab3abbcf:1X",
+    "recorded_at_utc": "2026-11-21T18:10:35+00:00",
+    "kickoff_utc": "2026-11-23T01:00:00+00:00",
+    "fixture": {
+      "home_team": "Instituto De Córdoba",
+      "away_team": "Huracán",
+      "league": "Argentine Division 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "f7507bfc09b9baa3f67ba8f6d7771992706f64ecb0a99e20969fa472fa310fd9"
+}
