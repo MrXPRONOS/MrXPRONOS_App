@@ -32,6 +32,8 @@ def enqueue_archive_candidates(catalogue, plans, rows):
             "poster_id": int(poster.id) if poster else None,
             "series": str(row["series"]), "title": str(row["title"])[:100],
             "season": int(row["season"]), "episode": int(row["episode"]),
+            "document_id": str(getattr(getattr(
+                row.get("video"), "document", None), "id", "") or ""),
             "timestamp": float(row.get("timestamp") or 0),
         }
         added += 1
@@ -60,7 +62,7 @@ async def recover_archive_queue(client, sources, catalogue, observed,
     """
     from telethon import utils
     from .desir_matching import is_supported_video
-    from .episode_identity import episode_numbers
+    from .episode_identity import episode_numbers, series_title, canonical_title
     from .matching import filename_of
 
     peers = {str(utils.get_peer_id(peer)): peer for peer in sources}
@@ -88,12 +90,26 @@ async def recover_archive_queue(client, sources, catalogue, observed,
             catalogue.setdefault("archive_review", {})[source_key] = (
                 "source_renamed_or_episode_mismatch")
             continue
+        expected_doc = str(entry.get("document_id") or "")
+        actual_doc = str(getattr(getattr(video, "document", None), "id", "") or "")
+        if expected_doc and actual_doc != expected_doc:
+            catalogue.setdefault("archive_review", {})[source_key] = (
+                "source_media_changed")
+            continue
         poster = None
         if entry.get("poster_id"):
             poster = await client.get_messages(peer, ids=int(entry["poster_id"]))
             if (poster is None or not getattr(poster, "photo", None)
                     or getattr(poster, "noforwards", False)):
                 poster = None
+        if poster is not None:
+            poster_name = canonical_title(series_title(
+                getattr(poster, "raw_text", "") or ""))
+            expected_name = canonical_title(series_title(entry["title"]))
+            if poster_name and expected_name and poster_name != expected_name:
+                catalogue.setdefault("archive_review", {})[source_key] = (
+                    "source_poster_title_changed")
+                continue
         observed.append({
             "source_key": source_key, "series": entry["series"],
             "title": entry["title"], "season": int(entry["season"]),
