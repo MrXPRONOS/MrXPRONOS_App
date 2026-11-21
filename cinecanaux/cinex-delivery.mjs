@@ -1,3 +1,4 @@
+import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 // CinéX -> existing Ciné Radar bot. No video bytes pass through Cloudflare.
 // GitHub CINEX_DOWNLOADS_ENABLED is synchronized to D1; no in-bot approval.
@@ -147,8 +148,9 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   await env.DB.prepare("UPDATE cine_delivery_job_items SET state='sending',attempts=attempts+1 WHERE job_id=? AND ordinal=? AND state='queued'").bind(job.id,pending.ordinal).run();
   let response;
   try{
+   const stock=await sourceFromPrivateStock(env,pending.source_chat_id,pending.source_message_id);
    response=await telegram(env,'copyMessage',{chat_id:job.telegram_chat_id,
-    from_chat_id:pending.source_chat_id,message_id:pending.source_message_id,
+    from_chat_id:stock.chatId,message_id:stock.messageId,
     protect_content:false,reply_markup:keyboard()});
   }catch{
    // Ambiguous response: Telegram may have sent the file. No automatic retry!
