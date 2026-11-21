@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """GitHub Actions delivery for extensible owner-controlled Telegram bot reactions.
 
-Cloudflare's existing Cine Radar channel_post webhook supplies the publication IDs;
-the existing 2 bots retain their low-latency Cloudflare delivery. This job sends
-any configured slot from 03 onward. It does NOT create, edit, publish, or delete any Telegram post.
+The existing Cine Radar webhook only records channel publication IDs in D1.
+All 2 historical bots and optional slots 03 onward send reactions on GitHub Actions. It does NOT create, edit, publish, or delete any Telegram post.
 
 Runs at best every five minutes: GitHub Actions is not a realtime scheduler.
 Never log API URLs that contain Telegram bot tokens.
@@ -28,6 +27,7 @@ TOKEN_KEY_RE = re.compile(r"^TELEGRAM_REACTION_BOT_([0-9]{2,4})_TOKEN$")
 SLOT_BATCH_SIZE = 25
 BLOCKED_IDENTITIES = {"cineradarfr_bot", "mrxpronos_canal_bot"}
 MAX_JOBS_PER_RUN = 100
+MAX_PRIMARY_JOBS_PER_RUN = 50
 MAX_NEW_JOBS_PER_RUN = 600
 NETWORK_TIMEOUT = 20
 
@@ -230,6 +230,7 @@ def due_jobs(db: D1, slots: tuple[int, ...]) -> list[dict[str, Any]]:
       WHERE j.bot_slot IN ({marks})
         AND j.state IN ('pending','retry')
         AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP
+        AND NOT EXISTS (SELECT 1 FROM channel_reaction_terminal_posts AS t WHERE t.post_seq=j.post_seq)
       ORDER BY j.post_seq DESC,j.bot_slot ASC LIMIT ?
     """
     return db.query(query, (*slots, MAX_JOBS_PER_RUN)).get("results") or []
@@ -329,7 +330,9 @@ def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
     param = response.get("parameters") or {}
     delay = retry_delay(int(row["attempts"]), int(param.get("retry_after") or 0))
     if recoverable_access:
-        delay = max(900, delay)
+        # Missing admin rights cannot self-heal. Check at most twice per day;
+        # this prevents hundreds of stale channels from consuming the new-post quota.
+        delay = max(43200, delay)
     return ("""
       UPDATE channel_reaction_extra_jobs
       SET state='retry',next_try_at=?,last_error=?,attempts=attempts+1,
@@ -338,24 +341,148 @@ def make_update(row: dict[str, Any], status: int, response: dict[str, Any],
     """, (next_retry(delay), safe_reaction_error(code or 0, response), seq, slot))
 
 
+
+PRIMARY_BOT_NAMES = {"radar": "cineradarfr_bot", "canal": "mrxpronos_canal_bot"}
+PRIMARY_CANDIDATES = {
+    "radar": ("CINE_RADAR_BOT_TOKEN", "CINEX_BOT_TOKEN",
+              "TELEGRAM_BOT_TOKEN", "EDITORIAL_TELEGRAM_BOT_TOKEN",
+              "PARTNERSHIP_BOT_TOKEN"),
+    "canal": ("MRXPRONOS_CANAL_BOT_TOKEN", "CANAL_BOT_TOKEN"),
+}
+
+
+def verify_primary_bots(env: dict[str, str], transport=_request_json) -> dict[str, str]:
+    """Require both historical bots with verified username before switching delivery."""
+    selected = {}
+    for role, expected in PRIMARY_BOT_NAMES.items():
+        seen = set()
+        for name in PRIMARY_CANDIDATES[role]:
+            token = str(env.get(name) or "").strip()
+            if not token or token in seen:
+                continue
+            seen.add(token)
+            try:
+                code, result = telegram_call(token, "getMe", {}, transport)
+            except APIError:
+                continue
+            bot = result.get("result") or {}
+            if (code == 200 and result.get("ok") is True and bot.get("is_bot")
+                and str(bot.get("username") or "").casefold() == expected
+                and isinstance(bot.get("id"), int)):
+                selected[role] = token
+                break
+        print(f"primary_bot={role} identity={'verified' if role in selected else 'missing'}")
+    if len(selected) != 2 or selected["radar"] == selected["canal"]:
+        return {}
+    return selected
+
+
+def prepare_primary_jobs(db: D1) -> None:
+    """Create missing historical-bot jobs for new webhook observations, idempotently."""
+    for role in ("radar", "canal"):
+        parity = "(p.seq % 2 = 1)" if role == "radar" else "(p.seq % 2 = 0)"
+        db.query(f"""
+            INSERT OR IGNORE INTO channel_reaction_jobs(post_seq,bot_role,emoji)
+            SELECT p.seq,'{role}',CASE WHEN {parity} THEN '❤️' ELSE '👍' END
+            FROM channel_reaction_posts p
+            WHERE NOT EXISTS (
+              SELECT 1 FROM channel_reaction_terminal_posts t WHERE t.post_seq=p.seq
+            )
+            ORDER BY p.seq DESC LIMIT {MAX_NEW_JOBS_PER_RUN}
+        """)
+
+
+def due_primary_jobs(db: D1) -> list[dict[str, Any]]:
+    return db.query("""
+        SELECT j.post_seq,j.bot_role,j.emoji,j.attempts,p.chat_id,p.message_id,
+               (SELECT r.state FROM channel_reaction_jobs r
+                 WHERE r.post_seq=j.post_seq AND r.bot_role='radar') radar_state
+        FROM channel_reaction_jobs j
+        JOIN channel_reaction_posts p ON p.seq=j.post_seq
+        WHERE j.state IN ('pending','retry') AND datetime(j.next_try_at)<=CURRENT_TIMESTAMP
+          AND NOT EXISTS (SELECT 1 FROM channel_reaction_terminal_posts t WHERE t.post_seq=j.post_seq)
+        ORDER BY j.post_seq DESC, CASE j.bot_role WHEN 'radar' THEN 0 ELSE 1 END
+        LIMIT ?
+    """, (MAX_PRIMARY_JOBS_PER_RUN,)).get("results") or []
+
+
+def process_primary_jobs(db: D1, primary: dict[str, str],
+                         transport=_request_json) -> tuple[int, int, int]:
+    rows = due_primary_jobs(db)
+    successful_radar = set()
+    updates = []
+    sent = 0
+    blocked = 0
+    retried = 0
+    for row in rows:
+        seq = int(row["post_seq"])
+        role = row["bot_role"]
+        if role not in primary:
+            continue
+        if role == "canal" and seq not in successful_radar and row["radar_state"] != "sent":
+            continue
+        try:
+            status, answer = telegram_call(primary[role], "setMessageReaction", {
+                "chat_id": row["chat_id"], "message_id": int(row["message_id"]),
+                "reaction": [{"type": "emoji", "emoji": row["emoji"]}], "is_big": False,
+            }, transport)
+        except APIError:
+            status, answer = 0, {}
+        if status == 200 and answer.get("ok") is True:
+            sent += 1
+            if role == "radar":
+                successful_radar.add(seq)
+            updates.append(("""
+                UPDATE channel_reaction_jobs SET state='sent',sent_at=CURRENT_TIMESTAMP,
+                  last_error='',attempts=attempts+1,updated_at=CURRENT_TIMESTAMP
+                WHERE post_seq=? AND bot_role=? AND state IN ('pending','retry')
+            """, (seq, role)))
+        elif status == 400 and "message to react not found" in str(answer.get("description") or "").lower():
+            blocked += 1
+            updates.extend([
+                ("INSERT OR IGNORE INTO channel_reaction_terminal_posts(post_seq,reason) VALUES(?,'telegram_message_not_found')", (seq,)),
+                ("""UPDATE channel_reaction_jobs SET state='retry',
+                   next_try_at='9999-12-31 23:59:59',
+                   last_error='terminal:message_not_found',updated_at=CURRENT_TIMESTAMP
+                   WHERE post_seq=? AND state IN ('pending','retry')""", (seq,)),
+                ("""UPDATE channel_reaction_extra_jobs SET state='blocked',
+                   last_error='telegram_http_400:message_not_found',updated_at=CURRENT_TIMESTAMP
+                   WHERE post_seq=? AND state IN ('pending','retry')""", (seq,)),
+            ])
+        else:
+            retried += 1
+            delay = retry_delay(int(row["attempts"]), int((answer.get("parameters") or {}).get("retry_after") or 0))
+            updates.append(("""UPDATE channel_reaction_jobs SET state='retry',next_try_at=?,
+               last_error=?,attempts=attempts+1,updated_at=CURRENT_TIMESTAMP
+               WHERE post_seq=? AND bot_role=? AND state IN ('pending','retry')""",
+                (next_retry(delay), safe_reaction_error(status, answer), seq, role)))
+        time.sleep(0.11)
+    db.batch(updates)
+    print(f"primary_jobs_examined={len(rows)} primary_reactions_confirmed={sent} primary_missing_messages={blocked} primary_retries={retried}")
+    return sent, blocked, retried
+
+
 def run(env: dict[str, str], transport=_request_json) -> int:
     candidates = configured_tokens(env)
-    if not candidates:
-        print("No extra reaction tokens configured: safe no-op.")
-        return 0
-    bots = verify_bots(candidates, transport)
+    bots = verify_bots(candidates, transport) if candidates else {}
+    primary = verify_primary_bots(env, transport) if env.get("REACTIONS_GITHUB_PRIMARY", "").lower() == "true" else {}
     visible = [slot for slot in sorted(candidates) if 3 <= slot <= 16]
     print("reaction_slots_03_16_configured=" + ",".join(f"{slot:02d}" for slot in visible))
     print("reaction_slots_verified=" + ",".join(f"{slot:02d}" for slot in sorted(bots)))
-    if not bots:
-        print("No additional bot identities verified: safe no-op.")
+    if not bots and not primary:
+        print("No verified reaction bots: safe no-op.")
         return 0
     db = D1(env.get("CLOUDFLARE_API_TOKEN", "") or env.get("CF_API_TOKEN", ""),
             env.get("CLOUDFLARE_ACCOUNT_ID", ""), transport)
-    if env.get("REACTION_ACCESS_AUDIT", "").lower() == "true":
+    primary_ok = 0
+    if primary:
+        prepare_primary_jobs(db)
+        primary_ok, _primary_missing, _primary_retry = process_primary_jobs(db, primary, transport)
+    if env.get("REACTION_ACCESS_AUDIT", "").lower() == "true" and bots:
         audit_primary_channel_access(db, bots, transport)
-    prepare_jobs(db, tuple(sorted(bots)))
-    rows = due_jobs(db, tuple(sorted(bots)))
+    if bots:
+        prepare_jobs(db, tuple(sorted(bots)))
+    rows = due_jobs(db, tuple(sorted(bots))) if bots else []
     updates = []
     ok = 0
     blocked = 0
@@ -385,7 +512,7 @@ def run(env: dict[str, str], transport=_request_json) -> int:
     db.batch(updates)
     print(f"verified_bots={len(bots)} pending_examined={len(rows)} "
           f"reactions_confirmed={ok} blocked={blocked} retries={len(rows)-ok-blocked}")
-    return ok
+    return ok + primary_ok
 
 
 if __name__ == "__main__":
