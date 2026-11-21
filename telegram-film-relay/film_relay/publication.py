@@ -221,6 +221,38 @@ async def post_public_video_after_poster(
     return sent
 
 
+
+async def post_public_video_by_bot_copy(
+    user_client, bot_client, public_peer, private_peer, private_video,
+    poster_id: int, private_video_link: str, description: str,
+):
+    """Bot-only server-side video copy; source must be an accessible library.
+
+    Read-only verification still uses the existing session until the entire
+    scanner is migrated. Never fall back to a personal-session upload when
+    a bot copy fails, as that could create a duplicate.
+    """
+    from .public_video_archive import (
+        has_verified_button, is_video_message, video_document_id,
+    )
+    poster = await user_client.get_messages(public_peer, ids=int(poster_id))
+    if (not getattr(poster, "photo", None)
+            or not has_verified_button(poster, private_video_link)):
+        raise RuntimeError("Fiche publique non vérifiée : copie bot suspendue.")
+    newest = [m async for m in user_client.iter_messages(public_peer, limit=1)]
+    if not newest or int(newest[0].id) != int(poster_id):
+        raise RuntimeError("Affiche plus récente absente : copie bot suspendue.")
+    copied = await bot_client.copy_message(
+        public_peer, private_peer, int(private_video.id),
+        caption=rich_video_title(description), parse_mode="html",
+    )
+    verified = await user_client.get_messages(public_peer, ids=int(copied.id))
+    if (not is_video_message(verified)
+            or video_document_id(verified) != video_document_id(private_video)):
+        raise RuntimeError("Copie bot non vérifiée, aucune répétition automatique.")
+    return copied
+
+
 def catalog_public_marker(title: str, season: int, episode: int) -> str:
     """Stable marker across source-channel reposts and interrupted transfers."""
     import hashlib
@@ -357,10 +389,20 @@ async def publish_catalog_episode_pairs(
             try:
                 # Send the VERIFIED private copy, never a mismatched source
                 # repost whose document ID or encoding could have changed.
-                public_video = await post_public_video_after_poster(
-                    user_client, public_peer, private_video, description,
-                    int(entry["poster"]), video_url,
-                )
+                bot_copy = (os.getenv("CINEX_ANIME_BOT_PUBLIC_COPY", "").lower()
+                            in ("1", "true", "yes"))
+                if bot_copy:
+                    if not hasattr(bot_client, "copy_message"):
+                        raise RuntimeError("Bot CineX sans fonction copyMessage.")
+                    public_video = await post_public_video_by_bot_copy(
+                        user_client, bot_client, public_peer, private_peer,
+                        private_video, int(entry["poster"]), video_url, description,
+                    )
+                else:
+                    public_video = await post_public_video_after_poster(
+                        user_client, public_peer, private_video, description,
+                        int(entry["poster"]), video_url,
+                    )
             except Exception:
                 entry["video_send_uncertain"] = True
                 save_catalog(catalogue)
