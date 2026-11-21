@@ -1,6 +1,6 @@
 {
   "schema": "bsd-v2-publication-ledger-1",
-  "updated_at": "2026-11-21T04:21:22.419637+00:00",
+  "updated_at": "2026-11-21T08:21:26.448609+00:00",
   "entries": [
     {
       "key": "7282|2026-10-08T22:30:00+00:00",
@@ -17444,7 +17444,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "212315|2026-11-07T06:00:00+00:00",
@@ -17475,7 +17475,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "649890|2026-11-07T13:30:00+00:00",
@@ -17506,7 +17506,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "649892|2026-11-07T13:30:00+00:00",
@@ -17537,7 +17537,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "605303|2026-11-07T14:00:00+00:00",
@@ -17568,7 +17568,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604603|2026-11-07T15:00:00+00:00",
@@ -17627,7 +17627,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "642926|2026-11-07T15:00:00+00:00",
@@ -17658,7 +17658,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "642939|2026-11-07T15:00:00+00:00",
@@ -17689,7 +17689,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "642940|2026-11-07T15:00:00+00:00",
@@ -17720,7 +17720,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "580574|2026-11-07T19:00:00+00:00",
@@ -17751,7 +17751,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "223907|2026-11-07T20:30:00+00:00",
@@ -17782,7 +17782,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "5410|2026-11-07T21:00:00+00:00",
@@ -17813,7 +17813,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "642946|2026-11-07T21:05:00+00:00",
@@ -17844,7 +17844,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "223914|2026-11-08T01:00:00+00:00",
@@ -17886,7 +17886,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "205920|2026-11-08T07:30:00+00:00",
@@ -17917,7 +17917,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "603152|2026-11-08T11:00:00+00:00",
@@ -17948,7 +17948,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "603812|2026-11-08T13:30:00+00:00",
@@ -17979,7 +17979,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "605309|2026-11-08T14:00:00+00:00",
@@ -18010,7 +18010,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "209631|2026-11-07T12:30:00+00:00",
@@ -18165,7 +18165,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604604|2026-11-08T15:00:00+00:00",
@@ -18196,7 +18196,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604609|2026-11-08T15:00:00+00:00",
@@ -18227,7 +18227,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604611|2026-11-08T15:00:00+00:00",
@@ -18258,7 +18258,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "207115|2026-11-08T16:00:00+00:00",
@@ -18289,7 +18289,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "605708|2026-11-08T16:15:00+00:00",
@@ -18320,7 +18320,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "642949|2026-11-08T19:00:00+00:00",
@@ -18351,7 +18351,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "10217|2026-11-08T22:15:00+00:00",
@@ -18382,7 +18382,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604610|2026-11-09T15:00:00+00:00",
@@ -18413,7 +18413,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "215306|2026-11-09T20:00:00+00:00",
@@ -18444,7 +18444,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654034|2026-11-10T15:00:00+00:00",
@@ -18499,7 +18499,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654059|2026-11-12T13:30:00+00:00",
@@ -18530,7 +18530,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "212701|2026-11-13T19:45:00+00:00",
@@ -18561,7 +18561,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606219|2026-11-12T23:00:00+00:00",
@@ -18592,7 +18592,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606229|2026-11-14T00:00:00+00:00",
@@ -18623,7 +18623,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654431|2026-11-14T10:30:00+00:00",
@@ -18654,7 +18654,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "10224|2026-11-14T19:30:00+00:00",
@@ -18685,7 +18685,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "10225|2026-11-14T19:30:00+00:00",
@@ -18727,7 +18727,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654339|2026-11-14T20:30:00+00:00",
@@ -18758,7 +18758,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654341|2026-11-14T20:30:00+00:00",
@@ -18789,7 +18789,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606228|2026-11-13T23:00:00+00:00",
@@ -18820,7 +18820,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604614|2026-11-15T15:00:00+00:00",
@@ -18851,7 +18851,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604617|2026-11-15T15:00:00+00:00",
@@ -18882,7 +18882,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604622|2026-11-15T15:00:00+00:00",
@@ -18913,7 +18913,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "215311|2026-11-15T17:00:00+00:00",
@@ -18944,7 +18944,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "212723|2026-11-16T17:00:00+00:00",
@@ -18975,7 +18975,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "649937|2026-11-16T18:00:00+00:00",
@@ -19006,7 +19006,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606197|2026-11-16T19:00:00+00:00",
@@ -19037,7 +19037,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606212|2026-11-16T19:00:00+00:00",
@@ -19068,7 +19068,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606213|2026-11-16T19:00:00+00:00",
@@ -19099,7 +19099,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "606200|2026-11-18T00:00:00+00:00",
@@ -19130,7 +19130,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654419|2026-11-17T16:00:00+00:00",
@@ -19213,7 +19213,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654353|2026-11-20T13:30:00+00:00",
@@ -19244,7 +19244,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "211961|2026-11-20T17:00:00+00:00",
@@ -19275,7 +19275,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "655421|2026-11-21T01:40:00+00:00",
@@ -19300,9 +19300,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 0,
+        "primary_won": true,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654357|2026-11-21T13:30:00+00:00",
@@ -19329,7 +19333,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "46528|2026-11-21T14:00:00+00:00",
@@ -19356,7 +19360,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "46534|2026-11-21T14:00:00+00:00",
@@ -19383,7 +19387,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604244|2026-11-21T14:30:00+00:00",
@@ -19410,7 +19414,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "209636|2026-11-21T15:00:00+00:00",
@@ -19437,7 +19441,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654048|2026-11-21T15:00:00+00:00",
@@ -19464,7 +19468,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "220955|2026-11-21T16:00:00+00:00",
@@ -19491,7 +19495,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "46530|2026-11-21T16:30:00+00:00",
@@ -19518,7 +19522,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604627|2026-11-21T18:00:00+00:00",
@@ -19545,7 +19549,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "643067|2026-11-21T20:30:00+00:00",
@@ -19572,7 +19576,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "643073|2026-11-21T11:00:00+00:00",
@@ -19599,7 +19603,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "216244|2026-11-22T13:00:00+00:00",
@@ -19626,7 +19630,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "643070|2026-11-22T14:00:00+00:00",
@@ -19653,7 +19657,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604250|2026-11-22T14:30:00+00:00",
@@ -19680,7 +19684,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "604632|2026-11-22T15:00:00+00:00",
@@ -19716,7 +19720,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654314|2026-11-22T19:00:00+00:00",
@@ -19743,7 +19747,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "655433|2026-11-22T21:30:00+00:00",
@@ -19770,7 +19774,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     },
     {
       "key": "654311|2026-11-22T22:00:00+00:00",
@@ -19797,12 +19801,12 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-21T04:21:22.419637+00:00"
+      "last_observed_in_feed_at": "2026-11-21T08:21:26.448609+00:00"
     }
   ],
   "last_run": {
     "new": 0,
-    "new_settlements": 0,
+    "new_settlements": 1,
     "active": 71,
     "total": 555
   }

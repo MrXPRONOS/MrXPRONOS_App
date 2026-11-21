@@ -4005,11 +4005,11 @@
       "revalidated_at": "2026-11-12T00:06:33.714594+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-21T04:21:22.419637+00:00",
+      "settlement_checked_at": "2026-11-21T08:21:26.448609+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-21T08:21:22.419637+00:00"
+        "next_retry_after": "2026-11-21T12:21:26.448609+00:00"
       }
     },
     {
@@ -6902,11 +6902,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-21T04:21:22.419637+00:00",
+      "settlement_checked_at": "2026-11-21T08:21:26.448609+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-21T08:21:22.419637+00:00"
+        "next_retry_after": "2026-11-21T12:21:26.448609+00:00"
       }
     },
     {
@@ -7203,12 +7203,12 @@
       "badge": "BSD V2",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -7333,7 +7333,12 @@
         "odds_updated_at": "2026-11-19T19:35:08.923000+00:00"
       },
       "revalidated_at": "2026-11-21T00:06:51.649865+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-11-21T08:21:26.448609+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:643073",
@@ -13464,7 +13469,8 @@
       "bsd:606213:1X:2026-11-16T19:00:00+00:00",
       "bsd:606200:1X:2026-11-18T00:00:00+00:00",
       "bsd:654353:UNDER_35:2026-11-20T13:30:00+00:00",
-      "bsd:211961:1X:2026-11-20T17:00:00+00:00"
+      "bsd:211961:1X:2026-11-20T17:00:00+00:00",
+      "bsd:655421:UNDER_35:2026-11-21T01:40:00+00:00"
     ],
     "by_selection": {
       "1X": {
@@ -13484,12 +13490,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 157,
-        "wins": 131,
-        "sum_pred": 124.29300000000003,
+        "n": 158,
+        "wins": 132,
+        "sum_pred": 125.08900000000004,
         "penalty": 0.0,
-        "hit_rate": 0.834395,
-        "average_predicted": 0.791675
+        "hit_rate": 0.835443,
+        "average_predicted": 0.791703
       },
       "OVER_15": {
         "n": 109,
@@ -13542,16 +13548,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 267,
-        "wins": 217,
-        "sum_pred": 209.84599999999995,
+        "n": 268,
+        "wins": 218,
+        "sum_pred": 210.64199999999994,
         "penalty": 0.0,
-        "hit_rate": 0.812734,
-        "average_predicted": 0.78594
+        "hit_rate": 0.813433,
+        "average_predicted": 0.785978
       }
     },
-    "last_added": 0,
-    "updated_at": "2026-11-21T04:21:22.419637+00:00",
+    "last_added": 1,
+    "updated_at": "2026-11-21T08:21:26.448609+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -14061,12 +14067,12 @@
         "average_predicted": 0.8135
       },
       "Categoría Primera A|UNDER_35": {
-        "n": 5,
-        "wins": 3,
-        "sum_pred": 3.978,
+        "n": 6,
+        "wins": 4,
+        "sum_pred": 4.774,
         "penalty": 0.0,
-        "hit_rate": 0.6,
-        "average_predicted": 0.7956
+        "hit_rate": 0.666667,
+        "average_predicted": 0.795667
       },
       "Japanese J1 League|1X": {
         "n": 4,
@@ -83094,11 +83100,11 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-11-21T04:21:22.419637+00:00",
-    "checked": 2,
-    "settled": 0,
+    "updated_at": "2026-11-21T08:21:26.448609+00:00",
+    "checked": 3,
+    "settled": 1,
     "pending": 2,
-    "h4": 0,
+    "h4": 1,
     "h8": 0,
     "fallback": 2,
     "detail_hits": 1,
