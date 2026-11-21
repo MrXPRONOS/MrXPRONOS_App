@@ -124,9 +124,7 @@ class ReceiptsTests(unittest.TestCase):
                           document=NS(id=111, attributes=[]),
                           raw_text="Naruto — S01E07")
         poster = NS(id=70, photo=object(), raw_text="Naruto",
-                    buttons=[NS(buttons=[
-                        NS(url=private_url, text="VOIR LA VIDÉO")
-                    ])])
+                    buttons=[[NS(url=private_url, text="VOIR LA VIDÉO")]])
         async def messages(peer, limit):
             yield public_video
         async def get_messages(peer, ids):
