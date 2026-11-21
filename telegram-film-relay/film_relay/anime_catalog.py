@@ -34,6 +34,7 @@ from .desir_runner import ReceiptState, DesirPromotionsState
 from .matching import filename_of
 from .promotions import publish_promotions
 from .text import first_title, private_message_link, clean_caption
+from .unified_download import UnifiedLibrary
 from .publication import (
     send_library_poster_with_buttons, verify_library_bot,
     publish_catalog_episode_pairs,
@@ -515,6 +516,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         sources, private, public, bot_public, mirror, mirror_key = await preflight(client, bot, cfg)
         if publish:
             await verify_library_bot(bot, private)
+        unified = UnifiedLibrary(client)
+        if publish:
+            await unified.prepare(public=public)
         private_id = utils.get_peer_id(private)
         if publish:
             await repair_legacy_indexes(
@@ -739,8 +743,15 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                                                  caption=caption, parse_mode="html")
                     private_msg_id = int(new.id)
                     await asyncio.sleep(pause)
+                download_url = await unified.store(
+                    row["video"], category="anime",
+                    title=f"{title} S{row['season']:02d}E{row['episode']:02d}",
+                    public=public,
+                ) if publish else None
                 ep[number_key] = {"message_id": private_msg_id,
                                   "url": private_message_link(private_id, private_msg_id)}
+                if download_url:
+                    ep[number_key]["download_url"] = download_url
                 series["source_items"][row["source_key"]] = private_msg_id
                 copied_episodes += 1
                 save_catalog(catalogue)
