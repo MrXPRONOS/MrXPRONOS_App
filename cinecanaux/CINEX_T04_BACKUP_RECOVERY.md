@@ -14,6 +14,38 @@ Cette procédure protège la **base D1 complète** indépendamment de la discuss
 
 **Limite critique : la base D1 ne contient pas les octets des films et des épisodes.** La sauvegarde conserve les références des fichiers et les messages sources, mais pas les vidéos elles-mêmes. La perte des canaux d'origine, du fichier Telegram ou des permissions d'accès ne peut être réparée par cet export seul. Une vraie sauvegarde multimédia hors Telegram exige un stockage privé dédié (R2 ou équivalent) et des droits de diffusion et de conservation vérifiés. Ne pas présenter cette sauvegarde D1 comme une archive complète de vidéos.
 
+## Sauvegarde complémentaire des fichiers déjà présents sur GitHub
+
+Le workflow **`.github/workflows/cinex-t04-github-files-backup.yml`** crée tous les jours à **03:12 UTC** un second artefact GitHub Actions, chiffré séparément, contenant uniquement les fichiers CinéX déjà archivés dans le dépôt GitHub :
+
+- `telegram-film-relay/state/*.json` — états et catalogues existants ;
+- `telegram-film-relay/config/*.json` — paramètres de la diffusion ;
+- `telegram-film-relay/assets/` — images, affiches et éventuellement vidéos réellement présentes ;
+- `cinecanaux/assets/` — images, avatars, JSON, et éventuellement vidéos réellement présentes.
+
+**Important :** l'inventaire du dépôt GitHub effectué le 21/11/2026 ne trouve actuellement aucun fichier MP4/MKV/WebM/MOV/AVI réellement commité dans ce périmètre. **Une référence vers un message Telegram ou un `file_id` n'est pas une copie vidéo.** La sauvegarde GitHub est donc utile dès maintenant pour les catalogues et visuels, mais elle **ne permet pas encore de restaurer les octets des films ou épisodes**.
+
+Le script refuse les fichiers individuels supérieurs à 48 MiB, les volumes supérieurs à 128 MiB et les liens symboliques ; ces limites protègent les artefacts et évitent de confondre GitHub avec une vidéothèque illimitée. **Ne jamais déposer des vidéos privées directement dans l'historique public de ce dépôt :** les objets Git restent récupérables après leur suppression apparente. N'ajouter que des médias que tu as le droit de stocker et de diffuser.
+
+### Restauration locale de cet artefact GitHub
+
+Télécharger l'artefact nommé `cinex-t04-github-files-sealed-...` depuis l'exécution réussie du workflow **CinéX T04 - sauvegarde chiffrée des fichiers GitHub**. Extraire `files.enc`, puis utiliser la **même clé privée hors ligne** que la sauvegarde D1.
+
+```bash
+python cinecanaux/scripts/cinex_github_files_backup.py verify-local \
+  --archive files.enc \
+  --private-key cinex_t04_recovery_private.pem
+
+python cinecanaux/scripts/cinex_github_files_backup.py restore-local \
+  --archive files.enc \
+  --private-key cinex_t04_recovery_private.pem \
+  --out cinex-files-restored
+```
+
+La restauration crée un **nouveau dossier local** ; elle n'écrase jamais les fichiers existants du projet. Vérifier les fichiers restaurés avant toute utilisation dans une autre branche. La clé privée ne doit jamais entrer dans les Actions GitHub ou le dépôt.
+
+---
+
 ## Clé privée de récupération
 
 Le fichier **`cinex_t04_recovery_private.pem`** est créé séparément et doit être téléchargé depuis la conversation privée où la sauvegarde a été mise en place. Ne jamais copier cette clé dans GitHub, une variable Actions, Cloudflare D1, un message Telegram ni le dépôt du projet.
