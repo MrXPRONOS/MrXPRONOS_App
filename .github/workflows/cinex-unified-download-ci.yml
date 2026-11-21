@@ -13,6 +13,9 @@ on:
       - 'telegram-film-relay/film_relay/anime_catalog.py'
       - 'telegram-film-relay/film_relay/legacy_archive_repair.py'
       - 'telegram-film-relay/tests/test_unified_download.py'
+      - 'telegram-film-relay/tests/test_original_poster_edit.py'
+      - 'telegram-film-relay/film_relay/original_poster_edit.py'
+      - 'telegram-film-relay/film_relay/bot_http.py'
       - '.github/workflows/cinex-unified-download-ci.yml'
       - '.github/workflows/cinex-unified-download-backfill.yml'
   push:
