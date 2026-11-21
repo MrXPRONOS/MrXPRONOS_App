@@ -1,5 +1,1099 @@
 [
   {
+    "id": "260c717de76c229fd7cc6f25",
+    "kind": "article",
+    "title": "River Plate vs CA Lanús : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-654311/",
+    "source_date": "2026-11-21T00:14:51.635913+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-654311-b45a7595-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-654311-b45a7595-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-654311-b45a7595-social.jpg"
+  },
+  {
+    "id": "9043655cf796a83048d9f1d3",
+    "kind": "article",
+    "title": "Barau FC vs Inter Lagos FC : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604632/",
+    "source_date": "2026-11-20T19:20:02.077517+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-604632-bc9966d7-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604632-bc9966d7-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604632-bc9966d7-social.jpg"
+  },
+  {
+    "id": "b8fbdc997bcb7ac40b75d1ac",
+    "kind": "news",
+    "title": "Barça : Raphinha va régler ses comptes",
+    "url": "https://www.footmercato.net/a4970207988227333712-barca-raphinha-va-regler-ses-comptes",
+    "source_date": "2026-11-20T22:57:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3bdd37037242a0fae086326f",
+    "kind": "news",
+    "title": "Le Bayern Munich annonce plusieurs mois d’absence pour Harry Kane !",
+    "url": "https://www.footmercato.net/a2333239163361791453-le-bayern-munich-annonce-plusieurs-mois-dabsence-pour-harry-kane",
+    "source_date": "2026-11-20T22:40:36+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c61309da2907e9ff50dba0f4",
+    "kind": "news",
+    "title": "HAC : la réaction à chaud de Valérien Ismaël après sa première défaite",
+    "url": "https://www.footmercato.net/a5053044905030467380-hac-la-reaction-a-chaud-de-valerien-ismael-apres-sa-premiere-defaite",
+    "source_date": "2026-11-20T22:22:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0e2d0d22879011389dcce339",
+    "kind": "news",
+    "title": "Bayern : Max Eberl ne sait pas pour Michael Olise",
+    "url": "https://www.footmercato.net/a855102099370336732-bayern-max-eberl-ne-sait-pas-pour-michael-olise",
+    "source_date": "2026-11-20T22:10:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d625d4948a11c8a46768893c",
+    "kind": "news",
+    "title": "Ligue 1 : renversé à Troyes pour la première de Valérien Ismaël, Le Havre s’enfonce un peu plus dans la crise",
+    "url": "https://www.footmercato.net/a1577957104457111745-ligue-1-renverse-a-troyes-pour-la-premiere-de-valerien-ismael-le-havre-senfonce-un-peu-plus-dans-la-crise",
+    "source_date": "2026-11-20T21:43:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "aa6e56e8c7b95a77268a6fd5",
+    "kind": "news",
+    "title": "Bundesliga : Kane et Olise sortis sur blessure, le Bayern Munich surpris par Cologne",
+    "url": "https://www.footmercato.net/a6920919738283680470-bundesliga-kane-et-olise-sortis-sur-blessure-le-bayern-munich-surpris-par-cologne",
+    "source_date": "2026-11-20T21:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3606413d7d15ac324b72fcd9",
+    "kind": "news",
+    "title": "Bayern : Michael Olise se blesse à son tour !",
+    "url": "https://www.footmercato.net/a6824548870687824549-bayern-michael-olise-se-blesse-a-son-tour",
+    "source_date": "2026-11-20T20:47:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6af0e4a7edb6f4182ee7f99a",
+    "kind": "news",
+    "title": "Lille-Bayern Munich : Kane blessé, vers un forfait pour le choc ?",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lille-bayern-munich-kane-blesse-vers-un-forfait-pour-le-choc-1010326",
+    "source_date": "2026-11-20T20:36:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fc14c7fba3db3980e106361f",
+    "kind": "news",
+    "title": "Mercato Strasbourg : Vitor Matos justifie son arrivée au RC Strasbourg",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-strasbourg-vitor-matos-justifie-son-arrivee-au-rc-strasbourg-546433.html",
+    "source_date": "2026-11-20T17:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "efe5fcb554a5e4ff3f90add7",
+    "kind": "news",
+    "title": "Présidence de la Fifa: Gianni Infantino pourra-t-il survivre aux scandales?",
+    "url": "https://www.rfi.fr/fr/podcasts/la-fabrique-du-monde/20261120-pr%C3%A9sidence-de-la-fifa-gianni-infantino-pourra-t-il-survivre-aux-scandales",
+    "source_date": "2026-11-20T10:49:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b0a6aaa6ba975431bb0d0f24",
+    "kind": "news",
+    "title": "Ligue 1: Hillel Konaté, l’Etalon de Troyes pour la bataille du maintien",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261120-ligue-1-hillel-konat%C3%A9-l-etalon-de-troyes-pour-la-bataille-du-maintien",
+    "source_date": "2026-11-20T10:45:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c87480ed094a9c20525143cd",
+    "kind": "news",
+    "title": "« Le pire adversaire possible » : L’Espagne craint la France mais n’oublie pas les dernières confrontations",
+    "url": "https://www.sofoot.com/breves/le-pire-adversaire-possible-lespagne-craint-la-france-mais-noublie-pas-les-dernieres-confrontations",
+    "source_date": "2026-11-21T00:00:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9ae5b90ed1f9994101bb90a2",
+    "kind": "news",
+    "title": "Cost of Man Utd hiring and firing managers nears £100m",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cwd01n9z23x5o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-20T23:18:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "290466cd72c86e13631636a6",
+    "kind": "news",
+    "title": "Pour sa réélection à la FIFA, Gianni Infantino trouve ses soutiens en Amérique du Sud",
+    "url": "https://www.sofoot.com/breves/pour-sa-reelection-a-la-fifa-gianni-infantino-trouve-ses-soutiens-en-amerique-du-sud",
+    "source_date": "2026-11-20T22:55:27+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4bd7144453ce68f907e6d23b",
+    "kind": "news",
+    "title": "First defeat and first red for Ferguson as Glentoran falter",
+    "url": "https://www.bbc.co.uk/sport/articles/c3zxvnz5x7g1o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-20T22:54:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "32c69111437289bbbc3cb6db",
+    "kind": "news",
+    "title": "Bayern : la tuile pour Kane !",
+    "url": "https://m.maxifoot.fr/football/article-66626.htm",
+    "source_date": "2026-11-20T22:43:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4688d8c38938097939855411",
+    "kind": "news",
+    "title": "Davide Ancelotti (LOSC) raconte ses vacances en famille à Amsterdam avec une touche d’humour",
+    "url": "https://www.sofoot.com/breves/davide-ancelotti-losc-raconte-ses-vacances-en-famille-a-amsterdam-avec-une-touche-dhumour",
+    "source_date": "2026-11-20T22:38:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f40c2dfc4b913f30b4875ac4",
+    "kind": "news",
+    "title": "NFL great Brady could buy Chelsea stake",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cmg46k97k92do?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-20T22:36:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "54954305edb56cd01727d881",
+    "kind": "news",
+    "title": "Premier League : Manchester United espionné, Arteta vole au secours de Pochettino",
+    "url": "https://www.onzemondial.com/premier-league/premier-league-manchester-united-espionne-arteta-vole-au-secours-de-pochettino-1010251",
+    "source_date": "2026-11-20T22:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "389717f49aec96ca9affda61",
+    "kind": "news",
+    "title": "Bayern Munich : terrible verdict médical Kane, fin d'année et longue absence pour le Ballon d'Or",
+    "url": "https://www.onzemondial.com/bundesliga/bayern-munich-terrible-verdict-medical-kane-fin-dannee-et-longue-absence-pour-le-ballon-dor-1010351",
+    "source_date": "2026-11-20T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bc58c189ea9e504665714078",
+    "kind": "news",
+    "title": "Olise, Kane, Neuer… le Bayern Munich est frappé par une terrible hécatombe !",
+    "url": "https://www.footmercato.net/a2990770280233697797-olise-kane-neuer-le-bayern-munich-est-frappe-par-une-terrible-hecatombe",
+    "source_date": "2026-11-20T22:11:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "50f37b4a75b8fc51b6b6ad39",
+    "kind": "news",
+    "title": "Lampard calls for fairness after Coventry penalty row",
+    "url": "https://www.bbc.co.uk/sport/football/articles/c678299n1018o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-20T22:04:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "26933feaf37a8613aba9a07b",
+    "kind": "news",
+    "title": "Mudryk - Ukraine : ça chauffe pour le joueur des Spurs !",
+    "url": "https://www.onzemondial.com/euro/mudryk-ukraine-ca-chauffe-pour-le-joueur-des-spurs-1010197",
+    "source_date": "2026-11-20T22:04:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "74080901a08449f2d26771d5",
+    "kind": "news",
+    "title": "Bayern Munich : Michael Olise sort sur blessure et quitte le stade en béquilles !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-bayern-munich-michael-olise-sort-sur-blessure-et-quitte-le-stade-en-bequilles-546458.html",
+    "source_date": "2026-11-20T21:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "39f36448f56087d987c2e093",
+    "kind": "news",
+    "title": "Shevchenko lying about drugs test claims - Mudryk",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cjn502n9vqp4o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-20T21:54:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "54133654f51dd66ebe4cfec3",
+    "kind": "news",
+    "title": "Ligue 1 : Troyes gâche la première de Valérien Ismaël en battant Le Havre",
+    "url": "https://www.sofoot.com/breves/ligue-1-troyes-gache-la-premiere-de-valerien-ismael-en-battant-le-havre",
+    "source_date": "2026-11-20T21:51:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "64f72e846f38d11c0a253db2",
+    "kind": "news",
+    "title": "PSG : Senny Mayulu raconte le rôle important de sa famille dans sa réussite",
+    "url": "https://www.footmercato.net/a7791374457337829893-psg-senny-mayulu-raconte-le-role-important-de-sa-famille-dans-sa-reussite",
+    "source_date": "2026-11-20T21:48:37+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "64c4952e038af8e7624187eb",
+    "kind": "news",
+    "title": "Watch: Inverness and Ayr play out goalless draw",
+    "url": "https://www.bbc.co.uk/sport/football/videos/c6zxvnzjnne4o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-20T21:47:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "631b8805134e962d3776e0ef",
+    "kind": "news",
+    "title": "Bundesliga : sale soirée pour le Bayern Munich face à Cologne, qui perd Harry Kane et Michael Olise sur blessure",
+    "url": "https://www.sofoot.com/breves/bundesliga-sale-soiree-pour-le-bayern-munich-face-a-cologne-qui-perd-harry-kane-et-michael-olise-sur-blessure",
+    "source_date": "2026-11-20T21:45:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5596233a68dd2feca1c37fb8",
+    "kind": "news",
+    "title": "Troyes, porté par Antoine Mille, coule Le Havre !",
+    "url": "https://www.onzemondial.com/ligue-1/troyes-porte-par-antoine-mille-coule-le-havre-1010347",
+    "source_date": "2026-11-20T21:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a0f4b3feedec0ba398539953",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes de ESTAC Troyes - Le Havre AC : Troyes fait une bonne opération pour le maintien, Le Havre n'y arrive toujours pas",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-estac-troyes-le-havre-ac-troyes-fait-une-bonne-operation-pour-le-maintien-le-havre-n-y-arrive-toujours-pas-546456.html",
+    "source_date": "2026-11-20T21:42:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f3b528fe924279410bad8c71",
+    "kind": "news",
+    "title": "Strasbourg : « Klopp est très important pour moi » , la révolution peut commencer avec Matos",
+    "url": "https://www.onzemondial.com/ligue-1/strasbourg-klopp-est-tres-important-pour-moi-la-revolution-peut-commencer-avec-matos-1010295",
+    "source_date": "2026-11-20T21:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "23c8df044f8e2969140a894a",
+    "kind": "news",
+    "title": "Ligue 2 : le Red Star s’impose après une longue interruption, Nancy et Metz assurent, Annecy régale",
+    "url": "https://www.footmercato.net/a7101846627956430978-ligue-2-le-red-star-simpose-apres-une-longue-interruption-nancy-et-metz-assurent-annecy-regale",
+    "source_date": "2026-11-20T21:22:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9f5345e629be630ef268ac9a",
+    "kind": "news",
+    "title": "Ligue 2 : L'AS Nancy-Lorraine enchaîne un septième succès de suite, le FC Metz arrache la victoire à 10 contre 11... le récap de la soirée",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-l-as-nancy-lorraine-enchaine-un-septieme-succes-de-suite-le-fc-metz-arrache-la-victoire-a-10-contre-11-le-recap-de-la-soiree-546455.html",
+    "source_date": "2026-11-20T21:21:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5de2ad912f3d88264cd03392",
+    "kind": "news",
+    "title": "Ligue 2 : Nancy met la pression sur Saint-Étienne, le Red Star crucifie Pau dans l’obscurité",
+    "url": "https://www.sofoot.com/breves/ligue-2-nacy-met-la-pression-sur-saint-etienne-le-red-star-crucifie-pau-dans-lobscurite",
+    "source_date": "2026-11-20T21:20:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e26942d83399d0a9773544d2",
+    "kind": "news",
+    "title": "Lille-Bayern Munich : après Kane, Olise se blesse et quitte le stade en béquilles !",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lille-bayern-munich-apres-kane-olise-se-blesse-et-quitte-le-stade-en-bequilles-1010341",
+    "source_date": "2026-11-20T21:06:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "910459af2d085f2b59166dd8",
+    "kind": "news",
+    "title": "ASSE : Larsonneur, Svetlin, Pedro... Cathro dit tout sur les retours avant Reims",
+    "url": "https://www.onzemondial.com/ligue-2/asse-larsonneur-svetlin-pedro-cathro-dit-tout-sur-les-retours-avant-reims-1010271",
+    "source_date": "2026-11-20T21:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6391572274fd9fb2b1fbed12",
+    "kind": "news",
+    "title": "Nancy colle l'ASSE, Metz fait le boulot, le Red Star interrompu... les résultats du multi L2 !",
+    "url": "https://www.onzemondial.com/ligue-2/nancy-colle-lasse-metz-fait-le-boulot-le-red-star-interrompu-les-resultats-du-multi-l2-1010337",
+    "source_date": "2026-11-20T20:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "17eff751fff15289a68271f1",
+    "kind": "news",
+    "title": "L’anecdote savoureuse de Juan Mata sur son premier jour d’entraînement au Vissel Kobe",
+    "url": "https://www.footmercato.net/a6441252651972572507-lanecdote-folle-de-juan-mata-sur-son-premier-jour-dentrainement-au-vissel-kobe",
+    "source_date": "2026-11-20T20:58:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fc2ad2ca8bd0e1a98397651d",
+    "kind": "news",
+    "title": "Mercato Le Havre AC : Un mercato agité au HAC cet hiver ? Le nouveau directeur sportif havrais répond",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-le-havre-ac-un-mercato-agite-au-hac-cet-hiver-le-nouveau-directeur-sportif-havrais-repond-546452.html",
+    "source_date": "2026-11-20T20:54:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9ed07a223b2f84acbf14b3ab",
+    "kind": "news",
+    "title": "Saudi Pro League : malgré Cristiano Ronaldo, Al Nassr s’incline contre Al Ahli",
+    "url": "https://www.footmercato.net/a874403108345231202-saudi-pro-league-malgre-cristiano-ronaldo-al-nassr-sincline-contre-al-ahli",
+    "source_date": "2026-11-20T20:51:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e7afbdc45dfa58892c08e571",
+    "kind": "news",
+    "title": "Michael Olise et le Ballon d’or 2026 Harry Kane sortent sur blessure avec le Bayern Munich cinq jours avant le déplacement à Lille",
+    "url": "https://www.sofoot.com/breves/le-ballon-dor-2026-harry-kane-sort-sur-blessure-avec-le-bayern-munich-cinq-jours-avant-le-deplacement-a-lille",
+    "source_date": "2026-11-20T20:50:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e6b4f8e1b5b75e13d79a6f27",
+    "kind": "news",
+    "title": "Ligue des nations : la France de Zinedine Zidane face à la montagne espagnole",
+    "url": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261120-ligue-nations-france-zinedine-zidane-face-montagne-espagnole",
+    "source_date": "2026-11-20T20:48:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bbfe313ea08d111c8316d25e",
+    "kind": "news",
+    "title": "Scène lunaire, le match Red Star-Pau interrompu deux fois à cause... d'une panne d'électricité !",
+    "url": "https://www.onzemondial.com/ligue-2/scene-lunaire-le-match-red-star-pau-interrompu-deux-fois-a-cause-dune-panne-delectricite-1010331",
+    "source_date": "2026-11-20T20:44:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "be2abc1ea9ce7a341546495c",
+    "kind": "news",
+    "title": "Jesús Owono réapparaît en public après le drame qui a coûté la vie à Jesús de Miguel",
+    "url": "https://www.footmercato.net/a6533994459177498297-jesus-owono-reapparait-en-public-apres-le-drame-qui-a-coute-la-vie-a-jesus-de-miguel",
+    "source_date": "2026-11-20T20:38:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a971bbf7c12b716437545586",
+    "kind": "news",
+    "title": "Une soirée mouvementée pour Cristaino Ronaldo avec Al Nassr, buteur mais perdant",
+    "url": "https://www.sofoot.com/breves/une-soiree-mouvementee-pour-cristaino-ronaldo-avec-al-nassr-buteur-mais-perdant",
+    "source_date": "2026-11-20T20:37:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9cb1d6fc9dfabc32562ca3f8",
+    "kind": "news",
+    "title": "Rennes : la mise au point musclée de Haise après la sortie médiatique de De Tavernost",
+    "url": "https://www.onzemondial.com/ligue-1/rennes-la-mise-au-point-musclee-de-haise-apres-la-sortie-mediatique-de-de-tavernost-1010261",
+    "source_date": "2026-11-20T20:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "157434a2177e2551f80a87d0",
+    "kind": "news",
+    "title": "Bayern Munich : Harry Kane sort sur blessure",
+    "url": "https://www.footmercato.net/a704911453928695316-bayern-munich-harry-kane-sort-sur-blessure",
+    "source_date": "2026-11-20T20:19:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7888dd1bdedd7f37063fda40",
+    "kind": "news",
+    "title": "PSG : le cas Mayulu avait fait grincer des dents",
+    "url": "https://m.maxifoot.fr/football/article-66625.htm",
+    "source_date": "2026-11-20T20:18:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "99c323ab847646ead0ef1341",
+    "kind": "news",
+    "title": "Barcelone : Baldé poussé vers la sortie dès le mercato hivernal",
+    "url": "https://www.footmercato.net/a7142767200991756472-barcelone-balde-pousse-vers-la-sortie-des-le-mercato-hivernal",
+    "source_date": "2026-11-20T20:10:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-21T05:42:04.013773+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "c27124eecc2c9d843b1d0b09",
     "kind": "article",
     "title": "Bournemouth vs Nottingham Forest : analyse du match",
@@ -40,7 +1134,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ed8c9c1c0a07c939a1689a18",
@@ -61,7 +1155,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c407301041c6e94e565c82a3",
@@ -82,7 +1176,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e70c9342ed0316889c03f818",
@@ -124,7 +1218,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "861d83fdb43a00ecbf1520a7",
@@ -145,7 +1239,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9eeba511e838b72d73ab47f2",
@@ -166,7 +1260,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3547700cb247856c0f52b9d1",
@@ -187,7 +1281,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "df279a0cf1404cc0e7c111dd",
@@ -208,7 +1302,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a1c5f71a2ff3f6d1d8a049b1",
@@ -229,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ca2b85f9eb295b2d924981b2",
@@ -250,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b29c2c2980b631df0babb4ca",
@@ -271,7 +1365,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d0b9943d011c0db740a38c08",
@@ -292,7 +1386,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2d40ee86884b53ff53142045",
@@ -313,7 +1407,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e1f3dce2de883d4118fe7a77",
@@ -397,7 +1491,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7967fe0d129c6773a442a866",
@@ -418,7 +1512,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b16a84cb22ef08781229c4c1",
@@ -439,7 +1533,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ca2deafeb2364f77ca002c8",
@@ -460,7 +1554,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "15dce63422cf5f6a16c10b75",
@@ -481,7 +1575,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7a6f2f1cfbb463f6a5ac9a7e",
@@ -502,7 +1596,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ebbf4f47e2a3217eb104ec71",
@@ -523,7 +1617,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8874226a4bf9246e3671790e",
@@ -544,7 +1638,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c5061f3c16b446ce7d965824",
@@ -565,7 +1659,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3ca99a352fe5d583795c0ee4",
@@ -586,7 +1680,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4fc38c6df8b5aafc405a4459",
@@ -607,7 +1701,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b7b27b855056a3d237613873",
@@ -628,7 +1722,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "31bd538b6b4b44728b89a462",
@@ -649,7 +1743,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a026c88ccbdb11db2520e680",
@@ -670,7 +1764,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ede5cda91765f327f0b3c77f",
@@ -691,7 +1785,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "258fe360f50c5c926d94d61a",
@@ -712,7 +1806,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "953568a2673ac91b6c1bd92d",
@@ -733,7 +1827,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "185d9b49a340c5b02ad0855d",
@@ -754,7 +1848,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "203983bb31ccad99f33c3b17",
@@ -775,7 +1869,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d387240b568692e206ad557b",
@@ -796,7 +1890,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0fadbf1047c994b1d86769c3",
@@ -817,7 +1911,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0f2aaed87ee40c80fe7f5b65",
@@ -838,7 +1932,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0146cd618d51719912df68b4",
@@ -859,7 +1953,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "110d323d5ca4b3d49e1ca8d0",
@@ -880,7 +1974,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0df447f769f6c0b4fac28acf",
@@ -901,7 +1995,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "04965c7d6559911dee8089f7",
@@ -922,7 +2016,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8fd6be01b9705390c1c3ee02",
@@ -943,7 +2037,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "dac9d6ad6daf73017dba1b7e",
@@ -964,7 +2058,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0845c5f43d2202245e992548",
@@ -1972,7 +3066,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0c4e57ee7a09430c5fc4d3c0",
@@ -2014,7 +3108,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4fc805d5961725b0af2c6749",
@@ -2203,7 +3297,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "be8dc3e46d39b7b4fd53cd97",
@@ -2455,7 +3549,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b9a12c94d3f572f2b91709d3",
@@ -2497,7 +3591,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6cebb2bc58f1baa3f8c19df5",
@@ -2560,7 +3654,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f659949cd131352d8bcb9125",
@@ -2581,7 +3675,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2f6224379b65b909ed9e786d",
@@ -2602,7 +3696,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "71768a1e15a8f8f8d5a2512c",
@@ -2623,7 +3717,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e2cf713ec3b6db95a7a18df5",
