@@ -15,6 +15,7 @@ from pathlib import Path
 import sys
 
 from film_relay.anime_bot_queue import ingest_channel_updates, mark_bot_review
+from film_relay.anime_bot_aliases import resolve_alias, add_alias
 from film_relay.anime_bot_migration import migrate_legacy_catalogue
 from film_relay.anime_bot_matching import (
     associate_anime_messages, consolidate_source_candidates,
@@ -48,6 +49,12 @@ def _channels():
 def prepare(state):
     found, review, cadences, complete = associate_anime_messages(
         state.get("messages", {}))
+    # Only pre-approved aliases may redirect an episode to an existing
+    # published series; no fuzzy or nearest-name merge is permitted.
+    found = [{**row, "series": resolve_alias(state, row["series"])}
+             for row in found]
+    complete = {(resolve_alias(state, key), season): count
+                for (key, season), count in complete.items()}
     unique, ambiguous = consolidate_source_candidates(
         found, reviewed_variants=state.get("approved_media_variants") or {})
     batches = select_bot_anime_batches(unique, state, complete)
@@ -61,7 +68,8 @@ def prepare(state):
 
 
 async def run(mode: str, *, state_path: str, max_poll_batches=20,
-              legacy_catalogue: str = ""):
+              legacy_catalogue: str = "", alias_old: str = "",
+              alias_new: str = ""):
     if mode == "audit":
         state = BotStateStore(state_path).load()
         selected, report = prepare(state)
@@ -69,6 +77,16 @@ async def run(mode: str, *, state_path: str, max_poll_batches=20,
         return {k: v for k, v in report.items()
                 if k not in ("source_review", "media_review")}
 
+    if mode == "alias-apply":
+        if os.environ.get("CINEX_ANIME_ALIAS_APPROVED") != "true":
+            raise RuntimeError("Manual alias approval required.")
+        store = require_durable_store(state_path)
+        with store.exclusive():
+            state = store.load()
+            add_alias(state, alias_old, alias_new)
+            store.save(state)
+            return {"mode": "alias-apply", "aliases": len(
+                state.get("series_aliases", {}))}
     if mode in ("migration-preview", "migration-apply"):
         if not legacy_catalogue:
             raise RuntimeError("Path to explicit legacy catalogue required.")
@@ -169,16 +187,20 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode",
                         choices=("audit", "poll", "publish",
-                                 "migration-preview", "migration-apply"),
+                                 "migration-preview", "migration-apply",
+                                 "alias-apply"),
                         required=True)
     parser.add_argument("--legacy-catalogue", default="")
+    parser.add_argument("--alias-old", default="")
+    parser.add_argument("--alias-new", default="")
     parser.add_argument("--state-path", default=os.environ.get(
         "CINEX_ANIME_BOT_STATE_PATH", "state/anime_bot_v2.json"))
     opts = parser.parse_args()
     try:
         report = asyncio.run(run(
             opts.mode, state_path=opts.state_path,
-            legacy_catalogue=opts.legacy_catalogue))
+            legacy_catalogue=opts.legacy_catalogue,
+            alias_old=opts.alias_old, alias_new=opts.alias_new))
         print(json.dumps(report, ensure_ascii=False, sort_keys=True))
     except Exception as exc:
         # Don't include token, private source IDs or potentially sensitive
