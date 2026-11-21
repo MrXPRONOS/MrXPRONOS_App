@@ -21,12 +21,18 @@ class NeighborPair:
 
 
 def is_plain_text(message) -> bool:
+    if message is None:
+        return False
+    attachment = getattr(message, "media", None)
+    # A link-preview generated from the intervening description remains text.
+    if attachment is not None and type(attachment).__name__ not in (
+        "MessageMediaWebPage", "MessageMediaEmpty"
+    ):
+        return False
     return bool(
-        message is not None
-        and (getattr(message, "raw_text", "") or "").strip()
+        (getattr(message, "raw_text", "") or "").strip()
         and not getattr(message, "photo", None)
         and not getattr(message, "document", None)
-        and not getattr(message, "media", None)
         and not getattr(message, "action", None)
         and not getattr(message, "buttons", None)
     )
@@ -35,7 +41,13 @@ def is_plain_text(message) -> bool:
 def identity_for_pair(video, poster, category: str, text: str = "") -> Identity:
     media = video_identity(video, category)
     cover = poster_identity(poster, category)
-    supplemental = parse_identity(text, category) if text else Identity("", "missing")
+    first_line = (text or "").strip().splitlines()
+    first_line = first_line[0].casefold().strip() if first_line else ""
+    description_only = first_line.startswith((
+        "synopsis", "résumé", "resume", "description", "histoire", "genre", "durée", "duree"
+    ))
+    supplemental = (parse_identity(text, category)
+                    if text and not description_only else Identity("", "missing"))
     if media.kind == "conflict":
         return Identity("", "conflict")
     if media.safe and cover.safe and compatible(media, cover) < 0.95:
@@ -77,7 +89,12 @@ def find_neighbor_pair(video, messages, category: str) -> NeighborPair | None:
     if poster is None or not is_video_message(video):
         return None
     ident = identity_for_pair(video, poster, category, extra)
-    if not ident.safe:
+    if ident.kind == "conflict":
         return None
+    if not ident.safe:
+        # Strong adjacency and matching Telegram media ID, not a guessed
+        # movie name, are enough to rescue an unnamed upload. The generated
+        # label explicitly says that its real title is unknown.
+        ident = Identity(f"contenu sans titre {int(video.id)}", "unknown")
     return NeighborPair(poster=poster, extra_text=extra,
                         identity=ident, mode=mode)
