@@ -486,7 +486,8 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             video_url = private_message_link(private_id, private_video_id)
             download_url = await unified.store(
-                item.video, category="desir", title=title, public=public_user)
+                item.video, category="desir", title=title, public=public_user,
+                poster=item.poster, description=description)
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
             public_post = await post_public(
                 bot, client, bot_public, item, description, video_url, link,
