@@ -1,2 +1,4 @@
 2026-11-20 one-time read-only Bot API audit, inventory current access and excessive admin privileges. No Telegram messages, no user session, no permissions changes.
 2026-11-20 S03 post-merge verification PR #552: read-only identity and permissions preflight (no messages, no role mutations).
+
+2026-11-21 20:20 UTC - Chantier Anime 22: repeat full READ-ONLY live Bot API permission audit. Do not post Telegram updates, alter admins or consume webhooks. Existing CineRadar configuration must be preserved.
