@@ -50,6 +50,18 @@ def identity_for_pair(video, poster, category: str, text: str = "") -> Identity:
                     if text and not description_only else Identity("", "missing"))
     if media.kind == "conflict":
         return Identity("", "conflict")
+    # Contradictory explicit metadata must block even when the title is
+    # generic or missing (e.g. "Film Partie 1" vs "Film Partie 2").
+    for left, right in ((media, cover), (media, supplemental), (cover, supplemental)):
+        if (left.part is not None and right.part is not None
+                and left.part != right.part):
+            return Identity("", "conflict")
+        if (left.episode is not None and right.episode is not None
+                and (left.season, left.episode) != (right.season, right.episode)):
+            return Identity("", "conflict")
+        if (left.year is not None and right.year is not None
+                and left.year != right.year):
+            return Identity("", "conflict")
     if media.safe and cover.safe and compatible(media, cover) < 0.95:
         return Identity("", "conflict")
     # The intervening text is often a synopsis, not an independent title.
