@@ -233,6 +233,14 @@ class AnimeBotPublisher:
             self.state.get("messages", {}).get(other, {})["status"] = "published"
         if row.get("cadence_hint") in ("weekly", "fortnightly"):
             entry["cadence_hint"] = row["cadence_hint"]
+        entry.setdefault("last_episode_by_season", {})[
+            str(row["season"])] = max(
+                int(row["episode"]),
+                int(entry.get("last_episode_by_season", {}).get(
+                    str(row["season"]), 0)))
         entry["last_episode"] = int(row["episode"])
+        entry["last_published_source_date"] = max(
+            int(row.get("date") or 0),
+            int(entry.get("last_published_source_date") or 0))
         self.store.save(self.state)
         return posts[marker]
