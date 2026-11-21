@@ -6,6 +6,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, patch
 
 from scripts.anime_bot_readiness import local_diagnostics, remote_read_only
@@ -38,9 +39,11 @@ class AnimeBotReadinessTests(unittest.TestCase):
     def test_configured_values_do_not_consume_bot_updates(self):
         report = local_diagnostics(BASE)
         self.assertTrue(report["ready_to_publish"])
-        client = AsyncMock()
-        client.identity.return_value.id = 123
-        client.call.return_value = {"url": ""}
+        client = NS(
+            identity=AsyncMock(return_value=NS(id=123)),
+            call=AsyncMock(return_value={"url": ""}),
+            assert_permissions=AsyncMock(return_value=NS(id=123)),
+        )
         with patch("scripts.anime_bot_readiness.AnimeBotTransport",
                    return_value=client):
             verified = asyncio.run(remote_read_only(BASE))
@@ -52,9 +55,12 @@ class AnimeBotReadinessTests(unittest.TestCase):
                                        for entry in client.call.await_args_list])
 
     def test_unexpected_webhook_blocks_cutover(self):
-        client = AsyncMock()
-        client.identity.return_value.id = 123
-        client.call.return_value = {"url": "https://example.invalid/other"}
+        client = NS(
+            identity=AsyncMock(return_value=NS(id=123)),
+            call=AsyncMock(return_value={
+                "url": "https://example.invalid/other"}),
+            assert_permissions=AsyncMock(),
+        )
         with patch("scripts.anime_bot_readiness.AnimeBotTransport",
                    return_value=client):
             report = asyncio.run(remote_read_only(BASE))
