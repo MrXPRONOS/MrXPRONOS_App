@@ -64,6 +64,10 @@ def deduplicate_anime_candidates(rows: list, catalogue: dict):
                 "reason": "different_telegram_media_for_same_episode",
                 "source_keys": sorted(str(r["source_key"]) for r in variants),
             })
+            if not any(str(row["source_key"]) in known for row in variants):
+                # Ambiguous re-encodes or conflicting episode labels cannot
+                # safely be resolved by recency alone.
+                continue
         best = max(
             variants,
             key=lambda row: (
