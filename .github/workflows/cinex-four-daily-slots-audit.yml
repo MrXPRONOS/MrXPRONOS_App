@@ -1,5 +1,11 @@
 name: CineX - Audit 4 plages quotidiennes par categorie (lecture seule)
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-four-daily-slots-audit.yml'
+      - 'telegram-film-relay/scripts/audit_cinex_four_daily_slots.py'
+      - 'telegram-film-relay/tests/test_cinex_four_daily_slots.py'
   workflow_dispatch:
   push:
     branches: [main]
@@ -30,6 +36,7 @@ jobs:
           python -m py_compile telegram-film-relay/scripts/audit_cinex_four_daily_slots.py
           python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_four_daily_slots.py' -v
       - name: Observer les messages sans publier dans les canaux
+        if: github.event_name != 'pull_request'
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
