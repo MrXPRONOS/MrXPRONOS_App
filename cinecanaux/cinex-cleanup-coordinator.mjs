@@ -39,10 +39,10 @@ export async function ensureCleanupHealth(env){
 
 async function backfillExpiry(env,config){
  // Backfill only copies with a confirmed Telegram receipt, never unverified
- // 'needs_review' or original channel posts. 24h is counted from sent_at.
+ // 'needs_review' or original channel posts. 12h is counted from sent_at.
  const sql=`UPDATE ${config.table}
- SET delete_after=datetime(sent_at,'+24 hours'),
- delete_retry_at=COALESCE(delete_retry_at,datetime(sent_at,'+24 hours'))
+ SET delete_after=datetime(sent_at,'+12 hours'),
+ delete_retry_at=COALESCE(delete_retry_at,datetime(sent_at,'+12 hours'))
  WHERE ${config.type} AND delivered_message_id IS NOT NULL
  AND sent_at IS NOT NULL AND delete_after IS NULL`;
  const r=await env.DB.prepare(sql).run();
