@@ -70,6 +70,21 @@ class ClassificationTest(unittest.TestCase):
         self.assertIn("romance", romance["genres"])
         self.assertEqual(romance["visibility"], "privé")
 
+    def test_unknown_series_with_season_is_dedicated(self):
+        row = classify_channel("A KNIGHT OF THE SEVEN KINGDOMS Saison 1 (2026) VF", None)
+        self.assertEqual(row["categories"], ["series"])
+        self.assertEqual(row["scope"], "dédié à une œuvre")
+        self.assertEqual(row["dedicated_title"], "a knight of the seven kingdoms")
+
+    def test_series_videotheque_is_general(self):
+        row = classify_channel("Ciné X Séries Vidéothèque", None)
+        self.assertIsNone(row["dedicated_title"])
+
+    def test_apothecary_diaries_is_single_anime(self):
+        row = classify_channel("LES CARNETS DE L'APOTHICAIRE | VF & VOSTFR", "lecarnetdelapovf")
+        self.assertEqual(row["categories"], ["animes"])
+        self.assertEqual(row["scope"], "dédié à une œuvre")
+
     def test_unknown_not_mistaken_for_film(self):
         row = classify_channel("Bulletin foot du jour", None)
         self.assertEqual(row["categories"], ["autres"])

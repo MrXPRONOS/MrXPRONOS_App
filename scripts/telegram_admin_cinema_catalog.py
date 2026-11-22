@@ -42,11 +42,16 @@ DEDICATED_TITLES = {
         "demon slayer", "kimetsu no yaiba", "attack on titan", "shingeki no kyojin",
         "death note", "solo leveling", "hunter x hunter", "fairy tail",
         "my hero academia", "boku no hero", "chainsaw man", "tokyo revengers",
+        "les carnets de l apothicaire", "carnets de l apothicaire",
     ),
     "series": (
         "lupin", "black doves", "squid game", "stranger things",
         "game of thrones", "breaking bad", "the boys", "money heist",
         "la casa de papel", "the walking dead", "peaky blinders", "wednesday",
+        "a knight of the seven kingdoms", "all the truth in my lies",
+        "hunting chasseurs de criminels", "l amour sous couverture",
+        "la comtesse de monte cristo", "les anneaux de pouvoir",
+        "lost girl", "sacrifice", "talamasca", "the body", "vigil",
     ),
     "films": (
         "fast and furious", "fast & furious", "john wick",
@@ -113,6 +118,26 @@ def title_match(name: str) -> tuple[str, str] | None:
     return None
 
 
+SEASON_TITLED_SERIES = re.compile(
+    r"^(.{5,90}?)\\s+(?:saisons?|season)\\s*[0-9]{1,2}\\b",
+    re.I,
+)
+
+
+def detect_dedicated_season(name: str) -> tuple[str, str] | None:
+    """A named series followed by Saison N is usually one specific work.
+
+    Do not infer from generic catalog names without a season number.
+    """
+    match = SEASON_TITLED_SERIES.search(fold(name))
+    if not match:
+        return None
+    work = re.sub(r"^[^a-z0-9]+|[^a-z0-9]+$", "", match.group(1))
+    if not work or compact(work) in ("series", "serie", "films", "film", "cinexseries"):
+        return None
+    return ("series", work)
+
+
 def likely_cinema(name: str) -> bool:
     n = fold(name)
     return bool(title_match(n) or "cinex" in compact(n) or any(
@@ -127,7 +152,7 @@ def classify_channel(title: str, username: str | None, about: str = "") -> dict 
         return None
     name = fold(title)
     text = fold(title + " " + (about or "")[:800])
-    dedicated = title_match(name)
+    dedicated = title_match(name) or detect_dedicated_season(name)
     cats = []
     for category in ("films", "series", "animes"):
         if any(has_term(text, term) for term in CATEGORY_TERMS[category]):
