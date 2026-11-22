@@ -59,6 +59,12 @@ test('catalogue SQL enforces the same atomic no-repeat condition',async()=>{
  assert.match(src,/INSERT OR IGNORE INTO cine_delivery_jobs[\s\S]*?WHERE NOT EXISTS \(SELECT 1 FROM cine_delivery_jobs/);
  assert.match(src,/status IN \('queued','sending','complete','needs_review'\)/);
 });
+test('single-film request does not require a preparatory sendMessage before media',async()=>{
+ const {readFile} = await import('node:fs/promises');
+ const src = await readFile(new URL('../cinex-delivery.mjs',import.meta.url),'utf8');
+ assert.match(src,/if\(media\.length>1\)\{[\s\S]*?await say\(env,chat/);
+ assert.match(src,/reply_markup:keyboard\(\)/);
+});
 test('worker cron stops without even touching Telegram when disabled',async()=>{
  const DB={prepare(sql){return{first:async()=>({value:'0'})}}};
  assert.deepEqual(await processDeliveryQueue({DB,TELEGRAM_TOKEN:'fake'}),{processed:0,errors:0,disabled:true});
