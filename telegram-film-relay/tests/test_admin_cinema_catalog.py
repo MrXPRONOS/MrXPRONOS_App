@@ -3,7 +3,8 @@ import asyncio
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from telegram_admin_cinema_catalog import (
@@ -105,6 +106,49 @@ class PrivateDeliveryTest(unittest.IsolatedAsyncioTestCase):
         rows = [classify_channel("Anime Shonen", None)]
         self.assertTrue(await send_private_catalog(client, rows))
         self.assertIn("Anime Shonen", client.sent[0])
+
+
+class InventoryIntegrationTest(unittest.IsolatedAsyncioTestCase):
+    async def test_all_personal_admins_even_without_bot_and_exclude_torrent9(self):
+        import inventory_mrxpronos_shared_admin_channels as inventory
+
+        class FakeChannel:
+            broadcast = True
+            creator = False
+            admin_rights = True
+            def __init__(self, cid, title, username=None):
+                self.id, self.title, self.username = cid, title, username
+
+        class FakeClient:
+            async def is_user_authorized(self):
+                return True
+            async def get_me(self):
+                return SimpleNamespace(bot=False)
+            async def get_permissions(self, channel, me):
+                return SimpleNamespace(is_admin=True, is_creator=False)
+            async def iter_dialogs(self):
+                for channel in (
+                    FakeChannel(1, "Films action", "films_action"),
+                    FakeChannel(2, "One Piece VF", None),
+                    FakeChannel(3, "Torrent9 Films", "torrent9films"),
+                ):
+                    yield SimpleNamespace(entity=channel)
+
+        fake_env = {
+            "TG_API_ID": "12345", "TG_API_HASH": "hash",
+            "TG_SESSION_STRING": "fake-session",
+            "SUPABASE_URL": "", "SUPABASE_SERVICE_ROLE_KEY": "",
+        }
+        with patch.dict("os.environ", fake_env), \
+             patch.object(inventory, "Channel", FakeChannel), \
+             patch.object(inventory, "send_private_catalog", new_callable=AsyncMock) as send:
+            self.assertEqual(await inventory.scan(client=FakeClient()), 0)
+            send.assert_awaited_once()
+            rows = send.await_args.args[1]
+            self.assertEqual(len(rows), 2)
+            self.assertEqual({r["visibility"] for r in rows}, {"public", "privé"})
+            self.assertTrue(any(r["dedicated_title"] == "one piece" for r in rows))
+            self.assertFalse(any("torrent9" in r["title"].lower() for r in rows))
 
 
 if __name__ == "__main__":
