@@ -98,8 +98,12 @@ async function recoverCompletedNotices(env){
   const sql="SELECT j.id FROM "+cfg.jobs+" j WHERE j.status=? AND j.created_at>=? "+
    "AND NOT EXISTS (SELECT 1 FROM cine_expiry_notice_outbox n WHERE n.family=? AND n.job_id=j.id) "+
    "ORDER BY j.id DESC LIMIT 10";
-  const rows=(await env.DB.prepare(sql).bind(state,cutover.value,family).all()).results||[];
-  for(const row of rows)await queueExpiryNotice(env,family,row.id);
+  // Each media family is independent: a partially installed/disabled
+  // family must not block notices for other delivered videos.
+  try{
+   const rows=(await env.DB.prepare(sql).bind(state,cutover.value,family).all()).results||[];
+   for(const row of rows)await queueExpiryNotice(env,family,row.id);
+  }catch(e){console.warn('cine_expiry_notice_family_reconcile_skipped',family,String(e?.name||'error'))}
  }
 }
 
