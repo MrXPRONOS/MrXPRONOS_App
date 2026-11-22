@@ -1,5 +1,6 @@
 import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
+import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
 // Fast & Furious VF: public-channel saga indexed by Telegram Bot API only.
 // Owner forwards create permanent receipts in their private CineRadar chat.
 // The subscriber receives only actually indexed films, each removed after 24h.
@@ -302,10 +303,13 @@ export async function processFranchiseQueue(env,{limit=2}={}){
    await env.DB.prepare("UPDATE cine_franchise_job_items SET state='sending' WHERE job_id=? AND part=? AND state='queued'").bind(job.id,item.part).run();
    let answer;
    try{const stock=await sourceFromPrivateStock(env,item.source_chat_id,item.source_message_id);
-    answer=await telegram(env,'copyMessage',{
+    const payload={
     chat_id:job.telegram_chat_id,from_chat_id:stock.chatId,message_id:stock.messageId,
     protect_content:false
-   })}catch{
+   };
+   answer=delivery44Enabled(env)
+    ? await remoteCopyMessage(env,'franchise:'+job.id+':'+item.part,payload)
+    : await telegram(env,'copyMessage',payload)}catch{
     await env.DB.prepare("UPDATE cine_franchise_job_items SET state='needs_review' WHERE job_id=? AND part=?").bind(job.id,item.part).run();
     await env.DB.prepare("UPDATE cine_franchise_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();
     errors++;break;
