@@ -21,6 +21,12 @@ SQL = {
     "owner_vault_switch": "SELECT setting_value FROM cine_series_config WHERE setting_key='owner_chat_vault_enabled'",
     "owner_pending_older_1h": "SELECT COUNT(*) AS n FROM cine_owner_vault WHERE status='queued' AND created_at<datetime('now','-1 hour')",
     "owner_pending_older_24h": "SELECT COUNT(*) AS n FROM cine_owner_vault WHERE status='queued' AND created_at<datetime('now','-24 hours')",
+    "owner_pending_older_6h": "SELECT COUNT(*) AS n FROM cine_owner_vault WHERE status='queued' AND created_at<datetime('now','-6 hours')",
+    "series_recent_duplicate_10m": (
+        "SELECT COUNT(*) AS n FROM (SELECT telegram_chat_id,token FROM cine_series_jobs "
+        "WHERE created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review') "
+        "GROUP BY telegram_chat_id,token HAVING COUNT(*)>1)"
+    ),
     "series_repeat_statuses": (
         "SELECT COUNT(*) AS attempts,MIN(created_at) AS oldest,MAX(created_at) AS newest, "
         "GROUP_CONCAT(status) AS states FROM cine_series_jobs "
@@ -58,8 +64,20 @@ SQL = {
     ),
     "central_stock": "SELECT state,source_family,COUNT(*) AS n FROM cine_private_stock_items GROUP BY state,source_family",
     "central_stock_ready": "SELECT COUNT(*) AS n FROM cine_private_stock_config WHERE singleton=1 AND ready=1",
+    "central_stock_pending_older_1h": "SELECT COUNT(*) AS n FROM cine_private_stock_items WHERE state='queued' AND created_at<datetime('now','-1 hour')",
+    "central_stock_pending_older_24h": "SELECT COUNT(*) AS n FROM cine_private_stock_items WHERE state='queued' AND created_at<datetime('now','-24 hours')",
+    "central_stock_needs_review": "SELECT COUNT(*) AS n FROM cine_private_stock_items WHERE state='needs_review'",
     "classic_link_count": "SELECT COUNT(*) AS n FROM cine_classic_links WHERE status='published'",
     "status_gate": "SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'",
+}
+
+# Alert on fresh duplicates, misroutes, or queues stuck for a day.
+# A historic duplicate outside the last 10 minutes remains visible in summary
+# but must not turn a healthy current run red.
+ALERT_NONZERO = {
+    "owner_misroute", "owner_same_source", "owner_pending_older_24h",
+    "central_stock_pending_older_24h", "central_stock_needs_review",
+    "series_recent_duplicate_10m",
 }
 
 
@@ -80,16 +98,20 @@ def main():
         print("AUDIT_UNAVAILABLE missing_cloudflare_token")
         return 2
     failed = []
+    alerts = []
     for name, sql in SQL.items():
         try:
             data = query(token, sql)
             # Queries are strict aggregates; never log SQL/IDs/captions.
             print("AUDIT_SUMMARY " + json.dumps({"name": name, "rows": data}))
+            if name in ALERT_NONZERO and any(int(row.get("n", 0)) > 0 for row in data):
+                alerts.append(name)
+                print("AUDIT_ALERT " + json.dumps({"name": name, "issue": "nonzero_count"}))
         except Exception as exc:
             failed.append(name)
             print("AUDIT_QUERY_FAILED " + json.dumps({"name": name, "reason": type(exc).__name__}))
-    print("AUDIT_COMPLETED " + json.dumps({"checks": len(SQL), "failed": failed}))
-    return 1 if failed else 0
+    print("AUDIT_COMPLETED " + json.dumps({"checks": len(SQL), "failed": failed, "alerts": alerts}))
+    return 1 if (failed or alerts) else 0
 
 
 if __name__ == "__main__":

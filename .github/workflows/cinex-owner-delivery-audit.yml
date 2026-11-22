@@ -1,6 +1,8 @@
 name: CineX - audit prive des livraisons et sauvegardes (lecture seule)
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
   push:
     branches: [main]
     paths:
