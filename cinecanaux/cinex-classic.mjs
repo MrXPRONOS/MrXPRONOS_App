@@ -4,7 +4,7 @@ import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota
 // Public video/poster messages are never deleted; only the bot's private copies.
 import {deletionDecision} from './cinex-expiry.mjs';
 import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
-import {copyExpiryCaption} from './private-copy-notice.mjs';
+import {queueExpiryNotice,processExpiryNotices} from './expiry-notice-outbox.mjs';
 const TOKEN=/^[A-Za-z0-9_-]{24}$/;
 const START=/^\/start(?:@[A-Za-z0-9_]+)?\s+d_([A-Za-z0-9_-]{24})\s*$/i;
 const BASE='https://api.telegram.org/bot';
@@ -86,7 +86,6 @@ export async function processClassicDeliveryQueue(env,{limit=3}={}){
   try{
    const payload={
     chat_id:row.telegram_chat_id,from_chat_id:sendSource,message_id:sendMessageId,protect_content:false,
-    caption:copyExpiryCaption(row.title),
     reply_markup:{inline_keyboard:[[{text:'💾 Comment enregistrer',callback_data:'cinex:save_help'}]]}
    };
    response=delivery44Enabled(env)
@@ -106,6 +105,10 @@ export async function processClassicDeliveryQueue(env,{limit=3}={}){
   await env.DB.prepare(
    "UPDATE cine_classic_deliveries SET status='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,delete_after=datetime('now','+12 hours'),delete_retry_at=datetime('now','+12 hours'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='sending'"
   ).bind(id,row.id).run();
+  try{
+   await queueExpiryNotice(env,'classics',row.id);
+   await processExpiryNotices(env,{family:'classics',jobId:row.id,limit:1});
+  }catch(e){console.warn('cine_classic_post_video_notice_failed',String(e?.name||'error'))}
   processed++;
  }
  return {processed,errors};

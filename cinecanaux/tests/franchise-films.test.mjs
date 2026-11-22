@@ -1,3 +1,4 @@
+import {processExpiryNotices} from '../expiry-notice-outbox.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
@@ -143,7 +144,7 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
   assert.equal(accepted.planned,2);
   assert.equal((await handleFranchiseDownloadStart(env,userStart(90))).duplicate,true);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_jobs").get().n,1);
-  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
+  // No pre-video Telegram notice: quota storage is lazily created at the first copy.
   const output=await processFranchiseQueue(env);
   assert.equal(output.processed,2);
   assert.equal((await processFranchiseQueue(env)).processed,0);
@@ -154,7 +155,10 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
    [USER,String(OWNER),11],[USER,String(OWNER),13],
   ]);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_job_items WHERE delete_after IS NOT NULL").get().n,2);
-  for(const copy of sends)assert.match(copy.body.caption,/12 heures après son envoi/);
+  for(const copy of sends)assert.equal(Object.hasOwn(copy.body,'caption'),false);
+  assert.deepEqual(calls.map(x=>x.method),['copyMessage','copyMessage','sendMessage']);
+  assert.match(calls.at(-1).body.text,/Ces 2 vidéos seront supprimées/);
+  assert.equal((await processExpiryNotices(env)).sent,0);
   db.exec("UPDATE cine_franchise_job_items SET sent_at=datetime('now','-13 hours'),delete_after=datetime('now','-1 hour'),delete_retry_at=datetime('now','-1 hour')");
   const result=await cleanupFranchiseCopies(env);
   assert.equal(result.deleted,2);
@@ -213,8 +217,10 @@ test('owner draft bot link delivers a private test while non-owner cannot access
   assert.equal((await processFranchiseQueue(env)).processed,1);
   const copyPayloads=calls.filter(x=>x.method==='copyMessage').map(x=>x.body);
   assert.equal(copyPayloads.length,1);
-  assert.match(copyPayloads[0].caption,/12 heures après son envoi/);
-  assert.deepEqual(copyPayloads.map(({caption,...fields})=>fields),[
+  assert.equal(Object.hasOwn(copyPayloads[0],'caption'),false);
+  assert.equal(calls.at(-1).method,'sendMessage');
+  assert.match(calls.at(-1).body.text,/Cette vidéo sera supprimée automatiquement/);
+  assert.deepEqual(copyPayloads,[
    {chat_id:OWNER,from_chat_id:String(OWNER),message_id:40,protect_content:false}
   ]);
  }finally{globalThis.fetch=old;db.close()}

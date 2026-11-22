@@ -23,6 +23,7 @@ import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
 import {handleClassicDeliveryStart,processClassicDeliveryQueue} from "./cinex-classic.mjs";
 import {runDelivery44SmokeOnce} from "./delivery44-smoke.mjs";
+import {processExpiryNotices} from "./expiry-notice-outbox.mjs";
 import {runCopyExpirySweep} from "./cinex-cleanup-coordinator.mjs";
 import {allowPublicEvent,publicRateLimited,purgeOldPublicEventBuckets} from "./public-event-limiter.mjs";
 import {pruneFinalizedCineReceipts} from "./receipt-retention.mjs";
@@ -506,6 +507,7 @@ export default {
    ctx.waitUntil(processSeriesQueue(env).catch(e=>console.warn("cinex_series_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processOwnerVaultQueue(env).catch(e=>console.warn("cinex_owner_vault_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processFranchiseQueue(env).catch(e=>console.warn("cinex_franchise_queue_failed",String(e?.name||"error"))));
+   ctx.waitUntil(processExpiryNotices(env).catch(e=>console.warn("cinex_expiry_notice_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil((async()=>{await queueKnownStockSources(env,{limit:10});await processPrivateStockQueue(env,{limit:1})})().catch(e=>console.warn("cinex_stock_sync_failed",String(e?.name||"error"))));
    ctx.waitUntil(runCopyExpirySweep(env).catch(e=>console.warn("cinex_private_expiry_sweep_failed",String(e?.name||"error"))));
    return;

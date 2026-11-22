@@ -1,6 +1,6 @@
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
-import {copyExpiryCaption} from './private-copy-notice.mjs';
+import {queueExpiryNotice,processExpiryNotices} from './expiry-notice-outbox.mjs';
 // CinéX séries individuelles — Bot API et D1 uniquement.
 // Messages entrants: le bot Ciné Radar doit déjà être admin dans les canaux privés.
 // getChat NE permet PAS de récupérer l'ensemble des anciens messages épinglés.
@@ -235,13 +235,7 @@ export async function handleSeriesStart(env,update){
    "INSERT OR IGNORE INTO cine_series_job_items(job_id,ordinal,source_chat_id,source_message_id) VALUES(?,?,?,?)"
   ).bind(job.id,i+1,hasOwnerCopy(item)?String(item.owner_chat_id):source.chat_id,
    hasOwnerCopy(item)?Number(item.owner_message_id):item.source_message_id)));
-  const detail=available.seasons.map(x=>'S'+x.season+': '+x.episodes+' ép.').join(' · ');
-  await notify(env,chat,
-   '📥 '+String(source.title||'Ta série').slice(0,70)+'\n'+
-   'Téléchargement des '+available.count+' épisodes actuellement disponibles : '+detail+'.\n'+
-   'Les saisons en cours ou absentes du catalogue ne sont pas promises complètes. '+
-   'Envoi progressif, copies retirées de cette conversation 12 h après chaque envoi.');
-  
+  // Video files are delivered first; a single expiry notice follows the last episode.
   return {handled:true,accepted:true};
  }catch(e){console.warn('series_start_error',String(e?.name||'Error'));await notify(env,chat,'Service temporairement indisponible.');return {handled:true,accepted:false}}
 }
@@ -260,7 +254,9 @@ export async function processSeriesQueue(env,{limit=5}={}){
  let processed=0,errors=0;
  for(const job of batch){
   const items=(await env.DB.prepare("SELECT ordinal,source_chat_id,source_message_id FROM cine_series_job_items WHERE job_id=? AND state='queued' ORDER BY ordinal LIMIT ?").bind(job.id,Math.max(1,Math.min(8,Number(limit)||5))).all()).results||[];
-  if(!items.length){await env.DB.prepare("UPDATE cine_series_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();continue}
+  if(!items.length){await env.DB.prepare("UPDATE cine_series_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();
+   try{await queueExpiryNotice(env,'series',job.id);await processExpiryNotices(env,{family:'series',jobId:job.id,limit:1})}catch(e){console.warn('cine_series_post_video_notice_failed',String(e?.name||'error'))}
+   continue}
   for(const item of items){
    let verifiedSource=item.source_chat_id===job.source_chat_id&&CHAT.test(String(item.source_chat_id));
    if(!verifiedSource&&Number.isSafeInteger(Number(item.source_chat_id))&&Number(item.source_chat_id)>0){
@@ -281,7 +277,7 @@ export async function processSeriesQueue(env,{limit=5}={}){
    let answer;
    try{
     const payload={chat_id:job.telegram_chat_id,from_chat_id:item.source_chat_id,message_id:item.source_message_id,protect_content:false,
-     caption:copyExpiryCaption(String(job.series_title||'Série')+' · Épisode '+item.ordinal)};
+     };
     answer=delivery44Enabled(env)
       ? await remoteCopyMessage(env,'series:'+job.id+':'+item.ordinal,payload)
       : await telegram(env,'copyMessage',payload);
@@ -306,6 +302,11 @@ export async function processSeriesQueue(env,{limit=5}={}){
     env.DB.prepare("UPDATE cine_series_jobs SET status='queued',lock_until=NULL,delivered_items=delivered_items+1 WHERE id=?").bind(job.id)
    ]);
    processed++;
+   const progress=await env.DB.prepare("SELECT planned_items,delivered_items FROM cine_series_jobs WHERE id=?").bind(job.id).first();
+   if(progress&&Number(progress.planned_items)>0&&Number(progress.delivered_items)===Number(progress.planned_items)){
+    await env.DB.prepare("UPDATE cine_series_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();
+    try{await queueExpiryNotice(env,'series',job.id);await processExpiryNotices(env,{family:'series',jobId:job.id,limit:1})}catch(e){console.warn('cine_series_post_video_notice_failed',String(e?.name||'error'))}
+   }
    if(items.length>1)await new Promise(resolve=>setTimeout(resolve,1100));
   }
  }

@@ -1,7 +1,7 @@
 import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
-import {copyExpiryCaption} from './private-copy-notice.mjs';
+import {queueExpiryNotice,processExpiryNotices} from './expiry-notice-outbox.mjs';
 // CinéX -> existing Ciné Radar bot. No video bytes pass through Cloudflare.
 // GitHub CINEX_DOWNLOADS_ENABLED is synchronized to D1; no in-bot approval.
 // Telegram /start is authenticated by the existing webhook secret in worker.mjs.
@@ -93,13 +93,7 @@ export async function handleDeliveryStart(env,update){
   ).bind(job.id,i+1,
    Number.isSafeInteger(Number(m.owner_chat_id))&&Number(m.owner_chat_id)>0&&Number.isSafeInteger(Number(m.owner_message_id))&&Number(m.owner_message_id)>0?String(m.owner_chat_id):link.private_chat_id,
    Number.isSafeInteger(Number(m.owner_chat_id))&&Number(m.owner_chat_id)>0&&Number.isSafeInteger(Number(m.owner_message_id))&&Number(m.owner_message_id)>0?Number(m.owner_message_id):m.source_message_id)));
-  // Single films are sent directly as media. Keep a progress notice only
-  // for multi-episode deliveries, where users need the plan/expiry details.
-  if(media.length>1){
-   await say(env,chat,
-    '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 12 heures. Pense à les transférer dans Messages enregistrés.',
-    {inline_keyboard:[[{text:'🍿 Explorer Ciné Radar',web_app:{url:MINI_APP}}]]});
-  }
+  // No Telegram progress notice before the video; expiration is sent after all files.
   return {handled:true,accepted:true,job_id:job.id};
  }catch(e){
   console.warn('cinex_delivery_request_failed',String(e?.name||'Error'));
@@ -149,7 +143,9 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;continue;
   }
   const pendingItems=items.filter(x=>x.state==='queued').slice(0,12);
-  if(!pendingItems.length){await env.DB.prepare("UPDATE cine_delivery_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();processed++;continue;}
+  if(!pendingItems.length){await env.DB.prepare("UPDATE cine_delivery_jobs SET status='complete' WHERE id=? AND status='queued'").bind(job.id).run();
+   try{await queueExpiryNotice(env,'libraries',job.id);await processExpiryNotices(env,{family:'libraries',jobId:job.id,limit:1})}catch(e){console.warn('cine_library_post_video_notice_failed',String(e?.name||'error'))}
+   processed++;continue;}
   // Each user requests the entire season once: this job can progress through
   // twelve episodes automatically without any further bot interaction.
   for(const pending of pendingItems){
@@ -166,7 +162,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    const stock=await sourceFromPrivateStock(env,pending.source_chat_id,pending.source_message_id);
    const payload={chat_id:job.telegram_chat_id,
     from_chat_id:stock.chatId,message_id:stock.messageId,
-    protect_content:false,caption:copyExpiryCaption(job.display_title),reply_markup:keyboard()};
+    protect_content:false,reply_markup:keyboard()};
    response=delivery44Enabled(env)
     ? await remoteCopyMessage(env,'library:'+job.id+':'+pending.ordinal,payload)
     : await telegram(env,'copyMessage',payload);
@@ -199,6 +195,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   const remaining=items.filter(x=>x.state==='queued'&&Number(x.ordinal)>Number(pending.ordinal)).length;
   if(remaining===0){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='complete',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id).run();
+   try{await queueExpiryNotice(env,'libraries',job.id);await processExpiryNotices(env,{family:'libraries',jobId:job.id,limit:1})}catch(e){console.warn('cine_library_post_video_notice_failed',String(e?.name||'error'))}
   }
   processed++;
   // Telegram recommends roughly one media message per second per private chat.

@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {
  availableSeriesPlan,handleSeriesStart,processSeriesQueue,cleanupSeriesCopies,
 } from '../individual-series.mjs';
+import {processExpiryNotices} from '../expiry-notice-outbox.mjs';
 
 const TOKEN='abcdefghijklmnopqrstuvwx';
 const CHANNEL='-1001234567890';
@@ -81,11 +82,9 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
    {ordinal:1,source_chat_id:CHANNEL,source_message_id:101},
    {ordinal:2,source_chat_id:CHANNEL,source_message_id:102},
   ]);
-  const notice=calls.find(x=>x.method==='sendMessage');
-  assert.match(notice.body.text,/actuellement disponibles/i);
-  assert.match(notice.body.text,/S3: 2 ép/i);
-  assert.match(notice.body.text,/ne sont pas promises complètes/i);
-  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
+  // No introductory warning: the videos must come first.
+  assert.equal(calls.length,0);
+  // No pre-video Telegram notice: quota storage is lazily created at the first copy.
   assert.equal((await processSeriesQueue(env)).processed,2);
   assert.equal((await processSeriesQueue(env)).processed,0);
   assert.equal(db.prepare('SELECT status,delivered_items FROM cine_series_jobs').get().status,'complete');
@@ -94,7 +93,13 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
   assert.deepEqual(copies.map(x=>({dest:x.body.chat_id,source:x.body.from_chat_id,id:x.body.message_id})),[
    {dest:321,source:CHANNEL,id:101},{dest:321,source:CHANNEL,id:102},
   ]);
-  for(const copy of copies)assert.match(copy.body.caption,/12 heures après son envoi/);
+  for(const copy of copies)assert.equal(Object.hasOwn(copy.body,'caption'),false);
+  assert.deepEqual(calls.map(x=>x.method),['copyMessage','copyMessage','sendMessage']);
+  const notice=calls.at(-1).body;
+  assert.match(notice.text,/Ces 2 vidéos seront supprimées automatiquement de ce chat 12 heures après chaque envoi/);
+  assert.match(notice.text,/Première suppression prévue/);
+  assert.match(notice.text,/Dernière suppression prévue/);
+  assert.equal((await processExpiryNotices(env)).sent,0);
   const receipts=db.prepare("SELECT delivered_message_id,sent_at,delete_after FROM cine_series_job_items ORDER BY ordinal").all();
   assert.equal(receipts.length,2);
   for(const receipt of receipts){

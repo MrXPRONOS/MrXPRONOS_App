@@ -62,9 +62,10 @@ test('catalogue SQL enforces the same atomic no-repeat condition',async()=>{
 test('single-film request does not require a preparatory sendMessage before media',async()=>{
  const {readFile} = await import('node:fs/promises');
  const src = await readFile(new URL('../cinex-delivery.mjs',import.meta.url),'utf8');
- assert.match(src,/if\(media\.length>1\)\{[\s\S]*?await say\(env,chat/);
+ assert.doesNotMatch(src,/if\(media\.length>1\)\{[\s\S]*?await say\(env,chat/);
  assert.match(src,/reply_markup:keyboard\(\)/);
- assert.match(src,/caption:copyExpiryCaption\(job\.display_title\)/);
+ assert.doesNotMatch(src,/caption:copyExpiryCaption/);
+ assert.match(src,/queueExpiryNotice\(env,'libraries',job\.id\)/);
 });
 test('worker cron stops without even touching Telegram when disabled',async()=>{
  const DB={prepare(sql){return{first:async()=>({value:'0'})}}};
