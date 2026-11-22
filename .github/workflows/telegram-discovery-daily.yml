@@ -14,6 +14,7 @@ on:
     branches: [main]
     paths:
       - '.github/discovery-now-trigger.txt'
+      - '.github/workflows/telegram-discovery-daily.yml'
 
 permissions:
   contents: write
@@ -68,6 +69,7 @@ jobs:
           CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REQUIRE_SECURE_REGISTRY: '1'
           CINERADAR_PUBLIC_INVENTORY_FILE: ${{ runner.temp }}/cineradar-verified-public.json
           PYTHONPATH: telegram-film-relay
         run: python telegram-film-relay/scripts/discovery_inventory_daily.py
