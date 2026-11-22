@@ -13,6 +13,7 @@ from film_relay.legacy_neighbor_matching import find_neighbor_pair, identity_for
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
     shared_legacy_cover, bot_can_edit_original, legacy_repair_completion,
+    verified_owner_pair,
 )
 
 
@@ -27,6 +28,17 @@ def media(mid, title, *, photo=False, video=False, name="", doc=None, buttons=No
 
 
 class LegacyMediaIdentityTests(unittest.TestCase):
+    def test_manual_pair_never_overrides_wrong_title_or_protected_video(self):
+        poster=media(55,"Supergirl 2026",photo=True)
+        valid=media(60,"Supergirl 2026",video=True,doc=101)
+        wrong=media(61,"Autre série",video=True,doc=102)
+        self.assertTrue(verified_owner_pair(valid,poster,"films"))
+        self.assertFalse(verified_owner_pair(wrong,poster,"films"))
+        self.assertFalse(verified_owner_pair(media(54,"Supergirl",video=True),poster,"films"))
+        self.assertFalse(verified_owner_pair(media(60,"Supergirl",video=True),None,"films"))
+        valid.noforwards=True
+        self.assertFalse(verified_owner_pair(valid,poster,"films"))
+
     def test_historical_successful_workflow_is_not_misreported_as_complete(self):
         rows=[
             {"category":"films","older":35,"public_linked":2,"public_edited":2,
