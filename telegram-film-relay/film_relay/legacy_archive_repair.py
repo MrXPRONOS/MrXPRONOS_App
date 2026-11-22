@@ -414,7 +414,7 @@ def legacy_repair_completion(reports):
                      "unmatched", "ambiguous", "private_pair_unverified",
                      "preflight_failed", "errors", "preflight_budget_exhausted")
     }
-    totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
+    # Conservative coverage only: repair stops at max_repaired, so we cannot\n    # assert these items are all broken; they were not verified in this pass.\n    totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
     totals["complete"] = (totals["unresolved"] == 0
                            and totals["errors"] == 0
                            and totals["preflight_budget_exhausted"] == 0)
@@ -482,7 +482,7 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
                         "private_pair_unverified", "errors")}))
             summary.write(
                 "\n**Vérification : " + ("COMPLÈTE" if completion["complete"] else "PARTIELLE") +
-                "** — fiches publiques restantes : " + str(completion["unresolved"]) +
+                "** — anciennes fiches non validées pendant ce passage : " + str(completion["unresolved"]) +
                 ", éditions originales confirmées : " + str(completion["public_edited"]) +
                 ". Les affiches ambiguës ou interdites par Telegram ne sont pas modifiées.\n"
             )
