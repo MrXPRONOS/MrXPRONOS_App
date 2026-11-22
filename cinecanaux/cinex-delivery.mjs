@@ -1,5 +1,6 @@
 import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
+import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
 // CinéX -> existing Ciné Radar bot. No video bytes pass through Cloudflare.
 // GitHub CINEX_DOWNLOADS_ENABLED is synchronized to D1; no in-bot approval.
 // Telegram /start is authenticated by the existing webhook secret in worker.mjs.
@@ -162,9 +163,12 @@ export async function processDeliveryQueue(env,{limit=4}={}){
   let response;
   try{
    const stock=await sourceFromPrivateStock(env,pending.source_chat_id,pending.source_message_id);
-   response=await telegram(env,'copyMessage',{chat_id:job.telegram_chat_id,
+   const payload={chat_id:job.telegram_chat_id,
     from_chat_id:stock.chatId,message_id:stock.messageId,
-    protect_content:false,reply_markup:keyboard()});
+    protect_content:false,reply_markup:keyboard()};
+   response=delivery44Enabled(env)
+    ? await remoteCopyMessage(env,'library:'+job.id+':'+pending.ordinal,payload)
+    : await telegram(env,'copyMessage',payload);
   }catch{
    // Ambiguous response: Telegram may have sent the file. No automatic retry!
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id).run();
