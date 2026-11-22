@@ -29,6 +29,7 @@ jobs:
             scripts/send_telegram_folder_promo_test.py
             scripts/telegram_test_guard.py
             assets/telegram/mrxpronos_f_folder_promo.jpg
+            assets/telegram/mrxpronos_f_folder_promo.mp4
           sparse-checkout-cone-mode: false
           fetch-depth: 1
       - uses: actions/setup-python@v5
@@ -36,11 +37,11 @@ jobs:
           python-version: '3.11'
       - name: Installer requests
         run: python -m pip install 'requests>=2.31,<3'
-      - name: Vérifier affiche carrée, légende et bouton bleu
+      - name: Vérifier animation, légende et bouton bleu
         run: python scripts/send_telegram_folder_promo_test.py --check
       - name: Vérifier le bot et la destination de test
         env:
           TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN }}
         run: python scripts/telegram_test_guard.py
-      - name: Envoyer image, texte et bouton dans le canal de test
+      - name: Envoyer animation, texte et bouton dans le canal de test
         run: python scripts/send_telegram_folder_promo_test.py --send
