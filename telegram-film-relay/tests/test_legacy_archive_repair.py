@@ -12,7 +12,7 @@ from film_relay.ten_video_rotation import verify_existing_pair, unmatched_candid
 from film_relay.legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
-    shared_legacy_cover,
+    shared_legacy_cover, bot_can_edit_original,
 )
 
 
@@ -27,6 +27,12 @@ def media(mid, title, *, photo=False, video=False, name="", doc=None, buttons=No
 
 
 class LegacyMediaIdentityTests(unittest.TestCase):
+    def test_legacy_public_edit_requires_bot_edit_right_before_any_copy(self):
+        self.assertFalse(bot_can_edit_original(NS(is_admin=True, post_messages=True, edit_messages=False)))
+        self.assertFalse(bot_can_edit_original(NS(is_admin=True, post_messages=False, edit_messages=True)))
+        self.assertTrue(bot_can_edit_original(NS(is_admin=True, post_messages=True, edit_messages=True)))
+        self.assertTrue(bot_can_edit_original(NS(is_creator=True)))
+
     def test_movies_with_number_are_sequels_not_parts(self):
         a = parse_identity("Taxi 2 VF", "films")
         b = parse_identity("Taxi 3 VF", "films")
