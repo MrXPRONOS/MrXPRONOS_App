@@ -1,5 +1,12 @@
 """Offline checks: consistent Telegram typography across every Actu Foot pipeline."""
 import unittest
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+for folder in (ROOT, ROOT / "scripts", ROOT / "bsd"):
+    if str(folder) not in sys.path:
+        sys.path.insert(0, str(folder))
 
 from scripts.actufoot_telegram_format import (
     editorial_markup, news_markup, normalize_paragraphs,
