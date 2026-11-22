@@ -65,6 +65,7 @@ class UnifiedLibrary:
         self.history = history
         self.peer = None
         self.index: dict[int, int] | None = None
+        self.cover_index: dict[str, int] = {}
         self.registry = registry
 
     async def prepare(self, *, public=None):
@@ -93,13 +94,27 @@ class UnifiedLibrary:
             raise RuntimeError("La destination centrale ne peut pas être le canal public.")
         if self.index is None:
             self.index = {}
+            self.cover_index = {}
             async for item in self.client.iter_messages(self.peer, limit=self.history):
                 if is_video_message(item):
                     doc = video_document_id(item)
                     if doc:
                         self.index.setdefault(int(doc), int(item.id))
+                elif getattr(item, "photo", None):
+                    # Preserve receipts for unfinished uploads across restarts:
+                    # a cover already sent must never be blindly sent again.
+                    for marker in re.findall(r"#CXSTOCK_[a-f0-9]{16}", str(getattr(item, "raw_text", "") or "")):
+                        self.cover_index.setdefault(marker, int(item.id))
             LOG.info("CinéX bibliothèque centrale : %s vidéos distinctes indexées", len(self.index))
         return self.peer
+
+    def verified_cover_for(self, document_id: int) -> bool:
+        """True only when the canonical marker is on a photo preceding this stored video."""
+        doc = int(document_id)
+        marker = "#CXSTOCK_" + hashlib.sha256(str(doc).encode()).hexdigest()[:16]
+        mid = (self.index or {}).get(doc)
+        cover_mid = self.cover_index.get(marker)
+        return bool(mid and cover_mid and 0 < mid - cover_mid <= 3)
 
     async def store(self, source, *, category: str, title: str, public=None, poster=None, description: str = ""):
         """Return a verified CineRadar bot deep link or None when not enabled.
@@ -134,31 +149,36 @@ class UnifiedLibrary:
                     title=title, public_handle=handle)
             raise RuntimeError("Reçu de vidéothèque centrale incohérent ; aucun nouveau lien publié.")
 
-        # For NEW uploads with a source poster, the verified central archive
-        # must contain the original PHOTO + readable description followed by
-        # its VIDEO. The marker permits safe resumption if the photo succeeded
-        # but a later step failed. Existing video receipts are never duplicated.
-        if poster is not None:
-            if not getattr(poster, "photo", None) or getattr(poster, "noforwards", False):
-                raise RuntimeError("Affiche du stock central absente ou protégée.")
-            from .publication import rich_caption
-            marker = "#CXSTOCK_" + hashlib.sha256(str(doc_id).encode()).hexdigest()[:16]
-            details = str(description or getattr(poster, "raw_text", "") or title).strip()[:650]
-            cover_caption = rich_caption(details, private=True) + "\n" + marker
+        # New central copies are forbidden without their real source poster.
+        # Existing video receipts above remain reusable without republication.
+        if poster is None or not getattr(poster, "photo", None) or getattr(poster, "noforwards", False):
+            raise RuntimeError("Affiche du stock central absente ou protégée : aucune vidéo seule envoyée.")
+        from .publication import rich_caption
+        marker = "#CXSTOCK_" + hashlib.sha256(str(doc_id).encode()).hexdigest()[:16]
+        details = str(description or getattr(poster, "raw_text", "") or title).strip()[:650]
+        cover_caption = rich_caption(details, private=True) + "\n" + marker
+        existing_cover_id = self.cover_index.get(marker)
+        if existing_cover_id:
+            # Resume *only* if the same marked cover is the last channel post.
+            # Otherwise another upload has intervened and adjacent pairing
+            # cannot be proven: stop rather than create a duplicate photo/video.
             recent = [m async for m in self.client.iter_messages(self.peer, limit=1)]
             previous = recent[0] if recent else None
-            if (previous and getattr(previous, "photo", None)
-                    and marker in str(getattr(previous, "raw_text", "") or "")):
-                LOG.info("CinéX stock: affiche en attente réutilisée sans doublon")
-            else:
-                cover = await self.client.send_file(
-                    self.peer, poster.media, caption=cover_caption,
-                    parse_mode="html",
-                )
-                checked = await self.client.get_messages(self.peer, ids=int(cover.id))
-                if (not getattr(checked, "photo", None)
-                        or marker not in str(getattr(checked, "raw_text", "") or "")):
-                    raise RuntimeError("Affiche du stock central non vérifiée ; vidéo non envoyée.")
+            if (previous is None or int(previous.id) != existing_cover_id
+                    or not getattr(previous, "photo", None)
+                    or marker not in str(getattr(previous, "raw_text", "") or "")):
+                raise RuntimeError("Affiche centrale déjà envoyée mais non contiguë : vérification manuelle, aucun doublon.")
+            LOG.info("CinéX stock: affiche en attente réutilisée sans doublon")
+        else:
+            cover = await self.client.send_file(
+                self.peer, poster.media, caption=cover_caption,
+                parse_mode="html",
+            )
+            checked = await self.client.get_messages(self.peer, ids=int(cover.id))
+            if (not getattr(checked, "photo", None)
+                    or marker not in str(getattr(checked, "raw_text", "") or "")):
+                raise RuntimeError("Affiche du stock central non vérifiée ; vidéo non envoyée.")
+            self.cover_index[marker] = int(cover.id)
         description = escape((title or "Vidéo CinéX").strip()[:700])
         label = category.title()
         caption = f"🎞️ <b>{description}</b>\n📚 CinéX · {label}"
