@@ -1,13 +1,135 @@
 {
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
-  "status": "unavailable",
+  "status": "published",
   "date": "2026-11-22",
-  "generated_at": "2026-11-21T13:34:50Z",
+  "generated_at": "2026-11-22T09:58:31Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
-  "simple": [],
-  "grouped": []
+  "simple": [
+    {
+      "id": "sportsapipro:4896597",
+      "league": "Ligue 1",
+      "home": "Stade Mbour",
+      "away": "Ajel",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.15287109
+    },
+    {
+      "id": "sportsapipro:4896600",
+      "league": "Ligue 1",
+      "home": "Guédiawaye Fc",
+      "away": "Jaraaf",
+      "kickoff_utc": "2026-11-22T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.14973294
+    },
+    {
+      "id": "sportsapipro:4896598",
+      "league": "Ligue 1",
+      "home": "ASC Linguère",
+      "away": "AS Pikine",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.1457533
+    },
+    {
+      "id": "sportsapipro:4889547",
+      "league": "Ligue 1",
+      "home": "SOA",
+      "away": "OFC Adiake",
+      "kickoff_utc": "2026-11-22T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.14477986
+    },
+    {
+      "id": "sportsapipro:4896596",
+      "league": "Ligue 1",
+      "home": "Casa Sport",
+      "away": "Essamaye FC",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.14392326
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4848807",
+      "league": "Liga Unitel Girabola",
+      "home": "Wiliete Sc",
+      "away": "Sagrada Esperanca",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.33528138,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4889547",
+      "league": "Ligue 1",
+      "home": "SOA",
+      "away": "OFC Adiake",
+      "kickoff_utc": "2026-11-22T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.33344877,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4735202",
+      "league": "Ligue 1",
+      "home": "Paris FC",
+      "away": "Angers",
+      "kickoff_utc": "2026-11-22T14:00:00Z",
+      "score": "1:0",
+      "probability": 0.32830323,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4892514",
+      "league": "Botola 2",
+      "home": "Chabab Ben Guerir",
+      "away": "Union Yacoub El Mansour",
+      "kickoff_utc": "2026-11-22T15:00:00Z",
+      "score": "1:0",
+      "probability": 0.32789211,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4799627",
+      "league": "Serie C",
+      "home": "Forli",
+      "away": "Reggiana",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.32463629,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
 }
