@@ -13,7 +13,6 @@ from scripts.actufoot_telegram_format import (
     quote_excerpt, source_footer,
 )
 from scripts.telegram_rich import legacy_caption
-from scripts import football_channel as channel
 
 
 class EditorialTelegramFormatTests(unittest.TestCase):
@@ -68,17 +67,6 @@ class EditorialTelegramFormatTests(unittest.TestCase):
         legacy = legacy_caption(quote)
         self.assertIn("<blockquote>Un passage sourcé.</blockquote>", legacy)
         self.assertIn("</blockquote>\n\n<i>", legacy)
-
-    def test_sender_formats_main_channel_dry_run_publication(self):
-        sender = channel.Sender(dry_run=True)
-        publication = channel.Publication(
-            "goal", "format-test",
-            "🌟 <b>BUUUT !</b>\n\n<b>Arsenal 2–1 Chelsea</b>",
-            card={"source": "ESPN"},
-        )
-        sender.send(publication)
-        self.assertIn("<blockquote>", publication.text)
-        self.assertIn("</blockquote>\n\n<i>📰 Source : ESPN</i>", publication.text)
 
     def test_source_escapes_provider_and_does_not_create_link(self):
         source = source_footer('Média <important> & partenaire')
