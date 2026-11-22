@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "enabled": false,
+  "main": "@actufoot_mrxp",
+  "description": "Public channel usernames verified by Actu Foot registry discovery; switch enabled to true only after Bot API preflight succeeds.",
+  "channels": {
+    "flash": "@FootFlashActuFR",
+    "mercato": "@MercatoFootInfosFR",
+    "champions": "@LDCActuFootFR",
+    "premier": "@PremierLeagueActuFR",
+    "liga": "@LigaFootActuFR",
+    "ligue1": "@Ligue1FootActuFR",
+    "africa": "@FootAfriqueInfosFR",
+    "national": "@SelectionsFootActu",
+    "scores": "@ScoresFootClassements",
+    "debrief": "@DebriefFootAnalyses"
+  }
+}
