@@ -64,6 +64,22 @@ class SafeFailure(RuntimeError):
 
 
 def validate_files():
+    # Ne jamais dériver du rendu validé dans le canal Telegram de test.
+    # Les deux scripts de test sont importés sans appel réseau.
+    import importlib
+    import sys as _sys
+    script_dir = str(ROOT / 'scripts')
+    if script_dir not in _sys.path:
+        _sys.path.insert(0, script_dir)
+    ebook_test = importlib.import_module('publish_ebook_campaign_test')
+    folder_test = importlib.import_module('send_telegram_folder_promo_test')
+    if (EBOOK_CAPTION != ebook_test.CAPTION or EBOOK_BUTTONS != ebook_test.BUTTONS
+            or EBOOK_IMAGE.resolve() != ebook_test.POSTER.resolve()):
+        raise SafeFailure('E-book content differs from Telegram test publication')
+    if (FOLDER_CAPTION != folder_test.CAPTION or FOLDER_BUTTONS != folder_test.BUTTON
+            or FOLDER_IMAGE.resolve() != folder_test.PHOTO.resolve()
+            or FOLDER_VIDEO.resolve() != folder_test.ANIMATION.resolve()):
+        raise SafeFailure('Folder content differs from Telegram test publication')
     for path in (EBOOK_IMAGE, FOLDER_IMAGE):
         if not path.is_file() or path.stat().st_size < 10000 or path.open('rb').read(3) != b'\xff\xd8\xff':
             raise SafeFailure('Missing or invalid JPEG asset: ' + path.name)
