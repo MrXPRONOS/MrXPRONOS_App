@@ -134,6 +134,23 @@ class EventTests(unittest.TestCase):
             events = mod.derive_events(row(), row(minute=120, away_score=1), {}, old)
         self.assertEqual([e[0] for e in events], ["shootout_made"])
 
+    def test_scorecard_has_spaced_title_quoted_data_and_source(self):
+        rendered = mod.event_lines(
+            row(), {"score": "2-1", "phase": "live", "minute": 74}, "goal",
+            {"player": "Buteur confirmé"})
+        self.assertTrue(rendered.startswith("<b>⚽ BUT</b>\n\n<blockquote>"))
+        self.assertIn("<b>⚽ Arsenal — Chelsea</b>", rendered)
+        self.assertIn("👤 Buteur confirmé", rendered)
+        self.assertIn("</blockquote>\n\n<i>📰 Source : ESPN</i>", rendered)
+        self.assertIn("<i>Mr XPRONOS</i>", rendered)
+
+    def test_daily_score_recap_has_quote_and_blank_lines(self):
+        value = mod.recap_message([row()], NOW)
+        self.assertTrue(value.startswith("<b>📋 POINT SCORES"))
+        self.assertIn("</b>\n\n<blockquote>", value)
+        self.assertIn("</blockquote>\n\n<i>📰 Source : ESPN</i>", value)
+        self.assertNotIn("https://", value)
+
     def test_scorecard_escapes_html(self):
         text = mod.event_lines(row(home_team="<b>Arsenal</b>"),
                                {"score": "1-0", "phase": "live", "minute": 30}, "board")
