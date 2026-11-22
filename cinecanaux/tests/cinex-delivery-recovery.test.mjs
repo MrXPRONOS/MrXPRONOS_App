@@ -158,3 +158,23 @@ test('T02: source files never add Telegram sends or bypass the admin mutation se
  assert.doesNotThrow(()=>new Function(ADMIN_RECOVERY_JS),'Embedded owner controls must parse as valid JS');
  assert.match(ADMIN_RECOVERY_HTML,/ad-cinex-recover-refresh/);
 });
+
+test('T02: post-cutover receipts reconciled by owner expire 12h after the actual Telegram send',async()=>{
+ const {sqlite,env}=fixture();
+ const recent='2026-11-22T05:30:00Z',seenAt=Date.parse('2026-11-22T06:00:00Z');
+ try{
+  sqlite.exec("INSERT INTO cine_classic_deliveries(id,telegram_chat_id,status) VALUES(310,500,'needs_review')");
+  const classic=await attestExistingCopy(env,{
+   family:'classics',job_id:310,message_id:711,sent_at:recent,confirmed_existing_copy:true
+  },987,{now:seenAt});
+  assert.equal(classic.ok,true);
+  assert.equal(sqlite.prepare('SELECT delete_after FROM cine_classic_deliveries WHERE id=310').get().delete_after,'2026-11-22 17:30:00');
+  sqlite.exec("INSERT INTO cine_delivery_jobs(id,telegram_chat_id,status) VALUES(311,501,'needs_review')");
+  sqlite.exec("INSERT INTO cine_delivery_job_items(job_id,ordinal,state) VALUES(311,1,'needs_review')");
+  const library=await attestExistingCopy(env,{
+   family:'libraries',job_id:311,item:1,message_id:712,sent_at:recent,confirmed_existing_copy:true
+  },987,{now:seenAt});
+  assert.equal(library.ok,true);
+  assert.equal(sqlite.prepare('SELECT delete_after FROM cine_delivery_job_items WHERE job_id=311').get().delete_after,'2026-11-22 17:30:00');
+ }finally{sqlite.close()}
+});

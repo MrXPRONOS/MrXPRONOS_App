@@ -77,7 +77,7 @@ export async function ownerOperationsOverview(env){
  cinex.private_stock=await privateStockOverview(env);
  if(cinex.private_stock.review)alerts.push({level:'warning',title:'CinéX : copies en stock à vérifier',detail:cinex.private_stock.review+' transfert(s) ambigus vers le stock Telegram privé ; aucun renvoi automatique.'});
  if(!expiryHealth.active)alerts.push({level:'warning',title:'CinéX : nettoyage privé à vérifier',
-  detail:'Aucun passage récent et réussi des quatre suppressions à 24 h n’est confirmé.'});
+  detail:'Aucun passage récent et réussi des quatre nettoyages de copies privées à 12 h n’est confirmé.'});
  for(const family of expiryHealth.families.filter(x=>x.status==='error'))
   alerts.push({level:'warning',title:'CinéX : suppression interrompue ('+family.family+')',
    detail:'Une file de suppression a échoué lors du dernier contrôle ; la prochaine minute relancera les copies éligibles.'});

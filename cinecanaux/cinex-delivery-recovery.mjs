@@ -1,3 +1,4 @@
+import {privateCopyExpirySqlModifier} from './private-copy-notice.mjs';
 // T02 — Owner-only, non-sending recovery of quarantined delivery jobs.
 // Telegram's Bot API cannot prove that a timed-out copyMessage was NOT sent.
 // Therefore no API in this module performs a send, retries an uncertain copy,
@@ -113,6 +114,7 @@ export async function attestExistingCopy(env,data,ownerId,{now=Date.now()}={}){
   messageId=positive(data?.message_id),sentAt=evidenceDate(data?.sent_at,now);
  if(!id||!messageId||!sentAt||data?.confirmed_existing_copy!==true)
   return {ok:false,status:400,code:'valid_existing_copy_evidence_required'};
+ const ttl=privateCopyExpirySqlModifier(sentAt);
  if(family==='classics'){
   const prior=await env.DB.prepare(
    "SELECT status,delivered_message_id,telegram_chat_id FROM cine_classic_deliveries WHERE id=?"
@@ -123,8 +125,8 @@ export async function attestExistingCopy(env,data,ownerId,{now=Date.now()}={}){
      await receiptAlreadyRecorded(env,Number(prior.telegram_chat_id),messageId))
    return {ok:false,status:409,code:'duplicate_or_invalid_telegram_receipt'};
   const r=await env.DB.prepare(
-   "UPDATE cine_classic_deliveries SET status='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,'+24 hours'),delete_retry_at=datetime(?,'+24 hours'),delete_state='pending',lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING id"
-  ).bind(messageId,sentAt,sentAt,sentAt,id).first();
+   "UPDATE cine_classic_deliveries SET status='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,?),delete_retry_at=datetime(?,?),delete_state='pending',lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING id"
+  ).bind(messageId,sentAt,sentAt,ttl,sentAt,ttl,id).first();
   if(!r)return {ok:false,status:409,code:'case_already_resolved_or_changed'};
  }else{
   const config=FAMILIES[family];
@@ -136,8 +138,8 @@ export async function attestExistingCopy(env,data,ownerId,{now=Date.now()}={}){
   if(await receiptAlreadyRecorded(env,Number(open.telegram_chat_id),messageId))
    return {ok:false,status:409,code:'duplicate_or_invalid_telegram_receipt'};
   const change=await env.DB.prepare(
-   `UPDATE ${items} SET state='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,'+24 hours'),delete_retry_at=datetime(?,'+24 hours'),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ${item}=? AND state='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING job_id`
-  ).bind(messageId,sentAt,sentAt,sentAt,id,itemNo).first();
+   `UPDATE ${items} SET state='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,?),delete_retry_at=datetime(?,?),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ${item}=? AND state='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING job_id`
+  ).bind(messageId,sentAt,sentAt,ttl,sentAt,ttl,id,itemNo).first();
   if(!change)return {ok:false,status:409,code:'item_already_resolved_or_changed'};
   const {queued,uncertain}=conditions(items,jobs);
   // Refresh progress from actual sent receipts, not from a second increment.
