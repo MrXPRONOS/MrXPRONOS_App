@@ -3,3 +3,4 @@ Objectif : editer la fiche originale au meme ID avec boutons CineRadar, conserve
 Limite : 2 anciennes fiches par categorie ; aucun nouveau public poster ; apply=false pour la rotation donc aucune suppression publique.
 Validation complémentaire 22 novembre 2026 : après PR #597 et #600, contrôle des droits et test d'édition identique AVANT toute copie privée ; au plus deux réparations par catégorie, aucune suppression publique.
 Reverification non destructive du 22/11/2026: PR 607/608. Éviter de recompter les deux affiches déjà réparées ; ignorer tout stock central ancien sans photo liée. Maximum deux nouvelles éditions par catégorie.
+2026-11-22 23:37 UTC : nouvel archivage prudent demandé, réparation des affiches et copies privées avant tout nettoyage ; maximum deux fiches par canal.
