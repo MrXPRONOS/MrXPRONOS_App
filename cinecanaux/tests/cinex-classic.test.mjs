@@ -81,20 +81,23 @@ test('queue copies only from a verified negative library id into a positive priv
   // Single-film starts no longer spend a Telegram quota slot on a progress notice.
   const report=await processClassicDeliveryQueue(env);
   assert.equal(report.processed,1);
-  const record=db.prepare('SELECT status,delivered_message_id,delete_after FROM cine_classic_deliveries').get();
+  const record=db.prepare('SELECT status,delivered_message_id,sent_at,delete_after FROM cine_classic_deliveries').get();
   assert.equal(record.status,'sent');assert.equal(record.delivered_message_id,66);assert.ok(record.delete_after);
+  assert.equal(Date.parse(record.delete_after.replace(' ','T')+'Z')-Date.parse(record.sent_at.replace(' ','T')+'Z'),12*3600000);
   const copy=calls.find(x=>x.method==='copyMessage');
+  assert.match(copy.body.caption,/12 heures/);
+  assert.match(copy.body.caption,/Messages enregistrés/);
   assert.deepEqual({to:copy.body.chat_id,from:copy.body.from_chat_id,id:copy.body.message_id},
    {to:321,from:'-1004392607284',id:238});
   assert.equal((await processClassicDeliveryQueue(env)).processed,0);
  }finally{globalThis.fetch=old;db.close()}
 });
-test('24h cleanup deletes only the delivered private copy, never source or public video',async()=>{
+test('12h cleanup deletes only the delivered private copy, never source or public video',async()=>{
  const {db,env}=fixture();const old=globalThis.fetch;const calls=[];
  globalThis.fetch=async(url,options)=>{calls.push({method:String(url).split('/').at(-1),body:JSON.parse(options.body)});return Response.json({ok:true,result:true})};
  try{
   db.prepare("INSERT INTO cine_classic_deliveries(token,telegram_update_id,telegram_chat_id,status,delivered_message_id,sent_at,delete_after,delete_retry_at) VALUES(?,?,?,'sent',?,?,?,?)")
-   .run(TOKEN,101,321,66,new Date(now-25*3600000).toISOString().replace('T',' ').slice(0,19),
+   .run(TOKEN,101,321,66,new Date(now-13*3600000).toISOString().replace('T',' ').slice(0,19),
    new Date(now-3600000).toISOString().replace('T',' ').slice(0,19),
    new Date(now-3600000).toISOString().replace('T',' ').slice(0,19));
   const result=await cleanupClassicDeliveries(env);

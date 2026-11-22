@@ -1,5 +1,6 @@
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
+import {copyExpiryCaption} from './private-copy-notice.mjs';
 // CinéX séries individuelles — Bot API et D1 uniquement.
 // Messages entrants: le bot Ciné Radar doit déjà être admin dans les canaux privés.
 // getChat NE permet PAS de récupérer l'ensemble des anciens messages épinglés.
@@ -239,7 +240,7 @@ export async function handleSeriesStart(env,update){
    '📥 '+String(source.title||'Ta série').slice(0,70)+'\n'+
    'Téléchargement des '+available.count+' épisodes actuellement disponibles : '+detail+'.\n'+
    'Les saisons en cours ou absentes du catalogue ne sont pas promises complètes. '+
-   'Envoi progressif, copies retirées de cette conversation 24 h après chaque envoi.');
+   'Envoi progressif, copies retirées de cette conversation 12 h après chaque envoi.');
   
   return {handled:true,accepted:true};
  }catch(e){console.warn('series_start_error',String(e?.name||'Error'));await notify(env,chat,'Service temporairement indisponible.');return {handled:true,accepted:false}}
@@ -252,7 +253,7 @@ export async function processSeriesQueue(env,{limit=5}={}){
  await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE status='sending' AND lock_until<CURRENT_TIMESTAMP").run();
  await env.DB.prepare("UPDATE cine_series_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_series_jobs WHERE status='needs_review')").run();
  const batch=(await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND (c.radar_access='verified' OR NOT EXISTS("+
+  "SELECT j.id,j.telegram_chat_id,c.title AS series_title,p.chat_id AS source_chat_id FROM cine_series_jobs j JOIN cine_series_publications p ON p.token=j.token JOIN cine_series_channels c ON c.chat_id=p.chat_id WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND p.state='published' AND c.enabled=1 AND c.rights_attested=1 AND (c.radar_access='verified' OR NOT EXISTS("+
   "SELECT 1 FROM cine_series_job_items x WHERE x.job_id=j.id AND x.source_chat_id=p.chat_id"+
   ")) ORDER BY j.created_at,j.id LIMIT 2"
  ).all()).results||[];
@@ -279,7 +280,8 @@ export async function processSeriesQueue(env,{limit=5}={}){
    await env.DB.prepare("UPDATE cine_series_job_items SET state='sending' WHERE job_id=? AND ordinal=? AND state='queued'").bind(job.id,item.ordinal).run();
    let answer;
    try{
-    const payload={chat_id:job.telegram_chat_id,from_chat_id:item.source_chat_id,message_id:item.source_message_id,protect_content:false};
+    const payload={chat_id:job.telegram_chat_id,from_chat_id:item.source_chat_id,message_id:item.source_message_id,protect_content:false,
+     caption:copyExpiryCaption(String(job.series_title||'Série')+' · Épisode '+item.ordinal)};
     answer=delivery44Enabled(env)
       ? await remoteCopyMessage(env,'series:'+job.id+':'+item.ordinal,payload)
       : await telegram(env,'copyMessage',payload);
@@ -300,7 +302,7 @@ export async function processSeriesQueue(env,{limit=5}={}){
     await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;break;
    }
    await env.DB.batch([
-    env.DB.prepare("UPDATE cine_series_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,delete_after=datetime('now','+24 hours'),delete_retry_at=datetime('now','+24 hours') WHERE job_id=? AND ordinal=? AND state='sending'").bind(delivered,job.id,item.ordinal),
+    env.DB.prepare("UPDATE cine_series_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,delete_after=datetime('now','+12 hours'),delete_retry_at=datetime('now','+12 hours') WHERE job_id=? AND ordinal=? AND state='sending'").bind(delivered,job.id,item.ordinal),
     env.DB.prepare("UPDATE cine_series_jobs SET status='queued',lock_until=NULL,delivered_items=delivered_items+1 WHERE id=?").bind(job.id)
    ]);
    processed++;

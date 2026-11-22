@@ -16,7 +16,7 @@ function fixture({due=true,recipient=321}={}){
  CREATE TABLE cine_franchise_jobs(id INTEGER PRIMARY KEY,telegram_chat_id INTEGER);
  CREATE TABLE cine_franchise_job_items(job_id INTEGER,part INTEGER,state TEXT,delivered_message_id INTEGER,sent_at TEXT,delete_after TEXT,delete_retry_at TEXT,delete_state TEXT DEFAULT 'pending',delete_lock_until TEXT,delete_attempts INTEGER DEFAULT 0,delete_last_error TEXT);
  `);
- const since=due?"datetime('now','-25 hours')":"datetime('now','-23 hours')";
+ const since=due?"datetime('now','-13 hours')":"datetime('now','-11 hours')";
  const ttl=due?"datetime('now','-1 hour')":"datetime('now','+1 hour')";
  db.exec(`
  INSERT INTO cine_delivery_jobs VALUES(1,${recipient});
@@ -132,7 +132,7 @@ test('T03: historical sent receipts without expiry are backfilled from actual se
   for(const table of ['cine_delivery_job_items','cine_series_job_items','cine_classic_deliveries','cine_franchise_job_items']){
    const row=db.prepare('SELECT sent_at,delete_after FROM '+table).get();
    const delta=Date.parse(row.delete_after.replace(' ','T')+'Z')-Date.parse(row.sent_at.replace(' ','T')+'Z');
-   assert.equal(delta,24*3600000);
+   assert.equal(delta,12*3600000);
   }
  }finally{db.close()}
 });
@@ -150,5 +150,5 @@ test('T03: negative channel recipient is never sent to Telegram for deletion',as
 
 test('T03: owner cleanup dashboard script is syntactically valid',()=>{
  assert.doesNotThrow(()=>new Function(ADMIN_OPS_JS));
- assert.match(ADMIN_OPS_JS,/Suppression des copies privées après 24 h/);
+ assert.match(ADMIN_OPS_JS,/Suppression des copies privées après 12 h/);
 });

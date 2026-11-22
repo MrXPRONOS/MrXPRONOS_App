@@ -1,4 +1,5 @@
-// CinéX stage 6: delete ONLY the bot's private-chat copies after 24 hours.
+import {PRIVATE_COPY_LIFETIME_MS} from './private-copy-notice.mjs';
+// CinéX stage 6: delete ONLY the bot's private-chat copies after 12 hours.
 // Original channel/library messages, users' Saved Messages and other bots are
 // outside this table and never passed to deleteMessage.
 const TG='https://api.telegram.org/bot';
@@ -12,7 +13,7 @@ export function deletionDecision(api,{sentAt,now=Date.now(),attempt=1}={}){
  const stamp=Date.parse(String(sentAt||'').replace(' ','T').replace(/(?:Z|[+-]\d\d:\d\d)$/,'')+'Z');
  if(!Number.isFinite(stamp)||stamp>now+60000)return {state:'manual_review',reason:'invalid_sent_at'};
  const elapsed=now-stamp;
- if(elapsed<24*3600_000)return {state:'retry',retrySeconds:Math.ceil((24*3600_000-elapsed)/1000),reason:'not_due'};
+ if(elapsed<PRIVATE_COPY_LIFETIME_MS)return {state:'retry',retrySeconds:Math.ceil((PRIVATE_COPY_LIFETIME_MS-elapsed)/1000),reason:'not_due'};
  if(elapsed>=MAX_AGE_HOURS*3600_000)return {state:'manual_review',reason:'telegram_48h_window'};
  if(api?.ok&&api.result===true)return {state:'deleted'};
  const desc=String(api?.description||'').toLowerCase();

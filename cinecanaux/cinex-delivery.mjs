@@ -1,6 +1,7 @@
 import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
+import {copyExpiryCaption} from './private-copy-notice.mjs';
 // CinéX -> existing Ciné Radar bot. No video bytes pass through Cloudflare.
 // GitHub CINEX_DOWNLOADS_ENABLED is synchronized to D1; no in-bot approval.
 // Telegram /start is authenticated by the existing webhook secret in worker.mjs.
@@ -96,7 +97,7 @@ export async function handleDeliveryStart(env,update){
   // for multi-episode deliveries, where users need the plan/expiry details.
   if(media.length>1){
    await say(env,chat,
-    '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 24 heures. Pense à les transférer dans Messages enregistrés.',
+    '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 12 heures. Pense à les transférer dans Messages enregistrés.',
     {inline_keyboard:[[{text:'🍿 Explorer Ciné Radar',web_app:{url:MINI_APP}}]]});
   }
   return {handled:true,accepted:true,job_id:job.id};
@@ -124,7 +125,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
  await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE status='sending' AND lock_until<datetime('now')").run();
  await env.DB.prepare("UPDATE cine_delivery_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_delivery_jobs WHERE status='needs_review')").run();
  const candidates=await env.DB.prepare(
-  "SELECT j.id,j.telegram_chat_id,j.token,l.category,l.title_key,l.season_key,b.private_chat_id FROM cine_delivery_jobs j JOIN cine_delivery_links l ON l.token=j.token JOIN cine_delivery_titles t ON t.title_key=l.title_key JOIN cine_delivery_libraries b ON b.category=l.category LEFT JOIN cine_delivery_season_evidence e ON e.category=l.category AND e.title_key=l.title_key AND e.season_key=l.season_key AND e.observed_at=b.last_scanned_at WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND l.enabled=1 AND t.rights_attested=1 AND b.bot_access='verified' AND b.rights_attested=1 AND (l.season_key=0 OR e.expected_episodes=j.planned_items) ORDER BY j.created_at,j.id LIMIT ?"
+  "SELECT j.id,j.telegram_chat_id,j.token,l.category,l.title_key,l.season_key,t.display_title,b.private_chat_id FROM cine_delivery_jobs j JOIN cine_delivery_links l ON l.token=j.token JOIN cine_delivery_titles t ON t.title_key=l.title_key JOIN cine_delivery_libraries b ON b.category=l.category LEFT JOIN cine_delivery_season_evidence e ON e.category=l.category AND e.title_key=l.title_key AND e.season_key=l.season_key AND e.observed_at=b.last_scanned_at WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND l.enabled=1 AND t.rights_attested=1 AND b.bot_access='verified' AND b.rights_attested=1 AND (l.season_key=0 OR e.expected_episodes=j.planned_items) ORDER BY j.created_at,j.id LIMIT ?"
  ).bind(Math.min(4,Math.max(1,Number(limit)||2))).all();
  let processed=0,errors=0;
  for(const job of candidates.results||[]){
@@ -165,7 +166,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    const stock=await sourceFromPrivateStock(env,pending.source_chat_id,pending.source_message_id);
    const payload={chat_id:job.telegram_chat_id,
     from_chat_id:stock.chatId,message_id:stock.messageId,
-    protect_content:false,reply_markup:keyboard()};
+    protect_content:false,caption:copyExpiryCaption(job.display_title),reply_markup:keyboard()};
    response=delivery44Enabled(env)
     ? await remoteCopyMessage(env,'library:'+job.id+':'+pending.ordinal,payload)
     : await telegram(env,'copyMessage',payload);
@@ -192,7 +193,7 @@ export async function processDeliveryQueue(env,{limit=4}={}){
    await env.DB.prepare("UPDATE cine_delivery_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;break;
   }
   await env.DB.batch([
-   env.DB.prepare("UPDATE cine_delivery_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,delete_after=datetime('now','+24 hours'),delete_retry_at=datetime('now','+24 hours'),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ordinal=? AND state='sending'").bind(copied,job.id,pending.ordinal),
+   env.DB.prepare("UPDATE cine_delivery_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,delete_after=datetime('now','+12 hours'),delete_retry_at=datetime('now','+12 hours'),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ordinal=? AND state='sending'").bind(copied,job.id,pending.ordinal),
    env.DB.prepare("UPDATE cine_delivery_jobs SET delivered_items=delivered_items+1,status='queued',lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(job.id)
   ]);
   const remaining=items.filter(x=>x.state==='queued'&&Number(x.ordinal)>Number(pending.ordinal)).length;
