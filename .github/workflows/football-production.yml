@@ -3,7 +3,7 @@ run-name: "Actu Foot (${{ inputs.trigger_source || github.event_name }})"
 on:
   push:
     branches: [main]
-    paths: ['scripts/actu_foot_independent.py', 'scripts/actu_foot_online_smoke.py', 'tests_football_channel/test_actu_foot_independent.py', '.github/workflows/football-production.yml']
+    paths: ['scripts/actu_foot_independent.py', 'scripts/actu_foot_online_smoke.py', 'scripts/football_channel.py', 'scripts/actufoot_telegram_format.py', 'tests_football_channel/test_actufoot_telegram_format.py', 'tests_football_channel/test_actu_foot_independent.py', '.github/workflows/football-production.yml']
   workflow_dispatch:
     inputs:
       trigger_source: {required: false, default: manual, type: string}
@@ -51,8 +51,8 @@ jobs:
         run: python -m pip install --disable-pip-version-check requests Pillow 'cryptography>=43,<47'
       - name: Vérifier les scripts avant publication
         run: |
-          python -m py_compile scripts/actu_foot_independent.py scripts/actu_foot_online_smoke.py scripts/football_channel.py scripts/d1_publication_ledger.py
-          python -m unittest tests_football_channel.test_github_vault tests_football_channel.test_actu_foot_independent -q
+          python -m py_compile scripts/actu_foot_independent.py scripts/actu_foot_online_smoke.py scripts/football_channel.py scripts/d1_publication_ledger.py scripts/actufoot_telegram_format.py
+          python -m unittest tests_football_channel.test_github_vault tests_football_channel.test_actu_foot_independent tests_football_channel.test_actufoot_telegram_format -q
       - name: Tester ESPN réel et image du programme sans publication
         if: github.event_name == 'push'
         run: python scripts/actu_foot_online_smoke.py
