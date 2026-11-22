@@ -54,8 +54,9 @@ jobs:
           FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
         run: |
           python - <<'PY'
-          import os, requests
-          from scripts.actufoot_v1_router import verify_channels, load_config, ROLES
+          import os, sys, requests
+          sys.path.insert(0, "scripts")
+          from actufoot_v1_router import verify_channels, load_config, ROLES
           bot=os.getenv("FOOTBALL_NEWS_BOT_TOKEN", "")
           main=os.getenv("FOOTBALL_NEWS_CHAT_ID", "")
           if not bot or not main: raise SystemExit("MISSING_TELEGRAM_SECRETS")
