@@ -14,7 +14,7 @@ import logging
 import os
 
 from .bot_http import BotHTTPClient, url_button
-from .original_poster_edit import edit_original_cover
+from .original_poster_edit import edit_original_cover, preflight_original_editability
 from .unified_download import UnifiedLibrary
 from .legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from .legacy_media_identity import (
@@ -200,7 +200,8 @@ async def repair_channel(client, bot, category: str, public, private,
         "private_existing": 0, "private_created": 0, "public_linked": 0,
         "public_edited": 0, "public_edit_failed": 0,
         "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0,
-        "private_pair_unverified": 0, "errors": 0,
+        "private_pair_unverified": 0, "preflight_failed": 0,
+        "preflight_budget_exhausted": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
     if len(recent) < 10:
@@ -231,8 +232,14 @@ async def repair_channel(client, bot, category: str, public, private,
     private_messages = ([m async for m in client.iter_messages(private, limit=history)]
                         if apply else [])
     repaired = 0
+    edit_probes = 0
+    probe_budget = min(25, max(4, max_repaired * 5))
     for video in reversed(old):
         if repaired >= max_repaired:
+            break
+        if apply and edit_probes >= probe_budget:
+            report["preflight_budget_exhausted"] = 1
+            LOG.warning("%s : budget de vérifications atteint ; prochain passage requis", category)
             break
         identity = video_identity(video, category)
         poster = find_legacy_poster(video, posters, category)
@@ -268,6 +275,18 @@ async def repair_channel(client, bot, category: str, public, private,
         if not apply:
             LOG.info("[SIMULATION] %s old video #%s -> poster #%s (%s)",
                      category, video.id, poster.id, identity)
+            continue
+        # A rights check alone is insufficient: Telegram may reject editing
+        # old messages authored by another bot. Probe with unchanged markup
+        # before uploading any private photo/video or registering a token.
+        edit_probes += 1
+        try:
+            await preflight_original_editability(client, bot, public, poster)
+        except Exception as exc:
+            if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
+                raise
+            report["preflight_failed"] += 1
+            LOG.warning("%s : affiche historique non éditable, aucune nouvelle copie", category)
             continue
         try:
             pair = find_verified_private_pair(private_messages, video, category,
