@@ -1,0 +1,99 @@
+name: CineX - Une paire historique verifiee par le proprietaire
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: "Catégorie Telegram d'origine"
+        required: true
+        type: choice
+        options: ['films','series','anime','action','comedie','desir']
+      video_id:
+        description: "ID exact du message vidéo PUBLIC d'origine"
+        required: true
+        type: string
+      poster_id:
+        description: "ID exact du message affiche PUBLIC d'origine"
+        required: true
+        type: string
+      apply:
+        description: "Copier/verifier et modifier UNIQUEMENT cette paire (false=lecture seule)"
+        required: true
+        type: boolean
+        default: false
+      confirmation:
+        description: "Pour apply=true, écrire CONFIRME_APPAIRAGE"
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      PYTHONPATH: .
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_STOCK_APPROVED_SHA256: '57b1f0a97d7db124ab9f72f470f7d63b92960e06b876397795e5780f5c5cc2b8'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+      CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
+      CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
+      CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      MANUAL_CATEGORY: ${{ inputs.category }}
+      MANUAL_VIDEO_ID: ${{ inputs.video_id }}
+      MANUAL_POSTER_ID: ${{ inputs.poster_id }}
+      MANUAL_APPLY: ${{ inputs.apply }}
+      MANUAL_CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Respecter FloodWait du compte personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 scripts/check_personal_cooldown.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Tests d'appariement sans Telegram
+        run: python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Valider la demande manuelle avant la session Telegram
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$MANUAL_VIDEO_ID" =~ ^[1-9][0-9]{0,11}$ ]] || exit 1
+          [[ "$MANUAL_POSTER_ID" =~ ^[1-9][0-9]{0,11}$ ]] || exit 1
+          if [[ "$MANUAL_APPLY" == "true" ]]; then
+            [[ "$MANUAL_CONFIRMATION" == "CONFIRME_APPAIRAGE" ]] || { echo "::error::Appairage non confirmé"; exit 1; }
+            for n in CINEX_ARCHIVE_ENABLED CINEX_ARCHIVE_DELETE_APPROVED CINEX_RIGHTS_VERIFIED; do
+              [[ "${!n:-}" == "true" ]] || { echo "::error::Autorisations absentes"; exit 1; }
+            done
+          fi
+      - name: Vérifier une seule paire, sans supprimer aucun message
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--manual-category "$MANUAL_CATEGORY" --manual-video-id "$MANUAL_VIDEO_ID" --manual-poster-id "$MANUAL_POSTER_ID" --max-repaired 1 --history 4000)
+          if [[ "$MANUAL_APPLY" == "true" ]]; then args+=(--apply); fi
+          python -m film_relay.legacy_archive_repair "${args[@]}"
