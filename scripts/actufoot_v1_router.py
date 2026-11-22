@@ -128,14 +128,14 @@ def destinations_for(item):
         has(full,ALIASES["africa"]) and "afrique" in full
     ):
         result.add("africa")
-    # A transfer story mentioning a routine player's injury alone is not an
-    # actual transfer; require a concrete deal-related signal.
-    if has(headline,MERCATO) or (
-        category=="mercato" and has(full,MERCATO) and
-        not (has(headline,(r"\bblessure",r"\bforfait")) and
-             not has(headline,(r"\btransfert",r"\btransfert",r"\bsigne",
-                               r"\brecrut",r"\bprolongation")))
-    ):
+    # A player injury mentioning the transfer window does not establish a
+    # transfer. A title needs an actual deal-related signal in that case.
+    mercato_candidate = has(headline,MERCATO) or (
+        category=="mercato" and has(full,MERCATO))
+    injury_only = has(headline,(r"\bblessure",r"\bforfait")) and not has(
+        headline,(r"\btransfert",r"\bsigne",r"\brecrut",
+                  r"\bprolongation",r"\bpret"))
+    if mercato_candidate and not injury_only:
         result.add("mercato")
     if has(headline,NATIONAL) or (category=="convocations" and has(full,NATIONAL)):
         result.add("national")
