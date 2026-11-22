@@ -2,6 +2,7 @@
 // Le webhook et les décisions d'autorisation restent sur le compte 52.
 // N'expose aucun endpoint public d'envoi sans HMAC valide.
 const encoder = new TextEncoder();
+const PUBLIC_SIGNING_KEY = {"kty":"EC","crv":"P-256","x":"ygtumfgxATGZCqn5n71WPmUnTv2vywlWXpMPqZFCJM0","y":"EswMyaQgN7NaeCju6Gcc1Y9_XDPTFIGCvmOoH2p9jbY","ext":true};
 const NO_STORE = {'cache-control':'no-store','x-content-type-options':'nosniff'};
 const COPY_ROUTE = '/internal/v1/copy';
 
@@ -27,20 +28,21 @@ export function validIntent(body) {
   return true;
 }
 function hexToBytes(hex) {
-  if (!/^[a-f0-9]{64}$/i.test(hex || '')) return null;
+  if (!/^[a-f0-9]{128}$/i.test(hex || '')) return null;
   return new Uint8Array((hex.match(/.{2}/g) || []).map(x => parseInt(x,16)));
 }
-export async function signBody(secret, timestamp, text) {
-  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
-  const bytes = await crypto.subtle.sign('HMAC', key, encoder.encode(timestamp + '.' + text));
-  return Array.from(new Uint8Array(bytes), x => x.toString(16).padStart(2,'0')).join('');
+export async function verifySignedBody(jwk, timestamp, hexSignature, body, now=Date.now()) {
+  if (!/^\\d{13}$/.test(String(timestamp)) || Math.abs(now-Number(timestamp)) > 60000) return false;
+  const sig=hexToBytes(hexSignature);
+  if (!sig) return false;
+  try {
+    const key=await crypto.subtle.importKey('jwk',jwk,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+    return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,sig,encoder.encode(timestamp+'.'+body));
+  } catch {return false;}
 }
-async function signed(request, secret, body) {
-  const t = String(request.headers.get('x-cine-time') || '');
-  const signature = hexToBytes(request.headers.get('x-cine-signature'));
-  if (!/^\d{13}$/.test(t) || !signature || Math.abs(Date.now() - Number(t)) > 60000) return false;
-  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), {name:'HMAC',hash:'SHA-256'}, false, ['verify']);
-  return crypto.subtle.verify('HMAC', key, signature, encoder.encode(t + '.' + body));
+async function signed(request, body) {
+  return verifySignedBody(PUBLIC_SIGNING_KEY,request.headers.get('x-cine-time') || '',
+    request.headers.get('x-cine-signature') || '',body);
 }
 const TABLE = `CREATE TABLE IF NOT EXISTS cine_delivery44_receipts (
   request_id TEXT PRIMARY KEY,
@@ -73,15 +75,15 @@ async function sendTelegram(intent) {
 export async function handleRequest(request, env) {
   const path = new URL(request.url).pathname;
   if (path === '/health' && request.method === 'GET') return json({
-    service:'cine-radar-delivery-44',status:env?.DB && env?.CINE_BRIDGE_SECRET ? 'ready':'unconfigured',
+    service:'cine-radar-delivery-44',status:env?.DB ? 'ready':'unconfigured',
     webhook:false,handles_media_bytes:false
   });
   if (path !== COPY_ROUTE) return new Response('Not found',{status:404,headers:NO_STORE});
   if (request.method !== 'POST') return json({error:'method_not_allowed'},405);
-  if (!env?.DB || !env?.CINE_BRIDGE_SECRET) return json({error:'not_configured'},503);
+  if (!env?.DB) return json({error:'not_configured'},503);
   if (Number(request.headers.get('content-length') || 0) > 10000) return json({error:'too_large'},413);
   const body = await request.text();
-  if (body.length > 10000 || !await signed(request,env.CINE_BRIDGE_SECRET,body)) return json({error:'unauthorized'},403);
+  if (body.length > 10000 || !await signed(request,body)) return json({error:'unauthorized'},403);
   let intent;
   try { intent=JSON.parse(body); } catch { return json({error:'bad_json'},400); }
   if (!validIntent(intent)) return json({error:'bad_request'},400);
