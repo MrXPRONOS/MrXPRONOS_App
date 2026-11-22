@@ -38,7 +38,7 @@ MAX_CHANNEL_ADMINS = 50
 MAX_API_BOTS = 125
 ADMIN_FLAGS = (
     "change_info", "post_messages", "edit_messages", "delete_messages",
-    "ban_users", "invite_users", "pin_messages", "manage_call", "other",
+    "ban_users", "invite_users", "pin_messages", "manage_call",
     "post_stories", "edit_stories", "delete_stories",
     "manage_direct_messages",
 )
@@ -180,10 +180,18 @@ async def find_actufoot_targets(client):
             permission = getattr(item,"admin_rights",None)
             if not permission or not getattr(permission,"add_admins",False):
                 raise ValueError("session_missing_promote_permission")
+            # Telegram's 'other' / 'manage chat' is implicit, and is not a
+            # separate grantable checkbox; it cannot block promotion.
+            # Some rights are absent for specific channel configurations.
             missing = [flag for flag in ADMIN_FLAGS
-                       if hasattr(permission,flag) and not getattr(permission,flag,False)]
+                       if getattr(permission,flag,None) is False]
             if missing:
-                raise ValueError("session_cannot_grant_all_requested_rights")
+                # Names of non-grantable flags are safe to disclose; channel
+                # names, ids and private links remain only in Saved Messages.
+                raise ValueError(
+                    "session_cannot_grant_all_requested_rights:"
+                    + ",".join(sorted(missing))
+                )
     return list(sorted(owned.values(), key=lambda x:fold(x.title)))
 
 
@@ -201,6 +209,9 @@ def full_rights():
     if "add_admins" not in accepted:
         raise RuntimeError("add_admins_permission_not_supported")
     flags["add_admins"]=False
+    # 'other' is an implicit management flag, not a user-facing checkbox.
+    if "other" in accepted:
+        flags["other"]=True
     if "anonymous" in accepted:
         flags["anonymous"]=False
     if "manage_topics" in accepted:
@@ -328,14 +339,23 @@ async def run(apply=False):
                         if not expected_rights(verified,keys):
                             raise ValueError("admin_rights_not_verified")
                         summary["added"]+=1
-                        await asyncio.sleep(3)
+                        reports.append("  AJOUT CONFIRMÉ : @"+bot["username"]
+                                       +" sur "+ch.title)
+                        await asyncio.sleep(6)
                     except (errors.FloodWaitError,errors.PeerFloodError):
                         raise
-                    except Exception:
-                        # Deliberately do not print Telegram exception values.
+                    except Exception as exc:
+                        # Never print exception values which may carry private peer IDs.
+                        # Permission errors are not transient; fail closed to avoid
+                        # repeated promotion attempts on all 10 channels.
                         summary["failed"]+=1
-                        reports.append("  ÉCHEC : @"+bot["username"]+" sur "+ch.title)
-                        await asyncio.sleep(2)
+                        summary["blocked"]=True
+                        summary["reason"]="telegram_admin_promotion_failed"
+                        reports.append("  ÉCHEC : @"+bot["username"]+" sur "
+                                       +ch.title+" | "+type(exc).__name__)
+                        break
+                if summary["blocked"]:
+                    break
         else:
             summary["ready_for_apply"]=not summary["blocked"]
         await private_report(client,reports,summary,apply)

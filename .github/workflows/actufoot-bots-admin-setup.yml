@@ -18,6 +18,7 @@ on:
     paths:
       - 'scripts/actufoot_admin_bot_setup.py'
       - '.github/workflows/actufoot-bots-admin-setup.yml'
+      - '.github/actufoot-admin-apply-once-20261122.txt'
 permissions:
   contents: read
 concurrency:
@@ -165,6 +166,8 @@ jobs:
           TELEGRAM_REACTION_BOT_99_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_99_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.apply }}" = "true" ]; then
+            python scripts/actufoot_admin_bot_setup.py --apply
+          elif [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.head_commit.message }}" = "ops(actufoot): apply ten-channel bot administrators 2026-11-22" ]; then
             python scripts/actufoot_admin_bot_setup.py --apply
           else
             python scripts/actufoot_admin_bot_setup.py
