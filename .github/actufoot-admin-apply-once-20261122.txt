@@ -1,0 +1,1 @@
+Authorization explicite dans cette conversation le 22 novembre 2026 : utiliser la session Telegram déjà enregistrée dans les secrets GitHub pour ajouter les bots Telegram vérifiés dans les dix nouveaux canaux du dossier Actu Foot. Accorder tous les droits administrateur applicables SAUF add_admins=false. Exécution unique, strictement protégée par les précontrôles Telegram.
