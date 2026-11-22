@@ -94,6 +94,7 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
   assert.deepEqual(copies.map(x=>({dest:x.body.chat_id,source:x.body.from_chat_id,id:x.body.message_id})),[
    {dest:321,source:CHANNEL,id:101},{dest:321,source:CHANNEL,id:102},
   ]);
+  for(const copy of copies)assert.match(copy.body.caption,/12 heures après son envoi/);
   const receipts=db.prepare("SELECT delivered_message_id,sent_at,delete_after FROM cine_series_job_items ORDER BY ordinal").all();
   assert.equal(receipts.length,2);
   for(const receipt of receipts){
