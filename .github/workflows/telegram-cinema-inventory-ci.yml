@@ -30,6 +30,15 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/
+            telegram-film-relay/
+            assets/marketing/telegram-ebook-2026-11/affiche-promo-1938-fcfa.jpg
+            assets/telegram/mrxpronos_f_folder_promo.jpg
+            assets/telegram/mrxpronos_f_folder_promo.mp4
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
