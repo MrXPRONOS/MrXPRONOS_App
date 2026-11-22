@@ -51,3 +51,4 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_legacy_public_inventory.py' -v
       - name: Lire le catalogue public sans envoyer de fichiers
         run: python -m film_relay.legacy_public_inventory --history 1200
+# Relecture sécurisée du 22/11/2026 après PR #607/#608 et second rattrapage : uniquement des métriques agrégées.
