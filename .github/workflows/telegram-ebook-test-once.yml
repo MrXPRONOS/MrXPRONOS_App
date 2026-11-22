@@ -1,0 +1,39 @@
+name: Mr XPRONOS - Test visuel e-book Telegram (unique)
+run-name: "Test e-book : affiche, description et deux boutons bleus"
+
+on:
+  push:
+    branches: [campaign/telegram-ebook-test-20261122]
+    paths:
+      - '.github/workflows/telegram-ebook-test-once.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-ebook-telegram-test-once
+  cancel-in-progress: false
+
+jobs:
+  publish-to-test-only:
+    name: Envoyer uniquement vers @predict_mrxp
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+    steps:
+      - name: Récupérer la branche de test
+        uses: actions/checkout@v4
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Vérifier le script et le visuel sans envoi
+        run: |
+          python -m py_compile scripts/publish_ebook_campaign_test.py scripts/telegram_test_guard.py
+          python scripts/publish_ebook_campaign_test.py --dry-run
+      - name: Envoyer une seule publication avec deux boutons bleus
+        run: python scripts/publish_ebook_campaign_test.py
