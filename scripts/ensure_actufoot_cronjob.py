@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Configure les deux cadences Actu Foot sur cron-job.org.
+"""Configure trois cadences Actu Foot sur cron-job.org.
 
 Trois tâches assurent les cadences Actu Foot :
 - full : toutes les 5 minutes, flux autonome du canal principal;
