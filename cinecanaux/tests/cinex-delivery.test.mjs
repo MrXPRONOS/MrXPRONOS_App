@@ -53,6 +53,12 @@ test('download code has no legacy per-title manual approval endpoint',async()=>{
  assert.equal(source.includes("t.approval='approved'"),false);
  assert.equal(source.includes("availability='approved'"),false);
 });
+test('catalogue SQL enforces the same atomic no-repeat condition',async()=>{
+ const {readFile} = await import('node:fs/promises');
+ const src=await readFile(new URL('../cinex-delivery.mjs',import.meta.url),'utf8');
+ assert.match(src,/INSERT OR IGNORE INTO cine_delivery_jobs[\s\S]*?WHERE NOT EXISTS \(SELECT 1 FROM cine_delivery_jobs/);
+ assert.match(src,/status IN \('queued','sending','complete','needs_review'\)/);
+});
 test('worker cron stops without even touching Telegram when disabled',async()=>{
  const DB={prepare(sql){return{first:async()=>({value:'0'})}}};
  assert.deepEqual(await processDeliveryQueue({DB,TELEGRAM_TOKEN:'fake'}),{processed:0,errors:0,disabled:true});
