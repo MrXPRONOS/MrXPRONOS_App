@@ -482,9 +482,12 @@ def publish(ledger: D1Ledger, session: requests.Session, token: str,
         counters["sent"] += 1
         counters["channel:" + role] += 1
         return mid
-    except RuntimeError as exc:
-        # Responses/transport may be ambiguous. Never blindly retry.
-        status = "rejected" if str(exc).startswith("TELEGRAM_API_REJECTED_") else "uncertain"
+    except (RuntimeError, TypeError, ValueError, KeyError) as exc:
+        # A missing/invalid message_id is an ambiguous delivery, NOT success.
+        # The D1 reservation stays quarantined and can never be blindly retried.
+        status = ("rejected" if isinstance(exc, RuntimeError)
+                  and str(exc).startswith("TELEGRAM_API_REJECTED_")
+                  else "uncertain")
         ledger.set_status(POST_KIND, ref, day, status)
         counters["errors"] += 1
         return None
