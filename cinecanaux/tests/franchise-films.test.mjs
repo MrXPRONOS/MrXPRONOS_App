@@ -124,7 +124,7 @@ test('channel photo pin update and numbered channel videos work without Telegram
   assert.equal(db.prepare("SELECT part FROM cine_franchise_films").get().part,6);
  }finally{db.close()}
 });
-test("CineRadar saga link queues only stored films, delivers owner's copies and deletes ONLY subscriber receipts after 24h",async()=>{
+test("CineRadar saga link queues only stored films, delivers owner's copies and deletes ONLY subscriber receipts after 12h",async()=>{
  const {db,env}=fixture(),old=globalThis.fetch,calls=[];let next=900;
  globalThis.fetch=async(url,opts)=>{
   const method=String(url).split('/').at(-1),body=JSON.parse(opts.body);
@@ -154,7 +154,7 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
    [USER,String(OWNER),11],[USER,String(OWNER),13],
   ]);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_job_items WHERE delete_after IS NOT NULL").get().n,2);
-  db.exec("UPDATE cine_franchise_job_items SET sent_at=datetime('now','-25 hours'),delete_after=datetime('now','-1 hour'),delete_retry_at=datetime('now','-1 hour')");
+  db.exec("UPDATE cine_franchise_job_items SET sent_at=datetime('now','-13 hours'),delete_after=datetime('now','-1 hour'),delete_retry_at=datetime('now','-1 hour')");
   const result=await cleanupFranchiseCopies(env);
   assert.equal(result.deleted,2);
   assert.deepEqual(calls.filter(x=>x.method==='deleteMessage').map(x=>x.body.chat_id),[USER,USER]);
