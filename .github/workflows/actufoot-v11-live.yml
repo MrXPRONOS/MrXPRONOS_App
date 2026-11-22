@@ -29,6 +29,16 @@ jobs:
       FOOTBALL_ESPN_REQUEST_BUDGET: '12'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts
+            bsd
+            tests_football_channel
+            config
+            assets
+          sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
