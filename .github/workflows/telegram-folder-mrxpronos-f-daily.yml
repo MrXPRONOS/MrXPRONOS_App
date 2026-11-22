@@ -1,4 +1,5 @@
 name: Telegram - MR XPRONOS F dossier + e-book (cinéma vérifié)
+# Secure RPC JWT role compatibility patch verified on 2026-11-22
 
 on:
   schedule:
