@@ -1261,7 +1261,7 @@
   },
   "identity_review": [],
   "last_dedup_audit": {
-    "candidate_rows": 797,
+    "candidate_rows": 799,
     "conflicts": [
       {
         "episode": 1,
@@ -1396,6 +1396,16 @@
           "-1002294192868:10916",
           "-1003225149330:5673",
           "-1003225149330:5674"
+        ]
+      },
+      {
+        "episode": 8,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "im-dating-a-dark-summoner",
+        "source_keys": [
+          "-1002069851953:66675",
+          "-1002069851953:66676"
         ]
       },
       {
@@ -1594,9 +1604,9 @@
       "conflicting_source_receipts": [],
       "new_source_receipts": 0
     },
-    "media_variants": 31,
-    "source_duplicates": 46,
-    "unique_episodes": 751
+    "media_variants": 32,
+    "source_duplicates": 47,
+    "unique_episodes": 752
   },
   "legacy_series_records": {
     "mangas-fv-death-parade-ep05": {
