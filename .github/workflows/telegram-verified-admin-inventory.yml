@@ -54,6 +54,7 @@ jobs:
           sparse-checkout: |
             scripts/audit_mrxpronos_canal_bot.py
             scripts/inventory_mrxpronos_shared_admin_channels.py
+            scripts/telegram_admin_cinema_catalog.py
             telegram-film-relay/scripts/check_personal_cooldown.py
           sparse-checkout-cone-mode: false
       - name: Respecter le delai FloodWait du compte Telegram personnel
@@ -66,6 +67,6 @@ jobs:
       - name: Install read-only Telegram API client
         run: python -m pip install --disable-pip-version-check 'requests>=2.31,<3' 'telethon>=1.38,<2'
       - name: Verify source syntax
-        run: python -m py_compile scripts/audit_mrxpronos_canal_bot.py scripts/inventory_mrxpronos_shared_admin_channels.py
+        run: python -m py_compile scripts/audit_mrxpronos_canal_bot.py scripts/inventory_mrxpronos_shared_admin_channels.py scripts/telegram_admin_cinema_catalog.py
       - name: Verify both administrators and store encrypted metadata
         run: python scripts/inventory_mrxpronos_shared_admin_channels.py
