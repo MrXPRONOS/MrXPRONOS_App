@@ -25,6 +25,8 @@ class AuditTest(unittest.TestCase):
         self.assertTrue(rights.post_messages)
         self.assertTrue(rights.delete_messages)
         self.assertTrue(rights.edit_messages)
+        self.assertFalse(bool(rights.pin_messages))
+        self.assertNotIn("pin_messages",flags)
         self.assertTrue(expected_rights(rights,flags))
     def test_no_grant_on_mismatch(self):
         rights,flags=full_rights()
