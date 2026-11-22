@@ -9,9 +9,19 @@ on:
       - 'telegram-film-relay/scripts/discovery_inventory_daily.py'
       - 'telegram-film-relay/scripts/discovery_daily.py'
       - 'scripts/inventory_mrxpronos_shared_admin_channels.py'
+      - 'scripts/telegram_admin_cinema_catalog.py'
+      - 'telegram-film-relay/tests/test_admin_cinema_catalog.py'
       - 'scripts/cineradar_daily_promo.py'
       - 'telegram-film-relay/tests/test_discovery_inventory_coordinator.py'
       - 'tests/test_cineradar_daily_promo.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-discovery-inventory-ci.yml'
+      - '.github/workflows/telegram-discovery-daily.yml'
+      - 'scripts/inventory_mrxpronos_shared_admin_channels.py'
+      - 'scripts/telegram_admin_cinema_catalog.py'
+      - 'telegram-film-relay/tests/test_admin_cinema_catalog.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,7 +40,8 @@ jobs:
         env:
           PYTHONPATH: telegram-film-relay
         run: |
-          python -m py_compile telegram-film-relay/scripts/discovery_daily.py telegram-film-relay/scripts/discovery_inventory_daily.py scripts/inventory_mrxpronos_shared_admin_channels.py scripts/cineradar_daily_promo.py
+          python -m py_compile telegram-film-relay/scripts/discovery_daily.py telegram-film-relay/scripts/discovery_inventory_daily.py scripts/inventory_mrxpronos_shared_admin_channels.py scripts/telegram_admin_cinema_catalog.py scripts/cineradar_daily_promo.py
           python -m unittest discover -s telegram-film-relay/tests -p 'test_discovery_inventory_coordinator.py' -v
+          python -m unittest discover -s telegram-film-relay/tests -p 'test_admin_cinema_catalog.py' -v
           python -m unittest discover -s telegram-film-relay/tests -p 'test_daily_discovery.py' -v
           python -m unittest discover -s tests -p 'test_cineradar_daily_promo.py' -v
