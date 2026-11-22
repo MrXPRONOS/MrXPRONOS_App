@@ -154,6 +154,7 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
    [USER,String(OWNER),11],[USER,String(OWNER),13],
   ]);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_job_items WHERE delete_after IS NOT NULL").get().n,2);
+  for(const copy of sends)assert.match(copy.body.caption,/12 heures après son envoi/);
   db.exec("UPDATE cine_franchise_job_items SET sent_at=datetime('now','-13 hours'),delete_after=datetime('now','-1 hour'),delete_retry_at=datetime('now','-1 hour')");
   const result=await cleanupFranchiseCopies(env);
   assert.equal(result.deleted,2);
