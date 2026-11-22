@@ -23,6 +23,21 @@ function evidenceDate(value,now=Date.now()){
  return value.slice(0,19).replace('T',' ');
 }
 
+// A Telegram message number is unique only inside one recipient chat.
+// Owner attestations must not point two cleanup jobs at the same message.
+async function receiptAlreadyRecorded(env,chatId,messageId){
+ const sqls=[
+  "SELECT 1 ok FROM cine_classic_deliveries WHERE telegram_chat_id=? AND delivered_message_id=? LIMIT 1",
+  "SELECT 1 ok FROM cine_delivery_job_items i JOIN cine_delivery_jobs j ON j.id=i.job_id WHERE j.telegram_chat_id=? AND i.delivered_message_id=? LIMIT 1",
+  "SELECT 1 ok FROM cine_series_job_items i JOIN cine_series_jobs j ON j.id=i.job_id WHERE j.telegram_chat_id=? AND i.delivered_message_id=? LIMIT 1",
+  "SELECT 1 ok FROM cine_franchise_job_items i JOIN cine_franchise_jobs j ON j.id=i.job_id WHERE j.telegram_chat_id=? AND i.delivered_message_id=? LIMIT 1",
+ ];
+ for(const sql of sqls){
+  if((await env.DB.prepare(sql).bind(chatId,messageId).first())?.ok)return true;
+ }
+ return false;
+}
+
 const conditions=(item,job)=>{
  const queued=`EXISTS(SELECT 1 FROM ${item} q WHERE q.job_id=${job}.id AND q.state='queued')`;
  const uncertain=`EXISTS(SELECT 1 FROM ${item} u WHERE u.job_id=${job}.id AND u.state IN ('sending','needs_review'))`;
@@ -100,10 +115,13 @@ export async function attestExistingCopy(env,data,ownerId,{now=Date.now()}={}){
   return {ok:false,status:400,code:'valid_existing_copy_evidence_required'};
  if(family==='classics'){
   const prior=await env.DB.prepare(
-   "SELECT status,delivered_message_id FROM cine_classic_deliveries WHERE id=?"
+   "SELECT status,delivered_message_id,telegram_chat_id FROM cine_classic_deliveries WHERE id=?"
   ).bind(id).first();
   if(prior?.status!=='needs_review'||prior.delivered_message_id!==null)
    return {ok:false,status:409,code:'case_already_resolved_or_changed'};
+  if(!positive(prior.telegram_chat_id)||
+     await receiptAlreadyRecorded(env,Number(prior.telegram_chat_id),messageId))
+   return {ok:false,status:409,code:'duplicate_or_invalid_telegram_receipt'};
   const r=await env.DB.prepare(
    "UPDATE cine_classic_deliveries SET status='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,'+24 hours'),delete_retry_at=datetime(?,'+24 hours'),delete_state='pending',lock_until=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING id"
   ).bind(messageId,sentAt,sentAt,sentAt,id).first();
@@ -112,8 +130,11 @@ export async function attestExistingCopy(env,data,ownerId,{now=Date.now()}={}){
   const config=FAMILIES[family];
   if(!config||!itemNo)return {ok:false,status:400,code:'invalid_case'};
   const {jobs,items,item}=config;
-  const open=await env.DB.prepare(`SELECT 1 ok FROM ${jobs} WHERE id=? AND status='needs_review'`).bind(id).first();
-  if(!open?.ok)return {ok:false,status:409,code:'case_already_resolved_or_changed'};
+  const open=await env.DB.prepare(`SELECT telegram_chat_id FROM ${jobs} WHERE id=? AND status='needs_review'`).bind(id).first();
+  if(!positive(open?.telegram_chat_id))
+   return {ok:false,status:409,code:'case_already_resolved_or_changed'};
+  if(await receiptAlreadyRecorded(env,Number(open.telegram_chat_id),messageId))
+   return {ok:false,status:409,code:'duplicate_or_invalid_telegram_receipt'};
   const change=await env.DB.prepare(
    `UPDATE ${items} SET state='sent',delivered_message_id=?,sent_at=?,delete_after=datetime(?,'+24 hours'),delete_retry_at=datetime(?,'+24 hours'),delete_state='pending',delete_attempts=0 WHERE job_id=? AND ${item}=? AND state='needs_review' AND delivered_message_id IS NULL AND sent_at IS NULL RETURNING job_id`
   ).bind(messageId,sentAt,sentAt,sentAt,id,itemNo).first();
