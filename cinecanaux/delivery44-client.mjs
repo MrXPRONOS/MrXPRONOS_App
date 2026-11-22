@@ -10,11 +10,11 @@ async function hmac(secret,time,body){
 }
 export function delivery44Enabled(env){return env?.CINE_DELIVERY44_ENABLED==='1';}
 export async function remoteCopyMessage(env,requestId,payload){
- if(!/^classic:[0-9]+$/.test(String(requestId))||!env?.TELEGRAM_TOKEN||
+ if(!/^(classic|library|franchise|series):[0-9]+(?::[0-9]+)?$/.test(String(requestId))||!env?.TELEGRAM_TOKEN||
    !env?.CINE_BRIDGE_SECRET)return {ok:false,error_code:503,uncertain:true};
  // Le quota reste arbitré dans D1 sur le compte 52, partagé avec les autres envois.
  const quota=await guardTelegramMethod(env,'copyMessage',payload);
- if(quota&&!quota.allowed)return {ok:false,error_code:429,retry_after:quota.retryAfter,quotaDeferred:true};
+ if(quota&&!quota.allowed)return {ok:false,code:429,retry:quota.retryAfter,error_code:429,retry_after:quota.retryAfter,quotaDeferred:true};
  const body=JSON.stringify({request_id:requestId,method:'copyMessage',bot_token:env.TELEGRAM_TOKEN,payload});
  const time=String(Date.now());
  let response;
@@ -29,6 +29,6 @@ export async function remoteCopyMessage(env,requestId,payload){
  let data;try{data=await response.json()}catch{return {ok:false,error_code:502,uncertain:true};}
  if(response.ok&&data?.ok&&Number.isSafeInteger(data?.result?.message_id))
    return {ok:true,result:data.result};
- if(data?.error_code===429)return {ok:false,error_code:429,retry_after:Number(data.retry_after||1)};
+ if(data?.error_code===429)return {ok:false,code:429,retry:Number(data.retry_after||1),error_code:429,retry_after:Number(data.retry_after||1)};
  return {ok:false,error_code:Number(data?.error_code||response.status),uncertain:true};
 }
