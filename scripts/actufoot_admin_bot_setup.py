@@ -38,10 +38,12 @@ MAX_CHANNEL_ADMINS = 50
 MAX_API_BOTS = 125
 ADMIN_FLAGS = (
     "change_info", "post_messages", "edit_messages", "delete_messages",
-    "ban_users", "invite_users", "pin_messages", "manage_call",
+    "ban_users", "invite_users", "manage_call",
     "post_stories", "edit_stories", "delete_stories",
     "manage_direct_messages",
 )
+# pin_messages / manage_topics are group-only permissions and are NOT
+# separate administrative checkboxes in Telegram broadcast channels.
 TOKEN_MATCH = re.compile(r"^[0-9]+:[A-Za-z0-9_-]{30,}$")
 
 
