@@ -18,7 +18,7 @@ permissions:
   contents: read
 concurrency:
   group: actufoot-v11-ci-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   validation:
     runs-on: ubuntu-latest
