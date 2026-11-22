@@ -12,7 +12,7 @@ from film_relay.ten_video_rotation import verify_existing_pair, unmatched_candid
 from film_relay.legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
-    shared_legacy_cover, bot_can_edit_original,
+    shared_legacy_cover, bot_can_edit_original, legacy_repair_completion,
 )
 
 
@@ -27,6 +27,20 @@ def media(mid, title, *, photo=False, video=False, name="", doc=None, buttons=No
 
 
 class LegacyMediaIdentityTests(unittest.TestCase):
+    def test_historical_successful_workflow_is_not_misreported_as_complete(self):
+        rows=[
+            {"category":"films","older":35,"public_linked":2,"public_edited":2,
+             "preflight_failed":2,"errors":0},
+            {"category":"anime","older":109,"public_linked":0,"ambiguous":25,
+             "private_pair_unverified":6,"errors":0},
+        ]
+        status=legacy_repair_completion(rows)
+        self.assertFalse(status["complete"])
+        self.assertEqual(status["unresolved"],142)
+        self.assertEqual(status["public_edited"],2)
+        self.assertEqual(status["errors"],0)
+        self.assertTrue(legacy_repair_completion([{"older":0,"errors":0}])["complete"])
+
     def test_legacy_public_edit_requires_bot_edit_right_before_any_copy(self):
         self.assertFalse(bot_can_edit_original(NS(is_admin=True, post_messages=True, edit_messages=False)))
         self.assertFalse(bot_can_edit_original(NS(is_admin=True, post_messages=False, edit_messages=True)))
