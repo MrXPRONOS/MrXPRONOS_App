@@ -50,7 +50,7 @@ def check():
         raise ValueError("Le fichier doit être au format MP4")
     if media == PHOTO and signature[:3] != b"\\xff\\xd8\\xff":
         raise ValueError("Le fichier doit être au format JPEG")
-    if len(CAPTION) > 1024 or CAPTION.count("\\n") != 3:
+    if len(CAPTION) > 1024 or CAPTION.count("\n") != 3:
         raise ValueError("La légende doit être courte et compatible avec Telegram")
     if (BUTTON["inline_keyboard"][0][0]["style"] != "primary"
             or BUTTON["inline_keyboard"][0][0]["url"] != TARGET_URL):
@@ -77,7 +77,8 @@ def send():
         return 1
 
     try:
-        with PHOTO.open("rb") as img:
+        media = ANIMATION if ANIMATION.is_file() else PHOTO
+        with media.open("rb") as img:
             response = requests.post(
                 "https://api.telegram.org/bot" + token + ("/sendAnimation" if media == ANIMATION else "/sendPhoto"),
                 data={
