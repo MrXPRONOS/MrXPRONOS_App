@@ -384,11 +384,12 @@ def publish(ledger: D1Ledger, session: requests.Session, token: str,
         return None
     if ref in counters["seen"]:
         counters["duplicates"] += 1
-        return None
-    if event_receipt(ledger, day, ref) is not None:
+        return event_receipt(ledger, day, ref)
+    existing = event_receipt(ledger, day, ref)
+    if existing is not None:
         counters["seen"].add(ref)
         counters["duplicates"] += 1
-        return None
+        return existing
     limit = MAX_DAILY.get(role, DAILY_DEFAULT)
     limit_refs = counters["daily"]
     quota_ref = next(
@@ -489,8 +490,8 @@ def cycle(now: datetime, *, dry_run: bool = False,
     if now.astimezone(TZ).hour < 5:
         days.append(days[0] - timedelta(days=1))
     fixtures = []
-    for day in days:
-        fixtures.extend(fetch_espn_day(session, day))
+    for match_day in days:
+        fixtures.extend(fetch_espn_day(session, match_day))
     selected = select_matches(fixtures, now)
     report["eligible"] = len(fixtures)
     report["selected"] = len(selected)
@@ -542,12 +543,11 @@ def cycle(now: datetime, *, dry_run: bool = False,
             commit_state(ledger, fixture_day, str(row["id"]), current, None)
             continue
         signals = derive_events(row, info, summary, previous)
-        new_raw_state = current
         board = event_lines(row, current, "board")
         score_handle = channels["scores"]
         board_ref = f"{score_handle}:board:{row['id']}"
         if current_phase not in ("interrupted",) and not current.get("board_id"):
-            existing_mid = event_receipt(ledger, fixture_day, board_ref)
+            existing_mid = event_receipt(ledger, day, board_ref)
             if existing_mid:
                 current["board_id"] = existing_mid
             else:
