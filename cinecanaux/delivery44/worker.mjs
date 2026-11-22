@@ -17,7 +17,7 @@ function validSourceChatId(value) {
 }
 export function validIntent(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return false;
-  if (!/^(classic|library|franchise|series):[A-Za-z0-9_-]{1,80}$/.test(String(body.request_id || ''))) return false;
+  if (!/^(classic|library|franchise|series):[0-9]+(?::[0-9]+)?$/.test(String(body.request_id || ''))) return false;
   if (body.method !== 'copyMessage') return false;
   if (!/^\d{6,12}:[A-Za-z0-9_-]{20,}$/.test(String(body.bot_token || ''))) return false;
   const p = body.payload;
