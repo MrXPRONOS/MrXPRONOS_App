@@ -364,7 +364,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -476,41 +476,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "4f68aebd3211409a",
-    "title": "OM : Himad Abdelli affiche son ambition",
-    "summary": "Relancé cette saison sous le maillot de Marseille, Himad Abdelli savoure le regain de forme collectif du club phocéen. Au micro de Téléfoot, le milieu de terrain international algérien a tenu à saluer (…)",
-    "summary_short": "Relancé cette saison sous le maillot de Marseille, Himad Abdelli savoure le regain de forme collectif du club phocéen. Au micro de Téléfoot, le milieu de terrain international algérien a tenu à saluer (…)",
-    "content": "Relancé cette saison sous le maillot de Marseille, Himad Abdelli savoure le regain de forme collectif du club phocéen. Au micro de Téléfoot, le milieu de terrain international algérien a tenu à saluer (…)",
-    "paragraphs": [
-      "Relancé cette saison sous le maillot de Marseille, Himad Abdelli savoure le regain de forme collectif du club phocéen. Au micro de Téléfoot, le milieu de terrain international algérien a tenu à saluer (…)"
-    ],
-    "key_points": [
-      "Relancé cette saison sous le maillot de Marseille, Himad Abdelli savoure le regain de forme collectif du club phocéen.",
-      "Au micro de Téléfoot, le milieu de terrain international algérien a tenu à saluer (…)"
-    ],
-    "telegram_summary": "Relancé cette saison sous le maillot de Marseille, Himad Abdelli savoure le regain de forme collectif du club phocéen. Au micro de Téléfoot, le milieu de terrain international algérien a tenu à saluer (…)",
-    "link": "https://www.footmercato.net/a8317359226291823175-om-himad-abdelli-affiche-son-ambition",
-    "source_url": "https://www.footmercato.net/a8317359226291823175-om-himad-abdelli-affiche-son-ambition",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4f68aebd3211409a",
-    "published": "2026-11-22T17:15:45+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/abdelli-om.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/abdelli-om.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "79984be49b54e6e5",
@@ -706,7 +671,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -817,6 +782,41 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "9b03035902b133b6",
+    "title": "OM : la banderole cinglante des ultras contre la LFP",
+    "summary": "L’OM reçoit Le Mans ce dimanche soir au Vélodrome, dans le cadre de la 11e journée de Ligue 1. Une rencontre importante pour les deux formations, puisque les Phocéens, cinquièmes avec 18 points, (…)",
+    "summary_short": "L’OM reçoit Le Mans ce dimanche soir au Vélodrome, dans le cadre de la 11e journée de Ligue 1. Une rencontre importante pour les deux formations, puisque les Phocéens, cinquièmes avec 18 points, (…)",
+    "content": "L’OM reçoit Le Mans ce dimanche soir au Vélodrome, dans le cadre de la 11e journée de Ligue 1. Une rencontre importante pour les deux formations, puisque les Phocéens, cinquièmes avec 18 points, (…)",
+    "paragraphs": [
+      "L’OM reçoit Le Mans ce dimanche soir au Vélodrome, dans le cadre de la 11e journée de Ligue 1. Une rencontre importante pour les deux formations, puisque les Phocéens, cinquièmes avec 18 points, (…)"
+    ],
+    "key_points": [
+      "L’OM reçoit Le Mans ce dimanche soir au Vélodrome, dans le cadre de la 11e journée de Ligue 1.",
+      "Une rencontre importante pour les deux formations, puisque les Phocéens, cinquièmes avec 18 points, (…)"
+    ],
+    "telegram_summary": "L’OM reçoit Le Mans ce dimanche soir au Vélodrome, dans le cadre de la 11e journée de Ligue 1. Une rencontre importante pour les deux formations, puisque les Phocéens, cinquièmes avec 18 points, (…)",
+    "link": "https://www.footmercato.net/a96867141706592385-om-la-banderole-cinglante-des-ultras-contre-la-lfp",
+    "source_url": "https://www.footmercato.net/a96867141706592385-om-la-banderole-cinglante-des-ultras-contre-la-lfp",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9b03035902b133b6",
+    "published": "2026-11-22T20:46:05+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldtwo999286-1.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldtwo999286-1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "2ced2d23b0b3a865",
@@ -1078,7 +1078,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1243,7 +1243,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1748,7 +1748,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1804,7 +1804,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1968,7 +1968,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T20:40:30.600621+00:00"
+      "checked_at": "2026-11-22T20:55:37.618797+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
