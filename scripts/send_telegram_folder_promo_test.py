@@ -22,6 +22,7 @@ from telegram_test_guard import TestChannelGuardError, validate_test_channel
 
 ROOT = Path(__file__).resolve().parents[1]
 PHOTO = ROOT / "assets/telegram/mrxpronos_f_folder_promo.jpg"
+ANIMATION = PHOTO.with_suffix(".mp4")
 TEST_CHAT = "predict_mrxp"
 TARGET_URL = "https://t.me/addlist/ZmW4vfwcrMAwNzJk"
 CAPTION = (
@@ -42,7 +43,8 @@ BUTTON = {
 def check():
     if not PHOTO.is_file() or PHOTO.stat().st_size < 1024:
         raise ValueError("L'affiche n'est pas présente dans GitHub")
-    with PHOTO.open("rb") as img:
+    media = ANIMATION if ANIMATION.is_file() else PHOTO
+        with media.open("rb") as img:
         if img.read(3) != b"\xff\xd8\xff":
             raise ValueError("Le fichier doit être au format JPEG")
     if len(CAPTION) > 1024 or CAPTION.count("\n") != 3:
@@ -50,7 +52,7 @@ def check():
     if (BUTTON["inline_keyboard"][0][0]["style"] != "primary"
             or BUTTON["inline_keyboard"][0][0]["url"] != TARGET_URL):
         raise ValueError("Bouton bleu ou lien du dossier incorrect")
-    print("FOLDER_PROMO_CHECK_OK image_bytes=", PHOTO.stat().st_size,
+    print("FOLDER_PROMO_CHECK_OK media_bytes=", (ANIMATION if ANIMATION.is_file() else PHOTO).stat().st_size,
           "caption_lines=4", "blue_button=primary", "folder_link=", TARGET_URL)
 
 
@@ -74,7 +76,7 @@ def send():
     try:
         with PHOTO.open("rb") as img:
             response = requests.post(
-                "https://api.telegram.org/bot" + token + "/sendPhoto",
+                "https://api.telegram.org/bot" + token + ("/sendAnimation" if media == ANIMATION else "/sendPhoto"),
                 data={
                     "chat_id": chat["chat_id"],
                     "caption": CAPTION,
@@ -82,7 +84,8 @@ def send():
                     "reply_markup": json.dumps(BUTTON, ensure_ascii=False),
                     "protect_content": "false",
                 },
-                files={"photo": (PHOTO.name, img, "image/jpeg")},
+                files={("animation" if media == ANIMATION else "photo"): (
+                    media.name, img, "video/mp4" if media == ANIMATION else "image/jpeg")},
                 timeout=(10, 45),
             )
         payload = response.json()
