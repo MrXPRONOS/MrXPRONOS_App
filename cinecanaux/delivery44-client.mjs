@@ -21,7 +21,7 @@ async function safeLocalFallback(env,payload,status) {
   const error_code=Number(data?.error_code||response.status);
   const retry_after=Number(data?.parameters?.retry_after||0);
   if(error_code===429)await noteTelegramFloodWait(env,retry_after||30);
-  return {ok:response.ok&&data?.ok===true,result:data?.result,
+  return {ok:response.ok&&data?.ok===true,result:data?.result,via44:false,
    error_code,code:error_code,retry_after,retry:retry_after};
  }catch{return {ok:false,error_code:502,uncertain:true};}
 }
@@ -48,7 +48,7 @@ export async function remoteCopyMessage(env,requestId,payload){
   return safeLocalFallback(env,payload,response.status);
  let data;try{data=await response.json()}catch{return {ok:false,error_code:502,uncertain:true};}
  if(response.ok&&data?.ok&&Number.isSafeInteger(data?.result?.message_id))
-   return {ok:true,result:data.result};
+   return {ok:true,result:data.result,via44:true,elapsed_ms:Number(data.elapsed_ms||0)};
  if(data?.error_code===429)return {ok:false,code:429,retry:Number(data.retry_after||1),error_code:429,retry_after:Number(data.retry_after||1)};
  return {ok:false,error_code:Number(data?.error_code||response.status),uncertain:true};
 }
