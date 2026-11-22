@@ -89,12 +89,12 @@ test('queue copies only from a verified negative library id into a positive priv
   assert.equal((await processClassicDeliveryQueue(env)).processed,0);
  }finally{globalThis.fetch=old;db.close()}
 });
-test('24h cleanup deletes only the delivered private copy, never source or public video',async()=>{
+test('12h cleanup deletes only the delivered private copy, never source or public video',async()=>{
  const {db,env}=fixture();const old=globalThis.fetch;const calls=[];
  globalThis.fetch=async(url,options)=>{calls.push({method:String(url).split('/').at(-1),body:JSON.parse(options.body)});return Response.json({ok:true,result:true})};
  try{
   db.prepare("INSERT INTO cine_classic_deliveries(token,telegram_update_id,telegram_chat_id,status,delivered_message_id,sent_at,delete_after,delete_retry_at) VALUES(?,?,?,'sent',?,?,?,?)")
-   .run(TOKEN,101,321,66,new Date(now-25*3600000).toISOString().replace('T',' ').slice(0,19),
+   .run(TOKEN,101,321,66,new Date(now-13*3600000).toISOString().replace('T',' ').slice(0,19),
    new Date(now-3600000).toISOString().replace('T',' ').slice(0,19),
    new Date(now-3600000).toISOString().replace('T',' ').slice(0,19));
   const result=await cleanupClassicDeliveries(env);
