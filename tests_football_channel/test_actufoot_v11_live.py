@@ -131,7 +131,7 @@ class EventTests(unittest.TestCase):
              "player": "A", "team": "Chelsea"},
             {"id": "pen2", "minute": 120, "outcome": "unknown"},
         ]):
-            events = mod.derive_events(row(), row(minute=120), {}, old)
+            events = mod.derive_events(row(), row(minute=120, away_score=1), {}, old)
         self.assertEqual([e[0] for e in events], ["shootout_made"])
 
     def test_scorecard_escapes_html(self):
