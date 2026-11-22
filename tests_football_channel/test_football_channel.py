@@ -317,7 +317,10 @@ class FootballChannelTests(unittest.TestCase):
             self.assertIn("<b>🚨 Arsenal avance sur un dossier important</b>", post.text)
             self.assertNotIn("<blockquote>", post.text)
             self.assertNotIn("Lire l’info complète", post.text)
-            self.assertIn("(Foot Mercato)", post.text)
+            self.assertEqual(post.card["source"], "Foot Mercato")
+            from scripts.actufoot_telegram_format import editorial_markup
+            rendered = editorial_markup(post.text, source=post.card["source"])
+            self.assertIn("</blockquote>\n\n<i>📰 Source : Foot Mercato</i>", rendered)
             self.assertEqual(post.image_path, "assets/images/footnews/test-news.webp")
             self.assertIsNone(post.keyboard)
             self.assertIsNotNone(post.card)
@@ -381,7 +384,10 @@ class FootballChannelTests(unittest.TestCase):
             self.assertIsNotNone(post)
             self.assertEqual(post.verification["type"], "news")
             self.assertEqual(post.verification["matched_terms"], ["arsenal", "dossier"])
-            self.assertIn("(Foot Mercato)", post.text)
+            self.assertEqual(post.card["source"], "Foot Mercato")
+            from scripts.actufoot_telegram_format import editorial_markup
+            rendered = editorial_markup(post.text, source=post.card["source"])
+            self.assertIn("</blockquote>\n\n<i>📰 Source : Foot Mercato</i>", rendered)
             self.assertNotIn("repérée chez ESPN", post.text)
             self.assertIsNone(post.keyboard)
         finally:
