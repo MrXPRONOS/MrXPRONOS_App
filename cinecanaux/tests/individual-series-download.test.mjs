@@ -84,7 +84,7 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
   ]);
   // No introductory warning: the videos must come first.
   assert.equal(calls.length,0);
-  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
+  // No pre-video Telegram notice: quota storage is lazily created at the first copy.
   assert.equal((await processSeriesQueue(env)).processed,2);
   assert.equal((await processSeriesQueue(env)).processed,0);
   assert.equal(db.prepare('SELECT status,delivered_items FROM cine_series_jobs').get().status,'complete');
