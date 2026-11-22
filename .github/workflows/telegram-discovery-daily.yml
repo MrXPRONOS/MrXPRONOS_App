@@ -49,9 +49,10 @@ jobs:
           PYTHONPATH: .
         run: |
           python -m compileall -q film_relay scripts tests
-          python -m py_compile ../scripts/inventory_mrxpronos_shared_admin_channels.py ../scripts/cineradar_daily_promo.py
+          python -m py_compile ../scripts/inventory_mrxpronos_shared_admin_channels.py ../scripts/cineradar_daily_promo.py ../scripts/telegram_admin_cinema_catalog.py
           python -m unittest discover -s tests -p 'test_daily_discovery.py' -v
           python -m unittest discover -s tests -p 'test_discovery_inventory_coordinator.py' -v
+          python -m unittest discover -s tests -p 'test_admin_cinema_catalog.py' -v
           python -m unittest discover -s ../tests -p 'test_cineradar_daily_promo.py' -v
       - name: Recenser canaux publics/prives + decouvrir CINEX avec UNE seule connexion MTProto
         env:

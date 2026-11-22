@@ -23,6 +23,7 @@ from telethon.errors import FloodWaitError, PeerFloodError
 from telethon.sessions import StringSession
 from telethon.tl.types import Channel
 from audit_mrxpronos_canal_bot import find_exact_bot, Telegram
+from telegram_admin_cinema_catalog import classify_channel, send_private_catalog
 
 BOT_USERNAME = "mrxpronos_canal_bot"
 MAX_CHANNELS = 1000
@@ -87,20 +88,28 @@ async def scan(client=None, public_export_path=None):
     string = env("TG_SESSION_STRING") or env("TG_STRING_SESSION") or env("TG_STREAM_SESSION")
     if not api_id.isdigit() or not api_hash or not string:
         raise RuntimeError("personal_telegram_session_missing")
-    if not env("SUPABASE_SERVICE_ROLE_KEY") or not env("SUPABASE_URL"):
-        raise RuntimeError("supabase_credentials_missing")
-
-    bot_api, bot, _ = find_exact_bot()
-    if bot_api is None or bot.get("username", "").lower() != BOT_USERNAME:
-        raise RuntimeError("requested_bot_identity_not_verified")
-
-    http = requests.Session()
-    key = env("SUPABASE_SERVICE_ROLE_KEY")
-    http.headers.update({"apikey":key, "Authorization":"Bearer "+key,
-                         "Content-Type":"application/json"})
+    # Le catalogue personnel n'exige ni bot administrateur, ni Supabase.
+    # Le registre historique chiffré conserve son filtre strict : les DEUX admins.
+    registry_enabled = bool(env("SUPABASE_SERVICE_ROLE_KEY") and env("SUPABASE_URL"))
+    bot_api, bot = None, {}
+    if registry_enabled:
+        try:
+            discovered_api, discovered_bot, _ = find_exact_bot()
+            if discovered_api is not None and discovered_bot.get("username", "").lower() == BOT_USERNAME:
+                bot_api, bot = discovered_api, discovered_bot
+        except Exception:
+            pass  # Les canaux personnels sont quand même catalogués.
+    http = None
+    if registry_enabled and bot_api is not None:
+        http = requests.Session()
+        key = env("SUPABASE_SERVICE_ROLE_KEY")
+        http.headers.update({"apikey":key, "Authorization":"Bearer "+key,
+                             "Content-Type":"application/json"})
 
     counts = Counter()
     public_rows = []
+    all_admin_rows = []
+    admin_row_by_id = {}
     own_client = client is None
     if own_client:
         client = TelegramClient(StringSession(string), int(api_id), api_hash,
@@ -128,15 +137,32 @@ async def scan(client=None, public_export_path=None):
             except (FloodWaitError, PeerFloodError):
                 raise
             except Exception as exc:
-                counts["personal_role_unavailable"] += 1
-                print("PERSONAL_ADMIN_CHECK_UNAVAILABLE", type(exc).__name__)
-                continue
+                # Les indicateurs d'administration du dialogue sont fournis par Telegram.
+                # Ne les écarter que si les droits ne sont PAS établis non plus par ces flags.
+                if not role_from_permissions(channel, None):
+                    counts["personal_role_unavailable"] += 1
+                    print("PERSONAL_ADMIN_CHECK_UNAVAILABLE", type(exc).__name__)
+                    continue
+                permissions = None
+                counts["personal_role_from_dialog_flags"] += 1
             user_role = role_from_permissions(channel, permissions)
             if user_role is None:
                 counts["personal_not_admin"] += 1
                 continue
             counts["personal_admin"] += 1
+            classified = classify_channel(getattr(channel, "title", ""), getattr(channel, "username", None))
+            if classified is None:
+                counts["excluded_torrent9_or_invalid"] += 1
+                continue
+            all_admin_rows.append(classified)
+            admin_row_by_id[channel.id] = len(all_admin_rows) - 1
+            counts["all_public" if classified["visibility"] == "public" else "all_private"] += 1
 
+            # Inventaire Vault historique : exige le bot ET le compte personnel.
+            # La liste personnelle ci-dessus ne dépend PAS de ces autorisations bot.
+            if bot_api is None or http is None:
+                counts["legacy_registry_unavailable"] += 1
+                continue
             cid = "-100" + str(channel.id)
             try:
                 member = bot_api.call("getChatMember", {"chat_id":cid,"user_id":int(bot["id"])})
@@ -158,6 +184,11 @@ async def scan(client=None, public_export_path=None):
             if not title:
                 counts["missing_title"] += 1
                 continue
+            # Les descriptions accessibles par le Bot API améliorent les genres.
+            # Aucun contenu ni description privés n'est envoyé au registre public.
+            enriched = classify_channel(title, username, str(chat.get("description") or ""))
+            if enriched is not None:
+                all_admin_rows[admin_row_by_id[channel.id]] = enriched
             payload = {
                 "bot_username": BOT_USERNAME,
                 "bot_id": int(bot["id"]),
@@ -182,10 +213,16 @@ async def scan(client=None, public_export_path=None):
                 })
             else:
                 counts["private"] += 1
+
+        # Envoyer les détails publics ET privés uniquement au propriétaire,
+        # dans un fichier texte de ses Messages enregistrés (non commité).
+        await send_private_catalog(client, all_admin_rows)
+        counts["catalog_delivery_ok"] = 1
     finally:
         if own_client:
             await client.disconnect()
-        http.close()
+        if http is not None:
+            http.close()
 
     # Never leak private titles, IDs or invitation links in public Actions.
     public_rows.sort(key=lambda x:x["username"].casefold())
@@ -195,6 +232,11 @@ async def scan(client=None, public_export_path=None):
         "personal_broadcast_seen":counts["broadcast_seen"],
         "personal_admin":counts["personal_admin"],
         "confirmed_both_admins_and_encrypted":counts["verified_and_encrypted"],
+        "personal_admin_channels_excluding_torrent9":len(all_admin_rows),
+        "all_personal_admin_public":counts["all_public"],
+        "all_personal_admin_private":counts["all_private"],
+        "catalog_sent_to_saved_messages":bool(counts["catalog_delivery_ok"]),
+        "registry_available":bool(http is not None),
         "public_count":counts["public"],
         "private_count":counts["private"],
         "bot_not_admin":counts["bot_not_admin"],
