@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "enabled": false,
+  "enabled": true,
   "main": "@actufoot_mrxp",
-  "description": "Public channel usernames verified by Actu Foot registry discovery; switch enabled to true only after Bot API preflight succeeds.",
+  "description": "Ten public channels verified via Telegram Bot API getChat/getChatMember on 2026-11-22; V1 RSS router active. The main channel remains the source of confirmed publications.",
   "channels": {
     "flash": "@FootFlashActuFR",
     "mercato": "@MercatoFootInfosFR",
