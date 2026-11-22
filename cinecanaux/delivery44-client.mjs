@@ -9,7 +9,7 @@ async function signBody(privateDerBase64,time,body) {
  const signed=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,enc.encode(time+'.'+body));
  return Array.from(new Uint8Array(signed), x=>x.toString(16).padStart(2,'0')).join('');
 }
-export function delivery44Enabled(env){return env?.CINE_DELIVERY44_ENABLED==='1';}
+export function delivery44Enabled(env){return env?.CINE_DELIVERY44_ENABLED==='1' && typeof env?.CINE_DELIVERY44_PRIVATE_KEY === 'string' && env.CINE_DELIVERY44_PRIVATE_KEY.length > 100;}
 export async function remoteCopyMessage(env,requestId,payload){
  if(!/^(classic|library|franchise|series):[0-9]+(?::[0-9]+)?$/.test(String(requestId))||!env?.TELEGRAM_TOKEN||
    !env?.CINE_DELIVERY44_PRIVATE_KEY)return {ok:false,error_code:503,uncertain:true};
