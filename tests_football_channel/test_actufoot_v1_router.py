@@ -187,8 +187,9 @@ class Delivery(unittest.TestCase):
                                   self.item["link"])
         caption=send.call_args.args[4]
         self.assertIn("<b>",caption)
-        self.assertIn("<i>Catégorie :",caption)
-        self.assertIn("Source : Foot Mercato",caption)
+        self.assertIn("</b>\n\n<blockquote>",caption)
+        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie :",caption)
+        self.assertIn("📰 Source : Foot Mercato",caption)
         self.assertNotIn("https://",caption)
         self.assertIsNone(send.call_args.args[5])
 
