@@ -42,6 +42,7 @@ jobs:
           node --check cinecanaux/admin-recovery-ui.mjs
           node --check cinecanaux/cinex-classic.mjs
           node --check cinecanaux/cinex-expiry.mjs
+          node --check cinecanaux/private-copy-notice.mjs
           node --check cinecanaux/cinex-cleanup-coordinator.mjs
           node --check cinecanaux/trend-radar.mjs
           node --check cinecanaux/pinned-showcase.mjs
@@ -107,8 +108,8 @@ jobs:
       - name: Verify T02 safe recovery and no-double-send reconciliation
         run: node --test cinecanaux/tests/cinex-delivery-recovery.test.mjs
 
-      - name: Verify 24h CineX expiration and safety boundaries
-        run: node --test cinecanaux/tests/cinex-expiry.test.mjs cinecanaux/tests/cinex-classic.test.mjs cinecanaux/tests/cinex-operations-readonly.test.mjs
+      - name: Verify 12-hour CineX expiration and safety boundaries
+        run: node --test cinecanaux/tests/private-copy-notice.test.mjs cinecanaux/tests/cinex-expiry.test.mjs cinecanaux/tests/cinex-classic.test.mjs cinecanaux/tests/cinex-operations-readonly.test.mjs
       - name: Verify T03 real private deletions and cleanup heartbeat
         run: node --test cinecanaux/tests/cinex-cleanup-coordinator.test.mjs
 
