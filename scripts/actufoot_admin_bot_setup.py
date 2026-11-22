@@ -60,7 +60,7 @@ def clean_secret_candidates(environment):
     dedup = {}
     candidate_count = 0
     for name, value in environment.items():
-        if not name.endswith("_BOT_TOKEN"):
+        if not (name.endswith("_BOT_TOKEN") or re.fullmatch(r"TELEGRAM_REACTION_BOT_[0-9]{2}_TOKEN",name)):
             continue
         token = str(value or "").strip()
         if token:
