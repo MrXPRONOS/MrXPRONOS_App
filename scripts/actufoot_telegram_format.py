@@ -51,7 +51,7 @@ def news_markup(title: str, content: str, category: str, source: str) -> str:
     ])
 
 
-def editorial_markup(markup: str, *, source: str = "") -> str:
+def editorial_markup(markup: str, *, source: str = "", title_fallback: str = "") -> str:
     """Enrich existing main-channel templates without removing valid HTML.
 
     Already-quoted content is preserved. For plain templates, only the
@@ -61,6 +61,8 @@ def editorial_markup(markup: str, *, source: str = "") -> str:
     text = normalize_paragraphs(markup)
     if not text:
         return ""
+    if title_fallback and not _TITLE.match(text) and not text.lstrip().startswith(("<h2>", "<h3>")):
+        text = "<b>" + html.escape(title_fallback.strip(), quote=False) + "</b>\n\n" + text
     if "<blockquote" not in text.lower():
         match = _TITLE.match(text)
         if match:
