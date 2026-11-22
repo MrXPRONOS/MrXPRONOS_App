@@ -52,7 +52,8 @@ async def execute(*, apply=False, per_channel=2, history=4000):
         for category, public_name, original_id in category_targets():
             report = {"category": category, "existing_private_videos": 0,
                       "already_in_central": 0, "candidates": 0, "created": 0,
-                      "skipped": 0, "missing_poster": 0, "errors": 0}
+                      "skipped": 0, "missing_poster": 0,
+                      "legacy_cover_unverified": 0, "errors": 0}
             try:
                 public = await resolve_peer(client, public_name)
                 pid = utils.get_peer_id(public)
@@ -77,6 +78,8 @@ async def execute(*, apply=False, per_channel=2, history=4000):
                         continue
                     if int(document) in central.index:
                         report["already_in_central"] += 1
+                        if not central.verified_cover_for(document):
+                            report["legacy_cover_unverified"] += 1
                         continue
                     report["candidates"] += 1
                     poster = archive_cover_for_video(video, source_messages)
@@ -115,11 +118,11 @@ async def execute(*, apply=False, per_channel=2, history=4000):
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as f:
             f.write("\n### CinéX — Rattrapage vidéothèque centrale\n")
-            f.write("| Canal | Vidéos anciennes | Déjà présentes | Manquantes | Copiées | Erreurs |\n")
-            f.write("|---|---:|---:|---:|---:|---:|\n")
+            f.write("| Canal | Anciennes vidéos | Déjà présentes | Couvre non vérifiée | Sans affiche source | Copiées | Erreurs |\n")
+            f.write("|---|---:|---:|---:|---:|---:|---:|\n")
             for r in results:
                 f.write("| {category} | {existing_private_videos} | {already_in_central} | "
-                        "{candidates} | {created} | {errors} |\n".format(**r))
+                        "{legacy_cover_unverified} | {missing_poster} | {created} | {errors} |\n".format(**r))
     if any(r["errors"] for r in results):
         raise RuntimeError("Rattrapage central partiel : lire les diagnostics.")
     return results
