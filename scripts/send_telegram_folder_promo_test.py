@@ -48,7 +48,7 @@ def check():
         signature = img.read(32)
     if media == ANIMATION and b"ftyp" not in signature:
         raise ValueError("Le fichier doit être au format MP4")
-    if media == PHOTO and signature[:3] != b"\\xff\\xd8\\xff":
+    if media == PHOTO and signature[:3] != bytes.fromhex("ffd8ff"):
         raise ValueError("Le fichier doit être au format JPEG")
     if len(CAPTION) > 1024 or CAPTION.count("\n") != 3:
         raise ValueError("La légende doit être courte et compatible avec Telegram")
