@@ -69,6 +69,7 @@ from football_community_engine import (  # noqa: E402
     build_postmatch_reaction,
 )
 from generic_football_content import banner_caption, live_keyboard, compact_keyboard_rows  # noqa: E402
+from actufoot_telegram_format import editorial_markup  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -1408,6 +1409,17 @@ class Sender:
     ) -> int | None:
         resume = resume or {}
         phase = str(resume.get("delivery_phase") or "pending")
+        # Appliquer le format éditorial au point commun d'envoi de toutes les
+        # publications du canal principal, y compris les reprises outbox.
+        card_data = item.card if isinstance(item.card, dict) else {}
+        provider = str(card_data.get("source") or "").strip()
+        if provider.casefold() in {"", "source match", "données live", "source football"}:
+            provider = "Mr XPRONOS"
+        label = CATEGORY_LABELS.get(item.category) or ("⚽ " + str(item.category).replace("_", " ").upper())
+        if item.text:
+            item.text = editorial_markup(
+                item.text, source=provider, title_fallback=label
+            )
         if self.dry_run:
             print("DRY_RUN", item.category, item.key, plain(item.text, 900))
             if item.poll:
@@ -1876,12 +1888,9 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         site_url = str(article.get("site_url") or (
             "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=" + slug
         ))
-        visible_sources = {"Foot Mercato", "MadeInFoot", "RFI", "France 24", "Franceinfo"}
-        source_tail = ("\n\n<i>(" + esc(source) + ")</i>") if source in visible_sources else ""
         message = (
             "<b>" + emoji + " " + esc(title) + "</b>\n\n"
             + esc(summary)
-            + source_tail
         )
         keyboard_buttons = []
         verification = None
@@ -1939,7 +1948,9 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
         + esc(team(featured, "away")) + "</b>. Les 4 premières affiches seront suivies en fil rouge ; les autres restent à suivre.</i>\n\n"
         "<b>💬 Quel match attendez-vous le plus ?</b>"
     )
-    card = {"day": today.strftime("%d/%m/%Y"), "matches": [
+    card = {"day": today.strftime("%d/%m/%Y"),
+            "source": str(featured.get("source") or "Mr XPRONOS"),
+            "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
          "role": (

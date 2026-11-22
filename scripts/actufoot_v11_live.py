@@ -28,6 +28,7 @@ sys.path.insert(0, str(ROOT))
 from scripts import football_channel as football
 from scripts.actu_foot_independent import enrich_espn_fixtures, normalize_espn_summary
 from scripts.d1_publication_ledger import D1Ledger
+from scripts.actufoot_telegram_format import source_footer
 from scripts.football_match_lifecycle import (
     fetch_espn_day, fetch_espn_summary, parse_espn_summary_match,
     extract_goals, extract_cards, extract_substitutions, extract_shootout_kicks,
@@ -209,8 +210,7 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
         "fulltime": "🏁 RÉSULTAT FINAL", "recap": "📋 POINT SCORES",
     }.get(kind, "📊 FOOTBALL")
     lines = [
-        f"<b>{title}</b>",
-        f"⚽ {html.escape(str(row['home_team']))} — {html.escape(str(row['away_team']))}",
+        f"<b>⚽ {html.escape(str(row['home_team']))} — {html.escape(str(row['away_team']))}</b>",
         f"🔢 <b>{html.escape(str(state['score']))}</b>",
     ]
     if kind != "fulltime" and state.get("minute") and state["phase"] != "final":
@@ -231,8 +231,11 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
         lines.append("⏸ Mi-temps")
     elif state["phase"] == "final" and kind == "board":
         lines.append("🏁 Terminé")
-    lines.append("<i>Source : ESPN · Mr XPRONOS</i>")
-    return "\n".join(lines)
+    return "\n\n".join([
+        f"<b>{title}</b>",
+        "<blockquote>" + "\n".join(lines) + "</blockquote>",
+        source_footer("ESPN") + "\n<i>Mr XPRONOS</i>",
+    ])
 
 
 def derive_events(row: dict, info: dict, summary: dict,
@@ -518,10 +521,11 @@ def recap_message(selected: list[dict], now: datetime) -> str | None:
         )
     if not rows:
         return None
-    return "\n".join(
-        ["<b>📋 POINT SCORES — " + now.astimezone(TZ).strftime("%H:%M") + "</b>"]
-        + rows[:MAX_MATCHES] + ["<i>Source : ESPN · Mr XPRONOS</i>"]
-    )
+    return "\n\n".join([
+        "<b>📋 POINT SCORES — " + now.astimezone(TZ).strftime("%H:%M") + "</b>",
+        "<blockquote>" + "\n".join(rows[:MAX_MATCHES]) + "</blockquote>",
+        source_footer("ESPN") + "\n<i>Mr XPRONOS</i>",
+    ])
 
 
 def cycle(now: datetime, *, dry_run: bool = False,

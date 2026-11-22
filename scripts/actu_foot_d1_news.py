@@ -25,6 +25,7 @@ from PIL import Image, ImageOps
 from d1_publication_ledger import D1Ledger
 from telegram_rich import post_photo, post_text
 from football_rss_editor import prepare, EditorialHold
+from actufoot_telegram_format import news_markup, quote_excerpt, source_footer
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FILE = ROOT / "telegram_out" / "actu_foot_source_news.json"
@@ -59,6 +60,9 @@ def clean_visible_text(value):
     """Remove all visible URLs while keeping readable RSS/Markdown anchor labels."""
     text = html.unescape(str(value or ""))
     text = re.sub(r"(?is)<a\b[^>]*>(.*?)</a>", r"\1", text)
+    # Keep paragraph boundaries from RSS HTML before removing markup.
+    text = re.sub(r"(?is)</(?:p|div|li|h[1-6])\s*>", "\n\n", text)
+    text = re.sub(r"(?is)<br\s*/?>", "\n", text)
     text = re.sub(r"\[([^\]]+)\]\(\s*https?://[^)]+\)", r"\1", text)
     text = re.sub(r"(?i)(?:https?://|www\.)[^\s<>\]\)]+", "", text)
     text = re.sub(r"(?is)<[^>]*>", "", text)
@@ -137,15 +141,15 @@ def send_article(session, token, chat, item, image_path, link):
     photo is quarantined by the caller's D1 claim, never silently resent.
     """
     title, content, category, source = story_parts(item)
-    footer = "\n\n<i>Catégorie : " + html.escape(category) + "\nSource : " + html.escape(source) + "</i>"
+    footer = source_footer(source, category=category)
     headline = "<b>" + html.escape(title) + "</b>"
-    full = headline + "\n\n" + html.escape(content) + footer
+    full = news_markup(title, content, category, source)
 
     with TemporaryDirectory(prefix="actu-foot-d1-") as folder:
         dest = Path(folder) / "actu-foot.jpg"
         with Image.open(image_path) as raw:
             ImageOps.exif_transpose(raw).convert("RGB").save(dest, "JPEG", quality=89, optimize=True)
-        if len(title) + len(content) + len(category) + len(source) + 25 <= MAX_PHOTO_CAPTION_CHARS:
+        if len(full) <= MAX_PHOTO_CAPTION_CHARS:
             return post_photo(session, token, chat, dest, full, None, timeout=80, mime="image/jpeg")
 
         # In long posts the picture carries only the headline, not an
@@ -153,8 +157,8 @@ def send_article(session, token, chat, item, image_path, link):
         photo_id = post_photo(session, token, chat, dest, headline, None, timeout=80, mime="image/jpeg")
         chunks = list(_chunks(content, MAX_TEXT_CHARS - 200))
         for index, part in enumerate(chunks):
-            tail = footer if index == len(chunks) - 1 else ""
-            post_text(session, token, chat, html.escape(part) + tail,
+            tail = "\n\n" + footer if index == len(chunks) - 1 else ""
+            post_text(session, token, chat, quote_excerpt(part) + tail,
                       keyboard=None, timeout=60, html=True)
         return photo_id
 
