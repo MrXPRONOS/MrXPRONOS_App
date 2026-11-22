@@ -1,0 +1,59 @@
+name: CineX - Audit complet couverture nettoyage (sans suppression)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 20 * * *'
+  push:
+    branches: [main, 'fix/cinex-rotation-coverage-audit-20261122']
+    paths:
+      - 'telegram-film-relay/film_relay/rotation_coverage.py'
+      - 'telegram-film-relay/film_relay/ten_video_rotation.py'
+      - 'telegram-film-relay/tests/test_rotation_coverage.py'
+      - '.github/workflows/cinex-rotation-coverage-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: Analyser les canaux films/séries/animés y compris les absents
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            telegram-film-relay/film_relay/
+            telegram-film-relay/tests/test_rotation_coverage.py
+            telegram-film-relay/requirements.txt
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+      - name: Tester le classement sans accéder à Telegram ou Supabase
+        run: |
+          python -m compileall -q film_relay/rotation_coverage.py
+          python -m unittest discover -s tests -p 'test_rotation_coverage.py' -v
+      - name: Comparer l'inventaire sécurisé à toutes les destinations nettoyées
+        run: python -m film_relay.rotation_coverage
