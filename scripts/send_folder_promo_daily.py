@@ -25,6 +25,7 @@ import requests
 
 BASE = Path(__file__).resolve().parents[1]
 PHOTO = BASE / "assets/telegram/mrxpronos_f_folder_promo.jpg"
+ANIMATION = PHOTO.with_suffix(".mp4")
 BOT_ID = 8586885516
 BOT_USERNAME = "mrxpronos_canal_bot"
 URL = "https://t.me/addlist/ZmW4vfwcrMAwNzJk"
@@ -56,11 +57,13 @@ RECEIPTS = "telegram_channel_broadcast_receipts"
 
 
 def validate_static():
-    if not PHOTO.is_file() or PHOTO.stat().st_size < 1024:
-        raise RuntimeError("Affiche MR XPRONOS F absente.")
-    with PHOTO.open("rb") as f:
-        if f.read(3) != b"\xff\xd8\xff":
-            raise RuntimeError("Image JPEG attendue.")
+    if ANIMATION.is_file():
+        if ANIMATION.stat().st_size < 1024 or b"ftyp" not in ANIMATION.read_bytes()[:32]:
+            raise RuntimeError("Animation MP4 invalide.")
+    elif not PHOTO.is_file() or PHOTO.stat().st_size < 1024:
+        raise RuntimeError("Animation ou affiche MR XPRONOS F absente.")
+    elif PHOTO.read_bytes()[:3] != b"\\xff\\xd8\\xff":
+        raise RuntimeError("Image JPEG invalide.")
     if CAPTION.count("\n") != 3 or len(CAPTION) > 1024:
         raise RuntimeError("Légende Telegram invalide.")
     if len(EXCLUDED_ID_TO_HANDLE) != 4:
@@ -69,7 +72,8 @@ def validate_static():
     if button["style"] != "primary" or button["url"] != URL:
         raise RuntimeError("Bouton bleu/lien de dossier invalide.")
     print("DAILY_PROMO_STATIC_OK", "four_lines", "blue_button",
-          "file_size", PHOTO.stat().st_size, "exclusions", EXPECTED_EXCLUDED)
+          "media", "animation" if ANIMATION.is_file() else "photo_fallback",
+          "file_size", (ANIMATION if ANIMATION.is_file() else PHOTO).stat().st_size, "exclusions", EXPECTED_EXCLUDED)
 
 
 class Storage:
@@ -198,7 +202,8 @@ class Telegram:
                 resp = self.http.post(self.root + method, json=payload or {},
                                       timeout=(10, 25))
             else:
-                with PHOTO.open("rb") as img:
+                media = ANIMATION if ANIMATION.is_file() else PHOTO
+                with media.open("rb") as img:
                     resp = self.http.post(
                         self.root + method,
                         data={
@@ -208,7 +213,8 @@ class Telegram:
                             "reply_markup": json.dumps(KEYBOARD, ensure_ascii=False),
                             "protect_content": "false",
                         },
-                        files={"photo": (PHOTO.name, img, "image/jpeg")},
+                        files={("animation" if media == ANIMATION else "photo"): (
+                            media.name, img, "video/mp4" if media == ANIMATION else "image/jpeg")},
                         timeout=(10, 45),
                     )
             result = resp.json()
@@ -281,7 +287,7 @@ def run():
             print("ALREADY_PUBLISHED_OR_RESERVED", index)
             continue
         try:
-            msg = telegram.call("sendPhoto", photo_chat_id=chat_id)
+            msg = telegram.call("sendAnimation" if ANIMATION.is_file() else "sendPhoto", photo_chat_id=chat_id)
             msg_id = msg.get("message_id") if isinstance(msg, dict) else None
             if not isinstance(msg_id, int):
                 raise RuntimeError("telegram_missing_message_id")
