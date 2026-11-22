@@ -33,6 +33,17 @@ def live_info(state="in", minute=55, hs=1, aws=0, clock=None, period=2):
 
 
 class TestActuFootIndependent(unittest.TestCase):
+    def test_sender_formats_main_channel_title_quote_and_source(self):
+        sender = mod.channel.Sender(dry_run=True)
+        publication = mod.channel.Publication(
+            "goal", "format-test",
+            "🌟 <b>BUUUT !</b>\n\n<b>Arsenal 2–1 Chelsea</b>",
+            card={"source": "ESPN"},
+        )
+        sender.send(publication)
+        self.assertIn("<blockquote>", publication.text)
+        self.assertIn("</blockquote>\n\n<i>📰 Source : ESPN</i>", publication.text)
+
     def test_time_window(self):
         self.assertTrue(mod.within_programme_window(NOW))
         self.assertFalse(mod.within_programme_window(NOW.replace(hour=8)))
