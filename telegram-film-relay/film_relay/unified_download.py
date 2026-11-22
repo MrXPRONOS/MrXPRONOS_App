@@ -144,6 +144,14 @@ class UnifiedLibrary:
             existing = await self.client.get_messages(self.peer, ids=mid)
             if (is_video_message(existing)
                     and video_document_id(existing) == doc_id):
+                # A historical video-only receipt is not evidence of the
+                # required PHOTO+description then VIDEO pair. It can remain
+                # downloadable via an existing registry link, but new public
+                # poster registrations must not misrepresent it as complete.
+                if poster is not None and not self.verified_cover_for(doc_id):
+                    raise RuntimeError(
+                        "Vidéo centrale ancienne sans affiche adjacente vérifiée ; "
+                        "restauration manuelle nécessaire, aucun nouvel envoi.")
                 return registry.register(
                     private_channel=self.target_id, message_id=mid,
                     title=title, public_handle=handle)
