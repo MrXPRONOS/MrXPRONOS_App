@@ -32,7 +32,7 @@ function hexToBytes(hex) {
   return new Uint8Array((hex.match(/.{2}/g) || []).map(x => parseInt(x,16)));
 }
 export async function verifySignedBody(jwk, timestamp, hexSignature, body, now=Date.now()) {
-  if (!/^\\d{13}$/.test(String(timestamp)) || Math.abs(now-Number(timestamp)) > 60000) return false;
+  if (!/^\d{13}$/.test(String(timestamp)) || Math.abs(now-Number(timestamp)) > 60000) return false;
   const sig=hexToBytes(hexSignature);
   if (!sig) return false;
   try {
