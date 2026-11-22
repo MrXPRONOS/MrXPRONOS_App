@@ -75,7 +75,7 @@ GENRE_TERMS = {
     "comédie": ("comedie", "humour", "funny"),
     "romance": ("romance", "romantique", "romantiques", "amour", "desir"),
     "horreur": ("horreur", "horror", "epouvante"),
-    "thriller": ("thriller", "suspense"),
+    "thriller": ("thriller", "thrillers", "suspense"),
     "science-fiction": ("science fiction", "sciencefiction", "sci fi", "scifi"),
     "fantastique": ("fantastique", "fantasy"),
     "drame": ("drame", "drama"),
