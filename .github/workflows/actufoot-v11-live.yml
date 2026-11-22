@@ -48,6 +48,7 @@ jobs:
         run: |
           python -m py_compile scripts/actufoot_v11_live.py
           python -m unittest tests_football_channel.test_actufoot_v11_live -q
+          python -c "import sys; sys.path.insert(0, 'scripts'); from actufoot_v1_router import load_config, verify_channels; assert len(load_config()) == 10"
       - name: Verify all ten public channel destinations and bot rights
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
         env:
