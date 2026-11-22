@@ -82,6 +82,48 @@ def original_caption_with_text(poster, extra_text: str):
     return caption, True, False
 
 
+def public_keyboard_signature(poster):
+    """Read-only signature: a no-op preflight must never alter existing links."""
+    rows = []
+    for row in getattr(poster, "buttons", None) or ():
+        current = []
+        for item in row:
+            url = button_url(item)
+            raw = getattr(item, "button", item)
+            label = getattr(raw, "text", None)
+            if not isinstance(url, str) or not url.startswith("https://") or not label:
+                raise RuntimeError("Ancien bouton non-URL : contrôle manuel requis")
+            current.append((str(label), url))
+        if current:
+            rows.append(tuple(current))
+    return tuple(rows)
+
+
+async def preflight_original_editability(client, bot, public, original):
+    """Test the EXACT current keyboard before uploading a private archive.
+
+    Telegram's 'message is not modified' response counts as editable.
+    If a different bot authored the message, this fails before any copy.
+    The second read proves caption, photo and visible URL buttons unchanged.
+    """
+    live = await client.get_messages(public, ids=original.id)
+    if (not live or not getattr(live, "photo", None)
+            or live.id != original.id
+            or getattr(live.photo, "id", None) != getattr(original.photo, "id", None)
+            or str(getattr(live, "raw_text", "") or "") !=
+               str(getattr(original, "raw_text", "") or "")):
+        raise RuntimeError("Fiche historique changée ou inaccessible avant le contrôle.")
+    before = public_keyboard_signature(live)
+    await bot.edit_reply_markup(public, live.id, buttons=getattr(live, "buttons", None))
+    checked = await client.get_messages(public, ids=original.id)
+    if (not checked or checked.id != live.id or not getattr(checked, "photo", None)
+            or getattr(checked.photo, "id", None) != getattr(live.photo, "id", None)
+            or str(getattr(checked, "raw_text", "") or "") != str(getattr(live, "raw_text", "") or "")
+            or public_keyboard_signature(checked) != before):
+        raise RuntimeError("La fiche a changé pendant le contrôle ; archivage bloqué.")
+    return True
+
+
 async def edit_original_cover(client, bot, public, original, video,
                               *, buttons, private_video_url, extra_text=""):
     """Edit only the exact original photo and verify its ID and photo survived."""
