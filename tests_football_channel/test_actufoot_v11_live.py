@@ -111,6 +111,29 @@ class EventTests(unittest.TestCase):
             events = mod.derive_events(row(), row(minute=69), {}, old)
         self.assertTrue(any(e[0] == "red" and e[1] == "red:987654:rc1" for e in events))
 
+    def test_yellow_card_and_substitution_from_espn(self):
+        old = {"score": "1-0", "phase": "live", "minute": 65}
+        with patch.object(mod, "extract_cards", return_value=[
+            {"type": "yellow", "id": "yellow1", "minute": 66, "player": "A"}
+        ]):
+            with patch.object(mod, "extract_substitutions", return_value=[
+                {"id": "sub1", "minute": 67, "entrant": "B", "sortant": "C"}
+            ]):
+                events = mod.derive_events(row(), row(minute=70), {}, old)
+        kinds = {x[0] for x in events}
+        self.assertIn("yellow", kinds)
+        self.assertIn("substitution", kinds)
+
+    def test_shootout_kick_requires_explicit_result(self):
+        old = {"score": "1-1", "phase": "live", "minute": 118}
+        with patch.object(mod, "extract_shootout_kicks", return_value=[
+            {"id": "pen1", "minute": 120, "outcome": "made",
+             "player": "A", "team": "Chelsea"},
+            {"id": "pen2", "minute": 120, "outcome": "unknown"},
+        ]):
+            events = mod.derive_events(row(), row(minute=120), {}, old)
+        self.assertEqual([e[0] for e in events], ["shootout_made"])
+
     def test_scorecard_escapes_html(self):
         text = mod.event_lines(row(home_team="<b>Arsenal</b>"),
                                {"score": "1-0", "phase": "live", "minute": 30}, "board")
