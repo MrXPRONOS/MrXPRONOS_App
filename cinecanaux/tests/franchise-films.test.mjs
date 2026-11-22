@@ -144,7 +144,7 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
   assert.equal(accepted.planned,2);
   assert.equal((await handleFranchiseDownloadStart(env,userStart(90))).duplicate,true);
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_franchise_jobs").get().n,1);
-  db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
+  // No pre-video Telegram notice: quota storage is lazily created at the first copy.
   const output=await processFranchiseQueue(env);
   assert.equal(output.processed,2);
   assert.equal((await processFranchiseQueue(env)).processed,0);
