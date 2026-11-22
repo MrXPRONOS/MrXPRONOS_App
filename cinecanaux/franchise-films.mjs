@@ -1,9 +1,10 @@
 import {sourceFromPrivateStock} from './private-stock.mjs';
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
 import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
+import {copyExpiryCaption} from './private-copy-notice.mjs';
 // Fast & Furious VF: public-channel saga indexed by Telegram Bot API only.
 // Owner forwards create permanent receipts in their private CineRadar chat.
-// The subscriber receives only actually indexed films, each removed after 24h.
+// The subscriber receives only actually indexed films, each removed after 12h.
 // No user-account session, Telethon, bulk Telegram-history access or binary media.
 import {deletionDecision} from './cinex-expiry.mjs';
 
@@ -251,7 +252,7 @@ export async function handleFranchiseDownloadStart(env,update){
  ).bind(job.id,x.part,isId(x.owner_chat_id)&&isId(x.owner_message_id)?String(x.owner_chat_id):x.source_chat_id,
  isId(x.owner_chat_id)&&isId(x.owner_message_id)?Number(x.owner_message_id):x.source_message_id)));
  await notify(env,chat,'📥 Fast and Furious VF : '+media.length+' film(s) actuellement disponibles : '+
-  media.map(x=>x.part).join(', ')+'.\nEnvoi progressif en privé. Chaque copie envoyée par le bot sera supprimée après 24 h. Les films absents du catalogue ne sont pas promis.');
+  media.map(x=>x.part).join(', ')+'.\nEnvoi progressif en privé. Chaque copie envoyée par le bot sera supprimée après 12 h. Les films absents du catalogue ne sont pas promis.');
  return {handled:true,accepted:true,planned:media.length};
 }
 
@@ -266,7 +267,7 @@ export async function processFranchiseQueue(env,{limit=2}={}){
   "UPDATE cine_franchise_job_items SET state='needs_review' WHERE state='sending' AND job_id IN (SELECT id FROM cine_franchise_jobs WHERE status='needs_review')"
  ).run();
  const rows=(await env.DB.prepare(
-  "SELECT j.id,j.slug,j.telegram_chat_id,c.source_chat_id AS original_chat "+
+  "SELECT j.id,j.slug,j.telegram_chat_id,c.title AS franchise_title,c.source_chat_id AS original_chat "+
   "FROM cine_franchise_jobs j JOIN cine_franchise_catalog c ON c.slug=j.slug "+
   "WHERE j.status='queued' AND j.not_before<=CURRENT_TIMESTAMP AND c.rights_attested=1 "+
   "AND (c.status='published' OR (c.status='draft' AND EXISTS(SELECT 1 FROM admin_users a WHERE a.user_id=j.telegram_chat_id AND a.role='owner'))) "+
@@ -305,7 +306,7 @@ export async function processFranchiseQueue(env,{limit=2}={}){
    try{const stock=await sourceFromPrivateStock(env,item.source_chat_id,item.source_message_id);
     const payload={
     chat_id:job.telegram_chat_id,from_chat_id:stock.chatId,message_id:stock.messageId,
-    protect_content:false
+    protect_content:false,caption:copyExpiryCaption(String(job.franchise_title||'Saga')+' · Film '+item.part)
    };
    answer=delivery44Enabled(env)
     ? await remoteCopyMessage(env,'franchise:'+job.id+':'+item.part,payload)
@@ -330,7 +331,7 @@ export async function processFranchiseQueue(env,{limit=2}={}){
    await env.DB.batch([
     env.DB.prepare(
      "UPDATE cine_franchise_job_items SET state='sent',delivered_message_id=?,sent_at=CURRENT_TIMESTAMP,"+
-     "delete_after=datetime('now','+24 hours'),delete_retry_at=datetime('now','+24 hours') "+
+     "delete_after=datetime('now','+12 hours'),delete_retry_at=datetime('now','+12 hours') "+
      "WHERE job_id=? AND part=? AND state='sending'"
     ).bind(receipt,job.id,item.part),
     env.DB.prepare(
