@@ -57,7 +57,7 @@ test('download available episode plan accepts a lone current season, never promi
  assert.equal(availableSeriesPlan([]).ready,false);
 });
 
-test('CineRadar deep-link queues only indexed S3 episodes, delivers once and expires only 24h private copies',async()=>{
+test('CineRadar deep-link queues only indexed S3 episodes, delivers once and expires only 12h private copies',async()=>{
  const {db,env}=fixture();
  const oldFetch=globalThis.fetch;
  const calls=[];
@@ -99,10 +99,10 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
   for(const receipt of receipts){
    assert.ok(receipt.sent_at);
    assert.ok(receipt.delete_after);
-   assert.ok(Math.abs(Date.parse(receipt.delete_after.replace(' ','T')+'Z')-Date.parse(receipt.sent_at.replace(' ','T')+'Z')-24*3600_000)<1000);
+   assert.ok(Math.abs(Date.parse(receipt.delete_after.replace(' ','T')+'Z')-Date.parse(receipt.sent_at.replace(' ','T')+'Z')-12*3600_000)<1000);
   }
-  // Emulate expiry after 25h without waiting or sending any external Telegram call.
-  db.exec("UPDATE cine_series_job_items SET sent_at=datetime('now','-25 hours'), delete_after=datetime('now','-1 hour'), delete_retry_at=datetime('now','-1 hour')");
+  // Emulate expiry after 13h without waiting or sending any external Telegram call.
+  db.exec("UPDATE cine_series_job_items SET sent_at=datetime('now','-13 hours'), delete_after=datetime('now','-1 hour'), delete_retry_at=datetime('now','-1 hour')");
   const expired=await cleanupSeriesCopies(env);
   assert.equal(expired.deleted,2);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM cine_series_job_items WHERE delete_state='deleted'").get().n,2);
