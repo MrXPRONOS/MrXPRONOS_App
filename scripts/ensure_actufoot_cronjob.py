@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Configure trois cadences Actu Foot sur cron-job.org.
+"""Configure quatre cadences Actu Foot sur cron-job.org.
 
-Trois tâches assurent les cadences Actu Foot :
+Quatre tâches assurent les cadences Actu Foot :
 - full : toutes les 5 minutes, flux autonome du canal principal;
 - lifecycle : toutes les 2 minutes, cycle LIVE léger;
-- update-footnews : à H:09 et H:39, RSS vers les 10 canaux V1.
-Les trois tournent 24h/24 en timezone Africa/Lome.
+- update-footnews : à H:09 et H:39, RSS vers les 10 canaux V1;
+- V1.1 LIVE : à H:01, 06, 11...56, scores et événements vérifiés.
+Les quatre tournent 24h/24 en timezone Africa/Lome.
 """
 import json
 import os
@@ -176,6 +177,80 @@ results = [
     ensure(FULL_TITLE, list(range(0, 60, 5)), "full", "cron-job.org"),
     ensure(LIFECYCLE_TITLE, list(range(0, 60, 2)), "lifecycle", "cron-job.org-lifecycle"),
 ]
+
+# V1.1 : flux score et événements LIVE indépendant, toutes les 5 minutes.
+# Un unique job ciblé, jamais le workflow LIVE des paris/pronostics.
+V11_WF = "actufoot-v11-live.yml"
+V11_TITLE = "Mr XPRONOS – Actu Foot V1.1 Scores LIVE"
+V11_URL = (
+    "https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/actions/workflows/"
+    + V11_WF + "/dispatches"
+)
+v11_matches = [
+    job for job in listing.get("jobs", [])
+    if wf_from_url(job.get("url")) == V11_WF
+]
+v11_unknown = [job for job in v11_matches if job.get("title") != V11_TITLE]
+if v11_unknown:
+    raise SystemExit(
+        "SECURITE: tâche V1.1 LIVE inconnue, revue manuelle nécessaire: "
+        + ", ".join(str(j.get("jobId")) for j in v11_unknown)
+    )
+if len(v11_matches) > 1:
+    raise SystemExit("SECURITE: plusieurs tâches V1.1 LIVE")
+
+v11_minutes = list(range(1, 60, 5))
+v11_definition = {
+    "enabled": True,
+    "title": V11_TITLE,
+    "saveResponses": False,
+    "url": V11_URL,
+    "requestTimeout": 60,
+    "redirectSuccess": False,
+    "schedule": schedule(v11_minutes),
+    "requestMethod": 1,
+    "extendedData": {
+        "headers": source_headers,
+        "body": json.dumps(
+            {"ref": "main", "inputs": {"dry_run": False}},
+            separators=(",", ":"),
+        ),
+    },
+}
+if v11_matches:
+    v11_job_id = v11_matches[0]["jobId"]
+    req("PATCH", f"/jobs/{v11_job_id}", {"job": v11_definition})
+    v11_action = "updated"
+else:
+    created = req("PUT", "/jobs", {"job": v11_definition})
+    v11_job_id = created["jobId"]
+    v11_action = "created"
+
+v11_details = req("GET", f"/jobs/{v11_job_id}").get("jobDetails", {})
+v11_actual_schedule = v11_details.get("schedule") or {}
+v11_extended = v11_details.get("extendedData") or {}
+try:
+    v11_body = json.loads(v11_extended.get("body") or "")
+except (TypeError, ValueError) as exc:
+    raise RuntimeError("Corps GitHub V1.1 invalide") from exc
+
+assert v11_details.get("enabled") is True
+assert v11_details.get("requestMethod") == 1
+assert wf_from_url(v11_details.get("url")) == V11_WF
+assert v11_actual_schedule.get("timezone") == "Africa/Lome"
+assert v11_actual_schedule.get("minutes") == v11_minutes
+assert v11_actual_schedule.get("hours") == list(range(24))
+assert v11_body == {"ref": "main", "inputs": {"dry_run": False}}
+results.append({
+    "action": v11_action,
+    "jobId": v11_job_id,
+    "title": V11_TITLE,
+    "enabled": True,
+    "targetWorkflow": V11_WF,
+    "schedule": v11_actual_schedule,
+    "nextExecution": v11_details.get("nextExecution"),
+})
+
 
 # V1 multicanal : football-production/full ne lance PAS le routeur RSS.
 # Il faut garder update-footnews.yml actif sur cron-job.org, en complément de
