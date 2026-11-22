@@ -9,8 +9,8 @@ test('only explicit success or confirmed missing messages mark cleanup complete'
  assert.equal(deletionDecision({ok:false,error_code:400,description:'Bad Request: message to delete not found'},{sentAt:prior(25),now:now.getTime()}).state,'already_gone');
  assert.equal(deletionDecision({ok:false,error_code:400,description:"message can\'t be deleted"},{sentAt:prior(25),now:now.getTime()}).state,'manual_review');
 });
-test('not before 24 hours, 48h safety deadline and retry budget',()=>{
- assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(23),now:now.getTime()}).state,'retry');
+test('not before 12 hours, 48h safety deadline and retry budget',()=>{
+ assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(11),now:now.getTime()}).state,'retry');
  assert.equal(deletionDecision({ok:true,result:true},{sentAt:prior(47.2),now:now.getTime()}).state,'manual_review');
  assert.equal(deletionDecision({networkError:true},{sentAt:prior(25),now:now.getTime(),attempt:30}).state,'manual_review');
  const r=deletionDecision({ok:false,error_code:429,parameters:{retry_after:300}},{sentAt:prior(25),now:now.getTime(),attempt:1});
