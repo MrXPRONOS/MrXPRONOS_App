@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from film_relay.original_poster_edit import (
     edit_original_cover, safe_buttons, original_caption_with_text,
+    preflight_original_editability,
 )
 from film_relay.legacy_archive_repair import original_public_poster_verified
 from film_relay.ten_video_rotation import verify_existing_pair
@@ -49,6 +50,30 @@ class FakeClient:
 
 
 class OriginalCoverEditTests(unittest.TestCase):
+    def test_no_op_edit_preflight_keeps_photo_text_and_buttons(self):
+        original = message(99, "Film historique", photo=205, buttons=[
+            [NS(text="Voir", url="https://t.me/c/4392607284/17")]])
+        client, bot = FakeClient(original), FakeBot(FakeClient(original))
+        bot.client = client
+        result = asyncio.run(preflight_original_editability(client, bot, "public", original))
+        self.assertTrue(result)
+        self.assertEqual(bot.calls, [("edit_reply_markup", 99)])
+        self.assertEqual(original.photo.id, 205)
+        self.assertEqual(original.raw_text, "Film historique")
+        self.assertEqual(original.buttons[0][0].url, "https://t.me/c/4392607284/17")
+
+    def test_uneditable_historic_poster_fails_before_any_private_copy(self):
+        original = message(101, "Ancien film", photo=333)
+        client = FakeClient(original)
+        class RejectBot(FakeBot):
+            async def edit_reply_markup(self, channel, message_id, *, buttons):
+                raise RuntimeError("message can't be edited")
+        bot = RejectBot(client)
+        with self.assertRaisesRegex(RuntimeError, "can't be edited"):
+            asyncio.run(preflight_original_editability(client, bot, "public", original))
+        self.assertEqual(original.photo.id, 333)
+        self.assertEqual(original.raw_text, "Ancien film")
+
     def test_same_photo_same_message_same_caption_only_buttons_added(self):
         source = message(401, "🎬 Le Grand Film\nSynopsis original", photo=555,
                          buttons=[[NS(text="📢 Actualités", url="https://t.me/CineXFilms_vf")]])
