@@ -22,6 +22,7 @@ import {bindPrimaryRadarChannels,notifyOwnerMissingRadarTitles} from "./radar-ow
 import {auditCineRadarLibraryMembership} from "./delivery-catalog.mjs";
 import {handleDeliveryStart,handleSaveHelp,processDeliveryQueue} from "./cinex-delivery.mjs";
 import {handleClassicDeliveryStart,processClassicDeliveryQueue} from "./cinex-classic.mjs";
+import {runDelivery44SmokeOnce} from "./delivery44-smoke.mjs";
 import {runCopyExpirySweep} from "./cinex-cleanup-coordinator.mjs";
 import {allowPublicEvent,publicRateLimited,purgeOldPublicEventBuckets} from "./public-event-limiter.mjs";
 import {pruneFinalizedCineReceipts} from "./receipt-retention.mjs";
@@ -498,6 +499,8 @@ export default {
    }
   })().catch(e=>console.warn("broadcast_schedule_failed",String(e?.name||"error"))));
   if(controller.cron==="* * * * *"){
+   // Explicit one-off owner smoke test (D1 flag); never scheduled to a subscriber.
+   ctx.waitUntil(runDelivery44SmokeOnce(env).catch(e=>console.warn("cine_delivery44_smoke_failed",String(e?.name||"error"))));
    ctx.waitUntil(processDeliveryQueue(env).catch(e=>console.warn("cinex_delivery_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processClassicDeliveryQueue(env).catch(e=>console.warn("cinex_classic_queue_failed",String(e?.name||"error"))));
    ctx.waitUntil(processSeriesQueue(env).catch(e=>console.warn("cinex_series_queue_failed",String(e?.name||"error"))));

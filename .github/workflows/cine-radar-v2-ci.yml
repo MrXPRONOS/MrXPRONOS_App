@@ -28,6 +28,8 @@ jobs:
       - name: Validate syntax
         run: |
           node --check cinecanaux/worker.mjs
+          node --check cinecanaux/delivery44-client.mjs
+          node --check cinecanaux/delivery44-smoke.mjs
           node --check cinecanaux/channel-reactions.mjs
           node --check cinecanaux/channel-reaction-observer.mjs
           node --check cinecanaux/telegram-global-quota.mjs
@@ -96,6 +98,9 @@ jobs:
 
       - name: Verify read-only CineX catalog and bot membership
         run: node --test cinecanaux/tests/delivery-catalog.test.mjs
+
+      - name: Verify live bridge probe is always one-shot and opt-in
+        run: node --test cinecanaux/tests/delivery44-smoke.test.mjs
 
       - name: Verify CinéX guarded deliveries and share help
         run: node --test cinecanaux/tests/cinex-delivery.test.mjs
