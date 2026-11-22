@@ -125,7 +125,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -165,27 +165,30 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50554950",
-      "url": "https://www.espn.com/video/clip/_/id/50554950/bellingham-espi-rescue-real-madrid-mbappe-missed-penalty",
-      "published": "2026-11-21T22:42:56Z",
-      "score": 0.214,
+      "article_id": "50555627",
+      "url": "https://www.espn.com/soccer/story/_/id/50555627/real-madrid-carlos-espi-celta-vigo-rafael-nadal",
+      "published": "2026-11-22T00:06:03Z",
+      "score": 0.333,
       "matched_terms": [
+        "carlos",
         "espi",
         "madrid",
+        "nadal",
         "real"
       ],
       "topics": [],
       "teams": [
-        "Celta Vigo",
         "Real Madrid"
       ],
-      "athletes": [],
+      "athletes": [
+        "Carlos Espí"
+      ],
       "leagues": [
         "Soccer",
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -489,7 +492,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -584,7 +587,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -611,40 +614,6 @@
     "published": "2026-11-21T18:59:00+00:00",
     "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010113/411319/1200-L-lille-ol-lens-monaco-les-compos-du-multiplex-de-la-11e-journe-de-ligue-1.jpg",
     "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010113/411319/1200-L-lille-ol-lens-monaco-les-compos-du-multiplex-de-la-11e-journe-de-ligue-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "b9e3ec8cf1d89d05",
-    "title": "Nice-PSG : « On aurait pu accrocher le match nul », Morgan Sanson frustré malgré la réaction niçoise",
-    "summary": "Entré en seconde période, Morgan Sanson a apprécié la réaction de l'OGC Nice, même s'il regrette que les Aiglons n'aient pas réussi à revenir au score.",
-    "summary_short": "Entré en seconde période, Morgan Sanson a apprécié la réaction de l'OGC Nice, même s'il regrette que les Aiglons n'aient pas réussi à revenir au score.",
-    "content": "Entré en seconde période, Morgan Sanson a apprécié la réaction de l'OGC Nice, même s'il regrette que les Aiglons n'aient pas réussi à revenir au score.",
-    "paragraphs": [
-      "Entré en seconde période, Morgan Sanson a apprécié la réaction de l'OGC Nice, même s'il regrette que les Aiglons n'aient pas réussi à revenir au score."
-    ],
-    "key_points": [
-      "Entré en seconde période, Morgan Sanson a apprécié la réaction de l'OGC Nice, même s'il regrette que les Aiglons n'aient pas réussi à revenir au score."
-    ],
-    "telegram_summary": "Entré en seconde période, Morgan Sanson a apprécié la réaction de l'OGC Nice, même s'il regrette que les Aiglons n'aient pas réussi à revenir au score.",
-    "link": "https://www.onzemondial.com/ligue-1/nice-psg-on-aurait-pu-accrocher-le-match-nul-morgan-sanson-frustre-malgre-la-reaction-nicoise-1010497",
-    "source_url": "https://www.onzemondial.com/ligue-1/nice-psg-on-aurait-pu-accrocher-le-match-nul-morgan-sanson-frustre-malgre-la-reaction-nicoise-1010497",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b9e3ec8cf1d89d05",
-    "published": "2026-11-21T18:45:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010497/411415/1200-L-nice-psg-on-aurait-pu-accrocher-le-match-nul-morgan-sanson-frustr-malgr-la-raction-nioise.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010497/411415/1200-L-nice-psg-on-aurait-pu-accrocher-le-match-nul-morgan-sanson-frustr-malgr-la-raction-nioise.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Onze Mondial",
@@ -784,7 +753,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -999,6 +968,75 @@
     "quality_score": 82
   },
   {
+    "slug": "914949e759859542",
+    "title": "I wish referee had opportunity to see 'handball' again - Hart",
+    "summary": "Match of the Day pundits Joe Hart and Alan Shearer disagree with Morgan Rogers being penalised for handball, as the Chelsea forward \"didn't make himself bigger\" with the use of his arms in his side's 4-1 defeat to Leeds United in the Premier League.",
+    "summary_short": "Match of the Day pundits Joe Hart and Alan Shearer disagree with Morgan Rogers being penalised for handball, as the Chelsea forward \"didn't make himself bigger\" with the use of his arms in his side's 4-1 defeat to Leeds United in the Premier League.",
+    "content": "Match of the Day pundits Joe Hart and Alan Shearer disagree with Morgan Rogers being penalised for handball, as the Chelsea forward \"didn't make himself bigger\" with the use of his arms in his side's 4-1 defeat to Leeds United in the Premier League.",
+    "paragraphs": [
+      "Match of the Day pundits Joe Hart and Alan Shearer disagree with Morgan Rogers being penalised for handball, as the Chelsea forward \"didn't make himself bigger\" with the use of his arms in his side's 4-1 defeat to Leeds United in the Premier League."
+    ],
+    "key_points": [
+      "Match of the Day pundits Joe Hart and Alan Shearer disagree with Morgan Rogers being penalised for handball, as the Chelsea forward \"didn't make himself bigger\" with the use of his arms in his side's 4-1 defeat to Leeds United in the Premier League."
+    ],
+    "telegram_summary": "Match of the Day pundits Joe Hart and Alan Shearer disagree with Morgan Rogers being penalised for handball, as the Chelsea forward \"didn't make himself bigger\" with the use of his arms in his side's 4-1 defeat to Leeds United in the Premier League.",
+    "link": "https://www.bbc.co.uk/sport/football/videos/cme3dvk1kzgqo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/videos/cme3dvk1kzgqo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=914949e759859542",
+    "published": "2026-11-22T00:08:13+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/2b7c/live/99f4c5e0-e600-11f1-a094-5fdc692f3e33.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/2b7c/live/99f4c5e0-e600-11f1-a094-5fdc692f3e33.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "fd4bb47c083c6744",
+    "title": "Première Ligue : Les Marseillaises freinées par Toulouse, le PSG s’en sort face à Saint-Malo, Nantes confirme son regain d’énergie en s’imposant largement sur la pelouse du Havre",
+    "summary": "La lutte pour la quatrième place se resserre. Alors qu’une nouvelle trêve internationale s’approche, il s’agissait de la journée des…",
+    "summary_short": "La lutte pour la quatrième place se resserre. Alors qu’une nouvelle trêve internationale s’approche, il s’agissait de la journée des…",
+    "content": "La lutte pour la quatrième place se resserre. Alors qu’une nouvelle trêve internationale s’approche, il s’agissait de la journée des…",
+    "paragraphs": [
+      "La lutte pour la quatrième place se resserre. Alors qu’une nouvelle trêve internationale s’approche, il s’agissait de la journée des…"
+    ],
+    "key_points": [
+      "La lutte pour la quatrième place se resserre.",
+      "Alors qu’une nouvelle trêve internationale s’approche, il s’agissait de la journée des…"
+    ],
+    "telegram_summary": "La lutte pour la quatrième place se resserre. Alors qu’une nouvelle trêve internationale s’approche, il s’agissait de la journée des…",
+    "link": "https://www.sofoot.com/breves/premiere-ligue-les-marseillaises-freinees-par-toulouse-le-psg-sen-sort-face-a-saint-malo-nantes-confirme-son-regain-denergie-en-simposant-largement-sur-la-pelouse-du-havre",
+    "source_url": "https://www.sofoot.com/breves/premiere-ligue-les-marseillaises-freinees-par-toulouse-le-psg-sen-sort-face-a-saint-malo-nantes-confirme-son-regain-denergie-en-simposant-largement-sur-la-pelouse-du-havre",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fd4bb47c083c6744",
+    "published": "2026-11-21T23:17:26+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22001631/15361231.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22001631/15361231.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "16ffdf7d87c01574",
     "title": "Real Madrid : la grande annonce inattendue de Mourinho sur Vinicius",
     "summary": "Suite à la victoire du Real Madrid en Liga contre le Celta de Vigo (2-1), José Mourinho a mis fin au suspense concernant la titularisation de Vinicius pour le prochain rendez-vous européen des (…)",
@@ -1053,13 +1091,47 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
+  },
+  {
+    "slug": "6388b0666600f66b",
+    "title": "Bundesliga : le Bayern tombe du trône avant d'aller à Lille",
+    "summary": "Le club bavarois a perdu la tête de la Bundesliga puisque Dortmund est désormais seul leader.",
+    "summary_short": "Le club bavarois a perdu la tête de la Bundesliga puisque Dortmund est désormais seul leader.",
+    "content": "Le club bavarois a perdu la tête de la Bundesliga puisque Dortmund est désormais seul leader.",
+    "paragraphs": [
+      "Le club bavarois a perdu la tête de la Bundesliga puisque Dortmund est désormais seul leader."
+    ],
+    "key_points": [
+      "Le club bavarois a perdu la tête de la Bundesliga puisque Dortmund est désormais seul leader."
+    ],
+    "telegram_summary": "Le club bavarois a perdu la tête de la Bundesliga puisque Dortmund est désormais seul leader.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/bundesliga-le-bayern-tombe-du-trone-avant-daller-a-lille-1010502",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/bundesliga-le-bayern-tombe-du-trone-avant-daller-a-lille-1010502",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6388b0666600f66b",
+    "published": "2026-11-21T23:04:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010502/411417/1200-L-bundesliga-le-bayern-tombe-du-trne-avant-d-aller-lille.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010502/411417/1200-L-bundesliga-le-bayern-tombe-du-trne-avant-d-aller-lille.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "7874c929f4568559",
@@ -1152,7 +1224,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1247,7 +1319,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1477,7 +1549,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1543,7 +1615,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1554,23 +1626,22 @@
   {
     "slug": "9d13d8b45bb81d7a",
     "title": "PSG : Rupture du ligament croisé pour Désiré Doué après sa sortie sur blessure à Nice ?",
-    "summary": "La terrible nouvelle ne fait plus guère de doutes. Alors que le PSG et tous ses supporters retiennent leur souffle…",
-    "summary_short": "La terrible nouvelle ne fait plus guère de doutes. Alors que le PSG et tous ses supporters retiennent leur souffle…",
-    "content": "La terrible nouvelle ne fait plus guère de doutes. Alors que le PSG et tous ses supporters retiennent leur souffle…",
+    "summary": "Terrible nouvelle pour le Français et le PSG.",
+    "summary_short": "Terrible nouvelle pour le Français et le PSG.",
+    "content": "Terrible nouvelle pour le Français et le PSG.",
     "paragraphs": [
-      "La terrible nouvelle ne fait plus guère de doutes. Alors que le PSG et tous ses supporters retiennent leur souffle…"
+      "Terrible nouvelle pour le Français et le PSG."
     ],
     "key_points": [
-      "La terrible nouvelle ne fait plus guère de doutes.",
-      "Alors que le PSG et tous ses supporters retiennent leur souffle…"
+      "Terrible nouvelle pour le Français et le PSG."
     ],
-    "telegram_summary": "La terrible nouvelle ne fait plus guère de doutes. Alors que le PSG et tous ses supporters retiennent leur souffle…",
+    "telegram_summary": "Terrible nouvelle pour le Français et le PSG.",
     "link": "https://www.sofoot.com/breves/psg-rupture-du-ligament-croise-pour-desire-doue-apres-sa-sortie-sur-blessure-a-nice",
     "source_url": "https://www.sofoot.com/breves/psg-rupture-du-ligament-croise-pour-desire-doue-apres-sa-sortie-sur-blessure-a-nice",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9d13d8b45bb81d7a",
     "published": "2026-11-21T22:09:08+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/21230053/15355131.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/21230053/15355131.jpg",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22001001/15354012.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22001001/15354012.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "So Foot",
@@ -1605,7 +1676,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1672,7 +1743,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2328,7 +2399,7 @@
       "source": "ESPN News API",
       "article_id": "50552162",
       "url": "https://www.espn.com/soccer/story/_/id/50552162/david-raya-injured-arsenal-newcastle-premier-league",
-      "published": "2026-11-21T22:09:22Z",
+      "published": "2026-11-21T23:34:40Z",
       "score": 0.231,
       "matched_terms": [
         "arsenal",
@@ -2351,112 +2422,12 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
+      "checked_at": "2026-11-22T03:05:25.106674+00:00"
     },
     "quality_sources": [
       "BBC Sport",
       "ESPN"
     ],
     "quality_score": 93
-  },
-  {
-    "slug": "b5b34f5840f8382b",
-    "title": "Bayern Munich, Équipe de France : la blessure de Michael Olise est connue",
-    "summary": "Le Bayern était dans l’attente mais peut désormais souffler, au moins pour Michael Olise. Après avoir perdu son Français et Harry Kane sur blessure hier soir face à Cologne (1-1), les nouvelles sont (…)",
-    "summary_short": "Le Bayern était dans l’attente mais peut désormais souffler, au moins pour Michael Olise. Après avoir perdu son Français et Harry Kane sur blessure hier soir face à Cologne (1-1), les nouvelles sont (…)",
-    "content": "Le Bayern était dans l’attente mais peut désormais souffler, au moins pour Michael Olise. Après avoir perdu son Français et Harry Kane sur blessure hier soir face à Cologne (1-1), les nouvelles sont (…)",
-    "paragraphs": [
-      "Le Bayern était dans l’attente mais peut désormais souffler, au moins pour Michael Olise. Après avoir perdu son Français et Harry Kane sur blessure hier soir face à Cologne (1-1), les nouvelles sont (…)"
-    ],
-    "key_points": [
-      "Le Bayern était dans l’attente mais peut désormais souffler, au moins pour Michael Olise.",
-      "Après avoir perdu son Français et Harry Kane sur blessure hier soir face à Cologne (1-1), les nouvelles sont (…)"
-    ],
-    "telegram_summary": "Le Bayern était dans l’attente mais peut désormais souffler, au moins pour Michael Olise. Après avoir perdu son Français et Harry Kane sur blessure hier soir face à Cologne (1-1), les nouvelles sont (…)",
-    "link": "https://www.footmercato.net/a7686086007284893221-bayern-munich-equipe-de-france-la-blessure-de-michael-olise-est-connue",
-    "source_url": "https://www.footmercato.net/a7686086007284893221-bayern-munich-equipe-de-france-la-blessure-de-michael-olise-est-connue",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b5b34f5840f8382b",
-    "published": "2026-11-21T21:09:16+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/michael-olise-2627-6b0142cbc770f.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/michael-olise-2627-6b0142cbc770f.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50469742",
-      "url": "https://www.espn.com/soccer/story/_/id/50469742/transfer-rumors-news-man-united-balogun-freeman-pochettino",
-      "published": "2026-11-20T15:52:40Z",
-      "score": 0.308,
-      "matched_terms": [
-        "bayern",
-        "michael",
-        "munich",
-        "olise"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "Bayern Munich",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Michael Olise"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-21T23:07:04.568655+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "6059cdb4820e6768",
-    "title": "PSG : \"Il reviendra encore plus fort\", le mots de Luis Enrique après la grave blessure de Doué",
-    "summary": "Le coach espagnol est revenu en zone mixte sur la victoire de son équipe mais également sur la grave blessure de Désiré Doué.",
-    "summary_short": "Le coach espagnol est revenu en zone mixte sur la victoire de son équipe mais également sur la grave blessure de Désiré Doué.",
-    "content": "Le coach espagnol est revenu en zone mixte sur la victoire de son équipe mais également sur la grave blessure de Désiré Doué.",
-    "paragraphs": [
-      "Le coach espagnol est revenu en zone mixte sur la victoire de son équipe mais également sur la grave blessure de Désiré Doué."
-    ],
-    "key_points": [
-      "Le coach espagnol est revenu en zone mixte sur la victoire de son équipe mais également sur la grave blessure de Désiré Doué."
-    ],
-    "telegram_summary": "Le coach espagnol est revenu en zone mixte sur la victoire de son équipe mais également sur la grave blessure de Désiré Doué.",
-    "link": "https://www.onzemondial.com/ligue-1/psg-il-reviendra-encore-plus-fort-le-mots-de-luis-enrique-apres-la-grave-blessure-de-doue-2-1010509",
-    "source_url": "https://www.onzemondial.com/ligue-1/psg-il-reviendra-encore-plus-fort-le-mots-de-luis-enrique-apres-la-grave-blessure-de-doue-2-1010509",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6059cdb4820e6768",
-    "published": "2026-11-21T21:01:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010509/411419/1200-L-psg-il-reviendra-encore-plus-fort-le-mots-de-luis-enrique-aprs-la-grave-blessure-de-dou.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010509/411419/1200-L-psg-il-reviendra-encore-plus-fort-le-mots-de-luis-enrique-aprs-la-grave-blessure-de-dou.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
