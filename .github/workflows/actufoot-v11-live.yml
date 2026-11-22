@@ -1,7 +1,7 @@
 name: Actu Foot V1.1 - scores & evenements LIVE
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '3,18,33,48 * * * *' # secours 15 min, cron-job.org primaire 5 min
   workflow_dispatch:
     inputs:
       dry_run:
