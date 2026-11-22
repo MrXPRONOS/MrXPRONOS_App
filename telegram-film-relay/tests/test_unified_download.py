@@ -218,6 +218,24 @@ class CentralLibraryTests(unittest.TestCase):
         self.assertIsNone(archive_cover_for_video(video, [video, unrelated]))
         self.assertIsNone(archive_cover_for_video(video, [video]))
 
+    def test_existing_video_without_central_poster_cannot_be_used_as_complete_new_archive(self):
+        client = DummyClient(rows=[media(25, 555)])
+        client.current_doc = 555
+        registry = DummyRegistry()
+        lib = UnifiedLibrary(client, env={
+            "CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)
+        }, registry=registry)
+        real_cover=NS(photo=object(), noforwards=False,
+                      media=NS(is_poster=True), raw_text="Film vérifié")
+        with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+              patch("telethon.utils.get_peer_id", side_effect=lambda peer: peer.id)):
+            with self.assertRaisesRegex(RuntimeError, "sans affiche adjacente"):
+                asyncio.run(lib.store(media(1, 555), category="films",
+                    title="Film vérifié", poster=real_cover,
+                    public=NS(id=-1001234567890, username="CineXFilms_vf")))
+        self.assertEqual(client.sent, [])
+        self.assertEqual(registry.calls, [])
+
     def test_existing_document_is_reused_without_second_upload(self):
         client = DummyClient(rows=[media(25, 555)])
         library = UnifiedLibrary(client, env={"CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)}, registry=DummyRegistry())
