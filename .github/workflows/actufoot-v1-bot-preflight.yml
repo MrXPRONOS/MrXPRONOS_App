@@ -1,4 +1,4 @@
-name: Actu Foot V1 - verify 11 Telegram channel destinations (bot only)
+name: Actu Foot V1 - verify 10 Telegram channel destinations (bot only)
 on:
   push:
     branches: [main]
