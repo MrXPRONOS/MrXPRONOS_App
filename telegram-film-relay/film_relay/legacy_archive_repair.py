@@ -255,7 +255,7 @@ async def repair_channel(client, bot, category: str, public, private,
         "public_already_linked": 0,
         "public_edited": 0, "public_edit_failed": 0,
         "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0,
-        "private_pair_unverified": 0, "preflight_failed": 0,
+        "private_pair_unverified": 0, "central_cover_unverified": 0, "preflight_failed": 0,
         "preflight_budget_exhausted": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
@@ -332,6 +332,17 @@ async def repair_channel(client, bot, category: str, public, private,
             LOG.info("[SIMULATION] %s old video #%s -> poster #%s (%s)",
                      category, video.id, poster.id, identity)
             continue
+        # If this exact document was previously uploaded in the central
+        # Telegram stock without an adjacent real cover, stop BEFORE making
+        # any new private video/cover copy that could become orphaned.
+        if unified is not None and unified.target_id is not None:
+            await unified.prepare(public=public)
+            doc=video_document_id(video)
+            if doc and int(doc) in unified.index and not unified.verified_cover_for(doc):
+                report["central_cover_unverified"] += 1
+                LOG.warning("%s : stock central existant sans affiche vérifiée ; "
+                            "aucune nouvelle archive du document", category)
+                continue
         # Avoid exhausting the edit budget and Telegram bot quota on a post
         # that ALREADY has a verified photo/video pair and every required link.
         # Verify the exact private document before trusting the old buttons.
@@ -479,6 +490,7 @@ def legacy_repair_completion(reports):
         name: sum(int(row.get(name, 0) or 0) for row in reports)
         for name in ("older", "public_linked", "public_edited",
                      "public_already_linked", "private_created",
+                     "central_cover_unverified",
                      "unmatched", "ambiguous", "private_pair_unverified",
                      "preflight_failed", "errors", "preflight_budget_exhausted")
     }
@@ -559,14 +571,14 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as summary:
             summary.write("\n### CinéX — Rattrapage sûr des anciennes vidéos\n")
-            summary.write("| Canal | Anciennes | Fiches originales liées | Nouvelles copies privées | Sans paire fiable | Affiches ambiguës | Édition refusée | Copies incertaines | Erreurs |\n")
-            summary.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|\n")
+            summary.write("| Canal | Anciennes | Fiches originales liées | Nouvelles copies privées | Sans paire fiable | Affiches ambiguës | Édition refusée | Copies privées incertaines | Stock central sans affiche | Erreurs |\n")
+            summary.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
             for row in reports:
-                summary.write("| {category} | {older} | {public_linked} | {private_created} | {unmatched} | {ambiguous} | {preflight_failed} | {private_pair_unverified} | {errors} |\n".format(
+                summary.write("| {category} | {older} | {public_linked} | {private_created} | {unmatched} | {ambiguous} | {preflight_failed} | {private_pair_unverified} | {central_cover_unverified} | {errors} |\n".format(
                     **{k: row.get(k, 0) for k in (
                         "category", "older", "public_linked", "private_created",
                         "unmatched", "ambiguous", "preflight_failed",
-                        "private_pair_unverified", "errors")}))
+                        "private_pair_unverified", "central_cover_unverified", "errors")}))
             summary.write(
                 "\n**Vérification : " + ("COMPLÈTE" if completion["complete"] else "PARTIELLE") +
                 "** — anciennes fiches non validées pendant ce passage : " + str(completion["unresolved"]) +
