@@ -13,6 +13,7 @@ from film_relay.legacy_neighbor_matching import find_neighbor_pair, identity_for
 from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
     shared_legacy_cover, bot_can_edit_original, legacy_repair_completion,
+    verified_owner_pair, fully_linked_legacy_poster,
 )
 
 
@@ -27,6 +28,37 @@ def media(mid, title, *, photo=False, video=False, name="", doc=None, buttons=No
 
 
 class LegacyMediaIdentityTests(unittest.TestCase):
+    def test_legacy_repair_completion_counts_central_missing_covers(self):
+        r=legacy_repair_completion([{"older":6,"public_linked":2,
+                                    "central_cover_unverified":3,"errors":0}])
+        self.assertFalse(r["complete"])
+        self.assertEqual(r["central_cover_unverified"],3)
+
+    def test_completed_legacy_poster_is_recognized_without_new_edit(self):
+        from unittest.mock import patch
+        watch="https://t.me/c/4392607284/55"
+        bot="https://t.me/CineRadarFr_Bot?start=d_"+"A"*24
+        rescue="https://t.me/+ABCdefghi123456"
+        folder="https://t.me/addlist/AAA"
+        poster=media(101,"Un Film",photo=True,buttons=[
+            [NS(url=watch)], [NS(url=bot)], [NS(url=rescue)], [NS(url=folder)]])
+        self.assertTrue(fully_linked_legacy_poster(
+            poster,-1004392607284,55,rescue,folder))
+        poster.buttons=poster.buttons[0:1]+poster.buttons[2:]
+        self.assertFalse(fully_linked_legacy_poster(
+            poster,-1004392607284,55,rescue,folder))
+
+    def test_manual_pair_never_overrides_wrong_title_or_protected_video(self):
+        poster=media(55,"Supergirl 2026",photo=True)
+        valid=media(60,"Supergirl 2026",video=True,doc=101)
+        wrong=media(61,"Autre série",video=True,doc=102)
+        self.assertTrue(verified_owner_pair(valid,poster,"films"))
+        self.assertFalse(verified_owner_pair(wrong,poster,"films"))
+        self.assertFalse(verified_owner_pair(media(54,"Supergirl",video=True),poster,"films"))
+        self.assertFalse(verified_owner_pair(media(60,"Supergirl",video=True),None,"films"))
+        valid.noforwards=True
+        self.assertFalse(verified_owner_pair(valid,poster,"films"))
+
     def test_historical_successful_workflow_is_not_misreported_as_complete(self):
         rows=[
             {"category":"films","older":35,"public_linked":2,"public_edited":2,

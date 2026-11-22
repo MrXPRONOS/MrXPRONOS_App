@@ -175,6 +175,32 @@ def shared_legacy_cover(video, poster, old, posters, category, messages) -> bool
     return False
 
 
+def existing_download_button(post) -> bool:
+    """A private t.me/c link is a WATCH link, not a CineRadar download."""
+    from .radar_download_registry import is_bot_download_url
+    for row in getattr(post, "buttons", None) or ():
+        for button in row:
+            url = getattr(button, "url", None) or getattr(
+                getattr(button, "button", None), "url", None)
+            if is_bot_download_url(url):
+                return True
+    return False
+
+
+def fully_linked_legacy_poster(poster, private_id, private_video_id, rescue_url, folder_url, *, extra_text="") -> bool:
+    """Existing fully verified posters must not consume the new-edit budget."""
+    target = private_message_link(private_id, private_video_id)
+    return bool(
+        getattr(poster, "photo", None)
+        and movie_button_target(poster, private_id) == private_video_id
+        and all(has_verified_button(poster, url) for url in
+                (target, rescue_url, folder_url))
+        and existing_download_button(poster)
+        and (not extra_text.strip() or extra_text.strip() in
+             str(getattr(poster, "raw_text", "") or ""))
+    )
+
+
 def bot_can_edit_original(permission) -> bool:
     """Bot must hold channel edit rights before copying archived media."""
     return bool(getattr(permission, "is_creator", False) or (
@@ -184,9 +210,29 @@ def bot_can_edit_original(permission) -> bool:
     ))
 
 
+def verified_owner_pair(video, poster, category: str) -> bool:
+    """Owner-selected IDs do not replace evidence of the same actual movie.
+
+    Matching title or explicit episode/part is mandatory. One photo may not
+    secretly stand for several different films; shared covers remain blocked
+    by shared_legacy_cover in the caller.
+    """
+    if not video or not poster or not getattr(poster, "photo", None):
+        return False
+    if not is_video_message(video) or getattr(video, "noforwards", False):
+        return False
+    if getattr(poster, "noforwards", False):
+        return False
+    if not 0 < int(video.id) - int(poster.id) <= MAX_HISTORY:
+        return False
+    return compatible(video_identity(video, category),
+                      poster_identity(poster, category)) >= 0.95
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
-                         history: int = MAX_HISTORY, unified=None):
+                         history: int = MAX_HISTORY, unified=None,
+                         manual_pair: tuple[int, int] | None = None):
     from telethon import utils
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id or not str(private_id).startswith("-100"):
@@ -194,17 +240,26 @@ async def repair_channel(client, bot, category: str, public, private,
     messages = [m async for m in client.iter_messages(public, limit=history)]
     recent, old = split_recent_and_old(messages, category)
     posters = [m for m in messages if getattr(m, "photo", None)]
+    if manual_pair:
+        manual_video_id, manual_poster_id = manual_pair
+        chosen_video = next((m for m in old if int(m.id) == manual_video_id), None)
+        chosen_poster = next((m for m in posters if int(m.id) == manual_poster_id), None)
+        if not chosen_video or not chosen_poster:
+            raise RuntimeError("Paire manuelle introuvable ou vidéo protégée par la rotation des dix dernières.")
+        if not verified_owner_pair(chosen_video, chosen_poster, category):
+            raise RuntimeError("Paire manuelle non vérifiable par titre, identité ou distance.")
     report = {
         "category": category, "public": public_id, "private": private_id,
         "protected": len(recent), "older": len(old), "recognized": 0,
         "private_existing": 0, "private_created": 0, "public_linked": 0,
+        "public_already_linked": 0,
         "public_edited": 0, "public_edit_failed": 0,
         "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0,
-        "private_pair_unverified": 0, "preflight_failed": 0,
+        "private_pair_unverified": 0, "central_cover_unverified": 0, "preflight_failed": 0,
         "preflight_budget_exhausted": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
-    if len(recent) < 10:
+    if len(recent) < 10 and not manual_pair:
         return report
     rescue = rescue_link_for(public)
     if apply and not rescue:
@@ -231,18 +286,19 @@ async def repair_channel(client, bot, category: str, public, private,
                     f"{category}: bot sans droit edit_messages; aucune archive copiée")
     private_messages = ([m async for m in client.iter_messages(private, limit=history)]
                         if apply else [])
-    repaired = 0
     edit_probes = 0
     probe_budget = min(25, max(4, max_repaired * 5))
     for video in reversed(old):
-        if repaired >= max_repaired:
+        if manual_pair and int(video.id) != manual_pair[0]:
+            continue
+        if report["public_edited"] >= max_repaired:
             break
         if apply and edit_probes >= probe_budget:
             report["preflight_budget_exhausted"] = 1
             LOG.warning("%s : budget de vérifications atteint ; prochain passage requis", category)
             break
         identity = video_identity(video, category)
-        poster = find_legacy_poster(video, posters, category)
+        poster = chosen_poster if manual_pair else find_legacy_poster(video, posters, category)
         neighbor = None
         if poster is None:
             neighbor = find_neighbor_pair(video, messages, category)
@@ -275,6 +331,29 @@ async def repair_channel(client, bot, category: str, public, private,
         if not apply:
             LOG.info("[SIMULATION] %s old video #%s -> poster #%s (%s)",
                      category, video.id, poster.id, identity)
+            continue
+        # If this exact document was previously uploaded in the central
+        # Telegram stock without an adjacent real cover, stop BEFORE making
+        # any new private video/cover copy that could become orphaned.
+        if unified is not None and unified.target_id is not None:
+            await unified.prepare(public=public)
+            doc=video_document_id(video)
+            if doc and int(doc) in unified.index and not unified.verified_cover_for(doc):
+                report["central_cover_unverified"] += 1
+                LOG.warning("%s : stock central existant sans affiche vérifiée ; "
+                            "aucune nouvelle archive du document", category)
+                continue
+        # Avoid exhausting the edit budget and Telegram bot quota on a post
+        # that ALREADY has a verified photo/video pair and every required link.
+        # Verify the exact private document before trusting the old buttons.
+        existing_pair = find_verified_private_pair(
+            private_messages, video, category, rescue_url=rescue, reference=identity)
+        if existing_pair and fully_linked_legacy_poster(
+                poster, private_id, existing_pair[0].id, rescue,
+                film_folder_url(), extra_text=extra):
+            report["private_existing"] += 1
+            report["public_already_linked"] += 1
+            report["public_linked"] += 1
             continue
         # A rights check alone is insufficient: Telegram may reject editing
         # old messages authored by another bot. Probe with unchanged markup
@@ -367,7 +446,7 @@ async def repair_channel(client, bot, category: str, public, private,
             if all(has_verified_button(poster, link) for link in required) and (
                 not extra.strip() or extra.strip() in (poster.raw_text or "")):
                 report["public_linked"] += 1
-                repaired += 1
+                report["public_already_linked"] += 1
                 continue
             verified_public = await edit_original_cover(
                 client, bot, public, poster, video,
@@ -387,7 +466,6 @@ async def repair_channel(client, bot, category: str, public, private,
             messages = [verified_public if item.id == poster.id else item for item in messages]
             report["public_linked"] += 1
             report["public_edited"] += 1
-            repaired += 1
             LOG.info("%s : vidéo #%s archivée privée #%s ; fiche originale #%s modifiée",
                      category, video.id, private_video_id, poster.id)
             await asyncio.sleep(30)
@@ -410,7 +488,9 @@ def legacy_repair_completion(reports):
     """
     totals = {
         name: sum(int(row.get(name, 0) or 0) for row in reports)
-        for name in ("older", "public_linked", "public_edited", "private_created",
+        for name in ("older", "public_linked", "public_edited",
+                     "public_already_linked", "private_created",
+                     "central_cover_unverified",
                      "unmatched", "ambiguous", "private_pair_unverified",
                      "preflight_failed", "errors", "preflight_budget_exhausted")
     }
@@ -423,10 +503,22 @@ def legacy_repair_completion(reports):
     return totals
 
 
-async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
+async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
+                  manual_category=None, manual_video_id=None, manual_poster_id=None):
     from telethon import TelegramClient
     from telethon.sessions import StringSession
     from .runner import resolve_peer
+    manual_values=(manual_category, manual_video_id, manual_poster_id)
+    if any(value is not None for value in manual_values) and not all(
+            value is not None for value in manual_values):
+        raise RuntimeError("La catégorie, la vidéo et l'affiche doivent toutes être précisées.")
+    if manual_category is not None:
+        if manual_category not in ("films","series","anime","action","comedie","desir"):
+            raise RuntimeError("Catégorie manuelle inconnue.")
+        if (not isinstance(manual_video_id,int) or not isinstance(manual_poster_id,int)
+                or manual_video_id<1 or manual_poster_id<1):
+            raise RuntimeError("Identifiants Telegram manuels invalides.")
+        max_repaired=1
     if apply and not all(os.getenv(k, "").lower() == "true" for k in (
         "CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
         "CINEX_RIGHTS_VERIFIED",
@@ -449,14 +541,19 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
             raise RuntimeError("Session Telegram expirée")
         bot = BotHTTPClient(bot_token, client) if apply else None
         unified = UnifiedLibrary(client) if apply else None
-        for category, public_username, private_id in category_targets():
+        selected=[t for t in category_targets() if manual_category is None or t[0]==manual_category]
+        if manual_category is not None and len(selected)!=1:
+            raise RuntimeError("Canal sélectionné absent de la configuration.")
+        for category, public_username, private_id in selected:
             try:
                 public = await resolve_peer(client, public_username)
                 private = await resolve_peer(client, str(private_id))
                 reports.append(await repair_channel(
                     client, bot, category, public, private, apply=apply,
                     max_repaired=max_repaired, history=history,
-                    unified=unified,
+                    unified=unified, manual_pair=(
+                        (manual_video_id,manual_poster_id)
+                        if manual_category is not None else None),
                 ))
             except Exception as exc:
                 if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
@@ -474,20 +571,25 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as summary:
             summary.write("\n### CinéX — Rattrapage sûr des anciennes vidéos\n")
-            summary.write("| Canal | Anciennes | Fiches originales liées | Nouvelles copies privées | Sans paire fiable | Affiches ambiguës | Édition refusée | Copies incertaines | Erreurs |\n")
-            summary.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|\n")
+            summary.write("| Canal | Anciennes | Fiches originales liées | Nouvelles copies privées | Sans paire fiable | Affiches ambiguës | Édition refusée | Copies privées incertaines | Stock central sans affiche | Erreurs |\n")
+            summary.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
             for row in reports:
-                summary.write("| {category} | {older} | {public_linked} | {private_created} | {unmatched} | {ambiguous} | {preflight_failed} | {private_pair_unverified} | {errors} |\n".format(
+                summary.write("| {category} | {older} | {public_linked} | {private_created} | {unmatched} | {ambiguous} | {preflight_failed} | {private_pair_unverified} | {central_cover_unverified} | {errors} |\n".format(
                     **{k: row.get(k, 0) for k in (
                         "category", "older", "public_linked", "private_created",
                         "unmatched", "ambiguous", "preflight_failed",
-                        "private_pair_unverified", "errors")}))
+                        "private_pair_unverified", "central_cover_unverified", "errors")}))
             summary.write(
                 "\n**Vérification : " + ("COMPLÈTE" if completion["complete"] else "PARTIELLE") +
                 "** — anciennes fiches non validées pendant ce passage : " + str(completion["unresolved"]) +
                 ", éditions originales confirmées : " + str(completion["public_edited"]) +
                 ". Les affiches ambiguës ou interdites par Telegram ne sont pas modifiées.\n"
             )
+    if manual_category is not None and any(
+            row.get("errors",0)>0 or row.get("recognized",0)!=1 or
+            (apply and row.get("public_linked",0)!=1)
+            for row in reports):
+        raise RuntimeError("Paire manuelle non vérifiée : aucune autre vidéo ne doit être traitée.")
     if any(row.get("errors", 0) for row in reports):
         raise RuntimeError("Réparation partielle : examiner les journaux avant une relance")
     return reports
@@ -498,6 +600,9 @@ def main():
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--max-repaired", type=int, default=2)
     parser.add_argument("--history", type=int, default=MAX_HISTORY)
+    parser.add_argument("--manual-category", choices=("films","series","anime","action","comedie","desir"))
+    parser.add_argument("--manual-video-id", type=int)
+    parser.add_argument("--manual-poster-id", type=int)
     args = parser.parse_args()
     if not 1 <= args.max_repaired <= 10:
         parser.error("--max-repaired doit être compris entre 1 et 10")
@@ -506,7 +611,10 @@ def main():
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
     asyncio.run(execute(apply=args.apply,
-                        max_repaired=args.max_repaired, history=args.history))
+                        max_repaired=args.max_repaired, history=args.history,
+                        manual_category=args.manual_category,
+                        manual_video_id=args.manual_video_id,
+                        manual_poster_id=args.manual_poster_id))
 
 
 if __name__ == "__main__":
