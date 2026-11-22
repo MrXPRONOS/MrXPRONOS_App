@@ -1,4 +1,5 @@
 import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota.mjs';
+import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
 // CinéX séries individuelles — Bot API et D1 uniquement.
 // Messages entrants: le bot Ciné Radar doit déjà être admin dans les canaux privés.
 // getChat NE permet PAS de récupérer l'ensemble des anciens messages épinglés.
@@ -277,7 +278,12 @@ export async function processSeriesQueue(env,{limit=5}={}){
    if(Number(claimed.meta?.changes)!==1)break;
    await env.DB.prepare("UPDATE cine_series_job_items SET state='sending' WHERE job_id=? AND ordinal=? AND state='queued'").bind(job.id,item.ordinal).run();
    let answer;
-   try{answer=await telegram(env,'copyMessage',{chat_id:job.telegram_chat_id,from_chat_id:item.source_chat_id,message_id:item.source_message_id,protect_content:false});}
+   try{
+    const payload={chat_id:job.telegram_chat_id,from_chat_id:item.source_chat_id,message_id:item.source_message_id,protect_content:false};
+    answer=delivery44Enabled(env)
+      ? await remoteCopyMessage(env,'series:'+job.id+':'+item.ordinal,payload)
+      : await telegram(env,'copyMessage',payload);
+   }
    catch{await env.DB.prepare("UPDATE cine_series_job_items SET state='needs_review' WHERE job_id=? AND ordinal=?").bind(job.id,item.ordinal).run();await env.DB.prepare("UPDATE cine_series_jobs SET status='needs_review' WHERE id=?").bind(job.id).run();errors++;break}
    if(!answer.ok){
     if(answer.code===429&&answer.retry_after>0){
