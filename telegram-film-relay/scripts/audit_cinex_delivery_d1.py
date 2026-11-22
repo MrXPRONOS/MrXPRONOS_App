@@ -75,6 +75,13 @@ SQL = {
     "classic_review": "SELECT COUNT(*) AS n FROM cine_classic_deliveries WHERE status='needs_review'",
     "catalog_review": "SELECT COUNT(*) AS n FROM cine_delivery_jobs WHERE status='needs_review'",
     "series_review": "SELECT COUNT(*) AS n FROM cine_series_jobs WHERE status='needs_review'",
+    "series_review_older_1h": "SELECT COUNT(*) AS n FROM cine_series_jobs WHERE status='needs_review' AND updated_at<datetime('now','-1 hour')",
+    "series_review_older_24h": "SELECT COUNT(*) AS n FROM cine_series_jobs WHERE status='needs_review' AND updated_at<datetime('now','-24 hours')",
+    "series_review_item_states": (
+        "SELECT i.state,COUNT(*) AS n FROM cine_series_job_items i "
+        "JOIN cine_series_jobs j ON j.id=i.job_id "
+        "WHERE j.status='needs_review' GROUP BY i.state"
+    ),
     "franchise_review": "SELECT COUNT(*) AS n FROM cine_franchise_jobs WHERE status='needs_review'",
     "classic_duplicates_10m": (
         "SELECT COUNT(*) AS n FROM (SELECT telegram_chat_id,token FROM cine_classic_deliveries "
@@ -128,6 +135,7 @@ ALERT_NONZERO = {
     "catalog_duplicates_10m", "franchise_duplicates_10m",
     "classic_queue_old_24h", "catalog_queue_old_24h",
     "series_queue_old_24h", "franchise_queue_old_24h",
+    "series_review_older_24h",
 }
 
 
