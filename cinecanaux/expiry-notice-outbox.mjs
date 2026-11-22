@@ -143,6 +143,9 @@ export async function processExpiryNotices(env,{limit=3,family=null,jobId=null}=
   try{message=expiryNoticeText({mediaCount:row.media_count,firstExpiry:row.first_expiry,lastExpiry:row.last_expiry})}
   catch{await markUncertain(env,row,400);review++;continue}
   const payload={chat_id:Number(row.chat_id),text:message};
+  // Media was just copied: leave Telegram's per-recipient one-second send slot
+  // before the separate text, without delaying the video itself.
+  if(preferred)await new Promise(resolve=>setTimeout(resolve,1100));
   try{
    const quota=await guardTelegramMethod(env,'sendMessage',payload);
    if(quota&&!quota.allowed){await reschedule(env,row,quota.retryAfter||30);deferred++;continue}
