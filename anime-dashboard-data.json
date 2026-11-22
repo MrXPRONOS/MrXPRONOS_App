@@ -34,6 +34,25 @@
       "cadence_hint": "unknown",
       "has_public_card": true,
       "index_repair_pending": false,
+      "legacy_cards_to_review": 0,
+      "private_episodes": 1,
+      "public_episode_pairs": 0,
+      "seasons": [
+        {
+          "last_episode": 1,
+          "numbering_gaps": 0,
+          "private_episodes": 1,
+          "public_episode_pairs": 0,
+          "season": 1,
+          "status": "non_verifie"
+        }
+      ],
+      "title": "High School Of Dead"
+    },
+    {
+      "cadence_hint": "unknown",
+      "has_public_card": true,
+      "index_repair_pending": false,
       "legacy_cards_to_review": 5,
       "private_episodes": 6,
       "public_episode_pairs": 0,
@@ -165,20 +184,20 @@
     }
   ],
   "stats": {
-    "active_batch": false,
+    "active_batch": true,
     "ambiguous_series_groups": 0,
     "configured_sources_scanned": 2,
     "existing_source_reposts_reconciled": 0,
     "fragmented_series_groups_reconciled": 2,
     "numbering_gaps": 203,
     "pending_historical_candidates": 2641,
-    "private_episodes": 132,
+    "private_episodes": 133,
     "public_episode_pairs": 27,
-    "seasons": 9,
-    "source_duplicates_detected": 0,
-    "source_media_variants_to_review": 0,
+    "seasons": 10,
+    "source_duplicates_detected": 46,
+    "source_media_variants_to_review": 31,
     "source_scan_complete": false,
-    "titles": 8,
+    "titles": 9,
     "unnumbered_skipped": 2168
   }
 }

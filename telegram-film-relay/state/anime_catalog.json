@@ -1,5 +1,19 @@
 {
-  "active_batch": null,
+  "active_batch": {
+    "complete": false,
+    "count": 1,
+    "episodes": [
+      {
+        "episode": 1,
+        "poster_id": 197,
+        "season": 1,
+        "source_key": "-1001393310243:198",
+        "title": "High School Of Dead"
+      }
+    ],
+    "key": "high-school-of-dead",
+    "season": 1
+  },
   "archive_pending": {},
   "archive_review": {},
   "audit": {
@@ -1246,6 +1260,344 @@
     "unnumbered_videos_skipped": 2168
   },
   "identity_review": [],
+  "last_dedup_audit": {
+    "candidate_rows": 797,
+    "conflicts": [
+      {
+        "episode": 1,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 2,
+        "series": "2",
+        "source_keys": [
+          "-1003225149330:2794",
+          "-1003225149330:2795"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 2,
+        "series": "2",
+        "source_keys": [
+          "-1003225149330:2796",
+          "-1003225149330:2797"
+        ]
+      },
+      {
+        "episode": 3,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "dandadan",
+        "source_keys": [
+          "-1001822847344:1391",
+          "-1001822847344:1392",
+          "-1001822847344:1393",
+          "-1001822847344:1394"
+        ]
+      },
+      {
+        "episode": 6,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "dandadan",
+        "source_keys": [
+          "-1001822847344:1423",
+          "-1001822847344:1424"
+        ]
+      },
+      {
+        "episode": 3,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "dark-machine-the-animation",
+        "source_keys": [
+          "-1002294192868:11200",
+          "-1002294192868:11201"
+        ]
+      },
+      {
+        "episode": 10,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "dark-moon-darui-jedan",
+        "source_keys": [
+          "-1003225149330:2423",
+          "-1003225149330:2424"
+        ]
+      },
+      {
+        "episode": 12,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "dark-moon-darui-jedan",
+        "source_keys": [
+          "-1003225149330:2517",
+          "-1003225149330:2518"
+        ]
+      },
+      {
+        "episode": 1,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 4,
+        "series": "demon-slayer",
+        "source_keys": [
+          "-1001822847344:1250",
+          "-1001822847344:1251"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 4,
+        "series": "demon-slayer",
+        "source_keys": [
+          "-1001822847344:1257",
+          "-1001822847344:1259"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "even-the-student-council-has-its-holes",
+        "source_keys": [
+          "-1002294192868:10435",
+          "-1002294192868:10436"
+        ]
+      },
+      {
+        "episode": 6,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "even-the-student-council-has-its-holes",
+        "source_keys": [
+          "-1002069851953:65488",
+          "-1002069851953:65489"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "hello-i-am-a-witch-and-my-crush-wants-me-to-make-a-love",
+        "source_keys": [
+          "-1002294192868:10502",
+          "-1003225149330:5671",
+          "-1003225149330:5672"
+        ]
+      },
+      {
+        "episode": 3,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "hello-i-am-a-witch-and-my-crush-wants-me-to-make-a-love",
+        "source_keys": [
+          "-1002294192868:10915",
+          "-1002294192868:10916",
+          "-1003225149330:5673",
+          "-1003225149330:5674"
+        ]
+      },
+      {
+        "episode": 6,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "nia-liston-the-merciless-maiden",
+        "source_keys": [
+          "-1002069851953:65668",
+          "-1002069851953:65669"
+        ]
+      },
+      {
+        "episode": 4,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "psyren",
+        "source_keys": [
+          "-1002294192868:11101",
+          "-1002294192868:11102"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "reborn-as-a-space-mercenary-i-woke-up-piloting-the-stro",
+        "source_keys": [
+          "-1003225149330:5504",
+          "-1003225149330:5505",
+          "-1003225149330:5506",
+          "-1003225149330:5507"
+        ]
+      },
+      {
+        "episode": 3,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "reborn-as-a-space-mercenary-i-woke-up-piloting-the-stro",
+        "source_keys": [
+          "-1002294192868:10823",
+          "-1002294192868:10824",
+          "-1003225149330:5647",
+          "-1003225149330:5648",
+          "-1003225149330:5649"
+        ]
+      },
+      {
+        "episode": 4,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "reborn-as-a-space-mercenary-i-woke-up-piloting-the-stro",
+        "source_keys": [
+          "-1003225149330:5804",
+          "-1003225149330:5805"
+        ]
+      },
+      {
+        "episode": 6,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "reborn-as-a-space-mercenary-i-woke-up-piloting-the-stro",
+        "source_keys": [
+          "-1002069851953:65553",
+          "-1002069851953:65554",
+          "-1002069851953:65556",
+          "-1002069851953:65557",
+          "-1003225149330:6043"
+        ]
+      },
+      {
+        "episode": 4,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 2,
+        "series": "reincarnated-as-a-sword",
+        "source_keys": [
+          "-1002294192868:11022",
+          "-1002294192868:11023"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "sakamoto-days",
+        "source_keys": [
+          "-1001822847344:1473",
+          "-1001822847344:1474"
+        ]
+      },
+      {
+        "episode": 3,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "sakamoto-days",
+        "source_keys": [
+          "-1001822847344:1480",
+          "-1001822847344:1481"
+        ]
+      },
+      {
+        "episode": 6,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "sakamoto-days",
+        "source_keys": [
+          "-1001822847344:1509",
+          "-1001822847344:1510"
+        ]
+      },
+      {
+        "episode": 14,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "sakamoto-days",
+        "source_keys": [
+          "-1001595907308:14824",
+          "-1001822847344:1571",
+          "-1001822847344:1572"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "sakamoto-days-partie02",
+        "source_keys": [
+          "-1001822847344:1568",
+          "-1001822847344:1569"
+        ]
+      },
+      {
+        "episode": 10,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "sentenced-to-be-a-hero-the-prison-records-of-penal-hero",
+        "source_keys": [
+          "-1003225149330:2314",
+          "-1003225149330:2315"
+        ]
+      },
+      {
+        "episode": 2,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "suikoden-the-anime",
+        "source_keys": [
+          "-1002294192868:10531",
+          "-1002294192868:10532"
+        ]
+      },
+      {
+        "episode": 4,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "the-dinner-table-detective",
+        "source_keys": [
+          "-1002169371470:16078",
+          "-1002169371470:16079"
+        ]
+      },
+      {
+        "episode": 8,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "the-ramparts-of-ice",
+        "source_keys": [
+          "-1001595907308:14088",
+          "-1001595907308:14089"
+        ]
+      },
+      {
+        "episode": 5,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "the-vermilion-mask",
+        "source_keys": [
+          "-1002069851953:65425",
+          "-1002069851953:65426",
+          "-1002069851953:65427"
+        ]
+      },
+      {
+        "episode": 8,
+        "reason": "different_telegram_media_for_same_episode",
+        "season": 1,
+        "series": "zenshu",
+        "source_keys": [
+          "-1002169371470:16234",
+          "-1002169371470:16235"
+        ]
+      }
+    ],
+    "cross_episode_media_conflicts": 0,
+    "existing_reposts": {
+      "conflicting_source_receipts": [],
+      "new_source_receipts": 0
+    },
+    "media_variants": 31,
+    "source_duplicates": 46,
+    "unique_episodes": 751
+  },
   "legacy_series_records": {
     "mangas-fv-death-parade-ep05": {
       "episodes": {
@@ -1708,6 +2060,40 @@
         "-1001595907308:14862": 239
       },
       "title": "Dorohedoro et 2 🇨🇵"
+    },
+    "high-school-of-dead": {
+      "episode_poster_ids": {
+        "S01E01": 285
+      },
+      "episodes": {
+        "1": {
+          "1": {
+            "download_url": "https://t.me/CineRadarFr_Bot?start=d_rHNOog9_ANrwjD2FvuzbViXX",
+            "message_id": 286,
+            "url": "https://t.me/c/4416009337/286"
+          }
+        }
+      },
+      "main_index_id": 283,
+      "pending_public_episode_posts": {
+        "S01E01": {
+          "poster": 325,
+          "video_send_uncertain": true
+        }
+      },
+      "private_poster_id": 282,
+      "public_episode_posts": {},
+      "public_id": 324,
+      "season_indices": {
+        "1": 284
+      },
+      "season_public_ids": {
+        "1": 324
+      },
+      "source_items": {
+        "-1001393310243:198": 286
+      },
+      "title": "High School Of Dead"
     },
     "mangas-fv-death-parade-ep05": {
       "episodes": {

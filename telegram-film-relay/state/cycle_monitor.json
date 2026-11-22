@@ -1,8 +1,8 @@
 {
-  "last_run_id": "44940445156",
-  "last_checked": "2026-11-21T21:15:22.972172+00:00",
+  "last_run_id": "44995918746",
+  "last_checked": "2026-11-22T08:34:21.749397+00:00",
   "status": "category_failed",
-  "verification": "verified",
+  "verification": "failed",
   "verified_posts": 1,
   "empty_streak": 0,
   "alert": true,
@@ -10,7 +10,7 @@
     "films": "success",
     "series": "failure",
     "desir": "success",
-    "comedie": "failure",
+    "comedie": "success",
     "anime": "failure",
     "action": "failure"
   },
@@ -29,7 +29,7 @@
       "observed_not_indexed": 2641,
       "unnumbered_videos": 2168,
       "source_gap_seasons": 58,
-      "active_batch": false
+      "active_batch": true
     }
   }
 }
