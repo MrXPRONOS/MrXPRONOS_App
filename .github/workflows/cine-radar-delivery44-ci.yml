@@ -26,3 +26,12 @@ jobs:
           node --check cinecanaux/cinex-classic.mjs
       - name: Unit tests
         run: node --test cinecanaux/delivery44/worker.test.mjs
+      - name: Remote Cloudflare 44 read-only health and access control
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://cine-radar-delivery44.ananiolivier44.workers.dev"
+          curl --fail --silent --show-error --max-time 15 "$BASE/health" -o /tmp/cine-delivery44-health.json
+          node -e "const h=require('/tmp/cine-delivery44-health.json'); if(h.service!=='cine-radar-delivery-44' || h.status!=='ready')process.exit(1)"
+          status=$(curl --silent --show-error --max-time 15 -X POST -H 'Content-Type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "$BASE/internal/v1/copy")
+          test "$status" = "403"
