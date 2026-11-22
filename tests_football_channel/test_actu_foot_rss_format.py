@@ -51,7 +51,9 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertTrue(caption.startswith("<b>Un nouveau titre</b>"))
         self.assertIn("tous les faits disponibles", caption)
         self.assertNotIn("Résumé très court", caption)
-        self.assertTrue(caption.endswith("<i>Catégorie : Mercato\nSource : Foot Mercato</i>"))
+        self.assertIn("</b>\n\n<blockquote>", caption)
+        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie : Mercato", caption)
+        self.assertTrue(caption.endswith("<i>🏷 Catégorie : Mercato\n📰 Source : Foot Mercato</i>"))
         self.assertNotIn("https://", caption)
         self.assertNotIn("Lire l", caption)
         self.assertIsNone(post.call_args.args[5])
@@ -73,6 +75,28 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertNotIn("https://", messages)
         self.assertNotIn("Lire l", messages)
         self.assertIsNone(photo.call_args.args[5])
+
+    def test_rss_html_paragraphs_preserved_as_separate_quoted_paragraphs(self):
+        story = {**self.story,
+                 "content": "<p>Première information complète.</p><p>Deuxième information vérifiée.</p>"}
+        photo = Mock(return_value=451)
+        with patch.object(pub, "post_photo", photo):
+            pub.send_article(Mock(), "token", "-10042", story, self.path, story["link"])
+        caption = photo.call_args.args[4]
+        self.assertIn("Première information complète.\n\nDeuxième information vérifiée.", caption)
+        self.assertEqual(caption.count("<blockquote>"), 1)
+        self.assertNotIn("<p>", caption)
+        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie", caption)
+
+    def test_followup_article_is_quoted_and_source_is_separate(self):
+        story = {**self.story, "content": "Phrase bien documentée. " * 150}
+        photo, text = Mock(return_value=452), Mock(return_value=453)
+        with patch.object(pub, "post_photo", photo), patch.object(pub, "post_text", text):
+            pub.send_article(Mock(), "token", "-10042", story, self.path, story["link"])
+        self.assertGreaterEqual(text.call_count, 1)
+        self.assertTrue(all(call.args[3].startswith("<blockquote>") for call in text.call_args_list))
+        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie",
+                      text.call_args_list[-1].args[3])
 
     def test_twice_hourly_dispatchs_two_unique_articles(self):
         second = {**self.story, "slug": "news-b", "title": "Deuxième titre"}
