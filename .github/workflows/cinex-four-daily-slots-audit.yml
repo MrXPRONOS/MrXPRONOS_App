@@ -1,0 +1,37 @@
+name: CineX - Audit 4 plages quotidiennes par categorie (lecture seule)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-four-slots-audit-once'
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Respecter le FloodWait du compte Telegram
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 telegram-film-relay/scripts/check_personal_cooldown.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer Telethon
+        run: pip install 'telethon==1.45.0'
+      - name: Vérifier syntaxe et tests
+        run: |
+          python -m py_compile telegram-film-relay/scripts/audit_cinex_four_daily_slots.py
+          python -m unittest discover -s telegram-film-relay/tests -p 'test_cinex_four_daily_slots.py' -v
+      - name: Observer les messages sans publier dans les canaux
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+        run: python telegram-film-relay/scripts/audit_cinex_four_daily_slots.py
