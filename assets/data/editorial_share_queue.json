@@ -1,5 +1,1161 @@
 [
   {
+    "id": "8f2fc6ce62f99bd0d6279cd3",
+    "kind": "article",
+    "title": "Botafogo vs São Paulo : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-7347/",
+    "source_date": "2026-11-22T00:17:38.787786+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-7347-7a3359e9-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-7347-7a3359e9-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-7347-7a3359e9-social.jpg"
+  },
+  {
+    "id": "88c8c16c4abd5ea74692e796",
+    "kind": "news",
+    "title": "OM : Pierre-Emile Højbjerg devrait déclarer forfait à la dernière minute face au Mans FC !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-pierre-emile-hojbjerg-devrait-declarer-forfait-a-la-derniere-minute-face-au-mans-fc-546578.html",
+    "source_date": "2026-11-21T22:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1b4e86894c3645e91270708e",
+    "kind": "news",
+    "title": "LOSC : Benjamin André explique les causes de la défaite rageante du LOSC face à l'OL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-benjamin-andre-explique-les-causes-de-la-defaite-rageante-du-losc-face-a-l-ol-546574.html",
+    "source_date": "2026-11-21T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "edaee34286977961f5eebfdd",
+    "kind": "news",
+    "title": "Liga : Real Madrid - Celta Vigo : le résumé vidéo",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-liga-real-madrid-celta-vigo-le-resume-video-546575.html",
+    "source_date": "2026-11-21T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c52a300d9ed91cf567ab61fe",
+    "kind": "news",
+    "title": "Real Madrid : l’émotion du héros Carlos Espi sous les yeux de Nadal",
+    "url": "https://www.footmercato.net/a3997272676824796828-real-madrid-lemotion-du-heros-carlos-espi-sous-les-yeux-de-nadal",
+    "source_date": "2026-11-21T22:28:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "78ba2cb7baae38df849ce458",
+    "kind": "news",
+    "title": "LOSC : Davide Ancelotti regrette le manque de réalisme de son équipe dans les deux surfaces après la défaite face à l'OL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-regrette-le-manque-de-realisme-de-son-equipe-dans-les-deux-surfaces-apres-la-defaite-face-a-l-ol-546570.html",
+    "source_date": "2026-11-21T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c7538ee7b7de25f3811cd4fd",
+    "kind": "news",
+    "title": "PSG : Désiré Doué touché au ligament croisé antérieur du genou",
+    "url": "https://www.footmercato.net/a5498499269236487783-psg-desire-doue-touche-au-ligament-croise-anterieur-du-genou",
+    "source_date": "2026-11-21T22:17:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d04faf9e154be1815ebe2c00",
+    "kind": "news",
+    "title": "Adrien Rabiot revient encore sur son départ de l’OM",
+    "url": "https://www.footmercato.net/a4742658854750606742-adrien-rabiot-revient-encore-sur-son-depart-de-lom",
+    "source_date": "2026-11-21T22:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "99da7efd3c016529bda3ef8a",
+    "kind": "news",
+    "title": "OL : Bidstrup donne le secret de la méthode Carlos Vicens",
+    "url": "https://www.footmercato.net/a927543320038123210-ol-bidstrup-donne-le-secret-de-la-methode-carlos-vicens",
+    "source_date": "2026-11-21T21:49:37+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "eb129ff1afca708b127f16e2",
+    "kind": "news",
+    "title": "Mercato - Monaco : une star du club souhaite s'en aller, son départ est acté",
+    "url": "https://www.onzemondial.com/ligue-1/mercato-monaco-une-star-du-club-souhaite-sen-aller-cest-acte-1010454",
+    "source_date": "2026-11-21T21:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8763b611b3b5110431f1d7cd",
+    "kind": "news",
+    "title": "OL : le premier but de Mads Bidstrup face à Lille",
+    "url": "https://www.footmercato.net/a1483712785640215638-ol-le-premier-but-de-mads-bidstrup-face-a-lille",
+    "source_date": "2026-11-21T21:03:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "161d8d84c6a4b80ccf5d7801",
+    "kind": "news",
+    "title": "CAN 2025 / Sénégal - Maroc : Mendy explique comment il a déstabilisé Brahim Diaz",
+    "url": "https://www.onzemondial.com/can/can-2025-senegal-maroc-mendy-explique-comment-il-a-destabilise-brahim-diaz-1010458",
+    "source_date": "2026-11-21T21:03:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6b63334052ee6e4b1292c89b",
+    "kind": "news",
+    "title": "Real Madrid : le penalty complètement loupé par Kylian Mbappé",
+    "url": "https://www.footmercato.net/a9127393483144050572-real-madrid-le-penalty-completement-loupe-par-kylian-mbappe",
+    "source_date": "2026-11-21T21:01:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "132e2330519e12660cac2a7a",
+    "kind": "news",
+    "title": "Lucas Hernandez sur Désiré Doué : « je n’ai jamais vu un joueur se plaindre comme ça sur un terrain »",
+    "url": "https://www.footmercato.net/a5738162239323651245-lucas-hernandez-sur-desire-doue-je-nai-jamais-vu-un-joueur-se-plaindre-comme-ca-sur-un-terrain",
+    "source_date": "2026-11-21T20:50:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "00733916d8a574fa0f81692e",
+    "kind": "news",
+    "title": "Nice-PSG : Olivier Pantaloni compatit avec Désiré Doué après sa blessure",
+    "url": "https://www.sofoot.com/breves/nice-psg-olivier-pantaloni-compatit-avec-desire-doue-apres-sa-blessure",
+    "source_date": "2026-11-21T20:18:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "922b6810b6a3239132ac0cfa",
+    "kind": "news",
+    "title": "Lille, OL, Lens, Monaco ... Les compos du Multiplex de la 11e journée de Ligue 1",
+    "url": "https://www.onzemondial.com/ligue-1/lille-ol-lens-monaco-les-compos-du-multiplex-de-la-11e-journee-de-ligue-1-1010113",
+    "source_date": "2026-11-21T18:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "02e45c1f0ea8123eee959fcd",
+    "kind": "news",
+    "title": "\"Blessure grave\" pour Désiré Doué, touché au genou droit avec le PSG et sorti sur civière face à Nice en Ligue 1",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-1/grosse-inquietude-pour-desire-doue-blesse-au-genou-droit-avec-le-psg-et-sorti-sur-civiere-face-a-nice-en-ligue-1_8294027.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-21T17:42:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "db9e925c1ac128c502f1d633",
+    "kind": "news",
+    "title": "Présidence de la Fifa: la CAF affiche son unité derrière Gianni Infantino, un désaveu pour Philippe Diallo",
+    "url": "https://www.rfi.fr/fr/sports/20261121-ca",
+    "source_date": "2026-11-21T17:30:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fcb4e458630402741e90722b",
+    "kind": "news",
+    "title": "Le Ballon d'or Harry Kane, blessé à la cheville, sera absent plusieurs mois selon l'entraîneur du Bayern Munich Vincent Kompany",
+    "url": "https://www.franceinfo.fr/sports/foot/harry-kane/le-ballon-d-or-harry-kane-blesse-a-la-cheville-sera-absent-plusieurs-mois-selon-l-entraineur-du-bayern-munich-vincent-kompany_8293541.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-21T09:32:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2584475b0a19da1714b7bf6c",
+    "kind": "news",
+    "title": "I wish referee had opportunity to see 'handball' again - Hart",
+    "url": "https://www.bbc.co.uk/sport/football/videos/cme3dvk1kzgqo?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-22T00:08:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0f2da291e8010fd0a43a701b",
+    "kind": "news",
+    "title": "Première Ligue : Les Marseillaises freinées par Toulouse, le PSG s’en sort face à Saint-Malo, Nantes confirme son regain d’énergie en s’imposant largement sur la pelouse du Havre",
+    "url": "https://www.sofoot.com/breves/premiere-ligue-les-marseillaises-freinees-par-toulouse-le-psg-sen-sort-face-a-saint-malo-nantes-confirme-son-regain-denergie-en-simposant-largement-sur-la-pelouse-du-havre",
+    "source_date": "2026-11-21T23:17:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7712585edcf322ec37b317d8",
+    "kind": "news",
+    "title": "Real Madrid : la grande annonce inattendue de Mourinho sur Vinicius",
+    "url": "https://www.footmercato.net/a8545956620690206271-real-madrid-la-grande-annonce-inattendue-de-mourinho-sur-vinicius",
+    "source_date": "2026-11-21T23:04:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a7538e14baf78ba0982a7aec",
+    "kind": "news",
+    "title": "Bundesliga : le Bayern tombe du trône avant d'aller à Lille",
+    "url": "https://www.onzemondial.com/ligue-des-champions/bundesliga-le-bayern-tombe-du-trone-avant-daller-a-lille-1010502",
+    "source_date": "2026-11-21T23:04:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a605933b491794ed9b5efc77",
+    "kind": "news",
+    "title": "OL : Carlos Vicens a réalisé les débuts parfaits !",
+    "url": "https://www.footmercato.net/a5617692077298019198-ol-carlos-vicens-a-realise-les-debuts-parfaits",
+    "source_date": "2026-11-21T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "753cf7df9022444a559dfb2d",
+    "kind": "news",
+    "title": "Bayern Munich : Simple contusion au pied et retour dès cette semaine pour Michael Olise ?",
+    "url": "https://www.sofoot.com/breves/bayern-munich-simple-contusion-au-pied-et-retour-des-cette-semaine-pour-michael-olise",
+    "source_date": "2026-11-21T22:53:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9313735cafc4b6a1ba6a561a",
+    "kind": "news",
+    "title": "AS Monaco : La grande déception d'Edan Diop après le nul face à l'AJ Auxerre",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-as-monaco-la-grande-deception-d-edan-diop-apres-le-nul-face-a-l-aj-auxerre-546579.html",
+    "source_date": "2026-11-21T22:53:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4ac3633bbf8fa9b91151b751",
+    "kind": "news",
+    "title": "Real Madrid : la réaction de Nadal et son fils sur le pénalty raté de Mbappé",
+    "url": "https://www.footmercato.net/a3771380166933411190-real-madrid-la-reaction-de-nadal-et-son-fils-sur-le-penalty-rate-de-mbappe",
+    "source_date": "2026-11-21T22:46:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f789f08ec17b76d575ba04bc",
+    "kind": "news",
+    "title": "AJ Auxerre : Will Still félicite ses joueurs malgré le nul concédé face à l'AS Monaco",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-aj-auxerre-will-still-felicite-ses-joueurs-malgre-le-nul-concede-face-a-l-as-monaco-546577.html",
+    "source_date": "2026-11-21T22:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6b36d73908ca943be84a71a7",
+    "kind": "news",
+    "title": "OL : Khalis Merah évoque l'héritage de Pep Guardiola dans les méthodes de Carlos Vicens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-khalis-merah-evoque-l-heritage-de-pep-guardiola-dans-les-methodes-de-carlos-vicens-546576.html",
+    "source_date": "2026-11-21T22:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2bbb6ef643426f2f26bc127d",
+    "kind": "news",
+    "title": "Équipe de France : « En totale adéquation avec ce qu'il essaie de mettre en place »… Cherki totalement sous le charme de Zidane",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-en-totale-adequation-avec-ce-quil-essaie-de-mettre-en-place-cherki-totalement-sous-le-charme-de-zidane-1010466",
+    "source_date": "2026-11-21T22:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5fe16b8136b45417e11dc90a",
+    "kind": "news",
+    "title": "PSG : le verdict est tombé pour Doué",
+    "url": "https://www.onzemondial.com/ligue-1/psg-le-verdict-est-tombe-pour-doue-1010520",
+    "source_date": "2026-11-21T22:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4094ee4bc07f26c54ae0fb26",
+    "kind": "news",
+    "title": "OL : Mads Bidstrup dévoile le rôle de Carlos Vicens dans la victoire contre le LOSC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-mads-bidstrup-devoile-le-role-de-carlos-vicens-dans-la-victoire-contre-le-losc-546571.html",
+    "source_date": "2026-11-21T22:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f3f976423f776242b7a0c07a",
+    "kind": "news",
+    "title": "Liga : Le Real Madrid renverse le Celta de Vigo avec un grand Vinícius Júnior",
+    "url": "https://www.sofoot.com/breves/liga-le-real-madrid-renverse-le-celta-de-vigo-avec-un-grand-vinicius-junior",
+    "source_date": "2026-11-21T22:19:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f13299252e0015dc4f1a49f1",
+    "kind": "news",
+    "title": "Liga : Le Real Madrid s'impose dans la douleur face au Celta Vigo malgré un penalty manqué de Kylian Mbappé (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-liga-le-real-madrid-s-impose-dans-la-douleur-face-au-celta-vigo-malgre-un-penalty-manque-de-kylian-mbappe-resume-546569.html",
+    "source_date": "2026-11-21T22:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f1d58676de6114a92bc748f4",
+    "kind": "news",
+    "title": "PSG : Rupture du ligament croisé pour Désiré Doué après sa sortie sur blessure à Nice ?",
+    "url": "https://www.sofoot.com/breves/psg-rupture-du-ligament-croise-pour-desire-doue-apres-sa-sortie-sur-blessure-a-nice",
+    "source_date": "2026-11-21T22:09:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8ec2db1d7af9676b1a8e9e92",
+    "kind": "news",
+    "title": "Liga : le Real Madrid renverse le Celta de Vigo et met la pression sur le FC Barcelone",
+    "url": "https://www.footmercato.net/a2877169844716320304-liga-le-real-madrid-renverse-le-celta-de-vigo-et-met-la-pression-sur-le-fc-barcelone",
+    "source_date": "2026-11-21T22:02:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bd5765d83fb32a1f5c737598",
+    "kind": "news",
+    "title": "OL : Carlos Vicens livre sa première réaction après son succès de prestige contre le LOSC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-carlos-vicens-livre-sa-premiere-reaction-apres-son-succes-de-prestige-contre-le-losc-546567.html",
+    "source_date": "2026-11-21T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e64c1da9ca4bc82f5c3b49c5",
+    "kind": "news",
+    "title": "Ligue 1 : Le Stade Brestois enchaîne face au RC Strasbourg et s'invite à la course au podium (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-le-stade-brestois-enchaine-face-au-rc-strasbourg-et-s-invite-a-la-course-au-podium-resume-546564.html",
+    "source_date": "2026-11-21T22:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e85b8df8ffe1c096ae51b293",
+    "kind": "news",
+    "title": "Liga : Madrid s'impose au bout du suspens",
+    "url": "https://www.onzemondial.com/liga/liga-madrid-simpose-au-bout-du-suspens-1010517",
+    "source_date": "2026-11-21T21:54:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9212a067d4d54908791f999c",
+    "kind": "news",
+    "title": "Serie A : Naples vient à bout du Torino",
+    "url": "https://www.sofoot.com/breves/serie-a-naples-vient-a-bout-du-torino",
+    "source_date": "2026-11-21T21:53:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3a10b8e56228d59962441080",
+    "kind": "news",
+    "title": "Lyon fait les affaires du PSG pour la première de l'entraîneur Carlos Vicens en s'imposant à Lille",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-1/lyon-fait-les-affaires-du-psg-pour-la-premiere-de-l-entraineur-carlos-vicens-en-s-imposant-a-lille_8294183.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-21T21:52:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "36acf67bbd30b71fb9a2b40f",
+    "kind": "news",
+    "title": "PSG : Un premier verdict tombe pour Désiré Doué",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-un-premier-verdict-tombe-pour-desire-doue-546563.html",
+    "source_date": "2026-11-21T21:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "02cea0f8449f8afb884436ea",
+    "kind": "news",
+    "title": "Ligue 1 : l’OL s’impose à Lille pour la première de Vicens, Digard débute par un nul avec Lens",
+    "url": "https://www.footmercato.net/a587439700572957153-ligue-1-lol-simpose-a-lille-pour-la-premiere-de-vicens-digard-debute-par-un-nul-avec-lens",
+    "source_date": "2026-11-21T21:47:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "719c0fc09f8ae1111bcbd835",
+    "kind": "news",
+    "title": "Ligue 1 : Lyon s'impose à Lille, Lens patine... les résultats du multiplex de la J11",
+    "url": "https://www.onzemondial.com/ligue-1/ligue-1-lyon-simpose-a-lille-lens-patine-les-resultats-du-multiplex-de-la-j11-1010513",
+    "source_date": "2026-11-21T21:46:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1fdd376cc82da76aa4463a3b",
+    "kind": "news",
+    "title": "Ligue 1 : Lens et Monaco accrochés par Toulouse et Auxerre, Brest gâche la fête à Strasbourg",
+    "url": "https://www.sofoot.com/breves/ligue-1-lens-et-monaco-accroches-par-toulouse-et-auxerre-brest-gache-la-fete-a-strasbourg",
+    "source_date": "2026-11-21T21:45:40+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0e6dd6495e49d2afa4a0288f",
+    "kind": "news",
+    "title": "L'OL s'adjuge le choc pour la première de Vicens - Débrief et NOTES des joueurs (Lille 0-1 Lyon)",
+    "url": "https://m.maxifoot.fr/football/article-66636.htm",
+    "source_date": "2026-11-21T21:44:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9a186d22e47d98ed795cfff4",
+    "kind": "news",
+    "title": "Ligue 1 : Première réussie pour Carlos Vicens sur le banc lyonnais avec cette victoire sur la pelouse de Lille",
+    "url": "https://www.sofoot.com/articles/ligue-1-premiere-reussie-pour-carlos-vicens-sur-le-banc-lyonnais-avec-cette-victoire-sur-la-pelouse-de-lille",
+    "source_date": "2026-11-21T21:44:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "febdf5fba29070d3063fde62",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes de AS Monaco - AJ Auxerre : l'ASM arrache le nul et s'enfonce dans une spirale inquiétante en L1",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-as-monaco-aj-auxerre-l-asm-arrache-le-nul-et-s-enfonce-dans-une-spirale-inquietante-en-l1-546562.html",
+    "source_date": "2026-11-21T21:44:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a1dc049bfc5c30902716872a",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes de LOSC - OL : Lyon débute l'ère Carlos Vicens par une victoire très solide à Lille et recolle au podium",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-losc-ol-lyon-debute-l-ere-carlos-vicens-par-une-victoire-tres-solide-a-lille-et-recolle-au-podium-546553.html",
+    "source_date": "2026-11-21T21:41:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "078d95871419e122bc165c08",
+    "kind": "news",
+    "title": "Ligue 1 : Pour la première de Didier Digard, le RC Lens doit se contenter d'un nul rageant face au TFC (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-pour-la-premiere-de-didier-digard-le-rc-lens-doit-se-contenter-d-un-nul-rageant-face-au-tfc-resume-546568.html",
+    "source_date": "2026-11-21T21:39:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "deea6ce39bbf1ebc8dbcc374",
+    "kind": "news",
+    "title": "Serie A : sans briller, le Napoli assure l’essentiel contre le Torino",
+    "url": "https://www.footmercato.net/a5381054255227305058-serie-a-sans-briller-le-napoli-assure-lessentiel-contre-le-torino",
+    "source_date": "2026-11-21T21:38:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2896305fde1d5df45e098842",
+    "kind": "news",
+    "title": "OGC Nice : Niels Nkounkou : \"On a la défaite en travers de la gorge\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ogc-nice-niels-nkounkou-on-a-la-defaite-en-travers-de-la-gorge-546560.html",
+    "source_date": "2026-11-21T21:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2a0cc13fe262456143ac7ccd",
+    "kind": "news",
+    "title": "Ligue 2 : Saint-Étienne remporte le choc face à Reims et reste leader",
+    "url": "https://www.footmercato.net/a6814005690264275745-ligue-2-saint-etienne-remporte-le-choc-face-a-reims-et-reste-leader",
+    "source_date": "2026-11-21T21:19:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "21e002340133c945d4beb279",
+    "kind": "news",
+    "title": "LOSC : Tanguy Nianzou quitte la pelouse en pleurs face à Lyon",
+    "url": "https://www.footmercato.net/a5723901341821939029-losc-tanguy-nianzou-quitte-la-pelouse-en-pleurs-face-a-lyon",
+    "source_date": "2026-11-21T21:18:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5096948bf2dbabe61c0603f8",
+    "kind": "news",
+    "title": "Raya set to have scan on injury - how much would Arsenal miss him?",
+    "url": "https://www.bbc.co.uk/sport/football/articles/ckx28w9ree9vo?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-21T21:14:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-22T05:42:20.486938+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "260c717de76c229fd7cc6f25",
     "kind": "article",
     "title": "River Plate vs CA Lanús : analyse du match",
@@ -62,7 +1218,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3bdd37037242a0fae086326f",
@@ -83,7 +1239,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c61309da2907e9ff50dba0f4",
@@ -104,7 +1260,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0e2d0d22879011389dcce339",
@@ -125,7 +1281,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d625d4948a11c8a46768893c",
@@ -146,7 +1302,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aa6e56e8c7b95a77268a6fd5",
@@ -167,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3606413d7d15ac324b72fcd9",
@@ -188,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6af0e4a7edb6f4182ee7f99a",
@@ -209,7 +1365,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fc14c7fba3db3980e106361f",
@@ -230,7 +1386,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "efe5fcb554a5e4ff3f90add7",
@@ -293,7 +1449,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9ae5b90ed1f9994101bb90a2",
@@ -314,7 +1470,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "290466cd72c86e13631636a6",
@@ -335,7 +1491,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4bd7144453ce68f907e6d23b",
@@ -356,7 +1512,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "32c69111437289bbbc3cb6db",
@@ -377,7 +1533,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4688d8c38938097939855411",
@@ -398,7 +1554,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f40c2dfc4b913f30b4875ac4",
@@ -419,7 +1575,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "54954305edb56cd01727d881",
@@ -440,7 +1596,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "389717f49aec96ca9affda61",
@@ -461,7 +1617,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bc58c189ea9e504665714078",
@@ -482,7 +1638,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "50f37b4a75b8fc51b6b6ad39",
@@ -503,7 +1659,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "26933feaf37a8613aba9a07b",
@@ -524,7 +1680,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "74080901a08449f2d26771d5",
@@ -545,7 +1701,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "39f36448f56087d987c2e093",
@@ -566,7 +1722,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "54133654f51dd66ebe4cfec3",
@@ -587,7 +1743,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "64f72e846f38d11c0a253db2",
@@ -608,7 +1764,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "64c4952e038af8e7624187eb",
@@ -629,7 +1785,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "631b8805134e962d3776e0ef",
@@ -650,7 +1806,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5596233a68dd2feca1c37fb8",
@@ -671,7 +1827,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a0f4b3feedec0ba398539953",
@@ -692,7 +1848,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f3b528fe924279410bad8c71",
@@ -713,7 +1869,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "23c8df044f8e2969140a894a",
@@ -734,7 +1890,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9f5345e629be630ef268ac9a",
@@ -755,7 +1911,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5de2ad912f3d88264cd03392",
@@ -776,7 +1932,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e26942d83399d0a9773544d2",
@@ -797,7 +1953,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "910459af2d085f2b59166dd8",
@@ -818,7 +1974,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6391572274fd9fb2b1fbed12",
@@ -839,7 +1995,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "17eff751fff15289a68271f1",
@@ -860,7 +2016,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fc2ad2ca8bd0e1a98397651d",
@@ -881,7 +2037,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9ed07a223b2f84acbf14b3ab",
@@ -902,7 +2058,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e7afbdc45dfa58892c08e571",
@@ -923,7 +2079,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e6b4f8e1b5b75e13d79a6f27",
@@ -944,7 +2100,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bbfe313ea08d111c8316d25e",
@@ -965,7 +2121,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "be2abc1ea9ce7a341546495c",
@@ -986,7 +2142,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a971bbf7c12b716437545586",
@@ -1007,7 +2163,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9cb1d6fc9dfabc32562ca3f8",
@@ -1028,7 +2184,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "157434a2177e2551f80a87d0",
@@ -1049,7 +2205,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7888dd1bdedd7f37063fda40",
@@ -1070,7 +2226,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "99c323ab847646ead0ef1341",
@@ -1091,7 +2247,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c27124eecc2c9d843b1d0b09",
@@ -2415,7 +3571,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "216d2ecd29bc6568c8457b73",
@@ -2436,7 +3592,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "57d00d5b5ce7e54ccf575599",
@@ -2457,7 +3613,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "58fe5d9d6ff73c18d23ca825",
@@ -2478,7 +3634,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f3bcd82af3651c19946e7326",
@@ -2499,7 +3655,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0e30c7624cebb72dac94ff4d",
@@ -2520,7 +3676,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "142aa20901c8f771f7af2604",
