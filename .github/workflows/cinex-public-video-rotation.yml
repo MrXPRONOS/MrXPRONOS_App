@@ -64,6 +64,8 @@ jobs:
       CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
       CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
       CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
       TG_RIGHTS_ATTESTED: ${{ vars.CINEX_RIGHTS_VERIFIED || 'false' }}
       PYTHONPATH: .
@@ -87,6 +89,11 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Tester la rotation hors ligne
         run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
+      - name: Tester le contrôle de couverture sans réseau
+        run: python -m unittest discover -s tests -p 'test_rotation_coverage.py' -v
+      - name: Vérifier les chaînes cinéma non couvertes sans rien supprimer
+        continue-on-error: true
+        run: python -m film_relay.rotation_coverage
       - name: Verifier les identifiants
         shell: bash
         run: |
