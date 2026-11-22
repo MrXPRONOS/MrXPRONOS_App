@@ -113,6 +113,22 @@ test('CineRadar deep-link queues only indexed S3 episodes, delivers once and exp
  }finally{globalThis.fetch=oldFetch;db.close()}
 });
 
+test('atomic series insert blocks concurrent tap race after stale prechecks',async()=>{
+ const {db,env}=fixture(),oldFetch=globalThis.fetch;
+ const prepare=env.DB.prepare.bind(env.DB);
+ env.DB.prepare=sql=>{
+  const stmt=prepare(sql);
+  if(sql.startsWith('SELECT id FROM cine_series_jobs WHERE telegram_chat_id='))stmt.first=async()=>null;
+  return stmt;
+ };
+ globalThis.fetch=async()=>Response.json({ok:true,result:{message_id:31}});
+ try{
+  assert.equal((await handleSeriesStart(env,userRequest(321,300))).accepted,true);
+  assert.equal((await handleSeriesStart(env,userRequest(321,301))).duplicate,true);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM cine_series_jobs').get().n,1);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM cine_series_job_items').get().n,2);
+ }finally{globalThis.fetch=oldFetch;db.close()}
+});
 test('unpublished and unapproved series cannot create download jobs',async()=>{
  const {db,env}=fixture();const old=globalThis.fetch;const calls=[];
  globalThis.fetch=async (url,opt)=>{calls.push(String(url).split('/').at(-1));return Response.json({ok:true,result:true})};
