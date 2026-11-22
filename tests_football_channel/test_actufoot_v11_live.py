@@ -192,6 +192,15 @@ class LedgerSafetyTests(unittest.TestCase):
         self.ledger.set_status.assert_called_once_with(
             mod.POST_KIND, "ambiguous", NOW.date().isoformat(), "uncertain")
 
+    def test_malformed_telegram_receipt_is_quarantined(self):
+        with patch.object(mod, "bot_api", return_value={"message_id": None}):
+            self.assertIsNone(mod.publish(
+                self.ledger, self.session, "secret",
+                "@ScoresFootClassements", NOW.date().isoformat(),
+                "malformed", "texte", self.counters, {"scores"}, "scores"))
+        self.ledger.set_status.assert_called_once_with(
+            mod.POST_KIND, "malformed", NOW.date().isoformat(), "uncertain")
+
     def test_failed_state_compare_and_swap_is_blocked(self):
         self.ledger.query.return_value = {"meta": {"changes": 0}}
         with self.assertRaisesRegex(RuntimeError, "STATE_RACE"):
