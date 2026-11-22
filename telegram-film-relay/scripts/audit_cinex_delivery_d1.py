@@ -68,6 +68,53 @@ SQL = {
     "central_stock_pending_older_24h": "SELECT COUNT(*) AS n FROM cine_private_stock_items WHERE state='queued' AND created_at<datetime('now','-24 hours')",
     "central_stock_needs_review": "SELECT COUNT(*) AS n FROM cine_private_stock_items WHERE state='needs_review'",
     "classic_link_count": "SELECT COUNT(*) AS n FROM cine_classic_links WHERE status='published'",
+    "classic_queue_old_24h": "SELECT COUNT(*) AS n FROM cine_classic_deliveries WHERE status='queued' AND created_at<datetime('now','-24 hours')",
+    "catalog_queue_old_24h": "SELECT COUNT(*) AS n FROM cine_delivery_jobs WHERE status='queued' AND created_at<datetime('now','-24 hours')",
+    "series_queue_old_24h": "SELECT COUNT(*) AS n FROM cine_series_jobs WHERE status='queued' AND created_at<datetime('now','-24 hours')",
+    "franchise_queue_old_24h": "SELECT COUNT(*) AS n FROM cine_franchise_jobs WHERE status='queued' AND created_at<datetime('now','-24 hours')",
+    "classic_review": "SELECT COUNT(*) AS n FROM cine_classic_deliveries WHERE status='needs_review'",
+    "catalog_review": "SELECT COUNT(*) AS n FROM cine_delivery_jobs WHERE status='needs_review'",
+    "series_review": "SELECT COUNT(*) AS n FROM cine_series_jobs WHERE status='needs_review'",
+    "franchise_review": "SELECT COUNT(*) AS n FROM cine_franchise_jobs WHERE status='needs_review'",
+    "classic_duplicates_10m": (
+        "SELECT COUNT(*) AS n FROM (SELECT telegram_chat_id,token FROM cine_classic_deliveries "
+        "WHERE created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','sent','needs_review') "
+        "GROUP BY telegram_chat_id,token HAVING COUNT(*)>1)"
+    ),
+    "catalog_duplicates_10m": (
+        "SELECT COUNT(*) AS n FROM (SELECT telegram_chat_id,token FROM cine_delivery_jobs "
+        "WHERE created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review') "
+        "GROUP BY telegram_chat_id,token HAVING COUNT(*)>1)"
+    ),
+    "franchise_duplicates_10m": (
+        "SELECT COUNT(*) AS n FROM (SELECT telegram_chat_id,slug FROM cine_franchise_jobs "
+        "WHERE created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review') "
+        "GROUP BY telegram_chat_id,slug HAVING COUNT(*)>1)"
+    ),
+    "classic_latency_24h": (
+        "SELECT COUNT(*) AS n, ROUND(AVG((julianday(sent_at)-julianday(created_at))*86400),1) AS average_seconds, "
+        "ROUND(MAX((julianday(sent_at)-julianday(created_at))*86400),1) AS max_seconds "
+        "FROM cine_classic_deliveries WHERE sent_at>=datetime('now','-24 hours')"
+    ),
+    "catalog_latency_24h": (
+        "SELECT COUNT(*) AS n, ROUND(AVG((julianday(i.sent_at)-julianday(j.created_at))*86400),1) AS average_seconds, "
+        "ROUND(MAX((julianday(i.sent_at)-julianday(j.created_at))*86400),1) AS max_seconds "
+        "FROM cine_delivery_jobs j JOIN cine_delivery_job_items i ON i.job_id=j.id "
+        "WHERE i.ordinal=1 AND i.sent_at>=datetime('now','-24 hours')"
+    ),
+    "series_latency_24h": (
+        "SELECT COUNT(*) AS n, ROUND(AVG((julianday(i.sent_at)-julianday(j.created_at))*86400),1) AS average_seconds, "
+        "ROUND(MAX((julianday(i.sent_at)-julianday(j.created_at))*86400),1) AS max_seconds "
+        "FROM cine_series_jobs j JOIN cine_series_job_items i ON i.job_id=j.id "
+        "WHERE i.ordinal=1 AND i.sent_at>=datetime('now','-24 hours')"
+    ),
+    "franchise_latency_24h": (
+        "SELECT COUNT(*) AS n, ROUND(AVG(seconds),1) AS average_seconds, "
+        "ROUND(MAX(seconds),1) AS max_seconds FROM ("
+        "SELECT (julianday(MIN(i.sent_at))-julianday(j.created_at))*86400 AS seconds "
+        "FROM cine_franchise_jobs j JOIN cine_franchise_job_items i ON i.job_id=j.id "
+        "WHERE i.sent_at>=datetime('now','-24 hours') GROUP BY j.id)"
+    ),
     "status_gate": "SELECT value FROM bot_settings WHERE setting_key='cine_delivery_enabled'",
 }
 
@@ -77,7 +124,10 @@ SQL = {
 ALERT_NONZERO = {
     "owner_misroute", "owner_same_source", "owner_pending_older_24h",
     "central_stock_pending_older_24h", "central_stock_needs_review",
-    "series_recent_duplicate_10m",
+    "series_recent_duplicate_10m", "classic_duplicates_10m",
+    "catalog_duplicates_10m", "franchise_duplicates_10m",
+    "classic_queue_old_24h", "catalog_queue_old_24h",
+    "series_queue_old_24h", "franchise_queue_old_24h",
 }
 
 
