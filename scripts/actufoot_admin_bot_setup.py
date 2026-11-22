@@ -175,8 +175,15 @@ async def find_actufoot_targets(client):
         )
         if not identifiable:
             raise ValueError("unexpected_topic_channel_in_folder")
+        # An administrator can promote bots only if their existing rights allow it.
         if not getattr(item,"creator",False):
-            raise ValueError("all_ten_channels_must_be_owned_by_session")
+            permission = getattr(item,"admin_rights",None)
+            if not permission or not getattr(permission,"add_admins",False):
+                raise ValueError("session_missing_promote_permission")
+            missing = [flag for flag in ADMIN_FLAGS
+                       if hasattr(permission,flag) and not getattr(permission,flag,False)]
+            if missing:
+                raise ValueError("session_cannot_grant_all_requested_rights")
     return list(sorted(owned.values(), key=lambda x:fold(x.title)))
 
 
