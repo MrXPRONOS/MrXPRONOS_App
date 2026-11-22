@@ -11,6 +11,8 @@ on:
       - 'fetch_foot_news.py'
       - 'scripts/football_news_engine.py'
       - 'scripts/actu_foot_d1_news.py'
+      - 'scripts/actufoot_telegram_format.py'
+      - 'tests_football_channel/test_actufoot_telegram_format.py'
       - 'scripts/actufoot_v1_router.py'
       - 'config/actufoot_v1_channels.json'
       - 'scripts/football_rss_editor.py'
@@ -53,9 +55,10 @@ jobs:
 
       - name: Offline regressions and syntax before any external APIs
         run: |
-          python -m py_compile fetch_foot_news.py scripts/actu_foot_d1_news.py scripts/actufoot_v1_router.py scripts/d1_publication_ledger.py scripts/football_rss_editor.py
+          python -m py_compile fetch_foot_news.py scripts/actu_foot_d1_news.py scripts/actufoot_v1_router.py scripts/d1_publication_ledger.py scripts/football_rss_editor.py scripts/actufoot_telegram_format.py
           python -m unittest discover -s tests_football_channel -p 'test_actu_foot_d1_news.py' -v
           python -m unittest discover -s tests_football_channel -p 'test_actu_foot_rss_format.py' -v
+          python -m unittest discover -s tests_football_channel -p 'test_actufoot_telegram_format.py' -v
           python -m unittest discover -s tests_football_channel -p 'test_football_rss_editor.py' -v
           python -m unittest discover -s tests_football_channel -p 'test_actufoot_v1_router.py' -v
           node --check assets/js/main.js
