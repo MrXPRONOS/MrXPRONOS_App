@@ -76,6 +76,16 @@ class ClassificationTest(unittest.TestCase):
         self.assertEqual(row["scope"], "dédié à une œuvre")
         self.assertEqual(row["dedicated_title"], "a knight of the seven kingdoms")
 
+    def test_unknown_work_with_season_number_is_a_single_series(self):
+        row = classify_channel("Le Mystère du Village Saison 2 (VF)", None)
+        self.assertEqual(row["categories"], ["series"])
+        self.assertEqual(row["scope"], "dédié à une œuvre")
+        self.assertEqual(row["dedicated_title"], "le mystere du village")
+
+    def test_non_cinema_channel_not_eligible(self):
+        row = classify_channel("Info football et résultats", None)
+        self.assertEqual(row["categories"], ["autres"])
+
     def test_series_videotheque_is_general(self):
         row = classify_channel("Ciné X Séries Vidéothèque", None)
         self.assertIsNone(row["dedicated_title"])

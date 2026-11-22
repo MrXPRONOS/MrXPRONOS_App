@@ -1,0 +1,52 @@
+name: Telegram - Audit cinéma (sans publication)
+
+on:
+  push:
+    branches: [main, 'fix/telegram-cinema-publishing-audit-20261122']
+    paths:
+      - 'scripts/inventory_mrxpronos_shared_admin_channels.py'
+      - 'scripts/telegram_admin_cinema_catalog.py'
+      - 'scripts/send_cinema_ebook_and_folder.py'
+      - 'scripts/publish_ebook_campaign_test.py'
+      - 'scripts/send_telegram_folder_promo_test.py'
+      - 'telegram-film-relay/tests/test_admin_cinema_catalog.py'
+      - '.github/workflows/telegram-cinema-inventory-ci.yml'
+  pull_request:
+    paths:
+      - 'scripts/inventory_mrxpronos_shared_admin_channels.py'
+      - 'scripts/telegram_admin_cinema_catalog.py'
+      - 'scripts/send_cinema_ebook_and_folder.py'
+      - 'scripts/publish_ebook_campaign_test.py'
+      - 'scripts/send_telegram_folder_promo_test.py'
+      - 'telegram-film-relay/tests/test_admin_cinema_catalog.py'
+      - '.github/workflows/telegram-cinema-inventory-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/
+            telegram-film-relay/
+            assets/marketing/telegram-ebook-2026-11/affiche-promo-1938-fcfa.jpg
+            assets/telegram/mrxpronos_f_folder_promo.jpg
+            assets/telegram/mrxpronos_f_folder_promo.mp4
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances de test
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Valider syntaxe et inventaire (aucun accès Telegram ou Supabase)
+        run: |
+          python -m compileall -q scripts telegram-film-relay/scripts
+          PYTHONPATH=telegram-film-relay python -m unittest discover -s telegram-film-relay/tests -p 'test_admin_cinema_catalog.py' -v
+      - name: Vérifier la stricte correspondance avec les publications test
+        run: python scripts/send_cinema_ebook_and_folder.py --check
