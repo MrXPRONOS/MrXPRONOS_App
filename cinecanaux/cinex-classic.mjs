@@ -51,7 +51,9 @@ export async function handleClassicDeliveryStart(env,update){
   "AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','sent','needs_review'))"
  ).bind(token,update.update_id,msg.chat.id,msg.chat.id,token).run();
  if(Number(out.meta?.changes||0)!==1)return {handled:true,accepted:true,duplicate:true};
- await telegram(env,'sendMessage',{chat_id:msg.chat.id,text:'🎬 Téléchargement de « '+String(link.title).slice(0,80)+' » en cours. La copie envoyée par le bot sera supprimée après 24 heures. Pour garder le fichier, transfère-le vers Messages enregistrés.'}).catch(()=>{});
+ // Immediate dispatch is scheduled by worker.mjs on acceptance. Avoid
+ // consuming a second Telegram request and creating a misleading waiting
+ // message before the single movie; the delivered media includes Save Help.
  return {handled:true,accepted:true};
 }
 
