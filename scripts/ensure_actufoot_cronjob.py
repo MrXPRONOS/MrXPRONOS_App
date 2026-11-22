@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Configure les deux cadences Actu Foot sur cron-job.org.
+"""Configure trois cadences Actu Foot sur cron-job.org.
 
-Les deux tâches ciblent le même workflow, avec deux groupes de concurrence :
-- full : toutes les 5 minutes, collecte/publishing Infos Foot + éditorial;
-- lifecycle : toutes les 2 minutes, cycle LIVE léger.
-Les deux tournent 24h/24 en timezone Africa/Lome.
+Trois tâches assurent les cadences Actu Foot :
+- full : toutes les 5 minutes, flux autonome du canal principal;
+- lifecycle : toutes les 2 minutes, cycle LIVE léger;
+- update-footnews : à H:09 et H:39, RSS vers les 10 canaux V1.
+Les trois tournent 24h/24 en timezone Africa/Lome.
 """
 import json
 import os
@@ -176,31 +177,77 @@ results = [
     ensure(LIFECYCLE_TITLE, list(range(0, 60, 2)), "lifecycle", "cron-job.org-lifecycle"),
 ]
 
-# L'ancien job update-footnews.yml devient volontairement redondant :
-# football-production/full collecte une seule fois puis réutilise ce snapshot.
-for job in listing.get("jobs", []):
-    if (wf_from_url(job.get("url")) == "update-footnews.yml"
-            and job.get("title") == "Mr XPRONOS – Update football news"
-            and job.get("enabled") is True):
-        details = req("GET", f"/jobs/{job['jobId']}").get("jobDetails", {})
-        disabled = {
-            "enabled": False,
-            "title": details.get("title"),
-            "saveResponses": bool(details.get("saveResponses")),
-            "url": details.get("url"),
-            "requestTimeout": int(details.get("requestTimeout") or 60),
-            "redirectSuccess": bool(details.get("redirectSuccess")),
-            "schedule": details.get("schedule") or {},
-            "requestMethod": int(details.get("requestMethod") or 1),
-            "extendedData": details.get("extendedData") or {},
-        }
-        req("PATCH", f"/jobs/{job['jobId']}", {"job": disabled})
-        results.append({
-            "action": "disabled",
-            "jobId": job["jobId"],
-            "title": job.get("title"),
-            "targetWorkflow": "update-footnews.yml",
-        })
+# V1 multicanal : football-production/full ne lance PAS le routeur RSS.
+# Il faut garder update-footnews.yml actif sur cron-job.org, en complément de
+# l'horaire GitHub Actions natif (qui peut être retardé / omis). Le décalage
+# H:09 / H:39 diminue les collisions avec le cron GitHub H:07 / H:37.
+NEWS_WF = "update-footnews.yml"
+NEWS_TITLE = "Mr XPRONOS – Update football news"
+NEWS_URL = (
+    "https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/actions/workflows/"
+    + NEWS_WF + "/dispatches"
+)
+news_matches = [
+    job for job in listing.get("jobs", [])
+    if wf_from_url(job.get("url")) == NEWS_WF
+]
+news_unknown = [job for job in news_matches if job.get("title") != NEWS_TITLE]
+if news_unknown:
+    raise SystemExit(
+        "SECURITE: tâche RSS inconnue, revue manuelle nécessaire: "
+        + ", ".join(str(j.get("jobId")) for j in news_unknown)
+    )
+if len(news_matches) > 1:
+    raise SystemExit("SECURITE: plusieurs tâches RSS V1 ciblent update-footnews.yml")
+
+news_minutes = [9, 39]
+news_definition = {
+    "enabled": True,
+    "title": NEWS_TITLE,
+    "saveResponses": False,
+    "url": NEWS_URL,
+    "requestTimeout": 60,
+    "redirectSuccess": False,
+    "schedule": schedule(news_minutes),
+    "requestMethod": 1,
+    "extendedData": {
+        "headers": source_headers,
+        "body": json.dumps({"ref": "main"}, separators=(",", ":")),
+    },
+}
+if news_matches:
+    news_id = news_matches[0]["jobId"]
+    req("PATCH", f"/jobs/{news_id}", {"job": news_definition})
+    news_action = "updated"
+else:
+    created = req("PUT", "/jobs", {"job": news_definition})
+    news_id = created["jobId"]
+    news_action = "created"
+
+news_details = req("GET", f"/jobs/{news_id}").get("jobDetails", {})
+news_actual_schedule = news_details.get("schedule") or {}
+news_extended = news_details.get("extendedData") or {}
+try:
+    news_body = json.loads(news_extended.get("body") or "")
+except (TypeError, ValueError) as exc:
+    raise RuntimeError("Corps GitHub RSS invalide") from exc
+
+assert news_details.get("enabled") is True
+assert news_details.get("requestMethod") == 1
+assert wf_from_url(news_details.get("url")) == NEWS_WF
+assert news_actual_schedule.get("timezone") == "Africa/Lome"
+assert news_actual_schedule.get("minutes") == news_minutes
+assert news_actual_schedule.get("hours") == list(range(24))
+assert news_body == {"ref": "main"}
+results.append({
+    "action": news_action,
+    "jobId": news_id,
+    "title": NEWS_TITLE,
+    "enabled": True,
+    "targetWorkflow": NEWS_WF,
+    "schedule": news_actual_schedule,
+    "nextExecution": news_details.get("nextExecution"),
+})
 print(json.dumps({
     "jobs": results,
     "checked_at": datetime.now(timezone.utc).isoformat(),
