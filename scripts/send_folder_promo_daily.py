@@ -91,54 +91,13 @@ class Storage:
         })
 
     def select_targets(self):
-        try:
-            resp = self.http.get(
-                self.base + REGISTRY,
-                params={
-                    "select": "bot_id,channel_id,title,username,is_private,bot_status,can_post_messages",
-                    "bot_id": "eq." + str(BOT_ID),
-                    "limit": "100",
-                    "order": "channel_id.asc",
-                },
-                timeout=(10, 30),
-            )
-            if resp.status_code != 200:
-                raise RuntimeError("Erreur lecture registre HTTP " + str(resp.status_code))
-            rows = resp.json()
-        except (requests.RequestException, ValueError):
-            raise RuntimeError("Lecture du registre impossible.") from None
-        if not isinstance(rows, list) or len(rows) != REGISTERED_TOTAL:
-            raise RuntimeError("Nombre de canaux enregistrés différent de 28 : envoi annulé.")
-        all_ids = [r.get("channel_id") for r in rows]
-        if len(set(all_ids)) != REGISTERED_TOTAL:
-            raise RuntimeError("Doublons dans le registre : envoi annulé.")
-        excluded_found = set()
-        targets = []
-        for row in rows:
-            cid = row.get("channel_id")
-            username = str(row.get("username") or "").lstrip("@").casefold()
-            if row.get("bot_id") != BOT_ID or not isinstance(cid, int):
-                raise RuntimeError("Registre invalide.")
-            # Fail closed on mismatched excluded ID or username: no chance of
-            # accidentally publishing into a renamed/reassigned excluded channel.
-            if cid in EXCLUDED_ID_TO_HANDLE:
-                if username != EXCLUDED_ID_TO_HANDLE[cid]:
-                    raise RuntimeError("Identité d'un canal exclu modifiée : envoi annulé.")
-                excluded_found.add(cid)
-                continue
-            if username in EXCLUDED_HANDLES:
-                raise RuntimeError("Un canal exclu a changé d'identifiant.")
-            if (row.get("bot_status") not in ("administrator", "creator")
-                    or row.get("can_post_messages") is not True):
-                raise RuntimeError("Registre avec droits de publication insuffisants.")
-            targets.append(row)
-        if excluded_found != set(EXCLUDED_ID_TO_HANDLE):
-            raise RuntimeError("Exclusions incomplètes : envoi annulé.")
-        if len(targets) != EXPECTED_TARGETS:
-            raise RuntimeError("Nombre de destinataires inattendu : envoi annulé.")
-        print("DESTINATIONS_SELECTED", len(targets), "EXCLUDED", len(excluded_found),
-              "PRIVATE", sum(bool(x["is_private"]) for x in targets))
-        return targets
+        """Same dynamically verified movie/series/anime audience as the e-book ad.
+
+        New channels are picked up after the encrypted daily inventory sync;
+        the four permanently excluded Mr XPRONOS channels remain blocked.
+        """
+        from send_ebook_cinema_daily import get_targets
+        return get_targets(self)
 
     def reserve(self, campaign, chat_id):
         try:
@@ -318,7 +277,7 @@ def run():
         with Path(summary).open("a", encoding="utf-8") as f:
             f.write("## Promotion quotidienne — dossier MR XPRONOS F\n\n")
             f.write("Date (Lomé, UTC) : " + today + "\n\n")
-            f.write("Cibles : 24 | Exclues : 4\n\n")
+            f.write(f"Cibles cinema verifiees : {len(targets)} | Exclusions et canaux non cinema conserves\n\n")
             for key, value in results.items():
                 f.write("- " + key + " : " + str(value) + "\n")
             f.write("\nLiens publics publiés :\n\n")
