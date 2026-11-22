@@ -60,6 +60,9 @@ def clean_visible_text(value):
     """Remove all visible URLs while keeping readable RSS/Markdown anchor labels."""
     text = html.unescape(str(value or ""))
     text = re.sub(r"(?is)<a\b[^>]*>(.*?)</a>", r"\1", text)
+    # Keep paragraph boundaries from RSS HTML before removing markup.
+    text = re.sub(r"(?is)</(?:p|div|li|h[1-6])\s*>", "\n\n", text)
+    text = re.sub(r"(?is)<br\s*/?>", "\n", text)
     text = re.sub(r"\[([^\]]+)\]\(\s*https?://[^)]+\)", r"\1", text)
     text = re.sub(r"(?i)(?:https?://|www\.)[^\s<>\]\)]+", "", text)
     text = re.sub(r"(?is)<[^>]*>", "", text)
