@@ -30,7 +30,7 @@ from scripts.actu_foot_independent import enrich_espn_fixtures, normalize_espn_s
 from scripts.d1_publication_ledger import D1Ledger
 from scripts.football_match_lifecycle import (
     fetch_espn_day, fetch_espn_summary, parse_espn_summary_match,
-    extract_goals, extract_cards,
+    extract_goals, extract_cards, extract_substitutions, extract_shootout_kicks,
 )
 
 TZ = ZoneInfo("Africa/Lome")
@@ -45,7 +45,8 @@ MAX_DAILY = {"scores": 48}
 PER_RUN_DEFAULT = 2
 DAILY_DEFAULT = 20
 MAX_MATCH_HOURS = 5
-ALERT_KINDS = {"kickoff", "goal", "score_update", "red", "halftime", "fulltime"}
+ALERT_KINDS = {"kickoff", "goal", "score_update", "red", "yellow", "substitution",
+               "shootout_made", "shootout_missed", "halftime", "fulltime"}
 EXPECTED_ROLES = {
     "flash", "mercato", "champions", "premier", "liga", "ligue1",
     "africa", "national", "scores", "debrief",
@@ -202,7 +203,9 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
     title = {
         "board": "📊 SCORE LIVE", "kickoff": "▶️ COUP D’ENVOI",
         "goal": "⚽ BUT", "score_update": "📊 SCORE ACTUALISÉ",
-        "red": "🟥 CARTON ROUGE", "halftime": "⏸️ MI-TEMPS",
+        "red": "🟥 CARTON ROUGE", "yellow": "🟨 CARTON JAUNE",
+        "substitution": "🔁 REMPLACEMENT", "shootout_made": "⚽ TIR AU BUT MARQUÉ",
+        "shootout_missed": "❌ TIR AU BUT MANQUÉ", "halftime": "⏸️ MI-TEMPS",
         "fulltime": "🏁 RÉSULTAT FINAL", "recap": "📋 POINT SCORES",
     }.get(kind, "📊 FOOTBALL")
     lines = [
@@ -216,6 +219,14 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
         lines.append(f"🏆 {html.escape(str(row.get('league_name') or row.get('league')))}")
     if detail.get("player"):
         lines.append("👤 " + html.escape(str(detail["player"])[:80]))
+    if detail.get("entrant"):
+        lines.append("⬆️ " + html.escape(str(detail["entrant"])[:80]))
+    if detail.get("sortant"):
+        lines.append("⬇️ " + html.escape(str(detail["sortant"])[:80]))
+    if detail.get("players") and not detail.get("entrant"):
+        lines.append("👥 " + html.escape(", ".join(map(str, detail["players"][:2]))[:120]))
+    if detail.get("team"):
+        lines.append("👕 " + html.escape(str(detail["team"])[:80]))
     if state["phase"] == "halftime" and kind == "board":
         lines.append("⏸ Mi-temps")
     elif state["phase"] == "final" and kind == "board":
@@ -261,10 +272,10 @@ def derive_events(row: dict, info: dict, summary: dict,
         output.append(("halftime", f"halftime:{match_id}", {}))
     if current_phase == "final" and previous.get("phase") != "final":
         output.append(("fulltime", f"fulltime:{match_id}", {}))
-    # Only recent red cards, never retrospective first-cycle flood.
+    # Recent source-confirmed timeline events only; do not replay the first observation.
     if current_phase in ("live", "halftime", "final") and current["minute"] >= previous.get("minute", 0):
         for card in extract_cards(summary):
-            if not isinstance(card, dict) or str(card.get("type") or "") != "red":
+            if not isinstance(card, dict) or str(card.get("type") or "") not in ("red", "yellow"):
                 continue
             minute = card.get("minute_total") or card.get("minute")
             if not isinstance(minute, int):
@@ -275,8 +286,43 @@ def derive_events(row: dict, info: dict, summary: dict,
             raw_key = str(card.get("id") or "")
             if not raw_key:
                 raw_key = f"{minute}:{clean(card.get('player'))}"
-            output.append(("red", f"red:{match_id}:{raw_key}",
+            kind = "red" if card.get("type") == "red" else "yellow"
+            output.append((kind, f"{kind}:{match_id}:{raw_key}",
                            {"player": str(card.get("player") or "")}))
+        for change in extract_substitutions(summary):
+            if not isinstance(change, dict):
+                continue
+            minute = change.get("minute")
+            if not isinstance(minute, int) or not (
+                minute >= int(previous.get("minute") or 0)
+                and 0 <= current["minute"] - minute <= 18
+            ):
+                continue
+            raw_key = str(change.get("id") or "")
+            if not raw_key:
+                raw_key = f"{minute}:{clean(change.get('entrant'))}:{clean(change.get('sortant'))}"
+            output.append(("substitution", f"sub:{match_id}:{raw_key}", {
+                "entrant": str(change.get("entrant") or ""),
+                "sortant": str(change.get("sortant") or ""),
+                "players": change.get("players") or [],
+            }))
+        for kick in extract_shootout_kicks(summary):
+            if not isinstance(kick, dict) or kick.get("outcome") not in ("made", "missed"):
+                continue
+            minute = kick.get("minute")
+            if not isinstance(minute, int) or not (
+                minute >= int(previous.get("minute") or 0)
+                and 0 <= current["minute"] - minute <= 18
+            ):
+                continue
+            raw_key = str(kick.get("id") or "")
+            if not raw_key:
+                raw_key = f"{minute}:{clean(kick.get('player'))}:{clean(kick.get('team'))}:{kick['outcome']}"
+            kind = "shootout_" + str(kick["outcome"])
+            output.append((kind, f"{kind}:{match_id}:{raw_key}", {
+                "player": str(kick.get("player") or ""),
+                "team": str(kick.get("team") or ""),
+            }))
     return output
 
 
