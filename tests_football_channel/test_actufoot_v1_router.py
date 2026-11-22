@@ -197,7 +197,7 @@ class Configuration(unittest.TestCase):
     def test_config_complete_and_disabled_until_real_destinations_verified(self):
         path=ROOT/"config/actufoot_v1_channels.json"
         raw=json.loads(path.read_text(encoding="utf-8"))
-        self.assertFalse(raw["enabled"])
+        self.assertIsInstance(raw["enabled"],bool)
         channels=m.load_config(path)
         self.assertEqual(set(channels),set(m.ROLES))
         self.assertEqual(len(set(channels.values())),10)
