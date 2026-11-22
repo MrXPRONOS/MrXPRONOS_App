@@ -81,45 +81,6 @@ def save_row(row, session):
         raise RuntimeError("secure_registry_result_invalid") from None
 
 
-def sync_verified_cinema_to_broadcast_registry(row, classified, session):
-    """Synchronize only cinema channels confirmed to be managed by BOTH admins.
-
-    The Supabase table has RLS enabled and is accessed only with server credentials.
-    Never log or export private channel titles or IDs.
-    """
-    categories = set((classified or {}).get("categories") or ())
-    if not categories.intersection({"films", "series", "animes"}):
-        return False
-    if row["bot_role"] not in ("administrator", "creator") or row["bot_can_post"] is not True:
-        return False
-    payload = {
-        "bot_id": int(row["bot_id"]),
-        "channel_id": int(row["channel_id"]),
-        "title": str(row["title"]),
-        "username": row["username"],
-        "is_private": not bool(row["username"]),
-        "bot_status": str(row["bot_role"]),
-        "can_post_messages": True,
-        "source": "verified_personal_bot_admin_cinema_scan",
-        "last_verified_at": datetime.now(timezone.utc).isoformat(),
-        "broadcast_enabled": True,
-    }
-    url = env("SUPABASE_URL").rstrip("/") + "/rest/v1/telegram_channel_registry"
-    try:
-        response = session.post(
-            url,
-            params={"on_conflict": "bot_id,channel_id"},
-            headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
-            json=payload,
-            timeout=(8, 25),
-        )
-    except requests.RequestException:
-        raise RuntimeError("cinema_broadcast_registry_write_uncertain") from None
-    if response.status_code not in (200, 201, 204):
-        raise RuntimeError("cinema_broadcast_registry_http_" + str(response.status_code))
-    return True
-
-
 async def scan(client=None, public_export_path=None):
     """Scan on an already connected client, or create one for standalone use."""
     api_id = env("TG_API_ID")
@@ -130,6 +91,8 @@ async def scan(client=None, public_export_path=None):
     # Le catalogue personnel n'exige ni bot administrateur, ni Supabase.
     # Le registre historique chiffré conserve son filtre strict : les DEUX admins.
     registry_enabled = bool(env("SUPABASE_SERVICE_ROLE_KEY") and env("SUPABASE_URL"))
+    if env("REQUIRE_SECURE_REGISTRY") == "1" and not registry_enabled:
+        raise RuntimeError("supabase_credentials_missing")
     bot_api, bot = None, {}
     if registry_enabled:
         try:
@@ -138,6 +101,8 @@ async def scan(client=None, public_export_path=None):
                 bot_api, bot = discovered_api, discovered_bot
         except Exception:
             pass  # Les canaux personnels sont quand même catalogués.
+    if env('REQUIRE_SECURE_REGISTRY') == '1' and bot_api is None:
+        raise RuntimeError('requested_bot_identity_not_verified')
     http = None
     if registry_enabled and bot_api is not None:
         http = requests.Session()
@@ -237,10 +202,11 @@ async def scan(client=None, public_export_path=None):
                 "user_role": user_role,
                 "bot_role": status,
                 "bot_can_post": bool(can_post),
+                "cinema_eligible": bool(enriched and set(enriched.get("categories") or ()) & {"films", "series", "animes"}),
             }
             save_row(payload, http)
-            if can_post and sync_verified_cinema_to_broadcast_registry(payload, enriched, http):
-                counts["cinema_broadcast_registry_synced"] += 1
+            if can_post and payload["cinema_eligible"]:
+                counts["cinema_classified_secure"] += 1
             counts["verified_and_encrypted"] += 1
             if classify_public(username):
                 counts["public"] += 1
@@ -284,8 +250,8 @@ async def scan(client=None, public_export_path=None):
         "bot_checks_unavailable":counts["bot_check_unavailable"],
         "personal_role_unavailable":counts["personal_role_unavailable"],
         "public_channels":public_rows,
-        "cinema_broadcast_registry_synced":counts["cinema_broadcast_registry_synced"],
-        "broadcast_enabled_by_scan": bool(counts["cinema_broadcast_registry_synced"])
+        "cinema_classified_secure":counts["cinema_classified_secure"],
+        "secure_cinema_classification_recorded": bool(counts["cinema_classified_secure"])
     },ensure_ascii=False))
     if public_export_path is not None:
         # Export ONLY already-public metadata; private IDs/titles remain inside Vault.
