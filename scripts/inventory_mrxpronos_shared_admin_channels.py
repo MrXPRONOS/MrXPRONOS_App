@@ -137,9 +137,14 @@ async def scan(client=None, public_export_path=None):
             except (FloodWaitError, PeerFloodError):
                 raise
             except Exception as exc:
-                counts["personal_role_unavailable"] += 1
-                print("PERSONAL_ADMIN_CHECK_UNAVAILABLE", type(exc).__name__)
-                continue
+                # Les indicateurs d'administration du dialogue sont fournis par Telegram.
+                # Ne les écarter que si les droits ne sont PAS établis non plus par ces flags.
+                if not role_from_permissions(channel, None):
+                    counts["personal_role_unavailable"] += 1
+                    print("PERSONAL_ADMIN_CHECK_UNAVAILABLE", type(exc).__name__)
+                    continue
+                permissions = None
+                counts["personal_role_from_dialog_flags"] += 1
             user_role = role_from_permissions(channel, permissions)
             if user_role is None:
                 counts["personal_not_admin"] += 1
