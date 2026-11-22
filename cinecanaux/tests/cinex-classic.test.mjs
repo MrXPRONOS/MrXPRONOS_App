@@ -57,6 +57,22 @@ test('two separate Telegram taps for the same film never queue duplicate copies'
   assert.deepEqual(methods,['sendMessage']);
  }finally{globalThis.fetch=old;db.close()}
 });
+test('atomic insert stops duplicate classic taps even when both SELECT prechecks miss',async()=>{
+ const {db,env}=fixture(),oldFetch=globalThis.fetch;
+ const prepare=env.DB.prepare.bind(env.DB),calls=[];
+ env.DB.prepare=sql=>{
+  const stmt=prepare(sql);
+  if(sql.startsWith('SELECT id FROM cine_classic_deliveries WHERE telegram_chat_id='))stmt.first=async()=>null;
+  return stmt;
+ };
+ globalThis.fetch=async url=>{calls.push(String(url).split('/').at(-1));return Response.json({ok:true,result:{message_id:55}})};
+ try{
+  assert.equal((await handleClassicDeliveryStart(env,request(321,120))).accepted,true);
+  assert.equal((await handleClassicDeliveryStart(env,request(321,121))).duplicate,true);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM cine_classic_deliveries').get().n,1);
+  assert.deepEqual(calls,['sendMessage']);
+ }finally{globalThis.fetch=oldFetch;db.close()}
+});
 test('queue copies only from a verified negative library id into a positive private chat',async()=>{
  const {db,env}=fixture();const old=globalThis.fetch;const calls=[];
  globalThis.fetch=async(url,options)=>{calls.push({method:String(url).split('/').at(-1),body:JSON.parse(options.body)});return Response.json({ok:true,result:{message_id:66}})};

@@ -76,7 +76,13 @@ export async function handleDeliveryStart(env,update){
   if(recentSame)return {handled:true,accepted:true,duplicate:true};
   const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM cine_delivery_jobs WHERE telegram_chat_id=? AND created_at>=datetime('now','-1 hour')").bind(chat).first();
   if(Number(recent?.n||0)>=4){await say(env,chat,'Trop de demandes récentes. Réessaie plus tard.');return {handled:true,accepted:false};}
-  const inserted=await env.DB.prepare("INSERT OR IGNORE INTO cine_delivery_jobs(token,telegram_chat_id,telegram_update_id,planned_items) VALUES(?,?,?,?)").bind(token,chat,update.update_id,media.length).run();
+  // The existence pre-check above is advisory only: a second webhook can race
+  // it. The single INSERT/SELECT statement is an atomic D1 duplicate guard.
+  const inserted=await env.DB.prepare(
+   "INSERT OR IGNORE INTO cine_delivery_jobs(token,telegram_chat_id,telegram_update_id,planned_items) "+
+   "SELECT ?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM cine_delivery_jobs WHERE telegram_chat_id=? AND token=? "+
+   "AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review'))"
+  ).bind(token,chat,update.update_id,media.length,chat,token).run();
   if(Number(inserted.meta?.changes||0)===0)return {handled:true,accepted:true,duplicate:true};
   const job=await env.DB.prepare("SELECT id FROM cine_delivery_jobs WHERE telegram_update_id=? AND telegram_chat_id=?").bind(update.update_id,chat).first();
   if(!job?.id)throw Error('job_insert_missing');

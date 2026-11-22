@@ -236,9 +236,13 @@ export async function handleFranchiseDownloadStart(env,update){
  if(recentSame)return {handled:true,accepted:true,duplicate:true};
  const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM cine_franchise_jobs WHERE telegram_chat_id=? AND created_at>=datetime('now','-1 hour')").bind(chat).first();
  if(Number(recent?.n||0)>=2){await notify(env,chat,'Trop de demandes récentes. Réessaie plus tard.');return {handled:true,accepted:false}}
- await env.DB.prepare(
-  "INSERT OR IGNORE INTO cine_franchise_jobs(slug,telegram_update_id,telegram_chat_id,planned_items) VALUES(?,?,?,?)"
- ).bind(row.slug,update.update_id,chat,media.length).run();
+ // Enforce the same 10-minute duplicate window atomically inside SQLite/D1.
+ const inserted=await env.DB.prepare(
+  "INSERT OR IGNORE INTO cine_franchise_jobs(slug,telegram_update_id,telegram_chat_id,planned_items) "+
+  "SELECT ?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM cine_franchise_jobs WHERE telegram_chat_id=? AND slug=? "+
+  "AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review'))"
+ ).bind(row.slug,update.update_id,chat,media.length,chat,row.slug).run();
+ if(Number(inserted.meta?.changes||0)!==1)return {handled:true,accepted:true,duplicate:true};
  const job=await env.DB.prepare("SELECT id FROM cine_franchise_jobs WHERE telegram_update_id=? AND telegram_chat_id=?").bind(update.update_id,chat).first();
  if(!job?.id)throw Error('franchise_job_missing');
  await env.DB.batch(media.map(x=>env.DB.prepare(

@@ -45,7 +45,11 @@ export async function handleClassicDeliveryStart(env,update){
   await telegram(env,'sendMessage',{chat_id:msg.chat.id,text:'Trop de téléchargements récents. Réessaie plus tard.'}).catch(()=>{});
   return {handled:true,accepted:false};
  }
- const out=await env.DB.prepare("INSERT OR IGNORE INTO cine_classic_deliveries(token,telegram_update_id,telegram_chat_id) VALUES(?,?,?)").bind(token,update.update_id,msg.chat.id).run();
+ const out=await env.DB.prepare(
+  "INSERT OR IGNORE INTO cine_classic_deliveries(token,telegram_update_id,telegram_chat_id) "+
+  "SELECT ?,?,? WHERE NOT EXISTS (SELECT 1 FROM cine_classic_deliveries WHERE telegram_chat_id=? AND token=? "+
+  "AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','sent','needs_review'))"
+ ).bind(token,update.update_id,msg.chat.id,msg.chat.id,token).run();
  if(Number(out.meta?.changes||0)!==1)return {handled:true,accepted:true,duplicate:true};
  await telegram(env,'sendMessage',{chat_id:msg.chat.id,text:'🎬 Téléchargement de « '+String(link.title).slice(0,80)+' » en cours. La copie envoyée par le bot sera supprimée après 24 heures. Pour garder le fichier, transfère-le vers Messages enregistrés.'}).catch(()=>{});
  return {handled:true,accepted:true};

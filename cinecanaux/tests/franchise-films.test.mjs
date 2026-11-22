@@ -163,6 +163,25 @@ test("CineRadar saga link queues only stored films, delivers owner's copies and 
   assert.equal(db.prepare("SELECT COUNT(*) n FROM cine_owner_vault WHERE status='stored'").get().n,2);
  }finally{globalThis.fetch=old;db.close()}
 });
+test('atomic franchise insert blocks two taps racing the precheck',async()=>{
+ const {db,env}=fixture(),oldFetch=globalThis.fetch;
+ const stored=await ingestFranchiseOwnerForward(env,forwarded({messageId:32,originId:401,caption:'Fast and Furious 4 VF'}));
+ assert.equal(stored.stored,true);
+ db.exec("UPDATE cine_franchise_catalog SET status='published'");
+ const prepare=env.DB.prepare.bind(env.DB);
+ env.DB.prepare=sql=>{
+  const stmt=prepare(sql);
+  if(sql.startsWith('SELECT id FROM cine_franchise_jobs WHERE telegram_chat_id='))stmt.first=async()=>null;
+  return stmt;
+ };
+ globalThis.fetch=async()=>Response.json({ok:true,result:{message_id:32}});
+ try{
+  assert.equal((await handleFranchiseDownloadStart(env,userStart(500))).accepted,true);
+  assert.equal((await handleFranchiseDownloadStart(env,userStart(501))).duplicate,true);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM cine_franchise_jobs').get().n,1);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM cine_franchise_job_items').get().n,1);
+ }finally{globalThis.fetch=oldFetch;db.close()}
+});
 test('unregistered saga never queues subscriber deliveries',async()=>{
  const {db,env}=fixture(),old=globalThis.fetch;
  globalThis.fetch=async()=>Response.json({ok:true,result:{message_id:1}});

@@ -219,7 +219,14 @@ export async function handleSeriesStart(env,update){
   if(recentSame)return {handled:true,accepted:true,duplicate:true};
   const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM cine_series_jobs WHERE telegram_chat_id=? AND created_at>=datetime('now','-1 hour')").bind(chat).first();
   if(Number(recent?.n||0)>=2){await notify(env,chat,'Trop de demandes récentes. Réessaie plus tard.');return {handled:true,accepted:false}}
-  await env.DB.prepare("INSERT OR IGNORE INTO cine_series_jobs(token,telegram_chat_id,telegram_update_id,planned_items) VALUES(?,?,?,?)").bind(token,chat,update.update_id,media.length).run();
+  // Atomic D1 gate: independent Telegram updates cannot both pass the
+  // earlier SELECT when users tap twice at nearly the same instant.
+  const inserted=await env.DB.prepare(
+   "INSERT OR IGNORE INTO cine_series_jobs(token,telegram_chat_id,telegram_update_id,planned_items) "+
+   "SELECT ?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM cine_series_jobs WHERE telegram_chat_id=? AND token=? "+
+   "AND created_at>=datetime('now','-10 minutes') AND status IN ('queued','sending','complete','needs_review'))"
+  ).bind(token,chat,update.update_id,media.length,chat,token).run();
+  if(Number(inserted.meta?.changes||0)!==1)return {handled:true,accepted:true,duplicate:true};
   const job=await env.DB.prepare("SELECT id FROM cine_series_jobs WHERE telegram_update_id=? AND telegram_chat_id=?").bind(update.update_id,chat).first();
   if(!job?.id)throw Error('series_job_missing');
   await env.DB.batch(media.map((item,i)=>env.DB.prepare(
