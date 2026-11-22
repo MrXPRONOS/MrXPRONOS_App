@@ -175,6 +175,15 @@ def shared_legacy_cover(video, poster, old, posters, category, messages) -> bool
     return False
 
 
+def bot_can_edit_original(permission) -> bool:
+    """Bot must hold channel edit rights before copying archived media."""
+    return bool(getattr(permission, "is_creator", False) or (
+        getattr(permission, "is_admin", False)
+        and getattr(permission, "post_messages", False)
+        and getattr(permission, "edit_messages", False)
+    ))
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
                          history: int = MAX_HISTORY, unified=None):
@@ -190,7 +199,8 @@ async def repair_channel(client, bot, category: str, public, private,
         "protected": len(recent), "older": len(old), "recognized": 0,
         "private_existing": 0, "private_created": 0, "public_linked": 0,
         "public_edited": 0, "public_edit_failed": 0,
-        "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0, "errors": 0,
+        "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0,
+        "private_pair_unverified": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
     if len(recent) < 10:
@@ -213,6 +223,11 @@ async def repair_channel(client, bot, category: str, public, private,
                     (getattr(perm, "is_admin", False)
                      and getattr(perm, "post_messages", False))):
                 raise RuntimeError(f"{category}: droits de publication du bot insuffisants")
+            if destination == public and not bot_can_edit_original(perm):
+                # Telegram may refuse an edit even with this right, but without
+                # it a copy-first repair is known to produce orphan archives.
+                raise RuntimeError(
+                    f"{category}: bot sans droit edit_messages; aucune archive copiée")
     private_messages = ([m async for m in client.iter_messages(private, limit=history)]
                         if apply else [])
     repaired = 0
@@ -261,6 +276,16 @@ async def repair_channel(client, bot, category: str, public, private,
                 private_video_id = pair[0].id
                 report["private_existing"] += 1
             else:
+                # A copy of this exact document with an unverified/missing
+                # poster is not a new item to resend. Quarantine for manual
+                # association, instead of multiplying the same private video.
+                document = video_document_id(video)
+                if any(is_video_message(item) and video_document_id(item) == document
+                       for item in private_messages):
+                    report["private_pair_unverified"] += 1
+                    LOG.warning("%s : archive privée non vérifiable pour vidéo #%s ; "
+                                "aucune copie supplémentaire", category, video.id)
+                    continue
                 caption = cover_caption(poster, video, category,
                                         identity=identity, extra_text=extra)
                 raw = await client.download_media(poster.media, file=bytes)
