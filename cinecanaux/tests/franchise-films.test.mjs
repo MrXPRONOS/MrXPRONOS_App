@@ -211,7 +211,10 @@ test('owner draft bot link delivers a private test while non-owner cannot access
   assert.equal((await handleFranchiseDownloadStart(env,privateStart)).accepted,true);
   db.exec('DELETE FROM cine_telegram_send_quota'); // Simulated later Cron tick.
   assert.equal((await processFranchiseQueue(env)).processed,1);
-  assert.deepEqual(calls.filter(x=>x.method==='copyMessage').map(x=>x.body),[
+  const copyPayloads=calls.filter(x=>x.method==='copyMessage').map(x=>x.body);
+  assert.equal(copyPayloads.length,1);
+  assert.match(copyPayloads[0].caption,/12 heures après son envoi/);
+  assert.deepEqual(copyPayloads.map(({caption,...fields})=>fields),[
    {chat_id:OWNER,from_chat_id:String(OWNER),message_id:40,protect_content:false}
   ]);
  }finally{globalThis.fetch=old;db.close()}
