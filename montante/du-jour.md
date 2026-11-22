@@ -9,10 +9,3 @@
 - Écart sur probabilité implicite : 3.1 points
 
 **Vérifier la même sélection et sa cote chez le bookmaker avant de parier.** Une cote consensus n'est pas une offre garantie; aucun pari n'a été passé. Une perte reste possible.
-
-## Audit NVIDIA NIM
-
-- Modèle : `nvidia/nemotron-3-ultra-550b-a55b`
-- État : `completed`
-- Candidats examinés : 1
-- L'IA ne fournit aucune probabilité garantie ni cote bookmaker.
