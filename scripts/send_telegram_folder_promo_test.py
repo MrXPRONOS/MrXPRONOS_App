@@ -41,18 +41,21 @@ BUTTON = {
 
 
 def check():
-    if not PHOTO.is_file() or PHOTO.stat().st_size < 1024:
-        raise ValueError("L'affiche n'est pas présente dans GitHub")
     media = ANIMATION if ANIMATION.is_file() else PHOTO
-        with media.open("rb") as img:
-        if img.read(3) != b"\xff\xd8\xff":
-            raise ValueError("Le fichier doit être au format JPEG")
-    if len(CAPTION) > 1024 or CAPTION.count("\n") != 3:
-        raise ValueError("La légende doit être courte et compatible avec sendPhoto")
+    if not media.is_file() or media.stat().st_size < 1024:
+        raise ValueError("Animation ou affiche absente du dépôt GitHub")
+    with media.open("rb") as img:
+        signature = img.read(32)
+    if media == ANIMATION and b"ftyp" not in signature:
+        raise ValueError("Le fichier doit être au format MP4")
+    if media == PHOTO and signature[:3] != b"\\xff\\xd8\\xff":
+        raise ValueError("Le fichier doit être au format JPEG")
+    if len(CAPTION) > 1024 or CAPTION.count("\\n") != 3:
+        raise ValueError("La légende doit être courte et compatible avec Telegram")
     if (BUTTON["inline_keyboard"][0][0]["style"] != "primary"
             or BUTTON["inline_keyboard"][0][0]["url"] != TARGET_URL):
         raise ValueError("Bouton bleu ou lien du dossier incorrect")
-    print("FOLDER_PROMO_CHECK_OK media_bytes=", (ANIMATION if ANIMATION.is_file() else PHOTO).stat().st_size,
+    print("FOLDER_PROMO_CHECK_OK", "media=", media.name, "media_bytes=", media.stat().st_size,
           "caption_lines=4", "blue_button=primary", "folder_link=", TARGET_URL)
 
 
