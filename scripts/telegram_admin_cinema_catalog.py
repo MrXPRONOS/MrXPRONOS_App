@@ -73,7 +73,7 @@ GENRE_TERMS = {
     "action": ("action", "combat"),
     "aventure": ("aventure", "adventure"),
     "comédie": ("comedie", "humour", "funny"),
-    "romance": ("romance", "romantique", "amour", "desir"),
+    "romance": ("romance", "romantique", "romantiques", "amour", "desir"),
     "horreur": ("horreur", "horror", "epouvante"),
     "thriller": ("thriller", "suspense"),
     "science-fiction": ("science fiction", "sciencefiction", "sci fi", "scifi"),
@@ -108,7 +108,7 @@ def has_term(text: str, phrase: str) -> bool:
 def title_match(name: str) -> tuple[str, str] | None:
     for category, titles in DEDICATED_TITLES.items():
         for title in sorted(titles, key=len, reverse=True):
-            if has_term(name, title):
+            if has_term(name, title) or (len(compact(title)) >= 6 and compact(title) in compact(name)):
                 return category, title
     return None
 
@@ -135,6 +135,10 @@ def classify_channel(title: str, username: str | None, about: str = "") -> dict 
     ck = compact(name)
     if dedicated:
         cats = [dedicated[0]]
+    elif not cats and any(token in ck for token in ("animezone", "cinexanime", "otakuzone", "mangazone")):
+        cats = ["animes"]
+    elif not cats and any(token in ck for token in ("cinexseries", "kdramazone", "dramazone")):
+        cats = ["series"]
     elif not cats and ("cinex" in ck or "cine" in ck):
         # Les canaux de la famille CinéX sans mot de catégorie explicite
         # sont orientés films, mais restent à contrôler manuellement.
