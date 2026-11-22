@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-6da4e81c2cf7c8e7:UNDER_35",
+    "recorded_at_utc": "2026-11-22T00:17:56+00:00",
+    "kickoff_utc": "2026-11-23T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Gimnasia y Esgrima",
+      "away_team": "Newell's Old Boys",
+      "league": "Argentine Division 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "32f198a14b7e8d46237174e63ec3b8d84dcb5862cfeca0da2ee5f4e5832cc4da"
+}

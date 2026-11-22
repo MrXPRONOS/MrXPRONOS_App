@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-286777884d3db73b:UNDER_35",
+    "recorded_at_utc": "2026-11-22T00:17:56+00:00",
+    "kickoff_utc": "2026-11-23T23:00:00+00:00",
+    "fixture": {
+      "home_team": "Botafogo",
+      "away_team": "São Paulo",
+      "league": "Brazilian Serie A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.0,
+      "odds": 1.32,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "d35580e4654aa27cbcd81f5ddac68e91926c5fa9ad5392e867b1b1f03ed7abdd"
+}
