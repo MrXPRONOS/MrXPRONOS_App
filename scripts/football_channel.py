@@ -1888,12 +1888,9 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         site_url = str(article.get("site_url") or (
             "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=" + slug
         ))
-        visible_sources = {"Foot Mercato", "MadeInFoot", "RFI", "France 24", "Franceinfo"}
-        source_tail = ("\n\n<i>(" + esc(source) + ")</i>") if source in visible_sources else ""
         message = (
             "<b>" + emoji + " " + esc(title) + "</b>\n\n"
             + esc(summary)
-            + source_tail
         )
         keyboard_buttons = []
         verification = None
