@@ -402,6 +402,25 @@ async def repair_channel(client, bot, category: str, public, private,
     return report
 
 
+def legacy_repair_completion(reports):
+    """Never label a successful GitHub run as a completed historical migration.
+
+    The remaining public posts can be unsafe, uneditable or unidentifiable.
+    A partial classification is useful even when zero API exceptions occur.
+    """
+    totals = {
+        name: sum(int(row.get(name, 0) or 0) for row in reports)
+        for name in ("older", "public_linked", "public_edited", "private_created",
+                     "unmatched", "ambiguous", "private_pair_unverified",
+                     "preflight_failed", "errors", "preflight_budget_exhausted")
+    }
+    totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
+    totals["complete"] = (totals["unresolved"] == 0
+                           and totals["errors"] == 0
+                           and totals["preflight_budget_exhausted"] == 0)
+    return totals
+
+
 async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
     from telethon import TelegramClient
     from telethon.sessions import StringSession
@@ -445,17 +464,28 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
     finally:
         await client.disconnect()
     LOG.info("RÉSULTAT GLOBAL RATTRAPAGE %s", reports)
+    completion = legacy_repair_completion(reports)
+    LOG.info("CINEX_REPAIR_VERIFICATION %s", {
+        "complete": completion["complete"], "unresolved": completion["unresolved"],
+        "edited": completion["public_edited"], "errors": completion["errors"]})
     summary_path = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as summary:
             summary.write("\n### CinéX — Rattrapage sûr des anciennes vidéos\n")
-            summary.write("| Canal | Anciennes | Reconnues | Vidéos privées créées | Liens publics vérifiés | Sans affiche | Erreurs |\n")
-            summary.write("|---|---:|---:|---:|---:|---:|---:|\n")
+            summary.write("| Canal | Anciennes | Fiches originales liées | Nouvelles copies privées | Sans paire fiable | Affiches ambiguës | Édition refusée | Copies incertaines | Erreurs |\n")
+            summary.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|\n")
             for row in reports:
-                summary.write("| {category} | {older} | {recognized} | {private_created} | {public_linked} | {unmatched} | {errors} |\n".format(
+                summary.write("| {category} | {older} | {public_linked} | {private_created} | {unmatched} | {ambiguous} | {preflight_failed} | {private_pair_unverified} | {errors} |\n".format(
                     **{k: row.get(k, 0) for k in (
-                        "category", "older", "recognized", "private_created",
-                        "public_linked", "unmatched", "errors")}))
+                        "category", "older", "public_linked", "private_created",
+                        "unmatched", "ambiguous", "preflight_failed",
+                        "private_pair_unverified", "errors")}))
+            summary.write(
+                "\n**Vérification : " + ("COMPLÈTE" if completion["complete"] else "PARTIELLE") +
+                "** — fiches publiques restantes : " + str(completion["unresolved"]) +
+                ", éditions originales confirmées : " + str(completion["public_edited"]) +
+                ". Les affiches ambiguës ou interdites par Telegram ne sont pas modifiées.\n"
+            )
     if any(row.get("errors", 0) for row in reports):
         raise RuntimeError("Réparation partielle : examiner les journaux avant une relance")
     return reports
