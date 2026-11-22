@@ -3,6 +3,7 @@ import {guardTelegramMethod,noteTelegramFloodWait} from './telegram-global-quota
 // CinéX classic films: safe private Telegram copies from verified library media.
 // Public video/poster messages are never deleted; only the bot's private copies.
 import {deletionDecision} from './cinex-expiry.mjs';
+import {delivery44Enabled,remoteCopyMessage} from './delivery44-client.mjs';
 const TOKEN=/^[A-Za-z0-9_-]{24}$/;
 const START=/^\/start(?:@[A-Za-z0-9_]+)?\s+d_([A-Za-z0-9_-]{24})\s*$/i;
 const BASE='https://api.telegram.org/bot';
@@ -81,10 +82,15 @@ export async function processClassicDeliveryQueue(env,{limit=3}={}){
   const lock=await env.DB.prepare("UPDATE cine_classic_deliveries SET status='sending',lock_until=datetime('now','+3 minutes'),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='queued'").bind(row.id).run();
   if(Number(lock.meta?.changes||0)!==1)continue;
   let response;
-  try{response=await telegram(env,'copyMessage',{
-   chat_id:row.telegram_chat_id,from_chat_id:sendSource,message_id:sendMessageId,protect_content:false,
-   reply_markup:{inline_keyboard:[[{text:'💾 Comment enregistrer',callback_data:'cinex:save_help'}]]}
-  })}catch{
+  try{
+   const payload={
+    chat_id:row.telegram_chat_id,from_chat_id:sendSource,message_id:sendMessageId,protect_content:false,
+    reply_markup:{inline_keyboard:[[{text:'💾 Comment enregistrer',callback_data:'cinex:save_help'}]]}
+   };
+   response=delivery44Enabled(env)
+    ? await remoteCopyMessage(env,'classic:'+row.id,payload)
+    : await telegram(env,'copyMessage',payload);
+  }catch{
    await env.DB.prepare("UPDATE cine_classic_deliveries SET status='needs_review',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(row.id).run();errors++;continue;
   }
   const id=Number(response?.result?.message_id||0);
