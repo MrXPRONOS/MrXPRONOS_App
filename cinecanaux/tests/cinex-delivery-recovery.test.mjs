@@ -119,6 +119,34 @@ test('T02: classic uncertain delivery can only be marked sent with explicit evid
  }finally{sqlite.close()}
 });
 
+test('T02: same recipient cannot attest a receipt that already belongs to another family',async()=>{
+ const {sqlite,env}=fixture();
+ try{
+  sqlite.exec("INSERT INTO cine_series_jobs(id,telegram_chat_id,status) VALUES(81,123,'needs_review')");
+  sqlite.exec("INSERT INTO cine_series_job_items(job_id,ordinal,state) VALUES(81,1,'needs_review')");
+  sqlite.exec("INSERT INTO cine_classic_deliveries(id,telegram_chat_id,status,delivered_message_id) VALUES(82,123,'sent',555)");
+  const proof={family:'series',job_id:81,item:1,message_id:555,sent_at,confirmed_existing_copy:true};
+  const out=await attestExistingCopy(env,proof,987,{now});
+  assert.equal(out.status,409);
+  assert.equal(out.code,'duplicate_or_invalid_telegram_receipt');
+  assert.equal(sqlite.prepare('SELECT state FROM cine_series_job_items WHERE job_id=81').get().state,'needs_review');
+  sqlite.exec("UPDATE cine_series_jobs SET telegram_chat_id=124 WHERE id=81");
+  assert.equal((await attestExistingCopy(env,proof,987,{now})).ok,true);
+ }finally{sqlite.close()}
+});
+
+test('T02: classic cannot steal a Telegram message already recorded as a series delivery',async()=>{
+ const {sqlite,env}=fixture();
+ try{
+  sqlite.exec("INSERT INTO cine_classic_deliveries(id,telegram_chat_id,status) VALUES(83,123,'needs_review')");
+  sqlite.exec("INSERT INTO cine_series_jobs(id,telegram_chat_id,status) VALUES(84,123,'complete')");
+  sqlite.exec("INSERT INTO cine_series_job_items(job_id,ordinal,state,delivered_message_id,sent_at) VALUES(84,1,'sent',777,'2026-11-20 19:00:00')");
+  const out=await attestExistingCopy(env,{family:'classics',job_id:83,message_id:777,sent_at,confirmed_existing_copy:true},987,{now});
+  assert.equal(out.status,409);
+  assert.equal(sqlite.prepare('SELECT status FROM cine_classic_deliveries WHERE id=83').get().status,'needs_review');
+ }finally{sqlite.close()}
+});
+
 test('T02: source files never add Telegram sends or bypass the admin mutation session',()=>{
  const file=readFileSync(new URL('../cinex-delivery-recovery.mjs',import.meta.url),'utf8');
  const api=readFileSync(new URL('../admin-v2.mjs',import.meta.url),'utf8');
