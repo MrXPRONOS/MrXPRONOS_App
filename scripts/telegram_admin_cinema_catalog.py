@@ -115,7 +115,7 @@ def title_match(name: str) -> tuple[str, str] | None:
 
 def likely_cinema(name: str) -> bool:
     n = fold(name)
-    return bool(title_match(n) or any(
+    return bool(title_match(n) or "cinex" in compact(n) or any(
         has_term(n, term) for terms in CATEGORY_TERMS.values() for term in terms
     ) or any(has_term(n, term) for terms in GENRE_TERMS.values() for term in terms))
 
@@ -132,16 +132,20 @@ def classify_channel(title: str, username: str | None, about: str = "") -> dict 
     for category in ("films", "series", "animes"):
         if any(has_term(text, term) for term in CATEGORY_TERMS[category]):
             cats.append(category)
+    ck = compact(name)
     if dedicated:
         cats = [dedicated[0]]
-    elif not cats and any(has_term(name, term) for terms in GENRE_TERMS.values() for term in terms):
-        # Genres sans mot « film » : l'appellation CinéX suggère un canal films.
-        if "cinex" in compact(name) or "cine" in compact(name):
-            cats = ["films"]
+    elif not cats and ("cinex" in ck or "cine" in ck):
+        # Les canaux de la famille CinéX sans mot de catégorie explicite
+        # sont orientés films, mais restent à contrôler manuellement.
+        cats = ["films"]
 
     genres = sorted(
         genre for genre, terms in GENRE_TERMS.items()
         if any(has_term(text, term) for term in terms)
+        or ("cinex" in ck and genre in ("comédie", "romance")
+            and (("comedie" in ck and genre == "comédie")
+                 or ("desir" in ck and genre == "romance")))
     )
     language = next((
         lang for lang, terms in LANG_TERMS.items()
