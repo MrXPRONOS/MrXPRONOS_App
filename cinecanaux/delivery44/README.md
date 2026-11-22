@@ -11,13 +11,15 @@ Moteur de copies Telegram à déployer sur le compte Cloudflare **ananiolivier44
 - La base D1 44 stocke uniquement les identifiants de requête et les états de livraison.
 
 ## Sécurité
-L'appelant fournit `x-cine-time` (timestamp Unix en millisecondes) et `x-cine-signature` (HMAC-SHA256 hexadécimal sur `timestamp + '.' + corps JSON exact`), avec `CINE_BRIDGE_SECRET` partagé dans les secrets Workers. La requête comprend un `request_id` stable de type `classic:123`, `method: 'copyMessage'`, `bot_token` temporaire et `payload` Telegram. Le token transmis par HTTPS ne doit jamais être journalisé, stocké dans D1 ni renvoyé dans une réponse.
+La production 52 conserve la clé privée ECDSA P-256 en secret `CINE_DELIVERY44_PRIVATE_KEY` (DER PKCS#8 en base64). Le compte 44 détient uniquement la clé publique de vérification et n'a pas besoin de secret partagé. Les requêtes sont signées sur `timestamp + '.' + corps JSON exact`, avec un timestamp de 60 secondes maximum et un reçu D1 anti-répétition.
+
+Le `bot_token` est transmis exclusivement dans une requête HTTPS signée et ne doit jamais être stocké ou journalisé. Le client 52 utilise le quota D1 partagé avant l'appel, et revient au circuit 52 uniquement lorsque 44 renvoie un échec garanti avant tout appel à Telegram.
 
 ## Migration
 1. Déployer le Worker et sa D1 isolée sur 44.
-2. Configurer le même `CINE_BRIDGE_SECRET` sur les Workers 44 et 52.
+2. Vérifier que le secret privé `CINE_DELIVERY44_PRIVATE_KEY` existe uniquement sur 52 et que la clé publique compilée sur 44 correspond.
 3. Vérifier `GET /health` et que `POST /internal/v1/copy` non signé renvoie 403.
-4. Ajouter une fonction d'envoi distant avec feature flag dans les quatre processeurs du dépôt `cinecanaux` (un par un).
+4. Activer `CINE_DELIVERY44_ENABLED=1` dans `wrangler.jsonc` sur 52 après validation de la CI.
 5. Tester avec une vidéo autorisée et vérifier les reçus dans D1 sur les deux comptes.
 6. Activer progressivement ; conserver le traitement 52 comme retour arrière **uniquement avant l'acceptation d'un envoi**.
 7. Ne jamais rejouer automatiquement un `copyMessage` dont le résultat est inconnu.
