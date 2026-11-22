@@ -91,10 +91,13 @@ export async function handleDeliveryStart(env,update){
   ).bind(job.id,i+1,
    Number.isSafeInteger(Number(m.owner_chat_id))&&Number(m.owner_chat_id)>0&&Number.isSafeInteger(Number(m.owner_message_id))&&Number(m.owner_message_id)>0?String(m.owner_chat_id):link.private_chat_id,
    Number.isSafeInteger(Number(m.owner_chat_id))&&Number(m.owner_chat_id)>0&&Number.isSafeInteger(Number(m.owner_message_id))&&Number(m.owner_message_id)>0?Number(m.owner_message_id):m.source_message_id)));
-  await say(env,chat,media.length>1?
-   '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 24 heures. Pense à les transférer dans Messages enregistrés.':
-   '🎬 Le film « '+String(link.display_title).slice(0,85)+' » va être envoyé automatiquement. Cette copie expire après 24 heures. Pense à la transférer dans Messages enregistrés.',
-   {inline_keyboard:[[{text:'🍿 Explorer Ciné Radar',web_app:{url:MINI_APP}}]]});
+  // Single films are sent directly as media. Keep a progress notice only
+  // for multi-episode deliveries, where users need the plan/expiry details.
+  if(media.length>1){
+   await say(env,chat,
+    '📺 '+media.length+' épisodes de « '+String(link.display_title).slice(0,85)+' » vont être envoyés automatiquement, dans l’ordre. Les copies envoyées par le bot expirent après 24 heures. Pense à les transférer dans Messages enregistrés.',
+    {inline_keyboard:[[{text:'🍿 Explorer Ciné Radar',web_app:{url:MINI_APP}}]]});
+  }
   return {handled:true,accepted:true,job_id:job.id};
  }catch(e){
   console.warn('cinex_delivery_request_failed',String(e?.name||'Error'));
