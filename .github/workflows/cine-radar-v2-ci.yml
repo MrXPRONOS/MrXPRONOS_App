@@ -108,6 +108,9 @@ jobs:
       - name: Verify T02 safe recovery and no-double-send reconciliation
         run: node --test cinecanaux/tests/cinex-delivery-recovery.test.mjs
 
+      - name: Verify 12-hour series and franchise copies and their captions
+        run: node --test cinecanaux/tests/individual-series-download.test.mjs cinecanaux/tests/franchise-films.test.mjs
+
       - name: Verify 12-hour CineX expiration and safety boundaries
         run: node --test cinecanaux/tests/private-copy-notice.test.mjs cinecanaux/tests/cinex-expiry.test.mjs cinecanaux/tests/cinex-classic.test.mjs cinecanaux/tests/cinex-operations-readonly.test.mjs
       - name: Verify T03 real private deletions and cleanup heartbeat
