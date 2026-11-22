@@ -1,11 +1,8 @@
-name: Telegram - MR XPRONOS F dossier (quotidien, 24 canaux)
+name: Telegram - MR XPRONOS F dossier + e-book (cinéma vérifié)
 
 on:
-  # Togo, Africa/Lome = UTC+0, toute l'année.
-  # GitHub Actions schedule peut s'exécuter avec un léger décalage.
   schedule:
     - cron: '17 13 * * *'
-  # Première publication dès la création du workflow aujourd'hui.
   push:
     branches: [main]
     paths:
@@ -20,9 +17,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  daily-publication:
+  combined-cinema:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 28
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -32,7 +29,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            scripts/send_folder_promo_daily.py
+            scripts/send_cinema_ebook_and_folder.py
+            assets/marketing/telegram-ebook-2026-11/affiche-promo-1938-fcfa.jpg
             assets/telegram/mrxpronos_f_folder_promo.jpg
             assets/telegram/mrxpronos_f_folder_promo.mp4
           sparse-checkout-cone-mode: false
@@ -41,8 +39,10 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installer Requests
-        run: python -m pip install 'requests>=2.31,<3'
-      - name: Valider le média, le message et le bouton bleu
-        run: python scripts/send_folder_promo_daily.py --check
-      - name: Diffuser une fois par jour dans les 24 canaux, 4 exclus
-        run: python scripts/send_folder_promo_daily.py --send
+        run: python -m pip install --disable-pip-version-check 'requests>=2.31,<3'
+      - name: Vérifier syntaxe, médias, titres et boutons sans publication
+        run: |
+          python -m py_compile scripts/send_cinema_ebook_and_folder.py
+          python scripts/send_cinema_ebook_and_folder.py --check
+      - name: Diffuser les deux campagnes, uniquement dans les canaux cinéma vérifiés
+        run: python scripts/send_cinema_ebook_and_folder.py --send
