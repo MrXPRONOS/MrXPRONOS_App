@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import {handleClassicDeliveryStart,processClassicDeliveryQueue,cleanupClassicDeliveries} from '../cinex-classic.mjs';
+import {processExpiryNotices} from '../expiry-notice-outbox.mjs';
 
 const TOKEN='ABCDEFGHIJKLMNOPQRSTUVWX';
 const now=Date.now();
@@ -85,8 +86,15 @@ test('queue copies only from a verified negative library id into a positive priv
   assert.equal(record.status,'sent');assert.equal(record.delivered_message_id,66);assert.ok(record.delete_after);
   assert.equal(Date.parse(record.delete_after.replace(' ','T')+'Z')-Date.parse(record.sent_at.replace(' ','T')+'Z'),12*3600000);
   const copy=calls.find(x=>x.method==='copyMessage');
-  assert.match(copy.body.caption,/12 heures/);
-  assert.match(copy.body.caption,/Messages enregistrés/);
+  assert.equal(Object.hasOwn(copy.body,'caption'),false);
+  assert.deepEqual(calls.map(x=>x.method),['copyMessage','sendMessage']);
+  const notice=calls.at(-1).body;
+  assert.equal(notice.chat_id,321);
+  assert.match(notice.text,/Cette vidéo sera supprimée automatiquement de ce chat 12 heures après son envoi/);
+  assert.match(notice.text,/Suppression prévue/);
+  assert.match(notice.text,/Messages enregistrés/);
+  assert.equal((await processExpiryNotices(env)).sent,0);
+  assert.equal(calls.filter(x=>x.method==='sendMessage').length,1);
   assert.deepEqual({to:copy.body.chat_id,from:copy.body.from_chat_id,id:copy.body.message_id},
    {to:321,from:'-1004392607284',id:238});
   assert.equal((await processClassicDeliveryQueue(env)).processed,0);
