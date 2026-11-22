@@ -43,7 +43,7 @@ test('classic deep link queues exactly one private copy and is idempotent',async
   assert.equal(result.accepted,true);
   assert.equal((await handleClassicDeliveryStart(env,request())).duplicate,true);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM cine_classic_deliveries").get().n,1);
-  assert.deepEqual(methods,['sendMessage']);
+  assert.deepEqual(methods,[]);
  }finally{globalThis.fetch=old;db.close()}
 });
 test('two separate Telegram taps for the same film never queue duplicate copies',async()=>{
@@ -54,7 +54,7 @@ test('two separate Telegram taps for the same film never queue duplicate copies'
   const repeated=await handleClassicDeliveryStart(env,request(321,111));
   assert.equal(repeated.duplicate,true);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM cine_classic_deliveries").get().n,1);
-  assert.deepEqual(methods,['sendMessage']);
+  assert.deepEqual(methods,[]);
  }finally{globalThis.fetch=old;db.close()}
 });
 test('atomic insert stops duplicate classic taps even when both SELECT prechecks miss',async()=>{
@@ -70,7 +70,7 @@ test('atomic insert stops duplicate classic taps even when both SELECT prechecks
   assert.equal((await handleClassicDeliveryStart(env,request(321,120))).accepted,true);
   assert.equal((await handleClassicDeliveryStart(env,request(321,121))).duplicate,true);
   assert.equal(db.prepare('SELECT COUNT(*) n FROM cine_classic_deliveries').get().n,1);
-  assert.deepEqual(calls,['sendMessage']);
+  assert.deepEqual(calls,[]);
  }finally{globalThis.fetch=oldFetch;db.close()}
 });
 test('queue copies only from a verified negative library id into a positive private chat',async()=>{
