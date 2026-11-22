@@ -28,7 +28,7 @@ def normalize_paragraphs(markup: str) -> str:
 
 def quote_excerpt(content: str) -> str:
     """A sourced paragraph is rendered as a real Telegram blockquote."""
-    body = normalize_paragraphs(html.escape(str(content or "").strip(), quote=False))
+    body = normalize_paragraphs(html.escape(str(content or "").strip(), quote=True))
     if not body:
         return ""
     return "<blockquote>" + body + "</blockquote>"
