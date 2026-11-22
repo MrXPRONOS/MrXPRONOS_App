@@ -1,5 +1,11 @@
 name: Actu Foot - audit bots et installation admin controlee
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/actufoot_admin_bot_setup.py'
+      - 'tests/test_actufoot_admin_bot_setup.py'
+      - '.github/workflows/actufoot-bots-admin-setup.yml'
   workflow_dispatch:
     inputs:
       apply:
@@ -34,10 +40,12 @@ jobs:
           python -m pip install -r telegram-film-relay/requirements.txt
           python -m unittest discover -s tests -p 'test_actufoot_admin_bot_setup.py' -v
       - name: Prévenir les sessions Telegram simultanées et les FloodWait
+        if: github.event_name != 'pull_request'
         env:
           TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
         run: python telegram-film-relay/scripts/check_personal_cooldown.py
       - name: Vérifier les dix canaux du dossier et tous les bots, sans afficher les secrets
+        if: github.event_name != 'pull_request'
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
