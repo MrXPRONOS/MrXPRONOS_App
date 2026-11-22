@@ -11,6 +11,9 @@ function candidate(){return {
  payload:{chat_id:1234567,from_chat_id:'-100123456789',message_id:42}
 }}
 test('validate expected copy request',()=>assert.equal(validIntent(candidate()),true));
+test('accept multi-part delivery request IDs',()=>{
+ for (const prefix of ['library','series','franchise']) assert.equal(validIntent({...candidate(),request_id:prefix+':123:1'}),true);
+});
 test('reject unknown method and unsafe chat ids',()=>{
  for(const x of [
   {...candidate(),method:'sendVideo'},
