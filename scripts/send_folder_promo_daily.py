@@ -62,7 +62,7 @@ def validate_static():
             raise RuntimeError("Animation MP4 invalide.")
     elif not PHOTO.is_file() or PHOTO.stat().st_size < 1024:
         raise RuntimeError("Animation ou affiche MR XPRONOS F absente.")
-    elif PHOTO.read_bytes()[:3] != b"\\xff\\xd8\\xff":
+    elif PHOTO.read_bytes()[:3] != bytes.fromhex("ffd8ff"):
         raise RuntimeError("Image JPEG invalide.")
     if CAPTION.count("\n") != 3 or len(CAPTION) > 1024:
         raise RuntimeError("Légende Telegram invalide.")
