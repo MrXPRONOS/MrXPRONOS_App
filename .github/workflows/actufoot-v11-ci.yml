@@ -1,0 +1,36 @@
+name: Actu Foot V1.1 - LIVE offline regression
+on:
+  pull_request:
+    paths:
+      - 'scripts/actufoot_v11_live.py'
+      - 'tests_football_channel/test_actufoot_v11_live.py'
+      - '.github/workflows/actufoot-v11-ci.yml'
+      - '.github/workflows/actufoot-v11-live.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/actufoot_v11_live.py'
+      - 'tests_football_channel/test_actufoot_v11_live.py'
+      - '.github/workflows/actufoot-v11-ci.yml'
+      - '.github/workflows/actufoot-v11-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: actufoot-v11-ci-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline dependencies
+        run: python -m pip install --disable-pip-version-check requests Pillow 'cryptography>=43,<47' 'langdetect>=1.0.9,<2'
+      - name: Compile V1.1 modules
+        run: python -m py_compile scripts/actufoot_v11_live.py tests_football_channel/test_actufoot_v11_live.py
+      - name: Validate routing, real event semantics and D1 safety
+        run: python -m unittest tests_football_channel.test_actufoot_v11_live -v
