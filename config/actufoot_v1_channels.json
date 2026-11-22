@@ -2,7 +2,7 @@
   "version": 1,
   "enabled": true,
   "main": "@actufoot_mrxp",
-  "description": "Ten public channels verified via Telegram Bot API getChat/getChatMember on 2026-11-22; V1 RSS router active. The main channel remains the source of confirmed publications.",
+  "description": "Ten public channels verified via Telegram Bot API getChat/getChatMember on 2026-11-22. V1 RSS router active. RSS delivery scheduled via cron-job.org at HH:09 and HH:39 Africa/Lome, plus GitHub Actions schedule fallback. The main channel remains the source of confirmed publications.",
   "channels": {
     "flash": "@FootFlashActuFR",
     "mercato": "@MercatoFootInfosFR",
