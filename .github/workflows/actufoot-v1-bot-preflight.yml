@@ -47,3 +47,4 @@ jobs:
           if failed or len(success)!=len(ROLES):
               raise SystemExit("ACTUFOOT_V1_BOT_PREFLIGHT_INCOMPLETE")
           PY
+# Reverification: trois canaux (Sélections, Scores, Débrief) passés de privé à public; aucune publication pendant ce contrôle.
