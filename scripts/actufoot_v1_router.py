@@ -42,69 +42,69 @@ ROLES = (
 ALIASES = {
     "champions": (
         r"ligue des champions", r"champions league", r"uefa champions",
-        r"\\bldc\\b", r"\\bc1\\b", r"\\bucl\\b",
+        r"\bldc\b", r"\bc1\b", r"\bucl\b",
     ),
     "premier": (
-        r"premier league", r"championnat anglais", r"\\barsenal\\b",
-        r"\\bchelsea\\b", r"\\bliverpool\\b", r"manchester city",
-        r"manchester united", r"\\bman city\\b", r"\\bman utd\\b",
-        r"\\btottenham\\b", r"\\bspurs\\b", r"\\bnewcastle\\b",
-        r"aston villa", r"\\bfulham\\b", r"west ham", r"nottingham forest",
-        r"crystal palace", r"\\beverton\\b", r"\\bbrentford\\b",
-        r"\\bbrighton\\b", r"\\bbournemouth\\b",
+        r"premier league", r"championnat anglais", r"\barsenal\b",
+        r"\bchelsea\b", r"\bliverpool\b", r"manchester city",
+        r"manchester united", r"\bman city\b", r"\bman utd\b",
+        r"\btottenham\b", r"\bspurs\b", r"\bnewcastle\b",
+        r"aston villa", r"\bfulham\b", r"west ham", r"nottingham forest",
+        r"crystal palace", r"\beverton\b", r"\bbrentford\b",
+        r"\bbrighton\b", r"\bbournemouth\b",
     ),
     "liga": (
-        r"\\bla liga\\b", r"\\blaliga\\b", r"championnat espagnol",
-        r"real madrid", r"\\bbarca\\b", r"\\bbarcelona\\b",
-        r"\\bfc barcelone\\b", r"\\batletico\\b", r"\\bvillarreal\\b",
-        r"\\bsevilla\\b", r"\\bseville\\b", r"athletic bilbao",
-        r"real betis", r"\\bvalencia\\b", r"real sociedad",
+        r"\bla liga\b", r"\blaliga\b", r"championnat espagnol",
+        r"real madrid", r"\bbarca\b", r"\bbarcelona\b",
+        r"\bfc barcelone\b", r"\batletico\b", r"\bvillarreal\b",
+        r"\bsevilla\b", r"\bseville\b", r"athletic bilbao",
+        r"real betis", r"\bvalencia\b", r"real sociedad",
     ),
     "ligue1": (
-        r"ligue 1", r"\\bl1\\b", r"championnat francais", r"\\bpsg\\b",
-        r"paris saint germain", r"\\bmarseille\\b", r"\\bom\\b",
-        r"\\bolympique lyonnais\\b", r"\\bol\\b", r"\\blyon\\b",
-        r"\\bmonaco\\b", r"\\blens\\b", r"\\blille\\b",
-        r"\\brennes\\b", r"\\bnice\\b", r"\\bnantes\\b",
-        r"\\btoulouse\\b", r"\\bbrest\\b", r"\\blorient\\b",
+        r"ligue 1", r"\bl1\b", r"championnat francais", r"\bpsg\b",
+        r"paris saint germain", r"\bmarseille\b", r"\bom\b",
+        r"\bolympique lyonnais\b", r"\bol\b", r"\blyon\b",
+        r"\bmonaco\b", r"\blens\b", r"\blille\b",
+        r"\brennes\b", r"\bnice\b", r"\bnantes\b",
+        r"\btoulouse\b", r"\bbrest\b", r"\blorient\b",
     ),
     "africa": (
-        r"\\bcan\\b", r"afcon", r"coupe d afrique", r"\\bcaf\\b",
-        r"afrique", r"\\btogo\\b", r"\\bbenin\\b",
-        r"\\bsenegal\\b", r"cote d ivoire", r"\\bnigeria\\b",
-        r"\\bghana\\b", r"\\bcameroun\\b", r"\\bmaroc\\b",
-        r"\\balgerie\\b", r"\\btunisie\\b", r"\\bmali\\b",
+        r"\bcan\b", r"afcon", r"coupe d afrique", r"\bcaf\b",
+        r"afrique", r"\btogo\b", r"\bbenin\b",
+        r"\bsenegal\b", r"cote d ivoire", r"\bnigeria\b",
+        r"\bghana\b", r"\bcameroun\b", r"\bmaroc\b",
+        r"\balgerie\b", r"\btunisie\b", r"\bmali\b",
         r"burkina faso", r"african football",
     ),
 }
-MERCATO = (r"\\bmercato\\b", r"\\btransfert", r"\\brecrut",
-           r"\\bsignature\\b", r"\\bsigne\\b", r"\\bpret\\b",
-           r"\\bprolongation", r"\\bprolonge", r"\\bnegociat",
-           r"\\boffre de transfert", r"\\baccord de transfert",
-           r"\\bcontrat\\b", r"\\bdepart\\b")
-NATIONAL = (r"\\bselection", r"equipes? nationales?", r"\\bu ?1[579]\\b",
-            r"coupe du monde", r"world cup", r"\\bmondial\\b",
-            r"\\bcan\\b", r"afcon", r"\\beuro 20", r"copa america",
-            r"\\bqualifications?\\b", r"\\bqualificatif", r"\\bfifa\\b",
+MERCATO = (r"\bmercato\b", r"\btransfert", r"\brecrut",
+           r"\bsignature\b", r"\bsigne\b", r"\bpret\b",
+           r"\bprolongation", r"\bprolonge", r"\bnegociat",
+           r"\boffre de transfert", r"\baccord de transfert",
+           r"\bcontrat\b", r"\bdepart\b")
+NATIONAL = (r"\bselection", r"equipes? nationales?", r"\bu ?1[579]\b",
+            r"coupe du monde", r"world cup", r"\bmondial\b",
+            r"\bcan\b", r"afcon", r"\beuro 20", r"copa america",
+            r"\bqualifications?\b", r"\bqualificatif", r"\bfifa\b",
             r"equipe de france", r"equipe du senegal", r"equipe du maroc")
-RESULT = (r"\\bresultat", r"\\bclassement", r"\\bcalendrier",
-          r"\\bprogramme des matchs", r"\\bscore", r"\\bvictoire",
-          r"\\bdefaite", r"\\bbuts?\\b", r"\\bmi temps",
-          r"\\bcompositions? officielles?", r"\\b[0-9]+\\s*[-:]\\s*[0-9]+\\b",
-          r"\\bqualifie")
-DEBRIEF = (r"\\bdebrief", r"\\banalys", r"\\bbilan",
-           r"\\btactiqu", r"\\bperformance", r"\\bstatistiques?",
-           r"\\bpossession", r"\\bxg\\b", r"\\bapres match")
-URGENT = (r"\\bofficiel", r"\\bbreaking", r"\\burgent",
-          r"\\blimoge", r"\\blicencie", r"\\bsuspendu",
-          r"\\bsanction", r"\\bblessure grave", r"\\bforfait",
-          r"\\bcoup dur", r"\\bdeces", r"\\bannonce majeure")
+RESULT = (r"\bresultat", r"\bclassement", r"\bcalendrier",
+          r"\bprogramme des matchs", r"\bscore", r"\bvictoire",
+          r"\bdefaite", r"\bbuts?\b", r"\bmi temps",
+          r"\bcompositions? officielles?", r"\b[0-9]+\s*[-:]\s*[0-9]+\b",
+          r"\bqualifie")
+DEBRIEF = (r"\bdebrief", r"\banalys", r"\bbilan",
+           r"\btactiqu", r"\bperformance", r"\bstatistiques?",
+           r"\bpossession", r"\bxg\b", r"\bapres match")
+URGENT = (r"\bofficiel", r"\bbreaking", r"\burgent",
+          r"\blimoge", r"\blicencie", r"\bsuspendu",
+          r"\bsanction", r"\bblessure grave", r"\bforfait",
+          r"\bcoup dur", r"\bdeces", r"\bannonce majeure")
 
 
 def norm(value):
     txt=unicodedata.normalize("NFKD", str(value or "").casefold())
     txt="".join(c for c in txt if not unicodedata.combining(c))
-    return re.sub(r"\\s+"," ",re.sub(r"[^a-z0-9 ]+"," ",txt)).strip()
+    return re.sub(r"\s+"," ",re.sub(r"[^a-z0-9 ]+"," ",txt)).strip()
 
 
 def has(text,patterns):
@@ -132,9 +132,9 @@ def destinations_for(item):
     # actual transfer; require a concrete deal-related signal.
     if has(headline,MERCATO) or (
         category=="mercato" and has(full,MERCATO) and
-        not (has(headline,(r"\\bblessure",r"\\bforfait")) and
-             not has(headline,(r"\\btransfert",r"\\btransfert",r"\\bsigne",
-                               r"\\brecrut",r"\\bprolongation")))
+        not (has(headline,(r"\bblessure",r"\bforfait")) and
+             not has(headline,(r"\btransfert",r"\btransfert",r"\bsigne",
+                               r"\brecrut",r"\bprolongation")))
     ):
         result.add("mercato")
     if has(headline,NATIONAL) or (category=="convocations" and has(full,NATIONAL)):
@@ -154,12 +154,12 @@ def destinations_for(item):
     except (TypeError,ValueError):
         quality=0
     if has(headline,URGENT) and (
-        quality >= 3 or has(headline,(r"\\bblessure grave",r"\\blimoge",
-                                    r"\\blicencie",r"\\bsanction",r"\\bdeces"))
-    ) and not has(headline,(r"\\brumeur",r"\\bserait",r"\\bpourrait")):
+        quality >= 3 or has(headline,(r"\bblessure grave",r"\blimoge",
+                                    r"\blicencie",r"\bsanction",r"\bdeces"))
+    ) and not has(headline,(r"\brumeur",r"\bserait",r"\bpourrait")):
         result.add("flash")
     # Big news about selections in Africa is legitimately multi-category.
-    if has(headline,(r"\\bcan\\b",r"afcon",r"coupe d afrique")):
+    if has(headline,(r"\bcan\b",r"afcon",r"coupe d afrique")):
         result.update(("africa","national"))
     return result
 
