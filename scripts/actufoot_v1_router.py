@@ -257,7 +257,9 @@ def dispatch(news,now,*,dry_run=False,config=None,token=None,main_chat=None,
             "main_confirmed":0,"sent":0,"already_sent":0,"errors":0,
             "editorial_skipped":0,"no_match":0,"per_channel":{r:0 for r in ROLES},
             "preflight_failed":[]}
-    selected=select_stories(news,now)
+    # Specialist publication is fresher than the historical main channel
+    # backfill; never flood newly activated channels with 48-hour old news.
+    selected=select_stories(news,now,max_age_hours=24)
     report["eligible"]=len(selected)
     if dry_run:
         report["routes"]={slug:sorted(destinations_for(item))
@@ -286,8 +288,17 @@ def dispatch(news,now,*,dry_run=False,config=None,token=None,main_chat=None,
         if (article_day,slug) not in confirmed:
             continue
         raw_roles=destinations_for(item)
-        roles=[r for r in ROLES if r in raw_roles and r in allowed and
-               per_run[r]<MAX_POSTS_PER_RUN]
+        roles=[]
+        for role in ROLES:
+            if role not in raw_roles or role not in allowed or per_run[role]>=MAX_POSTS_PER_RUN:
+                continue
+            handle=allowed[role]
+            if (article_day,handle+":"+slug) in recorded:
+                report["already_sent"]+=1
+                continue
+            if sum(1 for x in daily if x.startswith(handle+":"))>=MAX_POSTS_PER_DAY:
+                continue
+            roles.append(role)
         if not roles:
             report["no_match"]+=1
             continue
