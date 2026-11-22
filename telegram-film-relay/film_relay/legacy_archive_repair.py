@@ -414,7 +414,9 @@ def legacy_repair_completion(reports):
                      "unmatched", "ambiguous", "private_pair_unverified",
                      "preflight_failed", "errors", "preflight_budget_exhausted")
     }
-    # Conservative coverage only: repair stops at max_repaired, so we cannot\n    # assert these items are all broken; they were not verified in this pass.\n    totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
+    # Conservative coverage only: repair stops at max_repaired, so we cannot
+    # assert these items are all broken; they were not verified in this pass.
+    totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
     totals["complete"] = (totals["unresolved"] == 0
                            and totals["errors"] == 0
                            and totals["preflight_budget_exhausted"] == 0)
