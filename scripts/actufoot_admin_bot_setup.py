@@ -259,7 +259,9 @@ async def run(apply=False):
     client=TelegramClient(StringSession(sess),int(api_id),api_hash,
         request_retries=0,connection_retries=1,receive_updates=False,
         flood_sleep_threshold=0)
-    reports=[]
+    reports=["BOTS TELEGRAM IDENTIFIES (aucun token) :"] + [
+        "  @"+b["username"]+" | "+b["label"] for b in bots
+    ]
     summary={"bots":bot_stats,"mode":"apply" if apply else "audit",
              "expected_new_channels":10, "added":0,"already_correct":0,
              "failed":0,"blocked":False}
