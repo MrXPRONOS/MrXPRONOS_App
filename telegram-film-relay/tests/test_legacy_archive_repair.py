@@ -28,6 +28,12 @@ def media(mid, title, *, photo=False, video=False, name="", doc=None, buttons=No
 
 
 class LegacyMediaIdentityTests(unittest.TestCase):
+    def test_legacy_repair_completion_counts_central_missing_covers(self):
+        r=legacy_repair_completion([{"older":6,"public_linked":2,
+                                    "central_cover_unverified":3,"errors":0}])
+        self.assertFalse(r["complete"])
+        self.assertEqual(r["central_cover_unverified"],3)
+
     def test_completed_legacy_poster_is_recognized_without_new_edit(self):
         from unittest.mock import patch
         watch="https://t.me/c/4392607284/55"
