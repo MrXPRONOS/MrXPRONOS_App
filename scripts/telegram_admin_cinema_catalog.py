@@ -119,7 +119,7 @@ def title_match(name: str) -> tuple[str, str] | None:
 
 
 SEASON_TITLED_SERIES = re.compile(
-    r"^(.{5,90}?)\\s+(?:saisons?|season)\\s*[0-9]{1,2}\\b",
+    r"^(.{5,90}?)\s+(?:saisons?|season)\s*[0-9]{1,2}\b",
     re.I,
 )
 
