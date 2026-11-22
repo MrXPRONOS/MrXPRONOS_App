@@ -280,14 +280,14 @@
     "title": "Football: rupture du ligament du genou pour Désiré Doué, le PSG devra s'activer pendant le mercato",
     "summary": "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal.",
     "summary_short": "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal.",
-    "content": "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal. L'équipe de France devrait être moins impactée par son absence avec davantage de solutions immédiates.",
+    "content": "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal. L'équipe de France devrait être moins impactée par son absence avec davantage d'alternatives à disposition.",
     "paragraphs": [
-      "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal. L'équipe de France devrait être moins impactée par son absence avec davantage de solutions immédiates."
+      "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal. L'équipe de France devrait être moins impactée par son absence avec davantage d'alternatives à disposition."
     ],
     "key_points": [
       "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi.",
       "Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal.",
-      "L'équipe de France devrait être moins impactée par son absence avec davantage de solutions immédiates."
+      "L'équipe de France devrait être moins impactée par son absence avec davantage d'alternatives à disposition."
     ],
     "telegram_summary": "Le Paris Saint-Germain a confirmé dimanche 22 novembre la gravité de la blessure de son attaquant Désiré Doué, sorti sur civière lors du match contre Nice samedi. Victime d'une rupture du ligament du genou droit, il sera indisponible plusieurs mois et va obliger le club parisien à recruter en urgence lors du mercato hivernal.",
     "link": "https://www.rfi.fr/fr/sports/20261122-football-rupture-du-ligament-pour-d%C3%A9sir%C3%A9-dou%C3%A9-le-psg-devra-s-activer-pendant-le-mercato",
@@ -435,7 +435,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T22:40:07.680832+00:00"
+      "checked_at": "2026-11-22T23:10:21.932279+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -546,6 +546,171 @@
       "BBC Sport"
     ],
     "quality_score": 85
+  },
+  {
+    "slug": "1ef92c54d2ec4d9b",
+    "title": "La Liga : l’Atlético de Madrid se défait tranquillement de Getafe",
+    "summary": "Getafe 0-3 Atlético",
+    "summary_short": "Getafe 0-3 Atlético",
+    "content": "Getafe 0-3 Atlético",
+    "paragraphs": [
+      "Getafe 0-3 Atlético"
+    ],
+    "key_points": [],
+    "telegram_summary": "Getafe 0-3 Atlético",
+    "link": "https://www.sofoot.com/breves/la-liga-latletico-de-madrid-se-defait-tranquillement-de-getafe",
+    "source_url": "https://www.sofoot.com/breves/la-liga-latletico-de-madrid-se-defait-tranquillement-de-getafe",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1ef92c54d2ec4d9b",
+    "published": "2026-11-22T23:02:25+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22233705/15380474.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22233705/15380474.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50565685",
+      "url": "https://www.espn.com/video/clip/_/id/50565685/getafe-vs-atletico-madrid-game-highlights",
+      "published": "2026-11-22T22:04:53Z",
+      "score": 0.222,
+      "matched_terms": [
+        "getafe",
+        "madrid"
+      ],
+      "topics": [],
+      "teams": [
+        "Atlético Madrid",
+        "Getafe"
+      ],
+      "athletes": [
+        "Alejandro Grimaldo",
+        "Alexander Sørloth",
+        "Djené",
+        "Johnny Cardoso",
+        "Álex Baena"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-22T23:10:21.932279+00:00"
+    },
+    "quality_sources": [
+      "So Foot",
+      "ESPN"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "2359c25c4300850f",
+    "title": "Barça : un supporter du PSG expulsé du Camp Nou",
+    "summary": "Plus tôt ce dimanche, le FC Barcelone a obtenu un succès 3-2 face à Villarreal. Initialement menés 2-0 par le Sous-Marin Jaune, le club barcelonais a pu s’offrir une remontada et prendre les trois (…)",
+    "summary_short": "Plus tôt ce dimanche, le FC Barcelone a obtenu un succès 3-2 face à Villarreal. Initialement menés 2-0 par le Sous-Marin Jaune, le club barcelonais a pu s’offrir une remontada et prendre les trois (…)",
+    "content": "Plus tôt ce dimanche, le FC Barcelone a obtenu un succès 3-2 face à Villarreal. Initialement menés 2-0 par le Sous-Marin Jaune, le club barcelonais a pu s’offrir une remontada et prendre les trois (…)",
+    "paragraphs": [
+      "Plus tôt ce dimanche, le FC Barcelone a obtenu un succès 3-2 face à Villarreal. Initialement menés 2-0 par le Sous-Marin Jaune, le club barcelonais a pu s’offrir une remontada et prendre les trois (…)"
+    ],
+    "key_points": [
+      "Plus tôt ce dimanche, le FC Barcelone a obtenu un succès 3-2 face à Villarreal.",
+      "Initialement menés 2-0 par le Sous-Marin Jaune, le club barcelonais a pu s’offrir une remontada et prendre les trois (…)"
+    ],
+    "telegram_summary": "Plus tôt ce dimanche, le FC Barcelone a obtenu un succès 3-2 face à Villarreal. Initialement menés 2-0 par le Sous-Marin Jaune, le club barcelonais a pu s’offrir une remontada et prendre les trois (…)",
+    "link": "https://www.footmercato.net/a4353448571176387263-barca-un-supporter-du-psg-expulse-du-camp-nou",
+    "source_url": "https://www.footmercato.net/a4353448571176387263-barca-un-supporter-du-psg-expulse-du-camp-nou",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2359c25c4300850f",
+    "published": "2026-11-22T23:01:28+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/xnaphotosthree135713-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/xnaphotosthree135713-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "0ba2f54bbc2f1f5f",
+    "title": "Le triomphe du Mans au Vélodrome contre l’OM, bien plus que le coup d’un soir",
+    "summary": "Cette Ligue 1 moyennasse avait besoin du Mans de Patrick Videira comme promu.",
+    "summary_short": "Cette Ligue 1 moyennasse avait besoin du Mans de Patrick Videira comme promu.",
+    "content": "Cette Ligue 1 moyennasse avait besoin du Mans de Patrick Videira comme promu.",
+    "paragraphs": [
+      "Cette Ligue 1 moyennasse avait besoin du Mans de Patrick Videira comme promu."
+    ],
+    "key_points": [
+      "Cette Ligue 1 moyennasse avait besoin du Mans de Patrick Videira comme promu."
+    ],
+    "telegram_summary": "Cette Ligue 1 moyennasse avait besoin du Mans de Patrick Videira comme promu.",
+    "link": "https://www.sofoot.com/articles/le-triomphe-du-mans-au-velodrome-contre-lom-bien-plus-que-le-coup-dun-soir",
+    "source_url": "https://www.sofoot.com/articles/le-triomphe-du-mans-au-velodrome-contre-lom-bien-plus-que-le-coup-dun-soir",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ba2f54bbc2f1f5f",
+    "published": "2026-11-22T23:00:40+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22235230/ICONSPORT_380175_0219-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/22235230/ICONSPORT_380175_0219-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "418c010ec534db79",
+    "title": "ASSE : \"Fiasco liberticide honteux\", les supporters des Verts fustigent leur interdiction de stade à Reims dans un communiqué",
+    "summary": "Les supporters stéphanois ont publié un communiqué commun, ce dimanche soir, au lendemain de la victoire de l’ASSE à Reims (0-1).",
+    "summary_short": "Les supporters stéphanois ont publié un communiqué commun, ce dimanche soir, au lendemain de la victoire de l’ASSE à Reims (0-1).",
+    "content": "Les supporters stéphanois ont publié un communiqué commun, ce dimanche soir, au lendemain de la victoire de l’ASSE à Reims (0-1).",
+    "paragraphs": [
+      "Les supporters stéphanois ont publié un communiqué commun, ce dimanche soir, au lendemain de la victoire de l’ASSE à Reims (0-1)."
+    ],
+    "key_points": [
+      "Les supporters stéphanois ont publié un communiqué commun, ce dimanche soir, au lendemain de la victoire de l’ASSE à Reims (0-1)."
+    ],
+    "telegram_summary": "Les supporters stéphanois ont publié un communiqué commun, ce dimanche soir, au lendemain de la victoire de l’ASSE à Reims (0-1).",
+    "link": "https://www.onzemondial.com/ligue-2/asse-fiasco-liberticide-honteux-les-supporters-des-verts-fustigent-leur-interdiction-de-stade-a-reims-dans-un-communique-1010706",
+    "source_url": "https://www.onzemondial.com/ligue-2/asse-fiasco-liberticide-honteux-les-supporters-des-verts-fustigent-leur-interdiction-de-stade-a-reims-dans-un-communique-1010706",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=418c010ec534db79",
+    "published": "2026-11-22T22:57:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010706/411470/1200-L-asse-fiasco-liberticide-honteux-les-supporters-des-verts-fustigent-leur-interdiction-de-stade-reims-dans-un-communiqu.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010706/411470/1200-L-asse-fiasco-liberticide-honteux-les-supporters-des-verts-fustigent-leur-interdiction-de-stade-reims-dans-un-communiqu.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "e435de6c132784e9",
@@ -681,6 +846,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "0bf08df2d79bd4c7",
+    "title": "OM-Le Mans : \"L'équipe s'est liquéfiée\", le constat lucide de Genesio après la défaite",
+    "summary": "Bruno Genesio s'est exprimé avec amertume après la défaite contre Le Mans.",
+    "summary_short": "Bruno Genesio s'est exprimé avec amertume après la défaite contre Le Mans.",
+    "content": "Bruno Genesio s'est exprimé avec amertume après la défaite contre Le Mans.",
+    "paragraphs": [
+      "Bruno Genesio s'est exprimé avec amertume après la défaite contre Le Mans."
+    ],
+    "key_points": [
+      "Bruno Genesio s'est exprimé avec amertume après la défaite contre Le Mans."
+    ],
+    "telegram_summary": "Bruno Genesio s'est exprimé avec amertume après la défaite contre Le Mans.",
+    "link": "https://www.onzemondial.com/ligue-1/om-le-mans-lequipe-sest-liquefiee-le-constat-lucide-de-genesio-apres-la-defaite-1010719",
+    "source_url": "https://www.onzemondial.com/ligue-1/om-le-mans-lequipe-sest-liquefiee-le-constat-lucide-de-genesio-apres-la-defaite-1010719",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0bf08df2d79bd4c7",
+    "published": "2026-11-22T22:31:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010719/411473/1200-L-om-le-mans-l-quipe-s-est-liqufie-le-constat-lucide-de-genesio-aprs-la-dfaite.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010719/411473/1200-L-om-le-mans-l-quipe-s-est-liqufie-le-constat-lucide-de-genesio-aprs-la-dfaite.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "92ff8b2983a840c6",
@@ -1164,14 +1363,14 @@
   {
     "slug": "12746857ff6a7e5c",
     "title": "Ligue 1 : Le Mans s’offre une remontada et climatise l’OM",
-    "summary": "C'est donc ça, le Videira ball ?",
-    "summary_short": "C'est donc ça, le Videira ball ?",
-    "content": "C'est donc ça, le Videira ball ?",
+    "summary": "C’est donc ça, le Videira ball ?",
+    "summary_short": "C’est donc ça, le Videira ball ?",
+    "content": "C’est donc ça, le Videira ball ?",
     "paragraphs": [
-      "C'est donc ça, le Videira ball ?"
+      "C’est donc ça, le Videira ball ?"
     ],
     "key_points": [],
-    "telegram_summary": "C'est donc ça, le Videira ball ?",
+    "telegram_summary": "C’est donc ça, le Videira ball ?",
     "link": "https://www.sofoot.com/articles/ligue-1-le-mans-soffre-une-remontada-et-climatise-lom",
     "source_url": "https://www.sofoot.com/articles/ligue-1-le-mans-soffre-une-remontada-et-climatise-lom",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12746857ff6a7e5c",
@@ -1468,7 +1667,7 @@
       "source": "ESPN News API",
       "article_id": "50563684",
       "url": "https://www.espn.com/soccer/story/_/id/50563684/liverpool-ruin-pochettino-manchester-united-debut",
-      "published": "2026-11-22T20:45:43Z",
+      "published": "2026-11-22T22:51:18Z",
       "score": 0.214,
       "matched_terms": [
         "check",
@@ -1486,7 +1685,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T22:40:07.680832+00:00"
+      "checked_at": "2026-11-22T23:10:21.932279+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1718,7 +1917,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T22:40:07.680832+00:00"
+      "checked_at": "2026-11-22T23:10:21.932279+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1762,42 +1961,6 @@
     "quality_score": 92
   },
   {
-    "slug": "2ced2d23b0b3a865",
-    "title": "OM : le formidable décalage de Gouiri pour Paixão face au Mans",
-    "summary": "L’Olympique de Marseille a rapidement fait le break. Après avoir ouvert le score, les Phocéens ont rapidement creusé l’écart grâce à Igor Paixão. À la 40e minute, Timothy Weah a déboulé sur son côté (…)",
-    "summary_short": "L’Olympique de Marseille a rapidement fait le break. Après avoir ouvert le score, les Phocéens ont rapidement creusé l’écart grâce à Igor Paixão. À la 40e minute, Timothy Weah a déboulé sur son côté (…)",
-    "content": "L’Olympique de Marseille a rapidement fait le break. Après avoir ouvert le score, les Phocéens ont rapidement creusé l’écart grâce à Igor Paixão. À la 40e minute, Timothy Weah a déboulé sur son côté (…)",
-    "paragraphs": [
-      "L’Olympique de Marseille a rapidement fait le break. Après avoir ouvert le score, les Phocéens ont rapidement creusé l’écart grâce à Igor Paixão. À la 40e minute, Timothy Weah a déboulé sur son côté (…)"
-    ],
-    "key_points": [
-      "L’Olympique de Marseille a rapidement fait le break.",
-      "Après avoir ouvert le score, les Phocéens ont rapidement creusé l’écart grâce à Igor Paixão.",
-      "À la 40e minute, Timothy Weah a déboulé sur son côté (…)"
-    ],
-    "telegram_summary": "L’Olympique de Marseille a rapidement fait le break. Après avoir ouvert le score, les Phocéens ont rapidement creusé l’écart grâce à Igor Paixão. À la 40e minute, Timothy Weah a déboulé sur son côté (…)",
-    "link": "https://www.footmercato.net/a6926690663271213943-om-le-formidable-decalage-de-gouiri-pour-paixao-face-au-mans",
-    "source_url": "https://www.footmercato.net/a6926690663271213943-om-le-formidable-decalage-de-gouiri-pour-paixao-face-au-mans",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2ced2d23b0b3a865",
-    "published": "2026-11-22T20:37:55+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/paixao-68dccedb7e1ed.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/paixao-68dccedb7e1ed.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "46c15dfefbb2d77e",
     "title": "Première victorieuse pour Vicens, mauvaise nouvelle ... pour l'OL ?",
     "summary": "Carlos Vicens a réussi ses grands débuts sur le banc de l'Olympique lyonnais contre le LOSC. Mais cela pourrait rappeler de mauvais souvenirs aux supporters rhodaniens.",
@@ -1831,41 +1994,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "6c7a69bb7a8fa0c4",
-    "title": "Equipe de France : Cherki donne rendez-vous à l'Euro",
-    "summary": "Malgré les failles aperçues lors du dernier rassemblement, Rayan Cherki n'est pas inquiet. Le milieu offensif assure que le sé...",
-    "summary_short": "Malgré les failles aperçues lors du dernier rassemblement, Rayan Cherki n'est pas inquiet. Le milieu offensif assure que le sé...",
-    "content": "Malgré les failles aperçues lors du dernier rassemblement, Rayan Cherki n'est pas inquiet. Le milieu offensif assure que le sé...",
-    "paragraphs": [
-      "Malgré les failles aperçues lors du dernier rassemblement, Rayan Cherki n'est pas inquiet. Le milieu offensif assure que le sé..."
-    ],
-    "key_points": [
-      "Malgré les failles aperçues lors du dernier rassemblement, Rayan Cherki n'est pas inquiet.",
-      "Le milieu offensif assure que le sé..."
-    ],
-    "telegram_summary": "Malgré les failles aperçues lors du dernier rassemblement, Rayan Cherki n'est pas inquiet. Le milieu offensif assure que le sé...",
-    "link": "https://m.maxifoot.fr/football/article-66644.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66644.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6c7a69bb7a8fa0c4",
-    "published": "2026-11-22T20:21:48+00:00",
-    "image": "https://photo.maxifoot.fr/cherki-zidane-france-1.jpg",
-    "source_image": "https://photo.maxifoot.fr/cherki-zidane-france-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
   },
   {
     "slug": "f85275d0c721e4cf",
@@ -1920,7 +2048,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-22T22:40:07.680832+00:00"
+      "checked_at": "2026-11-22T23:10:21.932279+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2085,114 +2213,12 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-22T22:40:07.680832+00:00"
+      "checked_at": "2026-11-22T23:10:21.932279+00:00"
     },
     "quality_sources": [
       "BBC Sport",
       "ESPN"
     ],
     "quality_score": 93
-  },
-  {
-    "slug": "09f58b77656244df",
-    "title": "Own-goal mishap gifts Brighton first away victory",
-    "summary": "Brighton secured their first Women's Super League away win of the season thanks to a bizarre own goal from Everton's Maz Pacheco.",
-    "summary_short": "Brighton secured their first Women's Super League away win of the season thanks to a bizarre own goal from Everton's Maz Pacheco.",
-    "content": "Brighton secured their first Women's Super League away win of the season thanks to a bizarre own goal from Everton's Maz Pacheco.",
-    "paragraphs": [
-      "Brighton secured their first Women's Super League away win of the season thanks to a bizarre own goal from Everton's Maz Pacheco."
-    ],
-    "key_points": [
-      "Brighton secured their first Women's Super League away win of the season thanks to a bizarre own goal from Everton's Maz Pacheco."
-    ],
-    "telegram_summary": "Brighton secured their first Women's Super League away win of the season thanks to a bizarre own goal from Everton's Maz Pacheco.",
-    "link": "https://www.bbc.co.uk/sport/football/videos/cqx2w0m8v84wo?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/videos/cqx2w0m8v84wo?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=09f58b77656244df",
-    "published": "2026-11-22T19:50:33+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/389a/live/5ab0e970-e6a2-11f1-99b6-a35a62fa4264.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/389a/live/5ab0e970-e6a2-11f1-99b6-a35a62fa4264.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "e2032ea23ac4ae65",
-    "title": "Paris FC : Pablo Pagis adresse un magnifique message de soutien à Désiré Doué après sa grave blessure",
-    "summary": "Désiré Doué a reçu un joli message de soutien de Pablo Pagis.",
-    "summary_short": "Désiré Doué a reçu un joli message de soutien de Pablo Pagis.",
-    "content": "Désiré Doué a reçu un joli message de soutien de Pablo Pagis.",
-    "paragraphs": [
-      "Désiré Doué a reçu un joli message de soutien de Pablo Pagis."
-    ],
-    "key_points": [
-      "Désiré Doué a reçu un joli message de soutien de Pablo Pagis."
-    ],
-    "telegram_summary": "Désiré Doué a reçu un joli message de soutien de Pablo Pagis.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-paris-fc-pablo-pagis-adresse-un-magnifique-message-de-soutien-a-desire-doue-apres-sa-grave-blessure-546664.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-paris-fc-pablo-pagis-adresse-un-magnifique-message-de-soutien-a-desire-doue-apres-sa-grave-blessure-546664.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e2032ea23ac4ae65",
-    "published": "2026-11-22T19:34:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260915101620-8754.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260915101620-8754.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "30c18be791de1391",
-    "title": "Iraola 'enjoyed' big win over Man Utd",
-    "summary": "Liverpool head coach Andoni Iraola is pleased with his side's performance in their dominant win over Manchester United although he says that his side can still play better.",
-    "summary_short": "Liverpool head coach Andoni Iraola is pleased with his side's performance in their dominant win over Manchester United although he says that his side can still play better.",
-    "content": "Liverpool head coach Andoni Iraola is pleased with his side's performance in their dominant win over Manchester United although he says that his side can still play better.",
-    "paragraphs": [
-      "Liverpool head coach Andoni Iraola is pleased with his side's performance in their dominant win over Manchester United although he says that his side can still play better."
-    ],
-    "key_points": [
-      "Liverpool head coach Andoni Iraola is pleased with his side's performance in their dominant win over Manchester United although he says that his side can still play better."
-    ],
-    "telegram_summary": "Liverpool head coach Andoni Iraola is pleased with his side's performance in their dominant win over Manchester United although he says that his side can still play better.",
-    "link": "https://www.bbc.co.uk/sport/football/videos/c3y0x55ey81yo?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/videos/c3y0x55ey81yo?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=30c18be791de1391",
-    "published": "2026-11-22T19:25:21+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/fe75/live/c00715a0-e6a8-11f1-99a1-253766e7ad8b.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/fe75/live/c00715a0-e6a8-11f1-99a1-253766e7ad8b.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
   }
 ]
