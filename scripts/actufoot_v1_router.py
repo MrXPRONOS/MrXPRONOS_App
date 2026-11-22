@@ -365,6 +365,11 @@ def main():
     if not isinstance(obj,list):
         raise RuntimeError("actufoot_v1_news_snapshot_invalid")
     config=load_config(args.config)
+    # Initial rollout stays fail-closed until actual folder usernames and bot
+    # permissions are confirmed by the separate one-time discovery workflow.
+    if not args.dry_run and json.loads(args.config.read_text(encoding="utf-8")).get("enabled") is not True:
+        print("ACTUFOOT_V1_ROUTER_DISABLED_PENDING_VERIFIED_CHANNELS")
+        return
     report=dispatch(obj,datetime.now(timezone.utc),dry_run=args.dry_run,
                     config=config,token=os.environ.get("FOOTBALL_NEWS_BOT_TOKEN"),
                     main_chat=os.environ.get("FOOTBALL_NEWS_CHAT_ID"))
