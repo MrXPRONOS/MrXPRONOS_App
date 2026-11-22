@@ -184,9 +184,29 @@ def bot_can_edit_original(permission) -> bool:
     ))
 
 
+def verified_owner_pair(video, poster, category: str) -> bool:
+    """Owner-selected IDs do not replace evidence of the same actual movie.
+
+    Matching title or explicit episode/part is mandatory. One photo may not
+    secretly stand for several different films; shared covers remain blocked
+    by shared_legacy_cover in the caller.
+    """
+    if not video or not poster or not getattr(poster, "photo", None):
+        return False
+    if not is_video_message(video) or getattr(video, "noforwards", False):
+        return False
+    if getattr(poster, "noforwards", False):
+        return False
+    if not 0 < int(video.id) - int(poster.id) <= MAX_HISTORY:
+        return False
+    return compatible(video_identity(video, category),
+                      poster_identity(poster, category)) >= 0.95
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
-                         history: int = MAX_HISTORY, unified=None):
+                         history: int = MAX_HISTORY, unified=None,
+                         manual_pair: tuple[int, int] | None = None):
     from telethon import utils
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id or not str(private_id).startswith("-100"):
@@ -194,6 +214,14 @@ async def repair_channel(client, bot, category: str, public, private,
     messages = [m async for m in client.iter_messages(public, limit=history)]
     recent, old = split_recent_and_old(messages, category)
     posters = [m for m in messages if getattr(m, "photo", None)]
+    if manual_pair:
+        manual_video_id, manual_poster_id = manual_pair
+        chosen_video = next((m for m in old if int(m.id) == manual_video_id), None)
+        chosen_poster = next((m for m in posters if int(m.id) == manual_poster_id), None)
+        if not chosen_video or not chosen_poster:
+            raise RuntimeError("Paire manuelle introuvable ou vidéo protégée par la rotation des dix dernières.")
+        if not verified_owner_pair(chosen_video, chosen_poster, category):
+            raise RuntimeError("Paire manuelle non vérifiable par titre, identité ou distance.")
     report = {
         "category": category, "public": public_id, "private": private_id,
         "protected": len(recent), "older": len(old), "recognized": 0,
@@ -204,7 +232,7 @@ async def repair_channel(client, bot, category: str, public, private,
         "preflight_budget_exhausted": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
     }
-    if len(recent) < 10:
+    if len(recent) < 10 and not manual_pair:
         return report
     rescue = rescue_link_for(public)
     if apply and not rescue:
@@ -235,6 +263,8 @@ async def repair_channel(client, bot, category: str, public, private,
     edit_probes = 0
     probe_budget = min(25, max(4, max_repaired * 5))
     for video in reversed(old):
+        if manual_pair and int(video.id) != manual_pair[0]:
+            continue
         if repaired >= max_repaired:
             break
         if apply and edit_probes >= probe_budget:
@@ -242,7 +272,7 @@ async def repair_channel(client, bot, category: str, public, private,
             LOG.warning("%s : budget de vérifications atteint ; prochain passage requis", category)
             break
         identity = video_identity(video, category)
-        poster = find_legacy_poster(video, posters, category)
+        poster = chosen_poster if manual_pair else find_legacy_poster(video, posters, category)
         neighbor = None
         if poster is None:
             neighbor = find_neighbor_pair(video, messages, category)
@@ -423,10 +453,22 @@ def legacy_repair_completion(reports):
     return totals
 
 
-async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
+async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
+                  manual_category=None, manual_video_id=None, manual_poster_id=None):
     from telethon import TelegramClient
     from telethon.sessions import StringSession
     from .runner import resolve_peer
+    manual_values=(manual_category, manual_video_id, manual_poster_id)
+    if any(value is not None for value in manual_values) and not all(
+            value is not None for value in manual_values):
+        raise RuntimeError("La catégorie, la vidéo et l'affiche doivent toutes être précisées.")
+    if manual_category is not None:
+        if manual_category not in ("films","series","anime","action","comedie","desir"):
+            raise RuntimeError("Catégorie manuelle inconnue.")
+        if (not isinstance(manual_video_id,int) or not isinstance(manual_poster_id,int)
+                or manual_video_id<1 or manual_poster_id<1):
+            raise RuntimeError("Identifiants Telegram manuels invalides.")
+        max_repaired=1
     if apply and not all(os.getenv(k, "").lower() == "true" for k in (
         "CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
         "CINEX_RIGHTS_VERIFIED",
@@ -449,14 +491,19 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
             raise RuntimeError("Session Telegram expirée")
         bot = BotHTTPClient(bot_token, client) if apply else None
         unified = UnifiedLibrary(client) if apply else None
-        for category, public_username, private_id in category_targets():
+        selected=[t for t in category_targets() if manual_category is None or t[0]==manual_category]
+        if manual_category is not None and len(selected)!=1:
+            raise RuntimeError("Canal sélectionné absent de la configuration.")
+        for category, public_username, private_id in selected:
             try:
                 public = await resolve_peer(client, public_username)
                 private = await resolve_peer(client, str(private_id))
                 reports.append(await repair_channel(
                     client, bot, category, public, private, apply=apply,
                     max_repaired=max_repaired, history=history,
-                    unified=unified,
+                    unified=unified, manual_pair=(
+                        (manual_video_id,manual_poster_id)
+                        if manual_category is not None else None),
                 ))
             except Exception as exc:
                 if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
@@ -488,6 +535,11 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY):
                 ", éditions originales confirmées : " + str(completion["public_edited"]) +
                 ". Les affiches ambiguës ou interdites par Telegram ne sont pas modifiées.\n"
             )
+    if manual_category is not None and any(
+            row.get("errors",0)>0 or row.get("recognized",0)!=1 or
+            (apply and row.get("public_linked",0)!=1)
+            for row in reports):
+        raise RuntimeError("Paire manuelle non vérifiée : aucune autre vidéo ne doit être traitée.")
     if any(row.get("errors", 0) for row in reports):
         raise RuntimeError("Réparation partielle : examiner les journaux avant une relance")
     return reports
@@ -498,6 +550,9 @@ def main():
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--max-repaired", type=int, default=2)
     parser.add_argument("--history", type=int, default=MAX_HISTORY)
+    parser.add_argument("--manual-category", choices=("films","series","anime","action","comedie","desir"))
+    parser.add_argument("--manual-video-id", type=int)
+    parser.add_argument("--manual-poster-id", type=int)
     args = parser.parse_args()
     if not 1 <= args.max_repaired <= 10:
         parser.error("--max-repaired doit être compris entre 1 et 10")
@@ -506,7 +561,10 @@ def main():
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
     asyncio.run(execute(apply=args.apply,
-                        max_repaired=args.max_repaired, history=args.history))
+                        max_repaired=args.max_repaired, history=args.history,
+                        manual_category=args.manual_category,
+                        manual_video_id=args.manual_video_id,
+                        manual_poster_id=args.manual_poster_id))
 
 
 if __name__ == "__main__":
