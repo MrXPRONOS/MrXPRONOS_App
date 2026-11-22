@@ -175,6 +175,32 @@ def shared_legacy_cover(video, poster, old, posters, category, messages) -> bool
     return False
 
 
+def existing_download_button(post) -> bool:
+    """A private t.me/c link is a WATCH link, not a CineRadar download."""
+    from .radar_download_registry import is_bot_download_url
+    for row in getattr(post, "buttons", None) or ():
+        for button in row:
+            url = getattr(button, "url", None) or getattr(
+                getattr(button, "button", None), "url", None)
+            if is_bot_download_url(url):
+                return True
+    return False
+
+
+def fully_linked_legacy_poster(poster, private_id, private_video_id, rescue_url, folder_url, *, extra_text="") -> bool:
+    """Existing fully verified posters must not consume the new-edit budget."""
+    target = private_message_link(private_id, private_video_id)
+    return bool(
+        getattr(poster, "photo", None)
+        and movie_button_target(poster, private_id) == private_video_id
+        and all(has_verified_button(poster, url) for url in
+                (target, rescue_url, folder_url))
+        and existing_download_button(poster)
+        and (not extra_text.strip() or extra_text.strip() in
+             str(getattr(poster, "raw_text", "") or ""))
+    )
+
+
 def bot_can_edit_original(permission) -> bool:
     """Bot must hold channel edit rights before copying archived media."""
     return bool(getattr(permission, "is_creator", False) or (
@@ -226,6 +252,7 @@ async def repair_channel(client, bot, category: str, public, private,
         "category": category, "public": public_id, "private": private_id,
         "protected": len(recent), "older": len(old), "recognized": 0,
         "private_existing": 0, "private_created": 0, "public_linked": 0,
+        "public_already_linked": 0,
         "public_edited": 0, "public_edit_failed": 0,
         "unmatched": 0, "adjacent_recognized": 0, "ambiguous": 0, "skipped": 0,
         "private_pair_unverified": 0, "preflight_failed": 0,
@@ -259,13 +286,12 @@ async def repair_channel(client, bot, category: str, public, private,
                     f"{category}: bot sans droit edit_messages; aucune archive copiée")
     private_messages = ([m async for m in client.iter_messages(private, limit=history)]
                         if apply else [])
-    repaired = 0
     edit_probes = 0
     probe_budget = min(25, max(4, max_repaired * 5))
     for video in reversed(old):
         if manual_pair and int(video.id) != manual_pair[0]:
             continue
-        if repaired >= max_repaired:
+        if report["public_edited"] >= max_repaired:
             break
         if apply and edit_probes >= probe_budget:
             report["preflight_budget_exhausted"] = 1
@@ -305,6 +331,18 @@ async def repair_channel(client, bot, category: str, public, private,
         if not apply:
             LOG.info("[SIMULATION] %s old video #%s -> poster #%s (%s)",
                      category, video.id, poster.id, identity)
+            continue
+        # Avoid exhausting the edit budget and Telegram bot quota on a post
+        # that ALREADY has a verified photo/video pair and every required link.
+        # Verify the exact private document before trusting the old buttons.
+        existing_pair = find_verified_private_pair(
+            private_messages, video, category, rescue_url=rescue, reference=identity)
+        if existing_pair and fully_linked_legacy_poster(
+                poster, private_id, existing_pair[0].id, rescue,
+                film_folder_url(), extra_text=extra):
+            report["private_existing"] += 1
+            report["public_already_linked"] += 1
+            report["public_linked"] += 1
             continue
         # A rights check alone is insufficient: Telegram may reject editing
         # old messages authored by another bot. Probe with unchanged markup
@@ -397,7 +435,7 @@ async def repair_channel(client, bot, category: str, public, private,
             if all(has_verified_button(poster, link) for link in required) and (
                 not extra.strip() or extra.strip() in (poster.raw_text or "")):
                 report["public_linked"] += 1
-                repaired += 1
+                report["public_already_linked"] += 1
                 continue
             verified_public = await edit_original_cover(
                 client, bot, public, poster, video,
@@ -417,7 +455,6 @@ async def repair_channel(client, bot, category: str, public, private,
             messages = [verified_public if item.id == poster.id else item for item in messages]
             report["public_linked"] += 1
             report["public_edited"] += 1
-            repaired += 1
             LOG.info("%s : vidéo #%s archivée privée #%s ; fiche originale #%s modifiée",
                      category, video.id, private_video_id, poster.id)
             await asyncio.sleep(30)
@@ -440,7 +477,8 @@ def legacy_repair_completion(reports):
     """
     totals = {
         name: sum(int(row.get(name, 0) or 0) for row in reports)
-        for name in ("older", "public_linked", "public_edited", "private_created",
+        for name in ("older", "public_linked", "public_edited",
+                     "public_already_linked", "private_created",
                      "unmatched", "ambiguous", "private_pair_unverified",
                      "preflight_failed", "errors", "preflight_budget_exhausted")
     }
