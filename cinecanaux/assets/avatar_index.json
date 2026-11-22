@@ -189,10 +189,10 @@
       "updated_at": "2026-11-18T05:58:06.950678+00:00"
     }
   },
-  "errors": 2,
-  "missing": 3,
-  "refreshed": 47,
-  "requested": 52,
-  "updated_at": "2026-11-18T05:58:40.791845+00:00",
+  "errors": 0,
+  "missing": 0,
+  "refreshed": 0,
+  "requested": 58,
+  "updated_at": "2026-11-22T13:36:49.950394+00:00",
   "version": 1
 }
