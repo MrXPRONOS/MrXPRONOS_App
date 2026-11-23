@@ -11,6 +11,7 @@ import re
 from html import escape
 
 from .text import first_title
+from .cinex_v4_policy import caption_with_automatic_ttl, has_automatic_ttl
 
 # User's Telegram shared-chat folder: replaces the old private-library button.
 DEFAULT_FILM_FOLDER_URL = "https://t.me/addlist/ZmW4vfwcrMAwNzJk"
@@ -327,11 +328,13 @@ async def post_public_video_by_bot_copy(
     ))
     copied = await bot_client.copy_message(
         public_peer, private_peer, int(private_video.id),
-        caption=rich_video_title(description), parse_mode="html", buttons=keyboard,
+        caption=caption_with_automatic_ttl(rich_video_title(description)),
+        parse_mode="html", buttons=keyboard,
     )
     verified = await user_client.get_messages(public_peer, ids=int(copied.id))
     if (not is_video_message(verified)
             or video_document_id(verified) != video_document_id(private_video)
+            or not has_automatic_ttl(verified)
             or not verify_complete_public_video_keyboard(
                 verified, public_peer, private_video_link, download_url,
                 watch_label=watch_label)):

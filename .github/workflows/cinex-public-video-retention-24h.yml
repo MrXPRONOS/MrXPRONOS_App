@@ -100,7 +100,7 @@ jobs:
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         run: |
           if [ "$CINEX_PUBLIC_RETENTION_24H_ENABLED" = 'true' ]; then
-            python -m film_relay.public_video_retention --apply --max-deleted 10
+            python -m film_relay.public_video_retention --apply --max-deleted 40
           else
-            python -m film_relay.public_video_retention --max-deleted 10
+            python -m film_relay.public_video_retention --max-deleted 40
           fi
