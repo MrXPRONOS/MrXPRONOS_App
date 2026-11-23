@@ -91,6 +91,18 @@ class RetentionTests(unittest.TestCase):
         self.assertIn(9, rows)
         self.assertIn(11, rows)
 
+    def test_batch_retention_cap_is_one_hundred_tagged_videos(self):
+        from film_relay.public_video_retention import MAX_PER_CHANNEL
+        self.assertEqual(MAX_PER_CHANNEL, 100)
+        photos = [NS(id=200 + i, date=NOW - timedelta(days=3),
+                     photo=object(), video=None, document=None)
+                  for i in range(10)]
+        expired = [video(i, 48) for i in range(1, 101)]
+        result = select_due(photos + expired, NOW)
+        self.assertEqual(len(result), 100)
+        self.assertTrue(all(due_for_removal(m, NOW) for m in result))
+        self.assertFalse(any(m in result for m in photos))
+
     def test_never_deletes_private_or_wrong_destination(self):
         class Client:
             async def iter_messages(self, entity, limit):
