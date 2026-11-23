@@ -297,7 +297,7 @@ async def run(*, apply=False, pause=12, max_changes=220):
             f.write(f"- Administrations ajoutées : {total_updated}\n")
             f.write(f"- Erreurs de contrôle : {total_failed}\n")
             f.write(f"- Variables de bot absentes : {len(missing)}\n")
-            f.write(f"- Identités de bots invalides (jamais ajoutées) : {len(invalid)}\\n")
+            f.write(f"- Identités de bots invalides (jamais ajoutées) : {len(invalid)}\n")
             for row in rows:
                 f.write(f"- {row['target']} : déjà admin={row['already_admin']}, "
                         f"ajoutés={row['promoted']}, non corrigés="
