@@ -71,16 +71,16 @@ class ReceiptsTests(unittest.TestCase):
         saves = []
         with patch("film_relay.publication.send_public_poster_with_buttons",
                    new=AsyncMock()) as send_poster, patch(
-             "film_relay.publication.post_public_video_after_poster",
+             "film_relay.publication.post_public_video_by_bot_copy",
                    new=AsyncMock(return_value=NS(id=71))) as send_video, patch(
              "asyncio.sleep", new=AsyncMock()):
             asyncio.run(publish_catalog_episode_pairs(
-                client, NS(), "@public", "@private", -1001234567890,
+                client, NS(copy_message=AsyncMock()), "@public", "@private", -1001234567890,
                 entry, [row], {"series": {"naruto": entry}},
                 lambda _: saves.append(True), 0))
         send_poster.assert_not_awaited()
         self.assertEqual(send_video.await_count, 1)
-        self.assertEqual(send_video.await_args.args[2].document.id, 111)
+        self.assertEqual(send_video.await_args.args[4].document.id, 111)
         self.assertEqual(entry["public_episode_posts"]["S01E07"]["video"], 71)
         self.assertNotIn("S01E07", entry["pending_public_episode_posts"])
         self.assertGreaterEqual(len(saves), 2)
