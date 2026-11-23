@@ -28,6 +28,17 @@ def due_for_removal(message, now: datetime, lifetime: timedelta = LIFETIME) -> b
     """Use the actual Telegram timestamp. Fail closed on missing/naive dates."""
     if not is_video_message(message):
         return False
+    # A film/video-retention policy must not silently erase GIFs, trailers,
+    # warnings, promotional clips or unrelated football publications.
+    from .public_video_archive import video_title
+    caption = str(video_title(message) or "").casefold()
+    filename = str(getattr(getattr(message, "file", None), "name", "") or "").casefold()
+    if any(token in caption or token in filename for token in (
+        "animation gif", "animation.gif", "daily_pronos", "pronostics mr xpronos",
+        "bande-annonce", "bande annonce", "trailer", "teaser",
+        "publicité", "publicite", "advertisement",
+    )):
+        return False
     published = getattr(message, "date", None)
     if (not isinstance(published, datetime) or published.tzinfo is None
             or now.tzinfo is None):
