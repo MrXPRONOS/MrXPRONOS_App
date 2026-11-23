@@ -22,7 +22,7 @@ from .desir_runner import (
 )
 from .publication import (
     rich_caption, rich_video_title, verify_library_bot,
-    send_library_poster_with_buttons, post_public_video_after_poster, post_public_video_by_bot_copy,
+    send_library_poster_with_buttons, ensure_library_poster_buttons, post_public_video_after_poster, post_public_video_by_bot_copy,
 )
 from .recovery import snapshot_telegram_posts
 from .runner import resolve_peer
@@ -395,10 +395,20 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                         continue
                     state.stage(key, "video", saved_video)
                     staged = state.data["staged"][key]
+            download_url = await unified.store(
+                item.video, category=category, title=title, public=public,
+                poster=item.poster, description=description)
+            if not download_url:
+                raise RuntimeError("CinéX : stock central sans téléchargement vérifié")
+            if staged.get("poster"):
+                await ensure_library_poster_buttons(
+                    client, bot, private, int(staged["poster"]),
+                    public, download_url)
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
                     photo = await send_library_poster_with_buttons(
                         client, bot, private, public, item.poster, description,
+                        download_url=download_url,
                     )
                     state.stage(key, "poster", photo.id)
                     await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
@@ -410,9 +420,6 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             private_video_id = int(state.data["staged"][key]["video"])
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             video_url = private_message_link(private_id, private_video_id)
-            download_url = await unified.store(
-                item.video, category=category, title=title, public=public,
-                poster=item.poster, description=description)
             public_post = await post_public(
                 bot, client, bot_public, item, description, video_url, "",
                 download_category="action" if category == "action" else None,
