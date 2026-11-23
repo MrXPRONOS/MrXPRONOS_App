@@ -111,7 +111,7 @@ class Lot2EvidenceTests(unittest.TestCase):
         link = "https://t.me/c/1234567890/210"
         url = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
         client = NS(get_messages=AsyncMock(return_value=NS(
-            raw_text="S01E01 — " + url + "\\nS01E02 — " + url)))
+            raw_text="S01E01 — " + url + "\nS01E02 — " + url)))
         video = NS(raw_text="🌸 Titre — S01E02\\n#CINEX_VIDEO_24H_V1")
         with patch.object(app, "check_receipt", return_value=True) as receipt:
             ok = asyncio.run(app.check_download_target(
@@ -126,7 +126,7 @@ class Lot2EvidenceTests(unittest.TestCase):
         url = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
         client = NS(get_messages=AsyncMock(return_value=NS(
             raw_text="S01E01 — " + url)))
-        video = NS(raw_text="S01E02\\n#CINEX_VIDEO_24H_V1")
+        video = NS(raw_text="S01E02\n#CINEX_VIDEO_24H_V1")
         with patch.object(app, "check_receipt", return_value=True):
             self.assertFalse(asyncio.run(
                 app.check_download_target(client, p, p, video, link)))
