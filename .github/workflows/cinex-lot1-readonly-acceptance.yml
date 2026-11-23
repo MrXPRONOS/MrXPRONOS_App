@@ -63,5 +63,6 @@ jobs:
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
           python -m unittest discover -s tests -p 'test_public_video_retention.py' -v
           python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
+          python -m unittest discover -s tests -p 'test_cinex_lot1_readonly_audit.py' -v
       - name: Audit Telegram sans création, publication ou suppression
         run: python scripts/cinex_lot1_readonly_audit.py --history 4000
