@@ -120,9 +120,9 @@ class AnimeBotMatchingTests(unittest.TestCase):
         state = {"messages": messages(*source)}
         picked, report = prepare(state)
         self.assertEqual(len(picked), 4)
-        self.assertEqual(report["selected_episodes"], 4)
+        self.assertEqual(report["selected_episodes"], 8)
         self.assertEqual(len({key for key, _, _ in picked}), 4)
-        self.assertTrue(all(len(rows) == 1 and not full
+        self.assertTrue(all(len(rows) == 2 and not full
                             for _, rows, full in picked))
 
     def test_published_episode_prevents_reposting(self):
@@ -134,14 +134,14 @@ class AnimeBotMatchingTests(unittest.TestCase):
                  "date": 2, "source_key": "a:2"}]
         self.assertEqual(select_bot_anime_batches(rows, state, {}), [])
 
-    def test_complete_30_episode_season_resumes_after_first_25(self):
+    def test_complete_30_episode_season_is_one_batch_and_legacy_25_resumes(self):
         rows = [{"series": "naruto", "season": 1, "episode": n,
                  "source_key": f"source:{n}", "date": n}
                 for n in range(1, 31)]
         full = {("naruto", 1): 30}
         initial = select_bot_anime_batches(rows, {}, full)
         self.assertEqual(len(initial), 1)
-        self.assertEqual(len(initial[0][1]), 25)
+        self.assertEqual(len(initial[0][1]), 30)
         self.assertTrue(initial[0][2])
         saved = {"series": {"naruto": {
             "episodes": {"1": {
