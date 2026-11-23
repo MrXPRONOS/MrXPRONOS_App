@@ -88,10 +88,11 @@ class FourButtonsTests(unittest.TestCase):
                 complete, "@CineXFilms_vf", PRIVATE, DOWNLOAD))
 
     def test_public_video_requires_full_poster_and_follows_it(self):
+        with patch("film_relay.rescue_channels.rescue_link_for", return_value=RESCUE):
+            verified_rows = complete_public_video_rows(
+                PRIVATE, DOWNLOAD, public_peer="@CineXFilms_vf")
         poster = NS(id=101, photo=object(), raw_text="Film\nSynopsis",
-                    buttons=[[NS(text=label, url=url)] for row in
-                             complete_public_video_rows(
-                                 PRIVATE, DOWNLOAD, public_peer="@CineXFilms_vf")
+                    buttons=[[NS(text=label, url=url)] for row in verified_rows
                              for label, url in row])
         incoming = NS(media="video-source", document=NS(id=99, attributes=[]),
                       video=object(), file=NS(name="film.mkv"))
