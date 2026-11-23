@@ -108,6 +108,18 @@ async def execute(*, apply: bool = False, max_deleted: int = MAX_PER_CHANNEL,
     configured = category_targets()
     if not configured:
         raise RuntimeError("Aucun couple canal public/videotheque verifie")
+    # A previously configured channel must STILL belong to the secure admin
+    # inventory; never delete when a channel was transferred or removed.
+    if apply:
+        from .rotation_coverage import fetch_secure_cinema_targets, public_handle
+        secure_targets = fetch_secure_cinema_targets()
+        verified_public = {
+            public_handle(row["public_username"])
+            for row in secure_targets if row.get("is_private") is False
+        }
+        if any(public_handle(username) not in verified_public
+               for _, username, _ in configured):
+            raise RuntimeError("Canal public non confirme dans l'inventaire securise")
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]),
                             credentials[1], request_retries=1,
                             flood_sleep_threshold=0)
