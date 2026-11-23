@@ -200,7 +200,8 @@ class SupervisionTests(unittest.TestCase):
         ledger = MagicMock()
         ledger.query.return_value = {"results": []}
         with patch.object(v13, "verify_channels", return_value=(
-                {k: v for k, v in CHANNELS.items()}, [])) as check, patch.object(\n                v13, "main_can_publish", return_value=True):
+                {k: v for k, v in CHANNELS.items()}, [])) as check, patch.object(
+                v13, "main_can_publish", return_value=True):
             report = v13.run(NOW, ledger=ledger, session=MagicMock(),
                              token="safe", main_chat="@actufoot_mrxp",
                              channels=CHANNELS, dry_run=True)
