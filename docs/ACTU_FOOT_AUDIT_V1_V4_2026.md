@@ -9,7 +9,7 @@ Ce document distingue **code présent**, **tests réussis**, **activation en pro
 | --- | --- | --- |
 | V1 | RSS réel, publication principale et 10 canaux, édition source, quotas et reçus D1 | Valider les rendus visuellement et vérifier les publications de chaque rôle |
 | V1.1 | ESPN live, buts confirmés, corrections de score distinctes, cartons/remplacements, TAB, tableau éditable, idempotence | Recevoir un vrai but et une correction réelle avec preuve visuelle Telegram |
-| V1.2 | Débriefs après-match, stats source-confirmées, classements de 5 ligues, tendances sourcées, nouveau workflow dans PR #634 | Vérifier les classements ESPN réels, tests, fusion, publication dans Débrief et Scores |
+| V1.2 | Débriefs après-match, stats source-confirmées, classements de 5 ligues, tendances sourcées, nouveau workflow fusionnés par les PR #634 et #636 | Vérifier les classements ESPN réels, tests, fusion, publication dans Débrief et Scores |
 | V1.3 | Observabilité générique existante | Tableau par canal Telegram, alertes quotas/publications/erreurs, essais réels |
 | V2 | Coffre chiffré, validation, journal audit, sauvegarde Cloudflare KV, tests | Secrets et environnement protégés, restauration de vraie sauvegarde non vide, audit externe durable |
 | V3 | Index, recherche, cache, mutations Git atomiques, archives chiffrées, tests simulés | Ordonnanceur, volumes réels, droits Git distants, politique de rétention, reprise |
@@ -28,7 +28,7 @@ Aucune V2.1 officielle n'a été trouvée. La V3 de ce système n'est pas la V3 
 
 ## V1.2 — spécification réellement codée
 
-- Débriefs : état final ESPN, équipes/ID conformes, observation V1.1 déjà existante, score et événements vérifiés. Débuter par le score final, puis buts, cartons, possession, tirs, corners, fautes et TAB uniquement si disponibles.
+- Débriefs : état final ESPN, équipes/ID conformes, observation V1.1 existante OU finale ESPN récente (80 minutes–4 heures depuis le coup d'envoi), score et événements vérifiés. Débuter par le score final, puis buts, cartons, possession, tirs, corners, fautes et TAB uniquement si disponibles.
 - Classements : API ESPN des cinq ligues, saison vérifiée, équipes/rangs/points/matchs joués obligatoires, pas de fusion de groupes, pas d'invention de valeur nulle. Évolution indiquée seulement quand le précédent relevé D1 possède un rang vérifié.
 - Protection : canal Débrief ou Scores vérifié, limites, réservation atomique D1, contrôle interjournées contre les doublons, aucun lien commercial ni secret dans le rendu.
 - Exécution : workflow actufoot-v12 toutes les 30 minutes, classement vers 22 h Lomé, simulation par défaut en manuel, PR/push toujours en simulation.
@@ -36,7 +36,7 @@ Aucune V2.1 officielle n'a été trouvée. La V3 de ce système n'est pas la V3 
 
 ## Ordre de poursuite
 
-1. Terminer et activer V1.2 après confirmation des tests et du schéma ESPN.
+1. V1.2 fusionnée : surveiller les premiers débriefs et classements réels et confirmer le rendu Telegram.
 2. Développer V1.3 : supervision et alertes de chacun des dix canaux.
 3. Activer V2/V3 seulement après approbation et tests de sauvegarde/restauration.
 4. Construire V4 : migration de l'historique et bascule progressive sous plan de retour arrière.
