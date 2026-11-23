@@ -22,7 +22,7 @@ class EditorialTelegramFormatTests(unittest.TestCase):
         self.assertEqual(rendered,
                          "<b>Titre</b>\n\n"
                          "<blockquote>Deux phrases.\n\nAutre paragraphe.</blockquote>\n\n"
-                         "<i>🏷 Catégorie : Mercato\n📰 Source : Foot Mercato</i>")
+                         "<b>🏷 Mercato</b>\n<i>📰 Source : Foot Mercato</i>")
 
     def test_quote_escapes_html(self):
         result = quote_excerpt("L'entraîneur <confirme> 2 & 2")
@@ -83,16 +83,51 @@ class EditorialTelegramFormatTests(unittest.TestCase):
         self.assertEqual(result.count("Source : ESPN"), 1)
         self.assertNotIn("SCORE LIVE", result)
 
-    def test_goal_keeps_confirmed_scorer_but_moves_buuut_to_footer(self):
+    def test_goal_hook_is_first_and_scorer_follows_verified_match(self):
         result = editorial_bottom_markup(
             "🌟 <b>BUUUT - SALAH 74'</b>\n\n<b>Liverpool 2–1 Chelsea</b>",
             category="⚽ BUUUT !", source="ESPN",
             card={"home": "Liverpool", "away": "Chelsea",
                   "score": "2-1", "minute": 74},
         )
-        self.assertTrue(result.startswith("<b>⚽ Liverpool 2–1 Chelsea · 74'</b>"))
+        self.assertTrue(result.startswith("<b>⚽ BUUUT ! Le score est désormais de 2–1.</b>"))
+        self.assertIn("<blockquote><b>⚽ Liverpool 2–1 Chelsea · 74'</b>", result)
         self.assertIn("👤 SALAH 74'", result)
-        self.assertIn("<b>🏷 ⚽ BUUUT !</b>\n<i>📰 Source : ESPN</i>", result)
+        self.assertIn("<b>🏷 ⚽ BUT CONFIRMÉ</b>\n<i>📰 Source : ESPN</i>", result)
+
+    def test_goal_confirms_league_and_scorer_and_is_idempotent(self):
+        card = {"home": "River Plate", "away": "Lanús", "score": "3-1",
+                "minute": 90, "league": "Liga Profesional Argentina",
+                "goal": {"player": "Joueur confirmé"}}
+        first = editorial_bottom_markup(
+            "<b>BUUUT !</b>", category="⚽ BUUUT !",
+            source="ESPN", card=card)
+        self.assertTrue(first.startswith(
+            "<b>⚽ BUUUT ! Le score est désormais de 3–1.</b>\n\n"))
+        self.assertIn("<b>⚽ River Plate 3–1 Lanús · 90'</b>", first)
+        self.assertIn("🏆 Liga Profesional Argentina", first)
+        self.assertIn("👤 <b>Joueur confirmé</b>", first)
+        self.assertEqual(first.count("<blockquote>"), 1)
+        self.assertEqual(first.count("Source : ESPN"), 1)
+        self.assertEqual(editorial_bottom_markup(
+            first, category="⚽ BUUUT !", source="ESPN", card=card), first)
+
+    def test_goal_missing_scorer_or_score_does_not_invent_it(self):
+        result = editorial_bottom_markup(
+            "<b>⚽ BUUUT !</b>", category="⚽ BUUUT !", source="ESPN",
+            card={"home": "River Plate", "away": "Lanús"})
+        self.assertTrue(result.startswith("<b>⚽ BUUUT !</b>"))
+        self.assertNotIn("désormais de", result)
+        self.assertNotIn("👤", result)
+        self.assertIn("River Plate — Lanús", result)
+
+    def test_score_correction_remains_score_first_and_never_buuut(self):
+        result = editorial_bottom_markup(
+            "<b>SCORE LIVE</b>", category="🔥 NOUVEAU SCORE CONFIRMÉ",
+            source="ESPN", card={"home": "River Plate", "away": "Lanús",
+                                "minute": 90, "score": "3-1"})
+        self.assertTrue(result.startswith("<b>⚽ River Plate 3–1 Lanús · 90'</b>"))
+        self.assertNotIn("BUUUT", result)
 
     def test_bottom_editorial_label_is_idempotent(self):
         first = editorial_bottom_markup(
