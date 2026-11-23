@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import os
 from html import escape
+from .cinex_v4_policy import caption_with_automatic_ttl
 
 
 def message_url(private_id: str, message_id: int) -> str:
@@ -253,7 +254,8 @@ class AnimeBotPublisher:
             video = await self._operation(
                 f"video:{key}:{marker}", lambda: self.transport.copy_message(
                     self.public_id, self.private_id, private_msg,
-                    caption=f"🎞️ <b>{escape(entry['title'])}</b> — {marker}"))
+                    caption=caption_with_automatic_ttl(
+                        f"🎞️ <b>{escape(entry['title'])}</b> — {marker}")))
             posts[marker] = {
                 "poster": cover, "video": video, "private_video": private_msg}
             self.store.save(self.state)
