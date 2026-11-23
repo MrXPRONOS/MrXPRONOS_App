@@ -358,8 +358,16 @@ def cycle(now: datetime, *, mode: str = "all", dry_run: bool = False,
                 kickoff = live.football.kick(row)
                 fixture_day = kickoff.astimezone(live.TZ).date().isoformat()
                 observation, _ = live.state_row(ledger, fixture_day, match_id)
-                # Never backfill old completed fixtures that V1.1 didn't follow.
-                if not observation or not observation.get("board_id"):
+                # Live-tracked fixtures remain eligible after their final whistle.
+                # A newly discovered final may also receive a debrief if the
+                # verified match is fresh; unlike GOAL alerts this is a factual
+                # after-match article, not a historical event replay.
+                observed_live = bool(observation and observation.get("board_id"))
+                since_kickoff = now - kickoff
+                fresh_final = (
+                    timedelta(minutes=80) <= since_kickoff <= timedelta(hours=4)
+                )
+                if not (observed_live or fresh_final):
                     report["skipped_unverified"] += 1
                     continue
             try:
