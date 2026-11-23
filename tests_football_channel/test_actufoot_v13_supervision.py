@@ -193,6 +193,18 @@ class SupervisionTests(unittest.TestCase):
         with patch.object(v13, "bot_call", side_effect=RuntimeError("no access")):
             self.assertFalse(v13.main_can_publish(MagicMock(), "secret", "@actufoot_mrxp"))
 
+    def test_failed_main_preflight_remains_a_visible_critical_report(self):
+        ledger = MagicMock()
+        ledger.query.return_value = {"results": []}
+        with patch.object(v13, "verify_channels", side_effect=RuntimeError("unknown")):
+            report = v13.run(NOW, ledger=ledger, session=MagicMock(),
+                             token="secret", main_chat="@actufoot_mrxp",
+                             channels=CHANNELS, dry_run=True)
+        self.assertFalse(report["main_verified"])
+        self.assertEqual(report["roles_verified"], 0)
+        self.assertEqual(report["summary"]["critical"], 11)
+        self.assertEqual(report["private_alert_delivery"], "disabled")
+
     def test_run_refuses_missing_permissions_credentials(self):
         with self.assertRaises(RuntimeError):
             v13.run(NOW, ledger=MagicMock(), session=MagicMock(),
