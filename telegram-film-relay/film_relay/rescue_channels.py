@@ -156,6 +156,21 @@ def targets_from_env(env: dict | None = None) -> list[str]:
     return targets
 
 
+def verified_checkpoint_private(peer, entry: dict, expected_title: str) -> bool:
+    """Allow exact-ID recovery when Telegram omits a known private chat in dialogs."""
+    from telethon import utils
+    try:
+        return bool(
+            peer is not None
+            and getattr(peer, "broadcast", False)
+            and not getattr(peer, "username", None)
+            and str(getattr(peer, "title", "")) == expected_title
+            and int(utils.get_peer_id(peer)) == int(entry["rescue_channel_id"])
+        )
+    except (TypeError, KeyError, ValueError):
+        return False
+
+
 def exact_private_candidates(dialogs: list, title: str):
     """Avoid hijacking an unrelated or public channel with the same title."""
     return [
@@ -237,7 +252,19 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                 if entry and found is not None and utils.get_peer_id(found) != int(entry.get("rescue_channel_id", 0)):
                     raise RuntimeError("ID privé différent de la sauvegarde")
                 if entry and found is None:
-                    raise RuntimeError("Canal secours déjà enregistré mais absent de la session")
+                    # A 500-dialog scan can omit an older valid Secours even
+                    # while the private peer remains accessible by its exact ID.
+                    try:
+                        candidate = await client.get_entity(
+                            int(entry["rescue_channel_id"]))
+                    except Exception:
+                        candidate = None
+                    if not verified_checkpoint_private(
+                            candidate, entry, desired_title):
+                        raise RuntimeError(
+                            "Canal secours déjà enregistré mais non vérifiable par ID")
+                    found = candidate
+                    LOG.info("Secours %s réidentifié par son checkpoint privé", username)
                 if entry and found is not None and entry.get("invite_sha256"):
                     report["existing"] += 1
                     report["ready"] += 1
