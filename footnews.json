@@ -434,7 +434,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
+      "checked_at": "2026-11-23T06:12:03.814959+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -511,6 +511,40 @@
       "RFI Afrique Foot"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "cf008896ea64ef27",
+    "title": "Foot ce soir : Le programme TV complet des matchs du jour (23/11/2026)",
+    "summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "summary_short": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "content": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "paragraphs": [
+      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
+    ],
+    "key_points": [
+      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
+    ],
+    "telegram_summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-foot-ce-soir-le-programme-tv-complet-des-matchs-du-jour-23-11-2026-546693.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-foot-ce-soir-le-programme-tv-complet-des-matchs-du-jour-23-11-2026-546693.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cf008896ea64ef27",
+    "published": "2026-11-23T06:00:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240123130427-5058.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240123130427-5058.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "2e46caa503a7004a",
@@ -632,7 +666,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
+      "checked_at": "2026-11-23T06:12:03.814959+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -729,7 +763,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
+      "checked_at": "2026-11-23T06:12:03.814959+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -791,7 +825,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
+      "checked_at": "2026-11-23T06:12:03.814959+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1875,7 +1909,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
+      "checked_at": "2026-11-23T06:12:03.814959+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2107,7 +2141,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
+      "checked_at": "2026-11-23T06:12:03.814959+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2184,66 +2218,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "f85275d0c721e4cf",
-    "title": "Villarreal CF : Nicolas Pépé éteint une étrange rumeur liée à une opération à l'oeil à cause... de l'éclipse solaire",
-    "summary": "Nicolas Pépé fait parler de lui ces dernières heures en Espagne.",
-    "summary_short": "Nicolas Pépé fait parler de lui ces dernières heures en Espagne.",
-    "content": "Nicolas Pépé fait parler de lui ces dernières heures en Espagne.",
-    "paragraphs": [
-      "Nicolas Pépé fait parler de lui ces dernières heures en Espagne."
-    ],
-    "key_points": [
-      "Nicolas Pépé fait parler de lui ces dernières heures en Espagne."
-    ],
-    "telegram_summary": "Nicolas Pépé fait parler de lui ces dernières heures en Espagne.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-villarreal-cf-nicolas-pepe-eteint-une-etrange-rumeur-liee-a-une-operation-a-l-oeil-a-cause-de-l-eclipse-solaire-546674.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-villarreal-cf-nicolas-pepe-eteint-une-etrange-rumeur-liee-a-une-operation-a-l-oeil-a-cause-de-l-eclipse-solaire-546674.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f85275d0c721e4cf",
-    "published": "2026-11-22T20:13:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/liga/2026/une/liga-20261122211531-7347.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/liga/2026/une/liga-20261122211531-7347.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50564664",
-      "url": "https://www.espn.com/soccer/story/_/id/50564664/nicolas-pepe-eclipse-villarreal",
-      "published": "2026-11-22T20:54:51Z",
-      "score": 0.25,
-      "matched_terms": [
-        "eclipse",
-        "nicolas",
-        "pepe",
-        "villarreal"
-      ],
-      "topics": [],
-      "teams": [
-        "Villarreal"
-      ],
-      "athletes": [
-        "Nicolas Pépé"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-23T05:40:10.448751+00:00"
-    },
-    "quality_sources": [
-      "MadeInFoot",
-      "ESPN"
-    ],
-    "quality_score": 96
   }
 ]
