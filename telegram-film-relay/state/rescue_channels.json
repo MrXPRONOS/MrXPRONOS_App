@@ -39,6 +39,14 @@
       "rescue_channel_id": -1004357703501,
       "rescue_title": "Films & Série 2026 vf | CinéX 🎬 Secours"
     },
+    "@fichiers_cloud": {
+      "invite_sha256": "56d29ff2be8444cf5cbf737db2c7e7f33514c9ff32b6ba6757d319e5e86646f1",
+      "public_id": -1004308281724,
+      "public_title": "Films et séries Fichiers cloud",
+      "public_username": "@fichiers_cloud",
+      "rescue_channel_id": -1003989980494,
+      "rescue_title": "Films et séries Fichiers cloud Secours"
+    },
     "@filmsaction2026vf": {
       "description_digest": "03a0d95e148f19ac3e98d78a6b1d2114498ebbe4760dc4b87225f1008f69ce79",
       "invite_sha256": "a8d5a4ee5b5d9cc489e22e68a7e7af3fa94fd5ca2559a1801930aeab51fd480d",
