@@ -48,7 +48,7 @@ class LegacyBotMigrationTests(unittest.TestCase):
         ]
         picked = select_bot_anime_batches(rows, migrated, {})
         self.assertEqual([(x["episode"]) for _, group, _ in picked
-                          for x in group], [3])
+                          for x in group], [])  # do not skip unverified E02
 
     def test_existing_v2_receipts_cannot_be_overwritten(self):
         original = {"schema_version": 1,
