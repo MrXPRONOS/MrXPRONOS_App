@@ -25,6 +25,9 @@ on:
       - 'telegram-film-relay/film_relay/anime_bot_publisher.py'
       - 'telegram-film-relay/film_relay/unified_download.py'
       - 'telegram-film-relay/film_relay/rescue_channels.py'
+      - 'telegram-film-relay/film_relay/rescue_links_runtime.py'
+      - 'telegram-film-relay/scripts/unified_publishing_preflight.py'
+      - 'telegram-film-relay/tests/test_unified_publishing_preflight.py'
       - 'telegram-film-relay/tests/test_public_video_retention.py'
       - 'telegram-film-relay/tests/test_cinex_v4_policy.py'
       - 'telegram-film-relay/tests/test_ten_video_rotation.py'
@@ -80,6 +83,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_publication.py' -v
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
+          python -m unittest discover -s tests -p 'test_unified_publishing_preflight.py' -v
           python -m unittest discover -s tests -p 'test_category_relays.py' -v
           python -m unittest discover -s tests -p 'test_desir.py' -v
           python -m unittest discover -s tests -p 'test_series_catalog.py' -v
