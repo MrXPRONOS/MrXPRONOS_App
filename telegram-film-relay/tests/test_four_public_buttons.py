@@ -76,8 +76,11 @@ class FourButtonsTests(unittest.TestCase):
     def test_live_verification_requires_all_four_not_only_watch_button(self):
         with patch("film_relay.rescue_channels.rescue_link_for", return_value=RESCUE):
             complete = NS(id=41, photo=object(), raw_text="Film",
-                          buttons=[[NS(url=url)] for url in
-                                   [PRIVATE, DOWNLOAD, RESCUE, FOLDER]])
+                          buttons=[[NS(text=label, url=url)] for row in
+                                   complete_public_video_rows(
+                                       PRIVATE, DOWNLOAD,
+                                       public_peer="@CineXFilms_vf")
+                                   for label, url in row])
             self.assertTrue(verify_complete_public_video_poster(
                 complete, "@CineXFilms_vf", PRIVATE, DOWNLOAD))
             complete.buttons.pop(1)
@@ -86,8 +89,10 @@ class FourButtonsTests(unittest.TestCase):
 
     def test_public_video_requires_full_poster_and_follows_it(self):
         poster = NS(id=101, photo=object(), raw_text="Film\nSynopsis",
-                    buttons=[[NS(url=url)] for url in
-                             [PRIVATE, DOWNLOAD, RESCUE, FOLDER]])
+                    buttons=[[NS(text=label, url=url)] for row in
+                             complete_public_video_rows(
+                                 PRIVATE, DOWNLOAD, public_peer="@CineXFilms_vf")
+                             for label, url in row])
         incoming = NS(media="video-source", document=NS(id=99, attributes=[]),
                       video=object(), file=NS(name="film.mkv"))
         sent = NS(id=102, document=NS(id=99, attributes=[]),
