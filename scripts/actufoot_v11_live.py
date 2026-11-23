@@ -200,25 +200,46 @@ def snapshot(info: dict, previous: dict | None = None) -> dict:
 
 
 def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -> str:
+    """Telegram LIVE: match + score first, real facts quoted, editorial tag last."""
     detail = detail or {}
-    title = {
-        "board": "📊 SCORE LIVE", "kickoff": "▶️ COUP D’ENVOI",
-        "goal": "⚽ BUT", "score_update": "📊 SCORE ACTUALISÉ",
-        "red": "🟥 CARTON ROUGE", "yellow": "🟨 CARTON JAUNE",
-        "substitution": "🔁 REMPLACEMENT", "shootout_made": "⚽ TIR AU BUT MARQUÉ",
-        "shootout_missed": "❌ TIR AU BUT MANQUÉ", "halftime": "⏸️ MI-TEMPS",
-        "fulltime": "🏁 RÉSULTAT FINAL", "recap": "📋 POINT SCORES",
-    }.get(kind, "📊 FOOTBALL")
-    lines = [
-        f"<b>⚽ {html.escape(str(row['home_team']))} — {html.escape(str(row['away_team']))}</b>",
-        f"🔢 <b>{html.escape(str(state['score']))}</b>",
-    ]
-    if kind != "fulltime" and state.get("minute") and state["phase"] != "final":
-        lines.append(f"⏱ {state['minute']}'")
+    score = str(state["score"]).replace("-", "–")
+    minute = state.get("minute")
+    minute_label = f" · {int(minute)}'" if isinstance(minute, int) and minute > 0 else ""
+    home = html.escape(str(row["home_team"]), quote=False)
+    away = html.escape(str(row["away_team"]), quote=False)
+    match_heading = f"<b>⚽ {home} {html.escape(score)} {away}{minute_label}</b>"
+    category = {
+        "board": "📡 LE FIL DU MATCH",
+        "kickoff": "▶️ C’EST PARTI !",
+        "goal": "⚽ BUUUT !",
+        "score_update": "🔥 NOUVEAU SCORE CONFIRMÉ",
+        "red": "🟥 CARTON ROUGE !",
+        "yellow": "🟨 CARTON JAUNE",
+        "substitution": "🔁 DU CHANGEMENT !",
+        "shootout_made": "⚽ TIR AU BUT MARQUÉ !",
+        "shootout_missed": "❌ TIR AU BUT MANQUÉ !",
+        "halftime": "⏸️ PAUSE À LA MI-TEMPS",
+        "fulltime": "🏁 C’EST TERMINÉ !",
+        "recap": "📋 LES SCORES À RETENIR",
+    }.get(kind, "📊 ACTU MATCH")
+    facts = {
+        "board": "📡 Retrouvez ici le score vérifié du match.",
+        "kickoff": "▶️ Coup d’envoi confirmé.",
+        "goal": f"⚽ <b>BUUUT ! Le score est désormais de {html.escape(score)}.</b>",
+        "score_update": f"📈 <b>Le score vient d’être confirmé : {html.escape(score)}.</b>",
+        "red": "🟥 Un carton rouge vient d’être signalé.",
+        "yellow": "🟨 Un carton jaune vient d’être signalé.",
+        "substitution": "🔁 Changement de joueur confirmé.",
+        "shootout_made": "✅ Tir au but marqué.",
+        "shootout_missed": "❌ Tir au but manqué.",
+        "halftime": "⏸️ La première période est terminée.",
+        "fulltime": "🏁 Coup de sifflet final confirmé.",
+    }.get(kind, "📊 Informations du match actualisées.")
+    lines = [facts]
     if row.get("league_name") or row.get("league"):
-        lines.append(f"🏆 {html.escape(str(row.get('league_name') or row.get('league')))}")
+        lines.append("<i>🏆 " + html.escape(str(row.get("league_name") or row.get("league"))) + "</i>")
     if detail.get("player"):
-        lines.append("👤 " + html.escape(str(detail["player"])[:80]))
+        lines.append("👤 <b>" + html.escape(str(detail["player"])[:80]) + "</b>")
     if detail.get("entrant"):
         lines.append("⬆️ " + html.escape(str(detail["entrant"])[:80]))
     if detail.get("sortant"):
@@ -227,16 +248,18 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
         lines.append("👥 " + html.escape(", ".join(map(str, detail["players"][:2]))[:120]))
     if detail.get("team"):
         lines.append("👕 " + html.escape(str(detail["team"])[:80]))
-    if state["phase"] == "halftime" and kind == "board":
-        lines.append("⏸ Mi-temps")
-    elif state["phase"] == "final" and kind == "board":
-        lines.append("🏁 Terminé")
+    if kind == "board" and state.get("phase") == "halftime":
+        lines.append("<i>⏸️ Pause à la mi-temps</i>")
+    elif kind == "board" and state.get("phase") == "final":
+        lines.append("<i>🏁 Rencontre terminée</i>")
+    label = category
+    if kind in ("goal", "score_update"):
+        label += " · " + html.escape(score)
     return "\n\n".join([
-        f"<b>{title}</b>",
+        match_heading,
         "<blockquote>" + "\n".join(lines) + "</blockquote>",
-        source_footer("ESPN") + "\n<i>Mr XPRONOS</i>",
+        "<b>🏷 " + label + "</b>\n" + source_footer("ESPN"),
     ])
-
 
 def derive_events(row: dict, info: dict, summary: dict,
                   previous: dict | None) -> list[tuple[str, str, dict]]:
@@ -509,24 +532,30 @@ def update_board(session: requests.Session, token: str, handle: str,
 
 
 def recap_message(selected: list[dict], now: datetime) -> str | None:
+    """The first verified match leads; the editorial recap label stays below."""
     rows = []
     for item in selected:
         score_h, score_a = item.get("home_score"), item.get("away_score")
         if not isinstance(score_h, int) or not isinstance(score_a, int):
             continue
         status = "Terminé" if item.get("state") in ("post", "finished") else "En direct"
-        rows.append(
-            f"• {html.escape(str(item['home_team']))} {score_h}-{score_a} "
-            f"{html.escape(str(item['away_team']))} — {status}"
-        )
+        home = html.escape(str(item["home_team"]), quote=False)
+        away = html.escape(str(item["away_team"]), quote=False)
+        rows.append((f"{home} {score_h}–{score_a} {away}", status))
     if not rows:
         return None
+    first, first_status = rows[0]
+    rest = [
+        "• " + score + " · <i>" + status + "</i>"
+        for score, status in rows[1:MAX_MATCHES]
+    ]
+    body = ["<i>📡 " + first_status + " · Score confirmé</i>"] + rest
     return "\n\n".join([
-        "<b>📋 POINT SCORES — " + now.astimezone(TZ).strftime("%H:%M") + "</b>",
-        "<blockquote>" + "\n".join(rows[:MAX_MATCHES]) + "</blockquote>",
-        source_footer("ESPN") + "\n<i>Mr XPRONOS</i>",
+        "<b>⚽ " + first + "</b>",
+        "<blockquote>" + "\n".join(body) + "</blockquote>",
+        "<b>🏷 📋 TOUR D’HORIZON DES SCORES · "
+        + now.astimezone(TZ).strftime("%H:%M") + "</b>\n" + source_footer("ESPN"),
     ])
-
 
 def cycle(now: datetime, *, dry_run: bool = False,
           session: requests.Session | None = None, ledger: D1Ledger | None = None,

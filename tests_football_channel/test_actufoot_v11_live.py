@@ -134,21 +134,43 @@ class EventTests(unittest.TestCase):
             events = mod.derive_events(row(), row(minute=120, away_score=1), {}, old)
         self.assertEqual([e[0] for e in events], ["shootout_made"])
 
-    def test_scorecard_has_spaced_title_quoted_data_and_source(self):
+    def test_goal_starts_with_match_score_minute_then_quote_and_bottom_category(self):
         rendered = mod.event_lines(
             row(), {"score": "2-1", "phase": "live", "minute": 74}, "goal",
             {"player": "Buteur confirmé"})
-        self.assertTrue(rendered.startswith("<b>⚽ BUT</b>\n\n<blockquote>"))
-        self.assertIn("<b>⚽ Arsenal — Chelsea</b>", rendered)
-        self.assertIn("👤 Buteur confirmé", rendered)
-        self.assertIn("</blockquote>\n\n<i>📰 Source : ESPN</i>", rendered)
-        self.assertIn("<i>Mr XPRONOS</i>", rendered)
+        self.assertTrue(rendered.startswith(
+            "<b>⚽ Arsenal 2–1 Chelsea · 74'</b>\n\n<blockquote>"))
+        self.assertIn("⚽ <b>BUUUT !", rendered)
+        self.assertIn("👤 <b>Buteur confirmé</b>", rendered)
+        self.assertIn("</blockquote>\n\n<b>🏷 ⚽ BUUUT ! · 2–1</b>\n"
+                      "<i>📰 Source : ESPN</i>", rendered)
+        self.assertNotIn("SCORE LIVE", rendered)
 
-    def test_daily_score_recap_has_quote_and_blank_lines(self):
+    def test_score_update_never_claims_goal_without_source_event(self):
+        rendered = mod.event_lines(
+            row(), {"score": "3-1", "phase": "live", "minute": 90},
+            "score_update")
+        self.assertTrue(rendered.startswith(
+            "<b>⚽ Arsenal 3–1 Chelsea · 90'</b>"))
+        self.assertIn("Le score vient d’être confirmé", rendered)
+        self.assertNotIn("BUUUT", rendered)
+        self.assertIn("🏷 🔥 NOUVEAU SCORE CONFIRMÉ · 3–1", rendered)
+
+    def test_persistent_scoreboard_has_no_generic_title_above_match(self):
+        text = mod.event_lines(
+            row(), {"score": "1-0", "phase": "live", "minute": 69}, "board")
+        self.assertTrue(text.startswith(
+            "<b>⚽ Arsenal 1–0 Chelsea · 69'</b>"))
+        self.assertIn("</blockquote>\n\n<b>🏷 📡 LE FIL DU MATCH</b>\n"
+                      "<i>📰 Source : ESPN</i>", text)
+        self.assertNotIn("SCORE LIVE", text)
+
+    def test_daily_score_recap_starts_with_real_score_and_ends_with_category(self):
         value = mod.recap_message([row()], NOW)
-        self.assertTrue(value.startswith("<b>📋 POINT SCORES"))
-        self.assertIn("</b>\n\n<blockquote>", value)
-        self.assertIn("</blockquote>\n\n<i>📰 Source : ESPN</i>", value)
+        self.assertTrue(value.startswith("<b>⚽ Arsenal 1–0 Chelsea</b>\n\n"))
+        self.assertIn("<blockquote>", value)
+        self.assertIn("</blockquote>\n\n<b>🏷 📋 TOUR D’HORIZON DES SCORES", value)
+        self.assertTrue(value.endswith("</b>\n<i>📰 Source : ESPN</i>"))
         self.assertNotIn("https://", value)
 
     def test_scorecard_escapes_html(self):

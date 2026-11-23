@@ -9,8 +9,8 @@ for folder in (ROOT, ROOT / "scripts", ROOT / "bsd"):
         sys.path.insert(0, str(folder))
 
 from scripts.actufoot_telegram_format import (
-    editorial_markup, news_markup, normalize_paragraphs,
-    quote_excerpt, source_footer,
+    editorial_markup, editorial_bottom_markup, match_header,
+    news_markup, normalize_paragraphs, quote_excerpt, source_footer,
 )
 from scripts.telegram_rich import legacy_caption
 
@@ -67,6 +67,60 @@ class EditorialTelegramFormatTests(unittest.TestCase):
         legacy = legacy_caption(quote)
         self.assertIn("<blockquote>Un passage sourcé.</blockquote>", legacy)
         self.assertIn("</blockquote>\n\n<i>", legacy)
+
+    def test_new_editorial_layout_starts_with_verified_match_not_own_title(self):
+        result = editorial_bottom_markup(
+            "📊 <b>SCORE LIVE 90'</b>\n\n<b>River Plate 3–1 Lanús</b>",
+            category="🔥 NOUVEAU SCORE CONFIRMÉ", source="ESPN",
+            card={"home": "River Plate", "away": "Lanús",
+                  "score": "3-1", "minute": 90},
+        )
+        self.assertTrue(result.startswith(
+            "<b>⚽ River Plate 3–1 Lanús · 90'</b>\n\n"))
+        self.assertIn("<blockquote>", result)
+        self.assertIn("</blockquote>\n\n<b>🏷 🔥 NOUVEAU SCORE CONFIRMÉ</b>\n"
+                      "<i>📰 Source : ESPN</i>", result)
+        self.assertEqual(result.count("Source : ESPN"), 1)
+        self.assertNotIn("SCORE LIVE", result)
+
+    def test_goal_keeps_confirmed_scorer_but_moves_buuut_to_footer(self):
+        result = editorial_bottom_markup(
+            "🌟 <b>BUUUT - SALAH 74'</b>\n\n<b>Liverpool 2–1 Chelsea</b>",
+            category="⚽ BUUUT !", source="ESPN",
+            card={"home": "Liverpool", "away": "Chelsea",
+                  "score": "2-1", "minute": 74},
+        )
+        self.assertTrue(result.startswith("<b>⚽ Liverpool 2–1 Chelsea · 74'</b>"))
+        self.assertIn("👤 SALAH 74'", result)
+        self.assertIn("<b>🏷 ⚽ BUUUT !</b>\n<i>📰 Source : ESPN</i>", result)
+
+    def test_bottom_editorial_label_is_idempotent(self):
+        first = editorial_bottom_markup(
+            "<b>▶️ COUP D’ENVOI</b>\n\n"
+            "<blockquote>Match lancé.</blockquote>",
+            category="▶️ C’EST PARTI !", source="ESPN",
+            card={"home": "Togo", "away": "Bénin", "score": "0-0"})
+        self.assertEqual(editorial_bottom_markup(
+            first, category="▶️ C’EST PARTI !", source="ESPN"), first)
+        self.assertEqual(first.count("<blockquote>"), 1)
+        self.assertEqual(first.count("<i>📰 Source : ESPN</i>"), 1)
+
+    def test_source_headline_remains_first_and_category_is_last(self):
+        item = editorial_bottom_markup(
+            "<b>🚨 Une annonce officielle</b>\n\n"
+            "Le média confirme une opération de transfert.",
+            category="📰 FLASH FOOT", source="Foot Mercato",
+            genuine_news_headline=True)
+        self.assertTrue(item.startswith("<b>🚨 Une annonce officielle</b>\n\n"))
+        self.assertIn("<blockquote>Le média confirme", item)
+        self.assertTrue(item.endswith(
+            "<b>🏷 📰 FLASH FOOT</b>\n<i>📰 Source : Foot Mercato</i>"))
+
+    def test_match_header_without_score_never_fabricates_a_result(self):
+        actual = match_header({"home": "River Plate", "away": "Lanús",
+                               "time": "21h00"})
+        self.assertIn("River Plate — Lanús", actual)
+        self.assertNotIn("3–1", actual)
 
     def test_source_escapes_provider_and_does_not_create_link(self):
         source = source_footer('Média <important> & partenaire')
