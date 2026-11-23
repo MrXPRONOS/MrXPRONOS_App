@@ -110,6 +110,15 @@ def summarize_legacy(catalogue_path: str):
     if not path.is_file():
         return {"available": False}
     data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("active_batch"):
+        # An unfinished legacy series must be resumed by its original
+        # publisher before cutting over; never import partial receipts.
+        batch = data["active_batch"]
+        return {"available": True, "migration_blocked": True,
+                "reason": "legacy_active_batch_unfinished",
+                "pending_episode_count": len(batch.get("episodes", []))
+                    if isinstance(batch, dict) and
+                       isinstance(batch.get("episodes"), list) else None}
     state = {"schema_version": 1, "series": {}}
     _, review = migrate_legacy_catalogue(state, data)
     return {
@@ -147,6 +156,9 @@ def main():
                                       "failure_type": type(exc).__name__}
         print(json.dumps(report, sort_keys=True, ensure_ascii=False))
         return 2
+    if report["legacy_catalogue"].get("migration_blocked"):
+        report.setdefault("blockers", []).append("legacy_active_batch_unfinished")
+        report["ready_to_publish"] = False
     print(json.dumps(report, sort_keys=True, ensure_ascii=False))
     # Missing external configuration is an explicit blocker in the JSON,
     # not permission to publish or a misleading successful live check.
