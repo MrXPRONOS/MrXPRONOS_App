@@ -87,7 +87,26 @@ class EventTests(unittest.TestCase):
         }]
         with patch.object(mod, "extract_goals", return_value=goals):
             events = mod.derive_events(row(), info, {}, old)
-        self.assertIn(("goal", "score:987654:2-0", {"player": "Saka"}), events)
+        self.assertIn(("goal", "score:987654:2-0", {
+            "player": "Saka", "minute_text": "", "minute_total": 69, "team": "",
+        }), events)
+
+    def test_stoppage_time_goal_uses_exact_verified_minute(self):
+        rendered = mod.event_lines(
+            row(), {"score": "2-1", "phase": "live", "minute": 90},
+            "goal", {"player": "Saka", "minute_text": "90+3",
+                     "team": "Arsenal"})
+        self.assertTrue(rendered.startswith("<b>⚽ BUUUT !"))
+        self.assertIn("<b>⚽ Arsenal 2–1 Chelsea · 90+3'</b>", rendered)
+        self.assertIn("👤 <b>Saka</b>", rendered)
+        self.assertIn("👕 Arsenal", rendered)
+
+    def test_untrusted_goal_minute_is_not_embedded(self):
+        rendered = mod.event_lines(
+            row(), {"score": "2-1", "minute": 90}, "goal",
+            {"minute_text": "90' <script>alert(1)</script>"})
+        self.assertIn("<b>⚽ Arsenal 2–1 Chelsea · 90'</b>", rendered)
+        self.assertNotIn("<script>", rendered)
 
     def test_unknown_goal_scorer_is_never_fabricated(self):
         info = row(home_score=2, minute=70)
