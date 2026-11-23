@@ -147,6 +147,7 @@ async def hydrate(path: Path) -> dict:
     async with client:
         if not await client.is_user_authorized():
             raise RuntimeError("Session Telegram personnelle non autorisée")
+        # Avoid a full 2500-dialog scan unless a checkpoint needs recovery.
         dialogs = [d async for d in client.iter_dialogs(limit=500)]
         by_id = {utils.get_peer_id(d.entity): d.entity for d in dialogs}
         for username, row in data.items():
