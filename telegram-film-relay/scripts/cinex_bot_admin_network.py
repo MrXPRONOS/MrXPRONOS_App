@@ -27,8 +27,18 @@ EXTRA_BOT_SECRETS = (
     ("mrx_channel", "MRXPRONOS_CANAL_BOT_TOKEN"),
     ("editorial", "EDITORIAL_TELEGRAM_BOT_TOKEN"),
     ("partnership", "PARTNERSHIP_BOT_TOKEN"),
+    ("anime_source", "CINEX_ANIME_SOURCE_BOT_TOKEN"),
+    ("radar_alt", "CINE_RADAR_BOT_TOKEN"),
+    ("canal", "CANAL_BOT_TOKEN"),
 )
 ALL_BOT_SECRETS = BOT_SECRETS + EXTRA_BOT_SECRETS
+# The existing GitHub reaction workflow exposes slots 03..99 and an optional
+# JSON bundle for further numbered bots. Only nonempty values are inspected.
+REACTION_BOT_SECRETS = tuple(
+    (f"reaction_{number:02d}", f"TELEGRAM_REACTION_BOT_{number:02d}_TOKEN")
+    for number in range(3, 100)
+)
+REACTION_BUNDLE_KEY = "TELEGRAM_REACTION_BOTS_JSON"
 # The new Fichiers Cloud Secours must be checked first, before existing Secours.
 PRIORITY = ("@fichiers_cloud",)
 
@@ -39,11 +49,8 @@ def discover_network_bots(env=None, identify=None):
     base, missing, invalid = discover_bot_candidates(env, identify)
     seen = {int(bot["id"]) for bot in base}
     result = list(base)
-    for label, key in EXTRA_BOT_SECRETS:
-        token = str(env.get(key) or "").strip()
-        if not token:
-            missing.append(label)
-            continue
+
+    def add_verified(label, token):
         try:
             item = identify(token)
             uid = item.get("id")
@@ -56,8 +63,47 @@ def discover_network_bots(env=None, identify=None):
                 seen.add(uid)
         except Exception:
             invalid.append(label)
-    return result, missing, invalid
 
+    for label, key in EXTRA_BOT_SECRETS:
+        token = str(env.get(key) or "").strip()
+        if not token:
+            missing.append(label)
+            continue
+        add_verified(label, token)
+
+    # Numbered reaction bots are GitHub secrets too. A previously unknown
+    # reaction bot is not trusted by its slot name alone: Telegram getMe must
+    # match a real bot account. Never print the token or its Bot API URL.
+    reaction_tokens = {}
+    for label, key in REACTION_BOT_SECRETS:
+        token = str(env.get(key) or "").strip()
+        if token:
+            reaction_tokens[int(label.split("_")[1])] = (label, token)
+
+    bundle = str(env.get(REACTION_BUNDLE_KEY) or "").strip()
+    if bundle:
+        try:
+            parsed = json.loads(bundle)
+            if not isinstance(parsed, dict):
+                raise ValueError("reaction_bundle_not_a_mapping")
+            for slot, token in parsed.items():
+                if (not str(slot).isdecimal() or int(slot) < 3
+                    or int(slot) > 9999 or not isinstance(token, str)):
+                    raise ValueError("reaction_bundle_invalid_slot")
+                token = token.strip()
+                if token and int(slot) not in reaction_tokens:
+                    reaction_tokens[int(slot)] = (f"reaction_{int(slot):02d}", token)
+        except (ValueError, TypeError):
+            raise RuntimeError("reaction_bot_secret_bundle_invalid") from None
+
+    seen_tokens = set()
+    for slot in sorted(reaction_tokens):
+        label, token = reaction_tokens[slot]
+        if token in seen_tokens:
+            continue
+        seen_tokens.add(token)
+        add_verified(label, token)
+    return result, missing, invalid
 
 def validated_checkpoints():
     state = read_state()["channels"]
@@ -145,7 +191,7 @@ async def run(*, apply=False, pause=12, max_changes=220):
         raise RuntimeError("no_verified_configured_bots")
     if invalid:
         raise RuntimeError("invalid_bot_tokens_or_identity")
-    if len(candidates) > 18:
+    if len(candidates) > 30:
         raise RuntimeError("unexpected_bot_inventory_growth")
     if not 5 <= pause <= 120 or not 1 <= max_changes <= 220:
         raise ValueError("invalid_rate_limits")
@@ -157,10 +203,13 @@ async def run(*, apply=False, pause=12, max_changes=220):
                os.getenv("TG_STREAM_SESSION") or "").strip()
     if not api_id.isdecimal() or not api_hash or not session:
         raise RuntimeError("owner_personal_session_not_configured")
-    print("CINEX_BOT_INVENTORY", "configured_secret_slots", len(ALL_BOT_SECRETS),
+    print("CINEX_BOT_INVENTORY", "known_standard_secret_names", len(ALL_BOT_SECRETS),
+          "reaction_slot_names", len(REACTION_BOT_SECRETS),
+          "configured_reaction_slots", sum(bool(os.getenv(k)) for _, k in REACTION_BOT_SECRETS),
+          "reaction_bundle_present", bool(os.getenv(REACTION_BUNDLE_KEY)),
           "distinct_verified_bots", len(candidates),
           "secret_slots_absent", len(missing),
-          "aliases_or_duplicates", len(ALL_BOT_SECRETS) - len(missing) - len(candidates))
+          "standard_secrets_present", len(ALL_BOT_SECRETS) - len(missing))
     client = TelegramClient(StringSession(session), int(api_id), api_hash,
                             flood_sleep_threshold=0, request_retries=1,
                             connection_retries=2)
