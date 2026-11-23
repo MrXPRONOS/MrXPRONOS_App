@@ -487,53 +487,33 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 key, {"title": title, "public_id": None, "main_index_id": None,
                       "season_indices": {}, "episodes": {}, "source_items": {}})
             marker = "#CXSERIES_" + hashlib.sha256(key.encode()).hexdigest()[:15]
-            # The first real episode is centrally archived before the
-            # series cover is sent, providing its third verified download button.
-            opening_row = next(
-                (item for item in items if item.get("poster") is not None), None)
-            if opening_row is None:
-                raise RuntimeError("Série/animé sans affiche d'origine")
-            opening_title = f"{title} S{opening_row['season']:02d}E{opening_row['episode']:02d}"
-            opening_download = await unified.store(
-                opening_row["video"], category="series",
-                title=opening_title, public=public,
-                poster=opening_row["poster"],
-                description=str(getattr(opening_row["poster"], "raw_text", "") or title),
-            )
-            if not opening_download:
-                raise RuntimeError("CineRadar : premier épisode non archivé")
-            if series.get("private_poster_id"):
-                await ensure_library_poster_buttons(
-                    client, bot, private, int(series["private_poster_id"]),
-                    public, opening_download)
-            # Save the original series illustration in the PRIVATE channel too.
-            # Its deterministic caption marker prevents duplicate posters after a crash.
+            # Reuse authenticated historical main covers when present, but
+            # never send an additional new photo before the Lot-3 batch cover.
+            # The batch cover itself becomes the initial main-series illustration.
             if not series.get("private_poster_id"):
-                poster_marker = marker + "_POSTER"
-                private_poster = await find_marked(client, private, poster_marker, limit=700)
-                if not private_poster:
-                    original_poster = next(
-                        (row["poster"] for row in items if row.get("poster") is not None), None
-                    )
-                    if original_poster is None:
-                        LOG.warning("Affiche absente pour %s : aucun épisode envoyé.", title)
-                        continue
-                    sent_poster = await send_library_poster_with_buttons(
-                        client, bot, private, public, original_poster,
-                        f"📺 {title}\nFiche de la série et épisodes ci-dessous.\n"
-                        "Téléchargement : premier épisode disponible.\n"
-                        f"{poster_marker}",
-                        download_url=opening_download,
-                    )
-                    private_poster = int(sent_poster.id)
-                    await asyncio.sleep(pause)
-                # An interrupted legacy operation may have left a two-button
-                # picture with no ID in our JSON. Repair its markup in place.
+                historical = await find_marked(
+                    client, private, marker + "_POSTER", limit=700)
+                if historical:
+                    series["private_poster_id"] = int(historical)
+                    save_catalog(catalogue)
+            if series.get("private_poster_id"):
+                original = next(
+                    (r for r in items if r.get("poster") is not None), None)
+                if original is None:
+                    raise RuntimeError("Affiche originale introuvable")
+                download = await unified.store(
+                    original["video"], category="series",
+                    title=(f"{title} S{original['season']:02d}"
+                           f"E{original['episode']:02d}"),
+                    public=public, poster=original["poster"],
+                    description=str(getattr(
+                        original["poster"], "raw_text", "") or title),
+                )
+                if not download:
+                    raise RuntimeError("Ancienne fiche : CineRadar indisponible")
                 await ensure_library_poster_buttons(
-                    client, bot, private, int(private_poster),
-                    public, opening_download)
-                series["private_poster_id"] = int(private_poster)
-                save_catalog(catalogue)
+                    client, bot, private,
+                    int(series["private_poster_id"]), public, download)
             if not series.get("main_index_id"):
                 recovered = await find_marked(client, private, marker)
                 if recovered:
@@ -567,6 +547,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 key, series, items, catalogue, save_catalog, unified,
                 kind="series", complete=is_complete_season,
             )
+            if not series.get("private_poster_id"):
+                series["private_poster_id"] = int(batch_receipt["private_cover_id"])
+                save_catalog(catalogue)
             for row in pending:
                 season_key = str(row["season"])
                 number_key = str(row["episode"])
