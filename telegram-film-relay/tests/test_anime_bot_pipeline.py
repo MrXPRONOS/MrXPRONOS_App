@@ -205,15 +205,21 @@ class AnimeBotPublisherTests(unittest.TestCase):
                "cadence_hint": "weekly"}
         bot = type("Bot", (), {})()
         bot.copy_message = AsyncMock(side_effect=[
-            21, 31, 32, 33,
+            21, 31, 32, 33, 34, 35, 36,
         ])
         bot.send_message = AsyncMock(side_effect=[41, 42])
         bot.edit_message = AsyncMock()
         bot.edit_buttons = AsyncMock()
         store = BotStateStore(self.tmp / "store.json")
         store.save(state)
-        publisher = AnimeBotPublisher(bot, store, state, private_id=PRIVATE,
-                                      public_id=PUBLIC, pause=0)
+        from types import SimpleNamespace as NS
+        registry = NS(register=lambda **kwargs:
+                      "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)
+        publisher = AnimeBotPublisher(
+            bot, store, state, private_id=PRIVATE, public_id=PUBLIC, pause=0,
+            central_stock_id="-1007654321098", radar_registry=registry,
+            rescue_url="https://t.me/+VerifiedAnimeRescue123")
+        bot.test_registry = registry
         return bot, store, state, row, publisher
 
     def setUp(self):
@@ -233,7 +239,19 @@ class AnimeBotPublisherTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(len(state["series"]), 1)
         self.assertIn("S01E01", state["series"]["naruto"]["public_episode_posts"])
-        self.assertEqual(bot.copy_message.await_count, 4)
+        self.assertEqual(bot.copy_message.await_count, 7)
+        copies = bot.copy_message.await_args_list
+        # Real central poster then video, before any category-library copy.
+        self.assertEqual(copies[0].args[0], "-1007654321098")
+        self.assertEqual(copies[1].args[0], "-1007654321098")
+        self.assertEqual(copies[2].args[0], PRIVATE)
+        self.assertEqual(copies[3].args[0], PRIVATE)
+        self.assertEqual(len(copies[2].kwargs["reply_markup"]["inline_keyboard"]), 3)
+        self.assertEqual(len(copies[4].kwargs["reply_markup"]["inline_keyboard"]), 4)
+        self.assertEqual(len(copies[5].kwargs["reply_markup"]["inline_keyboard"]), 4)
+        self.assertEqual(len(copies[6].kwargs["reply_markup"]["inline_keyboard"]), 4)
+        self.assertEqual(copies[4].kwargs["reply_markup"],
+                         copies[5].kwargs["reply_markup"])
         self.assertEqual(bot.send_message.await_count, 2)
         self.assertEqual(store.load(), state)
 
@@ -260,9 +278,12 @@ class AnimeBotPublisherTests(unittest.TestCase):
         with self.assertRaises(TimeoutError):
             asyncio.run(publisher.publish_episode(row))
         self.assertEqual(bot.copy_message.await_count, 1)
-        restarted = AnimeBotPublisher(bot, store, store.load(),
-                                      private_id=PRIVATE, public_id=PUBLIC,
-                                      pause=0)
+        restarted = AnimeBotPublisher(
+            bot, store, store.load(),
+            private_id=PRIVATE, public_id=PUBLIC, pause=0,
+            central_stock_id="-1007654321098",
+            radar_registry=bot.test_registry,
+            rescue_url="https://t.me/+VerifiedAnimeRescue123")
         with self.assertRaisesRegex(RuntimeError, "incertain"):
             asyncio.run(restarted.publish_episode(row))
         self.assertEqual(bot.copy_message.await_count, 1)
