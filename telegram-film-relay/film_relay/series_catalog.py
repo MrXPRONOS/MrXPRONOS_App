@@ -212,9 +212,9 @@ def public_buttons(private_id: int, series_entry: dict, public_peer=None):
                           style="primary")]
         download = approved_download_url("series", str(series_entry.get("title") or ""), int(season))
         if download:
-            row.append(url_button("Télécharger", download, style="success"))
+            row.append(url_button("⬇️ TÉLÉCHARGER LES VIDÉOS", download, style="success"))
         rows.append(row)
-    rows.append([url_button("📚 Tous les épisodes",
+    rows.append([url_button("📺 VOIR LA SÉRIE",
                             private_message_link(private_id, series_entry["main_index_id"]),
                             style="success")])
     # The existing shared folder is the official way to join the private library.
