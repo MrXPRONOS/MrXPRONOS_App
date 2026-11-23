@@ -1,0 +1,77 @@
+name: CineX - Ajouter et verifier les bots GitHub en admin des canaux officiels
+
+on:
+  push:
+    branches: [main]
+    paths: ['telegram-film-relay/.cinex-bot-admin-network-once']
+  workflow_dispatch:
+    inputs:
+      apply:
+        type: boolean
+        required: false
+        default: false
+        description: 'Ajouter seulement les administrateurs manquants (audit sinon)'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  reconcile:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    env:
+      PYTHONPATH: .
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_USERNAME: ${{ vars.CINEX_PUBLISH_BOT_USERNAME }}
+      CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN }}
+      MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+      EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+      PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Respecter le cooldown du compte Telegram personnel
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python scripts/check_personal_cooldown.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dependances
+        run: python -m pip install -r requirements.txt
+      - name: Valider le code et les regles de securite
+        run: |
+          python -m py_compile scripts/cinex_bot_admin_network.py
+          python -m unittest discover -s tests -p 'test_cinex_bot_admin_network.py' -v
+      - name: Ajouter seulement les bots verifies avec permission de publication minimale
+        env:
+          RUN_APPLY: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply) }}
+        run: |
+          if [ "$RUN_APPLY" = 'true' ]; then
+            python scripts/cinex_bot_admin_network.py --apply --pause 12 --max-changes 220
+          else
+            python scripts/cinex_bot_admin_network.py
+          fi
