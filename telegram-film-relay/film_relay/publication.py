@@ -137,27 +137,27 @@ def complete_public_video_rows(movie_url: str, download_url: str, *, public_peer
 
 
 def verify_complete_public_video_poster(poster, public_peer,
-                                        private_video_link: str, download_url: str):
-    """Re-read the public post and verify all four exact destinations."""
-    from .public_video_archive import has_verified_button
+                                        private_video_link: str, download_url: str,
+                                        *, watch_label: str = "🎬 VOIR LE FILM"):
+    """Verify the exact FOUR labels and URLs on the actual public image."""
     try:
-        complete_public_video_rows(private_video_link, download_url,
-                                   public_peer=public_peer)
-        from .rescue_channels import rescue_link_for
-        expected = (private_video_link, download_url,
-                    rescue_link_for(public_peer), film_folder_url())
+        expected_rows = complete_public_video_rows(
+            private_video_link, download_url,
+            public_peer=public_peer, watch_label=watch_label)
     except (ValueError, RuntimeError, TypeError):
         return False
     if not poster or not getattr(poster, "photo", None):
         return False
     rows = getattr(poster, "buttons", None) or ()
-    links = [getattr(getattr(button, "button", button), "url", None)
-             for row in rows for button in row]
-    return bool(len(rows) == 4 and all(len(row) == 1 for row in rows)
-                and tuple(links) == expected
-                and all(has_verified_button(poster, link) for link in expected))
-
-
+    if len(rows) != 4 or any(len(row) != 1 for row in rows):
+        return False
+    actual = [
+        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
+         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
+        for row in rows for btn in row
+    ]
+    expected = [pair for row in expected_rows for pair in row]
+    return actual == expected
 
 
 def verify_complete_public_video_keyboard(message, public_peer,
@@ -378,8 +378,9 @@ async def post_public_video_by_bot_copy(
     )
     poster = await user_client.get_messages(public_peer, ids=int(poster_id))
     if not verify_complete_public_video_poster(
-            poster, public_peer, private_video_link, download_url):
-        raise RuntimeError("Fiche publique sans quatre boutons : copie bot suspendue.")
+            poster, public_peer, private_video_link, download_url,
+            watch_label=watch_label):
+        raise RuntimeError("Fiche publique sans quatre boutons conformes : copie bot suspendue.")
     newest = [m async for m in user_client.iter_messages(public_peer, limit=1)]
     if not newest or int(newest[0].id) != int(poster_id):
         raise RuntimeError("Affiche plus récente absente : copie bot suspendue.")
