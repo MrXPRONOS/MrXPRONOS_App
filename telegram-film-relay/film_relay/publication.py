@@ -520,23 +520,14 @@ async def publish_catalog_episode_pairs(
             try:
                 # Send the VERIFIED private copy, never a mismatched source
                 # repost whose document ID or encoding could have changed.
-                bot_copy = (os.getenv("CINEX_ANIME_BOT_PUBLIC_COPY", "true").lower()
-                            in ("1", "true", "yes"))
-                if bot_copy:
-                    if not hasattr(bot_client, "copy_message"):
-                        raise RuntimeError("Bot CineX sans fonction copyMessage.")
-                    public_video = await post_public_video_by_bot_copy(
-                        user_client, bot_client, public_peer, private_peer,
-                        private_video, int(entry["poster"]), video_url, description,
-                        download_url=private_record.get("download_url"),
-                        watch_label="📺 VOIR L'ÉPISODE",
-                    )
-                else:
-                    public_video = await post_public_video_after_poster(
-                        user_client, public_peer, private_video, description,
-                        int(entry["poster"]), video_url,
-                        download_url=private_record.get("download_url"),
-                    )
+                if not hasattr(bot_client, "copy_message"):
+                    raise RuntimeError("Le bot CineX doit pouvoir copier les vidéos avec boutons.")
+                public_video = await post_public_video_by_bot_copy(
+                    user_client, bot_client, public_peer, private_peer,
+                    private_video, int(entry["poster"]), video_url, description,
+                    download_url=private_record.get("download_url"),
+                    watch_label="📺 VOIR L'ÉPISODE",
+                )
             except Exception:
                 entry["video_send_uncertain"] = True
                 save_catalog(catalogue)
