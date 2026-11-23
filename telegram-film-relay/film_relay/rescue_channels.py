@@ -226,6 +226,8 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
             raise RuntimeError("Session utilisateur expirée : aucun canal créé")
         me = await client.get_me()
         dialogs = [d async for d in client.iter_dialogs(limit=500)] if apply else []
+        from .rescue_links_runtime import recover_checkpoint_peer
+        known_private_by_id = {utils.get_peer_id(d.entity): d.entity for d in dialogs}
         for username in targets:
             try:
                 public = await client.get_entity(username)
@@ -266,19 +268,19 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                 if entry and found is not None and utils.get_peer_id(found) != int(entry.get("rescue_channel_id", 0)):
                     raise RuntimeError("ID privé différent de la sauvegarde")
                 if entry and found is None:
-                    # A 500-dialog scan can omit an older valid Secours even
-                    # while the private peer remains accessible by its exact ID.
-                    try:
-                        candidate = await client.get_entity(
-                            int(entry["rescue_channel_id"]))
-                    except Exception:
-                        candidate = None
-                    if not verified_checkpoint_private(
-                            candidate, entry, desired_title):
+                    # A StringSession cannot always resolve a bare -100 ID:
+                    # recover the exact identity through a bounded dialog scan.
+                    candidate = await recover_checkpoint_peer(
+                        client, known_private_by_id, entry)
+                    if candidate is None:
                         raise RuntimeError(
-                            "Canal secours déjà enregistré mais non vérifiable par ID")
+                            "Canal secours déjà enregistré mais non vérifiable par ID ; aucune création automatique")
                     found = candidate
                     LOG.info("Secours %s réidentifié par son checkpoint privé", username)
+                if entry and found is not None:
+                    # Never trust a dialog title alone, including after a rename.
+                    if not verified_checkpoint_private(found, entry, desired_title):
+                        raise RuntimeError("Checkpoint Secours non conforme : aucun doublon créé")
                 if entry and found is not None and entry.get("invite_sha256"):
                     if not await verified_live_invite(client, found, entry):
                         raise RuntimeError(
