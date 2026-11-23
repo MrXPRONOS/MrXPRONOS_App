@@ -17,7 +17,35 @@ import os
 from .public_video_archive import is_video_message, video_document_id
 from .ten_video_rotation import category_targets
 from .runner import resolve_peer
-from .cinex_v4_policy import has_automatic_ttl
+from .cinex_v4_policy import has_automatic_ttl, canonical_public_handle
+
+# Fichiers Cloud is reserved for a future publishing lot, not active here.
+EXPECTED_PUBLIC_RELAYS = {
+    "films": "@cinexfilms_vf",
+    "series": "@seriesvf_cinex",
+    "desir": "@cinexdesirfr",
+    "comedie": "@cinexcomediefr",
+    "anime": "@cinexanimefr",
+    "action": "@filmsaction2026vf",
+}
+
+
+def validate_retention_targets(configured) -> None:
+    """Never report a partial scan as successful production cleanup."""
+    if len(configured) != len(EXPECTED_PUBLIC_RELAYS):
+        raise RuntimeError("Retention 24h partielle : six couples publics/prives requis")
+    seen = set()
+    for category, handle, private_id in configured:
+        if category in seen:
+            raise RuntimeError("Retention 24h : categorie dupliquee")
+        seen.add(category)
+        if EXPECTED_PUBLIC_RELAYS.get(category) != canonical_public_handle(handle):
+            raise RuntimeError("Retention 24h : canal public hors perimetre")
+        if not str(private_id).startswith("-100"):
+            raise RuntimeError("Retention 24h : videotheque privee non verifiee")
+    if seen != set(EXPECTED_PUBLIC_RELAYS):
+        raise RuntimeError("Retention 24h : categories manquantes")
+
 
 LOG = logging.getLogger("cinex.public_video_retention")
 LIFETIME = timedelta(hours=24)
@@ -121,6 +149,8 @@ async def execute(*, apply: bool = False, max_deleted: int = MAX_PER_CHANNEL,
     configured = category_targets()
     if not configured:
         raise RuntimeError("Aucun couple canal public/videotheque verifie")
+    if apply:
+        validate_retention_targets(configured)
     # A previously configured channel must STILL belong to the secure admin
     # inventory; never delete when a channel was transferred or removed.
     if apply:
