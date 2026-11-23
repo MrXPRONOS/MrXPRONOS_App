@@ -38,7 +38,7 @@ class AnimeBotPublisher:
         self.state = state
         self.private_id = str(private_id)
         self.public_id = str(public_id)
-        self.folder_url = folder_url
+        self.folder_url = folder_url or film_folder_url()
         self.pause = max(0.0, float(pause))
         if folder_url and not folder_url.startswith("https://t.me/addlist/"):
             raise ValueError("Unverified folder URL.")
@@ -256,14 +256,13 @@ class AnimeBotPublisher:
             entry["main_index_id"] = idx
             self.store.save(self.state)
 
-    async def _series_card(self, row, entry, poster):
+    async def _series_card(self, row, entry, poster, download_url):
         # One original public card for the entire series; future seasons
         # receive one season notice and never create a duplicate main card.
         key = row["series"]
         index_id = int(entry["main_index_id"])
         link = message_url(self.private_id, index_id)
-        buttons = {"inline_keyboard": [
-            [{"text": "📚 TOUTES LES SAISONS", "url": link}]]}
+        buttons = self._keyboard(link, download_url)
         caption = f"🌸 <b>{escape(entry['title'])}</b>\n📚 Saison(s) disponibles"
         if not entry.get("public_id"):
             entry["public_id"] = await self._operation(
@@ -282,8 +281,7 @@ class AnimeBotPublisher:
             else:
                 index_link = message_url(
                     self.private_id, entry["season_index_ids"][season])
-                season_buttons = {"inline_keyboard": [[
-                    {"text": "📺 SAISON " + season, "url": index_link}]]}
+                season_buttons = self._keyboard(index_link, download_url)
                 announcements[season] = await self._operation(
                     f"season-card:{key}:{season}", lambda: self.transport.copy_message(
                         self.public_id, poster["source_id"], poster["message_id"],
@@ -307,8 +305,22 @@ class AnimeBotPublisher:
         source = self.state.get("messages", {}).get(row["source_key"], {})
         if source.get("kind") != "video":
             raise RuntimeError("Original numbered video not available.")
+        # CineRadar stock first; never expose a download button for an
+        # unregistered video, nor a public video with incomplete buttons.
+        download_url = await self._central_download(row, entry, poster, source)
         private_season = entry.setdefault("episodes", {}).setdefault(
             str(row["season"]), {})
+        # The source illustration is copied to the PRIVATE library BEFORE
+        # its episode, with 3 verified navigation URLs and an idempotent receipt.
+        private_covers = entry.setdefault("private_episode_covers", {})
+        if marker not in private_covers:
+            private_covers[marker] = await self._operation(
+                f"private:cover:{key}:{marker}",
+                lambda: self.transport.copy_message(
+                    self.private_id, poster["source_id"], poster["message_id"],
+                    caption=f"🌸 <b>{escape(entry['title'])}</b> — {marker}",
+                    reply_markup=self._library_keyboard(download_url)))
+            self.store.save(self.state)
         stored = private_season.get(str(row["episode"]))
         if stored:
             private_msg = int(stored["message_id"])
@@ -330,16 +342,17 @@ class AnimeBotPublisher:
                 f"cover:{key}:{marker}", lambda: self.transport.copy_message(
                     self.public_id, poster["source_id"], poster["message_id"],
                     caption=f"🌸 <b>{escape(entry['title'])}</b> — {marker}",
-                    reply_markup=self._keyboard(private_url)))
+                    reply_markup=self._keyboard(private_url, download_url)))
             video = await self._operation(
                 f"video:{key}:{marker}", lambda: self.transport.copy_message(
                     self.public_id, self.private_id, private_msg,
                     caption=caption_with_automatic_ttl(
-                        f"🎞️ <b>{escape(entry['title'])}</b> — {marker}")))
+                        f"🎞️ <b>{escape(entry['title'])}</b> — {marker}"),
+                    reply_markup=self._keyboard(private_url, download_url)))
             posts[marker] = {
                 "poster": cover, "video": video, "private_video": private_msg}
             self.store.save(self.state)
-        await self._series_card(row, entry, poster)
+        await self._series_card(row, entry, poster, download_url)
         # Optional: repost the authenticated source weekly GIF only once.
         # No fabricated GIF or automatic media upload. This switch stays off
         # until rights for the animation itself have been confirmed.
