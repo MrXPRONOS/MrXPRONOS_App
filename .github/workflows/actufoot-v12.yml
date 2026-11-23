@@ -74,6 +74,43 @@ jobs:
       - name: Probe five current ESPN standings sources safely
         if: github.event_name == 'pull_request'
         run: python scripts/actufoot_v12.py --mode standings --dry-run
+      - name: Inspect public ESPN standings schema (safe diagnostics)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import requests
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc)
+          season = now.year if now.month >= 7 else now.year - 1
+          try:
+              response = requests.get(
+                  "https://site.api.espn.com/apis/v2/sports/soccer/eng.1/standings",
+                  params={"season": season}, timeout=(6, 15))
+              response.raise_for_status()
+              payload = response.json()
+              children = payload.get("children") if isinstance(payload, dict) else []
+              first = children[0] if isinstance(children, list) and children else {}
+              entries = first.get("standings", {}).get("entries", []) if isinstance(first, dict) else []
+              entry = entries[0] if isinstance(entries, list) and entries else {}
+              stats = entry.get("stats") if isinstance(entry, dict) else []
+              print("ESPN_STANDINGS_SCHEMA", {
+                  "requested_season": season,
+                  "returned_season": (payload.get("season") or {}).get("year"),
+                  "keys": list(payload)[:12],
+                  "groups": len(children or []),
+                  "first_group_keys": list(first)[:12],
+                  "first_group_entries": len(entries or []),
+                  "first_entry_keys": list(entry)[:12],
+                  "first_stat_names": [x.get("name") for x in (stats or [])[:20]
+                                       if isinstance(x, dict)],
+                  "first_stat_value_types": [type(x.get("value")).__name__
+                                              for x in (stats or [])[:8]
+                                              if isinstance(x, dict)],
+              })
+          except Exception as exc:
+              print("ESPN_STANDINGS_SCHEMA_UNAVAILABLE", type(exc).__name__)
+          PY
       - name: Publish only source-verified V1.2 items
         shell: bash
         env:
