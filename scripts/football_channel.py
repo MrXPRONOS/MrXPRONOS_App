@@ -69,7 +69,7 @@ from football_community_engine import (  # noqa: E402
     build_postmatch_reaction,
 )
 from generic_football_content import banner_caption, live_keyboard, compact_keyboard_rows  # noqa: E402
-from actufoot_telegram_format import editorial_markup  # noqa: E402
+from actufoot_telegram_format import editorial_markup, editorial_bottom_markup  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -311,7 +311,7 @@ CATEGORY_LABELS = {
     "flash": "📰 FLASH FOOT",
     "programme": "📅 MATCHS DU JOUR",
     "avant_match": "🔎 AVANT-MATCH",
-    "resultat": "🏁 RÉSULTAT FINAL",
+    "resultat": "🏁 LE VERDICT DU MATCH",
     "statistique": "📊 LA STAT DU JOUR",
     "sondage": "🗳️ VOTE DU JOUR",
     "quiz": "🧠 QUIZ FOOT",
@@ -320,8 +320,8 @@ CATEGORY_LABELS = {
     "viral": "🎬 MOMENT VIRAL",
     "composition": "📋 COMPOSITIONS OFFICIELLES",
     "kickoff": "▶️ COUP D’ENVOI",
-    "goal": "⚽ BUT",
-    "score_update": "📊 SCORE LIVE",
+    "goal": "⚽ BUUUT !",
+    "score_update": "🔥 NOUVEAU SCORE CONFIRMÉ",
     "suivi_interrompu": "⚠️ RENCONTRE INTERROMPUE",
     "mi_temps": "⏸️ MI-TEMPS",
 }
@@ -1417,8 +1417,9 @@ class Sender:
             provider = "Mr XPRONOS"
         label = CATEGORY_LABELS.get(item.category) or ("⚽ " + str(item.category).replace("_", " ").upper())
         if item.text:
-            item.text = editorial_markup(
-                item.text, source=provider, title_fallback=label
+            item.text = editorial_bottom_markup(
+                item.text, source=provider, category=label,
+                card=card_data, genuine_news_headline=(item.category == "flash"),
             )
         if self.dry_run:
             print("DRY_RUN", item.category, item.key, plain(item.text, 900))
