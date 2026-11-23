@@ -138,5 +138,56 @@ class RetentionTests(unittest.TestCase):
                     ))
 
 
+    def test_apply_without_expired_videos_verifies_delete_permissions(self):
+        class Client:
+            async def iter_messages(self, channel, limit):
+                if False:
+                    yield None
+
+            async def get_me(self):
+                return NS(id=1)
+
+            async def get_permissions(self, channel, who):
+                return NS(is_creator=False, is_admin=True, delete_messages=False)
+
+        public = NS(id=-1001000000001, username="CineXFilms_vf", broadcast=True)
+        with patch("telethon.utils.get_peer_id", side_effect=lambda peer: peer.id):
+            with self.assertRaisesRegex(RuntimeError, "droits Telegram"):
+                asyncio.run(process_public(Client(), category="films", public=public,
+                                           private_id=-1001000000002, apply=True, now=NOW))
+
+    def test_apply_empty_valid_channel_records_rights_verified(self):
+        class Client:
+            async def iter_messages(self, channel, limit):
+                if False:
+                    yield None
+
+            async def get_me(self):
+                return NS(id=1)
+
+            async def get_permissions(self, channel, who):
+                return NS(is_creator=True)
+
+        public = NS(id=-1001000000001, username="CineXFilms_vf", broadcast=True)
+        with patch("telethon.utils.get_peer_id", side_effect=lambda peer: peer.id):
+            report = asyncio.run(process_public(
+                Client(), category="films", public=public, private_id=-1001000000002,
+                apply=True, now=NOW))
+        self.assertEqual(report["deleted"], 0)
+        self.assertEqual(report["errors"], 0)
+
+    def test_apply_refuses_truncated_history(self):
+        class Client:
+            async def iter_messages(self, channel, limit):
+                yield video(1, 50)
+
+        public = NS(id=-1001000000001, username="CineXFilms_vf", broadcast=True)
+        with patch("telethon.utils.get_peer_id", side_effect=lambda peer: peer.id):
+            with self.assertRaisesRegex(RuntimeError, "tronqué"):
+                asyncio.run(process_public(Client(), category="films", public=public,
+                                           private_id=-1001000000002, apply=True,
+                                           now=NOW, history=1))
+
+
 if __name__ == "__main__":
     unittest.main()
