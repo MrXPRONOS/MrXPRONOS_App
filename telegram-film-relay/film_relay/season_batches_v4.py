@@ -38,6 +38,92 @@ def batch_identifier(series_key: str, season: int, items: list) -> str:
     return "CXBATCH_" + hashlib.sha256(seed.encode()).hexdigest()[:20]
 
 
+def active_descriptor(key: str, items: list, *, complete: bool) -> dict:
+    """Persist only source identities, not video bytes or login credentials."""
+    return {
+        "key": key, "complete": bool(complete),
+        "season": int(items[0]["season"]),
+        "episodes": [{
+            "source_key": row["source_key"],
+            "season": int(row["season"]),
+            "episode": int(row["episode"]),
+            "poster_id": int(row["poster"].id) if row.get("poster") else None,
+            "title": str(row["title"]),
+        } for row in items],
+    }
+
+
+def valid_source_batch(items: list, active: dict | None = None,
+                       maximum: int = 25) -> bool:
+    if not (1 <= len(items) <= maximum):
+        return False
+    seasons = {int(row["season"]) for row in items}
+    positions = {(int(row["season"]), int(row["episode"])) for row in items}
+    if len(seasons) != 1 or len(positions) != len(items):
+        return False
+    if active is not None:
+        planned = {(int(row["season"]), int(row["episode"]))
+                   for row in active.get("episodes", [])}
+        if positions != planned or int(active.get("season") or 0) not in seasons:
+            return False
+    return (any(getattr(row.get("poster"), "photo", None) is not None
+                and not getattr(row["poster"], "noforwards", False)
+                for row in items)
+            and all(is_video_message(row["video"])
+                    and getattr(row["video"], "media", None) is not None
+                    and video_document_id(row["video"])
+                    and not getattr(row["video"], "noforwards", False)
+                    for row in items))
+
+
+async def recover_active_batch_rows(user, sources, candidates, active):
+    """Recover pinned Telegram message IDs after the source scan scrolls past.
+
+    An unresolved active batch is a STOP, never permission to publish the next
+    series and accidentally interleave two seasons.
+    """
+    if not active:
+        return candidates
+    from telethon import utils
+    peers = {str(utils.get_peer_id(peer)): peer for peer in sources}
+    seen = {str(row["source_key"]) for row in candidates}
+    plans = {str(row["source_key"]): row
+             for row in active.get("episodes", [])}
+    for row in candidates:
+        if str(row["source_key"]) in plans:
+            row["series"] = active["key"]
+            row["title"] = plans[str(row["source_key"])]["title"]
+    for record in active.get("episodes", []):
+        source_key = str(record["source_key"])
+        if source_key in seen or ":" not in source_key:
+            continue
+        source_id, message_id = source_key.rsplit(":", 1)
+        source = peers.get(source_id)
+        if source is None:
+            continue
+        video = await user.get_messages(source, ids=int(message_id))
+        if not is_video_message(video) or getattr(video, "noforwards", False):
+            continue
+        poster = None
+        if record.get("poster_id"):
+            poster = await user.get_messages(
+                source, ids=int(record["poster_id"]))
+            if not getattr(poster, "photo", None) or getattr(
+                    poster, "noforwards", False):
+                poster = None
+        candidates.append({
+            "source_key": source_key, "series": active["key"],
+            "title": record["title"],
+            "season": int(record["season"]),
+            "episode": int(record["episode"]),
+            "video": video, "poster": poster,
+            "timestamp": (video.date.timestamp()
+                          if getattr(video, "date", None) else 0),
+        })
+        seen.add(source_key)
+    return candidates
+
+
 def _existing_series(catalogue, key, title):
     from .short_series import normalized_key
     target = normalized_key(title or key)
