@@ -240,7 +240,7 @@ def public_buttons(private_id: int, series_entry: dict, public_peer=None):
         rows.append([url_button("📺 Saison " + str(int(season)),
                                 private_message_link(private_id, index_id),
                                 style="primary")])
-    rows.append([url_button("📚 Tous les épisodes",
+    rows.append([url_button("🌸 VOIR L'ANIMÉ",
                             private_message_link(private_id, series_entry["main_index_id"]),
                             style="success")])
     # The existing shared folder is the official way to join the private library.
