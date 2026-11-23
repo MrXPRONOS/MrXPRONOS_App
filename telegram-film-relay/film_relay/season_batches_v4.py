@@ -15,11 +15,14 @@ from typing import Any
 
 from .cinex_v4_policy import caption_with_automatic_ttl, is_main_relay
 from .publication import (
-    film_folder_url, make_button_keyboard, rich_caption, video_labels,
+    film_folder_url, FILM_FOLDER_BUTTON_TEXT, make_button_keyboard,
+    rich_caption, video_labels,
 )
 from .public_video_archive import is_video_message, video_document_id
 from .radar_download_registry import is_bot_download_url
-from .rescue_channels import public_username, rescue_link_for, is_invite
+from .rescue_channels import (
+    public_username, rescue_link_for, is_invite, BUTTON_TEXT,
+)
 from .text import private_message_link
 
 _EPISODE = re.compile(r"^S\d{2}E\d{2,3}$")
@@ -269,7 +272,7 @@ def batch_private_rows(public_peer, download_index_url: str):
         raise RuntimeError("Fiche de lot privée : canal ou index non vérifié")
     return [
         [("📢 REJOINDRE LE CANAL", "https://t.me/" + handle.lstrip("@"))],
-        [("📁 REJOINDRE LE DOSSIER", film_folder_url())],
+        [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())],
         [("⬇️ TÉLÉCHARGER LES VIDÉOS", download_index_url)],
     ]
 
@@ -287,7 +290,7 @@ def batch_public_rows(public_peer, watch_url: str, download_index_url: str,
     return [
         [(watch_label, watch_url)],
         [("⬇️ TÉLÉCHARGER LES VIDÉOS", download_index_url)],
-        [("🛟 REJOINDRE LE CANAL SECOURS", invitation)],
+        [(BUTTON_TEXT, invitation)],
         [("📁 REJOINDRE LE DOSSIER", film_folder_url())],
     ]
 
