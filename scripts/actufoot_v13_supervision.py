@@ -22,7 +22,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from actufoot_v1_router import load_config, verify_channels, ROLES
+from actufoot_v1_router import load_config, verify_channels, bot_call, ROLES
 from d1_publication_ledger import D1Ledger
 
 TZ = ZoneInfo("Africa/Lome")
@@ -268,6 +268,22 @@ def send_private_alert(report, ledger, session, token, destination, *, dry_run):
         return "uncertain"
 
 
+
+def main_can_publish(session, token, main_chat):
+    """Check the principal channel's bot posting rights, not just its identity."""
+    try:
+        me = bot_call(session, token, "getMe")
+        if me.get("is_bot") is not True or type(me.get("id")) is not int:
+            return False
+        member = bot_call(session, token, "getChatMember", {
+            "chat_id": main_chat, "user_id": str(me["id"])})
+        return (member.get("status") == "creator" or
+                member.get("status") == "administrator" and
+                member.get("can_post_messages") is True)
+    except (RuntimeError, KeyError, ValueError, TypeError):
+        return False
+
+
 def run(now, *, ledger, session, token, main_chat, channels,
         alert_chat="", send_alerts=False, dry_run=True):
     validate_channels(channels)
@@ -276,7 +292,7 @@ def run(now, *, ledger, session, token, main_chat, channels,
     # Reuse the V1 11-channel identity check (main + ten specialized channels).
     accepted, failed = verify_channels(session, token, main_chat, channels)
     aggregates = read_aggregates(ledger, now)
-    report = build_report(now, channels, aggregates, set(accepted), failed)
+    report = build_report(now, channels, aggregates, set(accepted), failed,\n                          main_verified=main_can_publish(session, token, main_chat))
     report["private_alert_delivery"] = (
         send_private_alert(report, ledger, session, token, alert_chat, dry_run=dry_run)
         if send_alerts else "disabled")
