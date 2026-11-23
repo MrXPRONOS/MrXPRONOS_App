@@ -31,6 +31,17 @@ class RetentionTests(unittest.TestCase):
         self.assertFalse(due_for_removal(NS(id=5, date=None, video=object(),
                                           document=NS(id=8, attributes=[])), NOW))
 
+    def test_promotions_trailers_and_gifs_are_preserved(self):
+        for label in ("Bande-annonce du film", "Teaser 2026", "Animation GIF",
+                      "Pronostics Mr Xpronos"):
+            with self.subTest(label=label):
+                msg = video(9, 72)
+                msg.raw_text = label
+                self.assertFalse(due_for_removal(msg, NOW))
+        normal = video(10, 72)
+        normal.raw_text = "Film complet"
+        self.assertTrue(due_for_removal(normal, NOW))
+
     def test_oldest_first_and_photo_excluded(self):
         msgs = [video(2, 24), video(1, 60), video(3, 2)]
         self.assertEqual([x.id for x in select_due(msgs, NOW)], [1, 2])
