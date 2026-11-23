@@ -384,11 +384,11 @@
       "revalidated_at": "2026-11-12T00:06:33.714594+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-23T00:24:09.038751+00:00",
+      "settlement_checked_at": "2026-11-23T08:21:21.640382+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-23T04:24:09.038751+00:00"
+        "next_retry_after": "2026-11-23T12:21:21.640382+00:00"
       }
     },
     {
@@ -3281,11 +3281,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-23T00:24:09.038751+00:00",
+      "settlement_checked_at": "2026-11-23T08:21:21.640382+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-23T04:24:09.038751+00:00"
+        "next_retry_after": "2026-11-23T12:21:21.640382+00:00"
       }
     },
     {
@@ -6471,12 +6471,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -6582,7 +6582,12 @@
       "generated_at": "2026-11-21T17:59:01.903710+00:00",
       "combo_only": false,
       "revalidated_at": "2026-11-23T00:06:42.523015+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-11-23T08:21:21.640382+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:654317",
@@ -8033,16 +8038,17 @@
       "bsd:654314:1X:2026-11-22T19:00:00+00:00",
       "bsd:655472:1X:2026-11-22T21:00:00+00:00",
       "bsd:655433:UNDER_35:2026-11-22T21:30:00+00:00",
-      "bsd:654311:UNDER_35:2026-11-22T22:00:00+00:00"
+      "bsd:654311:UNDER_35:2026-11-22T22:00:00+00:00",
+      "bsd:654315:1X:2026-11-23T01:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 191,
-        "wins": 151,
-        "sum_pred": 154.57900000000012,
-        "penalty": 0.009153,
-        "hit_rate": 0.790576,
-        "average_predicted": 0.809314
+        "n": 192,
+        "wins": 152,
+        "sum_pred": 155.3920000000001,
+        "penalty": 0.008653,
+        "hit_rate": 0.791667,
+        "average_predicted": 0.809333
       },
       "BTTS_YES": {
         "n": 1,
@@ -8095,12 +8101,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 203,
-        "wins": 158,
-        "sum_pred": 163.5600000000001,
-        "penalty": 0.013797,
-        "hit_rate": 0.778325,
-        "average_predicted": 0.805714
+        "n": 204,
+        "wins": 159,
+        "sum_pred": 164.37300000000008,
+        "penalty": 0.0133,
+        "hit_rate": 0.779412,
+        "average_predicted": 0.80575
       },
       "btts": {
         "n": 1,
@@ -8119,8 +8125,8 @@
         "average_predicted": 0.787054
       }
     },
-    "last_added": 0,
-    "updated_at": "2026-11-23T01:18:25.883481+00:00",
+    "last_added": 1,
+    "updated_at": "2026-11-23T08:21:21.640382+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -8814,12 +8820,12 @@
         "average_predicted": 0.817
       },
       "Argentine Division 1|1X": {
-        "n": 2,
-        "wins": 2,
-        "sum_pred": 1.65,
+        "n": 3,
+        "wins": 3,
+        "sum_pred": 2.463,
         "penalty": 0.0,
         "hit_rate": 1.0,
-        "average_predicted": 0.825
+        "average_predicted": 0.821
       },
       "Bulgarian First League|UNDER_35": {
         "n": 1,
@@ -30871,5 +30877,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-23T08:21:21.640382+00:00",
+    "checked": 3,
+    "settled": 1,
+    "pending": 2,
+    "h4": 1,
+    "h8": 0,
+    "fallback": 2,
+    "detail_hits": 1,
+    "reconciled_finished": 0
   }
 }
