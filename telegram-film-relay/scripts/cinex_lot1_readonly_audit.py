@@ -42,6 +42,17 @@ async def audit(*, history: int = 4000) -> int:
     except Exception as exc:
         issues.append("Configuration rétention incomplète : " + str(exc))
 
+    required_delete_gates = (
+        "CINEX_ARCHIVE_ENABLED",
+        "CINEX_ARCHIVE_DELETE_APPROVED",
+        "CINEX_RIGHTS_VERIFIED",
+    )
+    disabled_gates = [key for key in required_delete_gates
+                      if os.environ.get(key, "").casefold() != "true"]
+    if disabled_gates:
+        issues.append("Nettoyage automatique non activable : "
+                      + ", ".join(disabled_gates))
+
     rescue_report = {"ready": 0, "missing": len(MAIN_RELAY_HANDLES)}
     try:
         # The private invite URLs exist only in a temporary 0600 file.
