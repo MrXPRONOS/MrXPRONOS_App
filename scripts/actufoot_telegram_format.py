@@ -42,12 +42,20 @@ def source_footer(source: str, *, category: str = "") -> str:
     return "<i>" + "\n".join(parts) + "</i>"
 
 
+def article_footer(category: str, source: str) -> str:
+    """One bold editorial category, directly above the italic source."""
+    return (
+        "<b>🏷 " + html.escape(_visible(category, 85) or "ACTU FOOT", quote=False) + "</b>\n"
+        + source_footer(_visible(source, 90) or "Source football")
+    )
+
+
 def news_markup(title: str, content: str, category: str, source: str) -> str:
-    """Title / blank line / quoted RSS description / blank line / attribution."""
+    """Keep the genuine journalistic headline first for all RSS destinations."""
     return "\n\n".join([
         "<b>" + html.escape(title.strip(), quote=False) + "</b>",
         quote_excerpt(content),
-        source_footer(source, category=category),
+        article_footer(category, source),
     ])
 
 
@@ -149,11 +157,12 @@ def editorial_bottom_markup(
     card: dict | None = None,
     genuine_news_headline: bool = False,
 ) -> str:
-    """Match-first, quote, editorial category, source; idempotent on retries.
+    """Fact-first Telegram layout; a confirmed GOAL is the one hook-first exception.
 
-    Source-originated article headlines remain at the top. Editorial labels
-    such as SCORE LIVE, GOAL, PROGRAMME are always moved to the bottom.
-    Already-existing blockquotes remain real blockquotes (not nested).
+    Journalist-provided news headlines stay at the top. For match events,
+    internal rubrics go just above the source; a real goal begins with
+    BUUUT + verified score, then quotes match, league and scorer. Retries
+    are idempotent and never invent a result or a player.
     """
     text = normalize_paragraphs(markup)
     if not text:
@@ -161,55 +170,114 @@ def editorial_bottom_markup(
     if _BOTTOM_FOOTER.search(text):
         return text
 
-    current_source = _EXISTING_SOURCE.search(text)
-    if current_source:
+    existing_source = _EXISTING_SOURCE.search(text)
+    if existing_source:
         if not source.strip():
-            source = _visible(current_source.group(1), 90)
-        text = text[:current_source.start()].rstrip()
+            source = _visible(existing_source.group(1), 90)
+        text = text[:existing_source.start()].rstrip()
     source = _visible(source, 90) or "Mr XPRONOS"
 
     match = _TITLE.match(text)
     current_heading = match.group("title") if match else ""
     body = text[match.end():].strip() if match else text
-    if not body and current_heading:
-        body = current_heading
-        current_heading = ""
+    card_data = card if isinstance(card, dict) else {}
+    category_text = _visible(category, 85) or "⚽ ACTU FOOT"
+    is_goal = (
+        not genuine_news_headline
+        and bool(re.search(r"\bBU+T\b", category_text, re.IGNORECASE))
+        and not re.search(r"TIR AU BUT", category_text, re.IGNORECASE)
+    )
 
-    # Genuine sourced news is distinct from a label invented by the channel.
+    # Only source-confirmed goal categories may use this leading alert.
+    # Do not turn ordinary score corrections into goals.
+    if is_goal:
+        result = _visible(card_data.get("score"), 20)
+        if not re.fullmatch(r"\d{1,3}\s*[-–]\s*\d{1,3}", result):
+            pair = card_data.get("scores")
+            result = (
+                f"{pair[0]}-{pair[1]}"
+                if isinstance(pair, (list, tuple)) and len(pair) >= 2
+                and all(isinstance(x, int) and 0 <= x <= 99 for x in pair[:2])
+                else ""
+            )
+        if result:
+            result = re.sub(r"\s*[-–]\s*", "–", result)
+            hook = "<b>⚽ BUUUT ! Le score est désormais de " + html.escape(result) + ".</b>"
+        else:
+            hook = "<b>⚽ BUUUT !</b>"
+
+        match_line = match_header(card_data)
+        if not match_line:
+            match_in_body = _TITLE.match(body)
+            if match_in_body and re.search(
+                r"\d+\s*[-–]\s*\d+|(?:\s[-–]\s| vs )",
+                _visible(match_in_body.group("title")), re.IGNORECASE,
+            ):
+                match_line = match_in_body.group("title")
+                body = body[match_in_body.end():].strip()
+
+        league = _visible(card_data.get("league") or card_data.get("competition"), 85)
+        goal_data = card_data.get("goal") if isinstance(card_data.get("goal"), dict) else {}
+        player = _visible(goal_data.get("player") or card_data.get("player"), 85)
+        if not player and current_heading:
+            heading_text = _visible(current_heading, 160)
+            found = re.search(r"\bBU+T\b\s*[-–—:]\s*(.+)$", heading_text, re.IGNORECASE)
+            if found:
+                player = found.group(1).strip()
+
+        # Avoid repeating the very same match on the line below its headline.
+        body_heading = _TITLE.match(body)
+        if body_heading and match_line:
+            shown = _visible(body_heading.group("title")).replace("-", "–").casefold()
+            actual = _visible(match_line).replace("-", "–").casefold()
+            if shown and shown in actual:
+                body = body[body_heading.end():].strip()
+
+        parts = []
+        if match_line:
+            parts.append(match_line)
+        if league:
+            parts.append("<i>🏆 " + html.escape(league, quote=False) + "</i>")
+        if player:
+            parts.append("👤 <b>" + html.escape(player, quote=False) + "</b>")
+
+        # Keep already quoted source details, but never nest Telegram blockquotes.
+        if body.startswith("<blockquote>") and body.endswith("</blockquote>"):
+            body = body[len("<blockquote>"):-len("</blockquote>")].strip()
+        if body and "<blockquote" not in body.lower():
+            parts.append(body)
+            body = ""
+        if not parts:
+            parts.append("<i>But confirmé par la source.</i>")
+        quoted = "<blockquote>" + "\n".join(parts) + "</blockquote>"
+        footer = article_footer("⚽ BUT CONFIRMÉ", source)
+        return normalize_paragraphs(
+            "\n\n".join(x for x in (hook, quoted, body, footer) if x)
+        )
+
+    # Existing media headlines are the article itself, not channel labels.
     if genuine_news_headline and current_heading:
         header = current_heading
     else:
-        header = match_header(card)
+        header = match_header(card_data)
         if not header and body.lstrip().startswith("<b>"):
-            # The first bold line may be a verified match/result statement.
             body_match = _TITLE.match(body)
-            if body_match and re.search(r"\d+\s*[-–]\s*\d+|(?:\s[-–]\s| vs )", _visible(body_match.group("title")), re.I):
+            if body_match and re.search(
+                r"\d+\s*[-–]\s*\d+|(?:\s[-–]\s| vs )",
+                _visible(body_match.group("title")), re.IGNORECASE,
+            ):
                 header = body_match.group("title")
                 body = body[body_match.end():].strip()
-        if not header and current_heading and not body:
-            body = current_heading
 
-    # Titles containing a real player (e.g. BUUUT - SAKA 72') are not
-    # discarded with the editorial heading: preserve the sourced player.
-    if current_heading and not genuine_news_headline:
-        heading_text = _visible(current_heading, 180)
-        if re.search(r"BUU+T|BUT|CARTON|REMPLACEMENT|TIR AU BUT", heading_text, re.I):
-            player_match = re.search(r"\s[-–—]\s(.+)$", heading_text)
-            if player_match and player_match.group(1).strip():
-                player = "<i>👤 " + html.escape(player_match.group(1).strip(), quote=False) + "</i>"
-                body = (player + "\n" + body) if body else player
     if header and isinstance(card, dict) and not genuine_news_headline:
-        # Existing simple captions often repeat the exact match just below
-        # their own label. The new first line already contains that result.
         stripped = body.strip()
         if re.fullmatch(r"<b>[^<>]*</b>", stripped):
-            raw = _visible(stripped).replace("-", "–").casefold()
-            header_text = _visible(header).replace("-", "–").casefold()
-            if raw and raw in header_text:
+            shown = _visible(stripped).replace("-", "–").casefold()
+            actual = _visible(header).replace("-", "–").casefold()
+            if shown and shown in actual:
                 body = ""
     if not body:
         known = {
-            "BUT": "⚽ But confirmé par la source.",
             "SCORE": "📈 Score actualisé d’après les données vérifiées.",
             "COUP D’ENVOI": "▶️ Coup d’envoi confirmé.",
             "CARTON": "🟨 Sanction confirmée.",
@@ -217,16 +285,14 @@ def editorial_bottom_markup(
             "MI-TEMPS": "⏸️ Pause confirmée.",
             "TERMINÉ": "🏁 Fin de rencontre confirmée.",
         }
-        body = next((message for key, message in known.items()
-                     if key in category.upper()), "<i>Événement confirmé.</i>")
+        body = next(
+            (message for key, message in known.items() if key in category_text.upper()),
+            "<i>Événement confirmé.</i>",
+        )
     if "<blockquote" not in body.lower():
         body = "<blockquote>" + body + "</blockquote>"
     if header and header.strip() == body.strip():
         header = ""
-
-    clean_category = _visible(category, 85) or "⚽ ACTU FOOT"
-    footer = (
-        "<b>🏷 " + html.escape(clean_category, quote=False) + "</b>\n"
-        + "<i>📰 Source : " + html.escape(source, quote=False) + "</i>"
+    return normalize_paragraphs(
+        "\n\n".join(x for x in (header, body, article_footer(category_text, source)) if x)
     )
-    return normalize_paragraphs("\n\n".join(x for x in (header, body, footer) if x))
