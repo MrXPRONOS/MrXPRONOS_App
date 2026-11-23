@@ -475,6 +475,7 @@ async def _recover_legacy_episode_pair(client, public_peer, document_id,
 async def publish_catalog_episode_pairs(
     user_client, bot_client, public_peer, private_peer, private_id: int,
     series: dict, items: list, catalogue: dict, save_catalog, pause: float,
+    *, kind: str = "series",
 ):
     """Publish each public pair exactly once, with crash-safe staged receipts.
 
@@ -486,6 +487,7 @@ async def publish_catalog_episode_pairs(
     from .public_video_archive import is_video_message, video_document_id
     from .text import clean_caption, private_message_link
 
+    watch_label, _ = video_labels(kind)
     receipts = series.setdefault("public_episode_posts", {})
     staged = series.setdefault("pending_public_episode_posts", {})
     fallback = next((r.get("poster") for r in items
@@ -562,7 +564,7 @@ async def publish_catalog_episode_pairs(
                     user_client, bot_client, public_peer, source_poster,
                     description, video_url,
                     download_url=private_record.get("download_url"),
-                    watch_label="📺 VOIR L'ÉPISODE",
+                    watch_label=watch_label,
                 )
                 entry["poster"] = int(public_poster.id)
                 save_catalog(catalogue)
@@ -590,7 +592,7 @@ async def publish_catalog_episode_pairs(
                     user_client, bot_client, public_peer, private_peer,
                     private_video, int(entry["poster"]), video_url, description,
                     download_url=private_record.get("download_url"),
-                    watch_label="📺 VOIR L'ÉPISODE",
+                    watch_label=watch_label,
                 )
             except Exception:
                 entry["video_send_uncertain"] = True
