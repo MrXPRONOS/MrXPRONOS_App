@@ -95,11 +95,11 @@ class RenderTests(unittest.TestCase):
         saved = []
         with patch("film_relay.publication.send_public_poster_with_buttons",
                    new=AsyncMock(return_value=NS(id=55))) as poster_send, patch(
-                   "film_relay.publication.post_public_video_after_poster",
+                   "film_relay.publication.post_public_video_by_bot_copy",
                    new=AsyncMock(return_value=NS(id=56))) as video_send, patch(
                    "asyncio.sleep", new=AsyncMock()):
             asyncio.run(publish_catalog_episode_pairs(
-                client, NS(), "@public", "@private", -1001234567890,
+                client, NS(copy_message=AsyncMock()), "@public", "@private", -1001234567890,
                 series, [row], catalogue, lambda x: saved.append(x), 0))
             self.assertEqual(series["public_episode_posts"]["S01E02"],
                              {"poster": 55, "video": 56, "private_video": 35})
@@ -113,6 +113,39 @@ class RenderTests(unittest.TestCase):
                              "📺 VOIR L'ÉPISODE")
             self.assertEqual(video_send.await_args.kwargs["download_url"],
                              "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)
+
+    def test_verified_bot_video_carries_same_four_buttons_as_its_poster(self):
+        from unittest.mock import AsyncMock
+        from film_relay.publication import (
+            post_public_video_by_bot_copy, complete_public_video_rows,
+            make_button_keyboard,
+        )
+        public = NS(id=-1001234567890, username="CineXFilms_vf")
+        private = NS(id=-1002345678901)
+        movie_link = "https://t.me/c/2345678901/50"
+        download_link = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        rescue_link = "https://t.me/+VerifiedRescueDemo123"
+        video = NS(id=50, document=NS(id=987, attributes=[]), video=object())
+        with patch("film_relay.rescue_channels.rescue_link_for", return_value=rescue_link):
+            keyboard = make_button_keyboard(complete_public_video_rows(
+                movie_link, download_link, public_peer=public))
+            poster = NS(id=70, photo=object(), raw_text="Mon film", buttons=keyboard)
+            posted = NS(id=71, document=NS(id=987, attributes=[]),
+                        video=object(), buttons=keyboard)
+            async def read(channel, ids):
+                return poster if ids == 70 else posted
+            async def recent(channel, limit):
+                yield poster
+            reader = NS(get_messages=read, iter_messages=recent)
+            bot = NS(copy_message=AsyncMock(return_value=NS(id=71)))
+            result = asyncio.run(post_public_video_by_bot_copy(
+                reader, bot, public, private, video, 70, movie_link,
+                "Mon film", download_url=download_link))
+        self.assertEqual(result.id, 71)
+        self.assertEqual(len(bot.copy_message.await_args.kwargs["buttons"]), 4)
+        self.assertEqual(
+            [row[0].url for row in bot.copy_message.await_args.kwargs["buttons"]],
+            [movie_link, download_link, rescue_link, DEFAULT_FILM_FOLDER_URL])
 
     def test_send_photo_with_inline_keyboard(self):
         class FakeReader:

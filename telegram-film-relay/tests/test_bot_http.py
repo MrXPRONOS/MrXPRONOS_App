@@ -61,6 +61,30 @@ class HTTPTests(unittest.TestCase):
         result = asyncio.run(self.bot.edit_reply_markup(channel, 4, buttons=rows))
         self.assertFalse(result)
 
+    def test_copy_video_includes_four_inline_buttons(self):
+        calls = []
+        async def fake_call(method, data=None, files=None):
+            calls.append((method, data))
+            return {"message_id": 900}
+        self.bot._call = fake_call
+        public = Channel(id=234567890, title="Public", photo=None, date=None)
+        private = Channel(id=345678901, title="Private", photo=None, date=None)
+        rows = [[url_button(name, url, style="primary")] for name, url in (
+            ("Voir", "https://t.me/c/1234/20"),
+            ("Télécharger", "https://t.me/CineRadarFr_Bot?start=d_123456789012345678901234"),
+            ("Secours", "https://t.me/+VerifiedRescueExample"),
+            ("Dossier", "https://t.me/addlist/Example"),
+        )]
+        result = asyncio.run(self.bot.copy_message(
+            public, private, 88, caption="Test vidéo", parse_mode="html",
+            buttons=rows))
+        self.assertEqual(result.id, 900)
+        self.assertEqual(calls[0][0], "copyMessage")
+        self.assertEqual(calls[0][1]["parse_mode"], "HTML")
+        markup = json.loads(calls[0][1]["reply_markup"])
+        self.assertEqual(len(markup["inline_keyboard"]), 4)
+        self.assertEqual(markup["inline_keyboard"][0][0]["text"], "Voir")
+
     def test_429_never_retries(self):
         called = []
         class Response:

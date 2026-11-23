@@ -142,7 +142,7 @@ class BotHTTPClient:
         return SimpleNamespace(id=int(result["message_id"]))
 
     async def copy_message(self, destination, source, message_id: int,
-                           *, caption: str = "", parse_mode=None):
+                           *, caption: str = "", parse_mode=None, buttons=None):
         """Bot API server-side copy from an authorized source channel.
 
         The bot must be a member/admin with sufficient access to both chats.
@@ -158,6 +158,9 @@ class BotHTTPClient:
             data["caption"] = str(caption)
         if parse_mode and str(parse_mode).lower() == "html":
             data["parse_mode"] = "HTML"
+        keyboard = self._keyboard(buttons)
+        if keyboard:
+            data["reply_markup"] = json.dumps(keyboard, ensure_ascii=False)
         result = await self._call("copyMessage", data)
         return SimpleNamespace(id=int(result["message_id"]))
 

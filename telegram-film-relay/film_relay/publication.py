@@ -139,6 +139,30 @@ def verify_complete_public_video_poster(poster, public_peer,
 
 
 
+
+def verify_complete_public_video_keyboard(message, public_peer,
+                                          private_video_link: str, download_url: str,
+                                          *, watch_label: str = "🎬 VOIR LE FILM") -> bool:
+    """Verify the exact four URL buttons on the VIDEO itself, not just its poster."""
+    try:
+        expected_rows = complete_public_video_rows(
+            private_video_link, download_url, public_peer=public_peer,
+            watch_label=watch_label,
+        )
+    except (ValueError, RuntimeError, TypeError):
+        return False
+    buttons = getattr(message, "buttons", None) or ()
+    if len(buttons) != 4 or any(len(row) != 1 for row in buttons):
+        return False
+    actual = [
+        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
+         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
+        for row in buttons for btn in row
+    ]
+    expected = [(label, url) for row in expected_rows for label, url in row]
+    return actual == expected
+
+
 async def send_public_poster_with_buttons(
     user_client, bot_client, public_peer, poster_message,
     description: str, private_movie_link: str, invite_link: str = "",
@@ -279,6 +303,7 @@ async def post_public_video_by_bot_copy(
     user_client, bot_client, public_peer, private_peer, private_video,
     poster_id: int, private_video_link: str, description: str,
     *, download_url: str | None = None,
+    watch_label: str = "🎬 VOIR LE FILM",
 ):
     """Bot-only server-side video copy; source must be an accessible library.
 
@@ -296,14 +321,23 @@ async def post_public_video_by_bot_copy(
     newest = [m async for m in user_client.iter_messages(public_peer, limit=1)]
     if not newest or int(newest[0].id) != int(poster_id):
         raise RuntimeError("Affiche plus récente absente : copie bot suspendue.")
+    keyboard = make_button_keyboard(complete_public_video_rows(
+        private_video_link, download_url, public_peer=public_peer,
+        watch_label=watch_label,
+    ))
     copied = await bot_client.copy_message(
         public_peer, private_peer, int(private_video.id),
-        caption=rich_video_title(description), parse_mode="html",
+        caption=rich_video_title(description), parse_mode="html", buttons=keyboard,
     )
     verified = await user_client.get_messages(public_peer, ids=int(copied.id))
     if (not is_video_message(verified)
-            or video_document_id(verified) != video_document_id(private_video)):
-        raise RuntimeError("Copie bot non vérifiée, aucune répétition automatique.")
+            or video_document_id(verified) != video_document_id(private_video)
+            or not verify_complete_public_video_keyboard(
+                verified, public_peer, private_video_link, download_url,
+                watch_label=watch_label)):
+        raise RuntimeError(
+            "Copie publique non vérifiée ou quatre boutons absents ; "
+            "aucune répétition automatique.")
     return copied
 
 
@@ -486,22 +520,14 @@ async def publish_catalog_episode_pairs(
             try:
                 # Send the VERIFIED private copy, never a mismatched source
                 # repost whose document ID or encoding could have changed.
-                bot_copy = (os.getenv("CINEX_ANIME_BOT_PUBLIC_COPY", "").lower()
-                            in ("1", "true", "yes"))
-                if bot_copy:
-                    if not hasattr(bot_client, "copy_message"):
-                        raise RuntimeError("Bot CineX sans fonction copyMessage.")
-                    public_video = await post_public_video_by_bot_copy(
-                        user_client, bot_client, public_peer, private_peer,
-                        private_video, int(entry["poster"]), video_url, description,
-                        download_url=private_record.get("download_url"),
-                    )
-                else:
-                    public_video = await post_public_video_after_poster(
-                        user_client, public_peer, private_video, description,
-                        int(entry["poster"]), video_url,
-                        download_url=private_record.get("download_url"),
-                    )
+                if not hasattr(bot_client, "copy_message"):
+                    raise RuntimeError("Le bot CineX doit pouvoir copier les vidéos avec boutons.")
+                public_video = await post_public_video_by_bot_copy(
+                    user_client, bot_client, public_peer, private_peer,
+                    private_video, int(entry["poster"]), video_url, description,
+                    download_url=private_record.get("download_url"),
+                    watch_label="📺 VOIR L'ÉPISODE",
+                )
             except Exception:
                 entry["video_send_uncertain"] = True
                 save_catalog(catalogue)

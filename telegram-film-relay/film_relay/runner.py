@@ -15,7 +15,8 @@ from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, film_folder_url,
                           send_public_poster_with_buttons,
                           send_library_poster_with_buttons, verify_library_bot,
-                          post_public_video_after_poster)
+                          post_public_video_after_poster,
+                          post_public_video_by_bot_copy)
 from .unified_download import UnifiedLibrary
 from .state import State
 from .source_channels import source_list
@@ -545,9 +546,14 @@ async def execute() -> int:
                         # of the old opt-in showcase flag. Private copy is already
                         # verified and the poster links to that exact message.
                         await asyncio.sleep(max(36.0, float(os.getenv("CINEX_PAUSE_SECONDS", "60"))))
-                        public_video = await post_public_video_after_poster(
-                            client, destination_public, pair.movie, text,
-                            int(public_post.id), url, download_url=download_url,
+                        verified_private_video = await client.get_messages(
+                            destination_private, ids=int(private_post_id))
+                        if not verified_private_video:
+                            raise RuntimeError("Film privé absent avant copie par le bot.")
+                        public_video = await post_public_video_by_bot_copy(
+                            client, bot_client, destination_public, destination_private,
+                            verified_private_video, int(public_post.id), url, text,
+                            download_url=download_url,
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id), film_key)
                         LOG.info("Film public complet : fiche #%s puis vidéo #%s",
