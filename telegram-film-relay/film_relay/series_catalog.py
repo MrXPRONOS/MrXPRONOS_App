@@ -633,6 +633,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await publish_catalog_episode_pairs(
                 client, bot, public, private, private_id,
                 series, items, catalogue, save_catalog, pause,
+                kind="series",
             )
             completed_series.add(key)
             processed_seasons.add(season_marker_key)
