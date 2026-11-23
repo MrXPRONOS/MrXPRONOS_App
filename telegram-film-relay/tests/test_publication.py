@@ -131,7 +131,8 @@ class RenderTests(unittest.TestCase):
                 movie_link, download_link, public_peer=public))
             poster = NS(id=70, photo=object(), raw_text="Mon film", buttons=keyboard)
             posted = NS(id=71, document=NS(id=987, attributes=[]),
-                        video=object(), buttons=keyboard)
+                        video=object(), buttons=keyboard,
+                        raw_text="🎞️ Mon film\n#CINEX_VIDEO_24H_V1")
             async def read(channel, ids):
                 return poster if ids == 70 else posted
             async def recent(channel, limit):
@@ -142,6 +143,8 @@ class RenderTests(unittest.TestCase):
                 reader, bot, public, private, video, 70, movie_link,
                 "Mon film", download_url=download_link))
         self.assertEqual(result.id, 71)
+        self.assertIn("#CINEX_VIDEO_24H_V1",
+                      bot.copy_message.await_args.kwargs["caption"])
         self.assertEqual(len(bot.copy_message.await_args.kwargs["buttons"]), 4)
         self.assertEqual(
             [row[0].url for row in bot.copy_message.await_args.kwargs["buttons"]],
