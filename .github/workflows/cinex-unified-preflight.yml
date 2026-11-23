@@ -2,10 +2,14 @@ name: CineX - Audit lecture seule du nouveau format par canal
 
 on:
   push:
-    branches:
-      - feat/cinex-unified-poster-video-all-channels-20261119
+    branches: [main]
     paths:
-      - 'telegram-film-relay/**'
+      - 'telegram-film-relay/scripts/unified_publishing_preflight.py'
+      - 'telegram-film-relay/film_relay/publication.py'
+      - 'telegram-film-relay/film_relay/unified_download.py'
+      - 'telegram-film-relay/film_relay/radar_download_registry.py'
+      - 'telegram-film-relay/film_relay/rescue_links_runtime.py'
+      - 'telegram-film-relay/film_relay/rescue_channels.py'
       - '.github/workflows/cinex-unified-preflight.yml'
   workflow_dispatch:
 
@@ -41,6 +45,11 @@ jobs:
       ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
       ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
       ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      CINEX_ANIME_SOURCE_BOT_TOKEN: ${{ secrets.CINEX_ANIME_SOURCE_BOT_TOKEN }}
+      CINEX_ANIME_LEGACY_RELAY_DISABLED: ${{ vars.CINEX_ANIME_LEGACY_RELAY_DISABLED }}
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_STOCK_APPROVED_SHA256: '57b1f0a97d7db124ab9f72f470f7d63b92960e06b876397795e5780f5c5cc2b8'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
       CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-audit-${{ github.run_id }}.json
       PYTHONPATH: .
