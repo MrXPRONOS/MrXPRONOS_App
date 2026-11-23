@@ -2,14 +2,20 @@ name: CineX - Tests videos 24h et boutons (hors ligne)
 
 on:
   push:
-    branches: [main, 'fix/cinex-24h-posting-and-buttons-20261123']
+    branches: [main, 'feat/cinex-v4-lot1-rescue-and-24h-20261123']
     paths:
       - 'telegram-film-relay/film_relay/public_video_retention.py'
+      - 'telegram-film-relay/film_relay/cinex_v4_policy.py'
+      - 'telegram-film-relay/film_relay/ten_video_rotation.py'
+      - 'telegram-film-relay/film_relay/anime_bot_publisher.py'
       - 'telegram-film-relay/film_relay/bot_http.py'
       - 'telegram-film-relay/film_relay/publication.py'
       - 'telegram-film-relay/film_relay/unified_download.py'
       - 'telegram-film-relay/film_relay/rescue_channels.py'
       - 'telegram-film-relay/tests/test_public_video_retention.py'
+      - 'telegram-film-relay/tests/test_cinex_v4_policy.py'
+      - 'telegram-film-relay/tests/test_ten_video_rotation.py'
+      - 'telegram-film-relay/tests/test_anime_bot_pipeline.py'
       - 'telegram-film-relay/tests/test_bot_http.py'
       - 'telegram-film-relay/tests/test_publication.py'
       - 'telegram-film-relay/tests/test_rescue_channels.py'
@@ -51,7 +57,10 @@ jobs:
       - name: Tests complets de rétention et publications, zéro accès Telegram
         run: |
           python -m compileall -q film_relay scripts
+          python -m unittest discover -s tests -p 'test_cinex_v4_policy.py' -v
           python -m unittest discover -s tests -p 'test_public_video_retention.py' -v
+          python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
+          python -m unittest discover -s tests -p 'test_anime_bot_pipeline.py' -v
           python -m unittest discover -s tests -p 'test_publication.py' -v
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
