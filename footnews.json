@@ -680,13 +680,146 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T20:10:22.693686+00:00"
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "7d96b7490e75e849",
+    "title": "Mercato Real Madrid : Le Real Madrid a reçu une offre XXL pour Endrick !",
+    "summary": "Le Real Madrid aurait reçu une offre de 70 M€ de la part de l'AC Milan pour Endrick, son attaquant brésilien.",
+    "summary_short": "Le Real Madrid aurait reçu une offre de 70 M€ de la part de l'AC Milan pour Endrick, son attaquant brésilien.",
+    "content": "Le Real Madrid aurait reçu une offre de 70 M€ de la part de l'AC Milan pour Endrick, son attaquant brésilien.",
+    "paragraphs": [
+      "Le Real Madrid aurait reçu une offre de 70 M€ de la part de l'AC Milan pour Endrick, son attaquant brésilien."
+    ],
+    "key_points": [
+      "Le Real Madrid aurait reçu une offre de 70 M€ de la part de l'AC Milan pour Endrick, son attaquant brésilien."
+    ],
+    "telegram_summary": "Le Real Madrid aurait reçu une offre de 70 M€ de la part de l'AC Milan pour Endrick, son attaquant brésilien.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-real-madrid-le-real-madrid-a-recu-une-offre-xxl-pour-endrick-546784.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-real-madrid-le-real-madrid-a-recu-une-offre-xxl-pour-endrick-546784.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7d96b7490e75e849",
+    "published": "2026-11-23T20:24:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20251101092018-9893.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20251101092018-9893.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50554543",
+      "url": "https://www.espn.com/video/clip/_/id/50554543/real-madrid-vs-celta-vigo-game-highlights",
+      "published": "2026-11-21T22:10:42Z",
+      "score": 0.222,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Celta Vigo",
+        "Real Madrid"
+      ],
+      "athletes": [
+        "Carlos Espí",
+        "Jude Bellingham",
+        "Kylian Mbappé",
+        "Pablo Durán",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "9fd2ad5f7558fb73",
+    "title": "Dortmund : après l'OM, l'histoire se répète pour Nwaneri",
+    "summary": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
+    "summary_short": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
+    "content": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
+    "paragraphs": [
+      "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière...."
+    ],
+    "key_points": [
+      "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants.",
+      "Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière...."
+    ],
+    "telegram_summary": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
+    "link": "https://m.maxifoot.fr/football/article-66654.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66654.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9fd2ad5f7558fb73",
+    "published": "2026-11-23T20:11:43+00:00",
+    "image": "https://photo.maxifoot.fr/nwaneri-borussia-dortmund-1.jpg",
+    "source_image": "https://photo.maxifoot.fr/nwaneri-borussia-dortmund-1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
+    "slug": "90fe67b564416c60",
+    "title": "ASSE : Kevin Pedro bouscule la hiérarchie avec une statistique folle en défense",
+    "summary": "Auteur d'un grand match face à Reims en défense, Kevin Pedro continue de prendre de l'épaisseur, et les chiffres parlent pour lui.",
+    "summary_short": "Auteur d'un grand match face à Reims en défense, Kevin Pedro continue de prendre de l'épaisseur, et les chiffres parlent pour lui.",
+    "content": "Auteur d'un grand match face à Reims en défense, Kevin Pedro continue de prendre de l'épaisseur, et les chiffres parlent pour lui.",
+    "paragraphs": [
+      "Auteur d'un grand match face à Reims en défense, Kevin Pedro continue de prendre de l'épaisseur, et les chiffres parlent pour lui."
+    ],
+    "key_points": [
+      "Auteur d'un grand match face à Reims en défense, Kevin Pedro continue de prendre de l'épaisseur, et les chiffres parlent pour lui."
+    ],
+    "telegram_summary": "Auteur d'un grand match face à Reims en défense, Kevin Pedro continue de prendre de l'épaisseur, et les chiffres parlent pour lui.",
+    "link": "https://www.onzemondial.com/ligue-2/asse-kevin-pedro-bouscule-la-hierarchie-avec-une-statistique-folle-en-defense-1010787",
+    "source_url": "https://www.onzemondial.com/ligue-2/asse-kevin-pedro-bouscule-la-hierarchie-avec-une-statistique-folle-en-defense-1010787",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=90fe67b564416c60",
+    "published": "2026-11-23T20:03:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010787/411488/1200-L-asse-kevin-pedro-bouscule-la-hirarchie-avec-une-statistique-folle-en-dfense.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010787/411488/1200-L-asse-kevin-pedro-bouscule-la-hirarchie-avec-une-statistique-folle-en-dfense.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "9a023cd325924a45",
@@ -946,7 +1079,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T20:10:22.693686+00:00"
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1382,7 +1515,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T20:10:22.693686+00:00"
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1577,7 +1710,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T20:10:22.693686+00:00"
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1640,7 +1773,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T20:10:22.693686+00:00"
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1715,40 +1848,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "522c48b796cb77ca",
-    "title": "OL : Un retour important à l'entraînement du jour",
-    "summary": "Loïs Openda est de retour à l'entraînement avec l'OL.",
-    "summary_short": "Loïs Openda est de retour à l'entraînement avec l'OL.",
-    "content": "Loïs Openda est de retour à l'entraînement avec l'OL.",
-    "paragraphs": [
-      "Loïs Openda est de retour à l'entraînement avec l'OL."
-    ],
-    "key_points": [
-      "Loïs Openda est de retour à l'entraînement avec l'OL."
-    ],
-    "telegram_summary": "Loïs Openda est de retour à l'entraînement avec l'OL.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ol-un-retour-important-a-l-entrainement-du-jour-546760.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ol-un-retour-important-a-l-entrainement-du-jour-546760.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=522c48b796cb77ca",
-    "published": "2026-11-23T16:18:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260829202011-6400.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260829202011-6400.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   },
   {
     "slug": "1957e3db98a5c388",
@@ -2012,7 +2111,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T20:10:22.693686+00:00"
+      "checked_at": "2026-11-23T20:31:53.663936+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2157,73 +2256,5 @@
       "So Foot"
     ],
     "quality_score": 77
-  },
-  {
-    "slug": "327bf4117d9fa2b5",
-    "title": "England, Northern Ireland, Scotland & Wales to host 2035 Women's World Cup",
-    "summary": "The United Kingdom will host a football World Cup for the first time since 1966.",
-    "summary_short": "The United Kingdom will host a football World Cup for the first time since 1966.",
-    "content": "The United Kingdom will host a football World Cup for the first time since 1966.",
-    "paragraphs": [
-      "The United Kingdom will host a football World Cup for the first time since 1966."
-    ],
-    "key_points": [
-      "The United Kingdom will host a football World Cup for the first time since 1966."
-    ],
-    "telegram_summary": "The United Kingdom will host a football World Cup for the first time since 1966.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cx30g83716lzo?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cx30g83716lzo?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=327bf4117d9fa2b5",
-    "published": "2026-11-23T15:09:50+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/042f/live/fe5449a0-e751-11f1-99a1-253766e7ad8b.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/042f/live/fe5449a0-e751-11f1-99a1-253766e7ad8b.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "ba609e42c7f40f88",
-    "title": "Équipe de France : Rabiot dans la forme de sa vie au Milan, personne ne fait mieux en Europe",
-    "summary": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
-    "summary_short": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
-    "content": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
-    "paragraphs": [
-      "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain."
-    ],
-    "key_points": [
-      "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain."
-    ],
-    "telegram_summary": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
-    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe-1010798",
-    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe-1010798",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba609e42c7f40f88",
-    "published": "2026-11-23T14:58:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010798/411491/1200-L-quipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010798/411491/1200-L-quipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
