@@ -13,7 +13,7 @@ from unittest.mock import patch
 from film_relay.rescue_channels import (
     BUTTON_TEXT, exact_private_candidates, public_username,
     is_invite, targets_from_env, rescue_link_for, add_rescue_tuple_row,
-    verified_checkpoint_private,
+    verified_checkpoint_private, verified_live_invite,
     add_rescue_button_row, read_state, write_state,
 )
 from film_relay.publication import url_button_rows
@@ -22,6 +22,9 @@ from film_relay.anime_catalog import public_buttons as anime_buttons
 from film_relay.public_video_archive import archive_buttons
 from film_relay.trending_private import buttons as trend_buttons
 from scripts.merge_rescue_channels import merge
+from film_relay.rescue_links_runtime import recover_checkpoint_peer
+import asyncio
+from unittest.mock import AsyncMock
 
 
 class RescueChannelTests(unittest.TestCase):
@@ -154,6 +157,36 @@ class RescueChannelTests(unittest.TestCase):
                 SimpleNamespace(id=-100444555666, title=title,
                                 username="public", broadcast=True),
                 checkpoint, title))
+
+    def test_live_invitation_required_for_existing_channel(self):
+        link = "https://t.me/+abcdefghijklmno1"
+        entry = {"invite_sha256": hashlib.sha256(link.encode()).hexdigest()}
+        with patch("film_relay.rescue_links_runtime.get_existing_invite",
+                   new=AsyncMock(return_value=link)):
+            self.assertTrue(asyncio.run(
+                verified_live_invite(object(), object(), entry)))
+        with patch("film_relay.rescue_links_runtime.get_existing_invite",
+                   new=AsyncMock(return_value=None)):
+            self.assertFalse(asyncio.run(
+                verified_live_invite(object(), object(), entry)))
+
+    def test_hydrate_recovers_only_exact_private_checkpoint(self):
+        row = {"rescue_channel_id": -100444555666,
+               "rescue_title": "Ciné X Films VF Secours"}
+        good = SimpleNamespace(id=-100444555666, title=row["rescue_title"],
+                               username=None, broadcast=True)
+        bad = SimpleNamespace(id=-100999999999, title=row["rescue_title"],
+                              username=None, broadcast=True)
+        client = SimpleNamespace(get_entity=AsyncMock(return_value=good))
+        with patch("telethon.utils.get_peer_id", side_effect=lambda x: x.id):
+            self.assertIs(asyncio.run(recover_checkpoint_peer(
+                client, {}, row)), good)
+            client.get_entity = AsyncMock(return_value=bad)
+            self.assertIsNone(asyncio.run(recover_checkpoint_peer(
+                client, {}, row)))
+            client.get_entity = AsyncMock(side_effect=ValueError("not found"))
+            self.assertIsNone(asyncio.run(recover_checkpoint_peer(
+                client, {}, row)))
 
     def test_checkpoint_merge_preserves_identity(self):
         old={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"old"}}}

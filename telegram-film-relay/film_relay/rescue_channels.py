@@ -174,6 +174,17 @@ def verified_checkpoint_private(peer, entry: dict, expected_title: str) -> bool:
         return False
 
 
+async def verified_live_invite(client, channel, entry: dict) -> bool:
+    """A saved fingerprint alone is NOT proof that a live invite still works."""
+    from .rescue_links_runtime import get_existing_invite
+    digest = str(entry.get("invite_sha256") or "").strip()
+    if len(digest) != 64:
+        return False
+    link = await get_existing_invite(client, channel, expected_sha=digest)
+    return bool(is_invite(link) and
+                hashlib.sha256(link.encode("utf-8")).hexdigest() == digest)
+
+
 def exact_private_candidates(dialogs: list, title: str):
     """Avoid hijacking an unrelated or public channel with the same title."""
     return [
@@ -269,6 +280,9 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                     found = candidate
                     LOG.info("Secours %s réidentifié par son checkpoint privé", username)
                 if entry and found is not None and entry.get("invite_sha256"):
+                    if not await verified_live_invite(client, found, entry):
+                        raise RuntimeError(
+                            "Invitation Secours enregistree absente ou revoquee : correction manuelle requise")
                     report["existing"] += 1
                     report["ready"] += 1
                     # Existing channels need ongoing profile synchronization too.

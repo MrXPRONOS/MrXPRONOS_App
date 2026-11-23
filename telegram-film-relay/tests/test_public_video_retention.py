@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from film_relay.public_video_retention import (
-    due_for_removal, select_due, process_public,
+    due_for_removal, select_due, process_public, validate_retention_targets,
 )
 
 
@@ -102,6 +102,25 @@ class RetentionTests(unittest.TestCase):
         self.assertEqual(len(result), 100)
         self.assertTrue(all(due_for_removal(m, NOW) for m in result))
         self.assertFalse(any(m in result for m in photos))
+
+    def test_production_retention_requires_all_six_approved_pairs(self):
+        pairs = [
+            (category, handle, -1001234567890)
+            for category, handle in (
+                ("films", "@CineXFilms_vf"), ("series", "@seriesvf_cinex"),
+                ("desir", "@CineXDesirfr"), ("comedie", "@CineXComediefr"),
+                ("anime", "@CineXAnimeFR"), ("action", "@filmsaction2026vf")
+            )
+        ]
+        validate_retention_targets(pairs)
+        with self.assertRaisesRegex(RuntimeError, "six couples"):
+            validate_retention_targets(pairs[:-1])
+        with self.assertRaisesRegex(RuntimeError, "hors perimetre"):
+            validate_retention_targets(
+                pairs[:-1] + [("action", "@Torrent9SeriesFilms", -1001234567890)])
+        with self.assertRaisesRegex(RuntimeError, "dupliquee"):
+            validate_retention_targets(
+                pairs[:-1] + [pairs[0]])
 
     def test_never_deletes_private_or_wrong_destination(self):
         class Client:
