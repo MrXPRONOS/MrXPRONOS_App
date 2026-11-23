@@ -490,7 +490,7 @@ async def recover_active_rows(client, sources, all_candidates, active):
 
 def ready_full_batch(items, expected=None):
     """Validate all episode media before writing even the first private post."""
-    if not (1 <= len(items) <= 25):
+    if not (1 <= len(items) <= 50):
         return False
     positions = {(int(row["season"]), int(row["episode"])) for row in items}
     if len(positions) != len(items):
@@ -943,7 +943,7 @@ def main():
     arg = argparse.ArgumentParser()
     arg.add_argument("--publish", action="store_true")
     arg.add_argument("--limit", type=int, choices=(1, 2), default=2)
-    arg.add_argument("--episode-cap", type=int, choices=range(1, 26), default=25)
+    arg.add_argument("--episode-cap", type=int, choices=range(1, 51), default=50)
     args = arg.parse_args()
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")
