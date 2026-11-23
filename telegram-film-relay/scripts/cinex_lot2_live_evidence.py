@@ -15,7 +15,7 @@ from pathlib import Path
 from film_relay.public_video_archive import is_video_message
 from film_relay.cinex_v4_policy import has_automatic_ttl
 from film_relay.publication import (
-    film_folder_url, verify_complete_public_video_keyboard,
+    film_folder_url, video_labels, verify_complete_public_video_keyboard,
 )
 from film_relay.radar_download_registry import is_bot_download_url, RadarRegistry
 from film_relay.ten_video_rotation import category_targets
@@ -57,11 +57,16 @@ def is_private_fiche(message, public_handle):
     )
 
 
-def validate_public_sample(message, public):
+def validate_public_sample(message, public, category=None):
     rows = button_pairs(message)
     if len(rows) != 4 or any(len(row) != 1 for row in rows):
         return False
     first_label, private_link = rows[0][0]
+    if category is not None and first_label not in {
+        video_labels(category, episode=False)[0],
+        video_labels(category, episode=True)[0],
+    }:
+        return False
     _, download_url = rows[1][0]
     return verify_complete_public_video_keyboard(
         message, public, private_link, download_url,
@@ -104,20 +109,36 @@ async def inspect(*, limit=600):
             result = {
                 "category": category, "latest_public_v4": "pending_no_sample",
                 "private_three_buttons": "pending_no_sample",
+                "public_photo_four_buttons": "pending_no_sample",
                 "central_receipt": "pending_no_sample",
                 "errors": 0,
             }
             try:
                 public = await resolve_peer(client, public_handle)
                 private = await resolve_peer(client, str(private_id))
-                videos = [
+                public_messages = [
                     m async for m in client.iter_messages(public, limit=limit)
+                ]
+                videos = [
+                    m for m in public_messages
                     if is_video_message(m) and has_automatic_ttl(m)
                 ]
                 if videos:
                     video = videos[0]
                     result["latest_public_v4"] = (
-                        "verified" if validate_public_sample(video, public) else "invalid"
+                        "verified" if validate_public_sample(video, public, category) else "invalid"
+                    )
+                    # Match a real preceding public photo with the SAME
+                    # exact buttons as the public V4 video. Season episodes
+                    # may share a single batch cover.
+                    candidates = [
+                        m for m in public_messages
+                        if getattr(m, "photo", None)
+                        and int(m.id) < int(video.id)
+                        and button_pairs(m) == button_pairs(video)
+                    ]
+                    result["public_photo_four_buttons"] = (
+                        "verified" if candidates else "pending_no_matching_poster"
                     )
                     if result["latest_public_v4"] == "verified":
                         dl = button_pairs(video)[1][0][1]
@@ -154,13 +175,14 @@ async def inspect(*, limit=600):
     pending = sum(
         any(value == "pending_no_sample" for value in (
             row["latest_public_v4"], row["private_three_buttons"],
-            row["central_receipt"]))
+            row["public_photo_four_buttons"], row["central_receipt"]))
         for row in results
     )
     failed = sum(row["errors"] for row in results)
     verified = sum(
         row["latest_public_v4"] == "verified"
         and row["private_three_buttons"] == "verified"
+        and row["public_photo_four_buttons"] == "verified"
         and row["central_receipt"] == "verified"
         for row in results
     )
@@ -174,6 +196,7 @@ async def inspect(*, limit=600):
             f.write("|---|---|---|---|---:|\n")
             for row in results:
                 f.write(f"| {row['category']} | {row['latest_public_v4']} | "
+                        f"{row['public_photo_four_buttons']} | "
                         f"{row['private_three_buttons']} | {row['central_receipt']} | "
                         f"{row['errors']} |\n")
             f.write("\nAbsence d'échantillon = en attente, jamais succès. "
