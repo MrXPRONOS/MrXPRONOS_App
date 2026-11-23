@@ -46,8 +46,9 @@ class FakeTelegramClient:
         self.samples = samples
         self.fail_on_send = fail_on_send
         self.sent = []
+        self.remote = []  # Telegram persistence across workflow runs
         self.private = NS(peer_id=PRIV)
-        self.public = NS(peer_id=PUB, broadcast=True, username='public_legal', title='Canal public de test')
+        self.public = NS(peer_id=PUB, broadcast=True, username='CineXFilms_vf', title='Canal public de test')
         self.source = NS(peer_id=SRC, noforwards=False)
         self.mirror = NS(peer_id=MIRROR, broadcast=True, username='Torrent9SeriesFilms')
         self.mirror_should_fail = False
@@ -63,7 +64,7 @@ class FakeTelegramClient:
     async def is_user_authorized(self): return True
     async def get_entity(self, value):
         if value == PRIV or str(value) == str(PRIV): return self.private
-        if value == '@public_legal' or value == PUB: return self.public
+        if value == '@CineXFilms_vf' or value == PUB: return self.public
         if value == '@Torrent9SeriesFilms': return self.mirror
         if value == '@source_legal': return self.source
         raise ValueError(value)
@@ -75,7 +76,7 @@ class FakeTelegramClient:
                 found.reverse()
         else:
             found = sorted(
-                (x for x in self.sent if x.channel == entity.peer_id
+                (x for x in [*self.sent, *self.remote] if x.channel == entity.peer_id
                  and x.id > min_id),
                 key=lambda x: x.id, reverse=not reverse,
             )
@@ -84,9 +85,33 @@ class FakeTelegramClient:
 
     async def get_messages(self, entity, ids):
         def find(mid):
-            return next((x for x in self.sent if x.channel == entity.peer_id
+            return next((x for x in [*self.sent, *self.remote] if x.channel == entity.peer_id
                          and x.id == mid), None)
         return [find(int(v)) for v in ids] if isinstance(ids, list) else find(int(ids))
+
+    async def edit_reply_markup(self, channel, message_id, *, buttons):
+        photo = await self.get_messages(channel, ids=message_id)
+        if photo is None or not photo.photo:
+            raise RuntimeError("Missing private poster on Telegram")
+        photo.buttons = buttons
+        return True
+
+    async def copy_message(self, destination, source, message_id,
+                           *, caption="", parse_mode=None, buttons=None):
+        # Bot API copyMessage preserves source document identity.
+        if self.fail_on_send is not None and len(self.sent) + 1 == self.fail_on_send:
+            raise RuntimeError("simulated Telegram copyMessage failure")
+        original = await self.get_messages(source, ids=message_id)
+        if not original or not original.video:
+            raise RuntimeError("private source video not found")
+        self._next += 1
+        posted = NS(channel=destination.peer_id, id=self._next,
+                    media=original.media, caption=caption, raw_text=caption,
+                    parse_mode=parse_mode, buttons=buttons, options={"buttons": buttons},
+                    photo=None, document=original.document,
+                    video=original.video, file=original.file)
+        self.sent.append(posted)
+        return NS(id=posted.id)
 
     async def forward_messages(self, to, msg_id, *, from_peer):
         if self.mirror_should_fail:
@@ -162,7 +187,7 @@ class RelayEndToEndTests(unittest.TestCase):
         cfg_file = Path(temp) / 'config.json'
         cfg_file.write_text(json.dumps({
             'sources': [{'channel': '@source_legal', 'redistribution_authorized': True}],
-            'private_channel': str(PRIV), 'public_channel': '@public_legal',
+            'private_channel': str(PRIV), 'public_channel': '@CineXFilms_vf',
             'private_invite_link': 'https://t.me/+JOIN', 'private_layout': 'poster_and_video',
             'max_posts_per_run': max_posts, 'bootstrap_messages': 150, 'lookback_ids': 80,
             **({'mirror_channel': '@Torrent9SeriesFilms'} if with_mirror else {}),
@@ -241,6 +266,7 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(len(first.sent), 2)
             self.assertEqual(State(str(state)).get_staged_posts(f'{SRC}:10:11'), {'poster': 101, 'video': 102})
             second = FakeTelegramClient(sample_messages())
+            second.remote = list(first.sent)
             self.assertEqual(self.start(second, cfg, state), 0)
             self.assertEqual(len(second.sent), 2)
             self.assertEqual(second.sent[0].channel, PUB)
