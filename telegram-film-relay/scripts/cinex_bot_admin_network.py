@@ -27,6 +27,9 @@ EXTRA_BOT_SECRETS = (
     ("mrx_channel", "MRXPRONOS_CANAL_BOT_TOKEN"),
     ("editorial", "EDITORIAL_TELEGRAM_BOT_TOKEN"),
     ("partnership", "PARTNERSHIP_BOT_TOKEN"),
+    ("anime_source", "CINEX_ANIME_SOURCE_BOT_TOKEN"),
+    ("radar_alt", "CINE_RADAR_BOT_TOKEN"),
+    ("canal", "CANAL_BOT_TOKEN"),
 )
 ALL_BOT_SECRETS = BOT_SECRETS + EXTRA_BOT_SECRETS
 # The existing GitHub reaction workflow exposes slots 03..99 and an optional
