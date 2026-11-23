@@ -356,6 +356,10 @@ def cycle(now: datetime, *, mode: str = "all", dry_run: bool = False,
                                    output, counters, allowed, "debrief")
             if receipt:
                 report["debrief_sent"] += 1
+    if do_standings and not dry_run and _ever_reserved(
+            ledger, f"{channels['scores']}:v12:standings:{day}"):
+        report["skipped_existing"] += 1
+        do_standings = False
     if do_standings:
         year = local.year if local.month >= 7 else local.year - 1
         groups = {}
@@ -393,7 +397,7 @@ def main() -> None:
     report.pop("debrief_preview", None)
     report.pop("standings_preview", None)
     print("ACTUFOOT_V12", json.dumps(report, ensure_ascii=False, sort_keys=True))
-    if report["errors"]:
+    if report["errors"] and not args.dry_run:
         raise SystemExit("ACTUFOOT_V12_SOURCE_ERRORS")
 
 
