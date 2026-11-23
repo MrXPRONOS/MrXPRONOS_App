@@ -963,6 +963,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await publish_catalog_episode_pairs(
                 client, bot, public, private, private_id,
                 series, items, catalogue, save_catalog, pause,
+                kind="anime",
             )
             if season_no:
                 series.setdefault("season_status", {})[season_no] = (
