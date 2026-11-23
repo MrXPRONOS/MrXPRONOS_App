@@ -1,9 +1,10 @@
 """CinéX: bounded 24-hour retention for videos in verified PUBLIC relay channels.
 
 The original poster, category libraries, central private stock and backups are
-NEVER deleted. Manual/legacy public videos follow the same age rule. This is a
-retention tool for content the operator is authorized to distribute, NOT a way
-to avoid copyright claims or platform moderation.
+NEVER deleted. ONLY newly auto-published public videos with the V4 caption
+receipt are eligible. Manual/legacy public videos are excluded, even if old.
+This is a retention tool for content the operator is authorized to distribute,
+NOT a way to avoid copyright claims or platform moderation.
 """
 from __future__ import annotations
 
@@ -16,17 +17,18 @@ import os
 from .public_video_archive import is_video_message, video_document_id
 from .ten_video_rotation import category_targets
 from .runner import resolve_peer
+from .cinex_v4_policy import has_automatic_ttl
 
 LOG = logging.getLogger("cinex.public_video_retention")
 LIFETIME = timedelta(hours=24)
 MAX_HISTORY = 4000
-MAX_PER_CHANNEL = 10
-PAUSE_SECONDS = 36
+MAX_PER_CHANNEL = 40
+PAUSE_SECONDS = 6
 
 
 def due_for_removal(message, now: datetime, lifetime: timedelta = LIFETIME) -> bool:
     """Use the actual Telegram timestamp. Fail closed on missing/naive dates."""
-    if not is_video_message(message):
+    if not is_video_message(message) or not has_automatic_ttl(message):
         return False
     # A film/video-retention policy must not silently erase GIFs, trailers,
     # warnings, promotional clips or unrelated football publications.
@@ -47,7 +49,7 @@ def due_for_removal(message, now: datetime, lifetime: timedelta = LIFETIME) -> b
 
 
 def select_due(messages: list, now: datetime, *, lifetime: timedelta = LIFETIME):
-    """Oldest expired video first, including owner-posted legacy uploads."""
+    """Oldest tagged automated video first; manual/legacy posts are protected."""
     rows = [m for m in messages if due_for_removal(m, now, lifetime)]
     return sorted(rows, key=lambda m: (m.date, int(m.id)))
 
@@ -104,8 +106,8 @@ async def execute(*, apply: bool = False, max_deleted: int = MAX_PER_CHANNEL,
                   history: int = MAX_HISTORY):
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
-    if not 1 <= max_deleted <= 10:
-        raise ValueError("Limite de suppression: 1 a 10 par canal")
+    if not 1 <= max_deleted <= MAX_PER_CHANNEL:
+        raise ValueError("Limite de suppression: 1 a 40 par canal")
     if apply and not all(os.getenv(flag, "").lower() == "true" for flag in (
         "CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
         "CINEX_RIGHTS_VERIFIED", "CINEX_PUBLIC_RETENTION_24H_ENABLED"
@@ -189,7 +191,7 @@ def main() -> None:
     parser.add_argument("--max-deleted", type=int, default=MAX_PER_CHANNEL)
     parser.add_argument("--history", type=int, default=MAX_HISTORY)
     args = parser.parse_args()
-    if not 1 <= args.max_deleted <= 10 or not 100 <= args.history <= 10000:
+    if not 1 <= args.max_deleted <= MAX_PER_CHANNEL or not 100 <= args.history <= 10000:
         parser.error("Limites de nettoyage invalides")
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
