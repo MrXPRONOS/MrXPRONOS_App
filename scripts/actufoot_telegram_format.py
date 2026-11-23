@@ -189,8 +189,36 @@ def editorial_bottom_markup(
         if not header and current_heading and not body:
             body = current_heading
 
+    # Titles containing a real player (e.g. BUUUT - SAKA 72') are not
+    # discarded with the editorial heading: preserve the sourced player.
+    if current_heading and not genuine_news_headline:
+        heading_text = _visible(current_heading, 180)
+        if re.search(r"BUU+T|BUT|CARTON|REMPLACEMENT|TIR AU BUT", heading_text, re.I):
+            player_match = re.search(r"\\s[-–—]\\s(.+)$", heading_text)
+            if player_match and player_match.group(1).strip():
+                player = "<i>👤 " + html.escape(player_match.group(1).strip(), quote=False) + "</i>"
+                body = (player + "\\n" + body) if body else player
+    if header and isinstance(card, dict) and not genuine_news_headline:
+        # Existing simple captions often repeat the exact match just below
+        # their own label. The new first line already contains that result.
+        stripped = body.strip()
+        if re.fullmatch(r"<b>[^<>]*</b>", stripped):
+            raw = _visible(stripped).replace("-", "–").casefold()
+            header_text = _visible(header).replace("-", "–").casefold()
+            if raw and raw in header_text:
+                body = ""
     if not body:
-        body = "<i>Informations complémentaires non communiquées.</i>"
+        known = {
+            "BUT": "⚽ But confirmé par la source.",
+            "SCORE": "📈 Score actualisé d’après les données vérifiées.",
+            "COUP D’ENVOI": "▶️ Coup d’envoi confirmé.",
+            "CARTON": "🟨 Sanction confirmée.",
+            "REMPLACEMENT": "🔁 Changement de joueur confirmé.",
+            "MI-TEMPS": "⏸️ Pause confirmée.",
+            "TERMINÉ": "🏁 Fin de rencontre confirmée.",
+        }
+        body = next((message for key, message in known.items()
+                     if key in category.upper()), "<i>Événement confirmé.</i>")
     if "<blockquote" not in body.lower():
         body = "<blockquote>" + body + "</blockquote>"
     if header and header.strip() == body.strip():
