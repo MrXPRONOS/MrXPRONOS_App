@@ -27,6 +27,12 @@ from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
 from .tv_policy import complete_tv_seasons
+from .anime_cadence import cadence_from_message
+from .season_batches_v4 import (
+    select_season_batches, active_descriptor, valid_source_batch,
+    recover_active_batch_rows, prepare_private_season_batch,
+    publish_public_season_batch, episode_code,
+)
 from .category_runner import preflight
 from .runner import config_from
 from .source_channels import source_list
@@ -127,6 +133,7 @@ def classify(messages, source_id: int):
     """
     latest_poster = None
     current_season = 1
+    current_cadence = "unknown"
     candidates = []
     season_header = SEASON_HEADER
     for msg in sorted(messages, key=lambda x: int(x.id)):
@@ -136,11 +143,17 @@ def classify(messages, source_id: int):
         if getattr(msg, "photo", None):
             latest_poster = msg
             current_season = 1
+            current_cadence = cadence_from_message(msg)
             found = season_header.search(caption)
             if found:
                 current_season = int(found.group(1))
             continue
         if not is_supported_video(msg):
+            # A genuine source text/GIF announcement can establish weekly
+            # cadence, but never invent episode numbers or a season's total.
+            cadence = cadence_from_message(msg)
+            if cadence != "unknown" and latest_poster is not None:
+                current_cadence = cadence
             # Text-only season banners are not new series or videos.
             found = season_header.search(caption)
             if found and 1 <= int(found.group(1)) <= 50:
@@ -174,6 +187,9 @@ def classify(messages, source_id: int):
             "source_key": f"{source_id}:{int(msg.id)}",
             "series": series_key, "title": title,
             "season": season, "episode": episode,
+            "cadence_hint": (cadence_from_message(msg)
+                             if cadence_from_message(msg) != "unknown"
+                             else current_cadence),
             "video": msg, "poster": latest_poster,
             "timestamp": (getattr(msg, "date", None).timestamp()
                           if isinstance(getattr(msg, "date", None), datetime) else 0),
@@ -388,6 +404,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             all_candidates.extend(row for row in linked
                                   if row["source_key"] not in seen_cross)
             LOG.info("Séries : %s épisodes inter-canaux distincts validés", len(linked))
+        all_candidates = await recover_active_batch_rows(
+            client, sources, all_candidates, catalogue.get("tv_active_batch"))
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
         groups = {}
         for row in all_candidates:
@@ -397,22 +415,38 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         if publish:
             await backfill_private_covers(
                 client, bot, private, public, catalogue, groups, pause)
-        # Select a whole short series BEFORE any Telegram uploads: no six-episode slices.
+        # One complete season per title and cycle. A series still being
+        # released is eligible only for its next contiguous, numbered episodes.
         eligibility_reasons = {}
-        eligible = complete_tv_seasons(groups, catalogue, maximum=episode_cap,
-                                       diagnostics=eligibility_reasons)
-        excluded_totals = {}
-        for reason in eligibility_reasons.values():
-            excluded_totals[reason] = excluded_totals.get(reason, 0) + 1
-        LOG.info("Éligibilité series : groupes=%s, retenus=%s, exclus=%s",
-                 len(groups), len(eligible), excluded_totals)
-        LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
-                 "series_catalog", len(eligible), episode_cap)
+        eligible = complete_tv_seasons(
+            groups, catalogue, maximum=episode_cap,
+            diagnostics=eligibility_reasons)
+        active = catalogue.get("tv_active_batch")
+        if active:
+            planned = {str(x["source_key"]) for x in active["episodes"]}
+            restored = [row for row in all_candidates
+                        if str(row["source_key"]) in planned]
+            if (len(restored) != len(planned)
+                    or not valid_source_batch(restored, active, episode_cap)):
+                LOG.error("Séries : lot précédent incomplet : nouvelle publication BLOQUÉE")
+                return 2
+            selections = [(str(active["key"]),
+                           sorted(restored, key=lambda r: int(r["episode"])),
+                           bool(active["complete"]))]
+        else:
+            selections = select_season_batches(
+                groups, catalogue, eligible,
+                maximum=episode_cap, limit=limit)
+        LOG.info("Séries : %s saisons complètes candidates, %s lots nouveaux ou à reprendre",
+                 len(eligible), len(selections))
         processed_seasons = set()
-        for key, items in eligible:
+        for key, items, is_complete_season in selections:
             season_marker_key = (key, int(items[0]["season"]))
             if len(processed_seasons) >= limit:
                 break
+            if not valid_source_batch(items, active if active else None, episode_cap):
+                LOG.warning("Série %s : épisode ou affiche absent, lot non publié", key)
+                continue
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
             if key not in catalogue["series"]:
@@ -442,6 +476,12 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 completed_series.add(key)
                 processed_seasons.add(season_marker_key)
                 continue
+
+            if not active:
+                catalogue["tv_active_batch"] = active_descriptor(
+                    key, items, complete=is_complete_season)
+                active = catalogue["tv_active_batch"]
+                save_catalog(catalogue)
 
             series = catalogue["series"].setdefault(
                 key, {"title": title, "public_id": None, "main_index_id": None,
@@ -506,6 +546,27 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     series["main_index_id"] = int(new.id)
                     await asyncio.sleep(pause)
                 save_catalog(catalogue)
+            # Allocate text indexes BEFORE the new private batch cover. This
+            # guarantees the real sequence COVER -> EP1 -> EP2 -> ... EPn.
+            season_key = str(items[0]["season"])
+            if season_key not in series["season_indices"]:
+                season_marker = marker + "_S" + season_key
+                prior = await find_marked(client, private, season_marker)
+                if prior:
+                    series["season_indices"][season_key] = prior
+                else:
+                    msg = await client.send_message(
+                        private, f"📚 <b>{escape(title)} — Saison {season_key}</b>"
+                        "\n<i>Index des épisodes en préparation.</i>\n"
+                        + season_marker, parse_mode="html", link_preview=False)
+                    series["season_indices"][season_key] = int(msg.id)
+                    await asyncio.sleep(pause)
+                save_catalog(catalogue)
+            batch_receipt = await prepare_private_season_batch(
+                client, bot, private, public, private_id,
+                key, series, items, catalogue, save_catalog, unified,
+                kind="series", complete=is_complete_season,
+            )
             for row in pending:
                 season_key = str(row["season"])
                 number_key = str(row["episode"])
@@ -532,59 +593,18 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 prior_id = legacy.get("video_id")
                 if not prior_id:
                     prior_id = await find_marked(client, private, episode_marker(row["source_key"]))
-                # Always make the exact episode downloadable before its
-                # three-button private image or any public announcement.
-                central_poster = row.get("poster") or next(
-                    (item.get("poster") for item in items
-                     if item.get("poster") is not None), None)
-                download_url = await unified.store(
-                    row["video"], category="series",
-                    title=f"{title} S{row['season']:02d}E{row['episode']:02d}",
-                    public=public, poster=central_poster,
-                    description=str(getattr(central_poster, "raw_text", "") or title),
-                )
-                if not download_url:
-                    raise RuntimeError("CineRadar : épisode non archivé")
+                # The batch illustration has already been sent, immediately
+                # before its videos. Never insert one image per episode here.
+                download_url = batch_receipt["downloads"][episode_code(row)]
                 if prior_id:
                     private_msg_id = int(prior_id)
-                    prior_cover = (series.get("episode_poster_ids", {})
-                                   .get(f"S{row['season']:02d}E{row['episode']:02d}"))
-                    if prior_cover:
-                        await ensure_library_poster_buttons(
-                            client, bot, private, int(prior_cover),
-                            public, download_url)
                 else:
-                    # Every episode also has its own illustrated two-button
-                    # library fiche directly BEFORE the video, independently
-                    # of the season index and its main cover.
-                    original_poster = row.get("poster") or next(
-                        (x.get("poster") for x in items if x.get("poster") is not None), None)
-                    if original_poster is None:
-                        raise RuntimeError("Série : affiche épisode indisponible")
-                    episode_cover_marker = episode_marker(row["source_key"]) + "_POSTER"
-                    existing_cover = await find_marked(
-                        client, private, episode_cover_marker, limit=700)
-                    if not existing_cover:
-                        cover = await send_library_poster_with_buttons(
-                            client, bot, private, public, original_poster,
-                            f"📺 {title} — S{row['season']:02d}E{row['episode']:02d}\n"
-                            + clean_caption(getattr(original_poster, "raw_text", "") or "")[:650]
-                            + "\n" + episode_cover_marker,
-                            download_url=download_url,
-                        )
-                        existing_cover = int(cover.id)
-                        await asyncio.sleep(pause)
-                    await ensure_library_poster_buttons(
-                        client, bot, private, int(existing_cover),
-                        public, download_url)
-                    series.setdefault("episode_poster_ids", {})[
-                        f"S{row['season']:02d}E{row['episode']:02d}"] = int(existing_cover)
-                    save_catalog(catalogue)
                     caption = (f"📺 <b>{escape(title)}</b> — "
                                f"S{row['season']:02d}E{row['episode']:02d}\n"
                                f"{episode_marker(row['source_key'])}")
-                    new = await client.send_file(private, row["video"].media,
-                                                 caption=caption, parse_mode="html")
+                    new = await client.send_file(
+                        private, row["video"].media,
+                        caption=caption, parse_mode="html")
                     private_msg_id = int(new.id)
                     await asyncio.sleep(pause)
                 # Central download receipt already verified before private publication.
@@ -610,50 +630,22 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                                       parse_mode="html", link_preview=False)
             await asyncio.sleep(pause)
 
-            if series.get("public_id"):
-                await bot.edit_reply_markup(bot_public, series["public_id"],
-                                            buttons=public_buttons(private_id, series, public))
-                LOG.info("Boutons de saisons mis à jour : %s", title)
-            else:
-                # Recover an existing card after partial GitHub state failure.
-                old_public = await find_marked(client, public, marker, limit=140)
-                if old_public:
-                    public_id = old_public
-                else:
-                    original_poster = next((x["poster"] for x in items if x["poster"] is not None), None)
-                    if original_poster is None:
-                        LOG.warning("Aucune affiche authentique pour %s ; fiche publique différée.", title)
-                        completed_series.add(key)
-                        continue
-                    raw = await client.download_media(original_poster.media, file=bytes)
-                    if not raw:
-                        LOG.warning("Affiche introuvable pour %s ; publication différée.", title)
-                        completed_series.add(key)
-                        continue
-                    picture = io.BytesIO(raw)
-                    picture.name = "cinex_anime.jpg"
-                    index_link = private_message_link(private_id, index_id)
-                    cap = (f"📺 <b>{escape(title)}</b>\n\n"
-                           "<i>Saisons et épisodes disponibles dans la bibliothèque CinéX.</i>\n"
-                           f'📚 <a href="{index_link}">VOIR TOUTES LES SAISONS</a>\n'
-                           f"{marker}")
-                    post = await bot.send_file(
-                        bot_public, picture, caption=cap, parse_mode="html",
-                        buttons=public_buttons(private_id, series, public), force_document=False)
-                    public_id = int(post.id)
-                    posted_cards += 1
-                series["public_id"] = public_id
-                first_ep = next(iter(series["source_items"].values()), index_id)
-                state.complete("tv-series:" + key, int(first_ep), int(public_id))
-                save_catalog(catalogue)
-                LOG.info("Fiche publique CinéX Séries TV : %s -> %s", title, public_id)
-            # Publish one complete public fiche+video per verified episode;
-            # season cards and indices remain available for navigation.
-            await publish_catalog_episode_pairs(
+            # ONE poster for this batch followed by all new public videos;
+            # no extra per-episode poster or second general card.
+            was_complete = batch_receipt.get("status") == "complete"
+            published = await publish_public_season_batch(
                 client, bot, public, private, private_id,
-                series, items, catalogue, save_catalog, pause,
-                kind="series",
+                key, series, items, catalogue, save_catalog, pause,
+                kind="series", complete=is_complete_season,
             )
+            if not was_complete:
+                posted_cards += 1
+            first_ep = next(iter(series["source_items"].values()), index_id)
+            state.complete("tv-series:" + key, int(first_ep),
+                           int(series["public_id"]))
+            catalogue["tv_active_batch"] = None
+            active = None
+            save_catalog(catalogue)
             completed_series.add(key)
             processed_seasons.add(season_marker_key)
             await asyncio.sleep(pause)
@@ -690,7 +682,7 @@ def main():
     arg = argparse.ArgumentParser()
     arg.add_argument("--publish", action="store_true")
     arg.add_argument("--limit", type=int, choices=(1, 2), default=2)
-    arg.add_argument("--episode-cap", type=int, choices=range(1, 13), default=12)
+    arg.add_argument("--episode-cap", type=int, choices=range(1, 51), default=50)
     args = arg.parse_args()
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")

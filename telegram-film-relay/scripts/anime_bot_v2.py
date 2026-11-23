@@ -186,9 +186,10 @@ async def run(mode: str, *, state_path: str, max_poll_batches=20,
         updated = 0
         published_anime = []
         for key, rows, is_complete in batches:
-            for row in rows:
-                await publisher.publish_episode(row)
-                updated += 1
+            # V4 Lot 3: one poster + every verified episode of this arrival;
+            # a later cycle publishes only the new numbered episodes.
+            await publisher.publish_batch(rows, complete=is_complete)
+            updated += len(rows)
             published_anime.append(key)
             if is_complete:
                 # One complete season per cycle; next batch continues later.

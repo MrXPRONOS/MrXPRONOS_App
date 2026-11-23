@@ -22,7 +22,7 @@ from .cinex_v4_policy import has_automatic_ttl
 LOG = logging.getLogger("cinex.public_video_retention")
 LIFETIME = timedelta(hours=24)
 MAX_HISTORY = 4000
-MAX_PER_CHANNEL = 40
+MAX_PER_CHANNEL = 100
 PAUSE_SECONDS = 6
 
 
@@ -107,7 +107,7 @@ async def execute(*, apply: bool = False, max_deleted: int = MAX_PER_CHANNEL,
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
     if not 1 <= max_deleted <= MAX_PER_CHANNEL:
-        raise ValueError("Limite de suppression: 1 a 40 par canal")
+        raise ValueError("Limite de suppression: 1 a 100 par canal")
     if apply and not all(os.getenv(flag, "").lower() == "true" for flag in (
         "CINEX_ARCHIVE_ENABLED", "CINEX_ARCHIVE_DELETE_APPROVED",
         "CINEX_RIGHTS_VERIFIED", "CINEX_PUBLIC_RETENTION_24H_ENABLED"

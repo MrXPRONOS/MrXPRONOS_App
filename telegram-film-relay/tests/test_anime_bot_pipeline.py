@@ -120,9 +120,9 @@ class AnimeBotMatchingTests(unittest.TestCase):
         state = {"messages": messages(*source)}
         picked, report = prepare(state)
         self.assertEqual(len(picked), 4)
-        self.assertEqual(report["selected_episodes"], 4)
+        self.assertEqual(report["selected_episodes"], 8)
         self.assertEqual(len({key for key, _, _ in picked}), 4)
-        self.assertTrue(all(len(rows) == 1 and not full
+        self.assertTrue(all(len(rows) == 2 and not full
                             for _, rows, full in picked))
 
     def test_published_episode_prevents_reposting(self):
@@ -134,14 +134,14 @@ class AnimeBotMatchingTests(unittest.TestCase):
                  "date": 2, "source_key": "a:2"}]
         self.assertEqual(select_bot_anime_batches(rows, state, {}), [])
 
-    def test_complete_30_episode_season_resumes_after_first_25(self):
+    def test_complete_30_episode_season_is_one_batch_and_legacy_25_resumes(self):
         rows = [{"series": "naruto", "season": 1, "episode": n,
                  "source_key": f"source:{n}", "date": n}
                 for n in range(1, 31)]
         full = {("naruto", 1): 30}
         initial = select_bot_anime_batches(rows, {}, full)
         self.assertEqual(len(initial), 1)
-        self.assertEqual(len(initial[0][1]), 25)
+        self.assertEqual(len(initial[0][1]), 30)
         self.assertTrue(initial[0][2])
         saved = {"series": {"naruto": {
             "episodes": {"1": {
@@ -156,6 +156,43 @@ class AnimeBotMatchingTests(unittest.TestCase):
         self.assertEqual([r["episode"] for r in continuation[0][1]],
                          [26, 27, 28, 29, 30])
         self.assertTrue(continuation[0][2])
+
+    def test_ongoing_four_available_as_one_batch_then_only_fifth(self):
+        rows = [
+            {"series": "naruto", "season": 1, "episode": n,
+             "source_key": f"src:{n}", "date": n}
+            for n in range(1, 5)
+        ]
+        first = select_bot_anime_batches(rows, {}, {})
+        self.assertEqual(len(first), 1)
+        self.assertEqual([r["episode"] for r in first[0][1]], [1, 2, 3, 4])
+        self.assertFalse(first[0][2])
+        published = {"series": {"naruto": {
+            "public_episode_posts": {
+                f"S01E{n:02d}": {"poster": 80, "video": 100+n}
+                for n in range(1, 5)
+            }
+        }}}
+        self.assertEqual(select_bot_anime_batches(rows, published, {}), [])
+        next_rows = [*rows, {
+            "series": "naruto", "season": 1, "episode": 5,
+            "source_key": "src:5", "date": 5
+        }]
+        next_batch = select_bot_anime_batches(next_rows, published, {})
+        self.assertEqual([r["episode"] for r in next_batch[0][1]], [5])
+
+    def test_ongoing_missing_middle_episode_blocks_later_episode(self):
+        items = [
+            {"series": "naruto", "season": 1, "episode": n,
+             "source_key": f"src:{n}", "date": n}
+            for n in (1, 2, 4)
+        ]
+        chosen = select_bot_anime_batches(items, {}, {})
+        self.assertEqual([r["episode"] for r in chosen[0][1]], [1, 2])
+        posted = {"series": {"naruto": {"public_episode_posts": {
+            "S01E01": {"video": 1}, "S01E02": {"video": 2}}}}}
+        self.assertEqual(select_bot_anime_batches(
+            [items[-1]], posted, {}), [])
 
     def test_missing_episode_1_blocks_episode_2(self):
         state = {}
@@ -253,6 +290,49 @@ class AnimeBotPublisherTests(unittest.TestCase):
         self.assertEqual(copies[4].kwargs["reply_markup"],
                          copies[5].kwargs["reply_markup"])
         self.assertEqual(bot.send_message.await_count, 2)
+        self.assertEqual(store.load(), state)
+
+    def test_lot3_one_group_poster_then_two_videos_bot_only(self):
+        bot, store, state, row, publisher = self._setup()
+        second = record(3, "video", name="Episode_02.mp4")
+        state["messages"][f"{SOURCE}:3"] = second
+        row2 = dict(row, episode=2, source_key=f"{SOURCE}:3")
+        ids = iter(range(300, 400))
+        async def copy(*args, **kwargs):
+            return next(ids)
+        bot.copy_message = AsyncMock(side_effect=copy)
+        bot.send_message = AsyncMock(side_effect=[401, 402, 403])
+        async def exercise():
+            first = await publisher.publish_batch([row, row2], complete=False)
+            calls = bot.copy_message.await_count
+            second_result = await publisher.publish_batch(
+                [row, row2], complete=False)
+            return first, second_result, calls
+        first, next_result, calls = asyncio.run(exercise())
+        self.assertEqual(first["status"], "complete")
+        self.assertEqual(first["public_cover_id"], next_result["public_cover_id"])
+        self.assertEqual(calls, 10)
+        self.assertEqual(bot.copy_message.await_count, 10)
+        public_cover = bot.copy_message.await_args_list[7]
+        self.assertEqual(public_cover.args[0], PUBLIC)
+        self.assertEqual(len(public_cover.kwargs["reply_markup"]["inline_keyboard"]), 4)
+        public_video_one = bot.copy_message.await_args_list[8]
+        public_video_two = bot.copy_message.await_args_list[9]
+        self.assertEqual(
+            public_cover.kwargs["reply_markup"],
+            public_video_one.kwargs["reply_markup"])
+        self.assertEqual(
+            public_cover.kwargs["reply_markup"],
+            public_video_two.kwargs["reply_markup"])
+        self.assertIn("#CINEX_VIDEO_24H_V1",
+                      public_video_one.kwargs["caption"])
+        self.assertEqual(len(
+            bot.copy_message.await_args_list[4]
+            .kwargs["reply_markup"]["inline_keyboard"]), 3)
+        self.assertEqual(set(
+            state["series"]["naruto"]["public_episode_posts"]),
+            {"S01E01", "S01E02"})
+        self.assertEqual(bot.send_message.await_count, 3)
         self.assertEqual(store.load(), state)
 
     def test_episode_26_is_reachable_from_first_season_index(self):

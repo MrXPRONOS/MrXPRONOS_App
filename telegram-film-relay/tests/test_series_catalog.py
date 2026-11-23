@@ -56,6 +56,23 @@ class TVSeriesTests(unittest.TestCase):
         result=classify(messages,-100111)
         self.assertEqual([(r["season"],r["episode"]) for r in result],[(1,1),(3,1)])
 
+    def test_weekly_tv_episodes_need_explicit_source_announcement(self):
+        bulletin = NS(id=11, photo=None, document=None,
+                      noforwards=False,
+                      raw_text="Nouveaux épisodes chaque semaine",
+                      date=datetime(2026,10,17,tzinfo=timezone.utc))
+        messages = [photo(10, "The Last of Us S01"), bulletin,
+                    video(12, "Episode_01.mkv"),
+                    video(13, "Episode_02.mkv")]
+        rows = classify(messages, -100222333)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([r["cadence_hint"] for r in rows],
+                         ["weekly", "weekly"])
+        rows2 = classify(
+            [photo(10, "The Last of Us S01"), video(12, "Episode_01.mkv")],
+            -100222333)
+        self.assertEqual(rows2[0]["cadence_hint"], "unknown")
+
     def test_title_drops_source_signature(self):
         self.assertEqual(series_title("Little House on the Prairie 2026 @serie et film"),
                          "Little House on the Prairie 2026")

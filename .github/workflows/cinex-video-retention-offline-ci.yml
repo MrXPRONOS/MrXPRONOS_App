@@ -2,12 +2,16 @@ name: CineX - Tests videos 24h et boutons (hors ligne)
 
 on:
   push:
-    branches: [main, 'feat/cinex-v4-lot2-three-library-buttons-20261123']
+    branches: [main, 'feat/cinex-v4-lot3-season-batches-20261123']
     paths:
       - 'telegram-film-relay/film_relay/public_video_retention.py'
       - 'telegram-film-relay/film_relay/cinex_v4_policy.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
       - 'telegram-film-relay/film_relay/anime_bot_publisher.py'
+      - 'telegram-film-relay/film_relay/season_batches_v4.py'
+      - 'telegram-film-relay/film_relay/anime_bot_matching.py'
+      - 'telegram-film-relay/tests/test_season_batches_v4.py'
+      - 'telegram-film-relay/tests/test_series_catalog.py'
       - 'telegram-film-relay/scripts/anime_bot_v2.py'
       - 'telegram-film-relay/tests/test_anime_bot_pipeline.py'
       - 'telegram-film-relay/tests/test_anime_bot_transport.py'
@@ -67,6 +71,7 @@ jobs:
         run: |
           python -m compileall -q film_relay scripts
           python -m unittest discover -s tests -p 'test_cinex_v4_policy.py' -v
+          python -m unittest discover -s tests -p 'test_season_batches_v4.py' -v
           python -m unittest discover -s tests -p 'test_public_video_retention.py' -v
           python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
           python -m unittest discover -s tests -p 'test_anime_bot_pipeline.py' -v

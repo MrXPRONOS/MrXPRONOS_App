@@ -289,6 +289,180 @@ class AnimeBotPublisher:
                         reply_markup=season_buttons))
             self.store.save(self.state)
 
+    def _batch_public_keyboard(self, private_cover_url, index_url):
+        """A group's poster and ALL its videos share the exact four links."""
+        if (not private_cover_url.startswith("https://t.me/c/")
+                or not index_url.startswith("https://t.me/c/")
+                or private_cover_url == index_url
+                or not is_invite(self.rescue_url)
+                or not self.folder_url.startswith("https://t.me/addlist/")):
+            raise RuntimeError("Anime Bot V2 : liens du lot non vérifiés")
+        return {"inline_keyboard": [
+            [{"text": "🌸 VOIR L'ANIMÉ", "url": private_cover_url}],
+            [{"text": "⬇️ TÉLÉCHARGER LES VIDÉOS", "url": index_url}],
+            [{"text": "🛟 Rejoindre le canal secours", "url": self.rescue_url}],
+            [{"text": "📁 Rejoindre le dossier", "url": self.folder_url}],
+        ]}
+
+    def _batch_private_keyboard(self, index_url):
+        if not index_url.startswith("https://t.me/c/"):
+            raise RuntimeError("Anime Bot V2 : index téléchargement absent")
+        return {"inline_keyboard": [
+            [{"text": "📢 REJOINDRE LE CANAL",
+              "url": "https://t.me/" + self.public_handle.lstrip("@")}],
+            [{"text": "📁 Rejoindre le dossier", "url": self.folder_url}],
+            [{"text": "⬇️ TÉLÉCHARGER LES VIDÉOS", "url": index_url}],
+        ]}
+
+    async def publish_batch(self, rows: list, *, complete: bool):
+        """One season/arrival: private index + one fiche + ordered private media,
+        followed by ONE public fiche + ordered public media with identical buttons.
+
+        All bot operations are crash-safe and never blindly retried. No single
+        episode gets an extra public poster. Existing episode receipts remain.
+        """
+        from .season_batches_v4 import batch_identifier, batch_caption
+        if not rows or len(rows) > 50:
+            raise ValueError("Anime Bot V2 : lot saison vide ou trop volumineux")
+        ordered = sorted(rows, key=lambda r: int(r["episode"]))
+        key = str(ordered[0]["series"])
+        season = str(ordered[0]["season"])
+        if (len({str(row["series"]) for row in ordered}) != 1 or
+                len({int(row["season"]) for row in ordered}) != 1 or
+                len({int(row["episode"]) for row in ordered}) != len(ordered)):
+            raise ValueError("Anime Bot V2 : plusieurs séries/saisons mélangées")
+        for row in ordered:
+            self._poster(row)
+            video = self.state.get("messages", {}).get(row["source_key"], {})
+            if video.get("kind") != "video":
+                raise RuntimeError("Anime Bot V2 : vidéo source non confirmée")
+        batch_key = batch_identifier(key, int(season), ordered)
+        receipt_key = "bot:" + batch_key
+        entry = self._series(ordered[0])
+        receipt = entry.setdefault("season_batches", {}).setdefault(
+            receipt_key, {"season": int(season), "complete": bool(complete),
+                          "expected": [episode_key(r) for r in ordered],
+                          "downloads": {}, "public_videos": {}})
+        if receipt["expected"] != [episode_key(r) for r in ordered]:
+            raise RuntimeError("Anime Bot V2 : reprise de lot incompatible")
+        title = str(entry["title"])
+        description = batch_caption(title, ordered,
+                                    complete=complete, kind="anime")
+        poster = self._poster(ordered[0])
+
+        # All episodes must be present in the central private stock and D1
+        # BEFORE any category-library or public batch announcement.
+        for row in ordered:
+            source = self.state["messages"][row["source_key"]]
+            code = episode_key(row)
+            if not is_bot_download_url(receipt["downloads"].get(code)):
+                download = await self._central_download(
+                    row, entry, self._poster(row), source)
+                if not is_bot_download_url(download):
+                    raise RuntimeError("Anime Bot V2 : reçu CineRadar manquant")
+                receipt["downloads"][code] = download
+                self.store.save(self.state)
+
+        index_body = (f"🌸 <b>{escape(title)}</b> — Saison {int(season)}\n"
+                      "📥 Téléchargement des épisodes :\n" + "\n".join(
+                          f"{code} — {receipt['downloads'][code]}"
+                          for code in receipt["expected"]))
+        if len(index_body.encode("utf-8")) > 3950:
+            raise RuntimeError("Anime Bot V2 : index téléchargements trop long")
+        if not receipt.get("download_index_id"):
+            receipt["download_index_id"] = await self._operation(
+                f"batch:index:{batch_key}",
+                lambda: self.transport.send_message(
+                    self.private_id, index_body))
+            self.store.save(self.state)
+        index_url = message_url(
+            self.private_id, int(receipt["download_index_id"]))
+
+        if not receipt.get("private_cover_id"):
+            receipt["private_cover_id"] = await self._operation(
+                f"batch:private-cover:{batch_key}",
+                lambda: self.transport.copy_message(
+                    self.private_id, poster["source_id"], poster["message_id"],
+                    caption=f"🌸 <b>{escape(title)}</b>\n"
+                            f"{escape(description)}\n#{batch_key}_PRIVATE",
+                    reply_markup=self._batch_private_keyboard(index_url)))
+            self.store.save(self.state)
+
+        private_season = entry.setdefault("episodes", {}).setdefault(season, {})
+        for row in ordered:
+            code = episode_key(row)
+            number = str(int(row["episode"]))
+            source = self.state["messages"][row["source_key"]]
+            if number not in private_season:
+                private_id = await self._operation(
+                    f"private:{key}:{code}",
+                    lambda src=source, code=code: self.transport.copy_message(
+                        self.private_id, src["source_id"], src["message_id"],
+                        caption=f"🌸 <b>{escape(title)}</b> — {code}"))
+                private_season[number] = {
+                    "message_id": int(private_id),
+                    "source_key": row["source_key"],
+                    "file_unique_id": source.get("file_unique_id") or ""}
+                self.store.save(self.state)
+        # Text indexes are created only AFTER the real season videos.
+        await self._season_index(ordered[0], entry)
+        await self._main_index(ordered[0], entry)
+
+        watch_url = message_url(
+            self.private_id, int(receipt["private_cover_id"]))
+        buttons = self._batch_public_keyboard(watch_url, index_url)
+        if not receipt.get("public_cover_id"):
+            receipt["public_cover_id"] = await self._operation(
+                f"batch:public-cover:{batch_key}",
+                lambda: self.transport.copy_message(
+                    self.public_id, poster["source_id"], poster["message_id"],
+                    caption=f"🌸 <b>{escape(title)}</b>\n"
+                            f"{escape(description)}\n#{batch_key}_PUBLIC",
+                    reply_markup=buttons))
+            self.store.save(self.state)
+
+        public_posts = entry.setdefault("public_episode_posts", {})
+        for row in ordered:
+            code = episode_key(row)
+            private_id = int(private_season[str(int(row["episode"]))]["message_id"])
+            if code in public_posts:
+                receipt["public_videos"][code] = int(public_posts[code]["video"])
+                continue
+            video_id = await self._operation(
+                f"batch:public-video:{batch_key}:{code}",
+                lambda private_mid=private_id, code=code: self.transport.copy_message(
+                    self.public_id, self.private_id, private_mid,
+                    caption=caption_with_automatic_ttl(
+                        f"🌸 <b>{escape(title)}</b> — {code}"),
+                    reply_markup=buttons))
+            receipt["public_videos"][code] = int(video_id)
+            public_posts[code] = {
+                "poster": int(receipt["public_cover_id"]),
+                "video": int(video_id), "private_video": private_id,
+                "batch": receipt_key}
+            self.store.save(self.state)
+        receipt["status"] = "complete"
+        if not entry.get("public_id"):
+            entry["public_id"] = int(receipt["public_cover_id"])
+        entry.setdefault("season_public_ids", {}).setdefault(
+            season, int(receipt["public_cover_id"]))
+        entry.setdefault("season_status", {})[season] = (
+            "complete" if complete else "en_cours")
+        for row in ordered:
+            self.state.get("messages", {}).get(row["source_key"], {})[
+                "status"] = "published"
+            for alternative in row.get("alternate_source_keys", []):
+                self.state.get("messages", {}).get(alternative, {})[
+                    "status"] = "published"
+            if row.get("cadence_hint") in ("weekly", "fortnightly"):
+                entry["cadence_hint"] = row["cadence_hint"]
+            entry.setdefault("last_episode_by_season", {})[season] = max(
+                int(row["episode"]),
+                int(entry.get("last_episode_by_season", {}).get(season, 0)))
+        entry["last_episode"] = int(ordered[-1]["episode"])
+        self.store.save(self.state)
+        return receipt
+
     async def publish_episode(self, row):
         """One idempotent private + two public media posts and index updates."""
         key = row["series"]
