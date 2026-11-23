@@ -44,6 +44,7 @@ from .text import first_title, private_message_link, clean_caption
 from .unified_download import UnifiedLibrary
 from .publication import (
     send_library_poster_with_buttons, verify_library_bot,
+    ensure_library_poster_buttons,
     publish_catalog_episode_pairs,
 )
 
@@ -239,7 +240,7 @@ def public_buttons(private_id: int, series_entry: dict, public_peer=None):
         rows.append([url_button("📺 Saison " + str(int(season)),
                                 private_message_link(private_id, index_id),
                                 style="primary")])
-    rows.append([url_button("📚 Tous les épisodes",
+    rows.append([url_button("🌸 VOIR L'ANIMÉ",
                             private_message_link(private_id, series_entry["main_index_id"]),
                             style="success")])
     # The existing shared folder is the official way to join the private library.
@@ -284,7 +285,7 @@ async def find_marked(client, peer, marker: str, limit=160):
     return None
 
 
-async def backfill_private_covers(client, private, catalogue, groups, pause):
+async def backfill_private_covers(client, bot, private, public, catalogue, groups, pause):
     """Repair earlier short series that had episodes but no private cover image."""
     from .short_series import normalized_key
     for key, items in groups.items():
@@ -305,20 +306,33 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
         poster = next((r["poster"] for r in items if r.get("poster") is not None), None)
         if poster is None:
             continue
+        # Legacy backfill must not create NEW photos without download buttons.
+        # Only an existing validated CineRadar receipt may authorize this
+        # repair; otherwise leave old content untouched for manual review.
+        from .radar_download_registry import is_bot_download_url
+        verified_download = next((
+            ep.get("download_url")
+            for episodes in entry.get("episodes", {}).values()
+            for ep in episodes.values()
+            if is_bot_download_url(ep.get("download_url"))
+        ), None)
+        if not verified_download:
+            LOG.warning("Ancienne fiche %s : sans reçu CineRadar, réparation différée", key)
+            continue
         cover_marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15] + "_POSTER"
         recovered = await find_marked(client, private, cover_marker, limit=700)
         if not recovered:
-            media = await client.download_media(poster.media, file=bytes)
-            if not media:
-                continue
-            stream = io.BytesIO(media)
-            stream.name = "cinex_private_series.jpg"
-            caption = f"📺 <b>{escape(str(entry.get('title') or key))}</b>\n" + cover_marker
-            photo = await client.send_file(
-                private, stream, caption=caption, parse_mode="html", force_document=False
-            )
+            photo = await send_library_poster_with_buttons(
+                client, bot, private, public, poster,
+                f"📺 {str(entry.get('title') or key)}\n"
+                "Téléchargement : premier épisode disponible.\n" + cover_marker,
+                download_url=verified_download)
             recovered = int(photo.id)
             await asyncio.sleep(pause)
+        else:
+            await ensure_library_poster_buttons(
+                client, bot, private, int(recovered), public,
+                verified_download)
         entry["private_poster_id"] = int(recovered)
         save_catalog(catalogue)
         LOG.info("Fiche privée historique réparée pour %s : %s", key, recovered)
@@ -710,6 +724,25 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             if len(cadence_hints) == 1:
                 series["cadence_hint"] = next(iter(cadence_hints))
             marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15]
+            # The first real episode is centrally archived before the
+            # series cover is sent, providing its third verified download button.
+            opening_row = next(
+                (item for item in items if item.get("poster") is not None), None)
+            if opening_row is None:
+                raise RuntimeError("Série/animé sans affiche d'origine")
+            opening_title = f"{title} S{opening_row['season']:02d}E{opening_row['episode']:02d}"
+            opening_download = await unified.store(
+                opening_row["video"], category="anime",
+                title=opening_title, public=public,
+                poster=opening_row["poster"],
+                description=str(getattr(opening_row["poster"], "raw_text", "") or title),
+            )
+            if not opening_download:
+                raise RuntimeError("CineRadar : premier épisode non archivé")
+            if series.get("private_poster_id"):
+                await ensure_library_poster_buttons(
+                    client, bot, private, int(series["private_poster_id"]),
+                    public, opening_download)
             # Save the original series illustration in the PRIVATE channel too.
             # Its deterministic caption marker prevents duplicate posters after a crash.
             if not series.get("private_poster_id"):
@@ -724,10 +757,18 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                         continue
                     sent_poster = await send_library_poster_with_buttons(
                         client, bot, private, public, original_poster,
-                        f"🌸 {title}\nFiche de la série et épisodes ci-dessous.\n{poster_marker}",
+                        f"🌸 {title}\nFiche de la série et épisodes ci-dessous.\n"
+                        "Téléchargement : premier épisode disponible.\n"
+                        f"{poster_marker}",
+                        download_url=opening_download,
                     )
                     private_poster = int(sent_poster.id)
                     await asyncio.sleep(pause)
+                # An interrupted legacy operation may have left a two-button
+                # picture with no ID in our JSON. Repair its markup in place.
+                await ensure_library_poster_buttons(
+                    client, bot, private, int(private_poster),
+                    public, opening_download)
                 series["private_poster_id"] = int(private_poster)
                 save_catalog(catalogue)
             if not series.get("main_index_id"):
@@ -769,8 +810,27 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 prior_id = legacy.get("video_id")
                 if not prior_id:
                     prior_id = await find_marked(client, private, episode_marker(row["source_key"]))
+                # Always make the exact episode downloadable before its
+                # three-button private image or any public announcement.
+                central_poster = row.get("poster") or next(
+                    (item.get("poster") for item in items
+                     if item.get("poster") is not None), None)
+                download_url = await unified.store(
+                    row["video"], category="anime",
+                    title=f"{title} S{row['season']:02d}E{row['episode']:02d}",
+                    public=public, poster=central_poster,
+                    description=str(getattr(central_poster, "raw_text", "") or title),
+                )
+                if not download_url:
+                    raise RuntimeError("CineRadar : épisode non archivé")
                 if prior_id:
                     private_msg_id = int(prior_id)
+                    prior_cover = (series.get("episode_poster_ids", {})
+                                   .get(f"S{row['season']:02d}E{row['episode']:02d}"))
+                    if prior_cover:
+                        await ensure_library_poster_buttons(
+                            client, bot, private, int(prior_cover),
+                            public, download_url)
                 else:
                     source_poster = row.get("poster") or next(
                         (r.get("poster") for r in items if r.get("poster") is not None), None)
@@ -785,9 +845,13 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                             f"🌸 {title} — S{row['season']:02d}E{row['episode']:02d}\n"
                             + clean_caption(getattr(source_poster, "raw_text", "") or "")[:650]
                             + "\n" + episode_cover_marker,
+                            download_url=download_url,
                         )
                         existing_cover = int(sent_cover.id)
                         await asyncio.sleep(pause)
+                    await ensure_library_poster_buttons(
+                        client, bot, private, int(existing_cover),
+                        public, download_url)
                     series.setdefault("episode_poster_ids", {})[
                         f"S{row['season']:02d}E{row['episode']:02d}"] = int(existing_cover)
                     save_catalog(catalogue)
@@ -798,13 +862,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                                                  caption=caption, parse_mode="html")
                     private_msg_id = int(new.id)
                     await asyncio.sleep(pause)
-                download_url = await unified.store(
-                    row["video"], category="anime",
-                    title=f"{title} S{row['season']:02d}E{row['episode']:02d}",
-                    public=public,
-                    poster=row.get("poster") or next((r.get("poster") for r in items if r.get("poster") is not None), None),
-                    description=f"{title} S{row['season']:02d}E{row['episode']:02d}",
-                ) if publish else None
+                # Central download receipt already verified before private publication.
                 ep[number_key] = {"message_id": private_msg_id,
                                   "url": private_message_link(private_id, private_msg_id)}
                 if download_url:
@@ -923,6 +981,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await publish_catalog_episode_pairs(
                 client, bot, public, private, private_id,
                 series, items, catalogue, save_catalog, pause,
+                kind="anime",
             )
             if season_no:
                 series.setdefault("season_status", {})[season_no] = (

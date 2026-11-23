@@ -15,6 +15,7 @@ from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, film_folder_url,
                           send_public_poster_with_buttons,
                           send_library_poster_with_buttons, verify_library_bot,
+                           ensure_library_poster_buttons,
                           post_public_video_after_poster,
                           post_public_video_by_bot_copy)
 from .unified_download import UnifiedLibrary
@@ -509,7 +510,20 @@ async def execute() -> int:
                     try:
                         # Keep partial private sends in state. GitHub saves this
                         # checkpoint at the end of a workflow run, including failures.
+                        # Central stock before the private fiche, so the
+                        # real CineRadar download is available on the photo.
+                        download_url = await unified.store(
+                            pair.movie, category="films", title=text,
+                            public=destination_public, poster=pair.poster,
+                            description=text)
+                        if not download_url:
+                            raise RuntimeError("Film : stock central non vérifié")
                         stage = state.get_staged_posts(pair_id)
+                        if "poster" in stage:
+                            await ensure_library_poster_buttons(
+                                client, bot_client, destination_private,
+                                int(stage["poster"]), destination_public,
+                                download_url)
                         if "video" in stage:
                             private_post_id = stage["video"]
                         else:
@@ -517,11 +531,12 @@ async def execute() -> int:
                                 private_poster = await send_library_poster_with_buttons(
                                     client, bot_client, destination_private,
                                     destination_public, pair.poster, text,
+                                    download_url=download_url,
                                 )
                                 state.stage_poster(pair_id, int(private_poster.id))
                                 await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
                                 stage = state.get_staged_posts(pair_id)
-                                LOG.info("Fiche privée avec deux boutons envoyée : message %s", private_poster.id)
+                                LOG.info("Fiche privée avec trois boutons envoyée : message %s", private_poster.id)
 
                             private_post = await client.send_file(
                                 destination_private, pair.movie.media,
@@ -531,11 +546,6 @@ async def execute() -> int:
                             state.stage(pair_id, private_post_id)
                             LOG.info("Vidéo privée envoyée : message %s", private_post_id)
                         url = private_message_link(private_id, private_post_id)
-                        download_url = await unified.store(
-                            pair.movie, category="films", title=text,
-                            public=destination_public,
-                            poster=pair.poster, description=text,
-                        )
                         await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
                         public_post = await send_public_poster_with_buttons(
                             client, bot_client, bot_destination, pair.poster,

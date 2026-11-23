@@ -74,6 +74,25 @@ def rich_video_title(description: str) -> str:
     return f"<b>🎞️ {escape(first_title(description))}</b>"
 
 
+def video_labels(kind: str, *, episode: bool = False) -> tuple[str, str]:
+    """Precise button language shared by films, TV series and anime relays."""
+    kind = str(kind or "films").strip().casefold()
+    if kind == "series":
+        return ("📺 VOIR L'ÉPISODE" if episode else "📺 VOIR LA SÉRIE",
+                "⬇️ TÉLÉCHARGER LES VIDÉOS")
+    if kind == "anime":
+        return ("🌸 VOIR L'ÉPISODE" if episode else "🌸 VOIR L'ANIMÉ",
+                "⬇️ TÉLÉCHARGER LES VIDÉOS")
+    return ("🎬 VOIR LE FILM", "⬇️ TÉLÉCHARGER LA VIDÉO")
+
+
+def download_label_for_watch(watch_label: str) -> str:
+    if any(part in str(watch_label).casefold()
+           for part in ("série", "épisode", "animé", "anime")):
+        return "⬇️ TÉLÉCHARGER LES VIDÉOS"
+    return "⬇️ TÉLÉCHARGER LA VIDÉO"
+
+
 def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=None,
                     download_url: str | None = None, watch_label: str = "🎬 VOIR LE FILM") -> list[list[tuple[str, str]]]:
     """Historic optional rows; new public media use complete_public_video_rows.
@@ -91,7 +110,7 @@ def url_button_rows(movie_url: str, invitation_url: str = "", *, public_peer=Non
         from .radar_download_registry import is_bot_download_url
         if not is_bot_download_url(download_url):
             raise ValueError("Téléchargement : véritable lien du bot CinéRadar requis.")
-        buttons.append([("⬇️ TÉLÉCHARGER LA VIDÉO", download_url)])
+        buttons.append([(download_label_for_watch(watch_label), download_url)])
     rows = add_rescue_tuple_row(buttons, public_peer)
     rows.append([(FILM_FOLDER_BUTTON_TEXT, film_folder_url())])
     return rows
@@ -118,27 +137,27 @@ def complete_public_video_rows(movie_url: str, download_url: str, *, public_peer
 
 
 def verify_complete_public_video_poster(poster, public_peer,
-                                        private_video_link: str, download_url: str):
-    """Re-read the public post and verify all four exact destinations."""
-    from .public_video_archive import has_verified_button
+                                        private_video_link: str, download_url: str,
+                                        *, watch_label: str = "🎬 VOIR LE FILM"):
+    """Verify the exact FOUR labels and URLs on the actual public image."""
     try:
-        complete_public_video_rows(private_video_link, download_url,
-                                   public_peer=public_peer)
-        from .rescue_channels import rescue_link_for
-        expected = (private_video_link, download_url,
-                    rescue_link_for(public_peer), film_folder_url())
+        expected_rows = complete_public_video_rows(
+            private_video_link, download_url,
+            public_peer=public_peer, watch_label=watch_label)
     except (ValueError, RuntimeError, TypeError):
         return False
     if not poster or not getattr(poster, "photo", None):
         return False
     rows = getattr(poster, "buttons", None) or ()
-    links = [getattr(getattr(button, "button", button), "url", None)
-             for row in rows for button in row]
-    return bool(len(rows) == 4 and all(len(row) == 1 for row in rows)
-                and tuple(links) == expected
-                and all(has_verified_button(poster, link) for link in expected))
-
-
+    if len(rows) != 4 or any(len(row) != 1 for row in rows):
+        return False
+    actual = [
+        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
+         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
+        for row in rows for btn in row
+    ]
+    expected = [pair for row in expected_rows for pair in row]
+    return actual == expected
 
 
 def verify_complete_public_video_keyboard(message, public_peer,
@@ -184,7 +203,6 @@ async def send_public_poster_with_buttons(
     photo.name = "cinex_affiche.jpg"
     # A missing Secours link is a publication blocker, never omit a required
     # button silently. The link is loaded transiently from the safe runtime.
-    library_button_rows(public_peer)
     keyboard = make_button_keyboard(rows)
     return await bot_client.send_file(
         public_peer, photo, caption=rich_caption(description),
@@ -192,21 +210,26 @@ async def send_public_poster_with_buttons(
     )
 
 
-def library_button_rows(public_peer):
-    """Exactly two buttons on a library poster: Secours and the shared folder.
+def library_button_rows(public_peer, download_url: str):
+    """Exactly three private fiche buttons: main relay, folder, verified download.
 
-    Resolve the invitation from the verified runtime ledger; never hardcode or
-    persist an invitation in a repository.
+    The private library is not a backup channel. Its owner/visitor should be
+    able to return to the public channel without any private invite, and only
+    download an existing CineRadar central receipt (never a guessed link).
     """
-    from .rescue_channels import BUTTON_TEXT, rescue_link_for
-    rescue_url = rescue_link_for(public_peer)
-    if not rescue_url:
-        raise RuntimeError(
-            "Lien du canal Secours absent ou non vérifié : publication "
-            "de la fiche privée suspendue."
-        )
-    return [[(BUTTON_TEXT, rescue_url)],
-            [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())]]
+    from .rescue_channels import public_username
+    from .radar_download_registry import is_bot_download_url
+    from .cinex_v4_policy import is_main_relay
+    handle = public_username(public_peer)
+    if not handle or not is_main_relay(handle):
+        raise RuntimeError("Vidéothèque : canal principal CinéX non vérifié")
+    if not is_bot_download_url(download_url):
+        raise RuntimeError("Vidéothèque : téléchargement central non vérifié")
+    return [
+        [("📢 REJOINDRE LE CANAL", "https://t.me/" + handle.lstrip("@"))],
+        [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())],
+        [("⬇️ TÉLÉCHARGER", download_url)],
+    ]
 
 
 def make_button_keyboard(rows):
@@ -217,6 +240,8 @@ def make_button_keyboard(rows):
                 "success" if ("télécharger" in label.casefold() or
                               "regarder" in label.casefold() or
                               "voir le film" in label.casefold() or
+                              "voir la série" in label.casefold() or
+                              "voir l'animé" in label.casefold() or
                               "voir l'épisode" in label.casefold()) else
                 "danger" if "secours" in label.casefold() else "primary"
             ),
@@ -245,11 +270,11 @@ async def verify_library_bot(bot_client, private_peer):
 
 async def send_library_poster_with_buttons(
     user_client, bot_client, private_peer, public_peer,
-    poster_message, description: str,
+    poster_message, description: str, *, download_url: str,
 ):
-    """Send the real original image + synopsis + Secours/Folder keyboard."""
+    """Send original image and exactly 3 validated private-library buttons."""
     import io
-    rows = library_button_rows(public_peer)
+    rows = library_button_rows(public_peer, download_url)
     photo = await user_client.download_media(poster_message.media, file=bytes)
     if not photo:
         raise RuntimeError("Affiche privée absente : aucune vidéo ne sera envoyée.")
@@ -260,6 +285,42 @@ async def send_library_poster_with_buttons(
         parse_mode="html", buttons=make_button_keyboard(rows),
         force_document=False,
     )
+
+
+def verify_library_poster_buttons(poster, public_peer, download_url: str) -> bool:
+    """Verify exact category-library navigation on the real Telegram photo."""
+    try:
+        rows = library_button_rows(public_peer, download_url)
+    except (RuntimeError, ValueError, TypeError):
+        return False
+    if not getattr(poster, "photo", None):
+        return False
+    actual = [
+        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
+         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
+        for row in (getattr(poster, "buttons", None) or []) for btn in row
+    ]
+    expected = [pair for row in rows for pair in row]
+    return bool(len(getattr(poster, "buttons", None) or []) == 3
+                and all(len(row) == 1 for row in poster.buttons)
+                and actual == expected)
+
+
+async def ensure_library_poster_buttons(user_client, bot_client, private_peer,
+                                        poster_id: int, public_peer,
+                                        download_url: str) -> None:
+    """Repair old 2-button fiches in place; never duplicate their media."""
+    rows = library_button_rows(public_peer, download_url)
+    existing = await user_client.get_messages(private_peer, ids=int(poster_id))
+    if not getattr(existing, "photo", None):
+        raise RuntimeError("Vidéothèque : affiche sauvegardée introuvable")
+    if verify_library_poster_buttons(existing, public_peer, download_url):
+        return
+    await bot_client.edit_reply_markup(
+        private_peer, int(poster_id), buttons=make_button_keyboard(rows))
+    updated = await user_client.get_messages(private_peer, ids=int(poster_id))
+    if not verify_library_poster_buttons(updated, public_peer, download_url):
+        raise RuntimeError("Vidéothèque : trois boutons non confirmés par Telegram")
 
 
 async def post_public_video_after_poster(
@@ -317,8 +378,9 @@ async def post_public_video_by_bot_copy(
     )
     poster = await user_client.get_messages(public_peer, ids=int(poster_id))
     if not verify_complete_public_video_poster(
-            poster, public_peer, private_video_link, download_url):
-        raise RuntimeError("Fiche publique sans quatre boutons : copie bot suspendue.")
+            poster, public_peer, private_video_link, download_url,
+            watch_label=watch_label):
+        raise RuntimeError("Fiche publique sans quatre boutons conformes : copie bot suspendue.")
     newest = [m async for m in user_client.iter_messages(public_peer, limit=1)]
     if not newest or int(newest[0].id) != int(poster_id):
         raise RuntimeError("Affiche plus récente absente : copie bot suspendue.")
@@ -414,6 +476,7 @@ async def _recover_legacy_episode_pair(client, public_peer, document_id,
 async def publish_catalog_episode_pairs(
     user_client, bot_client, public_peer, private_peer, private_id: int,
     series: dict, items: list, catalogue: dict, save_catalog, pause: float,
+    *, kind: str = "series",
 ):
     """Publish each public pair exactly once, with crash-safe staged receipts.
 
@@ -425,6 +488,7 @@ async def publish_catalog_episode_pairs(
     from .public_video_archive import is_video_message, video_document_id
     from .text import clean_caption, private_message_link
 
+    watch_label, _ = video_labels(kind)
     receipts = series.setdefault("public_episode_posts", {})
     staged = series.setdefault("pending_public_episode_posts", {})
     fallback = next((r.get("poster") for r in items
@@ -501,7 +565,7 @@ async def publish_catalog_episode_pairs(
                     user_client, bot_client, public_peer, source_poster,
                     description, video_url,
                     download_url=private_record.get("download_url"),
-                    watch_label="📺 VOIR L'ÉPISODE",
+                    watch_label=watch_label,
                 )
                 entry["poster"] = int(public_poster.id)
                 save_catalog(catalogue)
@@ -529,7 +593,7 @@ async def publish_catalog_episode_pairs(
                     user_client, bot_client, public_peer, private_peer,
                     private_video, int(entry["poster"]), video_url, description,
                     download_url=private_record.get("download_url"),
-                    watch_label="📺 VOIR L'ÉPISODE",
+                    watch_label=watch_label,
                 )
             except Exception:
                 entry["video_send_uncertain"] = True

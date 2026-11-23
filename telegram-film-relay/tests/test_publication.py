@@ -41,22 +41,91 @@ class RenderTests(unittest.TestCase):
                          DEFAULT_FILM_FOLDER_URL)
         self.assertEqual(url_button_rows(movie)[0][0][1], movie)
 
-    def test_private_library_fiche_has_exactly_rescue_and_folder_buttons(self):
+    def test_private_library_fiche_has_exactly_three_verified_buttons(self):
         from unittest.mock import AsyncMock
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
         image = NS(media="source-photo")
         reader = NS(download_media=AsyncMock(return_value=b"original-poster"))
         bot = NS(send_file=AsyncMock(return_value=NS(id=77)))
-        with patch("film_relay.rescue_channels.rescue_link_for",
-                   return_value="https://t.me/+RescueExample123"):
-            result = asyncio.run(send_library_poster_with_buttons(
-                reader, bot, "@private_library", "@public_channel",
-                image, "🎬 Film complet\\nSynopsis: Un film"))
+        result = asyncio.run(send_library_poster_with_buttons(
+            reader, bot, "@private_library", "@CineXFilms_vf",
+            image, "🎬 Film complet\\nSynopsis: Un film",
+            download_url=download))
         self.assertEqual(result.id, 77)
         keyboard = bot.send_file.await_args.kwargs["buttons"]
-        self.assertEqual(len(keyboard), 2)
-        self.assertEqual(keyboard[0][0].url, "https://t.me/+RescueExample123")
-        self.assertEqual(keyboard[1][0].url, DEFAULT_FILM_FOLDER_URL)
+        self.assertEqual(len(keyboard), 3)
+        self.assertEqual([row[0].url for row in keyboard],
+                         ["https://t.me/cinexfilms_vf", DEFAULT_FILM_FOLDER_URL,
+                          download])
+        self.assertEqual([row[0].text for row in keyboard],
+                         ["📢 REJOINDRE LE CANAL", FILM_FOLDER_BUTTON_TEXT,
+                          "⬇️ TÉLÉCHARGER"])
         self.assertIn("Synopsis", bot.send_file.await_args.kwargs["caption"])
+
+    def test_private_library_rejects_absent_or_fake_download(self):
+        from unittest.mock import AsyncMock
+        bot = NS(send_file=AsyncMock())
+        reader = NS(download_media=AsyncMock(return_value=b"photo"))
+        for bad in (None, "", "https://example.com/movie"):
+            with self.subTest(link=bad), self.assertRaises(RuntimeError):
+                asyncio.run(send_library_poster_with_buttons(
+                    reader, bot, "@private", "@CineXFilms_vf",
+                    NS(media="photo"), "Film", download_url=bad))
+        bot.send_file.assert_not_awaited()
+
+    def test_public_labels_match_category_and_count(self):
+        from film_relay.publication import (
+            video_labels, complete_public_video_rows, library_button_rows)
+        self.assertEqual(video_labels("series"),
+                         ("📺 VOIR LA SÉRIE", "⬇️ TÉLÉCHARGER LES VIDÉOS"))
+        self.assertEqual(video_labels("anime"),
+                         ("🌸 VOIR L'ANIMÉ", "⬇️ TÉLÉCHARGER LES VIDÉOS"))
+        self.assertEqual(video_labels("films"),
+                         ("🎬 VOIR LE FILM", "⬇️ TÉLÉCHARGER LA VIDÉO"))
+        central = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value="https://t.me/+VerifiedRescueDemo123"):
+            for kind in ("series", "anime", "films"):
+                rows = complete_public_video_rows(
+                    "https://t.me/c/1234567890/35", central,
+                    public_peer="@CineXFilms_vf",
+                    watch_label=video_labels(kind)[0])
+                self.assertEqual(len(rows), 4)
+                self.assertEqual(rows[0][0][0], video_labels(kind)[0])
+                self.assertEqual(rows[1][0][0], video_labels(kind)[1])
+        self.assertEqual(len(library_button_rows("@CineXFilms_vf", central)), 3)
+
+    def test_existing_private_poster_is_updated_in_place_without_repost(self):
+        from unittest.mock import AsyncMock
+        from film_relay.publication import (
+            library_button_rows, make_button_keyboard,
+            ensure_library_poster_buttons, verify_library_poster_buttons)
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        original = NS(id=99, photo=object(), buttons=[
+            [NS(text="🛟 Secours", url="https://t.me/+LegacyRescue123456")],
+            [NS(text="Dossier", url=DEFAULT_FILM_FOLDER_URL)]])
+        publisher = NS(edit_reply_markup=AsyncMock())
+        async def edit(peer, mid, *, buttons):
+            original.buttons = buttons
+        publisher.edit_reply_markup.side_effect = edit
+        user = NS(get_messages=AsyncMock(return_value=original))
+        asyncio.run(ensure_library_poster_buttons(
+            user, publisher, "@private", 99, "@CineXFilms_vf", download))
+        self.assertTrue(verify_library_poster_buttons(
+            original, "@CineXFilms_vf", download))
+        self.assertEqual(len(original.buttons), 3)
+        publisher.edit_reply_markup.assert_awaited_once()
+        asyncio.run(ensure_library_poster_buttons(
+            user, publisher, "@private", 99, "@CineXFilms_vf", download))
+        publisher.edit_reply_markup.assert_awaited_once()  # idempotent
+
+    def test_private_download_link_must_be_a_real_cineradar_link(self):
+        from film_relay.publication import library_button_rows
+        for fake in ("https://t.me/c/123/4", "https://example.com/film",
+                     "https://t.me/CineRadarFr_Bot?start=bad"):
+            with self.subTest(link=fake):
+                with self.assertRaises(RuntimeError):
+                    library_button_rows("@CineXFilms_vf", fake)
 
     def test_public_fiche_requires_existing_verified_rescue_invitation(self):
         from unittest.mock import AsyncMock
@@ -110,7 +179,7 @@ class RenderTests(unittest.TestCase):
             poster_send.assert_awaited_once()
             video_send.assert_awaited_once()
             self.assertEqual(poster_send.await_args.kwargs["watch_label"],
-                             "📺 VOIR L'ÉPISODE")
+                             "📺 VOIR LA SÉRIE")
             self.assertEqual(video_send.await_args.kwargs["download_url"],
                              "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)
 
@@ -149,6 +218,40 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(
             [row[0].url for row in bot.copy_message.await_args.kwargs["buttons"]],
             [movie_link, download_link, rescue_link, DEFAULT_FILM_FOLDER_URL])
+
+    def test_public_poster_with_stale_series_label_blocks_video_copy(self):
+        from unittest.mock import AsyncMock
+        from film_relay.publication import (
+            complete_public_video_rows, make_button_keyboard,
+            post_public_video_by_bot_copy,
+            verify_complete_public_video_poster)
+        public = NS(id=-1001234567890, username="seriesvf_cinex")
+        private = NS(id=-1002222222222)
+        link = "https://t.me/c/2222222222/31"
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        rescue = "https://t.me/+VerifiedRescueDemo123"
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value=rescue):
+            stale = make_button_keyboard(complete_public_video_rows(
+                link, download, public_peer=public,
+                watch_label="📺 VOIR L'ÉPISODE"))
+            poster = NS(id=77, photo=object(), buttons=stale)
+            self.assertFalse(verify_complete_public_video_poster(
+                poster, public, link, download, watch_label="📺 VOIR LA SÉRIE"))
+            bot = NS(copy_message=AsyncMock())
+            async def read(peer, ids):
+                return poster
+            async def latest(peer, limit):
+                yield poster
+            user = NS(get_messages=read, iter_messages=latest)
+            movie = NS(id=31, video=object(),
+                       document=NS(id=111, attributes=[]))
+            with self.assertRaisesRegex(RuntimeError, "boutons conformes"):
+                asyncio.run(post_public_video_by_bot_copy(
+                    user, bot, public, private, movie, 77, link,
+                    "Série", download_url=download,
+                    watch_label="📺 VOIR LA SÉRIE"))
+            bot.copy_message.assert_not_awaited()
 
     def test_send_photo_with_inline_keyboard(self):
         class FakeReader:

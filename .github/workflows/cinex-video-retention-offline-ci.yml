@@ -2,14 +2,23 @@ name: CineX - Tests videos 24h et boutons (hors ligne)
 
 on:
   push:
-    branches: [main, 'feat/cinex-v4-lot1-rescue-and-24h-20261123']
+    branches: [main, 'feat/cinex-v4-lot2-three-library-buttons-20261123']
     paths:
       - 'telegram-film-relay/film_relay/public_video_retention.py'
       - 'telegram-film-relay/film_relay/cinex_v4_policy.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
       - 'telegram-film-relay/film_relay/anime_bot_publisher.py'
+      - 'telegram-film-relay/scripts/anime_bot_v2.py'
+      - 'telegram-film-relay/tests/test_anime_bot_pipeline.py'
+      - 'telegram-film-relay/tests/test_anime_bot_transport.py'
       - 'telegram-film-relay/film_relay/bot_http.py'
       - 'telegram-film-relay/film_relay/publication.py'
+      - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/film_relay/category_runner.py'
+      - 'telegram-film-relay/film_relay/desir_runner.py'
+      - 'telegram-film-relay/film_relay/series_catalog.py'
+      - 'telegram-film-relay/film_relay/anime_catalog.py'
+      - 'telegram-film-relay/film_relay/anime_bot_publisher.py'
       - 'telegram-film-relay/film_relay/unified_download.py'
       - 'telegram-film-relay/film_relay/rescue_channels.py'
       - 'telegram-film-relay/tests/test_public_video_retention.py'
@@ -61,10 +70,13 @@ jobs:
           python -m unittest discover -s tests -p 'test_public_video_retention.py' -v
           python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
           python -m unittest discover -s tests -p 'test_anime_bot_pipeline.py' -v
+          python -m unittest discover -s tests -p 'test_anime_bot_transport.py' -v
+          python -m unittest discover -s tests -p 'test_anime_bot_readiness.py' -v
           python -m unittest discover -s tests -p 'test_publication.py' -v
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
           python -m unittest discover -s tests -p 'test_category_relays.py' -v
           python -m unittest discover -s tests -p 'test_desir.py' -v
           python -m unittest discover -s tests -p 'test_series_catalog.py' -v
+          python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
           python -m unittest discover -s tests -p 'test_unified_download.py' -v
