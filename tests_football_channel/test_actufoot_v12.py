@@ -117,6 +117,16 @@ class StandingsTests(unittest.TestCase):
         self.assertEqual(parsed[0]["entries"][0]["played"], 19)
         self.assertEqual(parsed[0]["entries"][0]["gd"], 12)
 
+    def test_espn_numeric_floats_are_valid_integer_stats(self):
+        table = group()
+        for entry in table["standings"]["entries"]:
+            for stat in entry["stats"]:
+                stat["value"] = float(stat["value"])
+        parsed = v12.standings_groups(payload(table), 2026)
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0]["entries"][0]["pts"], 40)
+        self.assertIsNone(v12._int(2.5))
+
     def test_stale_season_is_rejected(self):
         self.assertEqual(v12.standings_groups(payload(group(), season=2025), 2026), [])
         self.assertEqual(v12.standings_groups({"children": [group()]}, 2026), [])
