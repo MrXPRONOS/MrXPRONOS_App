@@ -194,10 +194,10 @@ def editorial_bottom_markup(
     if current_heading and not genuine_news_headline:
         heading_text = _visible(current_heading, 180)
         if re.search(r"BUU+T|BUT|CARTON|REMPLACEMENT|TIR AU BUT", heading_text, re.I):
-            player_match = re.search(r"\\s[-–—]\\s(.+)$", heading_text)
+            player_match = re.search(r"\s[-–—]\s(.+)$", heading_text)
             if player_match and player_match.group(1).strip():
                 player = "<i>👤 " + html.escape(player_match.group(1).strip(), quote=False) + "</i>"
-                body = (player + "\\n" + body) if body else player
+                body = (player + "\n" + body) if body else player
     if header and isinstance(card, dict) and not genuine_news_headline:
         # Existing simple captions often repeat the exact match just below
         # their own label. The new first line already contains that result.
