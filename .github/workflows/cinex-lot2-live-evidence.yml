@@ -20,7 +20,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: mrx-telegram-personal-account
+  # PR tests never open a personal Telegram session: do not queue them behind
+  # production runs or prevent scheduled owner-session audits from starting.
+  group: ${{ github.event_name == 'pull_request' && format('cinex-lot2-offline-pr-{0}', github.event.pull_request.number) || 'mrx-telegram-personal-account' }}
   cancel-in-progress: false
   queue: max
 
