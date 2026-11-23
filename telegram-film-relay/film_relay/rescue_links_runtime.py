@@ -71,25 +71,60 @@ def write_runtime(path: Path, data: dict):
         raise
 
 
-async def recover_checkpoint_peer(client, by_id: dict, row: dict):
-    """Use the exact saved identity when the 500-dialog snapshot omits a peer.
+MAX_RECOVERY_DIALOGS = 2500
 
-    Never adopt a same-name channel with a different Telegram ID.
+
+async def recover_checkpoint_peer(client, by_id: dict, row: dict):
+    """Recover the *exact* private channel even beyond the first 500 dialogs.
+
+    StringSession may lack the access hash for an integer channel ID. In that
+    case get_entity(-100...) cannot resolve a valid channel. A bounded read-only
+    dialog scan rebuilds the access hash without creating or joining anything.
+    Never recover by title alone and never substitute another channel ID.
     """
+    from telethon import utils
+    from telethon.errors import FloodWaitError, PeerFloodError
     from .rescue_channels import verified_checkpoint_private
+
     try:
         channel_id = int(row.get("rescue_channel_id") or 0)
     except (ValueError, TypeError):
         return None
+    title = str(row.get("rescue_title") or "")
     peer = by_id.get(channel_id)
-    if peer is None:
-        try:
-            peer = await client.get_entity(channel_id)
-        except Exception:
-            return None
-    return peer if verified_checkpoint_private(
-        peer, row, str(row.get("rescue_title") or "")) else None
+    if verified_checkpoint_private(peer, row, title):
+        return peer
 
+    try:
+        candidate = await client.get_entity(channel_id)
+    except (FloodWaitError, PeerFloodError):
+        raise
+    except Exception:
+        candidate = None
+    if verified_checkpoint_private(candidate, row, title):
+        by_id[channel_id] = candidate
+        return candidate
+
+    if not callable(getattr(client, "iter_dialogs", None)):
+        return None
+    LOG.info("Secours ID=%s absent du cache ; recherche étendue en lecture seule", channel_id)
+    try:
+        async for dialog in client.iter_dialogs(limit=MAX_RECOVERY_DIALOGS):
+            candidate = getattr(dialog, "entity", None)
+            if candidate is None:
+                continue
+            if utils.get_peer_id(candidate) != channel_id:
+                continue
+            if verified_checkpoint_private(candidate, row, title):
+                by_id[channel_id] = candidate
+                return candidate
+            LOG.warning("ID secours trouvé mais type, confidentialité ou titre non conforme")
+            return None
+    except (FloodWaitError, PeerFloodError):
+        raise
+    except Exception as exc:
+        LOG.warning("Recherche étendue du Secours impossible : %s", type(exc).__name__)
+    return None
 
 async def hydrate(path: Path) -> dict:
     from telethon import TelegramClient, utils
