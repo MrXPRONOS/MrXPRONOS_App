@@ -16,6 +16,7 @@ NOW = datetime(2026, 11, 23, 0, 0, tzinfo=timezone.utc)
 def video(mid, age_hours, doc=None):
     return NS(
         id=mid, date=NOW - timedelta(hours=age_hours),
+        raw_text="🎞️ Film complet\n#CINEX_VIDEO_24H_V1",
         video=object(), document=NS(id=mid + 900 if doc is None else doc,
                                     attributes=[]),
     )
@@ -23,6 +24,9 @@ def video(mid, age_hours, doc=None):
 
 class RetentionTests(unittest.TestCase):
     def test_24_hour_boundary_and_legacy_posts(self):
+        manual = video(99, 500)
+        manual.raw_text = "Téléchargement manuel film ancien"
+        self.assertFalse(due_for_removal(manual, NOW))
         self.assertFalse(due_for_removal(video(1, 23.99), NOW))
         self.assertTrue(due_for_removal(video(2, 24), NOW))
         self.assertTrue(due_for_removal(video(3, 48), NOW))
@@ -39,7 +43,7 @@ class RetentionTests(unittest.TestCase):
                 msg.raw_text = label
                 self.assertFalse(due_for_removal(msg, NOW))
         normal = video(10, 72)
-        normal.raw_text = "Film complet"
+        normal.raw_text = "Film complet\n#CINEX_VIDEO_24H_V1"
         self.assertTrue(due_for_removal(normal, NOW))
 
     def test_oldest_first_and_photo_excluded(self):
