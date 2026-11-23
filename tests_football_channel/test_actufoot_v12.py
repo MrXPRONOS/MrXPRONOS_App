@@ -198,9 +198,10 @@ class CycleTests(unittest.TestCase):
         self.ledger.claim.assert_not_called()
         self.ledger.query.assert_not_called()
 
-    def test_debrief_requires_real_v11_board_observation(self):
-        with patch.object(v12.live, "fetch_espn_day", return_value=[fixture()]), \
-             patch.object(v12.live, "select_matches", return_value=[fixture()]), \
+    def test_stale_final_without_v11_board_is_not_backfilled(self):
+        stale = fixture(event_date=(NOW - timedelta(hours=6)).isoformat())
+        with patch.object(v12.live, "fetch_espn_day", return_value=[stale]), \
+             patch.object(v12.live, "select_matches", return_value=[stale]), \
              patch.object(v12.live, "verified_roles", return_value={"debrief"}), \
              patch.object(v12.live, "state_row", return_value=({"phase": "final"}, "")), \
              patch.object(v12.live, "fetch_espn_summary") as fetch_summary:
@@ -209,6 +210,19 @@ class CycleTests(unittest.TestCase):
         self.assertEqual(result["debrief_sent"], 0)
         self.assertEqual(result["skipped_unverified"], 1)
         fetch_summary.assert_not_called()
+
+    def test_fresh_espn_final_without_board_can_receive_debrief(self):
+        with patch.object(v12.live, "fetch_espn_day", return_value=[fixture()]), \
+             patch.object(v12.live, "select_matches", return_value=[fixture()]), \
+             patch.object(v12.live, "verified_roles", return_value={"debrief"}), \
+             patch.object(v12.live, "state_row", return_value=({"phase": "final"}, "")), \
+             patch.object(v12.live, "fetch_espn_summary", return_value={}), \
+             patch.object(v12.live, "parse_espn_summary_match", return_value=fixture()), \
+             patch.object(v12.live, "publish", return_value=101) as publish:
+            report = v12.cycle(NOW, mode="debrief", session=self.session,
+                               ledger=self.ledger, token="secret", channels=self.channels)
+        self.assertEqual(report["debrief_sent"], 1)
+        self.assertIn("v12:debrief:54321", publish.call_args.args[5])
 
     def test_debrief_publishes_once_for_observed_match(self):
         with patch.object(v12.live, "fetch_espn_day", return_value=[fixture()]), \
