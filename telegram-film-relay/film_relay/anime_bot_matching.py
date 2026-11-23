@@ -243,8 +243,10 @@ def select_bot_anime_batches(candidates, state, complete_evidence,
         entry = series.get(key, {})
         receipts = entry.get("public_episode_posts", {})
         unverified = set(entry.get("legacy_unverified_episode_keys", []))
-        if any(n not in numbered and str(n) not in
-               entry.get("episodes", {}).get(str(season), {})
+        # Every unposted episode must have an accessible original source.
+        # A private-only legacy receipt is not evidence of a public post.
+        if any(n not in numbered
+               and f"S{season:02d}E{n:02d}" not in receipts
                for n in range(1, count + 1)):
             continue
         if any(f"S{season:02d}E{n:02d}" in unverified
