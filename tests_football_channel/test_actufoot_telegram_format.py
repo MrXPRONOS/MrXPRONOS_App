@@ -66,7 +66,7 @@ class EditorialTelegramFormatTests(unittest.TestCase):
         quote = news_markup("Titre", "Un passage sourcé.", "Actu", "RFI")
         legacy = legacy_caption(quote)
         self.assertIn("<blockquote>Un passage sourcé.</blockquote>", legacy)
-        self.assertIn("</blockquote>\n\n<i>", legacy)
+        self.assertIn("</blockquote>\n\n<b>🏷 Actu</b>\n<i>", legacy)
 
     def test_new_editorial_layout_starts_with_verified_match_not_own_title(self):
         result = editorial_bottom_markup(
@@ -92,7 +92,7 @@ class EditorialTelegramFormatTests(unittest.TestCase):
         )
         self.assertTrue(result.startswith("<b>⚽ BUUUT ! Le score est désormais de 2–1.</b>"))
         self.assertIn("<blockquote><b>⚽ Liverpool 2–1 Chelsea · 74'</b>", result)
-        self.assertIn("👤 SALAH 74'", result)
+        self.assertIn("👤 <b>SALAH 74'</b>", result)
         self.assertIn("<b>🏷 ⚽ BUT CONFIRMÉ</b>\n<i>📰 Source : ESPN</i>", result)
 
     def test_goal_confirms_league_and_scorer_and_is_idempotent(self):
