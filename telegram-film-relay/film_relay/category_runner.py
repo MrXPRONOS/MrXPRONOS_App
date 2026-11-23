@@ -21,7 +21,7 @@ from .desir_runner import (
     post_public, preflight_mirror,
 )
 from .publication import (
-    rich_caption, rich_video_title, verify_library_bot,
+    rich_caption, rich_video_title, verify_library_bot, video_labels,
     send_library_poster_with_buttons, ensure_library_poster_buttons, post_public_video_after_poster, post_public_video_by_bot_copy,
 )
 from .recovery import snapshot_telegram_posts
@@ -424,6 +424,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 bot, client, bot_public, item, description, video_url, "",
                 download_category="action" if category == "action" else None,
                 download_title=title, download_url=download_url,
+                watch_label=video_labels(category)[0],
             )
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             verified_private_video = await client.get_messages(
@@ -433,6 +434,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             public_video = await post_public_video_by_bot_copy(
                 client, bot, public, private, verified_private_video,
                 int(public_post.id), video_url, title, download_url=download_url,
+                watch_label=video_labels(category)[0],
             )
             state.complete(key, private_video_id, public_post.id)
             LOG.info("%s : fiche publique #%s puis vidéo #%s",
