@@ -322,7 +322,7 @@ class AnimeBotPublisher:
         episode gets an extra public poster. Existing episode receipts remain.
         """
         from .season_batches_v4 import batch_identifier, batch_caption
-        if not rows or len(rows) > 25:
+        if not rows or len(rows) > 50:
             raise ValueError("Anime Bot V2 : lot saison vide ou trop volumineux")
         ordered = sorted(rows, key=lambda r: int(r["episode"]))
         key = str(ordered[0]["series"])
