@@ -179,6 +179,20 @@ class SupervisionTests(unittest.TestCase):
         self.assertEqual(ledger.set_status.call_args.args[-1], "uncertain")
         ledger.mark.assert_not_called()
 
+    def test_main_posting_rights_are_validated(self):
+        with patch.object(v13, "bot_call", side_effect=[
+            {"is_bot": True, "id": 15},
+            {"status": "administrator", "can_post_messages": True},
+        ]):
+            self.assertTrue(v13.main_can_publish(MagicMock(), "secret", "@actufoot_mrxp"))
+        with patch.object(v13, "bot_call", side_effect=[
+            {"is_bot": True, "id": 15},
+            {"status": "administrator", "can_post_messages": False},
+        ]):
+            self.assertFalse(v13.main_can_publish(MagicMock(), "secret", "@actufoot_mrxp"))
+        with patch.object(v13, "bot_call", side_effect=RuntimeError("no access")):
+            self.assertFalse(v13.main_can_publish(MagicMock(), "secret", "@actufoot_mrxp"))
+
     def test_run_refuses_missing_permissions_credentials(self):
         with self.assertRaises(RuntimeError):
             v13.run(NOW, ledger=MagicMock(), session=MagicMock(),
@@ -186,7 +200,7 @@ class SupervisionTests(unittest.TestCase):
         ledger = MagicMock()
         ledger.query.return_value = {"results": []}
         with patch.object(v13, "verify_channels", return_value=(
-                {k: v for k, v in CHANNELS.items()}, [])) as check:
+                {k: v for k, v in CHANNELS.items()}, [])) as check, patch.object(\n                v13, "main_can_publish", return_value=True):
             report = v13.run(NOW, ledger=ledger, session=MagicMock(),
                              token="safe", main_chat="@actufoot_mrxp",
                              channels=CHANNELS, dry_run=True)
