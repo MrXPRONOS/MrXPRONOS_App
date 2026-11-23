@@ -51,9 +51,7 @@ class RescueChannelTests(unittest.TestCase):
         }
         expected = {"@cinexfilms_vf", "@seriesvf_cinex",
                     "@cinexdesirfr", "@cinexcomediefr", "@cinexanimefr",
-                    "@filmsaction2026vf", "@bleachvffr",
-                    "@fastandfuriousvffr", "@fichiers_cloud",
-                    "@lecarnetdelapovf", "@lupin4saisonsvf"}
+                    "@filmsaction2026vf", "@fichiers_cloud"}
         self.assertEqual(set(targets_from_env(env)), expected)
 
     def test_paused_external_mirror_is_not_provisioned(self):
