@@ -162,9 +162,26 @@ async def run(mode: str, *, state_path: str, max_poll_batches=20,
             store.save(state)
         # Do not publish while any candidate is ambiguous and conflicts with
         # the same canonical key; ambiguous rows are explicitly excluded.
+        # Bot-only V2 must satisfy the SAME two independent stores and
+        # four-public / three-private button contract as the Telethon relays.
+        # No public publishing or orphaned private video when a stock receipt,
+        # owner-approved central ID or verified Secours is absent.
+        from film_relay.unified_download import configured_private_id
+        from film_relay.radar_download_registry import RadarRegistry
+        from film_relay.rescue_channels import rescue_link_for
+        from film_relay.publication import film_folder_url
+        stock_id = configured_private_id()
+        if stock_id is None:
+            raise RuntimeError("Anime Bot V2 central approved stock not configured")
+        await transport.assert_permissions([], str(stock_id), public)
+        rescue_url = rescue_link_for("@CineXAnimeFR")
+        if not rescue_url:
+            raise RuntimeError("Anime Bot V2 verified Secours link unavailable")
         publisher = AnimeBotPublisher(
             transport, store, state, private_id=private, public_id=public,
-            folder_url=os.environ.get("CINEX_FILM_FOLDER_URL", ""),
+            folder_url=film_folder_url(),
+            central_stock_id=str(stock_id), radar_registry=RadarRegistry(),
+            rescue_url=rescue_url,
             pause=float(os.environ.get("CINEX_BOT_PAUSE_SECONDS", "3")))
         updated = 0
         published_anime = []
