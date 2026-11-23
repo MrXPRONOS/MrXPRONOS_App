@@ -188,6 +188,65 @@ class RescueChannelTests(unittest.TestCase):
             self.assertIsNone(asyncio.run(recover_checkpoint_peer(
                 client, {}, row)))
 
+    def test_recovery_searches_beyond_500_dialogs_without_creating(self):
+        row = {"rescue_channel_id": -100444555666,
+               "rescue_title": "Ciné X Films VF Secours"}
+        desired = SimpleNamespace(
+            id=-100444555666, title=row["rescue_title"],
+            username=None, broadcast=True)
+        unrelated = SimpleNamespace(
+            id=-100999999999, title=row["rescue_title"],
+            username=None, broadcast=True)
+
+        class Client:
+            get_entity = AsyncMock(side_effect=ValueError("access hash missing"))
+
+            async def iter_dialogs(self, limit):
+                self.limit = limit
+                for i in range(520):
+                    yield SimpleNamespace(entity=unrelated)
+                yield SimpleNamespace(entity=desired)
+
+        client = Client()
+        with patch("telethon.utils.get_peer_id", side_effect=lambda x: x.id):
+            recovered = asyncio.run(recover_checkpoint_peer(client, {}, row))
+        self.assertIs(recovered, desired)
+        self.assertGreaterEqual(client.limit, 521)
+
+    def test_recovery_refuses_same_title_different_id(self):
+        row = {"rescue_channel_id": -100444555666,
+               "rescue_title": "Ciné X Films VF Secours"}
+        unrelated = SimpleNamespace(
+            id=-100999999999, title=row["rescue_title"],
+            username=None, broadcast=True)
+
+        class Client:
+            get_entity = AsyncMock(side_effect=ValueError("access hash missing"))
+
+            async def iter_dialogs(self, limit):
+                yield SimpleNamespace(entity=unrelated)
+
+        with patch("telethon.utils.get_peer_id", side_effect=lambda x: x.id):
+            self.assertIsNone(asyncio.run(
+                recover_checkpoint_peer(Client(), {}, row)))
+
+    def test_recovery_rejects_exact_id_with_public_username(self):
+        row = {"rescue_channel_id": -100444555666,
+               "rescue_title": "Ciné X Films VF Secours"}
+        impostor = SimpleNamespace(
+            id=-100444555666, title=row["rescue_title"],
+            username="not_private", broadcast=True)
+
+        class Client:
+            get_entity = AsyncMock(side_effect=ValueError("access hash missing"))
+
+            async def iter_dialogs(self, limit):
+                yield SimpleNamespace(entity=impostor)
+
+        with patch("telethon.utils.get_peer_id", side_effect=lambda x: x.id):
+            self.assertIsNone(asyncio.run(
+                recover_checkpoint_peer(Client(), {}, row)))
+
     def test_checkpoint_merge_preserves_identity(self):
         old={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"old"}}}
         new={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"new"}}}
