@@ -4,6 +4,12 @@ on:
   schedule:
     # Débriefs toutes les 30 minutes; classements consolidés à 22h Lomé.
     - cron: '13,43 * * * *'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/actufoot-v12.yml'
+      - 'scripts/actufoot_v12.py'
+      - 'tests_football_channel/test_actufoot_v12.py'
   workflow_dispatch:
     inputs:
       mode:
@@ -72,7 +78,7 @@ jobs:
           MODE: ${{ inputs.mode || 'all' }}
         run: |
           set -euo pipefail
-          if [ "$EVENT" = push ] || [ "$DRY" = true ]; then
+          if { [ "$EVENT" != schedule ] && [ "$EVENT" != workflow_dispatch ]; } || [ "$DRY" = true ]; then
             python scripts/actufoot_v12.py --mode "$MODE" --dry-run
           else
             test -n "$FOOTBALL_NEWS_BOT_TOKEN"
