@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installer les dépendances nécessaires
-        run: python -m pip install --disable-pip-version-check requests Pillow 'cryptography>=43,<47'
+        run: python -m pip install --disable-pip-version-check requests Pillow 'cryptography>=43,<47' 'psycopg[binary]>=3.2,<4'
       - name: Vérifier les scripts avant publication
         run: |
           python -m py_compile scripts/actu_foot_independent.py scripts/actu_foot_online_smoke.py scripts/football_channel.py scripts/d1_publication_ledger.py scripts/actufoot_telegram_format.py
@@ -105,3 +105,26 @@ jobs:
           ARGS=(--mode "$MODE")
           if [ "$DRYRUN" = "true" ]; then ARGS+=(--dry-run); fi
           python scripts/actu_foot_independent.py "${ARGS[@]}"
+
+      # Supervision facultative: jamais un prérequis de la publication D1.
+      # Le rapport n'affiche aucune clé ni identifiant interne d'outbox.
+      - name: Tableau de santé Actu Foot (informatif)
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          {
+            echo "### Tableau de santé Actu Foot"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "${NEON_DATABASE_URL:-}" ]; then
+            echo "Neon non configuré : rapport de supervision facultatif indisponible. La publication Telegram/D1 reste indépendante." >> "$GITHUB_STEP_SUMMARY"
+          elif python scripts/actu_foot_health_report.py > "${RUNNER_TEMP}/actufoot-health.md" 2> "${RUNNER_TEMP}/actufoot-health-error.log"; then
+            # Ne pas publier d'identifiants de messages, d'outbox ou de secrets.
+            sed -n '1,10p' "${RUNNER_TEMP}/actufoot-health.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Impossible de lire la supervision Neon. Vérifier la configuration et les permissions de lecture séparément." >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Rapport de santé Actu Foot indisponible ; publication Telegram non bloquée."
+          fi
