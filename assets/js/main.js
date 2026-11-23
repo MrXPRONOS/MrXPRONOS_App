@@ -2979,6 +2979,20 @@ async function displayFootNews() {
       console.warn("Actualités GitHub Pages indisponibles", snapshotError?.message || "Erreur");
     }
 
+    // The static GitHub Pages snapshot always takes priority. Only if it is
+    // absent/empty, try the existing anonymous *public* Neon news snapshot.
+    // No service-role key, private database connection or forced dependency.
+    if (!Array.isArray(rssNews) || rssNews.length === 0) {
+      try {
+        const { loadNeonFootNews } = await import("./actu-foot-neon.js");
+        rssNews=await loadNeonFootNews();
+        if (!Array.isArray(rssNews)) rssNews = [];
+      } catch (neonError) {
+        rssNews = [];
+        console.warn("Repli public Actu Foot indisponible", neonError?.message || "Erreur");
+      }
+    }
+
     const manualInfos = Array.isArray(window.publishedInfos) ? window.publishedInfos : [];
     const merged = [
       ...manualInfos.map((i) => ({
