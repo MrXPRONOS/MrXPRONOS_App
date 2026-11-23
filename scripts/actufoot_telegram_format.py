@@ -84,3 +84,121 @@ def editorial_markup(markup: str, *, source: str = "", title_fallback: str = "")
         if cleaned:
             text += "\n\n" + source_footer(cleaned)
     return normalize_paragraphs(text)
+
+
+# 2026-11 : la catégorie rédigée par Mr XPRONOS n'est pas le gros
+# titre en tête ; elle vient juste au-dessus de l'attribution.
+_BOTTOM_FOOTER = re.compile(
+    r"(?:\n+)?<b>🏷 [^<]+</b>\n<i>📰 Source : [^<]+</i>\s*$",
+    re.IGNORECASE,
+)
+_EXISTING_SOURCE = re.compile(
+    r"(?:\n+)?<i>(?:📰\s*)?Source\s*:\s*([^<]+)</i>\s*$",
+    re.IGNORECASE,
+)
+
+
+def _visible(value: str, limit: int = 120) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]*>", "", html.unescape(str(value or "")))).strip()[:limit]
+
+
+def match_header(card: dict | None) -> str:
+    """Start with *verified* teams/score/time supplied by the publication."""
+    card = card or {}
+    if not isinstance(card, dict):
+        return ""
+    home = _visible(card.get("home") or card.get("home_team"), 70)
+    away = _visible(card.get("away") or card.get("away_team"), 70)
+    if not home or not away:
+        matches = card.get("matches")
+        first = matches[0] if isinstance(matches, list) and matches else {}
+        if isinstance(first, dict):
+            home = _visible(first.get("home"), 70)
+            away = _visible(first.get("away"), 70)
+            if not card.get("time"):
+                card = {**card, "time": first.get("time")}
+    if not home or not away:
+        return ""
+    score = _visible(card.get("score"), 20)
+    pair = card.get("scores")
+    if not score and isinstance(pair, (tuple, list)) and len(pair) >= 2:
+        if all(v is not None and str(v).strip() for v in pair[:2]):
+            score = f"{pair[0]}–{pair[1]}"
+    score = score.replace("-", "–") if re.fullmatch(r"\d+\s*[-–]\s*\d+", score) else ""
+    minute = _visible(card.get("minute_text") or card.get("minute"), 18)
+    if minute and re.fullmatch(r"\d{1,3}(?:\+\d{1,2})?", minute):
+        minute += "'"
+    time = _visible(card.get("time"), 18)
+    names = (
+        html.escape(home, quote=False) + " "
+        + (html.escape(score, quote=False) if score else "—")
+        + " " + html.escape(away, quote=False)
+    )
+    if minute:
+        names += " · " + html.escape(minute, quote=False)
+    elif time:
+        names += " · " + html.escape(time, quote=False)
+    return "<b>⚽ " + names + "</b>"
+
+
+def editorial_bottom_markup(
+    markup: str,
+    *,
+    category: str,
+    source: str,
+    card: dict | None = None,
+    genuine_news_headline: bool = False,
+) -> str:
+    """Match-first, quote, editorial category, source; idempotent on retries.
+
+    Source-originated article headlines remain at the top. Editorial labels
+    such as SCORE LIVE, GOAL, PROGRAMME are always moved to the bottom.
+    Already-existing blockquotes remain real blockquotes (not nested).
+    """
+    text = normalize_paragraphs(markup)
+    if not text:
+        return ""
+    if _BOTTOM_FOOTER.search(text):
+        return text
+
+    current_source = _EXISTING_SOURCE.search(text)
+    if current_source:
+        if not source.strip():
+            source = _visible(current_source.group(1), 90)
+        text = text[:current_source.start()].rstrip()
+    source = _visible(source, 90) or "Mr XPRONOS"
+
+    match = _TITLE.match(text)
+    current_heading = match.group("title") if match else ""
+    body = text[match.end():].strip() if match else text
+    if not body and current_heading:
+        body = current_heading
+        current_heading = ""
+
+    # Genuine sourced news is distinct from a label invented by the channel.
+    if genuine_news_headline and current_heading:
+        header = current_heading
+    else:
+        header = match_header(card)
+        if not header and body.lstrip().startswith("<b>"):
+            # The first bold line may be a verified match/result statement.
+            body_match = _TITLE.match(body)
+            if body_match and re.search(r"\d+\s*[-–]\s*\d+|(?:\s[-–]\s| vs )", _visible(body_match.group("title")), re.I):
+                header = body_match.group("title")
+                body = body[body_match.end():].strip()
+        if not header and current_heading and not body:
+            body = current_heading
+
+    if not body:
+        body = "<i>Informations complémentaires non communiquées.</i>"
+    if "<blockquote" not in body.lower():
+        body = "<blockquote>" + body + "</blockquote>"
+    if header and header.strip() == body.strip():
+        header = ""
+
+    clean_category = _visible(category, 85) or "⚽ ACTU FOOT"
+    footer = (
+        "<b>🏷 " + html.escape(clean_category, quote=False) + "</b>\n"
+        + "<i>📰 Source : " + html.escape(source, quote=False) + "</i>"
+    )
+    return normalize_paragraphs("\n\n".join(x for x in (header, body, footer) if x))
