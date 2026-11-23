@@ -72,6 +72,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
         messages = " ".join(call.args[3] for call in followup.call_args_list)
         self.assertIn("Plus de contexte en fin d&#x27;article", messages)
         self.assertIn("Source : Foot Mercato", messages)
+        self.assertIn("<b>🏷 Mercato</b>", messages)
         self.assertNotIn("https://", messages)
         self.assertNotIn("Lire l", messages)
         self.assertIsNone(photo.call_args.args[5])
@@ -95,7 +96,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
             pub.send_article(Mock(), "token", "-10042", story, self.path, story["link"])
         self.assertGreaterEqual(text.call_count, 1)
         self.assertTrue(all(call.args[3].startswith("<blockquote>") for call in text.call_args_list))
-        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie",
+        self.assertIn("</blockquote>\n\n<b>🏷 Mercato</b>\n<i>📰 Source :",
                       text.call_args_list[-1].args[3])
 
     def test_twice_hourly_dispatchs_two_unique_articles(self):
