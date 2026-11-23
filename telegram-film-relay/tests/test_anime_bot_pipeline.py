@@ -157,6 +157,43 @@ class AnimeBotMatchingTests(unittest.TestCase):
                          [26, 27, 28, 29, 30])
         self.assertTrue(continuation[0][2])
 
+    def test_ongoing_four_available_as_one_batch_then_only_fifth(self):
+        rows = [
+            {"series": "naruto", "season": 1, "episode": n,
+             "source_key": f"src:{n}", "date": n}
+            for n in range(1, 5)
+        ]
+        first = select_bot_anime_batches(rows, {}, {})
+        self.assertEqual(len(first), 1)
+        self.assertEqual([r["episode"] for r in first[0][1]], [1, 2, 3, 4])
+        self.assertFalse(first[0][2])
+        published = {"series": {"naruto": {
+            "public_episode_posts": {
+                f"S01E{n:02d}": {"poster": 80, "video": 100+n}
+                for n in range(1, 5)
+            }
+        }}}
+        self.assertEqual(select_bot_anime_batches(rows, published, {}), [])
+        next_rows = [*rows, {
+            "series": "naruto", "season": 1, "episode": 5,
+            "source_key": "src:5", "date": 5
+        }]
+        next_batch = select_bot_anime_batches(next_rows, published, {})
+        self.assertEqual([r["episode"] for r in next_batch[0][1]], [5])
+
+    def test_ongoing_missing_middle_episode_blocks_later_episode(self):
+        items = [
+            {"series": "naruto", "season": 1, "episode": n,
+             "source_key": f"src:{n}", "date": n}
+            for n in (1, 2, 4)
+        ]
+        chosen = select_bot_anime_batches(items, {}, {})
+        self.assertEqual([r["episode"] for r in chosen[0][1]], [1, 2])
+        posted = {"series": {"naruto": {"public_episode_posts": {
+            "S01E01": {"video": 1}, "S01E02": {"video": 2}}}}}
+        self.assertEqual(select_bot_anime_batches(
+            [items[-1]], posted, {}), [])
+
     def test_missing_episode_1_blocks_episode_2(self):
         state = {}
         rows = [{"series": "naruto", "season": 1, "episode": 2,
