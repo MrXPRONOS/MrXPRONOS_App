@@ -86,7 +86,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertIn("Première information complète.\n\nDeuxième information vérifiée.", caption)
         self.assertEqual(caption.count("<blockquote>"), 1)
         self.assertNotIn("<p>", caption)
-        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie", caption)
+        self.assertIn("</blockquote>\n\n<b>🏷 Mercato</b>\n<i>📰 Source :", caption)
 
     def test_followup_article_is_quoted_and_source_is_separate(self):
         story = {**self.story, "content": "Phrase bien documentée. " * 150}
