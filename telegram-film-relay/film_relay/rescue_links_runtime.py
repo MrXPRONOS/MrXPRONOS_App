@@ -71,6 +71,26 @@ def write_runtime(path: Path, data: dict):
         raise
 
 
+async def recover_checkpoint_peer(client, by_id: dict, row: dict):
+    """Use the exact saved identity when the 500-dialog snapshot omits a peer.
+
+    Never adopt a same-name channel with a different Telegram ID.
+    """
+    from .rescue_channels import verified_checkpoint_private
+    try:
+        channel_id = int(row.get("rescue_channel_id") or 0)
+    except (ValueError, TypeError):
+        return None
+    peer = by_id.get(channel_id)
+    if peer is None:
+        try:
+            peer = await client.get_entity(channel_id)
+        except Exception:
+            return None
+    return peer if verified_checkpoint_private(
+        peer, row, str(row.get("rescue_title") or "")) else None
+
+
 async def hydrate(path: Path) -> dict:
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
@@ -96,13 +116,10 @@ async def hydrate(path: Path) -> dict:
         by_id = {utils.get_peer_id(d.entity): d.entity for d in dialogs}
         for username, row in data.items():
             channel_id = int(row.get("rescue_channel_id") or 0)
-            if channel_id not in by_id:
+            channel = await recover_checkpoint_peer(client, by_id, row)
+            if channel is None:
                 missing += 1
-                LOG.warning("Canal secours introuvable pour %s", username)
-                continue
-            channel = by_id[channel_id]
-            if getattr(channel, "username", None) or not getattr(channel, "broadcast", False):
-                missing += 1
+                LOG.warning("Identite privee Secours non verifiable pour %s", username)
                 continue
             link = await get_existing_invite(client, channel,
                                              expected_sha=row.get("invite_sha256"))
