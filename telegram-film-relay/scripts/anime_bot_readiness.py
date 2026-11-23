@@ -126,17 +126,31 @@ def summarize_legacy(catalogue_path: str):
 def main():
     try:
         report = asyncio.run(remote_read_only())
+    except Exception as exc:
+        # Report the stage, never the exception message (may contain tokens).
+        print(json.dumps({
+            "ready_to_publish": False,
+            "blockers": ["remote_readiness_unavailable"],
+            "failure_stage": "remote_read_only",
+            "failure_type": type(exc).__name__,
+        }, sort_keys=True, ensure_ascii=False))
+        return 2
+    try:
         report["legacy_catalogue"] = summarize_legacy(
             os.environ.get("CINEX_ANIME_LEGACY_CATALOGUE",
                            "state/anime_catalog.json"))
-        print(json.dumps(report, sort_keys=True, ensure_ascii=False))
-        # Readiness "not ready" is an evidence report rather than a broken
-        # workflow. Activation remains impossible through publisher guards.
-        return 0
     except Exception as exc:
-        print("CineX Anime read-only readiness failed closed: " +
-              type(exc).__name__, file=sys.stderr)
+        report.setdefault("blockers", []).append("legacy_catalogue_audit_failed")
+        report["ready_to_publish"] = False
+        report["legacy_catalogue"] = {"available": False,
+                                      "failure_stage": "legacy_catalogue",
+                                      "failure_type": type(exc).__name__}
+        print(json.dumps(report, sort_keys=True, ensure_ascii=False))
         return 2
+    print(json.dumps(report, sort_keys=True, ensure_ascii=False))
+    # Missing external configuration is an explicit blocker in the JSON,
+    # not permission to publish or a misleading successful live check.
+    return 0
 
 
 if __name__ == "__main__":
