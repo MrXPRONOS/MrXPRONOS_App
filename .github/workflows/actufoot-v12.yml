@@ -71,6 +71,9 @@ jobs:
           python -m py_compile scripts/actufoot_v12.py scripts/actufoot_v11_live.py
           python -m unittest tests_football_channel.test_actufoot_v12 tests_football_channel.test_actufoot_v11_live -q
           python -c "from scripts.actufoot_v11_live import config_channels; assert len(config_channels()) == 10"
+      - name: Probe five current ESPN standings sources safely
+        if: github.event_name == 'pull_request'
+        run: python scripts/actufoot_v12.py --mode standings --dry-run
       - name: Publish only source-verified V1.2 items
         shell: bash
         env:
