@@ -3,7 +3,12 @@ name: CineX Lot 2 - Verification de vraies publications sans modification
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/cinex-lot2-live-evidence.yml']
+    paths:
+      - '.github/workflows/cinex-lot2-live-evidence.yml'
+      - 'telegram-film-relay/scripts/cinex_lot2_live_evidence.py'
+      - 'telegram-film-relay/tests/test_cinex_lot2_live_evidence.py'
+  schedule:
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:
