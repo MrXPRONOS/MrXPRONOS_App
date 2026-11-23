@@ -61,6 +61,21 @@ class DebriefTests(unittest.TestCase):
         self.assertTrue(text.endswith("<i>📰 Source : ESPN</i>"))
         self.assertNotIn("https://", text)
 
+    def test_stats_and_shootout_only_when_verified(self):
+        info = fixture(home_shootout_score=5, away_shootout_score=4)
+        with patch.object(v12, "extract_goals", return_value=[]), \
+             patch.object(v12, "extract_cards", return_value=[]), \
+             patch.object(v12, "extract_shootout_kicks", return_value=[]), \
+             patch.object(v12, "extract_team_stats", return_value={
+                 "home": {"possession": "58%", "corners": 7},
+                 "away": {"possession": "42%", "corners": 1},
+             }):
+            output = v12.debrief_message(self.row, info, {})
+        self.assertIn("Possession : 58% – 42%", output)
+        self.assertIn("Corners : 7 – 1", output)
+        self.assertIn("Tirs au but : 5–4", output)
+        self.assertNotIn("Tirs cadrés", output)
+
     def test_no_debrief_while_live_or_wrong_teams(self):
         self.assertIsNone(v12.debrief_message(self.row, fixture(state="in"), {}))
         self.assertIsNone(v12.debrief_message(
@@ -229,6 +244,18 @@ class CycleTests(unittest.TestCase):
         self.assertEqual(result["standings_sent"], 1)
         self.assertIn(":v12:standings:2026-11-23", publish.call_args.args[5])
         store.assert_called_once()
+
+    def test_same_day_ranking_receipt_prevents_duplicate_and_new_fetch(self):
+        self.ledger.query.return_value = {"results": [{"ref_id": "sent today"}]}
+        with patch.object(v12.live, "verified_roles", return_value={"scores"}), \
+             patch.object(v12, "fetch_standings") as fetch, \
+             patch.object(v12.live, "publish") as publish:
+            out = v12.cycle(NOW, mode="standings",
+                            session=self.session, ledger=self.ledger,
+                            token="secret", channels=self.channels)
+        self.assertEqual(out["skipped_existing"], 1)
+        fetch.assert_not_called()
+        publish.assert_not_called()
 
     def test_missing_real_data_prevents_sending_rankings(self):
         with patch.object(v12.live, "verified_roles", return_value={"scores"}), \
