@@ -24,7 +24,7 @@ from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
                           film_folder_url, send_public_poster_with_buttons,
                           send_library_poster_with_buttons, verify_library_bot,
-                          post_public_video_after_poster)
+                          post_public_video_after_poster, post_public_video_by_bot_copy)
 from .recovery import snapshot_telegram_posts, existing_native_forwards
 
 LOG = logging.getLogger("cinex_desir")
@@ -495,9 +495,13 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             # Publish the corresponding video in the public feed as well;
             # the public fiche must immediately precede its own video.
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
-            public_video = await post_public_video_after_poster(
-                client, public_user, item.video, title,
-                int(public_post.id), video_url, download_url=download_url,
+            verified_private_video = await client.get_messages(
+                library, ids=int(private_video_id))
+            if not verified_private_video:
+                raise RuntimeError("Vidéo Désir privée absente avant copie publique.")
+            public_video = await post_public_video_by_bot_copy(
+                client, bot, public_user, library, verified_private_video,
+                int(public_post.id), video_url, title, download_url=download_url,
             )
             state.complete(key, private_video_id, public_post.id)
             LOG.info("CinéX Désir : fiche #%s / vidéo publique #%s",
