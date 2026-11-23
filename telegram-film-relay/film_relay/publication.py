@@ -287,6 +287,42 @@ async def send_library_poster_with_buttons(
     )
 
 
+def verify_library_poster_buttons(poster, public_peer, download_url: str) -> bool:
+    """Verify exact category-library navigation on the real Telegram photo."""
+    try:
+        rows = library_button_rows(public_peer, download_url)
+    except (RuntimeError, ValueError, TypeError):
+        return False
+    if not getattr(poster, "photo", None):
+        return False
+    actual = [
+        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
+         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
+        for row in (getattr(poster, "buttons", None) or []) for btn in row
+    ]
+    expected = [pair for row in rows for pair in row]
+    return bool(len(getattr(poster, "buttons", None) or []) == 3
+                and all(len(row) == 1 for row in poster.buttons)
+                and actual == expected)
+
+
+async def ensure_library_poster_buttons(user_client, bot_client, private_peer,
+                                        poster_id: int, public_peer,
+                                        download_url: str) -> None:
+    """Repair old 2-button fiches in place; never duplicate their media."""
+    rows = library_button_rows(public_peer, download_url)
+    existing = await user_client.get_messages(private_peer, ids=int(poster_id))
+    if not getattr(existing, "photo", None):
+        raise RuntimeError("Vidéothèque : affiche sauvegardée introuvable")
+    if verify_library_poster_buttons(existing, public_peer, download_url):
+        return
+    await bot_client.edit_reply_markup(
+        private_peer, int(poster_id), buttons=make_button_keyboard(rows))
+    updated = await user_client.get_messages(private_peer, ids=int(poster_id))
+    if not verify_library_poster_buttons(updated, public_peer, download_url):
+        raise RuntimeError("Vidéothèque : trois boutons non confirmés par Telegram")
+
+
 async def post_public_video_after_poster(
     user_client, public_peer, movie_message, description: str,
     poster_id: int, private_video_link: str, *, download_url: str | None = None,
