@@ -134,17 +134,26 @@ class EventTests(unittest.TestCase):
             events = mod.derive_events(row(), row(minute=120, away_score=1), {}, old)
         self.assertEqual([e[0] for e in events], ["shootout_made"])
 
-    def test_goal_starts_with_match_score_minute_then_quote_and_bottom_category(self):
+    def test_goal_first_hook_then_match_competition_and_scorer(self):
         rendered = mod.event_lines(
-            row(), {"score": "2-1", "phase": "live", "minute": 74}, "goal",
+            row(home_team="River Plate", away_team="Lanús",
+                league_name="Liga Profesional Argentina"),
+            {"score": "3-1", "phase": "live", "minute": 90}, "goal",
             {"player": "Buteur confirmé"})
         self.assertTrue(rendered.startswith(
-            "<b>⚽ Arsenal 2–1 Chelsea · 74'</b>\n\n<blockquote>"))
-        self.assertIn("⚽ <b>BUUUT !", rendered)
+            "<b>⚽ BUUUT ! Le score est désormais de 3–1.</b>\n\n<blockquote>"))
+        self.assertIn("<b>⚽ River Plate 3–1 Lanús · 90'</b>", rendered)
+        self.assertIn("🏆 Liga Profesional Argentina", rendered)
         self.assertIn("👤 <b>Buteur confirmé</b>", rendered)
-        self.assertIn("</blockquote>\n\n<b>🏷 ⚽ BUUUT ! · 2–1</b>\n"
-                      "<i>📰 Source : ESPN</i>", rendered)
+        self.assertTrue(rendered.endswith(
+            "<b>🏷 ⚽ BUT CONFIRMÉ</b>\n<i>📰 Source : ESPN</i>"))
+        self.assertEqual(rendered.count("<blockquote>"), 1)
         self.assertNotIn("SCORE LIVE", rendered)
+
+    def test_confirmed_goal_without_scorer_does_not_invent_name(self):
+        rendered = mod.event_lines(row(), {"score": "2-1", "minute": 74}, "goal")
+        self.assertTrue(rendered.startswith("<b>⚽ BUUUT ! Le score est désormais de 2–1.</b>"))
+        self.assertNotIn("👤", rendered)
 
     def test_score_update_never_claims_goal_without_source_event(self):
         rendered = mod.event_lines(

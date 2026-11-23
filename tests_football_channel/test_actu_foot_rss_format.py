@@ -52,8 +52,8 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertIn("tous les faits disponibles", caption)
         self.assertNotIn("Résumé très court", caption)
         self.assertIn("</b>\n\n<blockquote>", caption)
-        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie : Mercato", caption)
-        self.assertTrue(caption.endswith("<i>🏷 Catégorie : Mercato\n📰 Source : Foot Mercato</i>"))
+        self.assertIn("</blockquote>\n\n<b>🏷 Mercato</b>\n<i>📰 Source :", caption)
+        self.assertTrue(caption.endswith("<b>🏷 Mercato</b>\n<i>📰 Source : Foot Mercato</i>"))
         self.assertNotIn("https://", caption)
         self.assertNotIn("Lire l", caption)
         self.assertIsNone(post.call_args.args[5])
@@ -72,6 +72,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
         messages = " ".join(call.args[3] for call in followup.call_args_list)
         self.assertIn("Plus de contexte en fin d&#x27;article", messages)
         self.assertIn("Source : Foot Mercato", messages)
+        self.assertIn("<b>🏷 Mercato</b>", messages)
         self.assertNotIn("https://", messages)
         self.assertNotIn("Lire l", messages)
         self.assertIsNone(photo.call_args.args[5])
@@ -86,7 +87,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
         self.assertIn("Première information complète.\n\nDeuxième information vérifiée.", caption)
         self.assertEqual(caption.count("<blockquote>"), 1)
         self.assertNotIn("<p>", caption)
-        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie", caption)
+        self.assertIn("</blockquote>\n\n<b>🏷 Mercato</b>\n<i>📰 Source :", caption)
 
     def test_followup_article_is_quoted_and_source_is_separate(self):
         story = {**self.story, "content": "Phrase bien documentée. " * 150}
@@ -95,7 +96,7 @@ class ActuFootRssFormatTests(unittest.TestCase):
             pub.send_article(Mock(), "token", "-10042", story, self.path, story["link"])
         self.assertGreaterEqual(text.call_count, 1)
         self.assertTrue(all(call.args[3].startswith("<blockquote>") for call in text.call_args_list))
-        self.assertIn("</blockquote>\n\n<i>🏷 Catégorie",
+        self.assertIn("</blockquote>\n\n<b>🏷 Mercato</b>\n<i>📰 Source :",
                       text.call_args_list[-1].args[3])
 
     def test_twice_hourly_dispatchs_two_unique_articles(self):

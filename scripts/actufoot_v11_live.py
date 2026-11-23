@@ -200,7 +200,7 @@ def snapshot(info: dict, previous: dict | None = None) -> dict:
 
 
 def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -> str:
-    """Telegram LIVE: match + score first, real facts quoted, editorial tag last."""
+    """Confirmed goals lead with the alert; all other events stay match-first."""
     detail = detail or {}
     score = str(state["score"]).replace("-", "–")
     minute = state.get("minute")
@@ -211,7 +211,7 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
     category = {
         "board": "📡 LE FIL DU MATCH",
         "kickoff": "▶️ C’EST PARTI !",
-        "goal": "⚽ BUUUT !",
+        "goal": "⚽ BUT CONFIRMÉ",
         "score_update": "🔥 NOUVEAU SCORE CONFIRMÉ",
         "red": "🟥 CARTON ROUGE !",
         "yellow": "🟨 CARTON JAUNE",
@@ -225,7 +225,6 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
     facts = {
         "board": "📡 Retrouvez ici le score vérifié du match.",
         "kickoff": "▶️ Coup d’envoi confirmé.",
-        "goal": f"⚽ <b>BUUUT ! Le score est désormais de {html.escape(score)}.</b>",
         "score_update": f"📈 <b>Le score vient d’être confirmé : {html.escape(score)}.</b>",
         "red": "🟥 Un carton rouge vient d’être signalé.",
         "yellow": "🟨 Un carton jaune vient d’être signalé.",
@@ -235,6 +234,23 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
         "halftime": "⏸️ La première période est terminée.",
         "fulltime": "🏁 Coup de sifflet final confirmé.",
     }.get(kind, "📊 Informations du match actualisées.")
+
+    # Goals must be recognisable from the Telegram channel preview.
+    if kind == "goal":
+        description = [match_heading]
+        competition = row.get("league_name") or row.get("league")
+        if competition:
+            description.append("<i>🏆 " + html.escape(str(competition), quote=False) + "</i>")
+        if detail.get("player"):
+            description.append("👤 <b>" + html.escape(str(detail["player"])[:80], quote=False) + "</b>")
+        if detail.get("team"):
+            description.append("👕 " + html.escape(str(detail["team"])[:80], quote=False))
+        return "\n\n".join([
+            f"<b>⚽ BUUUT ! Le score est désormais de {html.escape(score)}.</b>",
+            "<blockquote>" + "\n".join(description) + "</blockquote>",
+            "<b>🏷 ⚽ BUT CONFIRMÉ</b>\n" + source_footer("ESPN"),
+        ])
+
     lines = [facts]
     if row.get("league_name") or row.get("league"):
         lines.append("<i>🏆 " + html.escape(str(row.get("league_name") or row.get("league"))) + "</i>")
@@ -253,7 +269,7 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
     elif kind == "board" and state.get("phase") == "final":
         lines.append("<i>🏁 Rencontre terminée</i>")
     label = category
-    if kind in ("goal", "score_update"):
+    if kind == "score_update":
         label += " · " + html.escape(score)
     return "\n\n".join([
         match_heading,
