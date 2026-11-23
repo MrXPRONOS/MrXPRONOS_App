@@ -146,5 +146,64 @@ class Lot2EvidenceTests(unittest.TestCase):
         self.assertEqual(registry.params, ["A"*24])
 
 
+    def test_batch_private_cover_must_match_public_video_index(self):
+        p = -1001234567890
+        index = "https://t.me/c/1234567890/210"
+        cover_link = "https://t.me/c/1234567890/211"
+        cover = NS(photo=object(), buttons=[
+            [button("📢 REJOINDRE LE CANAL", "https://t.me/seriesvf_cinex")],
+            [button("📁 Rejoindre le dossier", "https://t.me/addlist/testing")],
+            [button("⬇️ TÉLÉCHARGER LES VIDÉOS", index)],
+        ])
+        video = NS(buttons=[
+            [button("📺 VOIR LA SÉRIE", cover_link)],
+            [button("⬇️ TÉLÉCHARGER LES VIDÉOS", index)],
+            [button("🛟 Rejoindre le canal secours", "https://t.me/+VerifiedAnimeRescue123")],
+            [button("📁 Rejoindre le dossier", "https://t.me/addlist/testing")],
+        ])
+        class Client:
+            async def get_messages(self, peer, ids):
+                return cover
+        with patch.object(app, "film_folder_url",
+                          return_value="https://t.me/addlist/testing"):
+            self.assertTrue(asyncio.run(app.matching_private_fiche(
+                Client(), p, p, "@seriesvf_cinex", video)))
+
+        cover.buttons[2][0].button.url = "https://t.me/c/1234567890/999"
+        with patch.object(app, "film_folder_url",
+                          return_value="https://t.me/addlist/testing"):
+            self.assertFalse(asyncio.run(app.matching_private_fiche(
+                Client(), p, p, "@seriesvf_cinex", video)))
+
+    def test_single_video_private_poster_must_have_same_d1_link(self):
+        p = -1001234567890
+        dl = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        private_video = NS(video=object(), document=NS(id=555))
+        public_video = NS(video=object(), document=NS(id=555), buttons=[
+            [button("🎬 VOIR LE FILM", "https://t.me/c/1234567890/211")],
+            [button("⬇️ TÉLÉCHARGER LA VIDÉO", dl)],
+            [button("🛟 Rejoindre le canal secours", "https://t.me/+VerifiedAnimeRescue123")],
+            [button("📁 Rejoindre le dossier", "https://t.me/addlist/testing")],
+        ])
+        cover = NS(photo=object(), buttons=[
+            [button("📢 REJOINDRE LE CANAL", "https://t.me/cinexfilms_vf")],
+            [button("📁 Rejoindre le dossier", "https://t.me/addlist/testing")],
+            [button("⬇️ TÉLÉCHARGER", dl)],
+        ])
+        class Client:
+            async def get_messages(self, peer, ids):
+                return private_video
+            async def iter_messages(self, peer, limit, max_id):
+                yield cover
+        with patch.object(app, "film_folder_url",
+                          return_value="https://t.me/addlist/testing"):
+            self.assertTrue(asyncio.run(app.matching_private_fiche(
+                Client(), p, p, "@cinexfilms_vf", public_video)))
+            cover.buttons[2][0].button.url = (
+                "https://t.me/CineRadarFr_Bot?start=d_" + "B"*24)
+            self.assertFalse(asyncio.run(app.matching_private_fiche(
+                Client(), p, p, "@cinexfilms_vf", public_video)))
+
+
 if __name__ == "__main__":
     unittest.main()
