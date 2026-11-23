@@ -35,7 +35,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: mrx-telegram-personal-account
+  # Push only tests; it must not queue behind long-running Telegram sessions.
+  # Scheduled/manual jobs still share the personal account's single lock.
+  group: ${{ github.event_name == 'push' && 'cinex-video-retention-offline-ci' || 'mrx-telegram-personal-account' }}
   cancel-in-progress: false
   queue: max
 
