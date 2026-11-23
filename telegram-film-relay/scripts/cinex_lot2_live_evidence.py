@@ -13,7 +13,7 @@ import os
 import re
 from pathlib import Path
 
-from film_relay.public_video_archive import is_video_message
+from film_relay.public_video_archive import is_video_message, video_document_id
 from film_relay.cinex_v4_policy import has_automatic_ttl
 from film_relay.publication import (
     film_folder_url, video_labels, verify_complete_public_video_keyboard,
@@ -156,6 +156,45 @@ async def check_download_target(client, private, private_id: int,
         return check_receipt(links[0])
     return False
 
+
+async def matching_private_fiche(client, private, private_id: int,
+                                 public_handle: str, public_video, *,
+                                 max_older: int = 120) -> bool:
+    """Prove the SAME Telegram item has a real three-button private photo.
+
+    For season batches the watch link points straight at the private cover.
+    For single films it points at the private video: require matching document
+    identity and find the nearest preceding cover with the identical D1 link.
+    Never accept an unrelated old three-button poster as proof of a new video.
+    """
+    rows = button_pairs(public_video)
+    if len(rows) != 4:
+        return False
+    watch = rows[0][0][1]
+    download = rows[1][0][1]
+    watch_id = private_message_id(watch, private_id)
+    if not watch_id:
+        return False
+    target = await client.get_messages(private, ids=watch_id)
+    if target is None:
+        return False
+    if private_message_id(download, private_id) is not None:
+        return (is_private_fiche(target, public_handle, private_id)
+                and button_pairs(target)[2][0][1] == download)
+    if not is_bot_download_url(download):
+        return False
+    if (not is_video_message(target)
+        or not video_document_id(target)
+        or video_document_id(target) != video_document_id(public_video)):
+        return False
+    async for candidate in client.iter_messages(
+            private, limit=max_older, max_id=watch_id):
+        if (is_private_fiche(candidate, public_handle, private_id)
+            and button_pairs(candidate)[2][0][1] == download):
+            return True
+    return False
+
+
 async def inspect(*, limit=600):
     from telethon import TelegramClient
     from telethon.sessions import StringSession
@@ -221,16 +260,11 @@ async def inspect(*, limit=600):
                             result["errors"] += 1
                     else:
                         result["errors"] += 1
-                posters = [
-                    m async for m in client.iter_messages(private, limit=limit)
-                    if getattr(m, "photo", None) and len(button_pairs(m)) == 3
-                ]
-                if posters:
+                if videos and result["latest_public_v4"] == "verified":
                     result["private_three_buttons"] = (
-                        "verified" if any(
-                            is_private_fiche(poster, public_handle, private_id)
-                            for poster in posters[:12]
-                        ) else "invalid"
+                        "verified" if await matching_private_fiche(
+                            client, private, private_id, public_handle, video
+                        ) else "not_verified"
                     )
                     if result["private_three_buttons"] != "verified":
                         result["errors"] += 1
