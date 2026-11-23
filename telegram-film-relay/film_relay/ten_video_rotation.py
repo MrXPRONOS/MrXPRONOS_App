@@ -13,6 +13,7 @@ import os
 import re
 
 from .publication import film_folder_url
+from .cinex_v4_policy import has_automatic_ttl
 from .public_video_archive import (
     has_verified_button, is_video_message, is_primary_film_video,
     video_document_id, video_title, title_similarity, poster_heading,
@@ -215,6 +216,11 @@ async def rotate_channel(client, category: str, public, private,
     for video in reversed(old):
         if report["deleted"] >= max_deleted:
             break
+        # V4 videos are exclusively managed by the scheduled 24h retention.
+        # The historical ten-video rotation must NEVER remove them early.
+        if has_automatic_ttl(video):
+            LOG.info("%s : video CineX V4 #%s reservee au TTL 24 h", category, video.id)
+            continue
         if not apply:
             LOG.info("[SIMULATION] %s : ancienne vidéo #%s", category, video.id)
             continue
