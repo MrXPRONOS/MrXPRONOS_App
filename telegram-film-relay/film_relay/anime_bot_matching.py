@@ -215,69 +215,82 @@ def consolidate_source_candidates(rows, *, reviewed_variants=None):
 
 
 def select_bot_anime_batches(candidates, state, complete_evidence,
-                             *, weekly_limit=4, complete_batch_limit=25):
-    """Prefer one provably complete season; else four distinct new episodes.
+                             *, weekly_limit=4, complete_batch_limit=50):
+    """One *whole season* OR up to four distinct ongoing series in one tour.
 
-    An episode with an earlier missing number is not eligible; a recovered
-    private-only episode can be selected again to finish its public pair.
+    Every selected ongoing title contains ALL currently available consecutive
+    new numbered episodes (not just its first one). Previously published
+    episode receipts are not reposted. A missing/unverified predecessor stops
+    progression. No long complete season is arbitrarily sliced.
     """
     if not 1 <= weekly_limit <= 4:
-        raise ValueError("At most four different ongoing anime per cycle.")
-    if not 1 <= complete_batch_limit <= 25:
-        raise ValueError("Complete batch size cannot exceed 25.")
+        raise ValueError("At most four different ongoing anime series per cycle.")
+    if not 1 <= complete_batch_limit <= 50:
+        raise ValueError("At most fifty episodes in one verified arrival.")
     grouped = defaultdict(dict)
     for row in candidates:
         grouped[(row["series"], int(row["season"]))][int(row["episode"])] = row
     series = state.get("series", {})
     priority = []
+    blocked = set()
     for (key, season), numbered in grouped.items():
         count = int(complete_evidence.get((key, season), 0))
-        if count < 1 or any(n not in numbered and str(n) not in
-                            series.get(key, {}).get("episodes", {}).get(
-                                str(season), {}) for n in range(1, count+1)):
+        if count < 1:
             continue
-        receipts = series.get(key, {}).get("public_episode_posts", {})
-        unverified = set(series.get(key, {}).get(
-            "legacy_unverified_episode_keys", []))
-        pending = [row for n, row in sorted(numbered.items())
-                   if n <= count
-                   and f"S{season:02d}E{n:02d}" not in receipts
-                   and f"S{season:02d}E{n:02d}" not in unverified]
+        if count > complete_batch_limit:
+            blocked.add((key, season))
+            continue
+        entry = series.get(key, {})
+        receipts = entry.get("public_episode_posts", {})
+        unverified = set(entry.get("legacy_unverified_episode_keys", []))
+        if any(n not in numbered and str(n) not in
+               entry.get("episodes", {}).get(str(season), {})
+               for n in range(1, count + 1)):
+            continue
+        if any(f"S{season:02d}E{n:02d}" in unverified
+               for n in range(1, count + 1)):
+            blocked.add((key, season))
+            continue
+        pending = [numbered[n] for n in range(1, count + 1)
+                   if f"S{season:02d}E{n:02d}" not in receipts
+                   and n in numbered]
         if pending:
             priority.append((key, season, pending))
     if priority:
         priority.sort(key=lambda group: (
-            min(int(r.get("date") or 0) for r in group[2]), group[0], group[1]))
+            min(int(r.get("date") or 0) for r in group[2]),
+            group[0], group[1]))
         key, season, rows = priority[0]
-        return [(key, rows[:complete_batch_limit], True)]
+        return [(key, rows, True)]
 
     ongoing = []
     for (key, season), numbered in grouped.items():
+        if (key, season) in blocked or not numbered:
+            continue
         entry = series.get(key, {})
         published = entry.get("public_episode_posts", {})
-        existing = entry.get("episodes", {}).get(str(season), {})
         unverified = set(entry.get("legacy_unverified_episode_keys", []))
-        for n in range(1, 1000):
+        pending = []
+        for n in range(1, max(numbered) + 1):
             marker = f"S{season:02d}E{n:02d}"
-            if marker in published or marker in unverified:
+            if marker in published:
                 continue
-            if n in numbered:
-                # Do not allow skips over missing prior episode receipts.
-                if all((f"S{season:02d}E{previous:02d}" in published or
-                        str(previous) in existing) for previous in range(1, n)):
-                    ongoing.append((key, numbered[n]))
+            if marker in unverified or n not in numbered:
                 break
-            # Episode absent from queue, but privately copied: await source
-            # recovery rather than declaring public success.
-            break
-    ongoing.sort(key=lambda item: (
-        int(item[1].get("date") or 0), item[0],
-        int(item[1]["season"]), int(item[1]["episode"])))
+            pending.append(numbered[n])
+            if len(pending) > complete_batch_limit:
+                pending = []  # never silently cut a published season in half
+                break
+        if pending:
+            ongoing.append((key, season, pending))
+    ongoing.sort(key=lambda group: (
+        min(int(row.get("date") or 0) for row in group[2]),
+        group[0], group[1]))
     chosen, used = [], set()
-    for key, row in ongoing:
+    for key, season, rows in ongoing:
         if key in used:
             continue
-        chosen.append((key, [row], False))
+        chosen.append((key, rows, False))
         used.add(key)
         if len(chosen) >= weekly_limit:
             break
