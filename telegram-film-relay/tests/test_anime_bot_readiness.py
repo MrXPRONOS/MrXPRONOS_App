@@ -9,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, patch
 
-from scripts.anime_bot_readiness import local_diagnostics, remote_read_only, main
+from scripts.anime_bot_readiness import local_diagnostics, remote_read_only, main, summarize_legacy
 
 
 BASE = {
@@ -71,6 +71,28 @@ class AnimeBotReadinessTests(unittest.TestCase):
         self.assertIn("legacy_catalogue_audit_failed", report["blockers"])
         self.assertEqual(report["legacy_catalogue"]["failure_stage"], "legacy_catalogue")
         self.assertNotIn("private token", stream.getvalue())
+
+    def test_unfinished_legacy_batch_blocks_clean_cutover(self):
+        from io import StringIO
+        from contextlib import redirect_stdout
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "anime.json"
+            path.write_text(json.dumps({
+                "active_batch": {"episodes": [{"episode": 1}]},
+                "series": {}
+            }), encoding="utf-8")
+            summary = summarize_legacy(str(path))
+            self.assertTrue(summary["migration_blocked"])
+            self.assertEqual(summary["reason"], "legacy_active_batch_unfinished")
+            stream = StringIO()
+            with (patch("scripts.anime_bot_readiness.remote_read_only",
+                        new=AsyncMock(return_value={"ready_to_publish": True, "blockers": []})),
+                  patch.dict("os.environ", {"CINEX_ANIME_LEGACY_CATALOGUE": str(path)}),
+                  redirect_stdout(stream)):
+                self.assertEqual(main(), 0)
+            report = json.loads(stream.getvalue())
+            self.assertFalse(report["ready_to_publish"])
+            self.assertIn("legacy_active_batch_unfinished", report["blockers"])
 
     def test_unexpected_webhook_blocks_cutover(self):
         client = NS(
