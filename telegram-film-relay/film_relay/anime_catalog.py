@@ -751,6 +751,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     )
                     private_poster = int(sent_poster.id)
                     await asyncio.sleep(pause)
+                # An interrupted legacy operation may have left a two-button
+                # picture with no ID in our JSON. Repair its markup in place.
+                await ensure_library_poster_buttons(
+                    client, bot, private, int(private_poster),
+                    public, opening_download)
                 series["private_poster_id"] = int(private_poster)
                 save_catalog(catalogue)
             if not series.get("main_index_id"):
