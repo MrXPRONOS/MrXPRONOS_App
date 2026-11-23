@@ -17,7 +17,7 @@ Ce manifeste décrit le périmètre **Actu Foot / Telegram**, distinct du moteur
 | V1 | Collecte RSS, diffusion principale et routage vers 10 canaux, filtrage, quotas et réservations D1 | **Implémentée**, déjà observée en production ; couverture réelle de chaque canal à mesurer |
 | V1.1 | Scores LIVE ESPN, événements vérifiés, édition du tableau des scores, déduplication D1 | **Implémentée**, quelques envois observés ; valider en production buts, cartons, temps additionnel et routage par rôle |
 | Correctif de présentation V1/V1.1 | BUUUT en premier, détails sourcés, footer RSS cohérent | **Fusionné**, PR #630, commit `c93128a4` ; rendu Telegram réel toujours à observer |
-| V1.2 | Débriefs vérifiés ESPN et classements réels de cinq ligues, évolutions sourcées, automatisation D1/Telegram | **Implémentée et fusionnée**, PR #634, commit `35b9da28` ; 56 tests spécifiques et 372 tests généraux réussis ; premiers envois Telegram réels à vérifier |
+| V1.2 | Débriefs vérifiés ESPN et classements réels de cinq ligues, évolutions sourcées, automatisation D1/Telegram | **Implémentée et fusionnée**, PR #634 et hotfix #636 ; cinq classements ESPN testés et 372 tests généraux réussis avant la fusion ; premiers envois réels à confirmer |
 | V1.3 | Tableau de supervision et alertes par canal selon ce même document | **À spécifier / valider**, ne pas déclarer achevée |
 | V2 | Coffre chiffré, validation, audit, sauvegarde et restauration encadrée | **Code + tests déjà présents** ; clés, protection d'environnement, données, restauration réelle et audit externe à valider avant activation |
 | V3 | Index/requêtes, cache, archives chiffrées, mutations atomiques Git | **Code + tests déjà présents** ; ordonnanceur, validation des volumes et déploiement opérationnel non achevés |
@@ -46,9 +46,9 @@ Ce manifeste décrit le périmètre **Actu Foot / Telegram**, distinct du moteur
 
 ## V1.2 livrée — vérifications réelles encore nécessaires
 
-1. **Code livré** dans `scripts/actufoot_v12.py` : canal `debrief`, score final et événements ESPN vérifiés, statistiques disponibles uniquement, sans analyse inventée.
+1. **Code livré** dans `scripts/actufoot_v12.py` : canal `debrief`, score final et événements ESPN vérifiés, statistiques disponibles uniquement, sans analyse inventée. Hotfix #636 : les finales récentes (80 minutes à 4 heures après le coup d'envoi) peuvent également être traitées sans tableau live préalable.
 2. **Code livré** : canal `scores`, classement ESPN 2026 vérifié pour cinq ligues, horodatage de consultation, rangs précédents uniquement issus des relevés D1. Le contrôle réseau de PR a reconnu 5 ligues sur 5, zéro erreur.
-3. **Contrôles hors ligne acquis** : 56 tests V1.1/V1.2 et 372 tests généraux au vert avant fusion. **À confirmer en production** : premières publications de débriefs et classements, quotas en conditions réelles, aucune duplication, affichage Telegram.
+3. **Contrôles hors ligne acquis** : suites V1.1/V1.2 et CI générale au vert avant fusion des PR #634/#636. **À confirmer en production** : premières publications de débriefs et classements, quotas en conditions réelles, aucune duplication, affichage Telegram.
 4. **Version suivante : V1.3**, supervision et alertes des 10 canaux, non livrée. V2/V3 sont des bibliothèques à activer, V4 reste une migration.
 
 - Correctif V1.1 concomitant à la PR #634 : minute de but ESPN exacte, y compris `90+3'`, plutôt que l'horloge globale du match.
