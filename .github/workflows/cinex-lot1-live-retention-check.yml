@@ -50,7 +50,7 @@ jobs:
       CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
       CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
       CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
-      CINEX_PUBLIC_RETENTION_24H_ENABLED: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply) && 'true' || 'false' }}
+      CINEX_PUBLIC_RETENTION_24H_ENABLED: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply)) && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - name: Respecter le cooldown du compte Telegram
