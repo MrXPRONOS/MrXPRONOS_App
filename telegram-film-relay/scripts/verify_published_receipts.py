@@ -111,8 +111,8 @@ async def check_new_posts(before):
                             seasons = list(entry.get("episodes", {}).values())
                         ids = [int(video["message_id"])
                                for season in seasons for video in season.values()]
-                        if not 1 <= len(ids) <= 25:
-                            raise ValueError("saison anime incomplète ou supérieure à 25 épisodes")
+                        if not 1 <= len(ids) <= 50:
+                            raise ValueError("saison anime incomplète ou supérieure à 50 épisodes")
                         messages = await client.get_messages(private, ids=ids)
                         if not isinstance(messages, (list, tuple)):
                             messages = [messages]

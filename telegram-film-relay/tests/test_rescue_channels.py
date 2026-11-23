@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+from datetime import datetime, timedelta, timezone
 import os
 import unittest
 from pathlib import Path
@@ -22,7 +23,7 @@ from film_relay.anime_catalog import public_buttons as anime_buttons
 from film_relay.public_video_archive import archive_buttons
 from film_relay.trending_private import buttons as trend_buttons
 from scripts.merge_rescue_channels import merge
-from film_relay.rescue_links_runtime import recover_checkpoint_peer
+from film_relay.rescue_links_runtime import recover_checkpoint_peer, usable_invite
 import asyncio
 from unittest.mock import AsyncMock
 
@@ -246,6 +247,22 @@ class RescueChannelTests(unittest.TestCase):
         with patch("telethon.utils.get_peer_id", side_effect=lambda x: x.id):
             self.assertIsNone(asyncio.run(
                 recover_checkpoint_peer(Client(), {}, row)))
+
+    def test_expired_exhausted_or_revoked_invites_fail_closed(self):
+        link = "https://t.me/+abcdefghijklmno1"
+        now = datetime(2026, 11, 23, tzinfo=timezone.utc)
+        valid = dict(link=link, expire_date=now + timedelta(days=1),
+                     usage_limit=10, usage=1, revoked=False)
+        self.assertTrue(usable_invite(SimpleNamespace(**valid), now=now))
+        for change in (
+            {"expire_date": now - timedelta(seconds=1)},
+            {"expire_date": None, "usage": 10},
+            {"expire_date": None, "revoked": True},
+            {"expire_date": "not-an-utc-date"},
+        ):
+            with self.subTest(change=change):
+                self.assertFalse(usable_invite(
+                    SimpleNamespace(**{**valid, **change}), now=now))
 
     def test_checkpoint_merge_preserves_identity(self):
         old={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"old"}}}

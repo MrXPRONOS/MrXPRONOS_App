@@ -9,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, patch
 
-from scripts.anime_bot_readiness import local_diagnostics, remote_read_only
+from scripts.anime_bot_readiness import local_diagnostics, remote_read_only, main
 
 
 BASE = {
@@ -53,6 +53,24 @@ class AnimeBotReadinessTests(unittest.TestCase):
         self.assertEqual(client.call.await_args.args[0], "getWebhookInfo")
         self.assertNotIn("getUpdates", [entry.args[0]
                                        for entry in client.call.await_args_list])
+
+    def test_legacy_catalogue_failure_reports_blocker_and_fails(self):
+        from io import StringIO
+        from contextlib import redirect_stdout
+        stream = StringIO()
+        with (patch("scripts.anime_bot_readiness.remote_read_only",
+                    new=AsyncMock(return_value={"ready_to_publish": True,
+                                                "blockers": []})),
+              patch("scripts.anime_bot_readiness.summarize_legacy",
+                    side_effect=RuntimeError("private token must never be logged")),
+              redirect_stdout(stream)):
+            status = main()
+        report = json.loads(stream.getvalue())
+        self.assertEqual(status, 2)
+        self.assertFalse(report["ready_to_publish"])
+        self.assertIn("legacy_catalogue_audit_failed", report["blockers"])
+        self.assertEqual(report["legacy_catalogue"]["failure_stage"], "legacy_catalogue")
+        self.assertNotIn("private token", stream.getvalue())
 
     def test_unexpected_webhook_blocks_cutover(self):
         client = NS(
