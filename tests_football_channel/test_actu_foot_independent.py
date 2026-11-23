@@ -42,8 +42,8 @@ class TestActuFootIndependent(unittest.TestCase):
         )
         sender.send(publication)
         self.assertIn("<blockquote>", publication.text)
-        self.assertIn("</blockquote>\n\n<b>🏷 ⚽ BUUUT !</b>\n<i>📰 Source : ESPN</i>", publication.text)
-        self.assertFalse(publication.text.startswith("🌟 <b>BUUUT"))
+        self.assertIn("</blockquote>\n\n<b>🏷 ⚽ BUT CONFIRMÉ</b>\n<i>📰 Source : ESPN</i>", publication.text)
+        self.assertTrue(publication.text.startswith("<b>⚽ BUUUT !</b>"))
 
     def test_time_window(self):
         self.assertTrue(mod.within_programme_window(NOW))
