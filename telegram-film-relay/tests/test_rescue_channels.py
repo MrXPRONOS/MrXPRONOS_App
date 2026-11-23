@@ -13,6 +13,7 @@ from unittest.mock import patch
 from film_relay.rescue_channels import (
     BUTTON_TEXT, exact_private_candidates, public_username,
     is_invite, targets_from_env, rescue_link_for, add_rescue_tuple_row,
+    verified_checkpoint_private,
     add_rescue_button_row, read_state, write_state,
 )
 from film_relay.publication import url_button_rows
@@ -137,6 +138,22 @@ class RescueChannelTests(unittest.TestCase):
             SimpleNamespace(entity=SimpleNamespace(broadcast=False, username=None, title=title)),
         ]
         self.assertEqual(len(exact_private_candidates(dialogs, title)), 1)
+
+    def test_checkpoint_recovery_uses_exact_private_identity_only(self):
+        checkpoint = {"rescue_channel_id": -100444555666}
+        title = "Ciné X Films VF Secours"
+        good = SimpleNamespace(
+            id=-100444555666, title=title, username=None, broadcast=True)
+        with patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id):
+            self.assertTrue(verified_checkpoint_private(good, checkpoint, title))
+            self.assertFalse(verified_checkpoint_private(
+                SimpleNamespace(id=-100999999999, title=title,
+                                username=None, broadcast=True),
+                checkpoint, title))
+            self.assertFalse(verified_checkpoint_private(
+                SimpleNamespace(id=-100444555666, title=title,
+                                username="public", broadcast=True),
+                checkpoint, title))
 
     def test_checkpoint_merge_preserves_identity(self):
         old={"channels":{"@cinexfilms_vf":{"public_id":-1001,"rescue_channel_id":-1002,"invite_link":"old"}}}
