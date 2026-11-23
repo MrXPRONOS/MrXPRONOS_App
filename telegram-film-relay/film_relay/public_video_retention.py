@@ -102,14 +102,21 @@ async def process_public(client, *, category: str, public, private_id: int,
         "history_truncated": len(items) == history,
         "mode": "apply" if apply else "preview",
     }
-    if not apply or not expired:
+    if not apply:
         return report
+    # Verify production deletion rights even when zero videos are expired.
+    # Otherwise a successful empty run could conceal missing admin rights.
+    if report["history_truncated"]:
+        raise RuntimeError("Historique Telegram tronqué : rétention incomplète")
     identity = await client.get_me()
     rights = await client.get_permissions(public, identity)
     if not (getattr(rights, "is_creator", False) or (
         getattr(rights, "is_admin", False)
         and getattr(rights, "delete_messages", False))):
         raise RuntimeError("Suppression interdite : droits Telegram non confirmes.")
+    if not expired:
+        LOG.info("%s : aucun média public marqué arrivé à échéance ; droits vérifiés", category)
+        return report
     for video in expired[:max_deleted]:
         actual = await client.get_messages(public, ids=int(video.id))
         if not actual or not is_video_message(actual):
