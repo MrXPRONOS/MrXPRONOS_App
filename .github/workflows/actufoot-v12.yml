@@ -33,9 +33,10 @@ on:
 permissions:
   contents: read
 
-# Partage la sérialisation avec V1.1 : même D1, mêmes quotas Telegram.
+# Publication V1.2 sérialisée entre ses propres cycles ; les réservations D1
+# sont atomiques et partagées avec V1.1, sans bloquer la CI V1.2.
 concurrency:
-  group: actufoot-v11-live-publisher
+  group: actufoot-v12-publisher
   cancel-in-progress: false
 
 jobs:
