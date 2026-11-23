@@ -25,10 +25,10 @@ from film_relay.runner import resolve_peer
 
 LOG = logging.getLogger("cinex.lot2.live")
 # A message URL is only trusted for the exact owner-registered category library.
-INTERNAL_LINK = re.compile(r"^https://t\\.me/c/([0-9]{6,})/([1-9][0-9]*)$")
-EPISODE_CODE = re.compile(r"\\bS[0-9]{2,3}E[0-9]{2,3}\\b", re.IGNORECASE)
+INTERNAL_LINK = re.compile(r"^https://t\.me/c/([0-9]{6,})/([1-9][0-9]*)$")
+EPISODE_CODE = re.compile(r"\bS[0-9]{2,3}E[0-9]{2,3}\b", re.IGNORECASE)
 DOWNLOAD_LINK = re.compile(
-    r"https://t\\.me/CineRadarFr_Bot\\?start=d_[A-Za-z0-9_-]{24}"
+    r"https://t\.me/CineRadarFr_Bot\?start=d_[A-Za-z0-9_-]{24}"
 )
 
 
