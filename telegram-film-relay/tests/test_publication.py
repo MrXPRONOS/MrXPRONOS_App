@@ -219,6 +219,40 @@ class RenderTests(unittest.TestCase):
             [row[0].url for row in bot.copy_message.await_args.kwargs["buttons"]],
             [movie_link, download_link, rescue_link, DEFAULT_FILM_FOLDER_URL])
 
+    def test_public_poster_with_stale_series_label_blocks_video_copy(self):
+        from unittest.mock import AsyncMock
+        from film_relay.publication import (
+            complete_public_video_rows, make_button_keyboard,
+            post_public_video_by_bot_copy,
+            verify_complete_public_video_poster)
+        public = NS(id=-1001234567890, username="seriesvf_cinex")
+        private = NS(id=-1002222222222)
+        link = "https://t.me/c/2222222222/31"
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        rescue = "https://t.me/+VerifiedRescueDemo123"
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value=rescue):
+            stale = make_button_keyboard(complete_public_video_rows(
+                link, download, public_peer=public,
+                watch_label="📺 VOIR L'ÉPISODE"))
+            poster = NS(id=77, photo=object(), buttons=stale)
+            self.assertFalse(verify_complete_public_video_poster(
+                poster, public, link, download, watch_label="📺 VOIR LA SÉRIE"))
+            bot = NS(copy_message=AsyncMock())
+            async def read(peer, ids):
+                return poster
+            async def latest(peer, limit):
+                yield poster
+            user = NS(get_messages=read, iter_messages=latest)
+            movie = NS(id=31, video=object(),
+                       document=NS(id=111, attributes=[]))
+            with self.assertRaisesRegex(RuntimeError, "boutons conformes"):
+                asyncio.run(post_public_video_by_bot_copy(
+                    user, bot, public, private, movie, 77, link,
+                    "Série", download_url=download,
+                    watch_label="📺 VOIR LA SÉRIE"))
+            bot.copy_message.assert_not_awaited()
+
     def test_send_photo_with_inline_keyboard(self):
         class FakeReader:
             async def download_media(self, media, file):
