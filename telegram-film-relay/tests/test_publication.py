@@ -95,6 +95,38 @@ class RenderTests(unittest.TestCase):
                 self.assertEqual(rows[1][0][0], video_labels(kind)[1])
         self.assertEqual(len(library_button_rows("@CineXFilms_vf", central)), 3)
 
+    def test_existing_private_poster_is_updated_in_place_without_repost(self):
+        from unittest.mock import AsyncMock
+        from film_relay.publication import (
+            library_button_rows, make_button_keyboard,
+            ensure_library_poster_buttons, verify_library_poster_buttons)
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        original = NS(id=99, photo=object(), buttons=[
+            [NS(text="🛟 Secours", url="https://t.me/+LegacyRescue123456")],
+            [NS(text="Dossier", url=DEFAULT_FILM_FOLDER_URL)]])
+        publisher = NS(edit_reply_markup=AsyncMock())
+        async def edit(peer, mid, *, buttons):
+            original.buttons = buttons
+        publisher.edit_reply_markup.side_effect = edit
+        user = NS(get_messages=AsyncMock(return_value=original))
+        asyncio.run(ensure_library_poster_buttons(
+            user, publisher, "@private", 99, "@CineXFilms_vf", download))
+        self.assertTrue(verify_library_poster_buttons(
+            original, "@CineXFilms_vf", download))
+        self.assertEqual(len(original.buttons), 3)
+        publisher.edit_reply_markup.assert_awaited_once()
+        asyncio.run(ensure_library_poster_buttons(
+            user, publisher, "@private", 99, "@CineXFilms_vf", download))
+        publisher.edit_reply_markup.assert_awaited_once()  # idempotent
+
+    def test_private_download_link_must_be_a_real_cineradar_link(self):
+        from film_relay.publication import library_button_rows
+        for fake in ("https://t.me/c/123/4", "https://example.com/film",
+                     "https://t.me/CineRadarFr_Bot?start=bad"):
+            with self.subTest(link=fake):
+                with self.assertRaises(RuntimeError):
+                    library_button_rows("@CineXFilms_vf", fake)
+
     def test_public_fiche_requires_existing_verified_rescue_invitation(self):
         from unittest.mock import AsyncMock
         reader = NS(download_media=AsyncMock(return_value=b"photo"))
