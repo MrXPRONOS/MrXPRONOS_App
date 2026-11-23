@@ -25,7 +25,7 @@ from PIL import Image, ImageOps
 from d1_publication_ledger import D1Ledger
 from telegram_rich import post_photo, post_text
 from football_rss_editor import prepare, EditorialHold
-from actufoot_telegram_format import news_markup, quote_excerpt, source_footer
+from actufoot_telegram_format import article_footer, news_markup, quote_excerpt
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FILE = ROOT / "telegram_out" / "actu_foot_source_news.json"
@@ -141,7 +141,7 @@ def send_article(session, token, chat, item, image_path, link):
     photo is quarantined by the caller's D1 claim, never silently resent.
     """
     title, content, category, source = story_parts(item)
-    footer = source_footer(source, category=category)
+    footer = article_footer(category, source)
     headline = "<b>" + html.escape(title) + "</b>"
     full = news_markup(title, content, category, source)
 
