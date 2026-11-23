@@ -258,7 +258,8 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                 if not apply:
                     LOG.info("[SIMULATION] Canal de secours %s pour %s", desired_title, username)
                     if entry and entry.get("invite_sha256"):
-                        report["ready"] += 1
+                        report["existing"] += 1
+                    # Simulation of stored identities is never a live Telegram confirmation.
                     continue
 
                 candidates = exact_private_candidates(dialogs, desired_title)
@@ -285,12 +286,12 @@ async def provision(*, apply: bool = False, max_created: int = MAX_CREATED):
                     if not await verified_live_invite(client, found, entry):
                         raise RuntimeError(
                             "Invitation Secours enregistree absente ou revoquee : correction manuelle requise")
-                    report["existing"] += 1
-                    report["ready"] += 1
                     # Existing channels need ongoing profile synchronization too.
                     from .channel_profiles import sync_rescue_profile
                     await sync_rescue_profile(client, public, found, entry, pause=PAUSE_SECONDS)
                     write_state(state)
+                    report["existing"] += 1
+                    report["ready"] += 1
                     continue
 
                 if found is None:
