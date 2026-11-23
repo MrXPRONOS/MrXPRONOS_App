@@ -23,7 +23,7 @@ from .text import private_message_link, clean_caption
 from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
                           film_folder_url, send_public_poster_with_buttons,
-                          send_library_poster_with_buttons, verify_library_bot,
+                          send_library_poster_with_buttons, ensure_library_poster_buttons, verify_library_bot,
                           post_public_video_after_poster, post_public_video_by_bot_copy)
 from .recovery import snapshot_telegram_posts, existing_native_forwards
 
@@ -470,10 +470,20 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                         continue
                     state.stage(key, "video", private_video_id)
                     staged = state.data["staged"][key]
+            download_url = await unified.store(
+                item.video, category="desir", title=title, public=public_user,
+                poster=item.poster, description=description)
+            if not download_url:
+                raise RuntimeError("Désir : stock central sans téléchargement vérifié")
+            if staged.get("poster"):
+                await ensure_library_poster_buttons(
+                    client, bot, library, int(staged["poster"]),
+                    public_user, download_url)
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
                     image = await send_library_poster_with_buttons(
                         client, bot, library, public_user, item.poster, description,
+                        download_url=download_url,
                     )
                     state.stage(key, "poster", image.id)
                     await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
@@ -485,9 +495,6 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             private_video_id = int(state.data["staged"][key]["video"])
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             video_url = private_message_link(private_id, private_video_id)
-            download_url = await unified.store(
-                item.video, category="desir", title=title, public=public_user,
-                poster=item.poster, description=description)
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
             public_post = await post_public(
                 bot, client, bot_public, item, description, video_url, link,
