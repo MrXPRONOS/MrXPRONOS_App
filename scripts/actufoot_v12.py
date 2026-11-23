@@ -11,12 +11,17 @@ import html
 import json
 import os
 import re
+import sys
 import uuid
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from pathlib import Path
 
 import requests
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from scripts import actufoot_v11_live as live
 from scripts.actufoot_telegram_format import source_footer
