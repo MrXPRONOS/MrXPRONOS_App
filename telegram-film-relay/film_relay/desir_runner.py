@@ -238,29 +238,20 @@ def format_title(item):
 
 async def post_public(bot, user, public_peer, item, title, video_url: str,
                       invite_link: str, *, download_category: str | None = None,
-                      download_title: str = "", download_url: str | None = None):
+                      download_title: str = "", download_url: str | None = None,
+                      watch_label: str = "🎬 VOIR LE FILM"):
     """Public post: photo, in-caption video link, and native green buttons.
 
     A visible URL inside the caption survives Telegram forwarding even on
     clients which do not preserve a bot's inline keyboard.
     """
-    from .bot_http import url_button
-    from .publication import library_button_rows, complete_public_video_rows
+    from .publication import complete_public_video_rows, make_button_keyboard
     if not valid_photo_message(item.poster):
         raise ValueError("Publication annulée : affiche Telegram réelle obligatoire.")
-    # Require both public support buttons before publishing anything.
-    library_button_rows(public_peer)
-    # Same two buttons as the classic relay. The former private-library
-    # invitation is no longer shown in the public message.
-    rows = [
-        [url_button(label, url, style=(
-            "success" if "regarder" in label.casefold() or "télécharger" in label.casefold() or "voir le film" in label.casefold()
-            else "danger" if "secours" in label.casefold()
-            else "primary"))
-         for label, url in row]
-        for index, row in enumerate(complete_public_video_rows(
-            video_url, download_url, public_peer=public_peer))
-    ]
+    # These are four PUBLIC buttons, not the private-library three-button menu.
+    rows = make_button_keyboard(complete_public_video_rows(
+        video_url, download_url, public_peer=public_peer,
+        watch_label=watch_label))
     # The download button goes only to a verified owner's Telegram library,
     # never to a guessed external title-search URL.
     # The link in text must survive the subsequent native forward.
