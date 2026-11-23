@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-88f590ba7ef09173:1X",
+    "recorded_at_utc": "2026-11-23T22:51:29+00:00",
+    "kickoff_utc": "2026-11-25T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Sporting CP",
+      "away_team": "Manchester United",
+      "league": "UEFA Youth League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 90.8,
+      "odds": 1.47,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "e68091478af41f89a821c5df268bacbff6f42560334605f0ba4b4cd2c821e2ee"
+}

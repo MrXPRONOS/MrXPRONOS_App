@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0c3576c85cba6f7a:1X",
+    "recorded_at_utc": "2026-11-23T22:51:29+00:00",
+    "kickoff_utc": "2026-11-25T10:00:00+00:00",
+    "fixture": {
+      "home_team": "FC Tokyo",
+      "away_team": "Sanfrecce Hiroshima",
+      "league": "Japanese J1 League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 83.5,
+      "odds": 1.41,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "2287406e814ca89033ab5da0072b5a460dadb09c52d2afcce6c31510cc31123f"
+}
