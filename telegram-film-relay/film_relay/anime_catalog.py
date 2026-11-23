@@ -285,7 +285,7 @@ async def find_marked(client, peer, marker: str, limit=160):
     return None
 
 
-async def backfill_private_covers(client, private, catalogue, groups, pause):
+async def backfill_private_covers(client, bot, private, public, catalogue, groups, pause):
     """Repair earlier short series that had episodes but no private cover image."""
     from .short_series import normalized_key
     for key, items in groups.items():
@@ -306,20 +306,33 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
         poster = next((r["poster"] for r in items if r.get("poster") is not None), None)
         if poster is None:
             continue
+        # Legacy backfill must not create NEW photos without download buttons.
+        # Only an existing validated CineRadar receipt may authorize this
+        # repair; otherwise leave old content untouched for manual review.
+        from .radar_download_registry import is_bot_download_url
+        verified_download = next((
+            ep.get("download_url")
+            for episodes in entry.get("episodes", {}).values()
+            for ep in episodes.values()
+            if is_bot_download_url(ep.get("download_url"))
+        ), None)
+        if not verified_download:
+            LOG.warning("Ancienne fiche %s : sans reçu CineRadar, réparation différée", key)
+            continue
         cover_marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15] + "_POSTER"
         recovered = await find_marked(client, private, cover_marker, limit=700)
         if not recovered:
-            media = await client.download_media(poster.media, file=bytes)
-            if not media:
-                continue
-            stream = io.BytesIO(media)
-            stream.name = "cinex_private_series.jpg"
-            caption = f"📺 <b>{escape(str(entry.get('title') or key))}</b>\n" + cover_marker
-            photo = await client.send_file(
-                private, stream, caption=caption, parse_mode="html", force_document=False
-            )
+            photo = await send_library_poster_with_buttons(
+                client, bot, private, public, poster,
+                f"📺 {str(entry.get('title') or key)}\n"
+                "Téléchargement : premier épisode disponible.\n" + cover_marker,
+                download_url=verified_download)
             recovered = int(photo.id)
             await asyncio.sleep(pause)
+        else:
+            await ensure_library_poster_buttons(
+                client, bot, private, int(recovered), public,
+                verified_download)
         entry["private_poster_id"] = int(recovered)
         save_catalog(catalogue)
         LOG.info("Fiche privée historique réparée pour %s : %s", key, recovered)
