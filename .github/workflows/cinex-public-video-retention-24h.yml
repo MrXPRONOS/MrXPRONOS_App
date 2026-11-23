@@ -20,6 +20,16 @@ on:
       - 'telegram-film-relay/tests/test_public_video_retention.py'
       - 'telegram-film-relay/tests/test_publication.py'
       - 'telegram-film-relay/tests/test_bot_http.py'
+      - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/film_relay/category_runner.py'
+      - 'telegram-film-relay/film_relay/desir_runner.py'
+      - 'telegram-film-relay/film_relay/series_catalog.py'
+      - 'telegram-film-relay/film_relay/rescue_channels.py'
+      - 'telegram-film-relay/tests/test_rescue_channels.py'
+      - 'telegram-film-relay/tests/test_category_relays.py'
+      - 'telegram-film-relay/tests/test_desir.py'
+      - 'telegram-film-relay/tests/test_series_catalog.py'
+      - 'telegram-film-relay/tests/test_unified_download.py'
 
 permissions:
   contents: read
@@ -79,6 +89,11 @@ jobs:
           python -m unittest discover -s tests -p 'test_public_video_retention.py' -v
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_publication.py' -v
+          python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
+          python -m unittest discover -s tests -p 'test_category_relays.py' -v
+          python -m unittest discover -s tests -p 'test_desir.py' -v
+          python -m unittest discover -s tests -p 'test_series_catalog.py' -v
+          python -m unittest discover -s tests -p 'test_unified_download.py' -v
       - name: Exécuter le nettoyage uniquement sur horaire ou action explicite
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         run: |
