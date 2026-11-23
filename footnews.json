@@ -925,13 +925,105 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T23:09:55.009544+00:00"
+      "checked_at": "2026-11-23T23:40:10.739142+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "5ed9727066a6be0a",
+    "title": "Who has made Troy's Premier League team of the week?",
+    "summary": "After every round of Premier League matches this season, Troy Deeney gives us his team of the week. Do you agree with his choices?",
+    "summary_short": "After every round of Premier League matches this season, Troy Deeney gives us his team of the week. Do you agree with his choices?",
+    "content": "After every round of Premier League matches this season, Troy Deeney gives us his team of the week. Do you agree with his choices?",
+    "paragraphs": [
+      "After every round of Premier League matches this season, Troy Deeney gives us his team of the week. Do you agree with his choices?"
+    ],
+    "key_points": [
+      "After every round of Premier League matches this season, Troy Deeney gives us his team of the week."
+    ],
+    "telegram_summary": "After every round of Premier League matches this season, Troy Deeney gives us his team of the week. Do you agree with his choices?",
+    "link": "https://www.bbc.co.uk/sport/football/articles/c34gn2p5d0zwo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/c34gn2p5d0zwo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5ed9727066a6be0a",
+    "published": "2026-11-23T23:26:35+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/b2b3/live/d71ba9d0-e78f-11f1-8e8a-577b415bb9af.png",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/b2b3/live/d71ba9d0-e78f-11f1-8e8a-577b415bb9af.png",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50550244",
+      "url": "https://www.espn.com/soccer/story/_/id/50550244/man-city-fulham-premier-league-erling-haaland-maresca",
+      "published": "2026-11-21T16:43:57Z",
+      "score": 0.2,
+      "matched_terms": [
+        "league",
+        "premier"
+      ],
+      "topics": [],
+      "teams": [
+        "Fulham",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-23T23:40:10.739142+00:00"
+    },
+    "quality_sources": [
+      "BBC Sport",
+      "ESPN"
+    ],
+    "quality_score": 93
+  },
+  {
+    "slug": "3147767a13cb9911",
+    "title": "OM : l'énorme mise au point de Genesio après la défaite contre Le Mans, des changements attendus en Ligue Europa",
+    "summary": "Bruno Genesio a fait savoir son mécontentement à son vestiaire après la défaite contre Le Mans.",
+    "summary_short": "Bruno Genesio a fait savoir son mécontentement à son vestiaire après la défaite contre Le Mans.",
+    "content": "Bruno Genesio a fait savoir son mécontentement à son vestiaire après la défaite contre Le Mans.",
+    "paragraphs": [
+      "Bruno Genesio a fait savoir son mécontentement à son vestiaire après la défaite contre Le Mans."
+    ],
+    "key_points": [
+      "Bruno Genesio a fait savoir son mécontentement à son vestiaire après la défaite contre Le Mans."
+    ],
+    "telegram_summary": "Bruno Genesio a fait savoir son mécontentement à son vestiaire après la défaite contre Le Mans.",
+    "link": "https://www.onzemondial.com/ligue-1/om-lenorme-mise-au-point-de-genesio-apres-la-defaite-contre-le-mans-des-changements-attendus-en-ligue-europa-1010853",
+    "source_url": "https://www.onzemondial.com/ligue-1/om-lenorme-mise-au-point-de-genesio-apres-la-defaite-contre-le-mans-des-changements-attendus-en-ligue-europa-1010853",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3147767a13cb9911",
+    "published": "2026-11-23T23:03:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010853/411504/1200-L-om-l-norme-mise-au-point-de-genesio-aprs-la-dfaite-contre-le-mans-des-changements-attendus-en-ligue-europa.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010853/411504/1200-L-om-l-norme-mise-au-point-de-genesio-aprs-la-dfaite-contre-le-mans-des-changements-attendus-en-ligue-europa.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "a2c3624071c4c356",
@@ -1195,7 +1287,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-23T23:09:55.009544+00:00"
+      "checked_at": "2026-11-23T23:40:10.739142+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1561,7 +1653,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T23:09:55.009544+00:00"
+      "checked_at": "2026-11-23T23:40:10.739142+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1796,7 +1888,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T23:09:55.009544+00:00"
+      "checked_at": "2026-11-23T23:40:10.739142+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1962,7 +2054,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T23:09:55.009544+00:00"
+      "checked_at": "2026-11-23T23:40:10.739142+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2141,73 +2233,5 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "66480d8eabd3e037",
-    "title": "RC Lens : Après une trêve bonne pour le moral, Amadou Haidara veut tout faire pour gagner contre le RB Leipzig",
-    "summary": "Avec le RC Lens, Amadou Haidara va retrouver son ancien club du RB Leipzig ce mardi en Ligue des Champions.",
-    "summary_short": "Avec le RC Lens, Amadou Haidara va retrouver son ancien club du RB Leipzig ce mardi en Ligue des Champions.",
-    "content": "Avec le RC Lens, Amadou Haidara va retrouver son ancien club du RB Leipzig ce mardi en Ligue des Champions.",
-    "paragraphs": [
-      "Avec le RC Lens, Amadou Haidara va retrouver son ancien club du RB Leipzig ce mardi en Ligue des Champions."
-    ],
-    "key_points": [
-      "Avec le RC Lens, Amadou Haidara va retrouver son ancien club du RB Leipzig ce mardi en Ligue des Champions."
-    ],
-    "telegram_summary": "Avec le RC Lens, Amadou Haidara va retrouver son ancien club du RB Leipzig ce mardi en Ligue des Champions.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-apres-une-treve-bonne-pour-le-moral-amadou-haidara-veut-tout-faire-pour-gagner-contre-le-rb-leipzig-546780.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-apres-une-treve-bonne-pour-le-moral-amadou-haidara-veut-tout-faire-pour-gagner-contre-le-rb-leipzig-546780.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=66480d8eabd3e037",
-    "published": "2026-11-23T19:45:00+00:00",
-    "image": "https://s1.dmcdn.net/v/hBBvE1h19KjOMnA3D/x480",
-    "source_image": "https://s1.dmcdn.net/v/hBBvE1h19KjOMnA3D/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "a4d1142e57f380c1",
-    "title": "Ligue des champions – Didier Digard avant Leipzig-Lens : « Comme un enfant qui va à Disney »",
-    "summary": "Le match d’après. Humilié à Bollaert par Côme lors de la dernière journée de la Ligue des…",
-    "summary_short": "Le match d’après. Humilié à Bollaert par Côme lors de la dernière journée de la Ligue des…",
-    "content": "Le match d’après. Humilié à Bollaert par Côme lors de la dernière journée de la Ligue des…",
-    "paragraphs": [
-      "Le match d’après. Humilié à Bollaert par Côme lors de la dernière journée de la Ligue des…"
-    ],
-    "key_points": [
-      "Humilié à Bollaert par Côme lors de la dernière journée de la Ligue des…"
-    ],
-    "telegram_summary": "Le match d’après. Humilié à Bollaert par Côme lors de la dernière journée de la Ligue des…",
-    "link": "https://www.sofoot.com/breves/ligue-des-champions-pour-didier-digard-leipzig-lens-est-un-tournant-important",
-    "source_url": "https://www.sofoot.com/breves/ligue-des-champions-pour-didier-digard-leipzig-lens-est-un-tournant-important",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a4d1142e57f380c1",
-    "published": "2026-11-23T19:44:18+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23201809/15361636.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23201809/15361636.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
