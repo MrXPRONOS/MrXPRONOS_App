@@ -145,6 +145,8 @@ async def inspect(*, limit=600):
                         result["central_receipt"] = (
                             "verified" if check_receipt(dl) else "not_verified"
                         )
+                        if result["central_receipt"] != "verified":
+                            result["errors"] += 1
                     else:
                         result["errors"] += 1
                 posters = [
@@ -173,7 +175,7 @@ async def inspect(*, limit=600):
     finally:
         await client.disconnect()
     pending = sum(
-        any(value == "pending_no_sample" for value in (
+        any(value.startswith("pending_") for value in (
             row["latest_public_v4"], row["private_three_buttons"],
             row["public_photo_four_buttons"], row["central_receipt"]))
         for row in results
@@ -192,8 +194,8 @@ async def inspect(*, limit=600):
     if summary:
         with Path(summary).open("a", encoding="utf-8") as f:
             f.write("\n### CinéX Lot 2 — échantillons de publications réelles\n")
-            f.write("| Catégorie | Vidéo publique 4 boutons | Affiche privée 3 boutons | Lien D1 | Erreurs |\n")
-            f.write("|---|---|---|---|---:|\n")
+            f.write("| Catégorie | Vidéo publique 4 boutons | Affiche publique 4 boutons | Affiche privée 3 boutons | Lien D1 | Erreurs |\n")
+            f.write("|---|---|---|---|---|---:|\n")
             for row in results:
                 f.write(f"| {row['category']} | {row['latest_public_v4']} | "
                         f"{row['public_photo_four_buttons']} | "
