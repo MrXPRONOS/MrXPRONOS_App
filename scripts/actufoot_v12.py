@@ -27,7 +27,7 @@ from scripts import actufoot_v11_live as live
 from scripts.actufoot_telegram_format import source_footer
 from scripts.d1_publication_ledger import D1Ledger
 from scripts.football_match_lifecycle import (
-    extract_goals, extract_cards, extract_shootout_kicks,
+    extract_goals, extract_cards, extract_shootout_kicks, extract_team_stats,
 )
 
 LEAGUES = {
@@ -95,8 +95,33 @@ def debrief_message(row: dict, info: dict, summary: dict) -> str | None:
         minute = safe_text(card.get("minute_text") or card.get("minute"), 9)
         facts.append(("🟥" if card["type"] == "red" else "🟨")
                      + " " + " · ".join(x for x in (player or "Joueur non indiqué", minute) if x))
-    if not goals and not cards:
-        facts.append("<i>Aucun autre événement détaillé exploitable dans le résumé ESPN.</i>")
+    # Only display both teams' real ESPN match statistics; missing is not zero.
+    statistics = extract_team_stats(summary)
+    home_stats = statistics.get("home", {}) if isinstance(statistics, dict) else {}
+    away_stats = statistics.get("away", {}) if isinstance(statistics, dict) else {}
+    if isinstance(home_stats, dict) and isinstance(away_stats, dict):
+        labels = {
+            "possession": "Possession", "shots": "Tirs",
+            "shots_on_target": "Tirs cadrés", "corners": "Corners",
+            "fouls": "Fautes",
+        }
+        stat_lines = []
+        for name, label in labels.items():
+            if (name in home_stats and name in away_stats
+                    and home_stats[name] is not None
+                    and away_stats[name] is not None):
+                h = safe_text(home_stats[name], 12)
+                a = safe_text(away_stats[name], 12)
+                if h and a:
+                    stat_lines.append(safe_text(label, 25) + " : " + h + " – " + a)
+        if stat_lines:
+            facts.append("<b>📊 Statistiques (domicile – extérieur)</b>")
+            facts.extend(stat_lines)
+    sh, sa = info.get("home_shootout_score"), info.get("away_shootout_score")
+    if type(sh) is int and type(sa) is int and 0 <= sh <= 40 and 0 <= sa <= 40:
+        facts.append(f"🎯 Tirs au but : {sh}–{sa}")
+    if len(facts) == 1 or (len(facts) == 2 and league):
+        facts.append("<i>Aucun autre fait détaillé exploitable dans le résumé ESPN.</i>")
     body = "<blockquote>" + "\n".join(facts) + "</blockquote>"
     return "\n\n".join([
         heading, body, "<b>🏷 " + DEBRIEF_TAG + "</b>\n" + source_footer("ESPN"),
