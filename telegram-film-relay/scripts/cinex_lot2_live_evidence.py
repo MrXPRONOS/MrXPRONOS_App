@@ -296,6 +296,10 @@ async def inspect(*, limit=600):
     )
     LOG.info("LOT2_LIVE_SUMMARY completed_categories=%d/6 pending_categories=%d errors=%d",
              verified, pending, failed)
+    if pending and not failed:
+        print(f"::warning::CINEX_LOT2_PRODUCTION_PENDING: {pending}/6 categories "
+              "do not yet have complete V4 evidence. CI success only proves "
+              "the read-only audit executed, NOT that publication is validated.")
     summary = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
     if summary:
         with Path(summary).open("a", encoding="utf-8") as f:
