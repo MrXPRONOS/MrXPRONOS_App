@@ -255,6 +255,49 @@ class AnimeBotPublisherTests(unittest.TestCase):
         self.assertEqual(bot.send_message.await_count, 2)
         self.assertEqual(store.load(), state)
 
+    def test_lot3_one_group_poster_then_two_videos_bot_only(self):
+        bot, store, state, row, publisher = self._setup()
+        second = record(3, "video", name="Episode_02.mp4")
+        state["messages"][f"{SOURCE}:3"] = second
+        row2 = dict(row, episode=2, source_key=f"{SOURCE}:3")
+        ids = iter(range(300, 400))
+        async def copy(*args, **kwargs):
+            return next(ids)
+        bot.copy_message = AsyncMock(side_effect=copy)
+        bot.send_message = AsyncMock(side_effect=[401, 402, 403])
+        async def exercise():
+            first = await publisher.publish_batch([row, row2], complete=False)
+            calls = bot.copy_message.await_count
+            second_result = await publisher.publish_batch(
+                [row, row2], complete=False)
+            return first, second_result, calls
+        first, next_result, calls = asyncio.run(exercise())
+        self.assertEqual(first["status"], "complete")
+        self.assertEqual(first["public_cover_id"], next_result["public_cover_id"])
+        self.assertEqual(calls, 10)
+        self.assertEqual(bot.copy_message.await_count, 10)
+        public_cover = bot.copy_message.await_args_list[7]
+        self.assertEqual(public_cover.args[0], PUBLIC)
+        self.assertEqual(len(public_cover.kwargs["reply_markup"]["inline_keyboard"]), 4)
+        public_video_one = bot.copy_message.await_args_list[8]
+        public_video_two = bot.copy_message.await_args_list[9]
+        self.assertEqual(
+            public_cover.kwargs["reply_markup"],
+            public_video_one.kwargs["reply_markup"])
+        self.assertEqual(
+            public_cover.kwargs["reply_markup"],
+            public_video_two.kwargs["reply_markup"])
+        self.assertIn("#CINEX_VIDEO_24H_V1",
+                      public_video_one.kwargs["caption"])
+        self.assertEqual(len(
+            bot.copy_message.await_args_list[4]
+            .kwargs["reply_markup"]["inline_keyboard"]), 3)
+        self.assertEqual(set(
+            state["series"]["naruto"]["public_episode_posts"]),
+            {"S01E01", "S01E02"})
+        self.assertEqual(bot.send_message.await_count, 3)
+        self.assertEqual(store.load(), state)
+
     def test_episode_26_is_reachable_from_first_season_index(self):
         bot, store, state, row, publisher = self._setup()
         series = publisher._series(row)
