@@ -925,13 +925,116 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T22:40:10.118822+00:00"
+      "checked_at": "2026-11-23T23:09:55.009544+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "a2c3624071c4c356",
+    "title": "Le PSG pourrait rendre un énorme service au Barça",
+    "summary": "Il n’y a plus aucun doute : le PSG va recruter pour remplacer Désiré Doué cet hiver. Privé du Français mais aussi de Khvicha Kvaratskhelia jusqu’à la fin de la saison (ou presque), le champion (…)",
+    "summary_short": "Il n’y a plus aucun doute : le PSG va recruter pour remplacer Désiré Doué cet hiver. Privé du Français mais aussi de Khvicha Kvaratskhelia jusqu’à la fin de la saison (ou presque), le champion (…)",
+    "content": "Il n’y a plus aucun doute : le PSG va recruter pour remplacer Désiré Doué cet hiver. Privé du Français mais aussi de Khvicha Kvaratskhelia jusqu’à la fin de la saison (ou presque), le champion (…)",
+    "paragraphs": [
+      "Il n’y a plus aucun doute : le PSG va recruter pour remplacer Désiré Doué cet hiver. Privé du Français mais aussi de Khvicha Kvaratskhelia jusqu’à la fin de la saison (ou presque), le champion (…)"
+    ],
+    "key_points": [
+      "Il n’y a plus aucun doute : le PSG va recruter pour remplacer Désiré Doué cet hiver.",
+      "Privé du Français mais aussi de Khvicha Kvaratskhelia jusqu’à la fin de la saison (ou presque), le champion (…)"
+    ],
+    "telegram_summary": "Il n’y a plus aucun doute : le PSG va recruter pour remplacer Désiré Doué cet hiver. Privé du Français mais aussi de Khvicha Kvaratskhelia jusqu’à la fin de la saison (ou presque), le champion (…)",
+    "link": "https://www.footmercato.net/a2228850794160701340-le-psg-pourrait-rendre-un-enorme-service-au-barca",
+    "source_url": "https://www.footmercato.net/a2228850794160701340-le-psg-pourrait-rendre-un-enorme-service-au-barca",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a2c3624071c4c356",
+    "published": "2026-11-23T22:55:21+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/abdebetis.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/abdebetis.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "e27d018b40872fa1",
+    "title": "Ligue 2 – Cyril Hanouna, nouvel actionnaire de Guingamp ?",
+    "summary": "C’était pas dans notre bingo 2026. En quête d’un nouvel actionnaire depuis plusieurs mois, l’En Avant Guingamp…",
+    "summary_short": "C’était pas dans notre bingo 2026. En quête d’un nouvel actionnaire depuis plusieurs mois, l’En Avant Guingamp…",
+    "content": "C’était pas dans notre bingo 2026. En quête d’un nouvel actionnaire depuis plusieurs mois, l’En Avant Guingamp…",
+    "paragraphs": [
+      "C’était pas dans notre bingo 2026. En quête d’un nouvel actionnaire depuis plusieurs mois, l’En Avant Guingamp…"
+    ],
+    "key_points": [
+      "En quête d’un nouvel actionnaire depuis plusieurs mois, l’En Avant Guingamp…"
+    ],
+    "telegram_summary": "C’était pas dans notre bingo 2026. En quête d’un nouvel actionnaire depuis plusieurs mois, l’En Avant Guingamp…",
+    "link": "https://www.sofoot.com/breves/ligue-2-cyril-hanouna-nouvel-actionnaire-de-guingamp",
+    "source_url": "https://www.sofoot.com/breves/ligue-2-cyril-hanouna-nouvel-actionnaire-de-guingamp",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e27d018b40872fa1",
+    "published": "2026-11-23T22:47:53+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23194721/8227040.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23194721/8227040.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "96bbb98994c0ba4b",
+    "title": "Tarkowski's first Premier League red ruins Moyes' night - was it deserved?",
+    "summary": "Everton captain James Tarkowski was sent off for the first time in his Premier League career in Monday's 4-0 loss at Brentford - but was it a harsh decision?",
+    "summary_short": "Everton captain James Tarkowski was sent off for the first time in his Premier League career in Monday's 4-0 loss at Brentford - but was it a harsh decision?",
+    "content": "Everton captain James Tarkowski was sent off for the first time in his Premier League career in Monday's 4-0 loss at Brentford - but was it a harsh decision?",
+    "paragraphs": [
+      "Everton captain James Tarkowski was sent off for the first time in his Premier League career in Monday's 4-0 loss at Brentford - but was it a harsh decision?"
+    ],
+    "key_points": [
+      "Everton captain James Tarkowski was sent off for the first time in his Premier League career in Monday's 4-0 loss at Brentford - but was it a harsh decision?"
+    ],
+    "telegram_summary": "Everton captain James Tarkowski was sent off for the first time in his Premier League career in Monday's 4-0 loss at Brentford - but was it a harsh decision?",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cmqx5eynvpqno?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmqx5eynvpqno?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=96bbb98994c0ba4b",
+    "published": "2026-11-23T22:43:39+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1142/live/d8901070-e786-11f1-9baa-c1f9a8f8c840.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1142/live/d8901070-e786-11f1-9baa-c1f9a8f8c840.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
   },
   {
     "slug": "20c393a4e2758fde",
@@ -967,6 +1070,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "2fe05919d870c46f",
+    "title": "Premier League : un Bleu dévoile une anecdote hilarante avec Jamie Vardy",
+    "summary": "Wesley Fofana s'est confié à Zack Nani sur l'ensemble de sa carrière et a livré une belle anecdote sur Jamie Vardy.",
+    "summary_short": "Wesley Fofana s'est confié à Zack Nani sur l'ensemble de sa carrière et a livré une belle anecdote sur Jamie Vardy.",
+    "content": "Wesley Fofana s'est confié à Zack Nani sur l'ensemble de sa carrière et a livré une belle anecdote sur Jamie Vardy.",
+    "paragraphs": [
+      "Wesley Fofana s'est confié à Zack Nani sur l'ensemble de sa carrière et a livré une belle anecdote sur Jamie Vardy."
+    ],
+    "key_points": [
+      "Wesley Fofana s'est confié à Zack Nani sur l'ensemble de sa carrière et a livré une belle anecdote sur Jamie Vardy."
+    ],
+    "telegram_summary": "Wesley Fofana s'est confié à Zack Nani sur l'ensemble de sa carrière et a livré une belle anecdote sur Jamie Vardy.",
+    "link": "https://www.onzemondial.com/premier-league/premier-league-un-bleu-devoile-une-anecdote-hilarante-avec-jamie-vardy-1010885",
+    "source_url": "https://www.onzemondial.com/premier-league/premier-league-un-bleu-devoile-une-anecdote-hilarante-avec-jamie-vardy-1010885",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2fe05919d870c46f",
+    "published": "2026-11-23T22:32:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010885/411512/1200-L-premier-league-un-bleu-dvoile-une-anecdote-hilarante-avec-jamie-vardy.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010885/411512/1200-L-premier-league-un-bleu-dvoile-une-anecdote-hilarante-avec-jamie-vardy.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "4bf50b0a2b99e2ac",
@@ -1058,7 +1195,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-23T22:40:10.118822+00:00"
+      "checked_at": "2026-11-23T23:09:55.009544+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1424,7 +1561,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T22:40:10.118822+00:00"
+      "checked_at": "2026-11-23T23:09:55.009544+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1659,7 +1796,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T22:40:10.118822+00:00"
+      "checked_at": "2026-11-23T23:09:55.009544+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1825,7 +1962,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T22:40:10.118822+00:00"
+      "checked_at": "2026-11-23T23:09:55.009544+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2072,169 +2209,5 @@
       "So Foot"
     ],
     "quality_score": 77
-  },
-  {
-    "slug": "b14557169cce035e",
-    "title": "Espagne : Luis de la Fuente : \"La France est une très grande équipe, mais elle aura en face d'elle la meilleure du monde\"",
-    "summary": "Le sélectionneur de l'Espagne, Luis de la Fuente, est impatient de jouer la France en quart de finale de la Ligue des Nations.",
-    "summary_short": "Le sélectionneur de l'Espagne, Luis de la Fuente, est impatient de jouer la France en quart de finale de la Ligue des Nations.",
-    "content": "Le sélectionneur de l'Espagne, Luis de la Fuente, est impatient de jouer la France en quart de finale de la Ligue des Nations.",
-    "paragraphs": [
-      "Le sélectionneur de l'Espagne, Luis de la Fuente, est impatient de jouer la France en quart de finale de la Ligue des Nations."
-    ],
-    "key_points": [
-      "Le sélectionneur de l'Espagne, Luis de la Fuente, est impatient de jouer la France en quart de finale de la Ligue des Nations."
-    ],
-    "telegram_summary": "Le sélectionneur de l'Espagne, Luis de la Fuente, est impatient de jouer la France en quart de finale de la Ligue des Nations.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-espagne-luis-de-la-fuente-la-france-est-une-tres-grande-equipe-mais-elle-aura-en-face-d-elle-la-meilleure-du-monde-546758.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-espagne-luis-de-la-fuente-la-france-est-une-tres-grande-equipe-mais-elle-aura-en-face-d-elle-la-meilleure-du-monde-546758.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b14557169cce035e",
-    "published": "2026-11-23T19:30:00+00:00",
-    "image": "https://s2.dmcdn.net/v/hAmHg1h15pnB221Ww/x480",
-    "source_image": "https://s2.dmcdn.net/v/hAmHg1h15pnB221Ww/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "c3b6ed26bb45d7e5",
-    "title": "Lens-Leipzig : électrochoc en défense, défaite interdite... Digard lance l'opération survie en C1",
-    "summary": "Didier Digard va effectuer ses grands débuts en Ligue des Champions demain soir à l'occasion du déplacement à Leipzig.",
-    "summary_short": "Didier Digard va effectuer ses grands débuts en Ligue des Champions demain soir à l'occasion du déplacement à Leipzig.",
-    "content": "Didier Digard va effectuer ses grands débuts en Ligue des Champions demain soir à l'occasion du déplacement à Leipzig.",
-    "paragraphs": [
-      "Didier Digard va effectuer ses grands débuts en Ligue des Champions demain soir à l'occasion du déplacement à Leipzig."
-    ],
-    "key_points": [
-      "Didier Digard va effectuer ses grands débuts en Ligue des Champions demain soir à l'occasion du déplacement à Leipzig."
-    ],
-    "telegram_summary": "Didier Digard va effectuer ses grands débuts en Ligue des Champions demain soir à l'occasion du déplacement à Leipzig.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/lens-leipzig-electrochoc-en-defense-defaite-interdite-digard-lance-loperation-survie-en-c1-1010844",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/lens-leipzig-electrochoc-en-defense-defaite-interdite-digard-lance-loperation-survie-en-c1-1010844",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c3b6ed26bb45d7e5",
-    "published": "2026-11-23T19:29:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010844/411502/1200-L-lens-leipzig-lectrochoc-en-dfense-dfaite-interdite-digard-lance-l-opration-survie-en-c1.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010844/411502/1200-L-lens-leipzig-lectrochoc-en-dfense-dfaite-interdite-digard-lance-l-opration-survie-en-c1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "903d230cdae6469c",
-    "title": "RC Lens : Trois retours dans le groupe lensois pour le match de LDC face au RB Leipzig",
-    "summary": "Le groupe du RC Lens pour le match face au RB Leipzig (J5 LDC).",
-    "summary_short": "Le groupe du RC Lens pour le match face au RB Leipzig (J5 LDC).",
-    "content": "Le groupe du RC Lens pour le match face au RB Leipzig (J5 LDC).",
-    "paragraphs": [
-      "Le groupe du RC Lens pour le match face au RB Leipzig (J5 LDC)."
-    ],
-    "key_points": [
-      "Le groupe du RC Lens pour le match face au RB Leipzig (J5 LDC)."
-    ],
-    "telegram_summary": "Le groupe du RC Lens pour le match face au RB Leipzig (J5 LDC).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-trois-retours-dans-le-groupe-lensois-pour-le-match-de-ldc-face-au-rb-leipzig-546779.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-trois-retours-dans-le-groupe-lensois-pour-le-match-de-ldc-face-au-rb-leipzig-546779.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=903d230cdae6469c",
-    "published": "2026-11-23T19:21:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261122092850-2843.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261122092850-2843.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "e0f6ea223b0bf94d",
-    "title": "Arsenal – Mikel Arteta rassurant sur la blessure de David Raya",
-    "summary": "Plus de peur que de mal ? Il y a des images que l’on n’aime pas voir.…",
-    "summary_short": "Plus de peur que de mal ? Il y a des images que l’on n’aime pas voir.…",
-    "content": "Plus de peur que de mal ? Il y a des images que l’on n’aime pas voir.…",
-    "paragraphs": [
-      "Plus de peur que de mal ? Il y a des images que l’on n’aime pas voir.…"
-    ],
-    "key_points": [
-      "Il y a des images que l’on n’aime pas voir.…"
-    ],
-    "telegram_summary": "Plus de peur que de mal ? Il y a des images que l’on n’aime pas voir.…",
-    "link": "https://www.sofoot.com/breves/arsenal-mikel-arteta-rassurant-sur-la-blessure-de-david-raya",
-    "source_url": "https://www.sofoot.com/breves/arsenal-mikel-arteta-rassurant-sur-la-blessure-de-david-raya",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e0f6ea223b0bf94d",
-    "published": "2026-11-23T19:08:45+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23195210/15358119.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23195210/15358119.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50572706",
-      "url": "https://www.espn.com/soccer/story/_/id/50572706/david-raya-arsenal-injury-update",
-      "published": "2026-11-23T14:36:45Z",
-      "score": 0.5,
-      "matched_terms": [
-        "arsenal",
-        "arteta",
-        "david",
-        "mikel",
-        "raya"
-      ],
-      "topics": [],
-      "teams": [
-        "Arsenal"
-      ],
-      "athletes": [
-        "David Raya"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-23T22:40:10.118822+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
   }
 ]
