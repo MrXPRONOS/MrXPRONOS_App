@@ -290,10 +290,18 @@ def run(now, *, ledger, session, token, main_chat, channels,
     if not token or not main_chat:
         raise RuntimeError("V13_PREFLIGHT_MISSING_TELEGRAM_CREDENTIALS")
     # Reuse the V1 11-channel identity check (main + ten specialized channels).
-    accepted, failed = verify_channels(session, token, main_chat, channels)
+    try:
+        accepted, failed = verify_channels(session, token, main_chat, channels)
+        main_identity_ok = True
+    except RuntimeError:
+        # A failed Bot API preflight must produce a visible CRITICAL incident,
+        # not an apparently healthy table or an uninformative missing artifact.
+        accepted, failed = {}, list(EXPECTED)
+        main_identity_ok = False
     aggregates = read_aggregates(ledger, now)
     report = build_report(now, channels, aggregates, set(accepted), failed,
-                          main_verified=main_can_publish(session, token, main_chat))
+                          main_verified=main_identity_ok and
+                          main_can_publish(session, token, main_chat))
     report["private_alert_delivery"] = (
         send_private_alert(report, ledger, session, token, alert_chat, dry_run=dry_run)
         if send_alerts else "disabled")
