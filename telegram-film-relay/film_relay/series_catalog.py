@@ -621,11 +621,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
 
             # ONE poster for this batch followed by all new public videos;
             # no extra per-episode poster or second general card.
-            was_complete = bool(series.get("season_batches", {})
-                                .get(batch_receipt["season"] and
-                                     next((k for k, v in series["season_batches"].items()
-                                           if v is batch_receipt), ""), {})
-                                .get("status") == "complete")
+            was_complete = batch_receipt.get("status") == "complete"
             published = await publish_public_season_batch(
                 client, bot, public, private, private_id,
                 key, series, items, catalogue, save_catalog, pause,
@@ -639,37 +635,6 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             catalogue["tv_active_batch"] = None
             active = None
             save_catalog(catalogue)
-            completed_series.add(key)
-                        continue
-                    raw = await client.download_media(original_poster.media, file=bytes)
-                    if not raw:
-                        LOG.warning("Affiche introuvable pour %s ; publication différée.", title)
-                        completed_series.add(key)
-                        continue
-                    picture = io.BytesIO(raw)
-                    picture.name = "cinex_anime.jpg"
-                    index_link = private_message_link(private_id, index_id)
-                    cap = (f"📺 <b>{escape(title)}</b>\n\n"
-                           "<i>Saisons et épisodes disponibles dans la bibliothèque CinéX.</i>\n"
-                           f'📚 <a href="{index_link}">VOIR TOUTES LES SAISONS</a>\n'
-                           f"{marker}")
-                    post = await bot.send_file(
-                        bot_public, picture, caption=cap, parse_mode="html",
-                        buttons=public_buttons(private_id, series, public), force_document=False)
-                    public_id = int(post.id)
-                    posted_cards += 1
-                series["public_id"] = public_id
-                first_ep = next(iter(series["source_items"].values()), index_id)
-                state.complete("tv-series:" + key, int(first_ep), int(public_id))
-                save_catalog(catalogue)
-                LOG.info("Fiche publique CinéX Séries TV : %s -> %s", title, public_id)
-            # Publish one complete public fiche+video per verified episode;
-            # season cards and indices remain available for navigation.
-            await publish_catalog_episode_pairs(
-                client, bot, public, private, private_id,
-                series, items, catalogue, save_catalog, pause,
-                kind="series",
-            )
             completed_series.add(key)
             processed_seasons.add(season_marker_key)
             await asyncio.sleep(pause)
