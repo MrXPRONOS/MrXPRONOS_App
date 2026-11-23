@@ -1,11 +1,16 @@
 {
-  "completed": {},
+  "completed": {
+    "-1004406485215:234": {
+      "public_id": 463,
+      "video_id": 44
+    }
+  },
   "mirrors": {},
   "promotions": {},
   "staged": {
-    "-1004406485215:234": {
-      "poster": 43,
-      "video": 44
+    "-1004406485215:232": {
+      "poster": 49,
+      "video": 50
     },
     "-1004408659646:88": {
       "poster": 39,
