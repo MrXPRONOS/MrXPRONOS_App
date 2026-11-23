@@ -682,7 +682,7 @@ def main():
     arg = argparse.ArgumentParser()
     arg.add_argument("--publish", action="store_true")
     arg.add_argument("--limit", type=int, choices=(1, 2), default=2)
-    arg.add_argument("--episode-cap", type=int, choices=range(1, 26), default=25)
+    arg.add_argument("--episode-cap", type=int, choices=range(1, 51), default=50)
     args = arg.parse_args()
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")
