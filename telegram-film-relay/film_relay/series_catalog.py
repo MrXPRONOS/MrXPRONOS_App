@@ -522,10 +522,16 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                                                  caption=caption, parse_mode="html")
                     private_msg_id = int(new.id)
                     await asyncio.sleep(pause)
+                # Every category stores the real episode poster+video in
+                # the central private CineRadar stock BEFORE its public links.
+                central_poster = row.get("poster") or next(
+                    (item.get("poster") for item in items
+                     if item.get("poster") is not None), None)
                 download_url = await unified.store(
                     row["video"], category="series",
                     title=f"{title} S{row['season']:02d}E{row['episode']:02d}",
-                    public=public,
+                    public=public, poster=central_poster,
+                    description=(getattr(central_poster, "raw_text", "") or title),
                 ) if publish else None
                 ep[number_key] = {"message_id": private_msg_id,
                                   "url": private_message_link(private_id, private_msg_id)}
