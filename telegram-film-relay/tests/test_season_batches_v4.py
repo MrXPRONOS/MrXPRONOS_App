@@ -92,6 +92,25 @@ class SeasonPlannerTests(unittest.TestCase):
         pending = select_season_batches({"a": partial}, as_catalogue(), [])
         self.assertEqual([r["episode"] for r in pending[0][1]], [1, 2])
 
+    def test_complete_thirty_episodes_never_truncated_to_twenty_five(self):
+        rows = [source_row(n, key="longshow") for n in range(1, 31)]
+        selected = select_season_batches(
+            {"longshow": rows}, as_catalogue(),
+            [("longshow", rows)], maximum=50)
+        self.assertEqual(len(selected), 1)
+        self.assertTrue(selected[0][2])
+        self.assertEqual([int(r["episode"]) for r in selected[0][1]],
+                         list(range(1, 31)))
+        self.assertEqual(select_season_batches(
+            {"longshow": rows}, as_catalogue(),
+            [("longshow", rows)], maximum=25), [])
+
+    def test_fifty_one_episode_complete_season_is_not_split(self):
+        rows = [source_row(n, key="large") for n in range(1, 52)]
+        self.assertEqual(select_season_batches(
+            {"large": rows}, as_catalogue(),
+            [("large", rows)], maximum=50), [])
+
     def test_cadence_only_when_source_explicit(self):
         rows = [source_row(1)]
         self.assertNotIn("hebdomadaire",
