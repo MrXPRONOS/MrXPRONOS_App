@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import stat
+from datetime import datetime, timezone
 from pathlib import Path
 
 LOG = logging.getLogger("cinex.private_links")
@@ -27,13 +28,35 @@ def is_valid_invitation(url: str) -> bool:
     return is_invite(url)
 
 
+def usable_invite(row, *, now=None) -> bool:
+    """A formatted URL can still be expired, exhausted, or revoked."""
+    if not is_valid_invitation(getattr(row, "link", "")):
+        return False
+    if getattr(row, "revoked", False):
+        return False
+    expires = getattr(row, "expire_date", None)
+    if expires is not None:
+        if not isinstance(expires, datetime) or expires.tzinfo is None:
+            return False
+        if expires <= (now or datetime.now(timezone.utc)):
+            return False
+    limit = getattr(row, "usage_limit", None)
+    if limit is not None:
+        try:
+            if int(limit) <= 0 or int(getattr(row, "usage", 0) or 0) >= int(limit):
+                return False
+        except (TypeError, ValueError):
+            return False
+    return True
+
+
 async def get_existing_invite(client, channel, *, expected_sha: str | None = None) -> str | None:
     """Read an existing owner-admin invitation; never rotate a live link."""
     from telethon import functions, types
     choices = []
     full = await client(functions.channels.GetFullChannelRequest(channel=channel))
     primary = getattr(getattr(full, "full_chat", None), "exported_invite", None)
-    if is_valid_invitation(getattr(primary, "link", "")) and not getattr(primary, "revoked", False):
+    if usable_invite(primary):
         choices.append(str(primary.link))
     if expected_sha and any(fingerprint(link) == expected_sha for link in choices):
         return next(link for link in choices if fingerprint(link) == expected_sha)
@@ -46,7 +69,7 @@ async def get_existing_invite(client, channel, *, expected_sha: str | None = Non
         response = None
     for row in getattr(response, "invites", []):
         link = str(getattr(row, "link", "") or "")
-        if is_valid_invitation(link) and not getattr(row, "revoked", False) and not getattr(row, "expire_date", None):
+        if usable_invite(row):
             choices.append(link)
     choices = list(dict.fromkeys(choices))
     if expected_sha:
