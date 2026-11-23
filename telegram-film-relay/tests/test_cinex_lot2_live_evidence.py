@@ -36,6 +36,17 @@ class Lot2EvidenceTests(unittest.TestCase):
         media = NS(buttons=[[button("🎬 VOIR", "https://t.me/c/1/1")]])
         self.assertFalse(app.validate_public_sample(media, "@cinexfilms_vf"))
 
+    def test_public_media_label_must_match_category(self):
+        media = NS(buttons=[
+            [button("📺 VOIR LA SÉRIE", "https://t.me/c/123/4")],
+            [button("⬇️ TÉLÉCHARGER LES VIDÉOS",
+                    "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24)],
+            [button("🛟 Rejoindre le canal secours", "https://t.me/+abcdefghijklmno")],
+            [button("📁 Rejoindre le dossier", "https://t.me/addlist/foo")],
+        ])
+        self.assertFalse(app.validate_public_sample(
+            media, "@cinexfilms_vf", category="films"))
+
     def test_public_media_validation_never_invents_receipts(self):
         buttons = [
             [button("🎬 VOIR LE FILM", "https://t.me/c/123/45")],
