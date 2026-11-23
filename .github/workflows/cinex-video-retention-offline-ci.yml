@@ -42,6 +42,7 @@ jobs:
         with:
           sparse-checkout: |
             telegram-film-relay/
+            .github/workflows/
           sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
