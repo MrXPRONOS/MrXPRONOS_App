@@ -10,9 +10,10 @@ import argparse
 import asyncio
 import logging
 import os
+import re
 from pathlib import Path
 
-from film_relay.public_video_archive import is_video_message
+from film_relay.public_video_archive import is_video_message, video_document_id
 from film_relay.cinex_v4_policy import has_automatic_ttl
 from film_relay.publication import (
     film_folder_url, video_labels, verify_complete_public_video_keyboard,
@@ -23,6 +24,21 @@ from film_relay.public_video_retention import validate_retention_targets
 from film_relay.runner import resolve_peer
 
 LOG = logging.getLogger("cinex.lot2.live")
+# A message URL is only trusted for the exact owner-registered category library.
+INTERNAL_LINK = re.compile(r"^https://t\.me/c/([0-9]{6,})/([1-9][0-9]*)$")
+EPISODE_CODE = re.compile(r"\bS[0-9]{2,3}E[0-9]{2,3}\b", re.IGNORECASE)
+DOWNLOAD_LINK = re.compile(
+    r"https://t\.me/CineRadarFr_Bot\?start=d_[A-Za-z0-9_-]{24}"
+)
+
+
+def private_message_id(url: str, private_id: int) -> int | None:
+    match = INTERNAL_LINK.fullmatch(str(url or ""))
+    if not match or not str(private_id).startswith("-100"):
+        return None
+    if match.group(1) != str(private_id)[4:]:
+        return None
+    return int(match.group(2))
 
 
 def button_pairs(message):
@@ -37,7 +53,7 @@ def button_pairs(message):
     return result
 
 
-def is_private_fiche(message, public_handle):
+def is_private_fiche(message, public_handle, private_id=None):
     if not getattr(message, "photo", None):
         return False
     rows = button_pairs(message)
@@ -52,12 +68,19 @@ def is_private_fiche(message, public_handle):
         and "rejoindre le dossier" in second_label.casefold()
         and second_url == film_folder_url()
         and "télécharger" in last_label.casefold()
-        and (is_bot_download_url(last_url)
-             or last_url.startswith("https://t.me/c/"))  # Season index
+        and (
+            is_bot_download_url(last_url)
+            or (private_id is not None
+                and private_message_id(last_url, private_id) is not None)
+        )  # Only the exact category library can host a season index
     )
 
 
-def validate_public_sample(message, public, category=None):
+def validate_public_sample(message, public, category=None, private_id=None):
+    """Recognize both V4 contracts: one-film CineRadar link or season batch index.
+
+    No shortcut accepts an arbitrary t.me/c URL as the archive/delivery target.
+    """
     rows = button_pairs(message)
     if len(rows) != 4 or any(len(row) != 1 for row in rows):
         return False
@@ -67,23 +90,109 @@ def validate_public_sample(message, public, category=None):
         video_labels(category, episode=True)[0],
     }:
         return False
+    if private_id is not None and private_message_id(private_link, private_id) is None:
+        return False
     _, download_url = rows[1][0]
-    return verify_complete_public_video_keyboard(
-        message, public, private_link, download_url,
-        watch_label=first_label
-    )
+    if is_bot_download_url(download_url):
+        return verify_complete_public_video_keyboard(
+            message, public, private_link, download_url,
+            watch_label=first_label
+        )
+    if category not in ("series", "anime") or private_id is None:
+        return False
+    if private_message_id(download_url, private_id) is None:
+        return False
+    try:
+        from film_relay.season_batches_v4 import batch_public_rows
+        expected = batch_public_rows(
+            public, private_link, download_url, kind=category)
+    except (ValueError, RuntimeError, TypeError):
+        return False
+    return rows == expected
 
 
 def check_receipt(download_url):
-    """Read-only D1 proof: a deep-link token resolves to an actual published item."""
+    """D1 receipt must resolve to a published file in the *approved* central stock.
+
+    The two-table join prevents a valid token for an unrelated Telegram channel
+    being mistaken for a CineRadar download. No D1 mutation takes place.
+    """
     if not is_bot_download_url(download_url):
         return False
     token = download_url.split("?start=d_", 1)[-1]
     rows = RadarRegistry()._query(
-        "SELECT status FROM cine_classic_links WHERE token=? LIMIT 1",
+        "SELECT l.source_message_id FROM cine_classic_links AS l "
+        "JOIN cine_private_stock_config AS s "
+        "ON s.singleton=1 AND l.source_chat_id=s.stock_chat_id "
+        "WHERE l.token=? AND l.status='published' AND s.ready=1 "
+        "AND s.radar_bot_id>0 LIMIT 1",
         [token]
     ).get("results") or []
-    return len(rows) == 1 and rows[0].get("status") == "published"
+    return len(rows) == 1 and int(rows[0].get("source_message_id") or 0) > 0
+
+
+async def check_download_target(client, private, private_id: int,
+                                video, download_url: str) -> bool:
+    """Follow the index of the exact episode, never confuse index with a receipt."""
+    if is_bot_download_url(download_url):
+        return check_receipt(download_url)
+    index_id = private_message_id(download_url, private_id)
+    if not index_id:
+        return False
+    marker = EPISODE_CODE.search(str(getattr(video, "raw_text", "") or ""))
+    if not marker:
+        return False
+    index = await client.get_messages(private, ids=index_id)
+    if not index:
+        return False
+    code = marker.group().upper()
+    for line in str(getattr(index, "raw_text", "") or "").splitlines():
+        if not re.search(r"(?<![A-Z0-9])" + re.escape(code)
+                         + r"(?![A-Z0-9])", line.upper()):
+            continue
+        links = DOWNLOAD_LINK.findall(line)
+        if len(links) != 1:
+            return False
+        return check_receipt(links[0])
+    return False
+
+
+async def matching_private_fiche(client, private, private_id: int,
+                                 public_handle: str, public_video, *,
+                                 max_older: int = 120) -> bool:
+    """Prove the SAME Telegram item has a real three-button private photo.
+
+    For season batches the watch link points straight at the private cover.
+    For single films it points at the private video: require matching document
+    identity and find the nearest preceding cover with the identical D1 link.
+    Never accept an unrelated old three-button poster as proof of a new video.
+    """
+    rows = button_pairs(public_video)
+    if len(rows) != 4:
+        return False
+    watch = rows[0][0][1]
+    download = rows[1][0][1]
+    watch_id = private_message_id(watch, private_id)
+    if not watch_id:
+        return False
+    target = await client.get_messages(private, ids=watch_id)
+    if target is None:
+        return False
+    if private_message_id(download, private_id) is not None:
+        return (is_private_fiche(target, public_handle, private_id)
+                and button_pairs(target)[2][0][1] == download)
+    if not is_bot_download_url(download):
+        return False
+    if (not is_video_message(target)
+        or not video_document_id(target)
+        or video_document_id(target) != video_document_id(public_video)):
+        return False
+    async for candidate in client.iter_messages(
+            private, limit=max_older, max_id=watch_id):
+        if (is_private_fiche(candidate, public_handle, private_id)
+            and button_pairs(candidate)[2][0][1] == download):
+            return True
+    return False
 
 
 async def inspect(*, limit=600):
@@ -126,7 +235,7 @@ async def inspect(*, limit=600):
                 if videos:
                     video = videos[0]
                     result["latest_public_v4"] = (
-                        "verified" if validate_public_sample(video, public, category) else "invalid"
+                        "verified" if validate_public_sample(video, public, category, private_id) else "invalid"
                     )
                     # Match a real preceding public photo with the SAME
                     # exact buttons as the public V4 video. Season episodes
@@ -143,22 +252,19 @@ async def inspect(*, limit=600):
                     if result["latest_public_v4"] == "verified":
                         dl = button_pairs(video)[1][0][1]
                         result["central_receipt"] = (
-                            "verified" if check_receipt(dl) else "not_verified"
+                            "verified" if await check_download_target(
+                                client, private, private_id, video, dl
+                            ) else "not_verified"
                         )
                         if result["central_receipt"] != "verified":
                             result["errors"] += 1
                     else:
                         result["errors"] += 1
-                posters = [
-                    m async for m in client.iter_messages(private, limit=limit)
-                    if getattr(m, "photo", None) and len(button_pairs(m)) == 3
-                ]
-                if posters:
+                if videos and result["latest_public_v4"] == "verified":
                     result["private_three_buttons"] = (
-                        "verified" if any(
-                            is_private_fiche(poster, public_handle)
-                            for poster in posters[:12]
-                        ) else "invalid"
+                        "verified" if await matching_private_fiche(
+                            client, private, private_id, public_handle, video
+                        ) else "not_verified"
                     )
                     if result["private_three_buttons"] != "verified":
                         result["errors"] += 1
@@ -190,6 +296,10 @@ async def inspect(*, limit=600):
     )
     LOG.info("LOT2_LIVE_SUMMARY completed_categories=%d/6 pending_categories=%d errors=%d",
              verified, pending, failed)
+    if pending and not failed:
+        print(f"::warning::CINEX_LOT2_PRODUCTION_PENDING: {pending}/6 categories "
+              "do not yet have complete V4 evidence. CI success only proves "
+              "the read-only audit executed, NOT that publication is validated.")
     summary = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
     if summary:
         with Path(summary).open("a", encoding="utf-8") as f:
