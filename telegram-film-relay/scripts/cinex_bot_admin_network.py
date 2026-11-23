@@ -190,7 +190,9 @@ async def run(*, apply=False, pause=12, max_changes=220):
     if not candidates:
         raise RuntimeError("no_verified_configured_bots")
     if invalid:
-        raise RuntimeError("invalid_bot_tokens_or_identity")
+        # Do not block all valid bots because one numbered secret is revoked.
+        # Every invalid identity remains excluded and the audit is partial.
+        LOG.warning("BOT_ADMIN_INVALID_SECRET_LABELS %s", ",".join(invalid))
     if len(candidates) > 30:
         raise RuntimeError("unexpected_bot_inventory_growth")
     if not 5 <= pause <= 120 or not 1 <= max_changes <= 220:
@@ -284,7 +286,8 @@ async def run(*, apply=False, pause=12, max_changes=220):
               "targets_verified": len(rows), "required_targets": 14,
               "already_or_new_admins": total_verified, "promoted": total_updated,
               "missing_before": total_missing, "errors": total_failed,
-              "missing_secret_slots": len(missing), "targets": rows}
+              "missing_secret_slots": len(missing),
+              "invalid_secret_labels": invalid, "targets": rows}
     output = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
     if output:
         with Path(output).open("a", encoding="utf-8") as f:
@@ -294,6 +297,7 @@ async def run(*, apply=False, pause=12, max_changes=220):
             f.write(f"- Administrations ajoutées : {total_updated}\n")
             f.write(f"- Erreurs de contrôle : {total_failed}\n")
             f.write(f"- Variables de bot absentes : {len(missing)}\n")
+            f.write(f"- Identités de bots invalides (jamais ajoutées) : {len(invalid)}\n")
             for row in rows:
                 f.write(f"- {row['target']} : déjà admin={row['already_admin']}, "
                         f"ajoutés={row['promoted']}, non corrigés="
@@ -301,7 +305,7 @@ async def run(*, apply=False, pause=12, max_changes=220):
     print("CINEX_BOT_ADMIN_SUMMARY", json.dumps({
         k: v for k, v in report.items() if k != "targets"
     }, sort_keys=True))
-    if total_failed or len(rows) != 14 or (apply and total_missing != total_updated):
+    if invalid or total_failed or len(rows) != 14 or (apply and total_missing != total_updated):
         raise RuntimeError("admin_network_partially_complete")
     return report
 

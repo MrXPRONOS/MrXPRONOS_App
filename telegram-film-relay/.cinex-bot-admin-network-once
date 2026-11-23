@@ -1,3 +1,5 @@
 Owner-approved one-time bot admin reconciliation for seven verified CineX public and seven Secours channels. No uploads, no deletes, no channel creation.
 
 Second pass: include TELEGRAM_REACTION_BOTS_JSON and numbered reaction slots 03..99, dedupe and idempotent admin verification.
+
+Third pass: skip invalid Telegram reaction slot 16, add all other verified bots and report partial accurately.
