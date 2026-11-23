@@ -209,7 +209,7 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
     # to the potentially coarser scoreboard clock.
     if kind == "goal":
         verified_minute = str(detail.get("minute_text") or detail.get("minute_total") or "").strip()
-        if re.fullmatch(r"\\d{1,3}(?:\\+\\d{1,2})?['’]?", verified_minute):
+        if re.fullmatch(r"\d{1,3}(?:\+\d{1,2})?['’]?", verified_minute):
             minute_label = " · " + html.escape(verified_minute.rstrip("'’")) + "'"
     home = html.escape(str(row["home_team"]), quote=False)
     away = html.escape(str(row["away_team"]), quote=False)
