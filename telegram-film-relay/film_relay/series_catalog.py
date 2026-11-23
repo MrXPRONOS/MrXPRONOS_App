@@ -27,6 +27,7 @@ from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, split_source_windows, finalize_scan, episode_audit
 from .tv_policy import complete_tv_seasons
+from .anime_cadence import cadence_from_message
 from .season_batches_v4 import (
     select_season_batches, active_descriptor, valid_source_batch,
     recover_active_batch_rows, prepare_private_season_batch,
@@ -132,6 +133,7 @@ def classify(messages, source_id: int):
     """
     latest_poster = None
     current_season = 1
+    current_cadence = "unknown"
     candidates = []
     season_header = SEASON_HEADER
     for msg in sorted(messages, key=lambda x: int(x.id)):
@@ -141,11 +143,17 @@ def classify(messages, source_id: int):
         if getattr(msg, "photo", None):
             latest_poster = msg
             current_season = 1
+            current_cadence = cadence_from_message(msg)
             found = season_header.search(caption)
             if found:
                 current_season = int(found.group(1))
             continue
         if not is_supported_video(msg):
+            # A genuine source text/GIF announcement can establish weekly
+            # cadence, but never invent episode numbers or a season's total.
+            cadence = cadence_from_message(msg)
+            if cadence != "unknown" and latest_poster is not None:
+                current_cadence = cadence
             # Text-only season banners are not new series or videos.
             found = season_header.search(caption)
             if found and 1 <= int(found.group(1)) <= 50:
@@ -179,6 +187,9 @@ def classify(messages, source_id: int):
             "source_key": f"{source_id}:{int(msg.id)}",
             "series": series_key, "title": title,
             "season": season, "episode": episode,
+            "cadence_hint": (cadence_from_message(msg)
+                             if cadence_from_message(msg) != "unknown"
+                             else current_cadence),
             "video": msg, "poster": latest_poster,
             "timestamp": (getattr(msg, "date", None).timestamp()
                           if isinstance(getattr(msg, "date", None), datetime) else 0),
