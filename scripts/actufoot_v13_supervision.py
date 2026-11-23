@@ -292,7 +292,8 @@ def run(now, *, ledger, session, token, main_chat, channels,
     # Reuse the V1 11-channel identity check (main + ten specialized channels).
     accepted, failed = verify_channels(session, token, main_chat, channels)
     aggregates = read_aggregates(ledger, now)
-    report = build_report(now, channels, aggregates, set(accepted), failed,\n                          main_verified=main_can_publish(session, token, main_chat))
+    report = build_report(now, channels, aggregates, set(accepted), failed,
+                          main_verified=main_can_publish(session, token, main_chat))
     report["private_alert_delivery"] = (
         send_private_alert(report, ledger, session, token, alert_chat, dry_run=dry_run)
         if send_alerts else "disabled")
