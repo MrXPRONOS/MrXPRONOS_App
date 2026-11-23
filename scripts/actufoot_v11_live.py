@@ -205,6 +205,12 @@ def event_lines(row: dict, state: dict, kind: str, detail: dict | None = None) -
     score = str(state["score"]).replace("-", "–")
     minute = state.get("minute")
     minute_label = f" · {int(minute)}'" if isinstance(minute, int) and minute > 0 else ""
+    # For confirmed goals, prefer the goal's own ESPN minute (90+3, etc.)
+    # to the potentially coarser scoreboard clock.
+    if kind == "goal":
+        verified_minute = str(detail.get("minute_text") or detail.get("minute_total") or "").strip()
+        if re.fullmatch(r"\\d{1,3}(?:\\+\\d{1,2})?['’]?", verified_minute):
+            minute_label = " · " + html.escape(verified_minute.rstrip("'’")) + "'"
     home = html.escape(str(row["home_team"]), quote=False)
     away = html.escape(str(row["away_team"]), quote=False)
     match_heading = f"<b>⚽ {home} {html.escape(score)} {away}{minute_label}</b>"
@@ -308,7 +314,11 @@ def derive_events(row: dict, info: dict, summary: dict,
             ]
             if goals:
                 kind = "goal"
-                detail = {"player": str(goals[-1].get("player") or "")}
+                goal = goals[-1]
+                detail = {"player": str(goal.get("player") or ""),
+                          "minute_text": str(goal.get("minute_text") or ""),
+                          "minute_total": goal.get("minute_total"),
+                          "team": str(goal.get("team") or "")}
         output.append((kind, f"score:{match_id}:{current['score']}", detail))
     if current_phase == "halftime" and previous.get("phase") != "halftime":
         output.append(("halftime", f"halftime:{match_id}", {}))
