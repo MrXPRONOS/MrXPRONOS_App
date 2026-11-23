@@ -1,5 +1,73 @@
 [
   {
+    "slug": "66aa5839e50d9ebc",
+    "title": "Ligue des Champions : le groupe du Real Madrid face au PSV dévoilé",
+    "summary": "Le Real Madrid a dévoilé ce lundi sa liste de joueurs convoqués pour la réception du PSV Eindhoven, prévue mardi à 21h au Santiago-Bernabéu, dans le cadre de la cinquième journée de la Ligue des (…)",
+    "summary_short": "Le Real Madrid a dévoilé ce lundi sa liste de joueurs convoqués pour la réception du PSV Eindhoven, prévue mardi à 21h au Santiago-Bernabéu, dans le cadre de la cinquième journée de la Ligue des (…)",
+    "content": "Le Real Madrid a dévoilé ce lundi sa liste de joueurs convoqués pour la réception du PSV Eindhoven, prévue mardi à 21h au Santiago-Bernabéu, dans le cadre de la cinquième journée de la Ligue des (…)",
+    "paragraphs": [
+      "Le Real Madrid a dévoilé ce lundi sa liste de joueurs convoqués pour la réception du PSV Eindhoven, prévue mardi à 21h au Santiago-Bernabéu, dans le cadre de la cinquième journée de la Ligue des (…)"
+    ],
+    "key_points": [
+      "Le Real Madrid a dévoilé ce lundi sa liste de joueurs convoqués pour la réception du PSV Eindhoven, prévue mardi à 21h au Santiago-Bernabéu, dans le cadre de la cinquième journée de la Ligue des (…)"
+    ],
+    "telegram_summary": "Le Real Madrid a dévoilé ce lundi sa liste de joueurs convoqués pour la réception du PSV Eindhoven, prévue mardi à 21h au Santiago-Bernabéu, dans le cadre de la cinquième journée de la Ligue des (…)",
+    "link": "https://www.footmercato.net/a1678923663048309452-ligue-des-champions-le-groupe-du-real-madrid-face-au-psv-devoile",
+    "source_url": "https://www.footmercato.net/a1678923663048309452-ligue-des-champions-le-groupe-du-real-madrid-face-au-psv-devoile",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=66aa5839e50d9ebc",
+    "published": "2026-11-23T15:06:15+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/federico-valverde-2627-6afff64b135e7.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/federico-valverde-2627-6afff64b135e7.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "47e2b7c257a05c27",
+    "title": "Bayern Munich : La liste impressionnante des joueurs blessés au Bayern avant d'affronter le LOSC",
+    "summary": "Le Bayern Munich va se présenter sur la pelouse du stade Pierre-Mauroy pour affronter le LOSC, ce mercredi 25 novembre, avec un effectif décimé par les blessures.",
+    "summary_short": "Le Bayern Munich va se présenter sur la pelouse du stade Pierre-Mauroy pour affronter le LOSC, ce mercredi 25 novembre, avec un effectif décimé par les blessures.",
+    "content": "Le Bayern Munich va se présenter sur la pelouse du stade Pierre-Mauroy pour affronter le LOSC, ce mercredi 25 novembre, avec un effectif décimé par les blessures.",
+    "paragraphs": [
+      "Le Bayern Munich va se présenter sur la pelouse du stade Pierre-Mauroy pour affronter le LOSC, ce mercredi 25 novembre, avec un effectif décimé par les blessures."
+    ],
+    "key_points": [
+      "Le Bayern Munich va se présenter sur la pelouse du stade Pierre-Mauroy pour affronter le LOSC, ce mercredi 25 novembre, avec un effectif décimé par les blessures."
+    ],
+    "telegram_summary": "Le Bayern Munich va se présenter sur la pelouse du stade Pierre-Mauroy pour affronter le LOSC, ce mercredi 25 novembre, avec un effectif décimé par les blessures.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-bayern-munich-la-liste-impressionnante-des-joueurs-blesses-au-bayern-avant-d-affronter-le-losc-546747.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-bayern-munich-la-liste-impressionnante-des-joueurs-blesses-au-bayern-avant-d-affronter-le-losc-546747.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=47e2b7c257a05c27",
+    "published": "2026-11-23T14:46:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260429104345-9690.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260429104345-9690.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "1b0ecfb5f813243a",
     "title": "Le Paris FC peut-il réellement concurrencer le PSG ?",
     "summary": "Longtemps resté dans l’ombre de son prestigieux voisin, le Paris FC nourrit désormais de nouvelles ambitions depuis son arrivée dans l’élite et l’entrée de puissants investisseurs à son capital.",
@@ -64,20 +132,19 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50505359",
-      "url": "https://www.espn.com/soccer/story/_/id/50505359/vinicius-junior-real-madrid-brazil-transfer",
-      "published": "2026-11-20T09:35:18Z",
-      "score": 0.273,
+      "article_id": "50573054",
+      "url": "https://www.espn.com/soccer/story/_/id/50573054/real-madrid-mourinho-vinicius-jr-does-not-mvp",
+      "published": "2026-11-23T14:39:10Z",
+      "score": 0.3,
       "matched_terms": [
         "madrid",
         "real",
         "vinicius"
       ],
       "topics": [
-        "soccer transfers"
+        "news"
       ],
       "teams": [
-        "Brazil",
         "Real Madrid"
       ],
       "athletes": [
@@ -85,10 +152,10 @@
       ],
       "leagues": [
         "Soccer",
-        "Spanish LALIGA"
+        "UEFA Champions League"
       ],
-      "is_transfer": true,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "is_transfer": false,
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -148,7 +215,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -385,7 +452,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -447,48 +514,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "So Foot",
       "ESPN"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "c6a9820c4aeb244e",
-    "title": "Barça : le groupe convoqué pour le déplacement en Azerbaïdjan",
-    "summary": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
-    "summary_short": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
-    "content": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
-    "paragraphs": [
-      "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)"
-    ],
-    "key_points": [
-      "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan.",
-      "Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)"
-    ],
-    "telegram_summary": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
-    "link": "https://www.footmercato.net/a7428125409253422729-barca-le-groupe-convoque-pour-le-deplacement-en-azerbaidjan",
-    "source_url": "https://www.footmercato.net/a7428125409253422729-barca-le-groupe-convoque-pour-le-deplacement-en-azerbaidjan",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c6a9820c4aeb244e",
-    "published": "2026-11-23T11:30:28+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalflick.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalflick.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "b46ab4d6e9f4a4fa",
@@ -525,41 +557,6 @@
     "quality_score": 90
   },
   {
-    "slug": "760064dd471e0a49",
-    "title": "Emanuel Emegha a été agressé en quittant Stamford Bridge",
-    "summary": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
-    "summary_short": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
-    "content": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
-    "paragraphs": [
-      "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)"
-    ],
-    "key_points": [
-      "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol.",
-      "Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)"
-    ],
-    "telegram_summary": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
-    "link": "https://www.footmercato.net/a9007865604048401527-emanuel-emegha-a-ete-agresse-en-quittant-stamford-bridge",
-    "source_url": "https://www.footmercato.net/a9007865604048401527-emanuel-emegha-a-ete-agresse-en-quittant-stamford-bridge",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=760064dd471e0a49",
-    "published": "2026-11-23T11:15:30+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dsc01545.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dsc01545.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "09cf22741c6bef3a",
     "title": "PSG : Doué blessé, quel impact sur le mercato ?",
     "summary": "Touché par les blessures de Désiré Doué et Khvicha Kvaratskhelia, le Paris Saint-Germain pourrait être tenté de se renforcer cet hiver. Plusieurs profils ont déjà été ciblés, mais le club de la capitale entend rester fidèle à sa politique de recrutement....",
@@ -593,75 +590,6 @@
       "Maxifoot"
     ],
     "quality_score": 78
-  },
-  {
-    "slug": "24c98c6ee7ad8205",
-    "title": "En furie, Madrid plonge le Barça dans une nouvelle tempête arbitrale !",
-    "summary": "La victoire du FC Barcelone face à Villarreal (3-2) ne passe décidément pas auprès de la presse madrilène. Entre un penalty accordé à Lamine Yamal et un corner très contesté avant le premier but (…)",
-    "summary_short": "La victoire du FC Barcelone face à Villarreal (3-2) ne passe décidément pas auprès de la presse madrilène. Entre un penalty accordé à Lamine Yamal et un corner très contesté avant le premier but (…)",
-    "content": "La victoire du FC Barcelone face à Villarreal (3-2) ne passe décidément pas auprès de la presse madrilène. Entre un penalty accordé à Lamine Yamal et un corner très contesté avant le premier but (…)",
-    "paragraphs": [
-      "La victoire du FC Barcelone face à Villarreal (3-2) ne passe décidément pas auprès de la presse madrilène. Entre un penalty accordé à Lamine Yamal et un corner très contesté avant le premier but (…)"
-    ],
-    "key_points": [
-      "La victoire du FC Barcelone face à Villarreal (3-2) ne passe décidément pas auprès de la presse madrilène.",
-      "Entre un penalty accordé à Lamine Yamal et un corner très contesté avant le premier but (…)"
-    ],
-    "telegram_summary": "La victoire du FC Barcelone face à Villarreal (3-2) ne passe décidément pas auprès de la presse madrilène. Entre un penalty accordé à Lamine Yamal et un corner très contesté avant le premier but (…)",
-    "link": "https://www.footmercato.net/a7381651766063058852-en-furie-madrid-plonge-le-barca-dans-une-nouvelle-tempete-arbitrale",
-    "source_url": "https://www.footmercato.net/a7381651766063058852-en-furie-madrid-plonge-le-barca-dans-une-nouvelle-tempete-arbitrale",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=24c98c6ee7ad8205",
-    "published": "2026-11-23T10:59:22+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/alejandro-balde-2627-2.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/alejandro-balde-2627-2.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "62ddbb2ec3fef4ed",
-    "title": "Vainqueur de la CAN 2025 : la décision finale du Tribunal arbitral du sport enfin connue ce mardi après-midi",
-    "summary": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
-    "summary_short": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
-    "content": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
-    "paragraphs": [
-      "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…"
-    ],
-    "key_points": [
-      "Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…"
-    ],
-    "telegram_summary": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
-    "link": "https://www.sofoot.com/breves/vainqueur-de-la-can-2025-la-decision-finale-du-tribunal-arbitral-du-sport-enfin-connue-ce-mardi-apres-midi",
-    "source_url": "https://www.sofoot.com/breves/vainqueur-de-la-can-2025-la-decision-finale-du-tribunal-arbitral-du-sport-enfin-connue-ce-mardi-apres-midi",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=62ddbb2ec3fef4ed",
-    "published": "2026-11-23T10:53:33+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23121652/ICONSPORT_282766_0171-1-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23121652/ICONSPORT_282766_0171-1-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   },
   {
     "slug": "e7d275b260fe7b72",
@@ -960,13 +888,282 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "327bf4117d9fa2b5",
+    "title": "England, Northern Ireland, Scotland & Wales to host 2035 Women's World Cup",
+    "summary": "The United Kingdom will host a football World Cup for the first time since 1966.",
+    "summary_short": "The United Kingdom will host a football World Cup for the first time since 1966.",
+    "content": "The United Kingdom will host a football World Cup for the first time since 1966.",
+    "paragraphs": [
+      "The United Kingdom will host a football World Cup for the first time since 1966."
+    ],
+    "key_points": [
+      "The United Kingdom will host a football World Cup for the first time since 1966."
+    ],
+    "telegram_summary": "The United Kingdom will host a football World Cup for the first time since 1966.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cx30g83716lzo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cx30g83716lzo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=327bf4117d9fa2b5",
+    "published": "2026-11-23T15:09:50+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/7751/live/e5488500-e749-11f1-88dc-f746e0cde621.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/7751/live/e5488500-e749-11f1-88dc-f746e0cde621.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "862bcc41c225351b",
+    "title": "Real Madrid, PSG : la réponse piquante de José Mourinho sur la blessure de Désiré Doué",
+    "summary": "Alors que les blessures de Harry Kane et Désiré Doué relancent le débat sur la surcharge du calendrier, José Mourinho a livré une analyse pour le moins pragmatique. José Mourinho n’a pas mâché ses (…)",
+    "summary_short": "Alors que les blessures de Harry Kane et Désiré Doué relancent le débat sur la surcharge du calendrier, José Mourinho a livré une analyse pour le moins pragmatique. José Mourinho n’a pas mâché ses (…)",
+    "content": "Alors que les blessures de Harry Kane et Désiré Doué relancent le débat sur la surcharge du calendrier, José Mourinho a livré une analyse pour le moins pragmatique. José Mourinho n’a pas mâché ses (…)",
+    "paragraphs": [
+      "Alors que les blessures de Harry Kane et Désiré Doué relancent le débat sur la surcharge du calendrier, José Mourinho a livré une analyse pour le moins pragmatique. José Mourinho n’a pas mâché ses (…)"
+    ],
+    "key_points": [
+      "Alors que les blessures de Harry Kane et Désiré Doué relancent le débat sur la surcharge du calendrier, José Mourinho a livré une analyse pour le moins pragmatique.",
+      "José Mourinho n’a pas mâché ses (…)"
+    ],
+    "telegram_summary": "Alors que les blessures de Harry Kane et Désiré Doué relancent le débat sur la surcharge du calendrier, José Mourinho a livré une analyse pour le moins pragmatique. José Mourinho n’a pas mâché ses (…)",
+    "link": "https://www.footmercato.net/a8751026535163650313-real-madrid-psg-la-reponse-piquante-de-jose-mourinho-sur-la-blessure-de-desire-doue",
+    "source_url": "https://www.footmercato.net/a8751026535163650313-real-madrid-psg-la-reponse-piquante-de-jose-mourinho-sur-la-blessure-de-desire-doue",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=862bcc41c225351b",
+    "published": "2026-11-23T15:07:31+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jose-mourinho-2627-6ad9c03fa892b.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jose-mourinho-2627-6ad9c03fa892b.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50573054",
+      "url": "https://www.espn.com/soccer/story/_/id/50573054/real-madrid-mourinho-vinicius-jr-does-not-mvp",
+      "published": "2026-11-23T14:39:10Z",
+      "score": 0.231,
+      "matched_terms": [
+        "madrid",
+        "mourinho",
+        "real"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Real Madrid"
+      ],
+      "athletes": [
+        "Vinícius Júnior"
+      ],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "ba609e42c7f40f88",
+    "title": "Équipe de France : Rabiot dans la forme de sa vie au Milan, personne ne fait mieux en Europe",
+    "summary": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
+    "summary_short": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
+    "content": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
+    "paragraphs": [
+      "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain."
+    ],
+    "key_points": [
+      "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain."
+    ],
+    "telegram_summary": "Adrien Rabiot est en immense forme à l'AC Milan, affichant des statistiques uniques en Europe pour un milieu de terrain.",
+    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe-1010798",
+    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe-1010798",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba609e42c7f40f88",
+    "published": "2026-11-23T14:58:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010798/411491/1200-L-quipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010798/411491/1200-L-quipe-de-france-rabiot-dans-la-forme-de-sa-vie-au-milan-personne-ne-fait-mieux-en-europe.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "80dc3579531ccd51",
+    "title": "Mercato PSG : Matvey Safonov va enfin dépasser Lucas Chevalier",
+    "summary": "Matvey Safonov devrait profiter de son nouveau contrat pour toucher une nette augmentation.",
+    "summary_short": "Matvey Safonov devrait profiter de son nouveau contrat pour toucher une nette augmentation.",
+    "content": "Matvey Safonov devrait profiter de son nouveau contrat pour toucher une nette augmentation.",
+    "paragraphs": [
+      "Matvey Safonov devrait profiter de son nouveau contrat pour toucher une nette augmentation."
+    ],
+    "key_points": [
+      "Matvey Safonov devrait profiter de son nouveau contrat pour toucher une nette augmentation."
+    ],
+    "telegram_summary": "Matvey Safonov devrait profiter de son nouveau contrat pour toucher une nette augmentation.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-matvey-safonov-va-enfin-depasser-lucas-chevalier-546749.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-matvey-safonov-va-enfin-depasser-lucas-chevalier-546749.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=80dc3579531ccd51",
+    "published": "2026-11-23T14:55:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260407113508-5682.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260407113508-5682.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "bf65ba8418babb47",
+    "title": "L’Olympique de Marseille lance « Espoirs olympiens » pour détecter les futures pépites de la région",
+    "summary": "Le futur Samir Nasri est demandé à la Commanderie. Ce n’est un secret pour personne, mais l’Olympique de Marseille est…",
+    "summary_short": "Le futur Samir Nasri est demandé à la Commanderie. Ce n’est un secret pour personne, mais l’Olympique de Marseille est…",
+    "content": "Le futur Samir Nasri est demandé à la Commanderie. Ce n’est un secret pour personne, mais l’Olympique de Marseille est…",
+    "paragraphs": [
+      "Le futur Samir Nasri est demandé à la Commanderie. Ce n’est un secret pour personne, mais l’Olympique de Marseille est…"
+    ],
+    "key_points": [
+      "Le futur Samir Nasri est demandé à la Commanderie.",
+      "Ce n’est un secret pour personne, mais l’Olympique de Marseille est…"
+    ],
+    "telegram_summary": "Le futur Samir Nasri est demandé à la Commanderie. Ce n’est un secret pour personne, mais l’Olympique de Marseille est…",
+    "link": "https://www.sofoot.com/breves/lolympique-de-marseille-lance-espoirs-olympiens-pour-detecter-les-futures-pepites-de-la-region",
+    "source_url": "https://www.sofoot.com/breves/lolympique-de-marseille-lance-espoirs-olympiens-pour-detecter-les-futures-pepites-de-la-region",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bf65ba8418babb47",
+    "published": "2026-11-23T14:54:58+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23154226/ICONSPORT_012752_0002-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23154226/ICONSPORT_012752_0002-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "95a95667528c2fe6",
+    "title": "Coupe du Monde U17 : l’Espagne colle un 15-0 aux Fidji !",
+    "summary": "L’Espagne U17 a signé une véritable démonstration en écrasant les Fidji (15-0), ce lundi, lors de la deuxième journée de la Coupe du Monde U17 au Qatar. Les jeunes Espagnols ont rapidement pris le (…)",
+    "summary_short": "L’Espagne U17 a signé une véritable démonstration en écrasant les Fidji (15-0), ce lundi, lors de la deuxième journée de la Coupe du Monde U17 au Qatar. Les jeunes Espagnols ont rapidement pris le (…)",
+    "content": "L’Espagne U17 a signé une véritable démonstration en écrasant les Fidji (15-0), ce lundi, lors de la deuxième journée de la Coupe du Monde U17 au Qatar. Les jeunes Espagnols ont rapidement pris le (…)",
+    "paragraphs": [
+      "L’Espagne U17 a signé une véritable démonstration en écrasant les Fidji (15-0), ce lundi, lors de la deuxième journée de la Coupe du Monde U17 au Qatar. Les jeunes Espagnols ont rapidement pris le (…)"
+    ],
+    "key_points": [
+      "L’Espagne U17 a signé une véritable démonstration en écrasant les Fidji (15-0), ce lundi, lors de la deuxième journée de la Coupe du Monde U17 au Qatar.",
+      "Les jeunes Espagnols ont rapidement pris le (…)"
+    ],
+    "telegram_summary": "L’Espagne U17 a signé une véritable démonstration en écrasant les Fidji (15-0), ce lundi, lors de la deuxième journée de la Coupe du Monde U17 au Qatar. Les jeunes Espagnols ont rapidement pris le (…)",
+    "link": "https://www.footmercato.net/a8362228728402454312-cdm-u17-lespagne-inflige-un-15-0-a-fidji",
+    "source_url": "https://www.footmercato.net/a8362228728402454312-cdm-u17-lespagne-inflige-un-15-0-a-fidji",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=95a95667528c2fe6",
+    "published": "2026-11-23T14:44:05+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/u17-6afb1ea30769f.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/u17-6afb1ea30769f.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "906cd7180aa64528",
+    "title": "NEC Nimègue : Emre Mor fait une pause dans sa carrière",
+    "summary": "Emre Mor dit stop. Ou du moins provisoirement. À seulement 29 ans, le Turc a annoncé, ce lundi après-midi, se…",
+    "summary_short": "Emre Mor dit stop. Ou du moins provisoirement. À seulement 29 ans, le Turc a annoncé, ce lundi après-midi, se…",
+    "content": "Emre Mor dit stop. Ou du moins provisoirement. À seulement 29 ans, le Turc a annoncé, ce lundi après-midi, se…",
+    "paragraphs": [
+      "Emre Mor dit stop. Ou du moins provisoirement. À seulement 29 ans, le Turc a annoncé, ce lundi après-midi, se…"
+    ],
+    "key_points": [
+      "À seulement 29 ans, le Turc a annoncé, ce lundi après-midi, se…"
+    ],
+    "telegram_summary": "Emre Mor dit stop. Ou du moins provisoirement. À seulement 29 ans, le Turc a annoncé, ce lundi après-midi, se…",
+    "link": "https://www.sofoot.com/breves/nec-nimegue-emre-mor-fait-une-pause-dans-sa-carriere",
+    "source_url": "https://www.sofoot.com/breves/nec-nimegue-emre-mor-fait-une-pause-dans-sa-carriere",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=906cd7180aa64528",
+    "published": "2026-11-23T14:39:32+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23153600/14431568.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23153600/14431568.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "8ff576644d83408b",
@@ -1020,7 +1217,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1181,7 +1378,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1684,7 +1881,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1848,7 +2045,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
+      "checked_at": "2026-11-23T15:10:10.325427+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2128,230 +2325,5 @@
       "So Foot"
     ],
     "quality_score": 77
-  },
-  {
-    "slug": "e5be040cd9911043",
-    "title": "Rayan Cherki brise le silence sur la crise de Manchester City",
-    "summary": "Devenu un élément important du dispositif d’Enzo Maresca, Rayan Cherki affiche des statistiques déjà supérieures à celles de sa première saison en Premier League. Mais alors que City traverse une (…)",
-    "summary_short": "Devenu un élément important du dispositif d’Enzo Maresca, Rayan Cherki affiche des statistiques déjà supérieures à celles de sa première saison en Premier League. Mais alors que City traverse une (…)",
-    "content": "Devenu un élément important du dispositif d’Enzo Maresca, Rayan Cherki affiche des statistiques déjà supérieures à celles de sa première saison en Premier League. Mais alors que City traverse une (…)",
-    "paragraphs": [
-      "Devenu un élément important du dispositif d’Enzo Maresca, Rayan Cherki affiche des statistiques déjà supérieures à celles de sa première saison en Premier League. Mais alors que City traverse une (…)"
-    ],
-    "key_points": [
-      "Devenu un élément important du dispositif d’Enzo Maresca, Rayan Cherki affiche des statistiques déjà supérieures à celles de sa première saison en Premier League.",
-      "Mais alors que City traverse une (…)"
-    ],
-    "telegram_summary": "Devenu un élément important du dispositif d’Enzo Maresca, Rayan Cherki affiche des statistiques déjà supérieures à celles de sa première saison en Premier League. Mais alors que City traverse une (…)",
-    "link": "https://www.footmercato.net/a348791579622136890-rayan-cherki-brise-le-silence-sur-la-crise-de-manchester-city",
-    "source_url": "https://www.footmercato.net/a348791579622136890-rayan-cherki-brise-le-silence-sur-la-crise-de-manchester-city",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e5be040cd9911043",
-    "published": "2026-11-23T11:55:05+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/cherki-6a928a1ee50b1.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/cherki-6a928a1ee50b1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50383223",
-      "url": "https://www.espn.com/video/clip/_/id/50383223/manchester-city-win-lack-dominance",
-      "published": "2026-11-04T23:49:54Z",
-      "score": 0.2,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Manchester City",
-        "RB Leipzig"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "5b230af28ef30aaf",
-    "title": "Une statue et un musée inauguré en l’honneur de Cristiano Ronaldo à Shanghai",
-    "summary": "Assez grande pour son ego. Pour tous les fans déprimés depuis le 5 novembre, date où Cristiano Ronaldo…",
-    "summary_short": "Assez grande pour son ego. Pour tous les fans déprimés depuis le 5 novembre, date où Cristiano Ronaldo…",
-    "content": "Assez grande pour son ego. Pour tous les fans déprimés depuis le 5 novembre, date où Cristiano Ronaldo…",
-    "paragraphs": [
-      "Assez grande pour son ego. Pour tous les fans déprimés depuis le 5 novembre, date où Cristiano Ronaldo…"
-    ],
-    "key_points": [
-      "Pour tous les fans déprimés depuis le 5 novembre, date où Cristiano Ronaldo…"
-    ],
-    "telegram_summary": "Assez grande pour son ego. Pour tous les fans déprimés depuis le 5 novembre, date où Cristiano Ronaldo…",
-    "link": "https://www.sofoot.com/breves/une-statue-et-un-musee-inaugure-en-lhonneur-de-cristiano-ronaldo-a-shanghai",
-    "source_url": "https://www.sofoot.com/breves/une-statue-et-un-musee-inaugure-en-lhonneur-de-cristiano-ronaldo-a-shanghai",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5b230af28ef30aaf",
-    "published": "2026-11-23T11:51:05+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23135453/ICONSPORT_380245_0006-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23135453/ICONSPORT_380245_0006-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "04212830f4b3d77c",
-    "title": "Un jeune ramasseur de balles touché par un fumigène lors de Laval-Montpellier",
-    "summary": "Pas touche ! En marge de la 13e journée de championnat entre Laval et Montpellier en terre mayennaise,",
-    "summary_short": "Pas touche ! En marge de la 13e journée de championnat entre Laval et Montpellier en terre mayennaise,",
-    "content": "Pas touche ! En marge de la 13e journée de championnat entre Laval et Montpellier en terre mayennaise,",
-    "paragraphs": [
-      "Pas touche ! En marge de la 13e journée de championnat entre Laval et Montpellier en terre mayennaise,"
-    ],
-    "key_points": [
-      "En marge de la 13e journée de championnat entre Laval et Montpellier en terre mayennaise,"
-    ],
-    "telegram_summary": "Pas touche ! En marge de la 13e journée de championnat entre Laval et Montpellier en terre mayennaise,",
-    "link": "https://www.sofoot.com/breves/un-jeune-ramasseur-de-balles-touche-par-un-fumigene-lors-de-laval-montpellier",
-    "source_url": "https://www.sofoot.com/breves/un-jeune-ramasseur-de-balles-touche-par-un-fumigene-lors-de-laval-montpellier",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=04212830f4b3d77c",
-    "published": "2026-11-23T11:50:20+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23124256/14754532.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23124256/14754532.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "d665ea6e3417bb15",
-    "title": "Andreatta's masterplan to shock Sweden & take Scots to World Cup",
-    "summary": "Scotland intend to bring fancied Sweden's World Cup dream \"crashing down - and do it in a truly Scottish way\", says manager Melissa Andreatta.",
-    "summary_short": "Scotland intend to bring fancied Sweden's World Cup dream \"crashing down - and do it in a truly Scottish way\", says manager Melissa Andreatta.",
-    "content": "Scotland intend to bring fancied Sweden's World Cup dream \"crashing down - and do it in a truly Scottish way\", says manager Melissa Andreatta.",
-    "paragraphs": [
-      "Scotland intend to bring fancied Sweden's World Cup dream \"crashing down - and do it in a truly Scottish way\", says manager Melissa Andreatta."
-    ],
-    "key_points": [
-      "Scotland intend to bring fancied Sweden's World Cup dream \"crashing down - and do it in a truly Scottish way\", says manager Melissa Andreatta."
-    ],
-    "telegram_summary": "Scotland intend to bring fancied Sweden's World Cup dream \"crashing down - and do it in a truly Scottish way\", says manager Melissa Andreatta.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/c94gn2mmjr4eo?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/c94gn2mmjr4eo?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d665ea6e3417bb15",
-    "published": "2026-11-23T11:49:40+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/4463/live/b87bf390-e735-11f1-8294-033bd8ee7e95.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/4463/live/b87bf390-e735-11f1-8294-033bd8ee7e95.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "70f73e089e48081e",
-    "title": "Le Real Madrid annonce une blessure pour Endrick !",
-    "summary": "Le club madrilène vient de communiquer sur la blessure d’Endrick, absent de l'entraînement à la veille du choc en Ligue des champions contre le PSV Eindhoven.",
-    "summary_short": "Le club madrilène vient de communiquer sur la blessure d’Endrick, absent de l'entraînement à la veille du choc en Ligue des champions contre le PSV Eindhoven.",
-    "content": "Le club madrilène vient de communiquer sur la blessure d’Endrick, absent de l'entraînement à la veille du choc en Ligue des champions contre le PSV Eindhoven.",
-    "paragraphs": [
-      "Le club madrilène vient de communiquer sur la blessure d’Endrick, absent de l'entraînement à la veille du choc en Ligue des champions contre le PSV Eindhoven."
-    ],
-    "key_points": [
-      "Le club madrilène vient de communiquer sur la blessure d’Endrick, absent de l'entraînement à la veille du choc en Ligue des champions contre le PSV Eindhoven."
-    ],
-    "telegram_summary": "Le club madrilène vient de communiquer sur la blessure d’Endrick, absent de l'entraînement à la veille du choc en Ligue des champions contre le PSV Eindhoven.",
-    "link": "https://www.onzemondial.com/liga/le-real-madrid-annonce-une-blessure-pour-endrick-1010806",
-    "source_url": "https://www.onzemondial.com/liga/le-real-madrid-annonce-une-blessure-pour-endrick-1010806",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=70f73e089e48081e",
-    "published": "2026-11-23T11:49:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010806/411492/1200-L-le-real-madrid-annonce-une-blessure-pour-endrick.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010806/411492/1200-L-le-real-madrid-annonce-une-blessure-pour-endrick.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50554543",
-      "url": "https://www.espn.com/video/clip/_/id/50554543/real-madrid-vs-celta-vigo-game-highlights",
-      "published": "2026-11-21T22:10:42Z",
-      "score": 0.222,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Celta Vigo",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Carlos Espí",
-        "Jude Bellingham",
-        "Kylian Mbappé",
-        "Pablo Durán",
-        "Yan Diomande"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-23T14:40:11.944300+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
   }
 ]
