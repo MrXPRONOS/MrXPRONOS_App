@@ -10,6 +10,10 @@ import asyncio
 import os
 from html import escape
 from .cinex_v4_policy import caption_with_automatic_ttl
+from .radar_download_registry import is_bot_download_url
+from .rescue_channels import is_invite
+from .publication import film_folder_url
+from .cinex_v4_policy import canonical_public_handle, is_main_relay
 
 
 def message_url(private_id: str, message_id: int) -> str:
@@ -26,7 +30,9 @@ def episode_key(row):
 class AnimeBotPublisher:
     def __init__(self, transport, store, state, *,
                  private_id: str, public_id: str, folder_url: str = "",
-                 pause: float = 3.0):
+                 pause: float = 3.0, central_stock_id: str = "",
+                 radar_registry=None, rescue_url: str = "",
+                 public_handle: str = "@CineXAnimeFR"):
         self.transport = transport
         self.store = store
         self.state = state
@@ -36,6 +42,17 @@ class AnimeBotPublisher:
         self.pause = max(0.0, float(pause))
         if folder_url and not folder_url.startswith("https://t.me/addlist/"):
             raise ValueError("Unverified folder URL.")
+        self.central_stock_id = str(central_stock_id or "")
+        self.radar_registry = radar_registry
+        self.rescue_url = str(rescue_url or "")
+        self.public_handle = canonical_public_handle(public_handle)
+        if not is_main_relay(self.public_handle):
+            raise ValueError("Anime bot public destination is not an official relay")
+        if self.central_stock_id and (
+                not self.central_stock_id.startswith("-100") or
+                not self.central_stock_id[1:].isdigit() or
+                self.central_stock_id in (self.private_id, self.public_id)):
+            raise ValueError("Invalid distinct central stock channel")
 
     async def _operation(self, key, action):
         journal = self.state.setdefault("operation_receipts", {})
@@ -70,12 +87,75 @@ class AnimeBotPublisher:
             pass
         return entry
 
-    def _keyboard(self, private_url):
-        rows = [[{"text": "🎞️ VOIR L'ÉPISODE", "url": private_url}]]
-        if self.folder_url:
-            rows.append([{"text": "📁 Rejoindre CinéX",
-                          "url": self.folder_url}])
-        return {"inline_keyboard": rows}
+    def _keyboard(self, watch_url: str, download_url: str):
+        """Exactly the four approved public CineX anime buttons."""
+        if (not is_bot_download_url(download_url)
+                or not is_invite(self.rescue_url)
+                or not self.folder_url.startswith("https://t.me/addlist/")):
+            raise RuntimeError("Anime bot : links to stock, Secours or folder absent")
+        if not watch_url.startswith("https://t.me/c/"):
+            raise RuntimeError("Anime bot : verified private episode URL required")
+        return {"inline_keyboard": [
+            [{"text": "🌸 VOIR L'ANIMÉ", "url": watch_url}],
+            [{"text": "⬇️ TÉLÉCHARGER LES VIDÉOS", "url": download_url}],
+            [{"text": "🛟 REJOINDRE LE CANAL SECOURS", "url": self.rescue_url}],
+            [{"text": "📁 REJOINDRE LE DOSSIER", "url": self.folder_url}],
+        ]}
+
+    def _library_keyboard(self, download_url: str):
+        if not is_bot_download_url(download_url):
+            raise RuntimeError("Anime bot : central download receipt missing")
+        return {"inline_keyboard": [
+            [{"text": "📢 REJOINDRE LE CANAL",
+              "url": "https://t.me/" + self.public_handle.lstrip("@")}],
+            [{"text": "📁 REJOINDRE LE DOSSIER", "url": self.folder_url}],
+            [{"text": "⬇️ TÉLÉCHARGER", "url": download_url}],
+        ]}
+
+    async def _central_download(self, row, entry, poster, source):
+        """Archive original poster then video in OWNER central stock before any
+        public/private episode post. Each Telegram send has an uncertain-receipt
+        lock: retries can never create blind duplicates.
+        """
+        if (not self.central_stock_id or self.radar_registry is None
+                or not is_invite(self.rescue_url)
+                or not self.folder_url.startswith("https://t.me/addlist/")):
+            raise RuntimeError(
+                "Anime Bot V2 requires central stock, CineRadar, verified Secours "
+                "and shared folder before any new publication")
+        marker = episode_key(row)
+        stock = entry.setdefault("central_stock", {}).setdefault(marker, {})
+        if not stock.get("cover"):
+            stock["cover"] = await self._operation(
+                f"stock:cover:{row['series']}:{marker}",
+                lambda: self.transport.copy_message(
+                    self.central_stock_id, poster["source_id"],
+                    poster["message_id"],
+                    caption=f"🌸 <b>{escape(entry['title'])}</b> — {marker}"))
+            self.store.save(self.state)
+        if not stock.get("video"):
+            stock["video"] = await self._operation(
+                f"stock:video:{row['series']}:{marker}",
+                lambda: self.transport.copy_message(
+                    self.central_stock_id, source["source_id"],
+                    source["message_id"],
+                    caption=f"🎞️ <b>{escape(entry['title'])}</b> — {marker}"))
+            self.store.save(self.state)
+        if not stock.get("download_url"):
+            link = await asyncio.to_thread(
+                self.radar_registry.register,
+                private_channel=int(self.central_stock_id),
+                message_id=int(stock["video"]),
+                title=f"{entry['title']} {marker}",
+                public_handle=self.public_handle,
+            )
+            if not is_bot_download_url(link):
+                raise RuntimeError("Anime bot : CineRadar download not verified")
+            stock["download_url"] = link
+            self.store.save(self.state)
+        if not is_bot_download_url(stock["download_url"]):
+            raise RuntimeError("Anime bot : invalid existing download receipt")
+        return stock["download_url"]
 
     def _poster(self, row):
         key = row.get("poster_source_key")
