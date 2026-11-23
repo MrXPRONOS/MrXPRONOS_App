@@ -1,5 +1,171 @@
 [
   {
+    "slug": "234120f3afae482a",
+    "title": "Ligue des champions : Touché à une cheville, Lamine Yamal est forfait pour la rencontre face à Sabah",
+    "summary": "Repos forcé. Après la remontada opérée dimanche face à Villarreal (3-2), le FC Barcelone a communiqué une mauvaise…",
+    "summary_short": "Repos forcé. Après la remontada opérée dimanche face à Villarreal (3-2), le FC Barcelone a communiqué une mauvaise…",
+    "content": "Repos forcé. Après la remontada opérée dimanche face à Villarreal (3-2), le FC Barcelone a communiqué une mauvaise…",
+    "paragraphs": [
+      "Repos forcé. Après la remontada opérée dimanche face à Villarreal (3-2), le FC Barcelone a communiqué une mauvaise…"
+    ],
+    "key_points": [
+      "Après la remontada opérée dimanche face à Villarreal (3-2), le FC Barcelone a communiqué une mauvaise…"
+    ],
+    "telegram_summary": "Repos forcé. Après la remontada opérée dimanche face à Villarreal (3-2), le FC Barcelone a communiqué une mauvaise…",
+    "link": "https://www.sofoot.com/breves/ligue-des-champions-touche-a-une-cheville-lamine-yamal-est-forfait-pour-la-rencontre-face-a-sabah",
+    "source_url": "https://www.sofoot.com/breves/ligue-des-champions-touche-a-une-cheville-lamine-yamal-est-forfait-pour-la-rencontre-face-a-sabah",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=234120f3afae482a",
+    "published": "2026-11-23T11:33:24+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23121154/15387506.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23121154/15387506.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50571569",
+      "url": "https://www.espn.com/soccer/story/_/id/50571569/lamine-yamal-barcelona-champions-league-sabah",
+      "published": "2026-11-23T09:46:24Z",
+      "score": 0.308,
+      "matched_terms": [
+        "champions",
+        "lamine",
+        "sabah",
+        "yamal"
+      ],
+      "topics": [],
+      "teams": [
+        "Barcelona"
+      ],
+      "athletes": [
+        "Lamine Yamal"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
+    },
+    "quality_sources": [
+      "So Foot",
+      "ESPN"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "c6a9820c4aeb244e",
+    "title": "Barça : le groupe convoqué pour le déplacement en Azerbaïdjan",
+    "summary": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
+    "summary_short": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
+    "content": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
+    "paragraphs": [
+      "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)"
+    ],
+    "key_points": [
+      "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan.",
+      "Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)"
+    ],
+    "telegram_summary": "Le Barça devra faire sans Lamine Yamal pour son déplacement en Azerbaïdjan. Hansi Flick a dévoilé, ce lundi, son groupe pour la cinquième journée de la Ligue des champions face au Sabah, mercredi, et (…)",
+    "link": "https://www.footmercato.net/a7428125409253422729-barca-le-groupe-convoque-pour-le-deplacement-en-azerbaidjan",
+    "source_url": "https://www.footmercato.net/a7428125409253422729-barca-le-groupe-convoque-pour-le-deplacement-en-azerbaidjan",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c6a9820c4aeb244e",
+    "published": "2026-11-23T11:30:28+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalflick.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalflick.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "b46ab4d6e9f4a4fa",
+    "title": "Sénégal ou Maroc ? Le TAS rend sa décision ce « mardi » 24 novembre sur la finale de la CAN 2025",
+    "summary": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025.",
+    "summary_short": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025.",
+    "content": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025.",
+    "paragraphs": [
+      "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025."
+    ],
+    "key_points": [
+      "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025."
+    ],
+    "telegram_summary": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025.",
+    "link": "https://www.rfi.fr/fr/afrique-foot/20261123-s%C3%A9n%C3%A9gal-ou-maroc-le-tas-rend-sa-d%C3%A9cision-ce-mardi-24-novembre-sur-la-finale-de-la-can-2025",
+    "source_url": "https://www.rfi.fr/fr/afrique-foot/20261123-s%C3%A9n%C3%A9gal-ou-maroc-le-tas-rend-sa-d%C3%A9cision-ce-mardi-24-novembre-sur-la-finale-de-la-can-2025",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b46ab4d6e9f4a4fa",
+    "published": "2026-11-23T11:28:42+00:00",
+    "image": "https://s.rfi.fr/media/display/0b42ab5e-c194-11f1-91c8-ff8cff4603f0/w:1024/p:16x9/000-936L4WH.jpg",
+    "source_image": "https://s.rfi.fr/media/display/0b42ab5e-c194-11f1-91c8-ff8cff4603f0/w:1024/p:16x9/000-936L4WH.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI Afrique Foot",
+    "source_priority": 90,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/afrique-foot/rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI Afrique Foot"
+    ],
+    "quality_score": 90
+  },
+  {
+    "slug": "760064dd471e0a49",
+    "title": "Emanuel Emegha a été agressé en quittant Stamford Bridge",
+    "summary": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
+    "summary_short": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
+    "content": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
+    "paragraphs": [
+      "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)"
+    ],
+    "key_points": [
+      "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol.",
+      "Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)"
+    ],
+    "telegram_summary": "Alors que Désiré Doué a subi une tentative de cambriolage ce samedi soir, Emanuel Emegha a aussi été victime d’un vol. Buteur ce samedi lors de la défaite 4-1 de Chelsea contre Leeds United, (…)",
+    "link": "https://www.footmercato.net/a9007865604048401527-emanuel-emegha-a-ete-agresse-en-quittant-stamford-bridge",
+    "source_url": "https://www.footmercato.net/a9007865604048401527-emanuel-emegha-a-ete-agresse-en-quittant-stamford-bridge",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=760064dd471e0a49",
+    "published": "2026-11-23T11:15:30+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dsc01545.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dsc01545.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "09cf22741c6bef3a",
     "title": "PSG : Doué blessé, quel impact sur le mercato ?",
     "summary": "Touché par les blessures de Désiré Doué et Khvicha Kvaratskhelia, le Paris Saint-Germain pourrait être tenté de se renforcer cet hiver. Plusieurs profils ont déjà été ciblés, mais le club de la capitale entend rester fidèle à sa politique de recrutement....",
@@ -102,6 +268,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "62ddbb2ec3fef4ed",
+    "title": "Vainqueur de la CAN 2025 : la décision finale du Tribunal arbitral du sport enfin connue ce mardi après-midi",
+    "summary": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
+    "summary_short": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
+    "content": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
+    "paragraphs": [
+      "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…"
+    ],
+    "key_points": [
+      "Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…"
+    ],
+    "telegram_summary": "Coup de sifflet final. Ça y est, il est bientôt l’heure de savoir qui du Sénégal ou du Maroc sera…",
+    "link": "https://www.sofoot.com/breves/vainqueur-de-la-can-2025-la-decision-finale-du-tribunal-arbitral-du-sport-enfin-connue-ce-mardi-apres-midi",
+    "source_url": "https://www.sofoot.com/breves/vainqueur-de-la-can-2025-la-decision-finale-du-tribunal-arbitral-du-sport-enfin-connue-ce-mardi-apres-midi",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=62ddbb2ec3fef4ed",
+    "published": "2026-11-23T10:53:33+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23121652/ICONSPORT_282766_0171-1-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23121652/ICONSPORT_282766_0171-1-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "5e6e1993bad88585",
@@ -366,7 +566,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -879,13 +1079,115 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "29ef124ad1315fa3",
+    "title": "Comme le dit Samuel Yohou, l’OM est-elle vraiment une équipe qui surperforme ?",
+    "summary": "Un adversaire très bien étudié. Au micro du diffuseur Ligue 1+ après la remontada des Manceaux…",
+    "summary_short": "Un adversaire très bien étudié. Au micro du diffuseur Ligue 1+ après la remontada des Manceaux…",
+    "content": "Un adversaire très bien étudié. Au micro du diffuseur Ligue 1+ après la remontada des Manceaux…",
+    "paragraphs": [
+      "Un adversaire très bien étudié. Au micro du diffuseur Ligue 1+ après la remontada des Manceaux…"
+    ],
+    "key_points": [
+      "Au micro du diffuseur Ligue 1+ après la remontada des Manceaux…"
+    ],
+    "telegram_summary": "Un adversaire très bien étudié. Au micro du diffuseur Ligue 1+ après la remontada des Manceaux…",
+    "link": "https://www.sofoot.com/breves/lom-est-elle-vraiment-une-equipe-qui-surperforme",
+    "source_url": "https://www.sofoot.com/breves/lom-est-elle-vraiment-une-equipe-qui-surperforme",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=29ef124ad1315fa3",
+    "published": "2026-11-23T11:31:13+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23123050/15380793.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23123050/15380793.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "66463afdaeca225b",
+    "title": "OM : avec Adidas, le retour d'un ancien logo annoncé ?",
+    "summary": "Le prochain maillot extérieur de l'OM sous Adidas retrouvera un logo historique du club, qui devrait plaire aux supporters phocéens.",
+    "summary_short": "Le prochain maillot extérieur de l'OM sous Adidas retrouvera un logo historique du club, qui devrait plaire aux supporters phocéens.",
+    "content": "Le prochain maillot extérieur de l'OM sous Adidas retrouvera un logo historique du club, qui devrait plaire aux supporters phocéens.",
+    "paragraphs": [
+      "Le prochain maillot extérieur de l'OM sous Adidas retrouvera un logo historique du club, qui devrait plaire aux supporters phocéens."
+    ],
+    "key_points": [
+      "Le prochain maillot extérieur de l'OM sous Adidas retrouvera un logo historique du club, qui devrait plaire aux supporters phocéens."
+    ],
+    "telegram_summary": "Le prochain maillot extérieur de l'OM sous Adidas retrouvera un logo historique du club, qui devrait plaire aux supporters phocéens.",
+    "link": "https://www.onzemondial.com/ligue-1/om-avec-adidas-le-retour-dun-ancien-logo-annonce-1010773",
+    "source_url": "https://www.onzemondial.com/ligue-1/om-avec-adidas-le-retour-dun-ancien-logo-annonce-1010773",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=66463afdaeca225b",
+    "published": "2026-11-23T11:28:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010773/411485/1200-L-om-avec-adidas-le-retour-d-un-ancien-logo-annonc.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010773/411485/1200-L-om-avec-adidas-le-retour-d-un-ancien-logo-annonc.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "0c048ebd34031fdb",
+    "title": "OM : Le maillot extérieur pour la saison 2027-2028 a déjà fuité !",
+    "summary": "Footy Headlines a dévoilé, ce lundi 23 novembre, ce qui devrait être le maillot extérieur de l'OM pour la saison 2027-2028.",
+    "summary_short": "Footy Headlines a dévoilé, ce lundi 23 novembre, ce qui devrait être le maillot extérieur de l'OM pour la saison 2027-2028.",
+    "content": "Footy Headlines a dévoilé, ce lundi 23 novembre, ce qui devrait être le maillot extérieur de l'OM pour la saison 2027-2028.",
+    "paragraphs": [
+      "Footy Headlines a dévoilé, ce lundi 23 novembre, ce qui devrait être le maillot extérieur de l'OM pour la saison 2027-2028."
+    ],
+    "key_points": [
+      "Footy Headlines a dévoilé, ce lundi 23 novembre, ce qui devrait être le maillot extérieur de l'OM pour la saison 2027-2028."
+    ],
+    "telegram_summary": "Footy Headlines a dévoilé, ce lundi 23 novembre, ce qui devrait être le maillot extérieur de l'OM pour la saison 2027-2028.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-le-maillot-exterieur-pour-la-saison-2027-2028-a-deja-fuite-546730.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-le-maillot-exterieur-pour-la-saison-2027-2028-a-deja-fuite-546730.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0c048ebd34031fdb",
+    "published": "2026-11-23T11:05:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261123120934-7016.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261123120934-7016.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "d13a24d0ce8f7b19",
@@ -939,7 +1241,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1001,7 +1303,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1386,17 +1688,17 @@
   },
   {
     "slug": "c62f85c038696047",
-    "title": "MLS : Héctor Herrera inculpé pour conduite en état d’ivresse à quelques jours des playoffs",
-    "summary": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo, Héctor Herrera, a été inculpé ce samedi pour conduite en…",
-    "summary_short": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo, Héctor Herrera, a été inculpé ce samedi pour conduite en…",
-    "content": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo, Héctor Herrera, a été inculpé ce samedi pour conduite en…",
+    "title": "MLS : Héctor Herrera inculpé pour conduite en état d’ivresse à quelques jours des play-off",
+    "summary": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo Héctor Herrera a été inculpé ce samedi pour conduite en…",
+    "summary_short": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo Héctor Herrera a été inculpé ce samedi pour conduite en…",
+    "content": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo Héctor Herrera a été inculpé ce samedi pour conduite en…",
     "paragraphs": [
-      "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo, Héctor Herrera, a été inculpé ce samedi pour conduite en…"
+      "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo Héctor Herrera a été inculpé ce samedi pour conduite en…"
     ],
     "key_points": [
-      "Le milieu de terrain du Houston Dynamo, Héctor Herrera, a été inculpé ce samedi pour conduite en…"
+      "Le milieu de terrain du Houston Dynamo Héctor Herrera a été inculpé ce samedi pour conduite en…"
     ],
-    "telegram_summary": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo, Héctor Herrera, a été inculpé ce samedi pour conduite en…",
+    "telegram_summary": "Walker, Texas Ranger. Le milieu de terrain du Houston Dynamo Héctor Herrera a été inculpé ce samedi pour conduite en…",
     "link": "https://www.sofoot.com/breves/mls-hector-herrera-inculpe-pour-conduite-en-etat-divresse-a-quelques-jours-des-playoffs",
     "source_url": "https://www.sofoot.com/breves/mls-hector-herrera-inculpe-pour-conduite-en-etat-divresse-a-quelques-jours-des-playoffs",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c62f85c038696047",
@@ -1573,7 +1875,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1664,7 +1966,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1727,7 +2029,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
+      "checked_at": "2026-11-23T11:40:14.700992+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1973,301 +2275,5 @@
       "BBC Sport"
     ],
     "quality_score": 85
-  },
-  {
-    "slug": "c8438fb372543288",
-    "title": "OM : Les propos très durs de Daniel Riolo sur le niveau de l'OM",
-    "summary": "Daniel Riolo a jugé la défaite de l'OM face au Mans.",
-    "summary_short": "Daniel Riolo a jugé la défaite de l'OM face au Mans.",
-    "content": "Daniel Riolo a jugé la défaite de l'OM face au Mans.",
-    "paragraphs": [
-      "Daniel Riolo a jugé la défaite de l'OM face au Mans."
-    ],
-    "key_points": [
-      "Daniel Riolo a jugé la défaite de l'OM face au Mans."
-    ],
-    "telegram_summary": "Daniel Riolo a jugé la défaite de l'OM face au Mans.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-les-propos-tres-durs-de-daniel-riolo-sur-le-niveau-de-l-om-546711.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-les-propos-tres-durs-de-daniel-riolo-sur-le-niveau-de-l-om-546711.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c8438fb372543288",
-    "published": "2026-11-23T08:33:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20230331143945-1104.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20230331143945-1104.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "64c7d71bfd42822b",
-    "title": "Les joueurs du Mans bloqués à Marseille pour la nuit après l’exploit",
-    "summary": "Soirée arrosée sur le Vieux-Port ? Renversants face à l’OM (3-2) dimanche soir au Vélodrome, les promus manceaux…",
-    "summary_short": "Soirée arrosée sur le Vieux-Port ? Renversants face à l’OM (3-2) dimanche soir au Vélodrome, les promus manceaux…",
-    "content": "Soirée arrosée sur le Vieux-Port ? Renversants face à l’OM (3-2) dimanche soir au Vélodrome, les promus manceaux…",
-    "paragraphs": [
-      "Soirée arrosée sur le Vieux-Port ? Renversants face à l’OM (3-2) dimanche soir au Vélodrome, les promus manceaux…"
-    ],
-    "key_points": [
-      "Renversants face à l’OM (3-2) dimanche soir au Vélodrome, les promus manceaux…"
-    ],
-    "telegram_summary": "Soirée arrosée sur le Vieux-Port ? Renversants face à l’OM (3-2) dimanche soir au Vélodrome, les promus manceaux…",
-    "link": "https://www.sofoot.com/breves/les-joueurs-du-mans-bloques-a-marseille-pour-la-nuit-apres-lexploit",
-    "source_url": "https://www.sofoot.com/breves/les-joueurs-du-mans-bloques-a-marseille-pour-la-nuit-apres-lexploit",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=64c7d71bfd42822b",
-    "published": "2026-11-23T08:29:43+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23092915/15380700.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23092915/15380700.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "d00b311c6adc1d79",
-    "title": "OM-Le Mans : la terrible révélation des Manceaux sur la fébrilité marseillaise confirmée par Genesio",
-    "summary": "Mené 2-0 à la mi temps face à l'OM, Le Mans y a cru jusqu'au bout face à des Phocéens toujours aussi fragiles défensivement.",
-    "summary_short": "Mené 2-0 à la mi temps face à l'OM, Le Mans y a cru jusqu'au bout face à des Phocéens toujours aussi fragiles défensivement.",
-    "content": "Mené 2-0 à la mi temps face à l'OM, Le Mans y a cru jusqu'au bout face à des Phocéens toujours aussi fragiles défensivement.",
-    "paragraphs": [
-      "Mené 2-0 à la mi temps face à l'OM, Le Mans y a cru jusqu'au bout face à des Phocéens toujours aussi fragiles défensivement."
-    ],
-    "key_points": [
-      "Mené 2-0 à la mi temps face à l'OM, Le Mans y a cru jusqu'au bout face à des Phocéens toujours aussi fragiles défensivement."
-    ],
-    "telegram_summary": "Mené 2-0 à la mi temps face à l'OM, Le Mans y a cru jusqu'au bout face à des Phocéens toujours aussi fragiles défensivement.",
-    "link": "https://www.onzemondial.com/ligue-1/om-le-mans-la-terrible-revelation-des-manceaux-sur-la-febrilite-marseillaise-confirmee-par-genesio-1010731",
-    "source_url": "https://www.onzemondial.com/ligue-1/om-le-mans-la-terrible-revelation-des-manceaux-sur-la-febrilite-marseillaise-confirmee-par-genesio-1010731",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d00b311c6adc1d79",
-    "published": "2026-11-23T08:26:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010731/411476/1200-L-om-le-mans-la-terrible-rvlation-des-manceaux-sur-la-fbrilit-marseillaise-confirme-par-genesio.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010731/411476/1200-L-om-le-mans-la-terrible-rvlation-des-manceaux-sur-la-fbrilit-marseillaise-confirme-par-genesio.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "9639f04d75736895",
-    "title": "Brésil : la CBF s’apprête à licencier le dirigeant au cœur de la controverse Raphinha",
-    "summary": "La crise couve au sein de la Confédération brésilienne de football (CBF) après une année 2026 marquée par une élimination précoce en huitièmes de finale de la Coupe du Monde et des rassemblements (…)",
-    "summary_short": "La crise couve au sein de la Confédération brésilienne de football (CBF) après une année 2026 marquée par une élimination précoce en huitièmes de finale de la Coupe du Monde et des rassemblements (…)",
-    "content": "La crise couve au sein de la Confédération brésilienne de football (CBF) après une année 2026 marquée par une élimination précoce en huitièmes de finale de la Coupe du Monde et des rassemblements (…)",
-    "paragraphs": [
-      "La crise couve au sein de la Confédération brésilienne de football (CBF) après une année 2026 marquée par une élimination précoce en huitièmes de finale de la Coupe du Monde et des rassemblements (…)"
-    ],
-    "key_points": [
-      "La crise couve au sein de la Confédération brésilienne de football (CBF) après une année 2026 marquée par une élimination précoce en huitièmes de finale de la Coupe du Monde et des rassemblements (…)"
-    ],
-    "telegram_summary": "La crise couve au sein de la Confédération brésilienne de football (CBF) après une année 2026 marquée par une élimination précoce en huitièmes de finale de la Coupe du Monde et des rassemblements (…)",
-    "link": "https://www.footmercato.net/a8972104916955151946-bresil-la-cbf-sapprete-a-licencier-le-dirigeant-au-coeur-de-la-controverse-raphinha",
-    "source_url": "https://www.footmercato.net/a8972104916955151946-bresil-la-cbf-sapprete-a-licencier-le-dirigeant-au-coeur-de-la-controverse-raphinha",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9639f04d75736895",
-    "published": "2026-11-23T08:21:36+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/raphinha-6af6d43f1fcc4.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/raphinha-6af6d43f1fcc4.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "c9fe3190bbaa699e",
-    "title": "Manchester United : Mauricio Pochettino prend déjà très cher !",
-    "summary": "Humiliés 4-0 par Liverpool à Anfield ce dimanche, les Red Devils ont sombré dans un match marqué par l’expulsion précoce de Leny Yoro et les railleries des supporters adverses. Au lendemain de cette (…)",
-    "summary_short": "Humiliés 4-0 par Liverpool à Anfield ce dimanche, les Red Devils ont sombré dans un match marqué par l’expulsion précoce de Leny Yoro et les railleries des supporters adverses. Au lendemain de cette (…)",
-    "content": "Humiliés 4-0 par Liverpool à Anfield ce dimanche, les Red Devils ont sombré dans un match marqué par l’expulsion précoce de Leny Yoro et les railleries des supporters adverses. Au lendemain de cette (…)",
-    "paragraphs": [
-      "Humiliés 4-0 par Liverpool à Anfield ce dimanche, les Red Devils ont sombré dans un match marqué par l’expulsion précoce de Leny Yoro et les railleries des supporters adverses. Au lendemain de cette (…)"
-    ],
-    "key_points": [
-      "Humiliés 4-0 par Liverpool à Anfield ce dimanche, les Red Devils ont sombré dans un match marqué par l’expulsion précoce de Leny Yoro et les railleries des supporters adverses."
-    ],
-    "telegram_summary": "Humiliés 4-0 par Liverpool à Anfield ce dimanche, les Red Devils ont sombré dans un match marqué par l’expulsion précoce de Leny Yoro et les railleries des supporters adverses. Au lendemain de cette (…)",
-    "link": "https://www.footmercato.net/a5052094177989720705-manchester-united-mauricio-pochettino-prend-deja-tres-cher",
-    "source_url": "https://www.footmercato.net/a5052094177989720705-manchester-united-mauricio-pochettino-prend-deja-tres-cher",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c9fe3190bbaa699e",
-    "published": "2026-11-23T08:19:18+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pochet-6b03eeacc4a36.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pochet-6b03eeacc4a36.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50566373",
-      "url": "https://www.espn.com/video/clip/_/id/50566373/rough-start-pochettino-manchester-united",
-      "published": "2026-11-22T22:53:16Z",
-      "score": 0.3,
-      "matched_terms": [
-        "manchester",
-        "pochettino",
-        "united"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-23T11:11:14.000349+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "27dc0fc5f31c8adf",
-    "title": "Ligue 1 : L’OM avant-dernier des cinq grands championnats en matière de xG concédés",
-    "summary": "À jamais les avant-derniers. Après la défaite face au Mans dimanche soir (2-3), Opta a révélé que l’OM concédait en…",
-    "summary_short": "À jamais les avant-derniers. Après la défaite face au Mans dimanche soir (2-3), Opta a révélé que l’OM concédait en…",
-    "content": "À jamais les avant-derniers. Après la défaite face au Mans dimanche soir (2-3), Opta a révélé que l’OM concédait en…",
-    "paragraphs": [
-      "À jamais les avant-derniers. Après la défaite face au Mans dimanche soir (2-3), Opta a révélé que l’OM concédait en…"
-    ],
-    "key_points": [
-      "Après la défaite face au Mans dimanche soir (2-3), Opta a révélé que l’OM concédait en…"
-    ],
-    "telegram_summary": "À jamais les avant-derniers. Après la défaite face au Mans dimanche soir (2-3), Opta a révélé que l’OM concédait en…",
-    "link": "https://www.sofoot.com/breves/ligue-1-lom-avant-dernier-des-cinq-grands-championnats-en-termes-de-xg-concedes",
-    "source_url": "https://www.sofoot.com/breves/ligue-1-lom-avant-dernier-des-cinq-grands-championnats-en-termes-de-xg-concedes",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=27dc0fc5f31c8adf",
-    "published": "2026-11-23T08:17:03+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23091626/15380789.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23091626/15380789.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "99399a216b43dbc6",
-    "title": "PSG : Le PSG dévoile son surprenant maillot third avec Jordan",
-    "summary": "Le Paris Saint-Germain vient de dévoiler, avec Jordan Brand, le nouveau maillot third pour la saison 2026-2027.",
-    "summary_short": "Le Paris Saint-Germain vient de dévoiler, avec Jordan Brand, le nouveau maillot third pour la saison 2026-2027.",
-    "content": "Le Paris Saint-Germain vient de dévoiler, avec Jordan Brand, le nouveau maillot third pour la saison 2026-2027.",
-    "paragraphs": [
-      "Le Paris Saint-Germain vient de dévoiler, avec Jordan Brand, le nouveau maillot third pour la saison 2026-2027."
-    ],
-    "key_points": [
-      "Le Paris Saint-Germain vient de dévoiler, avec Jordan Brand, le nouveau maillot third pour la saison 2026-2027."
-    ],
-    "telegram_summary": "Le Paris Saint-Germain vient de dévoiler, avec Jordan Brand, le nouveau maillot third pour la saison 2026-2027.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-le-psg-devoile-son-surprenant-maillot-third-avec-jordan-546697.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-le-psg-devoile-son-surprenant-maillot-third-avec-jordan-546697.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=99399a216b43dbc6",
-    "published": "2026-11-23T08:14:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260415104306-9697.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260415104306-9697.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "bf88e5698d46214e",
-    "title": "Suède : une défaite célébrée par les supporters de Djurgården pour empêcher le titre du rival",
-    "summary": "Une joie partagée. Qu’est-ce qu’un supporter ne ferait pas pour voir son ennemi de toujours louper le titre ? En…",
-    "summary_short": "Une joie partagée. Qu’est-ce qu’un supporter ne ferait pas pour voir son ennemi de toujours louper le titre ? En…",
-    "content": "Une joie partagée. Qu’est-ce qu’un supporter ne ferait pas pour voir son ennemi de toujours louper le titre ? En…",
-    "paragraphs": [
-      "Une joie partagée. Qu’est-ce qu’un supporter ne ferait pas pour voir son ennemi de toujours louper le titre ? En…"
-    ],
-    "key_points": [
-      "Qu’est-ce qu’un supporter ne ferait pas pour voir son ennemi de toujours louper le titre ?"
-    ],
-    "telegram_summary": "Une joie partagée. Qu’est-ce qu’un supporter ne ferait pas pour voir son ennemi de toujours louper le titre ? En…",
-    "link": "https://www.sofoot.com/breves/suede-une-defaite-celebree-par-les-propres-supporters-de-djurgarden-pour-empecher-le-titre-du-rival",
-    "source_url": "https://www.sofoot.com/breves/suede-une-defaite-celebree-par-les-propres-supporters-de-djurgarden-pour-empecher-le-titre-du-rival",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bf88e5698d46214e",
-    "published": "2026-11-23T08:03:04+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23091041/3115087.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23091041/3115087.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
