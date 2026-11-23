@@ -66,7 +66,7 @@
     },
     "cinexanimefr": {
       "telegram_id": "4347937458",
-      "updated_at": "2026-11-18T05:56:59.012575+00:00"
+      "updated_at": "2026-11-23T16:28:24.227959+00:00"
     },
     "cinexcomediefr": {
       "telegram_id": "4325412873",
@@ -78,7 +78,7 @@
     },
     "cinexfilms_vf": {
       "telegram_id": "3921647496",
-      "updated_at": "2026-11-18T05:56:54.149658+00:00"
+      "updated_at": "2026-11-23T16:28:19.066851+00:00"
     },
     "collegeromanceallseason": {
       "telegram_id": "1245083976",
@@ -118,7 +118,7 @@
     },
     "filmsaction2026vf": {
       "telegram_id": "4333321591",
-      "updated_at": "2026-11-18T05:56:56.477393+00:00"
+      "updated_at": "2026-11-23T16:28:14.153542+00:00"
     },
     "filmsnigerien": {
       "telegram_id": "2379429921",
@@ -191,8 +191,8 @@
   },
   "errors": 0,
   "missing": 0,
-  "refreshed": 0,
+  "refreshed": 3,
   "requested": 58,
-  "updated_at": "2026-11-22T13:36:49.950394+00:00",
+  "updated_at": "2026-11-23T16:28:33.339308+00:00",
   "version": 1
 }
