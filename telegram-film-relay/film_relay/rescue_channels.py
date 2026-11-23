@@ -138,6 +138,14 @@ def targets_from_env(env: dict | None = None) -> list[str]:
         env.get("COMEDIE_PUBLIC_CHANNEL") or "",
         env.get("ANIME_PUBLIC_CHANNEL") or "@CineXAnimeFR",
         env.get("ACTION_PUBLIC_CHANNEL") or "@filmsaction2026vf",
+        # Public channels verified as both-account-administered in the secure
+        # inventory on 22 Nov. They receive their OWN separate secours.
+        # These are not automatically added to destructive rotation.
+        "@bleachvffr",
+        "@fastandfuriousvffr",
+        "@fichiers_cloud",
+        "@lecarnetdelapovf",
+        "@lupin4saisonsvf",
     ]
     if (str(env.get("CINEX_TORRENT9_PAUSED", "true")).lower() != "true"
             and str(env.get("CINEX_DEFER_MIRROR", "true")).lower() != "true"):
