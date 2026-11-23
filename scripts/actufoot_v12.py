@@ -132,8 +132,8 @@ def _int(value: Any) -> int | None:
     if isinstance(value, bool) or value is None:
         return None
     try:
-        if isinstance(value, float) and not value.is_integer():
-            return None
+        if isinstance(value, float):
+            return int(value) if value.is_integer() else None
         string = str(value).strip()
         if not re.fullmatch(r"-?\d+", string):
             return None
