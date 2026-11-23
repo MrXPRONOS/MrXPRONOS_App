@@ -39,6 +39,29 @@ class NetworkAdminTests(unittest.TestCase):
         self.assertEqual(invalid, [])
         self.assertEqual(len(missing), len(app.ALL_BOT_SECRETS) - len(env))
 
+    def test_reaction_bots_numbered_and_json_bundle_are_discovered(self):
+        env = {
+            "CINEX_RADAR_BOT_TOKEN": "radar",
+            "TELEGRAM_REACTION_BOT_03_TOKEN": "anime",
+            "TELEGRAM_REACTION_BOTS_JSON": '{"100":"editorial","03":"anime"}',
+        }
+        candidates, _, invalid = app.discover_network_bots(env, identity)
+        self.assertEqual({bot["id"] for bot in candidates}, {101, 102, 103})
+        self.assertEqual(invalid, [])
+
+    def test_reaction_bot_secret_invalid_json_rejected(self):
+        env = {"CINEX_RADAR_BOT_TOKEN": "radar",
+               "TELEGRAM_REACTION_BOTS_JSON": '[{"03":"anime"}]'}
+        with self.assertRaisesRegex(RuntimeError, "reaction_bot_secret_bundle_invalid"):
+            app.discover_network_bots(env, identity)
+
+    def test_reaction_bot_identity_must_be_telegram_bot(self):
+        env = {"CINEX_RADAR_BOT_TOKEN": "radar",
+               "TELEGRAM_REACTION_BOT_03_TOKEN": "false"}
+        candidates, _, invalid = app.discover_network_bots(env, identity)
+        self.assertEqual([b["id"] for b in candidates], [101])
+        self.assertIn("reaction_03", invalid)
+
     def test_false_identity_is_never_approved(self):
         env = {
             "CINEX_RADAR_BOT_TOKEN": "radar",
