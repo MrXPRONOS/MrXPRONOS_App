@@ -87,18 +87,23 @@ export async function ingestManualChannelPost(env,update){
   return {enabled:true,accepted:false,reason:'invalid_source_reference'};
  await ensureManualFallbackSchema(env);
  const cfg=await env.DB.prepare(
-  "SELECT category FROM cine_manual_fallback_sources WHERE chat_id=? "+
-  "AND rights_attested=1 AND bot_access_verified=1 "+
-  "AND owner_approved=1 AND enabled=1"
+  "SELECT category,rights_attested,enabled FROM cine_manual_fallback_sources WHERE chat_id=? "+
+  "AND bot_access_verified=1 AND owner_approved=1"
  ).bind(chat).first();
  if(!cfg||!CATEGORIES.has(cfg.category))
   return {enabled:true,accepted:false,reason:'not_owner_approved'};
  const media=identifyManualMedia(message,cfg.category);
  if(!media)return {enabled:true,accepted:false,reason:'unsupported_or_protected'};
+ // Owner-approved intake is independent from the right to redistribute.
+ // Unlicensed/unchecked media are retained privately, quarantined until
+ // explicit rights attestation, not silently lost from Telegram's update stream.
+ const canPublish=Number(cfg.rights_attested)===1&&Number(cfg.enabled)===1;
+ const incomingState=canPublish?'indexed':'needs_review';
+ const incomingReview=canPublish?'':'rights_not_attested';
  const fingerprint=media.file_unique_id||'';
  const caption=String(message.caption||message.text||'').slice(0,1200);
  const old=await env.DB.prepare(
-  "SELECT state,kind,file_unique_id FROM cine_manual_fallback_inbox "+
+  "SELECT state,kind,file_unique_id,review_code FROM cine_manual_fallback_inbox "+
   "WHERE chat_id=? AND message_id=?"
  ).bind(chat,id).first();
  if(old?.state==='published')return {enabled:true,accepted:false,reason:'already_published'};
@@ -114,18 +119,31 @@ export async function ingestManualChannelPost(env,update){
  await env.DB.prepare(
   "INSERT OR IGNORE INTO cine_manual_fallback_inbox "+
   "(chat_id,message_id,category,kind,file_unique_id,filename,mime_type,"+
-  "bytes,caption,grouped_id,posted_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+  "bytes,caption,grouped_id,posted_at,state,review_code) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
  ).bind(chat,id,cfg.category,media.kind,fingerprint,media.filename,
   media.mime_type,media.bytes,caption,
-  String(message.media_group_id||''),Number(message.date||0)).run();
+  String(message.media_group_id||''),Number(message.date||0),incomingState,incomingReview).run();
  if(old){
-  await env.DB.prepare(
-   "UPDATE cine_manual_fallback_inbox SET caption=?,filename=?,"+
-   "updated_at=CURRENT_TIMESTAMP WHERE chat_id=? AND message_id=? "+
-   "AND state='indexed'"
-  ).bind(caption,media.filename,chat,id).run();
+  // A genuine media edit is still quarantined; only rights_not_attested can
+  // transition to indexed on an authorized re-delivery or explicit approval.
+  if(canPublish&&old.state==='needs_review'&&
+     old.review_code==='rights_not_attested'){
+   await env.DB.prepare(
+    "UPDATE cine_manual_fallback_inbox SET state='indexed',"+
+    "review_code='',caption=?,filename=?,updated_at=CURRENT_TIMESTAMP "+
+    "WHERE chat_id=? AND message_id=? AND state='needs_review' "+
+    "AND review_code='rights_not_attested'"
+   ).bind(caption,media.filename,chat,id).run();
+  }else if(old.state==='indexed'){
+   await env.DB.prepare(
+    "UPDATE cine_manual_fallback_inbox SET caption=?,filename=?,"+
+    "updated_at=CURRENT_TIMESTAMP WHERE chat_id=? AND message_id=? "+
+    "AND state='indexed'"
+   ).bind(caption,media.filename,chat,id).run();
+  }
  }
- return {enabled:true,accepted:true,category:cfg.category,kind:media.kind};
+ return {enabled:true,accepted:true,category:cfg.category,kind:media.kind,
+  state:incomingState};
 }
 
 export function planManualMediaPairs(rows){

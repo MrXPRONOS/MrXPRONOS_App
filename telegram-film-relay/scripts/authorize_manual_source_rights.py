@@ -63,6 +63,30 @@ async def activate(target,*,confirm,env=None):
         any(int(x["rights_attested"])!=1 or int(x["enabled"])!=1
             for x in checked)):
         raise RuntimeError("manual_rights_d1_receipt_incomplete")
+    # Never discard owner uploads received BEFORE explicit attestation.
+    # Promote only items quarantined solely for missing rights, not
+    # changed media, ambiguous titles, unsupported files or other reasons.
+    d1_query(
+        "UPDATE cine_manual_fallback_inbox "
+        "SET state='indexed',review_code='',updated_at=CURRENT_TIMESTAMP "
+        "WHERE category IN ("+slots+") AND state='needs_review' "
+        "AND review_code='rights_not_attested' AND EXISTS ("
+        "SELECT 1 FROM cine_manual_fallback_sources s "
+        "WHERE s.chat_id=cine_manual_fallback_inbox.chat_id "
+        "AND s.category=cine_manual_fallback_inbox.category "
+        "AND s.owner_approved=1 AND s.bot_access_verified=1 "
+        "AND s.rights_attested=1 AND s.enabled=1)",
+        wanted)
+    remaining=d1_query(
+        "SELECT COUNT(*) AS n FROM cine_manual_fallback_inbox i "
+        "JOIN cine_manual_fallback_sources s ON s.chat_id=i.chat_id "
+        "AND s.category=i.category "
+        "WHERE i.category IN ("+slots+") AND s.rights_attested=1 "
+        "AND s.enabled=1 AND i.state='needs_review' "
+        "AND i.review_code='rights_not_attested'",
+        wanted)
+    if len(remaining)!=1 or int(remaining[0].get("n") or 0)!=0:
+        raise RuntimeError("manual_pending_stock_promotion_incomplete")
     return wanted
 
 
