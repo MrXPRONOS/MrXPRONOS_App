@@ -11,6 +11,44 @@ def button(text, url):
 
 
 class Lot2EvidenceTests(unittest.TestCase):
+    def test_required_acceptance_rejects_six_missing_live_samples(self):
+        categories = ("films", "series", "desir", "comedie", "anime", "action")
+        rows = [
+            {"category": c, "latest_public_v4": "pending_no_sample",
+             "public_photo_four_buttons": "pending_no_sample",
+             "private_three_buttons": "pending_no_sample",
+             "central_receipt": "pending_no_sample", "errors": 0}
+            for c in categories
+        ]
+        with (patch.object(app, "inspect", new_callable=AsyncMock,
+                           return_value=rows),
+              patch("sys.argv", ["cinex_lot2_live_evidence.py",
+                                 "--require-complete"])):
+            with self.assertRaisesRegex(SystemExit, "LOT2_NOT_ACCEPTED"):
+                app.main()
+
+    def test_required_acceptance_passes_only_six_verified_categories(self):
+        categories = ("films", "series", "desir", "comedie", "anime", "action")
+        rows = [
+            {"category": c, "latest_public_v4": "verified",
+             "public_photo_four_buttons": "verified",
+             "private_three_buttons": "verified",
+             "central_receipt": "verified", "errors": 0}
+            for c in categories
+        ]
+        with (patch.object(app, "inspect", new_callable=AsyncMock,
+                           return_value=rows),
+              patch("sys.argv", ["cinex_lot2_live_evidence.py",
+                                 "--require-complete"])):
+            app.main()
+        rows[0]["central_receipt"] = "not_verified"
+        with (patch.object(app, "inspect", new_callable=AsyncMock,
+                           return_value=rows),
+              patch("sys.argv", ["cinex_lot2_live_evidence.py",
+                                 "--require-complete"])):
+            with self.assertRaisesRegex(SystemExit, "LOT2_NOT_ACCEPTED"):
+                app.main()
+
     def test_private_fiche_three_buttons(self):
         photo = NS(
             photo=object(),
