@@ -51,6 +51,15 @@ def split_recent_and_old(messages, category: str, count: int = KEEP):
     return videos[:count], videos[count:]
 
 
+async def load_public_history(client, public, history: int):
+    """Include pinned messages even when older than the normal history window."""
+    from telethon.tl.types import InputMessagesFilterPinned
+    messages = {int(m.id): m async for m in client.iter_messages(public, limit=history)}
+    async for pinned in client.iter_messages(public, filter=InputMessagesFilterPinned, limit=100):
+        messages[int(pinned.id)] = pinned
+    return sorted(messages.values(), key=lambda m: int(m.id), reverse=True)
+
+
 def pinned_archive_order(old, messages, category: str):
     """Pinned film covers first; preserve the retention boundary and exact pairing.
 
@@ -258,7 +267,7 @@ async def rotate_channel(client, category: str, public, private,
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id:
         raise RuntimeError("Même canal public et privé : rotation interdite")
-    messages = [m async for m in client.iter_messages(public, limit=history)]
+    messages = await load_public_history(client, public, history)
     recent, old = split_recent_and_old(messages, category)
     report = {"category": category, "videos": len(recent) + len(old),
               "protected": len(recent), "older": len(old), "deleted": 0,
