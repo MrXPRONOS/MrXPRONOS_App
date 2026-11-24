@@ -15,6 +15,11 @@ on:
         type: boolean
         default: false
         required: true
+      test_private_alert:
+        description: "Test privé explicite (une fois par jour ; requiert send_alerts et dry_run désactivé)"
+        type: boolean
+        default: false
+        required: true
   pull_request:
     branches: [main]
     paths:
@@ -78,6 +83,7 @@ jobs:
           EVENT: ${{ github.event_name }}
           DRY_RUN: ${{ inputs.dry_run || false }}
           SEND_ALERTS: ${{ inputs.send_alerts || false }}
+          TEST_PRIVATE_ALERT: ${{ inputs.test_private_alert || false }}
         shell: bash
         run: |
           set -euo pipefail
@@ -87,10 +93,11 @@ jobs:
           fi
           # A scheduled job sends a private alert only when the independent
           # private destination secret is explicitly present.
-          if [ -n "${ACTUFOOT_V13_ALERT_CHAT_ID:-}" ] && {
-            [ "$EVENT" = "schedule" ] || [ "$SEND_ALERTS" = "true" ];
-          }; then
+          if { [ "$EVENT" = "schedule" ] && [ -n "${ACTUFOOT_V13_ALERT_CHAT_ID:-}" ]; } || [ "$SEND_ALERTS" = "true" ]; then
             args+=(--send-alerts)
+          fi
+          if [ "$TEST_PRIVATE_ALERT" = "true" ]; then
+            args+=(--test-private-alert)
           fi
           python scripts/actufoot_v13_supervision.py "${args[@]}"
       - name: Conserver le rapport même en cas de panne
@@ -104,5 +111,5 @@ jobs:
       - name: Rendre la santé visible dans GitHub Actions
         if: steps.audit.outcome == 'failure'
         run: |
-          echo '::error title=Actu Foot V1.3::Audit incomplet ou alerte critique. Voir le résumé et le rapport V1.3.'
+          echo '::error title=Actu Foot V1.3::Audit incomplet, alerte critique ou échec de notification privée. Voir le résumé et le rapport V1.3.'
           exit 1

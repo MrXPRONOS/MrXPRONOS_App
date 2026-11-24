@@ -74,3 +74,11 @@ d'une exécution du workflow avec accès réel et 10/10 permissions. Les alertes
 privées ne sont opérationnelles que si le chat secret est configuré et un
 envoi réel a été confirmé. Les autres limites de validation V1/V1.1/V1.2
 restent indépendantes.
+
+## Correctif de finalisation (24 novembre 2026)
+
+- Audit réel du 23/11, exécution 45216853837 : 10/10 droits, 83 publications confirmées dans D1, aucune alerte critique, deux quotas LIVE atteints (national et scores), alerte privée rejetée. Pas de preuve de réception privée.
+- Le destinataire doit être un identifiant utilisateur positif, et Telegram doit confirmer le type `private` et l'identifiant exact avant toute réservation ou envoi. Envoyer /start au bot concerné avant le test ; ne pas utiliser un ID de groupe/canal. Aucun secret ni description brute Telegram n'est journalisé.
+- Un échec de notification configurée rend le workflow non vert après archivage du rapport. Les rejets, erreurs réseau, accusés ambigus et réservations précédentes non confirmées restent distingués ; aucun renvoi automatique des livraisons incertaines.
+- Pour tester sans fausse panne, lancer manuellement avec `dry_run=false`, `send_alerts=true`, `test_private_alert=true` : une notification de test privée au maximum par jour et destinataire. Sinon laisser le test désactivé.
+- Les quotas de publication ne sont pas modifiés : 20 LIVE/jour par canal, 48 pour Scores. Observer plusieurs jours et les événements ignorés avant toute hausse. Le cron GitHub reste H:07/H:37 ; vérifier la cadence réelle indépendamment de la configuration.

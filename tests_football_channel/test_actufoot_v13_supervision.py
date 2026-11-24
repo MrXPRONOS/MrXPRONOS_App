@@ -146,38 +146,101 @@ class SupervisionTests(unittest.TestCase):
         ledger.claim.assert_not_called()
         session.post.assert_not_called()
 
-    def test_exact_alert_fingerprint_claim_and_receipt(self):
+    @patch.object(v13, "private_preflight", return_value="ok")
+    def test_exact_alert_fingerprint_claim_and_receipt(self, preflight):
         report = v13.build_report(NOW, CHANNELS, [],
                                    set(CHANNELS) - {"flash"}, ["flash"])
         ledger, session = MagicMock(), MagicMock()
         ledger.claim.return_value = True
         session.post.return_value.status_code = 200
         session.post.return_value.json.return_value = {
-            "ok": True, "result": {"message_id": 42}}
+            "ok": True, "result": {"message_id": 42, "chat": {"type": "private", "id": 1234567890}}}
         state = v13.send_private_alert(
-            report, ledger, session, "token", "-1001234567890", dry_run=False)
+            report, ledger, session, "token", "1234567890", dry_run=False)
         self.assertEqual(state, "sent")
         ledger.mark.assert_called_once()
         self.assertEqual(ledger.mark.call_args.kwargs["message_id"], 42)
         self.assertEqual(ledger.claim.call_args.args[0], v13.ALERT_KIND)
 
         ledger.claim.return_value = False
+        ledger.rows.return_value = [{"delivery_status": "sent"}]
         self.assertEqual(v13.send_private_alert(
-            report, ledger, session, "token", "-1001234567890",
+            report, ledger, session, "token", "1234567890",
             dry_run=False), "already_reserved")
         self.assertEqual(session.post.call_count, 1)
 
-    def test_ambiguous_telegram_response_quarantined(self):
+    @patch.object(v13, "private_preflight", return_value="ok")
+    def test_ambiguous_telegram_response_quarantined(self, preflight):
         report = v13.build_report(NOW, CHANNELS, [],
                                    set(CHANNELS) - {"flash"}, ["flash"])
         ledger, session = MagicMock(), MagicMock()
         ledger.claim.return_value = True
         session.post.side_effect = requests_timeout()
         self.assertEqual(v13.send_private_alert(
-            report, ledger, session, "token", "-1001234567890", dry_run=False),
+            report, ledger, session, "token", "1234567890", dry_run=False),
             "uncertain")
         self.assertEqual(ledger.set_status.call_args.args[-1], "uncertain")
         ledger.mark.assert_not_called()
+
+    def test_private_preflight_refuses_channel_and_mismatched_id(self):
+        session = MagicMock()
+        session.post.return_value.status_code = 200
+        for chat in ({"type": "channel", "id": 1234567890},
+                     {"type": "private", "id": 999999999}):
+            session.post.return_value.json.return_value = {"ok": True, "result": chat}
+            self.assertEqual(v13.private_preflight(session, "secret", "1234567890"), "not_private")
+        session.post.return_value.json.return_value = {
+            "ok": True, "result": {"type": "private", "id": 1234567890}}
+        self.assertEqual(v13.private_preflight(session, "secret", "1234567890"), "ok")
+
+    def test_private_preflight_diagnoses_chat_not_found(self):
+        session = MagicMock()
+        session.post.return_value.status_code = 400
+        session.post.return_value.json.return_value = {"ok": False, "description": "Bad Request: chat not found"}
+        self.assertEqual(v13.private_preflight(session, "secret", "1234567890"), "chat_not_found")
+
+    def test_negative_chat_never_contacted(self):
+        report = v13.build_report(NOW, CHANNELS, [], set(CHANNELS), [])
+        ledger, session = MagicMock(), MagicMock()
+        self.assertEqual(v13.send_private_alert(report, ledger, session, "token",
+                         "-1001234567890", dry_run=False, test=True), "disabled_private_destination")
+        session.post.assert_not_called()
+        ledger.claim.assert_not_called()
+
+    @patch.object(v13, "private_preflight", return_value="ok")
+    def test_manual_test_only_and_previous_rejection_visible(self, preflight):
+        report = v13.build_report(NOW, CHANNELS, [], set(CHANNELS), [])
+        ledger, session = MagicMock(), MagicMock()
+        self.assertEqual(v13.send_private_alert(report, ledger, session, "token",
+                         "1234567890", dry_run=False), "no_alert")
+        ledger.claim.return_value = False
+        ledger.rows.return_value = [{"delivery_status": "rejected"}]
+        self.assertEqual(v13.send_private_alert(report, ledger, session, "token",
+                         "1234567890", dry_run=False, test=True), "previous_rejected")
+        session.post.assert_not_called()
+        self.assertIn("previous_rejected", v13.PRIVATE_FAILURES)
+
+    @patch.object(v13, "private_preflight", return_value="ok")
+    def test_explicit_rejection_vs_ambiguous_server_error(self, preflight):
+        report = v13.build_report(NOW, CHANNELS, [], set(CHANNELS), [])
+        ledger, session = MagicMock(), MagicMock()
+        ledger.claim.return_value = True
+        ledger.set_status.return_value = True
+        session.post.return_value.json.return_value = {"ok": False, "description": "Forbidden: bot was blocked"}
+        session.post.return_value.status_code = 403
+        self.assertEqual(v13.send_private_alert(report, ledger, session, "token",
+                         "1234567890", dry_run=False, test=True), "bot_blocked")
+        self.assertEqual(ledger.set_status.call_args.args[-1], "rejected")
+        session.post.return_value.status_code = 502
+        self.assertEqual(v13.send_private_alert(report, ledger, session, "token",
+                         "1234567890", dry_run=False, test=True), "uncertain")
+        self.assertEqual(ledger.set_status.call_args.args[-1], "uncertain")
+
+    def test_missing_d1_results_is_not_empty_success(self):
+        ledger = MagicMock()
+        ledger.query.return_value = {}
+        with self.assertRaises(ValueError):
+            v13.read_aggregates(ledger, NOW)
 
     def test_main_posting_rights_are_validated(self):
         with patch.object(v13, "bot_call", side_effect=[
