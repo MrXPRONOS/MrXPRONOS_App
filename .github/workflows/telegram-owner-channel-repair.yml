@@ -1,0 +1,73 @@
+name: Telegram owner - repair Formation stage and historical Crypto route
+on:
+  pull_request:
+    paths:
+      - 'scripts/telegram_owner_channel_repair.py'
+      - 'scripts/test_telegram_owner_channel_repair.py'
+      - '.github/workflows/telegram-owner-channel-repair.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/telegram-triggers/telegram-owner-repair-20261124.txt'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Authorize real Telegram channel/access repair (no messages sent)'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Telegram repair test dependencies
+        run: python -m pip install 'telethon==1.45.0' 'requests==2.32.5' 'PyNaCl>=1.5,<2'
+      - name: Offline safety regressions (no user session)
+        run: |
+          python -m compileall -q scripts/telegram_owner_channel_repair.py scripts/test_telegram_owner_channel_repair.py
+          python -m unittest scripts.test_telegram_owner_channel_repair -v
+
+  repair:
+    needs: tests
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.apply == true)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      TELEGRAM_OWNER_REPAIR_AUTHORIZED: 'true'
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+      GH_PAT_SECRETS: ${{ secrets.GH_PAT_SECRETS }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Respect Telegram personal session cooldown
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - name: Install pinned Telegram repair dependencies
+        run: python -m pip install 'telethon==1.45.0' 'requests==2.32.5' 'PyNaCl>=1.5,<2'
+      - name: Reuse or create private stage; restore verified bot rights
+        run: python scripts/telegram_owner_channel_repair.py
