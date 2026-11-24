@@ -143,3 +143,14 @@ test('malformed count blocks all candidates',()=>{
  assert.equal(p.eligible.length,0);
  assert.equal(p.reason,'invalid_existing_quota');
 });
+
+test('cross-category reuse of the same video quarantines both items',()=>{
+ const movieItem=planMovies(movie()).items[0];
+ const courseItem=planCourses(course()).items[0];
+ const wrong={...courseItem,parts:courseItem.parts.map((p,i)=>({
+  ...p,file_unique_id:i===0?'media-123456':p.file_unique_id
+ }))};
+ const decision=selectManualCycle({movies:{items:[movieItem]},courses:{items:[wrong]}},flags);
+ assert.equal(decision.eligible.length,0);
+ assert.equal(decision.blocked.filter(x=>x.reason==='cross_category_media_collision').length,2);
+});
