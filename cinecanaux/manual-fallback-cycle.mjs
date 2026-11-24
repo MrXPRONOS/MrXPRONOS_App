@@ -171,7 +171,13 @@ async function main(){
   reason:selection.reason||'none'
  }));
  if(!selection.eligible.length)return;
- const engine=new FallbackPublisher({db,categoryBots:bots,targets:chats,
+ const radarToken=norm(env.CINE_RADAR_BOT_TOKEN);
+ if(!radarToken){
+  console.log('MANUAL_FALLBACK_RADAR_BOT_TOKEN_MISSING');
+  return;
+ }
+ const engine=new FallbackPublisher({db,radarBot:new TelegramBot(radarToken),
+  categoryBots:bots,targets:chats,
   formationTargets:forms,stage,
   folder:env.CINEX_FILM_FOLDER_URL||'',
   env});
