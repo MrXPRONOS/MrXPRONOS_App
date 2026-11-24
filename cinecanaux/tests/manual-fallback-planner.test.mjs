@@ -24,7 +24,7 @@ function series(){
 }
 function course(){
  return [
-  base(1,'formation_business','poster','Cours: vente-2026'),
+  base(1,'formation_business','poster','Cours: vente-2026\nAuteur: Formateur Autorisé'),
   base(2,'formation_business','course_file',
     'Cours: vente-2026\nTotal: 2\nPartie: 1/2',
     'part1.pdf','file-class-001'),
