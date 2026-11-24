@@ -500,6 +500,10 @@ async def execute() -> int:
                         if recovered == "complete":
                             state.mark_film(pair_id, film_key)
                             continue
+                        if recovered == "incomplete":
+                            raise RuntimeError(
+                                "Film : publication historique sans paire V4 complète ; "
+                                "reçu privé conservé, aucune nouvelle copie.")
                     original = clean_caption(description_of(pair), description_entities_of(pair))
                     if len(original) < 12:
                         LOG.info("Affiche %s ignorée (description trop courte après nettoyage)", pair.poster.id)
