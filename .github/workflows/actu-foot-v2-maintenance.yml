@@ -48,8 +48,65 @@ concurrency:
   cancel-in-progress: false
 jobs:
   maintenance:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation != 'restore' }}
+    permissions:
+      contents: write
+      actions: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ACTU_FOOT_V2_KEY_B64_V1: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V1 }}
+      ACTU_FOOT_V2_KEY_B64_V2: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V2 }}
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      ACTU_FOOT_V2_ALLOW_LEGACY_KEY: '1'
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: main
+      OP: ${{ inputs.operation }}
+      COLLECTION: ${{ inputs.collection }}
+      CONFIRM: ${{ inputs.confirmation }}
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
+      BACKUP_ARTIFACT_ID: ${{ inputs.backup_artifact_id }}
+      MIN_GENERATION: ${{ inputs.minimum_generation }}
+      NEW_VERSION: ${{ inputs.target_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
+      - name: Verify live state or execute explicitly guarded operation
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$OP" in
+            verify)
+              python -m scripts.actu_foot_v2_operations --operation backup
+              python -m scripts.actu_foot_v2_operations --operation verify
+              ;;
+            rotate-preview)
+              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION"
+              ;;
+            rotate)
+              test "$CONFIRM" = "ROTATE_ALL_ENCRYPTED_V2"
+              test -n "$EXPECTED_SHA"
+              [[ "$BACKUP_ARTIFACT_ID" =~ ^[0-9]+$ ]]
+              python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID" --directory /tmp/v2-pre-rotation
+              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION" --expected-commit "$EXPECTED_SHA" --execute --confirmation "$CONFIRM" --backup-directory /tmp/v2-pre-rotation
+              ;;
+            *) exit 2 ;;
+          esac
+      - name: Request independent backup and recovery after successful mutation
+        if: inputs.operation == 'rotate'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run actu-foot-v2-backup.yml --repo "$GITHUB_REPOSITORY" --ref main
+          echo V2_POST_MUTATION_BACKUP_REQUESTED
+
+  restore-live:
     environment: actu-foot-v2-maintenance
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'restore' }}
     permissions:
       contents: write
       actions: write
@@ -77,38 +134,18 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
       - name: Verify administrative environment protection before a sensitive write
-        if: inputs.operation == 'rotate' || inputs.operation == 'restore'
         run: python -m scripts.actu_foot_v2_release_guard
-      - name: Verify live state or execute explicitly guarded operation
+      - name: Restore live collection with explicit safeguards
         shell: bash
         run: |
           set -euo pipefail
-          case "$OP" in
-            verify)
-              python -m scripts.actu_foot_v2_operations --operation backup
-              python -m scripts.actu_foot_v2_operations --operation verify
-              ;;
-            restore)
-              test "$CONFIRM" = "RESTORE_ENCRYPTED_V2"
-              [[ "$BACKUP_ARTIFACT_ID" =~ ^[0-9]+$ ]]
-              test -n "$EXPECTED_SHA"
-              python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID"
-              python -m scripts.actu_foot_v2_operations --operation restore --collection "$COLLECTION" --expected-sha "$EXPECTED_SHA" --minimum-generation "$MIN_GENERATION" --confirm "$CONFIRM"
-              ;;
-            rotate-preview)
-              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION"
-              ;;
-            rotate)
-              test "$CONFIRM" = "ROTATE_ALL_ENCRYPTED_V2"
-              test -n "$EXPECTED_SHA"
-              [[ "$BACKUP_ARTIFACT_ID" =~ ^[0-9]+$ ]]
-              python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID" --directory /tmp/v2-pre-rotation
-              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION" --expected-commit "$EXPECTED_SHA" --execute --confirmation "$CONFIRM" --backup-directory /tmp/v2-pre-rotation
-              ;;
-            *) exit 2 ;;
-          esac
+          test "$OP" = "restore"
+          test "$CONFIRM" = "RESTORE_ENCRYPTED_V2"
+          [[ "$BACKUP_ARTIFACT_ID" =~ ^[0-9]+$ ]]
+          test -n "$EXPECTED_SHA"
+          python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID"
+          python -m scripts.actu_foot_v2_operations --operation restore --collection "$COLLECTION" --expected-sha "$EXPECTED_SHA" --minimum-generation "$MIN_GENERATION" --confirm "$CONFIRM"
       - name: Request independent backup and recovery after successful mutation
-        if: inputs.operation == 'rotate' || inputs.operation == 'restore'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
