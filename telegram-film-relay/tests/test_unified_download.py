@@ -236,6 +236,43 @@ class CentralLibraryTests(unittest.TestCase):
         self.assertEqual(client.sent, [])
         self.assertEqual(registry.calls, [])
 
+    def test_legacy_adjacent_exact_photo_recovers_without_reupload(self):
+        cover = NS(id=24, photo=NS(id=800), raw_text="Titre authentique")
+        source_poster = NS(photo=NS(id=800), noforwards=False)
+        client = DummyClient(rows=[media(25, 555), cover])
+        registry = DummyRegistry()
+        lib = UnifiedLibrary(client, env={"CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)},
+                             registry=registry)
+        with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+              patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
+            url = asyncio.run(lib.store(media(1, 555), category="anime",
+                title="Titre authentique S01E01", poster=source_poster,
+                public=NS(id=-1001234567890, username="CineXAnimeFR")))
+        self.assertEqual(url, BOT_LINK)
+        self.assertTrue(lib.verified_cover_for(555))
+        self.assertEqual(client.sent, [])
+        self.assertEqual(registry.calls[0]["message_id"], 25)
+
+    def test_legacy_adjacent_photo_rejects_wrong_id_and_conflicting_marker(self):
+        for cover in (NS(id=24, photo=NS(id=801), raw_text="Titre authentique"),
+                      NS(id=23, photo=NS(id=800), raw_text="Titre authentique"),
+                      NS(id=24, photo=NS(id=800), raw_text=""),
+                      NS(id=24, photo=NS(id=800), raw_text="Titre #CXSTOCK_0000000000000000")):
+            with self.subTest(cover=cover):
+                client = DummyClient(rows=[media(25, 555), cover])
+                registry = DummyRegistry()
+                lib = UnifiedLibrary(client, env={"CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)},
+                                     registry=registry)
+                with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+                      patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
+                    with self.assertRaisesRegex(RuntimeError, "sans affiche adjacente"):
+                        asyncio.run(lib.store(media(1, 555), category="anime",
+                            title="Titre authentique S01E01",
+                            poster=NS(photo=NS(id=800), noforwards=False),
+                            public=NS(id=-1001234567890, username="CineXAnimeFR")))
+                self.assertEqual(client.sent, [])
+                self.assertEqual(registry.calls, [])
+
     def test_existing_document_is_reused_without_second_upload(self):
         client = DummyClient(rows=[media(25, 555)])
         library = UnifiedLibrary(client, env={"CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)}, registry=DummyRegistry())
