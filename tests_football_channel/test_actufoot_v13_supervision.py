@@ -105,6 +105,15 @@ class SupervisionTests(unittest.TestCase):
         self.assertIn("TELEGRAM_REJECTIONS", codes)
         self.assertEqual(report["channels"]["scores"]["stale_pending"], 3)
 
+    def test_previous_day_quota_visible_but_not_a_current_alert(self):
+        data = [record("national", "live_quota", "reserved", 20, "2026-11-22"),
+                record("scores", "live_quota", "reserved", 48, "2026-11-22")]
+        report = v13.build_report(NOW, CHANNELS, data, set(CHANNELS), [])
+        self.assertEqual(report["channels"]["national"]["quota_yesterday"]["live"], 20)
+        self.assertEqual(report["channels"]["scores"]["quota_limits"]["live"], 48)
+        self.assertEqual(report["summary"]["warning"], 0)
+        self.assertIn("48/48", v13.markdown(report))
+
     def test_warning_quota_thresholds(self):
         rows = [record("flash", "rss_quota", "reserved", 22),
                 record("scores", "live_quota", "reserved", 48)]
