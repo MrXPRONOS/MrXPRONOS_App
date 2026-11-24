@@ -77,7 +77,10 @@ def read_aggregates(ledger, now):
     )
     params = (LIVE, RSS, LIVE, RSS_QUOTA, LIVE_QUOTA, threshold,
               start, end, *KINDS)
-    return ledger.query(sql, params).get("results") or []
+    result = ledger.query(sql, params)
+    if not isinstance(result, dict) or not isinstance(result.get("results"), list):
+        raise ValueError("V13_INVALID_D1_RESULT")
+    return result["results"]
 
 
 def _parse_time(value):
@@ -200,6 +203,7 @@ def markdown(report):
     out += ["", "Droits : " + str(report["roles_verified"]) + "/10",
             "Alertes critiques : " + str(report["summary"]["critical"]),
             "Avertissements : " + str(report["summary"]["warning"]), ""]
+    out += ["Notification privée : " + report.get("private_alert_delivery", "non évaluée"), ""]
     if report["alerts"]:
         out.append("## Alertes")
         for alert in report["alerts"][:40]:
@@ -224,49 +228,108 @@ def alert_message(report):
     return "\n".join(lines)
 
 
-def send_private_alert(report, ledger, session, token, destination, *, dry_run):
-    """One daily alert per fingerprint. Unknown Telegram result stays quarantined."""
-    if not report["alerts"]:
-        return "no_alert"
+PRIVATE_FAILURES = {"disabled_private_destination", "disabled_missing_bot_token",
+                    "not_private", "chat_not_found", "bot_blocked", "telegram_forbidden",
+                    "telegram_unauthorized", "telegram_rate_limited", "telegram_bad_request",
+                    "telegram_rejected", "preflight_unavailable", "uncertain",
+                    "previous_rejected", "previous_uncertain", "previous_pending",
+                    "ledger_unavailable"}
+
+
+def telegram_failure(response, payload):
+    """Return only allowlisted codes, never raw Telegram descriptions or URLs."""
+    code = response.status_code
+    description = str(payload.get("description", "")).lower()
+    if code == 400 and "chat not found" in description:
+        return "chat_not_found"
+    if code == 403 and "blocked" in description:
+        return "bot_blocked"
+    return {400: "telegram_bad_request", 401: "telegram_unauthorized",
+            403: "telegram_forbidden", 429: "telegram_rate_limited"}.get(
+                code, "telegram_rejected")
+
+
+def private_preflight(session, token, destination):
+    try:
+        response = session.post(
+            "https://api.telegram.org/bot" + token + "/getChat",
+            data={"chat_id": destination}, timeout=(7, 20))
+        payload = response.json()
+        if not isinstance(payload, dict):
+            return "preflight_unavailable"
+        if response.status_code != 200 or payload.get("ok") is not True:
+            return telegram_failure(response, payload)
+        chat = payload.get("result")
+        if not isinstance(chat, dict):
+            return "preflight_unavailable"
+        if chat.get("type") != "private" or str(chat.get("id")) != destination:
+            return "not_private"
+        return "ok"
+    except (requests.RequestException, ValueError, TypeError, KeyError):
+        return "preflight_unavailable"
+
+
+def send_private_alert(report, ledger, session, token, destination, *, dry_run, test=False):
+    """One daily delivery per fingerprint; never retry ambiguous delivery."""
     if dry_run:
         return "dry_run"
-    if not re.fullmatch(r"-?\d{5,20}", destination or ""):
+    if not re.fullmatch(r"[1-9]\d{4,19}", destination or ""):
         return "disabled_private_destination"
     if not token:
         return "disabled_missing_bot_token"
-    # One delivery per day and exact alert set: same failure cannot spam.
+    preflight = private_preflight(session, token, destination)
+    if preflight != "ok":
+        return preflight
+    if not report["alerts"] and not test:
+        return "no_alert"
     import hashlib
-    fingerprint = hashlib.sha256(json.dumps(
+    fingerprint = "manual-test" if test else hashlib.sha256(json.dumps(
         sorted((a.get("role", "main"), a["code"]) for a in report["alerts"])
     ).encode()).hexdigest()[:20]
     ref = "v13:private:" + destination + ":" + fingerprint
     day = report["date_lome"]
-    if not ledger.claim(ALERT_KIND, ref, day):
-        return "already_reserved"
+    try:
+        if not ledger.claim(ALERT_KIND, ref, day):
+            rows = ledger.rows(ALERT_KIND, day, ref_id=ref)
+            status = rows[0].get("delivery_status") if len(rows) == 1 else None
+            return {"sent": "already_reserved", "rejected": "previous_rejected",
+                    "uncertain": "previous_uncertain"}.get(status, "previous_pending")
+    except Exception:
+        return "ledger_unavailable"
     try:
         response = session.post(
             "https://api.telegram.org/bot" + token + "/sendMessage",
-            data={"chat_id": destination, "text": alert_message(report),
+            data={"chat_id": destination,
+                  "text": ("Actu Foot V1.3 : test privé de notification. Aucun incident simulé."
+                           if test else alert_message(report)),
                   "parse_mode": "HTML", "disable_web_page_preview": "true"},
-            timeout=(7, 20),
-        )
+            timeout=(7, 20))
         payload = response.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid receipt")
         if response.status_code != 200 or payload.get("ok") is not True:
-            ledger.set_status(ALERT_KIND, ref, day, "rejected")
-            return "rejected"
-        message_id = payload.get("result", {}).get("message_id")
-        if type(message_id) is not int or message_id <= 0:
-            ledger.set_status(ALERT_KIND, ref, day, "uncertain")
-            return "uncertain"
+            if 400 <= response.status_code < 500 and payload.get("ok") is False:
+                if not ledger.set_status(ALERT_KIND, ref, day, "rejected"):
+                    return "uncertain"
+                return telegram_failure(response, payload)
+            raise ValueError("ambiguous receipt")
+        result = payload.get("result")
+        if not isinstance(result, dict):
+            raise ValueError("invalid receipt")
+        message_id = result.get("message_id")
+        chat = result.get("chat")
+        if (type(message_id) is not int or message_id <= 0 or
+                not isinstance(chat, dict) or chat.get("type") != "private" or
+                str(chat.get("id")) != destination):
+            raise ValueError("unverified receipt")
         ledger.mark(ALERT_KIND, ref, day, message_id=message_id)
         return "sent"
-    except (requests.RequestException, ValueError, TypeError, KeyError):
+    except Exception:
         try:
             ledger.set_status(ALERT_KIND, ref, day, "uncertain")
         except Exception:
             pass
         return "uncertain"
-
 
 
 def main_can_publish(session, token, main_chat):
@@ -285,7 +348,7 @@ def main_can_publish(session, token, main_chat):
 
 
 def run(now, *, ledger, session, token, main_chat, channels,
-        alert_chat="", send_alerts=False, dry_run=True):
+        alert_chat="", send_alerts=False, dry_run=True, test_alert=False):
     validate_channels(channels)
     if not token or not main_chat:
         raise RuntimeError("V13_PREFLIGHT_MISSING_TELEGRAM_CREDENTIALS")
@@ -303,7 +366,7 @@ def run(now, *, ledger, session, token, main_chat, channels,
                           main_verified=main_identity_ok and
                           main_can_publish(session, token, main_chat))
     report["private_alert_delivery"] = (
-        send_private_alert(report, ledger, session, token, alert_chat, dry_run=dry_run)
+        send_private_alert(report, ledger, session, token, alert_chat, dry_run=dry_run, test=test_alert)
         if send_alerts else "disabled")
     return report
 
@@ -312,8 +375,11 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--dry-run", action="store_true", help="read D1 but never send private alerts")
     p.add_argument("--send-alerts", action="store_true", help="allow private alerts if configured")
+    p.add_argument("--test-private-alert", action="store_true", help="explicit private test, once per day")
     p.add_argument("--output", type=Path, default=Path("actufoot-v13-report.json"))
     args = p.parse_args()
+    if args.test_private_alert and (args.dry_run or not args.send_alerts):
+        p.error("private test requires --send-alerts without --dry-run")
     now = utcnow()
     # Do not write partial reports that could be mistaken for complete supervision.
     report = run(now, ledger=D1Ledger(), session=requests.Session(),
@@ -321,7 +387,7 @@ def main():
                  main_chat=os.getenv("FOOTBALL_NEWS_CHAT_ID", ""),
                  channels=load_config(CONFIG),
                  alert_chat=os.getenv("ACTUFOOT_V13_ALERT_CHAT_ID", ""),
-                 send_alerts=args.send_alerts, dry_run=args.dry_run)
+                 send_alerts=args.send_alerts, dry_run=args.dry_run, test_alert=args.test_private_alert)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     summary = markdown(report)
@@ -336,6 +402,9 @@ def main():
             # Static tokens only; no sensitive ref IDs or bot URLs.
             print("::warning title=Actu Foot V1.3::" +
                   alert.get("role", "principal") + ": " + alert["code"])
+    if report["private_alert_delivery"] in PRIVATE_FAILURES:
+        print("::error title=Actu Foot V1.3 notification privée::" + report["private_alert_delivery"])
+        raise SystemExit("V13_PRIVATE_ALERT_FAILURE")
     if report["summary"]["critical"]:
         raise SystemExit("V13_CRITICAL_HEALTH_ALERT")
 
