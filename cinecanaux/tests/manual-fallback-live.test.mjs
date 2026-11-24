@@ -131,7 +131,7 @@ test('season uses central delivery links, one index and ordered public videos',a
             {number:2,video_message_id:22,file_unique_id:'ep-2'}]};
  await f.publisher.copySeason(series);
  assert.equal(f.calls.filter(x=>x.method==='sendMessage').length,1);
- assert.equal(f.calls.filter(x=>x.body.reply_markup).length,2);
+ assert.equal(f.calls.filter(x=>x.body.reply_markup).length,4);
  assert.equal(f.sqlite.prepare("SELECT COUNT(*) AS n FROM cine_classic_links").get().n,2);
  await f.publisher.copySeason(series);
  assert.equal(f.calls.length,9);
