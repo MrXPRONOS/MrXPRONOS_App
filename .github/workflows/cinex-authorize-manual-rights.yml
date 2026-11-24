@@ -1,0 +1,87 @@
+name: CineX - Autoriser une réserve manuelle après vérification des droits
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'Réserve à activer après vérification des droits de redistribution'
+        required: true
+        type: choice
+        options:
+          - films
+          - animes
+          - comedie
+          - desir
+          - formation_general
+          - formation_business
+          - formation_finance
+          - formation_digitale
+          - formation_mindset
+          - all
+      rights_confirmed:
+        description: "Je confirme détenir le droit de redistribuer TOUS les contenus déposés dans la ou les réserves sélectionnées"
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+jobs:
+  authorize:
+    if: ${{ github.ref == 'refs/heads/main' && github.actor == 'MrXPRONOS' && inputs.rights_confirmed == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN || secrets.CINEX_BOT_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN || secrets.CINE_RADAR_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      CINEX_MANUAL_FILMS_CHAT: ${{ secrets.CINEX_MANUAL_FILMS_CHAT }}
+      CINEX_MANUAL_ANIMES_CHAT: ${{ secrets.CINEX_MANUAL_ANIMES_CHAT }}
+      CINEX_MANUAL_COMEDIE_CHAT: ${{ secrets.CINEX_MANUAL_COMEDIE_CHAT }}
+      CINEX_MANUAL_DESIR_CHAT: ${{ secrets.CINEX_MANUAL_DESIR_CHAT }}
+      CINEX_MANUAL_FORMATION_GENERAL_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_GENERAL_CHAT }}
+      CINEX_MANUAL_FORMATION_BUSINESS_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_BUSINESS_CHAT }}
+      CINEX_MANUAL_FORMATION_FINANCE_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_FINANCE_CHAT }}
+      CINEX_MANUAL_FORMATION_DIGITALE_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_DIGITALE_CHAT }}
+      CINEX_MANUAL_FORMATION_MINDSET_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_MINDSET_CHAT }}
+      GITHUB_REPOSITORY_EXPECTED: 'MrXPRONOS/MrXPRONOS_App'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test rights guard without touching Telegram
+        run: |
+          set -euo pipefail
+          python -m py_compile telegram-film-relay/scripts/authorize_manual_source_rights.py
+          cd telegram-film-relay
+          python -m unittest discover -s tests -p 'test_authorize_manual_source_rights.py' -v
+      - name: Respect personal Telegram cooldown
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - name: Install verified API clients
+        run: python -m pip install 'telethon==1.45.0' 'requests==2.32.5'
+      - name: Activate only verified source whose owner explicitly attested redistribution rights
+        env:
+          VAULT_CATEGORY: ${{ inputs.category }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd telegram-film-relay
+          python -m scripts.authorize_manual_source_rights --category "$VAULT_CATEGORY" --confirm-redistribution-rights
