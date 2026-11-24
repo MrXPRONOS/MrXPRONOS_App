@@ -171,6 +171,15 @@
     }
   },
   "series": {
+    "56-days": {
+      "episodes": {},
+      "main_index_id": 34,
+      "season_indices": {
+        "1": 35
+      },
+      "source_items": {},
+      "title": "56 days"
+    },
     "gign": {
       "episodes": {
         "1": {
@@ -523,5 +532,68 @@
         ]
       }
     }
+  },
+  "tv_active_batch": {
+    "complete": false,
+    "episodes": [
+      {
+        "episode": 1,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:49",
+        "title": "56 days"
+      },
+      {
+        "episode": 2,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:50",
+        "title": "56 days"
+      },
+      {
+        "episode": 3,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:51",
+        "title": "56 days"
+      },
+      {
+        "episode": 4,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:52",
+        "title": "56 days"
+      },
+      {
+        "episode": 5,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:53",
+        "title": "56 days"
+      },
+      {
+        "episode": 6,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:54",
+        "title": "56 days"
+      },
+      {
+        "episode": 7,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:55",
+        "title": "56 days"
+      },
+      {
+        "episode": 8,
+        "poster_id": 2,
+        "season": 1,
+        "source_key": "-1004406485215:56",
+        "title": "56 days"
+      }
+    ],
+    "key": "56-days",
+    "season": 1
   }
 }
