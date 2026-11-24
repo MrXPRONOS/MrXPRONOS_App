@@ -85,6 +85,63 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(len(markup["inline_keyboard"]), 4)
         self.assertEqual(markup["inline_keyboard"][0][0]["text"], "Voir")
 
+    def test_bot_identity_read_retries_one_transient_timeout(self):
+        from requests.exceptions import Timeout
+        calls = []
+        class Response:
+            status_code = 200
+            def json(self):
+                return {"ok": True, "result": {"id": 15, "username": "main_bot"}}
+        def request(*args, **kwargs):
+            calls.append(args[0])
+            if len(calls) == 1:
+                raise Timeout("temporary read failure")
+            return Response()
+        with patch("film_relay.bot_http.requests.post", side_effect=request), \
+             patch("film_relay.bot_http.time.sleep", return_value=None):
+            self.assertEqual(self.bot._call_sync("getMe")["id"], 15)
+        self.assertEqual(len(calls), 2)
+
+    def test_bot_read_retry_is_bounded_and_429_is_not_retried(self):
+        from requests.exceptions import Timeout
+        class Response:
+            status_code = 429
+            def json(self):
+                return {"ok": False, "parameters": {"retry_after": 40}}
+        with patch("film_relay.bot_http.requests.post",
+                   side_effect=Timeout("offline")) as post, \
+             patch("film_relay.bot_http.time.sleep", return_value=None):
+            with self.assertRaisesRegex(TelegramBotHTTPError, "lecture en échec"):
+                self.bot._call_sync("getChatMember")
+            self.assertEqual(post.call_count, 2)
+        with patch("film_relay.bot_http.requests.post",
+                   return_value=Response()) as post:
+            with self.assertRaisesRegex(TelegramBotHTTPError, "40"):
+                self.bot._call_sync("getChatMember")
+            self.assertEqual(post.call_count, 1)
+
+    def test_uncertain_send_photo_is_never_retried(self):
+        from requests.exceptions import Timeout
+        with patch("film_relay.bot_http.requests.post",
+                   side_effect=Timeout("post accepted, reply missing")) as post:
+            with self.assertRaisesRegex(TelegramBotHTTPError, "envoi incertain"):
+                self.bot._call_sync("sendPhoto")
+            self.assertEqual(post.call_count, 1)
+
+    def test_bot_read_retries_one_gateway_error_only(self):
+        class Response:
+            def __init__(self, status):
+                self.status_code = status
+            def json(self):
+                if self.status_code == 503:
+                    return {"ok": False, "description": "temporarily down"}
+                return {"ok": True, "result": {"id": 9}}
+        with patch("film_relay.bot_http.requests.post",
+                   side_effect=[Response(503), Response(200)]) as post, \
+             patch("film_relay.bot_http.time.sleep", return_value=None):
+            self.assertEqual(self.bot._call_sync("getMe")["id"], 9)
+            self.assertEqual(post.call_count, 2)
+
     def test_429_never_retries(self):
         called = []
         class Response:

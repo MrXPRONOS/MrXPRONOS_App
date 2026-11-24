@@ -8,12 +8,23 @@ from unittest.mock import AsyncMock, patch
 
 from film_relay.category_runner import (
     CATEGORIES, category_config, check_bot_permission, preflight, run,
+    existing_public_v4_status,
 )
 from film_relay.desir_runner import ReceiptState, DesirPromotionsState
 from film_relay.desir_matching import is_supported_video, pair_items
 
 
 class CategoryRelayTests(unittest.TestCase):
+    def test_incomplete_action_receipt_is_quarantined_not_republished(self):
+        from film_relay.recovery import TelegramReceiptCache
+        historical = TelegramReceiptCache({900: [54]}, {54: 201}, {})
+        self.assertEqual(existing_public_v4_status(historical, 54), "quarantined")
+        self.assertEqual(existing_public_v4_status(historical, 55), "absent")
+        repaired = TelegramReceiptCache({900: [54]}, {54: 201}, {54: 200})
+        self.assertEqual(existing_public_v4_status(repaired, 54), "verified")
+        self.assertEqual(historical.public_by_video, {54: 201})
+        self.assertEqual(historical.public_v4_by_video, {})
+
     def test_requires_real_source_public_and_private_ids(self):
         for category in CATEGORIES:
             with self.subTest(category=category):
