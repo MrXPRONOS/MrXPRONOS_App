@@ -1,43 +1,42 @@
-name: Validation des prédictions
+name: Validation des prédictions — Supabase (sans Neon)
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "cycle = refresh + validation, probe = lecture seule"
+        type: choice
+        options: [cycle, probe]
+        default: cycle
   push:
     branches: [main]
-    paths: ['.github/workflows/validate_predictions.yml']
-
+    paths:
+      - '.github/workflows/validate_predictions.yml'
+      - 'scripts/supabase_live_cycle.py'
+  # The existing external cron-job.org dispatch remains the production 5-minute trigger.
 permissions:
   contents: read
-
 concurrency:
-  group: mrx-live-validate-neon
+  group: mrx-live-supabase-cycle
   cancel-in-progress: false
-
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 5
     steps:
-      - name: Valider les pronostics LIVE directement sur Neon
-        env:
-          LIVE_BASE_URL: https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-        shell: bash
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests and static backend safety
         run: |
-          set -euo pipefail
-          test -n "$CRON_SECRET"
-          python3 - <<'PY'
-          import json,os,urllib.request,urllib.error
-          base=os.environ["LIVE_BASE_URL"]
-          req=urllib.request.Request(base+"/validate",method="POST",data=b"{}",
-            headers={"Content-Type":"application/json","x-cron-secret":os.environ["CRON_SECRET"]})
-          try:
-            with urllib.request.urlopen(req,timeout=100) as response:
-              body=json.load(response)
-              assert response.status==200,(response.status,body)
-          except urllib.error.HTTPError as error:
-            print("NEON_LIVE_VALIDATE_HTTP_FAILURE",error.code,error.read().decode(errors="replace")[:1500])
-            raise
-          assert body.get("success") is True,body
-          print("NEON_LIVE_VALIDATE_SUCCESS",json.dumps({k:v for k,v in body.items() if k not in ("secret","token","credentials")},ensure_ascii=False)[:2500])
-          PY
+          python -m unittest tests_football_channel.test_supabase_live_cycle -v
+          python -m py_compile scripts/supabase_live_cycle.py
+      - name: Verify deployed Supabase LIVE and settle predictions without Neon
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          SUPABASE_LIVE_URL: https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode || 'cycle') || 'probe' }}
+        run: python -m scripts.supabase_live_cycle --mode "$MODE"
