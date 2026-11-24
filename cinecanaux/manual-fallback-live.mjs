@@ -6,6 +6,7 @@ import {planMovies,planSeasons,planCourses,selectManualCycle}
  from './manual-fallback-planner.mjs';
 import {performJournaledCopy,acquireManualReceipt,completeManualReceipt}
  from './manual-fallback-journal.mjs';
+import {schedulePublicExpiry} from './manual-fallback-expiry.mjs';
 
 const ID=/^-100\d{6,}$/;
 const HANDLE=/^@[A-Za-z][A-Za-z0-9_]{4,31}$/;
@@ -135,7 +136,7 @@ export class FallbackPublisher{
  async receipt(bot,{category,key,stage,target,source,messageId,method='copyMessage',payload={}}){
   const op={category,content_key:key,stage,target_chat_id:String(target),
    source_chat_id:String(source),source_message_id:Number(messageId)};
-  return await performJournaledCopy(this.journalEnv,op,async()=>{
+  const receipt=await performJournaledCopy(this.journalEnv,op,async()=>{
    const body=method==='copyMessage'?{
     chat_id:target,from_chat_id:source,message_id:messageId,
     disable_notification:true,...payload
@@ -144,6 +145,8 @@ export class FallbackPublisher{
    assert(n(result?.message_id),'telegram_send_without_message_receipt');
    return Number(result.message_id);
   });
+  if(stage==='public_video')await schedulePublicExpiry(this.db,category,key);
+  return receipt;
  }
  async originalPrivateReceipt({category,key,stage,chat,messageId}){
   // Owner-uploaded video is already in this exact verified private library.
