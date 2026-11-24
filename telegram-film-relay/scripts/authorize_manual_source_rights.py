@@ -77,6 +77,16 @@ async def activate(target,*,confirm,env=None):
         "AND s.owner_approved=1 AND s.bot_access_verified=1 "
         "AND s.rights_attested=1 AND s.enabled=1)",
         wanted)
+    remaining=d1_query(
+        "SELECT COUNT(*) AS n FROM cine_manual_fallback_inbox i "
+        "JOIN cine_manual_fallback_sources s ON s.chat_id=i.chat_id "
+        "AND s.category=i.category "
+        "WHERE i.category IN ("+slots+") AND s.rights_attested=1 "
+        "AND s.enabled=1 AND i.state='needs_review' "
+        "AND i.review_code='rights_not_attested'",
+        wanted)
+    if len(remaining)!=1 or int(remaining[0].get("n") or 0)!=0:
+        raise RuntimeError("manual_pending_stock_promotion_incomplete")
     return wanted
 
 
