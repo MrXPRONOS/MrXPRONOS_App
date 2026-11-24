@@ -97,7 +97,7 @@ class HTTPTests(unittest.TestCase):
             if len(calls) == 1:
                 raise Timeout("temporary read failure")
             return Response()
-        with patch("film_relay.bot_http.requests.post", side_effect=request), \\
+        with patch("film_relay.bot_http.requests.post", side_effect=request), \
              patch("film_relay.bot_http.time.sleep", return_value=None):
             self.assertEqual(self.bot._call_sync("getMe")["id"], 15)
         self.assertEqual(len(calls), 2)
@@ -109,7 +109,7 @@ class HTTPTests(unittest.TestCase):
             def json(self):
                 return {"ok": False, "parameters": {"retry_after": 40}}
         with patch("film_relay.bot_http.requests.post",
-                   side_effect=Timeout("offline")) as post, \\
+                   side_effect=Timeout("offline")) as post, \
              patch("film_relay.bot_http.time.sleep", return_value=None):
             with self.assertRaisesRegex(TelegramBotHTTPError, "lecture en échec"):
                 self.bot._call_sync("getChatMember")
@@ -137,7 +137,7 @@ class HTTPTests(unittest.TestCase):
                     return {"ok": False, "description": "temporarily down"}
                 return {"ok": True, "result": {"id": 9}}
         with patch("film_relay.bot_http.requests.post",
-                   side_effect=[Response(503), Response(200)]) as post, \\
+                   side_effect=[Response(503), Response(200)]) as post, \
              patch("film_relay.bot_http.time.sleep", return_value=None):
             self.assertEqual(self.bot._call_sync("getMe")["id"], 9)
             self.assertEqual(post.call_count, 2)
