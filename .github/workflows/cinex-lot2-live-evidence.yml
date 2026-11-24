@@ -72,6 +72,8 @@ jobs:
       ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
       ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
       CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_STOCK_APPROVED_SHA256: 57b1f0a97d7db124ab9f72f470f7d63b92960e06b876397795e5780f5c5cc2b8
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
       CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-lot2-invites-${{ github.run_id }}.json
     steps:

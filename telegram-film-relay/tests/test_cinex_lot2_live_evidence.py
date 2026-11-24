@@ -113,11 +113,11 @@ class Lot2EvidenceTests(unittest.TestCase):
         client = NS(get_messages=AsyncMock(return_value=NS(
             raw_text="S01E01 — " + url + "\nS01E02 — " + url)))
         video = NS(raw_text="🌸 Titre — S01E02\\n#CINEX_VIDEO_24H_V1")
-        with patch.object(app, "check_receipt", return_value=True) as receipt:
+        with patch.object(app, "check_receipt", new_callable=AsyncMock, return_value=True) as receipt:
             ok = asyncio.run(app.check_download_target(
                 client, p, p, video, link))
         self.assertTrue(ok)
-        receipt.assert_called_once_with(url)
+        receipt.assert_awaited_once_with(client, video, url)
         client.get_messages.assert_awaited_once_with(p, ids=210)
 
     def test_batch_download_cannot_use_a_different_episode_receipt(self):
@@ -131,20 +131,44 @@ class Lot2EvidenceTests(unittest.TestCase):
             self.assertFalse(asyncio.run(
                 app.check_download_target(client, p, p, video, link)))
 
-    def test_d1_receipt_requires_approved_central_stock(self):
+    def test_d1_receipt_requires_approved_central_stock_and_exact_document(self):
         url = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        stock_id = -1001234567890
         class Registry:
+            row = {"source_chat_id": str(stock_id), "source_message_id": 123}
             def _query(self, sql, params):
                 self.sql = sql
                 self.params = params
-                return {"results": [{"source_message_id": 123}]}
+                return {"results": [self.row]}
         registry = Registry()
-        with patch.object(app, "RadarRegistry", return_value=registry):
-            self.assertTrue(app.check_receipt(url))
+        stock = NS(id=stock_id, broadcast=True, username=None)
+        expected = NS(id=10, video=object(), document=NS(id=555))
+        stored = NS(id=123, video=object(), document=NS(id=555))
+        client = NS(get_messages=AsyncMock(return_value=stored))
+        with (patch.object(app, "RadarRegistry", return_value=registry),
+              patch.object(app, "configured_private_id", return_value=stock_id),
+              patch.object(app, "resolve_peer", new=AsyncMock(return_value=stock)),
+              patch("telethon.utils.get_peer_id", return_value=stock_id)):
+            self.assertTrue(asyncio.run(app.check_receipt(client, expected, url)))
+            stored.document.id = 999
+            self.assertFalse(asyncio.run(app.check_receipt(client, expected, url)))
+            stored.document.id = 555
+            registry.row["source_chat_id"] = "-1009999999999"
+            self.assertFalse(asyncio.run(app.check_receipt(client, expected, url)))
         self.assertIn("JOIN cine_private_stock_config", registry.sql)
         self.assertIn("l.status='published'", registry.sql)
         self.assertEqual(registry.params, ["A"*24])
 
+    def test_batch_duplicate_episode_lines_are_not_valid(self):
+        p = -1001234567890
+        link = "https://t.me/c/1234567890/210"
+        url = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        client = NS(get_messages=AsyncMock(return_value=NS(
+            raw_text="S01E02 — " + url + "\nS01E02 — " + url)))
+        with patch.object(app, "check_receipt", new_callable=AsyncMock, return_value=True) as receipt:
+            self.assertFalse(asyncio.run(app.check_download_target(
+                client, p, p, NS(raw_text="S01E02"), link)))
+            receipt.assert_not_awaited()
 
     def test_batch_private_cover_must_match_public_video_index(self):
         p = -1001234567890
