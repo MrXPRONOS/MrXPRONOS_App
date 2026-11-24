@@ -28,6 +28,44 @@ def media(mid, title, *, photo=False, video=False, name="", doc=None, buttons=No
 
 
 class LegacyMediaIdentityTests(unittest.TestCase):
+
+    def test_pinned_collection_ten_parts(self):
+        from film_relay.legacy_media_identity import multipart_identity
+        from film_relay.legacy_archive_repair import multipart_members
+        from film_relay.ten_video_rotation import pinned_archive_order
+        poster = media(10, "Saga Voyage 1 à 10", photo=True)
+        poster.pinned = True
+        ordinary = media(2, "Autre aventure", video=True)
+        parts = [media(20+i, f"Saga Voyage {10-i}", video=True) for i in range(10)]
+        records = [poster, ordinary, *parts]
+        self.assertEqual(sorted(multipart_members(poster, records, [poster], "films")), list(range(1, 11)))
+        ordered = pinned_archive_order([ordinary, *parts], records, "films")
+        self.assertEqual([multipart_identity(v, poster, "films").part for v in ordered[:-1]], list(range(1,11)))
+        self.assertIs(ordered[-1], ordinary)
+
+    def test_pinned_collection_duplicate_part_is_ambiguous(self):
+        from film_relay.legacy_archive_repair import multipart_members
+        poster = media(10, "Saga Voyage", photo=True)
+        poster.pinned = True
+        parts = [media(11, "Saga Voyage Partie 1", video=True),
+                 media(12, "Saga Voyage Partie 1", video=True)]
+        self.assertIsNone(multipart_members(poster, [poster, *parts], [poster], "films"))
+
+    def test_explicit_fraction_ten(self):
+        self.assertEqual(parse_identity("Saga Voyage Partie 1/10", "films").part, 1)
+        self.assertEqual(parse_identity("Saga Voyage 10/10", "films").part, 10)
+        self.assertFalse(parse_identity("Saga Voyage 9/2", "films").safe)
+
+    def test_multipart_links_keep_other_verified_parts(self):
+        from film_relay.original_poster_edit import safe_buttons
+        first = "https://t.me/c/4392607284/55"
+        second = "https://t.me/c/4392607284/56"
+        poster = media(10, "Saga Voyage", photo=True, buttons=[[NS(url=first)]])
+        with self.assertRaises(RuntimeError):
+            safe_buttons(poster, [[NS(url=second)]], second)
+        rows = safe_buttons(poster, [[NS(url=second)]], second, verified_part_urls=[first])
+        self.assertEqual([b.url for row in rows for b in row], [first, second])
+
     def test_legacy_repair_completion_counts_central_missing_covers(self):
         r=legacy_repair_completion([{"older":6,"public_linked":2,
                                     "central_cover_unverified":3,"errors":0}])
