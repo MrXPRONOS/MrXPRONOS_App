@@ -257,6 +257,24 @@ export function selectManualCycle(plans,{
  const queue=[...(plans?.movies?.items||[]),
               ...(plans?.seasons?.items||[]),
               ...(plans?.courses?.items||[])];
+ // Full-queue preflight: one Telegram file cannot claim two distinct
+ // movies, episodes or courses. Quarantine BOTH candidates, irrespective
+ // of which content type is processed first.
+ const ownersByFingerprint=new Map();
+ const contentFingerprints=item=>item.file_unique_id?[item.file_unique_id]:
+  item.episodes?item.episodes.map(x=>x.file_unique_id):
+  item.parts?item.parts.map(x=>x.file_unique_id):[];
+ for(const item of queue){
+  const contentIdentity=String(item.category)+':'+String(item.key);
+  for(const file of contentFingerprints(item)){
+   if(!file)continue;
+   const owners=ownersByFingerprint.get(file)||new Set();
+   owners.add(contentIdentity);
+   ownersByFingerprint.set(file,owners);
+  }
+ }
+ const conflictingFiles=new Set([...ownersByFingerprint]
+  .filter(([_,owners])=>owners.size>1).map(([fingerprint])=>fingerprint));
  for(const item of queue){
   const cap=status.remaining[item.category];
   const files=item.file_unique_id?[item.file_unique_id]:
@@ -265,6 +283,9 @@ export function selectManualCycle(plans,{
   if(!item.key||!Object.hasOwn(status.remaining,item.category)||
      uncertainKeys.has(item.key)){
    status.blocked.push({key:item.key,reason:'invalid_or_uncertain'});continue;
+  }
+  if(files.some(x=>conflictingFiles.has(x))){
+   status.blocked.push({key:item.key,reason:'cross_category_media_collision'});continue;
   }
   if(publishedKeys.has(item.key)||selectedKeys.has(item.key)||
      files.some(x=>publishedFiles.has(x)||selectedFiles.has(x))){
