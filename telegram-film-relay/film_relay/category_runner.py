@@ -254,6 +254,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
     )
     bot = None
     completed = 0
+    quarantined_legacy = 0
     try:
         await client.connect()
         if publish:
@@ -379,9 +380,14 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 if prior_public:
                     verified_poster = cache.public_v4_by_video.get(int(staged["video"]))
                     if not verified_poster:
-                        raise RuntimeError(
-                            "Publication existante incomplète : affiche/vidéo V4 non confirmées ; "
-                            "reçu conservé, aucun doublon ni succès fictif.")
+                        # Preserve the old receipt but let unrelated verified
+                        # candidates proceed. Do not clone a public video.
+                        quarantined_legacy += 1
+                        LOG.error(
+                            "%s : lien historique sans paire V4 authentifiée "
+                            "(vidéo privée=%s). Aucun renvoi.",
+                            cfg["label"], staged["video"])
+                        continue
                     state.complete(key, int(staged["video"]), int(verified_poster))
                     LOG.warning("%s : paire V4 Telegram retrouvée, aucun doublon.",
                                 cfg["label"])
@@ -400,9 +406,12 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                         verified_poster = cache.public_v4_by_video.get(saved_video)
                         if not verified_poster:
                             state.stage(key, "video", saved_video)
-                            raise RuntimeError(
-                                "Publication historique sans paire V4 confirmée ; "
-                                "vidéo conservée, aucune copie en double.")
+                            quarantined_legacy += 1
+                            LOG.error(
+                                "%s : vidéo historique enregistrée sans paire "
+                                "V4 vérifiée (%s). Aucun doublon.",
+                                cfg["label"], saved_video)
+                            continue
                         state.complete(key, saved_video, int(verified_poster))
                         LOG.info("Paire V4 retrouvée : aucune copie en double.")
                         continue
@@ -478,6 +487,11 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             )
             LOG.info("%s : pub privé=%s public=%s Torrent9=%s",
                      cfg["label"], report["private"], report["public"], report["mirror"])
+        if quarantined_legacy:
+            LOG.error("%s : %d reçu(s) incomplets conservés en quarantaine ; "
+                      "aucun succès fictif.", cfg["label"], quarantined_legacy)
+            if publish and completed == 0:
+                return 3
         if publish and require_publication and completed == 0:
             LOG.error("%s : aucun nouveau média envoyé au premier test.", cfg["label"])
             return 3
