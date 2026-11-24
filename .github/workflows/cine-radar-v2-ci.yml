@@ -105,6 +105,9 @@ jobs:
           node --test cinecanaux/tests/manual-fallback-journal.test.mjs
           node --check cinecanaux/manual-fallback-audit.mjs
           node --test cinecanaux/tests/manual-fallback-audit.test.mjs
+          node --check cinecanaux/manual-fallback-live.mjs
+          node --check cinecanaux/manual-fallback-cycle.mjs
+          node --test cinecanaux/tests/manual-fallback-live.test.mjs
       - name: Run isolated Telegram and Mini App tests
         run: node --test cinecanaux/tests/owner-admin-auth-bridge.test.mjs cinecanaux/tests/admin-channel-manager.test.mjs cinecanaux/tests/admin-operations-v13.test.mjs cinecanaux/tests/owner-start-funnel.test.mjs cinecanaux/tests/instant-pinned-no-polling.test.mjs cinecanaux/tests/owner-pin-gallery-recovery.test.mjs cinecanaux/tests/bot-branded-miniapp.test.mjs cinecanaux/tests/broadcast.test.mjs cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/bot-miniapp-entry.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs cinecanaux/tests/v2.test.mjs cinecanaux/tests/completion.test.mjs cinecanaux/tests/avatars.test.mjs cinecanaux/tests/owned-featured.test.mjs cinecanaux/tests/quality-ranking.test.mjs cinecanaux/tests/avatar-recovery-cache.test.mjs cinecanaux/tests/poster-avatar-recovery.test.mjs cinecanaux/tests/ui-runtime-regression.test.mjs cinecanaux/tests/webhook-recovery.test.mjs cinecanaux/tests/trend-radar.test.mjs cinecanaux/tests/pinned-showcase.test.mjs cinecanaux/tests/partner-promotions.test.mjs cinecanaux/tests/owner-analytics.test.mjs cinecanaux/tests/owner-inbox.test.mjs cinecanaux/tests/trend-fallback.test.mjs cinecanaux/tests/simkl-trends.test.mjs
 
