@@ -98,7 +98,8 @@ export function planSeasons(rows,{publishedEpisodes=new Set(),maxEpisodes=50}={}
  for(const row of rows||[]){
   if(!active(row)||!['series','animes'].includes(row.category))continue;
   const title=exactTitle(row),text=String(row.caption||'')+' '+String(row.filename||'');
-  const season=SEASON.exec(text);
+  const explicitEpisode=EPISODE.exec(text);
+  const season=explicitEpisode? [null,explicitEpisode[1]]:SEASON.exec(text);
   if(!title||!season){
    reviewPush(result,'missing_explicit_series_title_or_season',[row]);continue;
   }
