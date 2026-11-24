@@ -1,0 +1,64 @@
+name: Telegram owner - read-only channel inventory
+on:
+  pull_request:
+    paths:
+      - 'scripts/telegram_owner_readonly_postrepair.py'
+      - 'scripts/test_telegram_owner_readonly_postrepair.py'
+      - '.github/workflows/telegram-owner-readonly-inventory.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/telegram-triggers/telegram-owner-audit-20261124.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pin
+        run: python -m pip install 'telethon==1.45.0' 'requests==2.32.5'
+      - name: Offline no-network tests
+        run: |
+          python -m compileall -q scripts/telegram_owner_readonly_postrepair.py scripts/test_telegram_owner_readonly_postrepair.py
+          python -m unittest scripts.test_telegram_owner_readonly_postrepair -v
+
+  inventory:
+    needs: tests
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    concurrency:
+      group: mrx-telegram-personal-account
+      cancel-in-progress: false
+      queue: max
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Respect Telegram cooldown
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - name: Install dependencies
+        run: python -m pip install 'telethon==1.45.0' 'requests==2.32.5'
+      - name: Inspect real access in read-only mode
+        run: python scripts/telegram_owner_readonly_postrepair.py
