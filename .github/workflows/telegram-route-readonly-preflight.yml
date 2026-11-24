@@ -1,0 +1,63 @@
+name: Telegram routes - read-only preflight
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/telegram_route_readonly_audit.py'
+      - 'scripts/test_telegram_route_readonly_audit.py'
+      - '.github/workflows/telegram-route-readonly-preflight.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-route-readonly-preflight.yml'
+      - 'scripts/telegram_route_readonly_audit.py'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install read-only audit dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6,<7' 'langdetect>=1,<2'
+      - name: Verify audit safety without network or posting
+        run: |
+          python -m compileall -q scripts/telegram_route_readonly_audit.py scripts/test_telegram_route_readonly_audit.py
+          python -m unittest scripts.test_telegram_route_readonly_audit -v
+
+  route-preflight:
+    needs: offline-tests
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    env:
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_DESTINATIONS_JSON: ${{ secrets.FORMATION_DESTINATIONS_JSON }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
+      ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install read-only audit dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6,<7' 'langdetect>=1,<2'
+      - name: Check all Telegram routes without publication
+        run: python scripts/telegram_route_readonly_audit.py
