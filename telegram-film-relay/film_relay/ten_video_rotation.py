@@ -51,6 +51,55 @@ def split_recent_and_old(messages, category: str, count: int = KEEP):
     return videos[:count], videos[count:]
 
 
+def pinned_archive_order(old, messages, category: str):
+    """Pinned film covers first; preserve the retention boundary and exact pairing.
+
+    A pin is scheduling evidence only, never proof that a video belongs to a
+    cover. Use the same title/neighbor matchers as the repair routine. Shared
+    covers are inventoried, not authorized for copying/deleting by this helper.
+    All parts of a pinned cover that can be matched are considered together.
+    """
+    from .legacy_media_identity import find_legacy_poster, video_identity
+    from .legacy_neighbor_matching import find_neighbor_pair
+
+    posters = [m for m in messages if getattr(m, "photo", None)]
+    pins = {int(m.id) for m in posters if getattr(m, "pinned", False)}
+    pinned_groups = {}
+    for video in old:
+        poster = find_legacy_poster(video, posters, category)
+        if poster is None:
+            adjacent = find_neighbor_pair(video, messages, category)
+            poster = adjacent.poster if adjacent else None
+        if poster is not None and int(poster.id) in pins:
+            pinned_groups[int(video.id)] = int(poster.id)
+
+    def sort_key(video):
+        vid = int(video.id)
+        if vid in pinned_groups:
+            return (0, pinned_groups[vid], vid)
+        if getattr(video, "pinned", False):
+            return (0, vid, vid)
+        return (1, vid, vid)
+
+    ordered = sorted(old, key=sort_key)
+    counts = {}
+    for video in ordered:
+        cover_id = pinned_groups.get(int(video.id))
+        if cover_id is None:
+            continue
+        ident = video_identity(video, category)
+        counts.setdefault(cover_id, []).append(
+            ident.part if ident.kind == "film_part" else None)
+    for cover_id, parts in sorted(counts.items()):
+        numbered = sorted(p for p in parts if p is not None)
+        LOG.info("Affiche épinglée #%s : %s vidéo(s) ancienne(s), parties explicites=%s",
+                 cover_id, len(parts), numbered)
+        if len(parts) > 1:
+            LOG.warning("Affiche épinglée #%s partagée : ne pas déduire de liens "
+                        "multiples ni de parties manquantes sans preuve", cover_id)
+    return ordered
+
+
 def movie_button_target(poster, private_id: int) -> int | None:
     """One and only one movie button must lead to our configured library."""
     expected_prefix = str(abs(int(private_id)))[3:] if str(private_id).startswith("-100") else None
@@ -213,7 +262,7 @@ async def rotate_channel(client, category: str, public, private,
     report["unmatched_candidates"] = sum(
         unmatched_candidate(v, messages, category) for v in old
     )
-    for video in reversed(old):
+    for video in pinned_archive_order(old, messages, category):
         if report["deleted"] >= max_deleted:
             break
         # V4 videos are exclusively managed by the scheduled 24h retention.
