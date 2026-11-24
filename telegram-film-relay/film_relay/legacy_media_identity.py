@@ -90,6 +90,8 @@ def parse_identity(value: str, category: str) -> Identity:
     raw = str(value or "").strip()
     episode = episode_numbers(raw)
     part = PART.search(_ascii(raw))
+    if part and part.group(3) and int(part.group(2)) > int(part.group(3)):
+        return Identity("", "conflict")
     pack = PACK.search(_ascii(raw))
     season = SEASON.search(_ascii(raw))
     years = {int(y) for y in re.findall(r"\b(?:19|20)\d{2}\b", raw)}
@@ -118,6 +120,8 @@ def video_identity(message, category: str) -> Identity:
     stem = PurePath(filename).stem.replace("_", " ").replace(".", " ")
     principal = parse_identity(caption, category)
     secondary = parse_identity(stem, category)
+    if principal.kind == "conflict":
+        return principal
     if not principal.safe and secondary.safe:
         return secondary
     if principal.safe and secondary.safe:
@@ -133,6 +137,10 @@ def video_identity(message, category: str) -> Identity:
         if (principal.year is not None and secondary.year is not None
                 and principal.year != secondary.year):
             return Identity("", "conflict")
+        if (principal.part is None and secondary.part is not None
+                and principal.episode is None and principal.title == secondary.title):
+            return Identity(principal.title, "film_part", part=secondary.part,
+                            year=principal.year or secondary.year)
     return principal
 
 
