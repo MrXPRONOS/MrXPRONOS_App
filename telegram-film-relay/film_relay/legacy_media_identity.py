@@ -16,8 +16,8 @@ from .public_video_archive import poster_heading, video_title
 
 PART = re.compile(
     r"(?i)(?<![a-z0-9])(?:partie|part|pt|cd|disc|disque|volume|vol)"
-    r"[ ._:#-]*0*([1-9]\d?)(?!\d)"
-    r"|(?<!\d)([1-9]\d?)\s*/\s*([2-9]\d?)(?!\d)"
+    r"[ ._:#-]*0*([1-9]\d?)(?!\d)(?:\s*/\s*([1-9]\d?)(?!\d))?"
+    r"|(?<![\d/])([1-9]\d?)\s*/\s*([1-9]\d?)(?![\d/])"
 )
 PACK = re.compile(
     r"(?i)\b(?:saison|season|s)\s*0*(\d{1,2})\b.{0,30}"
@@ -90,8 +90,11 @@ def parse_identity(value: str, category: str) -> Identity:
     raw = str(value or "").strip()
     episode = episode_numbers(raw)
     part = PART.search(_ascii(raw))
-    if part and part.group(3) and int(part.group(2)) > int(part.group(3)):
-        return Identity("", "conflict")
+    if part:
+        number = int(part.group(1) or part.group(3))
+        total = part.group(2) or part.group(4)
+        if total and (int(total) < 2 or number > int(total)):
+            return Identity("", "conflict")
     pack = PACK.search(_ascii(raw))
     season = SEASON.search(_ascii(raw))
     years = {int(y) for y in re.findall(r"\b(?:19|20)\d{2}\b", raw)}
@@ -107,7 +110,7 @@ def parse_identity(value: str, category: str) -> Identity:
                         None, None, next(iter(years), None))
     if part:
         return Identity(title, "film_part", None, None,
-                        int(part.group(1) or part.group(2)),
+                        number,
                         next(iter(years), None))
     kind = "anime_film" if category == "anime" else "film"
     return Identity(title, kind, int(season.group(1)) if season else None,
@@ -120,8 +123,8 @@ def video_identity(message, category: str) -> Identity:
     stem = PurePath(filename).stem.replace("_", " ").replace(".", " ")
     principal = parse_identity(caption, category)
     secondary = parse_identity(stem, category)
-    if principal.kind == "conflict":
-        return principal
+    if principal.kind == "conflict" or secondary.kind == "conflict":
+        return Identity("", "conflict")
     if not principal.safe and secondary.safe:
         return secondary
     if principal.safe and secondary.safe:
@@ -184,6 +187,53 @@ def compatible(video: Identity, poster: Identity) -> float:
     return ratio if ratio >= 0.97 else 0.0
 
 
+
+COLLECTION_RANGE = re.compile(r"(?i)\s+(?:(?:parties?|films?|volumes?)\s+)?1\s*(?:a|au|to|-)\s*(10|[2-9])\s*$")
+
+
+def collection_heading(poster, category: str):
+    """A pinned generic heading or explicit 1-to-N collection, not an episode."""
+    if not getattr(poster, "pinned", False) or not getattr(poster, "photo", None):
+        return None
+    heading = _ascii(poster_heading(poster).replace("–", "-").replace("—", "-"))
+    match = COLLECTION_RANGE.search(heading)
+    base = parse_identity(heading[:match.start()] if match else heading, category)
+    if not base.safe or base.kind not in ("film", "anime_film") or base.season is not None:
+        return None
+    return base, int(match.group(1)) if match else None
+
+
+def multipart_identity(video, poster, category: str):
+    """Exact title and explicit part evidence. A bare sequel number is accepted
+    only when the pinned cover explicitly declares a numbered collection.
+    """
+    group = collection_heading(poster, category)
+    if not group:
+        return None
+    base, total = group
+    ident = video_identity(video, category)
+    if not ident.safe or ident.episode is not None or ident.season is not None:
+        return None
+    if base.year and ident.year and base.year != ident.year:
+        return None
+    if ident.kind == "film_part" and ident.title == base.title:
+        number = ident.part
+    elif total and ident.kind in ("film", "anime_film"):
+        match = re.fullmatch(re.escape(base.title) + r" (10|[1-9])", ident.title)
+        if not match:
+            return None
+        number = int(match.group(1))
+        name = str(getattr(getattr(video, "file", None), "name", "") or "")
+        other = parse_identity(PurePath(name).stem.replace(".", " ").replace("_", " "), category)
+        if other.safe and other.title != ident.title and other.title != base.title:
+            return None
+    else:
+        return None
+    if not number or not 1 <= number <= (total or 10):
+        return None
+    return Identity(base.title, "film_part", part=number, year=ident.year or base.year)
+
+
 def find_legacy_poster(video, posters, category: str, *, max_gap: int = 1600):
     identity = video_identity(video, category)
     if not identity.safe:
@@ -196,7 +246,7 @@ def find_legacy_poster(video, posters, category: str, *, max_gap: int = 1600):
         if not 0 < gap <= max_gap:
             continue
         other = poster_identity(photo, category)
-        score = compatible(identity, other)
+        score = 1.0 if multipart_identity(video, photo, category) else compatible(identity, other)
         threshold = 0.97 if gap > 12 else 0.95
         if score >= threshold and (
             getattr(photo, "raw_text", "") or ""
