@@ -1,5 +1,5 @@
 {
-  "last_checked": "2026-11-24T04:22:42.477592+00:00",
+  "last_checked": "2026-11-24T11:29:28.927882+00:00",
   "status": "ready",
   "checks": {
     "Secrets TG_API_ID / TG_API_HASH / TG_SESSION_STRING (ou TG_STRING_SESSION)": {
