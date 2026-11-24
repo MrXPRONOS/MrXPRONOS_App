@@ -17,10 +17,12 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class PersonalSessionPacingTests(unittest.IsolatedAsyncioTestCase):
-    def test_known_floodwait_blocks_before_17_utc(self):
-        self.assertEqual(KNOWN_UNTIL, datetime(2026, 11, 20, 17, tzinfo=timezone.utc))
-        now = datetime(2026, 11, 20, 12, tzinfo=timezone.utc)
-        self.assertEqual(seconds_remaining(now, {}), 5 * 3600)
+    def test_latest_floodwait_blocks_until_november_24_1830_utc(self):
+        self.assertEqual(KNOWN_UNTIL, datetime(2026, 11, 24, 18, 30, tzinfo=timezone.utc))
+        # Telegram replied FloodWait(8420) at 15:51:36 UTC;
+        # the extra ~18 minutes are deliberate safety margin.
+        now = datetime(2026, 11, 24, 15, 51, 36, tzinfo=timezone.utc)
+        self.assertEqual(seconds_remaining(now, {}), 2 * 3600 + 38 * 60 + 24)
         self.assertEqual(seconds_remaining(KNOWN_UNTIL, {}), 0)
 
     def test_future_cooldown_can_be_extended_but_not_shortened(self):
@@ -28,8 +30,8 @@ class PersonalSessionPacingTests(unittest.IsolatedAsyncioTestCase):
             {"TG_PERSONAL_COOLDOWN_UNTIL_UTC": "2026-11-20T11:00:00Z"}),
             KNOWN_UNTIL)
         self.assertEqual(blocked_until(
-            {"TG_PERSONAL_COOLDOWN_UNTIL_UTC": "2026-11-21T18:30:00+00:00"}),
-            datetime(2026, 11, 21, 18, 30, tzinfo=timezone.utc))
+            {"TG_PERSONAL_COOLDOWN_UNTIL_UTC": "2026-11-25T18:30:00+00:00"}),
+            datetime(2026, 11, 25, 18, 30, tzinfo=timezone.utc))
         with self.assertRaises(ValueError):
             parse_utc("2026-11-20T12:00:00")
 
