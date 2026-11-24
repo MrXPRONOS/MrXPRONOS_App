@@ -213,7 +213,19 @@ async def repair(env):
                 prepared_secret = secret_key_credentials(env)
             except RuntimeError:
                 state.stage = "blocked_secret_update"
-        if state.stage != "blocked_secret_update":
+        if stage is None and state.stage != "blocked_secret_update":
+            if not expected:
+                # No existing value means we cannot safely prove write access
+                # without replacing a configured secret with dummy material.
+                state.stage = "blocked_missing_stage_reference"
+            else:
+                try:
+                    # A same-value encrypted update proves GitHub secret write
+                    # rights BEFORE any channel is created.
+                    persist_stage_secret(expected, prepared_secret)
+                except RuntimeError:
+                    state.stage = "blocked_secret_update"
+        if state.stage not in ("blocked_secret_update", "blocked_missing_stage_reference"):
             try:
                 created = False
                 if stage is None:
