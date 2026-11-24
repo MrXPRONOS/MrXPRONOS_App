@@ -138,7 +138,7 @@ test('season uses central delivery links, one index and ordered public videos',a
 test('formation copies numbered parts through verified technical stage to destination',async()=>{
  const f=fixtures();
  const training={category:'formation_business',key:'formation_business:entreprise2026',
-  source_chat_id:src,poster_message_id:22,parts:[
+  source_chat_id:src,poster_message_id:22,author:'Formateur Autorisé',parts:[
    {number:1,message_id:25,file_unique_id:'part-a'},
    {number:2,message_id:26,file_unique_id:'part-b'},
   ]};
