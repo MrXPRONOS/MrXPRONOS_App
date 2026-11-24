@@ -15,6 +15,7 @@ permissions:
 concurrency:
   group: mrx-telegram-personal-account
   cancel-in-progress: false
+  queue: max
 jobs:
   access:
     runs-on: ubuntu-latest
