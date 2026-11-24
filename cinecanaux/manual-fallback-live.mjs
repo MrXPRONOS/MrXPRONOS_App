@@ -321,6 +321,10 @@ export class FallbackPublisher{
   ]);
   assert(src.id!==target.id&&technical.id!==target.id,
    'formation_stage_and_destination_overlap');
+  if(item.category==='formation_general')
+   assert(Boolean(target.username),'formation_general_must_be_public');
+  else
+   assert(!target.username,'specialist_formation_destination_must_be_private');
   const label='📚 '+item.key.split(':').slice(1).join(' ');
   const author=String(item.author||'').trim();
   assert(author.length>=3&&author.length<=100&&
