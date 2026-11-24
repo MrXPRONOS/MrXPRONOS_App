@@ -47,3 +47,10 @@ protection; never claim it is complete before this is deployed and tested.
 The seven V2 collections currently contain initialization state only.
 Telegram and historical data remain on their existing paths. V4 must reconcile
 old publication IDs before any production switchover.
+
+## État observé et durcissement du 24 novembre 2026
+
+- La sauvegarde hebdomadaire du 22/11, run 45017542699, a confirmé 7 collections via GitHub OIDC (sans jeton Cloudflare permanent). Le run 40326596839 du 26/10 a récupéré 7 collections du snapshot 40326358146. Ces preuves concernent la base initialisée, pas l'historique importé.
+- Le snapshot est désormais lié au SHA immuable de l'exécution : sept fichiers du même commit, refus de snapshot partiel, comparaison de provenance en récupération et ancre obligatoire sur les nouveaux snapshots. Les anciens manifests restent lisibles. Le backup en push/dispatch demande une restauration isolée du snapshot exact, via le workflow et l'environnement existants.
+- Le rapport expose exclusivement les versions et nombres d'enregistrements ainsi que la présence des clés dédiées, jamais les clés. Ne pas remplacer la clé V1 avant d'avoir établi le mode de chiffrement et validé une rotation contrôlée.
+- L'ancre par snapshot n'est pas une protection continue contre le rollback complet. La protection de l'environnement et l'ancrage monotone indépendant restent à vérifier; ne pas déclarer la V2 totalement terminée.

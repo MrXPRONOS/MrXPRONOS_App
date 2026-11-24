@@ -2,6 +2,8 @@ name: Actu Foot V2 - Security and foundation tests
 on:
   pull_request:
     paths:
+      - 'tests_football_channel/test_actu_foot_v2_snapshot.py'
+      - 'scripts/actu_foot_v2_cloudflare_recovery.py'
       - 'scripts/actu_foot_v2_store.py'
       - 'scripts/actu_foot_v2_validation.py'
       - 'scripts/actu_foot_v2_operations.py'
@@ -17,6 +19,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'tests_football_channel/test_actu_foot_v2_snapshot.py'
+      - 'scripts/actu_foot_v2_cloudflare_recovery.py'
       - 'scripts/actu_foot_v2_store.py'
       - 'scripts/actu_foot_v2_validation.py'
       - 'scripts/actu_foot_v2_operations.py'
@@ -46,4 +50,4 @@ jobs:
       - name: Compile and validate V1/V2
         run: |
           python -m py_compile scripts/actu_foot_v2_store.py scripts/actu_foot_v2_validation.py scripts/actu_foot_v2_operations.py scripts/actu_foot_v2_cloudflare_backup.py scripts/actu_foot_v2_oidc_backup.py scripts/actu_foot_v2_bootstrap.py scripts/actu_foot_v2_artifact_recovery.py scripts/actu_foot_github_vault.py
-          python -m unittest tests_football_channel.test_actu_foot_v2_store tests_football_channel.test_actu_foot_v2_hardened tests_football_channel.test_actu_foot_v2_cloudflare_backup tests_football_channel.test_actu_foot_v2_oidc_backup tests_football_channel.test_github_vault -v
+          python -m unittest tests_football_channel.test_actu_foot_v2_store tests_football_channel.test_actu_foot_v2_hardened tests_football_channel.test_actu_foot_v2_cloudflare_backup tests_football_channel.test_actu_foot_v2_oidc_backup tests_football_channel.test_github_vault tests_football_channel.test_actu_foot_v2_snapshot -v
