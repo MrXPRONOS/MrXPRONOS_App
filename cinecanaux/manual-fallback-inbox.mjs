@@ -129,9 +129,10 @@ export async function ingestManualChannelPost(env,update){
 }
 
 export function planManualMediaPairs(rows){
- // Photos need an explicit matching title and release year (or episode).
- // Courses require multi-file course grouping, so are never silently paired.
- const result={pairs:[],review:[],duplicates:[]},groups=new Map();
+ // Two passes: inspect *all* candidate variants before releasing any item.
+ // One movie/episode pointing to two distinct files is ambiguous; one file
+ // claiming two different movies/episodes is also ambiguous.
+ const result={pairs:[],review:[],duplicates:[]}, groups=new Map();
  for(const row of rows||[]){
   if(!row||!CATEGORIES.has(row.category)||row.state!=='indexed')continue;
   const id=manualIdentity(row);
@@ -141,27 +142,43 @@ export function planManualMediaPairs(rows){
   }
   const key=row.chat_id+':'+id.key;
   if(!groups.has(key))groups.set(key,{posters:[],videos:[],key:id.key});
-  const group=groups.get(key);
-  if(row.kind==='poster')group.posters.push(row);
-  if(row.kind==='video')group.videos.push(row);
+  if(row.kind==='poster')groups.get(key).posters.push(row);
+  else if(row.kind==='video')groups.get(key).videos.push(row);
  }
- const fingerprints=new Set();
+ const drafts=[];
  for(const group of groups.values()){
   if(group.posters.length!==1||group.videos.length!==1){
-   result.review.push({key:group.key,reason:'missing_or_ambiguous_pair'});
-   continue;
+   result.review.push({key:group.key,reason:'missing_or_ambiguous_pair'});continue;
   }
-  const poster=group.posters[0],video=group.videos[0],fingerprint=String(video.file_unique_id||'');
+  const poster=group.posters[0],video=group.videos[0],
+   fingerprint=String(video.file_unique_id||'');
   if(!fingerprint){
    result.review.push({key:group.key,reason:'missing_video_fingerprint'});continue;
   }
-  if(fingerprints.has(fingerprint)){
-   result.duplicates.push({key:group.key,reason:'duplicate_video'});continue;
-  }
-  fingerprints.add(fingerprint);
-  result.pairs.push({key:group.key,category:video.category,
+  drafts.push({key:group.key,category:video.category,
    source_chat_id:video.chat_id,poster_message_id:poster.message_id,
    video_message_id:video.message_id,file_unique_id:fingerprint});
+ }
+ const byKey=new Map(),byFile=new Map();
+ for(const row of drafts){
+  if(!byKey.has(row.key))byKey.set(row.key,[]);
+  if(!byFile.has(row.file_unique_id))byFile.set(row.file_unique_id,[]);
+  byKey.get(row.key).push(row);byFile.get(row.file_unique_id).push(row);
+ }
+ const selectedKeys=new Set(),selectedFiles=new Set();
+ for(const row of drafts){
+  const sameKey=byKey.get(row.key),sameFile=byFile.get(row.file_unique_id);
+  if(new Set(sameKey.map(x=>x.file_unique_id)).size>1){
+   result.review.push({key:row.key,reason:'multiple_video_versions'});continue;
+  }
+  if(new Set(sameFile.map(x=>x.key)).size>1){
+   result.review.push({key:row.key,reason:'same_video_conflicting_title'});continue;
+  }
+  if(selectedKeys.has(row.key)||selectedFiles.has(row.file_unique_id)){
+   result.duplicates.push({key:row.key,reason:'duplicate_video'});continue;
+  }
+  selectedKeys.add(row.key);selectedFiles.add(row.file_unique_id);
+  result.pairs.push(row);
  }
  return result;
 }
