@@ -37,6 +37,9 @@ class SnapshotReader:
             blob=self.store.read_envelope(path,self.commit)
             if blob is None:raise VaultError("Archive not found")
             rows,header=verify_archive_path(path,blob)
+            receipt=audit_receipts(self.store.load_collection("audit",self.commit).data).get(path)
+            if not receipt or hashlib.sha256(blob.encode()).hexdigest()!=receipt["sha256"] or len(rows)!=receipt["count"]:
+                raise VaultError("Archive differs from authenticated receipt")
             if header["collection"]!=collection:raise VaultError("Wrong archive collection")
             generation=header["generation"]
         else:

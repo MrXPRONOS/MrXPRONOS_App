@@ -58,7 +58,7 @@ class IntegratedTests(unittest.TestCase):
             def recover(self,path,digest):return copies[(path,digest)]
         with tempfile.TemporaryDirectory() as temp:
             report=recover_inventory(receipts,Path(temp)/"recovery",Cloud())
-            self.assertEqual(report,{"verified":1,"total":1,"remaining":0})
+            self.assertEqual(report,{"verified":1,"total":1,"remaining":0,"next_after":None})
             self.assertEqual(len(list((Path(temp)/"recovery").rglob("*.aes.json"))),1)
         store.list_archives=lambda name,head:[]
         with self.assertRaises(VaultError):inventory(store,head)

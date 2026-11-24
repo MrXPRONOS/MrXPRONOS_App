@@ -41,20 +41,25 @@ class CloudArchive:
         if result.get("sha256")!=digest or self.recover(path,digest)!=payload:raise VaultError("Independent copy readback failed")
         return digest
 
-def recover_inventory(receipts,destination,cloud,*,limit=24):
+def recover_inventory(receipts,destination,cloud,*,limit=24,after=""):
     """Restore a bounded set of independently stored ciphertexts, never overwrite live Git."""
     if type(limit) is not int or not 1<=limit<=100:
         raise VaultError("Invalid recovery bound")
+    if not isinstance(after,str) or (after and after not in receipts):
+        raise VaultError("Unknown archive recovery cursor")
     root=Path(destination)
     if root.exists() and any(root.iterdir()):
         raise VaultError("Recovery directory must be empty")
     root.mkdir(parents=True,exist_ok=True)
     # Inventory can be provided from a recovered and verified V2 audit collection.
-    for path,meta in sorted(receipts.items())[:limit]:
+    pending=[(p,m) for p,m in sorted(receipts.items()) if p>after]
+    batch=pending[:limit]
+    for path,meta in batch:
         blob=cloud.recover(path,meta["sha256"])
         rows,_=verify_archive_path(path,blob)
         if len(rows)!=meta["count"]:raise VaultError("Recovered archive record count differs")
         target=root/path.removeprefix("assets/data/private/actufoot_v2/archive/")
         target.parent.mkdir(parents=True,exist_ok=True)
         target.write_text(blob,encoding="utf-8")
-    return {"verified":min(len(receipts),limit),"total":len(receipts),"remaining":max(0,len(receipts)-limit)}
+    remaining=len(pending)-len(batch)
+    return {"verified":len(batch),"total":len(receipts),"remaining":remaining,"next_after":batch[-1][0] if remaining else None}

@@ -34,6 +34,7 @@ def main():
     p.add_argument("--recover-archives",action="store_true")
     p.add_argument("--audit-file",default="")
     p.add_argument("--destination",default="/tmp/v3-archive-recovery")
+    p.add_argument("--after",default="")
     args=p.parse_args()
     store=GitAtomicStore(repo=os.environ["GITHUB_REPOSITORY"],token=os.environ["GITHUB_TOKEN"])
     if args.recover_archives:
@@ -45,7 +46,7 @@ def main():
             receipts=audit_receipts(audit)
         else:
             head,_=store.head();receipts=inventory(store,head)
-        print("V3_ARCHIVE_RECOVERY",json.dumps(recover_inventory(receipts,args.destination,CloudArchive()),sort_keys=True))
+        print("V3_ARCHIVE_RECOVERY",json.dumps(recover_inventory(receipts,args.destination,CloudArchive(),after=args.after),sort_keys=True))
         return
     if args.activate:
         if not args.execute or args.confirmation!="APPROVE_V3_ENCRYPTED_COMPACTION":raise VaultError("Activation requires approval")
