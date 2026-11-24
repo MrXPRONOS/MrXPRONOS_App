@@ -305,7 +305,8 @@ async def run(*, apply=False, pause=12, max_changes=220):
     print("CINEX_BOT_ADMIN_SUMMARY", json.dumps({
         k: v for k, v in report.items() if k != "targets"
     }, sort_keys=True))
-    if invalid or total_failed or len(rows) != 14 or (apply and total_missing != total_updated):
+    if (invalid or total_failed or len(rows) != 14
+            or total_verified != len(candidates) * 14):
         raise RuntimeError("admin_network_partially_complete")
     return report
 
