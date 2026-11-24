@@ -13,7 +13,7 @@ const CATEGORIES=new Set([
  'formation_general','formation_business','formation_finance',
  'formation_digitale','formation_mindset',
 ]);
-const KEY=/^[a-z0-9][a-z0-9:._ -]{4,240}$/;
+const KEY=/^[a-z0-9][a-zA-Z0-9:._ -]{4,240}$/;
 const POSITIVE=x=>Number.isSafeInteger(Number(x))&&Number(x)>0;
 export class ManualReceiptBlocked extends Error{
  constructor(reason){super(reason);this.name='ManualReceiptBlocked'}
