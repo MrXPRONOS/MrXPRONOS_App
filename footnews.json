@@ -925,13 +925,51 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T05:11:04.518206+00:00"
+      "checked_at": "2026-11-24T05:40:19.431452+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "2071da70a8090ee6",
+    "title": "Real Madrid-PSV Eindhoven : chaîne TV, streaming… À quelle heure et où suivre ce match de la 5ème journée de Ligue des champions ?",
+    "summary": "La Ligue des champions nous réserve une rencontre ce mardi soir entre le Real Madrid et le PSV Eindhoven. Les Madrilènes accueillent la formation néerlandaise au stade Santiago-Bernabéu, à 21h00, pour le compte de la cinquième journée de la phase de ligue.",
+    "summary_short": "La Ligue des champions nous réserve une rencontre ce mardi soir entre le Real Madrid et le PSV Eindhoven. Les Madrilènes accueillent la formation néerlandaise au stade Santiago-Bernabéu, à 21h00, pour le compte de la cinquième journée de la phase de ligue.",
+    "content": "La Ligue des champions nous réserve une rencontre ce mardi soir entre le Real Madrid et le PSV Eindhoven. Les Madrilènes accueillent la formation néerlandaise au stade Santiago-Bernabéu, à 21h00, pour le compte de la cinquième journée de la phase de ligue. Toujours invaincus dans la compétition, les hommes de la Maison Blanche auront à cœur de poursuivre leur sans-faute européen. De leur côté, les Néerlandais tenteront de créer la surprise pour maintenir leur place sur le dernier strapontin, synonyme de barrages. Une rencontre à suivre en direct sur CANAL+ SPORT.",
+    "paragraphs": [
+      "La Ligue des champions nous réserve une rencontre ce mardi soir entre le Real Madrid et le PSV Eindhoven. Les Madrilènes accueillent la formation néerlandaise au stade Santiago-Bernabéu, à 21h00, pour le compte de la cinquième journée de la phase de ligue. Toujours invaincus dans la compétition, les hommes de la Maison Blanche auront à cœur de poursuivre leur sans-faute européen.",
+      "De leur côté, les Néerlandais tenteront de créer la surprise pour maintenir leur place sur le dernier strapontin, synonyme de barrages. Une rencontre à suivre en direct sur CANAL+ SPORT."
+    ],
+    "key_points": [
+      "La Ligue des champions nous réserve une rencontre ce mardi soir entre le Real Madrid et le PSV Eindhoven.",
+      "Les Madrilènes accueillent la formation néerlandaise au stade Santiago-Bernabéu, à 21h00, pour le compte de la cinquième journée de la phase de ligue.",
+      "Toujours invaincus dans la compétition, les hommes de la Maison Blanche auront à cœur de poursuivre leur sans-faute européen.",
+      "De leur côté, les Néerlandais tenteront de créer la surprise pour maintenir leur place sur le dernier strapontin, synonyme de barrages."
+    ],
+    "telegram_summary": "La Ligue des champions nous réserve une rencontre ce mardi soir entre le Real Madrid et le PSV Eindhoven. Les Madrilènes accueillent la formation néerlandaise au stade Santiago-Bernabéu, à 21h00, pour le compte de la cinquième journée de la phase de ligue.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/real-madrid-psv-eindhoven-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-match-de-la-5eme-journee-de-ligue-des-champions-1009775",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/real-madrid-psv-eindhoven-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-match-de-la-5eme-journee-de-ligue-des-champions-1009775",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2071da70a8090ee6",
+    "published": "2026-11-24T05:20:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1009775/411234/1200-L-real-madrid-psv-eindhoven-chane-tv-streaming-quelle-heure-et-o-suivre-ce-match-de-la-5me-journe-de-ligue-des-champions.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1009775/411234/1200-L-real-madrid-psv-eindhoven-chane-tv-streaming-quelle-heure-et-o-suivre-ce-match-de-la-5me-journe-de-ligue-des-champions.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "bceaecc52c13cccd",
@@ -1122,7 +1160,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T05:11:04.518206+00:00"
+      "checked_at": "2026-11-24T05:40:19.431452+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1426,7 +1464,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-24T05:11:04.518206+00:00"
+      "checked_at": "2026-11-24T05:40:19.431452+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1792,7 +1830,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T05:11:04.518206+00:00"
+      "checked_at": "2026-11-24T05:40:19.431452+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2027,7 +2065,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T05:11:04.518206+00:00"
+      "checked_at": "2026-11-24T05:40:19.431452+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2193,47 +2231,12 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T05:11:04.518206+00:00"
+      "checked_at": "2026-11-24T05:40:19.431452+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
       "ESPN"
     ],
     "quality_score": 96
-  },
-  {
-    "slug": "9fd2ad5f7558fb73",
-    "title": "Dortmund : après l'OM, l'histoire se répète pour Nwaneri",
-    "summary": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
-    "summary_short": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
-    "content": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
-    "paragraphs": [
-      "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière...."
-    ],
-    "key_points": [
-      "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants.",
-      "Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière...."
-    ],
-    "telegram_summary": "Prêté au Borussia Dortmund cet été, l'ailier d'Arsenal Ethan Nwaneri se retrouve en difficulté après des débuts encourageants. Une trajectoire qui rappelle son passage à l'Olympique de Marseille la saison dernière....",
-    "link": "https://m.maxifoot.fr/football/article-66654.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66654.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9fd2ad5f7558fb73",
-    "published": "2026-11-23T20:11:43+00:00",
-    "image": "https://photo.maxifoot.fr/nwaneri-borussia-dortmund-1.jpg",
-    "source_image": "https://photo.maxifoot.fr/nwaneri-borussia-dortmund-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
   }
 ]
