@@ -22,6 +22,7 @@ test('missing database cannot report live readiness',async()=>{
 });
 test('empty manual stock reports no sources and no eligible sends',async()=>{
  const {env}=fixture();
+ await ensureManualFallbackSchema(env);
  const s=await auditManualStock(env);
  assert.equal(s.ready,true);
  assert.equal(s.inboxIndexed,0);
