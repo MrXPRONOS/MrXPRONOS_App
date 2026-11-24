@@ -232,3 +232,5 @@ class V3DeploymentCoverageTests(unittest.TestCase):
         self.assertIn("'scripts/actu_foot_v2_store.py'",trigger)
         self.assertIn("branches: [main]",trigger)
         self.assertIn("  automatic:",text)
+        self.assertIn("V3_RETENTION_POLICY_INACTIVE",text)
+        self.assertIn("steps.plan.outputs.active",text)

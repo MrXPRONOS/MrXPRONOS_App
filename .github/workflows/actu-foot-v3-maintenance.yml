@@ -60,6 +60,15 @@ jobs:
         env:
           COLLECTION: ${{ inputs.collection || 'all' }}
         run: python -m scripts.actu_foot_v3_maintenance --collection "$COLLECTION"
+      - name: Refuse silently disabled retention policy in autonomous operation
+        if: github.event_name == 'schedule' || github.event_name == 'push'
+        env:
+          ACTIVE: ${{ steps.plan.outputs.active }}
+        run: |
+          test "$ACTIVE" = "true" || {
+            echo "::error::V3_RETENTION_POLICY_INACTIVE: automatic archival must not silently stop"
+            exit 1
+          }
       - name: Verify full independent archive lifecycle without touching production
         run: python -m scripts.actu_foot_v3_e2e_rehearsal
   automatic:

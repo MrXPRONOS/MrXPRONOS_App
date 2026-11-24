@@ -59,3 +59,7 @@ La première implémentation arrêtait chaque collection après une seule tranch
 ## Audit d'exhaustivité — vérification des déploiements
 
 L'ordonnanceur V3 était déclenché sur push lorsque **son fichier YAML** changeait, mais pas si une fonction du moteur était modifiée seule. Les déclencheurs GitHub sur la branche main incluent désormais les scripts `actu_foot_v3_*.py`, `actu_foot_v2_store.py` et la validation de V2. Cela provoque la lecture de toutes les collections et l'exercice isolé du stockage Cloudflare lors d'un déploiement du moteur ; le cycle hebdomadaire reste en place. Le workflow refuse toujours une compilation/lecture en erreur avant toute compaction.
+
+## Audit d'exhaustivité — surveillance de la politique active
+
+Lors d'un push sur main ou d'un déclenchement hebdomadaire, le workflow interrompt désormais le cycle avec l'erreur GitHub Actions `V3_RETENTION_POLICY_INACTIVE` si la politique chiffrée n'est plus activée. Cela évite un succès vert trompeur alors que la compaction automatique ne s'exécute plus. Le déclenchement manuel de prévisualisation reste possible pour diagnostiquer ou réactiver la politique avec confirmation explicite.
