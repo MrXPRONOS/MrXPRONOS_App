@@ -25,6 +25,38 @@ def norm(s):
     s = unicodedata.normalize("NFKD", s.casefold())
     return " ".join(re.findall(r"[a-z0-9]+", "".join(c for c in s if not unicodedata.combining(c))))
 
+
+# Keep educational text, remove external promotions and Telegram handles.
+# Telegram hidden URL entities are not copied: all outgoing text is plain.
+URL = re.compile(r"(?i)(?:\b(?:https?|ftp|tg|ton|mailto):(?:/{0,2})[^\s<>\"'«»]+|\bwww\.[^\s<>\"'«»]+|\b(?:[a-z0-9-]+\.)+(?:com|org|net|io|me|fr|tg|co|be|info|biz|xyz|app|link|site|online|store|edu|gov|africa|dev|ly|to|tv|cc|ai|uk|de|ru|ng|ci|sn|bj|cm|gh|us|ca|cloud|tech|live|pro|shop|page|academy|training)(?![\w.-])(?:[/?#][^\s<>\"'«»]*)?)")
+HANDLE = re.compile(r"(?<![\w@])@[a-zA-Z0-9_]{1,32}\b")
+MARKDOWN_LINK = re.compile(r"\[([^\]\n]+)\]\((?:https?://|tg:|www\.|t\.me/)[^)\n]+\)",re.I)
+
+def clean_text(text):
+    text=MARKDOWN_LINK.sub(r"\1",text or "")
+    text=URL.sub("",text)
+    text=HANDLE.sub("",text)
+    text=re.sub(r"\[\s*\]|\(\s*\)|<\s*>","",text)
+    lines=[re.sub(r"[ \t]+"," ",line).strip() for line in text.splitlines()]
+    # Drop orphaned advertising labels, but preserve substantive text.
+    lines=[line for line in lines if not re.fullmatch(r"(?i)(?:lien|link|telegram|contact|whatsapp|rejoignez[- ]nous|abonnez[- ]vous|suivez[- ]nous|canal|channel)\s*[:\-–—]?\s*",line)]
+    return re.sub(r"\n{3,}","\n\n","\n".join(lines)).strip()
+
+def clean_message(message):
+    # Telegram URL and mention entities use UTF-16 offsets, not Python indices.
+    # A hidden text URL is neutralized by not passing its entity to Bot API.
+    raw=message.raw_text or ""
+    data=raw.encode("utf-16-le")
+    spans=[]
+    for entity in message.entities or []:
+        if type(entity).__name__ in {"MessageEntityUrl","MessageEntityMention"}:
+            spans.append((entity.offset*2,(entity.offset+entity.length)*2))
+    for start,end in sorted(set(spans),reverse=True):
+        if 0<=start<end<=len(data):
+            data=data[:start]+data[end:]
+    return clean_text(data.decode("utf-16-le"))
+
+
 def classify(text):
     text = " " + norm(text) + " "
     scores = {k: sum(" "+w+" " in text for w in ws) for k,ws in WORDS.items()}
@@ -91,6 +123,7 @@ def config():
     if len(set(ids))!=len(ids) or any(not str(i).startswith("-100") for i in ids): raise ValueError("Invalid or overlapping channel IDs")
     for s in sources:
         if s.get("authorized") is not True or not str(s.get("credit","")).strip(): raise ValueError("Missing source permission or credit")
+        if not clean_text(str(s["credit"])): raise ValueError("Credit must contain a plain author or source name")
         if s.get("category","auto") not in (*CATS,"general","auto"): raise ValueError("Invalid source category")
     return sources,dest,stage,key
 
@@ -104,7 +137,7 @@ async def run(publish):
     me=bot.call("getMe")["id"]
     for cat,chat in [*dest.items(),("stage",stage)]:
         info=bot.call("getChat",chat_id=chat)
-        if info["type"]!="channel" or bool(info.get("username"))!=(cat=="general"):
+        if info["type"]!="channel" or bool(info.get("username"))!=(cat=="general") or (cat=="stage" and info.get("has_protected_content")):
             raise RuntimeError("Wrong destination type/visibility: "+cat)
         member=bot.call("getChatMember",chat_id=chat,user_id=me)
         if member["status"] not in ("creator","administrator") or (cat!="stage" and member["status"]!="creator" and not member.get("can_post_messages")):
@@ -127,8 +160,8 @@ async def run(publish):
                 size=getattr(m.file,"size",0) or 0 if m.file else 0
                 mime=getattr(m.file,"mime_type","") or "" if m.file else ""
                 family=attachment_family(name,mime) if m.document else None
-                kind="poster" if m.photo or family=="poster" else "file" if family else "text" if not m.media and m.raw_text else "other"
-                records.append({"id":m.id,"kind":kind,"family":family,"album":m.grouped_id,"text":m.raw_text or "","name":name,"size":size,"media":str(m.document.id) if m.document else "","protected":bool(getattr(m,"noforwards",False))})
+                kind="poster" if m.photo or family=="poster" else "file" if family else "text" if (not m.media or getattr(m,"web_preview",None)) and m.raw_text else "other"
+                records.append({"id":m.id,"kind":kind,"family":family,"album":m.grouped_id,"text":m.raw_text or "","clean_text":clean_message(m),"name":name,"size":size,"media":str(m.document.id) if m.document else "","protected":bool(getattr(m,"noforwards",False))})
             for group in groups(list(reversed(records))):
                 cid,marks=fingerprints(key,group)
                 cat=source.get("category","auto")
@@ -166,15 +199,17 @@ async def run(publish):
                 active={"cid":cid,"marks":marks,"cat":cat,"next":0,"pending":None}
                 state["active"]=active; checkpoint(state)
             cat=active["cat"]
-            credit="Source / crédit : "+str(source["credit"]).strip()
+            credit="Source / crédit : "+clean_text(str(source["credit"]))
             destchat=dest[cat]
             # Validate entire course before sending any item.
             plan=[]
             for n,m in enumerate(group):
                 marker="Réf. F-"+digest(key,cid+":"+str(n))[:18]
-                body=m["text"]
+                body=m.get("clean_text",clean_text(m["text"]))
+                if m["kind"]=="text" and not body:
+                    plan.append((m,marker,None)); continue
                 if m["kind"]=="poster": body=(body+"\n\n"+credit).strip()
-                if m["kind"]=="file" and not body: body=m["name"] or "Document de formation"
+                if m["kind"]=="file" and not body: body=clean_text(m["name"]) or "Document de formation"
                 body=(body+"\n\n"+marker).strip()
                 if len(body.encode("utf-16-le"))//2 > (4096 if m["kind"]=="text" else 1024): raise RuntimeError("Caption too long; manual review required")
                 plan.append((m,marker,body))
@@ -182,8 +217,10 @@ async def run(publish):
             # Do not use drop_author, or bypass Telegram's forwarding restrictions.
             for i in range(active["next"],len(plan)):
                 m,marker,body=plan[i]
+                if body is None:
+                    active["next"]=i+1; checkpoint(state); continue
                 if m["kind"]=="text":
-                    method="sendMessage"; params={"chat_id":destchat,"text":body}
+                    method="sendMessage"; params={"chat_id":destchat,"text":body,"link_preview_options":{"is_disabled":True}}
                 else:
                     forwarded=await client.forward_messages(entities[stage],m["id"],from_peer=entities[int(source["chat"])])
                     if not forwarded: raise RuntimeError("Staging failed")
