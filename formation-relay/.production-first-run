@@ -1,3 +1,5 @@
 First authorized Formation V1.1 production cycle. Rights and enabled gates remain mandatory.
 
 Retry after owner corrected FORMATION_RIGHTS_ATTESTED; 2026-11-24.
+
+Retry with named JSON diagnostics after previous job failed before publication.
