@@ -1,6 +1,5 @@
 // Delete only bot-authored public videos recorded by an immutable D1 receipt.
 // Exactly one deletion attempt for each message, never blind retry on timeout.
-import {TelegramBot} from './manual-fallback-live.mjs';
 const CHAT=/^-100\d{6,}$/;
 const EXPIRY_SQL=[
  "CREATE TABLE IF NOT EXISTS cine_manual_fallback_expiries (category TEXT NOT NULL,content_key TEXT NOT NULL,target_chat_id TEXT NOT NULL CHECK(target_chat_id GLOB '-100[0-9]*'),target_message_id INTEGER NOT NULL CHECK(target_message_id>0),not_before TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN('pending','deleting','uncertain','deleted')),error_code TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(category,content_key))",
