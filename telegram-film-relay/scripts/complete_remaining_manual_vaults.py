@@ -171,7 +171,7 @@ async def check_and_grant(client, source, bot, *, apply):
         return False
     await client(functions.channels.EditAdminRequest(
         channel=source, user_id=bot,
-        admin_rights=minimal_rights(), rank="CinéRadar Réserve"
+        admin_rights=minimal_rights(), rank="CineX Stock"
     ))
     await asyncio.sleep(15)
     receipt = await client.get_permissions(source, bot)
