@@ -30,7 +30,7 @@ class LiveBackendError(RuntimeError):
 def base_url(value: str) -> str:
     url=urllib.parse.urlsplit(value.rstrip("/"))
     if (url.scheme!="https" or not url.hostname
-            or not url.hostname.endswith(".supabase.co")
+            or url.hostname!="nhwafcpndlufzzxexikh.supabase.co"
             or url.path!="/functions/v1/live"
             or url.username or url.password or url.query or url.fragment):
         raise LiveBackendError("Only the configured HTTPS Supabase LIVE function is allowed")

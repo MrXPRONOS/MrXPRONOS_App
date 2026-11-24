@@ -11,23 +11,21 @@ import requests
 from decimal import Decimal
 from uuid import UUID
 
-def database_config() -> tuple[str, str]:
-    """Actu Foot private storage credentials (never expose service role to clients).
+SUPABASE_PROJECT_HOST = "nhwafcpndlufzzxexikh.supabase.co"
 
-    Backend selection is explicit for migration/quota recovery. The PostgREST
-    service-role key stays in GitHub Actions secrets, never in the repository.
-    """
-    backend = os.getenv("ACTU_FOOT_BACKEND", "auto").strip().lower()
-    if backend not in {"auto", "neon", "supabase"}:
-        raise RuntimeError("Invalid ACTU_FOOT_BACKEND")
-    if backend in {"auto", "neon"} and os.getenv("NEON_DATABASE_URL", "").strip():
-        return "neon://private", "server"
-    if backend in {"auto", "supabase"}:
-        base = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
-        key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
-        if base.startswith("https://") and key:
-            return base, key
-    return "", ""
+def database_config() -> tuple[str,str]:
+    """Use the existing authorized Supabase production project, never Neon."""
+    backend=os.getenv("ACTU_FOOT_BACKEND","auto").strip().lower()
+    if backend not in {"auto","supabase"}:
+        raise RuntimeError("Neon Actu Foot storage retired; use Supabase")
+    base=os.getenv("SUPABASE_URL","").strip().rstrip("/")
+    key=os.getenv("SUPABASE_SERVICE_ROLE_KEY","").strip()
+    parsed=urlsplit(base)
+    if (parsed.scheme=="https" and parsed.hostname==SUPABASE_PROJECT_HOST
+            and parsed.path in ("","/") and not parsed.username
+            and not parsed.password and not parsed.query and not parsed.fragment and key):
+        return base,key
+    return "",""
 
 
 TABLES = {
@@ -67,6 +65,8 @@ class NeonRestSession:
  def patch(self,url,**kwargs):return self._request("PATCH",url,**kwargs)
  def delete(self,url,**kwargs):return self._request("DELETE",url,**kwargs)
  def _request(self,method,url,**kwargs):
+  if url.startswith("neon://"):
+   raise requests.RequestException("Neon backend retired; no request performed")
   if not url.startswith("neon://private/rest/v1/"):
    return getattr(self.fallback,method.lower())(url,**kwargs)
   try:
@@ -101,6 +101,8 @@ def _filter_parts(params, allowed_columns):
 
 
 def _neon_query(method,url,params,body,headers):
+ raise RuntimeError("Neon database operations are retired")
+ # Retained as historical documentation only.
  import psycopg
  from psycopg import sql
  from psycopg.rows import dict_row
