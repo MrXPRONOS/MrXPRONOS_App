@@ -19,6 +19,7 @@ from .unified_download import UnifiedLibrary
 from .legacy_neighbor_matching import find_neighbor_pair, identity_for_pair
 from .legacy_media_identity import (
     compatible, find_legacy_poster, poster_identity, video_identity, youtube_url_for,
+    multipart_identity, collection_heading,
 )
 from .public_video_archive import (
     is_video_message, has_verified_button, video_document_id, video_title,
@@ -26,7 +27,8 @@ from .public_video_archive import (
 from .publication import film_folder_url, library_button_rows, make_button_keyboard, rich_caption
 from .rescue_channels import rescue_link_for
 from .text import clean_caption, private_message_link
-from .ten_video_rotation import category_targets, split_recent_and_old, movie_button_target
+from .ten_video_rotation import (category_targets, split_recent_and_old, movie_button_target,
+    movie_button_targets, pinned_archive_order, load_public_history, is_rotatable_video)
 
 LOG = logging.getLogger("cinex.legacy_archive_repair")
 MAX_HISTORY = 4000
@@ -85,8 +87,9 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
         for photo in photos:
             if not (0 < item.id - photo.id <= 3):
                 continue
-            if (compatible(reference or video_identity(video, category),
-                           poster_identity(photo, category)) >= 0.95
+            proof = poster_identity(photo, category)
+            if (compatible(reference or video_identity(video, category), proof) >= 0.95
+                    and (not reference or reference.part is None or proof.part == reference.part)
                     and (not rescue_url or all(has_verified_button(photo, link)
                        for link in (rescue_url, film_folder_url())))): 
                 paired.append((item, photo))
@@ -94,16 +97,20 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
 
 
 def public_buttons(url: str, public, poster, *, category: str,
-                   extra_text: str = "", download_url: str | None = None):
+                   extra_text: str = "", download_url: str | None = None,
+                   part: int | None = None):
     from types import SimpleNamespace
     from .rescue_channels import add_rescue_button_row
     name = "📺 REGARDER L'ÉPISODE" if category in ("anime", "series") else "🎬 VOIR LE FILM"
+    if part is not None:
+        name = f"🎬 VOIR LA PARTIE {part}"
     result = [[url_button(name, url, style="success")]]
     if download_url:
         from .radar_download_registry import is_bot_download_url
         if not is_bot_download_url(download_url):
             raise ValueError("Téléchargement CinéRadar invalide.")
-        result.append([url_button("⬇️ TÉLÉCHARGER LA VIDÉO", download_url, style="success")])
+        label = f"⬇️ TÉLÉCHARGER PARTIE {part}" if part is not None else "⬇️ TÉLÉCHARGER LA VIDÉO"
+        result.append([url_button(label, download_url, style="success")])
     youtube = youtube_url_for(poster) or youtube_url_for(
         SimpleNamespace(raw_text=extra_text, buttons=None))
     if youtube:
@@ -146,7 +153,8 @@ def original_public_poster_verified(message, source_poster, video, category,
     if extra_text.strip() and extra_text.strip() not in after:
         return False
     nearby = find_neighbor_pair(video, all_messages, category) if all_messages else None
-    association = (compatible(reference or video_identity(video, category),
+    association = (bool(multipart_identity(video, message, category))
+                   or compatible(reference or video_identity(video, category),
                               poster_identity(message, category)) >= 0.95
                    or bool(nearby and nearby.poster.id == source_poster.id))
     rescue = rescue_link_for(public)
@@ -173,6 +181,67 @@ def shared_legacy_cover(video, poster, old, posters, category, messages) -> bool
         if candidate and candidate.id == poster.id:
             return True
     return False
+
+
+
+def multipart_members(poster, messages, posters, category):
+    """Return explicit, unique part identities; reject ambiguous shared covers."""
+    members = {}
+    documents = set()
+    for candidate in messages:
+        if not is_rotatable_video(candidate, category) or candidate.id <= poster.id:
+            continue
+        ident = multipart_identity(candidate, poster, category)
+        if ident is None:
+            # A generic video that would otherwise match this same shared cover
+            # is not evidence of an additional numbered part.
+            other = find_legacy_poster(candidate, posters, category)
+            if other is not None and other.id == poster.id:
+                return None
+            continue
+        chosen = find_legacy_poster(candidate, posters, category)
+        if chosen is None:
+            return None
+        if chosen.id != poster.id:
+            continue
+        doc = video_document_id(candidate)
+        if not doc or ident.part in members or doc in documents:
+            return None
+        members[ident.part] = (candidate, ident)
+        documents.add(doc)
+    return members
+
+
+async def verified_multipart_links(client, private, private_id, poster, category,
+                                   members, rescue):
+    """Check every existing library URL, including earlier rotated parts.
+
+    Unknown/conflicting links block editing, not removal of old buttons.
+    """
+    verified = {}
+    targets = movie_button_targets(poster, private_id)
+    if len(targets) > 10:
+        raise RuntimeError("Trop de liens d'archives pour une affiche multipartie")
+    for mid in sorted(targets):
+        item = await client.get_messages(private, ids=mid)
+        ident = multipart_identity(item, poster, category) if is_video_message(item) else None
+        if not ident or ident.part in verified:
+            raise RuntimeError("Lien historique multipartie non vérifié")
+        if ident.part in members and video_document_id(item) != video_document_id(members[ident.part][0]):
+            raise RuntimeError("Lien historique vers un document différent")
+        prior = await client.get_messages(private, ids=list(range(max(1, mid - 3), mid)))
+        proofs = []
+        for photo in prior or []:
+            if not getattr(photo, "photo", None):
+                continue
+            proof = poster_identity(photo, category)
+            if (proof.part == ident.part and compatible(ident, proof) >= 0.95
+                    and all(has_verified_button(photo, url) for url in (rescue, film_folder_url()))):
+                proofs.append(photo)
+        if len(proofs) != 1:
+            raise RuntimeError("Affiche privée multipartie non vérifiée")
+        verified[ident.part] = private_message_link(private_id, mid)
+    return verified
 
 
 def existing_download_button(post) -> bool:
@@ -237,7 +306,7 @@ async def repair_channel(client, bot, category: str, public, private,
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id or not str(private_id).startswith("-100"):
         raise RuntimeError("L'archive doit rester un canal privé distinct")
-    messages = [m async for m in client.iter_messages(public, limit=history)]
+    messages = await load_public_history(client, public, history)
     recent, old = split_recent_and_old(messages, category)
     posters = [m for m in messages if getattr(m, "photo", None)]
     if manual_pair:
@@ -288,7 +357,7 @@ async def repair_channel(client, bot, category: str, public, private,
                         if apply else [])
     edit_probes = 0
     probe_budget = min(25, max(4, max_repaired * 5))
-    for video in reversed(old):
+    for video in pinned_archive_order(old, messages, category):
         if manual_pair and int(video.id) != manual_pair[0]:
             continue
         if report["public_edited"] >= max_repaired:
@@ -310,7 +379,8 @@ async def repair_channel(client, bot, category: str, public, private,
             report["unmatched"] += 1
             continue
         extra = neighbor.extra_text if neighbor else ""
-        identity = identity_for_pair(video, poster, category, extra)
+        multipart = multipart_identity(video, poster, category) if not manual_pair else None
+        identity = multipart or identity_for_pair(video, poster, category, extra)
         if not identity.safe:
             report["unmatched"] += 1
             continue
@@ -321,12 +391,19 @@ async def repair_channel(client, bot, category: str, public, private,
         # Reject it BEFORE any private upload or bot download registration.
         # The previous placement of this check occurred after creating media
         # and caused orphaned duplicate private copies on each repair run.
-        if shared_legacy_cover(video, poster, old, posters, category, messages):
+        members = multipart_members(poster, messages, posters, category) if multipart else None
+        if (multipart and (not members or multipart.part not in members)) or (
+                not multipart and shared_legacy_cover(video, poster, recent + old, posters, category, messages)):
             report["ambiguous"] += 1
             LOG.warning("%s : affiche #%s associée à plusieurs vidéos; "
                         "aucun nouvel archivage ni modification sans appariement manuel",
                         category, poster.id)
             continue
+        if multipart:
+            group = collection_heading(poster, category)
+            total = group[1] if group else None
+            LOG.info("Affiche épinglée #%s : parties présentes %s, total annoncé %s",
+                     poster.id, sorted(members), total)
         report["recognized"] += 1
         if not apply:
             LOG.info("[SIMULATION] %s old video #%s -> poster #%s (%s)",
@@ -348,7 +425,7 @@ async def repair_channel(client, bot, category: str, public, private,
         # Verify the exact private document before trusting the old buttons.
         existing_pair = find_verified_private_pair(
             private_messages, video, category, rescue_url=rescue, reference=identity)
-        if existing_pair and fully_linked_legacy_poster(
+        if not multipart and existing_pair and fully_linked_legacy_poster(
                 poster, private_id, existing_pair[0].id, rescue,
                 film_folder_url(), extra_text=extra):
             report["private_existing"] += 1
@@ -359,7 +436,13 @@ async def repair_channel(client, bot, category: str, public, private,
         # old messages authored by another bot. Probe with unchanged markup
         # before uploading any private photo/video or registering a token.
         edit_probes += 1
+        verified_part_urls = {}
         try:
+            if multipart:
+                verified_part_urls = await verified_multipart_links(
+                    client, private, private_id, poster, category, members, rescue)
+                if multipart.part in verified_part_urls and not existing_pair:
+                    raise RuntimeError("Partie déjà liée mais copie privée non confirmée dans l historique")
             await preflight_original_editability(client, bot, public, poster)
         except Exception as exc:
             if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
@@ -452,9 +535,11 @@ async def repair_channel(client, bot, category: str, public, private,
                 client, bot, public, poster, video,
                 buttons=public_buttons(
                     target, public, poster, category=category,
-                    extra_text=extra, download_url=download_url),
+                    extra_text=extra, download_url=download_url,
+                    part=multipart.part if multipart else None),
                 private_video_url=target,
                 extra_text=extra,
+                verified_part_urls=tuple(verified_part_urls.values()),
             )
             if not original_public_poster_verified(
                     verified_public, poster, video, category, target, public,
