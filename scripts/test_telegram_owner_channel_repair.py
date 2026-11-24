@@ -63,8 +63,19 @@ class OwnerRepairSafetyTests(unittest.TestCase):
         client.get_permissions = AsyncMock(return_value=Obj(is_creator=False))
         outcome = asyncio.run(mod.ensure_minimum_admin(
             client, Obj(), Obj(), Obj()))
-        self.assertEqual(outcome, "owner_not_creator")
+        self.assertEqual(outcome, "insufficient_owner_rights")
         self.assertEqual(client.get_permissions.await_count, 1)
+
+    def test_admin_with_promote_rights_can_validate_existing_bot(self):
+        import asyncio
+        client = Mock()
+        client.get_permissions = AsyncMock(side_effect=[
+            Obj(is_creator=False, is_admin=True, add_admins=True),
+            Obj(is_creator=False, is_admin=True, post_messages=True),
+        ])
+        outcome = asyncio.run(mod.ensure_minimum_admin(
+            client, Obj(), Obj(), Obj()))
+        self.assertEqual(outcome, "already_admin")
 
     def test_existing_bot_admin_no_mutation(self):
         import asyncio
