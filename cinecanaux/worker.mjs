@@ -2,6 +2,7 @@ import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {observeChannelPublication} from "./channel-reaction-observer.mjs";
 import {pruneTelegramQuota} from "./telegram-global-quota.mjs";
 import {queueKnownStockSources,processPrivateStockQueue} from "./private-stock.mjs";
+import {ingestManualChannelPost} from "./manual-fallback-inbox.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
 import {servePartnerCards,servePartnerAvatar} from "./partner-promotions.mjs";
 import {syncLatestPinned,ingestPinUpdate,ingestOwnerForward,servePinned,servePinCover,registerPinClick,listPinned} from "./pinned-showcase.mjs";
@@ -101,7 +102,7 @@ async function receiveTelegram(request,env,ctx){
    if(update.channel_post){
     await observeChannelPublication(env,update.channel_post);
    }
-   await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);return Response.json({ok:true});}
+   await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);await ingestManualChannelPost(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
    else await recordBotTouch(env,update).catch(()=>{});
