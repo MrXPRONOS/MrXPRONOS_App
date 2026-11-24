@@ -25,3 +25,9 @@ Le projet Neon `withered-tooth-71931108` est archivé et renvoie HTTP 402 « quo
 ## Réactivation de l'affichage LIVE
 
 Le `live.html` public était explicitement redirigé vers `live-suspended.html` depuis le 29/10. La redirection a été supprimée lors de la migration du backend, et le test Chromium `scripts/live_visual_smoke.py` simule dorénavant les six réponses Supabase (et non les anciennes routes Neon). Les tests utilisent uniquement des données fictives interceptées dans le navigateur, jamais publiées en production. Le moteur Supabase doit encore produire des données réelles après activation du cycle refresh/validate.
+
+## Décommissionnement des chemins de contrôle Neon
+
+Depuis la sortie de Neon, `database_config()` n'accepte plus `ACTU_FOOT_BACKEND=neon` et n'utilise jamais `NEON_DATABASE_URL`, même s'il est encore défini dans d'anciens environnements. Les contrôles hérités LIVE Neon (`neon-live-refresh`, `neon-live-endpoints-test`, `neon-live-legacy-production-smoke`, `neon-live-sql-probe`, `neon-telegram-connectivity-audit` et `neon-functions-readiness`) sont redirigés vers les routes de Supabase ou la commande de cycle autorisée. Les anciens workflows de migration Neon et Telegram sont neutralisés au niveau GitHub Actions, sans suppression des données, scripts ou secrets historiques. La vérification Cloudflare du pont Telegram conserve ses tests d'autorisation et utilise désormais Supabase pour le test de santé.
+
+Le rapport de santé facultatif du workflow `football-production.yml` utilise maintenant le rôle serveur Supabase configuré uniquement dans GitHub Actions. Son indisponibilité ne bloque pas la publication Telegram/D1 ; aucun secret n'est écrit dans le résumé.
