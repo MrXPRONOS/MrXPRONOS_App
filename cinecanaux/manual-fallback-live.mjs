@@ -124,8 +124,9 @@ export class TelegramBot{
 }
 
 export class FallbackPublisher{
- constructor({db,categoryBots,targets,formationTargets,stage,folder,env,tokenGenerator}){
+ constructor({db,radarBot,categoryBots,targets,formationTargets,stage,folder,env,tokenGenerator}){
   this.db=db;this.env=env;this.journalEnv=db.env();
+  this.radarBot=radarBot;
   this.categoryBots=categoryBots;this.targets=targets;
   this.formationTargets=formationTargets;this.stage=stage;
   this.folder=folder;this.tokenGenerator=tokenGenerator||
@@ -187,7 +188,9 @@ export class FallbackPublisher{
  async verifiedTargets(category,source){
   const bot=this.categoryBots[category];
   const t=this.targets[category];
-  assert(bot&&t&&ID.test(String(t.private))&&HANDLE.test(String(t.public)),'missing_category_bot_or_targets');
+  const radar=this.radarBot;
+  assert(bot&&radar&&t&&ID.test(String(t.private))&&HANDLE.test(String(t.public)),
+   'missing_category_bot_or_verified_radar');
   const [src,priv,pub]=await Promise.all([
    bot.verifyChannel(source,{privateOnly:true}),
    bot.verifyChannel(t.private,{privateOnly:true}),
@@ -206,16 +209,29 @@ export class FallbackPublisher{
   );
   assert(rescue.length===1&&INVITE.test(safe(rescue[0].invite_url)),
    'verified_rescue_link_missing');
-  const stock=await this.lookup('SELECT stock_chat_id FROM cine_private_stock_config WHERE singleton=1 AND ready=1');
-  assert(stock.length===1&&ID.test(String(stock[0].stock_chat_id)),
-   'verified_central_stock_missing');
+  const stock=await this.lookup(
+   'SELECT stock_chat_id,radar_bot_id FROM cine_private_stock_config '+
+   'WHERE singleton=1 AND ready=1');
+  assert(stock.length===1&&ID.test(String(stock[0].stock_chat_id))&&
+   n(stock[0].radar_bot_id),'verified_central_stock_missing');
   const central=String(stock[0].stock_chat_id);
-  await bot.verifyChannel(central,{privateOnly:true});
-  const identity=await bot.identity();
-  const allowed=await this.lookup('SELECT bot_id FROM cine_private_stock_bots WHERE bot_id=? AND can_post=1',
-   [Number(identity.id)]);
-  assert(allowed.length===1,'publisher_not_authorized_for_central_stock');
-  return {bot,privateChat:String(priv.id),publicChat:String(pub.id),
+  // Central CineRadar bot owns the verified download stock, while category
+  // publishers control public/private category galleries. Do not demand that
+  // all category bots become administrators of the central private stock.
+  const [radarSrc,radarStock,radarIdentity]=await Promise.all([
+   radar.verifyChannel(source,{privateOnly:true}),
+   radar.verifyChannel(central,{privateOnly:true}),
+   radar.identity()
+  ]);
+  assert(String(radarSrc.id)===String(source)&&
+   String(radarStock.id)===central&&
+   Number(radarIdentity.id)===Number(stock[0].radar_bot_id),
+   'radar_identity_or_telegram_source_mismatch');
+  const allowed=await this.lookup(
+   'SELECT bot_id FROM cine_private_stock_bots WHERE bot_id=? AND can_post=1',
+   [Number(radarIdentity.id)]);
+  assert(allowed.length===1,'radar_not_authorized_for_central_stock');
+  return {bot,radar,privateChat:String(priv.id),publicChat:String(pub.id),
    publicHandle:t.public,central,rescue:rescue[0].invite_url};
  }
  async copyFilm(item){
@@ -224,7 +240,7 @@ export class FallbackPublisher{
   const title=item.key.split(':').slice(1).join(' ');
   const mainKey=item.key;
   // Register central media before any public links can be advertised.
-  const stock=await this.receipt(t.bot,{category:item.category,key:mainKey,
+  const stock=await this.receipt(t.radar,{category:item.category,key:mainKey,
    stage:'central_stock',target:t.central,source:item.source_chat_id,
    messageId:item.video_message_id,payload:{caption:'🎞️ '+title}});
   const download=await this.registry(t.central,stock.message_id,title,t.publicHandle);
@@ -260,7 +276,7 @@ export class FallbackPublisher{
   for(const ep of item.episodes){
    const key=item.key+':E'+ep.number;
    const label=title+'E'+String(ep.number).padStart(2,'0');
-   const stock=await this.receipt(t.bot,{category:item.category,key,
+   const stock=await this.receipt(t.radar,{category:item.category,key,
     stage:'central_stock',target:t.central,source:item.source_chat_id,
     messageId:ep.video_message_id,payload:{caption:icon+' '+label}});
    const link=await this.registry(t.central,stock.message_id,label,t.publicHandle);
