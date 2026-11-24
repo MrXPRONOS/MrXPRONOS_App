@@ -375,8 +375,13 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 )
                 prior_public = cache.public_by_video.get(int(staged["video"]))
                 if prior_public:
-                    state.complete(key, int(staged["video"]), int(prior_public))
-                    LOG.warning("%s : publication Telegram retrouvée après envoi incertain, aucun doublon.",
+                    verified_poster = cache.public_v4_by_video.get(int(staged["video"]))
+                    if not verified_poster:
+                        raise RuntimeError(
+                            "Publication existante incomplète : affiche/vidéo V4 non confirmées ; "
+                            "reçu conservé, aucun doublon ni succès fictif.")
+                    state.complete(key, int(staged["video"]), int(verified_poster))
+                    LOG.warning("%s : paire V4 Telegram retrouvée, aucun doublon.",
                                 cfg["label"])
                     continue
             if "video" not in staged:
@@ -390,8 +395,14 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     saved_video = int(prior[0])
                     existing_public = cache.public_by_video.get(saved_video)
                     if existing_public:
-                        state.complete(key, saved_video, int(existing_public))
-                        LOG.info("Publication retrouvée : aucune copie en double.")
+                        verified_poster = cache.public_v4_by_video.get(saved_video)
+                        if not verified_poster:
+                            state.stage(key, "video", saved_video)
+                            raise RuntimeError(
+                                "Publication historique sans paire V4 confirmée ; "
+                                "vidéo conservée, aucune copie en double.")
+                        state.complete(key, saved_video, int(verified_poster))
+                        LOG.info("Paire V4 retrouvée : aucune copie en double.")
                         continue
                     state.stage(key, "video", saved_video)
                     staged = state.data["staged"][key]

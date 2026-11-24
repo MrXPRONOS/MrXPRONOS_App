@@ -5,7 +5,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock
 
 from film_relay.authorized_cross_sources import (
-    linked_posts, cross_channel_movie_pairs, authorized_peers,
+    linked_posts, cross_channel_movie_pairs, authorized_peers, _show_match,
 )
 from film_relay.category_runner import CATEGORIES, category_config
 
@@ -51,6 +51,14 @@ class CrossSourceTests(unittest.TestCase):
         self.assertEqual(
             cross_channel_movie_pairs([poster], [(movie, "Médias"),
                                                  (movie, "Médias")]), [])
+
+    def test_blank_series_poster_is_rejected_without_exception(self):
+        media = NS(raw_text="S01E01", file=NS(name="S01E01.mkv"))
+        peer = NS(title="Le Dernier Voyage")
+        for caption in (None, "", "   ", "\n\t"):
+            with self.subTest(caption=caption):
+                poster = NS(raw_text=caption, photo=object())
+                self.assertIsNone(_show_match(poster, media, peer))
 
     def test_missing_or_protected_media_is_not_allowed(self):
         async def main():

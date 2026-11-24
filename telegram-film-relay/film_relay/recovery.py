@@ -6,7 +6,7 @@ a similarly named movie is not sufficient to mark a post as published.
 from __future__ import annotations
 import re
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 LINK = re.compile(r"https://t\.me/c/(?P<channel>\d+)/(?P<message>\d+)(?:\b|/)")
@@ -43,6 +43,7 @@ class TelegramReceiptCache:
     """A bounded snapshot read from Telegram, independent of GitHub's state file."""
     by_document: dict[int, list[int]]
     public_by_video: dict[int, int]
+    public_v4_by_video: dict[int, int] = field(default_factory=dict)
 
 
 async def snapshot_telegram_posts(
@@ -55,10 +56,52 @@ async def snapshot_telegram_posts(
         if doc_id is not None:
             private[doc_id].append(int(message.id))
     public: dict[int, int] = {}
+    public_messages = []
     async for message in client.iter_messages(public_channel, limit=public_limit):
+        public_messages.append(message)
         for video_id in referenced_private_messages(message, private_peer_id):
             public.setdefault(video_id, int(message.id))
-    return TelegramReceiptCache(dict(private), public)
+    # A poster alone (or a video with no verified keyboard) is not a
+    # completed V4 pair. Preserve the legacy map only to prevent reposts.
+    v4 = verified_v4_pairs(public_messages, public_channel, private_peer_id, private)
+    return TelegramReceiptCache(dict(private), public, v4)
+
+
+def verified_v4_pairs(messages, public_channel, private_peer_id, private_by_document):
+    """Read-only proof of a direct V4 poster/video pair with the same document."""
+    from .publication import (read_url_button_rows, verify_complete_public_video_poster,
+                              verify_complete_public_video_keyboard)
+    from .cinex_v4_policy import has_automatic_ttl
+    from .public_video_archive import is_video_message
+    from .radar_download_registry import is_bot_download_url
+    from .text import private_message_link
+    photos = {}
+    result = {}
+    for message in sorted(messages, key=lambda m: int(m.id)):
+        rows = read_url_button_rows(message)
+        if len(rows) != 4 or any(len(row) != 1 for row in rows):
+            continue
+        watch_label, watch_url = rows[0][0]
+        _, download_url = rows[1][0]
+        if not is_bot_download_url(download_url):
+            continue
+        for private_mid in referenced_private_messages(message, private_peer_id):
+            link = private_message_link(private_peer_id, private_mid)
+            if watch_url != link:
+                continue
+            if getattr(message, "photo", None):
+                if verify_complete_public_video_poster(message, public_channel,
+                        link, download_url, watch_label=watch_label):
+                    photos[private_mid] = (int(message.id), rows)
+            elif is_video_message(message) and has_automatic_ttl(message):
+                doc = movie_document_id(message)
+                prior = photos.get(private_mid)
+                if (prior and prior[1] == rows
+                        and private_mid in private_by_document.get(doc, ())
+                        and verify_complete_public_video_keyboard(message, public_channel,
+                                link, download_url, watch_label=watch_label)):
+                    result[private_mid] = prior[0]
+    return result
 
 
 def recover_from_snapshot(cache: TelegramReceiptCache, state, pair_id: str,

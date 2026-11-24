@@ -4,6 +4,12 @@ on:
   push:
     branches: [main, 'feat/cinex-v4-lot3-season-batches-20261123']
     paths:
+      - 'telegram-film-relay/film_relay/authorized_cross_sources.py'
+      - 'telegram-film-relay/film_relay/recovery.py'
+      - 'telegram-film-relay/tests/test_authorized_cross_sources.py'
+      - 'telegram-film-relay/tests/test_recovery.py'
+      - 'telegram-film-relay/scripts/anime_bot_readiness.py'
+      - 'telegram-film-relay/tests/test_anime_bot_readiness.py'
       - 'telegram-film-relay/film_relay/public_video_retention.py'
       - 'telegram-film-relay/film_relay/cinex_v4_policy.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
@@ -39,6 +45,9 @@ on:
   pull_request:
     paths:
       - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/tests/test_authorized_cross_sources.py'
+      - 'telegram-film-relay/scripts/anime_bot_readiness.py'
+      - 'telegram-film-relay/tests/test_anime_bot_readiness.py'
       - 'telegram-film-relay/tests/test_public_video_retention.py'
       - 'telegram-film-relay/tests/test_bot_http.py'
       - 'telegram-film-relay/tests/test_publication.py'
@@ -80,6 +89,8 @@ jobs:
           python -m unittest discover -s tests -p 'test_anime_bot_pipeline.py' -v
           python -m unittest discover -s tests -p 'test_anime_bot_transport.py' -v
           python -m unittest discover -s tests -p 'test_anime_bot_readiness.py' -v
+          python -m unittest discover -s tests -p 'test_authorized_cross_sources.py' -v
+          python -m unittest discover -s tests -p 'test_recovery.py' -v
           python -m unittest discover -s tests -p 'test_publication.py' -v
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v

@@ -156,6 +156,9 @@ def main():
                                       "failure_type": type(exc).__name__}
         print(json.dumps(report, sort_keys=True, ensure_ascii=False))
         return 2
+    if not report["legacy_catalogue"].get("available"):
+        report.setdefault("blockers", []).append("legacy_catalogue_missing")
+        report["ready_to_publish"] = False
     if report["legacy_catalogue"].get("migration_blocked"):
         report.setdefault("blockers", []).append("legacy_active_batch_unfinished")
         report["ready_to_publish"] = False

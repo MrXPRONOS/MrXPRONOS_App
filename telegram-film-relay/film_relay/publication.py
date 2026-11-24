@@ -136,6 +136,31 @@ def complete_public_video_rows(movie_url: str, download_url: str, *, public_peer
     return rows
 
 
+def read_url_button_rows(message):
+    """Read Telegram's raw inline markup as well as its convenience wrapper.
+
+    If both representations exist they must agree. Never infer missing
+    buttons or accept a partial keyboard; the raw protocol is authoritative.
+    """
+    def extract(rows):
+        return [
+            [(str(getattr(getattr(btn, "button", btn), "text", "") or ""),
+              str(getattr(getattr(btn, "button", btn), "url", "") or ""))
+             for btn in row]
+            for row in rows
+        ]
+    if message is None:
+        return []
+    wrapped = getattr(message, "buttons", None)
+    markup = getattr(message, "reply_markup", None)
+    raw_rows = getattr(markup, "rows", None)
+    raw = extract([getattr(row, "buttons", ()) for row in raw_rows]) if raw_rows is not None else None
+    convenience = extract(wrapped) if wrapped else None
+    if raw is not None and convenience is not None and raw != convenience:
+        return []
+    return raw if raw is not None else (convenience or [])
+
+
 def verify_complete_public_video_poster(poster, public_peer,
                                         private_video_link: str, download_url: str,
                                         *, watch_label: str = "🎬 VOIR LE FILM"):
@@ -148,16 +173,7 @@ def verify_complete_public_video_poster(poster, public_peer,
         return False
     if not poster or not getattr(poster, "photo", None):
         return False
-    rows = getattr(poster, "buttons", None) or ()
-    if len(rows) != 4 or any(len(row) != 1 for row in rows):
-        return False
-    actual = [
-        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
-         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
-        for row in rows for btn in row
-    ]
-    expected = [pair for row in expected_rows for pair in row]
-    return actual == expected
+    return read_url_button_rows(poster) == expected_rows
 
 
 def verify_complete_public_video_keyboard(message, public_peer,
@@ -171,16 +187,7 @@ def verify_complete_public_video_keyboard(message, public_peer,
         )
     except (ValueError, RuntimeError, TypeError):
         return False
-    buttons = getattr(message, "buttons", None) or ()
-    if len(buttons) != 4 or any(len(row) != 1 for row in buttons):
-        return False
-    actual = [
-        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
-         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
-        for row in buttons for btn in row
-    ]
-    expected = [(label, url) for row in expected_rows for label, url in row]
-    return actual == expected
+    return read_url_button_rows(message) == expected_rows
 
 
 async def send_public_poster_with_buttons(
@@ -295,15 +302,7 @@ def verify_library_poster_buttons(poster, public_peer, download_url: str) -> boo
         return False
     if not getattr(poster, "photo", None):
         return False
-    actual = [
-        (str(getattr(getattr(btn, "button", btn), "text", "") or ""),
-         str(getattr(getattr(btn, "button", btn), "url", "") or ""))
-        for row in (getattr(poster, "buttons", None) or []) for btn in row
-    ]
-    expected = [pair for row in rows for pair in row]
-    return bool(len(getattr(poster, "buttons", None) or []) == 3
-                and all(len(row) == 1 for row in poster.buttons)
-                and actual == expected)
+    return read_url_button_rows(poster) == rows
 
 
 async def ensure_library_poster_buttons(user_client, bot_client, private_peer,
@@ -380,7 +379,17 @@ async def post_public_video_by_bot_copy(
     if not verify_complete_public_video_poster(
             poster, public_peer, private_video_link, download_url,
             watch_label=watch_label):
-        raise RuntimeError("Fiche publique sans quatre boutons conformes : copie bot suspendue.")
+        actual = read_url_button_rows(poster)
+        expected = complete_public_video_rows(private_video_link, download_url,
+                                              public_peer=public_peer, watch_label=watch_label)
+        # Diagnostic without emitting private links, tokens or button text.
+        shape = [len(row) for row in actual]
+        matches = [i + 1 for i, row in enumerate(actual)
+                   if i < len(expected) and row == expected[i]]
+        raise RuntimeError(
+            "Fiche publique sans quatre boutons conformes : copie bot suspendue. "
+            f"photo={bool(getattr(poster, 'photo', None))}, "
+            f"lignes={shape}, positions_conformes={matches}")
     newest = [m async for m in user_client.iter_messages(public_peer, limit=1)]
     if not newest or int(newest[0].id) != int(poster_id):
         raise RuntimeError("Affiche plus récente absente : copie bot suspendue.")

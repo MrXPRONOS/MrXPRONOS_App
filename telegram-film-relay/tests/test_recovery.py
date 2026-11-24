@@ -57,6 +57,27 @@ class RecoveryTests(unittest.TestCase):
             self.assertEqual(state.data["processed"]["source:27:28"],
                              {"private_message_id": 15, "public_message_id": 25})
 
+    def test_v4_recovery_requires_real_tagged_video_and_exact_keyboard(self):
+        from unittest.mock import patch
+        from film_relay.recovery import verified_v4_pairs
+        from film_relay.publication import complete_public_video_rows, make_button_keyboard
+        peer = NS(username="CineXFilms_vf")
+        link = "https://t.me/c/4392607284/15"
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A" * 24
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value="https://t.me/+VerifiedRescueDemo123"):
+            rows = make_button_keyboard(complete_public_video_rows(
+                link, download, public_peer=peer))
+            poster = NS(id=25, photo=object(), raw_text="Titre", buttons=rows)
+            clip = NS(id=26, document=NS(id=456, attributes=[]), video=object(),
+                      raw_text="Titre #CINEX_VIDEO_24H_V1", buttons=rows)
+            self.assertEqual(verified_v4_pairs([poster], peer, PRIVATE, {456: [15]}), {})
+            self.assertEqual(verified_v4_pairs([clip, poster], peer, PRIVATE, {456: [15]}),
+                             {15: 25})
+            self.assertEqual(verified_v4_pairs([clip, poster], peer, PRIVATE, {999: [15]}), {})
+            clip.buttons = rows[:3]
+            self.assertEqual(verified_v4_pairs([clip, poster], peer, PRIVATE, {456: [15]}), {})
+
     def test_recovers_private_video_without_reupload(self):
         cache = TelegramReceiptCache({456: [7]}, {})
         with TemporaryDirectory() as folder:
