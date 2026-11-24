@@ -3,7 +3,11 @@ name: CineX - Ajouter et verifier les bots GitHub en admin des canaux officiels
 on:
   push:
     branches: [main]
-    paths: ['telegram-film-relay/.cinex-bot-admin-network-once']
+    paths:
+      - 'telegram-film-relay/.cinex-bot-admin-network-once'
+      - '.github/workflows/cinex-bot-admin-network-once.yml'
+      - 'telegram-film-relay/scripts/cinex_bot_admin_network.py'
+      - 'telegram-film-relay/tests/test_cinex_bot_admin_network.py'
   workflow_dispatch:
     inputs:
       apply:
@@ -63,7 +67,9 @@ jobs:
       TELEGRAM_REACTION_BOT_13_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_13_TOKEN }}
       TELEGRAM_REACTION_BOT_14_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_14_TOKEN }}
       TELEGRAM_REACTION_BOT_15_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_15_TOKEN }}
-      TELEGRAM_REACTION_BOT_16_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_16_TOKEN }}
+      # Slot 16 is an owner-approved alias of the existing main publisher.
+      # Never load the retired token; identity deduplication remains mandatory.
+      TELEGRAM_REACTION_BOT_16_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_REACTION_BOT_17_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_17_TOKEN }}
       TELEGRAM_REACTION_BOT_18_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_18_TOKEN }}
       TELEGRAM_REACTION_BOT_19_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_19_TOKEN }}
@@ -169,7 +175,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_cinex_bot_admin_network.py' -v
       - name: Ajouter seulement les bots verifies avec permission de publication minimale
         env:
-          RUN_APPLY: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply) }}
+          RUN_APPLY: ${{ github.event_name == 'workflow_dispatch' && inputs.apply }}
         run: |
           if [ "$RUN_APPLY" = 'true' ]; then
             python scripts/cinex_bot_admin_network.py --apply --pause 12 --max-changes 220
