@@ -96,7 +96,9 @@ jobs:
       TELEGRAM_REACTION_BOT_13_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_13_TOKEN }}
       TELEGRAM_REACTION_BOT_14_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_14_TOKEN }}
       TELEGRAM_REACTION_BOT_15_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_15_TOKEN }}
-      TELEGRAM_REACTION_BOT_16_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_16_TOKEN }}
+      # Reuse the existing publisher rather than the retired slot-16 token.
+      # The runner still excludes reserved primary identities and duplicates.
+      TELEGRAM_REACTION_BOT_16_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_REACTION_BOT_17_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_17_TOKEN }}
       TELEGRAM_REACTION_BOT_18_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_18_TOKEN }}
       TELEGRAM_REACTION_BOT_19_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_19_TOKEN }}

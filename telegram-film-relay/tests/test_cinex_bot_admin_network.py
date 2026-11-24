@@ -49,6 +49,15 @@ class NetworkAdminTests(unittest.TestCase):
         self.assertEqual({bot["id"] for bot in candidates}, {101, 102, 103})
         self.assertEqual(invalid, [])
 
+    def test_slot16_alias_of_existing_publisher_is_not_an_extra_identity(self):
+        env = {"CINEX_RADAR_BOT_TOKEN": "radar",
+               "FOOTBALL_NEWS_BOT_TOKEN": "editorial",
+               "TELEGRAM_REACTION_BOT_16_TOKEN": "editorial"}
+        candidates, _, invalid = app.discover_network_bots(env, identity)
+        self.assertEqual({bot["id"] for bot in candidates}, {101, 103})
+        self.assertEqual(invalid, [])
+        self.assertEqual(len(candidates), 2)
+
     def test_reaction_bot_secret_invalid_json_rejected(self):
         env = {"CINEX_RADAR_BOT_TOKEN": "radar",
                "TELEGRAM_REACTION_BOTS_JSON": '[{"03":"anime"}]'}

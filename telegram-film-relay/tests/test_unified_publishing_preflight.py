@@ -35,7 +35,14 @@ class Lot12ReadinessTests(unittest.TestCase):
             self.assertEqual(token_for("anime"), "dedicated")
             self.assertEqual(token_for("desir"), "old")
             env["CINEX_ANIME_LEGACY_RELAY_DISABLED"] = "false"
-            self.assertEqual(token_for("anime"), "old")
+            self.assertEqual(token_for("anime"), "common")
+            self.assertEqual(token_for("films"), token_for("anime"))
+            self.assertEqual(token_for("series"), token_for("anime"))
+            del env["FOOTBALL_NEWS_BOT_TOKEN"]
+            env["TELEGRAM_BOT_TOKEN"] = "fallback"
+            self.assertEqual(token_for("anime"), "fallback")
+            del env["TELEGRAM_BOT_TOKEN"]
+            self.assertEqual(token_for("anime"), "")
 
     def test_verified_stock_must_match_d1_and_enabled_gate(self):
         env = {"CINEX_UNIFIED_PRIVATE_CHANNEL": "-1001234567890"}

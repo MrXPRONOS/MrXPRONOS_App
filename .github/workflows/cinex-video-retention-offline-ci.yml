@@ -10,6 +10,8 @@ on:
       - 'telegram-film-relay/tests/test_recovery.py'
       - 'telegram-film-relay/scripts/anime_bot_readiness.py'
       - 'telegram-film-relay/tests/test_anime_bot_readiness.py'
+      - 'telegram-film-relay/scripts/cinex_bot_admin_network.py'
+      - 'telegram-film-relay/tests/test_cinex_bot_admin_network.py'
       - 'telegram-film-relay/film_relay/public_video_retention.py'
       - 'telegram-film-relay/film_relay/cinex_v4_policy.py'
       - 'telegram-film-relay/film_relay/ten_video_rotation.py'
@@ -45,6 +47,8 @@ on:
   pull_request:
     paths:
       - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/scripts/cinex_bot_admin_network.py'
+      - 'telegram-film-relay/tests/test_cinex_bot_admin_network.py'
       - 'telegram-film-relay/tests/test_authorized_cross_sources.py'
       - 'telegram-film-relay/scripts/anime_bot_readiness.py'
       - 'telegram-film-relay/tests/test_anime_bot_readiness.py'
@@ -95,6 +99,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
           python -m unittest discover -s tests -p 'test_unified_publishing_preflight.py' -v
+          python -m unittest discover -s tests -p 'test_cinex_bot_admin_network.py' -v
           python -m unittest discover -s tests -p 'test_category_relays.py' -v
           python -m unittest discover -s tests -p 'test_desir.py' -v
           python -m unittest discover -s tests -p 'test_series_catalog.py' -v
