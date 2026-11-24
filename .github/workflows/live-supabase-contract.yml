@@ -6,6 +6,8 @@ on:
       - 'assets/js/live.precompiled.js'
       - 'assets/js/actu-foot-neon.js'
       - 'scripts/supabase_live_cycle.py'
+      - 'supabase/functions/live/index.ts'
+      - '.github/workflows/deploy-supabase-live-only.yml'
       - 'tests_football_channel/test_supabase_live_cycle.py'
       - '.github/workflows/validate_predictions.yml'
       - '.github/workflows/live-supabase-contract.yml'

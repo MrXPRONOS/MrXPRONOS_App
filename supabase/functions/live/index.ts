@@ -6008,7 +6008,7 @@ async function getRecentActuFootEvents(maxAgeSeconds = 6 * 3600) {
 }
 
 
-async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
+async function getLiveMatchesFromDb(maxAgeSeconds = 420) {
   const since = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
 
   const { data: rows, error } = await supabase

@@ -1,0 +1,41 @@
+name: Deploy Supabase LIVE only — no migrations or unrelated functions
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/live/**'
+      - '.github/workflows/deploy-supabase-live-only.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mrxpronos-supabase-production-deploy
+  cancel-in-progress: false
+jobs:
+  deploy-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: supabase/setup-cli@v3
+        with:
+          version: '2.84.2'
+      - name: Verify deployment token is configured
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || {
+            echo "::error::SUPABASE_ACCESS_TOKEN missing"; exit 1;
+          }
+      - name: Deploy only LIVE Edge Function from the verified repository
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase functions deploy live --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe deployed Supabase LIVE API without writes
+        run: python -m scripts.supabase_live_cycle --mode probe
