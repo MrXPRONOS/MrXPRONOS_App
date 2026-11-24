@@ -23,13 +23,14 @@ def button_url(button) -> str | None:
     return getattr(underlying, "url", None)
 
 
-def safe_buttons(original, additional, private_video_url):
+def safe_buttons(original, additional, private_video_url, *, verified_part_urls=()):
     """Preserve existing URL rows, append missing ones, refuse opaque controls.
 
     Never silently replace a different private video target; if the source
     cover already points to another film, a human must resolve the ambiguity.
     """
     prefix = private_video_url.rsplit("/", 1)[0] + "/"
+    allowed = {private_video_url, *verified_part_urls}
     rows, seen = [], set()
     for row in getattr(original, "buttons", None) or ():
         kept = []
@@ -37,7 +38,7 @@ def safe_buttons(original, additional, private_video_url):
             url = button_url(button)
             if not url or not isinstance(url, str) or not url.startswith("https://"):
                 raise RuntimeError("Fiche d'origine avec boutons non-URL : modification manuelle requise")
-            if url.startswith(prefix) and url != private_video_url:
+            if url.startswith(prefix) and url not in allowed:
                 raise RuntimeError("Fiche d'origine déjà associée à une autre vidéo privée")
             if url in seen:
                 continue
@@ -125,7 +126,7 @@ async def preflight_original_editability(client, bot, public, original):
 
 
 async def edit_original_cover(client, bot, public, original, video,
-                              *, buttons, private_video_url, extra_text=""):
+                              *, buttons, private_video_url, extra_text="", verified_part_urls=()):
     """Edit only the exact original photo and verify its ID and photo survived."""
     live = await client.get_messages(public, ids=original.id)
     if not live or not getattr(live, "photo", None):
@@ -136,7 +137,8 @@ async def edit_original_cover(client, bot, public, original, video,
     if str(getattr(live, "raw_text", "") or "") != str(
             getattr(original, "raw_text", "") or ""):
         raise RuntimeError("La description originale a changé : nouvelle analyse requise")
-    combined = safe_buttons(live, buttons, private_video_url)
+    combined = safe_buttons(live, buttons, private_video_url,
+                            verified_part_urls=verified_part_urls)
     caption, needs_edit, is_html = original_caption_with_text(live, extra_text)
     if needs_edit:
         await bot.edit_photo_caption(
@@ -148,6 +150,8 @@ async def edit_original_cover(client, bot, public, original, video,
     edited = await client.get_messages(public, ids=original.id)
     if not edited or not getattr(edited, "photo", None):
         raise RuntimeError("Photo d'origine introuvable après édition")
+    if getattr(live, "pinned", False) and not getattr(edited, "pinned", False):
+        raise RuntimeError("Épinglage perdu : archivage bloqué")
     if edited.id != original.id or getattr(edited.photo, "id", None) != getattr(original.photo, "id", None):
         raise RuntimeError("Photo ou identifiant modifié après édition")
     raw_after = str(getattr(edited, "raw_text", "") or "")
