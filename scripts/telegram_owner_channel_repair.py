@@ -137,21 +137,26 @@ async def validate_stage_candidate(client, entity, mode):
 
 
 async def ensure_minimum_admin(client, entity, me, bot_entity):
-    from telethon import functions
+    from telethon import functions, errors
     from telethon.tl.types import ChatAdminRights
     own = await client.get_permissions(entity, me)
-    if not getattr(own, "is_creator", False):
-        # Administrator rights are not sufficient for repairing a private owner
-        # staging channel; only the account creator may perform this operation.
-        return "owner_not_creator"
+    if not (getattr(own, "is_creator", False) or
+            (getattr(own, "is_admin", False) and getattr(own, "add_admins", False))):
+        return "insufficient_owner_rights"
+    not_a_member = False
     try:
         access = await client.get_permissions(entity, bot_entity)
         if getattr(access, "is_creator", False) or (
                 getattr(access, "is_admin", False) and
                 getattr(access, "post_messages", False)):
             return "already_admin"
-    except (ValueError, TypeError):
-        pass
+    except (errors.UserNotParticipantError, ValueError, TypeError):
+        not_a_member = True
+    if not_a_member:
+        # Invite only the exact verified service bot. Never invite a guessed
+        # username, retry an unknown result, or add unrelated subscribers.
+        await client(functions.channels.InviteToChannelRequest(
+            channel=entity, users=[bot_entity]))
     # Promote with no permission to manage users or other admins.
     rights = ChatAdminRights(
         change_info=False, post_messages=True, edit_messages=False,
@@ -226,8 +231,8 @@ async def repair(env):
                     mode = "candidate"
                 stage = await validate_stage_candidate(client, stage, mode)
                 outcome = await ensure_minimum_admin(client, stage, me, bot)
-                if outcome == "owner_not_creator":
-                    state.stage = "blocked_not_owner"
+                if outcome == "insufficient_owner_rights":
+                    state.stage = "blocked_owner_permissions"
                 else:
                     new_id = str(utils.get_peer_id(stage))
                     if new_id != expected:
