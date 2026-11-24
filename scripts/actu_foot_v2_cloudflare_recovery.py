@@ -49,7 +49,7 @@ def verify_payload(payload,run_id,attempt):
     decrypted={}
     for name in COLLECTIONS:
         ciphertext=files[name]
-        if not isinstance(ciphertext,str) or len(ciphertext)>2500000: raise VaultError("Unexpected ciphertext")
+        if not isinstance(ciphertext,str) or len(ciphertext)>3000000: raise VaultError("Unexpected ciphertext")
         meta=manifest["collections"][name]
         if meta.get("filename")!=name+".aes.json" or hashlib.sha256(ciphertext.encode()).hexdigest()!=meta.get("sha256"):
             raise VaultError("Ciphertext digest mismatch")

@@ -19,8 +19,8 @@ Ce manifeste décrit le périmètre **Actu Foot / Telegram**, distinct du moteur
 | Correctif de présentation V1/V1.1 | BUUUT en premier, détails sourcés, footer RSS cohérent | **Fusionné**, PR #630, commit `c93128a4` ; rendu Telegram réel toujours à observer |
 | V1.2 | Débriefs vérifiés ESPN et classements réels de cinq ligues, évolutions sourcées, automatisation D1/Telegram | **Implémentée et fusionnée**, PR #634 et hotfix #636 ; cinq classements ESPN testés et 372 tests généraux réussis avant la fusion ; premiers envois réels à confirmer |
 | V1.3 | Tableau de supervision et alertes des 10 canaux ; journal D1, contrôles de droits, quotas, rapports Actions, notification privée facultative | **Validée le 24/11** ; PR #649/#652/#654, ordonnanceur externe réussi run 45309995618, notification privée confirmée run 45308329620 tentative 2 ; 10/10 droits, 0 critique |
-| V2 | Coffre chiffré, validation, audit, sauvegarde et restauration encadrée | **En finalisation** ; 7 collections chiffrées initialisées, backup OIDC réel 45017542699, restauration réelle 40326596839 ; cohérence du snapshot, clés dédiées, protection environnement et ancrage indépendant monotone à valider |
-| V3 | Index/requêtes, cache, archives chiffrées, mutations atomiques Git | **Code + tests déjà présents** ; ordonnanceur, validation des volumes et déploiement opérationnel non achevés |
+| V2 | Coffre chiffré, validation, audit, sauvegarde et restauration encadrée | **Clôturée le 24/11** ; protection 45321688497, rotation 45321836169, sauvegarde 45322009641, restauration 45322106018 ; 7/7 clé version 2, ancre D1 confirmée |
+| V3 | Index/requêtes, cache, archives chiffrées, mutations atomiques Git | **Finalisation en cours** ; lecteur intégré, cache, migration, archives indépendantes et politique protégée; preuves de production à consigner |
 | V4 | Réconciliation de l'historique, réservation/ack Telegram, bascule progressive depuis les anciens stockages | **Prévue**, non terminée |
 
 **V2.1 n'est pas une étape explicitement définie dans les documents de référence inspectés.** Ne pas en inventer une.

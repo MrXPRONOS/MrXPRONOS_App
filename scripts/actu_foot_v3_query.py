@@ -8,6 +8,8 @@ import base64
 import hashlib
 import json
 from typing import Any
+from datetime import datetime, timezone
+import copy
 from scripts.actu_foot_v2_store import canonical, validate_records, VaultError
 
 FIELDS={
@@ -66,10 +68,24 @@ def _cursor_decode(cursor: str) -> dict:
         raise VaultError("Malformed query cursor") from exc
 
 
-def query(collection: str, records: dict, *, filters: dict|None=None,
+def query(collection: str, records: dict, **kwargs) -> dict:
+    return PreparedQuery(collection, records).query(**kwargs)
+
+
+class PreparedQuery:
+    """A validated immutable in-memory index reusable for a pinned snapshot."""
+    def __init__(self, collection, records):
+        self.collection=collection
+        self.records=copy.deepcopy(records)
+        self.indexes=build_indexes(collection,self.records)
+
+    def query(self, **kwargs):
+        return _query(self.collection,self.records,self.indexes,**kwargs)
+
+
+def _query(collection: str, records: dict, indexes: dict, *, filters: dict|None=None,
           text: str="", sort_by: str="id", descending: bool=False,
-          limit: int=50, cursor: str|None=None, generation: int=0) -> dict:
-    validate_records(collection,records)
+          limit: int=50, cursor: str|None=None, generation: int=0, snapshot: str="") -> dict:
     filters=filters or {}
     if not isinstance(filters,dict) or set(filters)-set(FIELDS[collection]):
         raise VaultError("Unsupported query filter")
@@ -88,7 +104,7 @@ def query(collection: str, records: dict, *, filters: dict|None=None,
         terms.append((field,_normalized(value)))
     needle=_normalized(text)
     spec={"collection":collection,"filters":sorted(terms),"needle":needle,
-          "sort":sort_by,"descending":descending,"limit":limit}
+          "sort":sort_by,"descending":descending,"limit":limit,"snapshot":snapshot}
     fingerprint=hashlib.sha256(canonical(spec)).hexdigest()
     offset=0
     if cursor:
@@ -96,7 +112,6 @@ def query(collection: str, records: dict, *, filters: dict|None=None,
         if data["fingerprint"]!=fingerprint or data["generation"]!=generation:
             raise VaultError("Stale or mismatched query cursor")
         offset=data["offset"]
-    indexes=build_indexes(collection,records)
     selected=set(records)
     for field,token in terms:
         selected.intersection_update(indexes[field].get(token,set()))
@@ -106,11 +121,14 @@ def query(collection: str, records: dict, *, filters: dict|None=None,
             if key in FIELDS[collection])}
     def sort_key(identifier):
         value=identifier if sort_by=="id" else records[identifier].get(sort_by)
+        if sort_by.endswith(("_at","_utc","_date")) and isinstance(value,str):
+            try: value=datetime.fromisoformat(value.replace("Z","+00:00")).astimezone(timezone.utc).isoformat()
+            except ValueError: pass
         return (_normalized(value),identifier)
     ordered=sorted(selected,key=sort_key,reverse=descending)
     page=ordered[offset:offset+limit]
     next_cursor=_cursor_encode({"fingerprint":fingerprint,"generation":generation,
                                 "offset":offset+limit}) if offset+limit<len(ordered) else None
-    return {"items":[{"id":key,**records[key]} for key in page],
+    return {"items":[{**copy.deepcopy(records[key]),"id":key} for key in page],
             "count":len(ordered),"next_cursor":next_cursor,
             "generation":generation}

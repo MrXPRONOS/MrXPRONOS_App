@@ -19,7 +19,7 @@ from scripts.actu_foot_v2_operations import verify_directory
 
 API = "https://api.github.com"
 MAX_ARCHIVE = 24_000_000
-MAX_UNZIPPED = 18_000_000
+MAX_UNZIPPED = 22_000_000
 MAX_FILES = 9
 ARTIFACT_PREFIX = "actufoot-v2-encrypted-backup-"
 

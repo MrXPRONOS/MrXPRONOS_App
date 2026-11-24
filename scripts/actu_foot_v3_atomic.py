@@ -18,7 +18,7 @@ import requests
 from scripts.actu_foot_github_vault import VaultError, VaultConflict
 from scripts.actu_foot_v2_store import (
     COLLECTIONS, collection_path, encrypt, decrypt, validate_records,
-    verify_audit, append_audit,
+    verify_audit, append_audit, read_github_ciphertext,
 )
 
 SHA_RE = re.compile(r"^[a-f0-9]{40}$")
@@ -73,15 +73,13 @@ class GitAtomicStore:
             raise VaultError("Invalid snapshot SHA")
         response = self.session.request(
             "GET", self.root + "/contents/" + quote(path, safe="/"),
-            params={"ref": head_sha}, headers=self.headers, timeout=(8, 35),
+            params={"ref": head_sha}, headers={**self.headers,"Accept":"application/vnd.github.object+json"}, timeout=(8, 35),
         )
         if response.status_code == 404:
             return None
         response.raise_for_status()
         body = response.json()
-        if body.get("type") != "file" or body.get("encoding") != "base64":
-            raise VaultError("Unexpected repository file type")
-        return base64.b64decode("".join(body["content"].split()), validate=True).decode("utf-8")
+        return read_github_ciphertext(body,lambda sha:self._request("GET","/git/blobs/"+sha)).decode("utf-8")
 
     def load_collection(self, collection: str, head_sha: str) -> FileState:
         if collection not in COLLECTIONS:
@@ -93,6 +91,19 @@ class GitAtomicStore:
         if collection == "audit":
             verify_audit(records)
         return FileState(records, header["generation"], header["key_version"], True)
+
+    def list_archives(self, collection, head_sha):
+        if collection not in COLLECTIONS or not SHA_RE.fullmatch(head_sha):
+            raise VaultError("Invalid archive inventory request")
+        path="assets/data/private/actufoot_v2/archive/"+collection
+        response=self.session.request("GET",self.root+"/contents/"+path,params={"ref":head_sha},headers=self.headers,timeout=(8,35))
+        if response.status_code==404:return []
+        response.raise_for_status()
+        rows=response.json()
+        if not isinstance(rows,list) or len(rows)>=1000:
+            raise VaultError("Archive inventory limit; split directory before proceeding")
+        from scripts.actu_foot_v3_archive import validate_archive_path
+        return sorted(validate_archive_path(row["path"]) for row in rows if row.get("type")=="file")
 
     def commit(self, parent: str, base_tree: str, changes: dict[str, str],
                *, message: str) -> str:
@@ -109,8 +120,12 @@ class GitAtomicStore:
                 raise VaultError("Unsafe encrypted document path")
             # Only known collection paths or known V3 archive paths.
             if path not in {collection_path(n) for n in COLLECTIONS}:
-                from scripts.actu_foot_v3_archive import validate_archive_path
-                validate_archive_path(path)
+                from scripts.actu_foot_v3_archive import verify_archive_path
+                verify_archive_path(path,value)
+            else:
+                name=next(n for n in COLLECTIONS if collection_path(n)==path)
+                records,_=decrypt(name,value)
+                if name=="audit": verify_audit(records)
             tree_changes.append({"path": path, "mode": "100644",
                                  "type": "blob", "content": value})
         tree = self._request("POST", "/git/trees", json={
@@ -129,6 +144,7 @@ class GitAtomicStore:
     def transact(self, changes: dict[str, list[dict]], *, attempts: int = 4,
                  add_audit: bool = True) -> str | None:
         from scripts.actu_foot_v3_engine import apply_batch
+        from scripts.actu_foot_v3_migrate import upgrade
         if not changes or set(changes) - (set(COLLECTIONS) - {"audit"}):
             raise VaultError("Empty transaction or unauthorized audit mutations")
         if type(attempts) is not int or not 1 <= attempts <= 8:
@@ -138,7 +154,7 @@ class GitAtomicStore:
             proposed = {}
             for name, operations in sorted(changes.items()):
                 old = self.load_collection(name, parent)
-                new = apply_batch(name, old.data, operations)
+                new = upgrade(name,apply_batch(name, old.data, operations))
                 if old.data != new:
                     proposed[collection_path(name)] = encrypt(
                         name, new, generation=old.generation+1, key_version=old.key_version)

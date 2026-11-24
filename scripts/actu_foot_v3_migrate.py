@@ -19,7 +19,9 @@ def upgrade(collection: str, records: dict, *, from_version: int=2,
         raise VaultError("Unknown target schema")
     validate_records(collection,records)
     output=copy.deepcopy(records)
-    if from_version==2:
+    if collection=="audit":
+        return output  # hash-linked audit events are immutable
+    if from_version in (2,3):
         for key,row in output.items():
             # Don't invent event IDs, dates, statistics or publication state.
             # Preserve all existing producer-defined keys, add private schema marker.
@@ -36,6 +38,7 @@ def downgrade(collection: str, records: dict, *, from_version: int=3,
         raise VaultError("Unsupported reverse migration")
     validate_records(collection,records)
     output=copy.deepcopy(records)
+    if collection=="audit":return output
     for item in output.values():
         if item.get("_schema_version") != 3:
             raise VaultError("Reverse migration needs a V3 marker")
@@ -47,7 +50,10 @@ def downgrade(collection: str, records: dict, *, from_version: int=3,
 def migration_preview(collection: str, records: dict) -> dict:
     converted=upgrade(collection,records)
     # Dry-run roundtrip validates no loss of original data.
-    if downgrade(collection,converted)!=records:
+    original=copy.deepcopy(records)
+    if collection!="audit":
+        for row in original.values():row.pop("_schema_version",None)
+    if downgrade(collection,converted)!=original:
         raise VaultError("Migration roundtrip failed")
     return {"collection":collection,"records":len(records),"reversible":True,
             "target_version":TARGET_VERSION}

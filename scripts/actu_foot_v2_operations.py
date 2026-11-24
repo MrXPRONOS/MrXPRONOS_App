@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from scripts.actu_foot_v2_store import (
     COLLECTIONS, CollectionVault, VaultError, collection_path, decrypt,
-    restore_backup, verify_audit,
+    restore_backup, verify_audit, read_github_ciphertext,
 )
 
 def snapshot(root: Path, *, branch: str = "main", strict: bool = True, source_commit: str | None = None) -> dict:
@@ -31,16 +31,19 @@ def snapshot(root: Path, *, branch: str = "main", strict: bool = True, source_co
     index = {"format": "actufoot-v2-backup-v2", "source_commit": source_commit, "anchor_protocol": 2, "collections": {}}
     for collection in COLLECTIONS:
         vault = CollectionVault(collection, branch=branch)
-        response = vault.session.get(vault.url, headers=vault.headers,
+        response = vault.session.get(vault.url, headers={**vault.headers,"Accept":"application/vnd.github.object+json"},
                                      params={"ref": source_commit}, timeout=20)
         if response.status_code == 404:
             continue
         response.raise_for_status()
         metadata = response.json()
-        if (metadata.get("type") != "file" or metadata.get("encoding") != "base64"
-                or not re.fullmatch(r"[0-9a-f]{40}", str(metadata.get("sha", "")))):
+        if not re.fullmatch(r"[0-9a-f]{40}", str(metadata.get("sha", ""))):
             raise VaultError("Invalid encrypted file metadata")
-        blob = base64.b64decode("".join(metadata["content"].split()), validate=True)
+        def fetch_blob(sha):
+            response=vault.session.get("https://api.github.com/repos/"+vault.repo+"/git/blobs/"+sha,headers=vault.headers,timeout=30)
+            response.raise_for_status()
+            return response.json()
+        blob = read_github_ciphertext(metadata,fetch_blob)
         records, header = decrypt(collection, blob.decode("utf-8"))
         if collection == "audit":
             verify_audit(records)

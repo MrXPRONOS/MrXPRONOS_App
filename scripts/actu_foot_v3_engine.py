@@ -89,6 +89,8 @@ def archive_expired(collection: str, records: dict, *, timestamp_field: str,
 
     Returns (retained, archived). This does not mutate the live database.
     """
+    if type(max_batch) is not int or not 1<=max_batch<=5000:
+        raise VaultError("Invalid archive batch size")
     if cutoff.tzinfo is None or cutoff.utcoffset() is None:
         raise VaultError("Cutoff must have a timezone")
     if timestamp_field not in {"event_date","kickoff_utc","sent_at","published_at",
@@ -97,7 +99,10 @@ def archive_expired(collection: str, records: dict, *, timestamp_field: str,
     validate_records(collection,records)
     archived={}
     retained=copy.deepcopy(records)
-    for key,record in records.items():
+    for key in sorted(records):
+        record=records[key]
+        if collection=="matches" and record.get("state") not in {"finished","cancelled","abandoned"}:
+            continue
         if len(archived)>=max_batch:
             break
         raw=record.get(timestamp_field)
