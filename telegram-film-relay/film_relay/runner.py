@@ -19,6 +19,7 @@ from .publication import (rich_caption, rich_video_title, film_folder_url,
                           post_public_video_after_poster,
                           post_public_video_by_bot_copy)
 from .unified_download import UnifiedLibrary
+from .text import resolved_media_title, description_with_title
 from .state import State
 from .source_channels import source_list
 from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
@@ -499,10 +500,15 @@ async def execute() -> int:
                         if recovered == "complete":
                             state.mark_film(pair_id, film_key)
                             continue
-                    text = clean_caption(description_of(pair), description_entities_of(pair))
-                    if len(text) < 12:
+                    original = clean_caption(description_of(pair), description_entities_of(pair))
+                    if len(original) < 12:
                         LOG.info("Affiche %s ignorée (description trop courte après nettoyage)", pair.poster.id)
                         continue
+                    title = resolved_media_title(pair.poster, pair.movie, description=original)
+                    text = description_with_title(
+                        title, original,
+                        clean_caption(getattr(pair.movie, "raw_text", "") or "",
+                                      getattr(pair.movie, "entities", None)))
                     proposed_count += 1
                     if not publish:
                         LOG.info("[SIMULATION] %s : %s | vidéo=%s", channel_name, first_title(text), pair.movie.id)
@@ -513,7 +519,7 @@ async def execute() -> int:
                         # Central stock before the private fiche, so the
                         # real CineRadar download is available on the photo.
                         download_url = await unified.store(
-                            pair.movie, category="films", title=text,
+                            pair.movie, category="films", title=title,
                             public=destination_public, poster=pair.poster,
                             description=text)
                         if not download_url:
@@ -540,7 +546,7 @@ async def execute() -> int:
 
                             private_post = await client.send_file(
                                 destination_private, pair.movie.media,
-                                caption=rich_video_title(text), parse_mode="html"
+                                caption=rich_video_title(title), parse_mode="html"
                             )
                             private_post_id = int(private_post.id)
                             state.stage(pair_id, private_post_id)
