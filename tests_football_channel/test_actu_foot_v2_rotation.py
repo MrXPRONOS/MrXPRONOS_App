@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import os
 import unittest
 from unittest.mock import MagicMock,patch
@@ -14,6 +15,10 @@ class RotationTests(unittest.TestCase):
         self.addCleanup(p.stop)
         self.store=MagicMock()
         self.store.head.return_value=("a"*40,"b"*40)
+        self.store.read_envelope.side_effect=lambda path,commit: path if commit=="a"*40 else None
+        self.backup={"anchor_protocol":2,"collections":{
+            name:{"sha256":hashlib.sha256(("assets/data/private/actufoot_v2/"+name+".aes.json").encode()).hexdigest()}
+            for name in COLLECTIONS}}
         self.store.load_collection.side_effect=lambda name,commit: FileState(
             append_audit({},"init",{}) if name=="audit" else {},1,1,True)
     def test_preview_all_without_write(self):
@@ -33,9 +38,16 @@ class RotationTests(unittest.TestCase):
             records,header=decrypt(name,payload)
             return FileState(records,header["generation"],header["key_version"],True)
         self.store.load_collection.side_effect=read
-        self.assertEqual(rotate_all(self.store,execute=True,expected_commit="a"*40,confirmation="ROTATE_ALL_ENCRYPTED_V2")["status"],"rotated_verified")
+        self.assertEqual(rotate_all(self.store,execute=True,expected_commit="a"*40,confirmation="ROTATE_ALL_ENCRYPTED_V2",backup_manifest=self.backup)["status"],"rotated_verified")
         self.store.commit.assert_called_once()
         self.assertEqual(len(self.store.commit.call_args.args[2]),7)
+    def test_backup_must_match(self):
+        with self.assertRaises(VaultError):
+            rotate_all(self.store,execute=True,expected_commit="a"*40,confirmation="ROTATE_ALL_ENCRYPTED_V2")
+        self.backup["collections"]["news"]["sha256"]="0"*64
+        with self.assertRaises(VaultError):
+            rotate_all(self.store,execute=True,expected_commit="a"*40,confirmation="ROTATE_ALL_ENCRYPTED_V2",backup_manifest=self.backup)
+        self.store.commit.assert_not_called()
     def test_missing_dedicated_key(self):
         with patch.dict(os.environ,{"ACTU_FOOT_V2_KEY_B64_V2":""}):
             with self.assertRaises(VaultError):rotate_all(self.store)
