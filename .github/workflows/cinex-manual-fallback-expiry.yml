@@ -1,0 +1,41 @@
+name: CineX - Expiration vidéos du secours manuel (12h)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '13 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: cinex-manual-public-expiry
+  cancel-in-progress: false
+  queue: max
+jobs:
+  expire:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CINEX_MANUAL_FALLBACK_ENABLED: ${{ vars.CINEX_MANUAL_FALLBACK_ENABLED || 'true' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify cleanup syntax and isolated regression
+        run: |
+          node --check cinecanaux/manual-fallback-expiry.mjs
+          node --check cinecanaux/manual-fallback-expiry-cycle.mjs
+          node --test cinecanaux/tests/manual-fallback-expiry.test.mjs
+      - name: Delete only due bot-authored public videos, never private posts
+        run: node cinecanaux/manual-fallback-expiry-cycle.mjs
