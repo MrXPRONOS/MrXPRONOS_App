@@ -10,8 +10,8 @@ import sys
 from datetime import datetime, timezone
 
 def classify_credentials(env):
-    if not env.get("TG_STRING_SESSION") or not env.get("TG_API_ID") or not env.get("TG_API_HASH"):
-        return "session_missing"
+    # Cooldown always takes precedence even when a secret was removed.
+    # A missing session must never become an excuse to evade FloodWait.
     until=str(env.get("TG_PERSONAL_COOLDOWN_UNTIL_UTC") or "").strip()
     if until:
         try:
@@ -20,6 +20,8 @@ def classify_credentials(env):
                 return "flood_wait"
         except ValueError:
             return "unknown"
+    if not env.get("TG_STRING_SESSION") or not env.get("TG_API_ID") or not env.get("TG_API_HASH"):
+        return "session_missing"
     return None
 
 async def probe():
