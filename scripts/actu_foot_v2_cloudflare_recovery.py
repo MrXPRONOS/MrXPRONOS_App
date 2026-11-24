@@ -42,6 +42,8 @@ def verify_payload(payload,run_id,attempt):
        {"run":str(run_id),"attempt":str(attempt),"repository":"MrXPRONOS/MrXPRONOS_App"}.items())):
         raise VaultError("Incorrect archive origin")
     if not re.fullmatch(r"[a-f0-9]{40}",str(proof.get("commit",""))): raise VaultError("Invalid source commit")
+    if manifest.get("source_commit") is not None and manifest["source_commit"] != proof["commit"]:
+        raise VaultError("Snapshot source commit mismatch")
     decrypted={}
     for name in COLLECTIONS:
         ciphertext=files[name]
@@ -55,6 +57,8 @@ def verify_payload(payload,run_id,attempt):
         if name=="audit":verify_audit(data)
         decrypted[name]=data
     anchor=payload.get("anchor")
+    if manifest.get("source_commit") is not None and anchor is None:
+        raise VaultError("Pinned snapshot requires an audit anchor")
     if anchor is not None:
         audit=decrypted["audit"]
         head=max(audit.values(),key=lambda row:row["sequence"]) if audit else None

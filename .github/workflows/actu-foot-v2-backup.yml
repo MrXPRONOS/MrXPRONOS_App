@@ -22,6 +22,7 @@ jobs:
     timeout-minutes: 12
     env:
       ACTU_FOOT_V2_KEY_B64_V1: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V1 }}
+      ACTU_FOOT_V2_KEY_B64_V2: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V2 }}
       ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
       ACTU_FOOT_V2_ALLOW_LEGACY_KEY: '1'
       GITHUB_REPOSITORY: ${{ github.repository }}
@@ -37,7 +38,7 @@ jobs:
         run: |
           python -m scripts.actu_foot_v2_operations --operation backup
           python -m scripts.actu_foot_v2_operations --operation verify
-      - name: Upload ciphertext-only backup (independent GitHub artifact)
+      - name: Upload ciphertext-only backup (same-provider GitHub artifact)
         uses: actions/upload-artifact@v4
         with:
           name: actufoot-v2-encrypted-backup-${{ github.run_id }}
@@ -46,3 +47,24 @@ jobs:
           if-no-files-found: error
       - name: Publish encrypted snapshot with GitHub OIDC
         run: python -m scripts.actu_foot_v2_oidc_backup
+
+  request-recovery:
+    name: Request isolated recovery of this verified snapshot
+    needs: verify-and-backup
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      RUN_ID: ${{ github.run_id }}
+      ATTEMPT: ${{ github.run_attempt }}
+    steps:
+      - name: Dispatch exact independent snapshot (existing protected environment)
+        run: |
+          gh workflow run actu-foot-v2-recovery.yml --repo "$REPO" --ref main \
+            -f backup_run_id="$RUN_ID" -f backup_attempt="$ATTEMPT"
+          echo "V2_RECOVERY_REQUESTED $RUN_ID $ATTEMPT"

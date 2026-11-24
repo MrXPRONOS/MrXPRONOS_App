@@ -28,7 +28,7 @@ class Tests(unittest.TestCase):
     def test_oidc_ciphertext_only(self):
         with patch.dict(os.environ,{"ACTU_FOOT_V2_KEY_B64_V1":KEY,
            "ACTIONS_ID_TOKEN_REQUEST_URL":"https://oidc.example/?foo=bar",
-           "ACTIONS_ID_TOKEN_REQUEST_TOKEN":"fake"}):
+           "ACTIONS_ID_TOKEN_REQUEST_TOKEN":"fake", "GITHUB_SHA":""}):
             with tempfile.TemporaryDirectory() as td:
                 root=Path(td)
                 manifest={"format":"actufoot-v2-backup-v2","collections":{}}

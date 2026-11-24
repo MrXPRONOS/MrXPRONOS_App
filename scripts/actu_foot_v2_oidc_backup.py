@@ -62,6 +62,9 @@ def push(directory: Path, session=None) -> dict:
     index=verify_directory(directory)
     if set(index["collections"])!={"audit","live_events","matches","news","publications","settings","statistics"}:
         raise VaultError("All seven collections required for immutable snapshot")
+    expected=os.getenv("GITHUB_SHA", "")
+    if expected and index.get("source_commit") != expected:
+        raise VaultError("Snapshot does not match authenticated workflow commit")
     files={name:(directory/meta["filename"]).read_text(encoding="utf-8")
            for name,meta in index["collections"].items()}
     manifest=(directory/"manifest.json").read_text(encoding="utf-8")

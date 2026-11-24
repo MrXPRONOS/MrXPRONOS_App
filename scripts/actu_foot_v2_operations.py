@@ -5,25 +5,41 @@ import base64
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from scripts.actu_foot_v2_store import (
     COLLECTIONS, CollectionVault, VaultError, collection_path, decrypt,
     restore_backup, verify_audit,
 )
 
-def snapshot(root: Path, *, branch: str = "main", strict: bool = True) -> dict:
+def snapshot(root: Path, *, branch: str = "main", strict: bool = True, source_commit: str | None = None) -> dict:
     if branch != "main":
         raise VaultError("Backup must come from approved main branch")
+    # Resolve exactly one immutable commit; no mixed generations across seven GETs.
+    source_commit = source_commit or os.getenv("GITHUB_SHA", "")
+    if not source_commit:
+        vault = CollectionVault(COLLECTIONS[0], branch=branch)
+        response = vault.session.get("https://api.github.com/repos/" + vault.repo + "/git/ref/heads/main",
+                                     headers=vault.headers, timeout=20)
+        response.raise_for_status()
+        source_commit = response.json()["object"]["sha"]
+    if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise VaultError("Invalid immutable backup commit")
     root.mkdir(parents=True, exist_ok=True)
-    index = {"format": "actufoot-v2-backup-v2", "collections": {}}
+    # A prior manifest must never describe a partially written new snapshot.
+    (root / "manifest.json").unlink(missing_ok=True)
+    index = {"format": "actufoot-v2-backup-v2", "source_commit": source_commit, "collections": {}}
     for collection in COLLECTIONS:
         vault = CollectionVault(collection, branch=branch)
         response = vault.session.get(vault.url, headers=vault.headers,
-                                     params={"ref": branch}, timeout=20)
+                                     params={"ref": source_commit}, timeout=20)
         if response.status_code == 404:
             continue
         response.raise_for_status()
         metadata = response.json()
+        if (metadata.get("type") != "file" or metadata.get("encoding") != "base64"
+                or not re.fullmatch(r"[0-9a-f]{40}", str(metadata.get("sha", "")))):
+            raise VaultError("Invalid encrypted file metadata")
         blob = base64.b64decode("".join(metadata["content"].split()), validate=True)
         records, header = decrypt(collection, blob.decode("utf-8"))
         if collection == "audit":
@@ -39,8 +55,8 @@ def snapshot(root: Path, *, branch: str = "main", strict: bool = True) -> dict:
             "record_count": len(records),
             "source_sha": metadata["sha"],
         }
-    if strict and not index["collections"]:
-        raise VaultError("No encrypted collection available: backup aborted")
+    if strict and set(index["collections"]) != set(COLLECTIONS):
+        raise VaultError("Incomplete encrypted snapshot: all seven collections required")
     (root / "manifest.json").write_text(json.dumps(index, sort_keys=True), encoding="utf-8")
     return index
 
@@ -49,9 +65,14 @@ def verify_directory(root: Path, *, require_records: bool = True) -> dict:
     index = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     if index.get("format") != "actufoot-v2-backup-v2":
         raise VaultError("Unsupported backup manifest")
+    source_commit = index.get("source_commit")
+    if source_commit is not None and (not isinstance(source_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", source_commit)):
+        raise VaultError("Invalid backup source commit")
     collections = index.get("collections")
     if not isinstance(collections, dict) or (require_records and not collections):
         raise VaultError("Backup manifest has no collections")
+    if source_commit is not None and set(collections) != set(COLLECTIONS):
+        raise VaultError("Incomplete pinned snapshot")
     for name, meta in collections.items():
         if name not in COLLECTIONS or meta.get("filename") != name + ".aes.json":
             raise VaultError("Invalid backup collection entry")
@@ -87,6 +108,11 @@ def main():
     elif args.operation == "backup":
         result = snapshot(root)
         print("ENCRYPTED_BACKUP_OK", len(result["collections"]))
+        versions = sorted({v["key_version"] for v in result["collections"].values()})
+        print("V2_KEY_CONFIGURATION", json.dumps({"versions": versions,
+              "dedicated_v1_configured": bool(os.getenv("ACTU_FOOT_V2_KEY_B64_V1", "").strip()),
+              "dedicated_v2_configured": bool(os.getenv("ACTU_FOOT_V2_KEY_B64_V2", "").strip()),
+              "record_counts": {k: v["record_count"] for k, v in result["collections"].items()}}, sort_keys=True))
     elif args.operation == "verify":
         result = verify_directory(root)
         print("ENCRYPTED_BACKUP_VERIFIED", len(result["collections"]))
