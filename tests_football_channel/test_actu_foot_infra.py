@@ -303,3 +303,11 @@ class SupabaseNoNeonSelectionTests(unittest.TestCase):
             "NEON_DATABASE_URL":"postgresql://fake-disabled-neon"},clear=True):
             with self.assertRaisesRegex(RuntimeError,"retired"):
                 database_config()
+
+class ProductionBackendRoutingTests(unittest.TestCase):
+    def test_optional_football_health_uses_only_supabase(self):
+        from pathlib import Path
+        source=(ROOT/".github/workflows/football-production.yml").read_text()
+        self.assertIn("SUPABASE_SERVICE_ROLE_KEY",source)
+        self.assertIn("ACTU_FOOT_BACKEND: supabase",source)
+        self.assertNotIn("NEON_DATABASE_URL",source)

@@ -113,18 +113,19 @@ jobs:
         continue-on-error: true
         shell: bash
         env:
-          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          SUPABASE_URL: https://nhwafcpndlufzzxexikh.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ACTU_FOOT_BACKEND: supabase
         run: |
           {
-            echo "### Tableau de santé Actu Foot"
+            echo "### Tableau de santé Actu Foot (Supabase)"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ -z "${NEON_DATABASE_URL:-}" ]; then
-            echo "Neon non configuré : rapport de supervision facultatif indisponible. La publication Telegram/D1 reste indépendante." >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "Clé Supabase serveur absente : rapport facultatif indisponible. Les publications Telegram/D1 restent indépendantes." >> "$GITHUB_STEP_SUMMARY"
           elif python scripts/actu_foot_health_report.py > "${RUNNER_TEMP}/actufoot-health.md" 2> "${RUNNER_TEMP}/actufoot-health-error.log"; then
-            # Ne pas publier d'identifiants de messages, d'outbox ou de secrets.
             sed -n '1,10p' "${RUNNER_TEMP}/actufoot-health.md" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "Impossible de lire la supervision Neon. Vérifier la configuration et les permissions de lecture séparément." >> "$GITHUB_STEP_SUMMARY"
+            echo "Impossible de lire la supervision Supabase. Vérifier les permissions serveur sans divulguer les secrets." >> "$GITHUB_STEP_SUMMARY"
             echo "::warning::Rapport de santé Actu Foot indisponible ; publication Telegram non bloquée."
           fi
