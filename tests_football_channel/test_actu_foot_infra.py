@@ -186,16 +186,16 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertIn("scripts/actu_foot_d1_news.py", update_news)
         self.assertNotIn("SUPABASE_SERVICE_ROLE_KEY", update_news)
 
-    def test_site_prefers_fresh_git_news_with_optional_neon_read_fallback(self):
+    def test_site_prefers_fresh_git_news_with_static_fallback_without_neon(self):
         js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
         neon = (ROOT / "assets/js/actu-foot-neon.js").read_text(encoding="utf-8")
         self.assertIn('import("./actu-foot-neon.js")', js)
-        self.assertIn("loadNeonFootNews()", js)
-        self.assertIn('from("actu_foot_news_snapshot")', neon)
-        self.assertIn("allowAnonymous:true", neon)
+        self.assertIn("loadFootNews()", js)
+        self.assertIn('fetch("./footnews.json"', neon)
+        self.assertNotIn("@neondatabase", neon)
         self.assertIn('fetch(`footnews.json?t=${Date.now()}`', js)
         self.assertLess(js.index('fetch(`footnews.json?t=${Date.now()}`'),
-                        js.index("rssNews=await loadNeonFootNews()"))
+                        js.index("rssNews=await loadFootNews()"))
         self.assertIn("source_image || n.image", js)
         self.assertNotIn("Snapshot Infos Foot Supabase", js)
 
