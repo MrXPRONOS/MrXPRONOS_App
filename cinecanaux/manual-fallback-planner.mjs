@@ -15,6 +15,7 @@ const SEASON=/\bS0*([1-9]\d?)\b/i;
 const EPISODE=/\bS0*([1-9]\d?)[ ._-]*E0*([1-9]\d{0,2})\b/i;
 const TITLE=/^\s*(?:titre|title)\s*:\s*(.+?)\s*$/im;
 const COURSE=/^\s*(?:cours|course)\s*:\s*([a-z][a-z0-9_-]{3,80})\s*$/im;
+const AUTHOR=/^\s*(?:auteur|author|cr[eé]dit)\s*:\s*([^\n\r]{3,100})\s*$/im;
 const TOTAL=/^\s*(?:total|fichiers)\s*:\s*([1-9]\d{0,2})\s*$/im;
 const PART=/^\s*(?:partie|part|fichier)\s*:\s*([1-9]\d{0,2})\s*\/\s*([1-9]\d{0,2})\s*$/im;
 const ALLOWED_COURSE_EXT=/\.(pdf|mp4|mkv|webm|mov|avi|mp3|m4a|wav|epub|docx|pptx|xlsx|csv|zip|rar|7z|txt|md|srt|vtt)$/i;
@@ -198,9 +199,14 @@ export function planCourses(rows,{maxParts=100}={}){
   const id=String(row.chat_id)+':'+key;
   let group=groups.get(id);
   if(!group){group={key,category:row.category,source_chat_id:String(row.chat_id),
-    posters:[],parts:[],refs:[]};groups.set(id,group)}
+    posters:[],parts:[],refs:[],author:null};groups.set(id,group)}
   group.refs.push(row);
-  if(row.kind==='poster'){group.posters.push(row);continue}
+  if(row.kind==='poster'){
+   group.posters.push(row);
+   const credit=AUTHOR.exec(text);
+   if(credit)group.author=credit[1].trim();
+   continue;
+  }
   if(!['course_file','video'].includes(row.kind))continue;
   const part=PART.exec(text),total=TOTAL.exec(text);
   if(!part||!total||Number(part[2])!==Number(total[1])||
@@ -213,9 +219,10 @@ export function planCourses(rows,{maxParts=100}={}){
  }
  for(const group of groups.values()){
   const count=group.parts[0]?.total||0;
-  if(group.invalid||group.posters.length!==1||count<1||count>limit||
-     group.parts.length!==count||group.parts.some(x=>x.total!==count||
-     !x.file_unique_id)){
+  if(group.invalid||group.posters.length!==1||!group.author||
+     /https?:\/\/|@|t\.me\/|[<>]/i.test(group.author)||
+     count<1||count>limit||group.parts.length!==count||
+     group.parts.some(x=>x.total!==count||!x.file_unique_id)){
    reviewPush(result,'course_incomplete_or_ambiguous',group.refs);continue;
   }
   group.parts.sort((a,b)=>a.number-b.number);
@@ -224,7 +231,7 @@ export function planCourses(rows,{maxParts=100}={}){
    reviewPush(result,'course_missing_or_duplicate_parts',group.refs);continue;
   }
   result.items.push({key:group.key,category:group.category,
-   source_chat_id:group.source_chat_id,
+   source_chat_id:group.source_chat_id,author:group.author,
    poster_message_id:Number(group.posters[0].message_id),
    parts:group.parts.map(p=>({...p}))});
  }
