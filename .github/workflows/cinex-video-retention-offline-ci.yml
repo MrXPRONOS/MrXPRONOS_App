@@ -5,7 +5,9 @@ on:
     branches: [main, 'feat/cinex-v4-lot3-season-batches-20261123']
     paths:
       - 'telegram-film-relay/film_relay/authorized_cross_sources.py'
+      - 'telegram-film-relay/film_relay/recovery.py'
       - 'telegram-film-relay/tests/test_authorized_cross_sources.py'
+      - 'telegram-film-relay/tests/test_recovery.py'
       - 'telegram-film-relay/scripts/anime_bot_readiness.py'
       - 'telegram-film-relay/tests/test_anime_bot_readiness.py'
       - 'telegram-film-relay/film_relay/public_video_retention.py'
@@ -88,6 +90,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_anime_bot_transport.py' -v
           python -m unittest discover -s tests -p 'test_anime_bot_readiness.py' -v
           python -m unittest discover -s tests -p 'test_authorized_cross_sources.py' -v
+          python -m unittest discover -s tests -p 'test_recovery.py' -v
           python -m unittest discover -s tests -p 'test_publication.py' -v
           python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_rescue_channels.py' -v
