@@ -1,0 +1,44 @@
+name: LIVE — Contrat Supabase, aucune dépendance Neon
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/js/live.precompiled.js'
+      - 'assets/js/actu-foot-neon.js'
+      - 'scripts/supabase_live_cycle.py'
+      - 'tests_football_channel/test_supabase_live_cycle.py'
+      - '.github/workflows/validate_predictions.yml'
+      - '.github/workflows/live-supabase-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/live.precompiled.js'
+      - 'assets/js/actu-foot-neon.js'
+      - 'scripts/supabase_live_cycle.py'
+      - '.github/workflows/live-supabase-contract.yml'
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          python -m unittest tests_football_channel.test_supabase_live_cycle -v
+          python -m py_compile scripts/supabase_live_cycle.py
+          node --check assets/js/live.precompiled.js
+          node --check assets/js/actu-foot-neon.js
+  public-api:
+    needs: offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m scripts.supabase_live_cycle --mode probe
