@@ -175,6 +175,28 @@ class CentralLibraryTests(unittest.TestCase):
         self.assertEqual(client.captions[1], "<b>🎞️ Le Dernier Voyage</b>")
         self.assertEqual(registry.calls[0]["title"], "Le Dernier Voyage")
 
+    def test_real_photo_without_media_wrapper_is_forwarded_before_video(self):
+        client = DummyClient()
+        client.current_doc = 716
+        registry = DummyRegistry()
+        library = UnifiedLibrary(client, env={
+            "CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)
+        }, registry=registry)
+        original_photo = NS(is_poster=True, id=1102)
+        poster = NS(photo=original_photo, media=None, noforwards=False,
+                    raw_text="Un film authentique")
+        with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+              patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
+            result = asyncio.run(library.store(
+                media(1, 716), category="series", title="Un film authentique S01E01",
+                poster=poster, description=poster.raw_text,
+                public=NS(id=-1001234567890, username="seriesvf_cinex")))
+        self.assertEqual(result, BOT_LINK)
+        self.assertEqual(client.sent, [1, 2])
+        self.assertIsNotNone(client.rows[1].photo)
+        self.assertIn("Un film authentique", client.captions[0])
+        self.assertEqual(registry.calls[0]["message_id"], 2)
+
     def test_new_central_video_without_any_poster_is_never_uploaded(self):
         client = DummyClient()
         client.current_doc = 700
