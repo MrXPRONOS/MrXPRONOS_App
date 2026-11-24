@@ -45,6 +45,17 @@ class SupabaseLiveCycleTests(unittest.TestCase):
         self.assertNotIn('location.replace("live-suspended.html")',(root/"live.html").read_text())
         self.assertIn("nhwafcpndlufzzxexikh.supabase.co",(root/"scripts/live_visual_smoke.py").read_text())
 
+    def test_live_window_covers_five_minute_refresh(self):
+        from pathlib import Path
+        root=Path(__file__).resolve().parents[1]
+        live=(root/"supabase/functions/live/index.ts").read_text()
+        self.assertIn("getLiveMatchesFromDb(maxAgeSeconds = 420)",live)
+        scoped=(root/".github/workflows/deploy-supabase-live-only.yml").read_text()
+        broad=(root/".github/workflows/deploy-supabase-functions.yml").read_text()
+        self.assertIn("supabase functions deploy live",scoped)
+        self.assertNotIn("supabase db push",scoped)
+        self.assertIn("!supabase/functions/live/**",broad)
+
     def test_validation_response_must_be_successful(self):
         with mock.patch.object(sb,"read_routes",return_value={}):
             with mock.patch.object(sb,"_post",return_value={"success":True,"validated":0}) as call:
