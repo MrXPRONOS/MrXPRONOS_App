@@ -74,17 +74,19 @@ def push(directory: Path, session=None) -> dict:
     anchor={'sequence':latest['sequence'] if latest else 0,
             'entry_hash':latest['entry_hash'] if latest else '0'*64,
             'audit_generation':header['generation']}
+    hashes=[row["entry_hash"] for row in sorted(audit.values(),key=lambda row:row["sequence"])]
     client=session or requests.Session()
     token=oidc_token(client)
-    reply=client.post(URL,json={"files":files,"manifest":manifest,"anchor":anchor},
+    reply=client.post(URL,json={"files":files,"manifest":manifest,"anchor":anchor,"audit_hashes":hashes},
                       headers={"Authorization":"Bearer "+token},timeout=(12,65))
     reply.raise_for_status()
     data=reply.json()
-    if data.get("ok") is not True or data.get("count")!=7:
+    if data.get("ok") is not True or data.get("count")!=7 or (index.get("anchor_protocol")==2 and data.get("anchor_protocol")!=2):
         raise VaultError("Cloudflare did not confirm complete encrypted snapshot")
-    return {"run":data["run"],"collections":data["count"]}
+    return {"run":data["run"],"collections":data["count"],"anchor_protocol":data.get("anchor_protocol")}
 
 
 if __name__=="__main__":
     summary=push(Path("/tmp/actufoot-v2-backup"))
     print("CLOUDFLARE_OIDC_ENCRYPTED_BACKUP_DONE",summary["run"],summary["collections"])
+    print("V2_INDEPENDENT_ANCHOR_PROTOCOL",summary["anchor_protocol"])

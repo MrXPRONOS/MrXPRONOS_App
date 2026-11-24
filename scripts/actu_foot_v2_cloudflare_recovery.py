@@ -44,6 +44,8 @@ def verify_payload(payload,run_id,attempt):
     if not re.fullmatch(r"[a-f0-9]{40}",str(proof.get("commit",""))): raise VaultError("Invalid source commit")
     if manifest.get("source_commit") is not None and manifest["source_commit"] != proof["commit"]:
         raise VaultError("Snapshot source commit mismatch")
+    if manifest.get("anchor_protocol")==2 and proof.get("anchor_protocol")!=2:
+        raise VaultError("Missing independent anchor confirmation")
     decrypted={}
     for name in COLLECTIONS:
         ciphertext=files[name]

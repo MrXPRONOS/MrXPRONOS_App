@@ -287,7 +287,11 @@ def restore_backup(vault: CollectionVault, backup: str, *, expected_sha: str,
     saved, info = verify_backup(vault.collection, backup)
     if vault.collection == "audit":
         verify_audit(saved)
-    _, current_sha, current = vault.read()
+    current_records, current_sha, current = vault.read()
+    if vault.collection == "audit":
+        # Restoring an audit prefix would erase independently anchored history.
+        if any(saved.get(k) != entry for k, entry in current_records.items()):
+            raise VaultError("Audit restoration may not truncate or replace history")
     if current_sha != expected_sha:
         raise VaultConflict("Storage has changed since restoration approval")
     if info["generation"] < minimum_generation:
