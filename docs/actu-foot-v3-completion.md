@@ -55,3 +55,7 @@ Le lecteur `SnapshotReader` ne doit pas rester indéfiniment fixé au commit d'o
 ## Audit d'exhaustivité — rattrapage de la rétention
 
 La première implémentation arrêtait chaque collection après une seule tranche de 1 000 enregistrements. La maintenance exécute désormais jusqu'à six tranches bornées par collection (limite de taille V2 : 5 000), conserve les limites de rétention existantes, vérifie le reliquat et remonte explicitement `V3_RETENTION_BACKLOG_REMAINING` en cas de backlog au lieu de signaler un faux succès. Le pré-contrôle compte jusqu'à 5 000 candidats pour rendre la taille réelle du retard visible. Les tests couvrent plus de 2 000 enregistrements sur plusieurs lots et l'arrêt avec reliquat.
+
+## Audit d'exhaustivité — vérification des déploiements
+
+L'ordonnanceur V3 était déclenché sur push lorsque **son fichier YAML** changeait, mais pas si une fonction du moteur était modifiée seule. Les déclencheurs GitHub sur la branche main incluent désormais les scripts `actu_foot_v3_*.py`, `actu_foot_v2_store.py` et la validation de V2. Cela provoque la lecture de toutes les collections et l'exercice isolé du stockage Cloudflare lors d'un déploiement du moteur ; le cycle hebdomadaire reste en place. Le workflow refuse toujours une compilation/lecture en erreur avant toute compaction.

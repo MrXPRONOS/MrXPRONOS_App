@@ -220,3 +220,15 @@ class RetentionCatchupTests(unittest.TestCase):
                     durable_copy=lambda p,b:hashlib.sha256(b.encode()).hexdigest(),
                     max_batches=1)
         self.assertEqual(len(store.load_collection("matches",store.head()[0]).data),100)
+
+
+class V3DeploymentCoverageTests(unittest.TestCase):
+    def test_production_workflow_runs_after_engine_code_changes(self):
+        from pathlib import Path
+        path=Path(__file__).resolve().parents[1]/".github/workflows/actu-foot-v3-maintenance.yml"
+        text=path.read_text(encoding="utf-8")
+        trigger=text.split("  push:",1)[1].split("  schedule:",1)[0]
+        self.assertIn("'scripts/actu_foot_v3_*.py'",trigger)
+        self.assertIn("'scripts/actu_foot_v2_store.py'",trigger)
+        self.assertIn("branches: [main]",trigger)
+        self.assertIn("  automatic:",text)
