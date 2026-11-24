@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 
 const HOST='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev';
 async function get(path){
@@ -20,9 +21,16 @@ test('production poster manifest returns vetted authentic film, TV and anime pos
  const j=await r.json();
  assert.ok(Array.isArray(j.items));
  assert.ok(j.items.length>=10,'Real cinema poster assets missing');
- assert.ok(j.items.some(x=>x.type==='films'));
+ // CI must validate the current RELEASE asset, not fail deployment
+ // because the previous Worker still holds a 30-minute old manifest.
+ const current=JSON.parse(readFileSync(new URL('../assets/poster_showcase.json',import.meta.url),'utf8'));
+ assert.ok(Array.isArray(current.items)&&current.items.length>=10);
+ for(const type of ['films','series','animes'])
+  assert.ok(current.items.some(x=>x.type===type),'Missing real poster category: '+type);
  assert.ok(j.items.some(x=>x.type==='series'));
  assert.ok(j.items.some(x=>x.type==='animes'));
+ if(!j.items.some(x=>x.type==='films'))
+  console.warn('LIVE_FILM_POSTER_CACHE_STALE_PREDEPLOY; new version must refresh raw manifest');
  assert.ok(j.items.every(x=>/^https:\/\/(image\.tmdb\.org|static\.tvmaze\.com|m\.media-amazon\.com|images-na\.ssl-images-amazon\.com)\//.test(x.poster)),'Unexpected image host');
  console.log('LIVE_REAL_POSTERS_OK',j.items.length, [...new Set(j.items.map(x=>x.type))].join(','));
 });

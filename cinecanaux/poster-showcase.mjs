@@ -2,7 +2,7 @@
 const IMAGE=/^https:\/\/(?:image\.tmdb\.org\/t\/p\/w342\/[A-Za-z0-9_-]{8,100}\.(?:jpe?g|png|webp)|static\.tvmaze\.com\/uploads\/images\/(?:medium_portrait|original_untouched)\/[0-9]+\/[0-9]+\.jpg|(?:m\.media-amazon\.com|images-na\.ssl-images-amazon\.com)\/images\/[A-Za-z0-9_%@.+/-]{8,800})$/;
 const SOURCE=/^https:\/\/(?:www\.themoviedb\.org\/(?:movie|tv)\/[0-9]+|www\.imdb\.com\/title\/tt[0-9]{6,11}\/?|www\.tvmaze\.com\/shows\/[0-9]+\/[A-Za-z0-9_-]+)$/;
 const KINDS=new Set(['films','series','animes']);
-const URL='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/poster_showcase.json';
+const URL='https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/poster_showcase.json?manifest=20261124-restore-films';
 let cache={at:0,data:null};
 export function sanitizeShowcase(raw){
  const rows=Array.isArray(raw?.items)?raw.items:[];
