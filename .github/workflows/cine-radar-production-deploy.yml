@@ -102,6 +102,30 @@ jobs:
             https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/health \
             -o /tmp/cine-radar-prod-health.json
           python -c 'import json; x=json.load(open("/tmp/cine-radar-prod-health.json")); assert x.get("service")=="cine-radar" and x.get("database") is True'
+      - name: Verify public showcase refresh after deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if curl --retry 2 --fail --silent --show-error --max-time 20 \
+              'https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/api/showcase' \
+              -o /tmp/cinex-posters.json; then
+              if python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/cinex-posters.json'))
+          kinds={x.get('type') for x in p.get('items', [])}
+          assert len(p.get('items', []))>=10
+          assert {'films','series','animes'} <= kinds
+          PY
+              then
+                echo 'All three poster categories verified in production'
+                exit 0
+              fi
+            fi
+            sleep 8
+          done
+          echo '::error::The deployed Worker did not refresh the film poster category.'
+          exit 1
       - name: Confirm deployed owner dashboard exists and remains private
         shell: bash
         run: |
