@@ -11,6 +11,27 @@ from scripts import telegram_route_readonly_audit as audit
 
 
 class SafeRouteAuditTests(unittest.TestCase):
+    def test_public_bot_handle_is_sanitized(self):
+        self.assertEqual(audit.public_bot_alias("MyCrypto_Bot"), "@MyCrypto_Bot")
+        for invalid in ("bot\nPRIVATE_TOKEN", "bot-123", "", 7, None,
+                        "https://t.me/private", "a"):
+            self.assertEqual(audit.public_bot_alias(invalid), "unknown")
+
+    def test_premium_bot_identity_is_read_only_and_safe(self):
+        client = Mock()
+        client.get.return_value = {"username": "Crypto_News_Bot"}
+        output = StringIO()
+        with patch.object(audit.premium, "TOKEN_CANDIDATES", ["SECRET_TOKEN"]), \
+             patch.object(audit.multi, "Telegram", return_value=client), \
+             patch.object(audit.premium, "verify_production_route",
+                          side_effect=RuntimeError("Telegram preflight 400")), \
+             redirect_stdout(output):
+            self.assertFalse(audit.audit_premium())
+        text = output.getvalue()
+        self.assertIn("CRYPTO_PREMIUM_BOT_CANDIDATE index=1 bot=@Crypto_News_Bot", text)
+        self.assertNotIn("SECRET_TOKEN", text)
+        client.get.assert_called_once_with("getMe")
+
     def test_scrub_untrusted_telegram_error(self):
         self.assertEqual(audit.safe_reason(RuntimeError("private ID -100123, token AAA")),
                          "RuntimeError")
