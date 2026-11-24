@@ -219,6 +219,27 @@ class RenderTests(unittest.TestCase):
             [row[0].url for row in bot.copy_message.await_args.kwargs["buttons"]],
             [movie_link, download_link, rescue_link, DEFAULT_FILM_FOLDER_URL])
 
+    def test_raw_inline_markup_is_verified_without_convenience_buttons(self):
+        from film_relay.publication import (
+            complete_public_video_rows, verify_complete_public_video_poster,
+            verify_complete_public_video_keyboard, make_button_keyboard)
+        public = NS(username="CineXFilms_vf")
+        link = "https://t.me/c/2222222222/31"
+        download = "https://t.me/CineRadarFr_Bot?start=d_" + "A"*24
+        with patch("film_relay.rescue_channels.rescue_link_for",
+                   return_value="https://t.me/+VerifiedRescueDemo123"):
+            expected = complete_public_video_rows(link, download, public_peer=public)
+            keyboard = make_button_keyboard(expected)
+            message = NS(photo=object(), buttons=None,
+                         reply_markup=NS(rows=[NS(buttons=row) for row in keyboard]))
+            self.assertTrue(verify_complete_public_video_poster(message, public, link, download))
+            self.assertTrue(verify_complete_public_video_keyboard(message, public, link, download))
+            message.buttons = keyboard[:3]
+            self.assertFalse(verify_complete_public_video_poster(message, public, link, download))
+            message.buttons = None
+            message.reply_markup.rows.pop()
+            self.assertFalse(verify_complete_public_video_keyboard(message, public, link, download))
+
     def test_public_poster_with_stale_series_label_blocks_video_copy(self):
         from unittest.mock import AsyncMock
         from film_relay.publication import (
