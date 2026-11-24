@@ -10,6 +10,7 @@ import sys
 import time
 import unicodedata
 from pathlib import Path
+from course_formats import attachment_family, groups
 
 CATS = ("business", "finance", "digitale", "mindset")
 WORDS = {
@@ -30,52 +31,6 @@ def classify(text):
     best = max(scores.values())
     winners = [k for k,v in scores.items() if v == best and v > 0]
     return winners[0] if len(winners)==1 else "general"
-
-def part(s):
-    return re.search(r"\b(?:partie|module|episode|chapitre|lecon|part|video)\s*0*(\d+)(?:\s*(?:/|sur|of)\s*(\d+))?", norm(s).replace(" sur ", " sur "), re.I)
-
-def total_hint(s):
-    return [int(x) for x in re.findall(r"\b(\d+)\s*(?:videos|pdf|fichiers|episodes|parties|modules)\b", norm(s))]
-
-def complete(group, bounded):
-    files = [m for m in group if m["kind"]=="file"]
-    if not files or not bounded or any(m.get("protected") or m["kind"]=="other" for m in group):
-        return False
-    if any(m["kind"]=="text" for m in group[group.index(files[0])+1:]):
-        return False  # text between parts is ambiguous; fail closed
-    # Preserve original ordering; only accept an explicitly numbered contiguous series.
-    nums=[]; totals=[]
-    for m in group:
-        totals.extend(total_hint(m["text"]) if m["kind"]!="file" else [])
-    for m in files:
-        raw=m["text"]+" "+m.get("name","")
-        match=re.search(r"\b(?:partie|module|episode|chapitre|lecon|part|video)\s*0*(\d+)(?:\s*(?:/|sur|of)\s*(\d+))?", raw, re.I)
-        if match:
-            nums.append(int(match[1]))
-            if match[2]: totals.append(int(match[2]))
-    if nums and (len(nums)!=len(files) or nums!=list(range(1,len(files)+1))):
-        return False
-    if totals and any(n!=len(files) for n in totals):
-        return False
-    return True
-
-def groups(messages):
-    # A following poster closes the preceding course. Never assume a trailing
-    # group is finished simply because the API history page has ended.
-    current=[]
-    for m in messages:
-        if m["kind"]=="poster":
-            if current and complete(current, True):
-                yield current
-            current=[m]
-        elif current:
-            current.append(m)
-    if current:
-        files=[m for m in current if m["kind"]=="file"]
-        hints=[n for m in current if m["kind"]!="file" for n in total_hint(m["text"])]
-        # A trailing group needs a declared total; no guessed end.
-        if hints and files and complete(current, True):
-            yield current
 
 def digest(key, s):
     return hmac.new(key.encode(),s.encode(),hashlib.sha256).hexdigest()
@@ -171,9 +126,9 @@ async def run(publish):
                 name=getattr(m.file,"name",None) or "" if m.file else ""
                 size=getattr(m.file,"size",0) or 0 if m.file else 0
                 mime=getattr(m.file,"mime_type","") or "" if m.file else ""
-                isfile=bool(m.document and (mime.startswith("video/") or mime=="application/pdf" or name.lower().endswith((".pdf",".mp4",".mkv",".webm",".mov"))))
-                kind="poster" if m.photo else "file" if isfile else "text" if not m.media and m.raw_text else "other"
-                records.append({"id":m.id,"kind":kind,"text":m.raw_text or "","name":name,"size":size,"media":str(m.document.id) if m.document else "","protected":bool(getattr(m,"noforwards",False))})
+                family=attachment_family(name,mime) if m.document else None
+                kind="poster" if m.photo or family=="poster" else "file" if family else "text" if not m.media and m.raw_text else "other"
+                records.append({"id":m.id,"kind":kind,"family":family,"album":m.grouped_id,"text":m.raw_text or "","name":name,"size":size,"media":str(m.document.id) if m.document else "","protected":bool(getattr(m,"noforwards",False))})
             for group in groups(list(reversed(records))):
                 cid,marks=fingerprints(key,group)
                 cat=source.get("category","auto")
@@ -181,6 +136,8 @@ async def run(publish):
                 candidates.append((source,group,cid,marks,cat))
         print("Complete candidate groups:",len(candidates))
         if not publish: return
+        if os.environ.get("FORMATION_RIGHTS_ATTESTED")!="true" or os.environ.get("FORMATION_DURABLE_STATE")!="true":
+            raise RuntimeError("Publication not authorized or durable state disabled")
         active=state.get("active")
         if active and active.get("pending") is not None:
             # A lost API response is not evidence of failure. Check the marker
@@ -197,7 +154,7 @@ async def run(publish):
         for source,group,cid,marks,cat in candidates:
             active=state.get("active")
             if active and cid!=active["cid"]: continue
-            if active and (cat!=active["cat"] or marks!=active["marks"]): raise RuntimeError("Source changed during delivery")
+            if active and marks!=active["marks"]: raise RuntimeError("Source changed during delivery")
             if not active:
                 if cid in state["done"] or any(set(marks)&set(v) for v in state["done"].values()): continue
                 # General receives a separate eligible course, never the same
@@ -211,7 +168,7 @@ async def run(publish):
             cat=active["cat"]
             credit="Source / crédit : "+str(source["credit"]).strip()
             destchat=dest[cat]
-            # Validate entire course before beginning; all items fit Telegram captions.
+            # Validate entire course before sending any item.
             plan=[]
             for n,m in enumerate(group):
                 marker="Réf. F-"+digest(key,cid+":"+str(n))[:18]
@@ -241,7 +198,7 @@ async def run(publish):
             print("Course delivered:",cat,"files:",sum(m["kind"]=="file" for m in group))
             if len(used)==5: break
     except errors.FloodWaitError as exc:
-        if publish:
+        if os.environ.get("FORMATION_DURABLE_STATE")=="true":
             state["cooldown"]=int(time.time())+int(exc.seconds)+60
             checkpoint(state)
         print("Personal FloodWait seconds:",int(exc.seconds))
