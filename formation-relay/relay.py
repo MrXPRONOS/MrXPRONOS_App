@@ -97,19 +97,48 @@ def checkpoint(state):
         time.sleep(3)
     raise RuntimeError("Durable checkpoint unavailable")
 
+def bot_error_reason(code, description):
+    # Only fixed labels leave this function, never Telegram response text.
+    d=str(description).lower()
+    for phrase,label in (
+        ("chat not found","chat not found: check channel reference and bot membership"),
+        ("user not found","user not found"),
+        ("member not found","member not found"),
+        ("bot is not a member","bot is not a member"),
+        ("bot was kicked","bot was removed"),
+        ("not enough rights","insufficient bot permissions"),
+        ("need administrator rights","administrator rights required"),
+        ("chat_admin_required","administrator rights required"),
+        ("message to copy not found","staging message not found"),
+        ("message can't be copied","message cannot be copied"),
+        ("message is too long","message too long"),
+        ("caption is too long","caption too long"),
+        ("chat_id is empty","missing chat reference"),
+        ("unauthorized","invalid or revoked token"),
+        ("too many requests","rate limit"),
+    ):
+        if phrase in d: return label
+    return {401:"invalid or revoked token",403:"access forbidden",429:"rate limit"}.get(code,"unclassified Telegram error")
+
 class Bot:
     def __init__(self, token):
-        self.token=token
-    def call(self, method, **params):
+        if not token or not token.strip(): raise RuntimeError("FORMATION_BOT_TOKEN missing")
+        self.token=token.strip()
+    def call(self, method, *, context="general", **params):
         import requests
-        # Never print response bodies, URLs, or tokens. No automatic retry on writes.
+        # No raw response, identifiers, URLs, tokens or automatic write retries.
         try:
             r=requests.post("https://api.telegram.org/bot"+self.token+"/"+method,json=params,timeout=60)
             j=r.json()
         except Exception:
-            raise RuntimeError("Bot API response uncertain") from None
+            raise RuntimeError(f"Bot API {method} [{context}]: response uncertain") from None
+        if not isinstance(j,dict):
+            raise RuntimeError(f"Bot API {method} [{context}]: unexpected response")
         if not j.get("ok"):
-            raise RuntimeError("Bot API rejected request: "+str(j.get("error_code",0)))
+            code=j.get("error_code",0)
+            if not isinstance(code,int): code=0
+            reason=bot_error_reason(code,j.get("description",""))
+            raise RuntimeError(f"Bot API {method} [{context}]: {code} - {reason}")
         return j["result"]
 
 def channel_ref(value):
@@ -168,18 +197,21 @@ async def run(publish):
     state=load_state()
     if state.get("cooldown",0)>time.time(): raise RuntimeError("Personal Telegram cooldown active")
     bot=Bot(os.environ["FORMATION_BOT_TOKEN"])
-    me=bot.call("getMe")["id"]
+    me=bot.call("getMe",context="bot identity")["id"]
+    print("Bot API authentication: OK",flush=True)
     resolved_dest={}
     for cat,chat in [*dest.items(),("stage",stage)]:
-        info=bot.call("getChat",chat_id=chat)
-        if info["type"]!="channel" or bool(info.get("username"))!=(cat=="general") or (cat=="stage" and info.get("has_protected_content")):
+        print("Validating destination:",cat,"reference:",("public username" if isinstance(chat,str) else "numeric ID"),flush=True)
+        info=bot.call("getChat",context=cat,chat_id=chat)
+        if info["type"]!="channel" or bool(info.get("username") or info.get("active_usernames"))!=(cat=="general") or (cat=="stage" and info.get("has_protected_content")):
             raise RuntimeError("Wrong destination type/visibility: "+cat)
         chat_id=info["id"]
         if cat!="stage": resolved_dest[cat]=chat_id
         elif chat_id!=stage: raise RuntimeError("Staging channel identity mismatch")
-        member=bot.call("getChatMember",chat_id=chat_id,user_id=me)
+        member=bot.call("getChatMember",context=cat,chat_id=chat_id,user_id=me)
         if member["status"] not in ("creator","administrator") or (cat!="stage" and member["status"]!="creator" and not member.get("can_post_messages")):
             raise RuntimeError("Bot permissions missing: "+cat)
+        print("Destination validated:",cat,flush=True)
     dest=resolved_dest
     if len(set([stage,*dest.values()]))!=6: raise RuntimeError("Overlapping destination IDs")
     print("Destination channels validated:",len(dest))
@@ -189,7 +221,7 @@ async def run(publish):
         if not await client.is_user_authorized(): raise RuntimeError("Personal session unauthorized")
         entities={d.id:d.entity async for d in client.iter_dialogs()}
         if any(i not in entities for i in [stage,*dest.values()]):
-            raise RuntimeError("Personal account must already belong to all destination and staging channels")
+            raise RuntimeError("Personal account must already belong to all destination and staging channels: "+",".join([cat for cat,chat in [*dest.items(),("stage",stage)] if chat not in entities]))
         # Resolve public sources once to canonical peer IDs. Numeric private
         # references must already be accessible via the personal account.
         seen={stage,*dest.values()}
@@ -288,7 +320,7 @@ async def run(publish):
                     method="copyMessage"; params={"chat_id":destchat,"from_chat_id":stage,"message_id":forwarded.id,"caption":body}
                     await asyncio.sleep(3)
                 active["pending"]=marker; checkpoint(state)
-                bot.call(method,**params)
+                bot.call(method,context=cat,**params)
                 active["next"]=i+1; active["pending"]=None; checkpoint(state)
                 await asyncio.sleep(3)
             state["done"][cid]=marks
