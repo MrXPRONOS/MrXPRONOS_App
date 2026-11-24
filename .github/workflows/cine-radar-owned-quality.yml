@@ -6,7 +6,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/cine-radar-owned-quality.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/cine-radar-owned-quality.txt'
       - 'cinecanaux/audit_owned_channel_quality.py'
       - 'cinecanaux/sync_owned_quality_to_d1.py'
 permissions:

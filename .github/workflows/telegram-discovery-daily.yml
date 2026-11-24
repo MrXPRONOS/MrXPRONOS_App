@@ -14,8 +14,8 @@ on:
     branches: [main]
     paths:
       - '.github/discovery-now-trigger.txt'
-      - '.github/workflows/telegram-discovery-daily.yml'
-
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/telegram-discovery-daily.txt'
 permissions:
   contents: write
 
