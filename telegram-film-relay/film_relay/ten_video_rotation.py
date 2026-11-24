@@ -59,12 +59,13 @@ def pinned_archive_order(old, messages, category: str):
     covers are inventoried, not authorized for copying/deleting by this helper.
     All parts of a pinned cover that can be matched are considered together.
     """
-    from .legacy_media_identity import find_legacy_poster, video_identity
+    from .legacy_media_identity import find_legacy_poster, video_identity, multipart_identity
     from .legacy_neighbor_matching import find_neighbor_pair
 
     posters = [m for m in messages if getattr(m, "photo", None)]
     pins = {int(m.id) for m in posters if getattr(m, "pinned", False)}
     pinned_groups = {}
+    pinned_parts = {}
     for video in old:
         poster = find_legacy_poster(video, posters, category)
         if poster is None:
@@ -72,14 +73,17 @@ def pinned_archive_order(old, messages, category: str):
             poster = adjacent.poster if adjacent else None
         if poster is not None and int(poster.id) in pins:
             pinned_groups[int(video.id)] = int(poster.id)
+            part = multipart_identity(video, poster, category)
+            if part:
+                pinned_parts[int(video.id)] = part.part
 
     def sort_key(video):
         vid = int(video.id)
         if vid in pinned_groups:
-            return (0, pinned_groups[vid], vid)
+            return (0, pinned_groups[vid], pinned_parts.get(vid, 0), vid)
         if getattr(video, "pinned", False):
-            return (0, vid, vid)
-        return (1, vid, vid)
+            return (0, vid, 0, vid)
+        return (1, vid, 0, vid)
 
     ordered = sorted(old, key=sort_key)
     counts = {}
@@ -89,7 +93,7 @@ def pinned_archive_order(old, messages, category: str):
             continue
         ident = video_identity(video, category)
         counts.setdefault(cover_id, []).append(
-            ident.part if ident.kind == "film_part" else None)
+            pinned_parts.get(int(video.id), ident.part if ident.kind == "film_part" else None))
     for cover_id, parts in sorted(counts.items()):
         numbered = sorted(p for p in parts if p is not None)
         LOG.info("Affiche épinglée #%s : %s vidéo(s) ancienne(s), parties explicites=%s",
@@ -100,11 +104,11 @@ def pinned_archive_order(old, messages, category: str):
     return ordered
 
 
-def movie_button_target(poster, private_id: int) -> int | None:
-    """One and only one movie button must lead to our configured library."""
+def movie_button_targets(poster, private_id: int) -> set[int]:
+    """All explicit links to the configured library, no other channel."""
     expected_prefix = str(abs(int(private_id)))[3:] if str(private_id).startswith("-100") else None
     if not expected_prefix:
-        return None
+        return set()
     candidates = set()
     for row in getattr(poster, "buttons", None) or ():
         for button in row:
@@ -113,6 +117,11 @@ def movie_button_target(poster, private_id: int) -> int | None:
             match = VIDEO_LINK.fullmatch(str(url or ""))
             if match and match.group(1) == expected_prefix:
                 candidates.add(int(match.group(2)))
+    return candidates
+
+
+def movie_button_target(poster, private_id: int) -> int | None:
+    candidates = movie_button_targets(poster, private_id)
     return next(iter(candidates)) if len(candidates) == 1 else None
 
 
@@ -175,7 +184,7 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
     its preceding private cover and the public URL buttons must all agree.
     """
     from .legacy_media_identity import (
-        compatible, poster_identity, video_identity, find_legacy_poster,
+        compatible, poster_identity, video_identity, find_legacy_poster, multipart_identity,
     )
     from .legacy_neighbor_matching import find_neighbor_pair
     ident = video_identity(video, category)
@@ -191,8 +200,8 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
     source_photo = None
     if messages is not None:
         originals = [m for m in posters if m.id < video.id]
-        source_photo = (nearby.poster if nearby else
-                        find_legacy_poster(video, originals, category))
+        source_photo = (find_legacy_poster(video, originals, category) or
+                        (nearby.poster if nearby else None))
         if not source_photo:
             return None
     rescue_url = rescue_link_for(public)
@@ -205,32 +214,40 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
             continue
         if source_photo is not None and poster.id != source_photo.id:
             continue
-        identity_matches = compatible(ident, poster_identity(poster, category)) >= 0.95
+        part = multipart_identity(video, poster, category)
+        identity_matches = bool(part) or compatible(ident, poster_identity(poster, category)) >= 0.95
         adjacency_matches = bool(nearby and nearby.poster.id == poster.id)
         if not (identity_matches or adjacency_matches):
             continue
-        private_video_id = movie_button_target(poster, private_id)
-        if not private_video_id:
+        targets = movie_button_targets(poster, private_id)
+        if not part and len(targets) != 1:
             continue
-        url = private_message_link(private_id, private_video_id)
-        if not all(has_verified_button(poster, link)
-                   for link in (url, rescue_url, folder_url)):
+        if not targets or len(targets) > 10:
             continue
-        private_video = await client.get_messages(private, ids=private_video_id)
-        if (not is_video_message(private_video)
-                or video_document_id(private_video) != video_document_id(video)):
-            continue
-        prior_ids = list(range(max(1, private_video_id - 8), private_video_id))
-        private_posters = await client.get_messages(private, ids=prior_ids)
-        for private_poster in private_posters or []:
-            if (getattr(private_poster, "photo", None)
-                    and (getattr(private_poster, "raw_text", "") or "").strip()
-                    and compatible(ident, poster_identity(
-                        private_poster, category)) >= 0.95
-                    and has_verified_button(private_poster, rescue_url)
-                    and has_verified_button(private_poster, folder_url)):
-                matched.append(poster)
-                break
+        matches = 0
+        for private_video_id in sorted(targets):
+            url = private_message_link(private_id, private_video_id)
+            if not all(has_verified_button(poster, link)
+                       for link in (url, rescue_url, folder_url)):
+                continue
+            private_video = await client.get_messages(private, ids=private_video_id)
+            if (not is_video_message(private_video)
+                    or video_document_id(private_video) != video_document_id(video)):
+                continue
+            prior_ids = list(range(max(1, private_video_id - 8), private_video_id))
+            private_posters = await client.get_messages(private, ids=prior_ids)
+            for private_poster in private_posters or []:
+                proof = poster_identity(private_poster, category)
+                if (getattr(private_poster, "photo", None)
+                        and (getattr(private_poster, "raw_text", "") or "").strip()
+                        and compatible(part or ident, proof) >= 0.95
+                        and (not part or proof.part == part.part)
+                        and has_verified_button(private_poster, rescue_url)
+                        and has_verified_button(private_poster, folder_url)):
+                    matches += 1
+                    break
+        if matches == 1:
+            matched.append(poster)
     # Any ambiguity stops deletion: one verified public cover per media.
     return matched[0] if len(matched) == 1 else None
 
@@ -301,6 +318,15 @@ async def rotate_channel(client, category: str, public, private,
         if not actual or video_document_id(actual) != video_document_id(video):
             report["unverified"] += 1
             continue
+        if public_poster:
+            fresh = await client.get_messages(public, ids=public_poster.id)
+            from .original_poster_edit import public_keyboard_signature
+            if (not fresh or not getattr(fresh, "photo", None)
+                    or getattr(fresh.photo, "id", None) != getattr(public_poster.photo, "id", None)
+                    or (getattr(public_poster, "pinned", False) and not getattr(fresh, "pinned", False))
+                    or public_keyboard_signature(fresh) != public_keyboard_signature(public_poster)):
+                report["unverified"] += 1
+                continue
         await client.delete_messages(public, [video.id], revoke=True)
         after = await client.get_messages(public, ids=video.id)
         if after and is_video_message(after):
