@@ -20,6 +20,11 @@ function unbase64url(s) {
   return Uint8Array.from(atob(b.padEnd(Math.ceil(b.length/4)*4,'=')),c=>c.charCodeAt(0));
 }
 function decodePart(p) {return JSON.parse(new TextDecoder().decode(unbase64url(p)));}
+export function archiveIdentityAllowed(claims,purpose){
+  if(purpose!=='archive')return true;
+  if(claims.environment==='actu-foot-v2-maintenance')return true;
+  return claims.environment===undefined && ['schedule','push'].includes(claims.event_name);
+}
 async function authenticate(auth,purpose) {
   if(typeof auth!=='string' || !auth.startsWith('Bearer ') || auth.length>10000) throw Error('auth');
   const parts=auth.slice(7).split('.');
@@ -34,7 +39,7 @@ async function authenticate(auth,purpose) {
      claims.repository_id!==REPO_ID || claims.repository_owner_id!==OWNER_ID ||
      claims.workflow_ref!==wf || claims.ref!=='refs/heads/main' ||
      !((backup||v3)?['schedule','workflow_dispatch','push']:['workflow_dispatch','push']).includes(claims.event_name) ||
-     (purpose==='archive' && claims.environment!=='actu-foot-v2-maintenance') ||
+     !archiveIdentityAllowed(claims,purpose) ||
      typeof claims.exp!=='number' || claims.exp<now-30 || claims.exp>now+900 ||
      typeof claims.iat!=='number' || claims.iat>now+60 || claims.iat<now-900 ||
      (claims.nbf!==undefined && (typeof claims.nbf!=='number'||claims.nbf>now+60)) ||

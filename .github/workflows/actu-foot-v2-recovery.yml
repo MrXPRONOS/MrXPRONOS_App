@@ -10,28 +10,23 @@ on:
         type: string
         required: true
         default: '1'
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/actu-foot-v2-recovery.yml'
 permissions:
   contents: read
   id-token: write
 concurrency:
-  group: actu-foot-v2-recovery
+  group: actu-foot-v2-recovery-auto-${{ inputs.backup_run_id }}-${{ inputs.backup_attempt }}
   cancel-in-progress: false
 jobs:
   rehearse:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
-    environment: actu-foot-v2-maintenance
     env:
       ACTU_FOOT_V2_KEY_B64_V1: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V1 }}
       ACTU_FOOT_V2_KEY_B64_V2: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V2 }}
       ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
       ACTU_FOOT_V2_ALLOW_LEGACY_KEY: '1'
-      BACKUP_RUN_ID: ${{ inputs.backup_run_id || '40326358146' }}
+      BACKUP_RUN_ID: ${{ inputs.backup_run_id }}
       BACKUP_ATTEMPT: ${{ inputs.backup_attempt || '1' }}
     steps:
       - uses: actions/checkout@v4

@@ -97,3 +97,10 @@ class IntegratedTests(unittest.TestCase):
         self.assertEqual(decrypt("matches",blob)[0],rows)
         self.assertLess(time.monotonic()-start,30)
         print("V3_STRESS",5000,pages,round(time.monotonic()-start,3),len(blob))
+
+class AutomaticPolicyTests(unittest.TestCase):
+    def test_policy_must_match_all_approved_fields(self):
+        from scripts.actu_foot_v3_maintenance import policy,policy_active
+        self.assertTrue(policy_active({**policy(),"_schema_version":3}))
+        for k in ("days","archive","type","schema"):
+            self.assertFalse(policy_active({**policy(),k:None}))

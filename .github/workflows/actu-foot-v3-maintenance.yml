@@ -72,9 +72,34 @@ jobs:
           assert c.recover(path,digest)==blob
           print("V3_INDEPENDENT_ARCHIVE_REHEARSAL_OK")
           PY
+  automatic:
+    needs: preview
+    if: github.ref == 'refs/heads/main' && needs.preview.outputs.active == 'true' && (github.event_name == 'schedule' || github.event_name == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      actions: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
+      - name: Execute only previously approved encrypted retention policy
+        id: compact
+        run: python -m scripts.actu_foot_v3_maintenance --automatic
+      - name: Verify independent archive recovery in isolated runner
+        run: python -m scripts.actu_foot_v3_maintenance --recover-archives
+      - name: Request anchored live backup even if a later step fails
+        if: always() && steps.compact.outcome != 'skipped' && steps.compact.outcome != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run actu-foot-v2-backup.yml --repo "$GITHUB_REPOSITORY" --ref main
   maintenance:
     needs: preview
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' && needs.preview.outputs.active == 'false' || github.event_name == 'schedule' && needs.preview.outputs.active == 'true' && needs.preview.outputs.eligible != '0' || github.event_name == 'workflow_dispatch' && (inputs.recover_archives || inputs.execute && inputs.confirmation == 'APPROVE_V3_ENCRYPTED_COMPACTION'))
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' && needs.preview.outputs.active == 'false' || github.event_name == 'workflow_dispatch' && (inputs.recover_archives || inputs.execute && inputs.confirmation == 'APPROVE_V3_ENCRYPTED_COMPACTION'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: actu-foot-v2-maintenance

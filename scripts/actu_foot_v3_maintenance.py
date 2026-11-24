@@ -10,6 +10,9 @@ DEFAULT_DAYS={"matches":90,"live_events":30,"news":60,"statistics":120}
 POLICY_ID="actufoot:v3:retention"
 def policy():
     return {"type":"v3_retention_policy","days":DEFAULT_DAYS,"archive":"independent_verified_before_prune","schema":3}
+def policy_active(value):
+    return isinstance(value,dict) and all(value.get(k)==v for k,v in policy().items())
+
 def maintenance(store,collection,*,retention_days,execute=False,confirmation="",durable_copy=None):
     if collection not in SAFE_FIELDS:raise VaultError("Retention forbidden")
     if type(retention_days) is not int or not 30<=retention_days<=3650:raise VaultError("Invalid retention period")
@@ -30,6 +33,7 @@ def main():
     p.add_argument("--retention-days",type=int,default=0)
     p.add_argument("--execute",action="store_true")
     p.add_argument("--activate",action="store_true")
+    p.add_argument("--automatic",action="store_true")
     p.add_argument("--confirmation",default="")
     p.add_argument("--recover-archives",action="store_true")
     p.add_argument("--audit-file",default="")
@@ -37,6 +41,13 @@ def main():
     p.add_argument("--after",default="")
     args=p.parse_args()
     store=GitAtomicStore(repo=os.environ["GITHUB_REPOSITORY"],token=os.environ["GITHUB_TOKEN"])
+    if args.automatic:
+        if os.getenv("GITHUB_EVENT_NAME") not in {"schedule","push"} or os.getenv("GITHUB_REF")!="refs/heads/main":
+            raise VaultError("Automatic retention requires trusted scheduled or main push workflow")
+        if args.activate or args.execute or args.recover_archives or args.retention_days or args.confirmation or args.collection!="all" or args.audit_file or args.after:
+            raise VaultError("Automatic retention cannot override the approved policy")
+        args.execute=True
+        args.confirmation="APPROVE_V3_ENCRYPTED_COMPACTION"
     if args.recover_archives:
         if args.execute or args.activate:raise VaultError("Archive recovery is isolated and cannot mutate live storage")
         if args.audit_file:
@@ -52,12 +63,12 @@ def main():
         if not args.execute or args.confirmation!="APPROVE_V3_ENCRYPTED_COMPACTION":raise VaultError("Activation requires approval")
         parent,_=store.head()
         current=store.load_collection("settings",parent)
-        if current.data.get(POLICY_ID,{}).get("days")!=DEFAULT_DAYS:
+        if not policy_active(current.data.get(POLICY_ID,{})):
             commit=store.transact({"settings":[{"action":"upsert","id":POLICY_ID,"value":policy()}]})
             print("V3_POLICY_ACTIVATED",commit)
     parent,_=store.head()
     active=store.load_collection("settings",parent).data.get(POLICY_ID,{})
-    if args.execute and active.get("days")!=DEFAULT_DAYS:raise VaultError("Retention policy not activated")
+    if args.execute and not policy_active(active):raise VaultError("Retention policy not activated")
     names=list(SAFE_FIELDS) if args.collection=="all" else [args.collection]
     results=[maintenance(store,name,retention_days=args.retention_days or DEFAULT_DAYS[name],execute=args.execute,
              confirmation=args.confirmation,durable_copy=CloudArchive().persist if args.execute else None) for name in names]
@@ -68,5 +79,5 @@ def main():
     if output:
         with open(output,"a",encoding="utf-8") as f:
             f.write("eligible="+str(sum(r["eligible"] for r in results))+"\n")
-            f.write("active="+str(active.get("days")==DEFAULT_DAYS).lower()+"\n")
+            f.write("active="+str(policy_active(active)).lower()+"\n")
 if __name__=="__main__":main()

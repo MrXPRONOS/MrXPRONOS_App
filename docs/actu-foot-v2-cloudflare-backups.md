@@ -58,3 +58,7 @@ old publication IDs before any production switchover.
 ## Ancrage monotone indépendant (protocole 2)
 
 La base D1 dédiée mrxpronos-actufoot-v2-audit-anchor contient un journal append-only, initialisé à partir du snapshot vérifié 45311391405/1. Le Worker compare le hash de l'ancien préfixe d'audit et les générations, versions de clés et hashes de toutes les collections. Il réserve chaque run/tentative, écrit les ciphertexts KV puis ajoute l'ancre via CAS. Une copie orpheline après conflit n'est pas acceptée en récupération. Les sauvegardes historiques restent récupérables pour exercice isolé. D1 ne contient ni clé ni contenu déchiffré; seulement métadonnées et hashes. Cette garantie dépend de l'intégrité du compte Cloudflare et du workflow OIDC autorisé; elle ne protège pas contre la compromission simultanée de ces autorités.
+
+## Restauration automatique isolée
+
+Le workflow de récupération V2 ne modifie jamais main et n'utilise plus l'environnement de maintenance protégé. Il est déclenché après chaque sauvegarde réussie, y compris les sauvegardes planifiées. Sa concurrence est isolée par run et tentative de sauvegarde pour éviter le blocage par un ancien déploiement en attente. Les opérations de rotation et de restauration qui écrivent dans main restent sous approbation administrative.
