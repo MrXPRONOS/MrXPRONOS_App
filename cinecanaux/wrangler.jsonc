@@ -22,6 +22,6 @@
   },
   "vars": {
     "CINE_DELIVERY44_ENABLED": "1",
-    "CINEX_MANUAL_INBOX_ENABLED": "false"
+    "CINEX_MANUAL_INBOX_ENABLED": "true"
   }
 }
