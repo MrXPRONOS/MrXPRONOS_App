@@ -5,7 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/cinex-reaction-forensics.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/cinex-reaction-forensics.txt'
       - 'telegram-film-relay/scripts/diagnose_channel_reaction_targets.py'
       - 'telegram-film-relay/tests/test_cinex_reaction_forensics.py'
 

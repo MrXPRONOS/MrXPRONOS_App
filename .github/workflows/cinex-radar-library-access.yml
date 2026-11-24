@@ -3,7 +3,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/cinex-radar-library-access.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/cinex-radar-library-access.txt'
   workflow_dispatch:
     inputs:
       apply:

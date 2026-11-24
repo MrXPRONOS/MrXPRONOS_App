@@ -11,7 +11,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/telegram-film-healthcheck.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/telegram-film-healthcheck.txt'
   # Daily read-only Telegram connectivity checks. Never sends test messages.
   schedule:
     - cron: '37 0 * * *'

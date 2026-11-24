@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/telegram-film-mirror-probe.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/telegram-film-mirror-probe.txt'
   workflow_dispatch:
 
 concurrency:

@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/telegram-film-bot-private-setup.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/telegram-film-bot-private-setup.txt'
   workflow_dispatch:
 
 concurrency:

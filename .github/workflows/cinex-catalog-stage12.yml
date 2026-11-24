@@ -5,7 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/cinex-catalog-stage12.yml'
+      # A YAML-only edit must not open the shared Telegram session.
+      - '.github/telegram-triggers/cinex-catalog-stage12.txt'
       - 'telegram-film-relay/scripts/catalog_stage12.py'
       - 'telegram-film-relay/scripts/cinex_github_control.py'
       - 'cinecanaux/migrations/014_cinex_delivery_catalog.sql'
