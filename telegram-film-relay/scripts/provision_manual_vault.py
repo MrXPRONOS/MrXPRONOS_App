@@ -166,14 +166,36 @@ async def provision(category: str, *, apply=False, env=None):
             raise RuntimeError("Bot différent du webhook CinéRadar : refus")
         bot_ready = False
         if bot:
+            from telethon.tl.types import ChatAdminRights
             try:
                 peer = await owner.get_entity("@" + bot["username"])
+                if not getattr(peer, "bot", False) or peer.id != bot["id"]:
+                    raise RuntimeError("CinéRadar bot identity changed")
                 access = await owner.get_permissions(entity, peer)
                 bot_ready = bool(getattr(access, "is_creator", False) or
                                  (getattr(access, "is_admin", False) and
                                   getattr(access, "post_messages", False)))
             except Exception:
                 bot_ready = False
+            if apply and not bot_ready:
+                # Owner-approved new/existing private vault. Grant only the
+                # minimum Telegram channel right required to receive posts.
+                rights = ChatAdminRights(
+                    change_info=False, post_messages=True,
+                    edit_messages=False, delete_messages=False,
+                    ban_users=False, invite_users=False, pin_messages=False,
+                    add_admins=False, anonymous=False, manage_call=False,
+                    other=False, manage_topics=False, post_stories=False,
+                    edit_stories=False, delete_stories=False,
+                )
+                await owner(functions.channels.EditAdminRequest(
+                    channel=entity, user_id=peer, admin_rights=rights,
+                    rank="CinéRadar Stock"))
+                await asyncio.sleep(13)
+                access = await owner.get_permissions(entity, peer)
+                bot_ready = bool(getattr(access, "is_creator", False) or
+                                 (getattr(access, "is_admin", False) and
+                                  getattr(access, "post_messages", False)))
         registered = False
         if (apply and bot_ready and
                 str(env.get("CINEX_MANUAL_RIGHTS_ATTESTED", "")).lower() == "true" and
