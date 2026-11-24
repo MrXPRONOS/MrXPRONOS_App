@@ -88,7 +88,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -186,48 +186,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
       "ESPN"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "08a9065ebce3b593",
-    "title": "CAN 2025 : le TAS rendra sa décision sur la finale ce mardi 24 novembre",
-    "summary": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "summary_short": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "content": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "paragraphs": [
-      "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation."
-    ],
-    "key_points": [
-      "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025.",
-      "Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation."
-    ],
-    "telegram_summary": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261124-can-2025-le-tas-rendra-sa-d%C3%A9cision-sur-la-finale-ce-mardi-24-novembre",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261124-can-2025-le-tas-rendra-sa-d%C3%A9cision-sur-la-finale-ce-mardi-24-novembre",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08a9065ebce3b593",
-    "published": "2026-11-24T07:23:20+00:00",
-    "image": "https://s.france24.com/media/display/031d8b8e-68bf-11f1-bc80-005056a97e36/w:1024/p:16x9/AP26077291094432.jpg",
-    "source_image": "https://s.france24.com/media/display/031d8b8e-68bf-11f1-bc80-005056a97e36/w:1024/p:16x9/AP26077291094432.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "014ab4c80db2e8e1",
@@ -473,41 +438,6 @@
     "quality_score": 92
   },
   {
-    "slug": "aaab26051a88ad21",
-    "title": "Manchester City : Maresca prend la défense d’Allegri et craint le Napoli",
-    "summary": "À la veille du choc face à Naples en Ligue des Champions, Enzo Maresca s’est présenté en conférence de presse avec plusieurs sujets au programme. L’entraîneur de Manchester City a évoqué la situation (…)",
-    "summary_short": "À la veille du choc face à Naples en Ligue des Champions, Enzo Maresca s’est présenté en conférence de presse avec plusieurs sujets au programme. L’entraîneur de Manchester City a évoqué la situation (…)",
-    "content": "À la veille du choc face à Naples en Ligue des Champions, Enzo Maresca s’est présenté en conférence de presse avec plusieurs sujets au programme. L’entraîneur de Manchester City a évoqué la situation (…)",
-    "paragraphs": [
-      "À la veille du choc face à Naples en Ligue des Champions, Enzo Maresca s’est présenté en conférence de presse avec plusieurs sujets au programme. L’entraîneur de Manchester City a évoqué la situation (…)"
-    ],
-    "key_points": [
-      "À la veille du choc face à Naples en Ligue des Champions, Enzo Maresca s’est présenté en conférence de presse avec plusieurs sujets au programme.",
-      "L’entraîneur de Manchester City a évoqué la situation (…)"
-    ],
-    "telegram_summary": "À la veille du choc face à Naples en Ligue des Champions, Enzo Maresca s’est présenté en conférence de presse avec plusieurs sujets au programme. L’entraîneur de Manchester City a évoqué la situation (…)",
-    "link": "https://www.footmercato.net/a4684655221633402144-manchester-city-maresca-prend-la-defense-dallegri-et-craint-le-napoli",
-    "source_url": "https://www.footmercato.net/a4684655221633402144-manchester-city-maresca-prend-la-defense-dallegri-et-craint-le-napoli",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=aaab26051a88ad21",
-    "published": "2026-11-23T20:23:54+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/enzo-maresca-2425.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/enzo-maresca-2425.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "9759807464793e7e",
     "title": "Mercato Rennes : Le Stade Rennais annonce une signature (officiel)",
     "summary": "Le Stade Rennais FC a annoncé la signature du premier contrat professionnel de Joseph Peter.",
@@ -540,41 +470,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "b4537920da9dc6c5",
-    "title": "Football : l'Afrique soutient la réélection de Gianni Infantino à la tête de la FIFA",
-    "summary": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "summary_short": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "content": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "paragraphs": [
-      "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria."
-    ],
-    "key_points": [
-      "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA.",
-      "L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria."
-    ],
-    "telegram_summary": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261123-footbal-l-afrique-soutient-la-r%C3%A9%C3%A9lection-de-gianni-infantino-%C3%A0-la-t%C3%AAte-de-la-fifa",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261123-footbal-l-afrique-soutient-la-r%C3%A9%C3%A9lection-de-gianni-infantino-%C3%A0-la-t%C3%AAte-de-la-fifa",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b4537920da9dc6c5",
-    "published": "2026-11-23T17:19:59+00:00",
-    "image": "https://s.france24.com/media/display/c7f51d20-e757-11f1-8c0c-13439ca2fe89/w:1024/p:16x9/Couv-Afrique-FIFA.jpg",
-    "source_image": "https://s.france24.com/media/display/c7f51d20-e757-11f1-8c0c-13439ca2fe89/w:1024/p:16x9/Couv-Afrique-FIFA.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "73ba067102688258",
@@ -717,41 +612,6 @@
     "quality_score": 90
   },
   {
-    "slug": "41d8e41a61ed4bb0",
-    "title": "Finale de la CAN 2025 : le TAS rendra sa décision \"mardi après-midi\"",
-    "summary": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait \"mardi 24 novembre 2026 dans le courant de l'après-midi\" sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN-2025.",
-    "summary_short": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait \"mardi 24 novembre 2026 dans le courant de l'après-midi\" sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN-2025.",
-    "content": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait \"mardi 24 novembre 2026 dans le courant de l'après-midi\" sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN-2025. La juridiction suprême du sport doit se prononcer après avoir démêlé à huis clos, le 8 octobre à Lausanne, un litige inédit : aucune sélection n'a jamais perdu de cette façon un titre conquis sur le terrain.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait \"mardi 24 novembre 2026 dans le courant de l'après-midi\" sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN-2025. La juridiction suprême du sport doit se prononcer après avoir démêlé à huis clos, le 8 octobre à Lausanne, un litige inédit : aucune sélection n'a jamais perdu de cette façon un titre conquis sur le terrain."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait \"mardi 24 novembre 2026 dans le courant de l'après-midi\" sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN-2025.",
-      "La juridiction suprême du sport doit se prononcer après avoir démêlé à huis clos, le 8 octobre à Lausanne, un litige inédit : aucune sélection n'a jamais perdu de cette façon un titre conquis sur le terrain."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait \"mardi 24 novembre 2026 dans le courant de l'après-midi\" sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN-2025.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261123-finale-de-la-can-2025-le-tas-rendra-sa-d%C3%A9cision-mardi-apr%C3%A8s-midi",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261123-finale-de-la-can-2025-le-tas-rendra-sa-d%C3%A9cision-mardi-apr%C3%A8s-midi",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=41d8e41a61ed4bb0",
-    "published": "2026-11-23T14:09:29+00:00",
-    "image": "https://s.france24.com/media/display/f0858502-e745-11f1-96a3-ebb478925cf0/w:1024/p:16x9/FR-20261123-141424-141607-CS.jpg",
-    "source_image": "https://s.france24.com/media/display/f0858502-e745-11f1-96a3-ebb478925cf0/w:1024/p:16x9/FR-20261123-141424-141607-CS.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
     "slug": "b46ab4d6e9f4a4fa",
     "title": "Sénégal ou Maroc ? Le TAS rend sa décision ce « mardi » 24 novembre sur la finale de la CAN 2025",
     "summary": "Le Tribunal arbitral du sport (TAS) a annoncé lundi qu'il rendrait « mardi 24 novembre 2026 dans le courant de l'après-midi » sa décision concernant le recours du Sénégal contre la victoire du Maroc sur tapis vert en finale de la CAN 2025.",
@@ -784,77 +644,6 @@
       "RFI Afrique Foot"
     ],
     "quality_score": 90
-  },
-  {
-    "slug": "62f91ffd06a4dadf",
-    "title": "L'OM renversé, le XV de France en finale, Alcaraz roi du Masters : les infos sport du week-end",
-    "summary": "Alors qu'ils menaient tranquillement 2-0 face au Mans et semblaient en passe d'enchaîner une sixième victoire, les Marseillais se sont écroulés en deuxième période pour finalement s'incliner 3-2.",
-    "summary_short": "Alors qu'ils menaient tranquillement 2-0 face au Mans et semblaient en passe d'enchaîner une sixième victoire, les Marseillais se sont écroulés en deuxième période pour finalement s'incliner 3-2.",
-    "content": "Alors qu'ils menaient tranquillement 2-0 face au Mans et semblaient en passe d'enchaîner une sixième victoire, les Marseillais se sont écroulés en deuxième période pour finalement s'incliner 3-2. L 'équipe de ​France de rugby s'est qualifiée pour la finale du Championnat des nations grâce à sa ​victoire bonifiée contre l'Argentine. L'Espagnol Carlos Alcaraz a remporté pour la première fois le Masters ATP en battant en finale le numéro un mondial Alexander Zverev.",
-    "paragraphs": [
-      "Alors qu'ils menaient tranquillement 2-0 face au Mans et semblaient en passe d'enchaîner une sixième victoire, les Marseillais se sont écroulés en deuxième période pour finalement s'incliner 3-2. L 'équipe de ​France de rugby s'est qualifiée pour la finale du Championnat des nations grâce à sa ​victoire bonifiée contre l'Argentine. L'Espagnol Carlos Alcaraz a remporté pour la première fois le Masters ATP en battant en finale le numéro un mondial Alexander Zverev."
-    ],
-    "key_points": [
-      "Alors qu'ils menaient tranquillement 2-0 face au Mans et semblaient en passe d'enchaîner une sixième victoire, les Marseillais se sont écroulés en deuxième période pour finalement s'incliner 3-2.",
-      "L 'équipe de ​France de rugby s'est qualifiée pour la finale du Championnat des nations grâce à sa ​victoire bonifiée contre l'Argentine.",
-      "L'Espagnol Carlos Alcaraz a remporté pour la première fois le Masters ATP en battant en finale le numéro un mondial Alexander Zverev."
-    ],
-    "telegram_summary": "Alors qu'ils menaient tranquillement 2-0 face au Mans et semblaient en passe d'enchaîner une sixième victoire, les Marseillais se sont écroulés en deuxième période pour finalement s'incliner 3-2.",
-    "link": "https://www.france24.com/fr/sports/20261123-olympique-marseille-rugby-dupont-france-finale-alcaraz-tennis",
-    "source_url": "https://www.france24.com/fr/sports/20261123-olympique-marseille-rugby-dupont-france-finale-alcaraz-tennis",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=62f91ffd06a4dadf",
-    "published": "2026-11-23T10:08:45+00:00",
-    "image": "https://s.france24.com/media/display/d5aa90ec-e71d-11f1-87a2-1bac47ab2f5d/w:1024/p:16x9/recap-sport-23-11-2026.png",
-    "source_image": "https://s.france24.com/media/display/d5aa90ec-e71d-11f1-87a2-1bac47ab2f5d/w:1024/p:16x9/recap-sport-23-11-2026.png",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "8a738580410447ec",
-    "title": "CAN 2025 : qui du Maroc ou du Sénégal est vainqueur ? La date du verdict du TAS enfin connue",
-    "summary": "Face à l'impatience concernant le litige entre le Sénégal et le Maroc et le titre de champion d'Afrique 2025, le Tribunal arbitral du sport (TAS) de Lausanne est sorti de son silence lundi.",
-    "summary_short": "Face à l'impatience concernant le litige entre le Sénégal et le Maroc et le titre de champion d'Afrique 2025, le Tribunal arbitral du sport (TAS) de Lausanne est sorti de son silence lundi.",
-    "content": "Face à l'impatience concernant le litige entre le Sénégal et le Maroc et le titre de champion d'Afrique 2025, le Tribunal arbitral du sport (TAS) de Lausanne est sorti de son silence lundi. Il a annoncé la date de son verdict.",
-    "paragraphs": [
-      "Face à l'impatience concernant le litige entre le Sénégal et le Maroc et le titre de champion d'Afrique 2025, le Tribunal arbitral du sport (TAS) de Lausanne est sorti de son silence lundi. Il a annoncé la date de son verdict."
-    ],
-    "key_points": [
-      "Face à l'impatience concernant le litige entre le Sénégal et le Maroc et le titre de champion d'Afrique 2025, le Tribunal arbitral du sport (TAS) de Lausanne est sorti de son silence lundi.",
-      "Il a annoncé la date de son verdict."
-    ],
-    "telegram_summary": "Face à l'impatience concernant le litige entre le Sénégal et le Maroc et le titre de champion d'Afrique 2025, le Tribunal arbitral du sport (TAS) de Lausanne est sorti de son silence lundi.",
-    "link": "https://www.france24.com/fr/sports/20261123-can-2025-maroc-senegal-verdict-tas",
-    "source_url": "https://www.france24.com/fr/sports/20261123-can-2025-maroc-senegal-verdict-tas",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8a738580410447ec",
-    "published": "2026-11-23T09:20:50+00:00",
-    "image": "https://s.france24.com/media/display/f09e8656-e71d-11f1-b2cd-13439ca2fe89/w:1024/p:16x9/000-9YG276-1.jpg",
-    "source_image": "https://s.france24.com/media/display/f09e8656-e71d-11f1-b2cd-13439ca2fe89/w:1024/p:16x9/000-9YG276-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "3da6be1518974e79",
@@ -1085,13 +874,348 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "9cd45f80609e11dc",
+    "title": "Why Potts swapped West Ham for Club Brugge after 16 years",
+    "summary": "When Liverpool visit Club Brugge on Wendesday they are likely to come up against English midfelder Freddie Potts.",
+    "summary_short": "When Liverpool visit Club Brugge on Wendesday they are likely to come up against English midfelder Freddie Potts.",
+    "content": "When Liverpool visit Club Brugge on Wendesday they are likely to come up against English midfelder Freddie Potts.",
+    "paragraphs": [
+      "When Liverpool visit Club Brugge on Wendesday they are likely to come up against English midfelder Freddie Potts."
+    ],
+    "key_points": [
+      "When Liverpool visit Club Brugge on Wendesday they are likely to come up against English midfelder Freddie Potts."
+    ],
+    "telegram_summary": "When Liverpool visit Club Brugge on Wendesday they are likely to come up against English midfelder Freddie Potts.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cxe89j8gj96jo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cxe89j8gj96jo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9cd45f80609e11dc",
+    "published": "2026-11-24T08:36:50+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/acb1/live/4368f080-e40b-11f1-ab35-e1af93fa5cce.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/acb1/live/4368f080-e40b-11f1-ab35-e1af93fa5cce.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "6d5607f3dfef0eed",
+    "title": "FIFA : renfort de poids pour la candidature de Philippe Diallo",
+    "summary": "Philippe Diallo frappe un grand coup dans la course à la présidence de la FIFA. Selon les révélations de L’Équipe, le patron de la FFF s’apprête à officialiser dans les prochains jours le ralliement (…)",
+    "summary_short": "Philippe Diallo frappe un grand coup dans la course à la présidence de la FIFA. Selon les révélations de L’Équipe, le patron de la FFF s’apprête à officialiser dans les prochains jours le ralliement (…)",
+    "content": "Philippe Diallo frappe un grand coup dans la course à la présidence de la FIFA. Selon les révélations de L’Équipe, le patron de la FFF s’apprête à officialiser dans les prochains jours le ralliement (…)",
+    "paragraphs": [
+      "Philippe Diallo frappe un grand coup dans la course à la présidence de la FIFA. Selon les révélations de L’Équipe, le patron de la FFF s’apprête à officialiser dans les prochains jours le ralliement (…)"
+    ],
+    "key_points": [
+      "Philippe Diallo frappe un grand coup dans la course à la présidence de la FIFA.",
+      "Selon les révélations de L’Équipe, le patron de la FFF s’apprête à officialiser dans les prochains jours le ralliement (…)"
+    ],
+    "telegram_summary": "Philippe Diallo frappe un grand coup dans la course à la présidence de la FIFA. Selon les révélations de L’Équipe, le patron de la FFF s’apprête à officialiser dans les prochains jours le ralliement (…)",
+    "link": "https://www.footmercato.net/a435439915777660418-fifa-renfort-de-poids-pour-la-candidature-de-philippe-diallo",
+    "source_url": "https://www.footmercato.net/a435439915777660418-fifa-renfort-de-poids-pour-la-candidature-de-philippe-diallo",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6d5607f3dfef0eed",
+    "published": "2026-11-24T08:35:56+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine291392-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine291392-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "bbb611709c6838c2",
+    "title": "Mercato PSG : Christophe Dugarry se montre très exigeant et prévient le PSG pour le mercato",
+    "summary": "Christophe Dugarry a demandé du lourd pour le mercato d'hiver aux dirigeants parisiens.",
+    "summary_short": "Christophe Dugarry a demandé du lourd pour le mercato d'hiver aux dirigeants parisiens.",
+    "content": "Christophe Dugarry a demandé du lourd pour le mercato d'hiver aux dirigeants parisiens.",
+    "paragraphs": [
+      "Christophe Dugarry a demandé du lourd pour le mercato d'hiver aux dirigeants parisiens."
+    ],
+    "key_points": [
+      "Christophe Dugarry a demandé du lourd pour le mercato d'hiver aux dirigeants parisiens."
+    ],
+    "telegram_summary": "Christophe Dugarry a demandé du lourd pour le mercato d'hiver aux dirigeants parisiens.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-christophe-dugarry-se-montre-tres-exigeant-et-previent-le-psg-pour-le-mercato-546806.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-christophe-dugarry-se-montre-tres-exigeant-et-previent-le-psg-pour-le-mercato-546806.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bbb611709c6838c2",
+    "published": "2026-11-24T08:31:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/buzz/2019/une/-20190509144032-7228.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2019/une/-20190509144032-7228.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "b6dff5388c230106",
+    "title": "Le FC Barcelone a totalement changé d’avis pour le mercato d’hiver",
+    "summary": "Alors que du mouvement pouvait être attendu cet hiver du côté du FC Barcelone, il se pourrait bien que le mois de janvier soit plus calme que prévu en Catalogne. Le FC Barcelone réalise un début de (…)",
+    "summary_short": "Alors que du mouvement pouvait être attendu cet hiver du côté du FC Barcelone, il se pourrait bien que le mois de janvier soit plus calme que prévu en Catalogne. Le FC Barcelone réalise un début de (…)",
+    "content": "Alors que du mouvement pouvait être attendu cet hiver du côté du FC Barcelone, il se pourrait bien que le mois de janvier soit plus calme que prévu en Catalogne. Le FC Barcelone réalise un début de (…)",
+    "paragraphs": [
+      "Alors que du mouvement pouvait être attendu cet hiver du côté du FC Barcelone, il se pourrait bien que le mois de janvier soit plus calme que prévu en Catalogne. Le FC Barcelone réalise un début de (…)"
+    ],
+    "key_points": [
+      "Alors que du mouvement pouvait être attendu cet hiver du côté du FC Barcelone, il se pourrait bien que le mois de janvier soit plus calme que prévu en Catalogne.",
+      "Le FC Barcelone réalise un début de (…)"
+    ],
+    "telegram_summary": "Alors que du mouvement pouvait être attendu cet hiver du côté du FC Barcelone, il se pourrait bien que le mois de janvier soit plus calme que prévu en Catalogne. Le FC Barcelone réalise un début de (…)",
+    "link": "https://www.footmercato.net/a8396506292923497317-le-fc-barcelone-a-totalement-change-davis-pour-le-mercato-dhiver",
+    "source_url": "https://www.footmercato.net/a8396506292923497317-le-fc-barcelone-a-totalement-change-davis-pour-le-mercato-dhiver",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b6dff5388c230106",
+    "published": "2026-11-24T08:29:46+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/deco-2526-69a59dbaa890c.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/deco-2526-69a59dbaa890c.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "dd092fb441543da1",
+    "title": "PSG - AS Rome : sans Doué et Kvaratskhelia, le trio d'attaque aligné par Luis Enrique connu ?",
+    "summary": "Luis Enrique, l'entraîneur du Paris Saint-Germain, pourrait bien avoir déjà tranché concernant l'identité de son trio d'attaque qu'il alignera ce mercredi soir (21h) contre l'AS Rome.",
+    "summary_short": "Luis Enrique, l'entraîneur du Paris Saint-Germain, pourrait bien avoir déjà tranché concernant l'identité de son trio d'attaque qu'il alignera ce mercredi soir (21h) contre l'AS Rome.",
+    "content": "Luis Enrique, l'entraîneur du Paris Saint-Germain, pourrait bien avoir déjà tranché concernant l'identité de son trio d'attaque qu'il alignera ce mercredi soir (21h) contre l'AS Rome.",
+    "paragraphs": [
+      "Luis Enrique, l'entraîneur du Paris Saint-Germain, pourrait bien avoir déjà tranché concernant l'identité de son trio d'attaque qu'il alignera ce mercredi soir (21h) contre l'AS Rome."
+    ],
+    "key_points": [
+      "Luis Enrique, l'entraîneur du Paris Saint-Germain, pourrait bien avoir déjà tranché concernant l'identité de son trio d'attaque qu'il alignera ce mercredi soir (21h) contre l'AS Rome."
+    ],
+    "telegram_summary": "Luis Enrique, l'entraîneur du Paris Saint-Germain, pourrait bien avoir déjà tranché concernant l'identité de son trio d'attaque qu'il alignera ce mercredi soir (21h) contre l'AS Rome.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/psg-as-rome-sans-doue-et-kvaratskhelia-le-trio-dattaque-aligne-par-luis-enrique-connu-1010905",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/psg-as-rome-sans-doue-et-kvaratskhelia-le-trio-dattaque-aligne-par-luis-enrique-connu-1010905",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=dd092fb441543da1",
+    "published": "2026-11-24T08:27:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010905/411517/1200-L-psg-as-rome-sans-dou-et-kvaratskhelia-le-trio-d-attaque-align-par-luis-enrique-connu.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010905/411517/1200-L-psg-as-rome-sans-dou-et-kvaratskhelia-le-trio-d-attaque-align-par-luis-enrique-connu.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50279147",
+      "url": "https://www.espn.com/soccer/story/_/id/50279147/luis-enrique-khvicha-kvaratskhelia-back-stronger-psg-acl",
+      "published": "2026-10-25T19:37:47Z",
+      "score": 0.2,
+      "matched_terms": [
+        "enrique",
+        "kvaratskhelia",
+        "luis"
+      ],
+      "topics": [],
+      "teams": [
+        "Paris Saint-Germain"
+      ],
+      "athletes": [
+        "Khvicha Kvaratskhelia"
+      ],
+      "leagues": [
+        "French Ligue 1",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "a0da32f4cbf1cd04",
+    "title": "Brésil : Neymar s’en prend à l’arbitrage après la défaite de Santos contre Gremio",
+    "summary": "Il est aussi énervé que Super Nanny quand un enfant ne termine pas son assiette. La semaine dernière, Neymar était…",
+    "summary_short": "Il est aussi énervé que Super Nanny quand un enfant ne termine pas son assiette. La semaine dernière, Neymar était…",
+    "content": "Il est aussi énervé que Super Nanny quand un enfant ne termine pas son assiette. La semaine dernière, Neymar était…",
+    "paragraphs": [
+      "Il est aussi énervé que Super Nanny quand un enfant ne termine pas son assiette. La semaine dernière, Neymar était…"
+    ],
+    "key_points": [
+      "Il est aussi énervé que Super Nanny quand un enfant ne termine pas son assiette."
+    ],
+    "telegram_summary": "Il est aussi énervé que Super Nanny quand un enfant ne termine pas son assiette. La semaine dernière, Neymar était…",
+    "link": "https://www.sofoot.com/breves/bresil-neymar-sen-prend-a-larbitrage-apres-la-defaite-de-santos-contre-gremio",
+    "source_url": "https://www.sofoot.com/breves/bresil-neymar-sen-prend-a-larbitrage-apres-la-defaite-de-santos-contre-gremio",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a0da32f4cbf1cd04",
+    "published": "2026-11-24T08:21:01+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/24090601/15396047.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/24090601/15396047.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "23002580ca2318ae",
+    "title": "Stade Rennais : Daniel Riolo fracasse les joueurs et la direction du Stade Rennais",
+    "summary": "Daniel Riolo a décidé de se payer le Stade Rennais.",
+    "summary_short": "Daniel Riolo a décidé de se payer le Stade Rennais.",
+    "content": "Daniel Riolo a décidé de se payer le Stade Rennais.",
+    "paragraphs": [
+      "Daniel Riolo a décidé de se payer le Stade Rennais."
+    ],
+    "key_points": [
+      "Daniel Riolo a décidé de se payer le Stade Rennais."
+    ],
+    "telegram_summary": "Daniel Riolo a décidé de se payer le Stade Rennais.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-daniel-riolo-fracasse-les-joueurs-et-la-direction-du-stade-rennais-546805.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-daniel-riolo-fracasse-les-joueurs-et-la-direction-du-stade-rennais-546805.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=23002580ca2318ae",
+    "published": "2026-11-24T08:20:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20230331143947-4547.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20230331143947-4547.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "b2835b45ff4b1e2b",
+    "title": "PSG : Christophe Dugarry exige un renfort XXL cet hiver",
+    "summary": "Frappé de plein fouet par les graves blessures au genou de Désiré Doué et de Khvicha Kvaratskhelia, le Paris Saint-Germain voit son secteur offensif sérieusement décimé au cœur de la saison, (…)",
+    "summary_short": "Frappé de plein fouet par les graves blessures au genou de Désiré Doué et de Khvicha Kvaratskhelia, le Paris Saint-Germain voit son secteur offensif sérieusement décimé au cœur de la saison, (…)",
+    "content": "Frappé de plein fouet par les graves blessures au genou de Désiré Doué et de Khvicha Kvaratskhelia, le Paris Saint-Germain voit son secteur offensif sérieusement décimé au cœur de la saison, (…)",
+    "paragraphs": [
+      "Frappé de plein fouet par les graves blessures au genou de Désiré Doué et de Khvicha Kvaratskhelia, le Paris Saint-Germain voit son secteur offensif sérieusement décimé au cœur de la saison, (…)"
+    ],
+    "key_points": [
+      "Frappé de plein fouet par les graves blessures au genou de Désiré Doué et de Khvicha Kvaratskhelia, le Paris Saint-Germain voit son secteur offensif sérieusement décimé au cœur de la saison, (…)"
+    ],
+    "telegram_summary": "Frappé de plein fouet par les graves blessures au genou de Désiré Doué et de Khvicha Kvaratskhelia, le Paris Saint-Germain voit son secteur offensif sérieusement décimé au cœur de la saison, (…)",
+    "link": "https://www.footmercato.net/a1027198071198965162-psg-christophe-dugarry-exige-un-renfort-xxl-cet-hiver",
+    "source_url": "https://www.footmercato.net/a1027198071198965162-psg-christophe-dugarry-exige-un-renfort-xxl-cet-hiver",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b2835b45ff4b1e2b",
+    "published": "2026-11-24T08:12:34+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/christophe-dugarry1.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/christophe-dugarry1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "3ab5da6c97fa960a",
+    "title": "Mercato - OM : une énorme décision prise avec un crack de 17 ans ?",
+    "summary": "L'Olympique de Marseille aurait déjà pris une grosse décision concernant un crack de 17 ans. Ce dernier brille actuellement en Coupe du monde.",
+    "summary_short": "L'Olympique de Marseille aurait déjà pris une grosse décision concernant un crack de 17 ans. Ce dernier brille actuellement en Coupe du monde.",
+    "content": "L'Olympique de Marseille aurait déjà pris une grosse décision concernant un crack de 17 ans. Ce dernier brille actuellement en Coupe du monde.",
+    "paragraphs": [
+      "L'Olympique de Marseille aurait déjà pris une grosse décision concernant un crack de 17 ans. Ce dernier brille actuellement en Coupe du monde."
+    ],
+    "key_points": [
+      "L'Olympique de Marseille aurait déjà pris une grosse décision concernant un crack de 17 ans.",
+      "Ce dernier brille actuellement en Coupe du monde."
+    ],
+    "telegram_summary": "L'Olympique de Marseille aurait déjà pris une grosse décision concernant un crack de 17 ans. Ce dernier brille actuellement en Coupe du monde.",
+    "link": "https://www.onzemondial.com/transferts/mercato-om-une-enorme-decision-prise-avec-un-crack-de-17-ans-1010901",
+    "source_url": "https://www.onzemondial.com/transferts/mercato-om-une-enorme-decision-prise-avec-un-crack-de-17-ans-1010901",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3ab5da6c97fa960a",
+    "published": "2026-11-24T08:01:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010901/411516/1200-L-mercato-om-une-norme-dcision-prise-avec-un-crack-de-17-ans.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010901/411516/1200-L-mercato-om-une-norme-dcision-prise-avec-un-crack-de-17-ans.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "e27d018b40872fa1",
@@ -1181,7 +1305,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1419,7 +1543,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1483,7 +1607,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1940,26 +2064,28 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50550244",
-      "url": "https://www.espn.com/soccer/story/_/id/50550244/man-city-fulham-premier-league-erling-haaland-maresca",
-      "published": "2026-11-21T16:43:57Z",
+      "article_id": "50576776",
+      "url": "https://www.espn.com/soccer/story/_/id/50576776/premier-league-set-piece-goal-arsenal-standings-table",
+      "published": "2026-11-24T08:37:39Z",
       "score": 0.2,
       "matched_terms": [
         "league",
         "premier"
       ],
-      "topics": [],
+      "topics": [
+        "blog - tactics and analysis"
+      ],
       "teams": [
-        "Fulham",
-        "Manchester City"
+        "Arsenal"
       ],
       "athletes": [],
       "leagues": [
         "English Premier League",
-        "Soccer"
+        "Soccer",
+        "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
+      "checked_at": "2026-11-24T08:40:09.873488+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2172,138 +2298,5 @@
       "BBC Sport"
     ],
     "quality_score": 85
-  },
-  {
-    "slug": "0aef207b65f91eab",
-    "title": "Real : Alexander-Arnold s'enfonce encore un peu plus",
-    "summary": "Barré par une concurrence inattendue, Trent Alexander-Arnold a encore déçu le week-end dernier. Le latéral droit du Real M...",
-    "summary_short": "Barré par une concurrence inattendue, Trent Alexander-Arnold a encore déçu le week-end dernier. Le latéral droit du Real M...",
-    "content": "Barré par une concurrence inattendue, Trent Alexander-Arnold a encore déçu le week-end dernier. Le latéral droit du Real M...",
-    "paragraphs": [
-      "Barré par une concurrence inattendue, Trent Alexander-Arnold a encore déçu le week-end dernier. Le latéral droit du Real M..."
-    ],
-    "key_points": [
-      "Barré par une concurrence inattendue, Trent Alexander-Arnold a encore déçu le week-end dernier."
-    ],
-    "telegram_summary": "Barré par une concurrence inattendue, Trent Alexander-Arnold a encore déçu le week-end dernier. Le latéral droit du Real M...",
-    "link": "https://m.maxifoot.fr/football/article-66655.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66655.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0aef207b65f91eab",
-    "published": "2026-11-23T22:12:46+00:00",
-    "image": "https://photo.maxifoot.fr/alexander-arnold-real-madrid-1.jpg",
-    "source_image": "https://photo.maxifoot.fr/alexander-arnold-real-madrid-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50452561",
-      "url": "https://www.espn.com/soccer/story/_/id/50452561/ballon-dor-real-madrid-liverpool-trent-alexander-arnold-transfer",
-      "published": "2026-11-12T10:43:17Z",
-      "score": 0.214,
-      "matched_terms": [
-        "alexander",
-        "arnold",
-        "real"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "Liverpool",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Trent Alexander-Arnold"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-24T08:10:12.305395+00:00"
-    },
-    "quality_sources": [
-      "Maxifoot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "6ca6d4b6a86ee404",
-    "title": "Christophe Dugarry : « j’ai assisté à de la corruption en direct »",
-    "summary": "La scène en a choqué plus d’un et a surtout été vécue comme une humiliation par Philippe Diallo, candidat à la présidence de la FIFA. À l’occasion de la 48e Assemblée générale de la CAF, son (…)",
-    "summary_short": "La scène en a choqué plus d’un et a surtout été vécue comme une humiliation par Philippe Diallo, candidat à la présidence de la FIFA. À l’occasion de la 48e Assemblée générale de la CAF, son (…)",
-    "content": "La scène en a choqué plus d’un et a surtout été vécue comme une humiliation par Philippe Diallo, candidat à la présidence de la FIFA. À l’occasion de la 48e Assemblée générale de la CAF, son (…)",
-    "paragraphs": [
-      "La scène en a choqué plus d’un et a surtout été vécue comme une humiliation par Philippe Diallo, candidat à la présidence de la FIFA. À l’occasion de la 48e Assemblée générale de la CAF, son (…)"
-    ],
-    "key_points": [
-      "La scène en a choqué plus d’un et a surtout été vécue comme une humiliation par Philippe Diallo, candidat à la présidence de la FIFA.",
-      "À l’occasion de la 48e Assemblée générale de la CAF, son (…)"
-    ],
-    "telegram_summary": "La scène en a choqué plus d’un et a surtout été vécue comme une humiliation par Philippe Diallo, candidat à la présidence de la FIFA. À l’occasion de la 48e Assemblée générale de la CAF, son (…)",
-    "link": "https://www.footmercato.net/a8106068447934318352-christophe-dugarry-jai-assiste-a-de-la-corruption-en-direct",
-    "source_url": "https://www.footmercato.net/a8106068447934318352-christophe-dugarry-jai-assiste-a-de-la-corruption-en-direct",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6ca6d4b6a86ee404",
-    "published": "2026-11-23T22:09:22+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dugarry.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dugarry.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "96d53ee56ab6732f",
-    "title": "Présidence de la FIFA : Kevin Lamour pourrait rejoindre les équipes de Philippe Diallo",
-    "summary": "D’un camp à un autre. En course pour la présidence de la FIFA, Philippe Diallo pourrait bientôt…",
-    "summary_short": "D’un camp à un autre. En course pour la présidence de la FIFA, Philippe Diallo pourrait bientôt…",
-    "content": "D’un camp à un autre. En course pour la présidence de la FIFA, Philippe Diallo pourrait bientôt…",
-    "paragraphs": [
-      "D’un camp à un autre. En course pour la présidence de la FIFA, Philippe Diallo pourrait bientôt…"
-    ],
-    "key_points": [
-      "En course pour la présidence de la FIFA, Philippe Diallo pourrait bientôt…"
-    ],
-    "telegram_summary": "D’un camp à un autre. En course pour la présidence de la FIFA, Philippe Diallo pourrait bientôt…",
-    "link": "https://www.sofoot.com/breves/presidence-de-la-fifa-kevin-lamour-pourrait-rejoindre-les-equipes-de-philippe-diallo",
-    "source_url": "https://www.sofoot.com/breves/presidence-de-la-fifa-kevin-lamour-pourrait-rejoindre-les-equipes-de-philippe-diallo",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=96d53ee56ab6732f",
-    "published": "2026-11-23T22:04:49+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23230059/2621362.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23230059/2621362.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
