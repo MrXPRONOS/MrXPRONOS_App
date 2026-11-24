@@ -9,8 +9,13 @@ on:
       - 'telegram-film-relay/tests/test_cinex_lot2_live_evidence.py'
       - 'telegram-film-relay/film_relay/unified_download.py'
       - 'telegram-film-relay/film_relay/recovery.py'
-  schedule:
-    - cron: '17 6 * * *'
+  # Run AFTER the real publication workflow, not at the same minute as it.
+  # V4 public videos expire after 24 hours, so a pre-publication audit can
+  # legitimately find no sample even when the publisher is healthy.
+  workflow_run:
+    workflows:
+      - "CineX - Films, Desir, Comedie, Anime et Decouverte (6h)"
+    types: [completed]
   pull_request:
     paths:
       - '.github/workflows/cinex-lot2-live-evidence.yml'
@@ -50,7 +55,9 @@ jobs:
           python -m py_compile scripts/cinex_lot2_live_evidence.py
           python -m unittest discover -s tests -p 'test_cinex_lot2_live_evidence.py' -v
   inspect:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name != 'pull_request' && github.event_name != 'workflow_run' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository)
     name: Comparer 4 boutons publics, 3 prives et recu D1
     runs-on: ubuntu-latest
     timeout-minutes: 45
