@@ -112,9 +112,21 @@ class Bot:
             raise RuntimeError("Bot API rejected request: "+str(j.get("error_code",0)))
         return j["result"]
 
+def read_config_json(name, expected_type):
+    raw=os.environ.get(name, "").strip()
+    if not raw:
+        raise RuntimeError(name+" is missing or empty")
+    try:
+        value=json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{name}: invalid JSON at line {exc.lineno}, column {exc.colno}") from None
+    if not isinstance(value,expected_type):
+        raise RuntimeError(name+" has the wrong JSON structure")
+    return value
+
 def config():
-    sources=json.loads(os.environ["FORMATION_SOURCES_JSON"])
-    dest=json.loads(os.environ["FORMATION_DESTINATIONS_JSON"])
+    sources=read_config_json("FORMATION_SOURCES_JSON",list)
+    dest=read_config_json("FORMATION_DESTINATIONS_JSON",dict)
     stage=int(os.environ["FORMATION_STAGE_CHAT"])
     key=os.environ["FORMATION_STATE_KEY"]
     if len(key)<32 or set(dest)!=set(CATS)|{"general"} or not sources: raise ValueError("Invalid config")
