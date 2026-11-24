@@ -57,21 +57,8 @@ jobs:
         env:
           COLLECTION: ${{ inputs.collection || 'all' }}
         run: python -m scripts.actu_foot_v3_maintenance --collection "$COLLECTION"
-      - name: Independent encrypted archive rehearsal (isolated namespace, expires after one day)
-        if: github.event_name != 'schedule'
-        run: |
-          python - <<'PY'
-          import os,base64,secrets
-          os.environ["ACTU_FOOT_V2_KEY_B64_V2"]=base64.b64encode(secrets.token_bytes(32)).decode()
-          from scripts.actu_foot_v3_archive import archive_path,make_archive
-          from scripts.actu_foot_v3_cloud_archive import CloudArchive
-          path=archive_path("news","2026-01")
-          blob=make_archive("news","2026-01",{"rehearsal":{"title":"Isolated synthetic rehearsal","published_at":"2026-01-01T00:00:00Z"}},key_version=2)
-          c=CloudArchive(rehearsal=True)
-          digest=c.persist(path,blob)
-          assert c.recover(path,digest)==blob
-          print("V3_INDEPENDENT_ARCHIVE_REHEARSAL_OK")
-          PY
+      - name: Verify full independent archive lifecycle without touching production
+        run: python -m scripts.actu_foot_v3_e2e_rehearsal
   automatic:
     needs: preview
     if: github.ref == 'refs/heads/main' && needs.preview.outputs.active == 'true' && (github.event_name == 'schedule' || github.event_name == 'push')

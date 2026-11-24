@@ -104,3 +104,27 @@ class AutomaticPolicyTests(unittest.TestCase):
         self.assertTrue(policy_active({**policy(),"_schema_version":3}))
         for k in ("days","archive","type","schema"):
             self.assertFalse(policy_active({**policy(),k:None}))
+
+
+class FullCycleOfflineTest(unittest.TestCase):
+    def test_complete_rehearsal_without_network_or_production_writes(self):
+        from scripts.actu_foot_v3_e2e_rehearsal import rehearsal
+        objects={}
+        class Cloud:
+            def __init__(self,*,rehearsal=False,**kwargs):
+                self.rehearsal=rehearsal
+            def persist(self,path,blob):
+                digest=hashlib.sha256(blob.encode()).hexdigest()
+                objects[(path,digest)]=blob
+                return digest
+            def recover(self,path,digest):
+                return objects[(path,digest)]
+        with patch.dict(os.environ,{"GITHUB_EVENT_NAME":"push","GITHUB_REF":"refs/heads/main"}):
+            with patch("scripts.actu_foot_v3_e2e_rehearsal.CloudArchive",Cloud):
+                result=rehearsal()
+        self.assertEqual(result["synthetic_records_archived"],1)
+        self.assertEqual(result["synthetic_active_records_preserved"],2)
+        self.assertTrue(result["refused_backup_did_not_prune"])
+        self.assertEqual(result["audit_receipts"],1)
+        self.assertEqual(result["git_production_mutations"],0)
+        self.assertEqual(len(objects),1)

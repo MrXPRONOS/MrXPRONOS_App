@@ -35,3 +35,7 @@ La politique chiffrée de rétention a été approuvée et activée par le run 4
 ### Suppression des approbations récurrentes — décision du propriétaire
 
 Les jobs V3 de maintenance et de récupération, y compris manuels, n'utilisent plus l'environnement à validation humaine. L'activation ou la compaction manuelle exige toujours le dispatch explicite et la confirmation APPROVE_V3_ENCRYPTED_COMPACTION; un push ne peut plus activer une politique absente. L'identité OIDC reste liée au dépôt, au workflow et à main. L'environnement protégé est réservé à la restauration V2 écrasant une collection active.
+
+## E2E réel Cloudflare avec données fictives (24 novembre 2026)
+
+Le nouveau script `scripts/actu_foot_v3_e2e_rehearsal.py` reproduit le circuit complet sur une copie **en mémoire** uniquement : archivage sélectif d'un match terminé, maintien d'un match actif et d'un match non terminé, refus sûr d'une copie dont le hash est faux, copie chiffrée dans KV (namespace rehearsal à expiration), relecture via OIDC, ref locale atomique, empreinte et reçu d'audit, requêtes live et archive, récupération chiffrée isolée. Une clé AES aléatoire jetable est utilisée et aucune modification des données réelles de GitHub ou des reçus D1 n'est autorisée. Le script est exécuté également sur les occurrences programmées et sur les pushes de workflow ; son succès doit être vérifié dans les logs avant clôture.
