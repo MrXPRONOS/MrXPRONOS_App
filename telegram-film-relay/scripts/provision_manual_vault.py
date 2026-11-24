@@ -119,13 +119,18 @@ async def provision(category: str, *, apply=False, env=None):
         expected_title = channel_title(category)
         marker = MARKER + category
         configured = configured_chat(category, env)
-        entity = await owner.get_entity(int(configured)) if configured else None
+        dialogs = [d.entity async for d in owner.iter_dialogs(limit=500)]
+        configured_matches = ([d for d in dialogs if str(utils.get_peer_id(d)) == configured]
+                              if configured else [])
+        if configured and len(configured_matches) != 1:
+            raise RuntimeError("Canal configuré absent du compte propriétaire")
+        entity = configured_matches[0] if configured_matches else None
         if entity is None:
             matches = [
-                d.entity async for d in owner.iter_dialogs(limit=500)
-                if getattr(d.entity, "broadcast", False)
-                and not getattr(d.entity, "username", None)
-                and str(getattr(d.entity, "title", "")) == expected_title
+                d for d in dialogs
+                if getattr(d, "broadcast", False)
+                and not getattr(d, "username", None)
+                and str(getattr(d, "title", "")) == expected_title
             ]
             if len(matches) > 1:
                 raise RuntimeError("Plusieurs canaux de même nom : revue requise")
@@ -157,6 +162,8 @@ async def provision(category: str, *, apply=False, env=None):
             raise RuntimeError("Refus : le compte n'est pas propriétaire de ce canal")
         bot_token = str(env.get("CINEX_RADAR_BOT_TOKEN") or "").strip()
         bot = verify_bot_token(bot_token)
+        if bot and str(bot.get("username", "")).casefold() != "cineradarfr_bot":
+            raise RuntimeError("Bot différent du webhook CinéRadar : refus")
         bot_ready = False
         if bot:
             try:
