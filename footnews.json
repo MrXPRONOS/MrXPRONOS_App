@@ -925,13 +925,150 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T06:10:11.668592+00:00"
+      "checked_at": "2026-11-24T06:40:12.827054+00:00"
     },
     "quality_sources": [
       "Franceinfo",
       "ESPN"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "50f9e499f1f91440",
+    "title": "Erling Haaland doit s’inquiéter de Thierno Barry selon David Moyes",
+    "summary": "Septième de Premier League, Everton va défier Brentford ce soir avec la volonté d’intégrer le top 5. Pour y parvenir, les Toffees vont s’appuyer sur Thierno Barry. En grande forme, l’attaquant (…)",
+    "summary_short": "Septième de Premier League, Everton va défier Brentford ce soir avec la volonté d’intégrer le top 5. Pour y parvenir, les Toffees vont s’appuyer sur Thierno Barry. En grande forme, l’attaquant (…)",
+    "content": "Septième de Premier League, Everton va défier Brentford ce soir avec la volonté d’intégrer le top 5. Pour y parvenir, les Toffees vont s’appuyer sur Thierno Barry. En grande forme, l’attaquant (…)",
+    "paragraphs": [
+      "Septième de Premier League, Everton va défier Brentford ce soir avec la volonté d’intégrer le top 5. Pour y parvenir, les Toffees vont s’appuyer sur Thierno Barry. En grande forme, l’attaquant (…)"
+    ],
+    "key_points": [
+      "Septième de Premier League, Everton va défier Brentford ce soir avec la volonté d’intégrer le top 5.",
+      "Pour y parvenir, les Toffees vont s’appuyer sur Thierno Barry."
+    ],
+    "telegram_summary": "Septième de Premier League, Everton va défier Brentford ce soir avec la volonté d’intégrer le top 5. Pour y parvenir, les Toffees vont s’appuyer sur Thierno Barry. En grande forme, l’attaquant (…)",
+    "link": "https://www.footmercato.net/a5122801443972852598-erling-haaland-doit-sinquieter-de-thierno-barry-selon-david-moyes",
+    "source_url": "https://www.footmercato.net/a5122801443972852598-erling-haaland-doit-sinquieter-de-thierno-barry-selon-david-moyes",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=50f9e499f1f91440",
+    "published": "2026-11-24T06:36:44+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour789901-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour789901-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "7400de9a323c9537",
+    "title": "Équipe de France : Rabiot, le Duc de Lombardie dans la forme de sa carrière",
+    "summary": "Le milieu de terrain de l'Équipe de France a rejoint l'AC Milan il y a un an désormais et s'est imposé comme le patron du milieu de terrain milanais.",
+    "summary_short": "Le milieu de terrain de l'Équipe de France a rejoint l'AC Milan il y a un an désormais et s'est imposé comme le patron du milieu de terrain milanais.",
+    "content": "Le milieu de terrain de l'Équipe de France a rejoint l'AC Milan il y a un an désormais et s'est imposé comme le patron du milieu de terrain milanais.",
+    "paragraphs": [
+      "Le milieu de terrain de l'Équipe de France a rejoint l'AC Milan il y a un an désormais et s'est imposé comme le patron du milieu de terrain milanais."
+    ],
+    "key_points": [
+      "Le milieu de terrain de l'Équipe de France a rejoint l'AC Milan il y a un an désormais et s'est imposé comme le patron du milieu de terrain milanais."
+    ],
+    "telegram_summary": "Le milieu de terrain de l'Équipe de France a rejoint l'AC Milan il y a un an désormais et s'est imposé comme le patron du milieu de terrain milanais.",
+    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-rabiot-le-duc-de-lombardie-dans-la-forme-de-sa-carriere-1010877",
+    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-rabiot-le-duc-de-lombardie-dans-la-forme-de-sa-carriere-1010877",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7400de9a323c9537",
+    "published": "2026-11-24T06:29:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010877/411510/1200-L-quipe-de-france-rabiot-le-duc-de-lombardie-dans-la-forme-de-sa-carrire.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010877/411510/1200-L-quipe-de-france-rabiot-le-duc-de-lombardie-dans-la-forme-de-sa-carrire.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "7b797b0fa0eed61a",
+    "title": "115 days, 39 private-jet flights, one election - Infantino's globetrotting",
+    "summary": "Fifa president Gianni Infantino's globe-trotting by private jet since his plan to sell of a stake in the World Cup has come under scrutiny.",
+    "summary_short": "Fifa president Gianni Infantino's globe-trotting by private jet since his plan to sell of a stake in the World Cup has come under scrutiny.",
+    "content": "Fifa president Gianni Infantino's globe-trotting by private jet since his plan to sell of a stake in the World Cup has come under scrutiny.",
+    "paragraphs": [
+      "Fifa president Gianni Infantino's globe-trotting by private jet since his plan to sell of a stake in the World Cup has come under scrutiny."
+    ],
+    "key_points": [
+      "Fifa president Gianni Infantino's globe-trotting by private jet since his plan to sell of a stake in the World Cup has come under scrutiny."
+    ],
+    "telegram_summary": "Fifa president Gianni Infantino's globe-trotting by private jet since his plan to sell of a stake in the World Cup has come under scrutiny.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cmkgk22w3vlvo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmkgk22w3vlvo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7b797b0fa0eed61a",
+    "published": "2026-11-24T06:16:53+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8a18/live/c4779660-e5bc-11f1-a188-ff49e70cc466.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8a18/live/c4779660-e5bc-11f1-a188-ff49e70cc466.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "36353c7343f50d27",
+    "title": "Barça : un club fondé en 2017, le plus long déplacement de l'histoire du club... tout savoir du match face à Sabah !",
+    "summary": "Le club catalan affrontera demain le club azerbaïdjanais du Sabah FC à Bakou (18h45).",
+    "summary_short": "Le club catalan affrontera demain le club azerbaïdjanais du Sabah FC à Bakou (18h45).",
+    "content": "Le club catalan affrontera demain le club azerbaïdjanais du Sabah FC à Bakou (18h45).",
+    "paragraphs": [
+      "Le club catalan affrontera demain le club azerbaïdjanais du Sabah FC à Bakou (18h45)."
+    ],
+    "key_points": [
+      "Le club catalan affrontera demain le club azerbaïdjanais du Sabah FC à Bakou (18h45)."
+    ],
+    "telegram_summary": "Le club catalan affrontera demain le club azerbaïdjanais du Sabah FC à Bakou (18h45).",
+    "link": "https://www.onzemondial.com/ligue-des-champions/barca-un-club-fonde-en-2017-le-plus-long-deplacement-de-lhistoire-du-club-tout-savoir-du-match-face-a-sabah-1010881",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/barca-un-club-fonde-en-2017-le-plus-long-deplacement-de-lhistoire-du-club-tout-savoir-du-match-face-a-sabah-1010881",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36353c7343f50d27",
+    "published": "2026-11-24T06:01:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1010881/411511/1200-L-bara-un-club-fond-en-2017-le-plus-long-dplacement-de-l-histoire-du-club-tout-savoir-du-match-face-sabah.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1010881/411511/1200-L-bara-un-club-fond-en-2017-le-plus-long-dplacement-de-l-histoire-du-club-tout-savoir-du-match-face-sabah.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "c28a645888909aa5",
@@ -966,6 +1103,40 @@
       "MadeInFoot"
     ],
     "quality_score": 88
+  },
+  {
+    "slug": "32601e6f282e38a0",
+    "title": "Euro Leagues",
+    "summary": "Freddie Potts discusses his new life in Bruges after leaving West Ham after 16 years.",
+    "summary_short": "Freddie Potts discusses his new life in Bruges after leaving West Ham after 16 years.",
+    "content": "Freddie Potts discusses his new life in Bruges after leaving West Ham after 16 years.",
+    "paragraphs": [
+      "Freddie Potts discusses his new life in Bruges after leaving West Ham after 16 years."
+    ],
+    "key_points": [
+      "Freddie Potts discusses his new life in Bruges after leaving West Ham after 16 years."
+    ],
+    "telegram_summary": "Freddie Potts discusses his new life in Bruges after leaving West Ham after 16 years.",
+    "link": "https://www.bbc.co.uk/sounds/play/p0pnv96n?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sounds/play/p0pnv96n?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=32601e6f282e38a0",
+    "published": "2026-11-24T06:00:00+00:00",
+    "image": "https://ichef.bbci.co.uk/images/ic/240x135/p0p4zrww.jpg",
+    "source_image": "https://ichef.bbci.co.uk/images/ic/240x135/p0p4zrww.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
   },
   {
     "slug": "cc194ef903624ff8",
@@ -1230,7 +1401,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T06:10:11.668592+00:00"
+      "checked_at": "2026-11-24T06:40:12.827054+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1534,7 +1705,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-24T06:10:11.668592+00:00"
+      "checked_at": "2026-11-24T06:40:12.827054+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1678,40 +1849,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "77324c987bcfc8ed",
-    "title": "MNC: Leeds dreaming of Europe and when's the right time to start a young player?",
-    "summary": "Mark Chapman is joined by Conor Coady, Chris Sutton and Rory Smith.",
-    "summary_short": "Mark Chapman is joined by Conor Coady, Chris Sutton and Rory Smith.",
-    "content": "Mark Chapman is joined by Conor Coady, Chris Sutton and Rory Smith.",
-    "paragraphs": [
-      "Mark Chapman is joined by Conor Coady, Chris Sutton and Rory Smith."
-    ],
-    "key_points": [
-      "Mark Chapman is joined by Conor Coady, Chris Sutton and Rory Smith."
-    ],
-    "telegram_summary": "Mark Chapman is joined by Conor Coady, Chris Sutton and Rory Smith.",
-    "link": "https://www.bbc.co.uk/sounds/play/p0ppk3nb?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sounds/play/p0ppk3nb?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=77324c987bcfc8ed",
-    "published": "2026-11-23T21:48:00+00:00",
-    "image": "https://ichef.bbci.co.uk/images/ic/240x135/p0pnbcz4.jpg",
-    "source_image": "https://ichef.bbci.co.uk/images/ic/240x135/p0pnbcz4.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
   },
   {
     "slug": "00a1aca4f3d98603",
@@ -1900,7 +2037,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T06:10:11.668592+00:00"
+      "checked_at": "2026-11-24T06:40:12.827054+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2045,170 +2182,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "98b9fc204d893b80",
-    "title": "EA Guingamp : Cyril Hanouna pourrait débarquer à l'EAG !",
-    "summary": "Cyril Hanouna pourrait prochainement devenir actionnaire de l'EA Guingamp.",
-    "summary_short": "Cyril Hanouna pourrait prochainement devenir actionnaire de l'EA Guingamp.",
-    "content": "Cyril Hanouna pourrait prochainement devenir actionnaire de l'EA Guingamp.",
-    "paragraphs": [
-      "Cyril Hanouna pourrait prochainement devenir actionnaire de l'EA Guingamp."
-    ],
-    "key_points": [
-      "Cyril Hanouna pourrait prochainement devenir actionnaire de l'EA Guingamp."
-    ],
-    "telegram_summary": "Cyril Hanouna pourrait prochainement devenir actionnaire de l'EA Guingamp.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ea-guingamp-cyril-hanouna-pourrait-debarquer-a-l-eag-546788.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ea-guingamp-cyril-hanouna-pourrait-debarquer-a-l-eag-546788.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=98b9fc204d893b80",
-    "published": "2026-11-23T20:59:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240306113006-6813.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240306113006-6813.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "2555951f1467969a",
-    "title": "Manchester United va faire appel du carton rouge de Leny Yoro",
-    "summary": "Selon Sky Sports, Manchester United a officiellement informé la Fédération anglaise (FA) de son intention de faire appel du carton rouge de Leny Yoro, expulsé dès la 8e minute face à Liverpool lors de (…)",
-    "summary_short": "Selon Sky Sports, Manchester United a officiellement informé la Fédération anglaise (FA) de son intention de faire appel du carton rouge de Leny Yoro, expulsé dès la 8e minute face à Liverpool lors de (…)",
-    "content": "Selon Sky Sports, Manchester United a officiellement informé la Fédération anglaise (FA) de son intention de faire appel du carton rouge de Leny Yoro, expulsé dès la 8e minute face à Liverpool lors de (…)",
-    "paragraphs": [
-      "Selon Sky Sports, Manchester United a officiellement informé la Fédération anglaise (FA) de son intention de faire appel du carton rouge de Leny Yoro, expulsé dès la 8e minute face à Liverpool lors de (…)"
-    ],
-    "key_points": [
-      "Selon Sky Sports, Manchester United a officiellement informé la Fédération anglaise (FA) de son intention de faire appel du carton rouge de Leny Yoro, expulsé dès la 8e minute face à Liverpool lors de (…)"
-    ],
-    "telegram_summary": "Selon Sky Sports, Manchester United a officiellement informé la Fédération anglaise (FA) de son intention de faire appel du carton rouge de Leny Yoro, expulsé dès la 8e minute face à Liverpool lors de (…)",
-    "link": "https://www.footmercato.net/a4728479310749840800-manchester-united-va-faire-appel-du-carton-rouge-de-leny-yoro",
-    "source_url": "https://www.footmercato.net/a4728479310749840800-manchester-united-va-faire-appel-du-carton-rouge-de-leny-yoro",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2555951f1467969a",
-    "published": "2026-11-23T20:44:34+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/yoro-6ab4e612410cc.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/yoro-6ab4e612410cc.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50572590",
-      "url": "https://www.espn.com/soccer/story/_/id/50572590/man-united-leny-yoro-red-card-liverpool-premier-league",
-      "published": "2026-11-23T15:07:07Z",
-      "score": 0.231,
-      "matched_terms": [
-        "leny",
-        "united",
-        "yoro"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Liverpool",
-        "Manchester United"
-      ],
-      "athletes": [
-        "Leny Yoro"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-24T06:10:11.668592+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "1faef759089c4edf",
-    "title": "Ligue 1 – Les ambitions de Lassad Hasni, le directeur du centre de formation de l’OM",
-    "summary": "Un cap clair. À l’occasion du lancement ce lundi d’« Espoirs Olympiens », un programme…",
-    "summary_short": "Un cap clair. À l’occasion du lancement ce lundi d’« Espoirs Olympiens », un programme…",
-    "content": "Un cap clair. À l’occasion du lancement ce lundi d’« Espoirs Olympiens », un programme…",
-    "paragraphs": [
-      "Un cap clair. À l’occasion du lancement ce lundi d’« Espoirs Olympiens », un programme…"
-    ],
-    "key_points": [
-      "À l’occasion du lancement ce lundi d’« Espoirs Olympiens », un programme…"
-    ],
-    "telegram_summary": "Un cap clair. À l’occasion du lancement ce lundi d’« Espoirs Olympiens », un programme…",
-    "link": "https://www.sofoot.com/breves/ligue-1-les-ambitions-de-lassad-hasni-le-directeur-du-centre-de-formation-de-lom",
-    "source_url": "https://www.sofoot.com/breves/ligue-1-les-ambitions-de-lassad-hasni-le-directeur-du-centre-de-formation-de-lom",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1faef759089c4edf",
-    "published": "2026-11-23T20:43:18+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23213942/11820338.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23213942/11820338.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "31f85c5aa60de860",
-    "title": "OM : Jérôme Rothen n'est pas du tout surpris par la défaite marseillaise face au Mans FC",
-    "summary": "Jérôme Rothen, le célèbre consultant de RMC, est revenu sur la défaite renversante concédée par l'OM face au Mans FC (2-3, J11 L1).",
-    "summary_short": "Jérôme Rothen, le célèbre consultant de RMC, est revenu sur la défaite renversante concédée par l'OM face au Mans FC (2-3, J11 L1).",
-    "content": "Jérôme Rothen, le célèbre consultant de RMC, est revenu sur la défaite renversante concédée par l'OM face au Mans FC (2-3, J11 L1).",
-    "paragraphs": [
-      "Jérôme Rothen, le célèbre consultant de RMC, est revenu sur la défaite renversante concédée par l'OM face au Mans FC (2-3, J11 L1)."
-    ],
-    "key_points": [
-      "Jérôme Rothen, le célèbre consultant de RMC, est revenu sur la défaite renversante concédée par l'OM face au Mans FC (2-3, J11 L1)."
-    ],
-    "telegram_summary": "Jérôme Rothen, le célèbre consultant de RMC, est revenu sur la défaite renversante concédée par l'OM face au Mans FC (2-3, J11 L1).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-jerome-rothen-n-est-pas-du-tout-surpris-par-la-defaite-marseillaise-face-au-mans-fc-546787.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-jerome-rothen-n-est-pas-du-tout-surpris-par-la-defaite-marseillaise-face-au-mans-fc-546787.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=31f85c5aa60de860",
-    "published": "2026-11-23T20:38:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2022/une/l1-20220119101340-6178.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2022/une/l1-20220119101340-6178.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
