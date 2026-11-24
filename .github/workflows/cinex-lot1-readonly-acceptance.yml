@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/cinex-lot1-readonly-acceptance.yml'
+      - 'telegram-film-relay/film_relay/unified_download.py'
+      - 'telegram-film-relay/film_relay/recovery.py'
 
 permissions:
   contents: read
