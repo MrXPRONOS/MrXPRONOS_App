@@ -1,4 +1,6 @@
 import unittest
+import sys
+from types import SimpleNamespace
 from unittest.mock import patch, Mock
 from relay import Bot, bot_error_reason
 
@@ -10,7 +12,7 @@ class BotDiagnosticsTests(unittest.TestCase):
     def test_context_and_no_sensitive_output(self):
         response=Mock()
         response.json.return_value={"ok":False,"error_code":400,"description":"Bad Request: chat not found @secret_channel"}
-        with patch("requests.post",return_value=response):
+        with patch.dict(sys.modules,{"requests":SimpleNamespace(post=Mock(return_value=response))}):
             with self.assertRaises(RuntimeError) as error:
                 Bot("dummy-token").call("getChat",context="business",chat_id=-1001234567890)
         message=str(error.exception)
@@ -23,5 +25,5 @@ class BotDiagnosticsTests(unittest.TestCase):
     def test_success(self):
         response=Mock()
         response.json.return_value={"ok":True,"result":{"id":1}}
-        with patch("requests.post",return_value=response):
+        with patch.dict(sys.modules,{"requests":SimpleNamespace(post=Mock(return_value=response))}):
             self.assertEqual(Bot("dummy").call("getMe",context="bot identity"),{"id":1})
