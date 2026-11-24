@@ -319,6 +319,22 @@ export class FallbackPublisher{
   assert(src.id!==target.id&&technical.id!==target.id,
    'formation_stage_and_destination_overlap');
   const label='📚 '+item.key.split(':').slice(1).join(' ');
+  const author=String(item.author||'').trim();
+  assert(author.length>=3&&author.length<=100&&
+   !/https?:\/\/|@|t\.me\/|[<>]/i.test(author),'formation_author_credit_missing');
+  const credit='\nSource / crédit : '+author;
+  const cover=String(technical.id)===String(item.source_chat_id)?
+   await this.originalPrivateReceipt({category:item.category,key:item.key,
+    stage:'private_poster',chat:String(technical.id),
+    messageId:item.poster_message_id}):
+   await this.receipt(bot,{category:item.category,key:item.key,
+    stage:'private_poster',target:String(technical.id),
+    source:item.source_chat_id,messageId:item.poster_message_id,
+    payload:{caption:label+credit}});
+  await this.receipt(bot,{category:item.category,key:item.key,
+   stage:'public_poster',target:String(target.id),
+   source:String(technical.id),messageId:cover.message_id,
+   payload:{caption:label+credit}});
   for(const part of item.parts){
    const base=item.key+':part'+part.number;
    const mid=String(technical.id)===String(item.source_chat_id)?
@@ -332,8 +348,7 @@ export class FallbackPublisher{
    await this.receipt(bot,{category:item.category,key:base+':destination',
     stage:'formation_file',target:String(target.id),
     source:String(technical.id),messageId:mid.message_id,
-    payload:{caption:label+' — '+part.number+'/'+item.parts.length+
-     '\nSource : dépôt autorisé du propriétaire'}});
+    payload:{caption:label+' — '+part.number+'/'+item.parts.length+credit}});
   }
   await this.db.query(
    "UPDATE cine_manual_fallback_inbox SET state='published',updated_at=CURRENT_TIMESTAMP "+
