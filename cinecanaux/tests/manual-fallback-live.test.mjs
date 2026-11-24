@@ -143,9 +143,9 @@ test('formation copies numbered parts through verified technical stage to destin
    {number:2,message_id:26,file_unique_id:'part-b'},
   ]};
  await f.publisher.copyCourse(training);
- assert.equal(f.calls.length,4);
+ assert.equal(f.calls.length,6);
  await f.publisher.copyCourse(training);
- assert.equal(f.calls.length,4);
+ assert.equal(f.calls.length,6);
 });
 test('publisher fails closed before first video when bot lacks a verified destination',async()=>{
  const f=fixtures();delete f.publisher.targets.films;
