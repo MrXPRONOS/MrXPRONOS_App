@@ -399,7 +399,10 @@ async def prepare_private_season_batch(
         elif receipt.get("private_cover_uncertain"):
             raise RuntimeError("Envoi de l'affiche privée incertain")
         else:
-            media = await user.download_media(poster.media, file=bytes)
+            source_photo = getattr(poster, "media", None) or getattr(poster, "photo", None)
+            if source_photo is None:
+                raise RuntimeError("Affiche Telegram absente pour le lot privé")
+            media = await user.download_media(source_photo, file=bytes)
             if not media:
                 raise RuntimeError("Affiche source indisponible")
             stream = io.BytesIO(media)

@@ -211,8 +211,14 @@ class UnifiedLibrary:
                 raise RuntimeError("Affiche centrale déjà envoyée mais non contiguë : vérification manuelle, aucun doublon.")
             LOG.info("CinéX stock: affiche en attente réutilisée sans doublon")
         else:
+            # Some recovered Telegram photo messages expose .photo but their
+            # .media wrapper is absent. Use the genuine Photo as a fallback;
+            # never pass None to Telethon and never use a WebPage preview.
+            photo_file = getattr(poster, "media", None) or getattr(poster, "photo", None)
+            if photo_file is None:
+                raise RuntimeError("Affiche source Telegram sans média photo exploitable.")
             cover = await self.client.send_file(
-                self.peer, poster.media, caption=cover_caption,
+                self.peer, photo_file, caption=cover_caption,
                 parse_mode="html",
             )
             checked = await self.client.get_messages(self.peer, ids=int(cover.id))

@@ -41,7 +41,7 @@ class FakeClient:
 
 
 class RecoveryTests(unittest.TestCase):
-    def test_recovers_complete_post_after_failed_git_push(self):
+    def test_legacy_public_link_is_not_a_complete_v4_receipt(self):
         client = FakeClient(
             private=[video(456, 15), video(456, 13)],
             public=[public_post(25, 15), public_post(23, 13)]
@@ -52,6 +52,17 @@ class RecoveryTests(unittest.TestCase):
             result = recover_from_snapshot(
                 cache, state, "source:27:28", "doc:456", video(456, 28)
             )
+            self.assertEqual(result, "incomplete")
+            self.assertFalse(state.recorded("source:27:28", "doc:456"))
+            self.assertEqual(state.get_stage("source:27:28"), 15)
+
+    def test_verifiable_v4_pair_can_rebuild_a_lost_checkpoint(self):
+        cache = TelegramReceiptCache(
+            {456: [15, 13]}, {15: 25, 13: 23}, {15: 25})
+        with TemporaryDirectory() as folder:
+            state = State(str(Path(folder) / "state.json"))
+            result = recover_from_snapshot(
+                cache, state, "source:27:28", "doc:456", video(456, 28))
             self.assertEqual(result, "complete")
             self.assertTrue(state.recorded("source:27:28", "doc:456"))
             self.assertEqual(state.data["processed"]["source:27:28"],
