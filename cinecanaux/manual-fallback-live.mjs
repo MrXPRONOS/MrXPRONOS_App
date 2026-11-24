@@ -67,13 +67,6 @@ export class D1Remote{
    throw Error('d1_query_failed');
   return body.result[0];
  }
- prepare(sql){
-  let params=[];
-  return {
-   bind(...values){params=values;return this},
-   run:async()=>await this._dbQuery?.(sql,params),
-  };
- }
  env(){
   const client=this;
   return {DB:{prepare(sql){
@@ -281,15 +274,15 @@ export class FallbackPublisher{
    await this.receipt(t.bot,{category:item.category,key,stage:'public_video',
     target:t.publicChat,source:item.source_chat_id,messageId:ep.video_message_id,
     payload:{caption:icon+' '+title+' E'+ep.number,reply_markup:buttons}});
-   await this.db.query(
-    "UPDATE cine_manual_fallback_inbox SET state='published',updated_at=CURRENT_TIMESTAMP "+
-    "WHERE chat_id=? AND message_id=? AND state='indexed'",
-    [item.source_chat_id,ep.video_message_id]);
   }
+  // Mark only after the ENTIRE season batch completed. A partial season must
+  // remain eligible for resumption with its same durable per-episode receipts.
   await this.db.query(
    "UPDATE cine_manual_fallback_inbox SET state='published',updated_at=CURRENT_TIMESTAMP "+
-   "WHERE chat_id=? AND message_id=? AND state='indexed'",
-   [item.source_chat_id,item.poster_message_id]);
+   "WHERE chat_id=? AND message_id IN ("+
+   [item.poster_message_id,...item.episodes.map(x=>x.video_message_id)].map(()=>'?').join(',')+
+   ") AND state='indexed'",
+   [item.source_chat_id,item.poster_message_id,...item.episodes.map(x=>x.video_message_id)]);
  }
  async copyCourse(item){
   const bot=this.categoryBots[item.category];
