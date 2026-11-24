@@ -4,7 +4,10 @@ from unittest.mock import patch
 from scripts.actu_foot_github_vault import VaultError
 from scripts.actu_foot_v2_store import decrypt
 from scripts.actu_foot_v3_archive import archive_path,make_archive,verify_archive_path,compact_month
-from scripts.actu_foot_v3_service import SnapshotReader,production_check
+from scripts.actu_foot_v3_service import SnapshotReader,production_check,audit_receipts,inventory
+from scripts.actu_foot_v3_cloud_archive import recover_inventory
+import tempfile
+from pathlib import Path
 from scripts.actu_foot_v3_migrate import migration_preview,upgrade
 from tests_football_channel.test_actu_foot_v3_complete import MemoryAtomic,fixture
 
@@ -42,6 +45,23 @@ class IntegratedTests(unittest.TestCase):
         reader.refresh()
         with self.assertRaises(VaultError):reader.query("matches",limit=2,cursor=first["next_cursor"])
         self.assertEqual(reader.query("matches")["count"],6)
+    def test_archive_recovery_from_authenticated_receipts(self):
+        store=MemoryAtomic();store.transact({"matches":[{"action":"insert","id":"a","value":fixture(1)}]})
+        copies={}
+        def copy(path,blob):
+            digest=hashlib.sha256(blob.encode()).hexdigest();copies[(path,digest)]=blob;return digest
+        compact_month(store,"matches",field="kickoff_utc",cutoff=datetime(2026,4,1,tzinfo=timezone.utc),durable_copy=copy)
+        head=store.head()[0]
+        store.list_archives=lambda name,head:[p for p in store.files if "/archive/"+name+"/" in p]
+        receipts=inventory(store,head)
+        class Cloud:
+            def recover(self,path,digest):return copies[(path,digest)]
+        with tempfile.TemporaryDirectory() as temp:
+            report=recover_inventory(receipts,Path(temp)/"recovery",Cloud())
+            self.assertEqual(report,{"verified":1,"total":1,"remaining":0})
+            self.assertEqual(len(list((Path(temp)/"recovery").rglob("*.aes.json"))),1)
+        store.list_archives=lambda name,head:[]
+        with self.assertRaises(VaultError):inventory(store,head)
     def test_idempotent_migration(self):
         rows={"a":fixture(1)}
         migrated=upgrade("matches",rows)

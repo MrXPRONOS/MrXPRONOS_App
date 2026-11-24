@@ -1,6 +1,7 @@
 """OIDC-authenticated independent archive copy and readback; no persistent API token."""
 import hashlib
 import os
+from pathlib import Path
 from urllib.parse import urlparse,parse_qsl,urlencode,urlunparse
 import requests
 from scripts.actu_foot_github_vault import VaultError
@@ -39,3 +40,21 @@ class CloudArchive:
         result=self.request({"action":"write","path":path,"sha256":digest,"ciphertext":payload})
         if result.get("sha256")!=digest or self.recover(path,digest)!=payload:raise VaultError("Independent copy readback failed")
         return digest
+
+def recover_inventory(receipts,destination,cloud,*,limit=24):
+    """Restore a bounded set of independently stored ciphertexts, never overwrite live Git."""
+    if type(limit) is not int or not 1<=limit<=100:
+        raise VaultError("Invalid recovery bound")
+    root=Path(destination)
+    if root.exists() and any(root.iterdir()):
+        raise VaultError("Recovery directory must be empty")
+    root.mkdir(parents=True,exist_ok=True)
+    # Inventory can be provided from a recovered and verified V2 audit collection.
+    for path,meta in sorted(receipts.items())[:limit]:
+        blob=cloud.recover(path,meta["sha256"])
+        rows,_=verify_archive_path(path,blob)
+        if len(rows)!=meta["count"]:raise VaultError("Recovered archive record count differs")
+        target=root/path.removeprefix("assets/data/private/actufoot_v2/archive/")
+        target.parent.mkdir(parents=True,exist_ok=True)
+        target.write_text(blob,encoding="utf-8")
+    return {"verified":min(len(receipts),limit),"total":len(receipts),"remaining":max(0,len(receipts)-limit)}

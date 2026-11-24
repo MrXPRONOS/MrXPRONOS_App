@@ -173,7 +173,7 @@ async function archiveRequest(req,env,claims,rehearsal){
     const raw=await req.text();if(raw.length>4000000)return reject(413);
     const b=JSON.parse(raw),write=b.action==='write';
     if(!write&&b.action!=='read')return reject(400);
-    if(!validArchive(b.path,b.sha256,write?b.ciphertext:undefined))return reject(400);
+    if((write&&typeof b.ciphertext!=='string')||!validArchive(b.path,b.sha256,write?b.ciphertext:undefined))return reject(400);
     const prefix=rehearsal?'v3/rehearsal/'+claims.run_id+'/'+claims.run_attempt:'v3/archive';
     const key=prefix+'/'+b.sha256;
     if(write){

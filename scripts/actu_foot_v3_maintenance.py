@@ -4,8 +4,8 @@ from datetime import datetime,timezone,timedelta
 from scripts.actu_foot_github_vault import VaultError
 from scripts.actu_foot_v3_atomic import GitAtomicStore
 from scripts.actu_foot_v3_archive import SAFE_FIELDS,partition,compact_month
-from scripts.actu_foot_v3_cloud_archive import CloudArchive
-from scripts.actu_foot_v3_service import production_check
+from scripts.actu_foot_v3_cloud_archive import CloudArchive,recover_inventory
+from scripts.actu_foot_v3_service import production_check,inventory,audit_receipts
 DEFAULT_DAYS={"matches":90,"live_events":30,"news":60,"statistics":120}
 POLICY_ID="actufoot:v3:retention"
 def policy():
@@ -31,8 +31,22 @@ def main():
     p.add_argument("--execute",action="store_true")
     p.add_argument("--activate",action="store_true")
     p.add_argument("--confirmation",default="")
+    p.add_argument("--recover-archives",action="store_true")
+    p.add_argument("--audit-file",default="")
+    p.add_argument("--destination",default="/tmp/v3-archive-recovery")
     args=p.parse_args()
     store=GitAtomicStore(repo=os.environ["GITHUB_REPOSITORY"],token=os.environ["GITHUB_TOKEN"])
+    if args.recover_archives:
+        if args.execute or args.activate:raise VaultError("Archive recovery is isolated and cannot mutate live storage")
+        if args.audit_file:
+            from pathlib import Path
+            from scripts.actu_foot_v2_store import decrypt
+            audit,_=decrypt("audit",Path(args.audit_file).read_text(encoding="utf-8"))
+            receipts=audit_receipts(audit)
+        else:
+            head,_=store.head();receipts=inventory(store,head)
+        print("V3_ARCHIVE_RECOVERY",json.dumps(recover_inventory(receipts,args.destination,CloudArchive()),sort_keys=True))
+        return
     if args.activate:
         if not args.execute or args.confirmation!="APPROVE_V3_ENCRYPTED_COMPACTION":raise VaultError("Activation requires approval")
         parent,_=store.head()

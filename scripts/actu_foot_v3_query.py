@@ -129,6 +129,6 @@ def _query(collection: str, records: dict, indexes: dict, *, filters: dict|None=
     page=ordered[offset:offset+limit]
     next_cursor=_cursor_encode({"fingerprint":fingerprint,"generation":generation,
                                 "offset":offset+limit}) if offset+limit<len(ordered) else None
-    return {"items":[{**records[key],"id":key} for key in page],
+    return {"items":[{**copy.deepcopy(records[key]),"id":key} for key in page],
             "count":len(ordered),"next_cursor":next_cursor,
             "generation":generation}

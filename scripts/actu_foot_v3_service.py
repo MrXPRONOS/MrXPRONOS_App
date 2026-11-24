@@ -8,7 +8,7 @@ from scripts.actu_foot_v2_store import COLLECTIONS,canonical,VaultError
 from scripts.actu_foot_v3_atomic import GitAtomicStore
 from scripts.actu_foot_v3_engine import TTLCache
 from scripts.actu_foot_v3_query import PreparedQuery
-from scripts.actu_foot_v3_archive import verify_archive_path,validate_archive_path
+from scripts.actu_foot_v3_archive import verify_archive_path,validate_archive_path,SAFE_FIELDS
 from scripts.actu_foot_v3_migrate import migration_preview
 
 class SnapshotReader:
@@ -62,6 +62,30 @@ class SnapshotReader:
         if self.commit is None:self.refresh()
         return self.store.list_archives(collection,self.commit)
 
+def audit_receipts(entries):
+    from scripts.actu_foot_v2_store import verify_audit
+    verify_audit(entries)
+    receipts={}
+    for row in entries.values():
+        if row.get("operation")!="v3_archive_compact":continue
+        details=row.get("details",{})
+        for item in details.get("archives",[]):
+            path=validate_archive_path(item["path"])
+            digest=item["sha256"]
+            if path in receipts or not isinstance(digest,str) or len(digest)!=64 or any(x not in "0123456789abcdef" for x in digest):
+                raise VaultError("Invalid or duplicate archive receipt")
+            if type(item.get("count")) is not int or item["count"]<1:
+                raise VaultError("Invalid archive receipt count")
+            receipts[path]=item
+    return receipts
+
+def inventory(store,head):
+    receipts=audit_receipts(store.load_collection("audit",head).data)
+    paths={p for name in SAFE_FIELDS for p in store.list_archives(name,head)}
+    if paths!=set(receipts):
+        raise VaultError("Archive inventory differs from authenticated audit receipts")
+    return receipts
+
 def production_check(store):
     reader=SnapshotReader(store)
     head=reader.refresh()
@@ -74,7 +98,8 @@ def production_check(store):
         if first!=second or first["count"]!=len(state.data):raise VaultError("Query/cache mismatch")
         report[name]={"count":first["count"],"generation":state.generation,"key_version":state.key_version,
                       "migration":migration_preview(name,state.data)["reversible"]}
-    return {"commit":head,"collections":report,"cache_hits":reader.hits}
+    receipts=inventory(store,head)
+    return {"commit":head,"collections":report,"cache_hits":reader.hits,"archive_shards":len(receipts)}
 
 def main():
     store=GitAtomicStore(repo=os.environ["GITHUB_REPOSITORY"],token=os.environ["GITHUB_TOKEN"])
