@@ -58,6 +58,7 @@ function fixtures(){
    return {message_id:++counter};
   },
  };
+ let uniqueToken=0;
  const publisher=new FallbackPublisher({
   db,categoryBots:{films:bot,series:bot,animes:bot,formation_business:bot},
   targets:{
@@ -66,7 +67,7 @@ function fixtures(){
    animes:{private:priv,public:handle},
   },
   formationTargets:{business:'-1005555555555'},stage:'-1006666666666',
-  folder,tokenGenerator:()=>'abcdefghijklmnopqrstuvwx'
+  folder,tokenGenerator:()=>String(++uniqueToken).padStart(24,'0')
  });
  return {sqlite,db,bot,calls,publisher};
 }
@@ -97,7 +98,7 @@ test('one film creates central, private and public receipts with no repeat on re
  assert.equal(calls.length,5);
  assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM cine_manual_fallback_receipts WHERE status=?').get('complete').n,5);
  assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM cine_classic_links').get().n,1);
- assert.equal(calls.filter(x=>x.body.reply_markup).length,2);
+ assert.equal(calls.filter(x=>x.body.reply_markup).length,3);
  await publisher.copyFilm(film);
  assert.equal(calls.length,5);
 });
