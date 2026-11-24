@@ -54,7 +54,7 @@ class SafeRouteAuditTests(unittest.TestCase):
         self.assertEqual(fake_bot.call.call_count, 12)  # 1 auth + 5*2 + 1 failing stage
 
     def test_crypto_multichannel_continues_after_legacy_failure(self):
-        bot = Mock()
+        bot = Mock(spec=audit.multi.Telegram)
         bot.assert_correct_bot.return_value = 123
         bot.verify_destination.return_value = -100123
         bot.get.side_effect = RuntimeError("Telegram private ID -100999")
