@@ -118,6 +118,41 @@ test('pair exactly one genuine poster and one unique video',()=>{
  assert.equal(planManualMediaPairs([...rows,{...rows[1],message_id:3}]).pairs.length,0);
 });
 
+test('different videos with same title are all quarantined',()=>{
+ const a=[
+  {chat_id:String(chat),message_id:1,category:'films',kind:'poster',
+   state:'indexed',caption:'Titre: Un Film\nAnnée: 2025'},
+  {chat_id:String(chat),message_id:2,category:'films',kind:'video',
+   state:'indexed',caption:'Titre: Un Film\nAnnée: 2025',
+   file_unique_id:'unique-file-a'},
+ ];
+ const b=a.map(x=>({...x,chat_id:'-1002222222222',
+  file_unique_id:x.kind==='video'?'unique-file-b':x.file_unique_id}));
+ const out=planManualMediaPairs([...a,...b]);
+ assert.equal(out.pairs.length,0);
+ assert.ok(out.review.every(x=>x.reason==='multiple_video_versions'));
+});
+
+test('same Telegram file claiming two titles is quarantined across categories',()=>{
+ const film=[
+  {chat_id:String(chat),message_id:1,category:'films',kind:'poster',
+   state:'indexed',caption:'Titre: Premier Film\nAnnée: 2025'},
+  {chat_id:String(chat),message_id:2,category:'films',kind:'video',
+   state:'indexed',caption:'Titre: Premier Film\nAnnée: 2025',
+   file_unique_id:'same-telegram-video'},
+ ];
+ const other=[
+  {chat_id:'-1002222222222',message_id:3,category:'comedie',kind:'poster',
+   state:'indexed',caption:'Titre: Autre Film\nAnnée: 2025'},
+  {chat_id:'-1002222222222',message_id:4,category:'comedie',kind:'video',
+   state:'indexed',caption:'Titre: Autre Film\nAnnée: 2025',
+   file_unique_id:'same-telegram-video'},
+ ];
+ const out=planManualMediaPairs([...film,...other]);
+ assert.equal(out.pairs.length,0);
+ assert.ok(out.review.every(x=>x.reason==='same_video_conflicting_title'));
+});
+
 test('training files cannot masquerade as stand-alone videos',()=>{
  const rows=[{chat_id:String(chat),message_id:1,category:'formation_business',
   kind:'course_file',state:'indexed',caption:'Titre: Mon cours'}];
