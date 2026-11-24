@@ -20,11 +20,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: mrx-telegram-personal-account
-  cancel-in-progress: false
-  queue: max
-
 jobs:
   tests:
     runs-on: ubuntu-24.04
@@ -45,6 +40,10 @@ jobs:
 
   repair:
     needs: tests
+    concurrency:
+      group: mrx-telegram-personal-account
+      cancel-in-progress: false
+      queue: max
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.apply == true)
     runs-on: ubuntu-24.04
     timeout-minutes: 25
