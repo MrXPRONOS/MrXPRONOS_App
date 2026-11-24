@@ -26,11 +26,11 @@ on:
         type: string
         required: false
       backup_artifact_id:
-        description: 'Numeric artifact ID from successful V2 backup workflow'
+        description: 'Numeric artifact ID from successful V2 backup (required for restore and rotation)'
         type: string
         required: false
       expected_sha:
-        description: 'Current collection blob SHA for restore; current main commit SHA for atomic rotation'
+        description: 'Current collection blob SHA for restore; approved main commit SHA for rotation preview'
         type: string
         required: false
       minimum_generation:
@@ -52,7 +52,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     permissions:
       contents: write
-      actions: read
+      actions: write
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -76,6 +76,9 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
+      - name: Verify administrative environment protection before a sensitive write
+        if: inputs.operation == 'rotate' || inputs.operation == 'restore'
+        run: python -m scripts.actu_foot_v2_release_guard
       - name: Verify live state or execute explicitly guarded operation
         shell: bash
         run: |
@@ -98,7 +101,16 @@ jobs:
             rotate)
               test "$CONFIRM" = "ROTATE_ALL_ENCRYPTED_V2"
               test -n "$EXPECTED_SHA"
-              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION" --expected-commit "$EXPECTED_SHA" --execute --confirmation "$CONFIRM"
+              [[ "$BACKUP_ARTIFACT_ID" =~ ^[0-9]+$ ]]
+              python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID" --directory /tmp/v2-pre-rotation
+              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION" --expected-commit "$EXPECTED_SHA" --execute --confirmation "$CONFIRM" --backup-directory /tmp/v2-pre-rotation
               ;;
             *) exit 2 ;;
           esac
+      - name: Request independent backup and recovery after successful mutation
+        if: inputs.operation == 'rotate' || inputs.operation == 'restore'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run actu-foot-v2-backup.yml --repo "$GITHUB_REPOSITORY" --ref main
+          echo V2_POST_MUTATION_BACKUP_REQUESTED

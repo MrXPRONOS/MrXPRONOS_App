@@ -64,7 +64,7 @@ def fetch_artifact(artifact_id: int, target: Path, *, repo: str | None = None,
                 ".github/workflows/actu-foot-v2-backup.yml",
                 "actu-foot-v2-backup.yml",
             }
-            or run_meta.get("event") not in {"workflow_dispatch", "schedule"}):
+            or run_meta.get("event") not in {"workflow_dispatch", "schedule", "push"}):
         raise VaultError("Backup was not produced by successful scheduled/approved workflow")
 
     resp = http.get(f"{path}/zip", headers=_headers(token), timeout=(8, 60),
@@ -108,6 +108,8 @@ def fetch_artifact(artifact_id: int, target: Path, *, repo: str | None = None,
             destination.write_bytes(payload)
             destination.chmod(0o600)
     manifest = verify_directory(target)
+    if manifest.get("source_commit") is not None and manifest["source_commit"] != run_meta.get("head_sha"):
+        raise VaultError("Backup artifact commit mismatch")
     # Avoid reuse of a plaintext or unrelated artifact.
     return {"artifact_id": artifact_id, "run_id": run_id,
             "collections": sorted(manifest["collections"])}

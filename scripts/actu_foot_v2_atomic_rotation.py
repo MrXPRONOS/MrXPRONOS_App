@@ -2,13 +2,15 @@
 from __future__ import annotations
 import argparse
 import hmac
+import hashlib
+from pathlib import Path
 import os
 import re
 from scripts.actu_foot_github_vault import VaultError, VaultConflict
 from scripts.actu_foot_v2_store import COLLECTIONS, master_key, encrypt, decrypt, collection_path, append_audit
 from scripts.actu_foot_v3_atomic import GitAtomicStore
 
-def rotate_all(store, *, target=2, expected_commit="", execute=False, confirmation=""):
+def rotate_all(store, *, target=2, expected_commit="", execute=False, confirmation="", backup_manifest=None):
     if target!=2 or not os.getenv("ACTU_FOOT_V2_KEY_B64_V2","").strip():
         raise VaultError("Dedicated V2 key must be configured")
     new_key=master_key(target)
@@ -17,8 +19,24 @@ def rotate_all(store, *, target=2, expected_commit="", execute=False, confirmati
     parent,tree=store.head()
     if execute and (confirmation!="ROTATE_ALL_ENCRYPTED_V2" or not re.fullmatch(r"[0-9a-f]{40}",expected_commit)):
         raise VaultError("Explicit rotation confirmation and expected commit required")
-    if execute and parent!=expected_commit:
-        raise VaultConflict("Approved repository head changed")
+    if execute:
+        # An unrelated repository commit is harmless; the approved seven encrypted
+        # blobs must be byte-identical, including when main has advanced.
+        if parent!=expected_commit:
+            for name in COLLECTIONS:
+                path=collection_path(name)
+                old=store.read_envelope(path,expected_commit)
+                if old is None or old!=store.read_envelope(path,parent):
+                    raise VaultConflict("Approved encrypted collection changed")
+        if not isinstance(backup_manifest,dict) or backup_manifest.get("anchor_protocol")!=2:
+            raise VaultError("Verified independently anchored pre-rotation backup required")
+        metas=backup_manifest.get("collections",{})
+        if set(metas)!=set(COLLECTIONS):
+            raise VaultError("Incomplete pre-rotation backup")
+        for name in COLLECTIONS:
+            blob=store.read_envelope(collection_path(name),parent)
+            if blob is None or hashlib.sha256(blob.encode()).hexdigest()!=metas[name].get("sha256"):
+                raise VaultError("Pre-rotation backup does not match current encrypted collection")
     states={name:store.load_collection(name,parent) for name in COLLECTIONS}
     if not all(state.exists for state in states.values()):
         raise VaultError("Incomplete collections")
@@ -52,8 +70,15 @@ def main():
     p.add_argument("--expected-commit",default="")
     p.add_argument("--execute",action="store_true")
     p.add_argument("--confirmation",default="")
+    p.add_argument("--backup-directory",default="")
     a=p.parse_args()
     store=GitAtomicStore(repo=os.environ["GITHUB_REPOSITORY"],branch="main",token=os.environ["GITHUB_TOKEN"])
-    print("V2_ROTATION",json.dumps(rotate_all(store,target=a.target,expected_commit=a.expected_commit,execute=a.execute,confirmation=a.confirmation),sort_keys=True))
+    manifest=None
+    if a.execute:
+        from scripts.actu_foot_v2_operations import verify_directory
+        if not a.backup_directory:
+            raise VaultError("Verified pre-rotation archive required")
+        manifest=verify_directory(Path(a.backup_directory))
+    print("V2_ROTATION",json.dumps(rotate_all(store,target=a.target,expected_commit=a.expected_commit,execute=a.execute,confirmation=a.confirmation,backup_manifest=manifest),sort_keys=True))
 if __name__=="__main__":
     main()
