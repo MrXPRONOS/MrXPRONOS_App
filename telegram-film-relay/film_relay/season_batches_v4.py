@@ -23,7 +23,7 @@ from .radar_download_registry import is_bot_download_url
 from .rescue_channels import (
     public_username, rescue_link_for, is_invite, BUTTON_TEXT,
 )
-from .text import private_message_link
+from .text import private_message_link, description_with_title, clean_caption
 
 _EPISODE = re.compile(r"^S\d{2}E\d{2,3}$")
 _INTERNAL = re.compile(r"^https://t\.me/c/\d{5,}/[1-9]\d*$")
@@ -406,8 +406,12 @@ async def prepare_private_season_batch(
             stream.name = "cinex_saison.jpg"
             receipt["private_cover_uncertain"] = True
             _save(series, catalogue, save_catalog)
+            private_description = description_with_title(
+                description.splitlines()[0], "\n".join(description.splitlines()[1:]),
+                clean_caption(getattr(poster, "raw_text", "") or "",
+                              getattr(poster, "entities", None)))
             sent = await bot.send_file(
-                private, stream, caption=rich_caption(description, private=True)
+                private, stream, caption=rich_caption(private_description, private=True)
                 + "\n" + cover_marker,
                 buttons=make_button_keyboard(private_rows),
                 parse_mode="html", force_document=False,

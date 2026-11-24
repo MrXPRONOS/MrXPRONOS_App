@@ -22,6 +22,29 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("https://t.me/c/", rendered)
         self.assertIn("rejoins notre team", rendered)
 
+    def test_media_title_fallback_and_source_description(self):
+        from film_relay.text import resolved_media_title, description_with_title
+        poster = NS(raw_text="#Film\nGenre : Drame\nSynopsis : Une histoire.")
+        video = NS(raw_text="", file=NS(name="Le.Dernier.Voyage.2025.FRENCH.1080p.mkv"))
+        title = resolved_media_title(poster, video)
+        self.assertEqual(title, "Le Dernier Voyage")
+        details = description_with_title(title, poster.raw_text, "Langue : VF")
+        self.assertEqual(details.splitlines()[0], title)
+        self.assertIn("Synopsis : Une histoire.", details)
+        self.assertIn("Langue : VF", details)
+        self.assertNotIn("#Film", details)
+        self.assertEqual(resolved_media_title(
+            NS(raw_text="🎬 Titre : Supergirl\nAnnée : 2026"), video), "Supergirl")
+        self.assertEqual(resolved_media_title(
+            NS(raw_text="Synopsis : Un voyage\nUne histoire inconnue."),
+            NS(raw_text="", file=NS(name="video_123456.mp4"))), "Titre non identifié")
+        self.assertEqual(resolved_media_title(
+            NS(raw_text=""), NS(raw_text="", file=NS(name="Supergirl.2026.1080p.mkv"))),
+            "Supergirl")
+        self.assertEqual(resolved_media_title(
+            NS(raw_text="Série Exemple"), video, preferred="Série Exemple S02E03"),
+            "Série Exemple S02E03")
+
     def test_styled_video_title(self):
         self.assertEqual(rich_video_title("Le Film & Moi"), "<b>🎞️ Le Film &amp; Moi</b>")
 

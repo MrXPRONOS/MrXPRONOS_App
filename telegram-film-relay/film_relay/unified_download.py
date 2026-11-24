@@ -164,6 +164,12 @@ class UnifiedLibrary:
         doc_id = video_document_id(source)
         if not doc_id:
             raise RuntimeError("Média privé central : identifiant du document absent.")
+        from .text import resolved_media_title, description_with_title, clean_caption
+        title = resolved_media_title(poster, source, preferred=title, description=description)
+        details = description_with_title(
+            title, description,
+            clean_caption(getattr(poster, "raw_text", "") or "", getattr(poster, "entities", None)),
+            clean_caption(getattr(source, "raw_text", "") or "", getattr(source, "entities", None)))
         await self.prepare(public=public)
         doc_id = int(doc_id)
         if doc_id in self.index:
@@ -191,7 +197,6 @@ class UnifiedLibrary:
             raise RuntimeError("Affiche du stock central absente ou protégée : aucune vidéo seule envoyée.")
         from .publication import rich_caption
         marker = "#CXSTOCK_" + hashlib.sha256(str(doc_id).encode()).hexdigest()[:16]
-        details = str(description or getattr(poster, "raw_text", "") or title).strip()[:650]
         cover_caption = rich_caption(details, private=True) + "\n" + marker
         existing_cover_id = self.cover_index.get(marker)
         if existing_cover_id:
@@ -215,9 +220,8 @@ class UnifiedLibrary:
                     or marker not in str(getattr(checked, "raw_text", "") or "")):
                 raise RuntimeError("Affiche du stock central non vérifiée ; vidéo non envoyée.")
             self.cover_index[marker] = int(cover.id)
-        description = escape((title or "Vidéo CinéX").strip()[:700])
-        label = category.title()
-        caption = f"🎞️ <b>{description}</b>\n📚 CinéX · {label}"
+        from .publication import rich_video_title
+        caption = rich_video_title(title)
         sent = await self.client.send_file(
             self.peer, source.media, caption=caption, parse_mode="html",
         )

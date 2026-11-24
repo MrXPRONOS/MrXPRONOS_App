@@ -35,6 +35,7 @@ class DummyClient:
     def __init__(self, rows=(), *, verify=True, admin=True, private=True):
         self.rows = list(rows)
         self.sent = []
+        self.captions = []
         self.verify = verify
         self.admin = admin
         self.private = private
@@ -55,6 +56,7 @@ class DummyClient:
     async def send_file(self, channel, video, *, caption, parse_mode):
         mid = max((m.id for m in self.rows), default=0) + 1
         self.sent.append(mid)
+        self.captions.append(caption)
         if getattr(video, "is_poster", False):
             msg = NS(id=mid, photo=object(), media=video, raw_text=caption,
                      video=None, document=None)
@@ -143,8 +145,35 @@ class CentralLibraryTests(unittest.TestCase):
         self.assertIn("Genre : Aventure", chronological[0].raw_text)
         self.assertIn("#CXSTOCK_", chronological[0].raw_text)
         self.assertEqual(chronological[1].document.id, 700)
+        self.assertEqual(client.captions[1], '<b>🎞️ Supergirl</b>')
+        self.assertEqual(registry.calls[0]['title'], 'Supergirl')
         self.assertEqual(len(registry.calls), 2)
         self.assertEqual(registry.calls[0]["message_id"], chronological[1].id)
+
+    def test_desir_empty_or_generic_cover_uses_video_title_and_preserves_synopsis(self):
+        client = DummyClient()
+        client.current_doc = 700
+        registry = DummyRegistry()
+        lib = UnifiedLibrary(client, env={
+            "CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)
+        }, registry=registry)
+        source = media(1, 700, title="Le Dernier Voyage")
+        poster = NS(photo=object(), noforwards=False,
+                    media=NS(is_poster=True),
+                    raw_text="#Film\nGenre : Drame\nSynopsis : Un voyage inattendu.")
+        with (patch("film_relay.runner.resolve_peer", return_value=client.target),
+              patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
+            result = asyncio.run(lib.store(
+                source, category="desir", title="Film CinéX Désir", poster=poster,
+                public=NS(id=-1001234567890, username="CineXDesirfr")))
+        self.assertEqual(result, BOT_LINK)
+        self.assertEqual(len(client.sent), 2)
+        self.assertIn("Le Dernier Voyage", client.captions[0])
+        self.assertIn("Synopsis", client.captions[0])
+        self.assertIn("Un voyage inattendu.", client.captions[0])
+        self.assertNotIn("#Film", client.captions[0])
+        self.assertEqual(client.captions[1], "<b>🎞️ Le Dernier Voyage</b>")
+        self.assertEqual(registry.calls[0]["title"], "Le Dernier Voyage")
 
     def test_new_central_video_without_any_poster_is_never_uploaded(self):
         client = DummyClient()

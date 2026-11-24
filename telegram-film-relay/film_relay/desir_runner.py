@@ -19,7 +19,7 @@ from .title_guard import title_assessment
 from .matching import document_key
 from .runner import resolve_peer
 from .unified_download import UnifiedLibrary
-from .text import private_message_link, clean_caption
+from .text import private_message_link, clean_caption, resolved_media_title, description_with_title
 from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
                           film_folder_url, send_public_poster_with_buttons,
@@ -233,8 +233,7 @@ async def finish_mirrors(client, state: ReceiptState, mirror_peer, mirror_key: s
 
 
 def format_title(item):
-    value = film_title(item).strip()
-    return value if value else "Film CinéX Désir"
+    return resolved_media_title(item.poster, item.video)
 
 async def post_public(bot, user, public_peer, item, title, video_url: str,
                       invite_link: str, *, download_category: str | None = None,
@@ -428,10 +427,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 if completed >= limit:
                     break
                 continue
-            description = clean_caption(
-                getattr(item.poster, "raw_text", "") or format_title(item),
-                getattr(item.poster, "entities", None),
-            ) or format_title(item)
+            description = description_with_title(
+                title, clean_caption(getattr(item.poster, "raw_text", "") or "",
+                                     getattr(item.poster, "entities", None)),
+                clean_caption(getattr(item.video, "raw_text", "") or "",
+                              getattr(item.video, "entities", None)))
             staged = state.data["staged"].get(key, {})
             if "video" in staged:
                 cache = await snapshot_telegram_posts(

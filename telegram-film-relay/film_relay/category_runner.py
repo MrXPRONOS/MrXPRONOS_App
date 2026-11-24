@@ -14,6 +14,7 @@ import re
 from datetime import datetime, timezone
 
 from .desir_matching import film_title, item_key, pair_items
+from .text import resolved_media_title, description_with_title
 from .media_guard import valid_photo_message, require_photo
 from .title_guard import title_assessment
 from .desir_runner import (
@@ -352,11 +353,12 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             if assessment != "verified":
                 LOG.warning("%s : affiche/vidéo en quarantaine (%s), vidéo=%s", cfg["label"], assessment, item.video.id)
                 continue
-            title = film_title(item).strip() or cfg["fallback"]
-            description = clean_caption(
-                getattr(item.poster, "raw_text", "") or title,
-                getattr(item.poster, "entities", None),
-            ) or title
+            title = resolved_media_title(item.poster, item.video)
+            description = description_with_title(
+                title, clean_caption(getattr(item.poster, "raw_text", "") or "",
+                                     getattr(item.poster, "entities", None)),
+                clean_caption(getattr(item.video, "raw_text", "") or "",
+                              getattr(item.video, "entities", None)))
             if not publish:
                 LOG.info("[SIMULATION] %s : vidéo source=%s affiche=%s",
                          cfg["label"], item.video.id, getattr(item.poster, "id", None))
