@@ -21,7 +21,7 @@ function fixtures(){
   "CREATE TABLE cine_classic_links(token TEXT PRIMARY KEY,source_chat_id TEXT,source_message_id INTEGER,title TEXT,public_handle TEXT,status TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,UNIQUE(source_chat_id,source_message_id));"+
   "CREATE TABLE cine_classic_rescue_config(public_handle TEXT,invite_url TEXT);"
  );
- sqlite.prepare("INSERT INTO cine_private_stock_config VALUES(1,?,123,1)").run(stock);
+ sqlite.prepare("INSERT INTO cine_private_stock_config VALUES(1,?,98765,1)").run(stock);
  sqlite.prepare("INSERT INTO bot_settings VALUES('cine_delivery_enabled','1')").run();
  sqlite.prepare("INSERT INTO cine_private_stock_bots VALUES(98765,1)").run();
  sqlite.prepare("INSERT INTO cine_classic_rescue_config VALUES(?,?)").run(handle,rescue);
@@ -60,7 +60,7 @@ function fixtures(){
  };
  let uniqueToken=0;
  const publisher=new FallbackPublisher({
-  db,categoryBots:{films:bot,series:bot,animes:bot,formation_business:bot},
+  db,radarBot:bot,categoryBots:{films:bot,series:bot,animes:bot,formation_business:bot},
   targets:{
    films:{private:priv,public:handle},
    series:{private:priv,public:handle},
@@ -148,6 +148,26 @@ test('formation copies numbered parts through verified technical stage to destin
  await f.publisher.copyCourse(training);
  assert.equal(f.calls.length,6);
 });
+test('publisher refuses missing CineRadar source/stock identity before Telegram sends',async()=>{
+ const f=fixtures();
+ f.publisher.radarBot=null;
+ await assert.rejects(f.publisher.copyFilm({
+  category:'films',key:'films:needs radar:2025',
+  source_chat_id:src,poster_message_id:8,video_message_id:9
+ }));
+ assert.equal(f.calls.length,0);
+});
+
+test('publisher refuses mismatched configured central radar identity',async()=>{
+ const f=fixtures();
+ f.sqlite.prepare("UPDATE cine_private_stock_config SET radar_bot_id=11111").run();
+ await assert.rejects(f.publisher.copyFilm({
+  category:'films',key:'films:bad radar:2025',
+  source_chat_id:src,poster_message_id:8,video_message_id:9
+ }));
+ assert.equal(f.calls.length,0);
+});
+
 test('publisher fails closed before first video when bot lacks a verified destination',async()=>{
  const f=fixtures();delete f.publisher.targets.films;
  await assert.rejects(f.publisher.copyFilm({category:'films',
