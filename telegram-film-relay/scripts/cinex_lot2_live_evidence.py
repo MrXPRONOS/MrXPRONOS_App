@@ -328,12 +328,24 @@ async def inspect(*, limit=600):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=600)
+    parser.add_argument("--require-complete", action="store_true",
+                        help="Recevoir le lot seulement après preuve réelle sur 6/6 catégories")
     args = parser.parse_args()
     if not 100 <= args.limit <= 4000:
         parser.error("invalid_message_scan_limit")
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
-    asyncio.run(inspect(limit=args.limit))
+    results = asyncio.run(inspect(limit=args.limit))
+    if args.require_complete:
+        required = {"films", "series", "desir", "comedie", "anime", "action"}
+        verified = {row["category"] for row in results
+                    if all(row.get(key) == "verified" for key in (
+                        "latest_public_v4", "public_photo_four_buttons",
+                        "private_three_buttons", "central_receipt"))
+                    and row.get("errors") == 0}
+        if verified != required:
+            raise SystemExit("LOT2_NOT_ACCEPTED: " +
+                             ", ".join(sorted(required - verified)))
 
 
 if __name__ == "__main__":
