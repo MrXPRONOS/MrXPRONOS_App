@@ -154,3 +154,28 @@ test('cross-category reuse of the same video quarantines both items',()=>{
  assert.equal(decision.eligible.length,0);
  assert.equal(decision.blocked.filter(x=>x.reason==='cross_category_media_collision').length,2);
 });
+
+test('same film title/year in two film channels is quarantined even after reencoding',()=>{
+ const films=planMovies(movie(1,'Même Film',2025,'encoding-original')).items;
+ const genre=planMovies(movie(10,'Même Film',2025,'encoding-other')
+  .map(r=>({...r,category:'comedie'}))).items;
+ const outcome=selectManualCycle({movies:{items:[...films,...genre]}},flags);
+ assert.equal(outcome.eligible.length,0);
+ assert.equal(outcome.blocked.filter(x=>x.reason==='cross_category_title_or_season_collision').length,2);
+});
+test('different release years do not cause false positive remake collision',()=>{
+ const film1=planMovies(movie(1,'Un Film',2025,'original-file')).items;
+ const film2=planMovies(movie(10,'Un Film',2026,'new-file')
+  .map(r=>({...r,category:'comedie'}))).items;
+ const outcome=selectManualCycle({movies:{items:[...film1,...film2]}},flags);
+ assert.equal(outcome.eligible.length,2);
+});
+test('identically named multi-file courses across destinations are reviewed',()=>{
+ const base=planCourses(course()).items[0];
+ const alternative={...base,category:'formation_finance',
+  key:'formation_finance:vente-2026',
+  parts:base.parts.map(p=>({...p,file_unique_id:'another-'+p.file_unique_id}))};
+ const result=selectManualCycle({courses:{items:[base,alternative]}},flags);
+ assert.equal(result.eligible.length,0);
+ assert.equal(result.blocked.filter(x=>x.reason==='cross_category_title_or_season_collision').length,2);
+});
