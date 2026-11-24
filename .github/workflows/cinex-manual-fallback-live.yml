@@ -1,0 +1,92 @@
+name: CineX + Formation - Secours manuel bot-only (6h)
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publier réellement uniquement si la session personnelle est absente/révoquée et toutes les vérifications réussissent'
+        required: true
+        type: boolean
+        default: false
+  schedule:
+    - cron: '47 */6 * * *'
+    - cron: '30 8,20 * * *'
+
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  fallback:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CINEX_MANUAL_FALLBACK_ENABLED: ${{ vars.CINEX_MANUAL_FALLBACK_ENABLED || 'true' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL || '@cinexfilms_vf' }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      FORMATION_DESTINATIONS_JSON: ${{ secrets.FORMATION_DESTINATIONS_JSON }}
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vérification syntaxique et tests hors publication
+        run: |
+          set -euo pipefail
+          python -m py_compile telegram-film-relay/scripts/probe_personal_session_for_fallback.py
+          node --check cinecanaux/manual-fallback-cycle.mjs
+          node --check cinecanaux/manual-fallback-live.mjs
+          node --test cinecanaux/tests/manual-fallback-planner.test.mjs cinecanaux/tests/manual-fallback-journal.test.mjs cinecanaux/tests/manual-fallback-audit.test.mjs cinecanaux/tests/manual-fallback-inbox.test.mjs
+      - name: Installer client de vérification du compte personnel
+        run: python -m pip install --disable-pip-version-check 'telethon==1.45.0'
+      - name: Vérifier la session avant tout secours (sans publier)
+        id: personal
+        shell: bash
+        run: python telegram-film-relay/scripts/probe_personal_session_for_fallback.py
+      - name: Publier le stock manuel vérifié (sans aucun contournement FloodWait)
+        if: ${{ (github.event_name == 'schedule' || inputs.publish == true) && (steps.personal.outputs.status == 'session_missing' || steps.personal.outputs.status == 'session_revoked') && env.CINEX_MANUAL_FALLBACK_ENABLED == 'true' }}
+        env:
+          PERSONAL_SESSION_STATUS: ${{ steps.personal.outputs.status }}
+        run: node cinecanaux/manual-fallback-cycle.mjs
+      - name: Résumé de bascule sans informations privées
+        if: always()
+        env:
+          PERSONAL_STATUS: ${{ steps.personal.outputs.status || 'unknown' }}
+        shell: bash
+        run: |
+          echo "Mode personnel : $PERSONAL_STATUS"
+          echo "Si le secours est désactivé, inaccessible ou non autorisé, aucun média n'est publié."
