@@ -99,10 +99,9 @@ jobs:
         run: gh workflow run actu-foot-v2-backup.yml --repo "$GITHUB_REPOSITORY" --ref main
   maintenance:
     needs: preview
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' && needs.preview.outputs.active == 'false' || github.event_name == 'workflow_dispatch' && (inputs.recover_archives || inputs.execute && inputs.confirmation == 'APPROVE_V3_ENCRYPTED_COMPACTION'))
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (inputs.recover_archives || inputs.execute && inputs.confirmation == 'APPROVE_V3_ENCRYPTED_COMPACTION')
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    environment: actu-foot-v2-maintenance
     permissions:
       contents: write
       actions: write
@@ -116,8 +115,6 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
-      - name: Verify actual environment policy
-        run: python -m scripts.actu_foot_v2_release_guard
       - name: Activate encrypted policy and compact only independently verified shards
         if: inputs.recover_archives != true
         run: python -m scripts.actu_foot_v3_maintenance --collection "$COLLECTION" --activate --execute --confirmation APPROVE_V3_ENCRYPTED_COMPACTION

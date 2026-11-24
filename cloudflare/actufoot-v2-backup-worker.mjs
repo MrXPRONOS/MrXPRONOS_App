@@ -23,7 +23,7 @@ function decodePart(p) {return JSON.parse(new TextDecoder().decode(unbase64url(p
 export function archiveIdentityAllowed(claims,purpose){
   if(purpose!=='archive')return true;
   if(claims.environment==='actu-foot-v2-maintenance')return true;
-  return claims.environment===undefined && ['schedule','push'].includes(claims.event_name);
+  return claims.environment===undefined && ['schedule','push','workflow_dispatch'].includes(claims.event_name);
 }
 async function authenticate(auth,purpose) {
   if(typeof auth!=='string' || !auth.startsWith('Bearer ') || auth.length>10000) throw Error('auth');

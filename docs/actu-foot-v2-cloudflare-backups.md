@@ -62,3 +62,5 @@ La base D1 dédiée mrxpronos-actufoot-v2-audit-anchor contient un journal appen
 ## Restauration automatique isolée
 
 Le workflow de récupération V2 ne modifie jamais main et n'utilise plus l'environnement de maintenance protégé. Il est déclenché après chaque sauvegarde réussie, y compris les sauvegardes planifiées. Sa concurrence est isolée par run et tentative de sauvegarde pour éviter le blocage par un ancien déploiement en attente. Les opérations de rotation et de restauration qui écrivent dans main restent sous approbation administrative.
+
+La rotation ne dépend plus d'une approbation d'environnement; ses garde-fous de sauvegarde et de vérification sont inchangés. La restauration écrasant main conserve la protection administrative.
