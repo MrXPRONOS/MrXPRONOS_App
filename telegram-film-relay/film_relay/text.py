@@ -76,3 +76,100 @@ def private_poster_caption(description: str) -> str:
 def private_video_caption(description: str) -> str:
     """Titre seul sous la vidéo; aucun lien et aucune référence technique."""
     return f"🎬 {first_title(description)}"[:1024]
+
+
+# Titles are presentation only: these helpers never authorize a poster/video
+# association or a protected source. Call them after the existing media guards.
+_TITLE_FIELD = re.compile(r"(?i)^titre(?:\s+du\s+film|\s+original)?\s*:\s*(.+)$")
+_METADATA_FIELD = re.compile(
+    r"(?i)^(?:genres?|catégorie|durée|année|date|sortie|réalisateur|acteurs?|"
+    r"casting|langue|synopsis|résumé|description|qualité|format|source|"
+    r"épisodes?|saison|pays|production|note|téléchargement)\s*[:=]"
+)
+_GENERIC_TITLE = re.compile(
+    r"(?i)^(?:#?\s*(?:films?|movies?|vidéos?|videos?|fichiers?|uploads?|"
+    r"documents?|cinéx|cinex|nouveau film|titre non identifié|"
+    r"film cinéx(?: désir)?|vidéo cinéx))(?:[\s._-]*\d+)?$"
+)
+
+
+def _title_candidate(value: str) -> str:
+    value = re.sub(r"^[\W_]+", "", str(value or "").strip())
+    value = re.sub(r"\s+", " ", value).strip(" -:•")
+    if (not value or _GENERIC_TITLE.fullmatch(value)
+            or _METADATA_FIELD.match(value)
+            or value.isdecimal()
+            or re.fullmatch(r"(?i)(?:[a-f0-9]{12,}|S\d+E\d+)", value)):
+        return ""
+    from .title_guard import GENERIC_UPLOAD, tokens
+    if GENERIC_UPLOAD.fullmatch(value):
+        return ""
+    if not tokens(value) and not re.fullmatch(r"[A-Za-zÀ-ÿ]{1,2}", value):
+        return ""
+    return value[:130]
+
+
+def descriptive_title(text: str) -> str:
+    """Prefer an explicit Titre field over the first meaningful heading."""
+    lines = clean_caption(str(text or "")).splitlines()
+    for line in lines:
+        normalized = re.sub(r"^[\W_]+", "", line).strip()
+        match = _TITLE_FIELD.match(normalized)
+        if match:
+            title = _title_candidate(match.group(1))
+            if title:
+                return title
+    for line in lines[:6]:
+        if line.lstrip().startswith("#"):
+            continue
+        normalized = re.sub(r"^[\W_]+", "", line).strip()
+        if _METADATA_FIELD.match(normalized) or _TITLE_FIELD.match(normalized):
+            continue
+        # A prose paragraph is not a reliable movie title.
+        if len(normalized) > 130 or len(normalized.split()) > 16:
+            continue
+        title = _title_candidate(normalized)
+        if title:
+            return title
+    return ""
+
+
+def resolved_media_title(poster=None, video=None, *, preferred="", description="") -> str:
+    """Use supplied metadata or real file names, never invent a title."""
+    from .title_guard import filename_title
+    from .matching import filename_of
+    for value in (preferred, description, getattr(poster, "raw_text", ""),
+                  getattr(video, "raw_text", "")):
+        title = descriptive_title(value)
+        if title:
+            return title
+    # Preserve the source filename's capitalization where Telegram exposes it.
+    name = (getattr(getattr(video, "file", None), "name", None)
+            or filename_of(video))
+    if name:
+        candidate = filename_title(str(name))
+        title = _title_candidate(candidate)
+        if title:
+            return title
+    return "Titre non identifié"
+
+
+def description_with_title(title: str, *descriptions: str) -> str:
+    """A real title first, followed by distinct, source-provided details."""
+    result = [title or "Titre non identifié"]
+    seen = {result[0].casefold()}
+    for description in descriptions:
+        for line in clean_caption(str(description or "")).splitlines():
+            line = line.strip()
+            normalized = re.sub(r"^[\W_]+", "", line).strip()
+            match = _TITLE_FIELD.match(normalized)
+            if match and match.group(1).strip().casefold() == result[0].casefold():
+                continue
+            if (not line or _GENERIC_TITLE.fullmatch(normalized)
+                    or line.startswith("#CXSTOCK_")
+                    or line.startswith("#CINEX_VIDEO_")
+                    or normalized.casefold() in seen):
+                continue
+            seen.add(normalized.casefold())
+            result.append(line)
+    return "\n".join(result)
