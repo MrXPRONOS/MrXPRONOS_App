@@ -173,6 +173,15 @@ class ReactionTests(unittest.TestCase):
         accepted = react.verify_bots({3: "existing", 4: "fresh"}, fake)
         self.assertEqual(accepted, {4: "fresh"})
 
+    def test_slot16_reusing_existing_bot_never_duplicates_identity(self):
+        env = {"TELEGRAM_REACTION_BOT_03_TOKEN": "main-key",
+               "TELEGRAM_REACTION_BOT_16_TOKEN": "main-key"}
+        self.assertEqual(react.configured_tokens(env), {3: "main-key"})
+        def fake(url, data, headers):
+            return 200, {"ok": True, "result": {
+                "id": 123, "is_bot": True, "username": "CineRadarFr_Bot"}}
+        self.assertEqual(react.verify_bots({16: "main-key"}, fake), {})
+
     def test_missing_bots_does_not_contact_cloudflare(self):
         self.assertEqual(react.run({}, lambda *args: self.fail("External call")), 0)
 
