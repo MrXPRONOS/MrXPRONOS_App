@@ -3,6 +3,7 @@
 This test performs no Telegram API request, no logins and no side effects.
 """
 import unittest
+import re
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -18,6 +19,7 @@ PERSONAL_WORKFLOWS=(
  "telegram-film-relay.yml",
  "telegram-discovery-daily.yml",
  "telegram-film-healthcheck.yml",
+ "formation-telegram.yml",
 )
 
 class PersonalCooldownWorkflowTests(unittest.TestCase):
@@ -35,5 +37,27 @@ class PersonalCooldownWorkflowTests(unittest.TestCase):
                    "python -m film_relay.ten_video_rotation"):
      if marker in content:
       self.assertLess(gate,content.index(marker),name+" starts Telethon before the cooldown gate")
+
+ def test_every_shared_personal_session_lock_uses_non_replacing_queue(self):
+  """Inspect every workflow, including future non-CineX consumers."""
+  checked=0
+  for path in sorted((ROOT/".github"/"workflows").glob("*.y*ml")):
+   lines=path.read_text("utf-8").splitlines()
+   for i,line in enumerate(lines):
+    if not re.match(r"^\s*group\s*:",line) or "mrx-telegram-personal-account" not in line:
+     continue
+    checked+=1
+    indent=len(line)-len(line.lstrip())
+    block=[]
+    for following in lines[i+1:]:
+     if not following.strip() or following.lstrip().startswith("#"):
+      continue
+     if len(following)-len(following.lstrip())<indent:
+      break
+     block.append(following.strip())
+    with self.subTest(workflow=path.name,line=i+1):
+     self.assertIn("cancel-in-progress: false",block)
+     self.assertIn("queue: max",block)
+  self.assertGreater(checked,0)
 
 if __name__=="__main__":unittest.main()
