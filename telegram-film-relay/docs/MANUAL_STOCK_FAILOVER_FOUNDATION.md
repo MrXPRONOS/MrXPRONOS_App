@@ -147,3 +147,83 @@ Le journal et le planificateur ne constituent pas encore un publisher complet.
 Les reçus des modes personnels ne sont pas tous réconciliés dans la structure
 commune et aucun test de bascule réel n'a été passé. Ne pas déployer ni annoncer
 un fonctionnement autonome final avant ces contrôles.
+
+## Extension du 24/11 : moteur bot-only réel ajouté, lancement contrôlé
+
+Code présent sur la branche :
+- cinecanaux/manual-fallback-live.mjs : transmission de vrais messages Telegram
+  par copyMessage/sendMessage (films, séries, animés, formations), registre
+  CineRadar D1, carte privée 3 boutons et carte/vidéo publique 4 boutons,
+  téléchargements vérifiés, reprise à partir de reçus immuables.
+- cinecanaux/manual-fallback-cycle.mjs : recherche D1, sélection par quotas,
+  vérification historique Film + Séries + Animés, contrôle de tous les
+  droits du bot, et publication SEULEMENT si la session personnelle est
+  réellement absente/révoquée.
+- telegram-film-relay/scripts/probe_personal_session_for_fallback.py :
+  ne bascule JAMAIS en cas de FloodWait/PeerFlood, connexion incertaine,
+  cooldown actif ou session valide.
+- .github/workflows/cinex-manual-fallback-live.yml : déclenchement programmé
+  après les cycles personnels, sous verrou mrx-telegram-personal-account.
+- cinecanaux/manual-fallback-expiry.mjs et son workflow horaire :
+  expiration des vidéos publiques 12h après envoi, sans jamais supprimer
+  une source ou une vidéothèque privée ; résultat incertain bloqué.
+- cinecanaux/tests/manual-fallback-live.test.mjs et expiry.test.mjs :
+  tests réseau simulés garantissant les étapes et l'idempotence.
+
+D1 a déjà été préparé : migration 029 (réserves+références+reçus) et 030
+(expiration) appliquées sans incident. Les deux bibliothèques privées
+Action et Séries, déjà attestées owner_access et bot_access verified le
+24/11, ont été inscrites dans la liste D1 des réserves activées.
+AUCUN média manuement déposé n'a encore été enregistré dans la nouvelle
+boîte de réception et aucun nouvel envoi ne peut être déclaré testé
+en conditions réelles.
+
+### Instructions de dépôt manuel (après déploiement de la version activée)
+
+Film : une photo avec légende
+    Titre: Mon Film
+    Année: 2025
+puis un vrai fichier vidéo avec même titre et même année.
+
+Série / animé : une vraie photo d'affiche saison avec
+    Titre: Ma Série
+    S01
+puis des vrais épisodes ordonnés avec
+    Titre: Ma Série
+    S01E01
+    ...
+Les épisodes manquants ne sont jamais inventés ou sautés.
+
+Formation : une affiche
+    Cours: apprentissage-2026
+    Auteur: Nom du formateur autorisé
+puis chaque fichier (PDF, vidéo, document, ZIP, etc.) avec
+    Cours: apprentissage-2026
+    Total: 3
+    Partie: 1/3
+et ainsi de suite jusqu'à 3/3. Aucune formation incomplète ou
+dépourvue de crédit d'auteur n'est envoyée.
+
+Aucune extension exécutable ou fichier protégé ne peut être sélectionné.
+Le stockage manuel existant dans la même vidéothèque est pris en charge :
+la vidéo originale est référencée, pas envoyée deux fois dans la réserve.
+
+### Restrictions subsistantes et critères de disponibilité
+
+Un moteur complet dans GitHub ne prouve pas que Telegram peut publier.
+Seules les sources réellement possédées, approuvées, bot-admin et couvertes
+par des droits de redistribution pourront fonctionner. Les autres
+catégories nécessitent encore un audit live des canaux et un workflow
+de provisioning autorisé. Les invitations Secours sont à vérifier :
+l'archive D1 consultée ne contient actuellement qu'une entrée dédiée
+au canal Films. Les catégories sans Secours vérifié sont bloquées.
+Les bots de catégorie doivent aussi être inscrits dans les permissions
+réelles du stock central : les anciens inventaires ne prouvent pas
+leur accès, et aucune permission ne peut être supposée.
+Les 178 vidéos d'archive déjà publiées ne constituent PAS du stock
+neuf pour être republiées.
+
+Même après fusion/déploiement, un canal en attente de permissions, sans
+stock manuel, sans liens Secours ou avec erreur Telegram est marqué
+« non prêt », pas « opérationnel ». Sans vrai essai de contenu autorisé,
+ne jamais affirmer une validation bout en bout.
