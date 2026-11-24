@@ -11,6 +11,19 @@ def button(text, url):
 
 
 class Lot2EvidenceTests(unittest.TestCase):
+    def test_live_audit_runs_after_main_publication_not_before(self):
+        from pathlib import Path
+        workflow = (Path(__file__).resolve().parents[2] / ".github" /
+                    "workflows" / "cinex-lot2-live-evidence.yml").read_text("utf-8")
+        self.assertIn("workflow_run:", workflow)
+        self.assertIn("types: [completed]", workflow)
+        self.assertIn("CineX - Films, Desir, Comedie, Anime et Decouverte (6h)",
+                      workflow)
+        self.assertIn("github.event.workflow_run.head_branch == 'main'", workflow)
+        self.assertIn("head_repository.full_name == github.repository", workflow)
+        self.assertIn("--require-complete", workflow)
+        self.assertNotIn("cron: '17 6 * * *'", workflow)
+
     def test_required_acceptance_rejects_six_missing_live_samples(self):
         categories = ("films", "series", "desir", "comedie", "anime", "action")
         rows = [
