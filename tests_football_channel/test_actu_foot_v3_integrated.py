@@ -171,3 +171,52 @@ class FullCycleOfflineTest(unittest.TestCase):
         self.assertEqual(result["audit_receipts"],1)
         self.assertEqual(result["git_production_mutations"],0)
         self.assertEqual(len(objects),1)
+
+
+class RetentionCatchupTests(unittest.TestCase):
+    def setUp(self):
+        self.p=patch.dict(os.environ,{"ACTU_FOOT_V2_KEY_B64_V1":base64.b64encode(bytes(range(32))).decode()})
+        self.p.start();self.addCleanup(self.p.stop)
+
+    def test_multiple_archive_batches_drain_eligible_records(self):
+        from scripts.actu_foot_v3_maintenance import maintenance
+        from scripts.actu_foot_v2_store import collection_path,encrypt
+        from datetime import datetime,timezone
+        from unittest.mock import patch
+        store=MemoryAtomic()
+        old={f"old:{i:04d}":fixture(i,1) for i in range(2105)}
+        old["still:active"]=fixture(0,11)
+        store.files[collection_path("matches")]=encrypt("matches",old)
+        store.files[collection_path("audit")]=encrypt("audit",{})
+        with patch("scripts.actu_foot_v3_maintenance.datetime") as fixed_time:
+            fixed_time.now.return_value=datetime(2026,11,24,tzinfo=timezone.utc)
+            preview=maintenance(store,"matches",retention_days=90)
+            self.assertEqual(preview["eligible"],2105)
+            copies={}
+            def persist(path,blob):
+                digest=hashlib.sha256(blob.encode()).hexdigest()
+                copies[path]=blob
+                return digest
+            report=maintenance(store,"matches",retention_days=90,
+                execute=True,confirmation="APPROVE_V3_ENCRYPTED_COMPACTION",durable_copy=persist)
+        self.assertEqual(report["moved"],2105)
+        self.assertEqual(report["batches"],3)
+        self.assertEqual(set(store.load_collection("matches",store.head()[0]).data),{"still:active"})
+        self.assertEqual(len(copies),3)
+        self.assertEqual(len(audit_receipts(store.load_collection("audit",store.head()[0]).data)),3)
+
+    def test_backlog_is_reported_instead_of_silent_success(self):
+        from scripts.actu_foot_v3_maintenance import maintenance
+        from scripts.actu_foot_v2_store import collection_path,encrypt
+        store=MemoryAtomic()
+        records={f"old:{i:04d}":fixture(i,1) for i in range(1100)}
+        store.files[collection_path("matches")]=encrypt("matches",records)
+        store.files[collection_path("audit")]=encrypt("audit",{})
+        with patch("scripts.actu_foot_v3_maintenance.datetime") as fixed_time:
+            fixed_time.now.return_value=datetime(2026,11,24,tzinfo=timezone.utc)
+            with self.assertRaisesRegex(VaultError,"V3_RETENTION_BACKLOG_REMAINING"):
+                maintenance(store,"matches",retention_days=90,
+                    execute=True,confirmation="APPROVE_V3_ENCRYPTED_COMPACTION",
+                    durable_copy=lambda p,b:hashlib.sha256(b.encode()).hexdigest(),
+                    max_batches=1)
+        self.assertEqual(len(store.load_collection("matches",store.head()[0]).data),100)

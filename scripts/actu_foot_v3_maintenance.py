@@ -3,7 +3,7 @@ import argparse,json,os
 from datetime import datetime,timezone,timedelta
 from scripts.actu_foot_github_vault import VaultError
 from scripts.actu_foot_v3_atomic import GitAtomicStore
-from scripts.actu_foot_v3_archive import SAFE_FIELDS,partition,compact_month
+from scripts.actu_foot_v3_archive import SAFE_FIELDS,partition,compact_month,MAX_ARCHIVE_ITEMS
 from scripts.actu_foot_v3_cloud_archive import CloudArchive,recover_inventory
 from scripts.actu_foot_v3_service import production_check,inventory,audit_receipts
 DEFAULT_DAYS={"matches":90,"live_events":30,"news":60,"statistics":120}
@@ -13,19 +13,38 @@ def policy():
 def policy_active(value):
     return isinstance(value,dict) and all(value.get(k)==v for k,v in policy().items())
 
-def maintenance(store,collection,*,retention_days,execute=False,confirmation="",durable_copy=None):
+def maintenance(store,collection,*,retention_days,execute=False,confirmation="",durable_copy=None,max_batches=6):
     if collection not in SAFE_FIELDS:raise VaultError("Retention forbidden")
+    if type(max_batches) is not int or not 1<=max_batches<=12:
+        raise VaultError("Invalid compaction batch budget")
     if type(retention_days) is not int or not 30<=retention_days<=3650:raise VaultError("Invalid retention period")
     cutoff=datetime.now(timezone.utc)-timedelta(days=retention_days)
     parent,_=store.head()
     state=store.load_collection(collection,parent)
     if not state.exists:raise VaultError("Missing initialized collection")
-    _,groups=partition(state.data,date_field=SAFE_FIELDS[collection],cutoff=cutoff,collection=collection)
+    _,groups=partition(state.data,date_field=SAFE_FIELDS[collection],cutoff=cutoff,
+                       collection=collection,max_batch=MAX_ARCHIVE_ITEMS)
     selected=sum(len(v) for v in groups.values())
     if not execute:return {"collection":collection,"eligible":selected,"committed":False,"partitions":len(groups)}
     if confirmation!="APPROVE_V3_ENCRYPTED_COMPACTION":raise VaultError("Explicit confirmation required")
-    result=compact_month(store,collection,field=SAFE_FIELDS[collection],cutoff=cutoff,durable_copy=durable_copy)
-    return {"collection":collection,"eligible":selected,"committed":bool(result["commit"]),"moved":result["moved"]}
+    batches=[]
+    for _ in range(max_batches):
+        result=compact_month(store,collection,field=SAFE_FIELDS[collection],
+                             cutoff=cutoff,durable_copy=durable_copy)
+        if not result["moved"]:
+            break
+        batches.append(result)
+    # Do not silently mark retention successful while eligible records remain.
+    # Collections are bounded at 5,000 records; 6 batches of 1,000 cover the
+    # normal maximum even when arrivals require a retry.
+    now_head,_=store.head()
+    remaining=store.load_collection(collection,now_head).data
+    _,pending=partition(remaining,date_field=SAFE_FIELDS[collection],cutoff=cutoff,
+                        collection=collection,max_batch=MAX_ARCHIVE_ITEMS)
+    if pending:
+        raise VaultError("V3_RETENTION_BACKLOG_REMAINING: retry after anchored backup")
+    return {"collection":collection,"eligible":selected,"committed":bool(batches),
+            "moved":sum(item["moved"] for item in batches),"batches":len(batches)}
 
 def main():
     p=argparse.ArgumentParser()

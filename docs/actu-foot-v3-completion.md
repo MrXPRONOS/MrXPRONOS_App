@@ -51,3 +51,7 @@ La sauvegarde chiffrée et ancrée de sept collections **45408510666** est réus
 ## Audit d'exhaustivité — cache et requêtes
 
 Le lecteur `SnapshotReader` ne doit pas rester indéfiniment fixé au commit d'origine dans les processus longs : il vérifie désormais automatiquement l'état de la branche au plus tard toutes les 30 secondes par défaut (ou à intervalle configurable inférieur au TTL), invalide le cache et les index si le commit change, et invalide les anciens curseurs. L'audit a aussi détecté le silence sur certains filtres vides de type invalide et des exceptions de décodage de curseur non traduites : la requête refuse maintenant explicitement ces valeurs. Des tests isolés vérifient ces garanties sans mutation des données réelles.
+
+## Audit d'exhaustivité — rattrapage de la rétention
+
+La première implémentation arrêtait chaque collection après une seule tranche de 1 000 enregistrements. La maintenance exécute désormais jusqu'à six tranches bornées par collection (limite de taille V2 : 5 000), conserve les limites de rétention existantes, vérifie le reliquat et remonte explicitement `V3_RETENTION_BACKLOG_REMAINING` en cas de backlog au lieu de signaler un faux succès. Le pré-contrôle compte jusqu'à 5 000 candidats pour rendre la taille réelle du retard visible. Les tests couvrent plus de 2 000 enregistrements sur plusieurs lots et l'arrêt avec reliquat.

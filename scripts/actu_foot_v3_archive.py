@@ -29,9 +29,9 @@ def stamp_period(row,field):
     except (KeyError,ValueError,TypeError,AttributeError) as exc:
         raise VaultError("Archive entry lacks a valid UTC date") from exc
 
-def partition(records,*,date_field,cutoff,collection):
+def partition(records,*,date_field,cutoff,collection,max_batch=1000):
     if SAFE_FIELDS.get(collection)!=date_field:raise VaultError("Unsupported archive collection/field")
-    retained,selected=archive_expired(collection,records,timestamp_field=date_field,cutoff=cutoff)
+    retained,selected=archive_expired(collection,records,timestamp_field=date_field,cutoff=cutoff,max_batch=max_batch)
     groups={}
     for key,record in selected.items():
         period=stamp_period(record,date_field)
