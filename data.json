@@ -128,11 +128,11 @@
       "revalidated_at": "2026-11-12T00:06:33.714594+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-23T20:21:32.735989+00:00",
+      "settlement_checked_at": "2026-11-24T04:21:18.553351+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-24T00:21:32.735989+00:00"
+        "next_retry_after": "2026-11-24T08:21:18.553351+00:00"
       }
     },
     {
@@ -3025,11 +3025,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-23T20:21:32.735989+00:00",
+      "settlement_checked_at": "2026-11-24T04:21:18.553351+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-24T00:21:32.735989+00:00"
+        "next_retry_after": "2026-11-24T08:21:18.553351+00:00"
       }
     },
     {
@@ -6484,12 +6484,12 @@
       "badge": "BSD V2",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -6614,7 +6614,12 @@
         "odds_updated_at": "2026-11-22T00:05:08+00:00"
       },
       "revalidated_at": "2026-11-23T22:39:45.398715+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-11-24T04:21:18.553351+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:212335",
@@ -8359,7 +8364,8 @@
       "bsd:655433:UNDER_35:2026-11-22T21:30:00+00:00",
       "bsd:654311:UNDER_35:2026-11-22T22:00:00+00:00",
       "bsd:654315:1X:2026-11-23T01:00:00+00:00",
-      "bsd:654317:UNDER_35:2026-11-23T20:00:00+00:00"
+      "bsd:654317:UNDER_35:2026-11-23T20:00:00+00:00",
+      "bsd:7347:UNDER_35:2026-11-23T23:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
@@ -8379,12 +8385,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 171,
-        "wins": 140,
-        "sum_pred": 135.62000000000006,
+        "n": 172,
+        "wins": 141,
+        "sum_pred": 136.42000000000007,
         "penalty": 0.0,
-        "hit_rate": 0.818713,
-        "average_predicted": 0.793099
+        "hit_rate": 0.819767,
+        "average_predicted": 0.79314
       },
       "OVER_15": {
         "n": 109,
@@ -8437,16 +8443,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 281,
-        "wins": 226,
-        "sum_pred": 221.173,
+        "n": 282,
+        "wins": 227,
+        "sum_pred": 221.973,
         "penalty": 0.0,
-        "hit_rate": 0.80427,
-        "average_predicted": 0.787093
+        "hit_rate": 0.804965,
+        "average_predicted": 0.787138
       }
     },
     "last_added": 1,
-    "updated_at": "2026-11-24T00:06:28.049316+00:00",
+    "updated_at": "2026-11-24T04:21:18.553351+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -9052,12 +9058,12 @@
         "average_predicted": 0.81
       },
       "Brazilian Serie A|UNDER_35": {
-        "n": 3,
-        "wins": 2,
-        "sum_pred": 2.377,
+        "n": 4,
+        "wins": 3,
+        "sum_pred": 3.1769999999999996,
         "penalty": 0.0,
-        "hit_rate": 0.666667,
-        "average_predicted": 0.792333
+        "hit_rate": 0.75,
+        "average_predicted": 0.79425
       },
       "United States Major League Soccer|1X": {
         "n": 6,
@@ -33425,5 +33431,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-24T04:21:18.553351+00:00",
+    "checked": 3,
+    "settled": 1,
+    "pending": 2,
+    "h4": 1,
+    "h8": 0,
+    "fallback": 2,
+    "detail_hits": 1,
+    "reconciled_finished": 0
   }
 }
