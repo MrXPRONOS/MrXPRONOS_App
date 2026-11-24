@@ -1,5 +1,9 @@
 name: CineX + Formation - Secours manuel bot-only (6h)
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-manual-fallback-live.yml'
   workflow_dispatch:
     inputs:
       publish:
@@ -78,7 +82,7 @@ jobs:
         shell: bash
         run: python telegram-film-relay/scripts/probe_personal_session_for_fallback.py
       - name: Publier le stock manuel vérifié (sans aucun contournement FloodWait)
-        if: ${{ (github.event_name == 'schedule' || inputs.publish == true) && (steps.personal.outputs.status == 'session_missing' || steps.personal.outputs.status == 'session_revoked') && env.CINEX_MANUAL_FALLBACK_ENABLED == 'true' }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish == true) && (steps.personal.outputs.status == 'session_missing' || steps.personal.outputs.status == 'session_revoked') && env.CINEX_MANUAL_FALLBACK_ENABLED == 'true' }}
         env:
           PERSONAL_SESSION_STATUS: ${{ steps.personal.outputs.status }}
         run: node cinecanaux/manual-fallback-cycle.mjs
