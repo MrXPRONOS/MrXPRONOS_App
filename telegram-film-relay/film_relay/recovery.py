@@ -108,8 +108,9 @@ def recover_from_snapshot(cache: TelegramReceiptCache, state, pair_id: str,
                           media_id: str | None, movie, *, logger=None) -> str:
     """Return complete, staged, or none. Store a checkpoint BEFORE further sends.
 
-    Complete = a matching source document and a public post linking to that
-    precise private video. Staged = matching private video but no public post.
+    Complete = exact document and verified V4 photo+video+keyboard.
+    Incomplete = a legacy public link without full V4 proof (quarantine).
+    Staged = matching private video but no public post.
     """
     doc_id = movie_document_id(movie)
     if doc_id is None:
@@ -117,17 +118,28 @@ def recover_from_snapshot(cache: TelegramReceiptCache, state, pair_id: str,
     candidates = cache.by_document.get(doc_id, [])
     if not candidates:
         return "none"
-    # Prefer a video whose public post exists, including one from an older run.
+    # Only a fully verified photo + tagged video with matching four-button
+    # keyboards proves a V4 publication. An older poster with a private link
+    # is NOT enough; preserve its receipt and quarantine it without reupload.
     for private_video_id in candidates:
-        public_post_id = cache.public_by_video.get(private_video_id)
-        if public_post_id:
-            state.add(pair_id, media_id, private_video_id, public_post_id)
+        verified_poster_id = cache.public_v4_by_video.get(private_video_id)
+        if verified_poster_id:
+            state.add(pair_id, media_id, private_video_id, verified_poster_id)
             if logger:
                 logger.warning(
-                    "PUBLIÉ ANTÉRIEUREMENT, checkpoint réparé : %s privé=%s public=%s",
-                    pair_id, private_video_id, public_post_id,
+                    "Paire V4 confirmée, checkpoint réparé : %s privé=%s public=%s",
+                    pair_id, private_video_id, verified_poster_id,
                 )
             return "complete"
+    for private_video_id in candidates:
+        if private_video_id in cache.public_by_video:
+            state.stage(pair_id, private_video_id)
+            if logger:
+                logger.error(
+                    "Lien public historique sans paire V4 vérifiée : %s ; "
+                    "reprise bloquée, aucun doublon.", pair_id,
+                )
+            return "incomplete"
     # Video was copied but no public message completed. Resume only the public.
     state.stage(pair_id, candidates[0])
     if logger:
