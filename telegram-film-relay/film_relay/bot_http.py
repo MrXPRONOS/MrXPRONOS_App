@@ -42,19 +42,48 @@ class BotHTTPClient:
         self._identity = None
 
     def _call_sync(self, method: str, data: dict | None = None, files: dict | None = None):
+        """Retry transient *reads* once. Never retry a write with an uncertain receipt.
+
+        getMe/getChatMember are idempotent Bot API queries. A sendPhoto,
+        copyMessage, edit or delete timeout may have succeeded server-side,
+        so repeating one would create duplicate or destructive operations.
+        """
+        import time
+
         url = "https://api.telegram.org/bot" + self._token + "/" + method
-        try:
-            response = requests.post(url, data=data or {}, files=files, timeout=(10, self._timeout))
-            payload = response.json()
-        except (requests.exceptions.RequestException, ValueError) as exc:
-            raise TelegramBotHTTPError("Réseau Telegram indisponible (envoi incertain : pas de réessai automatique).") from exc
-        if response.status_code == 429 or not payload.get("ok", False):
-            info = payload.get("description", "Réponse Bot API rejetée")
-            wait = (payload.get("parameters") or {}).get("retry_after")
-            if wait is not None:
-                raise TelegramBotHTTPError("Telegram demande une pause de " + str(wait) + " secondes pour " + method)
-            raise TelegramBotHTTPError(method + " : " + str(info))
-        return payload["result"]
+        readonly = method in {"getMe", "getChatMember"} and files is None
+        attempts = 2 if readonly else 1
+        for attempt in range(attempts):
+            try:
+                response = requests.post(
+                    url, data=data or {}, files=files,
+                    timeout=(10, min(self._timeout, 30) if readonly else self._timeout),
+                )
+                payload = response.json()
+            except (requests.exceptions.RequestException, ValueError) as exc:
+                if readonly and attempt == 0:
+                    time.sleep(1)
+                    continue
+                detail = ("lecture en échec après deux tentatives sûres"
+                          if readonly else
+                          "envoi incertain : pas de réessai automatique")
+                raise TelegramBotHTTPError(
+                    "Réseau Telegram indisponible (" + detail + ").") from exc
+            # Retry a transient gateway error only for reads. Never retry 429:
+            # Telegram's retry_after must be respected by the owner cooldown.
+            if readonly and attempt == 0 and response.status_code in (500, 502, 503, 504):
+                time.sleep(1)
+                continue
+            if response.status_code == 429 or not payload.get("ok", False):
+                info = payload.get("description", "Réponse Bot API rejetée")
+                wait = (payload.get("parameters") or {}).get("retry_after")
+                if wait is not None:
+                    raise TelegramBotHTTPError(
+                        "Telegram demande une pause de " + str(wait) +
+                        " secondes pour " + method)
+                raise TelegramBotHTTPError(method + " : " + str(info))
+            return payload["result"]
+        raise TelegramBotHTTPError(method + " : aucune réponse de lecture vérifiée")
 
     async def _call(self, method, data=None, files=None):
         return await asyncio.to_thread(self._call_sync, method, data, files)
