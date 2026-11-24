@@ -49,14 +49,9 @@ def configured_chat(category: str, env=None):
             raise ValueError("ID du canal manuel personnalisé invalide")
         return custom
     existing = str(env.get(EXISTING_VARIABLES.get(category, ""), "") or "").strip()
-    if category.startswith("formation_") and category != "formation_general":
-        raw = str(env.get("FORMATION_DESTINATIONS_JSON") or "").strip()
-        if raw:
-            try:
-                candidate = json.loads(raw).get(category.split("_", 1)[1])
-            except (ValueError, TypeError, AttributeError) as exc:
-                raise ValueError("FORMATION_DESTINATIONS_JSON invalide") from exc
-            existing = str(candidate or "").strip()
+    # Public Formation destinations are NOT owner-only storage vaults.
+    # Specialty courses must use a separately verified manual private chat.
+    # Without one, the provisioning step can create a genuinely private vault.
     if existing:
         if not CHANNEL.fullmatch(existing):
             # Some old public destination usernames are not suitable private vaults.
