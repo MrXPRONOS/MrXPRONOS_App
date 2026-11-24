@@ -221,6 +221,21 @@ async def preflight(client, bot, cfg: dict, audit: dict | None = None):
     return source_peers, private, public, bot_public, mirror, mirror_key
 
 
+def existing_public_v4_status(cache, private_video_id: int) -> str:
+    """Never mistake an old link for the V4 photo/video/keyboard pair.
+
+    verified: actual V4 pair; quarantined: link without full proof;
+    absent: no previously published matching private video reference.
+    This helper does not modify Telegram state or media.
+    """
+    mid = int(private_video_id)
+    if mid in cache.public_v4_by_video:
+        return "verified"
+    if mid in cache.public_by_video:
+        return "quarantined"
+    return "absent"
+
+
 async def run(*, category: str, publish: bool = False, limit: int = 1,
               require_publication: bool = False) -> int:
     from telethon import TelegramClient, utils
@@ -376,10 +391,10 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     client, private, public, private_id,
                     private_limit=110, public_limit=350,
                 )
-                prior_public = cache.public_by_video.get(int(staged["video"]))
-                if prior_public:
+                prior_status = existing_public_v4_status(cache, staged["video"])
+                if prior_status != "absent":
                     verified_poster = cache.public_v4_by_video.get(int(staged["video"]))
-                    if not verified_poster:
+                    if prior_status == "quarantined":
                         # Preserve the old receipt but let unrelated verified
                         # candidates proceed. Do not clone a public video.
                         quarantined_legacy += 1
@@ -401,10 +416,10 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 prior = cache.by_document.get(doc_id, []) if doc_id else []
                 if prior:
                     saved_video = int(prior[0])
-                    existing_public = cache.public_by_video.get(saved_video)
-                    if existing_public:
+                    prior_status = existing_public_v4_status(cache, saved_video)
+                    if prior_status != "absent":
                         verified_poster = cache.public_v4_by_video.get(saved_video)
-                        if not verified_poster:
+                        if prior_status == "quarantined":
                             state.stage(key, "video", saved_video)
                             quarantined_legacy += 1
                             LOG.error(
