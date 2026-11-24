@@ -50,6 +50,25 @@ async function authenticate(auth,purpose) {
 async function sha256(value) {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(value)))].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
+// D1 is the independent, strongly consistent append-only trust anchor.
+export function anchorExtends(previous, manifest, anchor, hashes) {
+  const validHash = h => typeof h==='string' && /^[a-f0-9]{64}$/.test(h);
+  if (!previous || !Number.isSafeInteger(anchor.sequence) || anchor.sequence<0 ||
+      !Array.isArray(hashes) || hashes.length!==anchor.sequence ||
+      hashes.length>100000 || !hashes.every(validHash) ||
+      anchor.entry_hash!==(hashes.at(-1)||'0'.repeat(64)) ||
+      anchor.sequence<previous.sequence ||
+      (previous.sequence>0 && hashes[previous.sequence-1]!==previous.entry_hash)) return false;
+  const old=JSON.parse(previous.collections_json);
+  for(const name of COLLECTIONS){
+    const before=old[name],after=manifest.collections[name];
+    if(!before||!after||!Number.isSafeInteger(after.generation)||after.generation<before.generation||
+       !Number.isSafeInteger(after.key_version)||after.key_version<before.key_version||
+       !validHash(after.sha256)||
+       (after.generation===before.generation && (after.sha256!==before.sha256||after.key_version!==before.key_version))) return false;
+  }
+  return true;
+}
 async function writeBackup(req,env,claims) {
   if(Number(req.headers.get('content-length')||0)>MAX_BODY) return reject(413);
   let body,manifest;
@@ -59,6 +78,7 @@ async function writeBackup(req,env,claims) {
     body=JSON.parse(raw);
     if(typeof body?.manifest!=='string' || !body.files || typeof body.files!=='object') return reject(400);
     manifest=JSON.parse(body.manifest);
+    if(manifest.anchor_protocol!==2 || manifest.source_commit!==claims.sha) return reject(400);
     if(manifest.format!=='actufoot-v2-backup-v2' ||
        JSON.stringify(Object.keys(manifest.collections||{}).sort())!==JSON.stringify(COLLECTIONS) ||
        JSON.stringify(Object.keys(body.files).sort())!==JSON.stringify(COLLECTIONS)) return reject(400);
@@ -67,25 +87,38 @@ async function writeBackup(req,env,claims) {
       if(typeof blob!=='string' || blob.length>MAX_FILE || !meta || meta.filename!==name+'.aes.json') return reject(400);
       const hdr=JSON.parse(blob);
       if(hdr.format!=='mrxp.actufoot.v2.aes256gcm' || hdr.collection!==name ||
-         !hdr.ciphertext_b64 || !hdr.nonce_b64) return reject(400);
+         !hdr.ciphertext_b64 || !hdr.nonce_b64 || hdr.generation!==meta.generation || hdr.key_version!==meta.key_version) return reject(400);
       if(await sha256(blob)!==meta.sha256) return reject(400);
     }
     const anchor=body.anchor;
     if(!anchor || !Number.isSafeInteger(anchor.sequence) || anchor.sequence<0 ||
        !/^[a-f0-9]{64}$/.test(anchor.entry_hash) ||
-       anchor.audit_generation!==manifest.collections.audit.generation) return reject(400);
+       anchor.audit_generation!==manifest.collections.audit.generation || anchor.sequence!==manifest.collections.audit.record_count) return reject(400);
   }catch{return reject(400);}
   const prefix='snapshots/'+claims.run_id+'/'+claims.run_attempt;
-  if(await env.BACKUPS.get(prefix+'/manifest.json')!==null) return reject(409);
+  // Fail closed if no independently seeded baseline, a replay, or a rollback.
   try{
+    const head=await env.ANCHOR.prepare('SELECT * FROM anchor_log ORDER BY id DESC LIMIT 1').first();
+    if(!head) return reject(503);
+    if(!anchorExtends(head,manifest,body.anchor,body.audit_hashes)) return reject(409);
+    const claim=await env.ANCHOR.prepare('INSERT OR IGNORE INTO snapshot_claim(run_id,attempt) VALUES (?,?)')
+      .bind(String(claims.run_id),String(claims.run_attempt)).run();
+    if(claim.meta.changes!==1 || await env.BACKUPS.get(prefix+'/manifest.json')!==null) return reject(409);
     for(const name of COLLECTIONS) await env.BACKUPS.put(prefix+'/'+name+'.aes.json',body.files[name]);
     const proof={repository:REPO,workflow:BACKUP_WORKFLOW,run:String(claims.run_id),
-                 attempt:String(claims.run_attempt),commit:claims.sha,uploaded_at:new Date().toISOString()};
+                 attempt:String(claims.run_attempt),commit:claims.sha,anchor_protocol:2,uploaded_at:new Date().toISOString()};
     await env.BACKUPS.put(prefix+'/provenance.json',JSON.stringify(proof));
     await env.BACKUPS.put(prefix+'/audit_anchor.json',JSON.stringify(body.anchor));
     await env.BACKUPS.put(prefix+'/manifest.json',body.manifest);
+    // CAS append: simultaneous backups cannot both advance the same baseline.
+    // A snapshot left behind by a lost CAS is never accepted for recovery.
+    const committed=await env.ANCHOR.prepare(
+      'INSERT INTO anchor_log(run_id,attempt,source_commit,sequence,entry_hash,collections_json,manifest_sha256) SELECT ?,?,?,?,?,?,? WHERE (SELECT MAX(id) FROM anchor_log)=?')
+      .bind(proof.run,proof.attempt,proof.commit,body.anchor.sequence,body.anchor.entry_hash,
+        JSON.stringify(manifest.collections),await sha256(body.manifest),head.id).run();
+    if(committed.meta.changes!==1) return reject(409);
   }catch{return reject(503);}
-  return respond(201,{ok:true,count:COLLECTIONS.length,run:String(claims.run_id)});
+  return respond(201,{ok:true,count:COLLECTIONS.length,run:String(claims.run_id),anchor_protocol:2});
 }
 async function readRecovery(req,env) {
   let run,attempt;
@@ -115,6 +148,13 @@ async function readRecovery(req,env) {
        !/^[a-f0-9]{40}$/.test(proof.commit)) return reject(503);
     const anchorRaw=await env.BACKUPS.get(prefix+'/audit_anchor.json');
     const anchor=anchorRaw===null?null:JSON.parse(anchorRaw);
+    if(meta.anchor_protocol===2 || proof.anchor_protocol===2){
+      const accepted=await env.ANCHOR.prepare('SELECT * FROM anchor_log WHERE run_id=? AND attempt=?').bind(run,attempt).first();
+      if(!accepted||meta.anchor_protocol!==2||proof.anchor_protocol!==2||
+         accepted.manifest_sha256!==await sha256(manifest)||accepted.source_commit!==proof.commit||
+         accepted.sequence!==anchor?.sequence||accepted.entry_hash!==anchor?.entry_hash||
+         anchor.audit_generation!==meta.collections.audit.generation) return reject(503);
+    }
     return respond(200,{ok:true,files,manifest,provenance:proof,anchor});
   }catch{return reject(503);}
 }

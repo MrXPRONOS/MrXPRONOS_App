@@ -28,7 +28,7 @@ def snapshot(root: Path, *, branch: str = "main", strict: bool = True, source_co
     root.mkdir(parents=True, exist_ok=True)
     # A prior manifest must never describe a partially written new snapshot.
     (root / "manifest.json").unlink(missing_ok=True)
-    index = {"format": "actufoot-v2-backup-v2", "source_commit": source_commit, "collections": {}}
+    index = {"format": "actufoot-v2-backup-v2", "source_commit": source_commit, "anchor_protocol": 2, "collections": {}}
     for collection in COLLECTIONS:
         vault = CollectionVault(collection, branch=branch)
         response = vault.session.get(vault.url, headers=vault.headers,

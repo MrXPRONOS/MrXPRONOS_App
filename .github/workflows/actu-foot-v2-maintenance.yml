@@ -8,6 +8,7 @@ on:
         options:
           - verify
           - restore
+          - rotate-preview
           - rotate
       collection:
         type: choice
@@ -21,7 +22,7 @@ on:
           - settings
           - audit
       confirmation:
-        description: 'RESTORE_ENCRYPTED_V2 or ROTATE_ENCRYPTED_V2 for writes'
+        description: 'RESTORE_ENCRYPTED_V2 or ROTATE_ALL_ENCRYPTED_V2 for writes'
         type: string
         required: false
       backup_artifact_id:
@@ -29,7 +30,7 @@ on:
         type: string
         required: false
       expected_sha:
-        description: 'GitHub SHA for guarded restore'
+        description: 'Current collection blob SHA for restore; current main commit SHA for atomic rotation'
         type: string
         required: false
       minimum_generation:
@@ -43,7 +44,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: actu-foot-v2-maintenance
+  group: actufoot-v3-atomic-maintenance
   cancel-in-progress: false
 jobs:
   maintenance:
@@ -51,6 +52,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     permissions:
       contents: write
+      actions: read
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -90,9 +92,13 @@ jobs:
               python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID"
               python -m scripts.actu_foot_v2_operations --operation restore --collection "$COLLECTION" --expected-sha "$EXPECTED_SHA" --minimum-generation "$MIN_GENERATION" --confirm "$CONFIRM"
               ;;
+            rotate-preview)
+              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION"
+              ;;
             rotate)
-              test "$CONFIRM" = "ROTATE_ENCRYPTED_V2"
-              python -m scripts.actu_foot_v2_operations --operation rotate --collection "$COLLECTION" --target-version "$NEW_VERSION" --confirm "$CONFIRM"
+              test "$CONFIRM" = "ROTATE_ALL_ENCRYPTED_V2"
+              test -n "$EXPECTED_SHA"
+              python -m scripts.actu_foot_v2_atomic_rotation --target "$NEW_VERSION" --expected-commit "$EXPECTED_SHA" --execute --confirmation "$CONFIRM"
               ;;
             *) exit 2 ;;
           esac

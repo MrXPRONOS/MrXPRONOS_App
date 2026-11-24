@@ -121,3 +121,9 @@ test-channel integration and gradual production switch.
 
 This hardening does not migrate Supabase/Neon, change Telegram channels, or
 claim that GitHub is a high-frequency transactional engine.
+
+## Rotation dédiée et protection de l'audit (24 novembre)
+
+La clé historique est nécessaire aux anciennes sauvegardes. Ne pas créer une nouvelle V1 aléatoire : cela rendrait les anciens ciphertexts illisibles. Générer hors chat une clé de 32 octets Base64 et la stocker dans ACTU_FOOT_V2_KEY_B64_V2. Garder une copie hors GitHub sécurisée de la clé historique et de la clé V2. Le workflow maintenance propose rotate-preview (lecture et vérification locale des sept enveloppes) puis rotate, confirmation ROTATE_ALL_ENCRYPTED_V2 et SHA exact du main approuvé. Les sept collections et l'événement d'audit sont écrits en un commit non forcé, puis relus. Garder la clé historique pour restaurer les archives. Aucun changement de clé automatique.
+
+Le secret V2 et les règles d'environnement nécessitent toujours un administrateur. La restauration d'audit ne peut pas supprimer ou remplacer des entrées existantes. La restauration réelle de production reste une opération explicitement approuvée, jamais un test destructif.
