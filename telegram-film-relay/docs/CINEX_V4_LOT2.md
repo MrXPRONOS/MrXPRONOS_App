@@ -19,7 +19,13 @@ Les fichiers source et la description authentique sont préservés. Le contrôle
 
 Ce contrat s'applique aux relais Films, Comédie, Action, Désir, films d'animés et aux épisodes Séries/Animés des catalogues.
 
-## Bot-only Anime V2
+## Décision propriétaire — réutilisation du bot principal (24/11/2026)
+
+Le relais hybride Anime utilise désormais le même secret de publication que Films et Séries : `FOOTBALL_NEWS_BOT_TOKEN`, avec le même secours `TELEGRAM_BOT_TOKEN`. Le compte personnel reste le lecteur des sources déjà autorisées ; le bot publie uniquement vers les destinations existantes. Aucun nouveau consommateur getUpdates, aucun bot ajouté aux sources, aucune modification des webhooks. Le prévol vérifie les permissions du même bot que le workflow réel. Le mode autonome Bot API ci-dessous reste distinct et non activé ; la réutilisation du bot ne constitue pas une validation de ce mode.
+
+Le numéro 16 est réaffecté au bot principal dans les workflows d'administration et de réactions, sans lire le secret révoqué. Ce rôle est un alias : une seule identité Telegram, une seule réaction possible par message. Les identités réservées et doublons restent exclus du mécanisme de réactions supplémentaires. L'audit d'administration déclenché par push reste en lecture seule ; une promotion exige un déclenchement manuel explicite.
+
+## Bot-only Anime V2 (ancien mode distinct, non activé)
 
 Le bot autonome ne peut pas utiliser la session Telethon. Il copie directement affiche + vidéo du canal source vers le **même stock central**, enregistre la référence exacte via CineRadar, puis publie dans la vidéothèque Anime (fiche 3 boutons, vidéo) et dans le public (fiche + vidéo 4 boutons). Chacun de ses envois possède un reçu idempotent, et un résultat incertain stoppe les reprises.
 
