@@ -1,0 +1,123 @@
+name: CineX / Formation - Préparer une réserve manuelle privée
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'Catégorie de réserve privée à vérifier (une par exécution)'
+        required: true
+        type: choice
+        options:
+          - films
+          - series
+          - animes
+          - comedie
+          - action
+          - desir
+          - formation_general
+          - formation_business
+          - formation_finance
+          - formation_digitale
+          - formation_mindset
+      apply:
+        description: 'Créer un canal UNIQUEMENT s’il manque, sinon simulation'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN || secrets.CINE_RADAR_BOT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CINEX_MANUAL_RIGHTS_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_ATTESTED || 'false' }}
+      CINEX_MANUAL_OWNER_APPROVED: ${{ vars.CINEX_MANUAL_OWNER_APPROVED || 'false' }}
+      FORMATION_DESTINATIONS_JSON: ${{ secrets.FORMATION_DESTINATIONS_JSON }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      CINEX_MANUAL_FILMS_CHAT: ${{ secrets.CINEX_MANUAL_FILMS_CHAT }}
+      CINEX_MANUAL_SERIES_CHAT: ${{ secrets.CINEX_MANUAL_SERIES_CHAT }}
+      CINEX_MANUAL_ANIMES_CHAT: ${{ secrets.CINEX_MANUAL_ANIMES_CHAT }}
+      CINEX_MANUAL_COMEDIE_CHAT: ${{ secrets.CINEX_MANUAL_COMEDIE_CHAT }}
+      CINEX_MANUAL_ACTION_CHAT: ${{ secrets.CINEX_MANUAL_ACTION_CHAT }}
+      CINEX_MANUAL_DESIR_CHAT: ${{ secrets.CINEX_MANUAL_DESIR_CHAT }}
+      CINEX_MANUAL_FORMATION_GENERAL_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_GENERAL_CHAT }}
+      CINEX_MANUAL_FORMATION_BUSINESS_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_BUSINESS_CHAT }}
+      CINEX_MANUAL_FORMATION_FINANCE_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_FINANCE_CHAT }}
+      CINEX_MANUAL_FORMATION_DIGITALE_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_DIGITALE_CHAT }}
+      CINEX_MANUAL_FORMATION_MINDSET_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_MINDSET_CHAT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contrôler les sources, sans appeler Telegram
+        run: |
+          python -m py_compile telegram-film-relay/scripts/provision_manual_vault.py
+          cd telegram-film-relay
+          python -m unittest discover -s tests -p 'test_provision_manual_vault.py' -v
+      - name: Respecter les limites de la session personnelle
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - name: Installer les dépendances Telegram
+        run: python -m pip install 'telethon==1.45.0' 'requests==2.32.5'
+      - name: Préparer D1 pour l’inventaire (seulement si activation explicitement autorisée)
+        if: ${{ inputs.apply && vars.CINEX_MANUAL_RIGHTS_ATTESTED == 'true' && vars.CINEX_MANUAL_OWNER_APPROVED == 'true' }}
+        env:
+          CLOUDFLARE_ACCOUNT_ID: 9c86118191b804d91b5f5b2c89114999
+          CINERADAR_D1_DATABASE_ID: fa8b5009-bc1a-4a6e-b143-7a487c7297a5
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import requests
+          sql = Path("cinecanaux/migrations/029_cinex_manual_fallback.sql").read_text()
+          statements = [x.strip() for x in sql.split(";") if x.strip() and not x.strip().startswith("--")]
+          token=os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
+          if not token:
+              raise SystemExit("Cloudflare credentials unavailable")
+          base = ("https://api.cloudflare.com/client/v4/accounts/" +
+                  os.environ["CLOUDFLARE_ACCOUNT_ID"] + "/d1/database/" +
+                  os.environ["CINERADAR_D1_DATABASE_ID"] + "/query")
+          for statement in statements:
+              response=requests.post(base,headers={"Authorization":"Bearer "+token},
+                  json={"sql":statement,"params":[]},timeout=15)
+              try:
+                  payload=response.json()
+                  assert response.ok and payload.get("success") is True
+                  assert payload.get("result") and payload["result"][0].get("success") is True
+              except (ValueError,AssertionError):
+                  raise SystemExit("Private D1 schema unavailable") from None
+          print("Private D1 schema ready")
+          PY
+      - name: Réutiliser ou créer UN canal privé et valider le bot
+        env:
+          VAULT_CATEGORY: ${{ inputs.category }}
+          VAULT_APPLY: ${{ inputs.apply }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$VAULT_APPLY" = "true" ]; then
+            python telegram-film-relay/scripts/provision_manual_vault.py --category "$VAULT_CATEGORY" --apply
+          else
+            python telegram-film-relay/scripts/provision_manual_vault.py --category "$VAULT_CATEGORY"
+          fi
