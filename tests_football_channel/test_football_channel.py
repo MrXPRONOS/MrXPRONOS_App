@@ -944,7 +944,7 @@ class FootballChannelTests(unittest.TestCase):
         session = Mock()
         session.post.return_value = response
         with patch.dict("os.environ", {
-            "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+            "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
         }):
             ledger = m.RemotePublicationLedger(session, enabled=True)
             claim = ledger.claim(m.Publication("goal", "goal:locked", "goal"), NOW)
@@ -979,7 +979,7 @@ class FootballChannelTests(unittest.TestCase):
         session.get.return_value = get_response
         session.patch.return_value = patch_response
         with patch.dict("os.environ", {
-            "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+            "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
         }):
             ledger = m.RemotePublicationLedger(session, enabled=True)
             restored = ledger._hydrate_legacy_item(item)

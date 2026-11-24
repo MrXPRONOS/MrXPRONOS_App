@@ -21,7 +21,7 @@ class MatchLifecycleTests(unittest.TestCase):
         adapter.start()
         self.addCleanup(adapter.stop)
     @patch.dict("os.environ", {
-        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+        "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
     }, clear=False)
     def test_neon_live_prefers_canonical_merged_state(self):
         class Response:
@@ -187,7 +187,7 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertIn("fin_tirs_au_but", kinds)
 
     @patch.dict("os.environ", {
-        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+        "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
     }, clear=False)
     def test_canonical_live_events_roundtrip(self):
         canonical_payload = {
@@ -215,7 +215,7 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertFalse(row["confirmed"])
 
     @patch.dict("os.environ", {
-        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+        "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
     }, clear=False)
     def test_canonical_event_becomes_visible_only_after_confirmation(self):
         class Response:

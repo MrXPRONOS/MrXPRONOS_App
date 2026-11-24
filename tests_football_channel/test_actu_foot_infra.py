@@ -68,7 +68,7 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertEqual(session.post_calls, [])
 
     @patch.dict(os.environ, {
-        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+        "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
     }, clear=True)
     def test_source_cache_default_ttl_covers_next_lifecycle_run(self):
         session = _Session()
@@ -154,7 +154,7 @@ class ActuFootInfrastructureTests(unittest.TestCase):
 
     @patch.dict(os.environ, {
         "FOOTBALL_RUN_METRICS": "1",
-        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
+        "SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key",
         "GITHUB_RUN_ID": "123",
     }, clear=True)
     def test_metrics_persist_private_health_snapshot(self):

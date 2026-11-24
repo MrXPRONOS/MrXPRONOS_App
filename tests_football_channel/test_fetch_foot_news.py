@@ -59,7 +59,7 @@ class PublicNewsSnapshotTests(unittest.TestCase):
         }])
         self.assertEqual(rows[0]["image"], "https://cdn.example.org/test.jpg")
 
-    @patch.dict(os.environ, {"NEON_DATABASE_URL":"postgresql://fake-neon-test"}, clear=True)
+    @patch.dict(os.environ, {"SUPABASE_URL":"https://nhwafcpndlufzzxexikh.supabase.co", "SUPABASE_SERVICE_ROLE_KEY":"fake-supabase-service-key"}, clear=True)
     @patch("scripts.neon_rest_compat.NeonRestSession")
     def test_persist_snapshot_upsert_latest(self, adapter):
         response = Mock()
