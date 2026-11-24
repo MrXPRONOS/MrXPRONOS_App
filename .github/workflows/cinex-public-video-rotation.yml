@@ -1,6 +1,11 @@
 name: CineX - Rotation biquotidienne des 10 videos par canal
 
 on:
+  # Un seul lancement par commit du fichier témoin, sans contournement des droits.
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-rotation-manual-run-once'
   workflow_dispatch:
     inputs:
       repair:
@@ -89,6 +94,10 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Tester la rotation hors ligne
         run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
+      - name: Tester les associations de films historiques et multiparties
+        run: python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Vérifier la syntaxe avant l'archivage
+        run: python -m compileall -q film_relay
       - name: Tester le contrôle de couverture sans réseau
         run: python -m unittest discover -s tests -p 'test_rotation_coverage.py' -v
       - name: Vérifier les chaînes cinéma non couvertes sans rien supprimer
@@ -109,7 +118,7 @@ jobs:
         continue-on-error: true
         run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
       - name: Rattraper les archives anciennes (aucune suppression)
-        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.repair == true) || (github.event_name == 'schedule' && vars.CINEX_LEGACY_REPAIR_ENABLED == 'true') }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.repair == true) || github.event_name == 'push' || (github.event_name == 'schedule' && vars.CINEX_LEGACY_REPAIR_ENABLED == 'true') }}
         env:
           RUN_REPAIR_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' }}
         shell: bash
@@ -122,7 +131,7 @@ jobs:
       - name: Analyser puis archiver
         env:
           CINEX_MANUAL_PURGE_REQUEST: ${{ github.event_name == 'workflow_dispatch' && inputs.apply == true && inputs.purge_unmatched == true }}
-          RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
+          RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
         shell: bash
         run: |
           if [[ "$RUN_APPLY" == "true" ]]; then
