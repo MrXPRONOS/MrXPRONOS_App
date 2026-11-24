@@ -4,7 +4,7 @@
 import {randomBytes} from 'node:crypto';
 import {planMovies,planSeasons,planCourses,selectManualCycle}
  from './manual-fallback-planner.mjs';
-import {performJournaledCopy,ManualReceiptBlocked}
+import {performJournaledCopy,acquireManualReceipt,completeManualReceipt}
  from './manual-fallback-journal.mjs';
 
 const ID=/^-100\d{6,}$/;
@@ -145,6 +145,16 @@ export class FallbackPublisher{
    return Number(result.message_id);
   });
  }
+ async originalPrivateReceipt({category,key,stage,chat,messageId}){
+  // Owner-uploaded video is already in this exact verified private library.
+  // Record its real message ID without copying it a second time.
+  const op={category,content_key:key,stage,
+   target_chat_id:String(chat),source_chat_id:String(chat),
+   source_message_id:Number(messageId)};
+  const state=await acquireManualReceipt(this.journalEnv,op);
+  if(state.status==='complete')return state;
+  return await completeManualReceipt(this.journalEnv,op,Number(messageId));
+ }
  async registry(stockChat,stockMessage,title,publicHandle){
   const ready=await this.lookup("SELECT stock_chat_id,radar_bot_id FROM cine_private_stock_config WHERE singleton=1 AND ready=1");
   assert(ready.length===1&&String(ready[0].stock_chat_id)===String(stockChat)&&n(ready[0].radar_bot_id),'stock_registry_mismatch');
@@ -183,8 +193,10 @@ export class FallbackPublisher{
   assert(String(src.id)===String(source)&&String(priv.id)===String(t.private)&&
    String(pub.username).toLowerCase()===t.public.slice(1).toLowerCase(),
    'telegram_channel_identity_mismatch');
-  assert(src.id!==priv.id&&src.id!==pub.id&&pub.id!==priv.id,
-   'overlapping_source_and_destinations');
+  // The owner's existing category library may double as the import vault.
+  // In that case the original private video is REFERENCED, not recopied.
+  assert(src.id!==pub.id&&pub.id!==priv.id,
+   'overlapping_public_and_source_destinations');
   const rescue=await this.lookup(
    'SELECT invite_url FROM cine_classic_rescue_config WHERE LOWER(public_handle)=LOWER(?)',
    [t.public]
@@ -213,9 +225,12 @@ export class FallbackPublisher{
    stage:'central_stock',target:t.central,source:item.source_chat_id,
    messageId:item.video_message_id,payload:{caption:'🎞️ '+title}});
   const download=await this.registry(t.central,stock.message_id,title,t.publicHandle);
-  const privateVideo=await this.receipt(t.bot,{category:item.category,key:mainKey,
-   stage:'private_video',target:t.privateChat,source:item.source_chat_id,
-   messageId:item.video_message_id,payload:{caption:'🎞️ '+title}});
+  const privateVideo=item.source_chat_id===t.privateChat?
+   await this.originalPrivateReceipt({category:item.category,key:mainKey,
+    stage:'private_video',chat:t.privateChat,messageId:item.video_message_id}):
+   await this.receipt(t.bot,{category:item.category,key:mainKey,
+    stage:'private_video',target:t.privateChat,source:item.source_chat_id,
+    messageId:item.video_message_id,payload:{caption:'🎞️ '+title}});
   assert(privateVideo.status==='complete','private_video_receipt_incomplete');
   const cover=await this.receipt(t.bot,{category:item.category,key:mainKey,
    stage:'private_poster',target:t.privateChat,source:item.source_chat_id,
@@ -257,9 +272,14 @@ export class FallbackPublisher{
     text:indexBody,disable_web_page_preview:true}});
   const indexUrl=internalMessageUrl(t.privateChat,index.message_id);
   for(const {ep,key} of downloads){
-   await this.receipt(t.bot,{category:item.category,key,stage:'private_video',
-    target:t.privateChat,source:item.source_chat_id,
-    messageId:ep.video_message_id,payload:{caption:icon+' '+title+' E'+ep.number}});
+   if(item.source_chat_id===t.privateChat){
+    await this.originalPrivateReceipt({category:item.category,key,
+     stage:'private_video',chat:t.privateChat,messageId:ep.video_message_id});
+   }else{
+    await this.receipt(t.bot,{category:item.category,key,stage:'private_video',
+     target:t.privateChat,source:item.source_chat_id,
+     messageId:ep.video_message_id,payload:{caption:icon+' '+title+' E'+ep.number}});
+   }
   }
   const cover=await this.receipt(t.bot,{category:item.category,key:item.key,
    stage:'private_poster',target:t.privateChat,source:item.source_chat_id,
@@ -301,10 +321,14 @@ export class FallbackPublisher{
   const label='📚 '+item.key.split(':').slice(1).join(' ');
   for(const part of item.parts){
    const base=item.key+':part'+part.number;
-   const mid=await this.receipt(bot,{category:item.category,
-    key:base+':stage',stage:'formation_file',target:String(technical.id),
-    source:item.source_chat_id,messageId:part.message_id,
-    payload:{caption:label+' — '+part.number+'/'+item.parts.length}});
+   const mid=String(technical.id)===String(item.source_chat_id)?
+    await this.originalPrivateReceipt({category:item.category,
+     key:base+':stage',stage:'formation_file',chat:String(technical.id),
+     messageId:part.message_id}):
+    await this.receipt(bot,{category:item.category,
+     key:base+':stage',stage:'formation_file',target:String(technical.id),
+     source:item.source_chat_id,messageId:part.message_id,
+     payload:{caption:label+' — '+part.number+'/'+item.parts.length}});
    await this.receipt(bot,{category:item.category,key:base+':destination',
     stage:'formation_file',target:String(target.id),
     source:String(technical.id),messageId:mid.message_id,
