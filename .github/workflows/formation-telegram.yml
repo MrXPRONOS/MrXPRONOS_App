@@ -1,0 +1,72 @@
+name: Formation V1 - Telegram
+on:
+  schedule:
+    - cron: '0 8,20 * * *'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publier les formations autorisees'
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - 'formation-relay/**'
+      - '.github/workflows/formation-telegram.yml'
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m compileall -q formation-relay
+      - run: python -m unittest discover -s formation-relay -p 'test_*.py' -v
+  relay:
+    needs: tests
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.FORMATION_ENABLED == 'true' && vars.FORMATION_RIGHTS_ATTESTED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+    concurrency:
+      group: mrx-telegram-personal-account
+      cancel-in-progress: false
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_SOURCES_JSON: ${{ secrets.FORMATION_SOURCES_JSON }}
+      FORMATION_DESTINATIONS_JSON: ${{ secrets.FORMATION_DESTINATIONS_JSON }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      FORMATION_STATE_KEY: ${{ secrets.FORMATION_STATE_KEY }}
+      FORMATION_RIGHTS_ATTESTED: ${{ vars.FORMATION_RIGHTS_ATTESTED }}
+      FORMATION_DURABLE_STATE: 'true'
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - run: python -m pip install telethon==1.45.0 requests==2.32.5
+      - name: Configure durable receipts
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: Read or publish
+        env:
+          PUBLISH: ${{ github.event_name == 'schedule' || inputs.publish == true }}
+        run: |
+          if [ "$PUBLISH" = true ]; then
+            python formation-relay/relay.py --publish
+          else
+            python formation-relay/relay.py
+          fi
