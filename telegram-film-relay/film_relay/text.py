@@ -123,7 +123,10 @@ def descriptive_title(text: str) -> str:
         if line.lstrip().startswith("#"):
             continue
         normalized = re.sub(r"^[\W_]+", "", line).strip()
-        if _METADATA_FIELD.match(normalized) or _TITLE_FIELD.match(normalized):
+        if _METADATA_FIELD.match(normalized):
+            # The lines following metadata may be a multiline synopsis.
+            break
+        if _TITLE_FIELD.match(normalized):
             continue
         # A prose paragraph is not a reliable movie title.
         if len(normalized) > 130 or len(normalized.split()) > 16:
@@ -136,7 +139,7 @@ def descriptive_title(text: str) -> str:
 
 def resolved_media_title(poster=None, video=None, *, preferred="", description="") -> str:
     """Use supplied metadata or real file names, never invent a title."""
-    from .title_guard import filename_title
+    from .title_guard import filename_title, RELEASE_MARKER, tokens
     from .matching import filename_of
     for value in (preferred, description, getattr(poster, "raw_text", ""),
                   getattr(video, "raw_text", "")):
@@ -148,6 +151,11 @@ def resolved_media_title(poster=None, video=None, *, preferred="", description="
             or filename_of(video))
     if name:
         candidate = filename_title(str(name))
+        for marker in RELEASE_MARKER.finditer(candidate):
+            prefix = candidate[:marker.start()].strip(" -")
+            if tokens(prefix):
+                candidate = prefix
+                break
         title = _title_candidate(candidate)
         if title:
             return title
