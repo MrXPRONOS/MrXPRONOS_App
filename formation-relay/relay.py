@@ -112,14 +112,33 @@ class Bot:
             raise RuntimeError("Bot API rejected request: "+str(j.get("error_code",0)))
         return j["result"]
 
+def channel_ref(value):
+    """Canonical config reference, not an authorization to join a channel."""
+    if isinstance(value,bool) or not isinstance(value,(str,int)):
+        raise ValueError("Invalid channel reference")
+    value=str(value).strip()
+    if re.fullmatch(r"-100[0-9]+",value):
+        return int(value)
+    match=re.fullmatch(r"(?:(?:https?://)?(?:t\.me|telegram\.me)/|@)?([a-zA-Z][a-zA-Z0-9_]{3,31})/?",value,re.I)
+    if match:
+        return "@"+match[1].lower()
+    raise ValueError("Invalid channel reference: expected public username or -100 ID")
+
 def read_config_json(name, expected_type):
     raw=os.environ.get(name, "").strip()
     if not raw:
         raise RuntimeError(name+" is missing or empty")
     try:
         value=json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"{name}: invalid JSON at line {exc.lineno}, column {exc.colno}") from None
+    except json.JSONDecodeError:
+        # Repair ONLY bare @username tokens outside JSON strings. Never eval
+        # config, infer missing rights flags, or change quoted author text.
+        pattern=r'"(?:\\.|[^"\\])*"|(?<![\w@])@[A-Za-z][A-Za-z0-9_]{3,31}(?=\s*[,}\]])'
+        repaired=re.sub(pattern,lambda m: json.dumps(m[0]) if m[0].startswith("@") else m[0],raw)
+        try:
+            value=json.loads(repaired)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"{name}: invalid JSON at line {exc.lineno}, column {exc.colno}") from None
     if not isinstance(value,expected_type):
         raise RuntimeError(name+" has the wrong JSON structure")
     return value
@@ -127,16 +146,19 @@ def read_config_json(name, expected_type):
 def config():
     sources=read_config_json("FORMATION_SOURCES_JSON",list)
     dest=read_config_json("FORMATION_DESTINATIONS_JSON",dict)
-    stage=int(os.environ["FORMATION_STAGE_CHAT"])
+    stage=channel_ref(os.environ["FORMATION_STAGE_CHAT"])
     key=os.environ["FORMATION_STATE_KEY"]
     if len(key)<32 or set(dest)!=set(CATS)|{"general"} or not sources: raise ValueError("Invalid config")
-    dest={k:int(v) for k,v in dest.items()}
-    ids=[stage,*dest.values(),*[int(s["chat"]) for s in sources]]
-    if len(set(ids))!=len(ids) or any(not str(i).startswith("-100") for i in ids): raise ValueError("Invalid or overlapping channel IDs")
-    for s in sources:
-        if s.get("authorized") is not True or not str(s.get("credit","")).strip(): raise ValueError("Missing source permission or credit")
-        if not clean_text(str(s["credit"])): raise ValueError("Credit must contain a plain author or source name")
-        if s.get("category","auto") not in (*CATS,"general","auto"): raise ValueError("Invalid source category")
+    dest={k:channel_ref(v) for k,v in dest.items()}
+    if not isinstance(stage,int): raise RuntimeError("FORMATION_STAGE_CHAT must identify the private staging channel by -100 ID")
+    for source in sources:
+        if not isinstance(source,dict) or source.get("authorized") is not True or not str(source.get("credit","")).strip():
+            raise ValueError("Missing source permission or credit")
+        source["chat"]=channel_ref(source["chat"])
+        if not clean_text(str(source["credit"])): raise ValueError("Credit must contain a plain author or source name")
+        if source.get("category","auto") not in (*CATS,"general","auto"): raise ValueError("Invalid source category")
+    refs=[stage,*dest.values(),*[s["chat"] for s in sources]]
+    if len(set(refs))!=len(refs): raise ValueError("Overlapping channel references")
     return sources,dest,stage,key
 
 async def run(publish):
@@ -147,20 +169,47 @@ async def run(publish):
     if state.get("cooldown",0)>time.time(): raise RuntimeError("Personal Telegram cooldown active")
     bot=Bot(os.environ["FORMATION_BOT_TOKEN"])
     me=bot.call("getMe")["id"]
+    resolved_dest={}
     for cat,chat in [*dest.items(),("stage",stage)]:
         info=bot.call("getChat",chat_id=chat)
         if info["type"]!="channel" or bool(info.get("username"))!=(cat=="general") or (cat=="stage" and info.get("has_protected_content")):
             raise RuntimeError("Wrong destination type/visibility: "+cat)
-        member=bot.call("getChatMember",chat_id=chat,user_id=me)
+        chat_id=info["id"]
+        if cat!="stage": resolved_dest[cat]=chat_id
+        elif chat_id!=stage: raise RuntimeError("Staging channel identity mismatch")
+        member=bot.call("getChatMember",chat_id=chat_id,user_id=me)
         if member["status"] not in ("creator","administrator") or (cat!="stage" and member["status"]!="creator" and not member.get("can_post_messages")):
             raise RuntimeError("Bot permissions missing: "+cat)
+    dest=resolved_dest
+    if len(set([stage,*dest.values()]))!=6: raise RuntimeError("Overlapping destination IDs")
+    print("Destination channels validated:",len(dest))
     client=TelegramClient(StringSession(os.environ["TG_STRING_SESSION"]),int(os.environ["TG_API_ID"]),os.environ["TG_API_HASH"],flood_sleep_threshold=0,request_retries=0)
     try:
         await client.connect()
         if not await client.is_user_authorized(): raise RuntimeError("Personal session unauthorized")
         entities={d.id:d.entity async for d in client.iter_dialogs()}
-        if any(i not in entities for i in [stage,*dest.values(),*[int(s["chat"]) for s in sources]]):
-            raise RuntimeError("Personal account must already belong to all configured channels")
+        if any(i not in entities for i in [stage,*dest.values()]):
+            raise RuntimeError("Personal account must already belong to all destination and staging channels")
+        # Resolve public sources once to canonical peer IDs. Numeric private
+        # references must already be accessible via the personal account.
+        seen={stage,*dest.values()}
+        for index,source in enumerate(sources,1):
+            ref=source["chat"]
+            if isinstance(ref,int):
+                entity=entities.get(ref)
+            else:
+                try:
+                    entity=await client.get_entity(ref)
+                except (ValueError,errors.UsernameInvalidError,errors.UsernameNotOccupiedError):
+                    raise RuntimeError(f"Source #{index}: public username not found") from None
+            if entity is None or not getattr(entity,"broadcast",False):
+                raise RuntimeError(f"Source #{index}: inaccessible or not a broadcast channel")
+            peer=utils.get_peer_id(entity)
+            if peer in seen: raise RuntimeError("Overlapping canonical source/destination IDs")
+            seen.add(peer)
+            entities[peer]=entity
+            source["chat"]=peer
+        print("Source channels validated:",len(sources))
         candidates=[]
         for source in sources:
             entity=entities[int(source["chat"])]
