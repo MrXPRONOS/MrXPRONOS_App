@@ -1,10 +1,17 @@
 name: Actu Foot V1.3 - supervision et alertes par canal
 
+run-name: ${{ inputs.external_schedule && 'V1.3 external schedule' || github.event_name == 'schedule' && 'V1.3 native fallback' || 'V1.3 validation' }}
+
 on:
   schedule:
-    - cron: '7,37 * * * *'
+    - cron: '22,52 * * * *' # fallback after the external H:07/H:37 schedule
   workflow_dispatch:
     inputs:
+      external_schedule:
+        description: "Déclenchement automatique cron-job.org (ne pas cocher pour un test manuel)"
+        type: boolean
+        default: false
+        required: true
       dry_run:
         description: "Lecture seule ; aucune alerte Telegram privée"
         type: boolean
@@ -35,12 +42,55 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: actufoot-v13-supervision
   cancel-in-progress: false
 
 jobs:
+  schedule-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      audit: ${{ steps.gate.outputs.audit }}
+    steps:
+      - id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != schedule ]; then
+            echo "audit=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Backup is read-only until it establishes whether a recent successful
+          # external audit exists. API errors must never suppress monitoring.
+          if gh api "repos/$REPO/actions/workflows/actufoot-v13-supervision.yml/runs?event=workflow_dispatch&per_page=20" > /tmp/v13-runs.json; then
+            python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone, timedelta
+          now = datetime.now(timezone.utc)
+          try:
+              runs = json.load(open("/tmp/v13-runs.json"))["workflow_runs"]
+              healthy = any(
+                  r.get("display_title") == "V1.3 external schedule"
+                  and r.get("conclusion") == "success"
+                  and now - timedelta(minutes=27) <= datetime.fromisoformat(r["created_at"].replace("Z", "+00:00")) <= now
+                  for r in runs)
+          except (ValueError, TypeError, KeyError):
+              healthy = False
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("audit=" + ("false" if healthy else "true") + "\n")
+          print("V13_FALLBACK", "recent_external_success" if healthy else "audit_required")
+          PY
+          else
+            echo "audit=true" >> "$GITHUB_OUTPUT"
+          fi
+
   offline-tests:
     name: V1.3 - tests hors ligne
     runs-on: ubuntu-latest
@@ -59,8 +109,8 @@ jobs:
 
   production-health:
     name: V1.3 - surveillance réelle D1 / Telegram
-    needs: offline-tests
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: [offline-tests, schedule-gate]
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.schedule-gate.outputs.audit == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
@@ -84,6 +134,7 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run || false }}
           SEND_ALERTS: ${{ inputs.send_alerts || false }}
           TEST_PRIVATE_ALERT: ${{ inputs.test_private_alert || false }}
+          EXTERNAL_SCHEDULE: ${{ inputs.external_schedule || false }}
         shell: bash
         run: |
           set -euo pipefail
@@ -93,7 +144,7 @@ jobs:
           fi
           # A scheduled job sends a private alert only when the independent
           # private destination secret is explicitly present.
-          if { [ "$EVENT" = "schedule" ] && [ -n "${ACTUFOOT_V13_ALERT_CHAT_ID:-}" ]; } || [ "$SEND_ALERTS" = "true" ]; then
+          if { { [ "$EVENT" = "schedule" ] || [ "$EXTERNAL_SCHEDULE" = "true" ]; } && [ -n "${ACTUFOOT_V13_ALERT_CHAT_ID:-}" ]; } || [ "$SEND_ALERTS" = "true" ]; then
             args+=(--send-alerts)
           fi
           if [ "$TEST_PRIVATE_ALERT" = "true" ]; then

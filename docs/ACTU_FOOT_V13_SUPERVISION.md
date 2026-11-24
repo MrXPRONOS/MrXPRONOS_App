@@ -82,3 +82,10 @@ restent indépendantes.
 - Un échec de notification configurée rend le workflow non vert après archivage du rapport. Les rejets, erreurs réseau, accusés ambigus et réservations précédentes non confirmées restent distingués ; aucun renvoi automatique des livraisons incertaines.
 - Pour tester sans fausse panne, lancer manuellement avec `dry_run=false`, `send_alerts=true`, `test_private_alert=true` : une notification de test privée au maximum par jour et destinataire. Sinon laisser le test désactivé.
 - Les quotas de publication ne sont pas modifiés : 20 LIVE/jour par canal, 48 pour Scores. Observer plusieurs jours et les événements ignorés avant toute hausse. Le cron GitHub reste H:07/H:37 ; vérifier la cadence réelle indépendamment de la configuration.
+
+## Ordonnanceur externe V1.3
+
+- Tâche dédiée cron-job.org H:07/H:37 Africa/Lome, vérification de configuration par lecture retour ; aucune modification des quatre autres tâches Actu Foot. Le secret CRONJOB_API_KEY existant est utilisé exclusivement dans Actions. Aucun header ou identifiant de chat n'est imprimé.
+- GitHub H:22/H:52 sert de secours : il ne lance un audit que si aucune supervision externe réussie récente n'est trouvée ; les erreurs d'API ne désactivent jamais le secours. Les alertes restent dédupliquées dans D1.
+- Le job de configuration sur main déclenche une validation réelle, et un seul test privé explicite si le secret existe. La cadence externe et l'accusé Telegram doivent être observés dans les logs avant de déclarer le service entièrement opérationnel.
+- Les rapports exposent désormais les quotas de la veille, les limites et l'utilisation courante, sans déclencher de fausse alerte de saturation pour la veille. Les quotas de publication restent inchangés (20/48 LIVE, 24 RSS) : une saturation isolée ne justifie pas de doubler le volume.

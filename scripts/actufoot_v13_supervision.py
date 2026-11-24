@@ -35,7 +35,7 @@ MAIN = "actu_foot_flash_v2"
 ALERT_KIND = "actufoot_v13_private_alert"
 EXPECTED = tuple(ROLES)
 KINDS = (RSS, LIVE, RSS_QUOTA, LIVE_QUOTA)
-LIMITS = {"rss": 24, "live": 48}  # LIVE score channel; other channels have 20.
+LIMITS = {"rss": 24, "live": 20, "scores_live": 48}
 MAX_ALERTS = 12
 MAX_AGE_MINUTES = 15
 
@@ -106,7 +106,8 @@ def build_report(now, channels, aggregates, allowed, failed, *, main_verified=Tr
                "today": {"rss": 0, "live": 0, "v12": 0},
                "yesterday": {"rss": 0, "live": 0, "v12": 0},
                "statuses": {}, "stale_pending": 0,
-               "quota": {"rss": 0, "live": 0}, "last_sent": None,
+               "quota": {"rss": 0, "live": 0}, "quota_yesterday": {"rss": 0, "live": 0},
+               "quota_limits": {"rss": LIMITS["rss"], "live": LIMITS["scores_live"] if role == "scores" else LIMITS["live"]}, "last_sent": None,
                "level": "ok", "alerts": []}
         for role in EXPECTED
     }
@@ -144,8 +145,9 @@ def build_report(now, channels, aggregates, allowed, failed, *, main_verified=Tr
                     item["last_sent"] = observed.isoformat()
             if status in {"reserved", "uncertain"}:
                 item["stale_pending"] += stale
-        elif lane in {"rss_quota", "live_quota"} and row["ref_date"] == day:
-            item["quota"]["rss" if lane == "rss_quota" else "live"] += amount
+        elif lane in {"rss_quota", "live_quota"}:
+            quota_key = "quota" if row["ref_date"] == day else "quota_yesterday"
+            item[quota_key]["rss" if lane == "rss_quota" else "live"] += amount
 
     alerts = []
     for role in EXPECTED:
@@ -162,7 +164,7 @@ def build_report(now, channels, aggregates, allowed, failed, *, main_verified=Tr
         if item["statuses"].get("failed", 0) > 0:
             candidate.append(("FAILED_PUBLICATIONS", "warning"))
         for lane, used in item["quota"].items():
-            limit = 48 if lane == "live" and role == "scores" else (20 if lane == "live" else 24)
+            limit = item["quota_limits"][lane]
             if used >= limit:
                 candidate.append(("QUOTA_EXHAUSTED_" + lane.upper(), "warning"))
             elif used >= int(limit * 0.9 + 0.999):
@@ -192,13 +194,16 @@ def build_report(now, channels, aggregates, allowed, failed, *, main_verified=Tr
 def markdown(report):
     out = ["# Actu Foot V1.3 — supervision", "",
            "Rapport UTC : " + report["observed_at"], "",
-           "| Canal | Droits | RSS | LIVE | Débrief/classement | Réservations >15 min | Niveau |",
-           "|---|---|---:|---:|---:|---:|---|"]
+           "| Canal | Droits | RSS | LIVE | Débrief/classement | Quota RSS | Quota LIVE | LIVE hier | Réservations >15 min | Niveau |",
+           "|---|---|---:|---:|---:|---:|---:|---:|---:|---|"]
     for role, item in report["channels"].items():
         t = item["today"]
         out.append("| " + role + " | " + item["rights"] + " | " +
                    str(t["rss"]) + " | " + str(t["live"]) + " | " +
-                   str(t["v12"]) + " | " + str(item["stale_pending"]) +
+                   str(t["v12"]) + " | " +
+                   str(item["quota"]["rss"]) + "/" + str(item["quota_limits"]["rss"]) + " | " +
+                   str(item["quota"]["live"]) + "/" + str(item["quota_limits"]["live"]) + " | " +
+                   str(item["quota_yesterday"]["live"]) + "/" + str(item["quota_limits"]["live"]) + " | " + str(item["stale_pending"]) +
                    " | " + item["level"] + " |")
     out += ["", "Droits : " + str(report["roles_verified"]) + "/10",
             "Alertes critiques : " + str(report["summary"]["critical"]),

@@ -1,0 +1,70 @@
+name: Actu Foot V1.3 - configurer cron externe et valider
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/ensure_actufoot_v13_cron.py'
+      - 'tests_football_channel/test_actufoot_v13_cron.py'
+      - '.github/workflows/actufoot-v13-cron-setup.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ensure_actufoot_v13_cron.py'
+      - '.github/workflows/actufoot-v13-cron-setup.yml'
+  workflow_dispatch:
+    inputs:
+      test_private_alert:
+        description: "Envoyer un test privé explicite si le secret est configuré"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: actufoot-v13-cron-setup
+  cancel-in-progress: false
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest tests_football_channel.test_actufoot_v13_cron -v
+  configure:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Créer ou vérifier exclusivement le cron V1.3
+        env:
+          CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
+        run: python scripts/ensure_actufoot_v13_cron.py
+  validate:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: tests
+    permissions:
+      actions: write
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Déclencher l'audit réel et un test privé explicite si configuré
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          TEST: ${{ inputs.test_private_alert || false }}
+          PRIVATE_CONFIGURED: ${{ secrets.ACTUFOOT_V13_ALERT_CHAT_ID != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$PRIVATE_CONFIGURED" = true ] && { [ "$EVENT" = push ] || [ "$TEST" = true ]; }; then
+            body='{"ref":"main","inputs":{"dry_run":false,"send_alerts":true,"test_private_alert":true,"external_schedule":false}}'
+          else
+            body='{"ref":"main","inputs":{"dry_run":true,"send_alerts":false,"test_private_alert":false,"external_schedule":false}}'
+          fi
+          printf '%s' "$body" | gh api --method POST "repos/$REPO/actions/workflows/actufoot-v13-supervision.yml/dispatches" --input -
+          echo V13_VALIDATION_DISPATCH_ACCEPTED
