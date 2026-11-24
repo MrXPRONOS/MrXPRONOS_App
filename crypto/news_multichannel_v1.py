@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import re
+import time
 from pathlib import Path
 from collections import Counter
 from datetime import datetime, timezone, timedelta
@@ -34,6 +35,13 @@ FASTDEAL_USERNAME = '@fastdealexchange'
 FASTDEAL_DAILY_LIMIT = 4
 # Database also enforces 6 reserved/confirmed deliveries per channel per 24h.
 TOKEN_TIMEOUT = (8, 20)
+
+# Safe to retry only these side-effect-free reads.
+# Claim/confirm requests can succeed even when their HTTP response is lost.
+READ_ONLY_RPCS = frozenset({
+    "mrx_crypto_news_targets", "mrx_crypto_news_receipts",
+    "mrx_fastdeal_rss_receipts",
+})
 
 
 def digest_number(s: str) -> int:
@@ -164,19 +172,39 @@ class Supabase:
         })
 
     def rpc(self, name, data=None):
-        try:
-            r = self.session.post(self.base + name, json=data or {},
-                                  timeout=(8, 35))
-        except requests.RequestException:
-            raise RuntimeError("Secure registry request failed") from None
-        if r.status_code != 200:
-            # Do not dump PostgREST errors or headers that may contain private IDs.
-            raise RuntimeError("Secure registry RPC " + name + " HTTP " +
-                               str(r.status_code))
-        try:
-            return r.json()
-        except ValueError:
-            raise RuntimeError("Secure registry returned invalid JSON") from None
+        read_only = name in READ_ONLY_RPCS
+        attempts = 2 if read_only else 1
+        for attempt in range(attempts):
+            try:
+                r = self.session.post(self.base + name, json=data or {},
+                                      timeout=(8, 35))
+            except requests.RequestException as exc:
+                if read_only and attempt + 1 < attempts:
+                    time.sleep(1)
+                    continue
+                # Never include exception text: it may contain a URL, token or ID.
+                kind = type(exc).__name__
+                if kind not in ("ReadTimeout", "ConnectTimeout", "ConnectionError",
+                                "Timeout", "ChunkedEncodingError"):
+                    kind = "RequestException"
+                suffix = (" (read retry exhausted)" if read_only
+                          else " (write outcome uncertain; not retried)")
+                raise RuntimeError("Secure registry RPC " + name +
+                                   " network " + kind + suffix) from None
+            if r.status_code != 200:
+                # Retrying a read is safe; a claim/confirm is NEVER replayed.
+                if read_only and attempt + 1 < attempts and r.status_code in (502, 503, 504):
+                    time.sleep(1)
+                    continue
+                # Do not dump PostgREST errors or headers with private IDs.
+                raise RuntimeError("Secure registry RPC " + name + " HTTP " +
+                                   str(r.status_code))
+            try:
+                return r.json()
+            except ValueError:
+                raise RuntimeError("Secure registry RPC " + name +
+                                   " returned invalid JSON") from None
+        raise RuntimeError("Secure registry read unavailable")  # defensive
 
     def targets(self):
         return validate_targets(self.rpc("mrx_crypto_news_targets"))
