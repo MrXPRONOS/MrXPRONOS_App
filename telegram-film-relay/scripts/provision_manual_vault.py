@@ -167,6 +167,7 @@ async def provision(category: str, *, apply=False, env=None):
         bot_ready = False
         if bot:
             from telethon.tl.types import ChatAdminRights
+            peer = None
             try:
                 peer = await owner.get_entity("@" + bot["username"])
                 if not getattr(peer, "bot", False) or peer.id != bot["id"]:
@@ -177,7 +178,7 @@ async def provision(category: str, *, apply=False, env=None):
                                   getattr(access, "post_messages", False)))
             except Exception:
                 bot_ready = False
-            if apply and not bot_ready:
+            if apply and not bot_ready and peer is not None:
                 # Owner-approved new/existing private vault. Grant only the
                 # minimum Telegram channel right required to receive posts.
                 rights = ChatAdminRights(
