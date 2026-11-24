@@ -282,6 +282,26 @@ export function selectManualCycle(plans,{
  }
  const conflictingFiles=new Set([...ownersByFingerprint]
   .filter(([_,owners])=>owners.size>1).map(([fingerprint])=>fingerprint));
+ // Same title/year across film genres, same series+season across series/anime,
+ // or same multi-file course in distinct categories must be reviewed.
+ const semanticIdentity=item=>{
+  if(['films','comedie','action','desir'].includes(item.category))
+   return 'film:'+item.key.split(':').slice(1).join(':');
+  if(['series','animes'].includes(item.category))
+   return 'season:'+item.key.split(':').slice(1).join(':');
+  if(String(item.category).startsWith('formation_'))
+   return 'course:'+item.key.split(':').slice(1).join(':');
+  return null;
+ };
+ const ownersBySemantic=new Map();
+ for(const item of queue){
+  const semantic=semanticIdentity(item);
+  if(!semantic)continue;
+  const entries=ownersBySemantic.get(semantic)||[];
+  entries.push(item);ownersBySemantic.set(semantic,entries);
+ }
+ const conflictingSemantics=new Set([...ownersBySemantic.entries()]
+  .filter(([_,items])=>items.length>1).map(([key])=>key));
  for(const item of queue){
   const cap=status.remaining[item.category];
   const files=item.file_unique_id?[item.file_unique_id]:
@@ -293,6 +313,9 @@ export function selectManualCycle(plans,{
   }
   if(files.some(x=>conflictingFiles.has(x))){
    status.blocked.push({key:item.key,reason:'cross_category_media_collision'});continue;
+  }
+  if(conflictingSemantics.has(semanticIdentity(item))){
+   status.blocked.push({key:item.key,reason:'cross_category_title_or_season_collision'});continue;
   }
   if(publishedKeys.has(item.key)||selectedKeys.has(item.key)||
      files.some(x=>publishedFiles.has(x)||selectedFiles.has(x))){
