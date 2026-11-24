@@ -20,13 +20,15 @@ class OwnerVaultSetupTests(unittest.TestCase):
              "CINEX_MANUAL_FILMS_CHAT":"-1002222222222"}
         self.assertEqual(configured_chat("films",env),"-1002222222222")
 
-    def test_formation_existing_private_destinations_reused(self):
+    def test_formation_public_destinations_cannot_be_private_stock(self):
         env={"FORMATION_DESTINATIONS_JSON":
              '{"general":"@formation360","business":-1001111111111,'
              '"finance":-1002222222222,"digitale":-1003333333333,'
              '"mindset":-1004444444444}'}
-        self.assertEqual(configured_chat("formation_business",env),"-1001111111111")
-        self.assertEqual(configured_chat("formation_mindset",env),"-1004444444444")
+        self.assertEqual(configured_chat("formation_business",env),"")
+        self.assertEqual(configured_chat("formation_mindset",env),"")
+        env["CINEX_MANUAL_FORMATION_BUSINESS_CHAT"]="-1005555555555"
+        self.assertEqual(configured_chat("formation_business",env),"-1005555555555")
 
     def test_general_formation_uses_private_stage(self):
         env={"FORMATION_STAGE_CHAT":"-1001111111111"}
@@ -45,10 +47,9 @@ class OwnerVaultSetupTests(unittest.TestCase):
                 "CINEX_MANUAL_FILMS_CHAT":"not-a-private-id",
                 "TG_PRIVATE_CHANNEL":"-1001111111111"})
 
-    def test_invalid_formation_json_rejected(self):
-        with self.assertRaises(ValueError):
-            configured_chat("formation_business",{
-                "FORMATION_DESTINATIONS_JSON":"{broken}"})
+    def test_invalid_formation_json_cannot_affect_manual_source(self):
+        self.assertEqual(configured_chat("formation_business",{
+            "FORMATION_DESTINATIONS_JSON":"{broken}"}),"")
 
     def test_outcome_preserves_no_live_activation_in_simulation(self):
         row=Outcome("films","simulation",True,False,True,False,False)
