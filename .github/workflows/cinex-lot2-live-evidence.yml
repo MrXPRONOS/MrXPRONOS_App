@@ -7,6 +7,8 @@ on:
       - '.github/workflows/cinex-lot2-live-evidence.yml'
       - 'telegram-film-relay/scripts/cinex_lot2_live_evidence.py'
       - 'telegram-film-relay/tests/test_cinex_lot2_live_evidence.py'
+      - 'telegram-film-relay/film_relay/unified_download.py'
+      - 'telegram-film-relay/film_relay/recovery.py'
   schedule:
     - cron: '17 6 * * *'
   pull_request:
@@ -96,7 +98,7 @@ jobs:
       - name: Obtenir les invitations déjà existantes sans les exposer
         run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
       - name: Vérifier les nouvelles fiches réellement présentes (aucune publication)
-        run: python scripts/cinex_lot2_live_evidence.py --limit 600
+        run: python scripts/cinex_lot2_live_evidence.py --limit 600 --require-complete
       - name: Supprimer le cache d'invitations du runner
         if: always()
         run: rm -f "$CINEX_RESCUE_RUNTIME_FILE"
