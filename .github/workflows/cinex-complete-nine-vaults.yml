@@ -1,0 +1,104 @@
+name: CineX - Terminer les neuf réserves propriétaires
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-complete-nine-vaults.yml'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Réutiliser/configurer les réserves et créer jusqu’à 4 nouvelles réserves privées'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  complete-nine:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN || secrets.CINEX_BOT_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN || secrets.CINE_RADAR_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      CINEX_MANUAL_FILMS_CHAT: ${{ secrets.CINEX_MANUAL_FILMS_CHAT }}
+      CINEX_MANUAL_ANIMES_CHAT: ${{ secrets.CINEX_MANUAL_ANIMES_CHAT }}
+      CINEX_MANUAL_COMEDIE_CHAT: ${{ secrets.CINEX_MANUAL_COMEDIE_CHAT }}
+      CINEX_MANUAL_DESIR_CHAT: ${{ secrets.CINEX_MANUAL_DESIR_CHAT }}
+      CINEX_MANUAL_FORMATION_GENERAL_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_GENERAL_CHAT }}
+      CINEX_MANUAL_FORMATION_BUSINESS_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_BUSINESS_CHAT }}
+      CINEX_MANUAL_FORMATION_FINANCE_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_FINANCE_CHAT }}
+      CINEX_MANUAL_FORMATION_DIGITALE_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_DIGITALE_CHAT }}
+      CINEX_MANUAL_FORMATION_MINDSET_CHAT: ${{ secrets.CINEX_MANUAL_FORMATION_MINDSET_CHAT }}
+      CINEX_MANUAL_RIGHTS_FILMS_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_FILMS_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_ANIMES_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_ANIMES_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_COMEDIE_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_COMEDIE_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_DESIR_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_DESIR_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_FORMATION_GENERAL_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_FORMATION_GENERAL_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_FORMATION_BUSINESS_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_FORMATION_BUSINESS_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_FORMATION_FINANCE_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_FORMATION_FINANCE_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_FORMATION_DIGITALE_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_FORMATION_DIGITALE_ATTESTED || 'false' }}
+      CINEX_MANUAL_RIGHTS_FORMATION_MINDSET_ATTESTED: ${{ vars.CINEX_MANUAL_RIGHTS_FORMATION_MINDSET_ATTESTED || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Vérifier sans toucher Telegram ni D1
+        run: |
+          set -euo pipefail
+          python -m py_compile telegram-film-relay/scripts/complete_remaining_manual_vaults.py
+          python -m py_compile telegram-film-relay/scripts/sync_verified_rescues_to_d1.py
+          cd telegram-film-relay
+          python -m unittest discover -s tests -p 'test_complete_remaining_manual_vaults.py' -v
+          python -m unittest discover -s tests -p 'test_audit_remaining_manual_vaults.py' -v
+          python -m unittest discover -s tests -p 'test_sync_verified_rescues_to_d1.py' -v
+      - name: Respecter le cooldown officiel du compte personnel
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - name: Installer dépendances Telegram et D1
+        run: python -m pip install --disable-pip-version-check 'telethon==1.45.0' 'requests==2.32.5'
+      - name: Récupérer les liens Secours officiels existants vers D1 sans nouvelle invitation
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd telegram-film-relay
+          python -m scripts.sync_verified_rescues_to_d1
+      - name: Raccorder les réserves existantes et préparer les manquantes
+        env:
+          APPLY: ${{ github.event_name == 'push' || inputs.apply == true }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$APPLY" = 'true' ]; then
+            cd telegram-film-relay
+            python -m scripts.complete_remaining_manual_vaults --apply --max-created 4 --pause 180
+          else
+            cd telegram-film-relay
+            python -m scripts.complete_remaining_manual_vaults
+          fi
