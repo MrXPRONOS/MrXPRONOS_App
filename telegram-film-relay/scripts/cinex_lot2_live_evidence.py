@@ -17,11 +17,13 @@ from film_relay.public_video_archive import is_video_message, video_document_id
 from film_relay.cinex_v4_policy import has_automatic_ttl
 from film_relay.publication import (
     film_folder_url, video_labels, verify_complete_public_video_keyboard,
+    read_url_button_rows,
 )
 from film_relay.radar_download_registry import is_bot_download_url, RadarRegistry
 from film_relay.ten_video_rotation import category_targets
 from film_relay.public_video_retention import validate_retention_targets
 from film_relay.runner import resolve_peer
+from film_relay.unified_download import configured_private_id
 
 LOG = logging.getLogger("cinex.lot2.live")
 # A message URL is only trusted for the exact owner-registered category library.
@@ -42,16 +44,7 @@ def private_message_id(url: str, private_id: int) -> int | None:
 
 
 def button_pairs(message):
-    rows = getattr(message, "buttons", None) or ()
-    result = []
-    for row in rows:
-        result.append([
-            (str(getattr(getattr(button, "button", button), "text", "") or ""),
-             str(getattr(getattr(button, "button", button), "url", "") or ""))
-            for button in row
-        ])
-    return result
-
+    return read_url_button_rows(message)
 
 def is_private_fiche(message, public_handle, private_id=None):
     if not getattr(message, "photo", None):
@@ -111,31 +104,45 @@ def validate_public_sample(message, public, category=None, private_id=None):
     return rows == expected
 
 
-def check_receipt(download_url):
-    """D1 receipt must resolve to a published file in the *approved* central stock.
-
-    The two-table join prevents a valid token for an unrelated Telegram channel
-    being mistaken for a CineRadar download. No D1 mutation takes place.
-    """
+async def check_receipt(client, video, download_url):
+    """Validate the exact approved stock channel and real Telegram document."""
+    from telethon import utils
     if not is_bot_download_url(download_url):
+        return False
+    expected_doc = video_document_id(video)
+    if not expected_doc:
+        return False
+    approved_id = configured_private_id()
+    if approved_id is None:
         return False
     token = download_url.split("?start=d_", 1)[-1]
     rows = RadarRegistry()._query(
-        "SELECT l.source_message_id FROM cine_classic_links AS l "
+        "SELECT l.source_chat_id,l.source_message_id FROM cine_classic_links AS l "
         "JOIN cine_private_stock_config AS s "
         "ON s.singleton=1 AND l.source_chat_id=s.stock_chat_id "
         "WHERE l.token=? AND l.status='published' AND s.ready=1 "
         "AND s.radar_bot_id>0 LIMIT 1",
         [token]
     ).get("results") or []
-    return len(rows) == 1 and int(rows[0].get("source_message_id") or 0) > 0
+    if (len(rows) != 1 or str(rows[0].get("source_chat_id")) != str(approved_id)
+            or int(rows[0].get("source_message_id") or 0) <= 0):
+        return False
+    stock = await resolve_peer(client, str(approved_id))
+    if (utils.get_peer_id(stock) != approved_id
+            or not getattr(stock, "broadcast", False)
+            or getattr(stock, "username", None)):
+        return False
+    mid = int(rows[0]["source_message_id"])
+    stored = await client.get_messages(stock, ids=mid)
+    return bool(is_video_message(stored) and int(getattr(stored, "id", 0)) == mid
+                and video_document_id(stored) == expected_doc)
 
 
 async def check_download_target(client, private, private_id: int,
                                 video, download_url: str) -> bool:
     """Follow the index of the exact episode, never confuse index with a receipt."""
     if is_bot_download_url(download_url):
-        return check_receipt(download_url)
+        return await check_receipt(client, video, download_url)
     index_id = private_message_id(download_url, private_id)
     if not index_id:
         return False
@@ -146,15 +153,15 @@ async def check_download_target(client, private, private_id: int,
     if not index:
         return False
     code = marker.group().upper()
-    for line in str(getattr(index, "raw_text", "") or "").splitlines():
-        if not re.search(r"(?<![A-Z0-9])" + re.escape(code)
-                         + r"(?![A-Z0-9])", line.upper()):
-            continue
-        links = DOWNLOAD_LINK.findall(line)
-        if len(links) != 1:
-            return False
-        return check_receipt(links[0])
-    return False
+    matching_lines = [line for line in str(getattr(index, "raw_text", "") or "").splitlines()
+                      if re.search(r"(?<![A-Z0-9])" + re.escape(code)
+                                   + r"(?![A-Z0-9])", line.upper())]
+    if len(matching_lines) != 1:
+        return False
+    links = DOWNLOAD_LINK.findall(matching_lines[0])
+    if len(links) != 1:
+        return False
+    return await check_receipt(client, video, links[0])
 
 
 async def matching_private_fiche(client, private, private_id: int,
