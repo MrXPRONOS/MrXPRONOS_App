@@ -118,8 +118,12 @@ def _episode_key(message):
 
 def _show_match(poster, media, media_peer):
     """Match named series explicitly, including dedicated episode channels."""
+    poster_text = (getattr(poster, "raw_text", "") or "").strip()
+    if not poster_text:
+        return None
+    first_line = poster_text.splitlines()[0]
     title = consistent_title(
-        getattr(poster, "raw_text", "") or "",
+        poster_text,
         getattr(media, "raw_text", "") or "",
         filename_of(media),
     )
@@ -128,7 +132,7 @@ def _show_match(poster, media, media_peer):
     # Dedicated series channels can contain videos named EP01.mkv, but the
     # channel title still must agree with the original poster.
     channel_title = getattr(media_peer, "title", "") or ""
-    a = tokens((getattr(poster, "raw_text", "") or "").splitlines()[0])
+    a = tokens(first_line)
     b = tokens(channel_title)
     if not a or not b or len(a & b) < min(2, len(a)):
         return None
@@ -136,7 +140,7 @@ def _show_match(poster, media, media_peer):
     video_words = tokens(getattr(media, "raw_text", "") or "") | tokens(filename_of(media))
     if video_words and len(video_words) >= 2 and not a.intersection(video_words):
         return None
-    return (getattr(poster, "raw_text", "") or "").splitlines()[0]
+    return first_line
 
 
 def cross_channel_series_rows(posters, media_messages):
