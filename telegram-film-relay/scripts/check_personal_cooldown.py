@@ -1,8 +1,9 @@
 """Fail closed before opening the shared Telegram *personal* user session.
 
-The 2026-11-20 FloodWait (31119 sec at ~08:06 UTC) is protected through
-17:00 UTC, with a conservative buffer. Future known restrictions may extend
-this date via TG_PERSONAL_COOLDOWN_UNTIL_UTC; cannot shorten the known wait.
+The 2026-11-24 FloodWait (8420 sec at 15:51:36 UTC) lasts until about
+18:11:56 UTC; enforce 18:30 UTC with a conservative safety buffer.
+Future known restrictions may extend this date via
+TG_PERSONAL_COOLDOWN_UNTIL_UTC; cannot shorten the known wait.
 This script makes no network requests or bot calls.
 """
 from __future__ import annotations
@@ -11,7 +12,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-KNOWN_UNTIL = datetime(2026, 11, 20, 17, 0, tzinfo=timezone.utc)
+KNOWN_UNTIL = datetime(2026, 11, 24, 18, 30, tzinfo=timezone.utc)
 
 
 def parse_utc(value: str) -> datetime:
