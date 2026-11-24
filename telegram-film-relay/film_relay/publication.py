@@ -203,7 +203,10 @@ async def send_public_poster_with_buttons(
     rows = complete_public_video_rows(
         private_movie_link, download_url, public_peer=public_peer,
         watch_label=watch_label)
-    contents = await user_client.download_media(poster_message.media, file=bytes)
+    photo_file = getattr(poster_message, "media", None) or getattr(poster_message, "photo", None)
+    if photo_file is None or getattr(poster_message, "noforwards", False):
+        raise RuntimeError("Affiche source absente ou protégée : aucune publication.")
+    contents = await user_client.download_media(photo_file, file=bytes)
     if not contents:
         raise RuntimeError("Affiche inaccessible : photo non téléchargée ; aucune publication publique.")
     photo = io.BytesIO(contents)
@@ -282,7 +285,10 @@ async def send_library_poster_with_buttons(
     """Send original image and exactly 3 validated private-library buttons."""
     import io
     rows = library_button_rows(public_peer, download_url)
-    photo = await user_client.download_media(poster_message.media, file=bytes)
+    photo_file = getattr(poster_message, "media", None) or getattr(poster_message, "photo", None)
+    if photo_file is None or getattr(poster_message, "noforwards", False):
+        raise RuntimeError("Affiche privée absente ou protégée : aucune publication.")
+    photo = await user_client.download_media(photo_file, file=bytes)
     if not photo:
         raise RuntimeError("Affiche privée absente : aucune vidéo ne sera envoyée.")
     stream = io.BytesIO(photo)
