@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-2f4eb9789fb12e46:1X",
+    "recorded_at_utc": "2026-11-24T20:08:40+00:00",
+    "kickoff_utc": "2026-11-26T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Royale Union Saint-Gilloise",
+      "away_team": "Lech Poznań",
+      "league": "UEFA Europa League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 83.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a3738e40776a7592a4b052c0151734a9db39de67e84f8faebe69bda6759de6e0"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-af34e5984b3ae5e3:UNDER_35",
+    "recorded_at_utc": "2026-11-24T20:08:40+00:00",
+    "kickoff_utc": "2026-11-26T15:30:00+00:00",
+    "fixture": {
+      "home_team": "FC Kairat Almaty",
+      "away_team": "Mjällby AIF",
+      "league": "UEFA Europa Conference League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.7,
+      "odds": 1.327,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "d00b1412fc4fd3615a7ab9a670cd4e416402832ddcf8cff719f395fdb616c63f"
+}
