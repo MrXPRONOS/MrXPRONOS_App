@@ -169,6 +169,75 @@ class DistributionTests(unittest.TestCase):
         )
         self.assertEqual(count, 2)
 
+    def test_registry_read_retries_transient_network_failure(self):
+        import requests
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.post.side_effect = [
+            requests.exceptions.ReadTimeout("private-url-or-token"),
+            Mock(status_code=200, json=Mock(return_value=[{"status": "confirmed"}])),
+        ]
+        with patch.dict("os.environ", {
+            "SUPABASE_URL": "https://example.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "test-secret",
+        }):
+            with patch.object(net.time, "sleep") as sleep:
+                result = net.Supabase(session=fake).rpc("mrx_fastdeal_rss_receipts")
+        self.assertEqual(result, [{"status": "confirmed"}])
+        self.assertEqual(fake.post.call_count, 2)
+        sleep.assert_called_once_with(1)
+
+    def test_registry_read_retries_503_once(self):
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.post.side_effect = [
+            Mock(status_code=503),
+            Mock(status_code=200, json=Mock(return_value=[])),
+        ]
+        with patch.dict("os.environ", {
+            "SUPABASE_URL": "https://example.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "test-secret",
+        }):
+            with patch.object(net.time, "sleep"):
+                self.assertEqual(net.Supabase(session=fake).rpc(
+                    "mrx_crypto_news_targets"), [])
+        self.assertEqual(fake.post.call_count, 2)
+
+    def test_registry_claim_is_not_retried_and_error_is_redacted(self):
+        import requests
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.post.side_effect = requests.exceptions.ReadTimeout(
+            "https://example.supabase.co?apikey=PRIVATE_CREDENTIAL")
+        with patch.dict("os.environ", {
+            "SUPABASE_URL": "https://example.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "test-secret",
+        }):
+            with patch.object(net.time, "sleep") as sleep:
+                with self.assertRaises(RuntimeError) as ctx:
+                    net.Supabase(session=fake).rpc(
+                        "mrx_fastdeal_rss_claim", {"p_article": "test"})
+        self.assertEqual(fake.post.call_count, 1)
+        sleep.assert_not_called()
+        self.assertIn("write outcome uncertain; not retried", str(ctx.exception))
+        self.assertNotIn("PRIVATE_CREDENTIAL", str(ctx.exception))
+        self.assertNotIn("apikey", str(ctx.exception))
+
+    def test_registry_confirm_is_not_retried_on_503(self):
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.post.return_value = Mock(status_code=503)
+        with patch.dict("os.environ", {
+            "SUPABASE_URL": "https://example.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "test-secret",
+        }):
+            with patch.object(net.time, "sleep") as sleep:
+                with self.assertRaisesRegex(RuntimeError, "HTTP 503"):
+                    net.Supabase(session=fake).rpc(
+                        "mrx_fastdeal_rss_confirm", {"p_message_id": 12})
+        self.assertEqual(fake.post.call_count, 1)
+        sleep.assert_not_called()
+
     def test_service_credentials_required(self):
         with patch.dict("os.environ",{},clear=True):
             with self.assertRaises(RuntimeError):
