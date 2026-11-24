@@ -2,9 +2,7 @@ name: CineX — CI de protection des sessions personnelles (hors ligne)
 on:
   pull_request:
     paths:
-      - '.github/workflows/cinex-*'
-      - '.github/workflows/telegram-film-*'
-      - '.github/workflows/telegram-discovery-daily.yml'
+      - '.github/workflows/**'
       - 'telegram-film-relay/tests/test_cinex_workflow_cooldown.py'
       - 'telegram-film-relay/tests/test_private_stock_provision.py'
       - 'telegram-film-relay/tests/test_add_private_stock_bots.py'
@@ -13,9 +11,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/cinex-*'
-      - '.github/workflows/telegram-film-*'
-      - '.github/workflows/telegram-discovery-daily.yml'
+      - '.github/workflows/**'
       - 'telegram-film-relay/tests/test_cinex_workflow_cooldown.py'
   workflow_dispatch:
 permissions:

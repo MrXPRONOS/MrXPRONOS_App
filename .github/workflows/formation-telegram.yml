@@ -40,6 +40,7 @@ jobs:
     concurrency:
       group: mrx-telegram-personal-account
       cancel-in-progress: false
+      queue: max
     env:
       TG_API_ID: ${{ secrets.TG_API_ID }}
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
