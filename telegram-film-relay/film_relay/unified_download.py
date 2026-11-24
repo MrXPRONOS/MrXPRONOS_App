@@ -66,6 +66,7 @@ class UnifiedLibrary:
         self.peer = None
         self.index: dict[int, int] | None = None
         self.cover_index: dict[str, int] = {}
+        self.legacy_cover_proofs: dict[int, int] = {}
         self.registry = registry
 
     async def prepare(self, *, public=None):
@@ -114,7 +115,33 @@ class UnifiedLibrary:
         marker = "#CXSTOCK_" + hashlib.sha256(str(doc).encode()).hexdigest()[:16]
         mid = (self.index or {}).get(doc)
         cover_mid = self.cover_index.get(marker)
-        return bool(mid and cover_mid and 0 < mid - cover_mid <= 3)
+        return bool(mid and ((cover_mid and 0 < mid - cover_mid <= 3)
+                             or self.legacy_cover_proofs.get(doc) == mid))
+
+    async def verify_legacy_adjacent_cover(self, document_id, video_mid, source_poster):
+        """Read-only recovery: exact same Telegram photo immediately before video.
+
+        No title similarity, no new uploads, no edits, no fabricated marker.
+        A historic cover which has been recompressed or is missing requires
+        owner review. A conflicting stock marker is never accepted.
+        """
+        photo_id = getattr(getattr(source_poster, "photo", None), "id", None)
+        if not photo_id or getattr(source_poster, "noforwards", False) or video_mid <= 1:
+            return False
+        cover = await self.client.get_messages(self.peer, ids=int(video_mid) - 1)
+        if (not cover or int(getattr(cover, "id", 0)) != int(video_mid) - 1
+                or getattr(getattr(cover, "photo", None), "id", None) != photo_id):
+            return False
+        text = str(getattr(cover, "raw_text", "") or "").strip()
+        expected = "#CXSTOCK_" + hashlib.sha256(str(document_id).encode()).hexdigest()[:16]
+        markers = re.findall(r"#CXSTOCK_[a-f0-9]{16}", text)
+        if not text or any(marker != expected for marker in markers):
+            return False
+        if not re.sub(r"#CXSTOCK_[a-f0-9]{16}", "", text).strip():
+            return False
+        self.legacy_cover_proofs[int(document_id)] = int(video_mid)
+        LOG.info("CinéX stock : affiche historique contiguë authentifiée par identité photo exacte")
+        return True
 
     async def store(self, source, *, category: str, title: str, public=None, poster=None, description: str = ""):
         """Return a verified CineRadar bot deep link or None when not enabled.
@@ -148,7 +175,8 @@ class UnifiedLibrary:
                 # required PHOTO+description then VIDEO pair. It can remain
                 # downloadable via an existing registry link, but new public
                 # poster registrations must not misrepresent it as complete.
-                if poster is not None and not self.verified_cover_for(doc_id):
+                if (poster is not None and not self.verified_cover_for(doc_id)
+                        and not await self.verify_legacy_adjacent_cover(doc_id, mid, poster)):
                     raise RuntimeError(
                         "Vidéo centrale ancienne sans affiche adjacente vérifiée ; "
                         "restauration manuelle nécessaire, aucun nouvel envoi.")
