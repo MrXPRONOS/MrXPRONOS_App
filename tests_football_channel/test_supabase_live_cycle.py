@@ -42,6 +42,8 @@ class SupabaseLiveCycleTests(unittest.TestCase):
         self.assertIn("supabase.co/functions/v1/live",frontend)
         self.assertIn("SUPABASE_LIVE_CYCLE",workflow) if False else None
         self.assertIn("supabase_live_cycle",workflow)
+        self.assertNotIn('location.replace("live-suspended.html")',(root/"live.html").read_text())
+        self.assertIn("nhwafcpndlufzzxexikh.supabase.co",(root/"scripts/live_visual_smoke.py").read_text())
 
     def test_validation_response_must_be_successful(self):
         with mock.patch.object(sb,"read_routes",return_value={}):

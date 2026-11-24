@@ -21,3 +21,7 @@ Le projet Neon `withered-tooth-71931108` est archivé et renvoie HTTP 402 « quo
 3. La validation renvoie `success:true` avec le nombre réel de pronostics validés, jamais un succès artificiel.
 4. Le site public utilise le bon backend et la publication Telegram n'envoie aucun doublon.
 5. Les tables peuvent être vides lorsqu'aucun match n'est live ; cette situation ne prouve pas l'existence de nouvelles prédictions.
+
+## Réactivation de l'affichage LIVE
+
+Le `live.html` public était explicitement redirigé vers `live-suspended.html` depuis le 29/10. La redirection a été supprimée lors de la migration du backend, et le test Chromium `scripts/live_visual_smoke.py` simule dorénavant les six réponses Supabase (et non les anciennes routes Neon). Les tests utilisent uniquement des données fictives interceptées dans le navigateur, jamais publiées en production. Le moteur Supabase doit encore produire des données réelles après activation du cycle refresh/validate.
