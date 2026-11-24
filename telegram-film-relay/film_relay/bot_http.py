@@ -13,6 +13,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import requests
+import time
 
 
 def url_button(text: str, url: str, *, style: str = "primary"):
@@ -48,8 +49,6 @@ class BotHTTPClient:
         copyMessage, edit or delete timeout may have succeeded server-side,
         so repeating one would create duplicate or destructive operations.
         """
-        import time
-
         url = "https://api.telegram.org/bot" + self._token + "/" + method
         readonly = method in {"getMe", "getChatMember"} and files is None
         attempts = 2 if readonly else 1
