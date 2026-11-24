@@ -1,7 +1,6 @@
 // Read-only readiness report over the private D1 manual stock.
 // No public endpoint, no Telegram API or publication side effects.
 // Never prints or returns chat/message IDs, filenames or private captions.
-import {ensureManualFallbackSchema} from './manual-fallback-inbox.mjs';
 import {planMovies,planSeasons,planCourses,selectManualCycle} from './manual-fallback-planner.mjs';
 
 function tallyReasons(items){
@@ -13,7 +12,6 @@ export async function auditManualStock(env){
  if(!env?.DB?.prepare)return {ready:false,reason:'database_missing'};
  // The main CineX worker gates ingestion independently; this report is safe
  // in read-only diagnostics even when ingestion has not been enabled.
- await ensureManualFallbackSchema(env);
  const sourceRows=(await env.DB.prepare(
   "SELECT category,COUNT(*) AS n FROM cine_manual_fallback_sources "+
   "WHERE rights_attested=1 AND bot_access_verified=1 "+
