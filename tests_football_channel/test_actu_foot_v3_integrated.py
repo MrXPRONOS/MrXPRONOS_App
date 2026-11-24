@@ -34,6 +34,49 @@ class IntegratedTests(unittest.TestCase):
         self.assertEqual(compact_month(store,"matches",field="kickoff_utc",cutoff=cutoff,durable_copy=copy)["moved"],1)
         self.assertEqual(len([p for p in store.files if "/archive/" in p]),2)
         self.assertEqual(len(store.load_collection("audit",store.head()[0]).data),4)
+    def test_snapshot_reader_auto_refreshes_after_interval(self):
+        class Clock:
+            current=0
+            def __call__(self):return self.current
+        clock=Clock()
+        store=MemoryAtomic()
+        store.transact({"matches":[{"action":"insert","id":"a","value":fixture(1)},
+                                  {"action":"insert","id":"b","value":fixture(2)}]})
+        reader=SnapshotReader(store,ttl=60,refresh_interval=15,clock=clock)
+        first=reader.query("matches",limit=1)
+        self.assertEqual(first["count"],2)
+        store.transact({"matches":[{"action":"insert","id":"c","value":fixture(3)}]})
+        self.assertEqual(reader.query("matches",limit=1)["count"],2)
+        clock.current=16
+        self.assertEqual(reader.query("matches",limit=1)["count"],3)
+        self.assertEqual(reader.archives("matches") if hasattr(store,"list_archives") else [],[])
+        with self.assertRaises(VaultError):
+            reader.query("matches",limit=1,cursor=first["next_cursor"])
+        with self.assertRaises(VaultError):
+            SnapshotReader(store,ttl=-1)
+        with self.assertRaises(VaultError):
+            SnapshotReader(store,ttl=20,refresh_interval=30)
+
+    def test_malformed_queries_and_cursors_fail_closed(self):
+        from scripts.actu_foot_v3_query import query
+        records={"a":fixture(1)}
+        for filters in ([],False,0,""):
+            with self.subTest(filters=repr(filters)):
+                with self.assertRaises(VaultError):
+                    query("matches",records,filters=filters)
+        for cursor in ("A","e30","!!!",""):
+            if not cursor:
+                continue
+            with self.subTest(cursor=cursor):
+                with self.assertRaises(VaultError):
+                    query("matches",records,cursor=cursor)
+        with self.assertRaises(VaultError):
+            query("matches",records,filters={"home_team":float("nan")})
+        with self.assertRaises(VaultError):
+            query("matches",records,snapshot=["unhashable"])
+        with self.assertRaises(VaultError):
+            query("invalid",{},limit=1)
+
     def test_cache_index_and_snapshot_cursor(self):
         store=MemoryAtomic()
         store.transact({"matches":[{"action":"insert","id":str(i),"value":fixture(i)} for i in range(5)]})
@@ -128,3 +171,66 @@ class FullCycleOfflineTest(unittest.TestCase):
         self.assertEqual(result["audit_receipts"],1)
         self.assertEqual(result["git_production_mutations"],0)
         self.assertEqual(len(objects),1)
+
+
+class RetentionCatchupTests(unittest.TestCase):
+    def setUp(self):
+        self.p=patch.dict(os.environ,{"ACTU_FOOT_V2_KEY_B64_V1":base64.b64encode(bytes(range(32))).decode()})
+        self.p.start();self.addCleanup(self.p.stop)
+
+    def test_multiple_archive_batches_drain_eligible_records(self):
+        from scripts.actu_foot_v3_maintenance import maintenance
+        from scripts.actu_foot_v2_store import collection_path,encrypt
+        from datetime import datetime,timezone
+        from unittest.mock import patch
+        store=MemoryAtomic()
+        old={f"old:{i:04d}":fixture(i,1) for i in range(2105)}
+        old["still:active"]=fixture(0,11)
+        store.files[collection_path("matches")]=encrypt("matches",old)
+        store.files[collection_path("audit")]=encrypt("audit",{})
+        with patch("scripts.actu_foot_v3_maintenance.datetime") as fixed_time:
+            fixed_time.now.return_value=datetime(2026,11,24,tzinfo=timezone.utc)
+            preview=maintenance(store,"matches",retention_days=90)
+            self.assertEqual(preview["eligible"],2105)
+            copies={}
+            def persist(path,blob):
+                digest=hashlib.sha256(blob.encode()).hexdigest()
+                copies[path]=blob
+                return digest
+            report=maintenance(store,"matches",retention_days=90,
+                execute=True,confirmation="APPROVE_V3_ENCRYPTED_COMPACTION",durable_copy=persist)
+        self.assertEqual(report["moved"],2105)
+        self.assertEqual(report["batches"],3)
+        self.assertEqual(set(store.load_collection("matches",store.head()[0]).data),{"still:active"})
+        self.assertEqual(len(copies),3)
+        self.assertEqual(len(audit_receipts(store.load_collection("audit",store.head()[0]).data)),3)
+
+    def test_backlog_is_reported_instead_of_silent_success(self):
+        from scripts.actu_foot_v3_maintenance import maintenance
+        from scripts.actu_foot_v2_store import collection_path,encrypt
+        store=MemoryAtomic()
+        records={f"old:{i:04d}":fixture(i,1) for i in range(1100)}
+        store.files[collection_path("matches")]=encrypt("matches",records)
+        store.files[collection_path("audit")]=encrypt("audit",{})
+        with patch("scripts.actu_foot_v3_maintenance.datetime") as fixed_time:
+            fixed_time.now.return_value=datetime(2026,11,24,tzinfo=timezone.utc)
+            with self.assertRaisesRegex(VaultError,"V3_RETENTION_BACKLOG_REMAINING"):
+                maintenance(store,"matches",retention_days=90,
+                    execute=True,confirmation="APPROVE_V3_ENCRYPTED_COMPACTION",
+                    durable_copy=lambda p,b:hashlib.sha256(b.encode()).hexdigest(),
+                    max_batches=1)
+        self.assertEqual(len(store.load_collection("matches",store.head()[0]).data),100)
+
+
+class V3DeploymentCoverageTests(unittest.TestCase):
+    def test_production_workflow_runs_after_engine_code_changes(self):
+        from pathlib import Path
+        path=Path(__file__).resolve().parents[1]/".github/workflows/actu-foot-v3-maintenance.yml"
+        text=path.read_text(encoding="utf-8")
+        trigger=text.split("  push:",1)[1].split("  schedule:",1)[0]
+        self.assertIn("'scripts/actu_foot_v3_*.py'",trigger)
+        self.assertIn("'scripts/actu_foot_v2_store.py'",trigger)
+        self.assertIn("branches: [main]",trigger)
+        self.assertIn("  automatic:",text)
+        self.assertIn("V3_RETENTION_POLICY_INACTIVE",text)
+        self.assertIn("steps.plan.outputs.active",text)

@@ -12,21 +12,37 @@ from scripts.actu_foot_v3_archive import verify_archive_path,validate_archive_pa
 from scripts.actu_foot_v3_migrate import migration_preview
 
 class SnapshotReader:
-    def __init__(self,store,*,ttl=60,clock=time.monotonic):
+    def __init__(self,store,*,ttl=60,clock=time.monotonic,refresh_interval=None):
+        if type(ttl) not in (int,float) or not 0<ttl<=86400:
+            raise VaultError("Invalid snapshot TTL")
+        if refresh_interval is None:
+            refresh_interval=min(ttl,30)
+        if type(refresh_interval) not in (int,float) or not 0<refresh_interval<=ttl:
+            raise VaultError("Invalid snapshot refresh interval")
         self.store=store
         self.ttl=ttl
         self.clock=clock
+        self.refresh_interval=refresh_interval
+        self.next_refresh=float("-inf")
         self.cache=TTLCache(128,clock=clock)
         self.prepared={}
         self.hits=0
         self.commit=None
     def refresh(self):
         head,_=self.store.head()
+        self.next_refresh=self.clock()+self.refresh_interval
         if head!=self.commit:
             self.commit=head
             self.cache.invalidate()
             self.prepared.clear()
         return head
+    def refresh_if_due(self):
+        # TTL of query results alone never refreshes an old Git snapshot.
+        # Check the actual repository head regularly while retaining cheap
+        # repeated queries inside the configured interval.
+        if self.commit is None or self.clock()>=self.next_refresh:
+            self.refresh()
+
     def _prepare(self,collection,path=None):
         if self.commit is None:self.refresh()
         key=(collection,path)
@@ -51,6 +67,7 @@ class SnapshotReader:
         self.prepared[key]=(self.clock()+self.ttl,prepared,generation)
         return prepared,generation
     def query(self,collection,*,archive=None,**kwargs):
+        self.refresh_if_due()
         prepared,generation=self._prepare(collection,archive)
         scope=self.commit+":"+(archive or collection)
         key=hashlib.sha256(canonical([scope,kwargs])).hexdigest()
@@ -62,7 +79,7 @@ class SnapshotReader:
         self.cache.put(key,result,self.ttl,generation=generation)
         return result
     def archives(self,collection):
-        if self.commit is None:self.refresh()
+        self.refresh_if_due()
         return self.store.list_archives(collection,self.commit)
 
 def audit_receipts(entries):

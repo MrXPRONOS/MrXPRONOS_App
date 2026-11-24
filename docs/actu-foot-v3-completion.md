@@ -47,3 +47,19 @@ Le nouveau script `scripts/actu_foot_v3_e2e_rehearsal.py` reproduit le circuit c
 La sauvegarde chiffrée et ancrée de sept collections **45408510666** est réussie ; la restauration indépendante et sans approbation **45408645985** est réussie (7/7). Cloudflare D1 a enregistré l'ancre id 8, séquence 3, commit 00577a3dbfc64654c9146073158670cf2d836806. 25 tests Python + 8 tests JavaScript de V3 et la CI générale ont réussi.
 
 **Limite explicitement non testable :** six collections métier V3 restent vides, donc aucun shard de match historique réel n'a encore été archivé. C'est attendu : la migration des historiques, l'alimentation V3 et la bascule Telegram restent prévues en V4. Aucun contenu fictif n'a été publié sur Telegram ou écrit dans les collections chiffrées de production.
+
+## Audit d'exhaustivité — cache et requêtes
+
+Le lecteur `SnapshotReader` ne doit pas rester indéfiniment fixé au commit d'origine dans les processus longs : il vérifie désormais automatiquement l'état de la branche au plus tard toutes les 30 secondes par défaut (ou à intervalle configurable inférieur au TTL), invalide le cache et les index si le commit change, et invalide les anciens curseurs. L'audit a aussi détecté le silence sur certains filtres vides de type invalide et des exceptions de décodage de curseur non traduites : la requête refuse maintenant explicitement ces valeurs. Des tests isolés vérifient ces garanties sans mutation des données réelles.
+
+## Audit d'exhaustivité — rattrapage de la rétention
+
+La première implémentation arrêtait chaque collection après une seule tranche de 1 000 enregistrements. La maintenance exécute désormais jusqu'à six tranches bornées par collection (limite de taille V2 : 5 000), conserve les limites de rétention existantes, vérifie le reliquat et remonte explicitement `V3_RETENTION_BACKLOG_REMAINING` en cas de backlog au lieu de signaler un faux succès. Le pré-contrôle compte jusqu'à 5 000 candidats pour rendre la taille réelle du retard visible. Les tests couvrent plus de 2 000 enregistrements sur plusieurs lots et l'arrêt avec reliquat.
+
+## Audit d'exhaustivité — vérification des déploiements
+
+L'ordonnanceur V3 était déclenché sur push lorsque **son fichier YAML** changeait, mais pas si une fonction du moteur était modifiée seule. Les déclencheurs GitHub sur la branche main incluent désormais les scripts `actu_foot_v3_*.py`, `actu_foot_v2_store.py` et la validation de V2. Cela provoque la lecture de toutes les collections et l'exercice isolé du stockage Cloudflare lors d'un déploiement du moteur ; le cycle hebdomadaire reste en place. Le workflow refuse toujours une compilation/lecture en erreur avant toute compaction.
+
+## Audit d'exhaustivité — surveillance de la politique active
+
+Lors d'un push sur main ou d'un déclenchement hebdomadaire, le workflow interrompt désormais le cycle avec l'erreur GitHub Actions `V3_RETENTION_POLICY_INACTIVE` si la politique chiffrée n'est plus activée. Cela évite un succès vert trompeur alors que la compaction automatique ne s'exécute plus. Le déclenchement manuel de prévisualisation reste possible pour diagnostiquer ou réactiver la politique avec confirmation explicite.

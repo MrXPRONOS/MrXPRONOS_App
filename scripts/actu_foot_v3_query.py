@@ -5,8 +5,11 @@ or expose indexes on a public GitHub branch. Only allowlisted fields are queryab
 """
 from __future__ import annotations
 import base64
+import binascii
 import hashlib
 import json
+import math
+import re
 from typing import Any
 from datetime import datetime, timezone
 import copy
@@ -59,12 +62,14 @@ def _cursor_decode(cursor: str) -> dict:
         data=json.loads(base64.urlsafe_b64decode(cursor+"="*((-len(cursor))%4)))
         if not isinstance(data,dict) or set(data)!={"fingerprint","offset","generation"}:
             raise ValueError("wrong cursor schema")
+        if type(data["fingerprint"]) is not str or not re.fullmatch(r"[0-9a-f]{64}",data["fingerprint"]):
+            raise ValueError("invalid cursor fingerprint")
         if type(data["offset"]) is not int or data["offset"]<0:
             raise ValueError("invalid cursor offset")
         if type(data["generation"]) is not int or data["generation"]<0:
             raise ValueError("invalid cursor generation")
         return data
-    except (ValueError,UnicodeDecodeError,TypeError) as exc:
+    except (ValueError,UnicodeDecodeError,TypeError,binascii.Error) as exc:
         raise VaultError("Malformed query cursor") from exc
 
 
@@ -86,7 +91,10 @@ class PreparedQuery:
 def _query(collection: str, records: dict, indexes: dict, *, filters: dict|None=None,
           text: str="", sort_by: str="id", descending: bool=False,
           limit: int=50, cursor: str|None=None, generation: int=0, snapshot: str="") -> dict:
-    filters=filters or {}
+    if collection not in FIELDS:
+        raise VaultError("Unknown query collection")
+    if filters is None:
+        filters={}
     if not isinstance(filters,dict) or set(filters)-set(FIELDS[collection]):
         raise VaultError("Unsupported query filter")
     if type(limit) is not int or not 1<=limit<=MAX_PAGE:
@@ -95,11 +103,14 @@ def _query(collection: str, records: dict, indexes: dict, *, filters: dict|None=
         raise VaultError("Invalid search text")
     if sort_by not in SORT_FIELDS[collection]:
         raise VaultError("Unsupported sort field")
-    if type(descending) is not bool or type(generation) is not int or generation<0:
+    if (type(descending) is not bool or type(generation) is not int or generation<0
+            or type(snapshot) is not str or len(snapshot)>512):
         raise VaultError("Invalid query metadata")
     terms=[]
     for field,value in filters.items():
-        if not isinstance(value,(str,int,float,bool)) or len(str(value))>MAX_QUERY_TEXT:
+        if type(value) not in (str,int,float,bool) or len(str(value))>MAX_QUERY_TEXT:
+            raise VaultError("Invalid filter value")
+        if type(value) is float and not math.isfinite(value):
             raise VaultError("Invalid filter value")
         terms.append((field,_normalized(value)))
     needle=_normalized(text)
