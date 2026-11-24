@@ -34,8 +34,9 @@ class OwnerRepairSafetyTests(unittest.TestCase):
     def test_ambiguous_stages_do_not_create_duplicate(self):
         one = Obj(broadcast=True, username=None, title=mod.STAGE_TITLE)
         two = Obj(broadcast=True, username=None, title=mod.STAGE_TITLE)
-        with self.assertRaisesRegex(RuntimeError, "ambiguous_stage_titles"):
-            mod.select_stage([one, two], "-1001111111111")
+        with patch("telethon.utils.get_peer_id", return_value="-1008888888888"):
+            with self.assertRaisesRegex(RuntimeError, "ambiguous_stage_titles"):
+                mod.select_stage([one, two], "-1001111111111")
 
     def test_stage_creation_requires_secret_write_capability(self):
         with self.assertRaisesRegex(RuntimeError, "github_secret_update_unavailable"):
