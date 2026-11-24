@@ -51,7 +51,7 @@ class SafeRouteAuditTests(unittest.TestCase):
         self.assertEqual(text.count("FORMATION_ROUTE_OK"), 5)
         for sensitive in (str(stage), "dummy"):
             self.assertNotIn(sensitive, text)
-        self.assertEqual(fake_bot.call.call_count, 13)  # 1 auth + 5*2 + 1 failing stage
+        self.assertEqual(fake_bot.call.call_count, 12)  # 1 auth + 5*2 + 1 failing stage
 
     def test_crypto_multichannel_continues_after_legacy_failure(self):
         bot = Mock()
