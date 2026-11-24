@@ -32,7 +32,9 @@ def token_for(category: str):
         if os.getenv("CINEX_ANIME_LEGACY_RELAY_DISABLED") == "true":
             # A legacy Désir bot is not proof that dedicated Anime V2 is ready.
             return os.getenv("CINEX_ANIME_SOURCE_BOT_TOKEN") or ""
-        return os.getenv("DESIR_BOT_TOKEN") or common
+        # Hybrid Anime reads with the existing user session and publishes
+        # with the same principal bot as Films and Series. No new polling.
+        return common
     if category == "action":
         return os.getenv("ACTION_BOT_TOKEN") or common
     return common
