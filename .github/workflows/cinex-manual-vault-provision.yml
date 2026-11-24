@@ -91,7 +91,8 @@ jobs:
           from pathlib import Path
           import requests
           sql = Path("cinecanaux/migrations/029_cinex_manual_fallback.sql").read_text()
-          statements = [x.strip() for x in sql.split(";") if x.strip() and not x.strip().startswith("--")]
+          sql = "\n".join(line for line in sql.splitlines() if not line.lstrip().startswith("--"))
+          statements = [x.strip() for x in sql.split(";") if x.strip()]
           token=os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
           if not token:
               raise SystemExit("Cloudflare credentials unavailable")
