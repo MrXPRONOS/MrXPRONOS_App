@@ -1,0 +1,4 @@
+CinéX rotation ponctuelle contrôlée
+2026-11-24
+PR #668 fusionnée ; diagnostic et réparation des affiches épinglées puis rotation avec autorisations existantes.
+Ne jamais activer purge_unmatched. Respecter les contrôles de droits et les délais Telegram.
