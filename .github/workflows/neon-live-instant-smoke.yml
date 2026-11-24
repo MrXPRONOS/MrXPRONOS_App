@@ -31,8 +31,8 @@ jobs:
           status,result=call("/deliver",b'{"signals":[]}')
           assert status==401 and result.get("error")=="unauthorized",(status,result)
           print("LIVE_GATEWAY_AUTH_REQUIRED_401")
-          neon="https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/health"
-          with urllib.request.urlopen(neon,timeout=20) as res:
-            assert res.status==200 and json.load(res)["ok"] is True
-          print("NEON_LIVE_READY; no Telegram posts sent during test")
+          supabase="https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/matches"
+          with urllib.request.urlopen(supabase,timeout=20) as res:
+            assert res.status==200 and isinstance(json.load(res).get("matches"),list)
+          print("SUPABASE_LIVE_READY; no Telegram posts sent during test")
           PY

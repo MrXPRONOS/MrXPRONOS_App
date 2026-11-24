@@ -1,26 +1,15 @@
-name: Neon LIVE PostgreSQL runtime smoke
+name: Supabase LIVE — Contrôle manuel sans Neon
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/neon-live-sql-probe.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  check:
+  probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 5
     steps:
-      - name: Probe isolated LIVE read-only PostgreSQL
-        run: |
-          python3 - <<'PY'
-          import json,urllib.request,urllib.error
-          url='https://br-winter-truth-b9of9tss-mrxlivetest.compute.c-7.eu-central-1.aws.neon.tech/'
-          try:
-              with urllib.request.urlopen(url,timeout=30) as r:
-                  print("Status",r.status,"Response",r.read(450).decode())
-                  assert r.status==200
-          except urllib.error.HTTPError as e:
-              print('HTTP',e.code,e.read(450).decode(errors='replace'))
-              raise
-          PY
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m scripts.supabase_live_cycle --mode probe

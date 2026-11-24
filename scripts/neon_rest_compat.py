@@ -1,7 +1,7 @@
-"""Private Neon PostgreSQL bridge for the existing Actu Foot PostgREST call shapes.
+"""Compatibility layer for the existing Actu Foot PostgREST call shapes.
 
-Intentionally narrow: only explicitly approved tables and RPCs. No public API,
-no legacy Supabase network fallback and no dynamic SQL identifiers from callers.
+Production backend selection is strictly Supabase. Legacy Neon bridge routines
+remain for archived migrations only; database_config never selects Neon.
 """
 from __future__ import annotations
 import json
@@ -17,16 +17,13 @@ def database_config() -> tuple[str, str]:
     Backend selection is explicit for migration/quota recovery. The PostgREST
     service-role key stays in GitHub Actions secrets, never in the repository.
     """
-    backend = os.getenv("ACTU_FOOT_BACKEND", "auto").strip().lower()
-    if backend not in {"auto", "neon", "supabase"}:
-        raise RuntimeError("Invalid ACTU_FOOT_BACKEND")
-    if backend in {"auto", "neon"} and os.getenv("NEON_DATABASE_URL", "").strip():
-        return "neon://private", "server"
-    if backend in {"auto", "supabase"}:
-        base = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
-        key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
-        if base.startswith("https://") and key:
-            return base, key
+    backend = os.getenv("ACTU_FOOT_BACKEND", "supabase").strip().lower()
+    if backend not in {"auto", "supabase"}:
+        raise RuntimeError("Neon has been retired: configure ACTU_FOOT_BACKEND=supabase")
+    base = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    if base.startswith("https://") and base.endswith(".supabase.co") and key:
+        return base, key
     return "", ""
 
 
