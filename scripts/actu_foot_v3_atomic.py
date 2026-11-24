@@ -18,7 +18,7 @@ import requests
 from scripts.actu_foot_github_vault import VaultError, VaultConflict
 from scripts.actu_foot_v2_store import (
     COLLECTIONS, collection_path, encrypt, decrypt, validate_records,
-    verify_audit, append_audit,
+    verify_audit, append_audit, read_github_ciphertext,
 )
 
 SHA_RE = re.compile(r"^[a-f0-9]{40}$")
@@ -73,15 +73,13 @@ class GitAtomicStore:
             raise VaultError("Invalid snapshot SHA")
         response = self.session.request(
             "GET", self.root + "/contents/" + quote(path, safe="/"),
-            params={"ref": head_sha}, headers=self.headers, timeout=(8, 35),
+            params={"ref": head_sha}, headers={**self.headers,"Accept":"application/vnd.github.object+json"}, timeout=(8, 35),
         )
         if response.status_code == 404:
             return None
         response.raise_for_status()
         body = response.json()
-        if body.get("type") != "file" or body.get("encoding") != "base64":
-            raise VaultError("Unexpected repository file type")
-        return base64.b64decode("".join(body["content"].split()), validate=True).decode("utf-8")
+        return read_github_ciphertext(body,lambda sha:self._request("GET","/git/blobs/"+sha)).decode("utf-8")
 
     def load_collection(self, collection: str, head_sha: str) -> FileState:
         if collection not in COLLECTIONS:

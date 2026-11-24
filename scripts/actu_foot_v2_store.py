@@ -33,6 +33,7 @@ FORMAT = "mrxp.actufoot.v2.aes256gcm"
 MAX_BYTES = 2_000_000
 MAX_ITEMS = 5000
 MAX_UNCOMPRESSED = 2_000_000
+MAX_ENVELOPE = 3_000_000
 SCHEMA_VERSION = 2
 
 
@@ -172,6 +173,30 @@ def collection_path(collection: str) -> str:
     return f"{PREFIX}/{validate_name(collection)}.aes.json"
 
 
+def read_github_ciphertext(doc,fetch_blob):
+    """Decode bounded Contents metadata, using a verified Git blob for >1 MiB files."""
+    if doc.get("type")!="file" or not doc.get("sha"):
+        raise VaultError("Unexpected GitHub file metadata")
+    fallback=doc.get("encoding")=="none"
+    source=doc
+    if fallback:
+        sha=doc["sha"]
+        if not re.fullmatch(r"[0-9a-f]{40}",sha):
+            raise VaultError("Invalid large Git blob SHA")
+        source=fetch_blob(sha)
+        if source.get("sha")!=sha:raise VaultError("Git blob identity mismatch")
+    if source.get("encoding")!="base64" or not isinstance(source.get("content"),str):
+        raise VaultError("Unexpected encrypted blob encoding")
+    encoded="".join(source["content"].split())
+    if len(encoded)>4_000_000:raise VaultError("Encrypted file exceeds transport bound")
+    try: payload=base64.b64decode(encoded,validate=True)
+    except ValueError as exc:raise VaultError("Invalid encrypted file encoding") from exc
+    if len(payload)>MAX_ENVELOPE:raise VaultError("Encrypted envelope exceeds transport bound")
+    if fallback and hashlib.sha1(b"blob "+str(len(payload)).encode()+b"\0"+payload).hexdigest()!=doc["sha"]:
+        raise VaultError("Git blob digest mismatch")
+    return payload
+
+
 class CollectionVault:
     def __init__(self, collection: str, *, repo: str | None = None,
                  branch: str | None = None, token: str | None = None, session=None):
@@ -188,19 +213,24 @@ class CollectionVault:
                         "X-GitHub-Api-Version": "2022-11-28"}
 
     def read(self, *, allow_new: bool = False):
-        response = self.session.get(self.url, headers=self.headers,
+        response = self.session.get(self.url, headers={**self.headers,"Accept":"application/vnd.github.object+json"},
                                             params={"ref": self.branch}, timeout=20)
         if response.status_code == 404 and allow_new:
             return {}, None, {"generation": 0, "key_version": 1}
         response.raise_for_status()
         doc = response.json()
-        if doc.get("type") != "file" or doc.get("encoding") != "base64" or not doc.get("sha"):
-            raise VaultError("Unexpected GitHub response")
-        envelope = base64.b64decode("".join(doc["content"].split()), validate=True).decode()
+        envelope = self.decode_file(doc).decode("utf-8")
         records, header = decrypt(self.collection, envelope)
         if self.collection == "audit":
             verify_audit(records)
         return records, doc["sha"], header
+
+    def decode_file(self,doc):
+        def fetch_blob(sha):
+            response=self.session.get("https://api.github.com/repos/"+self.repo+"/git/blobs/"+sha,headers=self.headers,timeout=30)
+            response.raise_for_status()
+            return response.json()
+        return read_github_ciphertext(doc,fetch_blob)
 
     def write(self, records: dict, *, expected_sha: str | None, generation: int,
               key_version: int = 1, message: str = "ops(actu-foot): update encrypted collection") -> str:

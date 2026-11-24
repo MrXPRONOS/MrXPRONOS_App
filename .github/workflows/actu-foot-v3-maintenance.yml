@@ -12,6 +12,12 @@ on:
       confirmation:
         type: string
         default: ''
+      recover_archives:
+        type: boolean
+        default: false
+      recovery_after:
+        type: string
+        default: ''
   push:
     branches: [main]
     paths:
@@ -68,7 +74,7 @@ jobs:
           PY
   maintenance:
     needs: preview
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' && needs.preview.outputs.active == 'false' || github.event_name == 'schedule' && needs.preview.outputs.active == 'true' && needs.preview.outputs.eligible != '0' || github.event_name == 'workflow_dispatch' && inputs.execute && inputs.confirmation == 'APPROVE_V3_ENCRYPTED_COMPACTION')
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' && needs.preview.outputs.active == 'false' || github.event_name == 'schedule' && needs.preview.outputs.active == 'true' && needs.preview.outputs.eligible != '0' || github.event_name == 'workflow_dispatch' && (inputs.recover_archives || inputs.execute && inputs.confirmation == 'APPROVE_V3_ENCRYPTED_COMPACTION'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: actu-foot-v2-maintenance
@@ -88,8 +94,20 @@ jobs:
       - name: Verify actual environment policy
         run: python -m scripts.actu_foot_v2_release_guard
       - name: Activate encrypted policy and compact only independently verified shards
+        if: inputs.recover_archives != true
         run: python -m scripts.actu_foot_v3_maintenance --collection "$COLLECTION" --activate --execute --confirmation APPROVE_V3_ENCRYPTED_COMPACTION
+      - name: Recover and verify isolated encrypted archive batch
+        env:
+          RECOVERY_AFTER: ${{ inputs.recovery_after || '' }}
+        run: python -m scripts.actu_foot_v3_maintenance --recover-archives --after "$RECOVERY_AFTER"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: actufoot-v3-archive-recovery-${{ github.run_id }}
+          path: /tmp/v3-archive-recovery/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Request V2 anchored live backup after maintenance
+        if: inputs.recover_archives != true
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run actu-foot-v2-backup.yml --repo "$GITHUB_REPOSITORY" --ref main

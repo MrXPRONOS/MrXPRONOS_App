@@ -67,6 +67,19 @@ class IntegratedTests(unittest.TestCase):
         migrated=upgrade("matches",rows)
         self.assertEqual(upgrade("matches",migrated),migrated)
         self.assertTrue(migration_preview("matches",migrated)["reversible"])
+    def test_large_ciphertext_blob_fallback(self):
+        import random
+        from scripts.actu_foot_v2_store import encrypt,read_github_ciphertext,decrypt
+        rng=random.Random(37)
+        rows={str(i):{"payload":base64.b64encode(rng.randbytes(9000)).decode()} for i in range(120)}
+        blob=encrypt("settings",rows).encode()
+        self.assertGreater(len(blob),1_000_000)
+        sha=hashlib.sha1(b"blob "+str(len(blob)).encode()+b"\0"+blob).hexdigest()
+        metadata={"type":"file","encoding":"none","sha":sha}
+        result={"sha":sha,"encoding":"base64","content":base64.b64encode(blob).decode()}
+        self.assertEqual(decrypt("settings",read_github_ciphertext(metadata,lambda _:result).decode())[0],rows)
+        result["content"]=base64.b64encode(b"corrupt").decode()
+        with self.assertRaises(VaultError):read_github_ciphertext(metadata,lambda _:result)
     def test_full_capacity_index_pagination(self):
         from scripts.actu_foot_v3_query import PreparedQuery
         from scripts.actu_foot_v2_store import encrypt,decrypt

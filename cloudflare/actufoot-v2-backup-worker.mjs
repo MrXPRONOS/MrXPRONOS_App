@@ -11,7 +11,7 @@ const BACKUP_WORKFLOW = REPO + '/.github/workflows/actu-foot-v2-backup.yml@refs/
 const RECOVERY_WORKFLOW = REPO + '/.github/workflows/actu-foot-v2-recovery.yml@refs/heads/main';
 const V3_WORKFLOW = REPO + '/.github/workflows/actu-foot-v3-maintenance.yml@refs/heads/main';
 const COLLECTIONS = ['audit','live_events','matches','news','publications','settings','statistics'];
-const MAX_BODY = 14500000, MAX_FILE = 2200000;
+const MAX_BODY = 22000000, MAX_FILE = 3000000;
 const enc = new TextEncoder();
 const respond = (status, body) => new Response(JSON.stringify(body), {status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
 const reject = status => respond(status,{ok:false});
