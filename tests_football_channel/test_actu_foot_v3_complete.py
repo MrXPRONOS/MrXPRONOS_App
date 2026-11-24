@@ -80,13 +80,13 @@ class V3CompleteTests(unittest.TestCase):
             {"action":"insert","id":"new","value":fixture(1,10)}]})
         fake.conflict=True
         result=compact_month(fake,"matches",field="kickoff_utc",
-                         cutoff=datetime(2026,4,1,tzinfo=timezone.utc))
+                         cutoff=datetime(2026,4,1,tzinfo=timezone.utc),durable_copy=lambda p,b:__import__("hashlib").sha256(b.encode()).hexdigest())
         self.assertEqual(result["moved"],1)
         self.assertIn("old",verify_archive("matches","2026-01",
                       fake.files[archive_path("matches","2026-01")]))
         self.assertEqual(set(fake.load_collection("matches",fake.head()[0]).data),{"new"})
         self.assertEqual(compact_month(fake,"matches",field="kickoff_utc",
-                  cutoff=datetime(2026,4,1,tzinfo=timezone.utc))["moved"],0)
+                  cutoff=datetime(2026,4,1,tzinfo=timezone.utc),durable_copy=lambda p,b:__import__("hashlib").sha256(b.encode()).hexdigest())["moved"],0)
 
     def test_archive_cross_period_rejected(self):
         with self.assertRaises(VaultError):

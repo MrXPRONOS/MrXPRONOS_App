@@ -9,6 +9,7 @@ const BACKUP_AUD = 'mrxpronos-actufoot-v2-backup';
 const RECOVERY_AUD = 'mrxpronos-actufoot-v2-recovery';
 const BACKUP_WORKFLOW = REPO + '/.github/workflows/actu-foot-v2-backup.yml@refs/heads/main';
 const RECOVERY_WORKFLOW = REPO + '/.github/workflows/actu-foot-v2-recovery.yml@refs/heads/main';
+const V3_WORKFLOW = REPO + '/.github/workflows/actu-foot-v3-maintenance.yml@refs/heads/main';
 const COLLECTIONS = ['audit','live_events','matches','news','publications','settings','statistics'];
 const MAX_BODY = 14500000, MAX_FILE = 2200000;
 const enc = new TextEncoder();
@@ -26,12 +27,14 @@ async function authenticate(auth,purpose) {
   const head=decodePart(parts[0]),claims=decodePart(parts[1]);
   if(head.alg!=='RS256' || typeof head.kid!=='string' || !head.kid) throw Error('algorithm');
   const now=Math.floor(Date.now()/1000),backup=purpose==='backup';
-  const aud=backup?BACKUP_AUD:RECOVERY_AUD;
-  const wf=backup?BACKUP_WORKFLOW:RECOVERY_WORKFLOW;
+  const v3=purpose==='archive'||purpose==='rehearsal';
+  const aud=v3?'mrxpronos-actufoot-v3-'+purpose:backup?BACKUP_AUD:RECOVERY_AUD;
+  const wf=v3?V3_WORKFLOW:backup?BACKUP_WORKFLOW:RECOVERY_WORKFLOW;
   if(claims.iss!==ISSUER || claims.aud!==aud || claims.repository!==REPO ||
      claims.repository_id!==REPO_ID || claims.repository_owner_id!==OWNER_ID ||
      claims.workflow_ref!==wf || claims.ref!=='refs/heads/main' ||
-     !(backup?['schedule','workflow_dispatch','push']:['workflow_dispatch','push']).includes(claims.event_name) ||
+     !((backup||v3)?['schedule','workflow_dispatch','push']:['workflow_dispatch','push']).includes(claims.event_name) ||
+     (purpose==='archive' && claims.environment!=='actu-foot-v2-maintenance') ||
      typeof claims.exp!=='number' || claims.exp<now-30 || claims.exp>now+900 ||
      typeof claims.iat!=='number' || claims.iat>now+60 || claims.iat<now-900 ||
      (claims.nbf!==undefined && (typeof claims.nbf!=='number'||claims.nbf>now+60)) ||
@@ -158,11 +161,53 @@ async function readRecovery(req,env) {
     return respond(200,{ok:true,files,manifest,provenance:proof,anchor});
   }catch{return reject(503);}
 }
+export function validArchive(path,digest,blob){
+  if(typeof path!=='string'||!/^assets\/data\/private\/actufoot_v2\/archive\/(matches|live_events|news|statistics)\/20\d{2}-(0[1-9]|1[0-2])(-[a-f0-9]{24})?\.aes\.json$/.test(path)||
+     typeof digest!=='string'||!(/^[a-f0-9]{64}$/).test(digest)) return false;
+  if(blob===undefined)return true;
+  try{const h=JSON.parse(blob);return typeof blob==='string'&&blob.length<=3000000&&h.format==='mrxp.actufoot.v2.aes256gcm'&&h.archive_context===path&&h.collection===path.split('/')[5]&&h.key_version===2&&typeof h.ciphertext_b64==='string'&&typeof h.nonce_b64==='string';}catch{return false;}
+}
+async function archiveRequest(req,env,claims,rehearsal){
+  if(Number(req.headers.get('content-length')||0)>4000000)return reject(413);
+  try{
+    const raw=await req.text();if(raw.length>4000000)return reject(413);
+    const b=JSON.parse(raw),write=b.action==='write';
+    if(!write&&b.action!=='read')return reject(400);
+    if(!validArchive(b.path,b.sha256,write?b.ciphertext:undefined))return reject(400);
+    const prefix=rehearsal?'v3/rehearsal/'+claims.run_id+'/'+claims.run_attempt:'v3/archive';
+    const key=prefix+'/'+b.sha256;
+    if(write){
+      if(await sha256(b.ciphertext)!==b.sha256)return reject(400);
+      const existing=await env.BACKUPS.get(key);
+      if(existing!==null&&existing!==b.ciphertext)return reject(409);
+      if(existing===null)await env.BACKUPS.put(key,b.ciphertext,rehearsal?{expirationTtl:86400}:undefined);
+      const check=await env.BACKUPS.get(key);
+      if(check!==b.ciphertext)return reject(503);
+      if(!rehearsal){
+        await env.ANCHOR.prepare('INSERT OR IGNORE INTO v3_archive_receipt(sha256,path,run_id,attempt,source_commit) VALUES (?,?,?,?,?)')
+          .bind(b.sha256,b.path,String(claims.run_id),String(claims.run_attempt),claims.sha).run();
+      }
+      return respond(201,{ok:true,sha256:b.sha256});
+    }
+    if(!rehearsal){
+      const receipt=await env.ANCHOR.prepare('SELECT path FROM v3_archive_receipt WHERE sha256=?').bind(b.sha256).first();
+      if(!receipt||receipt.path!==b.path)return reject(404);
+    }
+    const blob=await env.BACKUPS.get(key);
+    if(blob===null||!validArchive(b.path,b.sha256,blob)||await sha256(blob)!==b.sha256)return reject(404);
+    return respond(200,{ok:true,ciphertext:blob,sha256:b.sha256});
+  }catch{return reject(503);}
+}
 export default {
   async fetch(req,env){
     const path=new URL(req.url).pathname;
     if(req.method==='GET'&&path==='/health') return respond(200,{ok:true});
     if(req.method!=='POST') return reject(404);
+    if(path==='/v3/archive'||path==='/v3/archive-rehearsal'){
+      const rehearsal=path.endsWith('-rehearsal');
+      try{const claims=await authenticate(req.headers.get('authorization'),rehearsal?'rehearsal':'archive');return await archiveRequest(req,env,claims,rehearsal);}
+      catch{return reject(401);}
+    }
     if(path==='/v2/backup') {
       try{const claims=await authenticate(req.headers.get('authorization'),'backup');return await writeBackup(req,env,claims);}
       catch{return reject(401);}

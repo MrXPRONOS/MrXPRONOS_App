@@ -19,3 +19,7 @@
 - No archive of `audit` is allowed by automatic compaction, and `publications` must not be automatically deleted before V4 deduplication migration.
 - V3 code tests use fake Git stores; successful CI does not prove GitHub remote commit privileges, storage quotas or disaster recovery.
 - Actual live bot connection, outbox and cutover belong in V4.
+
+## Durcissement de finalisation
+
+Les archives sont désormais des shards mensuels UTC immuables, liés cryptographiquement au chemin (AAD), et distincts des fichiers live. Une copie indépendante Cloudflare KV par digest est déposée puis relue, avec reçu append-only D1, avant toute suppression de source. La transaction Git inclut archives, live et audit avec les reçus; les copies orphelines après conflit restent conservées mais ne sont pas des archives actives. Le journal de reçus indépendant permet de retrouver les copies, et les entrées audit ancrées V2 documentent les shards actifs. Le contrôle en lecture seule teste toutes les collections et la récupération isolée d'un shard synthétique (namespace temporaire, expiration 24h). Les périodes proposées sont 90j matches terminés, 30j live_events, 60j news, 120j statistics; jamais publications, settings ou audit. L'exécution hebdomadaire contrôle toutes les collections, sans écriture si aucune candidate, et demande l'approbation de l'environnement protégé si une compaction est nécessaire. L'activation du paramètre chiffré est également protégée. Les réels logs et résultats doivent être vérifiés après fusion.

@@ -24,3 +24,7 @@
 2. Tester sauvegardes et restauration réelles, puis installer une destination indépendante.
 3. Profilage sur volumes comparables à la production.
 4. Intégration V4 avec réservations Telegram transactionnelles et reprise contrôlée.
+
+## Finalisation V3 — moteur intégré
+
+Le lecteur SnapshotReader fixe un commit Git, prépare les index une fois, réutilise le cache TTL et invalide index/résultats/curseurs après changement de snapshot. Les recherches d'archives utilisent le chemin de shard authentifié et explicite. La capacité reste 5 000 enregistrements et 2 Mo par enveloppe; le test de capacité couvre 50 pages. Aucun index ou résultat métier n'est écrit en clair. Migration de schéma appliquée par les transactions V3; l'audit hashé demeure inchangé. La V4 reste responsable du raccordement du bot et de l'import historique.

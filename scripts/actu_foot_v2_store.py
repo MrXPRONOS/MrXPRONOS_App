@@ -109,13 +109,17 @@ def derive(collection: str, version: int) -> bytes:
                 info=f"MrXPRONOS/ActuFoot/v2/{name}/key/{version}".encode()).derive(master_key(version))
 
 
-def encrypt(collection: str, records: dict, *, key_version: int = 1, generation: int = 1) -> str:
+def encrypt(collection: str, records: dict, *, key_version: int = 1, generation: int = 1, archive_context: str | None = None) -> str:
     validate_records(collection, records)
     if type(generation) is not int or generation < 1:
         raise VaultError("Invalid generation")
     header = {"format": FORMAT, "collection": collection,
               "schema_version": SCHEMA_VERSION, "key_version": key_version,
               "generation": generation}
+    if archive_context is not None:
+        if not isinstance(archive_context,str) or not archive_context.startswith(PREFIX + "/archive/") or len(archive_context)>240:
+            raise VaultError("Invalid archive encryption context")
+        header["archive_context"] = archive_context
     clear = canonical(records)
     compressed = zlib.compress(clear, level=6)
     codec, payload = ("zlib", compressed) if len(compressed) < len(clear) else ("none", clear)
@@ -127,12 +131,18 @@ def encrypt(collection: str, records: dict, *, key_version: int = 1, generation:
                       sort_keys=True, separators=(",", ":")) + "\n"
 
 
-def decrypt(collection: str, envelope: str) -> tuple[dict, dict]:
+def decrypt(collection: str, envelope: str, *, archive_context: str | None = None) -> tuple[dict, dict]:
     validate_name(collection)
     try:
         obj = json.loads(envelope)
         header = {k: obj[k] for k in
                   ("format", "collection", "schema_version", "key_version", "generation", "codec")}
+        if archive_context is not None:
+            if obj.get("archive_context") != archive_context:
+                raise VaultError("Archive context mismatch")
+            header["archive_context"] = archive_context
+        elif "archive_context" in obj:
+            raise VaultError("Archive envelope cannot be used as a live collection")
         if (header["format"] != FORMAT or header["collection"] != collection
                 or header["schema_version"] != SCHEMA_VERSION
                 or header["codec"] not in {"zlib", "none"}
