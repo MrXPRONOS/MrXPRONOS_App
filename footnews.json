@@ -1,5 +1,39 @@
 [
   {
+    "slug": "62afa31b76f16833",
+    "title": "CAN 2025 : le communiqué du Maroc après la décision du TAS",
+    "summary": "La Fédération Royale Marocaine de Football vient de publier un communiqué critiquant la décision du TAS, et annonçant sa volonté de faire appel.Tremblement de terre en ce début d’après-midi.",
+    "summary_short": "La Fédération Royale Marocaine de Football vient de publier un communiqué critiquant la décision du TAS, et annonçant sa volonté de faire appel.Tremblement de terre en ce début d’après-midi.",
+    "content": "La Fédération Royale Marocaine de Football vient de publier un communiqué critiquant la décision du TAS, et annonçant sa volonté de faire appel.Tremblement de terre en ce début d’après-midi. Le (…)",
+    "paragraphs": [
+      "La Fédération Royale Marocaine de Football vient de publier un communiqué critiquant la décision du TAS, et annonçant sa volonté de faire appel.Tremblement de terre en ce début d’après-midi. Le (…)"
+    ],
+    "key_points": [
+      "La Fédération Royale Marocaine de Football vient de publier un communiqué critiquant la décision du TAS, et annonçant sa volonté de faire appel.Tremblement de terre en ce début d’après-midi."
+    ],
+    "telegram_summary": "La Fédération Royale Marocaine de Football vient de publier un communiqué critiquant la décision du TAS, et annonçant sa volonté de faire appel.Tremblement de terre en ce début d’après-midi.",
+    "link": "https://www.footmercato.net/a3513084679408949084-can-2025-le-communique-du-maroc-apres-la-decision-du-tas",
+    "source_url": "https://www.footmercato.net/a3513084679408949084-can-2025-le-communique-du-maroc-apres-la-decision-du-tas",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=62afa31b76f16833",
+    "published": "2026-11-24T15:42:45+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bono-brahim-diaz-2526.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bono-brahim-diaz-2526.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "2d17524fe58e38cc",
     "title": "Senegal reinstated as Afcon 2025 winners by court ruling",
     "summary": "Ten months after the 2025 Africa Cup of Nations final, Senegal are reinstated as champions following a ruling by the Court of Arbitration for Sport.",
@@ -169,7 +203,7 @@
       "source": "ESPN News API",
       "article_id": "50583223",
       "url": "https://www.espn.com/soccer/story/_/id/50583223/man-united-win-appeal-leny-yoro-red-card",
-      "published": "2026-11-24T15:32:34Z",
+      "published": "2026-11-24T15:39:20Z",
       "score": 0.25,
       "matched_terms": [
         "leny",
@@ -187,7 +221,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T15:40:16.945228+00:00"
+      "checked_at": "2026-11-24T15:45:27.289423+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -508,7 +542,7 @@
   },
   {
     "slug": "da84b1bf81a8f00b",
-    "title": "Verdict du TAS : existe-t-il un recours pour le Maroc?",
+    "title": "Verdict du TAS : existe-t-il un recours pour le Maroc ?",
     "summary": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ?",
     "summary_short": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ?",
     "content": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ? France 24 fait le point.",
@@ -940,8 +974,8 @@
     "published": "2026-11-24T14:21:44+00:00",
     "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/24111343/ICONSPORT_282766_0186-scaled.jpg",
     "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/24111343/ICONSPORT_282766_0186-scaled.jpg",
-    "image_origin": "generated_fallback",
-    "image_layout": "general-banner",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
     "source": "So Foot",
     "source_priority": 77,
     "source_region": "international",
@@ -1283,7 +1317,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-24T15:40:16.945228+00:00"
+      "checked_at": "2026-11-24T15:45:27.289423+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1328,7 +1362,7 @@
   },
   {
     "slug": "18871559c4f57daf",
-    "title": "DIRECT- «le TAS a rendu une décision juste» en déclarant le Sénégal vainqueur de la CAN 2025",
+    "title": "DIRECT- Le Maroc va «engager toutes les procédures légales nécessaires» contre la décision du TAS",
     "summary": "Le Sénégal est le vainqueur légitime de la CAN 2025 après le verdict rendu ce mardi 24 novembre par le Tribunal arbitral du sport (TAS). La plus haute instance juridictionnelle du sport international a décidé d’inverser la décision de la Confédération africaine de football et de rendre le titre aux Lions de la Teranga, vainqueurs (1-0) sur le terrain.",
     "summary_short": "Le Sénégal est le vainqueur légitime de la CAN 2025 après le verdict rendu ce mardi 24 novembre par le Tribunal arbitral du sport (TAS). La plus haute instance juridictionnelle du sport international a décidé d’inverser la décision de la Confédération africaine de football et de rendre le titre aux Lions de la Teranga, vainqueurs (1-0) sur le terrain.",
     "content": "Le Sénégal est le vainqueur légitime de la CAN 2025 après le verdict rendu ce mardi 24 novembre par le Tribunal arbitral du sport (TAS). La plus haute instance juridictionnelle du sport international a décidé d’inverser la décision de la Confédération africaine de football et de rendre le titre aux Lions de la Teranga, vainqueurs (1-0) sur le terrain.",
@@ -1429,40 +1463,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "326c6a09199156f2",
-    "title": "PSG : Hakimi botte en touche après une question sur son procès pour viol",
-    "summary": "Interrogé sur son renvoi devant la cour criminelle départementale des Hauts-de-Seine pour viol, Achraf Hakimi a affiché sa volonté de ne pas se laisser perturber par cette procédure judiciaire.",
-    "summary_short": "Interrogé sur son renvoi devant la cour criminelle départementale des Hauts-de-Seine pour viol, Achraf Hakimi a affiché sa volonté de ne pas se laisser perturber par cette procédure judiciaire.",
-    "content": "Interrogé sur son renvoi devant la cour criminelle départementale des Hauts-de-Seine pour viol, Achraf Hakimi a affiché sa volonté de ne pas se laisser perturber par cette procédure judiciaire. À la (…)",
-    "paragraphs": [
-      "Interrogé sur son renvoi devant la cour criminelle départementale des Hauts-de-Seine pour viol, Achraf Hakimi a affiché sa volonté de ne pas se laisser perturber par cette procédure judiciaire. À la (…)"
-    ],
-    "key_points": [
-      "Interrogé sur son renvoi devant la cour criminelle départementale des Hauts-de-Seine pour viol, Achraf Hakimi a affiché sa volonté de ne pas se laisser perturber par cette procédure judiciaire."
-    ],
-    "telegram_summary": "Interrogé sur son renvoi devant la cour criminelle départementale des Hauts-de-Seine pour viol, Achraf Hakimi a affiché sa volonté de ne pas se laisser perturber par cette procédure judiciaire.",
-    "link": "https://www.footmercato.net/a1116105499066989501-psg-hakimi-botte-en-touche-sur-une-question-de-son-proces-pour-viol",
-    "source_url": "https://www.footmercato.net/a1116105499066989501-psg-hakimi-botte-en-touche-sur-une-question-de-son-proces-pour-viol",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=326c6a09199156f2",
-    "published": "2026-11-24T12:24:45+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/hakimi-6ae5b279834e4.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/hakimi-6ae5b279834e4.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "bc0d7da2401b71f8",
