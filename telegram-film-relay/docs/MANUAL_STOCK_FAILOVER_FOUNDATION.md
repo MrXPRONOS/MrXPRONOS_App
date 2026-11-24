@@ -119,3 +119,31 @@ réseau incertaine ou droits insuffisants ne justifient pas un contournement.
    de celui de l'ingestion, et conserver le chemin de retour arrière.
 
 Aucun secret ni identifiant de canal privé ne doit être exposé dans GitHub.
+
+## Avancement complémentaire du 24 novembre — vérifications réelles
+
+- Contrôle de la base Cloudflare D1 existante effectué en lecture : stock central
+  configuré et prêt, **178 copies médias en état stored**, 178 liens classiques
+  marqués published. Les vidéothèques Action et Séries ont chacune un accès
+  bot vérifié et une attestation de droits dans le registre consulté.
+- Migration 029 appliquée à la même base D1 : six opérations réussies ; les
+  trois tables du secours manuel existent désormais en production.
+- **L'ingestion manuelle reste désactivée** dans le code Worker
+  (CINEX_MANUAL_INBOX_ENABLED=false). Les nouveaux canaux privés ne sont pas
+  encore reconnus et aucune publication autonome n'est activée.
+- Planificateur hors réseau ajouté pour films (couverture + fichier), épisodes
+  SxxExx progressifs sans trou et formations multi-parties complètes. Quotas
+  et blocage si une même identité média revendique plusieurs contenus.
+- Journal D1 ajouté pour les différentes étapes de publication : reserve,
+  inflight, uncertain et complete. Une issue inconnue interdit tout renvoi
+  automatique sans réconciliation manuelle, y compris après un redémarrage.
+- Audit agrégé en lecture seule ajouté ; il ne renvoie ni identifiants des
+  canaux privés, ni fichiers, ni descriptions des médias.
+- Les destinations publiques de Formation ne sont **jamais** converties en
+  sources privées par simple similarité de catégorie : des réserves spécifiques
+  doivent être réellement privées et validées.
+
+Le journal et le planificateur ne constituent pas encore un publisher complet.
+Les reçus des modes personnels ne sont pas tous réconciliés dans la structure
+commune et aucun test de bascule réel n'a été passé. Ne pas déployer ni annoncer
+un fonctionnement autonome final avant ces contrôles.
