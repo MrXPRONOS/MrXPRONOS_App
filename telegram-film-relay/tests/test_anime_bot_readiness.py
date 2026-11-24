@@ -94,6 +94,20 @@ class AnimeBotReadinessTests(unittest.TestCase):
             self.assertFalse(report["ready_to_publish"])
             self.assertIn("legacy_active_batch_unfinished", report["blockers"])
 
+    def test_missing_legacy_catalogue_blocks_cutover(self):
+        from io import StringIO
+        from contextlib import redirect_stdout
+        stream = StringIO()
+        with (patch("scripts.anime_bot_readiness.remote_read_only",
+                    new=AsyncMock(return_value={"ready_to_publish": True, "blockers": []})),
+              patch("scripts.anime_bot_readiness.summarize_legacy",
+                    return_value={"available": False}),
+              redirect_stdout(stream)):
+            self.assertEqual(main(), 0)
+        report = json.loads(stream.getvalue())
+        self.assertFalse(report["ready_to_publish"])
+        self.assertIn("legacy_catalogue_missing", report["blockers"])
+
     def test_unexpected_webhook_blocks_cutover(self):
         client = NS(
             identity=AsyncMock(return_value=NS(id=123)),
