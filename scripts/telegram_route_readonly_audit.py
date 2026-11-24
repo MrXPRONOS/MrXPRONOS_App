@@ -8,6 +8,7 @@ All private identifiers and tokens are omitted from output.
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,13 @@ def safe_reason(exc):
     return type(exc).__name__
 
 
+def public_bot_alias(value):
+    """Only print syntactically valid public bot handles; never raw API text."""
+    if isinstance(value, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{4,31}", value):
+        return "@" + value
+    return "unknown"
+
+
 def audit_formation():
     print("FORMATION_ROUTE_AUDIT_START", flush=True)
     try:
@@ -43,7 +51,7 @@ def audit_formation():
         if not isinstance(bot_id, int):
             raise ValueError("invalid bot identity")
         # The bot username is public; private channel references stay hidden.
-        print("FORMATION_BOT_AUTH_OK", flush=True)
+        print("FORMATION_BOT_AUTH_OK", "bot=" + public_bot_alias(bot_user.get("username")), flush=True)
     except (ValueError, KeyError, TypeError, RuntimeError) as exc:
         print("FORMATION_ROUTE_AUDIT_CONFIG_FAIL", safe_reason(exc), flush=True)
         return False
@@ -79,6 +87,15 @@ def audit_formation():
 
 def audit_premium():
     print("CRYPTO_PREMIUM_ROUTE_AUDIT_START", flush=True)
+    # Use read-only getMe; publish methods are intentionally absent.
+    for index, token in enumerate(premium.TOKEN_CANDIDATES, start=1):
+        try:
+            bot = multi.Telegram(token=token).get("getMe")
+            alias = public_bot_alias(bot.get("username"))
+        except (RuntimeError, ValueError, TypeError, KeyError):
+            alias = "unknown"
+        print("CRYPTO_PREMIUM_BOT_CANDIDATE",
+              "index=" + str(index), "bot=" + alias, flush=True)
     try:
         premium.verify_production_route()
     except (RuntimeError, KeyError, TypeError, ValueError) as exc:
