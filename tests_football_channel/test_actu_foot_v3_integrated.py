@@ -34,6 +34,49 @@ class IntegratedTests(unittest.TestCase):
         self.assertEqual(compact_month(store,"matches",field="kickoff_utc",cutoff=cutoff,durable_copy=copy)["moved"],1)
         self.assertEqual(len([p for p in store.files if "/archive/" in p]),2)
         self.assertEqual(len(store.load_collection("audit",store.head()[0]).data),4)
+    def test_snapshot_reader_auto_refreshes_after_interval(self):
+        class Clock:
+            current=0
+            def __call__(self):return self.current
+        clock=Clock()
+        store=MemoryAtomic()
+        store.transact({"matches":[{"action":"insert","id":"a","value":fixture(1)},
+                                  {"action":"insert","id":"b","value":fixture(2)}]})
+        reader=SnapshotReader(store,ttl=60,refresh_interval=15,clock=clock)
+        first=reader.query("matches",limit=1)
+        self.assertEqual(first["count"],2)
+        store.transact({"matches":[{"action":"insert","id":"c","value":fixture(3)}]})
+        self.assertEqual(reader.query("matches",limit=1)["count"],2)
+        clock.current=16
+        self.assertEqual(reader.query("matches",limit=1)["count"],3)
+        self.assertEqual(reader.archives("matches") if hasattr(store,"list_archives") else [],[])
+        with self.assertRaises(VaultError):
+            reader.query("matches",limit=1,cursor=first["next_cursor"])
+        with self.assertRaises(VaultError):
+            SnapshotReader(store,ttl=-1)
+        with self.assertRaises(VaultError):
+            SnapshotReader(store,ttl=20,refresh_interval=30)
+
+    def test_malformed_queries_and_cursors_fail_closed(self):
+        from scripts.actu_foot_v3_query import query
+        records={"a":fixture(1)}
+        for filters in ([],False,0,""):
+            with self.subTest(filters=repr(filters)):
+                with self.assertRaises(VaultError):
+                    query("matches",records,filters=filters)
+        for cursor in ("A","e30","!!!",""):
+            if not cursor:
+                continue
+            with self.subTest(cursor=cursor):
+                with self.assertRaises(VaultError):
+                    query("matches",records,cursor=cursor)
+        with self.assertRaises(VaultError):
+            query("matches",records,filters={"home_team":float("nan")})
+        with self.assertRaises(VaultError):
+            query("matches",records,snapshot=["unhashable"])
+        with self.assertRaises(VaultError):
+            query("invalid",{},limit=1)
+
     def test_cache_index_and_snapshot_cursor(self):
         store=MemoryAtomic()
         store.transact({"matches":[{"action":"insert","id":str(i),"value":fixture(i)} for i in range(5)]})

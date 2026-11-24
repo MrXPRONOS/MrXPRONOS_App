@@ -47,3 +47,7 @@ Le nouveau script `scripts/actu_foot_v3_e2e_rehearsal.py` reproduit le circuit c
 La sauvegarde chiffrée et ancrée de sept collections **45408510666** est réussie ; la restauration indépendante et sans approbation **45408645985** est réussie (7/7). Cloudflare D1 a enregistré l'ancre id 8, séquence 3, commit 00577a3dbfc64654c9146073158670cf2d836806. 25 tests Python + 8 tests JavaScript de V3 et la CI générale ont réussi.
 
 **Limite explicitement non testable :** six collections métier V3 restent vides, donc aucun shard de match historique réel n'a encore été archivé. C'est attendu : la migration des historiques, l'alimentation V3 et la bascule Telegram restent prévues en V4. Aucun contenu fictif n'a été publié sur Telegram ou écrit dans les collections chiffrées de production.
+
+## Audit d'exhaustivité — cache et requêtes
+
+Le lecteur `SnapshotReader` ne doit pas rester indéfiniment fixé au commit d'origine dans les processus longs : il vérifie désormais automatiquement l'état de la branche au plus tard toutes les 30 secondes par défaut (ou à intervalle configurable inférieur au TTL), invalide le cache et les index si le commit change, et invalide les anciens curseurs. L'audit a aussi détecté le silence sur certains filtres vides de type invalide et des exceptions de décodage de curseur non traduites : la requête refuse maintenant explicitement ces valeurs. Des tests isolés vérifient ces garanties sans mutation des données réelles.
