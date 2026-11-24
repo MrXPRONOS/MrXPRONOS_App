@@ -160,3 +160,33 @@ test('training files cannot masquerade as stand-alone videos',()=>{
  assert.equal(result.pairs.length,0);
  assert.equal(result.review[0].reason,'course_boundary_requires_review');
 });
+
+test('owner uploads are kept in private review when rights are not attested',async()=>{
+ const {sqlite,env}=fixture();await ensureManualFallbackSchema(env);
+ sqlite.prepare("INSERT INTO cine_manual_fallback_sources "+
+  "(chat_id,category,owner_approved,bot_access_verified,rights_attested,enabled) "+
+  "VALUES(?,'films',1,1,0,0)").run(String(chat));
+ const response=await ingestManualChannelPost(env,post(111));
+ assert.equal(response.accepted,true);
+ assert.equal(response.state,'needs_review');
+ const record=sqlite.prepare(
+  "SELECT state,review_code FROM cine_manual_fallback_inbox").get();
+ assert.equal(record.state,'needs_review');
+ assert.equal(record.review_code,'rights_not_attested');
+});
+test('rights approval makes an unchanged stored upload eligible without duplicate message',async()=>{
+ const {sqlite,env}=fixture();await ensureManualFallbackSchema(env);
+ sqlite.prepare("INSERT INTO cine_manual_fallback_sources "+
+  "(chat_id,category,owner_approved,bot_access_verified,rights_attested,enabled) "+
+  "VALUES(?,'films',1,1,0,0)").run(String(chat));
+ await ingestManualChannelPost(env,post(115));
+ sqlite.prepare(
+  "UPDATE cine_manual_fallback_sources SET rights_attested=1,enabled=1").run();
+ const response=await ingestManualChannelPost(env,post(115));
+ assert.equal(response.accepted,true);
+ const record=sqlite.prepare(
+  "SELECT state,review_code FROM cine_manual_fallback_inbox").get();
+ assert.equal(record.state,'indexed');
+ assert.equal(record.review_code,'');
+ assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM cine_manual_fallback_inbox").get().n,1);
+});
