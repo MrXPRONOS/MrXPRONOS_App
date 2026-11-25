@@ -262,7 +262,12 @@ async def verified_multipart_links(client, private, private_id, poster, category
         if not ident or ident.part in verified:
             raise RuntimeError("Lien historique multipartie non vérifié")
         if ident.part in members and video_document_id(item) != video_document_id(members[ident.part][0]):
-            raise RuntimeError("Lien historique vers un document différent")
+            from .private_media_contract import renamed_receipt_matches
+            source_video, source_ident = members[ident.part]
+            title = cover_caption(poster, source_video, category, identity=source_ident)
+            if not renamed_receipt_matches(
+                    source_video, item, title=title, poster=poster, description=title):
+                raise RuntimeError("Lien historique vers un document différent")
         prior = await client.get_messages(private, ids=list(range(max(1, mid - 3), mid)))
         proofs = []
         for photo in prior or []:
