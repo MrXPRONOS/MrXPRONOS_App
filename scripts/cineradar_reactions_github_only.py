@@ -156,7 +156,8 @@ def main(env=None):
         return 0
     except Exception as exc:
         # Persisted observations remain recoverable; Telegram reactions are idempotent.
-        print("REACTIONS_GITHUB_ONLY_ERROR:", type(exc).__name__, file=sys.stderr)
+        detail = str(exc)[:220] if isinstance(exc, RuntimeError) else ""
+        print("REACTIONS_GITHUB_ONLY_ERROR:", type(exc).__name__, detail, file=sys.stderr)
         return 1
     finally:
         db.connection.close()
