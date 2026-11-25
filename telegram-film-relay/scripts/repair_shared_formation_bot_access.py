@@ -97,9 +97,15 @@ async def repair():
         radar=bots.get("radar")
         if not publisher or not radar:
             raise RuntimeError("formation_or_radar_bot_not_resolved")
-        changes=0
-        for label,bot in dict.fromkeys((("formation",publisher),
-                                         ("radar",radar))):
+        seen=set()
+        for label,bot in (("formation",publisher),("radar",radar)):
+            if bot.id in seen:
+                # Still check each configured token, not a second Telegram
+                # admin grant for the exact same verified bot identity.
+                key="FORMATION_BOT_TOKEN" if label=="formation" else "CINE_RADAR_BOT_TOKEN"
+                record_safe_status(label,os.getenv(key,""),registered,int(bot.id))
+                continue
+            seen.add(bot.id)
             if not await check_and_grant(client,channel,bot,apply=True):
                 raise RuntimeError(label+"_bot_admin_not_confirmed")
             # Telethon proves owner admin rights; Bot API must independently
