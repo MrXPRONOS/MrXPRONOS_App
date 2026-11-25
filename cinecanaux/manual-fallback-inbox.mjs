@@ -120,7 +120,7 @@ export async function ingestManualChannelPost(env,update){
   ).bind(chat).all();
   const posters=known?.results||[];
   const cover=media.kind==='poster'?inspectFormationCover(caption):null;
-  if(media.kind==='poster'&&!cover)
+  if(media.kind==='poster'&&!cover&&!courseId(caption))
    return {enabled:true,accepted:false,reason:'not_a_formation_cover'};
   const fileMatch=['course_file','video'].includes(media.kind)?
    matchFormationFilename(media.filename,posters):null;
