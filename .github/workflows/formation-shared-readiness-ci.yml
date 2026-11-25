@@ -1,0 +1,36 @@
+name: Formation - Tests du contrôle des cinq destinations (hors ligne)
+on:
+  pull_request:
+    paths:
+      - 'cinecanaux/manual-fallback-live.mjs'
+      - 'cinecanaux/formation-shared-readiness.mjs'
+      - 'cinecanaux/tests/formation-shared-readiness.test.mjs'
+      - 'cinecanaux/tests/formation-shared-inbox.test.mjs'
+      - '.github/workflows/formation-shared-readiness-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/manual-fallback-live.mjs'
+      - 'cinecanaux/formation-shared-readiness.mjs'
+      - 'cinecanaux/tests/formation-shared-readiness.test.mjs'
+      - 'cinecanaux/tests/formation-shared-inbox.test.mjs'
+      - '.github/workflows/formation-shared-readiness-ci.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vérification syntaxique
+        run: |
+          node --check cinecanaux/manual-fallback-live.mjs
+          node --check cinecanaux/formation-shared-readiness.mjs
+      - name: Tests du routage et de la validation des canaux Telegram
+        run: node --test cinecanaux/tests/formation-shared-readiness.test.mjs cinecanaux/tests/formation-shared-inbox.test.mjs
