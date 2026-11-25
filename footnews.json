@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-25T17:39:08+00:00",
+    "published": "2026-11-25T18:08:56+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,75 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "92ef0019f56a325b",
+    "title": "Mercato : la révélation de Guardiola sur son avenir",
+    "summary": "Sans banc après son départ de Manchester City, Pep Guardiola a déjà une idée précise de la suite de sa carrière. Pour Romario TV, le technicien catalan a annoncé son prochain objectif....",
+    "summary_short": "Sans banc après son départ de Manchester City, Pep Guardiola a déjà une idée précise de la suite de sa carrière. Pour Romario TV, le technicien catalan a annoncé son prochain objectif....",
+    "content": "Sans banc après son départ de Manchester City, Pep Guardiola a déjà une idée précise de la suite de sa carrière. Pour Romario TV, le technicien catalan a annoncé son prochain objectif....",
+    "paragraphs": [
+      "Sans banc après son départ de Manchester City, Pep Guardiola a déjà une idée précise de la suite de sa carrière. Pour Romario TV, le technicien catalan a annoncé son prochain objectif...."
+    ],
+    "key_points": [
+      "Sans banc après son départ de Manchester City, Pep Guardiola a déjà une idée précise de la suite de sa carrière.",
+      "Pour Romario TV, le technicien catalan a annoncé son prochain objectif...."
+    ],
+    "telegram_summary": "Sans banc après son départ de Manchester City, Pep Guardiola a déjà une idée précise de la suite de sa carrière. Pour Romario TV, le technicien catalan a annoncé son prochain objectif....",
+    "link": "https://m.maxifoot.fr/football/article-66674.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66674.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=92ef0019f56a325b",
+    "published": "2026-11-25T17:57:12+00:00",
+    "image": "https://photo.maxifoot.fr/manchest-city-guardiola-101.jpg",
+    "source_image": "https://photo.maxifoot.fr/manchest-city-guardiola-101.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
+    "slug": "0ddbfc8b96910e6b",
+    "title": "FIFA : Eto'o répond à Riolo !",
+    "summary": "\"Samuel Eto'o, tu es une honte intégrale !\" Cette semaine, le polémiste Daniel Riolo a critiqué le président de la Fédération camerounaise d......",
+    "summary_short": "\"Samuel Eto'o, tu es une honte intégrale !\" Cette semaine, le polémiste Daniel Riolo a critiqué le président de la Fédération camerounaise d......",
+    "content": "\"Samuel Eto'o, tu es une honte intégrale !\" Cette semaine, le polémiste Daniel Riolo a critiqué le président de la Fédération camerounaise d......",
+    "paragraphs": [
+      "\"Samuel Eto'o, tu es une honte intégrale !\" Cette semaine, le polémiste Daniel Riolo a critiqué le président de la Fédération camerounaise d......"
+    ],
+    "key_points": [
+      "\"Samuel Eto'o, tu es une honte intégrale !\" Cette semaine, le polémiste Daniel Riolo a critiqué le président de la Fédération camerounaise d......"
+    ],
+    "telegram_summary": "\"Samuel Eto'o, tu es une honte intégrale !\" Cette semaine, le polémiste Daniel Riolo a critiqué le président de la Fédération camerounaise d......",
+    "link": "https://www.maxifoot.fr/divers/eto-o-repond-a-riolo-foot-468353.htm",
+    "source_url": "https://www.maxifoot.fr/divers/eto-o-repond-a-riolo-foot-468353.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ddbfc8b96910e6b",
+    "published": "2026-11-25T17:39:48+00:00",
+    "image": "https://news.maxifoot.fr/amp/468353.webp",
+    "source_image": "https://news.maxifoot.fr/amp/468353.webp",
+    "image_origin": "generated_fallback",
+    "image_layout": "general-banner",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
   },
   {
     "slug": "c70b1b050a8637fb",
@@ -105,7 +174,7 @@
   },
   {
     "slug": "3e0b4591eac08a36",
-    "title": "'Justice for sport' - reaction to Afcon final verdict",
+    "title": "'Justice for sport' - Afcon reaction as Senegal reinstated as winners",
     "summary": "Players and officials in Senegal have welcomed the decision to reinstate the West Africans as Afcon 2025 champions, but those in Morocco still contest the decision.",
     "summary_short": "Players and officials in Senegal have welcomed the decision to reinstate the West Africans as Afcon 2025 champions, but those in Morocco still contest the decision.",
     "content": "Players and officials in Senegal have welcomed the decision to reinstate the West Africans as Afcon 2025 champions, but those in Morocco still contest the decision.",
@@ -639,48 +708,13 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T17:40:00.059206+00:00"
+      "checked_at": "2026-11-25T18:10:16.408786+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "ac0cc8061c070624",
-    "title": "CAF : une crédibilité en lambeaux",
-    "summary": "En rétablissant le Sénégal dans ses droits, mardi, le Tribunal arbitral du sport (TAS) a infligé un nouveau désaveu à la Confédération africaine de football (CAF). Loin d'être isolé, cet épisode soulève de sérieuses questions sur le fonctionnement d'une institution régulièrement mise en difficulté dans ses dossiers les plus sensibles....",
-    "summary_short": "En rétablissant le Sénégal dans ses droits, mardi, le Tribunal arbitral du sport (TAS) a infligé un nouveau désaveu à la Confédération africaine de football (CAF). Loin d'être isolé, cet épisode soulève de sérieuses questions sur le fonctionnement d'une institution régulièrement mise en difficulté dans ses dossiers les plus sensibles....",
-    "content": "En rétablissant le Sénégal dans ses droits, mardi, le Tribunal arbitral du sport (TAS) a infligé un nouveau désaveu à la Confédération africaine de football (CAF). Loin d'être isolé, cet épisode soulève de sérieuses questions sur le fonctionnement d'une institution régulièrement mise en difficulté dans ses dossiers les plus sensibles....",
-    "paragraphs": [
-      "En rétablissant le Sénégal dans ses droits, mardi, le Tribunal arbitral du sport (TAS) a infligé un nouveau désaveu à la Confédération africaine de football (CAF). Loin d'être isolé, cet épisode soulève de sérieuses questions sur le fonctionnement d'une institution régulièrement mise en difficulté dans ses dossiers les plus sensibles...."
-    ],
-    "key_points": [
-      "En rétablissant le Sénégal dans ses droits, mardi, le Tribunal arbitral du sport (TAS) a infligé un nouveau désaveu à la Confédération africaine de football (CAF).",
-      "Loin d'être isolé, cet épisode soulève de sérieuses questions sur le fonctionnement d'une institution régulièrement mise en difficulté dans ses dossiers les plus sensibles...."
-    ],
-    "telegram_summary": "En rétablissant le Sénégal dans ses droits, mardi, le Tribunal arbitral du sport (TAS) a infligé un nouveau désaveu à la Confédération africaine de football (CAF).",
-    "link": "https://m.maxifoot.fr/football/article-66673.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66673.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ac0cc8061c070624",
-    "published": "2026-11-25T14:39:36+00:00",
-    "image": "https://photo.maxifoot.fr/patrice-motsepe-11.jpg",
-    "source_image": "https://photo.maxifoot.fr/patrice-motsepe-11.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
   },
   {
     "slug": "770b3d73f53224a9",
@@ -751,41 +785,6 @@
     "quality_score": 88
   },
   {
-    "slug": "f5774172497bfa70",
-    "title": "OL : Ruben Kluivert juge les débuts de Carlos Vicens",
-    "summary": "L’Olympique Lyonnais reçoit Lillestrom jeudi à 21h pour la 5e journée de Ligue Europa. Ruben Kluivert s’est présenté en conférence de presse de veille de match, précédant son entraîneur Carlos Vicens. (…)",
-    "summary_short": "L’Olympique Lyonnais reçoit Lillestrom jeudi à 21h pour la 5e journée de Ligue Europa. Ruben Kluivert s’est présenté en conférence de presse de veille de match, précédant son entraîneur Carlos Vicens. (…)",
-    "content": "L’Olympique Lyonnais reçoit Lillestrom jeudi à 21h pour la 5e journée de Ligue Europa. Ruben Kluivert s’est présenté en conférence de presse de veille de match, précédant son entraîneur Carlos Vicens. (…)",
-    "paragraphs": [
-      "L’Olympique Lyonnais reçoit Lillestrom jeudi à 21h pour la 5e journée de Ligue Europa. Ruben Kluivert s’est présenté en conférence de presse de veille de match, précédant son entraîneur Carlos Vicens. (…)"
-    ],
-    "key_points": [
-      "L’Olympique Lyonnais reçoit Lillestrom jeudi à 21h pour la 5e journée de Ligue Europa.",
-      "Ruben Kluivert s’est présenté en conférence de presse de veille de match, précédant son entraîneur Carlos Vicens. (…)"
-    ],
-    "telegram_summary": "L’Olympique Lyonnais reçoit Lillestrom jeudi à 21h pour la 5e journée de Ligue Europa. Ruben Kluivert s’est présenté en conférence de presse de veille de match, précédant son entraîneur Carlos Vicens. (…)",
-    "link": "https://www.footmercato.net/a5216804006721784517-ol-ruben-kluivert-juge-les-debuts-de-carlos-vicens",
-    "source_url": "https://www.footmercato.net/a5216804006721784517-ol-ruben-kluivert-juge-les-debuts-de-carlos-vicens",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f5774172497bfa70",
-    "published": "2026-11-25T13:48:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kluivert-68f9017021d95.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kluivert-68f9017021d95.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "7bf06ff9e5add97c",
     "title": "Mercato PSG : On sait pourquoi Manu Koné n'a jamais signé au Paris Saint-Germain malgré l'intérêt de Luis Campos",
     "summary": "Le média L'Équipe a dévoilé la raison de pourquoi le PSG n'a jamais recruté Manu Koné.",
@@ -812,40 +811,6 @@
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
     "category": "Mercato",
     "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "6e4fb61ad8595dbb",
-    "title": "OL : Carlos Vicens prêt à donner plus de responsabilités aux jeunes joueurs",
-    "summary": "En conférence de presse ce mercredi 25 novembre, à la veille de la réception du Lillestrøm SK (J5 Ligue Europa), l'entraîneur de l'OL, Carlos Vicens, s'est exprimé en longueur sur les jeunes talents…",
-    "summary_short": "En conférence de presse ce mercredi 25 novembre, à la veille de la réception du Lillestrøm SK (J5 Ligue Europa), l'entraîneur de l'OL, Carlos Vicens, s'est exprimé en longueur sur les jeunes talents…",
-    "content": "En conférence de presse ce mercredi 25 novembre, à la veille de la réception du Lillestrøm SK (J5 Ligue Europa), l'entraîneur de l'OL, Carlos Vicens, s'est exprimé en longueur sur les jeunes talents…",
-    "paragraphs": [
-      "En conférence de presse ce mercredi 25 novembre, à la veille de la réception du Lillestrøm SK (J5 Ligue Europa), l'entraîneur de l'OL, Carlos Vicens, s'est exprimé en longueur sur les jeunes talents…"
-    ],
-    "key_points": [
-      "En conférence de presse ce mercredi 25 novembre, à la veille de la réception du Lillestrøm SK (J5 Ligue Europa), l'entraîneur de l'OL, Carlos Vicens, s'est exprimé en longueur sur les jeunes talents…"
-    ],
-    "telegram_summary": "En conférence de presse ce mercredi 25 novembre, à la veille de la réception du Lillestrøm SK (J5 Ligue Europa), l'entraîneur de l'OL, Carlos Vicens, s'est exprimé en longueur sur les jeunes talents…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ol-carlos-vicens-pret-a-donner-plus-de-responsabilites-aux-jeunes-joueurs-546952.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ol-carlos-vicens-pret-a-donner-plus-de-responsabilites-aux-jeunes-joueurs-546952.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6e4fb61ad8595dbb",
-    "published": "2026-11-25T13:10:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261111160250-3769.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261111160250-3769.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
     "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
@@ -1914,6 +1879,109 @@
     "quality_score": 82
   },
   {
+    "slug": "418ba6e637b8a361",
+    "title": "Glasner criticises Forest players yet to learn English",
+    "summary": "Nottingham Forest manager Oliver Glasner has questioned why some of his squad cannot speak English after being in the country for a number of years.",
+    "summary_short": "Nottingham Forest manager Oliver Glasner has questioned why some of his squad cannot speak English after being in the country for a number of years.",
+    "content": "Nottingham Forest manager Oliver Glasner has questioned why some of his squad cannot speak English after being in the country for a number of years.",
+    "paragraphs": [
+      "Nottingham Forest manager Oliver Glasner has questioned why some of his squad cannot speak English after being in the country for a number of years."
+    ],
+    "key_points": [
+      "Nottingham Forest manager Oliver Glasner has questioned why some of his squad cannot speak English after being in the country for a number of years."
+    ],
+    "telegram_summary": "Nottingham Forest manager Oliver Glasner has questioned why some of his squad cannot speak English after being in the country for a number of years.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cw20xr4d7x55o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cw20xr4d7x55o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=418ba6e637b8a361",
+    "published": "2026-11-25T18:00:26+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/c3f7/live/c0988ec0-e8ee-11f1-99a1-253766e7ad8b.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/c3f7/live/c0988ec0-e8ee-11f1-99a1-253766e7ad8b.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "3ab48d13e62b317a",
+    "title": "Droits TV : Un premier acteur veut déjà quitter la course à la diffusion de la Ligue 1",
+    "summary": "Mécontent du format de l'appel d'offres lancé par la LFP pour les droits TV de la Ligue 1, pour la période 2027-2032, Amazon Prime Video, qui voulait se positionner sur un seul match par journée de…",
+    "summary_short": "Mécontent du format de l'appel d'offres lancé par la LFP pour les droits TV de la Ligue 1, pour la période 2027-2032, Amazon Prime Video, qui voulait se positionner sur un seul match par journée de…",
+    "content": "Mécontent du format de l'appel d'offres lancé par la LFP pour les droits TV de la Ligue 1, pour la période 2027-2032, Amazon Prime Video, qui voulait se positionner sur un seul match par journée de…",
+    "paragraphs": [
+      "Mécontent du format de l'appel d'offres lancé par la LFP pour les droits TV de la Ligue 1, pour la période 2027-2032, Amazon Prime Video, qui voulait se positionner sur un seul match par journée de…"
+    ],
+    "key_points": [
+      "Mécontent du format de l'appel d'offres lancé par la LFP pour les droits TV de la Ligue 1, pour la période 2027-2032, Amazon Prime Video, qui voulait se positionner sur un seul match par journée de…"
+    ],
+    "telegram_summary": "Mécontent du format de l'appel d'offres lancé par la LFP pour les droits TV de la Ligue 1, pour la période 2027-2032, Amazon Prime Video, qui voulait se positionner sur un seul match par journée de…",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-droits-tv-un-premier-acteur-veut-deja-quitter-la-course-a-la-diffusion-de-la-ligue-1-546983.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-droits-tv-un-premier-acteur-veut-deja-quitter-la-course-a-la-diffusion-de-la-ligue-1-546983.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3ab48d13e62b317a",
+    "published": "2026-11-25T18:00:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20231031213753-2146.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20231031213753-2146.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "ebd1c550b3470ce8",
+    "title": "« Mbappé n’est pas un leader, Bellingham l’est » : un journaliste espagnol tranche",
+    "summary": "Pas de doutes pour l’opinion publique madrilène : Jude Bellingham est le joueur le plus important du Real Madrid. Et l’Anglais n’est pas juste un joueur très performant sur le terrain, c’est aussi un (…)",
+    "summary_short": "Pas de doutes pour l’opinion publique madrilène : Jude Bellingham est le joueur le plus important du Real Madrid. Et l’Anglais n’est pas juste un joueur très performant sur le terrain, c’est aussi un (…)",
+    "content": "Pas de doutes pour l’opinion publique madrilène : Jude Bellingham est le joueur le plus important du Real Madrid. Et l’Anglais n’est pas juste un joueur très performant sur le terrain, c’est aussi un (…)",
+    "paragraphs": [
+      "Pas de doutes pour l’opinion publique madrilène : Jude Bellingham est le joueur le plus important du Real Madrid. Et l’Anglais n’est pas juste un joueur très performant sur le terrain, c’est aussi un (…)"
+    ],
+    "key_points": [
+      "Pas de doutes pour l’opinion publique madrilène : Jude Bellingham est le joueur le plus important du Real Madrid.",
+      "Et l’Anglais n’est pas juste un joueur très performant sur le terrain, c’est aussi un (…)"
+    ],
+    "telegram_summary": "Pas de doutes pour l’opinion publique madrilène : Jude Bellingham est le joueur le plus important du Real Madrid. Et l’Anglais n’est pas juste un joueur très performant sur le terrain, c’est aussi un (…)",
+    "link": "https://www.footmercato.net/a3301075505197262089-mbappe-nest-pas-un-leader-bellingham-lest-un-journaliste-espagnol-tranche",
+    "source_url": "https://www.footmercato.net/a3301075505197262089-mbappe-nest-pas-un-leader-bellingham-lest-un-journaliste-espagnol-tranche",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ebd1c550b3470ce8",
+    "published": "2026-11-25T17:53:35+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diomandembappe.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diomandembappe.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "7264ed37d78deadf",
     "title": "Samuel Eto’o cartonne Daniel Riolo",
     "summary": "Daniel Riolo s’est attiré les foudres de Samuel Eto’o. L’éditorialiste de RMC a fustigé le fait que le président de la CAF, Patrice Motsepe, ait fait applaudir les présidents de fédérations africaines (…)",
@@ -2049,102 +2117,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "12c809de2daaf9e3",
-    "title": "EFL Trophy holders Luton face Palace U21s in last 32",
-    "summary": "EFL Trophy holders Luton Town will meet Crystal Palace Under-21s in the last 32 of the competition.",
-    "summary_short": "EFL Trophy holders Luton Town will meet Crystal Palace Under-21s in the last 32 of the competition.",
-    "content": "EFL Trophy holders Luton Town will meet Crystal Palace Under-21s in the last 32 of the competition.",
-    "paragraphs": [
-      "EFL Trophy holders Luton Town will meet Crystal Palace Under-21s in the last 32 of the competition."
-    ],
-    "key_points": [
-      "EFL Trophy holders Luton Town will meet Crystal Palace Under-21s in the last 32 of the competition."
-    ],
-    "telegram_summary": "EFL Trophy holders Luton Town will meet Crystal Palace Under-21s in the last 32 of the competition.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/ckzd9vqed5d7o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/ckzd9vqed5d7o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12c809de2daaf9e3",
-    "published": "2026-11-25T17:12:57+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8f8f/live/bd1aa2b0-e8da-11f1-99b6-a35a62fa4264.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8f8f/live/bd1aa2b0-e8da-11f1-99b6-a35a62fa4264.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "7f0edeb99cb903b2",
-    "title": "Bayern Munich : les mésaventures de Sacha Boey",
-    "summary": "Sacha Boey ne vit pas les meilleurs moments de sa carrière, lui qui n’a disputé 69 minutes toutes…",
-    "summary_short": "Sacha Boey ne vit pas les meilleurs moments de sa carrière, lui qui n’a disputé 69 minutes toutes…",
-    "content": "Sacha Boey ne vit pas les meilleurs moments de sa carrière, lui qui n’a disputé 69 minutes toutes…",
-    "paragraphs": [
-      "Sacha Boey ne vit pas les meilleurs moments de sa carrière, lui qui n’a disputé 69 minutes toutes…"
-    ],
-    "key_points": [
-      "Sacha Boey ne vit pas les meilleurs moments de sa carrière, lui qui n’a disputé 69 minutes toutes…"
-    ],
-    "telegram_summary": "Sacha Boey ne vit pas les meilleurs moments de sa carrière, lui qui n’a disputé 69 minutes toutes…",
-    "link": "https://www.sofoot.com/breves/bayern-munich-les-mesaventures-de-sacha-boey",
-    "source_url": "https://www.sofoot.com/breves/bayern-munich-les-mesaventures-de-sacha-boey",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7f0edeb99cb903b2",
-    "published": "2026-11-25T17:10:16+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25174854/15202592.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25174854/15202592.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50187435",
-      "url": "https://www.espn.com/soccer/story/_/id/50187435/transfer-rumors-news-lisandro-martinez-future-man-united-doubt-bust-up",
-      "published": "2026-10-15T20:54:08Z",
-      "score": 0.25,
-      "matched_terms": [
-        "bayern",
-        "munich"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "Bayern Munich",
-        "Liverpool"
-      ],
-      "athletes": [
-        "Florian Wirtz"
-      ],
-      "leagues": [
-        "English Premier League",
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-25T17:40:00.059206+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
   }
 ]
