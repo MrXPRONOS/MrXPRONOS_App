@@ -118,3 +118,16 @@ test('separately tagged course description is kept, while untagged notes are ign
  assert.equal(planned.items[0].description.includes('@promotion'),false);
  assert.deepEqual(planned.items[0].parts.map(x=>x.message_id),[33]);
 });
+
+test('natural multipart course uses declared total on fiche, not message adjacency',async()=>{
+ const f=fixture();await seed(f);
+ await ingestManualChannelPost(f.env,post(40,'poster',
+  '📊 Tout savoir sur Power BI – Formation complète\n🎥 Vidéo de formation, 8h\n'+
+  'Apprenez à créer des tableaux de bord.\nTotal: 2'));
+ await ingestManualChannelPost(f.env,post(41,'file','','Power_BI_formation_part1.rar'));
+ await ingestManualChannelPost(f.env,post(42,'text','Pensez à liker et abonnez-vous !'));
+ await ingestManualChannelPost(f.env,post(43,'file','','Power_BI_formation_part2.rar'));
+ const planned=planCourses(await readManualFallbackQueue(f.db));
+ assert.equal(planned.items.length,1);
+ assert.deepEqual(planned.items[0].parts.map(p=>p.message_id),[41,43]);
+});
