@@ -1,0 +1,21 @@
+name: CineX private button canary offline
+on:
+  pull_request:
+    paths:
+      - 'scripts/cinex_private_button_canary.py'
+      - 'tests/test_cinex_private_button_canary.py'
+      - '.github/workflows/cinex-private-button-canary-20261125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'requests==2.32.5'
+      - run: python -m unittest discover -s tests -p test_cinex_private_button_canary.py -v

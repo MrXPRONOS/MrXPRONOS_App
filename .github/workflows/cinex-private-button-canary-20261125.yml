@@ -1,0 +1,49 @@
+name: CineX - Bouton canari immediat puis +30 minutes (unique)
+on:
+  push:
+    branches: [main]
+    paths: ['telegram-film-relay/.cinex-button-canary-20261125']
+permissions:
+  contents: read
+concurrency:
+  group: cinex-private-button-two-phase-20261125
+  cancel-in-progress: false
+jobs:
+  now:
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'requests==2.32.5'
+      - run: python -m unittest discover -s tests -p test_cinex_private_button_canary.py -v
+      - name: Publier maintenant UN message dans le stock CineX exact
+        env: &secrets
+          CINEX_PRIVATE_CANARY_ENABLED: '1'
+          CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+          CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/cinex_private_button_canary.py --phase now
+  later:
+    needs: now
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'requests==2.32.5'
+      - name: Attendre 30 minutes apres confirmation du premier message
+        run: sleep 1800
+      - name: Publier UN message avec bouton apres 30 minutes
+        env: *secrets
+        run: python scripts/cinex_private_button_canary.py --phase later
