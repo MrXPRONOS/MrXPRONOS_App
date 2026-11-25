@@ -107,13 +107,20 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
         return None
     paired = []
     photos = [m for m in private_messages if getattr(m, "photo", None)]
+    from .private_media_contract import renamed_receipt_matches
     for item in private_messages:
-        if not is_video_message(item) or video_document_id(item) != expected:
+        if not is_video_message(item):
             continue
         for photo in photos:
             if not (0 < item.id - photo.id <= 3):
                 continue
             proof = poster_identity(photo, category)
+            if (video_document_id(item) != expected
+                    and not renamed_receipt_matches(
+                        video, item,
+                        title=cover_caption(photo, video, category, identity=reference),
+                        poster=photo)):
+                continue
             if (compatible(reference or video_identity(video, category), proof) >= 0.95
                     and (not reference or reference.part is None or proof.part == reference.part)
                     and (not rescue_url and public is None
@@ -491,7 +498,10 @@ async def repair_channel(client, bot, category: str, public, private,
                 # poster is not a new item to resend. Quarantine for manual
                 # association, instead of multiplying the same private video.
                 document = video_document_id(video)
-                if any(is_video_message(item) and video_document_id(item) == document
+                from .private_media_contract import marker_for, source_marker_from_message
+                if any(is_video_message(item) and (
+                            video_document_id(item) == document or
+                            source_marker_from_message(item) == marker_for(video))
                        for item in private_messages):
                     report["private_pair_unverified"] += 1
                     LOG.warning("%s : archive privée non vérifiable pour vidéo #%s ; "
@@ -531,15 +541,20 @@ async def repair_channel(client, bot, category: str, public, private,
                 if not getattr(verified_photo, "photo", None):
                     raise RuntimeError("Photo privée non vérifiée")
                 await asyncio.sleep(12)
-                private_video = await client.send_file(
-                    private, video.media,
-                    caption=caption.splitlines()[0],
+                from .private_media_contract import (
+                    send_named_private_video, renamed_receipt_matches,
                 )
-                verified_video = await client.get_messages(private, ids=private_video.id)
-                if (not is_video_message(verified_video)
-                        or video_document_id(verified_video) != video_document_id(video)
+                verified_video = await send_named_private_video(
+                    client, private, video, title=caption,
+                    caption=caption.splitlines()[0],
+                    private_cover_id=int(verified_photo.id),
+                    poster=poster, description=caption,
+                )
+                if (not renamed_receipt_matches(
+                        video, verified_video, title=caption,
+                        poster=poster, description=caption)
                         or not 0 < verified_video.id - verified_photo.id <= 3):
-                    raise RuntimeError("Vidéo privée non vérifiée")
+                    raise RuntimeError("Vidéo privée avec nom incorrect ou affiche non adjacente")
                 private_video_id = verified_video.id
                 if not any(int(m.id) == int(verified_photo.id) for m in private_messages):
                     private_messages.append(verified_photo)
