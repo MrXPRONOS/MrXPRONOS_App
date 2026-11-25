@@ -96,6 +96,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
       - name: Tester les associations de films historiques et multiparties
         run: python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Tester le contrat de rattrapage automatique
+        run: python -m unittest discover -s tests -p 'test_scheduled_archive_workflow.py' -v
       - name: Vérifier la syntaxe avant l'archivage
         run: python -m compileall -q film_relay
       - name: Tester le contrôle de couverture sans réseau
