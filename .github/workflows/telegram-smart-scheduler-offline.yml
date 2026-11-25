@@ -4,6 +4,7 @@ on:
     paths:
       - 'telegram_scheduler/**'
       - 'tests/test_telegram_scheduler_v1.py'
+      - 'tests/test_telegram_scheduler_manifest.py'
       - '.github/workflows/telegram-smart-scheduler-offline.yml'
   workflow_dispatch:
 permissions:
@@ -20,4 +21,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -p test_telegram_scheduler_v1.py -v
-      - run: python -m compileall -q telegram_scheduler
+      - run: python -m unittest discover -s tests -p test_telegram_scheduler_manifest.py -v
+      - run: python -m compileall -q telegram_scheduler scripts/telegram_scheduler_manifest.py scripts/telegram_weekly_promotions.py

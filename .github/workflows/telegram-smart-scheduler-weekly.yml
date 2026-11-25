@@ -1,0 +1,57 @@
+name: Telegram Smart Scheduler - weekly promotions (gated)
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preview only or explicit production attempt (protected)"
+        type: choice
+        options: [preview, execute]
+        default: preview
+  schedule:
+    - cron: '30 13 * * 0'
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+jobs:
+  weekly-promotions:
+    if: ${{ vars.TG_SCHEDULER_WEEKLY_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.mode == 'execute') || github.event_name == 'workflow_dispatch' && inputs.mode != 'execute' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'telethon==1.45.0' 'Pillow==11.3.0' 'requests==2.32.5'
+      - name: Compile existing approved promotions for next seven days
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          TELEGRAM_APPROVED_DAY_PROMOS: ${{ vars.TELEGRAM_APPROVED_DAY_PROMOS }}
+          TELEGRAM_APPROVED_BONUS_BOOKMAKERS: ${{ vars.TELEGRAM_APPROVED_BONUS_BOOKMAKERS }}
+          TELEGRAM_APPROVED_GUIDE_BOOKMAKERS: ${{ vars.TELEGRAM_APPROVED_GUIDE_BOOKMAKERS }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "preview" ]; then
+            python scripts/telegram_weekly_promotions.py --dry-run
+          else
+            python scripts/telegram_weekly_promotions.py
+          fi
+      - name: Native schedule only with explicit production gates
+        if: ${{ vars.TG_SCHEDULER_WEEKLY_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.mode == 'execute') }}
+        env:
+          TG_SCHEDULER_ENABLED: ${{ vars.TG_SCHEDULER_ENABLED }}
+          TG_SCHEDULER_ACCOUNT_ID: ${{ vars.TG_SCHEDULER_ACCOUNT_ID }}
+          TG_SCHEDULER_ALLOWED_PEERS: ${{ vars.TG_SCHEDULER_ALLOWED_PEERS }}
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          test "$TG_SCHEDULER_ENABLED" = "1"
+          python scripts/telegram_scheduler_manifest.py --manifest telegram_out/scheduler/weekly_promotions.json --execute
