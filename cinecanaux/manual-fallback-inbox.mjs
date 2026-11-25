@@ -125,7 +125,10 @@ export async function ingestManualChannelPost(env,update){
   const fileMatch=['course_file','video'].includes(media.kind)?
    matchFormationFilename(media.filename,posters):null;
   const decision=classifyFormationPost(caption,media.filename,posters);
-  if(cover)category=cover.category;
+  if(['explicit_category_invalid_or_conflicting','conflicting_course_covers'].includes(decision.reason)){
+   // A malformed explicit instruction may NEVER be bypassed by a filename.
+   canPublish=false;reviewReason=decision.reason;
+  }else if(cover)category=cover.category;
   else if(courseId(caption)&&decision.category)category=decision.category;
   else if(fileMatch?.cover)category=fileMatch.cover.category;
   else {
