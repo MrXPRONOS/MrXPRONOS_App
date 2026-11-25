@@ -30,26 +30,44 @@ def allowed_channels(db, env):
 
 
 def observe(db, env, cursor, transport=reactions._request_json):
-    token = str(env.get("CINERADAR_REACTION_OBSERVER_TOKEN", "") or env.get("TELEGRAM_REACTION_BOT_03_TOKEN", "")).strip()
-    if not token:
-        raise RuntimeError("No dedicated GitHub reaction observer token configured")
-    code, identity = reactions.telegram_call(token, "getMe", {}, transport)
-    if code != 200 or not identity.get("ok") or not (identity.get("result") or {}).get("is_bot"):
-        raise RuntimeError("GitHub reaction observer identity not verified")
-    code, webhook = reactions.telegram_call(token, "getWebhookInfo", {}, transport)
-    if code != 200 or not webhook.get("ok") or (webhook.get("result") or {}).get("url"):
-        raise RuntimeError("Observer has an active webhook, cannot safely poll Telegram")
     allowed = allowed_channels(db, env)
     if not allowed:
         raise RuntimeError("No approved channel IDs present in imported snapshot")
-    observer_id = (identity.get("result") or {}).get("id")
-    for channel in sorted(allowed):
-        code, result = reactions.telegram_call(token, "getChatMember", {
-            "chat_id": channel, "user_id": observer_id,
-        }, transport)
-        role = (result.get("result") or {}).get("status")
-        if code != 200 or result.get("ok") is not True or role not in ("administrator", "creator"):
-            raise RuntimeError("GitHub observer lacks administrator access to a configured channel")
+    dedicated = str(env.get("CINERADAR_REACTION_OBSERVER_TOKEN", "")).strip()
+    # Reuse an existing extra bot only if it has no webhook and is an
+    # administrator on every observed channel. Never steal the main bot webhook.
+    candidates = [dedicated] if dedicated else [
+        token for _, token in sorted(reactions.configured_tokens(env).items())
+    ]
+    if not candidates:
+        raise RuntimeError("No dedicated or reusable GitHub observer bot configured")
+    token = None
+    for candidate in candidates:
+        try:
+            code, identity = reactions.telegram_call(candidate, "getMe", {}, transport)
+            observer = identity.get("result") or {}
+            if code != 200 or not identity.get("ok") or not observer.get("is_bot"):
+                continue
+            code, webhook = reactions.telegram_call(candidate, "getWebhookInfo", {}, transport)
+            if code != 200 or not webhook.get("ok") or (webhook.get("result") or {}).get("url"):
+                continue
+            observer_id = observer.get("id")
+            approved = True
+            for channel in sorted(allowed):
+                code, result = reactions.telegram_call(candidate, "getChatMember", {
+                    "chat_id": channel, "user_id": observer_id,
+                }, transport)
+                role = (result.get("result") or {}).get("status")
+                if code != 200 or result.get("ok") is not True or role not in ("administrator", "creator"):
+                    approved = False
+                    break
+            if approved:
+                token = candidate
+                break
+        except reactions.APIError:
+            continue
+    if token is None:
+        raise RuntimeError("No independent Telegram administrator bot without webhook")
     params = {"limit": 100, "timeout": 0, "allowed_updates": ["channel_post"]}
     if cursor is not None:
         params["offset"] = int(cursor)
