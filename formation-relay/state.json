@@ -1,5 +1,14 @@
 {
-  "active": null,
+  "active": {
+    "cat": "business",
+    "cid": "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42",
+    "marks": [
+      "008634dfd156a9f9d9ebf0ee0b2926da440266ac266d89e068ec8c2cda91cf54",
+      "922f26f514db99c61db5b5b66d01c27c3965b463db6efc1b0b466f176a77fb36"
+    ],
+    "next": 0,
+    "pending": null
+  },
   "cooldown": 0,
   "done": {
     "3b182b3d433c55cc6d3199070d6b0537e7ae4a3ad206fcb78b39956574c34bdc": [
