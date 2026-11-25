@@ -121,6 +121,7 @@ class TelegramScheduler:
         self.pause = 0
         self.start = None
         self._serial = asyncio.Lock()
+        self._queue_counts = {}
 
     @classmethod
     def from_env(cls, hours=24):
@@ -178,6 +179,20 @@ class TelegramScheduler:
         async with self._serial:
             await self._close(error)
 
+    async def preflight_queue(self, planned):
+        """Fail before first send if a peer would exceed a conservative queue cap."""
+        if not self.held or self.failed:
+            raise SchedulerBlocked("Session not active")
+        for raw_peer, count in planned.items():
+            peer = int(raw_peer)
+            if peer not in self.allowed or int(count) < 0:
+                raise ValueError("Unauthorized peer or invalid count")
+            queued = await self.client.get_messages(peer, scheduled=True)
+            existing = len(queued)
+            if existing + int(count) > 90:
+                raise SchedulerBlocked("Telegram scheduled queue capacity guard")
+            self._queue_counts[peer] = existing
+
     def _slot(self, slot):
         slot = utc(slot)
         now = utc(self.clock())
@@ -204,8 +219,10 @@ class TelegramScheduler:
                     slot=slot.isoformat(), key=key, fingerprint=digest)
                 if not reservation["ok"]:
                     if reservation["status"] == "verified" and reservation["fingerprint"] == digest:
-                        return {"status": "duplicate", "scheduled_id": reservation["scheduled_id"]}
-                    raise UncertainDelivery("Existing slot conflict; manual reconciliation required")
+                        queued = await self.client.get_messages(peer, scheduled=True)
+                        if any(m and int(m.id) == int(reservation["scheduled_id"]) and utc(m.date) == slot for m in queued):
+                            return {"status": "duplicate", "scheduled_id": reservation["scheduled_id"]}
+                    raise UncertainDelivery("Existing slot conflict or missing queue entry; manual reconciliation required")
                 row = reservation["id"]
                 try:
                     # Check again after DB I/O; never schedule an expired message.
@@ -220,10 +237,11 @@ class TelegramScheduler:
                     if msg_id <= 0:
                         raise UncertainDelivery("Invalid scheduled ID")
                     await self.registry.rpc("accepted", self.owner, id=row, scheduled_id=msg_id)
-                    queued = await self.client.get_messages(peer, ids=[msg_id], scheduled=True)
+                    queued = await self.client.get_messages(peer, scheduled=True)
                     if not any(m and m.id == msg_id and utc(m.date) == slot for m in queued):
                         raise UncertainDelivery("Telegram queue/date not confirmed")
                     await self.registry.rpc("verified", self.owner, id=row, scheduled_id=msg_id)
+                    self._queue_counts[peer] = self._queue_counts.get(peer, len(queued)) + 1
                     return {"status": "verified", "scheduled_id": msg_id}
                 except BaseException as error:
                     self.pause = max(self.pause, flood_pause(error))

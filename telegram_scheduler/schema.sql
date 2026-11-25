@@ -1,12 +1,12 @@
 -- Smart Scheduler V1, additive infrastructure only. No cron or Telegram calls.
 begin;
-create table public.tg_scheduler_v1_lock (
+create table if not exists public.tg_scheduler_v1_lock (
  singleton boolean primary key default true check(singleton),
  owner uuid, acquired_at timestamptz,
  blocked_until timestamptz not null default '2026-11-24 18:30:00+00'
 );
-insert into public.tg_scheduler_v1_lock(singleton) values(true);
-create table public.tg_scheduler_v1_registry (
+insert into public.tg_scheduler_v1_lock(singleton) values(true) on conflict(singleton) do nothing;
+create table if not exists public.tg_scheduler_v1_registry (
  id bigint generated always as identity primary key,
  peer bigint not null, slot timestamptz not null,
  logical_key text not null check(length(logical_key) between 1 and 256),
@@ -24,7 +24,7 @@ revoke all on public.tg_scheduler_v1_lock, public.tg_scheduler_v1_registry from 
 grant select,update on public.tg_scheduler_v1_lock to service_role;
 grant select,insert,update on public.tg_scheduler_v1_registry to service_role;
 grant usage,select on sequence public.tg_scheduler_v1_registry_id_seq to service_role;
-create function public.tg_scheduler_v1_rpc(p_action text,p_owner uuid,p_data jsonb default '{}'::jsonb)
+create or replace function public.tg_scheduler_v1_rpc(p_action text,p_owner uuid,p_data jsonb default '{}'::jsonb)
 returns jsonb language plpgsql security invoker set search_path='' as $$
 declare
  l public.tg_scheduler_v1_lock%rowtype;
