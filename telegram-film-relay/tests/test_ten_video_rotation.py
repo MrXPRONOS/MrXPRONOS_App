@@ -78,6 +78,48 @@ class TenVideoRotationTests(unittest.TestCase):
         self.assertFalse(original_poster_safe_for_deletion(live, cover))
 
 
+    def test_native_callback_button_unchanged_allows_verified_cleanup(self):
+        from telethon import Button
+        from film_relay.original_poster_edit import (
+            read_only_keyboard_signature, public_keyboard_signature,
+        )
+        def make(data=b"film-421"):
+            return NS(id=420, photo=NS(id=817), pinned=True,
+                      raw_text="Film éligible",
+                      buttons=[[NS(button=Button.inline(
+                          "Ancien bouton", data=data))]])
+        prior = make()
+        current = make()
+        with self.assertRaises(RuntimeError):
+            public_keyboard_signature(prior)
+        self.assertEqual(read_only_keyboard_signature(prior),
+                         read_only_keyboard_signature(current))
+        self.assertTrue(original_poster_safe_for_deletion(current, prior))
+        current = make(b"another-film")
+        self.assertFalse(original_poster_safe_for_deletion(current, prior))
+
+    def test_native_legacy_url_and_callback_changed_blocks_cleanup(self):
+        from telethon import Button
+        def make(link, data):
+            return NS(id=421, photo=NS(id=818), pinned=True,
+                      raw_text="Film éligible",
+                      buttons=[[NS(button=Button.url("VOIR FILM", link)),
+                          NS(button=Button.inline("Informations", data=data))]])
+        saved = make("https://t.me/c/4392607284/314", b"verified")
+        self.assertTrue(original_poster_safe_for_deletion(
+            make("https://t.me/c/4392607284/314", b"verified"), saved))
+        self.assertFalse(original_poster_safe_for_deletion(
+            make("https://t.me/c/4392607284/999", b"verified"), saved))
+        self.assertFalse(original_poster_safe_for_deletion(
+            make("https://t.me/c/4392607284/314", b"tampered"), saved))
+
+    def test_unknown_unserializable_opaque_button_remains_blocked(self):
+        original = NS(id=99, photo=NS(id=17), pinned=False, raw_text="Film",
+                      buttons=[[NS(text="opaque", url=None)]])
+        current = NS(id=99, photo=NS(id=17), pinned=False, raw_text="Film",
+                      buttons=[[NS(text="opaque", url=None)]])
+        self.assertFalse(original_poster_safe_for_deletion(current, original))
+
     def test_public_unknown_purge_requires_real_manual_dispatch(self):
         with patch.dict("os.environ", {"CINEX_MANUAL_PURGE_REQUEST": ""}, clear=True):
             with self.assertRaisesRegex(RuntimeError, "workflow manuel"):

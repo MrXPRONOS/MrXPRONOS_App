@@ -100,6 +100,47 @@ def public_keyboard_signature(poster):
     return tuple(rows)
 
 
+def read_only_keyboard_signature(poster):
+    """Snapshot an original Telegram keyboard without changing it.
+
+    For *read-only verification after a proven private media match*, accept
+    native Telegram TL button types including legacy callback/inline buttons.
+    Compare their complete serialized bytes (constructor + all fields), not
+    merely their labels. If a button cannot be faithfully serialized, fail
+    closed. This is NOT used to grant bot editing rights: preflight and
+    safe_buttons still require editable, explicit URL controls.
+    """
+    rows = []
+    for row in getattr(poster, "buttons", None) or ():
+        entries = []
+        for item in row:
+            raw = getattr(item, "button", item)
+            kind = type(raw)
+            # Telethon exposes the exact MTProto TL button beneath the wrapper.
+            # Its serialization includes callback payloads and other fields.
+            if kind.__module__.startswith("telethon.tl.types"):
+                try:
+                    serialized = bytes(raw)
+                except (TypeError, ValueError, AttributeError) as exc:
+                    raise RuntimeError("Bouton Telegram impossible à comparer") from exc
+                if not serialized:
+                    raise RuntimeError("Bouton Telegram sans représentation")
+                entries.append(("telegram", kind.__name__, serialized))
+                continue
+            # Minimal test doubles or fully exposed URL-only button wrappers.
+            # Unknown callbacks/inline buttons without native TL proof are
+            # never trusted for destructive actions.
+            url = button_url(item)
+            label = getattr(raw, "text", None)
+            if (isinstance(url, str) and url.startswith("https://")
+                    and isinstance(label, str) and label):
+                entries.append(("url", label, url))
+                continue
+            raise RuntimeError("Bouton non-URL sans signature Telegram fiable")
+        rows.append(tuple(entries))
+    return tuple(rows)
+
+
 async def preflight_original_editability(client, bot, public, original):
     """Test the EXACT current keyboard before uploading a private archive.
 
