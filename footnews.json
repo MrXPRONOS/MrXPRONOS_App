@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-25T05:36:48+00:00",
+    "published": "2026-11-25T06:08:08+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,69 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "0265817f443f0cef",
+    "title": "Real Madrid : Kylian Mbappé a donné son trophée à Vinicius Jr",
+    "summary": "Mené 1-0 à la mi-temps à domicile par le PSV, le Real Madrid a tout renversé en deuxième période. Une victoire spectaculaire 5 buts à 1 acquise notamment grâce à l’entrée fracassante de Jude (…)",
+    "summary_short": "Mené 1-0 à la mi-temps à domicile par le PSV, le Real Madrid a tout renversé en deuxième période. Une victoire spectaculaire 5 buts à 1 acquise notamment grâce à l’entrée fracassante de Jude (…)",
+    "content": "Mené 1-0 à la mi-temps à domicile par le PSV, le Real Madrid a tout renversé en deuxième période. Une victoire spectaculaire 5 buts à 1 acquise notamment grâce à l’entrée fracassante de Jude (…)",
+    "paragraphs": [
+      "Mené 1-0 à la mi-temps à domicile par le PSV, le Real Madrid a tout renversé en deuxième période. Une victoire spectaculaire 5 buts à 1 acquise notamment grâce à l’entrée fracassante de Jude (…)"
+    ],
+    "key_points": [
+      "Mené 1-0 à la mi-temps à domicile par le PSV, le Real Madrid a tout renversé en deuxième période.",
+      "Une victoire spectaculaire 5 buts à 1 acquise notamment grâce à l’entrée fracassante de Jude (…)"
+    ],
+    "telegram_summary": "Mené 1-0 à la mi-temps à domicile par le PSV, le Real Madrid a tout renversé en deuxième période. Une victoire spectaculaire 5 buts à 1 acquise notamment grâce à l’entrée fracassante de Jude (…)",
+    "link": "https://www.footmercato.net/a4694655331586408004-real-madrid-kylian-mbappe-a-donne-son-trophee-a-vinicius-jr",
+    "source_url": "https://www.footmercato.net/a4694655331586408004-real-madrid-kylian-mbappe-a-donne-son-trophee-a-vinicius-jr",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0265817f443f0cef",
+    "published": "2026-11-25T05:56:51+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mbappevinicius-6ad92d5967551.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mbappevinicius-6ad92d5967551.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50573054",
+      "url": "https://www.espn.com/soccer/story/_/id/50573054/real-madrid-mourinho-vinicius-jr-does-not-mvp",
+      "published": "2026-11-23T14:39:10Z",
+      "score": 0.273,
+      "matched_terms": [
+        "madrid",
+        "real",
+        "vinicius"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Real Madrid"
+      ],
+      "athletes": [
+        "Vinícius Júnior"
+      ],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
   },
   {
     "slug": "29cf9796e1ef43e3",
@@ -261,7 +324,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -600,7 +663,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -678,67 +741,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "1240535d6a7858d8",
-    "title": "FC Barcelone : Hansi Flick justifie le forfait de Lamine Yamal face à Sabah",
-    "summary": "Lamine Yamal, touché à la cheville droite, n'est pas du déplacement à Bakou en Azerbaïdjan pour y affronter Sabah ce mercredi en Ligue des champions.",
-    "summary_short": "Lamine Yamal, touché à la cheville droite, n'est pas du déplacement à Bakou en Azerbaïdjan pour y affronter Sabah ce mercredi en Ligue des champions.",
-    "content": "Lamine Yamal, touché à la cheville droite, n'est pas du déplacement à Bakou en Azerbaïdjan pour y affronter Sabah ce mercredi en Ligue des champions.",
-    "paragraphs": [
-      "Lamine Yamal, touché à la cheville droite, n'est pas du déplacement à Bakou en Azerbaïdjan pour y affronter Sabah ce mercredi en Ligue des champions."
-    ],
-    "key_points": [
-      "Lamine Yamal, touché à la cheville droite, n'est pas du déplacement à Bakou en Azerbaïdjan pour y affronter Sabah ce mercredi en Ligue des champions."
-    ],
-    "telegram_summary": "Lamine Yamal, touché à la cheville droite, n'est pas du déplacement à Bakou en Azerbaïdjan pour y affronter Sabah ce mercredi en Ligue des champions.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-fc-barcelone-hansi-flick-justifie-le-forfait-de-lamine-yamal-face-a-sabah-546869.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-fc-barcelone-hansi-flick-justifie-le-forfait-de-lamine-yamal-face-a-sabah-546869.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1240535d6a7858d8",
-    "published": "2026-11-24T18:35:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/buzz/2026/une/buzz-20261026095613-8665.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2026/une/buzz-20261026095613-8665.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50583885",
-      "url": "https://www.espn.com/soccer/story/_/id/50583885/lamine-yamal-hansi-flick-barcelona-champions-league-sabah",
-      "published": "2026-11-24T17:12:36Z",
-      "score": 0.364,
-      "matched_terms": [
-        "flick",
-        "hansi",
-        "lamine",
-        "yamal"
-      ],
-      "topics": [],
-      "teams": [
-        "Barcelona"
-      ],
-      "athletes": [
-        "Lamine Yamal"
-      ],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
-    },
-    "quality_sources": [
-      "MadeInFoot",
-      "ESPN"
-    ],
-    "quality_score": 96
   },
   {
     "slug": "9e1573738a658732",
@@ -1583,6 +1585,78 @@
     "quality_score": 86
   },
   {
+    "slug": "7d7389b8a2fc569d",
+    "title": "Foot ce soir : Le programme TV complet des matchs du jour (25/11/2026)",
+    "summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "summary_short": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "content": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "paragraphs": [
+      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
+    ],
+    "key_points": [
+      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
+    ],
+    "telegram_summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-foot-ce-soir-le-programme-tv-complet-des-matchs-du-jour-25-11-2026-546916.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-foot-ce-soir-le-programme-tv-complet-des-matchs-du-jour-25-11-2026-546916.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7d7389b8a2fc569d",
+    "published": "2026-11-25T06:00:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/illustrations/2014/une/ballons-officiel-de-la-liga-24-08-2014-barcelone---elche-1ere-journee-liga-20140923155803-2841.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/illustrations/2014/une/ballons-officiel-de-la-liga-24-08-2014-barcelone---elche-1ere-journee-liga-20140923155803-2841.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "43f77c7471a8f73a",
+    "title": "Sabah-FC Barcelone : chaîne TV, streaming… À quelle heure et où suivre cette rencontre inédite de la 5ème journée de Ligue des champions ?",
+    "summary": "La Ligue des champions se poursuit ce mercredi avec une affiche inédite entre le Sabah FK et le FC Barcelone. Le club azéri reçoit les Blaugrana au stade olympique de Bakou, à 18h45, pour le compte de la cinquième journée de la phase de ligue.",
+    "summary_short": "La Ligue des champions se poursuit ce mercredi avec une affiche inédite entre le Sabah FK et le FC Barcelone. Le club azéri reçoit les Blaugrana au stade olympique de Bakou, à 18h45, pour le compte de la cinquième journée de la phase de ligue.",
+    "content": "La Ligue des champions se poursuit ce mercredi avec une affiche inédite entre le Sabah FK et le FC Barcelone. Le club azéri reçoit les Blaugrana au stade olympique de Bakou, à 18h45, pour le compte de la cinquième journée de la phase de ligue. Les Catalans voudront se rapprocher d'une qualification directe pour les huitièmes de finale. En face, Sabah tentera de profiter de l'avantage du terrain et du long voyage des Barcelonais pour créer une immense surprise et relancer ses chances de poursuivre l'aventure.",
+    "paragraphs": [
+      "La Ligue des champions se poursuit ce mercredi avec une affiche inédite entre le Sabah FK et le FC Barcelone. Le club azéri reçoit les Blaugrana au stade olympique de Bakou, à 18h45, pour le compte de la cinquième journée de la phase de ligue. Les Catalans voudront se rapprocher d'une qualification directe pour les huitièmes de finale.",
+      "En face, Sabah tentera de profiter de l'avantage du terrain et du long voyage des Barcelonais pour créer une immense surprise et relancer ses chances de poursuivre l'aventure."
+    ],
+    "key_points": [
+      "La Ligue des champions se poursuit ce mercredi avec une affiche inédite entre le Sabah FK et le FC Barcelone.",
+      "Le club azéri reçoit les Blaugrana au stade olympique de Bakou, à 18h45, pour le compte de la cinquième journée de la phase de ligue.",
+      "Les Catalans voudront se rapprocher d'une qualification directe pour les huitièmes de finale.",
+      "En face, Sabah tentera de profiter de l'avantage du terrain et du long voyage des Barcelonais pour créer une immense surprise et relancer ses chances de poursuivre l'aventure."
+    ],
+    "telegram_summary": "La Ligue des champions se poursuit ce mercredi avec une affiche inédite entre le Sabah FK et le FC Barcelone. Le club azéri reçoit les Blaugrana au stade olympique de Bakou, à 18h45, pour le compte de la cinquième journée de la phase de ligue.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/sabah-fc-barcelone-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-inedite-de-la-5eme-journee-de-ligue-des-champions-1009797",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/sabah-fc-barcelone-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-inedite-de-la-5eme-journee-de-ligue-des-champions-1009797",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=43f77c7471a8f73a",
+    "published": "2026-11-25T05:40:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1009797/411239/1200-L-sabah-fc-barcelone-chane-tv-streaming-quelle-heure-et-o-suivre-cette-rencontre-indite-de-la-5me-journe-de-ligue-des-champions.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1009797/411239/1200-L-sabah-fc-barcelone-chane-tv-streaming-quelle-heure-et-o-suivre-cette-rencontre-indite-de-la-5me-journe-de-ligue-des-champions.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "446a4cfac0d0b65d",
     "title": "Ballon d'Or, Real Madrid, Coupe du Monde 2030... Javier Tebas vide son sac !",
     "summary": "Le président de la Liga s'est livré lors du premier gala consacré à l'arbitrage espagnol en abordant de multiples sujets sans langue de bois comme à son habitude.",
@@ -1671,7 +1745,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -1870,7 +1944,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2071,7 +2145,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2200,81 +2274,12 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T05:40:05.808095+00:00"
+      "checked_at": "2026-11-25T06:10:08.284622+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "acee3700ccb4ce7c",
-    "title": "RC Lens : La première réaction de Didier Digard après la nouvelle défaite lensoise en LDC face au RB Leipzig",
-    "summary": "La réaction de Didier Digard, entraîneur du RC Lens, après la défaite face au RB Leipzig (3-1, J5 LDC).",
-    "summary_short": "La réaction de Didier Digard, entraîneur du RC Lens, après la défaite face au RB Leipzig (3-1, J5 LDC).",
-    "content": "La réaction de Didier Digard, entraîneur du RC Lens, après la défaite face au RB Leipzig (3-1, J5 LDC).",
-    "paragraphs": [
-      "La réaction de Didier Digard, entraîneur du RC Lens, après la défaite face au RB Leipzig (3-1, J5 LDC)."
-    ],
-    "key_points": [
-      "La réaction de Didier Digard, entraîneur du RC Lens, après la défaite face au RB Leipzig (3-1, J5 LDC)."
-    ],
-    "telegram_summary": "La réaction de Didier Digard, entraîneur du RC Lens, après la défaite face au RB Leipzig (3-1, J5 LDC).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-la-premiere-reaction-de-didier-digard-apres-la-nouvelle-defaite-lensoise-en-ldc-face-au-rb-leipzig-546909.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-la-premiere-reaction-de-didier-digard-apres-la-nouvelle-defaite-lensoise-en-ldc-face-au-rb-leipzig-546909.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=acee3700ccb4ce7c",
-    "published": "2026-11-24T22:36:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261124224419-5752.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261124224419-5752.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "03c059ef5709d3d2",
-    "title": "Ligue des Champions : Digard explique l’énervement de Thauvin",
-    "summary": "Après le passage éclair de Florian Thauvin en zone interview, l’entraîneur du RC Lens Didier Digard s’est montré un peu plus disert au micro de Canal+ Foot. Notamment pour expliquer l’énervement de (…)",
-    "summary_short": "Après le passage éclair de Florian Thauvin en zone interview, l’entraîneur du RC Lens Didier Digard s’est montré un peu plus disert au micro de Canal+ Foot. Notamment pour expliquer l’énervement de (…)",
-    "content": "Après le passage éclair de Florian Thauvin en zone interview, l’entraîneur du RC Lens Didier Digard s’est montré un peu plus disert au micro de Canal+ Foot. Notamment pour expliquer l’énervement de (…)",
-    "paragraphs": [
-      "Après le passage éclair de Florian Thauvin en zone interview, l’entraîneur du RC Lens Didier Digard s’est montré un peu plus disert au micro de Canal+ Foot. Notamment pour expliquer l’énervement de (…)"
-    ],
-    "key_points": [
-      "Après le passage éclair de Florian Thauvin en zone interview, l’entraîneur du RC Lens Didier Digard s’est montré un peu plus disert au micro de Canal+ Foot.",
-      "Notamment pour expliquer l’énervement de (…)"
-    ],
-    "telegram_summary": "Après le passage éclair de Florian Thauvin en zone interview, l’entraîneur du RC Lens Didier Digard s’est montré un peu plus disert au micro de Canal+ Foot. Notamment pour expliquer l’énervement de (…)",
-    "link": "https://www.footmercato.net/a6855150432892563495-ligue-des-champions-digard-explique-lenervement-de-thauvin",
-    "source_url": "https://www.footmercato.net/a6855150432892563495-ligue-des-champions-digard-explique-lenervement-de-thauvin",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=03c059ef5709d3d2",
-    "published": "2026-11-24T22:35:07+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/photo-sans-60-645feb1fd4827.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/photo-sans-60-645feb1fd4827.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   }
 ]
