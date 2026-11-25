@@ -31,7 +31,7 @@ export function d1MaintenanceActive(now=new Date()){
 export function maintenanceDetails(now=new Date()){
  const reopening=localMaintenanceUntil>now.getTime()?new Date(localMaintenanceUntil):nextRecoveryUTC(now);
  return {
-  message:"🔧 CinéRadar est temporairement en maintenance en raison d’une limite technique. Reprise prévue à 00h05 (heure du Togo), sous réserve du rétablissement du service.\n\nÉtat du service : https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/",
+  message:"<b>🎬 CinéRadar est en maintenance</b>\n\n<i>Nous revenons très bientôt. Merci de votre patience et de votre confiance.</i>\n\n<blockquote>✨ Notre équipe prépare le retour de CinéRadar.</blockquote>\n\n<b>🕛 Retour prévu :</b> 00h05 (heure du Togo).\n<i>La reprise dépend de la disponibilité du service.</i>\n\n<a href=\"https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/\">🔗 Suivre la maintenance</a>",
   reopening_at:reopening.toISOString(),
   reopening_time:"00h05",
   timezone:"Africa/Lome",
@@ -46,12 +46,12 @@ export function maintenanceResponse(request,{now=new Date()}={}){
   "cache-control":"no-store, max-age=0",
   "retry-after":String(details.retry_after_seconds),
   "x-content-type-options":"nosniff",
-  "x-cineradar-maintenance":"d1-quota"
+  "x-cineradar-maintenance":"active"
  };
  if(url.pathname==="/health")headers["access-control-allow-origin"]="https://mrxpronos.github.io";
  if(api){
   return Response.json({
-   ok:false,maintenance:true,code:"D1_QUOTA_MAINTENANCE",
+   ok:false,maintenance:true,code:"SERVICE_MAINTENANCE",
    message:details.message,reopening_at:details.reopening_at,
    timezone:details.timezone
   },{status:503,headers});
@@ -62,35 +62,43 @@ export function maintenanceResponse(request,{now=new Date()}={}){
  const html=String.raw`<!doctype html>
 <html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0c1632"><meta name="robots" content="noindex">
+<meta name="theme-color" content="#080d1d"><meta name="robots" content="noindex">
 <title>CinéRadar • Maintenance</title>
 <style>
-*{box-sizing:border-box}
-html,body{min-height:100%;margin:0}
-body{font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif;color:#eaf2ff;
-background:radial-gradient(circle at 50% 2%,#254785 0%,#142750 38%,#09152d 85%);
-display:grid;place-items:center;padding:24px}
-main{width:min(100%,540px);border:1px solid #385a91;border-radius:24px;
-background:linear-gradient(155deg,#192e58,#101d37);padding:clamp(24px,6vw,44px);
-text-align:center;box-shadow:0 20px 65px #02071399}
-.logo{display:inline-grid;place-items:center;width:78px;height:78px;border-radius:20px;
-background:#2b4e92;font-size:38px}
-h1{font-size:clamp(26px,6vw,36px);margin:22px 0 10px;line-height:1.2}
-p{color:#c2d4ee;margin:10px 0 20px}
-.time{font-weight:800;color:#fff;font-size:clamp(34px,9vw,50px);line-height:1.1;margin:10px 0}
-.date{color:#c3d7fb;font-size:15px;margin:4px 0 24px}
-.small{font-size:13px;color:#9aafce;margin-top:22px}
-button{background:#518af9;color:#fff;border:0;border-radius:14px;
-font-size:15px;font-weight:700;padding:13px 24px;cursor:pointer}
-button:focus-visible{outline:3px solid #f2be66;outline-offset:4px}
+:root{color-scheme:dark;--text:#f7f8ff;--muted:#aeb8d0;--accent:#ffb862}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{display:grid;place-items:center;min-height:100svh;padding:24px;font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse at 12% 4%,#253f70 0%,transparent 45%),radial-gradient(ellipse at 94% 93%,#40233c 0%,transparent 48%),#080d1d}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.17;background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff10 1px,transparent 1px);background-size:44px 44px}
+main{position:relative;width:min(100%,540px);padding:clamp(26px,6vw,49px);text-align:center;border:1px solid #53648c66;border-radius:28px;background:linear-gradient(145deg,#202e4eea,#10182dee 70%);box-shadow:0 35px 90px #0008;overflow:hidden}
+main:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#6aaaff,var(--accent),#ff858b)}
+.brand{display:flex;align-items:center;justify-content:center;gap:9px;font-size:13px;font-weight:850;letter-spacing:.22em;text-transform:uppercase;color:#e8eeff}.brand span{color:var(--accent)}
+.mark{display:grid;place-items:center;width:91px;height:91px;margin:29px auto 22px;border-radius:25px;background:linear-gradient(145deg,#334f83,#1b2c50);box-shadow:inset 0 1px #ffffff29,0 18px 40px #0005;font-size:41px}
+.pill{display:inline-flex;gap:8px;align-items:center;margin:0 auto 12px;padding:5px 13px;border:1px solid #ffbf7255;border-radius:100px;background:#ffb86213;color:#ffd49f;font-size:12px;font-weight:750;letter-spacing:.07em;text-transform:uppercase}
+.pill:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+h1{font-size:clamp(27px,6.5vw,38px);line-height:1.18;letter-spacing:-.04em;margin:12px 0 15px}
+.lead{max-width:360px;margin:0 auto 28px;color:var(--muted)}
+.schedule{padding:20px 16px;border:1px solid #ffffff21;border-radius:18px;background:#ffffff08}
+.overline{color:#c0cbe0;font-size:12px;font-weight:750;letter-spacing:.11em;text-transform:uppercase}
+.time{font-size:clamp(37px,10vw,53px);font-weight:850;line-height:1.2;letter-spacing:-.04em;color:#fff}
+small{display:block;color:#a6b9d6}
+#recovery-status{min-height:44px;margin:20px 0 8px;color:#d4ddf1;font-size:14px}
+.loader{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:#7fc6ff;box-shadow:0 0 0 4px #7fc6ff1a;animation:pulse 1.7s ease-in-out infinite}
+button{width:100%;border:0;border-radius:14px;padding:15px 20px;font:800 15px system-ui;cursor:pointer;color:#101b30;background:linear-gradient(120deg,#ffe0a7,#ffb862);box-shadow:0 8px 30px #ffb86223}
+button:hover{filter:brightness(1.07)}button:focus-visible{outline:3px solid #7fc6ff;outline-offset:4px}
+.note{margin:20px 0 0;color:#9daccc;font-size:13px}
+@keyframes pulse{50%{opacity:.35;transform:scale(.75)}}@media(prefers-reduced-motion:reduce){.loader{animation:none}}
+@media(max-width:380px){main{padding:25px 20px}.brand{letter-spacing:.12em}}
 </style></head>
-<body><main role="main"><div class="logo" aria-hidden="true">🎬</div>
+<body><main role="main">
+<div class="brand">🎞️ CINÉ<span>RADAR</span></div>
+<div class="mark" aria-hidden="true">🎬</div>
+<div class="pill">Maintenance en cours</div>
 <h1>CinéRadar est en maintenance</h1>
-<p>Notre service rencontre une limite technique temporaire. Nous rétablissons l'accès au catalogue et à l'administration.</p>
-<div>Réouverture prévue à</div><div class="time">00h05</div>
-<div class="date">__DATE__ · Heure du Togo (UTC)</div>
-<button type="button" onclick="location.reload()">Réessayer</button>
-<div class="small" id="recovery-status" role="status" aria-live="polite">Reprise automatique dès que le service est opérationnel.</div>
+<p class="lead">Nous revenons très bientôt. Merci de votre patience et de votre confiance.</p>
+<div class="schedule"><div class="overline">Retour prévu à</div><div class="time">00h05</div><small>__DATE__ · Heure du Togo · sous réserve de disponibilité</small></div>
+<div id="recovery-status" role="status" aria-live="polite"><span class="loader" aria-hidden="true"></span>Vérification automatique de la disponibilité…</div>
+<button type="button" onclick="location.reload()">↻ Vérifier maintenant</button>
+<p class="note">Cette page se rouvrira automatiquement dès le retour de CinéRadar.</p>
 <script>
 (function(){
  const status=document.getElementById("recovery-status");
@@ -102,13 +110,13 @@ button:focus-visible{outline:3px solid #f2be66;outline-offset:4px}
    if(response.ok){
     const result=await response.json();
     if(result.service==="cine-radar"&&result.database===true){
-     status.textContent="Service rétabli. Ouverture automatique...";
+     status.textContent="CinéRadar est de retour. Ouverture automatique…";
      location.replace("/app");
      return;
     }
    }
   }catch{}
-  status.textContent="Le service est encore indisponible. Nouvelle vérification automatique dans une minute.";
+  status.textContent="La maintenance se poursuit. Nouvelle vérification automatique dans une minute.";
  }
  setTimeout(function(){check();setInterval(check,60000)},Math.min(delay,2147480000));
 })();
@@ -139,6 +147,8 @@ export async function telegramMaintenanceReply(update,call,env,{now=new Date()}=
   const sent=await call(env,"sendMessage",{
    chat_id:chat.id,
    text:info.message,
+   parse_mode:"HTML",
+   disable_web_page_preview:true,
    disable_notification:true
   });
   if(sent?.ok===true)return Response.json({ok:true,maintenance:true});
