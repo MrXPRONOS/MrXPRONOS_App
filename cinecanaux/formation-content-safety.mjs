@@ -57,7 +57,7 @@ export function inspectFormationCover(caption){
  return {title,caption:text,category,author,course_id:id};
 }
 function tokens(text){
- return [...new Set(norm(text).split(' ').filter(x=>x.length>=3&&!STOP.has(x)&&!/^\d+$/.test(x)))];
+ return [...new Set(norm(text).replace(/\bpower bi\b/g,'powerbi').split(' ').filter(x=>x.length>=3&&!STOP.has(x)&&!/^\d+$/.test(x)))];
 }
 export function matchFormationFilename(filename,covers=[]){
  const name=String(filename||'').slice(0,250);
