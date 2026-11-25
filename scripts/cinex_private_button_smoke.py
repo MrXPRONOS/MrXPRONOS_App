@@ -86,11 +86,14 @@ def validate_destination(session, token, stock_id, expected_bot_id):
     if not isinstance(member, dict):
         raise SmokeFailure("Droits du bot introuvables")
     status = member.get("status")
-    if not (status == "creator"
-            or (status == "administrator" and member.get("can_post_messages") is True
-                and member.get("can_delete_messages") is True)):
-        raise SmokeFailure("Le bot doit pouvoir publier ET supprimer le test")
-    return True
+    can_post = status == "creator" or (
+        status == "administrator" and member.get("can_post_messages") is True)
+    can_delete = status == "creator" or (
+        status == "administrator" and member.get("can_delete_messages") is True)
+    print("PRIVATE_STOCK_RIGHTS", "can_post", can_post, "can_delete", can_delete)
+    if not can_post:
+        raise SmokeFailure("Le bot ne peut pas publier dans le stock privé")
+    return can_delete
 
 
 def verify_receipt(result, stock_id):
@@ -114,7 +117,7 @@ def run(session, cf_key, bot_token, execute=False):
         print("DRY_RUN: exact private stock and Telegram are not contacted")
         return {"sent": False, "verified": False, "deleted": False}
     stock_id, bot_id = private_stock_record(session, cf_key)
-    validate_destination(session, bot_token, stock_id, bot_id)
+    can_delete = validate_destination(session, bot_token, stock_id, bot_id)
     message_id = None
     verified = False
     try:
@@ -129,13 +132,18 @@ def run(session, cf_key, bot_token, execute=False):
         verified = True
     finally:
         if message_id is not None:
-            # Delete only the exact message created by this single test.
-            telegram(session, bot_token, "deleteMessage",
-                     {"chat_id": stock_id, "message_id": message_id})
-            print("TEST_PRIVATE_MESSAGE_DELETED")
+            if can_delete:
+                # Delete only the exact message created by this single test.
+                telegram(session, bot_token, "deleteMessage",
+                         {"chat_id": stock_id, "message_id": message_id})
+                print("TEST_PRIVATE_MESSAGE_DELETED")
+            else:
+                # Owner has explicitly requested a real test in this exact private stock.
+                # Bot has no delete rights: retain one test post; do not pretend cleanup.
+                print("TEST_PRIVATE_MESSAGE_RETAINED: bot lacks deletion rights")
     if verified:
-        print("CINEX_PRIVATE_BUTTON_SMOKE_SUCCESS: destination private, button verified, deleted")
-    return {"sent": True, "verified": verified, "deleted": True}
+        print("CINEX_PRIVATE_BUTTON_SMOKE_SUCCESS: private destination and URL button confirmed")
+    return {"sent": True, "verified": verified, "deleted": bool(can_delete)}
 
 
 def main():

@@ -1,9 +1,10 @@
-name: CineX - Test bouton dans stock prive (unique)
+name: CineX - Test bouton stock prive (validation des droits)
 on:
   push:
     branches: [main]
     paths:
       - 'telegram-film-relay/.cinex-private-button-smoke-once'
+      - 'telegram-film-relay/.cinex-private-button-smoke-second-once'
   workflow_dispatch:
     inputs:
       execute:
