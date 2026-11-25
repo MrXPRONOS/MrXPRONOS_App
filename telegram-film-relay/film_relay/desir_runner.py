@@ -451,7 +451,10 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                     private_limit=110, public_limit=110
                 )
                 source_doc_id = getattr(getattr(item.video, "document", None), "id", None)
-                recovered = cache.by_document.get(source_doc_id, []) if source_doc_id else []
+                from .private_media_contract import marker_for
+                recovered = ((cache.by_document.get(source_doc_id, []) or
+                              cache.by_source_marker.get(marker_for(item.video), []))
+                             if source_doc_id else [])
                 if recovered:
                     private_video_id = int(recovered[0])
                     existing_public_id = cache.public_by_video.get(private_video_id)
