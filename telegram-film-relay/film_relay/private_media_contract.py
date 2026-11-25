@@ -68,6 +68,25 @@ def marker_for(source) -> str:
     return "#CXFILE_" + hashlib.sha256(str(int(doc)).encode()).hexdigest()[:20]
 
 
+
+def bot_copy_source_filename_valid(filename: str, title: str, episode_code: str) -> bool:
+    """Bot API copyMessage cannot rename: allow only verifiably named sources."""
+    from .private_stock_audit import filename_descriptive
+    if not filename_descriptive(filename):
+        return False
+    if not re.fullmatch(r"S\d{2}E\d{2,3}", episode_code):
+        return False
+    def tokens(value):
+        normalized = unicodedata.normalize("NFKD", str(value or ""))
+        normalized = normalized.encode("ascii", "ignore").decode().lower()
+        return re.findall(r"[a-z0-9]+", normalized)
+    stem = " ".join(tokens(PurePath(filename).stem))
+    required = tokens(title)
+    if not required or not all(token in stem.split() for token in required):
+        return False
+    return episode_code.lower() in stem.replace(" ", "").lower()
+
+
 def source_marker_from_message(message) -> str | None:
     match = SOURCE_MARKER.search(str(getattr(message, "raw_text", "") or ""))
     return "#CXFILE_" + match.group(1) if match else None
