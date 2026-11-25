@@ -72,6 +72,21 @@ test('licensed route receives ordered complete course from one private source',a
  assert.equal(plans.items[0].category,'formation_business');
  assert.deepEqual(plans.items[0].parts.map(x=>x.number),[1,2]);
 });
+test('cover arriving after parts safely reconciles only matching unknown files',async()=>{
+ const f=setup();await seed(f,{licensedFinance:true});
+ const early=await ingestManualChannelPost(f.env,event(1,
+  'Cours: formation-avancee-2026\nTotal: 1\nPartie: 1/1','file'));
+ assert.equal(early.state,'needs_review');
+ assert.equal(early.category,'formation_general');
+ const cover=await ingestManualChannelPost(f.env,event(2,
+  'Cours: formation-avancee-2026\nCatégorie: Finance\nAuteur: Auteur autorisé'));
+ assert.equal(cover.category,'formation_finance');
+ const rows=await readManualFallbackQueue(f.db);
+ assert.equal(rows.length,2);
+ assert.ok(rows.every(x=>x.category==='formation_finance'));
+ assert.equal(planCourses(rows).items.length,1);
+});
+
 test('specialist libraries are never alternative intake vaults',async()=>{
  const f=setup();await seed(f,{licensedBusiness:true});
  const r=await ingestManualChannelPost(f.env,event(99,
