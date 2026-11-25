@@ -1,6 +1,7 @@
 // Read-only production readiness check for ONE private Formation upload inbox.
 // No personal Telegram login, no Telegram mutations and no D1 updates.
 import {D1Remote,TelegramBot} from './manual-fallback-live.mjs';
+import {pathToFileURL} from 'node:url';
 
 const ID=/^-100\d{6,}$/;
 const HANDLE=/^@[A-Za-z][A-Za-z0-9_]{4,31}$/;
@@ -87,11 +88,12 @@ async function main(){
  });
  console.log('FORMATION_SHARED_INBOX_READINESS',JSON.stringify(result));
 }
-main().catch(e=>{
- // Only fixed program error codes, never raw Telegram errors or private peers.
- const msg=norm(e?.message);
- const allowed=/^(formation_|shared_formation_|five_verified_|destinations_|verified_formation_)/;
- console.error('FORMATION_SHARED_INBOX_BLOCKED',
-  allowed.test(msg)?msg:'private_readiness_failed');
- process.exitCode=1;
-});
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)
+ main().catch(e=>{
+  // Only fixed program error codes, never raw Telegram errors or private peers.
+  const msg=norm(e?.message);
+  const allowed=/^(formation_|shared_formation_|five_verified_|destinations_|verified_formation_)/;
+  console.error('FORMATION_SHARED_INBOX_BLOCKED',
+   allowed.test(msg)?msg:'private_readiness_failed');
+  process.exitCode=1;
+ });
