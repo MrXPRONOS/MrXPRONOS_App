@@ -28,6 +28,7 @@ jobs:
       - name: Validate syntax
         run: |
           node --check cinecanaux/worker.mjs
+          node --check cinecanaux/quota-maintenance.mjs
           node --check cinecanaux/delivery44-client.mjs
           node --check cinecanaux/delivery44-smoke.mjs
           node --check cinecanaux/channel-reactions.mjs
@@ -76,6 +77,8 @@ jobs:
           set -euo pipefail
           python3 -m pip install --disable-pip-version-check --quiet 'cryptography==46.0.3'
           python3 -m unittest discover -s cinecanaux/tests -p test_cinex_github_files_backup.py -v
+      - name: Verify quota 7500 maintenance UX, Telegram security and 00h05 UTC reset
+        run: node --test cinecanaux/tests/quota-maintenance.test.mjs
       - name: Guard CI-before-deploy invariants
         run: node --test cinecanaux/tests/deploy-safety.test.mjs
       - name: Verify privacy-preserving public metrics rate-limit
