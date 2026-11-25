@@ -98,3 +98,23 @@ test('explicit multipart course remains complete through arbitrary interruptions
  assert.deepEqual(result.items[0].parts.map(x=>x.number),[1,2]);
  assert.equal(f.sqlite.prepare('SELECT COUNT(*) n FROM cine_manual_fallback_inbox').get().n,3);
 });
+
+test('separately tagged course description is kept, while untagged notes are ignored',async()=>{
+ const f=fixture();await seed(f);
+ await ingestManualChannelPost(f.env,post(30,'poster',
+  'Cours: cours-digital-2026\nCatégorie: Digitale\nTitre: Introduction à Python\nAuteur: Formateur autorisé'));
+ const description=await ingestManualChannelPost(f.env,post(31,'text',
+  'Cours: cours-digital-2026\nDescription: Cours progressif sur Python pour débutants\n'+
+  'Abonnez-vous @promotion\nTéléchargement : https://t.me/promo'));
+ assert.equal(description.state,'indexed');
+ await ingestManualChannelPost(f.env,post(32,'text',
+  'Partagez ce post, cliquez ici et likez notre page.'));
+ await ingestManualChannelPost(f.env,post(33,'file',
+  'Cours: cours-digital-2026\nTotal: 1\nPartie: 1/1','module.zip'));
+ const planned=planCourses(await readManualFallbackQueue(f.db));
+ assert.equal(planned.items.length,1);
+ assert.match(planned.items[0].description,/Cours progressif sur Python/);
+ assert.equal(planned.items[0].description.includes('t.me'),false);
+ assert.equal(planned.items[0].description.includes('@promotion'),false);
+ assert.deepEqual(planned.items[0].parts.map(x=>x.message_id),[33]);
+});
