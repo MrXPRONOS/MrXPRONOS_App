@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-25T12:36:31+00:00",
+    "published": "2026-11-25T13:05:27+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -27,6 +27,42 @@
     "category": "Afrique",
     "category_emoji": "🌍",
     "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "5194b8476200285c",
+    "title": "REPORTAGE. Les calendriers de matchs surchargés sont de plus en plus critiqués par les footballeurs dont les blessures se multiplient",
+    "summary": "Le PSG jouera mercredi sans Désiré Doué ni Khvicha Kvaratskhelia, tous deux victimes de rupture du ligament croisé du genou. Harry Kane, blessé à la cheville, ne jouera pas non plus avec le Bayern de Munich.",
+    "summary_short": "Le PSG jouera mercredi sans Désiré Doué ni Khvicha Kvaratskhelia, tous deux victimes de rupture du ligament croisé du genou. Harry Kane, blessé à la cheville, ne jouera pas non plus avec le Bayern de Munich.",
+    "content": "Le PSG jouera mercredi sans Désiré Doué ni Khvicha Kvaratskhelia, tous deux victimes de rupture du ligament croisé du genou. Harry Kane, blessé à la cheville, ne jouera pas non plus avec le Bayern de Munich. Et certains font le lien entre les blessures en surnombre et le calendrier surchargé des matchs.",
+    "paragraphs": [
+      "Le PSG jouera mercredi sans Désiré Doué ni Khvicha Kvaratskhelia, tous deux victimes de rupture du ligament croisé du genou. Harry Kane, blessé à la cheville, ne jouera pas non plus avec le Bayern de Munich. Et certains font le lien entre les blessures en surnombre et le calendrier surchargé des matchs."
+    ],
+    "key_points": [
+      "Le PSG jouera mercredi sans Désiré Doué ni Khvicha Kvaratskhelia, tous deux victimes de rupture du ligament croisé du genou.",
+      "Harry Kane, blessé à la cheville, ne jouera pas non plus avec le Bayern de Munich.",
+      "Et certains font le lien entre les blessures en surnombre et le calendrier surchargé des matchs."
+    ],
+    "telegram_summary": "Le PSG jouera mercredi sans Désiré Doué ni Khvicha Kvaratskhelia, tous deux victimes de rupture du ligament croisé du genou. Harry Kane, blessé à la cheville, ne jouera pas non plus avec le Bayern de Munich.",
+    "link": "https://www.franceinfo.fr/replay-radio/le-tour-de-la-question/reportage-les-calendriers-de-matchs-surcharges-sont-de-plus-en-plus-critiques-par-les-footballeurs-dont-les-blessures-se-multiplient_8289860.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_url": "https://www.franceinfo.fr/replay-radio/le-tour-de-la-question/reportage-les-calendriers-de-matchs-surcharges-sont-de-plus-en-plus-critiques-par-les-footballeurs-dont-les-blessures-se-multiplient_8289860.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5194b8476200285c",
+    "published": "2026-11-25T12:38:22+00:00",
+    "image": "https://www.franceinfo.fr/pictures/95r5LKWTzZCVS-kPhiKqLUZL7Aw/0x53:1024x629/432x243/filters:format(jpg)/2026/11/25/6b06c3da568bf153114269.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/95r5LKWTzZCVS-kPhiKqLUZL7Aw/0x53:1024x629/432x243/filters:format(jpg)/2026/11/25/6b06c3da568bf153114269.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 5,
     "espn_verification": {},
     "quality_sources": [
       "Franceinfo"
@@ -123,7 +159,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T12:40:12.098223+00:00"
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -429,7 +465,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T12:40:12.098223+00:00"
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -492,7 +528,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T12:40:12.098223+00:00"
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1777,6 +1813,400 @@
     "quality_score": 86
   },
   {
+    "slug": "afb309a4986396c3",
+    "title": "Stade Rennais : Deux joueurs importants absents de l'entraînement à la veille du match contre le NEC Nimègue",
+    "summary": "Valentin Rongier et Mahdi Camara n'étaient pas présents à l'entraînement collectif ce mercredi 25 novembre.",
+    "summary_short": "Valentin Rongier et Mahdi Camara n'étaient pas présents à l'entraînement collectif ce mercredi 25 novembre.",
+    "content": "Valentin Rongier et Mahdi Camara n'étaient pas présents à l'entraînement collectif ce mercredi 25 novembre.",
+    "paragraphs": [
+      "Valentin Rongier et Mahdi Camara n'étaient pas présents à l'entraînement collectif ce mercredi 25 novembre."
+    ],
+    "key_points": [
+      "Valentin Rongier et Mahdi Camara n'étaient pas présents à l'entraînement collectif ce mercredi 25 novembre."
+    ],
+    "telegram_summary": "Valentin Rongier et Mahdi Camara n'étaient pas présents à l'entraînement collectif ce mercredi 25 novembre.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-deux-joueurs-importants-absents-de-l-entrainement-a-la-veille-du-match-contre-le-nec-nimegue-546951.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-deux-joueurs-importants-absents-de-l-entrainement-a-la-veille-du-match-contre-le-nec-nimegue-546951.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=afb309a4986396c3",
+    "published": "2026-11-25T13:06:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260823231617-3859.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260823231617-3859.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "8f864a18d1de981a",
+    "title": "Sterling given suspended sentence for dangerous driving",
+    "summary": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
+    "summary_short": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
+    "content": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
+    "paragraphs": [
+      "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday."
+    ],
+    "key_points": [
+      "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday."
+    ],
+    "telegram_summary": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
+    "link": "https://www.bbc.co.uk/news/articles/cv8e04ll9dd3o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/news/articles/cv8e04ll9dd3o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8f864a18d1de981a",
+    "published": "2026-11-25T13:04:11+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/e4c7/live/edef29a0-e8b3-11f1-a094-5fdc692f3e33.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/e4c7/live/edef29a0-e8b3-11f1-a094-5fdc692f3e33.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50591753",
+      "url": "https://www.espn.com/soccer/story/_/id/50591753/raheem-sterling-court-england-manchester-city-liverpool-chelsea",
+      "published": "2026-11-25T11:53:55Z",
+      "score": 0.333,
+      "matched_terms": [
+        "dangerous",
+        "driving",
+        "sterling"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Chelsea",
+        "England",
+        "Manchester City"
+      ],
+      "athletes": [
+        "Raheem Sterling"
+      ],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
+    },
+    "quality_sources": [
+      "BBC Sport",
+      "ESPN"
+    ],
+    "quality_score": 93
+  },
+  {
+    "slug": "1fa1a4806ace8c07",
+    "title": "Fin des discussions entre Cyril Hanouna et Guingamp : une victoire pour les supporters (et le football)",
+    "summary": "Touche pas à mon club.",
+    "summary_short": "Touche pas à mon club.",
+    "content": "Touche pas à mon club.",
+    "paragraphs": [
+      "Touche pas à mon club."
+    ],
+    "key_points": [],
+    "telegram_summary": "Touche pas à mon club.",
+    "link": "https://www.sofoot.com/articles/fin-des-discussions-entre-cyril-hanouna-et-guingamp-une-victoire-pour-les-supporters-et-le-football",
+    "source_url": "https://www.sofoot.com/articles/fin-des-discussions-entre-cyril-hanouna-et-guingamp-une-victoire-pour-les-supporters-et-le-football",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1fa1a4806ace8c07",
+    "published": "2026-11-25T13:00:21+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23194721/8227040.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/23194721/8227040.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "c302f2dd3af08f94",
+    "title": "Ligue Europa : Un arbitre serbe au sifflet de NEC Nimègue - Stade Rennais",
+    "summary": "L'arbitre de NEC Nimègue - Stade Rennais a été désigné par l'UEFA.",
+    "summary_short": "L'arbitre de NEC Nimègue - Stade Rennais a été désigné par l'UEFA.",
+    "content": "L'arbitre de NEC Nimègue - Stade Rennais a été désigné par l'UEFA.",
+    "paragraphs": [
+      "L'arbitre de NEC Nimègue - Stade Rennais a été désigné par l'UEFA."
+    ],
+    "key_points": [
+      "L'arbitre de NEC Nimègue - Stade Rennais a été désigné par l'UEFA."
+    ],
+    "telegram_summary": "L'arbitre de NEC Nimègue - Stade Rennais a été désigné par l'UEFA.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-un-arbitre-serbe-au-sifflet-de-nec-nimegue-stade-rennais-546948.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-un-arbitre-serbe-au-sifflet-de-nec-nimegue-stade-rennais-546948.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c302f2dd3af08f94",
+    "published": "2026-11-25T12:59:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240123130334-9514.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240123130334-9514.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "a1fc09b31be8e1f9",
+    "title": "Ligue Europa : L'UEFA a désigné l'arbitre de OM - Levski Sofia",
+    "summary": "L'arbitre de OM - Levski Sofia a été désigné par l'UEFA.",
+    "summary_short": "L'arbitre de OM - Levski Sofia a été désigné par l'UEFA.",
+    "content": "L'arbitre de OM - Levski Sofia a été désigné par l'UEFA.",
+    "paragraphs": [
+      "L'arbitre de OM - Levski Sofia a été désigné par l'UEFA."
+    ],
+    "key_points": [
+      "L'arbitre de OM - Levski Sofia a été désigné par l'UEFA."
+    ],
+    "telegram_summary": "L'arbitre de OM - Levski Sofia a été désigné par l'UEFA.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-l-uefa-a-designe-l-arbitre-de-om-levski-sofia-546947.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-l-uefa-a-designe-l-arbitre-de-om-levski-sofia-546947.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a1fc09b31be8e1f9",
+    "published": "2026-11-25T12:48:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2025/une/ldc-20250924150853-9088.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2025/une/ldc-20250924150853-9088.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "f599062db074feaa",
+    "title": "Ligue 1 : AS Monaco - AJ Auxerre : la direction de l'arbitrage reconnaît une grosse erreur en défaveur des Monégasques contre l'AJA",
+    "summary": "La direction de l'arbitrage a admis qu'un penalty aurait dû être signalé en faveur de l'AS Monaco lors de la rencontre contre l'AJ Auxerre le week-end dernier.",
+    "summary_short": "La direction de l'arbitrage a admis qu'un penalty aurait dû être signalé en faveur de l'AS Monaco lors de la rencontre contre l'AJ Auxerre le week-end dernier.",
+    "content": "La direction de l'arbitrage a admis qu'un penalty aurait dû être signalé en faveur de l'AS Monaco lors de la rencontre contre l'AJ Auxerre le week-end dernier.",
+    "paragraphs": [
+      "La direction de l'arbitrage a admis qu'un penalty aurait dû être signalé en faveur de l'AS Monaco lors de la rencontre contre l'AJ Auxerre le week-end dernier."
+    ],
+    "key_points": [
+      "La direction de l'arbitrage a admis qu'un penalty aurait dû être signalé en faveur de l'AS Monaco lors de la rencontre contre l'AJ Auxerre le week-end dernier."
+    ],
+    "telegram_summary": "La direction de l'arbitrage a admis qu'un penalty aurait dû être signalé en faveur de l'AS Monaco lors de la rencontre contre l'AJ Auxerre le week-end dernier.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-as-monaco-aj-auxerre-la-direction-de-l-arbitrage-reconnait-une-grosse-erreur-en-defaveur-des-monegasques-contre-l-aja-546946.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-as-monaco-aj-auxerre-la-direction-de-l-arbitrage-reconnait-une-grosse-erreur-en-defaveur-des-monegasques-contre-l-aja-546946.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f599062db074feaa",
+    "published": "2026-11-25T12:48:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261121223849-1848.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261121223849-1848.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "3ac4c432fcebf4ef",
+    "title": "Raheem Sterling - from national icon to suspended jail sentence",
+    "summary": "Fourteen years after making his Premier League debut at 17, Raheem Sterling has been given a suspended prison sentence.",
+    "summary_short": "Fourteen years after making his Premier League debut at 17, Raheem Sterling has been given a suspended prison sentence.",
+    "content": "Fourteen years after making his Premier League debut at 17, Raheem Sterling has been given a suspended prison sentence.",
+    "paragraphs": [
+      "Fourteen years after making his Premier League debut at 17, Raheem Sterling has been given a suspended prison sentence."
+    ],
+    "key_points": [
+      "Fourteen years after making his Premier League debut at 17, Raheem Sterling has been given a suspended prison sentence."
+    ],
+    "telegram_summary": "Fourteen years after making his Premier League debut at 17, Raheem Sterling has been given a suspended prison sentence.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cxzd9ydqzylno?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cxzd9ydqzylno?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3ac4c432fcebf4ef",
+    "published": "2026-11-25T12:42:57+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/78b1/live/4b3ef840-e8a2-11f1-869a-f96fd5660210.png",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/78b1/live/4b3ef840-e8a2-11f1-869a-f96fd5660210.png",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50591753",
+      "url": "https://www.espn.com/soccer/story/_/id/50591753/raheem-sterling-court-england-manchester-city-liverpool-chelsea",
+      "published": "2026-11-25T11:53:55Z",
+      "score": 0.3,
+      "matched_terms": [
+        "jail",
+        "raheem",
+        "sterling"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Chelsea",
+        "England",
+        "Manchester City"
+      ],
+      "athletes": [
+        "Raheem Sterling"
+      ],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
+    },
+    "quality_sources": [
+      "BBC Sport",
+      "ESPN"
+    ],
+    "quality_score": 93
+  },
+  {
+    "slug": "ed76b9e2a2dd07f3",
+    "title": "12 mois de prison avec sursis pour Raheem Sterling !",
+    "summary": "Raheem Sterling attendait le verdict de l’accident de la route qu’il a causé le 28 mai dernier sur l’autoroute M3, dans le Hampshire. Inculpé de conduite dangereuse, de possession de protoxyde d’azote (…)",
+    "summary_short": "Raheem Sterling attendait le verdict de l’accident de la route qu’il a causé le 28 mai dernier sur l’autoroute M3, dans le Hampshire. Inculpé de conduite dangereuse, de possession de protoxyde d’azote (…)",
+    "content": "Raheem Sterling attendait le verdict de l’accident de la route qu’il a causé le 28 mai dernier sur l’autoroute M3, dans le Hampshire. Inculpé de conduite dangereuse, de possession de protoxyde d’azote (…)",
+    "paragraphs": [
+      "Raheem Sterling attendait le verdict de l’accident de la route qu’il a causé le 28 mai dernier sur l’autoroute M3, dans le Hampshire. Inculpé de conduite dangereuse, de possession de protoxyde d’azote (…)"
+    ],
+    "key_points": [
+      "Raheem Sterling attendait le verdict de l’accident de la route qu’il a causé le 28 mai dernier sur l’autoroute M3, dans le Hampshire.",
+      "Inculpé de conduite dangereuse, de possession de protoxyde d’azote (…)"
+    ],
+    "telegram_summary": "Raheem Sterling attendait le verdict de l’accident de la route qu’il a causé le 28 mai dernier sur l’autoroute M3, dans le Hampshire. Inculpé de conduite dangereuse, de possession de protoxyde d’azote (…)",
+    "link": "https://www.footmercato.net/a1913986710438398844-12-mois-de-prison-avec-sursis-pour-raheem-sterling",
+    "source_url": "https://www.footmercato.net/a1913986710438398844-12-mois-de-prison-avec-sursis-pour-raheem-sterling",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ed76b9e2a2dd07f3",
+    "published": "2026-11-25T12:41:18+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/raheem-sterling-wc-22-1.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/raheem-sterling-wc-22-1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50591753",
+      "url": "https://www.espn.com/soccer/story/_/id/50591753/raheem-sterling-court-england-manchester-city-liverpool-chelsea",
+      "published": "2026-11-25T11:53:55Z",
+      "score": 0.222,
+      "matched_terms": [
+        "raheem",
+        "sterling"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Chelsea",
+        "England",
+        "Manchester City"
+      ],
+      "athletes": [
+        "Raheem Sterling"
+      ],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "006e3d8c87fa7a7b",
+    "title": "Cyril Hanouna s’est expliqué concernant les rumeurs le liant à Guinguamp",
+    "summary": "Dans le baba. Sur le plateau de Tout beau tout n9uf, l’animateur télé Cyril Hanouna est revenu sur",
+    "summary_short": "Dans le baba. Sur le plateau de Tout beau tout n9uf, l’animateur télé Cyril Hanouna est revenu sur",
+    "content": "Dans le baba. Sur le plateau de Tout beau tout n9uf, l’animateur télé Cyril Hanouna est revenu sur",
+    "paragraphs": [
+      "Dans le baba. Sur le plateau de Tout beau tout n9uf, l’animateur télé Cyril Hanouna est revenu sur"
+    ],
+    "key_points": [
+      "Sur le plateau de Tout beau tout n9uf, l’animateur télé Cyril Hanouna est revenu sur"
+    ],
+    "telegram_summary": "Dans le baba. Sur le plateau de Tout beau tout n9uf, l’animateur télé Cyril Hanouna est revenu sur",
+    "link": "https://www.sofoot.com/breves/cyril-hanouna-sest-explique-concernant-les-rumeurs-le-liant-a-guinguamp",
+    "source_url": "https://www.sofoot.com/breves/cyril-hanouna-sest-explique-concernant-les-rumeurs-le-liant-a-guinguamp",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=006e3d8c87fa7a7b",
+    "published": "2026-11-25T12:40:08+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25132857/8227051.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25132857/8227051.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "78981155bfe27e5d",
     "title": "Portugal : la sortie cash de Pep Guardiola sur Cristiano Ronaldo",
     "summary": "À l’occasion d’une interview accordée à la légende brésilienne Romário, le coach espagnol a été interrogé sur la retraite internationale de CR7. Et selon le Catalan, cette histoire ne doit pas se (…)",
@@ -1808,38 +2238,31 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50075485",
-      "url": "https://www.espn.com/soccer/story/_/id/50075485/cristiano-ronaldo-long-history-rows-portugal-manchester-united-real-madrid-juventus-coaches",
-      "published": "2026-11-05T16:21:16Z",
-      "score": 0.231,
+      "article_id": "50592183",
+      "url": "https://www.espn.com/soccer/story/_/id/50592183/pep-guardiola-lionel-messi-cristiano-ronaldo",
+      "published": "2026-11-25T13:04:11Z",
+      "score": 0.25,
       "matched_terms": [
         "cristiano",
-        "portugal",
+        "guardiola",
         "ronaldo"
       ],
       "topics": [
-        "blog - the toe poke"
+        "news"
       ],
       "teams": [
-        "Al Nassr",
-        "Juventus",
-        "Manchester United",
-        "Portugal",
-        "Real Madrid"
+        "Al Nassr"
       ],
       "athletes": [
-        "Cristiano Ronaldo"
+        "Cristiano Ronaldo",
+        "Lionel Messi"
       ],
       "leagues": [
-        "English Premier League",
-        "Italian Serie A",
-        "Saudi Pro League",
         "Soccer",
-        "Spanish LALIGA",
-        "UEFA Nations League"
+        "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T12:40:12.098223+00:00"
+      "checked_at": "2026-11-25T13:09:55.917805+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1880,378 +2303,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "73d8a9783fb39f33",
-    "title": "Ligue 2 : Le programme TV de la 18ème journée de la Ligue 2",
-    "summary": "La programmation TV de la 18ème journée de la Ligue 2 édition 2026-2027.",
-    "summary_short": "La programmation TV de la 18ème journée de la Ligue 2 édition 2026-2027.",
-    "content": "La programmation TV de la 18ème journée de la Ligue 2 édition 2026-2027.",
-    "paragraphs": [
-      "La programmation TV de la 18ème journée de la Ligue 2 édition 2026-2027."
-    ],
-    "key_points": [
-      "La programmation TV de la 18ème journée de la Ligue 2 édition 2026-2027."
-    ],
-    "telegram_summary": "La programmation TV de la 18ème journée de la Ligue 2 édition 2026-2027.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-le-programme-tv-de-la-18eme-journee-de-la-ligue-2-546944.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-le-programme-tv-de-la-18eme-journee-de-la-ligue-2-546944.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=73d8a9783fb39f33",
-    "published": "2026-11-25T12:17:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2025/une/l2-20250104084946-1681.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2025/une/l2-20250104084946-1681.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "e3d39b1803e96f48",
-    "title": "Real Madrid-PSV : l’increvable Ivan Perisic bat deux records au Bernabéu",
-    "summary": "Toujours en pleine forme, l’ancien. À 37 ans et 295 jours, Ivan Perisic, l’ambidextre du PSV Eindhoven, a…",
-    "summary_short": "Toujours en pleine forme, l’ancien. À 37 ans et 295 jours, Ivan Perisic, l’ambidextre du PSV Eindhoven, a…",
-    "content": "Toujours en pleine forme, l’ancien. À 37 ans et 295 jours, Ivan Perisic, l’ambidextre du PSV Eindhoven, a…",
-    "paragraphs": [
-      "Toujours en pleine forme, l’ancien. À 37 ans et 295 jours, Ivan Perisic, l’ambidextre du PSV Eindhoven, a…"
-    ],
-    "key_points": [
-      "Toujours en pleine forme, l’ancien.",
-      "À 37 ans et 295 jours, Ivan Perisic, l’ambidextre du PSV Eindhoven, a…"
-    ],
-    "telegram_summary": "Toujours en pleine forme, l’ancien. À 37 ans et 295 jours, Ivan Perisic, l’ambidextre du PSV Eindhoven, a…",
-    "link": "https://www.sofoot.com/breves/real-madrid-psv-lincrevable-ivan-perisic-bat-deux-records-au-bernabeu",
-    "source_url": "https://www.sofoot.com/breves/real-madrid-psv-lincrevable-ivan-perisic-bat-deux-records-au-bernabeu",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e3d39b1803e96f48",
-    "published": "2026-11-25T12:09:21+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25125154/15399229.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25125154/15399229.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "07ef6e9a2c5acfd9",
-    "title": "Lens : est-ce que le coup de gueule de Florian Thauvin était une pique vers Jean-Louis Leca et sa direction ?",
-    "summary": "Florian Thauvin est apparu très en colère après la défaite contre Leipzig ce mardi soir. Mais qui visait-il particulièrement ?",
-    "summary_short": "Florian Thauvin est apparu très en colère après la défaite contre Leipzig ce mardi soir. Mais qui visait-il particulièrement ?",
-    "content": "Florian Thauvin est apparu très en colère après la défaite contre Leipzig ce mardi soir. Mais qui visait-il particulièrement ?",
-    "paragraphs": [
-      "Florian Thauvin est apparu très en colère après la défaite contre Leipzig ce mardi soir. Mais qui visait-il particulièrement ?"
-    ],
-    "key_points": [
-      "Florian Thauvin est apparu très en colère après la défaite contre Leipzig ce mardi soir.",
-      "Mais qui visait-il particulièrement ?"
-    ],
-    "telegram_summary": "Florian Thauvin est apparu très en colère après la défaite contre Leipzig ce mardi soir. Mais qui visait-il particulièrement ?",
-    "link": "https://www.onzemondial.com/ligue-1/lens-est-ce-que-le-coup-de-gueule-de-florian-thauvin-etait-une-pique-vers-jean-louis-leca-et-sa-direction-1011147",
-    "source_url": "https://www.onzemondial.com/ligue-1/lens-est-ce-que-le-coup-de-gueule-de-florian-thauvin-etait-une-pique-vers-jean-louis-leca-et-sa-direction-1011147",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=07ef6e9a2c5acfd9",
-    "published": "2026-11-25T12:02:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011147/411577/1200-L-lens-est-ce-que-le-coup-de-gueule-de-florian-thauvin-tait-une-pique-vers-jean-louis-leca-et-sa-direction.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011147/411577/1200-L-lens-est-ce-que-le-coup-de-gueule-de-florian-thauvin-tait-une-pique-vers-jean-louis-leca-et-sa-direction.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "3d26cdb5e554c8a0",
-    "title": "Ligue des champions : après son but impressionnant contre le PSV Eindhoven, Jude Bellingham a confirmé son statut de joueur du Real Madrid de José Mourinho, à côté de Kylian Mbappé et Vinicius",
-    "summary": "Auteur d'un but somptueux, l'Anglais confirme son statut de métronome du Real Madrid.",
-    "summary_short": "Auteur d'un but somptueux, l'Anglais confirme son statut de métronome du Real Madrid.",
-    "content": "Auteur d'un but somptueux, l'Anglais confirme son statut de métronome du Real Madrid.",
-    "paragraphs": [
-      "Auteur d'un but somptueux, l'Anglais confirme son statut de métronome du Real Madrid."
-    ],
-    "key_points": [
-      "Auteur d'un but somptueux, l'Anglais confirme son statut de métronome du Real Madrid."
-    ],
-    "telegram_summary": "Auteur d'un but somptueux, l'Anglais confirme son statut de métronome du Real Madrid.",
-    "link": "https://www.sofoot.com/articles/ligue-des-champions-apres-son-but-impressionnant-contre-le-psv-eindhoven-jude-bellingham-a-confirme-son-statut-de-joueur-du-real-madrid-de-jose-mourinho-a-cote-de-kylian-mbappe-et-vinicius",
-    "source_url": "https://www.sofoot.com/articles/ligue-des-champions-apres-son-but-impressionnant-contre-le-psv-eindhoven-jude-bellingham-a-confirme-son-statut-de-joueur-du-real-madrid-de-jose-mourinho-a-cote-de-kylian-mbappe-et-vinicius",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3d26cdb5e554c8a0",
-    "published": "2026-11-25T12:00:37+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25095052/15402304.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25095052/15402304.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "e60d28f6250d6ce5",
-    "title": "La Roma prête à jouer un vilain tour au PSG",
-    "summary": "C’est une affiche de prestige totalement inédite sur la scène européenne qui attend le Parc des Princes ! Ce mercredi soir, pour le compte de la 5e journée de la phase de ligue de la Ligue des (…)",
-    "summary_short": "C’est une affiche de prestige totalement inédite sur la scène européenne qui attend le Parc des Princes ! Ce mercredi soir, pour le compte de la 5e journée de la phase de ligue de la Ligue des (…)",
-    "content": "C’est une affiche de prestige totalement inédite sur la scène européenne qui attend le Parc des Princes ! Ce mercredi soir, pour le compte de la 5e journée de la phase de ligue de la Ligue des (…)",
-    "paragraphs": [
-      "C’est une affiche de prestige totalement inédite sur la scène européenne qui attend le Parc des Princes ! Ce mercredi soir, pour le compte de la 5e journée de la phase de ligue de la Ligue des (…)"
-    ],
-    "key_points": [
-      "C’est une affiche de prestige totalement inédite sur la scène européenne qui attend le Parc des Princes !",
-      "Ce mercredi soir, pour le compte de la 5e journée de la phase de ligue de la Ligue des (…)"
-    ],
-    "telegram_summary": "C’est une affiche de prestige totalement inédite sur la scène européenne qui attend le Parc des Princes ! Ce mercredi soir, pour le compte de la 5e journée de la phase de ligue de la Ligue des (…)",
-    "link": "https://www.footmercato.net/a7375096008380839499-la-roma-prete-a-jouer-un-vilain-tour-au-psg",
-    "source_url": "https://www.footmercato.net/a7375096008380839499-la-roma-prete-a-jouer-un-vilain-tour-au-psg",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e60d28f6250d6ce5",
-    "published": "2026-11-25T12:00:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo768976-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo768976-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "3231e085a8926669",
-    "title": "Arsenal ne quittera pas Londres pour jouer un match avant 2027",
-    "summary": "Les familles qui vont être contentes. On le sait, la vie de footballeur est très souvent ponctuée par une valise…",
-    "summary_short": "Les familles qui vont être contentes. On le sait, la vie de footballeur est très souvent ponctuée par une valise…",
-    "content": "Les familles qui vont être contentes. On le sait, la vie de footballeur est très souvent ponctuée par une valise…",
-    "paragraphs": [
-      "Les familles qui vont être contentes. On le sait, la vie de footballeur est très souvent ponctuée par une valise…"
-    ],
-    "key_points": [
-      "Les familles qui vont être contentes.",
-      "On le sait, la vie de footballeur est très souvent ponctuée par une valise…"
-    ],
-    "telegram_summary": "Les familles qui vont être contentes. On le sait, la vie de footballeur est très souvent ponctuée par une valise…",
-    "link": "https://www.sofoot.com/breves/arsenal-ne-quittera-pas-londres-pour-jouer-un-match-avant-2027",
-    "source_url": "https://www.sofoot.com/breves/arsenal-ne-quittera-pas-londres-pour-jouer-un-match-avant-2027",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3231e085a8926669",
-    "published": "2026-11-25T11:41:22+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25121835/15400082.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25121835/15400082.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "8eb70fd0d38279c5",
-    "title": "Lincoln sack head coach duo Cohen and Shaw",
-    "summary": "Lincoln sack head coaches Chris Cohen and Tom Shaw just six months after they took joint charge of the Championship side.",
-    "summary_short": "Lincoln sack head coaches Chris Cohen and Tom Shaw just six months after they took joint charge of the Championship side.",
-    "content": "Lincoln sack head coaches Chris Cohen and Tom Shaw just six months after they took joint charge of the Championship side.",
-    "paragraphs": [
-      "Lincoln sack head coaches Chris Cohen and Tom Shaw just six months after they took joint charge of the Championship side."
-    ],
-    "key_points": [
-      "Lincoln sack head coaches Chris Cohen and Tom Shaw just six months after they took joint charge of the Championship side."
-    ],
-    "telegram_summary": "Lincoln sack head coaches Chris Cohen and Tom Shaw just six months after they took joint charge of the Championship side.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cmglrzg3zx9no?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmglrzg3zx9no?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8eb70fd0d38279c5",
-    "published": "2026-11-25T11:32:28+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/cb84/live/59c159f0-e8be-11f1-ac76-db9e97f93d67.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/cb84/live/59c159f0-e8be-11f1-ac76-db9e97f93d67.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "33a8de8a712ac3f2",
-    "title": "Avant le déplacement à Lille, Bayern Munich communique autour de l’état de santé de Jamal Musiala",
-    "summary": "Calmer le jeu. Après les tollés provoqués par les sorties du board bavarois sur l’état de santé de…",
-    "summary_short": "Calmer le jeu. Après les tollés provoqués par les sorties du board bavarois sur l’état de santé de…",
-    "content": "Calmer le jeu. Après les tollés provoqués par les sorties du board bavarois sur l’état de santé de…",
-    "paragraphs": [
-      "Calmer le jeu. Après les tollés provoqués par les sorties du board bavarois sur l’état de santé de…"
-    ],
-    "key_points": [
-      "Après les tollés provoqués par les sorties du board bavarois sur l’état de santé de…"
-    ],
-    "telegram_summary": "Calmer le jeu. Après les tollés provoqués par les sorties du board bavarois sur l’état de santé de…",
-    "link": "https://www.sofoot.com/breves/avant-le-deplacement-a-lille-bayern-munich-communique-autour-de-letat-de-sante-de-jamal-musiala",
-    "source_url": "https://www.sofoot.com/breves/avant-le-deplacement-a-lille-bayern-munich-communique-autour-de-letat-de-sante-de-jamal-musiala",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=33a8de8a712ac3f2",
-    "published": "2026-11-25T11:27:49+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25121526/15345931.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25121526/15345931.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50592045",
-      "url": "https://www.espn.com/soccer/story/_/id/50592045/jamal-musiala-bayern-munich-health",
-      "published": "2026-11-25T12:37:22Z",
-      "score": 0.25,
-      "matched_terms": [
-        "bayern",
-        "jamal",
-        "munich",
-        "musiala"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Bayern Munich"
-      ],
-      "athletes": [
-        "Jamal Musiala"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-25T12:40:12.098223+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "4fee075044c00f06",
-    "title": "Ligue Europa : OL - Lillestrøm SK : un Autrichien au sifflet de la rencontre",
-    "summary": "Sebastian Gishamer, arbitre autrichien de 38 ans, sera au sifflet de la rencontre entre l'Olympique lyonnais et Lillestrøm (J5 Ligue Europa), ce jeudi 26 novembre (21 heures).",
-    "summary_short": "Sebastian Gishamer, arbitre autrichien de 38 ans, sera au sifflet de la rencontre entre l'Olympique lyonnais et Lillestrøm (J5 Ligue Europa), ce jeudi 26 novembre (21 heures).",
-    "content": "Sebastian Gishamer, arbitre autrichien de 38 ans, sera au sifflet de la rencontre entre l'Olympique lyonnais et Lillestrøm (J5 Ligue Europa), ce jeudi 26 novembre (21 heures).",
-    "paragraphs": [
-      "Sebastian Gishamer, arbitre autrichien de 38 ans, sera au sifflet de la rencontre entre l'Olympique lyonnais et Lillestrøm (J5 Ligue Europa), ce jeudi 26 novembre (21 heures)."
-    ],
-    "key_points": [
-      "Sebastian Gishamer, arbitre autrichien de 38 ans, sera au sifflet de la rencontre entre l'Olympique lyonnais et Lillestrøm (J5 Ligue Europa), ce jeudi 26 novembre (21 heures)."
-    ],
-    "telegram_summary": "Sebastian Gishamer, arbitre autrichien de 38 ans, sera au sifflet de la rencontre entre l'Olympique lyonnais et Lillestrøm (J5 Ligue Europa), ce jeudi 26 novembre (21 heures).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-ol-lillestrom-sk-un-autrichien-au-sifflet-de-la-rencontre-546940.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-ol-lillestrom-sk-un-autrichien-au-sifflet-de-la-rencontre-546940.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4fee075044c00f06",
-    "published": "2026-11-25T11:25:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260822222118-7889.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260822222118-7889.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "3b1e47ffc36928cd",
-    "title": "Watford appoint Iordanescu as head coach",
-    "summary": "Watford appoint former Romania boss Edward Iordanescu as their new head coach after sacking Alessio Dionisi.",
-    "summary_short": "Watford appoint former Romania boss Edward Iordanescu as their new head coach after sacking Alessio Dionisi.",
-    "content": "Watford appoint former Romania boss Edward Iordanescu as their new head coach after sacking Alessio Dionisi.",
-    "paragraphs": [
-      "Watford appoint former Romania boss Edward Iordanescu as their new head coach after sacking Alessio Dionisi."
-    ],
-    "key_points": [
-      "Watford appoint former Romania boss Edward Iordanescu as their new head coach after sacking Alessio Dionisi."
-    ],
-    "telegram_summary": "Watford appoint former Romania boss Edward Iordanescu as their new head coach after sacking Alessio Dionisi.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cv1j65j2lw3po?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cv1j65j2lw3po?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3b1e47ffc36928cd",
-    "published": "2026-11-25T11:15:34+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/18bc/live/26f95460-e809-11f1-95bb-3f37d3e026b0.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/18bc/live/26f95460-e809-11f1-95bb-3f37d3e026b0.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
   }
 ]
