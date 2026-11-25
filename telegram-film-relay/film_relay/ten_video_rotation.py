@@ -285,7 +285,8 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
                         and compatible(part or ident, proof) >= 0.95
                         and (not part or proof.part == part.part)
                         and private_cover_links_verified(
-                            private_poster, public=public, rescue_url=rescue_url)):
+                            private_poster, public=public, rescue_url=rescue_url,
+                            folder_url=folder_url)):
                     matches += 1
                     break
         if matches == 1:
