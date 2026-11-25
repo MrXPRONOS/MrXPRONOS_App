@@ -5,7 +5,7 @@ from unittest.mock import patch
 from types import SimpleNamespace as NS
 from film_relay.ten_video_rotation import (
     split_recent_and_old, category_targets, movie_button_target,
-    is_rotatable_video, execute,
+    is_rotatable_video, execute, original_poster_safe_for_deletion,
 )
 
 
@@ -50,6 +50,33 @@ class TenVideoRotationTests(unittest.TestCase):
         ])
         self.assertEqual(movie_button_target(poster, -1004455497484), 42)
         self.assertIsNone(movie_button_target(poster, -1004462439590))
+
+    def test_opaque_existing_button_preserves_video_without_crashing(self):
+        cover = NS(id=100, photo=NS(id=808), pinned=True,
+                   raw_text="Film Partie 1",
+                   buttons=[[NS(text="Bouton historique", url=None)]])
+        live = NS(id=100, photo=NS(id=808), pinned=True,
+                  raw_text="Film Partie 1",
+                  buttons=[[NS(text="Bouton historique", url=None)]])
+        self.assertFalse(original_poster_safe_for_deletion(live, cover))
+
+    def test_verified_cover_stays_edit_protected(self):
+        cover = NS(id=101, photo=NS(id=809), pinned=True,
+                   raw_text="Film Partie 2",
+                   buttons=[[NS(text="🎬 VOIR", url="https://t.me/c/4392607284/55")]])
+        live = NS(id=101, photo=NS(id=809), pinned=True,
+                  raw_text="Film Partie 2",
+                  buttons=[[NS(text="🎬 VOIR", url="https://t.me/c/4392607284/55")]])
+        self.assertTrue(original_poster_safe_for_deletion(live, cover))
+        live.pinned = False
+        self.assertFalse(original_poster_safe_for_deletion(live, cover))
+        live.pinned = True
+        live.raw_text = "Film Partie 3"
+        self.assertFalse(original_poster_safe_for_deletion(live, cover))
+        live.raw_text = cover.raw_text
+        live.buttons = [[NS(text="🎬 VOIR", url="https://t.me/c/4392607284/999")]]
+        self.assertFalse(original_poster_safe_for_deletion(live, cover))
+
 
     def test_public_unknown_purge_requires_real_manual_dispatch(self):
         with patch.dict("os.environ", {"CINEX_MANUAL_PURGE_REQUEST": ""}, clear=True):
