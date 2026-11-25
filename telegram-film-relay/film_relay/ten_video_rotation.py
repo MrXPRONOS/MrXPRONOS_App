@@ -138,6 +138,8 @@ def main_films_priority(old, messages):
         key=lambda m: int(m.id),
     )
     def key(video):
+        if getattr(video, "pinned", False):
+            return (0, -1, int(video.id))
         from .legacy_media_identity import find_legacy_poster
         from .legacy_neighbor_matching import find_neighbor_pair
         matched = find_legacy_poster(video, pinned, "films")
@@ -389,9 +391,19 @@ async def rotate_channel(client, category: str, public, private,
             continue
         # A known verified archive ALWAYS takes precedence over an unknown
         # classification, even when its repaired cover was published later.
-        public_poster = await verify_existing_pair(
-            client, public, private, private_id, video, posters, category,
-            messages=messages)
+        try:
+            public_poster = await verify_existing_pair(
+                client, public, private, private_id, video, posters, category,
+                messages=messages)
+        except Exception as exc:
+            if type(exc).__name__ in ("FloodWaitError", "PeerFloodError"):
+                raise
+            if not main_films_cleanup:
+                raise
+            LOG.warning("%s : archive non confirmée pour #%s (%s), "
+                        "purge principale autorisée",
+                        category, video.id, type(exc).__name__)
+            public_poster = None
         unknown = (not public_poster and (
             main_films_cleanup or
             (purge_unmatched and unmatched_candidate(video, messages, category))))
@@ -517,6 +529,11 @@ async def execute(*, apply: bool = False, max_deleted: int = 10,
                     **{key: row.get(key, 0) for key in (
                         "category", "older", "deleted", "purged_unmatched",
                         "unmatched_candidates", "unverified")}))
+    for report in reports:
+        if report.get("main_films_cleanup"):
+            LOG.warning("PURGE FILMS PRIORITAIRE : %s suppressions, dont %s sans "
+                        "archive privée certifiée ; dix dernières vidéos conservées",
+                        report.get("deleted", 0), report.get("deleted_without_verified_archive", 0))
     if any(report.get("error") for report in reports):
         raise RuntimeError("Une ou plusieurs catégories nécessitent une correction")
     return reports
