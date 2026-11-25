@@ -475,6 +475,7 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                 )
                 proof = await client.get_messages(private, ids=destination_id)
                 from .private_media_contract import renamed_receipt_matches
+                from .text import resolved_media_title
                 title = resolved_media_title(poster, video, description=str(
                     getattr(poster, "raw_text", "") or ""))
                 if (not proof or
