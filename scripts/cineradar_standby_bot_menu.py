@@ -69,6 +69,7 @@ def select_active_bot(env, api=telegram_api):
             seen.add(ident)
         except RuntimeError:
             continue
+    print("CINERADAR_STANDBY_PREFLIGHT candidates=%d matching_webhook_bots=%d"%(len(unique),len(matches)))
     if len(matches) != 1:
         raise RuntimeError("Cannot safely identify exactly one CineRadar production bot")
     return matches[0]
@@ -157,6 +158,7 @@ def reconcile(token, healthy, api=telegram_api):
 def main():
     token = select_active_bot(os.environ)
     healthy = checked_health()
+    print("CINERADAR_STANDBY_REAL_HEALTH="+str(healthy).lower())
     result = reconcile(token, healthy)
     # Output no tokens, usernames, chat IDs, or private data.
     print("CINERADAR_GITHUB_STANDBY_OK " +
@@ -168,5 +170,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        print("CINERADAR_STANDBY_FAILED:" + type(exc).__name__, file=sys.stderr)
+        # Only fixed, locally authored RuntimeError messages; no secret or API payload.
+        detail = str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__
+        print("CINERADAR_STANDBY_FAILED:" + detail[:160], file=sys.stderr)
         sys.exit(1)
