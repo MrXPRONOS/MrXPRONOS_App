@@ -89,7 +89,7 @@ export function formationFilePart(caption,filename){
  }
  if(total)return null;
  const name=String(filename||'');
- const p=/(?:^|[.\s_-])(?:partie?|volume|vol|chunk|cd)[\s._-]*0*([1-9]\d{0,2})(?=$|[.\s_-])/i.exec(name);
+ const p=/(?:^|[.\s_-])(?:part(?:ie)?|volume|vol|chunk|cd)[\s._-]*0*([1-9]\d{0,2})(?=$|[.\s_-])/i.exec(name);
  return p?{number:Number(p[1]),total:null,explicit:false}:
   {number:1,total:1,explicit:false};
 }
