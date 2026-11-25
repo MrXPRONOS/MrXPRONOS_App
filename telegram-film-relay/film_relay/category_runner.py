@@ -449,9 +449,12 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     )
                     state.stage(key, "poster", photo.id)
                     await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
-                video = await client.send_file(
-                    private, item.video.media, caption=rich_video_title(title),
-                    parse_mode="html",
+                from .private_media_contract import send_named_private_video
+                video = await send_named_private_video(
+                    client, private, item.video, title=title,
+                    caption=rich_video_title(title),
+                    private_cover_id=int(state.data["staged"][key]["poster"]),
+                    poster=item.poster, description=description,
                 )
                 state.stage(key, "video", video.id)
             private_video_id = int(state.data["staged"][key]["video"])
@@ -466,8 +469,11 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             verified_private_video = await client.get_messages(
                 private, ids=int(private_video_id))
-            if not verified_private_video:
-                raise RuntimeError("Vidéo privée absente avant copie publique.")
+            from .private_media_contract import renamed_receipt_matches
+            if not renamed_receipt_matches(
+                    item.video, verified_private_video, title=title,
+                    poster=item.poster, description=description):
+                raise RuntimeError("Vidéo privée sans vrai nom ou source vérifié.")
             public_video = await post_public_video_by_bot_copy(
                 client, bot, public, private, verified_private_video,
                 int(public_post.id), video_url, title, download_url=download_url,
