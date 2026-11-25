@@ -46,6 +46,25 @@ class CanaryTests(unittest.TestCase):
         self.assertEqual(sess.post.call_count,5)
         sess.patch.assert_called_once()
 
+
+    def test_recovery_uses_only_approved_github_id(self):
+        from unittest.mock import patch
+        import scripts.cinex_private_button_canary as c
+        destination="-100123456789"
+        session=Mock()
+        with patch.object(c,"EXPECTED_STOCK_SHA256",hashlib.sha256(destination.encode()).hexdigest()):
+            self.assertEqual(c.recover_owner_approved_stock(session,"token","",destination),destination)
+        session.post.assert_not_called()
+
+    def test_recovery_does_not_override_live_webhook(self):
+        import scripts.cinex_private_button_canary as c
+        session=Mock()
+        session.post.return_value=mock_result({"ok":True,"result":{"url":"https://example.org/hook"}})
+        with self.assertRaises(CanaryError):
+            c.recover_owner_approved_stock(session,"token","","")
+        self.assertEqual(session.post.call_count,1)
+        self.assertIn("getWebhookInfo",session.post.call_args.args[0])
+
     def test_duplicate_never_sends(self):
         from unittest.mock import patch
         import scripts.cinex_private_button_canary as canary

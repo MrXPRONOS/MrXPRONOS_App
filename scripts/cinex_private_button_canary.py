@@ -48,6 +48,31 @@ def _api(session, token, endpoint, payload):
     return obj.get("result")
 
 
+def recover_owner_approved_stock(session, token, explicit_id, alternative_id):
+    """Resolve only IDs matching the owner's pinned SHA; avoid Cloudflare D1 quota."""
+    for raw in (explicit_id,alternative_id):
+        candidate=str(raw or "").strip()
+        if re.fullmatch(r"-100[0-9]{5,}",candidate) and (
+            hashlib.sha256(candidate.encode()).hexdigest()==EXPECTED_STOCK_SHA256):
+            print("CANARY_PRIVATE_STOCK_RESOLVED source github")
+            return candidate
+    # Read-only Bot API update lookup without offset, pagination or altered allowed_updates.
+    # Never consume the update stream or change the webhook.
+    info=_api(session,token,"getWebhookInfo",{})
+    if isinstance(info,dict) and info.get("url"):
+        raise CanaryError("Owner-approved stock ID unavailable; webhook in use, getUpdates skipped")
+    updates=_api(session,token,"getUpdates",{"timeout":0,"limit":100})
+    for update in updates if isinstance(updates,list) else []:
+        for key in ("channel_post","edited_channel_post"):
+            chat=((update.get(key) or {}).get("chat") or {})
+            cid=str(chat.get("id") or "")
+            if re.fullmatch(r"-100[0-9]{5,}",cid) and (
+                hashlib.sha256(cid.encode()).hexdigest()==EXPECTED_STOCK_SHA256):
+                print("CANARY_PRIVATE_STOCK_RESOLVED source read_only_updates")
+                return cid
+    raise CanaryError("Stock privé approuvé introuvable sans D1; aucun envoi")
+
+
 def verify_private_destination(session, token, stock_id):
     if not re.fullmatch(r"-100[0-9]{5,}", stock_id or ""):
         raise CanaryError("Approved private stock ID is not configured")
@@ -110,10 +135,11 @@ def confirm_delivered(session, record, chat_id):
         raise CanaryError("Post delivered but ledger update failed")
 
 
-def run(session, *, phase, stock_id, bot_token, supabase_url, service_key):
+def run(session, *, phase, stock_id, bot_token, supabase_url, service_key, alternative_id=""):
     if phase not in TEXTS:
         raise CanaryError("Unknown test phase")
-    chat_id = verify_private_destination(session, bot_token, stock_id)
+    verified_id=recover_owner_approved_stock(session,bot_token,stock_id,alternative_id)
+    chat_id = verify_private_destination(session, bot_token, verified_id)
     record = reserve_once(session,supabase_url,service_key,chat_id,phase)
     # Important: do not retry if the HTTP response is lost; reservation remains.
     result=_api(session,bot_token,"sendMessage",{
@@ -148,6 +174,7 @@ def main():
     with requests.Session() as session:
         run(session,phase=args.phase,
             stock_id=os.getenv("CINEX_UNIFIED_PRIVATE_CHANNEL",""),
+            alternative_id=os.getenv("TG_PRIVATE_CHANNEL",""),
             bot_token=os.getenv("CINEX_RADAR_BOT_TOKEN",""),
             supabase_url=os.getenv("SUPABASE_URL",""),
             service_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY",""))
