@@ -723,7 +723,8 @@ def legacy_repair_completion(reports):
     totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
     totals["complete"] = (totals["unresolved"] == 0
                            and totals["errors"] == 0
-                           and totals["preflight_budget_exhausted"] == 0)
+                           and totals["preflight_budget_exhausted"] == 0
+                           and totals["central_quota_fallback"] == 0)
     return totals
 
 
