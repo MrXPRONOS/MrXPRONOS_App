@@ -93,3 +93,5 @@ jobs:
 # Retry after row_factory-independent snapshot integrity check.
 # Retry with safe reaction runtime diagnostics and preserved encrypted history.
 # Rerun to audit independent Telegram observer coverage safely.
+
+# Retry with authenticated three-channel Telegram allowlist.
