@@ -1,5 +1,6 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
 import {pruneTelegramQuota} from "./telegram-global-quota.mjs";
+import {markD1Maintenance,d1MaintenanceActive,maintenanceResponse,telegramMaintenanceReply} from "./quota-maintenance.mjs";
 import {queueKnownStockSources,processPrivateStockQueue} from "./private-stock.mjs";
 import {ingestManualChannelPost} from "./manual-fallback-inbox.mjs";
 import {serveShowcase} from "./poster-showcase.mjs";
@@ -96,6 +97,7 @@ async function receiveTelegram(request,env,ctx){
  if(Number(request.headers.get("content-length")||0)>750000)return new Response("Too large",{status:413});
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
+ if(d1MaintenanceActive())return telegramMaintenanceReply(update,telegram,env);
  try{
   if(update.channel_post||update.edited_channel_post){
    await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);await ingestManualChannelPost(env,update);return Response.json({ok:true});}
@@ -152,7 +154,11 @@ async function receiveTelegram(request,env,ctx){
    ctx?.waitUntil(initializeProfile(env).catch(e=>console.warn("bot_profile_bootstrap_failed",String(e).slice(0,130))));
   }
   return Response.json({ok:true});}
- catch(e){console.error("cine_radar_update_failed",String(e).slice(0,120));return new Response("Retry",{status:500});}
+ catch(e){
+  if(markD1Maintenance(e))return telegramMaintenanceReply(update,telegram,env);
+  console.error("cine_radar_update_failed",String(e).slice(0,120));
+  return new Response("Retry",{status:500});
+ }
 }
 function banner(){
  const svg=String.raw`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460" role="img" aria-labelledby="title"><title id="title">Ciné Radar, le cinéma à portée de clic</title><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111a39"/><stop offset=".65" stop-color="#263b76"/><stop offset="1" stop-color="#653fa4"/></linearGradient><radialGradient id="light"><stop stop-color="#8662fd" stop-opacity=".42"/><stop offset="1" stop-color="#8662fd" stop-opacity="0"/></radialGradient></defs><rect width="960" height="460" rx="25" fill="url(#bg)"/><circle cx="745" cy="160" r="255" fill="url(#light)"/><g fill="none" stroke="#adbcff" opacity=".15" stroke-width="24"><circle cx="770" cy="230" r="139"/><circle cx="770" cy="230" r="68"/></g><path d="M713 135l180 38-35 173-181-38z" fill="#3e71df" stroke="#c6d4ff" stroke-width="5"/><path d="M690 98l205 42-10 45-205-42z" fill="#101b39" stroke="#b9c8ff" stroke-width="5"/><path d="M715 105l-30 46m90-34-30 46m90-34-30 46" stroke="#f8fbff" stroke-width="15"/><path d="M737 204l89 44-89 52z" fill="#fff"/><text x="76" y="145" fill="#d6dfff" font-family="Arial, sans-serif" font-size="24" font-weight="bold" letter-spacing="6">DÉCOUVRE • EXPLORE</text><text x="70" y="251" fill="#fff" font-family="Arial, sans-serif" font-size="86" font-weight="bold">CINÉ RADAR</text><text x="77" y="311" fill="#d5dfff" font-family="Arial, sans-serif" font-size="30">Films  •  Séries  •  Animés</text><rect x="75" y="346" width="250" height="52" rx="26" fill="#437dfa"/><text x="118" y="381" fill="#fff" font-family="Arial, sans-serif" font-weight="bold" font-size="21">LE BON CANAL</text></svg>`;
@@ -281,7 +287,9 @@ export async function indexQualifiedChannels(env){
 
 export default {
  async fetch(request,env,ctx){
+  try{
   const u=new URL(request.url);
+  if(d1MaintenanceActive()&&u.pathname!=="/telegram")return maintenanceResponse(request);
   if(request.method==="GET"&&(u.pathname==="/app"||u.pathname==="/")){
    let html=APP_HTML;
    try{
@@ -291,6 +299,7 @@ export default {
      .replace(/[<>&\u2028\u2029]/g,c=>({"<":"\\u003c",">":"\\u003e","&":"\\u0026","\u2028":"\\u2028","\u2029":"\\u2029"}[c]));
     html=APP_HTML.replace("const PRELOADED_CATALOG=null;","const PRELOADED_CATALOG="+data+";");
    }catch(e){
+    if(markD1Maintenance(e))return maintenanceResponse(request);
     console.warn(JSON.stringify({event:"catalog_html_preload_fallback",error:String(e).slice(0,90)}));
     // The client still supports its original /api/catalog fetch.
    }
@@ -300,10 +309,15 @@ export default {
     const pins=JSON.stringify((await listPinned(env,{limit:24})).items)
      .replace(/[<>&\u2028\u2029]/g,c=>({"<":"\\u003c",">":"\\u003e","&":"\\u0026","\u2028":"\\u2028","\u2029":"\\u2029"}[c]));
     html=html.replace("const PRELOADED_PINS=null;","const PRELOADED_PINS="+pins+";");
-   }catch(e){console.warn("pin_html_preload_fallback",String(e).slice(0,80));}
+   }catch(e){
+    if(markD1Maintenance(e))return maintenanceResponse(request);
+    console.warn("pin_html_preload_fallback",String(e).slice(0,80));
+   }
    return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me https://image.tmdb.org https://s4.anilist.co https://static.tvmaze.com https://m.media-amazon.com https://images-na.ssl-images-amazon.com; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&u.pathname==="/admin"){
+   // Detect D1 exhaustion instead of displaying an unusable admin shell.
+   await env.DB.prepare("SELECT 1 AS maintenance_probe").first();
    return new Response(ADMIN_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'"}});
   }
   if(u.pathname==="/api/partner-promos")return servePartnerCards(request);
@@ -484,6 +498,10 @@ export default {
    return Response.json(status,{headers:{"cache-control":"no-store"}});
   }
   return new Response("Not found",{status:404});
+  }catch(error){
+   if(markD1Maintenance(error))return maintenanceResponse(request);
+   throw error;
+  }
  },
  async scheduled(controller,env,ctx){
   if(controller.cron==="* * * * *")ctx.waitUntil((async()=>{
