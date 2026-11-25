@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import time
 from urllib.error import HTTPError, URLError
@@ -88,33 +89,58 @@ def read_health(probe):
 
 
 def http_probe(url):
-    request = Request(url, headers={"Cache-Control": "no-cache", "User-Agent": "CineRadar-GitHub-Standby/1.0"})
+    # Match the same curl transport used by the proven production deployment.
+    # urllib on hosted CI has occasionally received bot-protection responses.
     try:
-        with urlopen(request, timeout=13) as response:
-            status = response.status
-            content_type = response.headers.get("Content-Type", "")
-            data = {}
-            if url.endswith("/health") and status == 200:
-                data = json.loads(response.read(20000).decode("utf-8"))
-            return {"status": status, "type": content_type, "json": data}
-    except (HTTPError, URLError, TimeoutError, ValueError):
+        output = subprocess.run([
+            "curl", "--silent", "--show-error", "--location", "--max-time", "12",
+            "--header", "Cache-Control: no-cache", "--user-agent", "curl/8.0",
+            "--write-out", "\\n%{http_code}|%{content_type}", url,
+        ], capture_output=True, text=True, timeout=16, check=False)
+        body, separator, meta = output.stdout.rpartition("\\n")
+        if not separator:
+            return {"status": 0, "type": "", "json": {}}
+        code, content_type = meta.split("|", 1)
+        status = int(code)
+        parsed = json.loads(body) if url.endswith("/health") and status == 200 else {}
+        return {"status": status, "type": content_type, "json": parsed}
+    except (OSError, ValueError, subprocess.TimeoutExpired, json.JSONDecodeError):
         return {"status": 0, "type": "", "json": {}}
 
 
 def checked_health(probe=http_probe):
-    # Two checks prevent reacting to a single transient network timeout.
-    first = read_health(probe)
-    if not first:
-        time.sleep(1)
-    second = read_health(probe)
-    return first and second
+    # Two checks; distinguish a confirmed HTTP 5xx quota/service failure from
+    # uncertain 0/403 statuses (CI networking, Bot Management, TLS, etc.).
+    samples = []
+    for round_id in range(2):
+        health = probe(BASE + "/health")
+        app = probe(APP)
+        statuses = (health.get("status"), app.get("status"))
+        healthy = (
+            health.get("status") == 200
+            and isinstance(health.get("json"), dict)
+            and health["json"].get("service") == "cine-radar"
+            and health["json"].get("database") is True
+            and app.get("status") == 200
+            and str(app.get("type") or "").startswith("text/html")
+        )
+        definitely_down = any(isinstance(code, int) and 500 <= code <= 599 for code in statuses)
+        samples.append((healthy, definitely_down))
+        print("CINERADAR_STANDBY_HTTP_%d health=%s app=%s" % (round_id + 1, statuses[0], statuses[1]))
+        if round_id == 0:
+            time.sleep(1)
+    if all(result[0] for result in samples):
+        return True
+    if all(result[1] for result in samples):
+        return False
+    return None
 
 
 def menu_url(info):
     if not isinstance(info, dict) or info.get("type") != "web_app":
         return ""
     web = info.get("web_app")
-    return str(web.get("url") or "") if isinstance(web, dict) else ""
+    return str(web.get("url") or "").rstrip("/") if isinstance(web, dict) else ""
 
 
 def menu_payload(destination):
@@ -127,17 +153,22 @@ def menu_payload(destination):
 def reconcile(token, healthy, api=telegram_api):
     current = api(token, "getChatMenuButton", {})
     active = menu_url(current)
-    if active not in (APP, STANDBY):
+    if active not in (APP, STANDBY.rstrip("/")):
         raise RuntimeError("Bot default menu is customized; refusing to modify it")
 
     target = APP if healthy else STANDBY
     changed_menu = False
     changed_description = False
-    if active != target:
+    if active != target.rstrip("/"):
         api(token, "setChatMenuButton", menu_payload(target))
-        confirmed = api(token, "getChatMenuButton", {})
-        if menu_url(confirmed) != target:
-            raise RuntimeError("Bot menu update could not be verified")
+        for attempt in range(3):
+            time.sleep(1 if attempt == 0 else 2)
+            confirmed = api(token, "getChatMenuButton", {})
+            if menu_url(confirmed) == target.rstrip("/"):
+                break
+        else:
+            # Only emit the public Telegram menu *type*, never a secret.
+            raise RuntimeError("Bot menu update could not be verified: type=" + str(confirmed.get("type", "unknown"))[:20])
         changed_menu = True
 
     # Only modify known CineRadar profile descriptions; preserve customization.
@@ -159,6 +190,9 @@ def main():
     token = select_active_bot(os.environ)
     healthy = checked_health()
     print("CINERADAR_STANDBY_REAL_HEALTH="+str(healthy).lower())
+    if healthy is None:
+        print("CINERADAR_STANDBY_SKIPPED reason=unconfirmed_outage")
+        return
     result = reconcile(token, healthy)
     # Output no tokens, usernames, chat IDs, or private data.
     print("CINERADAR_GITHUB_STANDBY_OK " +
