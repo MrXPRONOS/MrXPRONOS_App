@@ -228,6 +228,7 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
         compatible, poster_identity, video_identity, find_legacy_poster, multipart_identity,
     )
     from .legacy_neighbor_matching import find_neighbor_pair
+    from .legacy_archive_repair import private_cover_links_verified
     ident = video_identity(video, category)
     nearby = find_neighbor_pair(video, messages, category) if messages is not None else None
     if not ident.safe and nearby:
@@ -283,8 +284,8 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
                         and (getattr(private_poster, "raw_text", "") or "").strip()
                         and compatible(part or ident, proof) >= 0.95
                         and (not part or proof.part == part.part)
-                        and has_verified_button(private_poster, rescue_url)
-                        and has_verified_button(private_poster, folder_url)):
+                        and private_cover_links_verified(
+                            private_poster, public=public, rescue_url=rescue_url)):
                     matches += 1
                     break
         if matches == 1:
