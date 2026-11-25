@@ -36,6 +36,45 @@ def original_filename(media) -> str:
     return ""
 
 
+
+_PART = re.compile(
+    r"(?i)(?<![a-z0-9])(?:part(?:ie)?|pt)[ ._\-]*(0?[1-9]|10)(?!\d)"
+)
+_EPISODE = re.compile(
+    r"(?i)(?<![a-z0-9])s([0-9]{1,2})[ ._\-]*e([0-9]{1,3})(?!\d)"
+)
+
+
+def _explicit_part_and_episode(media, chosen: str) -> str:
+    """Append explicit source part/episode when a cover gives only the base name.
+
+    Never infer a part from ordering. Refuse contradictory source filenames and
+    captions (e.g. filename Partie 2, caption Partie 1) rather than overwrite
+    two distinct files under the same title.
+    """
+    filename = PurePath(original_filename(media)).stem
+    caption = str(getattr(media, "raw_text", "") or "")
+    evidence = (filename, caption)
+    chosen_out = chosen
+    for pattern, label in ((_EPISODE, "episode"), (_PART, "part")):
+        markers = []
+        for value in evidence:
+            match = pattern.search(value)
+            if match:
+                markers.append(tuple(int(part) for part in match.groups()))
+        if len(set(markers)) > 1:
+            raise RuntimeError(f"Contradiction entre les numéros de {label} du fichier source")
+        expected = markers[0] if markers else None
+        named = pattern.search(chosen_out)
+        current = tuple(int(part) for part in named.groups()) if named else None
+        if expected and current and current != expected:
+            raise RuntimeError(f"Numéro de {label} de l'affiche différent du fichier source")
+        if expected and not current:
+            suffix = (f"S{expected[0]:02d}E{expected[1]:02d}"
+                      if label == "episode" else f"Partie {expected[0]}")
+            chosen_out = (chosen_out + " " + suffix).strip()
+    return chosen_out
+
 def filename_for(media, *, title: str, poster=None, description: str = "") -> str:
     """Keep an explicit season / episode / part number, never fabricate it."""
     from .title_guard import filename_title
@@ -54,6 +93,7 @@ def filename_for(media, *, title: str, poster=None, description: str = "") -> st
         candidate = filename_title(name) if name else ""
         chosen = candidate or ""
     chosen = unicodedata.normalize("NFKC", chosen).strip()
+    chosen = _explicit_part_and_episode(media, chosen)
     chosen = CONTROL.sub(" ", chosen)
     chosen = re.sub(r"\s+", " ", chosen).strip(" ._-")
     if len(chosen) < 3 or GENERIC.fullmatch(chosen):
