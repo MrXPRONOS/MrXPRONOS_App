@@ -148,6 +148,26 @@ test('formation copies numbered parts through verified technical stage to destin
  await f.publisher.copyCourse(training);
  assert.equal(f.calls.length,6);
 });
+test('one shared private Formation inbox may also be the technical staging channel',async()=>{
+ const f=fixtures();
+ f.publisher.stage=src;
+ const item={
+  category:'formation_business',key:'formation_business:commerce2026',
+  source_chat_id:src,poster_message_id:1000,author:'Organisme autorisé',
+  parts:[{number:1,message_id:1001,file_unique_id:'file-one'},
+         {number:2,message_id:1002,file_unique_id:'file-two'}]
+ };
+ await f.publisher.copyCourse(item);
+ assert.equal(f.calls.length,3);
+ const rows=f.sqlite.prepare(
+  "SELECT stage,target_chat_id,target_message_id FROM cine_manual_fallback_receipts"
+ ).all();
+ assert.equal(rows.filter(x=>x.stage==='formation_file').length,4);
+ assert.ok(rows.some(x=>x.target_message_id===1001));
+ await f.publisher.copyCourse(item);
+ assert.equal(f.calls.length,3);
+});
+
 test('publisher refuses missing CineRadar source/stock identity before Telegram sends',async()=>{
  const f=fixtures();
  f.publisher.radarBot=null;
