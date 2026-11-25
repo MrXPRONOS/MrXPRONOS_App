@@ -5,6 +5,9 @@ on:
       - 'telegram_scheduler/**'
       - 'tests/test_telegram_scheduler_v1.py'
       - 'tests/test_telegram_scheduler_manifest.py'
+      - 'tests/test_telegram_bot_buttons_daily.py'
+      - 'scripts/telegram_bot_buttons_daily.py'
+      - '.github/workflows/telegram-bot-buttons-daily.yml'
       - '.github/workflows/telegram-smart-scheduler-offline.yml'
   workflow_dispatch:
 permissions:
@@ -22,14 +25,6 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -p test_telegram_scheduler_v1.py -v
       - run: python -m unittest discover -s tests -p test_telegram_scheduler_manifest.py -v
-      - run: python -m compileall -q telegram_scheduler scripts/telegram_scheduler_manifest.py scripts/telegram_weekly_promotions.py
-      - name: Preview real approved weekly assets without any Telegram credentials
-        env:
-          TELEGRAM_CHAT_ID: '-1001001'
-          TELEGRAM_CHAT_ID_SECONDARY: '-1001002'
-          TELEGRAM_APPROVED_DAY_PROMOS: 'melbet-royal-monday.jpg,linebet-lucky-monday.jpg,betwinner-recharge-monday.jpg,1xbet-x2-wednesday.jpg,melbet-fast-games-wednesday.jpg,betwinner-thursday-bonus.jpg,1xbet-lucky-friday.jpg'
-          TELEGRAM_APPROVED_BONUS_BOOKMAKERS: 'melbet,betwinner,1xbet,linebet,1win,betclic'
-          TELEGRAM_APPROVED_GUIDE_BOOKMAKERS: 'melbet,betwinner,1xbet,linebet,1win,betclic'
-        run: |
-          python -m pip install --disable-pip-version-check --quiet 'Pillow==11.3.0' 'requests==2.32.5'
-          python scripts/telegram_weekly_promotions.py --dry-run
+      - run: python -m compileall -q telegram_scheduler scripts/telegram_scheduler_manifest.py scripts/telegram_bot_buttons_daily.py
+      - run: python -m pip install --disable-pip-version-check --quiet 'Pillow==11.3.0' 'requests==2.32.5'
+      - run: python -m unittest discover -s tests -p test_telegram_bot_buttons_daily.py -v

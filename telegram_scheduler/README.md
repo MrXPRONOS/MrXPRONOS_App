@@ -29,3 +29,8 @@ python scripts/telegram_scheduler_manifest.py --manifest /tmp/approved_posts.jso
 Publication explicite, lorsque tous les prérequis sont en place : `python scripts/telegram_scheduler_manifest.py --manifest /tmp/approved_posts.json --execute`. Une publication comporte : `peer` (ID numérique marqué -100...), `at` (UTC ISO), `key` stable, `kind` (text/image/video/document), `text`, `file` chemin local sous la racine de travail (si média) et `parse_mode` (null/html). Aucune programmation n'est permise sans manifeste valide, autorisation des destinations et `TG_SCHEDULER_ENABLED=1`.
 
 Les systèmes existants de publications ne sont PAS encore branchés à cet adaptateur. Le code de migration n'ajoute aucun vieux cron de publication et ne désactive aucun système sans relève. Un compte utilisateur MTProto n'est pas un bot et les claviers inline bot ne sont pas conservés automatiquement.
+
+
+## Boutons obligatoires
+
+Les promotions avec boutons ont été sorties de la programmation native. Le nouveau `telegram-bot-buttons-daily.yml` utilise les scripts de bots existants et conserve leurs `inline_keyboard`. Les workflows Cine Radar, e-book/dossier, vidéos de pronostics et CineX conservent leurs publications Bot API existantes, sans migration vers la file native. Voir `telegram_scheduler/BUTTONS.md`. Tout manifeste natif contenant des boutons doit être refusé plutôt que dégradé en liens texte.
