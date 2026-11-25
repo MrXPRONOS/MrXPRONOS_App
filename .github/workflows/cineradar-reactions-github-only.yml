@@ -10,6 +10,7 @@ on:
       - 'scripts/cineradar_reactions_github_only.py'
       - 'scripts/cineradar_reaction_store.py'
       - 'scripts/cineradar_reaction_core.py'
+      - 'scripts/cineradar_reaction_multichannel.py'
       - 'scripts/cineradar_reaction_coverage_github.py'
       - '.github/workflows/cineradar-reactions-github-only.yml'
   pull_request:
@@ -17,8 +18,10 @@ on:
       - 'scripts/cineradar_reactions_github_only.py'
       - 'scripts/cineradar_reaction_store.py'
       - 'scripts/cineradar_reaction_core.py'
+      - 'scripts/cineradar_reaction_multichannel.py'
       - 'scripts/cineradar_import_reaction_history.py'
       - 'tests/test_cineradar_reaction_store.py'
+      - 'tests/test_cineradar_multichannel_reactions.py'
       - '.github/workflows/cineradar-reactions-github-only.yml'
 
 permissions:
@@ -40,14 +43,15 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install 'cryptography>=43,<47' requests
       - run: |
-          python -m py_compile scripts/cineradar_reaction_store.py scripts/cineradar_reaction_core.py scripts/cineradar_reactions_github_only.py scripts/cineradar_reaction_coverage_github.py scripts/cineradar_import_reaction_history.py
+          python -m py_compile scripts/cineradar_reaction_store.py scripts/cineradar_reaction_core.py scripts/cineradar_reaction_multichannel.py scripts/cineradar_reactions_github_only.py scripts/cineradar_reaction_coverage_github.py scripts/cineradar_import_reaction_history.py
           python -m unittest discover -s tests -p 'test_cineradar_reaction_store.py' -v
+          python -m unittest discover -s tests -p 'test_cineradar_multichannel_reactions.py' -v
 
   react:
     needs: offline_tests
     if: ${{ always() && (needs.offline_tests.result == 'success' || needs.offline_tests.result == 'skipped') && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 14
     env:
       GITHUB_TOKEN: ${{ github.token }}
       ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
@@ -162,6 +166,17 @@ jobs:
       TELEGRAM_REACTION_BOT_97_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_97_TOKEN }}
       TELEGRAM_REACTION_BOT_98_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_98_TOKEN }}
       TELEGRAM_REACTION_BOT_99_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_99_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN }}
+      CINEX_UNIFIED_BOT_TOKEN: ${{ secrets.CINEX_UNIFIED_BOT_TOKEN }}
+      CINEX_PRIVATE_STOCK_BOT_TOKEN: ${{ secrets.CINEX_PRIVATE_STOCK_BOT_TOKEN }}
       TELEGRAM_REACTION_BOTS_JSON: ${{ secrets.TELEGRAM_REACTION_BOTS_JSON }}
     steps:
       - uses: actions/checkout@v4
@@ -172,7 +187,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install 'cryptography>=43,<47' requests
       - name: Telegram reactions from encrypted GitHub state (no Cloudflare access)
-        run: python -m scripts.cineradar_reactions_github_only
-      - name: Audit all historical and official Telegram channel coverage (read-only)
-        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+        run: python -m scripts.cineradar_reaction_multichannel
+      - name: Audit historic channel membership and Telegram observer eligibility (read-only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: python -m scripts.cineradar_reaction_coverage_github
