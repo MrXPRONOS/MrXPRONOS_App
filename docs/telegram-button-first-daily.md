@@ -19,3 +19,12 @@ Other essential-button publishers already in production remain unchanged: `scrip
 No daily buttons workflow should be enabled until all applicable legacy schedules (including cron-job.org) are audited. This migration does not edit cron-job.org directly: the four old workflow runs are skipped when the gate switches, but cron-job.org may still cause no-op GitHub dispatches. The bot-only workflow uses a separate concurrency group; the 30-minute personal account cooldown applies only to MTProto account sessions, not Telegram Bot API calls. The four publication slots themselves have 30-minute start separation.
 
 All native Telegram manifest scheduling remains for **button-free posts only**. The draft weekly native promotional workflow and its text-link substitutions have been removed to enforce this policy.
+
+
+## Production activation 2026-11-25
+
+After the read-only preflight succeeds with the current production bot and both explicitly configured channels, the new daily workflow becomes active by default on `main`. The four legacy promotion jobs stop at their job-level gate, even if cron-job.org keeps dispatching their old workflow files. No promo is sent without a live preflight (bot identity, two channel admin rights, Supabase ledger, complete button templates).
+
+Emergency rollback without a code change: create/update GitHub Actions repository variable `TG_BOT_BUTTONS_DAILY_ENABLED=false`. That stops the centralized daily workflow and re-enables the four legacy workflows. To restore new production system set it to `true` or remove the variable. **Don't set it to false casually** since cron-job.org legacy schedules would resume. The database campaign/day/channel ledger remains shared in either mode.
+
+Approval allowlists are authoritative: `TELEGRAM_APPROVED_DAY_PROMOS`, `TELEGRAM_APPROVED_BONUS_BOOKMAKERS`, `TELEGRAM_APPROVED_GUIDE_BOOKMAKERS`. Non-approved campaigns are skipped rather than sent. Saturday/Sunday have no day-specific promo and Sunday has no separate guide. GitHub scheduled triggers can be delayed; monitor runs for missing hours and inspect recipient channel content. Do not manually retry an ambiguous Telegram network send without ledger reconciliation.

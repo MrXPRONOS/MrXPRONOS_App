@@ -30,8 +30,8 @@ concurrency:
 
 jobs:
   send:
-    # Legacy dispatches from cron-job.org are no-ops after central bot activation.
-    if: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED != 'true' }}
+    # Production cutover: no-op unless emergency rollback var=false.
+    if: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED == 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Journaliser la source

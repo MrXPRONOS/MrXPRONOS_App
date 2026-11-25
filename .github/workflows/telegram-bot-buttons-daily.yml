@@ -27,9 +27,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   buttons-only:
-    # Off by default. When activated, each legacy cron-job.org dispatch is skipped
-    # by the matching legacy workflow's job gate.
-    if: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
+    # Enabled in production by default; set TG_BOT_BUTTONS_DAILY_ENABLED=false to roll back.
+    # All legacy jobs use the inverse gate (only enabled after rollback).
+    if: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED != 'false' || github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
     runs-on: ubuntu-latest
     timeout-minutes: 28
     steps:
@@ -48,7 +48,7 @@ jobs:
           MANUAL_CAMPAIGN: ${{ inputs.campaign }}
           MANUAL_MODE: ${{ inputs.mode }}
           EVENT_NAME: ${{ github.event_name }}
-          TG_BOT_BUTTONS_DAILY_ENABLED: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED }}
+          TG_BOT_BUTTONS_DAILY_ENABLED: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED == 'false' && 'false' || 'true' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
@@ -62,9 +62,11 @@ jobs:
           set -euo pipefail
           if [[ "$EVENT_NAME" == 'schedule' ]]; then
             test "$TG_BOT_BUTTONS_DAILY_ENABLED" = 'true'
+            python scripts/telegram_bot_promotions_preflight.py
             python scripts/telegram_bot_buttons_daily.py --schedule "$TRIGGER_CRON" --execute
           elif [[ "$MANUAL_MODE" == 'execute' ]]; then
             test "$TG_BOT_BUTTONS_DAILY_ENABLED" = 'true'
+            python scripts/telegram_bot_promotions_preflight.py
             python scripts/telegram_bot_buttons_daily.py --campaign "$MANUAL_CAMPAIGN" --execute
           else
             python scripts/telegram_bot_buttons_daily.py --campaign "$MANUAL_CAMPAIGN"
