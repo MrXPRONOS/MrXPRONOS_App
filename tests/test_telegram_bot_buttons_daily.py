@@ -44,6 +44,35 @@ class TestBotButtonDaily(unittest.TestCase):
             self.assertEqual(main(["--campaign","xpvip"]),0)
             send.assert_not_called()
 
+
+    def test_telegram_rich_fallback_keeps_actual_keyboard(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import Mock
+        from scripts import telegram_bot_buttons_daily as dispatch
+        from telegram_rich import post_photo
+        with tempfile.TemporaryDirectory() as d:
+            image = Path(d) / "button-photo.jpg"
+            image.write_bytes(b"safe-offline-fixture")
+            rich = Mock(status_code=404)
+            rich.json.return_value = {"ok": False, "error_code": 404}
+            legacy = Mock(status_code=200)
+            legacy.json.return_value = {"ok": True, "result": {"message_id": 42}}
+            legacy.raise_for_status.return_value = None
+            session = Mock()
+            session.post.side_effect = [rich, legacy]
+            keyboard = {"inline_keyboard": [[{"text": "Voir le lien", "url": "https://t.me/CineRadarFr_Bot"}]]}
+            self.assertEqual(post_photo(session, "sample", -1001, image,
+                       "<b>Caption</b>", keyboard, mime="image/jpeg"), 42)
+            self.assertEqual(session.post.call_count, 2)
+            first = session.post.call_args_list[0]
+            second = session.post.call_args_list[1]
+            self.assertIn("sendRichMessage", first.args[0])
+            self.assertIn("tg-button", json.loads(first.kwargs["data"]["rich_message"])["html"])
+            self.assertIn("sendPhoto", second.args[0])
+            self.assertEqual(json.loads(second.kwargs["data"]["reply_markup"]), keyboard)
+
     def test_execute_requires_feature_gate(self):
         with patch.dict(os.environ,{"TG_BOT_BUTTONS_DAILY_ENABLED":"false"}), patch(
             "scripts.telegram_bot_buttons_daily.subprocess.run"
