@@ -95,7 +95,7 @@ test('GET pinned gallery reads only D1 and never makes extra Telegram getChat re
 test('Telegram webhook is immediate; existing six-hour cron reconciles pins only at UTC 00 and 12',()=>{
  assert.ok(worker.includes('if(update.channel_post||update.edited_channel_post){'));
  assert.ok(worker.includes('await ingestPinUpdate(env,update);'));
- assert.ok(worker.includes('await observeChannelPublication(env,update.channel_post);'));
+ assert.ok(!worker.includes('observeChannelPublication'),'Reaction observation now belongs exclusively to GitHub');
  assert.ok(!worker.includes('processReactionQueue'));
  assert.ok(!worker.includes('enqueueChannelReactions'));
  assert.ok(!worker.includes('setMessageReaction'));
