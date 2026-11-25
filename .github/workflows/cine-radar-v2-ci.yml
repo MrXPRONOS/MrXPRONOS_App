@@ -102,6 +102,8 @@ jobs:
           node --check cinecanaux/formation-private-classifier.mjs
           node --test cinecanaux/tests/formation-private-classifier.test.mjs
           node --test cinecanaux/tests/formation-shared-inbox.test.mjs
+          node --check cinecanaux/formation-shared-readiness.mjs
+          node --test cinecanaux/tests/formation-shared-readiness.test.mjs
           node --check cinecanaux/manual-fallback-planner.mjs
           node --test cinecanaux/tests/manual-fallback-planner.test.mjs
           node --check cinecanaux/manual-fallback-journal.mjs
