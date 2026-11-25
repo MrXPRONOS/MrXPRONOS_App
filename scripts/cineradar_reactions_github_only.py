@@ -30,7 +30,7 @@ def allowed_channels(db, env):
 
 
 def observe(db, env, cursor, transport=reactions._request_json):
-    token = str(env.get("CINERADAR_REACTION_OBSERVER_TOKEN", "")).strip()
+    token = str(env.get("CINERADAR_REACTION_OBSERVER_TOKEN", "") or env.get("TELEGRAM_REACTION_BOT_03_TOKEN", "")).strip()
     if not token:
         raise RuntimeError("No dedicated GitHub reaction observer token configured")
     code, identity = reactions.telegram_call(token, "getMe", {}, transport)
@@ -42,6 +42,14 @@ def observe(db, env, cursor, transport=reactions._request_json):
     allowed = allowed_channels(db, env)
     if not allowed:
         raise RuntimeError("No approved channel IDs present in imported snapshot")
+    observer_id = (identity.get("result") or {}).get("id")
+    for channel in sorted(allowed):
+        code, result = reactions.telegram_call(token, "getChatMember", {
+            "chat_id": channel, "user_id": observer_id,
+        }, transport)
+        role = (result.get("result") or {}).get("status")
+        if code != 200 or result.get("ok") is not True or role not in ("administrator", "creator"):
+            raise RuntimeError("GitHub observer lacks administrator access to a configured channel")
     params = {"limit": 100, "timeout": 0, "allowed_updates": ["channel_post"]}
     if cursor is not None:
         params["offset"] = int(cursor)
@@ -118,13 +126,18 @@ def main(env=None):
     before = db.connection.total_changes
     try:
         new_cursor, observed = observe(db, env, cursor)
-        delivered = dispatch(db, env)
         if new_cursor != cursor or db.connection.total_changes != before:
+            sha = save(vault, db, new_cursor, sha)
+            # The first commit must precede Telegram side effects. The GitHub
+            # snapshot remains the sole source of truth on a later retry.
+        after_observe = db.connection.total_changes
+        delivered = dispatch(db, env)
+        if db.connection.total_changes != after_observe:
             save(vault, db, new_cursor, sha)
         print(f"reaction_observed={observed} delivered={delivered} cursor_advanced={new_cursor != cursor}")
         return 0
     except Exception as exc:
-        # Do not persist newly observed posts if sending failed; retries are possible.
+        # Persisted observations remain recoverable; Telegram reactions are idempotent.
         print("REACTIONS_GITHUB_ONLY_ERROR:", type(exc).__name__, file=sys.stderr)
         return 1
     finally:
