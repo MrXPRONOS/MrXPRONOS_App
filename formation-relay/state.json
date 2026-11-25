@@ -1,5 +1,19 @@
 {
-  "active": null,
+  "active": {
+    "cat": "digitale",
+    "cid": "6383018e6b0c0be9c43abd4d202298a072e9ad1a950cd277980ca86b5733d7e5",
+    "marks": [
+      "0090272a50b33992dd2795aa9e338b1a6181b7171d92ca91b350fd26c2f6fc8d",
+      "43bf5ec8294e1e76b0f651f6da720a3f126f963c0a0e6387e7f7443d4a1045d8",
+      "5b35c6407ffa0585c186ab797e1aed0761f392f9ec83ac0c6e38188963f85278",
+      "76c8b410909847b78dabc931261f7c0bbbdf82a587bdaf6c3bbd68ed71c0b4f5",
+      "afa223e09311a73febd5314a80926be08f823bdb63eb22b6812208bad5925ce8",
+      "bfbfeee46cf0831cd9a9d0ccad5fed333b5e2c2d7ea690e0df284f805048f556",
+      "c22099c6c91b6df5a374a1676688da4cfb15d9a832a9786557f530f0d639a41b"
+    ],
+    "next": 0,
+    "pending": null
+  },
   "cooldown": 0,
   "done": {
     "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
