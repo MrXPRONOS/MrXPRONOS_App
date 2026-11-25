@@ -73,7 +73,7 @@ jobs:
           if [ "$status" = '200' ]; then
             node -e "let j=require('/tmp/cineradar-health.json');if(j.service!=='cine-radar')process.exit(1)"
           elif [ "$status" = '503' ]; then
-            node -e "let j=require('/tmp/cineradar-health.json');if(j.code!=='D1_QUOTA_MAINTENANCE'||!j.maintenance)process.exit(1)"
+            node -e "let j=require('/tmp/cineradar-health.json');if(j.code!=='SERVICE_MAINTENANCE'||!j.maintenance)process.exit(1)"
           else
             echo "::error::Unexpected CineRadar health status: $status"
             exit 1
