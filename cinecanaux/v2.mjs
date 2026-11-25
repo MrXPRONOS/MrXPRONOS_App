@@ -1,3 +1,4 @@
+import {markD1Maintenance,maintenanceResponse} from "./quota-maintenance.mjs";
 // Cine Radar V2 — public channel directory, search, quality feedback, and link checks.
 // Requires cinecanaux/migrations/001_v2.sql. No media is copied or redistributed.
 const CORS={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
@@ -263,7 +264,10 @@ export async function v2API(env,request){
    // Store aggregated category demand only; never store the search text or user identity.
    const category=(types.split(',').filter(t=>TYPES.has(t)).sort().join('+')||'all').slice(0,50);
    try{await env.DB.prepare("INSERT INTO search_daily_stats(date_utc,category,searches,empty_results) VALUES(date('now'),?,1,?) ON CONFLICT(date_utc,category) DO UPDATE SET searches=searches+1,empty_results=empty_results+excluded.empty_results").bind(category,result.total===0?1:0).run();}
-   catch(e){console.warn('search_metric_unavailable',String(e).slice(0,60));}
+   catch(e){
+    if(markD1Maintenance(e))return maintenanceResponse(request);
+    console.warn('search_metric_unavailable',String(e).slice(0,60));
+   }
   }
   return json(result);
  }
@@ -277,6 +281,10 @@ export async function v2API(env,request){
   if(path==='/api/reports'){const data=await bodyJson(request);if(!Number.isSafeInteger(Number(data.channel_id)))return json({error:'ID invalide'},400);const clone=new Request(request.url,{method:'POST',headers:request.headers,body:JSON.stringify(data)});return postReport(clone,env,Number(data.channel_id),uid);}
   if(path==='/api/suggestions')return postSuggestion(request,env,uid);
   return json({error:'Route inconnue'},404);
- }catch(e){console.error('v2_api_failed',String(e).slice(0,100));return json({error:'Requête invalide'},400);}
+ }catch(e){
+   if(markD1Maintenance(e))return maintenanceResponse(request);
+   console.error('v2_api_failed',String(e).slice(0,100));
+   return json({error:'Requête invalide'},400);
+  }
 }
 export {getCatalog,linkUsername};
