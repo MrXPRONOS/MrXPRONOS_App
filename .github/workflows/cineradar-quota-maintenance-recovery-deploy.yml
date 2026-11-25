@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: \${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy only after successful offline checks
         working-directory: cinecanaux
         env:
-          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
         run: |
           set -euo pipefail
