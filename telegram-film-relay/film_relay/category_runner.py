@@ -413,7 +413,10 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     private_limit=110, public_limit=110,
                 )
                 doc_id = getattr(getattr(item.video, "document", None), "id", None)
-                prior = cache.by_document.get(doc_id, []) if doc_id else []
+                from .private_media_contract import marker_for
+                prior = ((cache.by_document.get(doc_id, []) or
+                          cache.by_source_marker.get(marker_for(item.video), []))
+                         if doc_id else [])
                 if prior:
                     saved_video = int(prior[0])
                     prior_status = existing_public_v4_status(cache, saved_video)
