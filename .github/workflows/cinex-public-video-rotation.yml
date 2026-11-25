@@ -96,6 +96,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
       - name: Tester les associations de films historiques et multiparties
         run: python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Tester le contrat de rattrapage automatique
+        run: python -m unittest discover -s tests -p 'test_scheduled_archive_workflow.py' -v
       - name: Vérifier la syntaxe avant l'archivage
         run: python -m compileall -q film_relay
       - name: Tester le contrôle de couverture sans réseau
@@ -117,8 +119,11 @@ jobs:
         id: rescue_links
         continue-on-error: true
         run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
-      - name: Rattraper les archives anciennes (aucune suppression)
-        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.repair == true) || github.event_name == 'push' || (github.event_name == 'schedule' && vars.CINEX_LEGACY_REPAIR_ENABLED == 'true') }}
+      # Every scheduled run first repairs real private media+cover pairs before
+      # the ten-video cleanup. Previously a missing optional GitHub variable
+      # silently skipped this stage for all cron executions.
+      - name: Rattraper les archives anciennes avant la rotation (automatique)
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.repair == true) }}
         env:
           RUN_REPAIR_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' }}
         shell: bash
@@ -127,8 +132,12 @@ jobs:
             echo "::error::Réparation réelle refusée : vérifier les trois autorisations CinéX."
             exit 1
           fi
-          python -m film_relay.legacy_archive_repair --apply --max-repaired 2
-      - name: Analyser puis archiver
+          # Four verified archive+poster pairs per configured channel and run;
+          # no unmatched-media deletion and no guessed pairing.
+          python -m film_relay.legacy_archive_repair --apply --max-repaired 4
+      # Re-verify the private copy and its original cover before every
+      # deletion. This stage NEVER enables --purge-unmatched on cron.
+      - name: Supprimer uniquement les anciennes vidéos archivées et vérifiées
         env:
           CINEX_MANUAL_PURGE_REQUEST: ${{ github.event_name == 'workflow_dispatch' && inputs.apply == true && inputs.purge_unmatched == true }}
           RUN_APPLY: ${{ vars.CINEX_ARCHIVE_ENABLED == 'true' && vars.CINEX_ARCHIVE_DELETE_APPROVED == 'true' && vars.CINEX_RIGHTS_VERIFIED == 'true' && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' && inputs.apply) }}
