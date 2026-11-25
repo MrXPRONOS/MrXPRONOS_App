@@ -22,7 +22,7 @@ class TestBotButtonDaily(unittest.TestCase):
                      "telegram-daily-bookmaker-bonus-ads.yml",
                      "telegram-daily-bookmaker-guide.yml"):
             source=(root/".github"/"workflows"/name).read_text(encoding="utf8")
-            self.assertIn("vars.TG_BOT_BUTTONS_DAILY_ENABLED != 'true'",source)
+            self.assertIn("vars.TG_BOT_BUTTONS_DAILY_ENABLED == 'false'",source)
 
     def test_new_workflow_has_four_dedicated_slots(self):
         from pathlib import Path
@@ -30,7 +30,15 @@ class TestBotButtonDaily(unittest.TestCase):
         source=(root/".github"/"workflows"/"telegram-bot-buttons-daily.yml").read_text(encoding="utf8")
         for slot in SLOTS:
             self.assertIn("cron: '"+slot+"'",source)
-        self.assertIn("vars.TG_BOT_BUTTONS_DAILY_ENABLED == 'true'",source)
+        self.assertIn("vars.TG_BOT_BUTTONS_DAILY_ENABLED != 'false'",source)
+
+    def test_online_jobs_must_preflight_both_channels(self):
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[1]
+        workflow=(root/".github"/"workflows"/"telegram-bot-buttons-daily.yml").read_text()
+        self.assertEqual(workflow.count("python scripts/telegram_bot_promotions_preflight.py"), 2)
+        self.assertIn("TG_BOT_BUTTONS_DAILY_ENABLED != 'false'",workflow)
+        self.assertIn("TG_BOT_BUTTONS_DAILY_ENABLED == 'false' && 'false' || 'true'",workflow)
 
     def test_cron_routes(self):
         for slot, campaign in SLOTS.items():
