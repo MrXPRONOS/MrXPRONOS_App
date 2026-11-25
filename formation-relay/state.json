@@ -1,0 +1,19 @@
+{
+  "active": {
+    "cat": "general",
+    "cid": "3b182b3d433c55cc6d3199070d6b0537e7ae4a3ad206fcb78b39956574c34bdc",
+    "marks": [
+      "2fb0d36decdc5fa70451b498de4370bbdfa2127e869ecb2a50d2611a7b1f932e",
+      "3b759fbadc9020357b5be7a8e8f9c8ab9cb03b1a3b81129f3ef50d99216ff65a",
+      "5f56af24f170f340bd19d56c98969ae743673bf9642f95710e0b7ede78dbe07a",
+      "71666822d06271e1965b9a24e42ac3821879aa003535ed6a4db2079e954c93e1",
+      "74ca1c17b233e405802768abf744a356c399f379131a767db3a949a04b10024e",
+      "b43c16ba25be7849b4cbdaa3eee0715a6d3af520f64916dc0f78c3b4a4cebb1b",
+      "e5148a4a284f4645050ed0784524e0a138731bfc570c706a84ac007c9a4f9acb"
+    ],
+    "next": 0,
+    "pending": null
+  },
+  "cooldown": 0,
+  "done": {}
+}
