@@ -29,6 +29,10 @@ def is_bot_download_url(url: str) -> bool:
     return bool(BOT_URL.fullmatch(str(url or "")))
 
 
+class RadarDailyQuotaError(RuntimeError):
+    """D1 free-tier row-read limit (Cloudflare code 7500), retry next UTC day."""
+
+
 class RadarRegistry:
     def __init__(self, *, env=None, session=None):
         self.env = env if env is not None else os.environ
@@ -54,6 +58,11 @@ class RadarRegistry:
                 timeout=12,
             )
             payload = response.json()
+            errors = payload.get("errors") or []
+            if any(str(item.get("code")) == "7500"
+                   for item in errors if isinstance(item, dict)):
+                raise RadarDailyQuotaError(
+                    "CineRadar D1 : limite quotidienne de lectures atteinte (7500).")
             if (not response.ok or not payload.get("success")
                     or not payload.get("result")
                     or not payload["result"][0].get("success", False)):
