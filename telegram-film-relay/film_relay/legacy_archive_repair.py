@@ -649,10 +649,13 @@ def legacy_repair_completion(reports):
 
 
 async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
-                  manual_category=None, manual_video_id=None, manual_poster_id=None):
+                  manual_category=None, manual_video_id=None, manual_poster_id=None,
+                  only_films=False):
     from telethon import TelegramClient
     from telethon.sessions import StringSession
     from .runner import resolve_peer
+    if only_films and manual_category is not None:
+        raise RuntimeError("Les modes archive ciblée et appariement manuel sont incompatibles")
     manual_values=(manual_category, manual_video_id, manual_poster_id)
     if any(value is not None for value in manual_values) and not all(
             value is not None for value in manual_values):
@@ -686,7 +689,11 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
             raise RuntimeError("Session Telegram expirée")
         bot = BotHTTPClient(bot_token, client) if apply else None
         unified = UnifiedLibrary(client) if apply else None
-        selected=[t for t in category_targets() if manual_category is None or t[0]==manual_category]
+        selected=[t for t in category_targets() if
+                  (manual_category is None or t[0]==manual_category)
+                  and (not only_films or (t[0]=="films" and t[1].casefold()=="@cinexfilms_vf"))]
+        if only_films and len(selected)!=1:
+            raise RuntimeError("Canal principal Films requis pour archivage ciblé")
         if manual_category is not None and len(selected)!=1:
             raise RuntimeError("Canal sélectionné absent de la configuration.")
         for category, public_username, private_id in selected:
@@ -745,6 +752,8 @@ def main():
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--max-repaired", type=int, default=2)
     parser.add_argument("--history", type=int, default=MAX_HISTORY)
+    parser.add_argument("--only-films", action="store_true",
+                        help="Réparer uniquement les vidéos du canal principal Films")
     parser.add_argument("--manual-category", choices=("films","series","anime","action","comedie","desir"))
     parser.add_argument("--manual-video-id", type=int)
     parser.add_argument("--manual-poster-id", type=int)
@@ -759,7 +768,8 @@ def main():
                         max_repaired=args.max_repaired, history=args.history,
                         manual_category=args.manual_category,
                         manual_video_id=args.manual_video_id,
-                        manual_poster_id=args.manual_poster_id))
+                        manual_poster_id=args.manual_poster_id,
+                        only_films=args.only_films))
 
 
 if __name__ == "__main__":
