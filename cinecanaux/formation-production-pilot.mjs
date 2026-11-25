@@ -2,6 +2,7 @@
 // Do not infer source grouping from Telegram adjacency or upload timestamps.
 import {pathToFileURL} from 'node:url';
 import {planCourses} from './manual-fallback-planner.mjs';
+import {formationDestinations} from './formation-shared-readiness.mjs';
 import {D1Remote,TelegramBot,FallbackPublisher} from './manual-fallback-live.mjs';
 const ID=/^-100\d{6,}$/;
 const SOURCE_POSTER=93,SOURCE_FILE=94;
@@ -88,7 +89,7 @@ async function main(){
  const db=new D1Remote({token:env.CLOUDFLARE_API_TOKEN||env.CF_API_TOKEN,
   account:env.CLOUDFLARE_ACCOUNT_ID,db:env.CINERADAR_D1_DATABASE_ID});
  let targets;
- try{targets=JSON.parse(env.FORMATION_DESTINATIONS_JSON||'{}');}
+ try{targets=formationDestinations(env.FORMATION_DESTINATIONS_JSON);}
  catch{throw Error('pilot_formation_destinations_invalid')}
  const result=await firstAuthorizedPilot({db,
   bot:new TelegramBot(env.FORMATION_BOT_TOKEN),

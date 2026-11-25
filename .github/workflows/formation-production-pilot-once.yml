@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/formation-production-pilot-once.yml'
+      - 'cinecanaux/formation-production-pilot.mjs'
 permissions:
   contents: read
 concurrency:

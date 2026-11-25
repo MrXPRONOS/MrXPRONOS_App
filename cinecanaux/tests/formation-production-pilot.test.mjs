@@ -35,3 +35,17 @@ test('cannot publish a filename unrelated to course',()=>{
  assert.throws(()=>selectVerifiedPilot([rows[0],
   {...rows[1],filename:'personal-notes.epub'}],chat));
 });
+
+import {formationDestinations} from '../formation-shared-readiness.mjs';
+
+test('production uses same validated legacy destination parser as live readiness',()=>{
+ const raw='{"general":@formations_officielles,"business":"-1002222222222",'+
+  '"finance":"-1003333333333","digitale":"-1004444444444",'+
+  '"mindset":"-1005555555555"}';
+ assert.deepEqual(formationDestinations(raw),{
+  general:'@formations_officielles',business:'-1002222222222',
+  finance:'-1003333333333',digitale:'-1004444444444',
+  mindset:'-1005555555555'
+ });
+ assert.throws(()=>formationDestinations('not a destination json'));
+});
