@@ -175,7 +175,7 @@ class Runtime:
             )
             self.policy[cid] = item
             return item
-        return (False, False)
+        return (None, False)
 
     def is_admin(self, token, chat_id):
         cid = str(chat_id)
@@ -215,7 +215,7 @@ class Runtime:
         # private messages or compete with existing webhook/chat handling.
         raw = [str(self.env.get("CINERADAR_REACTION_OBSERVER_TOKEN") or "").strip()]
         raw.extend(token for slot, token in sorted(self.extras.items())
-                   if slot < 8000 and re.search(
+                   if slot < 8000 and slot != 16 and re.search(
                        r"^TELEGRAM_REACTION_BOT_[0-9]{2,4}_TOKEN$",
                        "TELEGRAM_REACTION_BOT_%02d_TOKEN" % slot,
                    ))
@@ -300,8 +300,9 @@ class Runtime:
     def pause_ineligible(self, policy):
         # Do not delete the imported historical ledger. Permanently suppress
         # Torrent9; pause temporarily disabled reaction destinations.
-        excluded = [cid for cid, flags in policy.items() if not flags[0]]
-        disabled = [cid for cid, flags in policy.items() if flags[0] and not flags[1]]
+        excluded = [cid for cid, flags in policy.items() if flags[0] is False]
+        unverified = [cid for cid, flags in policy.items() if flags[0] is None]
+        disabled = [cid for cid, flags in policy.items() if flags[0] is True and not flags[1]]
         for cid in excluded:
             self.db.query(
                 """UPDATE channel_reaction_extra_jobs SET state='blocked',
@@ -331,8 +332,9 @@ class Runtime:
                 AND post_seq IN (SELECT seq FROM channel_reaction_posts WHERE chat_id=?)""",
                 (cid,),
             )
-        print(f"reaction_channel_policy_verified={len(policy)} "
-              f"excluded_or_unverified={len(excluded)} reactions_disabled={len(disabled)}")
+        print(f"reaction_channel_policy_checked={len(policy)} "
+              f"torrent9_excluded={len(excluded)} metadata_unverified={len(unverified)} "
+              f"reactions_disabled={len(disabled)}")
 
     def guarded_transport(self,url,data,headers):
         if url.endswith("/setMessageReaction"):
