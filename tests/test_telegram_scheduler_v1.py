@@ -66,6 +66,14 @@ class Tests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             window_slots(NOW.replace(tzinfo=None),24,[(8,0)])
 
+    async def test_preflight_queue_capacity(self):
+        self.c.get_messages.return_value = [SimpleNamespace(id=i, date=SLOT) for i in range(89)]
+        async with self.scheduler() as s:
+            await s.preflight_queue({-100123:1})
+            with self.assertRaises(SchedulerBlocked):
+                await s.preflight_queue({-100123:2})
+        self.c.send_message.assert_not_awaited()
+
     async def test_native_and_duplicate(self):
         async with self.scheduler() as s:
             self.assertEqual((await s.schedule(-100123,SLOT,"a",text="test"))["status"],"verified")

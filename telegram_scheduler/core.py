@@ -187,7 +187,7 @@ class TelegramScheduler:
             peer = int(raw_peer)
             if peer not in self.allowed or int(count) < 0:
                 raise ValueError("Unauthorized peer or invalid count")
-            queued = await self.client.get_messages(peer, scheduled=True)
+            queued = await self.client.get_messages(peer, limit=100, scheduled=True)
             existing = len(queued)
             if existing + int(count) > 90:
                 raise SchedulerBlocked("Telegram scheduled queue capacity guard")
@@ -219,7 +219,7 @@ class TelegramScheduler:
                     slot=slot.isoformat(), key=key, fingerprint=digest)
                 if not reservation["ok"]:
                     if reservation["status"] == "verified" and reservation["fingerprint"] == digest:
-                        queued = await self.client.get_messages(peer, scheduled=True)
+                        queued = await self.client.get_messages(peer, limit=100, scheduled=True)
                         if any(m and int(m.id) == int(reservation["scheduled_id"]) and utc(m.date) == slot for m in queued):
                             return {"status": "duplicate", "scheduled_id": reservation["scheduled_id"]}
                     raise UncertainDelivery("Existing slot conflict or missing queue entry; manual reconciliation required")
@@ -237,7 +237,7 @@ class TelegramScheduler:
                     if msg_id <= 0:
                         raise UncertainDelivery("Invalid scheduled ID")
                     await self.registry.rpc("accepted", self.owner, id=row, scheduled_id=msg_id)
-                    queued = await self.client.get_messages(peer, scheduled=True)
+                    queued = await self.client.get_messages(peer, limit=100, scheduled=True)
                     if not any(m and m.id == msg_id and utc(m.date) == slot for m in queued):
                         raise UncertainDelivery("Telegram queue/date not confirmed")
                     await self.registry.rpc("verified", self.owner, id=row, scheduled_id=msg_id)

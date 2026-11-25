@@ -14,6 +14,7 @@ permissions:
 concurrency:
   group: mrx-telegram-personal-account
   cancel-in-progress: false
+  queue: max
 jobs:
   weekly-promotions:
     if: ${{ vars.TG_SCHEDULER_WEEKLY_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.mode == 'execute') || github.event_name == 'workflow_dispatch' && inputs.mode != 'execute' }}
