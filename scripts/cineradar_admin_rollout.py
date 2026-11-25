@@ -125,7 +125,9 @@ def rights_satisfied(actual, desired):
         return False
     necessary = (
         "change_info","post_messages","edit_messages","delete_messages",
-        "ban_users","invite_users","manage_call",
+        "ban_users","invite_users","manage_call","post_stories",
+        "edit_stories","delete_stories","manage_direct_messages",
+        "manage_ranks",
     )
     return all(
         not getattr(desired,key,False) or getattr(actual,key,False)
@@ -170,32 +172,30 @@ async def real_member_rights(client, channel, bot):
             channel=channel, participant=bot,
         ))
         part=result.participant
-        return getattr(part,"admin_rights",None)
+        return True,getattr(part,"admin_rights",None)
     except errors.UserNotParticipantError:
-        return None
+        return False,None
 
 
 async def ensure_admin(client,channel,bot,desired,*,dry_run):
     """One verified promotion. Existing webhook routing is never touched."""
-    from telethon import functions, errors
-    before = await real_member_rights(client,channel,bot)
+    from telethon import functions
+    member,before = await real_member_rights(client,channel,bot)
     if rights_satisfied(before,desired):
         return "already_full"
     if dry_run:
         return "would_promote"
-    try:
-        await client(functions.channels.EditAdminRequest(
-            channel=channel,user_id=bot,admin_rights=desired,rank="CinéRadar",
-        ))
-    except errors.UserNotParticipantError:
+    if not member:
+        # Only an authenticated, owner-approved bot may be invited. Do not
+        # attempt arbitrary chat joins or auto-retries on unknown outcomes.
         await client(functions.channels.InviteToChannelRequest(
             channel=channel,users=[bot],
         ))
-        await client(functions.channels.EditAdminRequest(
-            channel=channel,user_id=bot,admin_rights=desired,rank="CinéRadar",
-        ))
-    actual=await real_member_rights(client,channel,bot)
-    if not rights_satisfied(actual,desired):
+    await client(functions.channels.EditAdminRequest(
+        channel=channel,user_id=bot,admin_rights=desired,rank="CinéRadar",
+    ))
+    member,actual=await real_member_rights(client,channel,bot)
+    if not member or not rights_satisfied(actual,desired):
         raise RuntimeError("Telegram administration rights were not confirmed")
     if getattr(actual,"add_admins",False):
         raise RuntimeError("Forbidden admin delegation privilege detected")
@@ -231,7 +231,7 @@ async def ensure_reactions(client, channel, *, dry_run):
     if dry_run:
         return "would_enable"
     await client(functions.messages.SetChatAvailableReactionsRequest(
-        peer=channel,
+        peer=await client.get_input_entity(channel),
         available_reactions=types.ChatReactionsSome(reactions=new_reactions),
     ))
     # Do not assume Telegram accepted settings solely because no exception.
