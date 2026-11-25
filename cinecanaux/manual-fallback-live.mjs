@@ -111,7 +111,7 @@ export class TelegramBot{
  async verifyChannel(chat,{privateOnly=false,publicOnly=false,mayProtected=false}={}){
   const me=await this.identity();
   const info=await this.api('getChat',{chat_id:chat});
-  assert(info?.type==='channel'&&n(info.id),'not_broadcast_channel');
+  assert(info?.type==='channel'&&ID.test(String(info.id)),'not_broadcast_channel');
   if(privateOnly)assert(!info.username,'source_or_library_not_private');
   if(publicOnly)assert(info.username,'target_not_public');
   if(!mayProtected)assert(!info.has_protected_content,'protected_channel_refused');
