@@ -31,7 +31,6 @@ jobs:
           node --check cinecanaux/delivery44-client.mjs
           node --check cinecanaux/delivery44-smoke.mjs
           node --check cinecanaux/channel-reactions.mjs
-          node --check cinecanaux/channel-reaction-observer.mjs
           node --check cinecanaux/telegram-global-quota.mjs
           node --check cinecanaux/private-stock.mjs
           node --check cinecanaux/public-event-limiter.mjs
@@ -87,10 +86,10 @@ jobs:
         run: python -m py_compile cinecanaux/refresh_private_avatars.py cinecanaux/refresh_poster_showcase.py
       - name: Test alternating dual-bot channel reactions without Telegram calls
         run: node --test cinecanaux/tests/channel-reactions.test.mjs
-      - name: Verify channel webhook is observation-only; GitHub owns reactions
+      - name: Verify Cloudflare reaction observer is completely removed
         run: |
-          node --test cinecanaux/tests/channel-reaction-observer.test.mjs
-          ! grep -Eq 'processReactionQueue|enqueueChannelReactions|setMessageReaction' cinecanaux/worker.mjs
+          ! grep -Eq 'observeChannelPublication|channel-reaction-observer|processReactionQueue|enqueueChannelReactions|setMessageReaction' cinecanaux/worker.mjs
+          test ! -e cinecanaux/channel-reaction-observer.mjs
       - name: Verify shared T01 Telegram quotas and concurrent D1 reservations
         run: node --test cinecanaux/tests/telegram-global-quota.test.mjs
       - name: Verify T04 Telegram stock references, rights and idempotent copies
