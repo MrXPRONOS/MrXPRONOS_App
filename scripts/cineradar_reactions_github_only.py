@@ -42,17 +42,21 @@ def observe(db, env, cursor, transport=reactions._request_json):
     if not candidates:
         raise RuntimeError("No dedicated or reusable GitHub observer bot configured")
     token = None
-    for candidate in candidates:
+    print(f"reaction_observer_candidates={len(candidates)} required_channels={len(allowed)}")
+    for index, candidate in enumerate(candidates, 1):
         try:
             code, identity = reactions.telegram_call(candidate, "getMe", {}, transport)
             observer = identity.get("result") or {}
             if code != 200 or not identity.get("ok") or not observer.get("is_bot"):
+                print(f"reaction_observer_candidate={index} identity=unavailable")
                 continue
             code, webhook = reactions.telegram_call(candidate, "getWebhookInfo", {}, transport)
             if code != 200 or not webhook.get("ok") or (webhook.get("result") or {}).get("url"):
+                print(f"reaction_observer_candidate={index} webhook=active_or_unknown")
                 continue
             observer_id = observer.get("id")
             approved = True
+            covered = 0
             for channel in sorted(allowed):
                 code, result = reactions.telegram_call(candidate, "getChatMember", {
                     "chat_id": channel, "user_id": observer_id,
@@ -61,10 +65,13 @@ def observe(db, env, cursor, transport=reactions._request_json):
                 if code != 200 or result.get("ok") is not True or role not in ("administrator", "creator"):
                     approved = False
                     break
+                covered += 1
+            print(f"reaction_observer_candidate={index} admins_confirmed={covered}/{len(allowed)}")
             if approved:
                 token = candidate
                 break
         except reactions.APIError:
+            print(f"reaction_observer_candidate={index} telegram_network_error")
             continue
     if token is None:
         raise RuntimeError("No independent Telegram administrator bot without webhook")
