@@ -495,7 +495,7 @@ export default {
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
    const status={service:"cine-radar",version:6,database:!!env.DB,webhook:state?.webhook||"waiting",publicChannels:Number(state?.n||0),miniApp:APP_URL};
    if(u.searchParams.get("telegram")==="1")status.botIdentity=await checkBotIdentity(env);
-   return Response.json(status,{headers:{"cache-control":"no-store"}});
+   return Response.json(status,{headers:{"cache-control":"no-store","access-control-allow-origin":"https://mrxpronos.github.io"}});
   }
   return new Response("Not found",{status:404});
   }catch(error){
