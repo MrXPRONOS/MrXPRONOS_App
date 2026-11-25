@@ -227,7 +227,7 @@ export function planNaturalCourses(rows,{maxParts=100}={}){
   const meta=inspectFormationCover(cover.caption);
   if(!meta)continue;
   const group=assigned.get(String(cover.chat_id)+':'+String(cover.message_id))||[];
-  if(!group.length)continue;
+  if(!group.length){reviewPush(result,'natural_course_waiting_for_files',[cover]);continue;}
   const numbers=group.map(p=>p.number);
   const explicitTotals=[...new Set(group.filter(p=>p.explicit).map(p=>p.total))];
   if(explicitTotals.length>1){
@@ -275,6 +275,10 @@ export function planCourses(rows,{maxParts=100}={}){
   const text=String(row.caption||'');
   const course=COURSE.exec(text);
   if(!course){
+   // Natural captions/files are handled by planNaturalCourses below. No
+   // duplicate generic review entry for a safe recognized fiche.
+   if((row.kind==='poster'&&inspectFormationCover(text))||
+      ['course_file','video'].includes(row.kind))continue;
    reviewPush(result,'course_id_required',[row]);continue;
   }
   const key=row.category+':'+course[1].toLowerCase();
