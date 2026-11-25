@@ -1,0 +1,52 @@
+name: Formation - Retrouver le canal privé existant
+on:
+  pull_request:
+    paths:
+      - 'cinecanaux/formation-source-access-link.mjs'
+      - 'cinecanaux/tests/formation-source-access-link.test.mjs'
+      - '.github/workflows/formation-source-access-link.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/formation-source-access-link.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mrx-formation-source-recovery
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check cinecanaux/formation-source-access-link.mjs
+          node --test cinecanaux/tests/formation-source-access-link.test.mjs
+  recover:
+    needs: [test]
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.run_attempt == 1 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Message administratif original dans le canal déjà configuré
+        run: node cinecanaux/formation-source-access-link.mjs
