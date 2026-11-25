@@ -44,6 +44,7 @@ class TelegramReceiptCache:
     by_document: dict[int, list[int]]
     public_by_video: dict[int, int]
     public_v4_by_video: dict[int, int] = field(default_factory=dict)
+    by_source_marker: dict[str, list[int]] = field(default_factory=dict)
 
 
 async def snapshot_telegram_posts(
@@ -51,10 +52,17 @@ async def snapshot_telegram_posts(
     *, private_limit: int = 650, public_limit: int = 650,
 ) -> TelegramReceiptCache:
     private: dict[int, list[int]] = defaultdict(list)
+    named: dict[str, list[int]] = defaultdict(list)
+    from .private_media_contract import source_marker_from_message
+    from .private_stock_audit import filename_descriptive
     async for message in client.iter_messages(private_channel, limit=private_limit):
         doc_id = movie_document_id(message)
         if doc_id is not None:
             private[doc_id].append(int(message.id))
+            marker = source_marker_from_message(message)
+            if marker and filename_descriptive(
+                    getattr(getattr(message, "file", None), "name", "") or ""):
+                named[marker].append(int(message.id))
     public: dict[int, int] = {}
     public_messages = []
     async for message in client.iter_messages(public_channel, limit=public_limit):
@@ -64,7 +72,7 @@ async def snapshot_telegram_posts(
     # A poster alone (or a video with no verified keyboard) is not a
     # completed V4 pair. Preserve the legacy map only to prevent reposts.
     v4 = verified_v4_pairs(public_messages, public_channel, private_peer_id, private)
-    return TelegramReceiptCache(dict(private), public, v4)
+    return TelegramReceiptCache(dict(private), public, v4, dict(named))
 
 
 def verified_v4_pairs(messages, public_channel, private_peer_id, private_by_document):
@@ -115,7 +123,9 @@ def recover_from_snapshot(cache: TelegramReceiptCache, state, pair_id: str,
     doc_id = movie_document_id(movie)
     if doc_id is None:
         return "none"
-    candidates = cache.by_document.get(doc_id, [])
+    from .private_media_contract import marker_for
+    candidates = (cache.by_document.get(doc_id, []) or
+                  cache.by_source_marker.get(marker_for(movie), []))
     if not candidates:
         return "none"
     # Only a fully verified photo + tagged video with matching four-button

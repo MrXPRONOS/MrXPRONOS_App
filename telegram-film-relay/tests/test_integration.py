@@ -35,7 +35,7 @@ def sample_messages(count=1):
                entities=None, grouped_id=None, reply_to=None, noforwards=False),
             NS(id=k+1, photo=None, document=doc, video=doc, media=f'video-{i}',
                raw_text=f'Excellente histoire numéro {i + 1}', date=DATE + timedelta(minutes=i*10+1),
-               file=NS(name='movie.mp4', duration=7200, size=doc.size),
+               file=NS(name=f'Excellente histoire numéro {i + 1}.mp4', duration=7200, size=doc.size),
                entities=None, grouped_id=None, reply_to=None, noforwards=False),
         ]
     return found
@@ -136,7 +136,7 @@ class FakeTelegramClient:
             photo=None if is_film else object(),
             document=NS(id=doc_id, attributes=[]) if is_film else None,
             video=object() if is_film else None,
-            file=NS(name="movie.mp4") if is_film else None,
+            file=NS(name=f"Excellente histoire numéro {int(media.split('-')[-1]) + 1}.mp4") if is_film else None,
         ))
         return NS(id=self._next)
 

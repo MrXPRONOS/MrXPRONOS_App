@@ -548,9 +548,12 @@ async def execute() -> int:
                                 stage = state.get_staged_posts(pair_id)
                                 LOG.info("Fiche privée avec trois boutons envoyée : message %s", private_poster.id)
 
-                            private_post = await client.send_file(
-                                destination_private, pair.movie.media,
-                                caption=rich_video_title(title), parse_mode="html"
+                            from .private_media_contract import send_named_private_video
+                            private_post = await send_named_private_video(
+                                client, destination_private, pair.movie, title=title,
+                                caption=rich_video_title(title),
+                                private_cover_id=int(stage["poster"]),
+                                poster=pair.poster, description=text,
                             )
                             private_post_id = int(private_post.id)
                             state.stage(pair_id, private_post_id)
@@ -568,8 +571,12 @@ async def execute() -> int:
                         await asyncio.sleep(max(36.0, float(os.getenv("CINEX_PAUSE_SECONDS", "60"))))
                         verified_private_video = await client.get_messages(
                             destination_private, ids=int(private_post_id))
-                        if not verified_private_video:
-                            raise RuntimeError("Film privé absent avant copie par le bot.")
+                        from .private_media_contract import renamed_receipt_matches
+                        if not renamed_receipt_matches(
+                                pair.movie, verified_private_video, title=title,
+                                poster=pair.poster, description=text):
+                            raise RuntimeError(
+                                "Film privé sans vrai nom descriptif ou reçu source vérifié")
                         public_video = await post_public_video_by_bot_copy(
                             client, bot_client, destination_public, destination_private,
                             verified_private_video, int(public_post.id), url, text,

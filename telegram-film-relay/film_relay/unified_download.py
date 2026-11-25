@@ -66,6 +66,7 @@ class UnifiedLibrary:
         self.peer = None
         self.index: dict[int, int] | None = None
         self.cover_index: dict[str, int] = {}
+        self.source_index: dict[str, int] = {}
         self.legacy_cover_proofs: dict[int, int] = {}
         self.registry = registry
 
@@ -96,11 +97,16 @@ class UnifiedLibrary:
         if self.index is None:
             self.index = {}
             self.cover_index = {}
+            self.source_index = {}
             async for item in self.client.iter_messages(self.peer, limit=self.history):
                 if is_video_message(item):
                     doc = video_document_id(item)
                     if doc:
                         self.index.setdefault(int(doc), int(item.id))
+                    from .private_media_contract import source_marker_from_message
+                    marker = source_marker_from_message(item)
+                    if marker:
+                        self.source_index.setdefault(marker, int(item.id))
                 elif getattr(item, "photo", None):
                     # Preserve receipts for unfinished uploads across restarts:
                     # a cover already sent must never be blindly sent again.
@@ -172,11 +178,22 @@ class UnifiedLibrary:
             clean_caption(getattr(source, "raw_text", "") or "", getattr(source, "entities", None)))
         await self.prepare(public=public)
         doc_id = int(doc_id)
-        if doc_id in self.index:
-            mid = self.index[doc_id]
+        from .private_media_contract import (
+            marker_for, renamed_receipt_matches, original_filename, filename_for,
+            send_named_private_video,
+        )
+        source_tag = marker_for(source)
+        mid = self.source_index.get(source_tag) or self.index.get(doc_id)
+        if mid:
             existing = await self.client.get_messages(self.peer, ids=mid)
+            if (self.source_index.get(source_tag) == mid
+                    and renamed_receipt_matches(source, existing, title=title,
+                                                poster=poster, description=details)):
+                self.index[doc_id] = mid
             if (is_video_message(existing)
-                    and video_document_id(existing) == doc_id):
+                    and (video_document_id(existing) == doc_id or
+                         renamed_receipt_matches(source, existing, title=title,
+                                                 poster=poster, description=details))):
                 # A historical video-only receipt is not evidence of the
                 # required PHOTO+description then VIDEO pair. It can remain
                 # downloadable via an existing registry link, but new public
@@ -186,6 +203,11 @@ class UnifiedLibrary:
                     raise RuntimeError(
                         "Vidéo centrale ancienne sans affiche adjacente vérifiée ; "
                         "restauration manuelle nécessaire, aucun nouvel envoi.")
+                if original_filename(existing) != filename_for(
+                        source, title=title, poster=poster, description=details):
+                    LOG.warning("Stock CineRadar historique : nom réel du fichier ancien "
+                                "non conforme, reçu conservé pour ne pas casser les anciens liens")
+                self.index[doc_id] = mid
                 return registry.register(
                     private_channel=self.target_id, message_id=mid,
                     title=title, public_handle=handle)
@@ -227,16 +249,16 @@ class UnifiedLibrary:
                 raise RuntimeError("Affiche du stock central non vérifiée ; vidéo non envoyée.")
             self.cover_index[marker] = int(cover.id)
         from .publication import rich_video_title
-        caption = rich_video_title(title)
-        sent = await self.client.send_file(
-            self.peer, source.media, caption=caption, parse_mode="html",
+        private_cover_id = self.cover_index[marker]
+        recorded = await send_named_private_video(
+            self.client, self.peer, source,
+            title=title, caption=rich_video_title(title),
+            private_cover_id=private_cover_id,
+            poster=poster, description=details,
         )
-        mid = int(sent.id)
-        recorded = await self.client.get_messages(self.peer, ids=mid)
-        if (not is_video_message(recorded)
-                or video_document_id(recorded) != doc_id):
-            raise RuntimeError("Vidéo centrale envoyée mais non vérifiée ; aucun lien public créé.")
+        mid = int(recorded.id)
         self.index[doc_id] = mid
+        self.source_index[source_tag] = mid
         LOG.info("CinéX bibliothèque centrale : vidéo confirmée catégorie=%s message=%s",
                  category, mid)
         return registry.register(

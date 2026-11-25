@@ -317,8 +317,14 @@ async def verify_existing_pair(client, public, private, private_id, video, poste
                        for link in (url, rescue_url, folder_url)):
                 continue
             private_video = await client.get_messages(private, ids=private_video_id)
+            from .private_media_contract import renamed_receipt_matches
+            from .legacy_archive_repair import cover_caption
+            label = cover_caption(poster, video, category, identity=part or ident)
             if (not is_video_message(private_video)
-                    or video_document_id(private_video) != video_document_id(video)):
+                    or (video_document_id(private_video) != video_document_id(video)
+                        and not renamed_receipt_matches(
+                            video, private_video, title=label,
+                            poster=poster, description=label))):
                 continue
             prior_ids = list(range(max(1, private_video_id - 8), private_video_id))
             private_posters = await client.get_messages(private, ids=prior_ids)

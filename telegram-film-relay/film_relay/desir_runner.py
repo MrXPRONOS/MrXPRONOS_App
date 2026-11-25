@@ -451,7 +451,10 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                     private_limit=110, public_limit=110
                 )
                 source_doc_id = getattr(getattr(item.video, "document", None), "id", None)
-                recovered = cache.by_document.get(source_doc_id, []) if source_doc_id else []
+                from .private_media_contract import marker_for
+                recovered = ((cache.by_document.get(source_doc_id, []) or
+                              cache.by_source_marker.get(marker_for(item.video), []))
+                             if source_doc_id else [])
                 if recovered:
                     private_video_id = int(recovered[0])
                     existing_public_id = cache.public_by_video.get(private_video_id)
@@ -478,9 +481,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                     )
                     state.stage(key, "poster", image.id)
                     await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
-                video = await client.send_file(
-                    library, item.video.media,
-                    caption=rich_video_title(title), parse_mode="html"
+                from .private_media_contract import send_named_private_video
+                video = await send_named_private_video(
+                    client, library, item.video, title=title,
+                    caption=rich_video_title(title),
+                    private_cover_id=int(state.data["staged"][key]["poster"]),
+                    poster=item.poster, description=description,
                 )
                 state.stage(key, "video", video.id)
             private_video_id = int(state.data["staged"][key]["video"])
@@ -495,8 +501,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             await asyncio.sleep(max(36.0, float(os.getenv('CINEX_PAUSE_SECONDS', '60'))))
             verified_private_video = await client.get_messages(
                 library, ids=int(private_video_id))
-            if not verified_private_video:
-                raise RuntimeError("Vidéo Désir privée absente avant copie publique.")
+            from .private_media_contract import renamed_receipt_matches
+            if not renamed_receipt_matches(
+                    item.video, verified_private_video, title=title,
+                    poster=item.poster, description=description):
+                raise RuntimeError("Vidéo privée Désir sans vrai nom ou source vérifié.")
             public_video = await post_public_video_by_bot_copy(
                 client, bot, public_user, library, verified_private_video,
                 int(public_post.id), video_url, title, download_url=download_url,
