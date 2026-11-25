@@ -57,7 +57,7 @@ test('legacy Formation configuration with a bare @username is safely repaired',(
   '"mindset":"-1005555555555"}';
  assert.deepEqual(formationDestinations(raw),destinations);
  assert.throws(()=>formationDestinations(raw.replace(
-  '@formations_officielles','@'));
+  '@formations_officielles','@')));
 });
 test('shared source must be IDENTICAL to existing stage channel',async()=>{
  const f=fixtures();
