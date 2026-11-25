@@ -2,7 +2,7 @@ name: CineX - Bouton canari immediat puis +30 minutes (unique)
 on:
   push:
     branches: [main]
-    paths: ['telegram-film-relay/.cinex-button-canary-20261125', 'telegram-film-relay/.cinex-button-canary-retry-20261125']
+    paths: ['telegram-film-relay/.cinex-button-canary-20261125', 'telegram-film-relay/.cinex-button-canary-retry-20261125', 'telegram-film-relay/.cinex-button-canary-supabase-retry-20261125']
 permissions:
   contents: read
 concurrency:

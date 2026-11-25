@@ -48,7 +48,8 @@ def _api(session, token, endpoint, payload):
     return obj.get("result")
 
 
-def recover_owner_approved_stock(session, token, explicit_id, alternative_id):
+def recover_owner_approved_stock(session, token, explicit_id, alternative_id,
+                                 supabase_url='', service_key=''):
     """Resolve only IDs matching the owner's pinned SHA; avoid Cloudflare D1 quota."""
     for raw in (explicit_id,alternative_id):
         candidate=str(raw or "").strip()
@@ -56,6 +57,28 @@ def recover_owner_approved_stock(session, token, explicit_id, alternative_id):
             hashlib.sha256(candidate.encode()).hexdigest()==EXPECTED_STOCK_SHA256):
             print("CANARY_PRIVATE_STOCK_RESOLVED source github")
             return candidate
+    # Owner-approved stock ID from trusted existing Supabase broadcast receipts.
+    # This works independently of the exhausted Cloudflare D1 quota.
+    if supabase_url.startswith("https://") and service_key:
+        try:
+            response=session.get(supabase_url.rstrip("/") +
+                "/rest/v1/telegram_channel_broadcast_receipts",
+                params={"select":"channel_id","limit":"1000"},
+                headers={"apikey":service_key,"Authorization":"Bearer "+service_key},
+                timeout=(8,25))
+            rows=response.json()
+            if response.ok and isinstance(rows,list):
+                matches={str(row.get("channel_id") or "") for row in rows
+                    if isinstance(row,dict) and hashlib.sha256(
+                        str(row.get("channel_id") or "").encode("utf-8")
+                    ).hexdigest()==EXPECTED_STOCK_SHA256}
+                if len(matches)==1:
+                    print("CANARY_PRIVATE_STOCK_RESOLVED source supabase_sha256")
+                    return next(iter(matches))
+                if len(matches)>1:
+                    raise CanaryError("Ambiguous private stock receipts")
+        except (requests.RequestException, ValueError):
+            pass
     # Read-only Bot API update lookup without offset, pagination or altered allowed_updates.
     # Never consume the update stream or change the webhook.
     info=_api(session,token,"getWebhookInfo",{})
@@ -138,7 +161,8 @@ def confirm_delivered(session, record, chat_id):
 def run(session, *, phase, stock_id, bot_token, supabase_url, service_key, alternative_id=""):
     if phase not in TEXTS:
         raise CanaryError("Unknown test phase")
-    verified_id=recover_owner_approved_stock(session,bot_token,stock_id,alternative_id)
+    verified_id=recover_owner_approved_stock(session,bot_token,stock_id,alternative_id,
+        supabase_url=supabase_url,service_key=service_key)
     chat_id = verify_private_destination(session, bot_token, verified_id)
     record = reserve_once(session,supabase_url,service_key,chat_id,phase)
     # Important: do not retry if the HTTP response is lost; reservation remains.
