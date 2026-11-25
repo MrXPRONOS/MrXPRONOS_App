@@ -175,6 +175,33 @@ export async function ingestManualChannelPost(env,update){
    ).bind(caption,media.filename,chat,id).run();
   }
  }
+ // Telegram may deliver file webhooks before an earlier cover is indexed.
+ // Resolve only truly unknown files with the EXACT same Cours ID, never
+ // mutable media, conflicting explicit labels or another category.
+ if(cfg.category==='formation_general'&&media.kind==='poster'&&
+    category.startsWith('formation_')&&courseId(caption)&&
+    incomingReview!=='conflicting_course_covers'&&
+    !incomingReview.startsWith('explicit_category_')){
+  const earlier=await env.DB.prepare(
+   "SELECT message_id,caption,review_code,category FROM cine_manual_fallback_inbox "+
+   "WHERE chat_id=? AND state='needs_review' AND category='formation_general' "+
+   "AND review_code IN ('training_category_unknown','ambiguous_training_domain') "+
+   "AND kind IN ('course_file','video') "+
+   "ORDER BY message_id DESC LIMIT 500"
+  ).bind(chat).all();
+  for(const part of earlier?.results||[]){
+   if(courseId(part.caption)!==courseId(caption)||Number(part.message_id)===id)
+    continue;
+   // This review is reversible only through a strict conditional update.
+   await env.DB.prepare(
+    "UPDATE cine_manual_fallback_inbox "+
+    "SET category=?,state=?,review_code=?,updated_at=CURRENT_TIMESTAMP "+
+    "WHERE chat_id=? AND message_id=? AND category='formation_general' "+
+    "AND state='needs_review' AND "+
+    "review_code IN ('training_category_unknown','ambiguous_training_domain')"
+   ).bind(category,incomingState,incomingReview,chat,Number(part.message_id)).run();
+  }
+ }
  return {enabled:true,accepted:true,category,kind:media.kind,
   state:incomingState,review:incomingReview};
 }
