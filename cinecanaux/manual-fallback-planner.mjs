@@ -229,7 +229,11 @@ export function planNaturalCourses(rows,{maxParts=100}={}){
   const group=assigned.get(String(cover.chat_id)+':'+String(cover.message_id))||[];
   if(!group.length){reviewPush(result,'natural_course_waiting_for_files',[cover]);continue;}
   const numbers=group.map(p=>p.number);
-  const explicitTotals=[...new Set(group.filter(p=>p.explicit).map(p=>p.total))];
+  const coverTotal=/^\s*(?:total|fichiers)\s*:\s*([1-9]\d{0,2})\s*$/im.exec(meta.caption);
+  const explicitTotals=[...new Set([
+   ...group.filter(p=>p.explicit).map(p=>p.total),
+   ...(coverTotal?[Number(coverTotal[1])]:[])
+  ])];
   if(explicitTotals.length>1){
    reviewPush(result,'natural_course_conflicting_totals',[cover,...group.map(p=>p.row)]);continue;
   }
