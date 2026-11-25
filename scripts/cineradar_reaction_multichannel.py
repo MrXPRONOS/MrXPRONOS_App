@@ -79,9 +79,11 @@ def get_bot_identity(token, transport):
 
 
 class Runtime:
-    def __init__(self, db, env, transport=core._request_json):
+    def __init__(self, db, env, transport=core._request_json, owner_inventory=None):
         self.db, self.env, self.transport = db, env, transport
         self.now = int(time.time())
+        self.owner_admin_ids = owner_inventory[0] if owner_inventory is not None else None
+        self.owner_excluded_ids = owner_inventory[1] if owner_inventory is not None else set()
         self.policy = {}
         self.members = {}
         self.tokens = {}
@@ -116,6 +118,11 @@ class Runtime:
         historical = {str(r["chat_id"]) for r in self.db.query(
             "SELECT DISTINCT chat_id FROM channel_reaction_posts"
         )["results"]}
+        if self.owner_admin_ids is not None:
+            historical.update(self.owner_admin_ids)
+            historical.update(self.owner_excluded_ids)
+            print(f"reaction_owner_verified_admin_channels={len(self.owner_admin_ids)} "
+                  f"torrent9_owner_exclusions={len(self.owner_excluded_ids)}")
         extras = str(self.env.get("CINERADAR_REACTION_CHANNEL_IDS") or "").strip()
         if extras:
             for raw in extras.split(","):
@@ -142,6 +149,11 @@ class Runtime:
 
     def classify(self, chat_id, *, force=False):
         cid = str(chat_id)
+        if self.owner_admin_ids is not None:
+            if cid in self.owner_excluded_ids:
+                return (False,False)
+            if cid not in self.owner_admin_ids:
+                return (None,False)
         if cid in self.policy and not force:
             return self.policy[cid]
         if not force:
@@ -413,7 +425,11 @@ def main(env=None, transport=core._request_json):
         print("REACTIONS_STATE_NOT_READY:", type(exc).__name__,file=sys.stderr)
         return 2
     try:
-        runner = Runtime(db,env,transport)
+        # Once available, the owner-admin encrypted inventory is authoritative.
+        # Never read the personal Telegram session in the 5-minute runner.
+        from scripts.cineradar_owner_channels import read_owner_channels
+        owner_inventory = read_owner_channels()
+        runner = Runtime(db,env,transport,owner_inventory=owner_inventory)
         runner.verify_bots()
         known = runner.known_channels()
         if not known:
