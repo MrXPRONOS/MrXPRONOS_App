@@ -124,6 +124,13 @@ class AnimeBotPublisher:
                 "Anime Bot V2 requires central stock, CineRadar, verified Secours "
                 "and shared folder before any new publication")
         marker = episode_key(row)
+        from .private_media_contract import bot_copy_source_filename_valid
+        if not bot_copy_source_filename_valid(
+                source.get("filename", ""), str(entry["title"]), marker):
+            raise RuntimeError(
+                "Anime Bot : nom réel de fichier non descriptif. "
+                "La copie bot ne peut pas le renommer ; "
+                "préparer une source correctement nommée avant stockage.")
         stock = entry.setdefault("central_stock", {}).setdefault(marker, {})
         if not stock.get("cover"):
             stock["cover"] = await self._operation(
@@ -131,7 +138,8 @@ class AnimeBotPublisher:
                 lambda: self.transport.copy_message(
                     self.central_stock_id, poster["source_id"],
                     poster["message_id"],
-                    caption=f"🌸 <b>{escape(entry['title'])}</b> — {marker}"))
+                    caption=(f"🌸 <b>{escape(entry['title'])}</b> — {marker}\n"
+                             + escape(str(poster.get("text") or "")[:600]))))
             self.store.save(self.state)
         if not stock.get("video"):
             stock["video"] = await self._operation(
@@ -331,11 +339,18 @@ class AnimeBotPublisher:
                 len({int(row["season"]) for row in ordered}) != 1 or
                 len({int(row["episode"]) for row in ordered}) != len(ordered)):
             raise ValueError("Anime Bot V2 : plusieurs séries/saisons mélangées")
+        from .private_media_contract import bot_copy_source_filename_valid
         for row in ordered:
             self._poster(row)
             video = self.state.get("messages", {}).get(row["source_key"], {})
             if video.get("kind") != "video":
                 raise RuntimeError("Anime Bot V2 : vidéo source non confirmée")
+            if not bot_copy_source_filename_valid(
+                    video.get("filename", ""), str(row.get("title") or
+                    self._series(row).get("title") or ""), episode_key(row)):
+                raise RuntimeError(
+                    "Anime Bot : fichier source sans nom descriptif et numéro "
+                    "d'épisode fiable. Copie refusée sans réimportation préalable.")
         batch_key = batch_identifier(key, int(season), ordered)
         receipt_key = "bot:" + batch_key
         entry = self._series(ordered[0])
@@ -492,7 +507,8 @@ class AnimeBotPublisher:
                 f"private:cover:{key}:{marker}",
                 lambda: self.transport.copy_message(
                     self.private_id, poster["source_id"], poster["message_id"],
-                    caption=f"🌸 <b>{escape(entry['title'])}</b> — {marker}",
+                    caption=(f"🌸 <b>{escape(entry['title'])}</b> — {marker}\n"
+                             + escape(str(poster.get("text") or "")[:600])),
                     reply_markup=self._library_keyboard(download_url)))
             self.store.save(self.state)
         stored = private_season.get(str(row["episode"]))
