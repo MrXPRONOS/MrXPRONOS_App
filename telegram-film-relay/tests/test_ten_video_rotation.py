@@ -6,6 +6,7 @@ from types import SimpleNamespace as NS
 from film_relay.ten_video_rotation import (
     split_recent_and_old, category_targets, movie_button_target,
     is_rotatable_video, execute, original_poster_safe_for_deletion,
+    main_films_cleanup_video, main_films_priority,
 )
 
 
@@ -119,6 +120,48 @@ class TenVideoRotationTests(unittest.TestCase):
         current = NS(id=99, photo=NS(id=17), pinned=False, raw_text="Film",
                       buttons=[[NS(text="opaque", url=None)]])
         self.assertFalse(original_poster_safe_for_deletion(current, original))
+
+    def test_main_films_sweep_includes_manually_posted_and_unnamed_video(self):
+        from film_relay.legacy_media_identity import video_identity
+        manual = movie(1, "John Wick 4", "John.Wick.4.2023.mkv")
+        unnamed = movie(2, "#Film", "Secret.Garden.2020.mp4")
+        self.assertFalse(is_rotatable_video(manual, "films"))
+        self.assertTrue(main_films_cleanup_video(manual))
+        self.assertTrue(main_films_cleanup_video(unnamed))
+        self.assertEqual(video_identity(unnamed, "films").title, "secret garden")
+        self.assertFalse(main_films_cleanup_video(
+            NS(id=3, photo=object(), document=None, video=None, file=NS(name=""))))
+
+    def test_main_films_sweep_protects_ten_last_real_videos(self):
+        candidates = [movie(i, "Film") for i in range(1, 18)]
+        candidates[-1].raw_text = "John Wick"
+        protect = sorted((m for m in candidates if main_films_cleanup_video(m)),
+                         key=lambda m: m.id, reverse=True)[:10]
+        older = [m for m in candidates if m.id not in {v.id for v in protect}]
+        self.assertEqual([m.id for m in protect], list(range(17, 7, -1)))
+        self.assertEqual([m.id for m in older], list(range(1, 8)))
+
+    def test_main_films_pinned_generic_poster_prioritized_by_filename(self):
+        pinned = NS(id=5, photo=object(), pinned=True, raw_text="#Film",
+                    document=None, video=None, buttons=[], file=NS(name=""))
+        distant = movie(1, "Ordinary older movie")
+        part1 = movie(6, "#Film", "My.Movie.Partie.1.mp4")
+        part2 = movie(7, "", "My.Movie.Partie.2.mp4")
+        ordered = main_films_priority([distant, part2, part1],
+                                      [pinned, distant, part2, part1])
+        self.assertEqual([m.id for m in ordered], [6, 7, 1])
+
+    def test_deep_cleanup_requires_explicit_admin_approval(self):
+        with patch.dict("os.environ", {"CINEX_MANUAL_PURGE_REQUEST": ""},
+                        clear=True):
+            with self.assertRaisesRegex(RuntimeError, "workflow manuel"):
+                asyncio.run(execute(apply=True, main_films_cleanup=True,
+                                    max_deleted=100))
+
+    def test_deep_cleanup_rejects_unsafe_modes_combined(self):
+        with self.assertRaisesRegex(RuntimeError, "incompatibles"):
+            asyncio.run(execute(apply=False, main_films_cleanup=True,
+                                purge_unmatched=True))
 
     def test_public_unknown_purge_requires_real_manual_dispatch(self):
         with patch.dict("os.environ", {"CINEX_MANUAL_PURGE_REQUEST": ""}, clear=True):
