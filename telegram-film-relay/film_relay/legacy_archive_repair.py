@@ -86,14 +86,15 @@ def pending_private_cover_rows(public):
             [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())]]
 
 
-def private_cover_links_verified(photo, *, public=None, rescue_url=None):
+def private_cover_links_verified(photo, *, public=None, rescue_url=None, folder_url=None):
     """A historic rescue+folder pair or new main-channel+folder pair is valid."""
     from .rescue_channels import public_username
     handle = public_username(public) if public is not None else None
     main_url = "https://t.me/" + handle.lstrip("@") if handle else None
+    folder = folder_url if folder_url is not None else film_folder_url()
     return bool(
         getattr(photo, "photo", None)
-        and has_verified_button(photo, film_folder_url())
+        and has_verified_button(photo, folder)
         and ((main_url and has_verified_button(photo, main_url))
              or (rescue_url and has_verified_button(photo, rescue_url)))
     )
