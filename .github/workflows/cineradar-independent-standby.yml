@@ -1,0 +1,60 @@
+name: CineRadar - independent standby and automatic midnight recovery
+
+# This watchdog runs entirely on GitHub Actions; never calls Cloudflare's API
+# or D1. It only reads the public health/app endpoints and updates the verified
+# production CineRadar Telegram bot's default menu and short description.
+on:
+  schedule:
+    - cron: '6-56/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-independent-standby.yml'
+      - 'scripts/cineradar_standby_bot_menu.py'
+      - 'tests/test_cineradar_standby_bot_menu.py'
+  pull_request:
+    paths:
+      - '.github/workflows/cineradar-independent-standby.yml'
+      - 'scripts/cineradar_standby_bot_menu.py'
+      - 'tests/test_cineradar_standby_bot_menu.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cineradar-independent-standby-bot-menu
+  cancel-in-progress: false
+
+jobs:
+  offline-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test offline Telegram failover, safety, and full recovery
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/cineradar_standby_bot_menu.py
+          python -m unittest discover -s tests -p 'test_cineradar_standby_bot_menu.py' -v
+
+  watchdog:
+    needs: offline-safety
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Health-check independent of Cloudflare and reconcile bot's public menu
+        run: python -m scripts.cineradar_standby_bot_menu
