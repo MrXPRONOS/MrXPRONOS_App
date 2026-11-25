@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-823bf71d7b9c67c5:UNDER_35",
+    "recorded_at_utc": "2026-11-25T21:12:55+00:00",
+    "kickoff_utc": "2026-11-27T16:00:00+00:00",
+    "fixture": {
+      "home_team": "Pyramids FC",
+      "away_team": "Maghreb Fes",
+      "league": "Rwandan National League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2ed684d92c4d74efe38d60a709ba156382f62c61d510136361008667e724d067"
+}
