@@ -69,7 +69,8 @@ jobs:
     # Also process newly configured bot tokens on the first main-branch push.
     # Pull-request builds remain test-only and never receive secrets.
     # Quota incident: keep legacy D1 reaction dispatch off until state is migrated.
-    if: ${{ vars.CINERADAR_LEGACY_D1_REACTIONS_ENABLED == 'true' && always() && (needs.test.result == 'success' || needs.test.result == 'skipped') && (github.event_name == 'schedule' || github.event_name == 'repository_dispatch' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.production == true) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.repository.full_name == 'MrXPRONOS/MrXPRONOS_App')) }}
+    # Permanently disabled. GitHub-only runner is cineradar-reactions-github-only.yml.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
@@ -194,7 +195,8 @@ jobs:
 
   coverage_audit:
     needs: test
-    if: ${{ vars.CINERADAR_LEGACY_D1_REACTIONS_ENABLED == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    # Permanently disabled. GitHub-only runner is cineradar-reactions-github-only.yml.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     env:

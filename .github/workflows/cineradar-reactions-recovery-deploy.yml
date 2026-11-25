@@ -1,0 +1,90 @@
+name: CineRadar - one-time recovery deployment after encrypted reaction migration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-reactions-recovery-deploy.yml'
+
+permissions:
+  contents: write
+
+# Synchronize import and first dispatch with the normal encrypted reaction runner.
+concurrency:
+  group: cineradar-github-encrypted-reactions
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: main
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CINERADAR_REACTION_OBSERVER_TOKEN: ${{ secrets.CINERADAR_REACTION_OBSERVER_TOKEN }}
+      CINERADAR_REACTION_CHANNEL_IDS: ${{ vars.CINERADAR_REACTION_CHANNEL_IDS }}
+      REACTIONS_GITHUB_PRIMARY: 'true'
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+      CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+      PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+      MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+      CANAL_BOT_TOKEN: ${{ secrets.CANAL_BOT_TOKEN }}
+      TELEGRAM_REACTION_BOT_03_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_03_TOKEN }}
+      TELEGRAM_REACTION_BOT_04_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_04_TOKEN }}
+      TELEGRAM_REACTION_BOT_05_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_05_TOKEN }}
+      TELEGRAM_REACTION_BOT_06_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_06_TOKEN }}
+      TELEGRAM_REACTION_BOT_07_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_07_TOKEN }}
+      TELEGRAM_REACTION_BOT_08_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_08_TOKEN }}
+      TELEGRAM_REACTION_BOT_09_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_09_TOKEN }}
+      TELEGRAM_REACTION_BOT_10_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_10_TOKEN }}
+      TELEGRAM_REACTION_BOT_11_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_11_TOKEN }}
+      TELEGRAM_REACTION_BOT_12_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_12_TOKEN }}
+      TELEGRAM_REACTION_BOT_13_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_13_TOKEN }}
+      TELEGRAM_REACTION_BOT_14_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_14_TOKEN }}
+      TELEGRAM_REACTION_BOT_15_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_15_TOKEN }}
+      # Reuse the existing publisher rather than the retired slot-16 token.
+      # The runner still excludes reserved primary identities and duplicates.
+      TELEGRAM_REACTION_BOT_16_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+
+      TELEGRAM_REACTION_BOTS_JSON: ${{ secrets.TELEGRAM_REACTION_BOTS_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install encryption dependencies
+        run: python -m pip install 'cryptography>=43,<47' requests
+      - name: Verify code and storage offline
+        run: |
+          set -euo pipefail
+          node --check cinecanaux/worker.mjs
+          python -m unittest discover -s tests -p 'test_cineradar_reaction_store.py' -v
+          python -m unittest discover -s tests -p 'test_telegram_reactions_github.py' -v
+          node --test cinecanaux/tests/instant-pinned-no-polling.test.mjs
+          ! grep -q 'observeChannelPublication' cinecanaux/worker.mjs
+      - name: Transfer historical reactions from D1 to encrypted GitHub file (only once)
+        run: python -m scripts.cineradar_import_reaction_history
+      - name: Verify independent Telegram observer and perform first GitHub-only reaction cycle
+        run: python -m scripts.cineradar_reactions_github_only
+      - name: Deploy CineRadar Worker without Cloudflare reaction observer
+        working-directory: cinecanaux
+        run: npx --yes wrangler@4.165.0 deploy --config wrangler.jsonc
+      - name: Confirm CineRadar application still serves HTML
+        run: |
+          set -euo pipefail
+          curl --retry 2 --fail --silent --show-error --max-time 20 \
+            https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app -o /tmp/cineradar-app.html
+          grep -q 'Ciné' /tmp/cineradar-app.html
+          echo CINE_RADAR_WORKER_DEPLOYED_REACTION_OBSERVER_REMOVED

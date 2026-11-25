@@ -1,0 +1,40 @@
+name: CineRadar - one-time encrypted reaction history import
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-import-reaction-history.yml'
+      - 'scripts/cineradar_import_reaction_history.py'
+
+permissions:
+  contents: write
+
+# Excludes all reaction runners during the history import.
+concurrency:
+  group: cineradar-github-encrypted-reactions
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: main
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'cryptography>=43,<47' requests
+      - name: Validate and import only the reaction history into encrypted GitHub state
+        run: python -m scripts.cineradar_import_reaction_history

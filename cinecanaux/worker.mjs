@@ -1,5 +1,4 @@
 import {serveChannelAvatar} from "./channel-avatar.mjs";
-import {observeChannelPublication} from "./channel-reaction-observer.mjs";
 import {pruneTelegramQuota} from "./telegram-global-quota.mjs";
 import {queueKnownStockSources,processPrivateStockQueue} from "./private-stock.mjs";
 import {ingestManualChannelPost} from "./manual-fallback-inbox.mjs";
@@ -99,9 +98,6 @@ async function receiveTelegram(request,env,ctx){
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  try{
   if(update.channel_post||update.edited_channel_post){
-   if(update.channel_post){
-    await observeChannelPublication(env,update.channel_post);
-   }
    await ingestPinUpdate(env,update);await ingestIndividualSeriesUpdate(env,update);await ingestRadarPost(env,update);await ingestFranchiseChannelPost(env,update);await enqueueOwnerVaultUpdate(env,update);await ingestManualChannelPost(env,update);return Response.json({ok:true});}
   if(update.message?.chat?.type==="private"){
    if(ctx?.waitUntil)ctx.waitUntil(recordBotTouch(env,update).catch(e=>console.warn("bot_metrics_failed",String(e).slice(0,70))));
