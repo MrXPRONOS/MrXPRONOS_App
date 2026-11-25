@@ -7,3 +7,5 @@ Ne jamais activer purge_unmatched. Respecter les contrôles de droits et les dé
 2026-11-25T00:51:00Z : relance après PR #701, comparer boutons Telegram TL inchangés ; retirer uniquement vidéos dont copie privée et affiche originales sont vérifiées. Aucune purge inconnue.
 
 25 novembre 2026 : validation en production de la PR #719 après 3 CI réussies. Effectuer d'abord le rattrapage automatique vérifié (jusqu'à 4 affiches et vidéos par canal), puis la rotation sûre des anciennes vidéos hors top 10. Vérifier les nombres de copies, affiches liées, suppressions et anomalies de chaque canal. AUCUNE purge des médias sans sauvegarde vérifiée ni contournement FloodWait.
+
+25 novembre 2026 : relance de vérification de l'archivage quotidien automatique après PR #719 et PR #722, 5 CI réussis. D1 7500 quota journalière : autoriser uniquement le repli en vidéothèque privée de catégorie, conserver affiches et vrais noms, jamais de faux lien CineRadar ; retirer du public seulement une vidéo avec archive vérifiée, préserver les dix dernières. Aucun nettoyage non identifié ni nouvelle purge sans sauvegarde.
