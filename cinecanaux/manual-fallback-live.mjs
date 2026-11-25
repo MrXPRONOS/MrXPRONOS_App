@@ -373,11 +373,14 @@ export class FallbackPublisher{
     source:String(technical.id),messageId:mid.message_id,
     payload:{caption:label+' — '+part.number+'/'+item.parts.length+credit}});
   }
+  // Publish the cover and every part as ONE durable completed course.
   await this.db.query(
    "UPDATE cine_manual_fallback_inbox SET state='published',updated_at=CURRENT_TIMESTAMP "+
    "WHERE chat_id=? AND category=? AND message_id IN ("+
-   item.parts.map(()=>'?').join(',')+") AND state='indexed'",
-   [item.source_chat_id,item.category,...item.parts.map(x=>x.message_id)]);
+   [item.poster_message_id,...item.parts.map(x=>x.message_id)].map(()=>'?').join(',')+
+   ") AND state='indexed'",
+   [item.source_chat_id,item.category,item.poster_message_id,
+    ...item.parts.map(x=>x.message_id)]);
  }
  async publishSelection(selection){
   for(const item of selection.eligible){
@@ -398,16 +401,41 @@ export class FallbackPublisher{
  }
 }
 export async function readManualFallbackQueue(db){
- const rows=(await db.query(
+ const rows=[],size=500,maxPages=60;
+ const prefix=
   "SELECT i.chat_id,i.message_id,i.category,i.kind,i.file_unique_id,"+
-  "i.filename,i.mime_type,i.caption,i.grouped_id,i.posted_at,i.state "+
+  "i.filename,i.mime_type,i.bytes,i.caption,i.grouped_id,i.posted_at,i.state "+
   "FROM cine_manual_fallback_inbox i JOIN cine_manual_fallback_sources s "+
-  "ON i.chat_id=s.chat_id AND i.category=s.category "+
-  "WHERE i.state='indexed' AND s.enabled=1 AND s.owner_approved=1 "+
-  "AND s.rights_attested=1 AND s.bot_access_verified=1 "+
-  "ORDER BY i.posted_at,i.chat_id,i.message_id LIMIT 2001"
- )).results||[];
- assert(rows.length<=2000,'manual_vault_queue_too_large_for_single_safe_scan');
+  "ON i.chat_id=s.chat_id "+
+  "WHERE i.state='indexed' AND s.owner_approved=1 AND s.bot_access_verified=1 "+
+  "AND ((s.category=i.category AND s.enabled=1 AND s.rights_attested=1 "+
+  "AND i.category NOT LIKE 'formation_%') OR "+
+  "(s.category='formation_general' AND i.category LIKE 'formation_%' AND "+
+  "EXISTS (SELECT 1 FROM cine_manual_fallback_sources r "+
+  "WHERE r.category=i.category AND r.owner_approved=1 AND "+
+  "r.bot_access_verified=1 AND r.enabled=1 AND r.rights_attested=1))) ";
+ let cursor=null;
+ for(let page=0;page<=maxPages;page++){
+  const params=cursor?[
+   cursor.posted_at,cursor.posted_at,cursor.chat_id,cursor.chat_id,
+   cursor.message_id]:[];
+  const after=cursor?
+   "AND (i.posted_at>? OR (i.posted_at=? AND "+
+   "(i.chat_id>? OR (i.chat_id=? AND i.message_id>?)))) ":"";
+  const part=(await db.query(prefix+after+
+   "ORDER BY i.posted_at,i.chat_id,i.message_id LIMIT "+size,params)).results||[];
+  if(!part.length)return rows;
+  if(page===maxPages)
+   throw Error('manual_vault_backlog_exceeds_30000_review_required');
+  rows.push(...part);
+  if(part.length<size)return rows;
+  const last=part[part.length-1];
+  assert(Number.isSafeInteger(Number(last.posted_at))&&
+   Number.isSafeInteger(Number(last.message_id))&&
+   ID.test(String(last.chat_id)), 'manual_vault_invalid_page_cursor');
+  cursor={posted_at:Number(last.posted_at),chat_id:String(last.chat_id),
+   message_id:Number(last.message_id)};
+ }
  return rows;
 }
 export async function chooseLiveFallback(db,rows,{personalStatus,enabled,
