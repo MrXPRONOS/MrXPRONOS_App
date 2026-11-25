@@ -14,6 +14,7 @@ from film_relay.legacy_archive_repair import (
     cover_caption, find_verified_public_link, find_verified_private_pair,
     shared_legacy_cover, bot_can_edit_original, legacy_repair_completion,
     verified_owner_pair, fully_linked_legacy_poster,
+    pending_private_cover_rows, private_cover_links_verified,
 )
 
 
@@ -65,6 +66,37 @@ class LegacyMediaIdentityTests(unittest.TestCase):
             safe_buttons(poster, [[NS(url=second)]], second)
         rows = safe_buttons(poster, [[NS(url=second)]], second, verified_part_urls=[first])
         self.assertEqual([b.url for row in rows for b in row], [first, second])
+
+    def test_legacy_private_photo_waits_for_verified_download(self):
+        public = NS(username="CineXFilms_vf")
+        rows = pending_private_cover_rows(public)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0][0][1], "https://t.me/cinexfilms_vf")
+        self.assertTrue(rows[1][0][1].startswith("https://t.me/"))
+        self.assertFalse(any("CineRadar" in str(b) for row in rows for b in row))
+        photo = media(11, "Film Exemple", photo=True, buttons=[
+            [NS(url=rows[0][0][1])], [NS(url=rows[1][0][1])]
+        ])
+        self.assertTrue(private_cover_links_verified(
+            photo, public=public, rescue_url="https://t.me/+anotherValidPrivateInvite"))
+        photo.buttons.pop()
+        self.assertFalse(private_cover_links_verified(photo, public=public))
+
+    def test_existing_private_pair_uses_verified_main_channel(self):
+        public = NS(username="CineXFilms_vf")
+        rows = pending_private_cover_rows(public)
+        cover = media(21, "Le Voyageur Partie 1", photo=True, buttons=[
+            [NS(url=rows[0][0][1])], [NS(url=rows[1][0][1])]
+        ])
+        private_video = media(22, "Le Voyageur Partie 1", video=True, doc=881)
+        source = media(101, "Le Voyageur Partie 1", video=True, doc=881)
+        pair = find_verified_private_pair(
+            [cover, private_video], source, "films",
+            rescue_url="https://t.me/+anotherValidPrivateInvite", public=public)
+        self.assertIsNotNone(pair)
+        self.assertEqual(pair[0].id, 22)
+        self.assertEqual(pair[1].id, 21)
+
 
     def test_legacy_repair_completion_counts_central_missing_covers(self):
         r=legacy_repair_completion([{"older":6,"public_linked":2,
