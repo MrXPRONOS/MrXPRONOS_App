@@ -11,7 +11,7 @@ permissions:
 
 # Synchronize import and first dispatch with the normal encrypted reaction runner.
 concurrency:
-  group: cineradar-github-encrypted-reactions
+  group: cineradar-recovery-deploy-once
   cancel-in-progress: false
 
 jobs:
