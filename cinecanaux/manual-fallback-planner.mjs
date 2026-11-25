@@ -162,10 +162,7 @@ export function planSeasons(rows,{publishedEpisodes=new Set(),maxEpisodes=50}={}
   }
   const item={category:group.category,key:group.key,season:group.season,
     title:group.title,source_chat_id:group.source_chat_id,
-    title:exactTitle(group.posters[0])||group.key.split(':').slice(1).join(':'),
-   description:[String(group.posters[0].caption||''),
-    ...group.descriptions.map(r=>String(r.caption||''))].filter(Boolean).join('\n\n'),
-   poster_message_id:Number(group.posters[0].message_id),
+    poster_message_id:Number(group.posters[0].message_id),
     episodes:pending.map(([n,rs])=>({
      number:n,video_message_id:Number(rs[0].message_id),
      file_unique_id:rawFingerprint(rs[0])}))};
@@ -324,6 +321,9 @@ export function planCourses(rows,{maxParts=100}={}){
   }
   result.items.push({key:group.key,category:group.category,
    source_chat_id:group.source_chat_id,author:group.author,
+   title:exactTitle(group.posters[0])||group.key.split(':').slice(1).join(':'),
+   description:[String(group.posters[0].caption||''),
+    ...group.descriptions.map(r=>String(r.caption||''))].filter(Boolean).join('\n\n'),
    poster_message_id:Number(group.posters[0].message_id),
    parts:group.parts.map(p=>({...p}))});
  }
