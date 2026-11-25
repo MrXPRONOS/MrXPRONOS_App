@@ -76,7 +76,7 @@ class LegacyQuotaFallbackTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(RuntimeError, "invalid stock"):
                 optional_legacy_central_library(NS(), apply=True)
 
-    def test_midrun_quota_disables_registry_without_unsafe_retry(self):
+    async def test_midrun_quota_disables_registry_without_unsafe_retry(self):
         library = NS(store=AsyncMock(
             side_effect=RadarDailyQuotaError("7500")))
         opts = dict(category="films", title="Un Film", public=NS(),
