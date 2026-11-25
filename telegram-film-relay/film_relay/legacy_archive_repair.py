@@ -503,6 +503,16 @@ async def repair_channel(client, bot, category: str, public, private,
         existing_pair = find_verified_private_pair(
             private_messages, video, category, rescue_url=rescue,
             reference=identity, public=public)
+        # A verified CineRadar button already present on the public poster
+        # must NEVER be silently removed during a D1 quota fallback.
+        if ((central_quota_unavailable or
+             getattr(unified, "_d1_quota_exhausted", False))
+                and existing_download_button(poster)):
+            report["skipped"] += 1
+            LOG.warning("%s : fiche #%s déjà dotée d'un téléchargement CineRadar ; "
+                        "quota D1 indisponible, affiche et liens inchangés",
+                        category, poster.id)
+            continue
         if not multipart and existing_pair and fully_linked_legacy_poster(
                 poster, private_id, existing_pair[0].id, rescue,
                 film_folder_url(), extra_text=extra):
@@ -614,6 +624,15 @@ async def repair_channel(client, bot, category: str, public, private,
             # The legacy photo is created before the central download exists.
             # Only AFTER the real CineRadar receipt is verified may its private
             # keyboard receive the third, exact download button. No placeholder.
+            if not download_url and existing_download_button(poster):
+                # D1 could also expire after a private media upload. Preserve
+                # the already published download URL; never delete a working
+                # button or replace it with an invented central link.
+                report["skipped"] += 1
+                LOG.warning("%s : CineRadar indisponible pendant la copie ; "
+                            "affiche #%s inchangée, vidéo privée conservée",
+                            category, poster.id)
+                continue
             if download_url and not pair:
                 from .radar_download_registry import is_bot_download_url
                 if not is_bot_download_url(download_url):
