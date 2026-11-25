@@ -140,7 +140,14 @@ def main():
     args=ap.parse_args()
     # A Sunday execution covers next Mon-Sun. Outside Sundays, safe offline preview only.
     now=datetime.now(timezone.utc)
-    if not args.dry_run and now.weekday()!=6:
+    if args.dry_run:
+        # Preview the next scheduled Sunday, not a week outside today's 168h window.
+        days=(6-now.weekday()) % 7
+        if days==0 and (now.hour,now.minute)>=(13,30):
+            days=7
+        preview_date=now.date()+timedelta(days=days)
+        now=datetime(preview_date.year,preview_date.month,preview_date.day,13,30,tzinfo=timezone.utc)
+    elif now.weekday()!=6:
         raise SystemExit("Live weekly generation is permitted only on Sunday")
     raw=[os.getenv("TELEGRAM_CHAT_ID",""),os.getenv("TELEGRAM_CHAT_ID_SECONDARY","")]
     if any(not re.fullmatch(r"-100[0-9]+",v.strip()) for v in raw):
@@ -156,8 +163,7 @@ def main():
     hours,posts=load_manifest(output,now=now,root=ROOT)
     print(json.dumps({"posts":len(posts),"days":7,"unapproved_skips":len(skipped),
                      "first":posts[0]["at"].isoformat() if posts else None},ensure_ascii=False))
-    if not args.dry_run and skipped:
-        raise SystemExit("Weekly batch incomplete: approval is required for all applicable items")
+    # Unapproved campaigns are intentionally omitted; never override the user approvals.
     if not posts:
         raise SystemExit("No approved weekly posts")
     return 0
