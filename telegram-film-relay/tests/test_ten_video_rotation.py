@@ -79,15 +79,15 @@ class TenVideoRotationTests(unittest.TestCase):
 
 
     def test_native_callback_button_unchanged_allows_verified_cleanup(self):
-        from telethon.tl.types import KeyboardButtonCallback
+        from telethon import Button
         from film_relay.original_poster_edit import (
             read_only_keyboard_signature, public_keyboard_signature,
         )
         def make(data=b"film-421"):
             return NS(id=420, photo=NS(id=817), pinned=True,
                       raw_text="Film éligible",
-                      buttons=[[NS(button=KeyboardButtonCallback(
-                          text="Ancien bouton", data=data))]])
+                      buttons=[[NS(button=Button.inline(
+                          "Ancien bouton", data=data).button)]])
         prior = make()
         current = make()
         with self.assertRaises(RuntimeError):
@@ -99,14 +99,12 @@ class TenVideoRotationTests(unittest.TestCase):
         self.assertFalse(original_poster_safe_for_deletion(current, prior))
 
     def test_native_legacy_url_and_callback_changed_blocks_cleanup(self):
-        from telethon.tl.types import KeyboardButtonUrl, KeyboardButtonCallback
+        from telethon import Button
         def make(link, data):
             return NS(id=421, photo=NS(id=818), pinned=True,
                       raw_text="Film éligible",
-                      buttons=[[NS(button=KeyboardButtonUrl(
-                          text="VOIR FILM", url=link)),
-                          NS(button=KeyboardButtonCallback(
-                          text="Informations", data=data))]])
+                      buttons=[[NS(button=Button.url("VOIR FILM", link).button),
+                          NS(button=Button.inline("Informations", data=data).button)]])
         saved = make("https://t.me/c/4392607284/314", b"verified")
         self.assertTrue(original_poster_safe_for_deletion(
             make("https://t.me/c/4392607284/314", b"verified"), saved))
