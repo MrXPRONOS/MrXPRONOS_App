@@ -1,0 +1,1 @@
+Once-only retry of two-stage private CineX canary. First attempt failed BEFORE send because unified stock GitHub variable was empty. Non-D1 owner SHA lookup only.

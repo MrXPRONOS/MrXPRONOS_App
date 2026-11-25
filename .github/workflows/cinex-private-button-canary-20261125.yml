@@ -2,7 +2,7 @@ name: CineX - Bouton canari immediat puis +30 minutes (unique)
 on:
   push:
     branches: [main]
-    paths: ['telegram-film-relay/.cinex-button-canary-20261125']
+    paths: ['telegram-film-relay/.cinex-button-canary-20261125', 'telegram-film-relay/.cinex-button-canary-retry-20261125', 'telegram-film-relay/.cinex-button-canary-supabase-retry-20261125']
 permissions:
   contents: read
 concurrency:
@@ -26,6 +26,7 @@ jobs:
         env: &secrets
           CINEX_PRIVATE_CANARY_ENABLED: '1'
           CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
