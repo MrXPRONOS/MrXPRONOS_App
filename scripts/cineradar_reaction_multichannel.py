@@ -330,6 +330,24 @@ class Runtime:
                 AND post_seq IN (SELECT seq FROM channel_reaction_posts WHERE chat_id=?)""",
                 (cid,),
             )
+        # Channels missing the current owner's verified admin permission are
+        # paused, not permanently deleted or marked as Torrent9. Recheck after
+        # the encrypted owner inventory is refreshed.
+        for cid in unverified:
+            self.db.query(
+                """UPDATE channel_reaction_extra_jobs SET state='retry',
+                next_try_at=datetime('now','+12 hours'),last_error='policy:owner_unverified'
+                WHERE state IN ('pending','retry') AND next_try_at<=CURRENT_TIMESTAMP
+                AND post_seq IN (SELECT seq FROM channel_reaction_posts WHERE chat_id=?)""",
+                (cid,),
+            )
+            self.db.query(
+                """UPDATE channel_reaction_jobs SET state='retry',
+                next_try_at=datetime('now','+12 hours'),last_error='policy:owner_unverified'
+                WHERE state IN ('pending','retry') AND next_try_at<=CURRENT_TIMESTAMP
+                AND post_seq IN (SELECT seq FROM channel_reaction_posts WHERE chat_id=?)""",
+                (cid,),
+            )
         for cid in disabled:
             self.db.query(
                 """UPDATE channel_reaction_extra_jobs SET state='retry',
