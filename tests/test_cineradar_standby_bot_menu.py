@@ -71,6 +71,27 @@ class TestStandbyBotMenu(unittest.TestCase):
         self.assertNotIn("deleteWebhook",operations)
         self.assertNotIn("getUpdates",operations)
 
+
+    def test_http_probe_parses_curl_status_and_body(self):
+        from unittest.mock import patch
+        from subprocess import CompletedProcess
+        output='{"service":"cine-radar","database":true}\\n200|application/json'
+        with patch.object(bot.subprocess,"run",return_value=CompletedProcess([],0,stdout=output,stderr="")):
+            result=bot.http_probe(bot.BASE+"/health")
+        self.assertEqual(result["status"],200)
+        self.assertEqual(result["json"]["service"],"cine-radar")
+        self.assertTrue(result["json"]["database"])
+
+    def test_real_health_classification_does_not_treat_ci_network_block_as_outage(self):
+        from unittest.mock import patch
+        with patch.object(bot.time,"sleep",return_value=None):
+            self.assertIsNone(bot.checked_health(lambda url:{"status":403,"type":"text/html","json":{}}))
+            self.assertFalse(bot.checked_health(lambda url:{"status":503,"type":"text/html","json":{}}))
+            def healthy(url):
+                return ({"status":200,"type":"application/json","json":{"service":"cine-radar","database":True}}
+                        if url.endswith("/health") else {"status":200,"type":"text/html","json":{}})
+            self.assertTrue(bot.checked_health(healthy))
+
     def test_custom_menu_is_never_modified(self):
         def api(token,method,data):
             if method=="getChatMenuButton":
