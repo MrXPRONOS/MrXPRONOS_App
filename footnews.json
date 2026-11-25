@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-25T08:36:05+00:00",
+    "published": "2026-11-25T09:08:15+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,44 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "2658c089fbe42ce1",
+    "title": "[VOS RÉACTIONS] CAN 2025: le Sénégal peut enfin savourer son sacre!",
+    "summary": "Le Sénégal récupère son titre de champion d’Afrique. Dix mois après une finale chaotique face au Maroc, le Tribunal arbitral du sport a tranché: victoire du Sénégal, 1-0 après prolongation.",
+    "summary_short": "Le Sénégal récupère son titre de champion d’Afrique. Dix mois après une finale chaotique face au Maroc, le Tribunal arbitral du sport a tranché: victoire du Sénégal, 1-0 après prolongation.",
+    "content": "Le Sénégal récupère son titre de champion d’Afrique. Dix mois après une finale chaotique face au Maroc, le Tribunal arbitral du sport a tranché: victoire du Sénégal, 1-0 après prolongation. Les Lions de la Teranga retrouvent donc leur étoile, retirée par la CAF qui avait déclaré l'équipe forfait et attribué le titre au Maroc sur tapis vert. Comment avez-vous vécu ce long bras de fer judiciaire? Quelles conséquences pour l'image du football africain? Vos réactions nous intéressent!",
+    "paragraphs": [
+      "Le Sénégal récupère son titre de champion d’Afrique. Dix mois après une finale chaotique face au Maroc, le Tribunal arbitral du sport a tranché: victoire du Sénégal, 1-0 après prolongation. Les Lions de la Teranga retrouvent donc leur étoile, retirée par la CAF qui avait déclaré l'équipe forfait et attribué le titre au Maroc sur tapis vert.",
+      "Comment avez-vous vécu ce long bras de fer judiciaire? Quelles conséquences pour l'image du football africain? Vos réactions nous intéressent!"
+    ],
+    "key_points": [
+      "Le Sénégal récupère son titre de champion d’Afrique.",
+      "Dix mois après une finale chaotique face au Maroc, le Tribunal arbitral du sport a tranché: victoire du Sénégal, 1-0 après prolongation.",
+      "Les Lions de la Teranga retrouvent donc leur étoile, retirée par la CAF qui avait déclaré l'équipe forfait et attribué le titre au Maroc sur tapis vert.",
+      "Comment avez-vous vécu ce long bras de fer judiciaire?"
+    ],
+    "telegram_summary": "Le Sénégal récupère son titre de champion d’Afrique. Dix mois après une finale chaotique face au Maroc, le Tribunal arbitral du sport a tranché: victoire du Sénégal, 1-0 après prolongation.",
+    "link": "https://www.rfi.fr/fr/podcasts/appels-sur-l-actualit%C3%A9/20261125-vos-r%C3%A9actions-can-2025-le-s%C3%A9n%C3%A9gal-peut-enfin-savourer-son-sacre",
+    "source_url": "https://www.rfi.fr/fr/podcasts/appels-sur-l-actualit%C3%A9/20261125-vos-r%C3%A9actions-can-2025-le-s%C3%A9n%C3%A9gal-peut-enfin-savourer-son-sacre",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2658c089fbe42ce1",
+    "published": "2026-11-25T08:40:46+00:00",
+    "image": "https://s.rfi.fr/media/display/a3f9a9ca-e849-11f1-bc6f-1991d4929b54/w:1024/p:16x9/FOOTBALL-SENEGAL-CAN2025-DAKAR.jpg",
+    "source_image": "https://s.rfi.fr/media/display/a3f9a9ca-e849-11f1-bc6f-1991d4929b54/w:1024/p:16x9/FOOTBALL-SENEGAL-CAN2025-DAKAR.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
   },
   {
     "slug": "ab9dc246f48da785",
@@ -119,7 +157,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -183,7 +221,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -312,7 +350,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -323,17 +361,17 @@
   {
     "slug": "689a1990d1d5e865",
     "title": "CAN 2025 : le Sénégal déclaré vainqueur par le TAS, le Maroc conteste",
-    "summary": "Le Tribunal Arbitral du Sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "summary_short": "Le Tribunal Arbitral du Sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "content": "Le Tribunal Arbitral du Sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
+    "summary": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
+    "summary_short": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
+    "content": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
     "paragraphs": [
-      "Le Tribunal Arbitral du Sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
+      "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
     ],
     "key_points": [
-      "Le Tribunal Arbitral du Sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025.",
+      "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025.",
       "La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
     ],
-    "telegram_summary": "Le Tribunal Arbitral du Sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
+    "telegram_summary": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
     "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261125-can-2025-le-s%C3%A9n%C3%A9gal-d%C3%A9clar%C3%A9-vainqueur-par-le-tas-le-maroc-conteste",
     "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261125-can-2025-le-s%C3%A9n%C3%A9gal-d%C3%A9clar%C3%A9-vainqueur-par-le-tas-le-maroc-conteste",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=689a1990d1d5e865",
@@ -447,7 +485,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -530,16 +568,16 @@
   {
     "slug": "f7325d8b736d4ef2",
     "title": "Le terrible bilan de Florian Thauvin en Ligue des champions après la défaite de Lens à Leipzig",
-    "summary": "On comprend son énervement. La stat fait mal. En dix-sept matchs de Ligue des champions, Florian…",
-    "summary_short": "On comprend son énervement. La stat fait mal. En dix-sept matchs de Ligue des champions, Florian…",
-    "content": "On comprend son énervement. La stat fait mal. En dix-sept matchs de Ligue des champions, Florian…",
+    "summary": "On comprend son énervement. La stat fait mal. En 17 matchs de Ligue des champions, Florian…",
+    "summary_short": "On comprend son énervement. La stat fait mal. En 17 matchs de Ligue des champions, Florian…",
+    "content": "On comprend son énervement. La stat fait mal. En 17 matchs de Ligue des champions, Florian…",
     "paragraphs": [
-      "On comprend son énervement. La stat fait mal. En dix-sept matchs de Ligue des champions, Florian…"
+      "On comprend son énervement. La stat fait mal. En 17 matchs de Ligue des champions, Florian…"
     ],
     "key_points": [
-      "En dix-sept matchs de Ligue des champions, Florian…"
+      "En 17 matchs de Ligue des champions, Florian…"
     ],
-    "telegram_summary": "On comprend son énervement. La stat fait mal. En dix-sept matchs de Ligue des champions, Florian…",
+    "telegram_summary": "On comprend son énervement. La stat fait mal. En 17 matchs de Ligue des champions, Florian…",
     "link": "https://www.sofoot.com/breves/le-terrible-bilan-de-florian-thauvin-en-ligue-des-champions-apres-la-defaite-de-lens-a-leipzig",
     "source_url": "https://www.sofoot.com/breves/le-terrible-bilan-de-florian-thauvin-en-ligue-des-champions-apres-la-defaite-de-lens-a-leipzig",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f7325d8b736d4ef2",
@@ -662,28 +700,32 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50572645",
-      "url": "https://www.espn.com/soccer/story/_/id/50572645/jude-bellingham-thibaut-courtois-real-madrid",
-      "published": "2026-11-23T13:37:39Z",
+      "article_id": "50590998",
+      "url": "https://www.espn.com/soccer/story/_/id/50590998/jobe-jude-bellingham-real-madrid-dortmund",
+      "published": "2026-11-25T08:53:03Z",
       "score": 0.2,
       "matched_terms": [
         "bellingham",
         "jude"
       ],
-      "topics": [],
+      "topics": [
+        "news"
+      ],
       "teams": [
+        "Arsenal",
+        "Borussia Dortmund",
         "Real Madrid"
       ],
       "athletes": [
-        "Jude Bellingham",
-        "Thibaut Courtois"
+        "Jobe Bellingham",
+        "Jude Bellingham"
       ],
       "leagues": [
         "Soccer",
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -765,24 +807,24 @@
   },
   {
     "slug": "7b29a692304496f6",
-    "title": "Edition spéciale : CAN-2025, le Sénégal récupère son titre de champion d'Afrique",
-    "summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique: le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN-2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "summary_short": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique: le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN-2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "content": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique: le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN-2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24.",
+    "title": "Édition spéciale : CAN 2025, le Sénégal récupère son titre de champion d'Afrique",
+    "summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
+    "summary_short": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
+    "content": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24.",
     "paragraphs": [
-      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique: le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN-2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
+      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
     ],
     "key_points": [
-      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique: le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN-2025 aux dépens du Maroc, sacré sur tapis vert.",
+      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
       "Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
     ],
-    "telegram_summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique: le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN-2025 aux dépens du Maroc, sacré sur tapis vert.",
+    "telegram_summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
     "link": "https://www.france24.com/fr/%C3%A9missions/journal-de-l-afrique/20261124-edition-sp%C3%A9ciale-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-de-champion-d-afrique",
     "source_url": "https://www.france24.com/fr/%C3%A9missions/journal-de-l-afrique/20261124-edition-sp%C3%A9ciale-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-de-champion-d-afrique",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7b29a692304496f6",
     "published": "2026-11-24T21:58:13+00:00",
-    "image": "https://s.france24.com/media/display/e044992e-e850-11f1-a718-81da3ab2acbb/w:1024/p:16x9/DN00015954-VOD-00043832-01.jpg",
-    "source_image": "https://s.france24.com/media/display/e044992e-e850-11f1-a718-81da3ab2acbb/w:1024/p:16x9/DN00015954-VOD-00043832-01.jpg",
+    "image": "https://s.france24.com/media/display/4fa53bc8-e8ad-11f1-8498-95e072ff0a91/w:1024/p:16x9/capture-2dcd8138.jpg",
+    "source_image": "https://s.france24.com/media/display/4fa53bc8-e8ad-11f1-8498-95e072ff0a91/w:1024/p:16x9/capture-2dcd8138.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "France 24",
@@ -1678,6 +1720,166 @@
     "quality_score": 86
   },
   {
+    "slug": "c21129c2b8840e28",
+    "title": "Le Barça lance un ultimatum à Florentino Pérez",
+    "summary": "Le FC Barcelone et le Real Madrid ont rendez-vous ce mercredi 25 novembre devant les tribunaux de Madrid pour une audience de conciliation liée à l’affaire Negreira. Cette procédure fait suite aux (…)",
+    "summary_short": "Le FC Barcelone et le Real Madrid ont rendez-vous ce mercredi 25 novembre devant les tribunaux de Madrid pour une audience de conciliation liée à l’affaire Negreira. Cette procédure fait suite aux (…)",
+    "content": "Le FC Barcelone et le Real Madrid ont rendez-vous ce mercredi 25 novembre devant les tribunaux de Madrid pour une audience de conciliation liée à l’affaire Negreira. Cette procédure fait suite aux (…)",
+    "paragraphs": [
+      "Le FC Barcelone et le Real Madrid ont rendez-vous ce mercredi 25 novembre devant les tribunaux de Madrid pour une audience de conciliation liée à l’affaire Negreira. Cette procédure fait suite aux (…)"
+    ],
+    "key_points": [
+      "Le FC Barcelone et le Real Madrid ont rendez-vous ce mercredi 25 novembre devant les tribunaux de Madrid pour une audience de conciliation liée à l’affaire Negreira."
+    ],
+    "telegram_summary": "Le FC Barcelone et le Real Madrid ont rendez-vous ce mercredi 25 novembre devant les tribunaux de Madrid pour une audience de conciliation liée à l’affaire Negreira. Cette procédure fait suite aux (…)",
+    "link": "https://www.footmercato.net/a4174391360833542379-le-barca-lance-un-ultimatum-a-florentino-perez",
+    "source_url": "https://www.footmercato.net/a4174391360833542379-le-barca-lance-un-ultimatum-a-florentino-perez",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c21129c2b8840e28",
+    "published": "2026-11-25T09:04:40+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/florentino-perez-2627.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/florentino-perez-2627.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "4a68d31ee32986f6",
+    "title": "Real : Bellingham dans une autre dimension",
+    "summary": "Auteur d'un but exceptionnel contre le PSV (5-1), mardi en Ligue des Champions, Jude Bellingham confirme son incroyable montée en puissance...",
+    "summary_short": "Auteur d'un but exceptionnel contre le PSV (5-1), mardi en Ligue des Champions, Jude Bellingham confirme son incroyable montée en puissance...",
+    "content": "Auteur d'un but exceptionnel contre le PSV (5-1), mardi en Ligue des Champions, Jude Bellingham confirme son incroyable montée en puissance...",
+    "paragraphs": [
+      "Auteur d'un but exceptionnel contre le PSV (5-1), mardi en Ligue des Champions, Jude Bellingham confirme son incroyable montée en puissance..."
+    ],
+    "key_points": [
+      "Auteur d'un but exceptionnel contre le PSV (5-1), mardi en Ligue des Champions, Jude Bellingham confirme son incroyable montée en puissance..."
+    ],
+    "telegram_summary": "Auteur d'un but exceptionnel contre le PSV (5-1), mardi en Ligue des Champions, Jude Bellingham confirme son incroyable montée en puissance...",
+    "link": "https://m.maxifoot.fr/football/article-66668.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66668.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4a68d31ee32986f6",
+    "published": "2026-11-25T09:00:20+00:00",
+    "image": "https://photo.maxifoot.fr/real-madrid-bellingham-joie-51.jpg",
+    "source_image": "https://photo.maxifoot.fr/real-madrid-bellingham-joie-51.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50554950",
+      "url": "https://www.espn.com/video/clip/_/id/50554950/bellingham-espi-rescue-real-madrid-mbappe-missed-penalty",
+      "published": "2026-11-21T22:42:56Z",
+      "score": 0.2,
+      "matched_terms": [
+        "bellingham",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Celta Vigo",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
+    },
+    "quality_sources": [
+      "Maxifoot",
+      "ESPN"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "f9ccddda4ea512e7",
+    "title": "Real Madrid : \"Un génie\", \"Bellingham bouillonne\", \"Meilleur équipe d'Europe\"... la presse étrangère adoube Bellingham et les Madrilènes",
+    "summary": "Ce mardi, le Real Madrid de Jude Bellingham a choqué absolument tout le monde, balayant le PSV Eindhoven 5 buts à 1.",
+    "summary_short": "Ce mardi, le Real Madrid de Jude Bellingham a choqué absolument tout le monde, balayant le PSV Eindhoven 5 buts à 1.",
+    "content": "Ce mardi, le Real Madrid de Jude Bellingham a choqué absolument tout le monde, balayant le PSV Eindhoven 5 buts à 1.",
+    "paragraphs": [
+      "Ce mardi, le Real Madrid de Jude Bellingham a choqué absolument tout le monde, balayant le PSV Eindhoven 5 buts à 1."
+    ],
+    "key_points": [
+      "Ce mardi, le Real Madrid de Jude Bellingham a choqué absolument tout le monde, balayant le PSV Eindhoven 5 buts à 1."
+    ],
+    "telegram_summary": "Ce mardi, le Real Madrid de Jude Bellingham a choqué absolument tout le monde, balayant le PSV Eindhoven 5 buts à 1.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/real-madrid-un-genie-bellingham-bouillonne-meilleur-equipe-deurope-la-presse-etrangere-adoube-bellingham-et-les-madrilenes-1011133",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/real-madrid-un-genie-bellingham-bouillonne-meilleur-equipe-deurope-la-presse-etrangere-adoube-bellingham-et-les-madrilenes-1011133",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f9ccddda4ea512e7",
+    "published": "2026-11-25T08:59:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011133/411574/1200-L-real-madrid-un-gnie-bellingham-bouillonne-meilleur-quipe-d-europe-la-presse-trangre-adoube-bellingham-et-les-madrilnes.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011133/411574/1200-L-real-madrid-un-gnie-bellingham-bouillonne-meilleur-quipe-d-europe-la-presse-trangre-adoube-bellingham-et-les-madrilnes.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "415f2ff781ff7447",
+    "title": "Ligue des champions : L’entraîneur du Real Madrid José Mourinho encense Jude Bellingham après son but fabuleux contre le PSV Eindhoven",
+    "summary": "Pour rappel, ce mardi soir, Jude Bellingham a inscrit ce but en sortie de banc : Embed…",
+    "summary_short": "Pour rappel, ce mardi soir, Jude Bellingham a inscrit ce but en sortie de banc : Embed…",
+    "content": "Pour rappel, ce mardi soir, Jude Bellingham a inscrit ce but en sortie de banc : Embed…",
+    "paragraphs": [
+      "Pour rappel, ce mardi soir, Jude Bellingham a inscrit ce but en sortie de banc : Embed…"
+    ],
+    "key_points": [
+      "Pour rappel, ce mardi soir, Jude Bellingham a inscrit ce but en sortie de banc : Embed…"
+    ],
+    "telegram_summary": "Pour rappel, ce mardi soir, Jude Bellingham a inscrit ce but en sortie de banc : Embed…",
+    "link": "https://www.sofoot.com/breves/ligue-des-champions-lentraineur-du-real-madrid-jose-mourinho-encense-jude-bellingham-apres-son-but-fabuleux-contre-le-psv-eindhoven",
+    "source_url": "https://www.sofoot.com/breves/ligue-des-champions-lentraineur-du-real-madrid-jose-mourinho-encense-jude-bellingham-apres-son-but-fabuleux-contre-le-psv-eindhoven",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=415f2ff781ff7447",
+    "published": "2026-11-25T08:47:37+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25095052/15402304.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25095052/15402304.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "8fa63ecdacb2cc39",
     "title": "RC Lens : l’agacement de Florian Thauvin fait jaser…",
     "summary": "Le capitaine lensois Florian Thauvin a affiché son mécontentement au micro de Canal+ en se contentant de lâcher quelques mots. Une attitude qui pose clairement question. Cela s’est immédiatement vu à (…)",
@@ -1817,18 +2019,18 @@
   },
   {
     "slug": "e55d492621b9ca82",
-    "title": "Ligue des champions : Homme du match, Ryan Cherki se fout de son but avec Manchester City contre Naples, il veut gagner",
-    "summary": "Quand Rayan frustré, lui toujours faire ainsi. Elu homme du match après son but qui a permis à Manchester City…",
-    "summary_short": "Quand Rayan frustré, lui toujours faire ainsi. Elu homme du match après son but qui a permis à Manchester City…",
-    "content": "Quand Rayan frustré, lui toujours faire ainsi. Elu homme du match après son but qui a permis à Manchester City…",
+    "title": "Ligue des champions : Homme du match, Rayan Cherki se fout de son but avec Manchester City contre Naples, il veut gagner",
+    "summary": "Quand Rayan frustré, lui toujours faire ainsi. Élu homme du match après son but qui a permis à Manchester City…",
+    "summary_short": "Quand Rayan frustré, lui toujours faire ainsi. Élu homme du match après son but qui a permis à Manchester City…",
+    "content": "Quand Rayan frustré, lui toujours faire ainsi. Élu homme du match après son but qui a permis à Manchester City…",
     "paragraphs": [
-      "Quand Rayan frustré, lui toujours faire ainsi. Elu homme du match après son but qui a permis à Manchester City…"
+      "Quand Rayan frustré, lui toujours faire ainsi. Élu homme du match après son but qui a permis à Manchester City…"
     ],
     "key_points": [
       "Quand Rayan frustré, lui toujours faire ainsi.",
-      "Elu homme du match après son but qui a permis à Manchester City…"
+      "Élu homme du match après son but qui a permis à Manchester City…"
     ],
-    "telegram_summary": "Quand Rayan frustré, lui toujours faire ainsi. Elu homme du match après son but qui a permis à Manchester City…",
+    "telegram_summary": "Quand Rayan frustré, lui toujours faire ainsi. Élu homme du match après son but qui a permis à Manchester City…",
     "link": "https://www.sofoot.com/breves/ligue-des-champions-homme-du-match-ryan-cherki-se-fout-de-son-but-avec-manchester-city-contre-naples-il-veut-gagner",
     "source_url": "https://www.sofoot.com/breves/ligue-des-champions-homme-du-match-ryan-cherki-se-fout-de-son-but-avec-manchester-city-contre-naples-il-veut-gagner",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e55d492621b9ca82",
@@ -1969,7 +2171,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2101,213 +2303,12 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
+      "checked_at": "2026-11-25T09:08:09.476089+00:00"
     },
     "quality_sources": [
       "So Foot",
       "ESPN"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "006ec8497ae8308e",
-    "title": "RC Lens : Daniel Riolo réagit au coup de gueule de Florian Thauvin après la défaite à Leipzig",
-    "summary": "Daniel Riolo a réagi à la prise de parole de Florian Thauvin.",
-    "summary_short": "Daniel Riolo a réagi à la prise de parole de Florian Thauvin.",
-    "content": "Daniel Riolo a réagi à la prise de parole de Florian Thauvin.",
-    "paragraphs": [
-      "Daniel Riolo a réagi à la prise de parole de Florian Thauvin."
-    ],
-    "key_points": [
-      "Daniel Riolo a réagi à la prise de parole de Florian Thauvin."
-    ],
-    "telegram_summary": "Daniel Riolo a réagi à la prise de parole de Florian Thauvin.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-daniel-riolo-reagit-au-coup-de-gueule-de-florian-thauvin-apres-la-defaite-a-leipzig-546919.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-daniel-riolo-reagit-au-coup-de-gueule-de-florian-thauvin-apres-la-defaite-a-leipzig-546919.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=006ec8497ae8308e",
-    "published": "2026-11-25T07:39:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260816230140-4098.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260816230140-4098.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "4d759c1c816b039c",
-    "title": "Lens : personne ne fait pire en Ligue des champions, les chiffres terribles de Thauvin en C1",
-    "summary": "Florian Thauvin a vécu une soirée particulièrement difficile ce mardi soir avec Lens à Leipzig.",
-    "summary_short": "Florian Thauvin a vécu une soirée particulièrement difficile ce mardi soir avec Lens à Leipzig.",
-    "content": "Florian Thauvin a vécu une soirée particulièrement difficile ce mardi soir avec Lens à Leipzig.",
-    "paragraphs": [
-      "Florian Thauvin a vécu une soirée particulièrement difficile ce mardi soir avec Lens à Leipzig."
-    ],
-    "key_points": [
-      "Florian Thauvin a vécu une soirée particulièrement difficile ce mardi soir avec Lens à Leipzig."
-    ],
-    "telegram_summary": "Florian Thauvin a vécu une soirée particulièrement difficile ce mardi soir avec Lens à Leipzig.",
-    "link": "https://www.onzemondial.com/ligue-1/lens-personne-ne-fait-pire-en-ligue-des-champions-les-chiffres-terribles-de-thauvin-en-c1-1011122",
-    "source_url": "https://www.onzemondial.com/ligue-1/lens-personne-ne-fait-pire-en-ligue-des-champions-les-chiffres-terribles-de-thauvin-en-c1-1011122",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4d759c1c816b039c",
-    "published": "2026-11-25T07:28:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011122/411571/1200-L-lens-personne-ne-fait-pire-en-ligue-des-champions-les-chiffres-terribles-de-thauvin-en-c1.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011122/411571/1200-L-lens-personne-ne-fait-pire-en-ligue-des-champions-les-chiffres-terribles-de-thauvin-en-c1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "b6a364b6265186f2",
-    "title": "Le projet à 70 M€ de l’OM fait scandale",
-    "summary": "Le club phocéen veut quitter la Commanderie pour s’installer à Trets. Un chantier qui provoque déjà des contestations.La nouvelle n’est pas passée inaperçue hier soir. L’Olympique de Marseille va bel (…)",
-    "summary_short": "Le club phocéen veut quitter la Commanderie pour s’installer à Trets. Un chantier qui provoque déjà des contestations.La nouvelle n’est pas passée inaperçue hier soir. L’Olympique de Marseille va bel (…)",
-    "content": "Le club phocéen veut quitter la Commanderie pour s’installer à Trets. Un chantier qui provoque déjà des contestations.La nouvelle n’est pas passée inaperçue hier soir. L’Olympique de Marseille va bel (…)",
-    "paragraphs": [
-      "Le club phocéen veut quitter la Commanderie pour s’installer à Trets. Un chantier qui provoque déjà des contestations.La nouvelle n’est pas passée inaperçue hier soir. L’Olympique de Marseille va bel (…)"
-    ],
-    "key_points": [
-      "Le club phocéen veut quitter la Commanderie pour s’installer à Trets.",
-      "Un chantier qui provoque déjà des contestations.La nouvelle n’est pas passée inaperçue hier soir.",
-      "L’Olympique de Marseille va bel (…)"
-    ],
-    "telegram_summary": "Le club phocéen veut quitter la Commanderie pour s’installer à Trets. Un chantier qui provoque déjà des contestations.La nouvelle n’est pas passée inaperçue hier soir. L’Olympique de Marseille va bel (…)",
-    "link": "https://www.footmercato.net/a5654521329289249817-le-projet-a-70-meur-de-lom-fait-scandale",
-    "source_url": "https://www.footmercato.net/a5654521329289249817-le-projet-a-70-meur-de-lom-fait-scandale",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b6a364b6265186f2",
-    "published": "2026-11-25T07:23:12+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/om-commanderie.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/om-commanderie.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "9e9113329e71ad66",
-    "title": "How to unearth young stars, the Bayern Munich way",
-    "summary": "Bayern Munich initially aim to find local young players from Bavaria before looking further afield - here's how they do it.",
-    "summary_short": "Bayern Munich initially aim to find local young players from Bavaria before looking further afield - here's how they do it.",
-    "content": "Bayern Munich initially aim to find local young players from Bavaria before looking further afield - here's how they do it.",
-    "paragraphs": [
-      "Bayern Munich initially aim to find local young players from Bavaria before looking further afield - here's how they do it."
-    ],
-    "key_points": [
-      "Bayern Munich initially aim to find local young players from Bavaria before looking further afield - here's how they do it."
-    ],
-    "telegram_summary": "Bayern Munich initially aim to find local young players from Bavaria before looking further afield - here's how they do it.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/c6702wddqz17o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/c6702wddqz17o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9e9113329e71ad66",
-    "published": "2026-11-25T07:22:27+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1ef6/live/befff4e0-e4f2-11f1-8781-bf15c9202663.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1ef6/live/befff4e0-e4f2-11f1-8781-bf15c9202663.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50187435",
-      "url": "https://www.espn.com/soccer/story/_/id/50187435/transfer-rumors-news-lisandro-martinez-future-man-united-doubt-bust-up",
-      "published": "2026-10-15T20:54:08Z",
-      "score": 0.25,
-      "matched_terms": [
-        "bayern",
-        "munich"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "Bayern Munich",
-        "Liverpool"
-      ],
-      "athletes": [
-        "Florian Wirtz"
-      ],
-      "leagues": [
-        "English Premier League",
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-25T08:40:17.176922+00:00"
-    },
-    "quality_sources": [
-      "BBC Sport",
-      "ESPN"
-    ],
-    "quality_score": 93
-  },
-  {
-    "slug": "669009d623630d39",
-    "title": "AS Roma : Les mots très fort de Paulo Dybala sur Vitinha : \"C'est un joueur d'une qualité exceptionnelle\"",
-    "summary": "Paulo Dybala, futur adversaire du PSG en Ligue des champions avec l'AS Rome, est sous le charme de Vitinha.",
-    "summary_short": "Paulo Dybala, futur adversaire du PSG en Ligue des champions avec l'AS Rome, est sous le charme de Vitinha.",
-    "content": "Paulo Dybala, futur adversaire du PSG en Ligue des champions avec l'AS Rome, est sous le charme de Vitinha.",
-    "paragraphs": [
-      "Paulo Dybala, futur adversaire du PSG en Ligue des champions avec l'AS Rome, est sous le charme de Vitinha."
-    ],
-    "key_points": [
-      "Paulo Dybala, futur adversaire du PSG en Ligue des champions avec l'AS Rome, est sous le charme de Vitinha."
-    ],
-    "telegram_summary": "Paulo Dybala, futur adversaire du PSG en Ligue des champions avec l'AS Rome, est sous le charme de Vitinha.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-as-roma-les-mots-tres-fort-de-paulo-dybala-sur-vitinha-c-est-un-joueur-d-une-qualite-exceptionnelle-546910.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-as-roma-les-mots-tres-fort-de-paulo-dybala-sur-vitinha-c-est-un-joueur-d-une-qualite-exceptionnelle-546910.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=669009d623630d39",
-    "published": "2026-11-25T07:22:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014223305-2112.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014223305-2112.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
