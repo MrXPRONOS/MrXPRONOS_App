@@ -1,0 +1,45 @@
+name: CineRadar - discover owner-admin channels into encrypted GitHub storage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-owner-admin-discovery.yml'
+
+permissions:
+  contents: write
+
+# Share the personal Telegram account lock with existing Telethon workflows.
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: main
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce Telegram personal-session FloodWait cooldown
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - run: python -m pip install 'telethon==1.45.0' 'cryptography>=43,<47' requests
+      - name: Validate encrypted inventory parser offline
+        run: python -m unittest discover -s tests -p 'test_cineradar_owner_channels.py' -v
+      - name: Read owner-admin Telegram channels, exclude Torrent9, save encrypted in GitHub
+        run: python -m scripts.cineradar_owner_channels
