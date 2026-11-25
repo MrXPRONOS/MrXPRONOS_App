@@ -8,6 +8,7 @@ from __future__ import annotations
 import base64
 import binascii
 import sqlite3
+import zlib
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
@@ -17,7 +18,8 @@ from scripts.actu_foot_github_vault import GitHubVault, VaultError
 PATH = "assets/data/private/cineradar/reactions.aes.json"
 CONTEXT = b"MrXPRONOS/CineRadar/Reactions/GitHubState/v1"
 FORMAT = "cineradar-reactions-sqlite-v1"
-MAX_DB_BYTES = 2_500_000
+MAX_DB_BYTES = 16_000_000
+MAX_COMPRESSED_BYTES = 2_500_000
 REQUIRED = frozenset({
     "channel_reaction_posts",
     "channel_reaction_jobs",
@@ -25,6 +27,14 @@ REQUIRED = frozenset({
     "channel_reaction_extra_bot_activation",
     "channel_reaction_terminal_posts",
 })
+
+
+def safe_decompress(compressed):
+    obj = zlib.decompressobj()
+    data = obj.decompress(compressed, MAX_DB_BYTES + 1)
+    if len(data) > MAX_DB_BYTES or obj.unconsumed_tail or not obj.eof:
+        raise VaultError("Reaction snapshot exceeds size limit")
+    return data
 
 
 class ReactionVault(GitHubVault):
@@ -53,11 +63,12 @@ def pack(db: sqlite3.Connection, *, observer_offset: int | None = None) -> dict:
     if observer_offset is not None and (type(observer_offset) is not int or observer_offset < 0):
         raise VaultError("Invalid observer cursor")
     raw = db.serialize()
-    if len(raw) > MAX_DB_BYTES:
-        raise VaultError("Reaction state exceeds single-file budget; shard before activation")
+    compressed = zlib.compress(raw, level=9)
+    if len(raw) > MAX_DB_BYTES or len(compressed) > MAX_COMPRESSED_BYTES:
+        raise VaultError("Reaction state exceeds encrypted GitHub file budget; shard before activation")
     return {
         "version": 1, "format": FORMAT,
-        "sqlite_b64": base64.b64encode(raw).decode("ascii"),
+        "sqlite_zlib_b64": base64.b64encode(compressed).decode("ascii"),
         "observer_offset": observer_offset,
     }
 
@@ -66,7 +77,10 @@ def unpack(document: dict) -> tuple[sqlite3.Connection, int | None]:
     if document.get("version") != 1 or document.get("format") != FORMAT:
         raise VaultError("Invalid CineRadar state format")
     try:
-        raw = base64.b64decode(document["sqlite_b64"], validate=True)
+        compressed = base64.b64decode(document["sqlite_zlib_b64"], validate=True)
+        if len(compressed) > MAX_COMPRESSED_BYTES:
+            raise VaultError("Invalid compressed reaction database size")
+        raw = safe_decompress(compressed)
         offset = document["observer_offset"]
     except (KeyError, ValueError, TypeError, binascii.Error) as exc:
         raise VaultError("Invalid CineRadar state encoding") from exc
