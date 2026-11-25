@@ -1,0 +1,23 @@
+name: Telegram Smart Scheduler V1 offline
+on:
+  pull_request:
+    paths:
+      - 'telegram_scheduler/**'
+      - 'tests/test_telegram_scheduler_v1.py'
+      - '.github/workflows/telegram-smart-scheduler-offline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p test_telegram_scheduler_v1.py -v
+      - run: python -m compileall -q telegram_scheduler
