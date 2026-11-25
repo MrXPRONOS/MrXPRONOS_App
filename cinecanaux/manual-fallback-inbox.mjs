@@ -1,3 +1,5 @@
+import {classifyFormationPost,courseId,FORMATION_CATEGORIES}
+ from './formation-private-classifier.mjs';
 // Owner-uploaded Telegram backup stock, indexed by CineRadar's existing webhook.
 // No user session, bot sends, channel creation or automatic publication here.
 const CHAT=/^-100[0-9]{6,}$/;
@@ -92,23 +94,54 @@ export async function ingestManualChannelPost(env,update){
  ).bind(chat).first();
  if(!cfg||!CATEGORIES.has(cfg.category))
   return {enabled:true,accepted:false,reason:'not_owner_approved'};
+ // Specialty private channels are destinations/libraries, NEVER competing
+ // formation inboxes. Formation générale is the ONE approved shared source.
+ if(FORMATION_CATEGORIES.includes(cfg.category)&&
+    cfg.category!=='formation_general')
+  return {enabled:true,accepted:false,reason:'use_shared_formation_source'};
  const media=identifyManualMedia(message,cfg.category);
  if(!media)return {enabled:true,accepted:false,reason:'unsupported_or_protected'};
- // Owner-approved intake is independent from the right to redistribute.
- // Unlicensed/unchecked media are retained privately, quarantined until
- // explicit rights attestation, not silently lost from Telegram's update stream.
- const canPublish=Number(cfg.rights_attested)===1&&Number(cfg.enabled)===1;
- const incomingState=canPublish?'indexed':'needs_review';
- const incomingReview=canPublish?'':'rights_not_attested';
- const fingerprint=media.file_unique_id||'';
  const caption=String(message.caption||message.text||'').slice(0,1200);
+ let category=cfg.category,reviewReason='';
+ let canPublish=Number(cfg.rights_attested)===1&&Number(cfg.enabled)===1;
+ if(cfg.category==='formation_general'){
+  const known=await env.DB.prepare(
+   "SELECT category,caption FROM cine_manual_fallback_inbox "+
+   "WHERE chat_id=? AND kind='poster' "+
+   "ORDER BY message_id DESC LIMIT 500"
+  ).bind(chat).all();
+  const decision=classifyFormationPost(caption,media.filename,known?.results||[]);
+  if(decision.category){
+   category=decision.category;
+   // Source permissions are checked above; category-specific redistribution
+   // rights are controlled independently by each existing D1 route record.
+   const routes=await env.DB.prepare(
+    "SELECT category,enabled,rights_attested FROM cine_manual_fallback_sources "+
+    "WHERE category=? AND owner_approved=1 AND bot_access_verified=1 LIMIT 2"
+   ).bind(category).all();
+   const matches=routes?.results||[];
+   canPublish=matches.length===1&&Number(matches[0].enabled)===1&&
+     Number(matches[0].rights_attested)===1;
+   const conflicting=(known?.results||[]).some(p=>
+    p.category!==category&&courseId(caption)&&
+    courseId(p.caption)===courseId(caption));
+   if(conflicting){canPublish=false;reviewReason='conflicting_course_covers';}
+  }else{
+   canPublish=false;reviewReason=decision.reason;
+  }
+ }
+ // Owner-owned media is recorded even without a redistribution license, but
+ // the classifier never publishes an ambiguous/mislabelled file.
+ const incomingState=canPublish?'indexed':'needs_review';
+ const incomingReview=canPublish?'':reviewReason||'rights_not_attested';
+ const fingerprint=media.file_unique_id||'';
  const old=await env.DB.prepare(
-  "SELECT state,kind,file_unique_id,review_code FROM cine_manual_fallback_inbox "+
+  "SELECT state,kind,file_unique_id,review_code,category FROM cine_manual_fallback_inbox "+
   "WHERE chat_id=? AND message_id=?"
  ).bind(chat,id).first();
  if(old?.state==='published')return {enabled:true,accepted:false,reason:'already_published'};
- if(old&&(old.kind!==media.kind||(old.file_unique_id&&
-           old.file_unique_id!==fingerprint))){
+ if(old&&(old.kind!==media.kind||old.category!==category||
+           (old.file_unique_id&&old.file_unique_id!==fingerprint))){
   await env.DB.prepare(
    "UPDATE cine_manual_fallback_inbox SET state='needs_review',"+
    "review_code='source_media_changed',updated_at=CURRENT_TIMESTAMP "+
@@ -120,7 +153,7 @@ export async function ingestManualChannelPost(env,update){
   "INSERT OR IGNORE INTO cine_manual_fallback_inbox "+
   "(chat_id,message_id,category,kind,file_unique_id,filename,mime_type,"+
   "bytes,caption,grouped_id,posted_at,state,review_code) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
- ).bind(chat,id,cfg.category,media.kind,fingerprint,media.filename,
+ ).bind(chat,id,category,media.kind,fingerprint,media.filename,
   media.mime_type,media.bytes,caption,
   String(message.media_group_id||''),Number(message.date||0),incomingState,incomingReview).run();
  if(old){
@@ -142,8 +175,8 @@ export async function ingestManualChannelPost(env,update){
    ).bind(caption,media.filename,chat,id).run();
   }
  }
- return {enabled:true,accepted:true,category:cfg.category,kind:media.kind,
-  state:incomingState};
+ return {enabled:true,accepted:true,category,kind:media.kind,
+  state:incomingState,review:incomingReview};
 }
 
 export function planManualMediaPairs(rows){
