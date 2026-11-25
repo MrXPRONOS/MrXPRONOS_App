@@ -2,7 +2,7 @@ name: Formation - Revérification après réparation du bot (lecture seule)
 on:
   workflow_run:
     workflows:
-      - 'Formation - Réparer l'accès du bot au canal privé unique'
+      - "Formation - Réparer l'accès du bot au canal privé unique"
     types: [completed]
 permissions:
   contents: read
