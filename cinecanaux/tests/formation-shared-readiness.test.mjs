@@ -51,6 +51,14 @@ test('destination configuration must be complete and not ambiguous',()=>{
   ...destinations,business:destinations.finance
  })));
 });
+test('legacy Formation configuration with a bare @username is safely repaired',()=>{
+ const raw='{"general":@formations_officielles,"business":"-1002222222222",'+
+  '"finance":"-1003333333333","digitale":"-1004444444444",'+
+  '"mindset":"-1005555555555"}';
+ assert.deepEqual(formationDestinations(raw),destinations);
+ assert.throws(()=>formationDestinations(raw.replace(
+  '@formations_officielles','@')));
+});
 test('shared source must be IDENTICAL to existing stage channel',async()=>{
  const f=fixtures();
  await assert.rejects(auditSharedFormation({
