@@ -90,3 +90,4 @@ jobs:
           echo CINE_RADAR_WORKER_DEPLOYED_REACTION_OBSERVER_REMOVED
 
 # Retry after sanitizing encrypted history import diagnostics.
+# Retry after row_factory-independent snapshot integrity check.
