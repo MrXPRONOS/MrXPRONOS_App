@@ -106,6 +106,9 @@ def main():
 if __name__ == "__main__":
     try:
         sys.exit(main())
+    except VaultError as exc:
+        print("CINERADAR_HISTORY_IMPORT_REJECTED:", str(exc), file=sys.stderr)
+        sys.exit(1)
     except Exception as exc:
         print("CINERADAR_HISTORY_IMPORT_FAILED:", type(exc).__name__, file=sys.stderr)
         sys.exit(1)
