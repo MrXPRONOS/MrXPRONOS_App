@@ -185,13 +185,13 @@ def unmatched_candidate(video, messages, category: str) -> bool:
 
 
 def original_poster_safe_for_deletion(fresh, expected) -> bool:
-    """Fail closed on unsafe/opaque legacy buttons; never abort the category.
+    """Fail closed on unprovable legacy buttons; never abort the category.
 
     This verifies the original public cover immediately before deleting only
     the matching, already-archived video. An uninspectable button or concurrent
     edit must preserve the public video for manual review.
     """
-    from .original_poster_edit import public_keyboard_signature
+    from .original_poster_edit import read_only_keyboard_signature
 
     if not fresh or not getattr(fresh, "photo", None):
         return False
@@ -207,8 +207,8 @@ def original_poster_safe_for_deletion(fresh, expected) -> bool:
             getattr(expected, "raw_text", "") or ""):
         return False
     try:
-        return (public_keyboard_signature(fresh)
-                == public_keyboard_signature(expected))
+        return (read_only_keyboard_signature(fresh)
+                == read_only_keyboard_signature(expected))
     except (RuntimeError, ValueError, TypeError) as exc:
         LOG.warning("Affiche historique #%s : boutons non vérifiables (%s) ; "
                     "vidéo publique conservée",
