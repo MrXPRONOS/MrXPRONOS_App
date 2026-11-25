@@ -88,3 +88,5 @@ jobs:
             https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app -o /tmp/cineradar-app.html
           grep -q 'Ciné' /tmp/cineradar-app.html
           echo CINE_RADAR_WORKER_DEPLOYED_REACTION_OBSERVER_REMOVED
+
+# Retry after sanitizing encrypted history import diagnostics.
