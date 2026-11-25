@@ -11,18 +11,15 @@ SPEC.loader.exec_module(react)
 
 
 class ReactionTests(unittest.TestCase):
-    def test_automatic_fallback_matches_actual_bsd_workflow_name(self):
+    def test_legacy_workflow_is_permanently_disabled_and_replaced(self):
         root = pathlib.Path(__file__).resolve().parents[1]
-        upstream = (root / ".github/workflows/bsd-v2-telegram-hourly.yml").read_text(encoding="utf-8")
-        reactions = (root / ".github/workflows/telegram-reactions-github.yml").read_text(encoding="utf-8")
-        self.assertIn("name: BSD V2 - Diffusion Telegram aux 15 minutes", upstream)
-        self.assertIn("workflows: ['BSD V2 - Diffusion Telegram aux 15 minutes']", reactions)
-        self.assertNotIn("workflows: ['BSD V2 - Coupons Telegram (cron-job.org)']", reactions)
-        self.assertIn("types: [completed]", reactions)
-        # A BSD publishing failure must not disable the reaction fallback.
-        self.assertNotIn("github.event.workflow_run.conclusion == 'success'", reactions)
-        self.assertIn("github.event.workflow_run.repository.full_name == 'MrXPRONOS/MrXPRONOS_App'", reactions)
-        self.assertIn("github.event.workflow_run.event == 'workflow_dispatch'", reactions)
+        legacy = (root / ".github/workflows/telegram-reactions-github.yml").read_text(encoding="utf-8")
+        current = (root / ".github/workflows/cineradar-reactions-github-only.yml").read_text(encoding="utf-8")
+        self.assertEqual(legacy.count("if: ${{ false }}"), 2)
+        self.assertIn("Permanently disabled", legacy)
+        self.assertIn("python -m scripts.cineradar_reactions_github_only", current)
+        self.assertNotIn("CLOUDFLARE", current)
+        self.assertIn("contents: write", current)
 
     def test_10_distinct_slots_and_emoji_parity(self):
         self.assertEqual(tuple(react.EXTRA_SLOTS[:10]), tuple(range(3, 13)))
