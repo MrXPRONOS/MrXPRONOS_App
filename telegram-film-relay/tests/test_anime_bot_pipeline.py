@@ -232,7 +232,7 @@ class AnimeBotStorageTests(unittest.TestCase):
 
 class AnimeBotPublisherTests(unittest.TestCase):
     def _setup(self):
-        source_video = record(2, "video", name="Episode_01.mp4")
+        source_video = record(2, "video", name="Naruto.S01E01.mp4")
         source_poster = record(1, "poster", text="Naruto")
         state = BotStateStore(self.tmp / "store.json").load()
         state["messages"] = messages(source_poster, source_video)
@@ -266,6 +266,13 @@ class AnimeBotPublisherTests(unittest.TestCase):
     def tearDown(self):
         self.ctx.cleanup()
 
+    def test_bot_rejects_bad_true_filename_before_central_copy(self):
+        bot, store, state, row, publisher = self._setup()
+        state["messages"][row["source_key"]]["filename"] = "Episode_01.mp4"
+        with self.assertRaisesRegex(RuntimeError, "nom réel"):
+            asyncio.run(publisher.publish_episode(row))
+        bot.copy_message.assert_not_awaited()
+
     def test_one_series_one_episode_idempotent_no_new_media(self):
         bot, store, state, row, publisher = self._setup()
         async def exercise():
@@ -294,7 +301,7 @@ class AnimeBotPublisherTests(unittest.TestCase):
 
     def test_lot3_one_group_poster_then_two_videos_bot_only(self):
         bot, store, state, row, publisher = self._setup()
-        second = record(3, "video", name="Episode_02.mp4")
+        second = record(3, "video", name="Naruto.S01E02.mp4")
         state["messages"][f"{SOURCE}:3"] = second
         row2 = dict(row, episode=2, source_key=f"{SOURCE}:3")
         ids = iter(range(300, 400))
