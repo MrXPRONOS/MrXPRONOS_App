@@ -229,6 +229,7 @@ class Runtime:
             ident = self.bot_ids.get(token) or get_bot_identity(token,self.transport)
             if ident is None:
                 continue
+            self.bot_ids[token] = ident
             try:
                 status, response = self.call(token, "getWebhookInfo", {})
             except core.APIError:
