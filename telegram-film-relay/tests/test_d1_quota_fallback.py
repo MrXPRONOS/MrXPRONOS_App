@@ -11,6 +11,7 @@ from film_relay.radar_download_registry import (
 )
 from film_relay.legacy_archive_repair import (
     optional_legacy_central_library, optional_legacy_central_store,
+    legacy_repair_completion,
 )
 
 
@@ -53,6 +54,14 @@ class RegistryQuotaTests(unittest.TestCase):
 
 
 class LegacyQuotaFallbackTests(unittest.IsolatedAsyncioTestCase):
+    def test_central_quota_fallback_is_not_reported_as_complete(self):
+        result = legacy_repair_completion([{
+            "category": "films", "older": 1, "public_linked": 1,
+            "central_quota_fallback": 1,
+        }])
+        self.assertEqual(result["unresolved"], 0)
+        self.assertFalse(result["complete"])
+
     def test_d1_quota_falls_back_to_category_stock_only(self):
         with patch("film_relay.legacy_archive_repair.UnifiedLibrary",
                    side_effect=RadarDailyQuotaError("7500")):
