@@ -1,8 +1,12 @@
 {
-  "active": {
-    "cat": "finance",
-    "cid": "0a1acfa8bcbf11787b1d41cd387e9d33e1a67a3dfabb045f02ff5223ba7c3812",
-    "marks": [
+  "active": null,
+  "cooldown": 0,
+  "done": {
+    "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
+      "008634dfd156a9f9d9ebf0ee0b2926da440266ac266d89e068ec8c2cda91cf54",
+      "922f26f514db99c61db5b5b66d01c27c3965b463db6efc1b0b466f176a77fb36"
+    ],
+    "0a1acfa8bcbf11787b1d41cd387e9d33e1a67a3dfabb045f02ff5223ba7c3812": [
       "47635a2da544ec3efdf504030c04eafd9a55ab4aff075ca1e3ea935e6d3384b6",
       "9cf0f7f40d065b43295571b353114d279c42bb771208d25bb2677c1aa6a41f7c",
       "a9114ecb707a73a19df44251c4603d8929f1035d4893adf559d28ec2c81c6af9",
@@ -10,15 +14,6 @@
       "d51e17675d96fa4a8c9fe334da5b4d8a966aba29655abea2a2cf662945b323b2",
       "d97bef4d53ca938e5f00cffb85e82f96a390cc04d80af9fd6115354b4fe92d8e",
       "f35070fd9f1ee69b535cc2d8aa72aab67d72319afb5ba77edec3763700a484d6"
-    ],
-    "next": 5,
-    "pending": null
-  },
-  "cooldown": 0,
-  "done": {
-    "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
-      "008634dfd156a9f9d9ebf0ee0b2926da440266ac266d89e068ec8c2cda91cf54",
-      "922f26f514db99c61db5b5b66d01c27c3965b463db6efc1b0b466f176a77fb36"
     ],
     "3b182b3d433c55cc6d3199070d6b0537e7ae4a3ad206fcb78b39956574c34bdc": [
       "2fb0d36decdc5fa70451b498de4370bbdfa2127e869ecb2a50d2611a7b1f932e",
