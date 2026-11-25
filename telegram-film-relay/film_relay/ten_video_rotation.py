@@ -184,6 +184,38 @@ def unmatched_candidate(video, messages, category: str) -> bool:
             and find_neighbor_pair(video, messages, category) is None)
 
 
+def original_poster_safe_for_deletion(fresh, expected) -> bool:
+    """Fail closed on unsafe/opaque legacy buttons; never abort the category.
+
+    This verifies the original public cover immediately before deleting only
+    the matching, already-archived video. An uninspectable button or concurrent
+    edit must preserve the public video for manual review.
+    """
+    from .original_poster_edit import public_keyboard_signature
+
+    if not fresh or not getattr(fresh, "photo", None):
+        return False
+    if getattr(fresh, "id", None) != getattr(expected, "id", None):
+        return False
+    if getattr(fresh.photo, "id", None) != getattr(
+            getattr(expected, "photo", None), "id", None):
+        return False
+    if bool(getattr(fresh, "pinned", False)) != bool(
+            getattr(expected, "pinned", False)):
+        return False
+    if str(getattr(fresh, "raw_text", "") or "") != str(
+            getattr(expected, "raw_text", "") or ""):
+        return False
+    try:
+        return (public_keyboard_signature(fresh)
+                == public_keyboard_signature(expected))
+    except (RuntimeError, ValueError, TypeError) as exc:
+        LOG.warning("Affiche historique #%s : boutons non vérifiables (%s) ; "
+                    "vidéo publique conservée",
+                    getattr(expected, "id", "?"), type(exc).__name__)
+        return False
+
+
 async def verify_existing_pair(client, public, private, private_id, video, posters,
                                category: str = "films", messages=None):
     """Allow later repair covers while requiring exact source-document identity.
@@ -329,12 +361,10 @@ async def rotate_channel(client, category: str, public, private,
             continue
         if public_poster:
             fresh = await client.get_messages(public, ids=public_poster.id)
-            from .original_poster_edit import public_keyboard_signature
-            if (not fresh or not getattr(fresh, "photo", None)
-                    or getattr(fresh.photo, "id", None) != getattr(public_poster.photo, "id", None)
-                    or (getattr(public_poster, "pinned", False) and not getattr(fresh, "pinned", False))
-                    or public_keyboard_signature(fresh) != public_keyboard_signature(public_poster)):
+            if not original_poster_safe_for_deletion(fresh, public_poster):
                 report["unverified"] += 1
+                LOG.warning("%s : vidéo #%s conservée (affiche originale non sûre)",
+                            category, video.id)
                 continue
         await client.delete_messages(public, [video.id], revoke=True)
         after = await client.get_messages(public, ids=video.id)
