@@ -18,19 +18,34 @@ from scripts.cineradar_reaction_store import (
 from scripts.actu_foot_github_vault import VaultError
 
 
-def allowed_channels(db, env):
-    """Only explicitly configured or previously observed channel IDs."""
-    ids = {str(row["chat_id"]) for row in db.query(
-        "SELECT DISTINCT chat_id FROM channel_reaction_posts"
-    )["results"]}
-    configured = str(env.get("CINERADAR_REACTION_CHANNEL_IDS", "")).strip()
-    if configured:
-        ids.update(x.strip() for x in configured.split(",") if x.strip())
+PRIMARY_PUBLIC_CHANNELS = ("CineXFilms_vf", "seriesvf_cinex", "CineXAnimeFR")
+
+def allowed_channels(db, env, transport=reactions._request_json):
+    """Use Telegram-verified official channels rather than the full old ledger."""
+    explicit = str(env.get("CINERADAR_REACTION_CHANNEL_IDS", "")).strip()
+    if explicit:
+        ids = {x.strip() for x in explicit.split(",") if x.strip()}
+        if not all(x.startswith("-100") and x[1:].isdigit() for x in ids):
+            raise RuntimeError("Invalid explicit channel ID allowlist")
+        return ids
+    token = str(env.get("CINE_RADAR_BOT_TOKEN", "") or env.get("TELEGRAM_BOT_TOKEN", "")).strip()
+    if not token:
+        return {str(row["chat_id"]) for row in db.query(
+            "SELECT DISTINCT chat_id FROM channel_reaction_posts"
+        )["results"]}
+    ids = set()
+    for username in PRIMARY_PUBLIC_CHANNELS:
+        code, payload = reactions.telegram_call(token, "getChat", {"chat_id": "@" + username}, transport)
+        chat = payload.get("result") or {}
+        if (code != 200 or payload.get("ok") is not True or chat.get("type") != "channel"
+            or str(chat.get("username") or "").casefold() != username.casefold()
+            or not isinstance(chat.get("id"), int) or chat["id"] >= 0):
+            raise RuntimeError("Official Telegram channel cannot be verified: " + username)
+        ids.add(str(chat["id"]))
     return ids
 
-
 def observe(db, env, cursor, transport=reactions._request_json):
-    allowed = allowed_channels(db, env)
+    allowed = allowed_channels(db, env, transport)
     if not allowed:
         raise RuntimeError("No approved channel IDs present in imported snapshot")
     dedicated = str(env.get("CINERADAR_REACTION_OBSERVER_TOKEN", "")).strip()
