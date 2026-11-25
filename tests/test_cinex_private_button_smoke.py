@@ -46,15 +46,14 @@ class TestCineXPrivateButtonSmoke(unittest.TestCase):
         ]
         self.assertTrue(validate_destination(sess, "test-token", CHAT, BOTID))
 
-    def test_rejects_missing_delete_rights(self):
+    def test_allows_posting_without_delete_rights(self):
         sess = Mock()
         sess.post.side_effect = [
             response({"ok":True,"result":{"id":BOTID,"is_bot":True,"username":"CineRadarFr_Bot"}}),
             response({"ok":True,"result":{"id":int(CHAT),"type":"channel","title":"CinéX — Stock privé"}}),
             response({"ok":True,"result":{"status":"administrator","can_post_messages":True,"can_delete_messages":False}})
         ]
-        with self.assertRaises(SmokeFailure):
-            validate_destination(sess, "test-token", CHAT, BOTID)
+        self.assertFalse(validate_destination(sess, "test-token", CHAT, BOTID))
 
     def test_bot_button_receipt(self):
         receipt={"chat":{"id":int(CHAT)},"message_id":45,"text":TEXT,
@@ -63,6 +62,22 @@ class TestCineXPrivateButtonSmoke(unittest.TestCase):
         receipt["reply_markup"] = {"inline_keyboard":[]}
         with self.assertRaises(SmokeFailure):
             verify_receipt(receipt, CHAT)
+
+    def test_live_post_without_delete_permission_is_retained(self):
+        sess = Mock()
+        sess.post.side_effect = [
+            response({"success":True,"result":[{"results":[
+                {"stock_chat_id":CHAT,"radar_bot_id":BOTID,"ready":1}]}]}),
+            response({"ok":True,"result":{"id":BOTID,"is_bot":True,"username":"CineRadarFr_Bot"}}),
+            response({"ok":True,"result":{"id":int(CHAT),"type":"channel","title":"CinéX — Stock privé"}}),
+            response({"ok":True,"result":{"status":"administrator","can_post_messages":True,"can_delete_messages":False}}),
+            response({"ok":True,"result":{"message_id":77,"chat":{"id":int(CHAT)},
+                    "text":TEXT,"reply_markup":{"inline_keyboard":[[{"text":BUTTON_TEXT,"url":BUTTON_URL}]]}}})
+        ]
+        out=run(sess,"cfkey","botkey",execute=True)
+        self.assertEqual(out,{"sent":True,"verified":True,"deleted":False})
+        self.assertEqual(sess.post.call_count,5)
+        self.assertIn("sendMessage",sess.post.call_args.args[0])
 
     def test_live_posts_and_deletes_exact_message(self):
         sess = Mock()
