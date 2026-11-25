@@ -56,6 +56,7 @@ class EncryptedReactionStateTests(unittest.TestCase):
     def test_local_encrypted_snapshot_round_trip(self):
         db = self.create_db()
         try:
+            LocalReactionDB(db)  # Import uses dict-like sqlite3.Row results.
             snapshot = pack(db, observer_offset=888)
             restored, cursor = unpack(snapshot)
             try:
