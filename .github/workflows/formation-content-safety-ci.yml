@@ -1,0 +1,49 @@
+name: Formation - Filtrage des messages et descriptions (hors ligne)
+on:
+  pull_request:
+    paths:
+      - 'cinecanaux/formation-content-safety.mjs'
+      - 'cinecanaux/formation-private-classifier.mjs'
+      - 'cinecanaux/manual-fallback-inbox.mjs'
+      - 'cinecanaux/manual-fallback-planner.mjs'
+      - 'cinecanaux/manual-fallback-live.mjs'
+      - 'cinecanaux/tests/formation-content-*.test.mjs'
+      - '.github/workflows/formation-content-safety-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/formation-content-safety.mjs'
+      - 'cinecanaux/formation-private-classifier.mjs'
+      - 'cinecanaux/manual-fallback-inbox.mjs'
+      - 'cinecanaux/manual-fallback-planner.mjs'
+      - 'cinecanaux/manual-fallback-live.mjs'
+      - '.github/workflows/formation-content-safety-ci.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntaxe
+        run: |
+          node --check cinecanaux/formation-content-safety.mjs
+          node --check cinecanaux/manual-fallback-inbox.mjs
+          node --check cinecanaux/manual-fallback-planner.mjs
+          node --check cinecanaux/manual-fallback-live.mjs
+      - name: Tests complets du classificateur et du secours manuel
+        run: |
+          node --test \
+            cinecanaux/tests/formation-content-safety.test.mjs \
+            cinecanaux/tests/formation-content-flow.test.mjs \
+            cinecanaux/tests/formation-private-classifier.test.mjs \
+            cinecanaux/tests/formation-shared-inbox.test.mjs \
+            cinecanaux/tests/manual-fallback-inbox.test.mjs \
+            cinecanaux/tests/manual-fallback-planner.test.mjs \
+            cinecanaux/tests/manual-fallback-live.test.mjs
