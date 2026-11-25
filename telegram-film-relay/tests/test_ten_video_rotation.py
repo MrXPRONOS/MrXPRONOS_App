@@ -87,7 +87,7 @@ class TenVideoRotationTests(unittest.TestCase):
             return NS(id=420, photo=NS(id=817), pinned=True,
                       raw_text="Film éligible",
                       buttons=[[NS(button=Button.inline(
-                          "Ancien bouton", data=data).button)]])
+                          "Ancien bouton", data=data))]])
         prior = make()
         current = make()
         with self.assertRaises(RuntimeError):
@@ -103,8 +103,8 @@ class TenVideoRotationTests(unittest.TestCase):
         def make(link, data):
             return NS(id=421, photo=NS(id=818), pinned=True,
                       raw_text="Film éligible",
-                      buttons=[[NS(button=Button.url("VOIR FILM", link).button),
-                          NS(button=Button.inline("Informations", data=data).button)]])
+                      buttons=[[NS(button=Button.url("VOIR FILM", link)),
+                          NS(button=Button.inline("Informations", data=data))]])
         saved = make("https://t.me/c/4392607284/314", b"verified")
         self.assertTrue(original_poster_safe_for_deletion(
             make("https://t.me/c/4392607284/314", b"verified"), saved))
