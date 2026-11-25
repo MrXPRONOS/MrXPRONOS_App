@@ -22,6 +22,7 @@ from urllib.parse import urlsplit
 
 from scripts import cineradar_reaction_core as core
 from scripts.cineradar_reaction_store import ReactionVault, load, save
+from scripts.actu_foot_github_vault import VaultConflict
 from scripts.cineradar_reactions_github_only import PRIMARY_PUBLIC_CHANNELS
 
 POLICY_TTL = 6 * 3600
@@ -434,6 +435,22 @@ class Runtime:
         return delivered
 
 
+def persist_with_retry(vault, db, offset, expected_sha, *, max_attempts=6):
+    """Retry only GitHub branch-level CAS conflicts, never override new state.
+
+    The expected file SHA remains unchanged. If another reaction writer
+    modified this file, all attempts will fail safely rather than overwrite it.
+    Concurrent commits to unrelated repo files are harmless on a retry.
+    """
+    for attempt in range(max_attempts):
+        try:
+            return save(vault, db, offset, expected_sha)
+        except VaultConflict:
+            if attempt + 1 == max_attempts:
+                raise
+            time.sleep(min(3.0, (attempt + 1) * 0.6))
+
+
 def main(env=None, transport=core._request_json):
     env = dict(os.environ if env is None else env)
     vault = ReactionVault(branch="main")
@@ -456,11 +473,11 @@ def main(env=None, transport=core._request_json):
         # persistent database is read/written by this code.
         observed = runner.observe(known)
         if db.connection.total_changes:
-            sha = save(vault,db,cursor,sha)
+            sha = persist_with_retry(vault,db,cursor,sha)
         before = db.connection.total_changes
         delivered = runner.dispatch(known)
         if db.connection.total_changes != before:
-            save(vault,db,cursor,sha)
+            persist_with_retry(vault,db,cursor,sha)
         print(f"reaction_multichannel_history_channels={len(known)} "
               f"observed={observed} confirmed={delivered} "
               f"torrent9_excluded=true cloudflare_calls=0")
