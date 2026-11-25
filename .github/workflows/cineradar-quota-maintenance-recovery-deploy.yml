@@ -19,7 +19,7 @@ jobs:
   deploy:
     if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +33,7 @@ jobs:
           node --check cinecanaux/worker.mjs
           node --check cinecanaux/v2.mjs
           node --check cinecanaux/quota-maintenance.mjs
+          python -m py_compile scripts/cineradar_standby_bot_menu.py
       - name: Verify error classification, site, admin, API and authenticated bot Telegram behavior
         run: |
           set -euo pipefail
@@ -42,6 +43,7 @@ jobs:
             cinecanaux/tests/webhook-recovery.test.mjs \
             cinecanaux/tests/radar-performance.test.mjs \
             cinecanaux/tests/bot-miniapp-entry.test.mjs
+          python -m unittest discover -s tests -p 'test_cineradar_standby_bot_menu.py' -v
       - name: Deploy only after successful offline checks
         working-directory: cinecanaux
         env:
@@ -55,7 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           BASE='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev'
-          status=$(curl --retry 2 --retry-delay 2 --silent --show-error --max-time 20 \
+          status=$(curl --retry 1 --retry-delay 1 --retry-max-time 22 --silent --show-error --max-time 10 \
             -o /tmp/cineradar-app.html -w '%{http_code}' "$BASE/app")
           if [ "$status" = '200' ]; then
             grep -q 'Ciné Radar' /tmp/cineradar-app.html
@@ -66,7 +68,7 @@ jobs:
             echo "::error::Unexpected CineRadar app status: $status"
             exit 1
           fi
-          status=$(curl --retry 2 --retry-delay 2 --silent --show-error --max-time 20 \
+          status=$(curl --retry 1 --retry-delay 1 --retry-max-time 22 --silent --show-error --max-time 10 \
             -o /tmp/cineradar-health.json -w '%{http_code}' "$BASE/health")
           if [ "$status" = '200' ]; then
             node -e "let j=require('/tmp/cineradar-health.json');if(j.service!=='cine-radar')process.exit(1)"
@@ -77,3 +79,5 @@ jobs:
             exit 1
           fi
           echo "CINERADAR_MAINTENANCE_RECOVERY_DEPLOYED_AND_VALIDATED"
+
+# Recovery release: static GitHub Pages standby and automatic 00h05 recheck.

@@ -61,6 +61,12 @@ jobs:
           assert (root/"index.html").exists()
           assert (root/"pronos.html").exists()
           assert (root/"data.json").exists()
+          standby=root/"cineradar-secours"/"index.html"
+          assert standby.is_file(), "Public GitHub Pages CineRadar standby is missing"
+          page=standby.read_text(encoding="utf-8")
+          assert "CinéRadar est en maintenance" in page
+          assert "window.location.replace" in page
+          assert "TELEGRAM_TOKEN" not in page
           for path in ("bsd", "supabase", "scripts", "tests", "node_modules", "model_meta.json", "assets/data/private"):
               assert not (root/path).exists(), f"Unexpected internal file: {path}"
           print("PUBLIC_ONLY_ARTIFACT_VALIDATED")

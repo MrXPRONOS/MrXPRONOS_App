@@ -637,6 +637,13 @@ def stage_site(destination: Path, previous: Path | None):
             shutil.copy2(item, destination / item.name)
     for section in PUBLIC_DIRS:
         copy_public_tree(ROOT / section, destination / section)
+    # CineRadar emergency status is public static HTML only. Do not publish
+    # any bot credentials, private archives or server-side cinema code.
+    standby = ROOT / "cineradar-secours" / "index.html"
+    if standby.is_file():
+        target = destination / "cineradar-secours" / "index.html"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(standby, target)
     if previous is not None:
         # These historical media files exist on gh-pages only. Preserve their
         # URLs while replacing the unsafe branch with the curated artifact.

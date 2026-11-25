@@ -31,7 +31,7 @@ export function d1MaintenanceActive(now=new Date()){
 export function maintenanceDetails(now=new Date()){
  const reopening=localMaintenanceUntil>now.getTime()?new Date(localMaintenanceUntil):nextRecoveryUTC(now);
  return {
-  message:"🔧 CinéRadar est temporairement en maintenance en raison d’une limite technique. Reprise prévue à 00h05 (heure du Togo), sous réserve du rétablissement du service.",
+  message:"🔧 CinéRadar est temporairement en maintenance en raison d’une limite technique. Reprise prévue à 00h05 (heure du Togo), sous réserve du rétablissement du service.\n\nÉtat du service : https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/",
   reopening_at:reopening.toISOString(),
   reopening_time:"00h05",
   timezone:"Africa/Lome",
@@ -48,6 +48,7 @@ export function maintenanceResponse(request,{now=new Date()}={}){
   "x-content-type-options":"nosniff",
   "x-cineradar-maintenance":"d1-quota"
  };
+ if(url.pathname==="/health")headers["access-control-allow-origin"]="https://mrxpronos.github.io";
  if(api){
   return Response.json({
    ok:false,maintenance:true,code:"D1_QUOTA_MAINTENANCE",
@@ -89,11 +90,33 @@ button:focus-visible{outline:3px solid #f2be66;outline-offset:4px}
 <div>Réouverture prévue à</div><div class="time">00h05</div>
 <div class="date">__DATE__ · Heure du Togo (UTC)</div>
 <button type="button" onclick="location.reload()">Réessayer</button>
-<div class="small">La reprise dépend de la disponibilité réelle du service. Merci de votre patience.</div>
-</main></body></html>`.replace("__DATE__",date);
+<div class="small" id="recovery-status" role="status" aria-live="polite">Reprise automatique dès que le service est opérationnel.</div>
+<script>
+(function(){
+ const status=document.getElementById("recovery-status");
+ const recoverAt=new Date("__REOPENING__").getTime();
+ const delay=Math.max(0,recoverAt-Date.now()+2000);
+ async function check(){
+  try{
+   const response=await fetch("/health?recovery="+Date.now(),{cache:"no-store",signal:AbortSignal.timeout(10000)});
+   if(response.ok){
+    const result=await response.json();
+    if(result.service==="cine-radar"&&result.database===true){
+     status.textContent="Service rétabli. Ouverture automatique...";
+     location.replace("/app");
+     return;
+    }
+   }
+  }catch{}
+  status.textContent="Le service est encore indisponible. Nouvelle vérification automatique dans une minute.";
+ }
+ setTimeout(function(){check();setInterval(check,60000)},Math.min(delay,2147480000));
+})();
+</script>
+</main></body></html>`.replace("__DATE__",date).replace("__REOPENING__",details.reopening_at);
  return new Response(html,{status:503,headers:{
   ...headers,"content-type":"text/html; charset=utf-8",
-  "content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
+  "content-security-policy":"default-src 'none'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
  }});
 }
 export async function telegramMaintenanceReply(update,call,env,{now=new Date()}={}){

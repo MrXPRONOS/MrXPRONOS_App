@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1732">
+<meta name="robots" content="noindex,nofollow">
+<title>CinéRadar — Accès de secours</title>
+<style>
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{display:grid;place-items:center;padding:22px;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#eef4ff;background:radial-gradient(circle at 50% 0%,#294b87,#101e41 43%,#061128 95%)}
+main{width:min(100%,550px);padding:clamp(24px,6vw,44px);text-align:center;border-radius:25px;border:1px solid #355184;background:linear-gradient(155deg,#1d345f,#0e1b35);box-shadow:0 22px 60px #0006}
+.mark{display:inline-flex;align-items:center;justify-content:center;width:76px;height:76px;border-radius:19px;background:#3657a0;font-size:38px}
+h1{font-size:clamp(25px,6vw,34px);margin:20px 0 12px;line-height:1.25}
+p{color:#cad9f1;margin:0 0 18px}
+.time{font-size:clamp(34px,9vw,52px);font-weight:800;color:#fff;line-height:1.2}
+small{display:block;color:#b3c8e9;margin-top:8px}
+#status{color:#f0daaa;margin:16px 0;min-height:32px}
+button{background:#4b84f3;color:#fff;border:0;border-radius:12px;padding:13px 22px;font:700 15px system-ui;cursor:pointer}
+button:focus-visible{outline:3px solid #ffcf6a;outline-offset:3px}
+.note{font-size:13px;color:#a7bfe1;margin-top:24px}
+</style>
+</head>
+<body>
+<main>
+ <div class="mark" aria-hidden="true">🎬</div>
+ <h1>CinéRadar est en maintenance</h1>
+ <p>Le catalogue et les commandes peuvent être momentanément indisponibles. Cet accès de secours reste hébergé sur GitHub, indépendamment de Cloudflare.</p>
+ <div>Reprise prévue dès</div>
+ <div class="time">00h05</div>
+ <small>Heure du Togo (UTC)</small>
+ <p id="status" role="status" aria-live="polite">Vérification de la disponibilité du service…</p>
+ <button id="retry" type="button">Vérifier maintenant</button>
+ <div class="note">Vous serez redirigé automatiquement vers CinéRadar dès que le serveur et sa base répondront correctement. L'heure de reprise reste indicative.</div>
+</main>
+<script>
+(function(){
+ "use strict";
+ const MAIN="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
+ const health=MAIN+"/health";
+ const status=document.getElementById("status");
+ const button=document.getElementById("retry");
+ let checking=false;
+ function nextMidnightFive(){
+  const now=new Date();
+  const t=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),0,5);
+  return now.getTime()<t?t:t+86400000;
+ }
+ async function check(){
+  if(checking)return;
+  checking=true;
+  button.disabled=true;
+  try{
+   const controller=new AbortController();
+   const timer=setTimeout(()=>controller.abort(),8500);
+   let response;
+   try{
+    response=await fetch(health+"?from=github-standby&ts="+Date.now(),{
+     cache:"no-store",mode:"cors",signal:controller.signal
+    });
+   }finally{clearTimeout(timer);}
+   if(response.ok){
+    const body=await response.json();
+    if(body.service==="cine-radar"&&body.database===true){
+     status.textContent="Le service est disponible. Ouverture automatique…";
+     window.location.replace(MAIN+"/app");
+     return;
+    }
+   }
+   status.textContent="Maintenance en cours. La disponibilité sera vérifiée automatiquement.";
+  }catch{
+   status.textContent="Service momentanément inaccessible. Une nouvelle vérification est prévue.";
+  }finally{
+   checking=false;
+   button.disabled=false;
+  }
+ }
+ function schedule(){
+  const now=Date.now();
+  const wait=nextMidnightFive()-now;
+  // Probe sparsely before reset; more often once midnight 05 has passed.
+  const untilNext=Math.min(wait,120000);
+  setTimeout(function(){check();schedule()},Math.max(10000,untilNext));
+ }
+ button.addEventListener("click",check);
+ check();
+ schedule();
+})();
+</script>
+</body>
+</html>
