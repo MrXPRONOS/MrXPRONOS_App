@@ -102,3 +102,36 @@ test('missing source Radar permissions are reported without raw Telegram details
   /formation_radar_source_access_unavailable/
  );
 });
+
+import {TelegramBot} from '../manual-fallback-live.mjs';
+
+test('TelegramBot accepts a negative private channel ID from Bot API',async()=>{
+ const seen=[];
+ const fakeFetch=async(url,options)=>{
+  const method=url.split('/').pop();
+  const payload=JSON.parse(options.body);
+  seen.push({method,payload});
+  const result=method==='getMe'
+   ?{id:777888999,is_bot:true}
+   :method==='getChat'
+    ?{id:-1001111111111,type:'channel',title:'Test private channel'}
+    :{status:'administrator',can_post_messages:true};
+  return {ok:true,json:async()=>({ok:true,result})};
+ };
+ const bot=new TelegramBot('123456789:abcdefghijklmnopqrstuvwxyz123456',fakeFetch);
+ const chat=await bot.verifyChannel(source,{privateOnly:true});
+ assert.equal(String(chat.id),source);
+ assert.deepEqual(seen.map(x=>x.method),['getMe','getChat','getChatMember']);
+ assert.equal(String(seen[2].payload.chat_id),source);
+ assert.equal(seen[2].payload.user_id,777888999);
+});
+
+test('TelegramBot refuses positive IDs pretending to be channels',async()=>{
+ const fakeFetch=async url=>{
+  const result=url.endsWith('/getMe')?{id:777888999,is_bot:true}
+   :{id:1001111111111,type:'channel'};
+  return {ok:true,json:async()=>({ok:true,result})};
+ };
+ const bot=new TelegramBot('123456789:abcdefghijklmnopqrstuvwxyz123456',fakeFetch);
+ await assert.rejects(bot.verifyChannel(source,{privateOnly:true}),/not_broadcast_channel/);
+});
