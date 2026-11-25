@@ -74,7 +74,32 @@ def find_verified_public_link(posts, video, category: str, private_id: int,
     return found[0] if len(found) == 1 else None
 
 
-def find_verified_private_pair(private_messages, video, category: str, *, rescue_url=None, reference=None):
+def pending_private_cover_rows(public):
+    """Verified temporary links; a CineRadar download link is NEVER invented."""
+    from .rescue_channels import public_username
+    from .cinex_v4_policy import is_main_relay
+    from .publication import FILM_FOLDER_BUTTON_TEXT
+    handle = public_username(public)
+    if not handle or not is_main_relay(handle):
+        raise RuntimeError("Vidéothèque legacy : canal public non vérifié")
+    return [[("📢 REJOINDRE LE CANAL", "https://t.me/" + handle.lstrip("@"))],
+            [(FILM_FOLDER_BUTTON_TEXT, film_folder_url())]]
+
+
+def private_cover_links_verified(photo, *, public=None, rescue_url=None):
+    """A historic rescue+folder pair or new main-channel+folder pair is valid."""
+    from .rescue_channels import public_username
+    handle = public_username(public) if public is not None else None
+    main_url = "https://t.me/" + handle.lstrip("@") if handle else None
+    return bool(
+        getattr(photo, "photo", None)
+        and has_verified_button(photo, film_folder_url())
+        and ((main_url and has_verified_button(photo, main_url))
+             or (rescue_url and has_verified_button(photo, rescue_url)))
+    )
+
+
+def find_verified_private_pair(private_messages, video, category: str, *, rescue_url=None, reference=None, public=None):
     """Prefer exact Telegram document ID, never a same-title substitute."""
     expected = video_document_id(video)
     if not expected:
@@ -90,8 +115,9 @@ def find_verified_private_pair(private_messages, video, category: str, *, rescue
             proof = poster_identity(photo, category)
             if (compatible(reference or video_identity(video, category), proof) >= 0.95
                     and (not reference or reference.part is None or proof.part == reference.part)
-                    and (not rescue_url or all(has_verified_button(photo, link)
-                       for link in (rescue_url, film_folder_url())))): 
+                    and (not rescue_url and public is None
+                         or private_cover_links_verified(photo, public=public,
+                                                        rescue_url=rescue_url))): 
                 paired.append((item, photo))
     return paired[0] if len(paired) == 1 else None
 
@@ -424,7 +450,8 @@ async def repair_channel(client, bot, category: str, public, private,
         # that ALREADY has a verified photo/video pair and every required link.
         # Verify the exact private document before trusting the old buttons.
         existing_pair = find_verified_private_pair(
-            private_messages, video, category, rescue_url=rescue, reference=identity)
+            private_messages, video, category, rescue_url=rescue,
+            reference=identity, public=public)
         if not multipart and existing_pair and fully_linked_legacy_poster(
                 poster, private_id, existing_pair[0].id, rescue,
                 film_folder_url(), extra_text=extra):
@@ -452,8 +479,10 @@ async def repair_channel(client, bot, category: str, public, private,
             continue
         try:
             pair = find_verified_private_pair(private_messages, video, category,
-                                              rescue_url=rescue, reference=identity)
+                                              rescue_url=rescue, reference=identity,
+                                              public=public)
             if pair:
+                verified_photo = pair[1]
                 private_video_id = pair[0].id
                 report["private_existing"] += 1
             else:
@@ -493,7 +522,7 @@ async def repair_channel(client, bot, category: str, public, private,
                         private, private_image,
                         caption=rich_caption(caption, private=True),
                         parse_mode="html",
-                        buttons=make_button_keyboard(library_button_rows(public)),
+                        buttons=make_button_keyboard(pending_private_cover_rows(public)),
                     )
                     verified_photo = await client.get_messages(private, ids=private_photo.id)
                     if verified_photo:
@@ -522,6 +551,36 @@ async def repair_channel(client, bot, category: str, public, private,
                 video, category=category, title=descriptive_caption,
                 public=public, poster=poster, description=descriptive_caption,
             )) if unified is not None else None
+            # The legacy photo is created before the central download exists.
+            # Only AFTER the real CineRadar receipt is verified may its private
+            # keyboard receive the third, exact download button. No placeholder.
+            if download_url and not pair:
+                from .radar_download_registry import is_bot_download_url
+                if not is_bot_download_url(download_url):
+                    raise RuntimeError("Lien CineRadar legacy non vérifié")
+                checked_private = await client.get_messages(private, ids=verified_photo.id)
+                if (not getattr(checked_private, "photo", None)
+                        or getattr(checked_private.photo, "id", None)
+                           != getattr(verified_photo.photo, "id", None)
+                        or not private_cover_links_verified(
+                            checked_private, public=public, rescue_url=rescue)):
+                    raise RuntimeError("Affiche privée changée : aucun bouton ajouté")
+                await bot.edit_reply_markup(
+                    private, verified_photo.id,
+                    buttons=make_button_keyboard(library_button_rows(public, download_url)),
+                )
+                updated_private = await client.get_messages(private, ids=verified_photo.id)
+                main_url = "https://t.me/" + str(getattr(public, "username")).lstrip("@").lower()
+                if (not getattr(updated_private, "photo", None)
+                        or getattr(updated_private.photo, "id", None)
+                           != getattr(verified_photo.photo, "id", None)
+                        or not all(has_verified_button(updated_private, u) for u in
+                                   (main_url, film_folder_url(), download_url))):
+                    raise RuntimeError("Boutons privés de téléchargement non vérifiés")
+                private_messages = [
+                    updated_private if item.id == updated_private.id else item
+                    for item in private_messages
+                ]
             # NEVER create a new photo in the public channel. The historical
             # photo's ID, location, description and links must be preserved.
             required = (target, rescue, film_folder_url()) + (
