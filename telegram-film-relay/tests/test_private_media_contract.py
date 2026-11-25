@@ -37,6 +37,35 @@ class NamingTests(unittest.TestCase):
             video(name="unnamed.mp4"), title="Dragon Ball S01E03"),
             "Dragon Ball S01E03.mp4")
 
+    def test_two_movie_parts_keep_distinct_real_filenames(self):
+        one = video(name="Le Grand Voyage.Partie.1.mkv",
+                    caption="Le Grand Voyage Partie 1")
+        two = video(name="Le Grand Voyage.Partie.2.mkv",
+                    caption="Le Grand Voyage Partie 2")
+        self.assertEqual(filename_for(one, title="Le Grand Voyage"),
+                         "Le Grand Voyage Partie 1.mkv")
+        self.assertEqual(filename_for(two, title="Le Grand Voyage"),
+                         "Le Grand Voyage Partie 2.mkv")
+
+    def test_video_part_number_not_added_twice(self):
+        one = video(name="Le Voyage.Part.3.mp4", caption="Le Voyage Partie 3")
+        self.assertEqual(filename_for(one, title="Le Voyage Partie 3"),
+                         "Le Voyage Partie 3.mp4")
+
+    def test_disagreeing_numbers_block_storage(self):
+        bad = video(name="Le Voyage.Partie.2.mkv",
+                    caption="Le Voyage Partie 1")
+        with self.assertRaisesRegex(RuntimeError, "Contradiction"):
+            filename_for(bad, title="Le Voyage")
+        bad.raw_text = "Le Voyage Partie 2"
+        with self.assertRaisesRegex(RuntimeError, "affiche différent"):
+            filename_for(bad, title="Le Voyage Partie 1")
+
+    def test_episode_code_in_source_survives_generic_cover(self):
+        src = video(name="Naruto.S02E07.mkv", caption="Naruto")
+        self.assertEqual(filename_for(src, title="Naruto"),
+                         "Naruto S02E07.mkv")
+
     def test_unnamed_fails_without_descriptive_title(self):
         with self.assertRaisesRegex(RuntimeError, "Nom descriptif"):
             filename_for(video(name="video.mkv", caption="Film"),
