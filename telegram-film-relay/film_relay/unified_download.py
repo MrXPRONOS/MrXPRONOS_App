@@ -186,6 +186,10 @@ class UnifiedLibrary:
         mid = self.source_index.get(source_tag) or self.index.get(doc_id)
         if mid:
             existing = await self.client.get_messages(self.peer, ids=mid)
+            if (self.source_index.get(source_tag) == mid
+                    and renamed_receipt_matches(source, existing, title=title,
+                                                poster=poster, description=details)):
+                self.index[doc_id] = mid
             if (is_video_message(existing)
                     and (video_document_id(existing) == doc_id or
                          renamed_receipt_matches(source, existing, title=title,
