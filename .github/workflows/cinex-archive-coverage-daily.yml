@@ -1,0 +1,48 @@
+name: CineX - Certification quotidienne de couverture des canaux
+
+on:
+  schedule:
+    - cron: '15 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    name: Contrôler les archives configurées pour tous les canaux publics
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: .
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      SERIES_PUBLIC_CHANNEL: ${{ vars.SERIES_PUBLIC_CHANNEL || '@seriesvf_cinex' }}
+      SERIES_PRIVATE_CHANNEL: ${{ vars.SERIES_PRIVATE_CHANNEL }}
+      DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+      DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+      COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL || '@CineXComediefr' }}
+      COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+      ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL || '@CineXAnimeFR' }}
+      ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+      ACTION_PUBLIC_CHANNEL: ${{ vars.ACTION_PUBLIC_CHANNEL || '@filmsaction2026vf' }}
+      ACTION_PRIVATE_CHANNEL: ${{ vars.ACTION_PRIVATE_CHANNEL }}
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - name: Charger le code
+        uses: actions/checkout@v4
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+      - name: Vérifier l'audit sans Telegram
+        run: python -m unittest discover -s tests -p 'test_rotation_coverage.py' -v
+      - name: Certifier les associations de sauvegardes privées
+        run: python -m film_relay.rotation_coverage --require-complete
