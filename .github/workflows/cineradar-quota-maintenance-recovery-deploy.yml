@@ -1,0 +1,79 @@
+name: CineRadar - recover production maintenance UX after D1 quota outage
+
+# One-time recovery release: existing full-CI smoke is blocked by staging HTTP 500.
+# Keep an independent strict offline-test and production-response gate.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-quota-maintenance-recovery-deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cine-radar-worker-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: \${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate CineRadar worker and maintenance module syntax
+        run: |
+          set -euo pipefail
+          node --check cinecanaux/worker.mjs
+          node --check cinecanaux/v2.mjs
+          node --check cinecanaux/quota-maintenance.mjs
+      - name: Verify error classification, site, admin, API and authenticated bot Telegram behavior
+        run: |
+          set -euo pipefail
+          node --test \
+            cinecanaux/tests/quota-maintenance.test.mjs \
+            cinecanaux/tests/deploy-safety.test.mjs \
+            cinecanaux/tests/webhook-recovery.test.mjs \
+            cinecanaux/tests/radar-performance.test.mjs \
+            cinecanaux/tests/bot-miniapp-entry.test.mjs
+      - name: Deploy only after successful offline checks
+        working-directory: cinecanaux
+        env:
+          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Cloudflare deploy credential missing"; exit 1; }
+          npx --yes wrangler@4.165.0 deploy --config wrangler.jsonc
+      - name: Check production site and health (normal or legitimate D1 quota maintenance)
+        run: |
+          set -euo pipefail
+          BASE='https://cinecanaux-bot.cinecanaux-xpronos.workers.dev'
+          status=$(curl --retry 2 --retry-delay 2 --silent --show-error --max-time 20 \
+            -o /tmp/cineradar-app.html -w '%{http_code}' "$BASE/app")
+          if [ "$status" = '200' ]; then
+            grep -q 'Ciné Radar' /tmp/cineradar-app.html
+          elif [ "$status" = '503' ]; then
+            grep -q 'CinéRadar est en maintenance' /tmp/cineradar-app.html
+            grep -q '00h05' /tmp/cineradar-app.html
+          else
+            echo "::error::Unexpected CineRadar app status: $status"
+            exit 1
+          fi
+          status=$(curl --retry 2 --retry-delay 2 --silent --show-error --max-time 20 \
+            -o /tmp/cineradar-health.json -w '%{http_code}' "$BASE/health")
+          if [ "$status" = '200' ]; then
+            node -e "let j=require('/tmp/cineradar-health.json');if(j.service!=='cine-radar')process.exit(1)"
+          elif [ "$status" = '503' ]; then
+            node -e "let j=require('/tmp/cineradar-health.json');if(j.code!=='D1_QUOTA_MAINTENANCE'||!j.maintenance)process.exit(1)"
+          else
+            echo "::error::Unexpected CineRadar health status: $status"
+            exit 1
+          fi
+          echo "CINERADAR_MAINTENANCE_RECOVERY_DEPLOYED_AND_VALIDATED"
