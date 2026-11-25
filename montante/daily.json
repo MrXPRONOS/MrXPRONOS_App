@@ -38,22 +38,8 @@
       "not_a_calibrated_probability": true
     }
   },
-  "frozen": false,
+  "frozen": true,
   "policy": "bsd-v2-montante-daily-1",
   "rejections": {},
-  "eligible_count": 1,
-  "nim": {
-    "model": "nvidia/nemotron-3-ultra-550b-a55b",
-    "policy": "bsd-v2-montante-nim-review-v1",
-    "checked": 2,
-    "shortlisted": 2,
-    "reviewed": 2,
-    "approved": 1,
-    "status": "completed",
-    "limited_to_top_n_candidates": false,
-    "verdict_counts": {
-      "approve": 1,
-      "reject": 1
-    }
-  }
+  "eligible_count": 1
 }
