@@ -11,6 +11,7 @@ on:
       - 'scripts/cineradar_reaction_store.py'
       - 'scripts/cineradar_reaction_core.py'
       - 'scripts/cineradar_reaction_multichannel.py'
+      - 'scripts/cineradar_owner_channels.py'
       - 'scripts/cineradar_reaction_coverage_github.py'
       - '.github/workflows/cineradar-reactions-github-only.yml'
   pull_request:
@@ -19,9 +20,11 @@ on:
       - 'scripts/cineradar_reaction_store.py'
       - 'scripts/cineradar_reaction_core.py'
       - 'scripts/cineradar_reaction_multichannel.py'
+      - 'scripts/cineradar_owner_channels.py'
       - 'scripts/cineradar_import_reaction_history.py'
       - 'tests/test_cineradar_reaction_store.py'
       - 'tests/test_cineradar_multichannel_reactions.py'
+      - 'tests/test_cineradar_owner_channels.py'
       - '.github/workflows/cineradar-reactions-github-only.yml'
 
 permissions:
@@ -43,9 +46,10 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install 'cryptography>=43,<47' requests
       - run: |
-          python -m py_compile scripts/cineradar_reaction_store.py scripts/cineradar_reaction_core.py scripts/cineradar_reaction_multichannel.py scripts/cineradar_reactions_github_only.py scripts/cineradar_reaction_coverage_github.py scripts/cineradar_import_reaction_history.py
+          python -m py_compile scripts/cineradar_reaction_store.py scripts/cineradar_reaction_core.py scripts/cineradar_owner_channels.py scripts/cineradar_reaction_multichannel.py scripts/cineradar_reactions_github_only.py scripts/cineradar_reaction_coverage_github.py scripts/cineradar_import_reaction_history.py
           python -m unittest discover -s tests -p 'test_cineradar_reaction_store.py' -v
           python -m unittest discover -s tests -p 'test_cineradar_multichannel_reactions.py' -v
+          python -m unittest discover -s tests -p 'test_cineradar_owner_channels.py' -v
 
   react:
     needs: offline_tests
