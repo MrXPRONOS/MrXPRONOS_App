@@ -116,7 +116,7 @@ button:focus-visible{outline:3px solid #f2be66;outline-offset:4px}
 </main></body></html>`.replace("__DATE__",date).replace("__REOPENING__",details.reopening_at);
  return new Response(html,{status:503,headers:{
   ...headers,"content-type":"text/html; charset=utf-8",
-  "content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
+  "content-security-policy":"default-src 'none'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
  }});
 }
 export async function telegramMaintenanceReply(update,call,env,{now=new Date()}={}){
