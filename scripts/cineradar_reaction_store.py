@@ -52,7 +52,7 @@ def validate_database(db: sqlite3.Connection) -> None:
     )}
     if not REQUIRED <= tables:
         raise VaultError("Incomplete reaction snapshot")
-    if db.execute("PRAGMA quick_check").fetchall() != [("ok",)]:
+    if [row[0] for row in db.execute("PRAGMA quick_check").fetchall()] != ["ok"]:
         raise VaultError("Reaction snapshot integrity check failed")
     if db.execute("PRAGMA foreign_key_check").fetchone() is not None:
         raise VaultError("Reaction snapshot has orphaned jobs")
