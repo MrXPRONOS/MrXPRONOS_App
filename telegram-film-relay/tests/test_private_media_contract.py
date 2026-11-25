@@ -56,6 +56,20 @@ class NamingTests(unittest.TestCase):
         self.assertFalse(renamed_receipt_matches(
             source, renamed, title="Mon Super Voyage"))
 
+    def test_interrupted_named_send_is_recovered_by_source_marker(self):
+        from film_relay.recovery import (
+            TelegramReceiptCache, recover_from_snapshot,
+        )
+        source = video()
+        cache = TelegramReceiptCache(
+            by_document={}, public_by_video={},
+            by_source_marker={marker_for(source): [81]})
+        state = NS(stage=unittest.mock.Mock())
+        result = recover_from_snapshot(
+            cache, state, "source:10:11", "1100", source)
+        self.assertEqual(result, "staged")
+        state.stage.assert_called_once_with("source:10:11", 81)
+
     def test_bot_copy_must_have_correct_existing_filename(self):
         self.assertTrue(bot_copy_source_filename_valid(
             "Naruto.S01E03.mkv", "Naruto", "S01E03"))
