@@ -2,6 +2,7 @@
 // courses. Never guess grouping by Telegram adjacency or silently publish
 // personal messages saved in the private source.
 import {pathToFileURL} from 'node:url';
+import {formationDestinations} from './formation-shared-readiness.mjs';
 import {D1Remote,TelegramBot,FallbackPublisher} from './manual-fallback-live.mjs';
 import {planCourses} from './manual-fallback-planner.mjs';
 import {inspectFormationCover,matchFormationFilename,sanitizeFormationText} from './formation-content-safety.mjs';
@@ -191,7 +192,7 @@ async function main(){
   e.FORMATION_PRODUCTION_ENABLED==='true','formation_production_not_authorized');
  const db=new D1Remote({token:e.CLOUDFLARE_API_TOKEN||e.CF_API_TOKEN,
   account:e.CLOUDFLARE_ACCOUNT_ID,db:e.CINERADAR_D1_DATABASE_ID});
- let targets;try{targets=JSON.parse(e.FORMATION_DESTINATIONS_JSON||'{}')}
+ let targets;try{targets=formationDestinations(e.FORMATION_DESTINATIONS_JSON)}
  catch{throw Error('formation_destinations_invalid')}
  const result=await processFormationBacklog({db,source:e.FORMATION_STAGE_CHAT,
   bot:new TelegramBot(e.FORMATION_BOT_TOKEN),
