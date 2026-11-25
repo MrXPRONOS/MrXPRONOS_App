@@ -1,5 +1,7 @@
 import {classifyFormationPost,courseId,FORMATION_CATEGORIES}
  from './formation-private-classifier.mjs';
+import {sanitizeFormationText,inspectFormationCover,matchFormationFilename}
+ from './formation-content-safety.mjs';
 // Owner-uploaded Telegram backup stock, indexed by CineRadar's existing webhook.
 // No user session, bot sends, channel creation or automatic publication here.
 const CHAT=/^-100[0-9]{6,}$/;
@@ -101,34 +103,49 @@ export async function ingestManualChannelPost(env,update){
   return {enabled:true,accepted:false,reason:'use_shared_formation_source'};
  const media=identifyManualMedia(message,cfg.category);
  if(!media)return {enabled:true,accepted:false,reason:'unsupported_or_protected'};
- const caption=String(message.caption||message.text||'').slice(0,1200);
+ const rawCaption=String(message.caption||message.text||'').slice(0,1200);
+ const caption=cfg.category==='formation_general'?
+  sanitizeFormationText(rawCaption,message.caption_entities||message.entities||[]):rawCaption;
  let category=cfg.category,reviewReason='';
  let canPublish=Number(cfg.rights_attested)===1&&Number(cfg.enabled)===1;
  if(cfg.category==='formation_general'){
+  // Casual messages or saved pictures do not enter the course index.
+  if(media.kind==='text' &&
+     !(courseId(caption)&&/^\s*description\s*:/im.test(caption)))
+   return {enabled:true,accepted:false,reason:'unrelated_formation_text'};
   const known=await env.DB.prepare(
-   "SELECT category,caption FROM cine_manual_fallback_inbox "+
+   "SELECT message_id,category,caption FROM cine_manual_fallback_inbox "+
    "WHERE chat_id=? AND kind='poster' "+
    "ORDER BY message_id DESC LIMIT 500"
   ).bind(chat).all();
-  const decision=classifyFormationPost(caption,media.filename,known?.results||[]);
-  if(decision.category){
-   category=decision.category;
-   // Source permissions are checked above; category-specific redistribution
-   // rights are controlled independently by each existing D1 route record.
+  const posters=known?.results||[];
+  const cover=media.kind==='poster'?inspectFormationCover(caption):null;
+  if(media.kind==='poster'&&!cover)
+   return {enabled:true,accepted:false,reason:'not_a_formation_cover'};
+  const fileMatch=['course_file','video'].includes(media.kind)?
+   matchFormationFilename(media.filename,posters):null;
+  const decision=classifyFormationPost(caption,media.filename,posters);
+  if(cover)category=cover.category;
+  else if(courseId(caption)&&decision.category)category=decision.category;
+  else if(fileMatch?.cover)category=fileMatch.cover.category;
+  else {
+   canPublish=false;
+   reviewReason=courseId(caption)?decision.reason:
+    media.kind==='text'?'description_requires_course_cover':
+    (fileMatch?.reason||'unlinked_course_file');
+  }
+  if(!reviewReason){
    const routes=await env.DB.prepare(
     "SELECT category,enabled,rights_attested FROM cine_manual_fallback_sources "+
     "WHERE category=? AND owner_approved=1 AND bot_access_verified=1 LIMIT 2"
    ).bind(category).all();
-   const matches=routes?.results||[];
-   canPublish=matches.length===1&&Number(matches[0].enabled)===1&&
-     Number(matches[0].rights_attested)===1;
-   const conflicting=(known?.results||[]).some(p=>
-    p.category!==category&&courseId(caption)&&
-    courseId(p.caption)===courseId(caption));
-   if(conflicting){canPublish=false;reviewReason='conflicting_course_covers';}
-  }else{
-   canPublish=false;reviewReason=decision.reason;
+   const found=routes?.results||[];
+   canPublish=found.length===1&&Number(found[0].enabled)===1&&
+    Number(found[0].rights_attested)===1;
   }
+  const conflicting=posters.some(p=>p.category!==category&&
+   courseId(caption)&&courseId(p.caption)===courseId(caption));
+  if(conflicting){canPublish=false;reviewReason='conflicting_course_covers';}
  }
  // Owner-owned media is recorded even without a redistribution license, but
  // the classifier never publishes an ambiguous/mislabelled file.
