@@ -337,10 +337,47 @@ def verified_owner_pair(video, poster, category: str) -> bool:
                       poster_identity(poster, category)) >= 0.95
 
 
+def optional_legacy_central_library(client, *, apply: bool):
+    """Keep verified category archives working when D1 free-tier reads expire.
+
+    Never guess a central chat ID or publish a CineRadar download link without
+    its real verified registry receipt. Other D1 failures are not swallowed.
+    """
+    if not apply:
+        return None, False
+    from .radar_download_registry import RadarDailyQuotaError
+    try:
+        return UnifiedLibrary(client), False
+    except RadarDailyQuotaError:
+        LOG.warning("CINEX_D1_QUOTA_FALLBACK: quota D1 7500, "
+                    "archives de catégorie seulement, pas de faux téléchargement central")
+        return None, True
+
+
+async def optional_legacy_central_store(unified, video, *, category, title,
+                                        public, poster, description):
+    if unified is None or getattr(unified, "_d1_quota_exhausted", False):
+        return None
+    from .radar_download_registry import RadarDailyQuotaError
+    try:
+        return await unified.store(
+            video, category=category, title=title, public=public,
+            poster=poster, description=description)
+    except RadarDailyQuotaError:
+        # It may expire mid-run, after successfully resolving the channel.
+        # Do not retry, create a fake download link, or stop verified category
+        # copies that are protected by Telegram's own media/cover receipts.
+        unified._d1_quota_exhausted = True
+        LOG.warning("CINEX_D1_QUOTA_FALLBACK: quota D1 atteinte pendant le cycle; "
+                    "continuation sans téléchargement central")
+        return None
+
+
 async def repair_channel(client, bot, category: str, public, private,
                          *, apply: bool, max_repaired: int = 2,
                          history: int = MAX_HISTORY, unified=None,
-                         manual_pair: tuple[int, int] | None = None):
+                         manual_pair: tuple[int, int] | None = None,
+                         central_quota_unavailable: bool = False):
     from telethon import utils
     public_id, private_id = utils.get_peer_id(public), utils.get_peer_id(private)
     if public_id == private_id or not str(private_id).startswith("-100"):
@@ -366,6 +403,7 @@ async def repair_channel(client, bot, category: str, public, private,
         "private_pair_unverified": 0, "central_cover_unverified": 0, "preflight_failed": 0,
         "preflight_budget_exhausted": 0, "errors": 0,
         "mode": "apply" if apply else "simulation",
+        "central_quota_fallback": int(central_quota_unavailable),
     }
     if len(recent) < 10 and not manual_pair:
         return report
@@ -465,6 +503,16 @@ async def repair_channel(client, bot, category: str, public, private,
         existing_pair = find_verified_private_pair(
             private_messages, video, category, rescue_url=rescue,
             reference=identity, public=public)
+        # A verified CineRadar button already present on the public poster
+        # must NEVER be silently removed during a D1 quota fallback.
+        if ((central_quota_unavailable or
+             getattr(unified, "_d1_quota_exhausted", False))
+                and existing_download_button(poster)):
+            report["skipped"] += 1
+            LOG.warning("%s : fiche #%s déjà dotée d'un téléchargement CineRadar ; "
+                        "quota D1 indisponible, affiche et liens inchangés",
+                        category, poster.id)
+            continue
         if not multipart and existing_pair and fully_linked_legacy_poster(
                 poster, private_id, existing_pair[0].id, rescue,
                 film_folder_url(), extra_text=extra):
@@ -568,13 +616,23 @@ async def repair_channel(client, bot, category: str, public, private,
             target = private_message_link(private_id, private_video_id)
             descriptive_caption = cover_caption(
                 poster, video, category, identity=identity, extra_text=extra)
-            download_url = (await unified.store(
-                video, category=category, title=descriptive_caption,
-                public=public, poster=poster, description=descriptive_caption,
-            )) if unified is not None else None
+            download_url = await optional_legacy_central_store(
+                unified, video, category=category, title=descriptive_caption,
+                public=public, poster=poster, description=descriptive_caption)
+            if unified is not None and getattr(unified, "_d1_quota_exhausted", False):
+                report["central_quota_fallback"] = 1
             # The legacy photo is created before the central download exists.
             # Only AFTER the real CineRadar receipt is verified may its private
             # keyboard receive the third, exact download button. No placeholder.
+            if not download_url and existing_download_button(poster):
+                # D1 could also expire after a private media upload. Preserve
+                # the already published download URL; never delete a working
+                # button or replace it with an invented central link.
+                report["skipped"] += 1
+                LOG.warning("%s : CineRadar indisponible pendant la copie ; "
+                            "affiche #%s inchangée, vidéo privée conservée",
+                            category, poster.id)
+                continue
             if download_url and not pair:
                 from .radar_download_registry import is_bot_download_url
                 if not is_bot_download_url(download_url):
@@ -657,14 +715,16 @@ def legacy_repair_completion(reports):
                      "public_already_linked", "private_created",
                      "central_cover_unverified",
                      "unmatched", "ambiguous", "private_pair_unverified",
-                     "preflight_failed", "errors", "preflight_budget_exhausted")
+                     "preflight_failed", "errors", "preflight_budget_exhausted",
+                     "central_quota_fallback")
     }
     # Conservative coverage only: repair stops at max_repaired, so we cannot
     # assert these items are all broken; they were not verified in this pass.
     totals["unresolved"] = max(0, totals["older"] - totals["public_linked"])
     totals["complete"] = (totals["unresolved"] == 0
                            and totals["errors"] == 0
-                           and totals["preflight_budget_exhausted"] == 0)
+                           and totals["preflight_budget_exhausted"] == 0
+                           and totals["central_quota_fallback"] == 0)
     return totals
 
 
@@ -708,7 +768,8 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
         if not await client.is_user_authorized():
             raise RuntimeError("Session Telegram expirée")
         bot = BotHTTPClient(bot_token, client) if apply else None
-        unified = UnifiedLibrary(client) if apply else None
+        unified, central_quota_unavailable = optional_legacy_central_library(
+            client, apply=apply)
         selected=[t for t in category_targets() if
                   (manual_category is None or t[0]==manual_category)
                   and (not only_films or (t[0]=="films" and t[1].casefold()=="@cinexfilms_vf"))]
@@ -723,7 +784,9 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
                 reports.append(await repair_channel(
                     client, bot, category, public, private, apply=apply,
                     max_repaired=max_repaired, history=history,
-                    unified=unified, manual_pair=(
+                    unified=unified,
+                    central_quota_unavailable=central_quota_unavailable,
+                    manual_pair=(
                         (manual_video_id,manual_poster_id)
                         if manual_category is not None else None),
                 ))
@@ -738,11 +801,16 @@ async def execute(*, apply=False, max_repaired=2, history=MAX_HISTORY,
     completion = legacy_repair_completion(reports)
     LOG.info("CINEX_REPAIR_VERIFICATION %s", {
         "complete": completion["complete"], "unresolved": completion["unresolved"],
-        "edited": completion["public_edited"], "errors": completion["errors"]})
+        "edited": completion["public_edited"], "errors": completion["errors"],
+        "central_quota_fallback": completion["central_quota_fallback"]})
     summary_path = os.getenv("GITHUB_STEP_SUMMARY", "").strip()
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as summary:
             summary.write("\n### CinéX — Rattrapage sûr des anciennes vidéos\n")
+            if completion["central_quota_fallback"]:
+                summary.write("**CineRadar D1 : quota journalière atteinte.** "
+                              "Rattrapage des vidéothèques privées par catégorie seulement ; "
+                              "aucun faux bouton de téléchargement central.\n\n")
             summary.write("| Canal | Anciennes | Fiches originales liées | Nouvelles copies privées | Sans paire fiable | Affiches ambiguës | Édition refusée | Copies privées incertaines | Stock central sans affiche | Erreurs |\n")
             summary.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
             for row in reports:
