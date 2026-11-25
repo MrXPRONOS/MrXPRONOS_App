@@ -7,6 +7,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'assets/data/private/cineradar/owner_channels.aes.json'
       - 'scripts/cineradar_reactions_github_only.py'
       - 'scripts/cineradar_reaction_store.py'
       - 'scripts/cineradar_reaction_core.py'
