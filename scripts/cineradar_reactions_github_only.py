@@ -11,7 +11,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-from scripts import telegram_reactions_github as reactions
+from scripts import cineradar_reaction_core as reactions
 from scripts.cineradar_reaction_store import (
     ReactionVault, LocalReactionDB, load, save,
 )
