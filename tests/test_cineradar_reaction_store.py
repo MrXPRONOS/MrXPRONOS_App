@@ -87,9 +87,9 @@ class EncryptedReactionStateTests(unittest.TestCase):
             vault = ReactionVault(repo="MrXPRONOS/MrXPRONOS_App",
                                   branch="main",token="dummy")
             payload = {"version": 1, "format": "test"}
-            sealed = vault._encrypt(payload)
-            self.assertEqual(vault._decrypt(sealed), payload)
-            from scripts.actu_foot_github_vault import derive_key
+            from scripts.actu_foot_github_vault import derive_key, seal, unseal
+            sealed = seal(payload, vault.key)
+            self.assertEqual(unseal(sealed, vault.key), payload)
             self.assertNotEqual(vault.key, derive_key())
 
     def test_observer_uses_telegram_only_and_deduplicates(self):
