@@ -197,4 +197,4 @@ jobs:
       - name: Gradually grant channel admin privileges except add_admins and enable reactions
         run: |
           python -m scripts.cineradar_admin_rollout \
-            --apply --max-changes 6 --max-channels 2 --pause 15
+            --apply --max-changes 2 --max-channels 1 --pause 25
