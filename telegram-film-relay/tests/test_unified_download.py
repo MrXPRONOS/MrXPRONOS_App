@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 from types import SimpleNamespace as NS
 import unittest
 from unittest.mock import patch
@@ -27,7 +28,8 @@ class DummyRegistry:
 
 def media(mid, doc, *, title="Un film"):
     return NS(id=mid, raw_text=title, video=object(),
-              document=NS(id=doc, attributes=[]), media=object(),
+              document=NS(id=doc, size=4, mime_type="video/x-matroska", attributes=[]),
+              media=NS(name=title+".mkv"),
               file=NS(name=title+".mkv"), noforwards=False)
 
 
@@ -53,15 +55,28 @@ class DummyClient:
         if result is not None and not self.verify and self.sent and ids == self.sent[-1]:
             return media(ids, -1)
         return result
-    async def send_file(self, channel, video, *, caption, parse_mode):
+    async def download_media(self, source, *, file):
+        Path(file).write_bytes(b"data")
+        return file
+    async def send_file(self, channel, video, *, caption, parse_mode,
+                        force_document=False):
         mid = max((m.id for m in self.rows), default=0) + 1
         self.sent.append(mid)
         self.captions.append(caption)
         if getattr(video, "is_poster", False):
             msg = NS(id=mid, photo=object(), media=video, raw_text=caption,
                      video=None, document=None)
+        elif isinstance(video, str):
+            # A real reupload has new Telegram document ID, unlike a copy.
+            msg = media(mid, self.current_doc + 700000,
+                        title=Path(video).stem)
+            msg.file.name = Path(video).name
+            msg.document.size = Path(video).stat().st_size
+            msg.raw_text = caption
         else:
             msg = media(mid, self.current_doc)
+            msg.file.name = str(getattr(video, "name", "") or "Un film.mkv")
+            msg.raw_text = caption
         self.rows.insert(0, msg)
         return NS(id=msg.id)
 
@@ -144,8 +159,10 @@ class CentralLibraryTests(unittest.TestCase):
         self.assertTrue(chronological[0].photo)
         self.assertIn("Genre : Aventure", chronological[0].raw_text)
         self.assertIn("#CXSTOCK_", chronological[0].raw_text)
-        self.assertEqual(chronological[1].document.id, 700)
-        self.assertEqual(client.captions[1], '<b>🎞️ Supergirl</b>')
+        self.assertNotEqual(chronological[1].document.id, 700)
+        self.assertEqual(chronological[1].file.name, "Supergirl.mkv")
+        self.assertTrue(client.captions[1].startswith('<b>🎞️ Supergirl</b>'))
+        self.assertIn("#CXFILE_", client.captions[1])
         self.assertEqual(registry.calls[0]['title'], 'Supergirl')
         self.assertEqual(len(registry.calls), 2)
         self.assertEqual(registry.calls[0]["message_id"], chronological[1].id)
@@ -172,7 +189,7 @@ class CentralLibraryTests(unittest.TestCase):
         self.assertIn("Synopsis", client.captions[0])
         self.assertIn("Un voyage inattendu.", client.captions[0])
         self.assertNotIn("#Film", client.captions[0])
-        self.assertEqual(client.captions[1], "<b>🎞️ Le Dernier Voyage</b>")
+        self.assertTrue(client.captions[1].startswith("<b>🎞️ Le Dernier Voyage</b>"))
         self.assertEqual(registry.calls[0]["title"], "Le Dernier Voyage")
 
     def test_real_photo_without_media_wrapper_is_forwarded_before_video(self):
@@ -378,7 +395,7 @@ class CentralLibraryTests(unittest.TestCase):
         library = UnifiedLibrary(client, env={"CINEX_UNIFIED_PRIVATE_CHANNEL": str(CENTRAL)}, registry=DummyRegistry())
         with (patch("film_relay.runner.resolve_peer", return_value=client.target),
               patch("telethon.utils.get_peer_id", side_effect=lambda p: p.id)):
-            with self.assertRaisesRegex(RuntimeError, "non vérifiée"):
+            with self.assertRaisesRegex(RuntimeError, "incorrects|non vérifiée"):
                 asyncio.run(library.store(
                     media(1, 700), category="series", title="Episode",
                     poster=NS(photo=object(), noforwards=False,
