@@ -2,3 +2,4 @@ CinéX rotation ponctuelle contrôlée
 2026-11-24
 PR #668 fusionnée ; diagnostic et réparation des affiches épinglées puis rotation avec autorisations existantes.
 Ne jamais activer purge_unmatched. Respecter les contrôles de droits et les délais Telegram.
+2026-11-25T00:22:00Z : relance ponctuelle après PR #695 (boutons non-URL ignorés en sécurité), réparer puis rotation ; aucune purge d'inconnus.
