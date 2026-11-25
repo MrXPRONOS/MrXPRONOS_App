@@ -221,16 +221,26 @@ async def existing_private_media(client, private, limit: int = MAX_HISTORY) -> d
         docid = video_document_id(message)
         if docid and is_video_message(message):
             by_document.setdefault(docid, message.id)
+            from .private_media_contract import source_marker_from_message
+            marker = source_marker_from_message(message)
+            if marker:
+                by_document.setdefault(marker, message.id)
     return by_document
 
 
 
 async def private_video_has_poster(client, private, video_id: int,
-                                   expected_document_id: int) -> bool:
+                                   expected_document_id: int, *,
+                                   source=None, poster=None, title="") -> bool:
     """Reuse a private movie only when its own descriptive poster is before it."""
     current = await client.get_messages(private, ids=video_id)
-    if not is_video_message(current) or video_document_id(current) != expected_document_id:
+    if not is_video_message(current):
         return False
+    if video_document_id(current) != expected_document_id:
+        from .private_media_contract import renamed_receipt_matches
+        if source is None or not renamed_receipt_matches(
+                source, current, title=title, poster=poster):
+            return False
     previous_ids = list(range(max(1, video_id - 8), video_id))
     previous = await client.get_messages(private, ids=previous_ids)
     matching = matching_poster(current, previous or [], max_gap=8)
@@ -247,9 +257,14 @@ async def ensure_private_poster_then_video(
     previously completed pair on retries, preventing duplicate archive posts.
     """
     document_id = video_document_id(video)
-    existing_id = private_docs.get(document_id)
+    from .private_media_contract import marker_for
+    from .text import resolved_media_title
+    title = resolved_media_title(poster, video, description=str(
+        getattr(poster, "raw_text", "") or ""))
+    existing_id = private_docs.get(marker_for(video)) or private_docs.get(document_id)
     if existing_id and await private_video_has_poster(
-        client, private, existing_id, document_id
+        client, private, existing_id, document_id,
+        source=video, poster=poster, title=title
     ):
         return existing_id
     if getattr(poster, "noforwards", False) or getattr(video, "noforwards", False):
@@ -276,17 +291,24 @@ async def ensure_private_poster_then_video(
         raise RuntimeError("Affiche privée non confirmée ; vidéo publique conservée")
 
     await asyncio.sleep(12)
-    posted = await client.send_file(
-        private, video.media, caption=rich_video_title(video_title(video)), parse_mode="html",
+    from .private_media_contract import send_named_private_video, renamed_receipt_matches
+    confirmed = await send_named_private_video(
+        client, private, video, title=title,
+        caption=rich_video_title(title),
+        private_cover_id=int(photo_check.id), poster=poster,
+        description=description,
     )
-    confirmed = await client.get_messages(private, ids=int(posted.id))
-    if not is_video_message(confirmed) or video_document_id(confirmed) != document_id:
-        raise RuntimeError("Vidéo privée non confirmée ou document différent")
+    if not renamed_receipt_matches(video, confirmed, title=title,
+                                   poster=poster, description=description):
+        raise RuntimeError("Vidéo privée non confirmée ou nom de fichier différent")
     if not (0 < int(confirmed.id) - int(photo_check.id) <= 3):
         raise RuntimeError("Affiche et vidéo privées non consécutives")
-    if not await private_video_has_poster(client, private, int(confirmed.id), document_id):
+    if not await private_video_has_poster(
+            client, private, int(confirmed.id), document_id,
+            source=video, poster=poster, title=title):
         raise RuntimeError("L'affiche de la vidéothèque n'a pas pu être associée à la vidéo")
     private_docs[document_id] = int(confirmed.id)
+    private_docs[marker_for(video)] = int(confirmed.id)
     return int(confirmed.id)
 
 
@@ -452,8 +474,14 @@ async def execute(*, apply: bool = False, limit: int = MAX_HISTORY, max_archived
                     client, private, poster, video, private_docs,
                 )
                 proof = await client.get_messages(private, ids=destination_id)
-                if not proof or video_document_id(proof) != document_id:
-                    raise RuntimeError("Paire privée non vérifiée : vidéo publique conservée")
+                from .private_media_contract import renamed_receipt_matches
+                title = resolved_media_title(poster, video, description=str(
+                    getattr(poster, "raw_text", "") or ""))
+                if (not proof or
+                        not renamed_receipt_matches(
+                            video, proof, title=title, poster=poster,
+                            description=str(getattr(poster, "raw_text", "") or ""))):
+                    raise RuntimeError("Paire privée ou vrai nom non vérifiés : vidéo publique conservée")
                 url = private_message_link(private_id, destination_id)
                 from .rescue_channels import read_state, rescue_link_for
                 rescue_state = read_state().get("channels", {}).get("@cinexfilms_vf")
