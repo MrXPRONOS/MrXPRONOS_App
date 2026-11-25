@@ -23,6 +23,29 @@ MIN_SLOT = 3
 MAX_SLOT = 9999
 EXTRA_SLOTS = range(MIN_SLOT, MAX_SLOT + 1)
 TOKEN_KEY_RE = re.compile(r"^TELEGRAM_REACTION_BOT_([0-9]{2,4})_TOKEN$")
+# Stable, reserved slots for additional named bot credentials already used
+# elsewhere in this repository. Missing secrets stay absent; token values are
+# never stored in source, output, or the encrypted reaction snapshot.
+NAMED_REACTION_SECRETS = {
+    8001: "ANIME_BOT_TOKEN",
+    8002: "SERIES_BOT_TOKEN",
+    8003: "ACTION_BOT_TOKEN",
+    8004: "COMEDIE_BOT_TOKEN",
+    8005: "DESIR_BOT_TOKEN",
+    8006: "CINEX_PUBLISH_BOT_TOKEN",
+    8007: "CINEX_RADAR_BOT_TOKEN",
+    8008: "FOOTBALL_NEWS_BOT_TOKEN",
+    8009: "FORMATION_BOT_TOKEN",
+    8010: "CINE_RADAR_BOT_TOKEN",
+    8011: "TELEGRAM_BOT_TOKEN",
+    8012: "CINEX_BOT_TOKEN",
+    8013: "MRXPRONOS_CANAL_BOT_TOKEN",
+    8014: "CANAL_BOT_TOKEN",
+    8015: "EDITORIAL_TELEGRAM_BOT_TOKEN",
+    8016: "PARTNERSHIP_BOT_TOKEN",
+    8017: "CINEX_UNIFIED_BOT_TOKEN",
+    8018: "CINEX_PRIVATE_STOCK_BOT_TOKEN",
+}
 SLOT_BATCH_SIZE = 25
 BLOCKED_IDENTITIES = {"cineradarfr_bot", "mrxpronos_canal_bot"}
 MAX_JOBS_PER_RUN = 100
@@ -58,6 +81,10 @@ def configured_tokens(env: dict[str, str]) -> dict[int, str]:
         slot = int(match.group(1))
         if slot in EXTRA_SLOTS and isinstance(raw_token, str) and raw_token.strip():
             candidates[slot] = raw_token.strip()
+    for slot, name in NAMED_REACTION_SECRETS.items():
+        token = str(env.get(name) or "").strip()
+        if token and slot not in candidates:
+            candidates[slot] = token
     bundle = env.get("TELEGRAM_REACTION_BOTS_JSON", "").strip()
     if bundle:
         try:
