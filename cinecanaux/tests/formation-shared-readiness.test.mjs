@@ -81,3 +81,24 @@ test('public specialty destination is rejected',async()=>{
  };
  await assert.rejects(auditSharedFormation({...f,stage:source,destinations}));
 });
+
+test('read-only audit reports exactly which destination lacks Telegram admin access',async()=>{
+ const f=fixtures();
+ const original=f.bot.verifyChannel;
+ f.bot.verifyChannel=async id=>{
+  if(id===destinations.finance)throw Error('private chat token=SHOULD_NEVER_LOG');
+  return await original(id);
+ };
+ await assert.rejects(
+  auditSharedFormation({...f,stage:source,destinations}),
+  /formation_destination_finance_telegram_access_unavailable/
+ );
+});
+test('missing source Radar permissions are reported without raw Telegram details',async()=>{
+ const f=fixtures();
+ f.radar.verifyChannel=async()=>{throw Error('secret:DO_NOT_LOG')};
+ await assert.rejects(
+  auditSharedFormation({...f,stage:source,destinations}),
+  /formation_radar_source_access_unavailable/
+ );
+});
