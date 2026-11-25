@@ -87,6 +87,21 @@ test('cover arriving after parts safely reconciles only matching unknown files',
  assert.equal(planCourses(rows).items.length,1);
 });
 
+test('keyset pagination retains more than 2000 owner files without losing a page',async()=>{
+ const f=setup();await seed(f,{licensedBusiness:true});
+ const stmt=f.sqlite.prepare(
+  "INSERT INTO cine_manual_fallback_inbox "+
+  "(chat_id,message_id,category,kind,file_unique_id,caption,posted_at,state) "+
+  "VALUES (?,?,?,?,?,?,?,'indexed')"
+ );
+ for(let i=1;i<=2105;i++)stmt.run(shared,i,'formation_business','course_file',
+  'file-'+i,'Cours: course-'+i,1795600000+i);
+ const rows=await readManualFallbackQueue(f.db);
+ assert.equal(rows.length,2105);
+ assert.equal(new Set(rows.map(x=>x.message_id)).size,2105);
+ assert.deepEqual([rows[0].message_id,rows.at(-1).message_id],[1,2105]);
+});
+
 test('specialist libraries are never alternative intake vaults',async()=>{
  const f=setup();await seed(f,{licensedBusiness:true});
  const r=await ingestManualChannelPost(f.env,event(99,
