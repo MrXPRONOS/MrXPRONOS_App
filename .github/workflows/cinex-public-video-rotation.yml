@@ -166,6 +166,14 @@ jobs:
               python -m film_relay.ten_video_rotation
             fi
           fi
+      # The safe 6-channel archive continues to run; the overall workflow
+      # must NOT report complete success while five verified public channels
+      # remain outside its private-archive pairing inventory.
+      - name: Certifier la couverture des 11 canaux après le passage
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python -m film_relay.rotation_coverage --require-complete
       - name: Vérifier le chargement des invitations
         if: ${{ always() && steps.rescue_links.outcome == 'failure' }}
         run: |
