@@ -13,7 +13,7 @@ export function formationDestinations(raw){
  try{data=JSON.parse(raw||'{}')}catch{
   // The original Formation publisher accepts bare @usernames as JSON
   // values (not strings). Mirror ONLY that bounded repair, never eval data.
-  const pattern=/"(?:\\.|[^"\\])*"|(?<![\\w@])@[A-Za-z][A-Za-z0-9_]{3,31}(?=\\s*[,}\\]])/g;
+  const pattern=/"(?:\\.|[^"\\])*"|(?<![A-Za-z0-9_@])@[A-Za-z][A-Za-z0-9_]{3,31}(?=\s*[,}\]])/g;
   const repaired=String(raw||'').replace(pattern,x=>
    x.startsWith('@')?JSON.stringify(x):x);
   try{data=JSON.parse(repaired)}
