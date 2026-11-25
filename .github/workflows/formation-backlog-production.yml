@@ -1,0 +1,64 @@
+name: Formation - Production autorisée depuis Formation Storage
+on:
+  pull_request:
+    paths:
+      - 'cinecanaux/formation-backlog-production.mjs'
+      - 'cinecanaux/tests/formation-backlog-production.test.mjs'
+      - '.github/workflows/formation-backlog-production.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/formation-backlog-production.yml'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Lancer uniquement après vérification des droits, du premier pilote et des reçus'
+        type: boolean
+        default: false
+  schedule:
+    - cron: '17 */2 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test offline et vérification de syntaxe
+        run: |
+          node --check cinecanaux/formation-backlog-production.mjs
+          node --test cinecanaux/tests/formation-backlog-production.test.mjs
+          node --test cinecanaux/tests/formation-content-flow.test.mjs cinecanaux/tests/manual-fallback-live.test.mjs
+  publish:
+    needs: [test]
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'push' && github.actor == 'MrXPRONOS') || (github.event_name == 'workflow_dispatch' && inputs.publish == true)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FORMATION_PRODUCTION_ENABLED: 'true'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '9c86118191b804d91b5f5b2c89114999'
+      CINERADAR_D1_DATABASE_ID: 'fa8b5009-bc1a-4a6e-b143-7a487c7297a5'
+      FORMATION_STAGE_CHAT: ${{ secrets.FORMATION_STAGE_CHAT }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN || secrets.CINEX_RADAR_BOT_TOKEN }}
+      FORMATION_DESTINATIONS_JSON: ${{ secrets.FORMATION_DESTINATIONS_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Publier au maximum deux cours complets via Bot API et reçus D1
+        run: node cinecanaux/formation-backlog-production.mjs
