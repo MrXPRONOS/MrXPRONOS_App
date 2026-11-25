@@ -75,7 +75,7 @@ class TestStandbyBotMenu(unittest.TestCase):
     def test_http_probe_parses_curl_status_and_body(self):
         from unittest.mock import patch
         from subprocess import CompletedProcess
-        output='{"service":"cine-radar","database":true}\\n200|application/json'
+        output='{"service":"cine-radar","database":true}\n200|application/json'
         with patch.object(bot.subprocess,"run",return_value=CompletedProcess([],0,stdout=output,stderr="")):
             result=bot.http_probe(bot.BASE+"/health")
         self.assertEqual(result["status"],200)
