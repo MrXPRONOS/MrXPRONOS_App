@@ -73,7 +73,7 @@ class TestCineXPrivateButtonSmoke(unittest.TestCase):
             response({"ok":True,"result":{"id":int(CHAT),"type":"channel","title":"CinéX — Stock privé"}}),
             response({"ok":True,"result":{"status":"administrator","can_post_messages":True,"can_delete_messages":True}}),
             response({"ok":True,"result":{"message_id":77,"chat":{"id":int(CHAT)},
-                    "text":TEXT,"reply_markup":{"inline_keyboard":[[{"text":BUTTON_TEXT,"url":BUTTON_URL}]]}}),
+                    "text":TEXT,"reply_markup":{"inline_keyboard":[[{"text":BUTTON_TEXT,"url":BUTTON_URL}]]}}}),
             response({"ok":True,"result":True})
         ]
         out=run(sess, "cfkey","botkey",execute=True)
