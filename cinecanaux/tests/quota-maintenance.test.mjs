@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -151,4 +152,48 @@ test("an authenticated Telegram webhook is answered during D1 maintenance",async
   globalThis.fetch=oldFetch;
   resetMaintenanceForTests();
  }
+});
+
+test("maintenance page polls after 00h05 and automatically reopens the app only when health is healthy",async()=>{
+ resetMaintenanceForTests();
+ markD1Maintenance(quota(),new Date("2026-11-25T23:56:00Z"));
+ const r=maintenanceResponse(new Request("https://cine.test/app"),{now:new Date("2026-11-25T23:59:00Z")});
+ const page=await r.text();
+ assert.match(page,/new Date\("2026-11-26T00:05:00\.000Z"\)/);
+ assert.match(page,/\/health\?recovery=/);
+ assert.match(page,/result\.database===true/);
+ assert.match(page,/location\.replace\("\/app"\)/);
+ assert.match(r.headers.get("content-security-policy"),/connect-src 'self'/);
+ resetMaintenanceForTests();
+});
+
+test("independent GitHub Pages backup is static, verifies D1 and returns to CineRadar without touching secrets",()=>{
+ const page=readFileSync(new URL("../../cineradar-secours/index.html",import.meta.url),"utf8");
+ assert.match(page,/CinéRadar est en maintenance/);
+ assert.match(page,/00h05/);
+ assert.match(page,/github-standby/);
+ assert.match(page,/window\.location\.replace\(MAIN\+"\/app"\)/);
+ assert.match(page,/body\.database===true/);
+ assert.doesNotMatch(page,/TELEGRAM_TOKEN|TELEGRAM_WEBHOOK_SECRET|SUPABASE_SERVICE_ROLE|CLOUDFLARE_API_TOKEN/);
+});
+
+test("public health exposes narrow CORS to GitHub Pages but no credentials",async()=>{
+ resetMaintenanceForTests();
+ const DB={prepare(){return {async first(){return {webhook:"ok",n:5}}}}};
+ const r=await worker.fetch(new Request("https://cine.test/health"),{DB});
+ assert.equal(r.status,200);
+ assert.equal(r.headers.get("access-control-allow-origin"),"https://mrxpronos.github.io");
+ const data=await r.json();
+ assert.equal(data.database,true);
+ assert.equal(data.service,"cine-radar");
+ resetMaintenanceForTests();
+});
+
+test("quota health response exposes the same CORS authority to independent standby",async()=>{
+ resetMaintenanceForTests();
+ markD1Maintenance(quota());
+ const r=await worker.fetch(new Request("https://cine.test/health"),{DB:mockDB()});
+ assert.equal(r.status,503);
+ assert.equal(r.headers.get("access-control-allow-origin"),"https://mrxpronos.github.io");
+ resetMaintenanceForTests();
 });
