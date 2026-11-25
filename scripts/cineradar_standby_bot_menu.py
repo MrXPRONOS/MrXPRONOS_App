@@ -97,7 +97,7 @@ def http_probe(url):
             "--header", "Cache-Control: no-cache", "--user-agent", "curl/8.0",
             "--write-out", "\\n%{http_code}|%{content_type}", url,
         ], capture_output=True, text=True, timeout=16, check=False)
-        body, separator, meta = output.stdout.rpartition("\\n")
+        body, separator, meta = output.stdout.rpartition("\n")
         if not separator:
             return {"status": 0, "type": "", "json": {}}
         code, content_type = meta.split("|", 1)
