@@ -1,0 +1,195 @@
+name: CineRadar - reconcile all verified channel admins and enable emoji reactions
+
+on:
+  schedule:
+    - cron: '31 * * * *'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Promote verified GitHub bots; enable heart/thumbs reactions, with no add-admins right'
+        type: boolean
+        required: false
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cineradar-admin-rollout.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Telegram and GitHub vault dependencies
+        run: python -m pip install 'telethon==1.45.0' 'cryptography>=43,<47' requests
+      - name: Verify admin rights safeguards, channel exclusions, and anti-duplicate identities
+        run: |
+          python -m py_compile scripts/cineradar_admin_rollout.py
+          python -m unittest discover -s tests -p 'test_cineradar_admin_rollout.py' -v
+
+  reconcile:
+    needs: offline-tests
+    if: ${{ github.repository == 'MrXPRONOS/MrXPRONOS_App' && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_RADAR_BOT_TOKEN: ${{ secrets.CINEX_RADAR_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_TOKEN: ${{ secrets.CINEX_PUBLISH_BOT_TOKEN }}
+      CINEX_PUBLISH_BOT_USERNAME: ${{ vars.CINEX_PUBLISH_BOT_USERNAME }}
+      CINEX_BOT_TOKEN: ${{ secrets.CINEX_BOT_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      SERIES_BOT_TOKEN: ${{ secrets.SERIES_BOT_TOKEN }}
+      ANIME_BOT_TOKEN: ${{ secrets.ANIME_BOT_TOKEN }}
+      ACTION_BOT_TOKEN: ${{ secrets.ACTION_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      COMEDIE_BOT_TOKEN: ${{ secrets.COMEDIE_BOT_TOKEN }}
+      MRXPRONOS_CANAL_BOT_TOKEN: ${{ secrets.MRXPRONOS_CANAL_BOT_TOKEN }}
+      EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+      PARTNERSHIP_BOT_TOKEN: ${{ secrets.PARTNERSHIP_BOT_TOKEN }}
+      CINEX_ANIME_SOURCE_BOT_TOKEN: ${{ secrets.CINEX_ANIME_SOURCE_BOT_TOKEN }}
+      CINE_RADAR_BOT_TOKEN: ${{ secrets.CINE_RADAR_BOT_TOKEN }}
+      CANAL_BOT_TOKEN: ${{ secrets.CANAL_BOT_TOKEN }}
+      TELEGRAM_REACTION_BOT_03_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_03_TOKEN }}
+      TELEGRAM_REACTION_BOT_04_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_04_TOKEN }}
+      TELEGRAM_REACTION_BOT_05_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_05_TOKEN }}
+      TELEGRAM_REACTION_BOT_06_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_06_TOKEN }}
+      TELEGRAM_REACTION_BOT_07_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_07_TOKEN }}
+      TELEGRAM_REACTION_BOT_08_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_08_TOKEN }}
+      TELEGRAM_REACTION_BOT_09_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_09_TOKEN }}
+      TELEGRAM_REACTION_BOT_10_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_10_TOKEN }}
+      TELEGRAM_REACTION_BOT_11_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_11_TOKEN }}
+      TELEGRAM_REACTION_BOT_12_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_12_TOKEN }}
+      TELEGRAM_REACTION_BOT_13_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_13_TOKEN }}
+      TELEGRAM_REACTION_BOT_14_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_14_TOKEN }}
+      TELEGRAM_REACTION_BOT_15_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_15_TOKEN }}
+      TELEGRAM_REACTION_BOT_16_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_REACTION_BOT_17_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_17_TOKEN }}
+      TELEGRAM_REACTION_BOT_18_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_18_TOKEN }}
+      TELEGRAM_REACTION_BOT_19_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_19_TOKEN }}
+      TELEGRAM_REACTION_BOT_20_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_20_TOKEN }}
+      TELEGRAM_REACTION_BOT_21_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_21_TOKEN }}
+      TELEGRAM_REACTION_BOT_22_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_22_TOKEN }}
+      TELEGRAM_REACTION_BOT_23_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_23_TOKEN }}
+      TELEGRAM_REACTION_BOT_24_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_24_TOKEN }}
+      TELEGRAM_REACTION_BOT_25_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_25_TOKEN }}
+      TELEGRAM_REACTION_BOT_26_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_26_TOKEN }}
+      TELEGRAM_REACTION_BOT_27_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_27_TOKEN }}
+      TELEGRAM_REACTION_BOT_28_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_28_TOKEN }}
+      TELEGRAM_REACTION_BOT_29_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_29_TOKEN }}
+      TELEGRAM_REACTION_BOT_30_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_30_TOKEN }}
+      TELEGRAM_REACTION_BOT_31_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_31_TOKEN }}
+      TELEGRAM_REACTION_BOT_32_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_32_TOKEN }}
+      TELEGRAM_REACTION_BOT_33_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_33_TOKEN }}
+      TELEGRAM_REACTION_BOT_34_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_34_TOKEN }}
+      TELEGRAM_REACTION_BOT_35_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_35_TOKEN }}
+      TELEGRAM_REACTION_BOT_36_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_36_TOKEN }}
+      TELEGRAM_REACTION_BOT_37_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_37_TOKEN }}
+      TELEGRAM_REACTION_BOT_38_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_38_TOKEN }}
+      TELEGRAM_REACTION_BOT_39_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_39_TOKEN }}
+      TELEGRAM_REACTION_BOT_40_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_40_TOKEN }}
+      TELEGRAM_REACTION_BOT_41_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_41_TOKEN }}
+      TELEGRAM_REACTION_BOT_42_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_42_TOKEN }}
+      TELEGRAM_REACTION_BOT_43_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_43_TOKEN }}
+      TELEGRAM_REACTION_BOT_44_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_44_TOKEN }}
+      TELEGRAM_REACTION_BOT_45_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_45_TOKEN }}
+      TELEGRAM_REACTION_BOT_46_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_46_TOKEN }}
+      TELEGRAM_REACTION_BOT_47_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_47_TOKEN }}
+      TELEGRAM_REACTION_BOT_48_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_48_TOKEN }}
+      TELEGRAM_REACTION_BOT_49_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_49_TOKEN }}
+      TELEGRAM_REACTION_BOT_50_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_50_TOKEN }}
+      TELEGRAM_REACTION_BOT_51_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_51_TOKEN }}
+      TELEGRAM_REACTION_BOT_52_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_52_TOKEN }}
+      TELEGRAM_REACTION_BOT_53_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_53_TOKEN }}
+      TELEGRAM_REACTION_BOT_54_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_54_TOKEN }}
+      TELEGRAM_REACTION_BOT_55_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_55_TOKEN }}
+      TELEGRAM_REACTION_BOT_56_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_56_TOKEN }}
+      TELEGRAM_REACTION_BOT_57_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_57_TOKEN }}
+      TELEGRAM_REACTION_BOT_58_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_58_TOKEN }}
+      TELEGRAM_REACTION_BOT_59_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_59_TOKEN }}
+      TELEGRAM_REACTION_BOT_60_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_60_TOKEN }}
+      TELEGRAM_REACTION_BOT_61_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_61_TOKEN }}
+      TELEGRAM_REACTION_BOT_62_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_62_TOKEN }}
+      TELEGRAM_REACTION_BOT_63_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_63_TOKEN }}
+      TELEGRAM_REACTION_BOT_64_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_64_TOKEN }}
+      TELEGRAM_REACTION_BOT_65_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_65_TOKEN }}
+      TELEGRAM_REACTION_BOT_66_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_66_TOKEN }}
+      TELEGRAM_REACTION_BOT_67_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_67_TOKEN }}
+      TELEGRAM_REACTION_BOT_68_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_68_TOKEN }}
+      TELEGRAM_REACTION_BOT_69_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_69_TOKEN }}
+      TELEGRAM_REACTION_BOT_70_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_70_TOKEN }}
+      TELEGRAM_REACTION_BOT_71_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_71_TOKEN }}
+      TELEGRAM_REACTION_BOT_72_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_72_TOKEN }}
+      TELEGRAM_REACTION_BOT_73_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_73_TOKEN }}
+      TELEGRAM_REACTION_BOT_74_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_74_TOKEN }}
+      TELEGRAM_REACTION_BOT_75_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_75_TOKEN }}
+      TELEGRAM_REACTION_BOT_76_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_76_TOKEN }}
+      TELEGRAM_REACTION_BOT_77_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_77_TOKEN }}
+      TELEGRAM_REACTION_BOT_78_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_78_TOKEN }}
+      TELEGRAM_REACTION_BOT_79_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_79_TOKEN }}
+      TELEGRAM_REACTION_BOT_80_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_80_TOKEN }}
+      TELEGRAM_REACTION_BOT_81_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_81_TOKEN }}
+      TELEGRAM_REACTION_BOT_82_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_82_TOKEN }}
+      TELEGRAM_REACTION_BOT_83_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_83_TOKEN }}
+      TELEGRAM_REACTION_BOT_84_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_84_TOKEN }}
+      TELEGRAM_REACTION_BOT_85_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_85_TOKEN }}
+      TELEGRAM_REACTION_BOT_86_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_86_TOKEN }}
+      TELEGRAM_REACTION_BOT_87_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_87_TOKEN }}
+      TELEGRAM_REACTION_BOT_88_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_88_TOKEN }}
+      TELEGRAM_REACTION_BOT_89_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_89_TOKEN }}
+      TELEGRAM_REACTION_BOT_90_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_90_TOKEN }}
+      TELEGRAM_REACTION_BOT_91_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_91_TOKEN }}
+      TELEGRAM_REACTION_BOT_92_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_92_TOKEN }}
+      TELEGRAM_REACTION_BOT_93_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_93_TOKEN }}
+      TELEGRAM_REACTION_BOT_94_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_94_TOKEN }}
+      TELEGRAM_REACTION_BOT_95_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_95_TOKEN }}
+      TELEGRAM_REACTION_BOT_96_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_96_TOKEN }}
+      TELEGRAM_REACTION_BOT_97_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_97_TOKEN }}
+      TELEGRAM_REACTION_BOT_98_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_98_TOKEN }}
+      TELEGRAM_REACTION_BOT_99_TOKEN: ${{ secrets.TELEGRAM_REACTION_BOT_99_TOKEN }}
+      TELEGRAM_REACTION_BOTS_JSON: ${{ secrets.TELEGRAM_REACTION_BOTS_JSON }}
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: main
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      CINERADAR_ADMIN_APPLY_AUTHORIZED: 'true'
+      TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+      ALT_FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.ALT_FOOTBALL_NEWS_BOT_TOKEN }}
+      ALT_TELEGRAM_BOT_TOKEN: ${{ secrets.ALT_TELEGRAM_BOT_TOKEN }}
+      ALT_DESIR_BOT_TOKEN: ${{ secrets.ALT_DESIR_BOT_TOKEN }}
+      ALT_ACTION_BOT_TOKEN: ${{ secrets.ALT_ACTION_BOT_TOKEN }}
+      ALT_ANIME_BOT_TOKEN: ${{ secrets.ALT_ANIME_BOT_TOKEN }}
+      ALT_SERIES_BOT_TOKEN: ${{ secrets.ALT_SERIES_BOT_TOKEN }}
+      CINERADAR_REACTION_OBSERVER_TOKEN: ${{ secrets.CINERADAR_REACTION_OBSERVER_TOKEN }}
+      FORMATION_BOT_TOKEN: ${{ secrets.FORMATION_BOT_TOKEN }}
+      CINEX_UNIFIED_BOT_TOKEN: ${{ secrets.CINEX_UNIFIED_BOT_TOKEN }}
+      CINEX_PRIVATE_STOCK_BOT_TOKEN: ${{ secrets.CINEX_PRIVATE_STOCK_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Respect owner Telegram personal-session FloodWait cooldown
+        run: python telegram-film-relay/scripts/check_personal_cooldown.py
+      - name: Install pinned Telegram and encrypted GitHub Vault dependencies
+        run: python -m pip install 'telethon==1.45.0' 'cryptography>=43,<47' requests
+      - name: Gradually grant channel admin privileges except add_admins and enable reactions
+        run: |
+          python -m scripts.cineradar_admin_rollout \
+            --apply --max-changes 6 --max-channels 2 --pause 15
