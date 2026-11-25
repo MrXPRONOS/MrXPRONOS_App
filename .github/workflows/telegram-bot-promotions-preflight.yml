@@ -7,7 +7,7 @@ on:
       - '.github/workflows/telegram-bot-promotions-preflight.yml'
   push:
     branches: [main]
-    paths: ['.telegram-promo-preflight-20261125']
+    paths: ['.telegram-promo-preflight-20261125', '.telegram-promo-prod-verification-20261125']
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,6 +37,19 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check 'requests==2.32.5' 'Pillow==11.3.0'
+      - name: Assert newly deployed daily buttons workflow is active and legacy jobs are stopped
+        if: ${{ github.event_name == 'push' }}
+        env:
+          ACTIVE: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED != 'false' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$ACTIVE" != 'true' ]; then
+            echo "::error::Production central bot workflow is disabled: TG_BOT_BUTTONS_DAILY_ENABLED=false"
+            exit 1
+          fi
+          echo "PRODUCTION_BOT_BUTTONS_ENABLED true"
+          echo "LEGACY_PROMOTION_JOBS_ENABLED false"
       - name: Verify bot identity, exact two approved destinations and anti-duplicate ledger — NO SEND
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
