@@ -163,7 +163,8 @@ export function planSeasons(rows,{publishedEpisodes=new Set(),maxEpisodes=50}={}
   const item={category:group.category,key:group.key,season:group.season,
     title:group.title,source_chat_id:group.source_chat_id,
     title:exactTitle(group.posters[0])||group.key.split(':').slice(1).join(':'),
-   description:String(group.posters[0].caption||''),
+   description:[String(group.posters[0].caption||''),
+    ...group.descriptions.map(r=>String(r.caption||''))].filter(Boolean).join('\n\n'),
    poster_message_id:Number(group.posters[0].message_id),
     episodes:pending.map(([n,rs])=>({
      number:n,video_message_id:Number(rs[0].message_id),
@@ -283,12 +284,18 @@ export function planCourses(rows,{maxParts=100}={}){
   const id=String(row.chat_id)+':'+key;
   let group=groups.get(id);
   if(!group){group={key,category:row.category,source_chat_id:String(row.chat_id),
-    posters:[],parts:[],refs:[],author:null};groups.set(id,group)}
+    posters:[],parts:[],descriptions:[],refs:[],author:null};groups.set(id,group)}
   group.refs.push(row);
   if(row.kind==='poster'){
    group.posters.push(row);
    const credit=AUTHOR.exec(text);
    if(credit)group.author=credit[1].trim();
+   continue;
+  }
+  if(row.kind==='text'){
+   // Only a separately tagged, course-specific description is allowed.
+   if(/^\s*description\s*:/im.test(text))group.descriptions.push(row);
+   else group.invalid=true;
    continue;
   }
   if(!['course_file','video'].includes(row.kind))continue;
@@ -303,7 +310,8 @@ export function planCourses(rows,{maxParts=100}={}){
  }
  for(const group of groups.values()){
   const count=group.parts[0]?.total||0;
-  if(group.invalid||group.posters.length!==1||!group.author||
+  if(group.invalid||group.descriptions.length>1||
+     group.posters.length!==1||!group.author||
      /https?:\/\/|@|t\.me\/|[<>]/i.test(group.author)||
      count<1||count>limit||group.parts.length!==count||
      group.parts.some(x=>x.total!==count||!x.file_unique_id)){
