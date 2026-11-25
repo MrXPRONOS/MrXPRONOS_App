@@ -128,11 +128,11 @@
       "revalidated_at": "2026-11-12T00:06:33.714594+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-25T12:21:24.585044+00:00",
+      "settlement_checked_at": "2026-11-25T20:22:37.040995+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-25T16:21:24.585044+00:00"
+        "next_retry_after": "2026-11-26T00:22:37.040995+00:00"
       }
     },
     {
@@ -3025,11 +3025,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-25T12:21:24.585044+00:00",
+      "settlement_checked_at": "2026-11-25T20:22:37.040995+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-25T16:21:24.585044+00:00"
+        "next_retry_after": "2026-11-26T00:22:37.040995+00:00"
       }
     },
     {
@@ -6640,12 +6640,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -6770,7 +6770,12 @@
         "odds_updated_at": "2026-11-23T22:35:05+00:00"
       },
       "revalidated_at": "2026-11-24T21:12:24.269427+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-11-25T20:22:37.040995+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:214176",
@@ -8606,16 +8611,17 @@
       "bsd:654311:UNDER_35:2026-11-22T22:00:00+00:00",
       "bsd:654315:1X:2026-11-23T01:00:00+00:00",
       "bsd:654317:UNDER_35:2026-11-23T20:00:00+00:00",
-      "bsd:7347:UNDER_35:2026-11-23T23:00:00+00:00"
+      "bsd:7347:UNDER_35:2026-11-23T23:00:00+00:00",
+      "bsd:212335:1X:2026-11-25T10:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 192,
-        "wins": 152,
-        "sum_pred": 155.3920000000001,
-        "penalty": 0.008653,
-        "hit_rate": 0.791667,
-        "average_predicted": 0.809333
+        "n": 193,
+        "wins": 153,
+        "sum_pred": 156.22700000000012,
+        "penalty": 0.008211,
+        "hit_rate": 0.792746,
+        "average_predicted": 0.809466
       },
       "BTTS_YES": {
         "n": 1,
@@ -8668,12 +8674,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 204,
-        "wins": 159,
-        "sum_pred": 164.37300000000008,
-        "penalty": 0.0133,
-        "hit_rate": 0.779412,
-        "average_predicted": 0.80575
+        "n": 205,
+        "wins": 160,
+        "sum_pred": 165.20800000000008,
+        "penalty": 0.012859,
+        "hit_rate": 0.780488,
+        "average_predicted": 0.805893
       },
       "btts": {
         "n": 1,
@@ -8692,8 +8698,8 @@
         "average_predicted": 0.787138
       }
     },
-    "last_added": 0,
-    "updated_at": "2026-11-25T12:21:24.585044+00:00",
+    "last_added": 1,
+    "updated_at": "2026-11-25T20:22:37.040995+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -9211,12 +9217,12 @@
         "average_predicted": 0.795667
       },
       "Japanese J1 League|1X": {
-        "n": 4,
-        "wins": 4,
-        "sum_pred": 3.256,
+        "n": 5,
+        "wins": 5,
+        "sum_pred": 4.090999999999999,
         "penalty": 0.0,
         "hit_rate": 1.0,
-        "average_predicted": 0.814
+        "average_predicted": 0.8182
       },
       "CONMEBOL Copa Libertadores|1X": {
         "n": 1,
@@ -33845,12 +33851,12 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-11-25T12:21:24.585044+00:00",
-    "checked": 2,
-    "settled": 0,
+    "updated_at": "2026-11-25T20:22:37.040995+00:00",
+    "checked": 3,
+    "settled": 1,
     "pending": 2,
     "h4": 0,
-    "h8": 0,
+    "h8": 1,
     "fallback": 2,
     "detail_hits": 1,
     "reconciled_finished": 0
