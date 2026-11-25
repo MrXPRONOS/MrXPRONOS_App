@@ -91,3 +91,4 @@ jobs:
 
 # Retry after sanitizing encrypted history import diagnostics.
 # Retry after row_factory-independent snapshot integrity check.
+# Retry with safe reaction runtime diagnostics and preserved encrypted history.
