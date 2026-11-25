@@ -195,3 +195,32 @@ test('publisher fails closed before first video when bot lacks a verified destin
   video_message_id:2}));
  assert.equal(f.calls.length,0);
 });
+
+test('course publication keeps full cleaned fiche, removes handles and preserves durable description receipt',async()=>{
+ const f=fixtures();
+ f.publisher.stage=src;
+ const description='📚 Formation complète Python et Data Science\n'+
+  ('Apprendre à analyser et comprendre les données en Python. '.repeat(25))+
+  '\nAbonnez-vous sur @unwanted\nhttps://t.me/unwanted\n';
+ const item={category:'formation_business',
+  key:'formation_business:formation-python-clean',
+  title:'Formation Python et Data Science',description,
+  source_chat_id:src,poster_message_id:901,author:'Formateur autorisé',
+  parts:[{number:1,message_id:902,file_unique_id:'unique-course-clean'}]};
+ await f.publisher.copyCourse(item);
+ const cover=f.calls.find(x=>x.method==='copyMessage'&&
+  x.body.caption?.includes('Formation Python'));
+ assert.ok(cover);
+ assert.ok(cover.body.caption.length<=1024);
+ assert.doesNotMatch(cover.body.caption,/t\.me|@unwanted|Abonnez-vous/);
+ const full=f.calls.find(x=>x.method==='sendMessage');
+ assert.ok(full);
+ assert.match(full.body.text,/analyser et comprendre/);
+ assert.doesNotMatch(full.body.text,/t\.me|@unwanted|Abonnez-vous/);
+ assert.ok(f.sqlite.prepare(
+  "SELECT COUNT(*) n FROM cine_manual_fallback_receipts WHERE content_key LIKE '%:description'"
+ ).get().n===1);
+ const initial=f.calls.length;
+ await f.publisher.copyCourse(item);
+ assert.equal(f.calls.length,initial);
+});

@@ -2,6 +2,8 @@
 // No Telegram/API calls or changes to the existing publication workflows.
 // All ambiguous media is quarantined rather than guessed.
 import {normalizedManualTitle,manualIdentity} from './manual-fallback-inbox.mjs';
+import {inspectFormationCover,matchFormationFilename,formationFilePart}
+ from './formation-content-safety.mjs';
 
 const MEDIA_CATEGORIES=new Set(['films','comedie','desir','action','series','animes']);
 const COURSE_CATEGORIES=new Set([
@@ -185,6 +187,90 @@ export function planSeasons(rows,{publishedEpisodes=new Set(),maxEpisodes=50}={}
  return result;
 }
 
+
+// Natural Telegram course bundles: a descriptive photo and uniquely matching
+// document filename(s). Do NOT connect messages merely by adjacency; unrelated
+// announcements and saved documents may be interleaved arbitrarily.
+export function planNaturalCourses(rows,{maxParts=100}={}){
+ const result={items:[],review:[],duplicates:[]};
+ const limit=Math.min(100,Math.max(1,Number(maxParts)||100));
+ const posts=(rows||[]).filter(r=>active(r)&&r.kind==='poster'&&
+  COURSE.exec(String(r.caption||''))===null&&COURSE_CATEGORIES.has(r.category)&&
+  inspectFormationCover(r.caption));
+ const files=(rows||[]).filter(r=>active(r)&&
+  ['course_file','video'].includes(r.kind)&&
+  !COURSE.exec(String(r.caption||''))&&COURSE_CATEGORIES.has(r.category));
+ const assigned=new Map();
+ for(const row of files){
+  if(!ALLOWED_COURSE_EXT.test(String(row.filename||''))){
+   reviewPush(result,'natural_course_unsupported_extension',[row]);continue;
+  }
+  const candidates=posts.filter(p=>String(p.chat_id)===String(row.chat_id));
+  const match=matchFormationFilename(row.filename,candidates);
+  if(!match.cover){
+   // A file without an unambiguous cover stays untouched, even if adjacent.
+   reviewPush(result,match.reason,[row]);continue;
+  }
+  if(match.cover.category!==row.category){
+   reviewPush(result,'natural_course_category_mismatch',[row]);continue;
+  }
+  const part=formationFilePart(row.caption,row.filename);
+  if(!part||part.number>limit){
+   reviewPush(result,'natural_course_invalid_part',[row]);continue;
+  }
+  const key=String(row.chat_id)+':'+String(match.cover.message_id);
+  const group=assigned.get(key)||[];
+  group.push({...part,row});
+  assigned.set(key,group);
+ }
+ for(const cover of posts){
+  const meta=inspectFormationCover(cover.caption);
+  if(!meta)continue;
+  const group=assigned.get(String(cover.chat_id)+':'+String(cover.message_id))||[];
+  if(!group.length){reviewPush(result,'natural_course_waiting_for_files',[cover]);continue;}
+  const numbers=group.map(p=>p.number);
+  const coverTotal=/^\s*(?:total|fichiers)\s*:\s*([1-9]\d{0,2})\s*$/im.exec(meta.caption);
+  const explicitTotals=[...new Set([
+   ...group.filter(p=>p.explicit).map(p=>p.total),
+   ...(coverTotal?[Number(coverTotal[1])]:[])
+  ])];
+  if(explicitTotals.length>1){
+   reviewPush(result,'natural_course_conflicting_totals',[cover,...group.map(p=>p.row)]);continue;
+  }
+  // No reliable end marker for a split archive? Keep it for manual review.
+  // A contiguous prefix alone does not prove all course parts were uploaded.
+  if(group.some(p=>!p.explicit&&(p.total===null)) && !explicitTotals.length){
+   reviewPush(result,'natural_course_total_required_for_multipart',[cover,...group.map(p=>p.row)]);continue;
+  }
+  const count=explicitTotals[0]||1;
+  if(count>limit||group.length!==count||new Set(numbers).size!==count||
+     numbers.some(n=>n<1||n>count)||
+     group.some(p=>p.total!==null&&p.total!==count)||
+     group.some(p=>!rawFingerprint(p.row))){
+   reviewPush(result,'natural_course_incomplete_or_ambiguous',[cover,...group.map(p=>p.row)]);continue;
+  }
+  const fingerprint=new Set(group.map(p=>rawFingerprint(p.row)));
+  if(fingerprint.size!==group.length){
+   reviewPush(result,'natural_course_duplicate_media',[cover,...group.map(p=>p.row)]);continue;
+  }
+  const titleSlug=normalizedManualTitle(meta.title).slice(0,80);
+  if(titleSlug.length<5){
+   reviewPush(result,'natural_course_title_unusable',[cover]);continue;
+  }
+  result.items.push({
+   key:meta.category+':auto-'+titleSlug.replace(/\s+/g,'-'),
+   category:meta.category,title:meta.title,author:meta.author,
+   description:meta.caption,
+   source_chat_id:String(cover.chat_id),
+   poster_message_id:Number(cover.message_id),
+   parts:group.sort((a,b)=>a.number-b.number).map(p=>({
+    number:p.number,message_id:Number(p.row.message_id),
+    file_unique_id:rawFingerprint(p.row)}))
+  });
+ }
+ return result;
+}
+
 export function planCourses(rows,{maxParts=100}={}){
  const result={items:[],review:[],duplicates:[]},groups=new Map();
  const limit=Math.min(100,Math.max(1,Number(maxParts)||100));
@@ -193,18 +279,28 @@ export function planCourses(rows,{maxParts=100}={}){
   const text=String(row.caption||'');
   const course=COURSE.exec(text);
   if(!course){
+   // Natural captions/files are handled by planNaturalCourses below. No
+   // duplicate generic review entry for a safe recognized fiche.
+   if((row.kind==='poster'&&inspectFormationCover(text))||
+      ['course_file','video'].includes(row.kind))continue;
    reviewPush(result,'course_id_required',[row]);continue;
   }
   const key=row.category+':'+course[1].toLowerCase();
   const id=String(row.chat_id)+':'+key;
   let group=groups.get(id);
   if(!group){group={key,category:row.category,source_chat_id:String(row.chat_id),
-    posters:[],parts:[],refs:[],author:null};groups.set(id,group)}
+    posters:[],parts:[],descriptions:[],refs:[],author:null};groups.set(id,group)}
   group.refs.push(row);
   if(row.kind==='poster'){
    group.posters.push(row);
    const credit=AUTHOR.exec(text);
    if(credit)group.author=credit[1].trim();
+   continue;
+  }
+  if(row.kind==='text'){
+   // Only a separately tagged, course-specific description is allowed.
+   if(/^\s*description\s*:/im.test(text))group.descriptions.push(row);
+   else group.invalid=true;
    continue;
   }
   if(!['course_file','video'].includes(row.kind))continue;
@@ -219,7 +315,8 @@ export function planCourses(rows,{maxParts=100}={}){
  }
  for(const group of groups.values()){
   const count=group.parts[0]?.total||0;
-  if(group.invalid||group.posters.length!==1||!group.author||
+  if(group.invalid||group.descriptions.length>1||
+     group.posters.length!==1||!group.author||
      /https?:\/\/|@|t\.me\/|[<>]/i.test(group.author)||
      count<1||count>limit||group.parts.length!==count||
      group.parts.some(x=>x.total!==count||!x.file_unique_id)){
@@ -232,9 +329,16 @@ export function planCourses(rows,{maxParts=100}={}){
   }
   result.items.push({key:group.key,category:group.category,
    source_chat_id:group.source_chat_id,author:group.author,
+   title:exactTitle(group.posters[0])||group.key.split(':').slice(1).join(':'),
+   description:[String(group.posters[0].caption||''),
+    ...group.descriptions.map(r=>String(r.caption||''))].filter(Boolean).join('\n\n'),
    poster_message_id:Number(group.posters[0].message_id),
    parts:group.parts.map(p=>({...p}))});
  }
+ const natural=planNaturalCourses(rows,{maxParts:limit});
+ result.items.push(...natural.items);
+ result.review.push(...natural.review);
+ result.duplicates.push(...natural.duplicates);
  return result;
 }
 

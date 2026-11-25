@@ -10,6 +10,8 @@ const ALIASES=new Map([
  ['general','formation_general'],['generale','formation_general'],
  ['generales','formation_general'],['général','formation_general'],
  ['business','formation_business'],['entrepreneuriat','formation_business'],
+ ['business et commerce electronique','formation_business'],
+ ['commerce electronique','formation_business'],['marketing','formation_business'],
  ['finance','formation_finance'],['finances','formation_finance'],
  ['digital','formation_digitale'],['digitale','formation_digitale'],
  ['numerique','formation_digitale'],['informatique','formation_digitale'],
@@ -18,12 +20,16 @@ const ALIASES=new Map([
 ]);
 const WORDS={
  formation_business:['entrepreneuriat','entreprise','business','marketing',
-  'ecommerce','commerce','vente','dropshipping','affiliation'],
+  'ecommerce','commerce','vente','dropshipping','affiliation',
+  'tiktok','reseaux sociaux','gestion de projet','startup','start up'],
  formation_finance:['finance','finances','trading','crypto','bitcoin','bourse',
   'investissement','forex','immobilier','blockchain'],
  formation_digitale:['informatique','programmation','python','javascript',
   'intelligence artificielle','chatgpt','developpement web','montage video',
-  'graphisme','automatisation','excel','digital','numerique'],
+  'graphisme','automatisation','excel','digital','numerique',
+  'data science','power bi','wordpress','docker','cisco','cybersecurite',
+  'cybercriminalite','reseaux informatiques','prompt engineering',
+  'illustration 3d','copilot','hacking ethique'],
  formation_mindset:['mindset','leadership','developpement personnel',
   'productivite','psychologie','discipline','communication','motivation']
 };

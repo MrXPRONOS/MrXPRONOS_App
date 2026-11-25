@@ -7,6 +7,7 @@ import {planMovies,planSeasons,planCourses,selectManualCycle}
 import {performJournaledCopy,acquireManualReceipt,completeManualReceipt}
  from './manual-fallback-journal.mjs';
 import {schedulePublicExpiry} from './manual-fallback-expiry.mjs';
+import {sanitizeFormationText,telegramCaption} from './formation-content-safety.mjs';
 
 const ID=/^-100\d{6,}$/;
 const HANDLE=/^@[A-Za-z][A-Za-z0-9_]{4,31}$/;
@@ -341,11 +342,18 @@ export class FallbackPublisher{
    assert(Boolean(target.username),'formation_general_must_be_public');
   else
    assert(!target.username,'specialist_formation_destination_must_be_private');
-  const label='📚 '+item.key.split(':').slice(1).join(' ');
-  const author=String(item.author||'').trim();
-  assert(author.length>=3&&author.length<=100&&
-   !/https?:\/\/|@|t\.me\/|[<>]/i.test(author),'formation_author_credit_missing');
-  const credit='\nSource / crédit : '+author;
+  const name=sanitizeFormationText(item.title||
+   item.key.split(':').slice(1).join(' ')).slice(0,180);
+  assert(name.length>=3,'formation_title_missing');
+  const label='📚 '+name;
+  const author=sanitizeFormationText(String(item.author||'')).slice(0,100);
+  assert(!author||author.length>=3,'formation_author_credit_invalid');
+  const credit=author?'\nSource / crédit : '+author:'';
+  const description=sanitizeFormationText(String(item.description||''));
+  const fullText=description?(description+credit).trim():label+credit;
+  const splitDescription=fullText.length>1024;
+  const coverCaption=splitDescription?
+   telegramCaption(label+credit):telegramCaption(fullText);
   const cover=String(technical.id)===String(item.source_chat_id)?
    await this.originalPrivateReceipt({category:item.category,key:item.key,
     stage:'private_poster',chat:String(technical.id),
@@ -353,11 +361,20 @@ export class FallbackPublisher{
    await this.receipt(bot,{category:item.category,key:item.key,
     stage:'private_poster',target:String(technical.id),
     source:item.source_chat_id,messageId:item.poster_message_id,
-    payload:{caption:label+credit}});
+    payload:{caption:coverCaption}});
   await this.receipt(bot,{category:item.category,key:item.key,
    stage:'public_poster',target:String(target.id),
    source:String(technical.id),messageId:cover.message_id,
-   payload:{caption:label+credit}});
+   payload:{caption:coverCaption}});
+  if(splitDescription){
+   // Document descriptions longer than Telegram's media-caption limit go in
+   // one journaled plain-text message; no hidden links or promotional handles.
+   assert(fullText.length<=4096,'formation_description_exceeds_message_limit');
+   await this.receipt(bot,{category:item.category,key:item.key+':description',
+    stage:'formation_file',target:String(target.id),
+    source:String(technical.id),messageId:cover.message_id,
+    method:'sendMessage',payload:{text:fullText,disable_web_page_preview:true}});
+  }
   for(const part of item.parts){
    const base=item.key+':part'+part.number;
    const mid=String(technical.id)===String(item.source_chat_id)?
@@ -367,11 +384,11 @@ export class FallbackPublisher{
     await this.receipt(bot,{category:item.category,
      key:base+':stage',stage:'formation_file',target:String(technical.id),
      source:item.source_chat_id,messageId:part.message_id,
-     payload:{caption:label+' — '+part.number+'/'+item.parts.length}});
+     payload:{caption:telegramCaption(label+' — '+part.number+'/'+item.parts.length)}});
    await this.receipt(bot,{category:item.category,key:base+':destination',
     stage:'formation_file',target:String(target.id),
     source:String(technical.id),messageId:mid.message_id,
-    payload:{caption:label+' — '+part.number+'/'+item.parts.length+credit}});
+    payload:{caption:telegramCaption(label+' — '+part.number+'/'+item.parts.length+credit)}});
   }
   // Publish the cover and every part as ONE durable completed course.
   await this.db.query(
