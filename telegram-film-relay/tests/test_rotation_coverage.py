@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
+from contextlib import redirect_stdout
+from io import StringIO
 
-from film_relay.rotation_coverage import CoverageError, evaluate_coverage
+from film_relay.rotation_coverage import CoverageError, evaluate_coverage, main
 
 
 def public(handle):
@@ -52,6 +55,29 @@ class CoverageTests(unittest.TestCase):
         )
         self.assertTrue(got["complete_public_coverage"])
         self.assertEqual(got["verified_cinema_private_not_rotated"], 1)
+
+    def test_strict_coverage_gate_fails_when_five_channels_are_unconfigured(self):
+        available = [public("CineXFilms_vf"), public("bleachvffr"), private()]
+        pairs = [("films", "@CineXFilms_vf", -1003000000000)]
+        out = StringIO()
+        with patch("film_relay.rotation_coverage.fetch_secure_cinema_targets",
+                   return_value=available), patch(
+                "film_relay.rotation_coverage.category_targets", return_value=pairs), \
+                redirect_stdout(out):
+            result = main(["--require-complete"])
+        self.assertEqual(result, 2)
+        self.assertIn("CINEX_ARCHIVE_COVERAGE_PARTIAL", out.getvalue())
+        self.assertIn("@bleachvffr", out.getvalue())
+        self.assertNotIn("-1003000000000", out.getvalue())
+
+    def test_strict_coverage_gate_succeeds_only_for_configured_publics(self):
+        available = [public("CineXFilms_vf"), private()]
+        pairs = [("films", "@CineXFilms_vf", -1003000000000)]
+        with patch("film_relay.rotation_coverage.fetch_secure_cinema_targets",
+                   return_value=available), patch(
+                "film_relay.rotation_coverage.category_targets", return_value=pairs), \
+                redirect_stdout(StringIO()):
+            self.assertEqual(main(["--require-complete"]), 0)
 
     def test_refuses_invalid_private_metadata(self):
         with self.assertRaises(CoverageError):

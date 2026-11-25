@@ -7,6 +7,7 @@ remains uncovered; this module NEVER tries to delete or move its media.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -103,7 +104,11 @@ def fetch_secure_cinema_targets() -> list[dict]:
     return rows
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description='CinéX : vérifier la couverture des canaux publics par des archives configurées')
+    parser.add_argument('--require-complete', action='store_true',
+                        help='Échouer tant que tous les canaux publics vérifiés ne possèdent pas une association d archive configurée')
+    args = parser.parse_args(argv)
     try:
         rows = fetch_secure_cinema_targets()
         report = evaluate_coverage(rows, category_targets())
@@ -141,6 +146,13 @@ def main() -> int:
                     "Sources/stock potentiels : ne pas vider sans preuve d'une sauvegarde distincte : "
                     + ", ".join(report["uncovered_possible_source_or_stock"]) + "\n"
                 )
+    if args.require_complete and not report["complete_public_coverage"]:
+        print("::error::CINEX_ARCHIVE_COVERAGE_PARTIAL: "
+              + str(report["verified_public_covered"]) + "/"
+              + str(report["verified_cinema_public"])
+              + " canaux publics dotés d'une association privée configurée. "
+              + "La conformité des archives reste à vérifier pour chaque canal.")
+        return 2
     return 0
 
 
