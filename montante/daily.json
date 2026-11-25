@@ -1,18 +1,59 @@
 {
-  "date": "2026-11-24",
-  "status": "no_pick",
-  "selection": null,
-  "reason": "no_qualified_real_quote",
+  "date": "2026-11-25",
+  "status": "selected",
+  "selection": {
+    "id": "bsd:601088",
+    "source_event_id": 601088,
+    "date": "2026-11-25",
+    "kickoff_utc": "2026-11-25T20:00:00+00:00",
+    "league": "UEFA Youth League",
+    "home_team": "Sporting CP",
+    "away_team": "Manchester United",
+    "selection_key": "1X",
+    "market_label": "1X",
+    "market": "double_chance",
+    "odds": 1.442,
+    "odds_source": "bsd_consensus",
+    "bookmaker": "consensus",
+    "quote_updated_at": "2026-11-25T00:50:09+00:00",
+    "model_probability_percent": 90.8,
+    "conservative_probability_percent": 87.6,
+    "implied_probability_percent": 69.35,
+    "conservative_edge_points": 18.25,
+    "history_lower_bound_percent": 71.76,
+    "score": 0.751789,
+    "requires_manual_bookmaker_verification": true,
+    "not_a_placed_bet": true,
+    "selected_at_utc": "2026-11-25T01:00:40.112166+00:00",
+    "nim_review": {
+      "policy": "bsd-v2-montante-nim-review-v1",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "verdict": "approve",
+      "relative_risk": "low",
+      "risk_flags": [
+        "unavailable_lineups",
+        "unavailable_team_news"
+      ],
+      "reviewed_at_utc": "2026-11-25T01:00:40.112166+00:00",
+      "not_a_calibrated_probability": true
+    }
+  },
   "frozen": false,
   "policy": "bsd-v2-montante-daily-1",
-  "rejections": {
-    "match_started": 2,
-    "non_bsd_or_combo_or_finished": 48,
-    "wrong_day_or_too_late": 5
-  },
-  "eligible_count": 0,
+  "rejections": {},
+  "eligible_count": 1,
   "nim": {
-    "status": "not_called_no_baseline_pick",
-    "model": "nvidia/nemotron-3-ultra-550b-a55b"
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "policy": "bsd-v2-montante-nim-review-v1",
+    "checked": 2,
+    "shortlisted": 2,
+    "reviewed": 2,
+    "approved": 1,
+    "status": "completed",
+    "limited_to_top_n_candidates": false,
+    "verdict_counts": {
+      "approve": 1,
+      "reject": 1
+    }
   }
 }

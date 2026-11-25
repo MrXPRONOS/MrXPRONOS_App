@@ -74,6 +74,43 @@
         "reviewed_at_utc": "2026-11-22T00:18:52.059335+00:00",
         "not_a_calibrated_probability": true
       }
+    },
+    "2026-11-25": {
+      "id": "bsd:601088",
+      "source_event_id": 601088,
+      "date": "2026-11-25",
+      "kickoff_utc": "2026-11-25T20:00:00+00:00",
+      "league": "UEFA Youth League",
+      "home_team": "Sporting CP",
+      "away_team": "Manchester United",
+      "selection_key": "1X",
+      "market_label": "1X",
+      "market": "double_chance",
+      "odds": 1.442,
+      "odds_source": "bsd_consensus",
+      "bookmaker": "consensus",
+      "quote_updated_at": "2026-11-25T00:50:09+00:00",
+      "model_probability_percent": 90.8,
+      "conservative_probability_percent": 87.6,
+      "implied_probability_percent": 69.35,
+      "conservative_edge_points": 18.25,
+      "history_lower_bound_percent": 71.76,
+      "score": 0.751789,
+      "requires_manual_bookmaker_verification": true,
+      "not_a_placed_bet": true,
+      "selected_at_utc": "2026-11-25T01:00:40.112166+00:00",
+      "nim_review": {
+        "policy": "bsd-v2-montante-nim-review-v1",
+        "model": "nvidia/nemotron-3-ultra-550b-a55b",
+        "verdict": "approve",
+        "relative_risk": "low",
+        "risk_flags": [
+          "unavailable_lineups",
+          "unavailable_team_news"
+        ],
+        "reviewed_at_utc": "2026-11-25T01:00:40.112166+00:00",
+        "not_a_calibrated_probability": true
+      }
     }
   }
 }
