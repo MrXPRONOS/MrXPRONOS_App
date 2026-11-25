@@ -585,9 +585,17 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     caption = (f"📺 <b>{escape(title)}</b> — "
                                f"S{row['season']:02d}E{row['episode']:02d}\n"
                                f"{episode_marker(row['source_key'])}")
-                    new = await client.send_file(
-                        private, row["video"].media,
-                        caption=caption, parse_mode="html")
+                    from .private_media_contract import send_named_private_video
+                    episode_title = (f"{title} S{row['season']:02d}E{row['episode']:02d}")
+                    source_cover = row.get("poster") or next(
+                        (item.get("poster") for item in items if item.get("poster") is not None),
+                        None)
+                    new = await send_named_private_video(
+                        client, private, row["video"], title=episode_title,
+                        caption=caption,
+                        private_cover_id=int(batch_receipt["private_cover_id"]),
+                        poster=source_cover,
+                        description=str(getattr(source_cover, "raw_text", "") or episode_title))
                     private_msg_id = int(new.id)
                     await asyncio.sleep(pause)
                 # Central download receipt already verified before private publication.
