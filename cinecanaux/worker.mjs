@@ -324,12 +324,12 @@ export default {
   const promoAvatar=/^\/assets\/promo-avatar\/(actufoot_mrxp|ActuCrypto24H|mrxpronosfr)\.jpg$/i.exec(u.pathname);
   if(promoAvatar)return servePartnerAvatar(request,env,ctx,promoAvatar[1]);
   if(u.pathname==="/api/showcase")return serveShowcase(request);
-  if(u.pathname==="/api/pinned-showcase")return servePinned(env,request);
+  if(u.pathname==="/api/pinned-showcase")return await servePinned(env,request);
   if(u.pathname==="/api/pinned-click")return registerPinClick(env,request);
   const pinnedCover=/^\/assets\/pin-cover\/(films|series|animes)\/([1-9][0-9]{0,12})\.jpg$/.exec(u.pathname);
-  if(pinnedCover)return servePinCover(env,request,pinnedCover[1],Number(pinnedCover[2]));
-  if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click"||u.pathname==="/api/radar/trends")return radarApi(env,request);
-  if(u.pathname.startsWith("/api/admin/"))return adminAPI(env,request,ctx);
+  if(pinnedCover)return await servePinCover(env,request,pinnedCover[1],Number(pinnedCover[2]));
+  if(u.pathname==="/api/radar"||u.pathname==="/api/radar/click"||u.pathname==="/api/radar/trends")return await radarApi(env,request);
+  if(u.pathname.startsWith("/api/admin/"))return await adminAPI(env,request,ctx);
   if(u.pathname==="/api/analytics/event")return analyticsEvent(env,request);
   if(u.pathname==="/api/analytics/launch")return recordSignedAppLaunch(env,request);
   const avatarId=/^\/assets\/channel-avatar\/([1-9][0-9]{0,9})\.jpg$/.exec(u.pathname);
@@ -466,7 +466,7 @@ export default {
    if(!image.ok)return new Response("Image indisponible",{status:503});
    return new Response(image.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public,max-age=86400"}});
   }
-  if(u.pathname==="/api/catalog"||u.pathname==="/api/search"||u.pathname==="/api/reports"||u.pathname==="/api/suggestions"||/^\/api\/channels\/\d+\/reviews$/.test(u.pathname))return v2API(env,request);
+  if(u.pathname==="/api/catalog"||u.pathname==="/api/search"||u.pathname==="/api/reports"||u.pathname==="/api/suggestions"||/^\/api\/channels\/\d+\/reviews$/.test(u.pathname))return await v2API(env,request);
   if(u.pathname==="/api/engagement"&&request.method==="POST"){
     const origin=request.headers.get("origin");
     if(origin&&origin!==u.origin)return Response.json({error:"Origin denied"},{status:403});
@@ -480,8 +480,8 @@ export default {
     await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=opens+1").bind(id).run();
     return Response.json({ok:true},{headers:{"Cache-Control":"no-store"}});
   }
-  if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
-  if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env,ctx);
+  if(u.pathname.startsWith("/api/"))return await miniAppAPI(env,request,channelPreview);
+  if(request.method==="POST"&&u.pathname==="/telegram")return await receiveTelegram(request,env,ctx);
   // Public bot identity only: Telegram bot ID and username are not secrets.
   // Separate path avoids Cloudflare rules that reject /health?telegram=1.
   if(request.method==="GET"&&u.pathname==="/health/bot-identity"){
