@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-25T14:40:58+00:00",
+    "published": "2026-11-25T15:10:09+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,67 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "fb4a347f37e1a752",
+    "title": "Atlético de Madrid : comment Julián Álvarez est en train de reconquérir les Colchoneros",
+    "summary": "Après un été mouvementé, marqué par ses envies de départ vers le FC Barcelone et un début de saison compliqué, Julián Álvarez retrouve progressivement des couleurs sous le maillot de l’Atlético (…)",
+    "summary_short": "Après un été mouvementé, marqué par ses envies de départ vers le FC Barcelone et un début de saison compliqué, Julián Álvarez retrouve progressivement des couleurs sous le maillot de l’Atlético (…)",
+    "content": "Après un été mouvementé, marqué par ses envies de départ vers le FC Barcelone et un début de saison compliqué, Julián Álvarez retrouve progressivement des couleurs sous le maillot de l’Atlético (…)",
+    "paragraphs": [
+      "Après un été mouvementé, marqué par ses envies de départ vers le FC Barcelone et un début de saison compliqué, Julián Álvarez retrouve progressivement des couleurs sous le maillot de l’Atlético (…)"
+    ],
+    "key_points": [
+      "Après un été mouvementé, marqué par ses envies de départ vers le FC Barcelone et un début de saison compliqué, Julián Álvarez retrouve progressivement des couleurs sous le maillot de l’Atlético (…)"
+    ],
+    "telegram_summary": "Après un été mouvementé, marqué par ses envies de départ vers le FC Barcelone et un début de saison compliqué, Julián Álvarez retrouve progressivement des couleurs sous le maillot de l’Atlético (…)",
+    "link": "https://www.footmercato.net/a131380274220195199-atletico-de-madrid-comment-julian-alvarez-est-en-train-de-reconquerir-les-colchoneros",
+    "source_url": "https://www.footmercato.net/a131380274220195199-atletico-de-madrid-comment-julian-alvarez-est-en-train-de-reconquerir-les-colchoneros",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fb4a347f37e1a752",
+    "published": "2026-11-25T15:06:12+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/julian-alvarez-2627.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/julian-alvarez-2627.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50427000",
+      "url": "https://www.espn.com/soccer/story/_/id/50427000/diego-simeone-atletico-madrid-need-julian-alvarez-best-succeed",
+      "published": "2026-11-09T00:19:08Z",
+      "score": 0.308,
+      "matched_terms": [
+        "alvarez",
+        "atletico",
+        "julian",
+        "madrid"
+      ],
+      "topics": [],
+      "teams": [
+        "Barcelona"
+      ],
+      "athletes": [
+        "Julián Álvarez"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T15:10:28.827729+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
   },
   {
     "slug": "770b3d73f53224a9",
@@ -366,7 +427,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-25T14:41:53.944944+00:00"
+      "checked_at": "2026-11-25T15:10:28.827729+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -545,76 +606,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "23e101358c6ee961",
-    "title": "Manchester City : c'est grave, docteur ?",
-    "summary": "Après un superbe début de saison, Manchester City a perdu la formule. Avec une petite victoire sur les six derniers matchs, les Skyblues...",
-    "summary_short": "Après un superbe début de saison, Manchester City a perdu la formule. Avec une petite victoire sur les six derniers matchs, les Skyblues...",
-    "content": "Après un superbe début de saison, Manchester City a perdu la formule. Avec une petite victoire sur les six derniers matchs, les Skyblues...",
-    "paragraphs": [
-      "Après un superbe début de saison, Manchester City a perdu la formule. Avec une petite victoire sur les six derniers matchs, les Skyblues..."
-    ],
-    "key_points": [
-      "Après un superbe début de saison, Manchester City a perdu la formule.",
-      "Avec une petite victoire sur les six derniers matchs, les Skyblues..."
-    ],
-    "telegram_summary": "Après un superbe début de saison, Manchester City a perdu la formule. Avec une petite victoire sur les six derniers matchs, les Skyblues...",
-    "link": "https://m.maxifoot.fr/football/article-66671.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66671.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=23e101358c6ee961",
-    "published": "2026-11-25T10:50:49+00:00",
-    "image": "https://photo.maxifoot.fr/haland-manchester-city-deception-31.jpg",
-    "source_image": "https://photo.maxifoot.fr/haland-manchester-city-deception-31.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
-  },
-  {
-    "slug": "fbb2b89e07efc67b",
-    "title": "Ballon d’Or africain 2026 : les cinq finalistes sont connus",
-    "summary": "La Confédération africaine de football (CAF) a dévoilé la liste des cinq finalistes pour le trophée du meilleur joueur africain de l’année 2026. Le Maroc et le Sénégal se partagent l’intégralité des (…)",
-    "summary_short": "La Confédération africaine de football (CAF) a dévoilé la liste des cinq finalistes pour le trophée du meilleur joueur africain de l’année 2026. Le Maroc et le Sénégal se partagent l’intégralité des (…)",
-    "content": "La Confédération africaine de football (CAF) a dévoilé la liste des cinq finalistes pour le trophée du meilleur joueur africain de l’année 2026. Le Maroc et le Sénégal se partagent l’intégralité des (…)",
-    "paragraphs": [
-      "La Confédération africaine de football (CAF) a dévoilé la liste des cinq finalistes pour le trophée du meilleur joueur africain de l’année 2026. Le Maroc et le Sénégal se partagent l’intégralité des (…)"
-    ],
-    "key_points": [
-      "La Confédération africaine de football (CAF) a dévoilé la liste des cinq finalistes pour le trophée du meilleur joueur africain de l’année 2026.",
-      "Le Maroc et le Sénégal se partagent l’intégralité des (…)"
-    ],
-    "telegram_summary": "La Confédération africaine de football (CAF) a dévoilé la liste des cinq finalistes pour le trophée du meilleur joueur africain de l’année 2026. Le Maroc et le Sénégal se partagent l’intégralité des (…)",
-    "link": "https://www.footmercato.net/a8457812381964398089-ballon-dor-africain-2026-les-cinq-finalistes-sont-connus",
-    "source_url": "https://www.footmercato.net/a8457812381964398089-ballon-dor-africain-2026-les-cinq-finalistes-sont-connus",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fbb2b89e07efc67b",
-    "published": "2026-11-25T10:31:19+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/achra-hakimi-2526afcon.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/achra-hakimi-2526afcon.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "e9c32038ca87c59f",
@@ -1824,6 +1815,272 @@
     "quality_score": 86
   },
   {
+    "slug": "845f8b906d8fef93",
+    "title": "Mercato PSG : La folle short-list de 8 noms pour remplacer Désiré Doué et Khvicha Kvaratskhelia",
+    "summary": "Le journal espagnol AS a dévoilé, ce mercredi 25 novembre, une short-list de 8 noms dressée par le PSG pour remplacer Désiré Doué et Khvicha Kvaratskhelia au mois de janvier.",
+    "summary_short": "Le journal espagnol AS a dévoilé, ce mercredi 25 novembre, une short-list de 8 noms dressée par le PSG pour remplacer Désiré Doué et Khvicha Kvaratskhelia au mois de janvier.",
+    "content": "Le journal espagnol AS a dévoilé, ce mercredi 25 novembre, une short-list de 8 noms dressée par le PSG pour remplacer Désiré Doué et Khvicha Kvaratskhelia au mois de janvier.",
+    "paragraphs": [
+      "Le journal espagnol AS a dévoilé, ce mercredi 25 novembre, une short-list de 8 noms dressée par le PSG pour remplacer Désiré Doué et Khvicha Kvaratskhelia au mois de janvier."
+    ],
+    "key_points": [
+      "Le journal espagnol AS a dévoilé, ce mercredi 25 novembre, une short-list de 8 noms dressée par le PSG pour remplacer Désiré Doué et Khvicha Kvaratskhelia au mois de janvier."
+    ],
+    "telegram_summary": "Le journal espagnol AS a dévoilé, ce mercredi 25 novembre, une short-list de 8 noms dressée par le PSG pour remplacer Désiré Doué et Khvicha Kvaratskhelia au mois de janvier.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-la-folle-short-list-de-8-noms-pour-remplacer-desire-doue-et-khvicha-kvaratskhelia-546968.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-la-folle-short-list-de-8-noms-pour-remplacer-desire-doue-et-khvicha-kvaratskhelia-546968.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=845f8b906d8fef93",
+    "published": "2026-11-25T15:09:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2025/une/ldc-20250601104051-4495.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2025/une/ldc-20250601104051-4495.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "987b1ce574e596ef",
+    "title": "OM - Levski Sofia : \"On s'est donné la possibilité d'espérer de nouveau\", Genesio veut croire à un parcours européen",
+    "summary": "Le club olympien recevra demain le Levski Sofia (18h45) dans le cadre de la 5ème journée de Ligue Europa.",
+    "summary_short": "Le club olympien recevra demain le Levski Sofia (18h45) dans le cadre de la 5ème journée de Ligue Europa.",
+    "content": "Le club olympien recevra demain le Levski Sofia (18h45) dans le cadre de la 5ème journée de Ligue Europa.",
+    "paragraphs": [
+      "Le club olympien recevra demain le Levski Sofia (18h45) dans le cadre de la 5ème journée de Ligue Europa."
+    ],
+    "key_points": [
+      "Le club olympien recevra demain le Levski Sofia (18h45) dans le cadre de la 5ème journée de Ligue Europa."
+    ],
+    "telegram_summary": "Le club olympien recevra demain le Levski Sofia (18h45) dans le cadre de la 5ème journée de Ligue Europa.",
+    "link": "https://www.onzemondial.com/europa-league/om-levski-sofia-on-sest-donne-la-possibilite-desperer-de-nouveau-genesio-veut-croire-a-un-parcours-europeen-1011267",
+    "source_url": "https://www.onzemondial.com/europa-league/om-levski-sofia-on-sest-donne-la-possibilite-desperer-de-nouveau-genesio-veut-croire-a-un-parcours-europeen-1011267",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=987b1ce574e596ef",
+    "published": "2026-11-25T14:55:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011267/411608/1200-L-om-levski-sofia-on-s-est-donn-la-possibilit-d-esprer-de-nouveau-genesio-veut-croire-un-parcours-europen.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011267/411608/1200-L-om-levski-sofia-on-s-est-donn-la-possibilit-d-esprer-de-nouveau-genesio-veut-croire-un-parcours-europen.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "eb2057400d35a81d",
+    "title": "Barça : sanction confirmée pour Fermin Lopez",
+    "summary": "C’était passé inaperçu, notamment parce que la réalisation TV ne l’avait pas montré, mais Fermin Lopez a été expulsé lors de la victoire du FC Barcelone le week-end dernier (3-2). Effectivement, le (…)",
+    "summary_short": "C’était passé inaperçu, notamment parce que la réalisation TV ne l’avait pas montré, mais Fermin Lopez a été expulsé lors de la victoire du FC Barcelone le week-end dernier (3-2). Effectivement, le (…)",
+    "content": "C’était passé inaperçu, notamment parce que la réalisation TV ne l’avait pas montré, mais Fermin Lopez a été expulsé lors de la victoire du FC Barcelone le week-end dernier (3-2). Effectivement, le (…)",
+    "paragraphs": [
+      "C’était passé inaperçu, notamment parce que la réalisation TV ne l’avait pas montré, mais Fermin Lopez a été expulsé lors de la victoire du FC Barcelone le week-end dernier (3-2). Effectivement, le (…)"
+    ],
+    "key_points": [
+      "C’était passé inaperçu, notamment parce que la réalisation TV ne l’avait pas montré, mais Fermin Lopez a été expulsé lors de la victoire du FC Barcelone le week-end dernier (3-2)."
+    ],
+    "telegram_summary": "C’était passé inaperçu, notamment parce que la réalisation TV ne l’avait pas montré, mais Fermin Lopez a été expulsé lors de la victoire du FC Barcelone le week-end dernier (3-2). Effectivement, le (…)",
+    "link": "https://www.footmercato.net/a7565287922725704019-barca-sanction-confirmee-pour-fermin-lopez",
+    "source_url": "https://www.footmercato.net/a7565287922725704019-barca-sanction-confirmee-pour-fermin-lopez",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eb2057400d35a81d",
+    "published": "2026-11-25T14:48:19+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/fermin-lopez-2627v.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/fermin-lopez-2627v.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50426411",
+      "url": "https://www.espn.com/soccer/story/_/id/50426411/barca-pass-their-biggest-test-yet-fermin-lopez-sinks-atletico-madrid",
+      "published": "2026-11-08T23:47:36Z",
+      "score": 0.25,
+      "matched_terms": [
+        "barca",
+        "fermin",
+        "lopez"
+      ],
+      "topics": [],
+      "teams": [
+        "Atlético Madrid",
+        "Barcelona"
+      ],
+      "athletes": [
+        "Fermín López"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-25T15:10:28.827729+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "af391e15c8ff6d9d",
+    "title": "La France deuxième nation la mieux armée pour l’avenir selon une étude du CIES",
+    "summary": "Vivement demain. L’observatoire du football CIES a dévoilé aujourd’hui une nouvelle étude. Cette fois-ci, l’organisation a fait le…",
+    "summary_short": "Vivement demain. L’observatoire du football CIES a dévoilé aujourd’hui une nouvelle étude. Cette fois-ci, l’organisation a fait le…",
+    "content": "Vivement demain. L’observatoire du football CIES a dévoilé aujourd’hui une nouvelle étude. Cette fois-ci, l’organisation a fait le…",
+    "paragraphs": [
+      "Vivement demain. L’observatoire du football CIES a dévoilé aujourd’hui une nouvelle étude. Cette fois-ci, l’organisation a fait le…"
+    ],
+    "key_points": [
+      "L’observatoire du football CIES a dévoilé aujourd’hui une nouvelle étude.",
+      "Cette fois-ci, l’organisation a fait le…"
+    ],
+    "telegram_summary": "Vivement demain. L’observatoire du football CIES a dévoilé aujourd’hui une nouvelle étude. Cette fois-ci, l’organisation a fait le…",
+    "link": "https://www.sofoot.com/breves/la-france-deuxieme-nation-la-mieux-armee-pour-lavenir-selon-une-etude-du-cies",
+    "source_url": "https://www.sofoot.com/breves/la-france-deuxieme-nation-la-mieux-armee-pour-lavenir-selon-une-etude-du-cies",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=af391e15c8ff6d9d",
+    "published": "2026-11-25T14:44:10+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25152817/10502091.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25152817/10502091.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "c7e9a65df8e1d157",
+    "title": "OM : La belle sortie de Bruno Genesio pour défendre Igor Paixão",
+    "summary": "En conférence de presse ce mercredi 25 novembre, Bruno Genesio a volé au secours d'Igor Paixão.",
+    "summary_short": "En conférence de presse ce mercredi 25 novembre, Bruno Genesio a volé au secours d'Igor Paixão.",
+    "content": "En conférence de presse ce mercredi 25 novembre, Bruno Genesio a volé au secours d'Igor Paixão.",
+    "paragraphs": [
+      "En conférence de presse ce mercredi 25 novembre, Bruno Genesio a volé au secours d'Igor Paixão."
+    ],
+    "key_points": [
+      "En conférence de presse ce mercredi 25 novembre, Bruno Genesio a volé au secours d'Igor Paixão."
+    ],
+    "telegram_summary": "En conférence de presse ce mercredi 25 novembre, Bruno Genesio a volé au secours d'Igor Paixão.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-la-belle-sortie-de-bruno-genesio-pour-defendre-igor-paixao-546965.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-la-belle-sortie-de-bruno-genesio-pour-defendre-igor-paixao-546965.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c7e9a65df8e1d157",
+    "published": "2026-11-25T14:40:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164236-9800.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164236-9800.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "5711bfcc4f22e1ca",
+    "title": "OM : Emerson Palmieri, Derek Cornelius, Pierre-Émile Højbjerg... Le point médical de Bruno Genesio",
+    "summary": "Bruno Genesio a fait un point médical sur son groupe en conférence de presse.",
+    "summary_short": "Bruno Genesio a fait un point médical sur son groupe en conférence de presse.",
+    "content": "Bruno Genesio a fait un point médical sur son groupe en conférence de presse.",
+    "paragraphs": [
+      "Bruno Genesio a fait un point médical sur son groupe en conférence de presse."
+    ],
+    "key_points": [
+      "Bruno Genesio a fait un point médical sur son groupe en conférence de presse."
+    ],
+    "telegram_summary": "Bruno Genesio a fait un point médical sur son groupe en conférence de presse.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-emerson-palmieri-derek-cornelius-pierre-emile-hojbjerg-le-point-medical-de-bruno-genesio-546964.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-emerson-palmieri-derek-cornelius-pierre-emile-hojbjerg-le-point-medical-de-bruno-genesio-546964.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5711bfcc4f22e1ca",
+    "published": "2026-11-25T14:40:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821234844-5072.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821234844-5072.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "aaf51051ce9a7e9c",
+    "title": "Lille - Bayern : le club bavarois sort du silence sur Musiala !",
+    "summary": "Le club bavarois s'est retrouvé dans la tourmente après les sorties d'Uli Hoeness concernant l'état de santé de Jamal Musiala.",
+    "summary_short": "Le club bavarois s'est retrouvé dans la tourmente après les sorties d'Uli Hoeness concernant l'état de santé de Jamal Musiala.",
+    "content": "Le club bavarois s'est retrouvé dans la tourmente après les sorties d'Uli Hoeness concernant l'état de santé de Jamal Musiala.",
+    "paragraphs": [
+      "Le club bavarois s'est retrouvé dans la tourmente après les sorties d'Uli Hoeness concernant l'état de santé de Jamal Musiala."
+    ],
+    "key_points": [
+      "Le club bavarois s'est retrouvé dans la tourmente après les sorties d'Uli Hoeness concernant l'état de santé de Jamal Musiala."
+    ],
+    "telegram_summary": "Le club bavarois s'est retrouvé dans la tourmente après les sorties d'Uli Hoeness concernant l'état de santé de Jamal Musiala.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/lille-bayern-le-club-bavarois-sort-du-silence-sur-musiala-1011229",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/lille-bayern-le-club-bavarois-sort-du-silence-sur-musiala-1011229",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=aaf51051ce9a7e9c",
+    "published": "2026-11-25T14:33:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011229/411597/1200-L-lille-bayern-le-club-bavarois-sort-du-silence-sur-musiala.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011229/411597/1200-L-lille-bayern-le-club-bavarois-sort-du-silence-sur-musiala.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "f5c24e78897aa2af",
     "title": "« On ne peut pas laisser Cristiano partir ainsi » : Guardiola lance un message au Portugal et à Ronaldo",
     "summary": "Les conseils d’un vieux sage. L’annonce de la retraite internationale de Cristiano Ronaldo le 5 novembre a certainement ravi plus…",
@@ -1926,240 +2183,5 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "69f067cf7ed10f16",
-    "title": "Benoît Assou-Ekotto explique pourquoi il avait préféré signer à Tottenham plutôt qu’à Arsenal",
-    "summary": "Dans tous les cas, ça aurait été le North London derby. Benoît Assou-Ekotto a aujourd’hui 42 ans et une tignasse…",
-    "summary_short": "Dans tous les cas, ça aurait été le North London derby. Benoît Assou-Ekotto a aujourd’hui 42 ans et une tignasse…",
-    "content": "Dans tous les cas, ça aurait été le North London derby. Benoît Assou-Ekotto a aujourd’hui 42 ans et une tignasse…",
-    "paragraphs": [
-      "Dans tous les cas, ça aurait été le North London derby. Benoît Assou-Ekotto a aujourd’hui 42 ans et une tignasse…"
-    ],
-    "key_points": [
-      "Dans tous les cas, ça aurait été le North London derby.",
-      "Benoît Assou-Ekotto a aujourd’hui 42 ans et une tignasse…"
-    ],
-    "telegram_summary": "Dans tous les cas, ça aurait été le North London derby. Benoît Assou-Ekotto a aujourd’hui 42 ans et une tignasse…",
-    "link": "https://www.sofoot.com/breves/benoit-assou-ekotto-explique-pourquoi-il-avait-prefere-signer-a-tottenham-plutot-qua-arsenal",
-    "source_url": "https://www.sofoot.com/breves/benoit-assou-ekotto-explique-pourquoi-il-avait-prefere-signer-a-tottenham-plutot-qua-arsenal",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=69f067cf7ed10f16",
-    "published": "2026-11-25T14:16:13+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25151435/ICONSPORT_105358_0075-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25151435/ICONSPORT_105358_0075-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "d6952f8f311d78ee",
-    "title": "OM : La réponse de Pierre-Emile Højbjerg à une éventuelle baisse de salaire pour aider l'OM",
-    "summary": "En conférence de presse ce mercredi 25 novembre, Pierre-Emile Højbjerg a été questionné sur les efforts financiers qu'il serait prêt à réaliser pour aider l'OM.",
-    "summary_short": "En conférence de presse ce mercredi 25 novembre, Pierre-Emile Højbjerg a été questionné sur les efforts financiers qu'il serait prêt à réaliser pour aider l'OM.",
-    "content": "En conférence de presse ce mercredi 25 novembre, Pierre-Emile Højbjerg a été questionné sur les efforts financiers qu'il serait prêt à réaliser pour aider l'OM.",
-    "paragraphs": [
-      "En conférence de presse ce mercredi 25 novembre, Pierre-Emile Højbjerg a été questionné sur les efforts financiers qu'il serait prêt à réaliser pour aider l'OM."
-    ],
-    "key_points": [
-      "En conférence de presse ce mercredi 25 novembre, Pierre-Emile Højbjerg a été questionné sur les efforts financiers qu'il serait prêt à réaliser pour aider l'OM."
-    ],
-    "telegram_summary": "En conférence de presse ce mercredi 25 novembre, Pierre-Emile Højbjerg a été questionné sur les efforts financiers qu'il serait prêt à réaliser pour aider l'OM.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-la-reponse-de-pierre-emile-hojbjerg-a-une-eventuelle-baisse-de-salaire-pour-aider-l-om-546960.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-la-reponse-de-pierre-emile-hojbjerg-a-une-eventuelle-baisse-de-salaire-pour-aider-l-om-546960.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d6952f8f311d78ee",
-    "published": "2026-11-25T14:15:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821235310-3118.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821235310-3118.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "0f3d1aa5ceff281f",
-    "title": "Après avoir perdu son titre de champion d’Afrique, le Maroc perd deux places au classement FIFA",
-    "summary": "Rétropédalage. Alors que le Maroc venait tout juste de se glisser à la cinquième place du classement FIFA des meilleures…",
-    "summary_short": "Rétropédalage. Alors que le Maroc venait tout juste de se glisser à la cinquième place du classement FIFA des meilleures…",
-    "content": "Rétropédalage. Alors que le Maroc venait tout juste de se glisser à la cinquième place du classement FIFA des meilleures…",
-    "paragraphs": [
-      "Rétropédalage. Alors que le Maroc venait tout juste de se glisser à la cinquième place du classement FIFA des meilleures…"
-    ],
-    "key_points": [
-      "Alors que le Maroc venait tout juste de se glisser à la cinquième place du classement FIFA des meilleures…"
-    ],
-    "telegram_summary": "Rétropédalage. Alors que le Maroc venait tout juste de se glisser à la cinquième place du classement FIFA des meilleures…",
-    "link": "https://www.sofoot.com/breves/apres-avoir-perdu-son-titre-de-champion-dafrique-le-maroc-perd-deux-places-au-classement-fifa",
-    "source_url": "https://www.sofoot.com/breves/apres-avoir-perdu-son-titre-de-champion-dafrique-le-maroc-perd-deux-places-au-classement-fifa",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0f3d1aa5ceff281f",
-    "published": "2026-11-25T14:06:52+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25150600/12060291.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25150600/12060291.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "561f17bce7619b20",
-    "title": "Rennes : deux énormes absents à l'entraînement à la veille du choc en Ligue Europa",
-    "summary": "Franck Haise déplore deux nouveaux absents majeurs avant de se déplacer à Nimègue.",
-    "summary_short": "Franck Haise déplore deux nouveaux absents majeurs avant de se déplacer à Nimègue.",
-    "content": "Franck Haise déplore deux nouveaux absents majeurs avant de se déplacer à Nimègue.",
-    "paragraphs": [
-      "Franck Haise déplore deux nouveaux absents majeurs avant de se déplacer à Nimègue."
-    ],
-    "key_points": [
-      "Franck Haise déplore deux nouveaux absents majeurs avant de se déplacer à Nimègue."
-    ],
-    "telegram_summary": "Franck Haise déplore deux nouveaux absents majeurs avant de se déplacer à Nimègue.",
-    "link": "https://www.onzemondial.com/europa-league/rennes-deux-enormes-absents-a-lentrainement-a-la-veille-du-choc-en-ligue-europa-1011218",
-    "source_url": "https://www.onzemondial.com/europa-league/rennes-deux-enormes-absents-a-lentrainement-a-la-veille-du-choc-en-ligue-europa-1011218",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=561f17bce7619b20",
-    "published": "2026-11-25T14:02:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011218/411595/1200-L-rennes-deux-normes-absents-l-entranement-la-veille-du-choc-en-ligue-europa.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011218/411595/1200-L-rennes-deux-normes-absents-l-entranement-la-veille-du-choc-en-ligue-europa.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "8f864a18d1de981a",
-    "title": "Sterling given suspended sentence for dangerous driving",
-    "summary": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
-    "summary_short": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
-    "content": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
-    "paragraphs": [
-      "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday."
-    ],
-    "key_points": [
-      "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday."
-    ],
-    "telegram_summary": "Raheem Sterling was sentenced to 12 months imprisonment, suspended for 18 months, on Wednesday.",
-    "link": "https://www.bbc.co.uk/news/articles/cv8e04ll9dd3o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/news/articles/cv8e04ll9dd3o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8f864a18d1de981a",
-    "published": "2026-11-25T13:57:12+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/fd65/live/f14720b0-e8d3-11f1-a3b9-79c60ec9ab33.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/fd65/live/f14720b0-e8d3-11f1-a3b9-79c60ec9ab33.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50591753",
-      "url": "https://www.espn.com/soccer/story/_/id/50591753/raheem-sterling-court-england-manchester-city-liverpool-chelsea",
-      "published": "2026-11-25T11:53:55Z",
-      "score": 0.333,
-      "matched_terms": [
-        "dangerous",
-        "driving",
-        "sterling"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Chelsea",
-        "England",
-        "Manchester City"
-      ],
-      "athletes": [
-        "Raheem Sterling"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-25T14:41:53.944944+00:00"
-    },
-    "quality_sources": [
-      "BBC Sport",
-      "ESPN"
-    ],
-    "quality_score": 93
-  },
-  {
-    "slug": "0793b2dcc5c857e2",
-    "title": "Histoire folle : un minibus volé à l’AS Vitré retrouvé aux Pays-Bas",
-    "summary": "Histoire folle à Vitré. Le journal néerlandais De Telegraaf raconte que le vendredi 6 novembre, en Bretagne, un…",
-    "summary_short": "Histoire folle à Vitré. Le journal néerlandais De Telegraaf raconte que le vendredi 6 novembre, en Bretagne, un…",
-    "content": "Histoire folle à Vitré. Le journal néerlandais De Telegraaf raconte que le vendredi 6 novembre, en Bretagne, un…",
-    "paragraphs": [
-      "Histoire folle à Vitré. Le journal néerlandais De Telegraaf raconte que le vendredi 6 novembre, en Bretagne, un…"
-    ],
-    "key_points": [
-      "Le journal néerlandais De Telegraaf raconte que le vendredi 6 novembre, en Bretagne, un…"
-    ],
-    "telegram_summary": "Histoire folle à Vitré. Le journal néerlandais De Telegraaf raconte que le vendredi 6 novembre, en Bretagne, un…",
-    "link": "https://www.sofoot.com/breves/histoire-folle-un-minibus-vole-a-las-vitre-retrouve-aux-pays-bas",
-    "source_url": "https://www.sofoot.com/breves/histoire-folle-un-minibus-vole-a-las-vitre-retrouve-aux-pays-bas",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0793b2dcc5c857e2",
-    "published": "2026-11-25T13:51:07+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25150243/15292418.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25150243/15292418.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
