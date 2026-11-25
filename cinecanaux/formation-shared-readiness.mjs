@@ -35,35 +35,45 @@ export function formationDestinations(raw){
 export async function auditSharedFormation({db,bot,radar,stage,destinations}){
  insist(ID.test(norm(stage)),'shared_formation_stage_id_missing');
  insist(bot&&radar,'formation_or_radar_bot_missing');
- const sourceRows=(await db.query(
-  "SELECT chat_id,bot_access_verified,owner_approved "+
-  "FROM cine_manual_fallback_sources WHERE category='formation_general'"
- )).results||[];
+ let sourceRows;
+ try{
+  sourceRows=(await db.query(
+   "SELECT chat_id,bot_access_verified,owner_approved "+
+   "FROM cine_manual_fallback_sources WHERE category='formation_general'"
+  )).results||[];
+ }catch{throw Error('formation_d1_source_lookup_unavailable')}
  insist(sourceRows.length===1&&
   sourceRows[0].bot_access_verified===1&&
   sourceRows[0].owner_approved===1&&
   ID.test(String(sourceRows[0].chat_id)),'verified_formation_general_source_missing');
  const source=String(sourceRows[0].chat_id);
  insist(source===stage,'shared_formation_source_stage_mismatch');
- const [ownerSource,radarSource,botIdentity]=await Promise.all([
-  bot.verifyChannel(source,{privateOnly:true}),
-  radar.verifyChannel(source,{privateOnly:true}),
-  bot.identity()
- ]);
+ let ownerSource,radarSource,botIdentity;
+ try{ownerSource=await bot.verifyChannel(source,{privateOnly:true})}
+ catch{throw Error('formation_publisher_source_access_unavailable')}
+ try{radarSource=await radar.verifyChannel(source,{privateOnly:true})}
+ catch{throw Error('formation_radar_source_access_unavailable')}
+ try{botIdentity=await bot.identity()}
+ catch{throw Error('formation_publisher_identity_unavailable')}
  insist(String(ownerSource.id)===source&&String(radarSource.id)===source&&
   botIdentity.is_bot===true,'formation_source_not_verified_live');
- const routes=(await db.query(
-  "SELECT category,bot_access_verified,owner_approved,enabled,rights_attested "+
-  "FROM cine_manual_fallback_sources WHERE category IN "+
-  "('formation_general','formation_business','formation_finance',"+
-  "'formation_digitale','formation_mindset')"
- )).results||[];
+ let routes;
+ try{
+  routes=(await db.query(
+   "SELECT category,bot_access_verified,owner_approved,enabled,rights_attested "+
+   "FROM cine_manual_fallback_sources WHERE category IN "+
+   "('formation_general','formation_business','formation_finance',"+
+   "'formation_digitale','formation_mindset')"
+  )).results||[];
+ }catch{throw Error('formation_d1_routes_unavailable')}
  insist(routes.length===5&&new Set(routes.map(x=>x.category)).size===5&&
   routes.every(x=>x.bot_access_verified===1&&x.owner_approved===1),
   'five_verified_formation_routes_missing');
  const checked=new Set([source]);
  for(const cat of CATS){
-  const dest=await bot.verifyChannel(destinations[cat]);
+  let dest;
+  try{dest=await bot.verifyChannel(destinations[cat])}
+  catch{throw Error('formation_destination_'+cat+'_telegram_access_unavailable')}
   insist(dest?.type==='channel','formation_target_not_channel');
   if(cat==='general'){
    insist(Boolean(dest.username),'formation_general_target_not_public');
