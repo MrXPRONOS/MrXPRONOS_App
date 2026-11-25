@@ -1,0 +1,90 @@
+name: CineX - Nettoyage prioritaire des anciennes videos Films
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-films-main-clean-once'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'CONFIRMER suppression irreversible des anciennes videos meme sans archive'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  deep-clean-films-only:
+    if: ${{ github.event_name == 'push' || inputs.apply == true }}
+    name: Films principal - archives epinglees puis nettoyage autorise
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONPATH: .
+      CINEX_RESCUE_RUNTIME_FILE: /tmp/cinex-rescue-links-${{ github.run_id }}.json
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+      TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+      TG_PUBLIC_CHANNEL: '@CineXFilms_vf'
+      CINEX_UNIFIED_PRIVATE_CHANNEL: ${{ vars.CINEX_UNIFIED_PRIVATE_CHANNEL }}
+      CINEX_UNIFIED_STOCK_APPROVED_SHA256: '57b1f0a97d7db124ab9f72f470f7d63b92960e06b876397795e5780f5c5cc2b8'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+      CINEX_ARCHIVE_ENABLED: ${{ vars.CINEX_ARCHIVE_ENABLED }}
+      CINEX_ARCHIVE_DELETE_APPROVED: ${{ vars.CINEX_ARCHIVE_DELETE_APPROVED }}
+      CINEX_RIGHTS_VERIFIED: ${{ vars.CINEX_RIGHTS_VERIFIED }}
+      CINEX_MANUAL_PURGE_REQUEST: 'true'
+    defaults:
+      run:
+        working-directory: telegram-film-relay
+    steps:
+      - name: Charger le code de production
+        uses: actions/checkout@v4
+      - name: Respecter toute restriction Telegram active
+        env:
+          TG_PERSONAL_COOLDOWN_UNTIL_UTC: ${{ vars.TG_PERSONAL_COOLDOWN_UNTIL_UTC }}
+        run: python3 "$GITHUB_WORKSPACE/telegram-film-relay/scripts/check_personal_cooldown.py"
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dependances
+        run: python -m pip install -r requirements.txt
+      - name: Tester ciblage du canal et securite des dix dernieres videos
+        run: |
+          python -m compileall -q film_relay
+          python -m unittest discover -s tests -p 'test_ten_video_rotation.py' -v
+          python -m unittest discover -s tests -p 'test_legacy_archive_repair.py' -v
+      - name: Verifier les trois autorisations et la session
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]] || {
+            echo "::error::Session Telegram absente"; exit 1;
+          }
+          [[ "$TG_PRIVATE_CHANNEL" =~ ^-100[0-9]+$ ]] || {
+            echo "::error::Bibliotheque privee CineX non configuree"; exit 1;
+          }
+          [[ "$CINEX_ARCHIVE_ENABLED" == "true" && "$CINEX_ARCHIVE_DELETE_APPROVED" == "true" && "$CINEX_RIGHTS_VERIFIED" == "true" ]] || {
+            echo "::error::Les trois autorisations d'archivage ne sont pas confirmees"; exit 1;
+          }
+      - name: Charger les invitations Secours sans les afficher
+        run: python -m film_relay.rescue_links_runtime --output "$CINEX_RESCUE_RUNTIME_FILE"
+      - name: Archiver en priorite les films epingles et les fichiers nommes
+        run: python -m film_relay.legacy_archive_repair --apply --only-films --max-repaired 10 --history 4000
+      - name: Nettoyer uniquement le canal principal (dix videos recentes protegees)
+        run: python -m film_relay.ten_video_rotation --apply --main-films-cleanup --max-deleted 100
