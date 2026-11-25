@@ -1,0 +1,71 @@
+name: Telegram - Publications avec boutons (bot, quotidien)
+# Bot API alone can publish genuine URL buttons. Never calls a personal Telegram session.
+# Staggered UTC/Togo daily slots. One short run per needed campaign.
+on:
+  schedule:
+    - cron: '0 6 * * *'     # weekday-specific promos (only approved weekdays)
+    - cron: '30 6 * * *'    # XPVIP six real partner buttons
+    - cron: '0 7 * * *'     # bookmaker bonus
+    - cron: '30 7 * * *'    # bookmaker guide
+  workflow_dispatch:
+    inputs:
+      campaign:
+        description: 'Campagne de boutons à prévisualiser ou publier'
+        required: true
+        type: choice
+        options: [weekday, xpvip, bonus, guide]
+      mode:
+        description: 'Preview ne contacte pas Telegram'
+        required: true
+        type: choice
+        options: [preview, execute]
+        default: preview
+permissions:
+  contents: read
+concurrency:
+  group: telegram-promotion-bot-daily-central
+  cancel-in-progress: false
+jobs:
+  buttons-only:
+    # Off by default. When activated, each legacy cron-job.org dispatch is skipped
+    # by the matching legacy workflow's job gate.
+    if: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED == 'true' || github.event_name == 'workflow_dispatch' && inputs.mode == 'preview' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check 'requests==2.32.5' 'Pillow==11.3.0'
+      - name: Validate existing real inline-button definitions
+        run: python -m unittest discover -s tests -p test_telegram_bot_buttons_daily.py -v
+      - name: Publish only the campaign for the current UTC slot
+        env:
+          TRIGGER_CRON: ${{ github.event.schedule }}
+          MANUAL_CAMPAIGN: ${{ inputs.campaign }}
+          MANUAL_MODE: ${{ inputs.mode }}
+          EVENT_NAME: ${{ github.event_name }}
+          TG_BOT_BUTTONS_DAILY_ENABLED: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TELEGRAM_APPROVED_DAY_PROMOS: ${{ vars.TELEGRAM_APPROVED_DAY_PROMOS }}
+          TELEGRAM_APPROVED_BONUS_BOOKMAKERS: ${{ vars.TELEGRAM_APPROVED_BONUS_BOOKMAKERS }}
+          TELEGRAM_APPROVED_GUIDE_BOOKMAKERS: ${{ vars.TELEGRAM_APPROVED_GUIDE_BOOKMAKERS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == 'schedule' ]]; then
+            test "$TG_BOT_BUTTONS_DAILY_ENABLED" = 'true'
+            python scripts/telegram_bot_buttons_daily.py --schedule "$TRIGGER_CRON" --execute
+          elif [[ "$MANUAL_MODE" == 'execute' ]]; then
+            test "$TG_BOT_BUTTONS_DAILY_ENABLED" = 'true'
+            python scripts/telegram_bot_buttons_daily.py --campaign "$MANUAL_CAMPAIGN" --execute
+          else
+            python scripts/telegram_bot_buttons_daily.py --campaign "$MANUAL_CAMPAIGN"
+          fi

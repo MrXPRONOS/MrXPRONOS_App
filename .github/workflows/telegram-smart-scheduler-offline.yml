@@ -1,0 +1,30 @@
+name: Telegram Smart Scheduler V1 offline
+on:
+  pull_request:
+    paths:
+      - 'telegram_scheduler/**'
+      - 'tests/test_telegram_scheduler_v1.py'
+      - 'tests/test_telegram_scheduler_manifest.py'
+      - 'tests/test_telegram_bot_buttons_daily.py'
+      - 'scripts/telegram_bot_buttons_daily.py'
+      - '.github/workflows/telegram-bot-buttons-daily.yml'
+      - '.github/workflows/telegram-smart-scheduler-offline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p test_telegram_scheduler_v1.py -v
+      - run: python -m unittest discover -s tests -p test_telegram_scheduler_manifest.py -v
+      - run: python -m compileall -q telegram_scheduler scripts/telegram_scheduler_manifest.py scripts/telegram_bot_buttons_daily.py
+      - run: python -m pip install --disable-pip-version-check --quiet 'Pillow==11.3.0' 'requests==2.32.5'
+      - run: python -m unittest discover -s tests -p test_telegram_bot_buttons_daily.py -v

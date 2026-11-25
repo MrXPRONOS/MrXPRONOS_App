@@ -34,6 +34,8 @@ concurrency:
 
 jobs:
   send:
+    # Legacy dispatches from cron-job.org are no-ops after central bot activation.
+    if: ${{ vars.TG_BOT_BUTTONS_DAILY_ENABLED != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
