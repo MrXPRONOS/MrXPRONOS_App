@@ -26,7 +26,7 @@ WEBHOOK = BASE + "/telegram"
 APP = BASE + "/app"
 STANDBY = "https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/"
 NORMAL_DESCRIPTION = "🎬🍿 Films, séries et animés : explore, découvre et ouvre tes canaux favoris !"
-MAINT_DESCRIPTION = "🎬 CinéRadar est en maintenance. Retour prévu à 00h05 (heure du Togo)."
+MAINT_DESCRIPTION = "🎬 CinéRadar est en maintenance. Retour dès que possible."
 SELECTED_SECRETS = (
     "CINE_RADAR_BOT_TOKEN", "TELEGRAM_BOT_TOKEN",
     "CINEX_RADAR_BOT_TOKEN", "CINEX_BOT_TOKEN",
@@ -125,7 +125,7 @@ def checked_health(probe=http_probe):
             and str(app.get("type") or "").startswith("text/html")
         )
         definitely_down = any(isinstance(code, int) and 500 <= code <= 599 for code in statuses)
-        samples.append((healthy, definitely_down))
+        samples.append((healthy, definitely_down, statuses))
         print("CINERADAR_STANDBY_HTTP_%d health=%s app=%s" % (round_id + 1, statuses[0], statuses[1]))
         if round_id == 0:
             time.sleep(1)
@@ -133,6 +133,15 @@ def checked_health(probe=http_probe):
         return True
     if all(result[1] for result in samples):
         return False
+    # A complete transport outage (DNS, TLS, timeout, unavailable Worker)
+    # is genuine only when independent GitHub Pages is reachable, ruling out
+    # a broader GitHub Actions runner networking problem.
+    all_unreachable = all(all(code == 0 for code in result[2]) for result in samples)
+    if all_unreachable:
+        backup = probe(STANDBY)
+        print("CINERADAR_STANDBY_BACKUP_HTTP=%s" % backup.get("status"))
+        if backup.get("status") == 200:
+            return False
     return None
 
 
@@ -176,7 +185,7 @@ def reconcile(token, healthy, api=telegram_api):
     if isinstance(descriptor, dict):
         current_desc = str(descriptor.get("short_description") or "")
         destination = NORMAL_DESCRIPTION if healthy else MAINT_DESCRIPTION
-        if current_desc in (NORMAL_DESCRIPTION, MAINT_DESCRIPTION, "🔧 CinéRadar en maintenance. Retour prévu à 00h05 (heure du Togo).") and current_desc != destination:
+        if current_desc in (NORMAL_DESCRIPTION, MAINT_DESCRIPTION, "🎬 CinéRadar est en maintenance. Retour prévu à 00h05 (heure du Togo).", "🔧 CinéRadar en maintenance. Retour prévu à 00h05 (heure du Togo).") and current_desc != destination:
             api(token, "setMyShortDescription", {"short_description": destination})
             confirmed = api(token, "getMyShortDescription", {})
             if confirmed.get("short_description") != destination:
