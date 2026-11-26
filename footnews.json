@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T05:07:31+00:00",
+    "published": "2026-11-26T05:40:11+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,44 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "3444941c2037c498",
+    "title": "NEC Nimègue-Rennes : chaîne TV, streaming… À quelle heure et où suivre le 5ème match des Rennais en Ligue Europa ?",
+    "summary": "La Ligue Europa se poursuit ce jeudi soir avec un déplacement important pour le Stade Rennais. Les Bretons se rendent aux Pays-Bas pour affronter le NEC Nimègue, à 21h00, dans le cadre de la cinquième journée de la phase de ligue.",
+    "summary_short": "La Ligue Europa se poursuit ce jeudi soir avec un déplacement important pour le Stade Rennais. Les Bretons se rendent aux Pays-Bas pour affronter le NEC Nimègue, à 21h00, dans le cadre de la cinquième journée de la phase de ligue.",
+    "content": "La Ligue Europa se poursuit ce jeudi soir avec un déplacement important pour le Stade Rennais. Les Bretons se rendent aux Pays-Bas pour affronter le NEC Nimègue, à 21h00, dans le cadre de la cinquième journée de la phase de ligue. Après un début de campagne européenne plutôt encourageant, les hommes de Franck Haise chercheront à retrouver le chemin de la victoire pour faire un bond au classement. En face, les Néerlandais auront l'occasion de se rapprocher voire d’intégrer le Top 8 devant leur public.",
+    "paragraphs": [
+      "La Ligue Europa se poursuit ce jeudi soir avec un déplacement important pour le Stade Rennais. Les Bretons se rendent aux Pays-Bas pour affronter le NEC Nimègue, à 21h00, dans le cadre de la cinquième journée de la phase de ligue. Après un début de campagne européenne plutôt encourageant, les hommes de Franck Haise chercheront à retrouver le chemin de la victoire pour faire un bond au classement.",
+      "En face, les Néerlandais auront l'occasion de se rapprocher voire d’intégrer le Top 8 devant leur public."
+    ],
+    "key_points": [
+      "La Ligue Europa se poursuit ce jeudi soir avec un déplacement important pour le Stade Rennais.",
+      "Les Bretons se rendent aux Pays-Bas pour affronter le NEC Nimègue, à 21h00, dans le cadre de la cinquième journée de la phase de ligue.",
+      "Après un début de campagne européenne plutôt encourageant, les hommes de Franck Haise chercheront à retrouver le chemin de la victoire pour faire un bond au classement.",
+      "En face, les Néerlandais auront l'occasion de se rapprocher voire d’intégrer le Top 8 devant leur public."
+    ],
+    "telegram_summary": "La Ligue Europa se poursuit ce jeudi soir avec un déplacement important pour le Stade Rennais. Les Bretons se rendent aux Pays-Bas pour affronter le NEC Nimègue, à 21h00, dans le cadre de la cinquième journée de la phase de ligue.",
+    "link": "https://www.onzemondial.com/europa-league/nec-nimegue-rennes-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-le-5eme-match-des-rennais-en-ligue-europa-1009833",
+    "source_url": "https://www.onzemondial.com/europa-league/nec-nimegue-rennes-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-le-5eme-match-des-rennais-en-ligue-europa-1009833",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3444941c2037c498",
+    "published": "2026-11-26T05:10:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1009833/411248/1200-L-nec-nimgue-rennes-chane-tv-streaming-quelle-heure-et-o-suivre-le-5me-match-des-rennais-en-ligue-europa.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1009833/411248/1200-L-nec-nimgue-rennes-chane-tv-streaming-quelle-heure-et-o-suivre-le-5me-match-des-rennais-en-ligue-europa.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "7c976bdbc4a1dfc1",
@@ -160,7 +198,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T05:10:17.356073+00:00"
+      "checked_at": "2026-11-26T05:40:05.701094+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -360,7 +398,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T05:10:17.356073+00:00"
+      "checked_at": "2026-11-26T05:40:05.701094+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1533,38 +1571,97 @@
     "quality_score": 90
   },
   {
-    "slug": "5ae1102b5db4934d",
-    "title": "Ligue Europa, Ligue Conférence : les clubs français doivent arrêter de snober les petites Coupes d’Europe",
-    "summary": "Petites coupes d'Europe mais grands défis.",
-    "summary_short": "Petites coupes d'Europe mais grands défis.",
-    "content": "Petites coupes d'Europe mais grands défis.",
+    "slug": "69ac77b207ee4bbe",
+    "title": "\"On doit montrer qu'on est capables de rebondir\" : face au Levski Sofia, l'OM veut éloigner le spectre de la rechute en Ligue Europa",
+    "summary": "Renversés sur leur pelouse par le Mans dimanche en Ligue 1, les Marseillais veulent repartir de l'avant sur la scène européenne face au club bulgare, jeudi.",
+    "summary_short": "Renversés sur leur pelouse par le Mans dimanche en Ligue 1, les Marseillais veulent repartir de l'avant sur la scène européenne face au club bulgare, jeudi.",
+    "content": "Renversés sur leur pelouse par le Mans dimanche en Ligue 1, les Marseillais veulent repartir de l'avant sur la scène européenne face au club bulgare, jeudi.",
     "paragraphs": [
-      "Petites coupes d'Europe mais grands défis."
+      "Renversés sur leur pelouse par le Mans dimanche en Ligue 1, les Marseillais veulent repartir de l'avant sur la scène européenne face au club bulgare, jeudi."
     ],
     "key_points": [
-      "Petites coupes d'Europe mais grands défis."
+      "Renversés sur leur pelouse par le Mans dimanche en Ligue 1, les Marseillais veulent repartir de l'avant sur la scène européenne face au club bulgare, jeudi."
     ],
-    "telegram_summary": "Petites coupes d'Europe mais grands défis.",
-    "link": "https://www.sofoot.com/articles/ligue-europa-ligue-conference-les-clubs-francais-doivent-arreter-de-snober-les-petites-coupes-deurope",
-    "source_url": "https://www.sofoot.com/articles/ligue-europa-ligue-conference-les-clubs-francais-doivent-arreter-de-snober-les-petites-coupes-deurope",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5ae1102b5db4934d",
-    "published": "2026-11-26T05:00:32+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25175547/15211815.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25175547/15211815.jpg",
+    "telegram_summary": "Renversés sur leur pelouse par le Mans dimanche en Ligue 1, les Marseillais veulent repartir de l'avant sur la scène européenne face au club bulgare, jeudi.",
+    "link": "https://www.franceinfo.fr/sports/foot/ligue-europa/on-doit-montrer-qu-on-est-capables-de-rebondir-face-au-levski-sofia-l-om-veut-eloigner-le-spectre-de-la-rechute-en-ligue-europa_8299989.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-europa/on-doit-montrer-qu-on-est-capables-de-rebondir-face-au-levski-sofia-l-om-veut-eloigner-le-spectre-de-la-rechute-en-ligue-europa_8299989.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=69ac77b207ee4bbe",
+    "published": "2026-11-26T05:30:02+00:00",
+    "image": "https://www.franceinfo.fr/pictures/kVhXYJIdgIjGIXOqRILKCMNmPyg/0x0:1024x576/432x243/filters:format(jpg)/2026/11/25/6b07077e41e17935430002.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/kVhXYJIdgIjGIXOqRILKCMNmPyg/0x0:1024x576/432x243/filters:format(jpg)/2026/11/25/6b07077e41e17935430002.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
+    "source": "Franceinfo",
+    "source_priority": 82,
     "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
     "espn_verification": {},
     "quality_sources": [
-      "So Foot"
+      "Franceinfo"
     ],
-    "quality_score": 77
+    "quality_score": 82
+  },
+  {
+    "slug": "242f6a34011a4175",
+    "title": "Real Madrid : Kylian Mbappé bat un nouveau record mais échoue de peu face à Messi !",
+    "summary": "Le joueur de 27 ans a une fois de plus trouvé le chemin des filets hier soir contre le PSV Eindhoven en Ligue des Champions.",
+    "summary_short": "Le joueur de 27 ans a une fois de plus trouvé le chemin des filets hier soir contre le PSV Eindhoven en Ligue des Champions.",
+    "content": "Le joueur de 27 ans a une fois de plus trouvé le chemin des filets hier soir contre le PSV Eindhoven en Ligue des Champions.",
+    "paragraphs": [
+      "Le joueur de 27 ans a une fois de plus trouvé le chemin des filets hier soir contre le PSV Eindhoven en Ligue des Champions."
+    ],
+    "key_points": [
+      "Le joueur de 27 ans a une fois de plus trouvé le chemin des filets hier soir contre le PSV Eindhoven en Ligue des Champions."
+    ],
+    "telegram_summary": "Le joueur de 27 ans a une fois de plus trouvé le chemin des filets hier soir contre le PSV Eindhoven en Ligue des Champions.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/real-madrid-kylian-mbappe-bat-un-nouveau-record-mais-echoue-de-peu-face-a-messi-1011193",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/real-madrid-kylian-mbappe-bat-un-nouveau-record-mais-echoue-de-peu-face-a-messi-1011193",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=242f6a34011a4175",
+    "published": "2026-11-26T05:30:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011193/411590/1200-L-real-madrid-kylian-mbapp-bat-un-nouveau-record.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011193/411590/1200-L-real-madrid-kylian-mbapp-bat-un-nouveau-record.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50554950",
+      "url": "https://www.espn.com/video/clip/_/id/50554950/bellingham-espi-rescue-real-madrid-mbappe-missed-penalty",
+      "published": "2026-11-21T22:42:56Z",
+      "score": 0.2,
+      "matched_terms": [
+        "madrid",
+        "mbappe",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Celta Vigo",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-26T05:40:05.701094+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "42c9f52d37f91cff",
@@ -1762,7 +1859,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T05:10:17.356073+00:00"
+      "checked_at": "2026-11-26T05:40:05.701094+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1823,7 +1920,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T05:10:17.356073+00:00"
+      "checked_at": "2026-11-26T05:40:05.701094+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1915,7 +2012,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T05:10:17.356073+00:00"
+      "checked_at": "2026-11-26T05:40:05.701094+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2165,101 +2262,5 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "133b15290c2f13f3",
-    "title": "Luis Enrique trouve que le PSG a joué le match le plus dur de la saison contre la Roma",
-    "summary": "En même temps, jouer contre sept collines, ce n’est pas simple. « Sans aucun doute. » Pour Luis Enrique, pas d’hésitation à avoir…",
-    "summary_short": "En même temps, jouer contre sept collines, ce n’est pas simple. « Sans aucun doute. » Pour Luis Enrique, pas d’hésitation à avoir…",
-    "content": "En même temps, jouer contre sept collines, ce n’est pas simple. « Sans aucun doute. » Pour Luis Enrique, pas d’hésitation à avoir…",
-    "paragraphs": [
-      "En même temps, jouer contre sept collines, ce n’est pas simple. « Sans aucun doute. » Pour Luis Enrique, pas d’hésitation à avoir…"
-    ],
-    "key_points": [
-      "En même temps, jouer contre sept collines, ce n’est pas simple.",
-      "« Sans aucun doute. » Pour Luis Enrique, pas d’hésitation à avoir…"
-    ],
-    "telegram_summary": "En même temps, jouer contre sept collines, ce n’est pas simple. « Sans aucun doute. » Pour Luis Enrique, pas d’hésitation à avoir…",
-    "link": "https://www.sofoot.com/breves/luis-enrique-trouve-que-le-psg-a-joue-le-match-le-plus-dur-de-la-saison-contre-la-roma",
-    "source_url": "https://www.sofoot.com/breves/luis-enrique-trouve-que-le-psg-a-joue-le-match-le-plus-dur-de-la-saison-contre-la-roma",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=133b15290c2f13f3",
-    "published": "2026-11-25T23:37:52+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26002722/ICONSPORT_380451_0069-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26002722/ICONSPORT_380451_0069-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50599458",
-      "url": "https://www.espn.com/soccer/story/_/id/50599458/luis-enrique-praises-roma-draw-halts-psg-winning-streak",
-      "published": "2026-11-26T01:00:55Z",
-      "score": 0.214,
-      "matched_terms": [
-        "enrique",
-        "luis",
-        "roma"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "AS Roma",
-        "Paris Saint-Germain"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-26T05:10:17.356073+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "44871af473c0cb13",
-    "title": "Ligue des champions – Comment le LOSC a renversé le Bayern",
-    "summary": "Voici comment les Dogues ont renversé le Bayern en une mi-temps.",
-    "summary_short": "Voici comment les Dogues ont renversé le Bayern en une mi-temps.",
-    "content": "Voici comment les Dogues ont renversé le Bayern en une mi-temps.",
-    "paragraphs": [
-      "Voici comment les Dogues ont renversé le Bayern en une mi-temps."
-    ],
-    "key_points": [
-      "Voici comment les Dogues ont renversé le Bayern en une mi-temps."
-    ],
-    "telegram_summary": "Voici comment les Dogues ont renversé le Bayern en une mi-temps.",
-    "link": "https://www.sofoot.com/articles/ligue-des-champions-comment-le-losc-a-renverse-le-bayern",
-    "source_url": "https://www.sofoot.com/articles/ligue-des-champions-comment-le-losc-a-renverse-le-bayern",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=44871af473c0cb13",
-    "published": "2026-11-25T23:30:04+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26003304/15408337.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26003304/15408337.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
