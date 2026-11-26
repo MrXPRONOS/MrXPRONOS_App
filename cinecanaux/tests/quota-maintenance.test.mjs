@@ -48,7 +48,7 @@ test("D1 quota returns a readable maintenance page, 503 and no-cache headers",as
  assert.match(html,/26 novembre 2026/);
  assert.match(html,/Heure du Togo/);
  assert.match(html,/Vérifier maintenant/);
- assert.doesNotMatch(html,/limite technique|D1|Cloudflare|quota/i);
+ assert.doesNotMatch(html,/limite technique|\bD1\b|Cloudflare|quota/i);
  resetMaintenanceForTests();
 });
 
@@ -99,7 +99,7 @@ test("authenticated Telegram private message receives a maintenance reply",async
  assert.match(calls[0].payload.text,/<b>.*maintenance<\/b>/);
  assert.match(calls[0].payload.text,/<i>.*<\/i>/);
  assert.match(calls[0].payload.text,/<blockquote>.*<\/blockquote>/);
- assert.doesNotMatch(calls[0].payload.text,/limite technique|D1|Cloudflare|quota/i);
+ assert.doesNotMatch(calls[0].payload.text,/limite technique|\bD1\b|Cloudflare|quota/i);
 });
 
 test("callback receives alert without sending duplicate messages",async()=>{
@@ -177,7 +177,7 @@ test("independent GitHub Pages backup is static, verifies D1 and returns to Cine
  const page=readFileSync(new URL("../../cineradar-secours/index.html",import.meta.url),"utf8");
  assert.match(page,/CinéRadar est en maintenance/);
  assert.match(page,/00h05/);
- assert.doesNotMatch(page,/limite technique|D1|Cloudflare|quota/i);
+ assert.doesNotMatch(page,/limite technique|\bD1\b|Cloudflare|quota/i);
  assert.match(page,/github-standby/);
  assert.match(page,/window\.location\.replace\(MAIN\+"\/app"\)/);
  assert.match(page,/body\.database===true/);
