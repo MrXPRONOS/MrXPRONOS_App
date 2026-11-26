@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T17:34:28+00:00",
+    "published": "2026-11-26T18:02:34+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,44 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "9303cec4d4dd4e0f",
+    "title": "Ligue des Champions : Lille renverse le Bayern, la Roma freine Paris !",
+    "summary": "Radio Foot – jeudi 26 novembre 2026. Direct à 17h10 à Paris / 16h10 TU sur RFI et en vidéo sur YouTube Live RFI. Rediffusion à 22h10 à Paris / 21h10 TU sur RFI.",
+    "summary_short": "Radio Foot – jeudi 26 novembre 2026. Direct à 17h10 à Paris / 16h10 TU sur RFI et en vidéo sur YouTube Live RFI. Rediffusion à 22h10 à Paris / 21h10 TU sur RFI.",
+    "content": "Radio Foot – jeudi 26 novembre 2026. Direct à 17h10 à Paris / 16h10 TU sur RFI et en vidéo sur YouTube Live RFI. Rediffusion à 22h10 à Paris / 21h10 TU sur RFI. Au sommaire : Ligue des Champions : Lille renverse le Bayern, la Roma freine Paris ! ; CAF Awards : qui peut détrôner Hakimi ? ; Mondial féminin 2031 : 48 équipes, combien de billets pour l’Afrique ?",
+    "paragraphs": [
+      "Radio Foot – jeudi 26 novembre 2026. Direct à 17h10 à Paris / 16h10 TU sur RFI et en vidéo sur YouTube Live RFI. Rediffusion à 22h10 à Paris / 21h10 TU sur RFI.",
+      "Au sommaire : Ligue des Champions : Lille renverse le Bayern, la Roma freine Paris ! ; CAF Awards : qui peut détrôner Hakimi ? ; Mondial féminin 2031 : 48 équipes, combien de billets pour l’Afrique ?"
+    ],
+    "key_points": [
+      "Radio Foot – jeudi 26 novembre 2026.",
+      "Direct à 17h10 à Paris / 16h10 TU sur RFI et en vidéo sur YouTube Live RFI.",
+      "Rediffusion à 22h10 à Paris / 21h10 TU sur RFI.",
+      "Au sommaire : Ligue des Champions : Lille renverse le Bayern, la Roma freine Paris ! ; CAF Awards : qui peut détrôner Hakimi ? ; Mondial féminin 2031 : 48 équipes, combien de billets pour l’Afrique ?"
+    ],
+    "telegram_summary": "Radio Foot – jeudi 26 novembre 2026. Direct à 17h10 à Paris / 16h10 TU sur RFI et en vidéo sur YouTube Live RFI. Rediffusion à 22h10 à Paris / 21h10 TU sur RFI.",
+    "link": "https://www.rfi.fr/fr/ligue-des-champions-lille-renverse-le-bayern-la-roma-freine-paris",
+    "source_url": "https://www.rfi.fr/fr/ligue-des-champions-lille-renverse-le-bayern-la-roma-freine-paris",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9303cec4d4dd4e0f",
+    "published": "2026-11-26T17:49:32+00:00",
+    "image": "https://s.rfi.fr/media/display/7ca8dea8-e9c1-11f1-b6c0-f9cf020caef6/w:1024/p:16x9/AP26329794311282.jpg",
+    "source_image": "https://s.rfi.fr/media/display/7ca8dea8-e9c1-11f1-b6c0-f9cf020caef6/w:1024/p:16x9/AP26329794311282.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
   },
   {
     "slug": "bc0b4f0090bd907e",
@@ -297,7 +335,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T17:40:06.172648+00:00"
+      "checked_at": "2026-11-26T18:10:11.181142+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -394,7 +432,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T17:40:06.172648+00:00"
+      "checked_at": "2026-11-26T18:10:11.181142+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -540,43 +578,6 @@
     "quality_score": 88
   },
   {
-    "slug": "1ae2bf880f3d3145",
-    "title": "OL-Lillestrøm : les compositions probables du 5ème match des Lyonnais en Ligue Europa",
-    "summary": "L'Olympique Lyonnais retrouve le Groupama Stadium ce jeudi soir pour la réception de Lillestrøm, à l'occasion de la cinquième journée de la phase de ligue de Ligue Europa.",
-    "summary_short": "L'Olympique Lyonnais retrouve le Groupama Stadium ce jeudi soir pour la réception de Lillestrøm, à l'occasion de la cinquième journée de la phase de ligue de Ligue Europa.",
-    "content": "L'Olympique Lyonnais retrouve le Groupama Stadium ce jeudi soir pour la réception de Lillestrøm, à l'occasion de la cinquième journée de la phase de ligue de Ligue Europa. Face à une formation norvégienne en difficulté, les Gones ont une belle opportunité de se rapprocher des huit premières places directement qualificatives et de relancer une dynamique positive après deux rendez-vous sans succès. Voici les compositions probables de cette rencontre.",
-    "paragraphs": [
-      "L'Olympique Lyonnais retrouve le Groupama Stadium ce jeudi soir pour la réception de Lillestrøm, à l'occasion de la cinquième journée de la phase de ligue de Ligue Europa. Face à une formation norvégienne en difficulté, les Gones ont une belle opportunité de se rapprocher des huit premières places directement qualificatives et de relancer une dynamique positive après deux rendez-vous sans succès.",
-      "Voici les compositions probables de cette rencontre."
-    ],
-    "key_points": [
-      "L'Olympique Lyonnais retrouve le Groupama Stadium ce jeudi soir pour la réception de Lillestrøm, à l'occasion de la cinquième journée de la phase de ligue de Ligue Europa.",
-      "Face à une formation norvégienne en difficulté, les Gones ont une belle opportunité de se rapprocher des huit premières places directement qualificatives et de relancer une dynamique positive après deux rendez-vous sans succès.",
-      "Voici les compositions probables de cette rencontre."
-    ],
-    "telegram_summary": "L'Olympique Lyonnais retrouve le Groupama Stadium ce jeudi soir pour la réception de Lillestrøm, à l'occasion de la cinquième journée de la phase de ligue de Ligue Europa.",
-    "link": "https://www.onzemondial.com/europa-league/ol-lillestrom-les-compositions-probables-du-5eme-match-des-lyonnais-en-ligue-europa-1011158",
-    "source_url": "https://www.onzemondial.com/europa-league/ol-lillestrom-les-compositions-probables-du-5eme-match-des-lyonnais-en-ligue-europa-1011158",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1ae2bf880f3d3145",
-    "published": "2026-11-26T10:45:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011158/411580/1200-L-ol-lillestrm-les-compositions-probables-du-5me-match-des-lyonnais-en-ligue-europa.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011158/411580/1200-L-ol-lillestrm-les-compositions-probables-du-5me-match-des-lyonnais-en-ligue-europa.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
     "slug": "a1f26c18c6dd0fed",
     "title": "Tenu en échec par la Roma, le PSG laisse filer ses premiers points de la saison",
     "summary": "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir. Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq.",
@@ -665,7 +666,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T17:40:06.172648+00:00"
+      "checked_at": "2026-11-26T18:10:11.181142+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1525,18 +1526,190 @@
     "quality_score": 83
   },
   {
-    "slug": "70a5573ba559986d",
-    "title": "OM : Bruno Genesio justifie les absences de Weah et Kondogbia",
-    "summary": "Quatre jours après son immense faux-pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa.",
-    "summary_short": "Quatre jours après son immense faux-pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa.",
-    "content": "Quatre jours après son immense faux-pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa. Pour cette (…)",
+    "slug": "9dffcde380dd06c7",
+    "title": "Chine : Songyuan Zhao, le lycéen comparé à Zlatan Ibrahimovic qui enflamme la Coupe du Monde U17",
+    "summary": "Brillant dans ce début de Coupe du Monde U17, Songyuan Zhao suscite déjà de grandes attentes en Chine. Du haut de son mètre 94, cet attaquant de 17 ans, comparé à Zlatan Ibrahimović, présente un (…)",
+    "summary_short": "Brillant dans ce début de Coupe du Monde U17, Songyuan Zhao suscite déjà de grandes attentes en Chine. Du haut de son mètre 94, cet attaquant de 17 ans, comparé à Zlatan Ibrahimović, présente un (…)",
+    "content": "Brillant dans ce début de Coupe du Monde U17, Songyuan Zhao suscite déjà de grandes attentes en Chine. Du haut de son mètre 94, cet attaquant de 17 ans, comparé à Zlatan Ibrahimović, présente un (…)",
     "paragraphs": [
-      "Quatre jours après son immense faux-pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa. Pour cette (…)"
+      "Brillant dans ce début de Coupe du Monde U17, Songyuan Zhao suscite déjà de grandes attentes en Chine. Du haut de son mètre 94, cet attaquant de 17 ans, comparé à Zlatan Ibrahimović, présente un (…)"
     ],
     "key_points": [
-      "Quatre jours après son immense faux-pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa."
+      "Brillant dans ce début de Coupe du Monde U17, Songyuan Zhao suscite déjà de grandes attentes en Chine.",
+      "Du haut de son mètre 94, cet attaquant de 17 ans, comparé à Zlatan Ibrahimović, présente un (…)"
     ],
-    "telegram_summary": "Quatre jours après son immense faux-pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa.",
+    "telegram_summary": "Brillant dans ce début de Coupe du Monde U17, Songyuan Zhao suscite déjà de grandes attentes en Chine. Du haut de son mètre 94, cet attaquant de 17 ans, comparé à Zlatan Ibrahimović, présente un (…)",
+    "link": "https://www.footmercato.net/a7620430965559370440-chine-songyuan-zhao-le-lyceen-compare-a-zlatan-ibrahimovic-qui-enflamme-la-coupe-du-monde-u17",
+    "source_url": "https://www.footmercato.net/a7620430965559370440-chine-songyuan-zhao-le-lyceen-compare-a-zlatan-ibrahimovic-qui-enflamme-la-coupe-du-monde-u17",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9dffcde380dd06c7",
+    "published": "2026-11-26T18:02:22+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/photo-1920x1080-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/photo-1920x1080-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "c7c83803e75031a9",
+    "title": "Calvert-Lewin signs new Leeds deal until 2029",
+    "summary": "England international Dominic Calvert-Lewin signs a new contract to stay with Leeds United until 2029.",
+    "summary_short": "England international Dominic Calvert-Lewin signs a new contract to stay with Leeds United until 2029.",
+    "content": "England international Dominic Calvert-Lewin signs a new contract to stay with Leeds United until 2029.",
+    "paragraphs": [
+      "England international Dominic Calvert-Lewin signs a new contract to stay with Leeds United until 2029."
+    ],
+    "key_points": [
+      "England international Dominic Calvert-Lewin signs a new contract to stay with Leeds United until 2029."
+    ],
+    "telegram_summary": "England international Dominic Calvert-Lewin signs a new contract to stay with Leeds United until 2029.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cx62pnz1evv4o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cx62pnz1evv4o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c7c83803e75031a9",
+    "published": "2026-11-26T18:00:31+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8aba/live/b46ac100-e9ba-11f1-8d2a-f5d2aabc11cb.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8aba/live/b46ac100-e9ba-11f1-8d2a-f5d2aabc11cb.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "457a79e2ee4de2a1",
+    "title": "Ligue Europa : Des incidents entre supporters de l’Olympique de Marseille et du Levski Sofia en amont du coup d’envoi de la rencontre",
+    "summary": "La tension monte d’un cran. À quelques minutes seulement du coup d’envoi de la rencontre entre l’Olympique de Marseille et…",
+    "summary_short": "La tension monte d’un cran. À quelques minutes seulement du coup d’envoi de la rencontre entre l’Olympique de Marseille et…",
+    "content": "La tension monte d’un cran. À quelques minutes seulement du coup d’envoi de la rencontre entre l’Olympique de Marseille et…",
+    "paragraphs": [
+      "La tension monte d’un cran. À quelques minutes seulement du coup d’envoi de la rencontre entre l’Olympique de Marseille et…"
+    ],
+    "key_points": [
+      "À quelques minutes seulement du coup d’envoi de la rencontre entre l’Olympique de Marseille et…"
+    ],
+    "telegram_summary": "La tension monte d’un cran. À quelques minutes seulement du coup d’envoi de la rencontre entre l’Olympique de Marseille et…",
+    "link": "https://www.sofoot.com/breves/ligue-europa-des-incidents-entre-supporters-de-lolympique-de-marseille-et-du-levski-sofia-en-amont-du-coup-denvoi-de-la-rencontre",
+    "source_url": "https://www.sofoot.com/breves/ligue-europa-des-incidents-entre-supporters-de-lolympique-de-marseille-et-du-levski-sofia-en-amont-du-coup-denvoi-de-la-rencontre",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=457a79e2ee4de2a1",
+    "published": "2026-11-26T17:58:05+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26185537/15413631.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26185537/15413631.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "a7940cc6864f65e1",
+    "title": "Ligue Europa : vives tensions entre les supporters de l’OM et du Levski Sofia",
+    "summary": "L’avant-match de cet OM-Levski Sofia, pour le compte de la 5e journée de Ligue Europa, a été marqué par des échauffourées dans les tribunes du CÉPAC Vélodrome. Selon Canal+, les supporters du club (…)",
+    "summary_short": "L’avant-match de cet OM-Levski Sofia, pour le compte de la 5e journée de Ligue Europa, a été marqué par des échauffourées dans les tribunes du CÉPAC Vélodrome. Selon Canal+, les supporters du club (…)",
+    "content": "L’avant-match de cet OM-Levski Sofia, pour le compte de la 5e journée de Ligue Europa, a été marqué par des échauffourées dans les tribunes du CÉPAC Vélodrome. Selon Canal+, les supporters du club (…)",
+    "paragraphs": [
+      "L’avant-match de cet OM-Levski Sofia, pour le compte de la 5e journée de Ligue Europa, a été marqué par des échauffourées dans les tribunes du CÉPAC Vélodrome. Selon Canal+, les supporters du club (…)"
+    ],
+    "key_points": [
+      "L’avant-match de cet OM-Levski Sofia, pour le compte de la 5e journée de Ligue Europa, a été marqué par des échauffourées dans les tribunes du CÉPAC Vélodrome.",
+      "Selon Canal+, les supporters du club (…)"
+    ],
+    "telegram_summary": "L’avant-match de cet OM-Levski Sofia, pour le compte de la 5e journée de Ligue Europa, a été marqué par des échauffourées dans les tribunes du CÉPAC Vélodrome. Selon Canal+, les supporters du club (…)",
+    "link": "https://www.footmercato.net/a5247558103558315620-ligue-europa-vives-tensions-entre-les-supporters-de-lom-et-du-levski-sofia",
+    "source_url": "https://www.footmercato.net/a5247558103558315620-ligue-europa-vives-tensions-entre-les-supporters-de-lom-et-du-levski-sofia",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a7940cc6864f65e1",
+    "published": "2026-11-26T17:55:16+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldthree007279-1.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldthree007279-1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "fe21d56db843a117",
+    "title": "OM - Levski Sofia : bagarre dans les tribunes entre supporters marseillais et bulgares avant le coup d'envoi",
+    "summary": "De grosses échauffourées ont eu lieu dans les tribunes du Vélodrome entre supporters marseillais et bulgares avant le coup d'envoi de la rencontre entre l'OM et le Levski Sofia.",
+    "summary_short": "De grosses échauffourées ont eu lieu dans les tribunes du Vélodrome entre supporters marseillais et bulgares avant le coup d'envoi de la rencontre entre l'OM et le Levski Sofia.",
+    "content": "De grosses échauffourées ont eu lieu dans les tribunes du Vélodrome entre supporters marseillais et bulgares avant le coup d'envoi de la rencontre entre l'OM et le Levski Sofia.",
+    "paragraphs": [
+      "De grosses échauffourées ont eu lieu dans les tribunes du Vélodrome entre supporters marseillais et bulgares avant le coup d'envoi de la rencontre entre l'OM et le Levski Sofia."
+    ],
+    "key_points": [
+      "De grosses échauffourées ont eu lieu dans les tribunes du Vélodrome entre supporters marseillais et bulgares avant le coup d'envoi de la rencontre entre l'OM et le Levski Sofia."
+    ],
+    "telegram_summary": "De grosses échauffourées ont eu lieu dans les tribunes du Vélodrome entre supporters marseillais et bulgares avant le coup d'envoi de la rencontre entre l'OM et le Levski Sofia.",
+    "link": "https://www.onzemondial.com/europa-league/om-levski-sofia-bagarre-dans-les-tribunes-entre-supporters-marseillais-et-bulgares-avant-le-coup-denvoi-1011537",
+    "source_url": "https://www.onzemondial.com/europa-league/om-levski-sofia-bagarre-dans-les-tribunes-entre-supporters-marseillais-et-bulgares-avant-le-coup-denvoi-1011537",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fe21d56db843a117",
+    "published": "2026-11-26T17:48:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011537/411677/1200-L-om-levski-sofia-bagarre-dans-les-tribunes-entre-supporters-marseillais-et-bulgares-avant-le-coup-d-envoi.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011537/411677/1200-L-om-levski-sofia-bagarre-dans-les-tribunes-entre-supporters-marseillais-et-bulgares-avant-le-coup-d-envoi.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "70a5573ba559986d",
+    "title": "OM : Bruno Genesio justifie les absences de Weah et Kondogbia",
+    "summary": "Quatre jours après son immense faux pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa.",
+    "summary_short": "Quatre jours après son immense faux pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa.",
+    "content": "Quatre jours après son immense faux pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa. Pour cette (…)",
+    "paragraphs": [
+      "Quatre jours après son immense faux pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa. Pour cette (…)"
+    ],
+    "key_points": [
+      "Quatre jours après son immense faux pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa."
+    ],
+    "telegram_summary": "Quatre jours après son immense faux pas à domicile contre Le Mans en championnat (2-3), l’Olympique de Marseille va tenter de se relancer contre le Levski Sofia, ce jeudi en Ligue Europa.",
     "link": "https://www.footmercato.net/a7365994462021140064-om-bruno-genesio-justifie-les-absences-de-weah-et-kondogbia",
     "source_url": "https://www.footmercato.net/a7365994462021140064-om-bruno-genesio-justifie-les-absences-de-weah-et-kondogbia",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=70a5573ba559986d",
@@ -1557,6 +1730,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "b8460e244c8ce81e",
+    "title": "Arsenal rêve d'un ancien crack du PSG déjà dans les petits papiers de Zidane",
+    "summary": "Le jeune défenseur français Joane Gadou affole les compteurs et pourrait bien se retrouver au coeur d'un énorme transfert cet été.",
+    "summary_short": "Le jeune défenseur français Joane Gadou affole les compteurs et pourrait bien se retrouver au coeur d'un énorme transfert cet été.",
+    "content": "Le jeune défenseur français Joane Gadou affole les compteurs et pourrait bien se retrouver au coeur d'un énorme transfert cet été.",
+    "paragraphs": [
+      "Le jeune défenseur français Joane Gadou affole les compteurs et pourrait bien se retrouver au coeur d'un énorme transfert cet été."
+    ],
+    "key_points": [
+      "Le jeune défenseur français Joane Gadou affole les compteurs et pourrait bien se retrouver au coeur d'un énorme transfert cet été."
+    ],
+    "telegram_summary": "Le jeune défenseur français Joane Gadou affole les compteurs et pourrait bien se retrouver au coeur d'un énorme transfert cet été.",
+    "link": "https://www.onzemondial.com/transferts/arsenal-reve-dun-ancien-crack-du-psg-deja-dans-les-petits-papiers-de-zidane-1011486",
+    "source_url": "https://www.onzemondial.com/transferts/arsenal-reve-dun-ancien-crack-du-psg-deja-dans-les-petits-papiers-de-zidane-1011486",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b8460e244c8ce81e",
+    "published": "2026-11-26T17:31:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011486/411664/1200-L-arsenal-rve-d-un-ancien-crack-du-psg-dj-dans-les-petits-papiers-de-zidane.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011486/411664/1200-L-arsenal-rve-d-un-ancien-crack-du-psg-dj-dans-les-petits-papiers-de-zidane.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "610bf361987efea6",
@@ -1817,7 +2024,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T17:40:06.172648+00:00"
+      "checked_at": "2026-11-26T18:10:11.181142+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1989,267 +2196,6 @@
     "source_feed": "https://www.sofoot.com/rss",
     "category": "Blessures",
     "category_emoji": "🚑",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "2055c38f4f678c07",
-    "title": "Ligue des champions : le Bayern renversé par Lille qui se replace dans la course aux barrages",
-    "summary": "Dominé durant la première mi-temps par le Bayern Munich, Lille a su inverser la tendance après la pause pour s'imposer 2-1, décrochant ainsi son premier succès de cette saison en Ligue des champions et se relançant dans la course à la qualification.",
-    "summary_short": "Dominé durant la première mi-temps par le Bayern Munich, Lille a su inverser la tendance après la pause pour s'imposer 2-1, décrochant ainsi son premier succès de cette saison en Ligue des champions et se relançant dans la course à la qualification.",
-    "content": "Dominé durant la première mi-temps par le Bayern Munich, Lille a su inverser la tendance après la pause pour s'imposer 2-1, décrochant ainsi son premier succès de cette saison en Ligue des champions et se relançant dans la course à la qualification. Les précisions de Benoit Perrochais, chef du service des sports de France 24.",
-    "paragraphs": [
-      "Dominé durant la première mi-temps par le Bayern Munich, Lille a su inverser la tendance après la pause pour s'imposer 2-1, décrochant ainsi son premier succès de cette saison en Ligue des champions et se relançant dans la course à la qualification. Les précisions de Benoit Perrochais, chef du service des sports de France 24."
-    ],
-    "key_points": [
-      "Dominé durant la première mi-temps par le Bayern Munich, Lille a su inverser la tendance après la pause pour s'imposer 2-1, décrochant ainsi son premier succès de cette saison en Ligue des champions et se relançant dans la course à la qualification.",
-      "Les précisions de Benoit Perrochais, chef du service des sports de France 24."
-    ],
-    "telegram_summary": "Dominé durant la première mi-temps par le Bayern Munich, Lille a su inverser la tendance après la pause pour s'imposer 2-1, décrochant ainsi son premier succès de cette saison en Ligue des champions et se relançant dans la course à la qualification.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261126-ligue-des-champions-le-bayern-renvers%C3%A9-par-lille-qui-se-replace-dans-la-course-aux-barrages",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261126-ligue-des-champions-le-bayern-renvers%C3%A9-par-lille-qui-se-replace-dans-la-course-aux-barrages",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2055c38f4f678c07",
-    "published": "2026-11-26T16:14:56+00:00",
-    "image": "https://s.france24.com/media/display/b99e45a0-e9ad-11f1-9c9b-77d069279b82/w:1024/p:16x9/FR-20261126-141911-142654-CS.jpg",
-    "source_image": "https://s.france24.com/media/display/b99e45a0-e9ad-11f1-9c9b-77d069279b82/w:1024/p:16x9/FR-20261126-141911-142654-CS.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "f502700497cccb3b",
-    "title": "Atlético de Madrid : après la polémique estivale, Diego Simeone ne laissera pas tomber Julián Álvarez",
-    "summary": "Solidarité argentine. Englué dans un imbroglio autour d’un transfert raté au FC Barcelone l’été dernier, Julián Álvarez s’était…",
-    "summary_short": "Solidarité argentine. Englué dans un imbroglio autour d’un transfert raté au FC Barcelone l’été dernier, Julián Álvarez s’était…",
-    "content": "Solidarité argentine. Englué dans un imbroglio autour d’un transfert raté au FC Barcelone l’été dernier, Julián Álvarez s’était…",
-    "paragraphs": [
-      "Solidarité argentine. Englué dans un imbroglio autour d’un transfert raté au FC Barcelone l’été dernier, Julián Álvarez s’était…"
-    ],
-    "key_points": [
-      "Englué dans un imbroglio autour d’un transfert raté au FC Barcelone l’été dernier, Julián Álvarez s’était…"
-    ],
-    "telegram_summary": "Solidarité argentine. Englué dans un imbroglio autour d’un transfert raté au FC Barcelone l’été dernier, Julián Álvarez s’était…",
-    "link": "https://www.sofoot.com/breves/atletico-de-madrid-apres-la-polemique-estivale-diego-simeone-ne-laissera-pas-tomber-julian-alvarez",
-    "source_url": "https://www.sofoot.com/breves/atletico-de-madrid-apres-la-polemique-estivale-diego-simeone-ne-laissera-pas-tomber-julian-alvarez",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f502700497cccb3b",
-    "published": "2026-11-26T16:08:20+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26172300/ICONSPORT_361562_0050-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26172300/ICONSPORT_361562_0050-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50427000",
-      "url": "https://www.espn.com/soccer/story/_/id/50427000/diego-simeone-atletico-madrid-need-julian-alvarez-best-succeed",
-      "published": "2026-11-09T00:19:08Z",
-      "score": 0.429,
-      "matched_terms": [
-        "alvarez",
-        "atletico",
-        "diego",
-        "julian",
-        "madrid",
-        "simeone"
-      ],
-      "topics": [],
-      "teams": [
-        "Barcelona"
-      ],
-      "athletes": [
-        "Julián Álvarez"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-26T17:40:06.172648+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "84213017cfcae960",
-    "title": "Le FC Barcelone pourrait prêter Jesse Bisiwu en Ligue 1 !",
-    "summary": "Selon les informations des médias belges, le FC Barcelone veut prêter son jeune ailier cet hiver. Et il est convoité en Ligue 1.Cet été, le FC Barcelone avait frappé un joli coup avec Jesse Bisiwu. (…)",
-    "summary_short": "Selon les informations des médias belges, le FC Barcelone veut prêter son jeune ailier cet hiver. Et il est convoité en Ligue 1.Cet été, le FC Barcelone avait frappé un joli coup avec Jesse Bisiwu. (…)",
-    "content": "Selon les informations des médias belges, le FC Barcelone veut prêter son jeune ailier cet hiver. Et il est convoité en Ligue 1.Cet été, le FC Barcelone avait frappé un joli coup avec Jesse Bisiwu. (…)",
-    "paragraphs": [
-      "Selon les informations des médias belges, le FC Barcelone veut prêter son jeune ailier cet hiver. Et il est convoité en Ligue 1.Cet été, le FC Barcelone avait frappé un joli coup avec Jesse Bisiwu. (…)"
-    ],
-    "key_points": [
-      "Selon les informations des médias belges, le FC Barcelone veut prêter son jeune ailier cet hiver.",
-      "Et il est convoité en Ligue 1.Cet été, le FC Barcelone avait frappé un joli coup avec Jesse Bisiwu. (…)"
-    ],
-    "telegram_summary": "Selon les informations des médias belges, le FC Barcelone veut prêter son jeune ailier cet hiver. Et il est convoité en Ligue 1.Cet été, le FC Barcelone avait frappé un joli coup avec Jesse Bisiwu. (…)",
-    "link": "https://www.footmercato.net/a280802058544584172-le-fc-barcelone-pourrait-preter-jesse-bisiwu-en-ligue-1",
-    "source_url": "https://www.footmercato.net/a280802058544584172-le-fc-barcelone-pourrait-preter-jesse-bisiwu-en-ligue-1",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=84213017cfcae960",
-    "published": "2026-11-26T16:00:49+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine276898-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine276898-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "93a05fb199bf6725",
-    "title": "JT Foot Mercato : José Mourinho a une mission avec Vinicius",
-    "summary": "Au programme de ce JT Foot Mercato : José Mourinho veut tout faire pour revoir Vinicius à son meilleur niveau, Lucas Chevalier veut quitter le PSG et les officiels du jour.",
-    "summary_short": "Au programme de ce JT Foot Mercato : José Mourinho veut tout faire pour revoir Vinicius à son meilleur niveau, Lucas Chevalier veut quitter le PSG et les officiels du jour.",
-    "content": "Au programme de ce JT Foot Mercato : José Mourinho veut tout faire pour revoir Vinicius à son meilleur niveau, Lucas Chevalier veut quitter le PSG et les officiels du jour.",
-    "paragraphs": [
-      "Au programme de ce JT Foot Mercato : José Mourinho veut tout faire pour revoir Vinicius à son meilleur niveau, Lucas Chevalier veut quitter le PSG et les officiels du jour."
-    ],
-    "key_points": [
-      "Au programme de ce JT Foot Mercato : José Mourinho veut tout faire pour revoir Vinicius à son meilleur niveau, Lucas Chevalier veut quitter le PSG et les officiels du jour."
-    ],
-    "telegram_summary": "Au programme de ce JT Foot Mercato : José Mourinho veut tout faire pour revoir Vinicius à son meilleur niveau, Lucas Chevalier veut quitter le PSG et les officiels du jour.",
-    "link": "https://www.footmercato.net/a2138458709831568104-jt-foot-mercato-jose-mourinho-a-une-mission-avec-vinicius",
-    "source_url": "https://www.footmercato.net/a2138458709831568104-jt-foot-mercato-jose-mourinho-a-une-mission-avec-vinicius",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=93a05fb199bf6725",
-    "published": "2026-11-26T16:00:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mourinho-6aa27c149a2b1.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mourinho-6aa27c149a2b1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50539637",
-      "url": "https://www.espn.com/soccer/story/_/id/50539637/jose-mourinho-vinicius-junior-real-madrid",
-      "published": "2026-11-20T10:21:51Z",
-      "score": 0.333,
-      "matched_terms": [
-        "jose",
-        "mourinho",
-        "vinicius"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Vinícius Júnior"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-26T17:40:06.172648+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "c5ad8a47f4a2df52",
-    "title": "PSG : 3 matchs pour rafler 31 millions, le jackpot caché de la Ligue des Champions",
-    "summary": "Le Paris Saint-Germain a calé hier face à l'AS Roma mais reste proche d'une qualification, sans oublier l'énorme enjeu financier des derniers matchs.",
-    "summary_short": "Le Paris Saint-Germain a calé hier face à l'AS Roma mais reste proche d'une qualification, sans oublier l'énorme enjeu financier des derniers matchs.",
-    "content": "Le Paris Saint-Germain a calé hier face à l'AS Roma mais reste proche d'une qualification, sans oublier l'énorme enjeu financier des derniers matchs.",
-    "paragraphs": [
-      "Le Paris Saint-Germain a calé hier face à l'AS Roma mais reste proche d'une qualification, sans oublier l'énorme enjeu financier des derniers matchs."
-    ],
-    "key_points": [
-      "Le Paris Saint-Germain a calé hier face à l'AS Roma mais reste proche d'une qualification, sans oublier l'énorme enjeu financier des derniers matchs."
-    ],
-    "telegram_summary": "Le Paris Saint-Germain a calé hier face à l'AS Roma mais reste proche d'une qualification, sans oublier l'énorme enjeu financier des derniers matchs.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/psg-3-matchs-pour-rafler-31-millions-le-jackpot-cache-de-la-ligue-des-champions-1011459",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/psg-3-matchs-pour-rafler-31-millions-le-jackpot-cache-de-la-ligue-des-champions-1011459",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c5ad8a47f4a2df52",
-    "published": "2026-11-26T16:00:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011459/411656/1200-L-psg-3-matchs-pour-rafler-31-millions-le-jackpot-cach-de-la-ligue-des-champions.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011459/411656/1200-L-psg-3-matchs-pour-rafler-31-millions-le-jackpot-cach-de-la-ligue-des-champions.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "e1e80e198d0a5bc6",
-    "title": "Fenerbahçe : Mason Greenwood s’est retrouvé sans escort kid pendant l’hymne de la Ligue des champions",
-    "summary": "Paria un jour, paria toujours. Pour la deuxième fois de la saison, Mason Greenwood a foulé la pelouse d’un club…",
-    "summary_short": "Paria un jour, paria toujours. Pour la deuxième fois de la saison, Mason Greenwood a foulé la pelouse d’un club…",
-    "content": "Paria un jour, paria toujours. Pour la deuxième fois de la saison, Mason Greenwood a foulé la pelouse d’un club…",
-    "paragraphs": [
-      "Paria un jour, paria toujours. Pour la deuxième fois de la saison, Mason Greenwood a foulé la pelouse d’un club…"
-    ],
-    "key_points": [
-      "Pour la deuxième fois de la saison, Mason Greenwood a foulé la pelouse d’un club…"
-    ],
-    "telegram_summary": "Paria un jour, paria toujours. Pour la deuxième fois de la saison, Mason Greenwood a foulé la pelouse d’un club…",
-    "link": "https://www.sofoot.com/breves/fenerbahce-mason-greenwood-sest-retrouve-sans-escort-kid-pendant-lhymne-de-la-ligue-des-champions",
-    "source_url": "https://www.sofoot.com/breves/fenerbahce-mason-greenwood-sest-retrouve-sans-escort-kid-pendant-lhymne-de-la-ligue-des-champions",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e1e80e198d0a5bc6",
-    "published": "2026-11-26T15:55:43+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26165812/15406694.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26165812/15406694.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
     "editorial_score": 2,
     "espn_verification": {},
     "quality_sources": [
