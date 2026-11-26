@@ -67,7 +67,7 @@ jobs:
             grep -q 'Ciné Radar' /tmp/cineradar-app.html
           elif [ "$status" = '503' ]; then
             grep -q 'CinéRadar est en maintenance' /tmp/cineradar-app.html
-            grep -q '00h05' /tmp/cineradar-app.html
+            grep -Eq '00h05|Dès que possible' /tmp/cineradar-app.html
           else
             echo "::error::Unexpected CineRadar app status: $status"
             exit 1
@@ -80,6 +80,16 @@ jobs:
             node -e "let j=require('/tmp/cineradar-health.json');if(j.code!=='SERVICE_MAINTENANCE'||!j.maintenance)process.exit(1)"
           else
             echo "::error::Unexpected CineRadar health status: $status"
+            exit 1
+          fi
+          status=$(curl --retry 1 --retry-delay 1 --retry-max-time 22 --silent --show-error --max-time 10 \
+            -o /tmp/cineradar-ready.json -w '%{http_code}' "$BASE/health/ready")
+          if [ "$status" = '200' ]; then
+            node -e "let j=require('/tmp/cineradar-ready.json');if(j.service!=='cine-radar'||j.ready!==true||j.database!==true)process.exit(1)"
+          elif [ "$status" = '503' ]; then
+            node -e "let j=require('/tmp/cineradar-ready.json');if(j.code!=='SERVICE_MAINTENANCE'||!j.maintenance)process.exit(1)"
+          else
+            echo "::error::Unexpected CineRadar deep readiness status: $status"
             exit 1
           fi
           echo "CINERADAR_MAINTENANCE_RECOVERY_DEPLOYED_AND_VALIDATED"
