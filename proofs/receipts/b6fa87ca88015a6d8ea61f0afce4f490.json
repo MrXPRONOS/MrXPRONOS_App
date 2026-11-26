@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-38ec0b08b7b12b6d:1X",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T15:00:00+00:00",
+    "fixture": {
+      "home_team": "CD Fátima",
+      "away_team": "Benfica Castelo Branco",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a69ef55e5b65063c1189f13740cbec7f4af0d2598a7e06bc0049e6411682fd6e"
+}

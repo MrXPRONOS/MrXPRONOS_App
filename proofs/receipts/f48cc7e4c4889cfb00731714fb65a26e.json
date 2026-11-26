@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-3704bdca52043495:UNDER_35",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T15:00:00+00:00",
+    "fixture": {
+      "home_team": "SC Beira-Mar",
+      "away_team": "Sport Comércio e Salgueiros",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "01728c9221f77fa6f4d78871a4431b33663c50f978a598faf52806627b3c232a"
+}

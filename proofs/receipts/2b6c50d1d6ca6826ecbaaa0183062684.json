@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-4fb7f3346066f77a:1X",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T16:00:00+00:00",
+    "fixture": {
+      "home_team": "FK Austria Wien",
+      "away_team": "Wolfsberger AC",
+      "league": "Austrian Bundesliga"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2b7c06cdc83b30a0907d24b501e74dd34d7218fc4764397b46e4ee4e13a5f573"
+}

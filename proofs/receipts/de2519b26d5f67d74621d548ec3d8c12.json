@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a5888e93d87d021a:UNDER_35",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T16:00:00+00:00",
+    "fixture": {
+      "home_team": "Espérance Sportive De Tunis",
+      "away_team": "Wiliete SC",
+      "league": "CAF Champions League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "8dba203f134d1392a69928d0e46ae7e55449c2709689100cc7e3747fbaf2d548"
+}

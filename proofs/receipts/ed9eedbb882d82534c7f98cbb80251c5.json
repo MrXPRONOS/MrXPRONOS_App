@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b44e74b44161baf3:1X",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T12:30:00+00:00",
+    "fixture": {
+      "home_team": "Exeter City",
+      "away_team": "Crawley Town",
+      "league": "League Two"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "0eb14ffe5f71c07c8fd10288ea82d2602051e7fbe2fd8a4e53586a84856803de"
+}

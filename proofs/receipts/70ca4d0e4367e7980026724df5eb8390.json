@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-e7687b310be4c076:UNDER_35",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T14:00:00+00:00",
+    "fixture": {
+      "home_team": "Sagrada Esperança",
+      "away_team": "Desportivo da Huíla",
+      "league": "Girabola"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "50c7e15edb109707ad73e70cf1f8db4766f862f29d473d1fac0f09088ae1daa0"
+}

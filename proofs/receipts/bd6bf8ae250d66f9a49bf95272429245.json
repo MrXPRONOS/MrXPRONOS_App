@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-3ac2e7b4de6e1c70:1X",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T16:00:00+00:00",
+    "fixture": {
+      "home_team": "CODM Meknès",
+      "away_team": "Renaissance Zemamra",
+      "league": "Botola Pro"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "f34a571884194cf46bcf8b7438ab3f013eb9f3c3eeeebbb2bf7581759005658e"
+}

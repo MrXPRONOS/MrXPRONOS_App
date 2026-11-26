@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0b60d00e0e3f2e1c:1X",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Amora FC",
+      "away_team": "SC Mineiro Aljustrelense",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2b57d88938ad61a0a2ab3694010be81318128b6254df03ff1f8f8058913ba48b"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b44e74b44161baf3:UNDER_35",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T12:30:00+00:00",
+    "fixture": {
+      "home_team": "Exeter City",
+      "away_team": "Crawley Town",
+      "league": "League Two"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.0,
+      "odds": 1.326,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "303fced26032f51b505f8fc72a68e22f5e2473ac70e7ac6a7e35a7a31b1120bd"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a66c7abe5e29bfd2:UNDER_35",
+    "recorded_at_utc": "2026-11-26T20:19:44+00:00",
+    "kickoff_utc": "2026-11-28T18:00:00+00:00",
+    "fixture": {
+      "home_team": "Sporting CP B U21",
+      "away_team": "Amarante FC",
+      "league": "Liga Portugal 2"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "cafedbd503f5ea8c7514eb159a115d7988affb30821131081688c338bf6fdb4d"
+}
