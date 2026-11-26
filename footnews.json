@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T15:10:49+00:00",
+    "published": "2026-11-26T15:39:54+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,104 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "a4ba1e2295fd175c",
+    "title": "Atlético : Diego Simeone réaffirme son soutien à Julián Álvarez",
+    "summary": "L’Atlético de Madrid a décroché une précieuse victoire face au Viking FK (2-0) lors de la cinquième journée de Ligue des Champions. Après l’ouverture du score d’Alexander Sørloth, Julián Álvarez a (…)",
+    "summary_short": "L’Atlético de Madrid a décroché une précieuse victoire face au Viking FK (2-0) lors de la cinquième journée de Ligue des Champions. Après l’ouverture du score d’Alexander Sørloth, Julián Álvarez a (…)",
+    "content": "L’Atlético de Madrid a décroché une précieuse victoire face au Viking FK (2-0) lors de la cinquième journée de Ligue des Champions. Après l’ouverture du score d’Alexander Sørloth, Julián Álvarez a (…)",
+    "paragraphs": [
+      "L’Atlético de Madrid a décroché une précieuse victoire face au Viking FK (2-0) lors de la cinquième journée de Ligue des Champions. Après l’ouverture du score d’Alexander Sørloth, Julián Álvarez a (…)"
+    ],
+    "key_points": [
+      "L’Atlético de Madrid a décroché une précieuse victoire face au Viking FK (2-0) lors de la cinquième journée de Ligue des Champions.",
+      "Après l’ouverture du score d’Alexander Sørloth, Julián Álvarez a (…)"
+    ],
+    "telegram_summary": "L’Atlético de Madrid a décroché une précieuse victoire face au Viking FK (2-0) lors de la cinquième journée de Ligue des Champions. Après l’ouverture du score d’Alexander Sørloth, Julián Álvarez a (…)",
+    "link": "https://www.footmercato.net/a3092327777664330301-atletico-diego-simeone-reaffirme-son-soutien-a-julian-alvarez",
+    "source_url": "https://www.footmercato.net/a3092327777664330301-atletico-diego-simeone-reaffirme-son-soutien-a-julian-alvarez",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a4ba1e2295fd175c",
+    "published": "2026-11-26T15:33:39+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diego-simeone202425.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diego-simeone202425.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50427000",
+      "url": "https://www.espn.com/soccer/story/_/id/50427000/diego-simeone-atletico-madrid-need-julian-alvarez-best-succeed",
+      "published": "2026-11-09T00:19:08Z",
+      "score": 0.455,
+      "matched_terms": [
+        "alvarez",
+        "atletico",
+        "diego",
+        "julian",
+        "simeone"
+      ],
+      "topics": [],
+      "teams": [
+        "Barcelona"
+      ],
+      "athletes": [
+        "Julián Álvarez"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-26T15:40:08.730892+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "5984751b6f2e13e6",
+    "title": "A quelques mois des élections, la FIFA touchée par une cyberattaque",
+    "summary": "Décidément, les temps sont mouvementés à la FIFA. Après toutes les polémiques de l’été, voilà donc que l’organisation…",
+    "summary_short": "Décidément, les temps sont mouvementés à la FIFA. Après toutes les polémiques de l’été, voilà donc que l’organisation…",
+    "content": "Décidément, les temps sont mouvementés à la FIFA. Après toutes les polémiques de l’été, voilà donc que l’organisation…",
+    "paragraphs": [
+      "Décidément, les temps sont mouvementés à la FIFA. Après toutes les polémiques de l’été, voilà donc que l’organisation…"
+    ],
+    "key_points": [
+      "Décidément, les temps sont mouvementés à la FIFA.",
+      "Après toutes les polémiques de l’été, voilà donc que l’organisation…"
+    ],
+    "telegram_summary": "Décidément, les temps sont mouvementés à la FIFA. Après toutes les polémiques de l’été, voilà donc que l’organisation…",
+    "link": "https://www.sofoot.com/breves/a-quelques-mois-des-elections-la-fifa-touchee-par-une-cyberattaque",
+    "source_url": "https://www.sofoot.com/breves/a-quelques-mois-des-elections-la-fifa-touchee-par-une-cyberattaque",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5984751b6f2e13e6",
+    "published": "2026-11-26T15:11:32+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/06162504/14315865.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/08/06162504/14315865.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "2307c43e9de248d0",
@@ -222,7 +320,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T15:10:46.098268+00:00"
+      "checked_at": "2026-11-26T15:40:08.730892+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -268,16 +366,16 @@
   {
     "slug": "3eda6f056ac01271",
     "title": "REVUE DE PRESSE – « La Roma a atteint un niveau exceptionnel » : La presse italienne admirative du nul de la Roma face au PSG",
-    "summary": "Un nul à la saveur d’une victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
-    "summary_short": "Un nul à la saveur d’une victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
-    "content": "Un nul à la saveur d’une victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
+    "summary": "Un nul à la saveur de victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
+    "summary_short": "Un nul à la saveur de victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
+    "content": "Un nul à la saveur de victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
     "paragraphs": [
-      "Un nul à la saveur d’une victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…"
+      "Un nul à la saveur de victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…"
     ],
     "key_points": [
       "Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…"
     ],
-    "telegram_summary": "Un nul à la saveur d’une victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
+    "telegram_summary": "Un nul à la saveur de victoire. Après des défaites rageantes contre Manchester United et le Real Madrid, la Roma…",
     "link": "https://www.sofoot.com/breves/revue-de-presse-la-roma-a-atteint-un-niveau-exceptionnel-la-presse-italienne-admirative-du-nul-de-la-roma-face-au-psg",
     "source_url": "https://www.sofoot.com/breves/revue-de-presse-la-roma-a-atteint-un-niveau-exceptionnel-la-presse-italienne-admirative-du-nul-de-la-roma-face-au-psg",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3eda6f056ac01271",
@@ -448,41 +546,6 @@
     "quality_score": 80
   },
   {
-    "slug": "a1f26c18c6dd0fed",
-    "title": "Tenu en échec par la Roma, le PSG laisse filer ses premiers points de la saison",
-    "summary": "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir. Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq.",
-    "summary_short": "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir. Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq.",
-    "content": "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir. Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq.",
-    "paragraphs": [
-      "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir. Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq."
-    ],
-    "key_points": [
-      "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir.",
-      "Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq."
-    ],
-    "telegram_summary": "Plombé par des blessures, l'équipe de Luis Enrique a concédé le match nul contre la Roma, mercredi soir. Le Real Madrid est désormais seul premier du classement de Ligue des champions, avec cinq victoires sur cinq.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261126-tenu-en-%C3%A9chec-par-la-roma-le-psg-laisse-filer-ses-premiers-points-de-la-saison",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261126-tenu-en-%C3%A9chec-par-la-roma-le-psg-laisse-filer-ses-premiers-points-de-la-saison",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a1f26c18c6dd0fed",
-    "published": "2026-11-26T08:45:59+00:00",
-    "image": "https://s.france24.com/media/display/204f7dde-e948-11f1-b29b-81bc2b1dcd65/w:1024/p:16x9/J24-PSG-6.jpg",
-    "source_image": "https://s.france24.com/media/display/204f7dde-e948-11f1-b29b-81bc2b1dcd65/w:1024/p:16x9/J24-PSG-6.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
     "slug": "80aec305b9e89042",
     "title": "How Isak and Wirtz are becoming Liverpool's 'big-game players'",
     "summary": "Match of the Day's Stephen Warnock and Nedum Onuoha analyse the recent resurgence of Alexander Isak and Florian Wirtz for as they led Liverpool to victory against Club Brugge.debut seasons last year.",
@@ -536,85 +599,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T15:10:46.098268+00:00"
+      "checked_at": "2026-11-26T15:40:08.730892+00:00"
     },
     "quality_sources": [
       "BBC Sport",
       "ESPN"
     ],
     "quality_score": 93
-  },
-  {
-    "slug": "c70b1b050a8637fb",
-    "title": "CAN 2025 : à Dakar, le verdict du TAS ne surprend pas les supporters",
-    "summary": "🇸🇳 Le Sénégal récupère sa couronne. À Dakar, le verdict du TAS fait réagir les supporters. Entre satisfaction et sentiment de justice rendue, ce dénouement ne surprend pas les Sénégalais après tant de mois de polémique autour de la CAN 2025.",
-    "summary_short": "🇸🇳 Le Sénégal récupère sa couronne. À Dakar, le verdict du TAS fait réagir les supporters. Entre satisfaction et sentiment de justice rendue, ce dénouement ne surprend pas les Sénégalais après tant de mois de polémique autour de la CAN 2025.",
-    "content": "🇸🇳 Le Sénégal récupère sa couronne. À Dakar, le verdict du TAS fait réagir les supporters. Entre satisfaction et sentiment de justice rendue, ce dénouement ne surprend pas les Sénégalais après tant de mois de polémique autour de la CAN 2025.",
-    "paragraphs": [
-      "🇸🇳 Le Sénégal récupère sa couronne. À Dakar, le verdict du TAS fait réagir les supporters. Entre satisfaction et sentiment de justice rendue, ce dénouement ne surprend pas les Sénégalais après tant de mois de polémique autour de la CAN 2025."
-    ],
-    "key_points": [
-      "🇸🇳 Le Sénégal récupère sa couronne.",
-      "À Dakar, le verdict du TAS fait réagir les supporters.",
-      "Entre satisfaction et sentiment de justice rendue, ce dénouement ne surprend pas les Sénégalais après tant de mois de polémique autour de la CAN 2025."
-    ],
-    "telegram_summary": "🇸🇳 Le Sénégal récupère sa couronne. À Dakar, le verdict du TAS fait réagir les supporters. Entre satisfaction et sentiment de justice rendue, ce dénouement ne surprend pas les Sénégalais après tant de mois de polémique autour de la CAN 2025.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261125-can-2025-%C3%A0-dakar-le-verdict-du-tas-ne-surprend-pas-les-supporters",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261125-can-2025-%C3%A0-dakar-le-verdict-du-tas-ne-surprend-pas-les-supporters",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c70b1b050a8637fb",
-    "published": "2026-11-25T17:37:10+00:00",
-    "image": "https://s.france24.com/media/display/b60500fc-e8f2-11f1-873e-1991d4929b54/w:1024/p:16x9/Couv-TAS-Sacre-S%C3%A9n%C3%A9gal.jpg",
-    "source_image": "https://s.france24.com/media/display/b60500fc-e8f2-11f1-873e-1991d4929b54/w:1024/p:16x9/Couv-TAS-Sacre-S%C3%A9n%C3%A9gal.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "84c32f001af008f6",
-    "title": "CAN 2025 : le Tribunal arbitral du sport a-t-il déjà été déjugé ?",
-    "summary": "Le Sénégal ⁠a été rétabli mardi ​comme vainqueur de l'édition 2025 de la Coupe d'Afrique des nations (CAN) par le Tribunal arbitral du sport (TAS). Toutes ​les décisions rendues par le TAS peuvent cependant faire l'objet d'un recours devant le Tribunal fédéral suisse, la plus haute instance judiciaire de la Confédération helvétique.",
-    "summary_short": "Le Sénégal ⁠a été rétabli mardi ​comme vainqueur de l'édition 2025 de la Coupe d'Afrique des nations (CAN) par le Tribunal arbitral du sport (TAS). Toutes ​les décisions rendues par le TAS peuvent cependant faire l'objet d'un recours devant le Tribunal fédéral suisse, la plus haute instance judiciaire de la Confédération helvétique.",
-    "content": "Le Sénégal ⁠a été rétabli mardi ​comme vainqueur de l'édition 2025 de la Coupe d'Afrique des nations (CAN) par le Tribunal arbitral du sport (TAS). Toutes ​les décisions rendues par le TAS peuvent cependant faire l'objet d'un recours devant le Tribunal fédéral suisse, la plus haute instance judiciaire de la Confédération helvétique. Tour d'horizon de précédentes affaires.",
-    "paragraphs": [
-      "Le Sénégal ⁠a été rétabli mardi ​comme vainqueur de l'édition 2025 de la Coupe d'Afrique des nations (CAN) par le Tribunal arbitral du sport (TAS). Toutes ​les décisions rendues par le TAS peuvent cependant faire l'objet d'un recours devant le Tribunal fédéral suisse, la plus haute instance judiciaire de la Confédération helvétique. Tour d'horizon de précédentes affaires."
-    ],
-    "key_points": [
-      "Le Sénégal ⁠a été rétabli mardi ​comme vainqueur de l'édition 2025 de la Coupe d'Afrique des nations (CAN) par le Tribunal arbitral du sport (TAS).",
-      "Toutes ​les décisions rendues par le TAS peuvent cependant faire l'objet d'un recours devant le Tribunal fédéral suisse, la plus haute instance judiciaire de la Confédération helvétique.",
-      "Tour d'horizon de précédentes affaires."
-    ],
-    "telegram_summary": "Le Sénégal ⁠a été rétabli mardi ​comme vainqueur de l'édition 2025 de la Coupe d'Afrique des nations (CAN) par le Tribunal arbitral du sport (TAS).",
-    "link": "https://www.france24.com/fr/sports/20261125-can-2025-tribunal-arbitral-sport-d%C3%A9j%C3%A0-%C3%A9t%C3%A9-d%C3%A9jug%C3%A9",
-    "source_url": "https://www.france24.com/fr/sports/20261125-can-2025-tribunal-arbitral-sport-d%C3%A9j%C3%A0-%C3%A9t%C3%A9-d%C3%A9jug%C3%A9",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=84c32f001af008f6",
-    "published": "2026-11-25T15:34:18+00:00",
-    "image": "https://s.france24.com/media/display/d552ca28-e8b8-11f1-b058-c131ae9bfe9c/w:1024/p:16x9/000-D8F47KE.jpg",
-    "source_image": "https://s.france24.com/media/display/d552ca28-e8b8-11f1-b058-c131ae9bfe9c/w:1024/p:16x9/000-D8F47KE.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "4320e41cb40c5895",
@@ -761,41 +752,6 @@
     "quality_score": 82
   },
   {
-    "slug": "689a1990d1d5e865",
-    "title": "CAN 2025 : le Sénégal déclaré vainqueur par le TAS, le Maroc conteste",
-    "summary": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "summary_short": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "content": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025.",
-      "La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261125-can-2025-le-s%C3%A9n%C3%A9gal-d%C3%A9clar%C3%A9-vainqueur-par-le-tas-le-maroc-conteste",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261125-can-2025-le-s%C3%A9n%C3%A9gal-d%C3%A9clar%C3%A9-vainqueur-par-le-tas-le-maroc-conteste",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=689a1990d1d5e865",
-    "published": "2026-11-25T06:28:24+00:00",
-    "image": "https://s.france24.com/media/display/bd4d0a1e-e878-11f1-b093-29d00e23de9a/w:1024/p:16x9/senegal-13.jpg",
-    "source_image": "https://s.france24.com/media/display/bd4d0a1e-e878-11f1-b093-29d00e23de9a/w:1024/p:16x9/senegal-13.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
     "slug": "cc991ebdd7b30206",
     "title": "Victoire du Sénégal à la CAN: «Le TAS a rendu une décision logique juridiquement et juste sportivement»",
     "summary": "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titre de champion d'Afrique au Maroc après les évènements qui avaient émaillé la finale de la compétition en janvier…",
@@ -869,41 +825,6 @@
     "quality_score": 86
   },
   {
-    "slug": "7b29a692304496f6",
-    "title": "Édition spéciale : CAN 2025, le Sénégal récupère son titre de champion d'Afrique",
-    "summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "summary_short": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "content": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24.",
-    "paragraphs": [
-      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
-    ],
-    "key_points": [
-      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-      "Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
-    ],
-    "telegram_summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/journal-de-l-afrique/20261124-edition-sp%C3%A9ciale-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-de-champion-d-afrique",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/journal-de-l-afrique/20261124-edition-sp%C3%A9ciale-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-de-champion-d-afrique",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7b29a692304496f6",
-    "published": "2026-11-24T21:58:13+00:00",
-    "image": "https://s.france24.com/media/display/4fa53bc8-e8ad-11f1-8498-95e072ff0a91/w:1024/p:16x9/capture-2dcd8138.jpg",
-    "source_image": "https://s.france24.com/media/display/4fa53bc8-e8ad-11f1-8498-95e072ff0a91/w:1024/p:16x9/capture-2dcd8138.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
     "slug": "f2292c1e6b2b7f11",
     "title": "CAN 2025: le Sénégal en joie après sa victoire réattribuée par le TAS, le Maroc fataliste",
     "summary": "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénégal forfait et l'équipe du Maroc championne d'Afrique.",
@@ -937,76 +858,6 @@
       "RFI Afrique Foot"
     ],
     "quality_score": 90
-  },
-  {
-    "slug": "9e1573738a658732",
-    "title": "Décision du TAS : le Sénégal célèbre, le Maroc enrage... Toutes les réactions",
-    "summary": "Le Tribunal arbitral du sport a finalement tranché : déboutant le jury d'appel de la CAF qui avait déchu le Sénégal du titre de la CAN 2025, l'instance suisse lui a rendu sa couronne.",
-    "summary_short": "Le Tribunal arbitral du sport a finalement tranché : déboutant le jury d'appel de la CAF qui avait déchu le Sénégal du titre de la CAN 2025, l'instance suisse lui a rendu sa couronne.",
-    "content": "Le Tribunal arbitral du sport a finalement tranché : déboutant le jury d'appel de la CAF qui avait déchu le Sénégal du titre de la CAN 2025, l'instance suisse lui a rendu sa couronne. Du Maroc au siège de la confédération africaine, les réactions affluent à la suite de cette décision historique.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport a finalement tranché : déboutant le jury d'appel de la CAF qui avait déchu le Sénégal du titre de la CAN 2025, l'instance suisse lui a rendu sa couronne. Du Maroc au siège de la confédération africaine, les réactions affluent à la suite de cette décision historique."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport a finalement tranché : déboutant le jury d'appel de la CAF qui avait déchu le Sénégal du titre de la CAN 2025, l'instance suisse lui a rendu sa couronne.",
-      "Du Maroc au siège de la confédération africaine, les réactions affluent à la suite de cette décision historique."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport a finalement tranché : déboutant le jury d'appel de la CAF qui avait déchu le Sénégal du titre de la CAN 2025, l'instance suisse lui a rendu sa couronne.",
-    "link": "https://www.france24.com/fr/sports/20261124-decision-tas-senegal-heureux-maroc-enrage-reactions",
-    "source_url": "https://www.france24.com/fr/sports/20261124-decision-tas-senegal-heureux-maroc-enrage-reactions",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9e1573738a658732",
-    "published": "2026-11-24T17:59:08+00:00",
-    "image": "https://s.france24.com/media/display/7b5c1cf8-e82d-11f1-853a-81da3ab2acbb/w:1024/p:16x9/000-936A4YX.jpg",
-    "source_image": "https://s.france24.com/media/display/7b5c1cf8-e82d-11f1-853a-81da3ab2acbb/w:1024/p:16x9/000-936A4YX.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "063b3cdc55e7c866",
-    "title": "CAN 2025 : pourquoi le TAS a donné raison à l'arbitre et au Sénégal",
-    "summary": "Le Tribunal arbitral du sport (TAS) a invalidé, mardi, la décision du jury d'appel de la CAF et rendu au Sénégal son titre de champion d'Afrique 2025 face au Maroc. L'instance basée à Lausanne estime que l'arbitre de la finale était seul juge pour reprendre la partie après l'interruption provoquée par les Lions de la Teranga.",
-    "summary_short": "Le Tribunal arbitral du sport (TAS) a invalidé, mardi, la décision du jury d'appel de la CAF et rendu au Sénégal son titre de champion d'Afrique 2025 face au Maroc. L'instance basée à Lausanne estime que l'arbitre de la finale était seul juge pour reprendre la partie après l'interruption provoquée par les Lions de la Teranga.",
-    "content": "Le Tribunal arbitral du sport (TAS) a invalidé, mardi, la décision du jury d'appel de la CAF et rendu au Sénégal son titre de champion d'Afrique 2025 face au Maroc. L'instance basée à Lausanne estime que l'arbitre de la finale était seul juge pour reprendre la partie après l'interruption provoquée par les Lions de la Teranga.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport (TAS) a invalidé, mardi, la décision du jury d'appel de la CAF et rendu au Sénégal son titre de champion d'Afrique 2025 face au Maroc. L'instance basée à Lausanne estime que l'arbitre de la finale était seul juge pour reprendre la partie après l'interruption provoquée par les Lions de la Teranga."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport (TAS) a invalidé, mardi, la décision du jury d'appel de la CAF et rendu au Sénégal son titre de champion d'Afrique 2025 face au Maroc.",
-      "L'instance basée à Lausanne estime que l'arbitre de la finale était seul juge pour reprendre la partie après l'interruption provoquée par les Lions de la Teranga."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport (TAS) a invalidé, mardi, la décision du jury d'appel de la CAF et rendu au Sénégal son titre de champion d'Afrique 2025 face au Maroc. L'instance basée à Lausanne estime que l'arbitre de la finale était seul juge pour reprendre la partie après l'interruption provoquée par les Lions de la Teranga.",
-    "link": "https://www.france24.com/fr/sports/20261124-can-2025-pourquoi-tas-arbitre-senegal-maroc",
-    "source_url": "https://www.france24.com/fr/sports/20261124-can-2025-pourquoi-tas-arbitre-senegal-maroc",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=063b3cdc55e7c866",
-    "published": "2026-11-24T17:02:32+00:00",
-    "image": "https://s.france24.com/media/display/d3d55ed4-e824-11f1-9de7-29d00e23de9a/w:1024/p:16x9/000-936L3LV.jpg",
-    "source_image": "https://s.france24.com/media/display/d3d55ed4-e824-11f1-9de7-29d00e23de9a/w:1024/p:16x9/000-936L3LV.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "6c320880eeae2e65",
@@ -1044,110 +895,6 @@
       "RFI"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "4fc18a3c3a58f0cb",
-    "title": "CAN 2025 : le Sénégal, vainqueur officiel selon le verdict du TAS",
-    "summary": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "summary_short": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "content": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert. Le Maroc dispose de 30 jours pour faire appel de la décision devant le Tribunal fédéral suisse.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert. Le Maroc dispose de 30 jours pour faire appel de la décision devant le Tribunal fédéral suisse."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-      "Le Maroc dispose de 30 jours pour faire appel de la décision devant le Tribunal fédéral suisse."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261124-can-2025-le-s%C3%A9n%C3%A9gal-vainqueur-officiel-selon-le-verdict-du-tas",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261124-can-2025-le-s%C3%A9n%C3%A9gal-vainqueur-officiel-selon-le-verdict-du-tas",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4fc18a3c3a58f0cb",
-    "published": "2026-11-24T15:23:26+00:00",
-    "image": "https://s.france24.com/media/display/00b540b4-e81a-11f1-96e0-c131ae9bfe9c/w:1024/p:16x9/CAN-2025-TAS-10.png",
-    "source_image": "https://s.france24.com/media/display/00b540b4-e81a-11f1-96e0-c131ae9bfe9c/w:1024/p:16x9/CAN-2025-TAS-10.png",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "fcef9c02788148b5",
-    "title": "CAN-2025: le Sénégal récupère son titre, le Maroc déchu (TAS)",
-    "summary": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "summary_short": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "content": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport (TAS) a décidé mardi \"à l'unanimité\" le sacre du Sénégal lors de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261124-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-le-maroc-d%C3%A9chu-tas",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261124-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-le-maroc-d%C3%A9chu-tas",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fcef9c02788148b5",
-    "published": "2026-11-24T14:48:18+00:00",
-    "image": "https://s.france24.com/media/display/e87a43dc-e814-11f1-8d31-1991d4929b54/w:1024/p:16x9/FR-20261124-152227-152617-CS-01.jpg",
-    "source_image": "https://s.france24.com/media/display/e87a43dc-e814-11f1-8d31-1991d4929b54/w:1024/p:16x9/FR-20261124-152227-152617-CS-01.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "da84b1bf81a8f00b",
-    "title": "Verdict du TAS : existe-t-il un recours pour le Maroc ?",
-    "summary": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ?",
-    "summary_short": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ?",
-    "content": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ? France 24 fait le point.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ? France 24 fait le point."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025.",
-      "Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ?"
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport basé à Lausanne, en Suisse, a déclaré mardi le Sénégal vainqueur de la CAN 2025. Après cette décision de justice, le Maroc a-t-il encore des recours alors qu'il dit vouloir recourir à toutes les \"possibilités légales\" ?",
-    "link": "https://www.france24.com/fr/sports/20261124-verdict-tas-recours-possible-maroc-senegal",
-    "source_url": "https://www.france24.com/fr/sports/20261124-verdict-tas-recours-possible-maroc-senegal",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=da84b1bf81a8f00b",
-    "published": "2026-11-24T14:43:50+00:00",
-    "image": "https://s.france24.com/media/display/b134cb96-e813-11f1-882c-29d00e23de9a/w:1024/p:16x9/000-936P7VZ.jpg",
-    "source_image": "https://s.france24.com/media/display/b134cb96-e813-11f1-882c-29d00e23de9a/w:1024/p:16x9/000-936P7VZ.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "111c25529b1bcdbd",
@@ -1219,41 +966,6 @@
     "quality_score": 82
   },
   {
-    "slug": "a453e8ff41377982",
-    "title": "Finale de la CAN 2025 : le TAS rend son titre au Sénégal au détriment du Maroc",
-    "summary": "Le Sénégal est champion d'Afrique. Le Tribunal arbitral du sport, basé à Lausanne, en Suisse, a rendu sa décision mardi dans le litige opposant le Sénégal et le Maroc. Et ce sont les Lions de la Teranga qui ont été déclarés vainqueurs par la justice.",
-    "summary_short": "Le Sénégal est champion d'Afrique. Le Tribunal arbitral du sport, basé à Lausanne, en Suisse, a rendu sa décision mardi dans le litige opposant le Sénégal et le Maroc. Et ce sont les Lions de la Teranga qui ont été déclarés vainqueurs par la justice.",
-    "content": "Le Sénégal est champion d'Afrique. Le Tribunal arbitral du sport, basé à Lausanne, en Suisse, a rendu sa décision mardi dans le litige opposant le Sénégal et le Maroc. Et ce sont les Lions de la Teranga qui ont été déclarés vainqueurs par la justice.",
-    "paragraphs": [
-      "Le Sénégal est champion d'Afrique. Le Tribunal arbitral du sport, basé à Lausanne, en Suisse, a rendu sa décision mardi dans le litige opposant le Sénégal et le Maroc. Et ce sont les Lions de la Teranga qui ont été déclarés vainqueurs par la justice."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport, basé à Lausanne, en Suisse, a rendu sa décision mardi dans le litige opposant le Sénégal et le Maroc.",
-      "Et ce sont les Lions de la Teranga qui ont été déclarés vainqueurs par la justice."
-    ],
-    "telegram_summary": "Le Sénégal est champion d'Afrique. Le Tribunal arbitral du sport, basé à Lausanne, en Suisse, a rendu sa décision mardi dans le litige opposant le Sénégal et le Maroc. Et ce sont les Lions de la Teranga qui ont été déclarés vainqueurs par la justice.",
-    "link": "https://www.france24.com/fr/sports/20261124-finale-can-2025-maroc-senegal-tas-decision",
-    "source_url": "https://www.france24.com/fr/sports/20261124-finale-can-2025-maroc-senegal-tas-decision",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a453e8ff41377982",
-    "published": "2026-11-24T14:20:33+00:00",
-    "image": "https://s.france24.com/media/display/81c1ba12-e7f1-11f1-b35f-81da3ab2acbb/w:1024/p:16x9/000-936U69Y.jpg",
-    "source_image": "https://s.france24.com/media/display/81c1ba12-e7f1-11f1-b35f-81da3ab2acbb/w:1024/p:16x9/000-936U69Y.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
     "slug": "18871559c4f57daf",
     "title": "CAN 2025: revivez notre direct sur la décision du TAS qui confirme la victoire du Sénégal sur le Maroc",
     "summary": "Le Sénégal est le vainqueur légitime de la CAN 2025 après le verdict rendu ce mardi 24 novembre par le Tribunal arbitral du sport (TAS). La plus haute instance juridictionnelle du sport international a décidé d’inverser la décision de la Confédération africaine de football et de rendre le titre aux Lions de la Teranga, vainqueurs (1-0) sur le terrain.",
@@ -1290,42 +1002,6 @@
     "quality_score": 90
   },
   {
-    "slug": "387bb1f5b24b6f2e",
-    "title": "CAN 2025 : la CAF \"respecte la décision du TAS\" de rendre son titre au Sénégal",
-    "summary": "Le Tribunal arbitral du sport a décidé mardi \"à l'unanimité\" le sacre du Sénégal, vainqueur sur le terrain lors de la finale de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "summary_short": "Le Tribunal arbitral du sport a décidé mardi \"à l'unanimité\" le sacre du Sénégal, vainqueur sur le terrain lors de la finale de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "content": "Le Tribunal arbitral du sport a décidé mardi \"à l'unanimité\" le sacre du Sénégal, vainqueur sur le terrain lors de la finale de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert. En retour, la fédération marocaine affirme vouloir mobiliser \"tous les recours légaux disponibles\". Retrouvez le fil de la journée du 24 novembre.",
-    "paragraphs": [
-      "Le Tribunal arbitral du sport a décidé mardi \"à l'unanimité\" le sacre du Sénégal, vainqueur sur le terrain lors de la finale de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert. En retour, la fédération marocaine affirme vouloir mobiliser \"tous les recours légaux disponibles\". Retrouvez le fil de la journée du 24 novembre."
-    ],
-    "key_points": [
-      "Le Tribunal arbitral du sport a décidé mardi \"à l'unanimité\" le sacre du Sénégal, vainqueur sur le terrain lors de la finale de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-      "En retour, la fédération marocaine affirme vouloir mobiliser \"tous les recours légaux disponibles\".",
-      "Retrouvez le fil de la journée du 24 novembre."
-    ],
-    "telegram_summary": "Le Tribunal arbitral du sport a décidé mardi \"à l'unanimité\" le sacre du Sénégal, vainqueur sur le terrain lors de la finale de la Coupe d'Afrique des nations 2025, aux dépens du Maroc qui avait obtenu le titre sur tapis vert.",
-    "link": "https://www.france24.com/fr/sports/20261124-can-en-direct-senegal-maroc-verdict-tas",
-    "source_url": "https://www.france24.com/fr/sports/20261124-can-en-direct-senegal-maroc-verdict-tas",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=387bb1f5b24b6f2e",
-    "published": "2026-11-24T11:31:37+00:00",
-    "image": "https://s.france24.com/media/display/ed1ba8ae-e814-11f1-b70a-1991d4929b54/w:1024/p:16x9/000-D8CE8ZQ.jpg",
-    "source_image": "https://s.france24.com/media/display/ed1ba8ae-e814-11f1-b70a-1991d4929b54/w:1024/p:16x9/000-D8CE8ZQ.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
     "slug": "8e5fc2825d3546eb",
     "title": "José Mourinho : \"Si un joueur fait grève car on joue trop, on peut lui proposer de gagner 50% de moins\"",
     "summary": "L'entraîneur du Real Madrid s'est exprimé sur les cadences des matchs. \"Je pense que si on veut gagner de l'argent, il faut travailler dur, prendre des risques, c'est la vie\", a-t-il dit en conférence de presse, lundi.",
@@ -1359,76 +1035,6 @@
       "Franceinfo"
     ],
     "quality_score": 82
-  },
-  {
-    "slug": "08a9065ebce3b593",
-    "title": "CAN 2025 : le TAS rendra sa décision sur la finale ce mardi 24 novembre",
-    "summary": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "summary_short": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "content": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "paragraphs": [
-      "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation."
-    ],
-    "key_points": [
-      "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025.",
-      "Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation."
-    ],
-    "telegram_summary": "Le tribunal arbitral du sport rend aujourd’hui sa décision quant à la finale de la CAN 2025. Le Sénégal l'avait emporté sur le terrain, mais le Maroc avait récupéré la victoire après une réclamation.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261124-can-2025-le-tas-rendra-sa-d%C3%A9cision-sur-la-finale-ce-mardi-24-novembre",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261124-can-2025-le-tas-rendra-sa-d%C3%A9cision-sur-la-finale-ce-mardi-24-novembre",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08a9065ebce3b593",
-    "published": "2026-11-24T07:23:20+00:00",
-    "image": "https://s.france24.com/media/display/031d8b8e-68bf-11f1-bc80-005056a97e36/w:1024/p:16x9/AP26077291094432.jpg",
-    "source_image": "https://s.france24.com/media/display/031d8b8e-68bf-11f1-bc80-005056a97e36/w:1024/p:16x9/AP26077291094432.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "b4537920da9dc6c5",
-    "title": "Football : l'Afrique soutient la réélection de Gianni Infantino à la tête de la FIFA",
-    "summary": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "summary_short": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "content": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "paragraphs": [
-      "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria."
-    ],
-    "key_points": [
-      "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA.",
-      "L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria."
-    ],
-    "telegram_summary": "⚽ La CAF affiche son soutien à Gianni Infantino pour un nouveau mandat à la tête de la FIFA. L’annonce a été faite par Patrice Motsepe, président de l'instance du football africain, lors de sa 48e assemblée générale ordinaire, samedi à Abuja au Nigéria.",
-    "link": "https://www.france24.com/fr/vid%C3%A9o/20261123-footbal-l-afrique-soutient-la-r%C3%A9%C3%A9lection-de-gianni-infantino-%C3%A0-la-t%C3%AAte-de-la-fifa",
-    "source_url": "https://www.france24.com/fr/vid%C3%A9o/20261123-footbal-l-afrique-soutient-la-r%C3%A9%C3%A9lection-de-gianni-infantino-%C3%A0-la-t%C3%AAte-de-la-fifa",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b4537920da9dc6c5",
-    "published": "2026-11-23T17:19:59+00:00",
-    "image": "https://s.france24.com/media/display/c7f51d20-e757-11f1-8c0c-13439ca2fe89/w:1024/p:16x9/Couv-Afrique-FIFA.jpg",
-    "source_image": "https://s.france24.com/media/display/c7f51d20-e757-11f1-8c0c-13439ca2fe89/w:1024/p:16x9/Couv-Afrique-FIFA.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   },
   {
     "slug": "73ba067102688258",
@@ -1500,6 +1106,74 @@
       "RFI Afrique Foot"
     ],
     "quality_score": 90
+  },
+  {
+    "slug": "1ab242c994767923",
+    "title": "Levski Sofia : Le groupe du Levski Sofia pour affronter l'Olympique de Marseille en Ligue Europa",
+    "summary": "Le groupe du Levski Sofia pour affronter l'OM (J5 Ligue Europa).",
+    "summary_short": "Le groupe du Levski Sofia pour affronter l'OM (J5 Ligue Europa).",
+    "content": "Le groupe du Levski Sofia pour affronter l'OM (J5 Ligue Europa).",
+    "paragraphs": [
+      "Le groupe du Levski Sofia pour affronter l'OM (J5 Ligue Europa)."
+    ],
+    "key_points": [
+      "Le groupe du Levski Sofia pour affronter l'OM (J5 Ligue Europa)."
+    ],
+    "telegram_summary": "Le groupe du Levski Sofia pour affronter l'OM (J5 Ligue Europa).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-levski-sofia-le-groupe-du-levski-sofia-pour-affronter-l-olympique-de-marseille-en-ligue-europa-547116.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-levski-sofia-le-groupe-du-levski-sofia-pour-affronter-l-olympique-de-marseille-en-ligue-europa-547116.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1ab242c994767923",
+    "published": "2026-11-26T15:21:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20260828123043-5165.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20260828123043-5165.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "5963103436379d25",
+    "title": "OGC Nice : Cyril Hanouna a tenté une approche pour un rachat de l'OGC Nice",
+    "summary": "L'hiver dernier, Cyril Hanouna, l'animateur français, a tenté de jouer les intermédiaires entre des investisseurs américains et Ineos, qui souhaite toujours vendre l'OGC Nice.",
+    "summary_short": "L'hiver dernier, Cyril Hanouna, l'animateur français, a tenté de jouer les intermédiaires entre des investisseurs américains et Ineos, qui souhaite toujours vendre l'OGC Nice.",
+    "content": "L'hiver dernier, Cyril Hanouna, l'animateur français, a tenté de jouer les intermédiaires entre des investisseurs américains et Ineos, qui souhaite toujours vendre l'OGC Nice.",
+    "paragraphs": [
+      "L'hiver dernier, Cyril Hanouna, l'animateur français, a tenté de jouer les intermédiaires entre des investisseurs américains et Ineos, qui souhaite toujours vendre l'OGC Nice."
+    ],
+    "key_points": [
+      "L'hiver dernier, Cyril Hanouna, l'animateur français, a tenté de jouer les intermédiaires entre des investisseurs américains et Ineos, qui souhaite toujours vendre l'OGC Nice."
+    ],
+    "telegram_summary": "L'hiver dernier, Cyril Hanouna, l'animateur français, a tenté de jouer les intermédiaires entre des investisseurs américains et Ineos, qui souhaite toujours vendre l'OGC Nice.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ogc-nice-cyril-hanouna-a-tente-une-approche-pour-un-rachat-de-l-ogc-nice-547115.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ogc-nice-cyril-hanouna-a-tente-une-approche-pour-un-rachat-de-l-ogc-nice-547115.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5963103436379d25",
+    "published": "2026-11-26T15:20:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240306113006-6813.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240306113006-6813.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "08891896d5730936",
@@ -2137,7 +1811,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-26T15:10:46.098268+00:00"
+      "checked_at": "2026-11-26T15:40:08.730892+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2201,12 +1875,380 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T15:10:46.098268+00:00"
+      "checked_at": "2026-11-26T15:40:08.730892+00:00"
     },
     "quality_sources": [
       "So Foot",
       "ESPN"
     ],
     "quality_score": 86
+  },
+  {
+    "slug": "00eac1d8f5ef3224",
+    "title": "The American manager with a maths degree making history in La Liga",
+    "summary": "Real Sociedad boss Pellegrino Matarazzo made history as the first American manager in La Liga. His side face Crystal Palace in the Europa League on Thursday.",
+    "summary_short": "Real Sociedad boss Pellegrino Matarazzo made history as the first American manager in La Liga. His side face Crystal Palace in the Europa League on Thursday.",
+    "content": "Real Sociedad boss Pellegrino Matarazzo made history as the first American manager in La Liga. His side face Crystal Palace in the Europa League on Thursday.",
+    "paragraphs": [
+      "Real Sociedad boss Pellegrino Matarazzo made history as the first American manager in La Liga. His side face Crystal Palace in the Europa League on Thursday."
+    ],
+    "key_points": [
+      "Real Sociedad boss Pellegrino Matarazzo made history as the first American manager in La Liga.",
+      "His side face Crystal Palace in the Europa League on Thursday."
+    ],
+    "telegram_summary": "Real Sociedad boss Pellegrino Matarazzo made history as the first American manager in La Liga. His side face Crystal Palace in the Europa League on Thursday.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/c6r7g4v8vee5o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/c6r7g4v8vee5o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=00eac1d8f5ef3224",
+    "published": "2026-11-26T13:49:20+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/39c4/live/370bcdd0-e997-11f1-b880-15b494ba858d.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/39c4/live/370bcdd0-e997-11f1-b880-15b494ba858d.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "f28eb6c5ccba4b60",
+    "title": "Coupe Gambardella : Le tirage au sort du premier tour fédéral est connu !",
+    "summary": "Les tirages au sort du premier tour fédéral de la Coupe Gambardella qui se sont déroulés ce jeudi 26 novembre au siège de la FFF.",
+    "summary_short": "Les tirages au sort du premier tour fédéral de la Coupe Gambardella qui se sont déroulés ce jeudi 26 novembre au siège de la FFF.",
+    "content": "Les tirages au sort du premier tour fédéral de la Coupe Gambardella qui se sont déroulés ce jeudi 26 novembre au siège de la FFF.",
+    "paragraphs": [
+      "Les tirages au sort du premier tour fédéral de la Coupe Gambardella qui se sont déroulés ce jeudi 26 novembre au siège de la FFF."
+    ],
+    "key_points": [
+      "Les tirages au sort du premier tour fédéral de la Coupe Gambardella qui se sont déroulés ce jeudi 26 novembre au siège de la FFF."
+    ],
+    "telegram_summary": "Les tirages au sort du premier tour fédéral de la Coupe Gambardella qui se sont déroulés ce jeudi 26 novembre au siège de la FFF.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-coupe-gambardella-le-tirage-au-sort-du-premier-tour-federal-est-connu-547097.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-coupe-gambardella-le-tirage-au-sort-du-premier-tour-federal-est-connu-547097.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f28eb6c5ccba4b60",
+    "published": "2026-11-26T13:37:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240118140525-6998.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240118140525-6998.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "b654b6dcc7ce996e",
+    "title": "Barcelone : Anthony Gordon a la fâcheuse tendance à marquer à Bakou",
+    "summary": "Bakou dans les bacs. Contre le club azerbaïdjanais de Sabah ce mercredi en début de soirée, Barcelone…",
+    "summary_short": "Bakou dans les bacs. Contre le club azerbaïdjanais de Sabah ce mercredi en début de soirée, Barcelone…",
+    "content": "Bakou dans les bacs. Contre le club azerbaïdjanais de Sabah ce mercredi en début de soirée, Barcelone…",
+    "paragraphs": [
+      "Bakou dans les bacs. Contre le club azerbaïdjanais de Sabah ce mercredi en début de soirée, Barcelone…"
+    ],
+    "key_points": [
+      "Contre le club azerbaïdjanais de Sabah ce mercredi en début de soirée, Barcelone…"
+    ],
+    "telegram_summary": "Bakou dans les bacs. Contre le club azerbaïdjanais de Sabah ce mercredi en début de soirée, Barcelone…",
+    "link": "https://www.sofoot.com/breves/barcelone-anthony-gordon-a-la-facheuse-tendance-a-marquer-a-bakou",
+    "source_url": "https://www.sofoot.com/breves/barcelone-anthony-gordon-a-la-facheuse-tendance-a-marquer-a-bakou",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b654b6dcc7ce996e",
+    "published": "2026-11-26T13:29:39+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26145630/15412292.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26145630/15412292.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "089bd1ee4b453210",
+    "title": "Ex-OM : \"Qu’une petite frayeur\", victime d’un accident de voiture, Aubameyang donne de ses nouvelles",
+    "summary": "Pierre-Emerick Aubameyang a été victime d'un accident de la route en se rendant à l'entraînement, mais visiblement, le Gabonais a évité le pire.",
+    "summary_short": "Pierre-Emerick Aubameyang a été victime d'un accident de la route en se rendant à l'entraînement, mais visiblement, le Gabonais a évité le pire.",
+    "content": "Pierre-Emerick Aubameyang a été victime d'un accident de la route en se rendant à l'entraînement, mais visiblement, le Gabonais a évité le pire.",
+    "paragraphs": [
+      "Pierre-Emerick Aubameyang a été victime d'un accident de la route en se rendant à l'entraînement, mais visiblement, le Gabonais a évité le pire."
+    ],
+    "key_points": [
+      "Pierre-Emerick Aubameyang a été victime d'un accident de la route en se rendant à l'entraînement, mais visiblement, le Gabonais a évité le pire."
+    ],
+    "telegram_summary": "Pierre-Emerick Aubameyang a été victime d'un accident de la route en se rendant à l'entraînement, mais visiblement, le Gabonais a évité le pire.",
+    "link": "https://www.onzemondial.com/liga/ex-om-quune-petite-frayeur-victime-dun-accident-de-voiture-aubameyang-donne-de-ses-nouvelles-1011468",
+    "source_url": "https://www.onzemondial.com/liga/ex-om-quune-petite-frayeur-victime-dun-accident-de-voiture-aubameyang-donne-de-ses-nouvelles-1011468",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=089bd1ee4b453210",
+    "published": "2026-11-26T13:26:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011468/411659/1200-L-ex-om-quune-petite-frayeur-victime-dun-accident-de-voiture-aubameyang-donne-de-ses-nouvelles.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011468/411659/1200-L-ex-om-quune-petite-frayeur-victime-dun-accident-de-voiture-aubameyang-donne-de-ses-nouvelles.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "bb18e490f0690c6d",
+    "title": "Mercato PSG : Le PSG a tenté de faire venir Robin Risser l'été dernier",
+    "summary": "Après la décision de Zion Suzuki de rejoindre Aston Villa, Paris a pris quarante-huit heures pour évaluer ses options sur le marché des transferts l'été dernier.",
+    "summary_short": "Après la décision de Zion Suzuki de rejoindre Aston Villa, Paris a pris quarante-huit heures pour évaluer ses options sur le marché des transferts l'été dernier.",
+    "content": "Après la décision de Zion Suzuki de rejoindre Aston Villa, Paris a pris quarante-huit heures pour évaluer ses options sur le marché des transferts l'été dernier.",
+    "paragraphs": [
+      "Après la décision de Zion Suzuki de rejoindre Aston Villa, Paris a pris quarante-huit heures pour évaluer ses options sur le marché des transferts l'été dernier."
+    ],
+    "key_points": [
+      "Après la décision de Zion Suzuki de rejoindre Aston Villa, Paris a pris quarante-huit heures pour évaluer ses options sur le marché des transferts l'été dernier."
+    ],
+    "telegram_summary": "Après la décision de Zion Suzuki de rejoindre Aston Villa, Paris a pris quarante-huit heures pour évaluer ses options sur le marché des transferts l'été dernier.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-le-psg-a-tente-de-faire-venir-robin-risser-l-ete-dernier-547095.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-le-psg-a-tente-de-faire-venir-robin-risser-l-ete-dernier-547095.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bb18e490f0690c6d",
+    "published": "2026-11-26T13:25:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260221184542-6135.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260221184542-6135.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "28d062658de893fa",
+    "title": "Not even making a 12-man bench - what next for Garnacho?",
+    "summary": "Alejandro Garnacho's brief Aston Villa career already looks over, so what next for the 22-year-old?",
+    "summary_short": "Alejandro Garnacho's brief Aston Villa career already looks over, so what next for the 22-year-old?",
+    "content": "Alejandro Garnacho's brief Aston Villa career already looks over, so what next for the 22-year-old?",
+    "paragraphs": [
+      "Alejandro Garnacho's brief Aston Villa career already looks over, so what next for the 22-year-old?"
+    ],
+    "key_points": [
+      "Alejandro Garnacho's brief Aston Villa career already looks over, so what next for the 22-year-old?"
+    ],
+    "telegram_summary": "Alejandro Garnacho's brief Aston Villa career already looks over, so what next for the 22-year-old?",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cr3wgd5exl0do?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cr3wgd5exl0do?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=28d062658de893fa",
+    "published": "2026-11-26T13:23:05+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/a084/live/87c18b60-e8bc-11f1-9e64-bddd508b9881.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/a084/live/87c18b60-e8bc-11f1-9e64-bddd508b9881.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "db3315779eb669c7",
+    "title": "Le Real Madrid commence à avoir un petit problème avec son trio Mbappé-Vinicius-Bellingham",
+    "summary": "Les augmentations de salaire déjà signées et celles à venir commencent à faire exploser la masse salariale du club de la capitale espagnole…Tout semble aller pour le mieux du côté de Madrid en ce (…)",
+    "summary_short": "Les augmentations de salaire déjà signées et celles à venir commencent à faire exploser la masse salariale du club de la capitale espagnole…Tout semble aller pour le mieux du côté de Madrid en ce (…)",
+    "content": "Les augmentations de salaire déjà signées et celles à venir commencent à faire exploser la masse salariale du club de la capitale espagnole…Tout semble aller pour le mieux du côté de Madrid en ce (…)",
+    "paragraphs": [
+      "Les augmentations de salaire déjà signées et celles à venir commencent à faire exploser la masse salariale du club de la capitale espagnole…Tout semble aller pour le mieux du côté de Madrid en ce (…)"
+    ],
+    "key_points": [
+      "Les augmentations de salaire déjà signées et celles à venir commencent à faire exploser la masse salariale du club de la capitale espagnole…Tout semble aller pour le mieux du côté de Madrid en ce (…)"
+    ],
+    "telegram_summary": "Les augmentations de salaire déjà signées et celles à venir commencent à faire exploser la masse salariale du club de la capitale espagnole…Tout semble aller pour le mieux du côté de Madrid en ce (…)",
+    "link": "https://www.footmercato.net/a7464014303610372657-le-real-madrid-commence-a-avoir-un-petit-probleme-avec-son-trio-mbappe-vinicius-bellingham",
+    "source_url": "https://www.footmercato.net/a7464014303610372657-le-real-madrid-commence-a-avoir-un-petit-probleme-avec-son-trio-mbappe-vinicius-bellingham",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=db3315779eb669c7",
+    "published": "2026-11-26T13:15:26+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/realmadridmbappe.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/realmadridmbappe.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50554950",
+      "url": "https://www.espn.com/video/clip/_/id/50554950/bellingham-espi-rescue-real-madrid-mbappe-missed-penalty",
+      "published": "2026-11-21T22:42:56Z",
+      "score": 0.286,
+      "matched_terms": [
+        "bellingham",
+        "madrid",
+        "mbappe",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Celta Vigo",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-26T15:40:08.730892+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "de384409cbfd9e57",
+    "title": "Barça : \"Ce garçon est différent\", l’adoubement royal de Guardiola pour Lamine Yamal",
+    "summary": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "summary_short": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "content": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "paragraphs": [
+      "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar."
+    ],
+    "key_points": [
+      "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar."
+    ],
+    "telegram_summary": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "link": "https://www.onzemondial.com/liga/barca-ce-garcon-est-different-ladoubement-royal-de-guardiola-pour-lamine-yamal-1011436",
+    "source_url": "https://www.onzemondial.com/liga/barca-ce-garcon-est-different-ladoubement-royal-de-guardiola-pour-lamine-yamal-1011436",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=de384409cbfd9e57",
+    "published": "2026-11-26T13:00:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011436/411650/1200-L-bara-ce-garon-est-diffrent-ladoubement-royal-de-guardiola-pour-lamine-yamal.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011436/411650/1200-L-bara-ce-garon-est-diffrent-ladoubement-royal-de-guardiola-pour-lamine-yamal.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "d34d7897a43bba04",
+    "title": "Naples : Un jeu vidéo crée à l’effigie de Max Allegri",
+    "summary": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "summary_short": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "content": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "paragraphs": [
+      "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…"
+    ],
+    "key_points": [
+      "Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…"
+    ],
+    "telegram_summary": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "link": "https://www.sofoot.com/breves/naples-un-jeu-video-cree-a-leffigie-de-max-allegri",
+    "source_url": "https://www.sofoot.com/breves/naples-un-jeu-video-cree-a-leffigie-de-max-allegri",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d34d7897a43bba04",
+    "published": "2026-11-26T12:55:25+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26135303/15398367.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26135303/15398367.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "59076b89442697d9",
+    "title": "Ligue des Champions : l’équipe type de la 5e journée",
+    "summary": "La cinquième journée de la Ligue des Champions a rendu son verdict. Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)",
+    "summary_short": "La cinquième journée de la Ligue des Champions a rendu son verdict. Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)",
+    "content": "La cinquième journée de la Ligue des Champions a rendu son verdict. Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)",
+    "paragraphs": [
+      "La cinquième journée de la Ligue des Champions a rendu son verdict. Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)"
+    ],
+    "key_points": [
+      "La cinquième journée de la Ligue des Champions a rendu son verdict.",
+      "Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)"
+    ],
+    "telegram_summary": "La cinquième journée de la Ligue des Champions a rendu son verdict. Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)",
+    "link": "https://www.footmercato.net/a1610405055507255496-ligue-des-champions-lequipe-type-de-la-5e-journee",
+    "source_url": "https://www.footmercato.net/a1610405055507255496-ligue-des-champions-lequipe-type-de-la-5e-journee",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=59076b89442697d9",
+    "published": "2026-11-26T12:36:08+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ldc-6b081a065a3c1.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ldc-6b081a065a3c1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   }
 ]
