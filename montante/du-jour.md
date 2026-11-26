@@ -1,11 +1,10 @@
-# Montante BSD V2 — 2026-11-25 (UTC)
+# Montante BSD V2 — 2026-11-26 (UTC)
 
-**Sporting CP – Manchester United** (UEFA Youth League)
+**Aucun pari retenu.** Les critères de qualité et de cotes réelles sont prioritaires.
 
-- Début : 2026-11-25T20:00:00+00:00
-- Sélection : **1X** (`1X`)
-- Cote observée : **1.44** (bsd_consensus)
-- Probabilité conservatrice du modèle : 87.6 %
-- Écart sur probabilité implicite : 18.2 points
+## Audit NVIDIA NIM
 
-**Vérifier la même sélection et sa cote chez le bookmaker avant de parier.** Une cote consensus n'est pas une offre garantie; aucun pari n'a été passé. Une perte reste possible.
+- Modèle : `nvidia/nemotron-3-ultra-550b-a55b`
+- État : `not_called_no_baseline_pick`
+- Candidats examinés : 0
+- L'IA ne fournit aucune probabilité garantie ni cote bookmaker.
