@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/cineradar-quota-maintenance-recovery-deploy.yml'
+      - 'cinecanaux/quota-maintenance.mjs'
+      - 'cinecanaux/tests/quota-maintenance.test.mjs'
 
 permissions:
   contents: read
