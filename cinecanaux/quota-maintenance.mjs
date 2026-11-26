@@ -54,7 +54,7 @@ export function maintenanceResponse(request,{now=new Date(),mode="quota"}={}){
   "x-content-type-options":"nosniff",
   "x-cineradar-maintenance":"active"
  };
- if(url.pathname==="/health")headers["access-control-allow-origin"]="https://mrxpronos.github.io";
+ if(url.pathname==="/health"||url.pathname==="/health/ready")headers["access-control-allow-origin"]="https://mrxpronos.github.io";
  if(api){
   return Response.json({
    ok:false,maintenance:true,code:"SERVICE_MAINTENANCE",
