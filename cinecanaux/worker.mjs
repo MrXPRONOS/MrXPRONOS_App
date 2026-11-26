@@ -493,6 +493,15 @@ export default {
     headers:{"cache-control":"no-store","x-content-type-options":"nosniff"}
    });
   }
+  if(request.method==="GET"&&u.pathname==="/health/ready"){
+   // Validate the same critical catalogue query as /app to prevent
+   // automatic reopen loops after only shallow D1 health checks pass.
+   const catalogue=await getCatalog(env,{limit:1});
+   if(!Array.isArray(catalogue.channels))throw Error("catalogue_unavailable");
+   return Response.json({service:"cine-radar",database:true,ready:true},{
+    headers:{"cache-control":"no-store","access-control-allow-origin":"https://mrxpronos.github.io"}
+   });
+  }
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
