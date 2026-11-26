@@ -86,6 +86,7 @@ h1{font-size:clamp(27px,6.5vw,38px);line-height:1.18;letter-spacing:-.04em;margi
 .schedule{padding:20px 16px;border:1px solid #ffffff21;border-radius:18px;background:#ffffff08}
 .overline{color:#c0cbe0;font-size:12px;font-weight:750;letter-spacing:.11em;text-transform:uppercase}
 .time{font-size:clamp(37px,10vw,53px);font-weight:850;line-height:1.2;letter-spacing:-.04em;color:#fff}
+.time-generic{font-size:clamp(24px,6.5vw,36px);letter-spacing:-.025em}
 small{display:block;color:#a6b9d6}
 #recovery-status{min-height:44px;margin:20px 0 8px;color:#d4ddf1;font-size:14px}
 .loader{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:#7fc6ff;box-shadow:0 0 0 4px #7fc6ff1a;animation:pulse 1.7s ease-in-out infinite}
@@ -130,7 +131,7 @@ button:hover{filter:brightness(1.07)}button:focus-visible{outline:3px solid #7fc
 </main></body></html>`.replace("__DATE__",date).replace("__REOPENING__",details.reopening_at||now.toISOString());
  const page=details.reopening_at?html:html.replace(
   '<div class="schedule"><div class="overline">Retour prévu à</div><div class="time">00h05</div><small> · Heure du Togo · sous réserve de disponibilité</small></div>',
-  '<div class="schedule"><div class="overline">Retour du service</div><div class="time">Dès que possible</div><small>Vérification automatique de la disponibilité</small></div>'
+  '<div class="schedule"><div class="overline">Retour du service</div><div class="time time-generic">Dès que possible</div><small>Vérification automatique de la disponibilité</small></div>'
  );
  return new Response(page,{status:503,headers:{
   ...headers,"content-type":"text/html; charset=utf-8",
