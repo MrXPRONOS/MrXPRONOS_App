@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T02:26:31+00:00",
+    "published": "2026-11-26T02:37:55+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -122,7 +122,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -322,7 +322,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -485,7 +485,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1555,6 +1555,76 @@
     "quality_score": 90
   },
   {
+    "slug": "53570e6361e7a325",
+    "title": "AS Rome : Gasperini fou de joie après le nul face au PSG",
+    "summary": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
+    "summary_short": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
+    "content": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
+    "paragraphs": [
+      "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)"
+    ],
+    "key_points": [
+      "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions.",
+      "L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)"
+    ],
+    "telegram_summary": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
+    "link": "https://www.footmercato.net/a1008754646429890995-as-rome-gasperini-fou-de-joie-apres-le-nul-face-au-psg",
+    "source_url": "https://www.footmercato.net/a1008754646429890995-as-rome-gasperini-fou-de-joie-apres-le-nul-face-au-psg",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=53570e6361e7a325",
+    "published": "2026-11-26T01:59:00+00:00",
+    "image": "https://www.footmercato.net/build/images/cover-fr.97524046.jpg",
+    "source_image": "https://www.footmercato.net/build/images/cover-fr.97524046.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "1cc3727d9af75938",
+    "title": "PSG : Dembélé égale Neymar dans un classement",
+    "summary": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
+    "summary_short": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
+    "content": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
+    "paragraphs": [
+      "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)"
+    ],
+    "key_points": [
+      "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG.",
+      "Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)"
+    ],
+    "telegram_summary": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
+    "link": "https://www.footmercato.net/a1602255283944485351-psg-dembele-egale-neymar-dans-un-classement",
+    "source_url": "https://www.footmercato.net/a1602255283944485351-psg-dembele-egale-neymar-dans-un-classement",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1cc3727d9af75938",
+    "published": "2026-11-26T01:36:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dembele-6a9bd1d2e1b87.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dembele-6a9bd1d2e1b87.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "5509f30b04574901",
     "title": "PSG : Marquinhos a salué les supporters romains dans le parcage",
     "summary": "Marquinhos n’a pas oublié ses anciennes couleurs. Au coup de sifflet final de PSG-AS Roma (2-2), le capitaine parisien s’est dirigé vers le parcage visiteurs pour aller saluer les supporters de la (…)",
@@ -1642,7 +1712,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1703,7 +1773,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1795,7 +1865,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2065,7 +2135,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2160,7 +2230,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T02:26:48.146400+00:00"
+      "checked_at": "2026-11-26T02:40:07.664765+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2235,74 +2305,5 @@
       "BBC Sport"
     ],
     "quality_score": 85
-  },
-  {
-    "slug": "fc55d29884ec890a",
-    "title": "Ligue des champions : L’Atlético et l’Inter se donnent de l’air",
-    "summary": "Il y a aussi des cadors en galère. La phase de ligue de l’Atlético de Madrid laissait à désirer après des…",
-    "summary_short": "Il y a aussi des cadors en galère. La phase de ligue de l’Atlético de Madrid laissait à désirer après des…",
-    "content": "Il y a aussi des cadors en galère. La phase de ligue de l’Atlético de Madrid laissait à désirer après des…",
-    "paragraphs": [
-      "Il y a aussi des cadors en galère. La phase de ligue de l’Atlético de Madrid laissait à désirer après des…"
-    ],
-    "key_points": [
-      "La phase de ligue de l’Atlético de Madrid laissait à désirer après des…"
-    ],
-    "telegram_summary": "Il y a aussi des cadors en galère. La phase de ligue de l’Atlético de Madrid laissait à désirer après des…",
-    "link": "https://www.sofoot.com/breves/latletico-et-linter-se-donnent-de-lair",
-    "source_url": "https://www.sofoot.com/breves/latletico-et-linter-se-donnent-de-lair",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fc55d29884ec890a",
-    "published": "2026-11-25T23:09:56+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25234913/15406449.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25234913/15406449.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "88455ecdc259199d",
-    "title": "PSG : les mots forts de Manu Koné après le nul de la Roma",
-    "summary": "En tenant tête au Paris Saint-Germain (2-2) au Parc des Princes, l’AS Roma a réalisé une belle opération en Ligue des Champions. Après la rencontre, Manu Koné n’a d’ailleurs pas caché son admiration (…)",
-    "summary_short": "En tenant tête au Paris Saint-Germain (2-2) au Parc des Princes, l’AS Roma a réalisé une belle opération en Ligue des Champions. Après la rencontre, Manu Koné n’a d’ailleurs pas caché son admiration (…)",
-    "content": "En tenant tête au Paris Saint-Germain (2-2) au Parc des Princes, l’AS Roma a réalisé une belle opération en Ligue des Champions. Après la rencontre, Manu Koné n’a d’ailleurs pas caché son admiration (…)",
-    "paragraphs": [
-      "En tenant tête au Paris Saint-Germain (2-2) au Parc des Princes, l’AS Roma a réalisé une belle opération en Ligue des Champions. Après la rencontre, Manu Koné n’a d’ailleurs pas caché son admiration (…)"
-    ],
-    "key_points": [
-      "En tenant tête au Paris Saint-Germain (2-2) au Parc des Princes, l’AS Roma a réalisé une belle opération en Ligue des Champions.",
-      "Après la rencontre, Manu Koné n’a d’ailleurs pas caché son admiration (…)"
-    ],
-    "telegram_summary": "En tenant tête au Paris Saint-Germain (2-2) au Parc des Princes, l’AS Roma a réalisé une belle opération en Ligue des Champions. Après la rencontre, Manu Koné n’a d’ailleurs pas caché son admiration (…)",
-    "link": "https://www.footmercato.net/a1561592362890665381-psg-les-mots-forts-de-manu-kone-apres-le-nul-de-la-roma",
-    "source_url": "https://www.footmercato.net/a1561592362890665381-psg-les-mots-forts-de-manu-kone-apres-le-nul-de-la-roma",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=88455ecdc259199d",
-    "published": "2026-11-25T23:09:51+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mm-6ab30c7f1f7ef.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mm-6ab30c7f1f7ef.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   }
 ]
