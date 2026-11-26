@@ -54,7 +54,7 @@ button:focus-visible{outline:3px solid #7fc6ff;outline-offset:4px}
 (function(){
  "use strict";
  const MAIN="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
- const health=MAIN+"/health";
+ const health=MAIN+"/health/ready";
  const status=document.getElementById("status");
  const button=document.getElementById("retry");
  let checking=false;
@@ -71,7 +71,7 @@ button:focus-visible{outline:3px solid #7fc6ff;outline-offset:4px}
    }finally{clearTimeout(timer);}
    if(response.ok){
     const body=await response.json();
-    if(body.service==="cine-radar"&&body.database===true){
+    if(body.service==="cine-radar"&&body.database===true&&body.ready===true){
      status.textContent="CinéRadar est de retour. Ouverture automatique…";
      window.location.replace(MAIN+"/app");
      return;
