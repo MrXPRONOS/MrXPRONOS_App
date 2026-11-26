@@ -24,6 +24,7 @@ h1{font-size:clamp(27px,6.5vw,38px);line-height:1.18;letter-spacing:-.04em;margi
 .schedule{padding:20px 16px;border:1px solid #ffffff21;border-radius:18px;background:#ffffff08}
 .overline{color:#c0cbe0;font-size:12px;font-weight:750;letter-spacing:.11em;text-transform:uppercase}
 .time{font-size:clamp(37px,10vw,53px);font-weight:850;line-height:1.2;letter-spacing:-.04em;color:#fff}
+.time-generic{font-size:clamp(24px,6.5vw,36px);letter-spacing:-.025em}
 small{display:block;color:#a6b9d6}
 #status{min-height:44px;margin:20px 0 8px;color:#d4ddf1;font-size:14px}
 .loader{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:#7fc6ff;box-shadow:0 0 0 4px #7fc6ff1a;animation:pulse 1.7s ease-in-out infinite}
@@ -44,7 +45,7 @@ button:focus-visible{outline:3px solid #7fc6ff;outline-offset:4px}
  <div class="pill">Maintenance en cours</div>
  <h1>CinéRadar est en maintenance</h1>
  <p class="lead">Nous revenons très bientôt. Merci de votre patience et de votre confiance.</p>
- <div class="schedule"><div class="overline">Retour du service</div><div class="time">Dès que possible</div><small>Vérification automatique de la disponibilité</small></div>
+ <div class="schedule"><div class="overline">Retour du service</div><div class="time time-generic">Dès que possible</div><small>Vérification automatique de la disponibilité</small></div>
  <p id="status" role="status" aria-live="polite"><span class="loader" aria-hidden="true"></span>Vérification automatique de la disponibilité…</p>
  <button id="retry" type="button">↻ Vérifier maintenant</button>
  <p class="note">Cette page vous redirigera vers CinéRadar dès son retour.</p>
