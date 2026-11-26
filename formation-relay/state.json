@@ -1,5 +1,13 @@
 {
-  "active": null,
+  "active": {
+    "cat": "mindset",
+    "cid": "39d4567d8348350dd5727a45e2d901449751658aa77835f769de36ec07280025",
+    "marks": [
+      "e158810c2e4541d4b2bdeccca16e0a9e2125301044679c29c41aab291a41549e"
+    ],
+    "next": 0,
+    "pending": null
+  },
   "cooldown": 1795641588,
   "done": {
     "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
