@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T12:36:11+00:00",
+    "published": "2026-11-26T13:03:21+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -32,6 +32,66 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "5dd868f61c83cf9f",
+    "title": "Manchester United : Mauricio Pochettino s’en prend encore à l’arbitrage",
+    "summary": "Les débuts de Mauricio Pochettino sur le banc de Manchester United sont décidément mouvementés. Trois jours après avoir dénoncé l’expulsion de Leny Yoro lors de la lourde défaite face à Liverpool (…)",
+    "summary_short": "Les débuts de Mauricio Pochettino sur le banc de Manchester United sont décidément mouvementés. Trois jours après avoir dénoncé l’expulsion de Leny Yoro lors de la lourde défaite face à Liverpool (…)",
+    "content": "Les débuts de Mauricio Pochettino sur le banc de Manchester United sont décidément mouvementés. Trois jours après avoir dénoncé l’expulsion de Leny Yoro lors de la lourde défaite face à Liverpool (…)",
+    "paragraphs": [
+      "Les débuts de Mauricio Pochettino sur le banc de Manchester United sont décidément mouvementés. Trois jours après avoir dénoncé l’expulsion de Leny Yoro lors de la lourde défaite face à Liverpool (…)"
+    ],
+    "key_points": [
+      "Les débuts de Mauricio Pochettino sur le banc de Manchester United sont décidément mouvementés.",
+      "Trois jours après avoir dénoncé l’expulsion de Leny Yoro lors de la lourde défaite face à Liverpool (…)"
+    ],
+    "telegram_summary": "Les débuts de Mauricio Pochettino sur le banc de Manchester United sont décidément mouvementés. Trois jours après avoir dénoncé l’expulsion de Leny Yoro lors de la lourde défaite face à Liverpool (…)",
+    "link": "https://www.footmercato.net/a8941091000706585634-man-united-mauricio-pochettino-sen-prend-encore-a-larbitrage",
+    "source_url": "https://www.footmercato.net/a8941091000706585634-man-united-mauricio-pochettino-sen-prend-encore-a-larbitrage",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5dd868f61c83cf9f",
+    "published": "2026-11-26T12:50:17+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mauricio-pochettino-2627-p.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mauricio-pochettino-2627-p.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50591416",
+      "url": "https://www.espn.com/video/clip/_/id/50591416/manchester-united-situation-fragile-not-team",
+      "published": "2026-11-25T09:47:58Z",
+      "score": 0.333,
+      "matched_terms": [
+        "manchester",
+        "pochettino",
+        "united"
+      ],
+      "topics": [],
+      "teams": [
+        "Manchester United"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-26T13:10:08.582859+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
   },
   {
     "slug": "06680780dc868f84",
@@ -317,40 +377,6 @@
     "quality_score": 92
   },
   {
-    "slug": "346009a96beb164f",
-    "title": "Mercato OM : Højbjerg, la position du club",
-    "summary": "Malgré de nombreuses rumeurs concernant un éventuel départ en janvier, le milieu de terrain Pierre-Emile Højbjerg (31 ans......",
-    "summary_short": "Malgré de nombreuses rumeurs concernant un éventuel départ en janvier, le milieu de terrain Pierre-Emile Højbjerg (31 ans......",
-    "content": "Malgré de nombreuses rumeurs concernant un éventuel départ en janvier, le milieu de terrain Pierre-Emile Højbjerg (31 ans......",
-    "paragraphs": [
-      "Malgré de nombreuses rumeurs concernant un éventuel départ en janvier, le milieu de terrain Pierre-Emile Højbjerg (31 ans......"
-    ],
-    "key_points": [
-      "Malgré de nombreuses rumeurs concernant un éventuel départ en janvier, le milieu de terrain Pierre-Emile Højbjerg (31 ans......"
-    ],
-    "telegram_summary": "Malgré de nombreuses rumeurs concernant un éventuel départ en janvier, le milieu de terrain Pierre-Emile Højbjerg (31 ans......",
-    "link": "https://www.maxifoot.fr/om/hojbjerg-la-position-du-club-foot-468410.htm",
-    "source_url": "https://www.maxifoot.fr/om/hojbjerg-la-position-du-club-foot-468410.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=346009a96beb164f",
-    "published": "2026-11-26T09:55:48+00:00",
-    "image": "https://news.maxifoot.fr/amp/468410.webp",
-    "source_image": "https://news.maxifoot.fr/amp/468410.webp",
-    "image_origin": "generated_fallback",
-    "image_layout": "general-banner",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
-  },
-  {
     "slug": "39fd1a5a5200e237",
     "title": "La presse émerveillée par l’exploit de Lille, l’Espagne se frotte les mains face au match du PSG",
     "summary": "Le LOSC fait tomber le Bayern, le match nul du PSG enchante l’Espagne, Manchester United poursuit sa série sans victoire, retrouvez dans votre revue de presse Foot Mercato les dernières informations (…)",
@@ -564,40 +590,6 @@
     "quality_score": 88
   },
   {
-    "slug": "179fb28f894490d3",
-    "title": "Indice UEFA : le PSG bloque mais Lille donne espoir à la France !",
-    "summary": "La victoire inespérée de Lille face au Bayern Munich vient équilibrer le match nul frustrant du PSG face à l'AS Roma à l'indice UEFA.",
-    "summary_short": "La victoire inespérée de Lille face au Bayern Munich vient équilibrer le match nul frustrant du PSG face à l'AS Roma à l'indice UEFA.",
-    "content": "La victoire inespérée de Lille face au Bayern Munich vient équilibrer le match nul frustrant du PSG face à l'AS Roma à l'indice UEFA.",
-    "paragraphs": [
-      "La victoire inespérée de Lille face au Bayern Munich vient équilibrer le match nul frustrant du PSG face à l'AS Roma à l'indice UEFA."
-    ],
-    "key_points": [
-      "La victoire inespérée de Lille face au Bayern Munich vient équilibrer le match nul frustrant du PSG face à l'AS Roma à l'indice UEFA."
-    ],
-    "telegram_summary": "La victoire inespérée de Lille face au Bayern Munich vient équilibrer le match nul frustrant du PSG face à l'AS Roma à l'indice UEFA.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/indice-uefa-le-psg-bloque-mais-lille-donne-espoir-a-la-france-1011389",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/indice-uefa-le-psg-bloque-mais-lille-donne-espoir-a-la-france-1011389",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=179fb28f894490d3",
-    "published": "2026-11-26T06:55:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011389/411638/1200-L-indice-uefa-le-psg-bloque-mais-lille-donne-espoir-la-france.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011389/411638/1200-L-indice-uefa-le-psg-bloque-mais-lille-donne-espoir-la-france.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
     "slug": "80aec305b9e89042",
     "title": "How Isak and Wirtz are becoming Liverpool's 'big-game players'",
     "summary": "Match of the Day's Stephen Warnock and Nedum Onuoha analyse the recent resurgence of Alexander Isak and Florian Wirtz for as they led Liverpool to victory against Club Brugge.debut seasons last year.",
@@ -651,7 +643,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T12:40:04.127674+00:00"
+      "checked_at": "2026-11-26T13:10:08.582859+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1617,6 +1609,74 @@
     "quality_score": 90
   },
   {
+    "slug": "de384409cbfd9e57",
+    "title": "Barça : \"Ce garçon est différent\", l’adoubement royal de Guardiola pour Lamine Yamal",
+    "summary": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "summary_short": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "content": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "paragraphs": [
+      "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar."
+    ],
+    "key_points": [
+      "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar."
+    ],
+    "telegram_summary": "Pep Guardiola s'est montré particulièrement flatteur à l'égard de Lamine Yamal au moment d'évoquer le Barça en revenant aussi sur Messi et son gros regret avec Neymar.",
+    "link": "https://www.onzemondial.com/liga/barca-ce-garcon-est-different-ladoubement-royal-de-guardiola-pour-lamine-yamal-1011436",
+    "source_url": "https://www.onzemondial.com/liga/barca-ce-garcon-est-different-ladoubement-royal-de-guardiola-pour-lamine-yamal-1011436",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=de384409cbfd9e57",
+    "published": "2026-11-26T13:00:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011436/411650/1200-L-bara-ce-garon-est-diffrent-ladoubement-royal-de-guardiola-pour-lamine-yamal.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011436/411650/1200-L-bara-ce-garon-est-diffrent-ladoubement-royal-de-guardiola-pour-lamine-yamal.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "d34d7897a43bba04",
+    "title": "Naples : Un jeu vidéo crée à l’effigie de Max Allegri",
+    "summary": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "summary_short": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "content": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "paragraphs": [
+      "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…"
+    ],
+    "key_points": [
+      "Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…"
+    ],
+    "telegram_summary": "Nos supporters ont du talent. Huitièmes de Serie A à 14 points du leader Lazio, les tifosi de Naples pourraient…",
+    "link": "https://www.sofoot.com/breves/naples-un-jeu-video-cree-a-leffigie-de-max-allegri",
+    "source_url": "https://www.sofoot.com/breves/naples-un-jeu-video-cree-a-leffigie-de-max-allegri",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d34d7897a43bba04",
+    "published": "2026-11-26T12:55:25+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26135303/15398367.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26135303/15398367.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "59076b89442697d9",
     "title": "Ligue des Champions : l’équipe type de la 5e journée",
     "summary": "La cinquième journée de la Ligue des Champions a rendu son verdict. Et voici notre équipe type de cette semaine.Cette semaine, il n’y a pas eu de scores complètement dingues lors de cette cinquième (…)",
@@ -1650,6 +1710,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "1f0ae1903b5579fe",
+    "title": "PSG-AS Roma : 109 ballons perdus, une attaque brouillonne, les chiffres inquiétants des Parisiens",
+    "summary": "Étouffé par le pressing agressif de l'AS Roma, le PSG a multiplié les erreurs techniques et perdu pas moins de 109 ballons avec son onze titulaire.",
+    "summary_short": "Étouffé par le pressing agressif de l'AS Roma, le PSG a multiplié les erreurs techniques et perdu pas moins de 109 ballons avec son onze titulaire.",
+    "content": "Étouffé par le pressing agressif de l'AS Roma, le PSG a multiplié les erreurs techniques et perdu pas moins de 109 ballons avec son onze titulaire.",
+    "paragraphs": [
+      "Étouffé par le pressing agressif de l'AS Roma, le PSG a multiplié les erreurs techniques et perdu pas moins de 109 ballons avec son onze titulaire."
+    ],
+    "key_points": [
+      "Étouffé par le pressing agressif de l'AS Roma, le PSG a multiplié les erreurs techniques et perdu pas moins de 109 ballons avec son onze titulaire."
+    ],
+    "telegram_summary": "Étouffé par le pressing agressif de l'AS Roma, le PSG a multiplié les erreurs techniques et perdu pas moins de 109 ballons avec son onze titulaire.",
+    "link": "https://www.onzemondial.com/psg-as-roma-109-ballons-perdus-une-attaque-brouillonne-les-chiffres-inquietants-des-parisiens-1011426",
+    "source_url": "https://www.onzemondial.com/psg-as-roma-109-ballons-perdus-une-attaque-brouillonne-les-chiffres-inquietants-des-parisiens-1011426",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1f0ae1903b5579fe",
+    "published": "2026-11-26T12:31:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011426/411649/1200-L-psg-as-roma-109-ballons-perdus-une-attaque-brouillonne-les-chiffres-inquitants-des-parisiens.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011426/411649/1200-L-psg-as-roma-109-ballons-perdus-une-attaque-brouillonne-les-chiffres-inquitants-des-parisiens.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "d8e2a3342a254120",
@@ -2078,109 +2172,12 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T12:40:04.127674+00:00"
+      "checked_at": "2026-11-26T13:10:08.582859+00:00"
     },
     "quality_sources": [
       "So Foot",
       "ESPN"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "e8a9627d8f736916",
-    "title": "Fifa confirms internal data stolen in cyber attack",
-    "summary": "Fifa has confirmed it has been the victim of a cyber-attack which resulted in personal and business information being stolen.",
-    "summary_short": "Fifa has confirmed it has been the victim of a cyber-attack which resulted in personal and business information being stolen.",
-    "content": "Fifa has confirmed it has been the victim of a cyber-attack which resulted in personal and business information being stolen.",
-    "paragraphs": [
-      "Fifa has confirmed it has been the victim of a cyber-attack which resulted in personal and business information being stolen."
-    ],
-    "key_points": [
-      "Fifa has confirmed it has been the victim of a cyber-attack which resulted in personal and business information being stolen."
-    ],
-    "telegram_summary": "Fifa has confirmed it has been the victim of a cyber-attack which resulted in personal and business information being stolen.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/crd61nvg4d84o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/crd61nvg4d84o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e8a9627d8f736916",
-    "published": "2026-11-26T11:30:07+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/e820/live/06ab4690-e98b-11f1-9d1c-4dcc8fcde666.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/e820/live/06ab4690-e98b-11f1-9d1c-4dcc8fcde666.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "d4338e2a070f2211",
-    "title": "Real Madrid : \"Préparez-vous...\", le message euphorique du vestiaire pour le grand retour de Vinicius",
-    "summary": "Dans le dur depuis le début de la saison, Vinicius Junior semble relever la tête et dans la capitale, le message est plus positif que jamais.",
-    "summary_short": "Dans le dur depuis le début de la saison, Vinicius Junior semble relever la tête et dans la capitale, le message est plus positif que jamais.",
-    "content": "Dans le dur depuis le début de la saison, Vinicius Junior semble relever la tête et dans la capitale, le message est plus positif que jamais.",
-    "paragraphs": [
-      "Dans le dur depuis le début de la saison, Vinicius Junior semble relever la tête et dans la capitale, le message est plus positif que jamais."
-    ],
-    "key_points": [
-      "Dans le dur depuis le début de la saison, Vinicius Junior semble relever la tête et dans la capitale, le message est plus positif que jamais."
-    ],
-    "telegram_summary": "Dans le dur depuis le début de la saison, Vinicius Junior semble relever la tête et dans la capitale, le message est plus positif que jamais.",
-    "link": "https://www.onzemondial.com/liga/real-madrid-preparez-vous-le-message-euphorique-du-vestiaire-pour-le-grand-retour-de-vinicius-1011398",
-    "source_url": "https://www.onzemondial.com/liga/real-madrid-preparez-vous-le-message-euphorique-du-vestiaire-pour-le-grand-retour-de-vinicius-1011398",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d4338e2a070f2211",
-    "published": "2026-11-26T11:25:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011398/411640/1200-L-real-madrid-prparez-vous-le-message-euphorique-du-vestiaire-pour-le-grand-retour-de-vinicius.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011398/411640/1200-L-real-madrid-prparez-vous-le-message-euphorique-du-vestiaire-pour-le-grand-retour-de-vinicius.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50505359",
-      "url": "https://www.espn.com/soccer/story/_/id/50505359/vinicius-junior-real-madrid-brazil-transfer",
-      "published": "2026-11-20T09:35:18Z",
-      "score": 0.2,
-      "matched_terms": [
-        "madrid",
-        "real",
-        "vinicius"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "Brazil",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Vinícius Júnior"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-26T12:40:04.127674+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
   }
 ]
