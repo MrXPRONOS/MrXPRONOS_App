@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T11:01:47+00:00",
+    "published": "2026-11-26T11:19:23+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -617,7 +617,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T11:09:59.641493+00:00"
+      "checked_at": "2026-11-26T11:27:46.292502+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1617,6 +1617,65 @@
     "quality_score": 90
   },
   {
+    "slug": "2a1a3541d0c8ff4f",
+    "title": "Real Madrid : un journaliste espagnol préconise de vendre Kylian Mbappé pour Erling Haaland",
+    "summary": "Malgré les performances impressionnantes de Kylian Mbappé sous les couleurs du Real Madrid, son positionnement à la pointe de l’attaque madrilène continue d’alimenter les débats en Espagne.",
+    "summary_short": "Malgré les performances impressionnantes de Kylian Mbappé sous les couleurs du Real Madrid, son positionnement à la pointe de l’attaque madrilène continue d’alimenter les débats en Espagne.",
+    "content": "Malgré les performances impressionnantes de Kylian Mbappé sous les couleurs du Real Madrid, son positionnement à la pointe de l’attaque madrilène continue d’alimenter les débats en Espagne. Sur le (…)",
+    "paragraphs": [
+      "Malgré les performances impressionnantes de Kylian Mbappé sous les couleurs du Real Madrid, son positionnement à la pointe de l’attaque madrilène continue d’alimenter les débats en Espagne. Sur le (…)"
+    ],
+    "key_points": [
+      "Malgré les performances impressionnantes de Kylian Mbappé sous les couleurs du Real Madrid, son positionnement à la pointe de l’attaque madrilène continue d’alimenter les débats en Espagne."
+    ],
+    "telegram_summary": "Malgré les performances impressionnantes de Kylian Mbappé sous les couleurs du Real Madrid, son positionnement à la pointe de l’attaque madrilène continue d’alimenter les débats en Espagne.",
+    "link": "https://www.footmercato.net/a1565404759731241800-real-madrid-un-journaliste-espagnol-preconise-de-vendre-kylian-mbappe-pour-erling-haaland",
+    "source_url": "https://www.footmercato.net/a1565404759731241800-real-madrid-un-journaliste-espagnol-preconise-de-vendre-kylian-mbappe-pour-erling-haaland",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2a1a3541d0c8ff4f",
+    "published": "2026-11-26T11:24:43+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kylian-mbappe-2627-7.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kylian-mbappe-2627-7.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50554950",
+      "url": "https://www.espn.com/video/clip/_/id/50554950/bellingham-espi-rescue-real-madrid-mbappe-missed-penalty",
+      "published": "2026-11-21T22:42:56Z",
+      "score": 0.2,
+      "matched_terms": [
+        "madrid",
+        "mbappe",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Celta Vigo",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-26T11:27:46.292502+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
     "slug": "18adf021e829f851",
     "title": "Mercato MHSC : Montpellier envoie un milieu en prêt (officiel)",
     "summary": "Le MHSC se sépare temporairement d'un milieu de terrain.",
@@ -1684,6 +1743,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "946b3e9e416fc9ed",
+    "title": "PSG-AS Roma : sans Doué ni Kvaratskhelia, pourquoi ce nul doit alerter Campos sur le mercato",
+    "summary": "Privé de Doué et Kvaratskhelia, le PSG a montré face à l'AS Roma les limites de ses solutions offensives, de quoi pousser Luis Campos à revoir ses plans dès le mercato hivernal.",
+    "summary_short": "Privé de Doué et Kvaratskhelia, le PSG a montré face à l'AS Roma les limites de ses solutions offensives, de quoi pousser Luis Campos à revoir ses plans dès le mercato hivernal.",
+    "content": "Privé de Doué et Kvaratskhelia, le PSG a montré face à l'AS Roma les limites de ses solutions offensives, de quoi pousser Luis Campos à revoir ses plans dès le mercato hivernal.",
+    "paragraphs": [
+      "Privé de Doué et Kvaratskhelia, le PSG a montré face à l'AS Roma les limites de ses solutions offensives, de quoi pousser Luis Campos à revoir ses plans dès le mercato hivernal."
+    ],
+    "key_points": [
+      "Privé de Doué et Kvaratskhelia, le PSG a montré face à l'AS Roma les limites de ses solutions offensives, de quoi pousser Luis Campos à revoir ses plans dès le mercato hivernal."
+    ],
+    "telegram_summary": "Privé de Doué et Kvaratskhelia, le PSG a montré face à l'AS Roma les limites de ses solutions offensives, de quoi pousser Luis Campos à revoir ses plans dès le mercato hivernal.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/psg-as-roma-sans-doue-ni-kvaratskhelia-pourquoi-ce-nul-doit-alerter-campos-sur-le-mercato-1011425",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/psg-as-roma-sans-doue-ni-kvaratskhelia-pourquoi-ce-nul-doit-alerter-campos-sur-le-mercato-1011425",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=946b3e9e416fc9ed",
+    "published": "2026-11-26T11:02:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011425/411646/1200-L-psg-as-roma-sans-dou-ni-kvaratskhelia-pourquoi-ce-nul-doit-alerter-campos-sur-le-mercato.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011425/411646/1200-L-psg-as-roma-sans-dou-ni-kvaratskhelia-pourquoi-ce-nul-doit-alerter-campos-sur-le-mercato.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "f66a2b913ee400ee",
@@ -1976,7 +2069,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T11:09:59.641493+00:00"
+      "checked_at": "2026-11-26T11:27:46.292502+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2085,75 +2178,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "32ec3beb29c4dd30",
-    "title": "Florian Maurice débarque à Troyes",
-    "summary": "« L’ESTAC est heureuse d’annoncer la nomination de Florian Maurice au poste de directeur sportif. Il prendra officiellement ses fonctions le 1er décembre 2026. Cette nomination intervient à l’issue (…)",
-    "summary_short": "« L’ESTAC est heureuse d’annoncer la nomination de Florian Maurice au poste de directeur sportif. Il prendra officiellement ses fonctions le 1er décembre 2026. Cette nomination intervient à l’issue (…)",
-    "content": "« L’ESTAC est heureuse d’annoncer la nomination de Florian Maurice au poste de directeur sportif. Il prendra officiellement ses fonctions le 1er décembre 2026. Cette nomination intervient à l’issue (…)",
-    "paragraphs": [
-      "« L’ESTAC est heureuse d’annoncer la nomination de Florian Maurice au poste de directeur sportif. Il prendra officiellement ses fonctions le 1er décembre 2026. Cette nomination intervient à l’issue (…)"
-    ],
-    "key_points": [
-      "« L’ESTAC est heureuse d’annoncer la nomination de Florian Maurice au poste de directeur sportif.",
-      "Il prendra officiellement ses fonctions le 1er décembre 2026.",
-      "Cette nomination intervient à l’issue (…)"
-    ],
-    "telegram_summary": "« L’ESTAC est heureuse d’annoncer la nomination de Florian Maurice au poste de directeur sportif. Il prendra officiellement ses fonctions le 1er décembre 2026. Cette nomination intervient à l’issue (…)",
-    "link": "https://www.footmercato.net/a8918964579273309398-florian-maurice-debarque-a-troyes",
-    "source_url": "https://www.footmercato.net/a8918964579273309398-florian-maurice-debarque-a-troyes",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=32ec3beb29c4dd30",
-    "published": "2026-11-26T10:09:06+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/florian-maurice-604f50d44649b.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/florian-maurice-604f50d44649b.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "a686e33f38765aea",
-    "title": "Nimègue - Rennes : En danger à Rennes, Haise va-t-il être sauvé par Lepaul ?",
-    "summary": "Le Stade Rennais de Franck Haise joue gros ce soir lors de son déplacement aux Pays-Bas à Nimègue (21h).",
-    "summary_short": "Le Stade Rennais de Franck Haise joue gros ce soir lors de son déplacement aux Pays-Bas à Nimègue (21h).",
-    "content": "Le Stade Rennais de Franck Haise joue gros ce soir lors de son déplacement aux Pays-Bas à Nimègue (21h).",
-    "paragraphs": [
-      "Le Stade Rennais de Franck Haise joue gros ce soir lors de son déplacement aux Pays-Bas à Nimègue (21h)."
-    ],
-    "key_points": [
-      "Le Stade Rennais de Franck Haise joue gros ce soir lors de son déplacement aux Pays-Bas à Nimègue (21h)."
-    ],
-    "telegram_summary": "Le Stade Rennais de Franck Haise joue gros ce soir lors de son déplacement aux Pays-Bas à Nimègue (21h).",
-    "link": "https://www.onzemondial.com/europa-league/nimegue-rennes-en-danger-a-rennes-haise-va-t-il-etre-sauve-par-lepaul-1011322",
-    "source_url": "https://www.onzemondial.com/europa-league/nimegue-rennes-en-danger-a-rennes-haise-va-t-il-etre-sauve-par-lepaul-1011322",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a686e33f38765aea",
-    "published": "2026-11-26T10:00:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011322/411621/1200-L-nimgue-rennes-en-danger-rennes-haise-va-t-il-tre-sauv-par-lepaul.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011322/411621/1200-L-nimgue-rennes-en-danger-rennes-haise-va-t-il-tre-sauv-par-lepaul.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
