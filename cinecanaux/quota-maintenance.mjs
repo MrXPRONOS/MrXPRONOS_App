@@ -113,10 +113,10 @@ button:hover{filter:brightness(1.07)}button:focus-visible{outline:3px solid #7fc
  const delay=Math.max(0,recoverAt-Date.now()+2000);
  async function check(){
   try{
-   const response=await fetch("/health?recovery="+Date.now(),{cache:"no-store",signal:AbortSignal.timeout(10000)});
+   const response=await fetch("/health/ready?recovery="+Date.now(),{cache:"no-store",signal:AbortSignal.timeout(10000)});
    if(response.ok){
     const result=await response.json();
-    if(result.service==="cine-radar"&&result.database===true){
+    if(result.service==="cine-radar"&&result.database===true&&result.ready===true){
      status.textContent="CinéRadar est de retour. Ouverture automatique…";
      location.replace("/app");
      return;
