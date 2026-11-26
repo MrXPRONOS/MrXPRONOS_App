@@ -166,8 +166,9 @@ test("maintenance page polls after 00h05 and automatically reopens the app only 
  const r=maintenanceResponse(new Request("https://cine.test/app"),{now:new Date("2026-11-25T23:59:00Z")});
  const page=await r.text();
  assert.match(page,/new Date\("2026-11-26T00:05:00\.000Z"\)/);
- assert.match(page,/\/health\?recovery=/);
+ assert.match(page,/\/health\/ready\?recovery=/);
  assert.match(page,/result\.database===true/);
+ assert.match(page,/result\.ready===true/);
  assert.match(page,/location\.replace\("\/app"\)/);
  assert.match(r.headers.get("content-security-policy"),/connect-src 'self'/);
  resetMaintenanceForTests();
@@ -181,6 +182,7 @@ test("independent GitHub Pages backup is static, verifies D1 and returns to Cine
  assert.match(page,/github-standby/);
  assert.match(page,/window\.location\.replace\(MAIN\+"\/app"\)/);
  assert.match(page,/body\.database===true/);
+ assert.match(page,/body\.ready===true/);
  assert.doesNotMatch(page,/TELEGRAM_TOKEN|TELEGRAM_WEBHOOK_SECRET|SUPABASE_SERVICE_ROLE|CLOUDFLARE_API_TOKEN/);
 });
 
@@ -263,5 +265,23 @@ test("any real server fault gets maintenance but invalid update JSON remains a c
  resetMaintenanceForTests();
  const invalid=await worker.fetch(new Request("https://cine.test/telegram",{method:"POST",headers:{"x-telegram-bot-api-secret-token":"good"},body:"{"}),{TELEGRAM_TOKEN:"token",TELEGRAM_WEBHOOK_SECRET:"good"});
  assert.equal(invalid.status,400);
+ resetMaintenanceForTests();
+});
+
+test("deep readiness verifies the real catalogue before reopening",async()=>{
+ resetMaintenanceForTests();
+ const DB={prepare(){return {async first(){return {webhook:"ok",n:5}},async all(){return {results:[]}}}}};
+ const ready=await worker.fetch(new Request("https://cine.test/health/ready"),{DB});
+ assert.equal(ready.status,200);
+ assert.equal(ready.headers.get("access-control-allow-origin"),"https://mrxpronos.github.io");
+ const body=await ready.json();
+ assert.equal(body.ready,true);
+ assert.equal(body.database,true);
+ const badCatalog={prepare(sql){if(sql.includes("SELECT (SELECT status FROM bot_webhook_status"))return {async first(){return {webhook:"ok",n:5}}};throw Error("catalog query unavailable")}};
+ const shallow=await worker.fetch(new Request("https://cine.test/health"),{DB:badCatalog});
+ assert.equal(shallow.status,200);
+ const deep=await worker.fetch(new Request("https://cine.test/health/ready"),{DB:badCatalog});
+ assert.equal(deep.status,503);
+ assert.equal((await deep.json()).maintenance,true);
  resetMaintenanceForTests();
 });
