@@ -2756,11 +2756,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-26T16:21:27.762875+00:00",
+      "settlement_checked_at": "2026-11-26T20:21:45.292856+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-26T20:21:27.762875+00:00"
+        "next_retry_after": "2026-11-27T00:21:45.292856+00:00"
       }
     },
     {
@@ -11850,8 +11850,8 @@
         "average_predicted": 0.787173
       }
     },
-    "last_added": 2,
-    "updated_at": "2026-11-26T20:11:55.664075+00:00",
+    "last_added": 0,
+    "updated_at": "2026-11-26T20:21:45.292856+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -68337,5 +68337,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-26T20:21:45.292856+00:00",
+    "checked": 1,
+    "settled": 0,
+    "pending": 1,
+    "h4": 0,
+    "h8": 0,
+    "fallback": 1,
+    "detail_hits": 1,
+    "reconciled_finished": 0
   }
 }
