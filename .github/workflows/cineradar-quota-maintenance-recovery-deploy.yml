@@ -8,6 +8,8 @@ on:
     paths:
       - '.github/workflows/cineradar-quota-maintenance-recovery-deploy.yml'
       - 'cinecanaux/quota-maintenance.mjs'
+      - 'cinecanaux/worker.mjs'
+      - 'cinecanaux/app-page.mjs'
       - 'cinecanaux/tests/quota-maintenance.test.mjs'
 
 permissions:
