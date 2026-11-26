@@ -92,6 +92,18 @@ class TestStandbyBotMenu(unittest.TestCase):
                         if url.endswith("/health") else {"status":200,"type":"text/html","json":{}})
             self.assertTrue(bot.checked_health(healthy))
 
+    def test_confirmed_transport_outage_switches_to_independent_standby(self):
+        from unittest.mock import patch
+        def missing_origin(url):
+            if url == bot.STANDBY:
+                return {"status": 200, "type": "text/html", "json": {}}
+            return {"status": 0, "type": "", "json": {}}
+        with patch.object(bot.time, "sleep", return_value=None):
+            self.assertFalse(bot.checked_health(missing_origin))
+            self.assertIsNone(bot.checked_health(lambda _url: {"status": 0, "type": "", "json": {}}))
+        self.assertNotIn("00h05", bot.MAINT_DESCRIPTION)
+        self.assertIn("maintenance", bot.MAINT_DESCRIPTION)
+
     def test_custom_menu_is_never_modified(self):
         def api(token,method,data):
             if method=="getChatMenuButton":

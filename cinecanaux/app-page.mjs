@@ -627,8 +627,14 @@ function button(text,cls,callback,icon){
 }
 async function api(path){
  const c=new AbortController(),timeout=setTimeout(()=>c.abort(),10000);
- try{const r=await fetch(path,{cache:"default",signal:c.signal});const body=await r.json();if(!r.ok)throw Error(body.error||"Service indisponible");return body;}
- finally{clearTimeout(timeout);}
+ try{
+  const r=await fetch(path,{cache:"default",signal:c.signal});
+  if(r.status>=500){window.location.replace("https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/");throw Error("CinéRadar est en maintenance");}
+  const body=await r.json();if(!r.ok)throw Error(body.error||"Service indisponible");return body;
+ }catch(e){
+  if(e?.name==="TypeError"||e?.name==="AbortError")window.location.replace("https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/");
+  throw e;
+ }finally{clearTimeout(timeout);}
 }
 function openTelegram(link){if(!validLink(link))return;const app=telegram();if(app?.openTelegramLink)app.openTelegramLink(link);else window.open(link,"_blank","noopener");}
 function typeLabel(t){return t==="animes"?"Animés":t==="series"?"Séries":"Films";}
@@ -1636,7 +1642,7 @@ function build(){
   catalog=embedded.filter(c=>Number.isSafeInteger(Number(c.id)));
   miniFeatured();discover();genreContent();cardDecorate();
  }
- fetch("/api/catalog?limit=80",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{catalog=(d.channels||[]).filter(c=>Number.isSafeInteger(Number(c.id)));miniFeatured();discover();genreContent();cardDecorate();const rated=document.querySelector("#sort option[value=\\\"rated\\\"]");if(rated){const any=catalog.some(c=>c.review_count>0);rated.disabled=!any;rated.textContent=any?"Mieux notés":"Notes à venir"}}).catch(()=>{miniFeatured();cardDecorate()});
+ fetch("/api/catalog?limit=80",{cache:"no-store"}).then(r=>{if(r.status>=500){window.location.replace("https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/");throw Error("maintenance");}return r.ok?r.json():Promise.reject()}).then(d=>{catalog=(d.channels||[]).filter(c=>Number.isSafeInteger(Number(c.id)));miniFeatured();discover();genreContent();cardDecorate();const rated=document.querySelector("#sort option[value=\\\"rated\\\"]");if(rated){const any=catalog.some(c=>c.review_count>0);rated.disabled=!any;rated.textContent=any?"Mieux notés":"Notes à venir"}}).catch(e=>{if(e?.name==="TypeError"||e?.name==="AbortError")window.location.replace("https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/");miniFeatured();cardDecorate()});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build,{once:true});else build();
 })();

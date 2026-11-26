@@ -166,8 +166,9 @@ test("maintenance page polls after 00h05 and automatically reopens the app only 
  const r=maintenanceResponse(new Request("https://cine.test/app"),{now:new Date("2026-11-25T23:59:00Z")});
  const page=await r.text();
  assert.match(page,/new Date\("2026-11-26T00:05:00\.000Z"\)/);
- assert.match(page,/\/health\?recovery=/);
+ assert.match(page,/\/health\/ready\?recovery=/);
  assert.match(page,/result\.database===true/);
+ assert.match(page,/result\.ready===true/);
  assert.match(page,/location\.replace\("\/app"\)/);
  assert.match(r.headers.get("content-security-policy"),/connect-src 'self'/);
  resetMaintenanceForTests();
@@ -176,11 +177,12 @@ test("maintenance page polls after 00h05 and automatically reopens the app only 
 test("independent GitHub Pages backup is static, verifies D1 and returns to CineRadar without touching secrets",()=>{
  const page=readFileSync(new URL("../../cineradar-secours/index.html",import.meta.url),"utf8");
  assert.match(page,/CinéRadar est en maintenance/);
- assert.match(page,/00h05/);
+ assert.match(page,/Dès que possible/);
  assert.doesNotMatch(page,/limite technique|\bD1\b|Cloudflare|quota/i);
  assert.match(page,/github-standby/);
  assert.match(page,/window\.location\.replace\(MAIN\+"\/app"\)/);
  assert.match(page,/body\.database===true/);
+ assert.match(page,/body\.ready===true/);
  assert.doesNotMatch(page,/TELEGRAM_TOKEN|TELEGRAM_WEBHOOK_SECRET|SUPABASE_SERVICE_ROLE|CLOUDFLARE_API_TOKEN/);
 });
 
@@ -202,5 +204,84 @@ test("quota health response exposes the same CORS authority to independent stand
  const r=await worker.fetch(new Request("https://cine.test/health"),{DB:mockDB()});
  assert.equal(r.status,503);
  assert.equal(r.headers.get("access-control-allow-origin"),"https://mrxpronos.github.io");
+ resetMaintenanceForTests();
+});
+
+test("unexpected database outage returns the branded generic page without an invented time",async()=>{
+ resetMaintenanceForTests();
+ const DB={prepare(){throw new Error("SQLITE_BUSY: database temporarily unavailable")}};
+ const r=await worker.fetch(new Request("https://cine.test/app"),{DB});
+ assert.equal(r.status,503);
+ const html=await r.text();
+ assert.match(html,/CinéRadar est en maintenance/);
+ assert.match(html,/Dès que possible/);
+ assert.doesNotMatch(html,/00h05|D1 quota|SQLITE_BUSY|Cloudflare/);
+ assert.equal(d1MaintenanceActive(),false,"generic failures must not latch the D1 quota circuit");
+ resetMaintenanceForTests();
+});
+
+test("generic database failures affect admin and health but do not disclose errors",async()=>{
+ resetMaintenanceForTests();
+ const DB={prepare(){throw new Error("SQLITE_BUSY")}};
+ const admin=await worker.fetch(new Request("https://cine.test/admin"),{DB});
+ assert.equal(admin.status,503);
+ assert.match(await admin.text(),/Dès que possible/);
+ const health=await worker.fetch(new Request("https://cine.test/health"),{DB});
+ assert.equal(health.status,503);
+ assert.equal(health.headers.get("access-control-allow-origin"),"https://mrxpronos.github.io");
+ const json=await health.json();
+ assert.equal(json.code,"SERVICE_MAINTENANCE");
+ assert.equal(json.maintenance,true);
+ assert.equal(json.reopening_at,null);
+ assert.doesNotMatch(json.message,/SQLITE_BUSY|<b>|quota|Cloudflare/);
+ resetMaintenanceForTests();
+});
+
+test("unknown routes and invalid Telegram webhook secrets are not converted to maintenance",async()=>{
+ resetMaintenanceForTests();
+ const missing=await worker.fetch(new Request("https://cine.test/not-a-route"),{});
+ assert.equal(missing.status,404);
+ const webhook=await worker.fetch(new Request("https://cine.test/telegram",{method:"POST",headers:{"x-telegram-bot-api-secret-token":"bad"},body:"{}"}),{TELEGRAM_TOKEN:"bot",TELEGRAM_WEBHOOK_SECRET:"good"});
+ assert.equal(webhook.status,403);
+ resetMaintenanceForTests();
+});
+
+test("unexpected private Telegram errors get formatted general maintenance with retryable channel posts",async()=>{
+ resetMaintenanceForTests();
+ const calls=[];
+ const telegram=async(_env,method,payload)=>{calls.push({method,payload});return {ok:true}};
+ const privateReply=await telegramMaintenanceReply({message:{chat:{id:123,type:"private"}}},telegram,{}, {mode:"general"});
+ assert.equal(privateReply.status,200);
+ assert.equal(calls[0].payload.parse_mode,"HTML");
+ assert.match(calls[0].payload.text,/Dès que possible|dès que possible/);
+ assert.doesNotMatch(calls[0].payload.text,/00h05/);
+ const channelReply=await telegramMaintenanceReply({channel_post:{chat:{id:-100123,type:"channel"}}},telegram,{}, {mode:"general"});
+ assert.equal(channelReply.status,503);
+ assert.equal(calls.length,1);
+ resetMaintenanceForTests();
+});
+
+test("any real server fault gets maintenance but invalid update JSON remains a client error",async()=>{
+ resetMaintenanceForTests();
+ const invalid=await worker.fetch(new Request("https://cine.test/telegram",{method:"POST",headers:{"x-telegram-bot-api-secret-token":"good"},body:"{"}),{TELEGRAM_TOKEN:"token",TELEGRAM_WEBHOOK_SECRET:"good"});
+ assert.equal(invalid.status,400);
+ resetMaintenanceForTests();
+});
+
+test("deep readiness verifies the real catalogue before reopening",async()=>{
+ resetMaintenanceForTests();
+ const DB={prepare(){return {async first(){return {webhook:"ok",n:5}},async all(){return {results:[]}}}}};
+ const ready=await worker.fetch(new Request("https://cine.test/health/ready"),{DB});
+ assert.equal(ready.status,200);
+ assert.equal(ready.headers.get("access-control-allow-origin"),"https://mrxpronos.github.io");
+ const body=await ready.json();
+ assert.equal(body.ready,true);
+ assert.equal(body.database,true);
+ const badCatalog={prepare(sql){if(sql.includes("SELECT (SELECT status FROM bot_webhook_status"))return {async first(){return {webhook:"ok",n:5}}};throw Error("catalog query unavailable")}};
+ const shallow=await worker.fetch(new Request("https://cine.test/health"),{DB:badCatalog});
+ assert.equal(shallow.status,200);
+ const deep=await worker.fetch(new Request("https://cine.test/health/ready"),{DB:badCatalog});
+ assert.equal(deep.status,503);
+ assert.equal((await deep.json()).maintenance,true);
  resetMaintenanceForTests();
 });

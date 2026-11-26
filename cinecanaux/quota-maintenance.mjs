@@ -28,18 +28,24 @@ export function markD1Maintenance(error,now=new Date()){
 export function d1MaintenanceActive(now=new Date()){
  return now.getTime()<localMaintenanceUntil;
 }
-export function maintenanceDetails(now=new Date()){
- const reopening=localMaintenanceUntil>now.getTime()?new Date(localMaintenanceUntil):nextRecoveryUTC(now);
+// Public copy must never expose infrastructure or diagnostic details.
+const STANDBY_URL="https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/";
+export function maintenanceDetails(now=new Date(),{mode="quota"}={}){
+ const quota=mode==="quota";
+ const reopening=quota?(localMaintenanceUntil>now.getTime()?new Date(localMaintenanceUntil):nextRecoveryUTC(now)):null;
+ const intro="<b>🎬 CinéRadar est en maintenance</b>\n\n<i>Nous revenons très bientôt. Merci de votre patience et de votre confiance.</i>\n\n<blockquote>✨ Notre équipe prépare le retour de CinéRadar.</blockquote>\n\n";
+ const schedule=quota?"<b>🕛 Retour prévu :</b> 00h05 (heure du Togo).\n<i>La reprise dépend de la disponibilité du service.</i>":"<b>🕘 Retour :</b> dès que possible.\n<i>La disponibilité est vérifiée automatiquement.</i>";
  return {
-  message:"<b>🎬 CinéRadar est en maintenance</b>\n\n<i>Nous revenons très bientôt. Merci de votre patience et de votre confiance.</i>\n\n<blockquote>✨ Notre équipe prépare le retour de CinéRadar.</blockquote>\n\n<b>🕛 Retour prévu :</b> 00h05 (heure du Togo).\n<i>La reprise dépend de la disponibilité du service.</i>\n\n<a href=\"https://mrxpronos.github.io/MrXPRONOS_App/cineradar-secours/\">🔗 Suivre la maintenance</a>",
-  reopening_at:reopening.toISOString(),
-  reopening_time:"00h05",
+  message:intro+schedule+'\n\n<a href="'+STANDBY_URL+'">🔗 Suivre la maintenance</a>',
+  plain_message:"CinéRadar est en maintenance. Nous revenons très bientôt.",
+  reopening_at:reopening?reopening.toISOString():null,
+  reopening_time:quota?"00h05":null,
   timezone:"Africa/Lome",
-  retry_after_seconds:Math.max(1,Math.ceil((reopening.getTime()-now.getTime())/1000))
+  retry_after_seconds:quota?Math.max(1,Math.ceil((reopening.getTime()-now.getTime())/1000)):60
  };
 }
-export function maintenanceResponse(request,{now=new Date()}={}){
- const details=maintenanceDetails(now);
+export function maintenanceResponse(request,{now=new Date(),mode="quota"}={}){
+ const details=maintenanceDetails(now,{mode});
  const url=new URL(request.url);
  const api=url.pathname.startsWith("/api/")||url.pathname.startsWith("/health");
  const headers={
@@ -48,17 +54,17 @@ export function maintenanceResponse(request,{now=new Date()}={}){
   "x-content-type-options":"nosniff",
   "x-cineradar-maintenance":"active"
  };
- if(url.pathname==="/health")headers["access-control-allow-origin"]="https://mrxpronos.github.io";
+ if(url.pathname==="/health"||url.pathname==="/health/ready")headers["access-control-allow-origin"]="https://mrxpronos.github.io";
  if(api){
   return Response.json({
    ok:false,maintenance:true,code:"SERVICE_MAINTENANCE",
-   message:details.message,reopening_at:details.reopening_at,
+   message:details.plain_message,reopening_at:details.reopening_at,
    timezone:details.timezone
   },{status:503,headers});
  }
- const date=new Intl.DateTimeFormat("fr-FR",{
+ const date=details.reopening_at?new Intl.DateTimeFormat("fr-FR",{
   timeZone:"UTC",day:"numeric",month:"long",year:"numeric"
- }).format(new Date(details.reopening_at));
+ }).format(new Date(details.reopening_at)):"";
  const html=String.raw`<!doctype html>
 <html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -80,6 +86,7 @@ h1{font-size:clamp(27px,6.5vw,38px);line-height:1.18;letter-spacing:-.04em;margi
 .schedule{padding:20px 16px;border:1px solid #ffffff21;border-radius:18px;background:#ffffff08}
 .overline{color:#c0cbe0;font-size:12px;font-weight:750;letter-spacing:.11em;text-transform:uppercase}
 .time{font-size:clamp(37px,10vw,53px);font-weight:850;line-height:1.2;letter-spacing:-.04em;color:#fff}
+.time-generic{font-size:clamp(24px,6.5vw,36px);letter-spacing:-.025em}
 small{display:block;color:#a6b9d6}
 #recovery-status{min-height:44px;margin:20px 0 8px;color:#d4ddf1;font-size:14px}
 .loader{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:#7fc6ff;box-shadow:0 0 0 4px #7fc6ff1a;animation:pulse 1.7s ease-in-out infinite}
@@ -106,10 +113,10 @@ button:hover{filter:brightness(1.07)}button:focus-visible{outline:3px solid #7fc
  const delay=Math.max(0,recoverAt-Date.now()+2000);
  async function check(){
   try{
-   const response=await fetch("/health?recovery="+Date.now(),{cache:"no-store",signal:AbortSignal.timeout(10000)});
+   const response=await fetch("/health/ready?recovery="+Date.now(),{cache:"no-store",signal:AbortSignal.timeout(10000)});
    if(response.ok){
     const result=await response.json();
-    if(result.service==="cine-radar"&&result.database===true){
+    if(result.service==="cine-radar"&&result.database===true&&result.ready===true){
      status.textContent="CinéRadar est de retour. Ouverture automatique…";
      location.replace("/app");
      return;
@@ -121,14 +128,18 @@ button:hover{filter:brightness(1.07)}button:focus-visible{outline:3px solid #7fc
  setTimeout(function(){check();setInterval(check,60000)},Math.min(delay,2147480000));
 })();
 </script>
-</main></body></html>`.replace("__DATE__",date).replace("__REOPENING__",details.reopening_at);
- return new Response(html,{status:503,headers:{
+</main></body></html>`.replace("__DATE__",date).replace("__REOPENING__",details.reopening_at||now.toISOString());
+ const page=details.reopening_at?html:html.replace(
+  '<div class="schedule"><div class="overline">Retour prévu à</div><div class="time">00h05</div><small> · Heure du Togo · sous réserve de disponibilité</small></div>',
+  '<div class="schedule"><div class="overline">Retour du service</div><div class="time time-generic">Dès que possible</div><small>Vérification automatique de la disponibilité</small></div>'
+ );
+ return new Response(page,{status:503,headers:{
   ...headers,"content-type":"text/html; charset=utf-8",
   "content-security-policy":"default-src 'none'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
  }});
 }
-export async function telegramMaintenanceReply(update,call,env,{now=new Date()}={}){
- const info=maintenanceDetails(now);
+export async function telegramMaintenanceReply(update,call,env,{now=new Date(),mode="quota"}={}){
+ const info=maintenanceDetails(now,{mode});
  const chat=update?.message?.chat||update?.callback_query?.message?.chat;
  const callbackId=update?.callback_query?.id;
  if(!chat||chat.type!=="private"||!Number.isSafeInteger(Number(chat.id))){
@@ -139,7 +150,7 @@ export async function telegramMaintenanceReply(update,call,env,{now=new Date()}=
   if(callbackId){
    const ack=await call(env,"answerCallbackQuery",{
     callback_query_id:callbackId,
-    text:"CinéRadar est en maintenance. Retour prévu à 00h05 (heure du Togo).",
+    text:mode==="quota"?"CinéRadar est en maintenance. Retour prévu à 00h05 (heure du Togo).":"CinéRadar est en maintenance. Retour dès que possible.",
     show_alert:true
    });
    if(ack?.ok===true)return Response.json({ok:true,maintenance:true});

@@ -95,7 +95,8 @@ async function receiveTelegram(request,env,ctx){
  if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET)return new Response("Telegram credentials missing",{status:503});
  if(!sameString(request.headers.get("X-Telegram-Bot-Api-Secret-Token"),env.TELEGRAM_WEBHOOK_SECRET))return new Response("Forbidden",{status:403});
  if(Number(request.headers.get("content-length")||0)>750000)return new Response("Too large",{status:413});
- const update=await request.json();
+ let update;
+ try{update=await request.json()}catch{return new Response("Invalid update",{status:400})}
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
  if(d1MaintenanceActive())return telegramMaintenanceReply(update,telegram,env);
  try{
@@ -157,7 +158,9 @@ async function receiveTelegram(request,env,ctx){
  catch(e){
   if(markD1Maintenance(e))return telegramMaintenanceReply(update,telegram,env);
   console.error("cine_radar_update_failed",String(e).slice(0,120));
-  return new Response("Retry",{status:500});
+  // Private users see the same maintenance notice, but channel/owner feeds
+  // remain retryable until safely ingested (never acknowledge data loss).
+  return telegramMaintenanceReply(update,telegram,env,{mode:"general"});
  }
 }
 function banner(){
@@ -300,8 +303,8 @@ export default {
     html=APP_HTML.replace("const PRELOADED_CATALOG=null;","const PRELOADED_CATALOG="+data+";");
    }catch(e){
     if(markD1Maintenance(e))return maintenanceResponse(request);
-    console.warn(JSON.stringify({event:"catalog_html_preload_fallback",error:String(e).slice(0,90)}));
-    // The client still supports its original /api/catalog fetch.
+    console.warn(JSON.stringify({event:"catalog_preload_unavailable",kind:String(e?.name||"error")}));
+    return maintenanceResponse(request,{mode:"general"});
    }
    try{
     // Pin thumbnails are included in initial HTML so À l'affiche is visible
@@ -490,6 +493,15 @@ export default {
     headers:{"cache-control":"no-store","x-content-type-options":"nosniff"}
    });
   }
+  if(request.method==="GET"&&u.pathname==="/health/ready"){
+   // Validate the same critical catalogue query as /app to prevent
+   // automatic reopen loops after only shallow D1 health checks pass.
+   const catalogue=await getCatalog(env,{limit:1});
+   if(!Array.isArray(catalogue.channels))throw Error("catalogue_unavailable");
+   return Response.json({service:"cine-radar",database:true,ready:true},{
+    headers:{"cache-control":"no-store","access-control-allow-origin":"https://mrxpronos.github.io"}
+   });
+  }
   if(request.method==="GET"&&u.pathname==="/health"){
    // One D1 round trip for service health, instead of two sequential queries.
    const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
@@ -500,7 +512,12 @@ export default {
   return new Response("Not found",{status:404});
   }catch(error){
    if(markD1Maintenance(error))return maintenanceResponse(request);
-   throw error;
+   console.error("cine_radar_request_unavailable",String(error?.name||"error").slice(0,50));
+   // Keep HTML errors human-readable, API errors machine-readable,
+   // and missing assets as simple 503 responses (not fake image data).
+   if(new URL(request.url).pathname.startsWith("/assets/"))return new Response("Indisponible",{status:503,headers:{"cache-control":"no-store"}});
+   if(new URL(request.url).pathname==="/telegram")return new Response("Retry",{status:503,headers:{"cache-control":"no-store"}});
+   return maintenanceResponse(request,{mode:"general"});
   }
  },
  async scheduled(controller,env,ctx){
