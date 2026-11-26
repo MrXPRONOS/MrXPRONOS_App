@@ -1,5 +1,15 @@
 {
-  "active": null,
+  "active": {
+    "cat": "general",
+    "cid": "af8c020e65702fca093391a11dde218fe701a1c064c93340cc66a3a408e14268",
+    "marks": [
+      "13f628e44b6686a0687ee25ccb06b7c4a60ea9ec6e2b755e14845e99695a2551",
+      "d0d34e549d7413f98763912a12d4f04b30c2e8b8fad59644655403c88c44260d",
+      "f981713888a8df84b6d84c931c619f1fa786b7aa5f97f8b5eb932d393664069e"
+    ],
+    "next": 0,
+    "pending": null
+  },
   "cooldown": 1795641588,
   "done": {
     "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
