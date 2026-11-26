@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-26T07:03:03+00:00",
+    "published": "2026-11-26T07:37:06+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -336,7 +336,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T07:10:15.171501+00:00"
+      "checked_at": "2026-11-26T07:40:13.725044+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -501,7 +501,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T07:10:15.171501+00:00"
+      "checked_at": "2026-11-26T07:40:13.725044+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1639,6 +1639,143 @@
     "quality_score": 90
   },
   {
+    "slug": "cbd208b96baa5599",
+    "title": "Ligue Europa : OL - Lillestrøm SK : les compos probables",
+    "summary": "Découvrez les compos probables de OL - Lillestrøm.",
+    "summary_short": "Découvrez les compos probables de OL - Lillestrøm.",
+    "content": "Découvrez les compos probables de OL - Lillestrøm.",
+    "paragraphs": [
+      "Découvrez les compos probables de OL - Lillestrøm."
+    ],
+    "key_points": [
+      "Découvrez les compos probables de OL - Lillestrøm."
+    ],
+    "telegram_summary": "Découvrez les compos probables de OL - Lillestrøm.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-ol-lillestrom-sk-les-compos-probables-547068.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-ol-lillestrom-sk-les-compos-probables-547068.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cbd208b96baa5599",
+    "published": "2026-11-26T07:30:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261019022655-9279.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261019022655-9279.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "54e73322cc9fe941",
+    "title": "Why KMI Panel frustrates referees too - and impacts their salary",
+    "summary": "For Premier League referees, the KMI Panel is more important than you might realise. It determines a significant portion of their salary.",
+    "summary_short": "For Premier League referees, the KMI Panel is more important than you might realise. It determines a significant portion of their salary.",
+    "content": "For Premier League referees, the KMI Panel is more important than you might realise. It determines a significant portion of their salary.",
+    "paragraphs": [
+      "For Premier League referees, the KMI Panel is more important than you might realise. It determines a significant portion of their salary."
+    ],
+    "key_points": [
+      "For Premier League referees, the KMI Panel is more important than you might realise.",
+      "It determines a significant portion of their salary."
+    ],
+    "telegram_summary": "For Premier League referees, the KMI Panel is more important than you might realise. It determines a significant portion of their salary.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cq20x16zxxzeo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cq20x16zxxzeo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=54e73322cc9fe941",
+    "published": "2026-11-26T07:28:18+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/ca44/live/8c9006a0-e7fc-11f1-85d8-8d5c5b3dc8c8.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/ca44/live/8c9006a0-e7fc-11f1-85d8-8d5c5b3dc8c8.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "0aada442410c3443",
+    "title": "PSG-AS Roma : les images accablantes des cris de singes des Italiens, Paris prêt à agir",
+    "summary": "Des images de supporters italiens effectuant des cris de singes et des saluts nazis dans les tribunes du Parc des Princes ont été rapportées, le PSG a décidé de prendre les choses en main.",
+    "summary_short": "Des images de supporters italiens effectuant des cris de singes et des saluts nazis dans les tribunes du Parc des Princes ont été rapportées, le PSG a décidé de prendre les choses en main.",
+    "content": "Des images de supporters italiens effectuant des cris de singes et des saluts nazis dans les tribunes du Parc des Princes ont été rapportées, le PSG a décidé de prendre les choses en main.",
+    "paragraphs": [
+      "Des images de supporters italiens effectuant des cris de singes et des saluts nazis dans les tribunes du Parc des Princes ont été rapportées, le PSG a décidé de prendre les choses en main."
+    ],
+    "key_points": [
+      "Des images de supporters italiens effectuant des cris de singes et des saluts nazis dans les tribunes du Parc des Princes ont été rapportées, le PSG a décidé de prendre les choses en main."
+    ],
+    "telegram_summary": "Des images de supporters italiens effectuant des cris de singes et des saluts nazis dans les tribunes du Parc des Princes ont été rapportées, le PSG a décidé de prendre les choses en main.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/psg-as-roma-les-images-accablantes-des-cris-de-singes-des-italiens-paris-pret-a-agir-1011406",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/psg-as-roma-les-images-accablantes-des-cris-de-singes-des-italiens-paris-pret-a-agir-1011406",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0aada442410c3443",
+    "published": "2026-11-26T07:27:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011406/411642/1200-L-psg-as-roma-les-images-accablantes-des-cris-de-singes-des-italiens-paris-prt-agir.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011406/411642/1200-L-psg-as-roma-les-images-accablantes-des-cris-de-singes-des-italiens-paris-prt-agir.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "e9f70aa37bc02bf6",
+    "title": "Ligue Europa : OM - Levski Sofia : les compos probables",
+    "summary": "Découvrez les compos probables de OM - Levski Sofia.",
+    "summary_short": "Découvrez les compos probables de OM - Levski Sofia.",
+    "content": "Découvrez les compos probables de OM - Levski Sofia.",
+    "paragraphs": [
+      "Découvrez les compos probables de OM - Levski Sofia."
+    ],
+    "key_points": [
+      "Découvrez les compos probables de OM - Levski Sofia."
+    ],
+    "telegram_summary": "Découvrez les compos probables de OM - Levski Sofia.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-om-levski-sofia-les-compos-probables-547067.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-om-levski-sofia-les-compos-probables-547067.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e9f70aa37bc02bf6",
+    "published": "2026-11-26T07:15:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261025182955-5886.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261025182955-5886.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "bb136cb0c6b493f3",
     "title": "PSG : nouveau témoignage choquant sur les incidents racistes au Parc des Princes !",
     "summary": "Le match entre le PSG et l’AS Roma a été perturbé par des incidents racistes en tribune. Avec un témoignage particulièrement inquiétant… Ce n’est pas une soirée européenne qui restera dans les annales (…)",
@@ -2036,154 +2173,12 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-26T07:10:15.171501+00:00"
+      "checked_at": "2026-11-26T07:40:13.725044+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
       "ESPN"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "5ae1102b5db4934d",
-    "title": "Ligue Europa, Ligue Conférence : les clubs français doivent arrêter de snober les petites Coupes d’Europe",
-    "summary": "Petites coupes d'Europe mais grands défis.",
-    "summary_short": "Petites coupes d'Europe mais grands défis.",
-    "content": "Petites coupes d'Europe mais grands défis.",
-    "paragraphs": [
-      "Petites coupes d'Europe mais grands défis."
-    ],
-    "key_points": [
-      "Petites coupes d'Europe mais grands défis."
-    ],
-    "telegram_summary": "Petites coupes d'Europe mais grands défis.",
-    "link": "https://www.sofoot.com/articles/ligue-europa-ligue-conference-les-clubs-francais-doivent-arreter-de-snober-les-petites-coupes-deurope",
-    "source_url": "https://www.sofoot.com/articles/ligue-europa-ligue-conference-les-clubs-francais-doivent-arreter-de-snober-les-petites-coupes-deurope",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5ae1102b5db4934d",
-    "published": "2026-11-26T05:00:32+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25175547/15211815.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/25175547/15211815.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "42c9f52d37f91cff",
-    "title": "Marseille-Levski Sofia : chaîne TV, streaming… À quelle heure et où suivre la rencontre capitale des Marseillais en Ligue Europa ?",
-    "summary": "La Ligue Europa reprend ses droits ce jeudi avec une rencontre européenne capitale pour l'Olympique de Marseille. Les Phocéens accueillent le Levski Sofia au stade Vélodrome, à 18h45, à l'occasion de la cinquième journée de la phase de ligue.",
-    "summary_short": "La Ligue Europa reprend ses droits ce jeudi avec une rencontre européenne capitale pour l'Olympique de Marseille. Les Phocéens accueillent le Levski Sofia au stade Vélodrome, à 18h45, à l'occasion de la cinquième journée de la phase de ligue.",
-    "content": "La Ligue Europa reprend ses droits ce jeudi avec une rencontre européenne capitale pour l'Olympique de Marseille. Les Phocéens accueillent le Levski Sofia au stade Vélodrome, à 18h45, à l'occasion de la cinquième journée de la phase de ligue. Après un début de campagne européenne raté, les hommes de Bruno Genesio ont enfin lancé leur compétition lors de leur dernière sortie continentale à Leverkusen (0-1). Ils doivent désormais confirmer devant leur public pour conserver leurs chances de qualification. En face, les Bulgares réalisent un parcours plus convaincant et espèrent poursuivre sur leur lancée.",
-    "paragraphs": [
-      "La Ligue Europa reprend ses droits ce jeudi avec une rencontre européenne capitale pour l'Olympique de Marseille. Les Phocéens accueillent le Levski Sofia au stade Vélodrome, à 18h45, à l'occasion de la cinquième journée de la phase de ligue. Après un début de campagne européenne raté, les hommes de Bruno Genesio ont enfin lancé leur compétition lors de leur dernière sortie continentale à Leverkusen (0-1).",
-      "Ils doivent désormais confirmer devant leur public pour conserver leurs chances de qualification. En face, les Bulgares réalisent un parcours plus convaincant et espèrent poursuivre sur leur lancée."
-    ],
-    "key_points": [
-      "La Ligue Europa reprend ses droits ce jeudi avec une rencontre européenne capitale pour l'Olympique de Marseille.",
-      "Les Phocéens accueillent le Levski Sofia au stade Vélodrome, à 18h45, à l'occasion de la cinquième journée de la phase de ligue.",
-      "Après un début de campagne européenne raté, les hommes de Bruno Genesio ont enfin lancé leur compétition lors de leur dernière sortie continentale à Leverkusen (0-1).",
-      "Ils doivent désormais confirmer devant leur public pour conserver leurs chances de qualification."
-    ],
-    "telegram_summary": "La Ligue Europa reprend ses droits ce jeudi avec une rencontre européenne capitale pour l'Olympique de Marseille. Les Phocéens accueillent le Levski Sofia au stade Vélodrome, à 18h45, à l'occasion de la cinquième journée de la phase de ligue.",
-    "link": "https://www.onzemondial.com/europa-league/marseille-levski-sofia-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-la-rencontre-capitale-des-marseillais-en-ligue-europa-1009825",
-    "source_url": "https://www.onzemondial.com/europa-league/marseille-levski-sofia-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-la-rencontre-capitale-des-marseillais-en-ligue-europa-1009825",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=42c9f52d37f91cff",
-    "published": "2026-11-26T04:40:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1009825/411246/1200-L-marseille-levski-sofia-chane-tv-streaming-quelle-heure-et-o-suivre-la-rencontre-capitale-des-marseillais-en-ligue-europa.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1009825/411246/1200-L-marseille-levski-sofia-chane-tv-streaming-quelle-heure-et-o-suivre-la-rencontre-capitale-des-marseillais-en-ligue-europa.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "53570e6361e7a325",
-    "title": "AS Roma : Gasperini fou de joie après le nul face au PSG",
-    "summary": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
-    "summary_short": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
-    "content": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
-    "paragraphs": [
-      "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)"
-    ],
-    "key_points": [
-      "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions.",
-      "L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)"
-    ],
-    "telegram_summary": "Grâce à une belle performance, l’AS Rome a tenu tête au PSG (2-2) ce mercredi en Ligue des Champions. L’entraîneur romain Gian Piero Gasperini a forcément apprécié la partie livrée par son équipe au (…)",
-    "link": "https://www.footmercato.net/a1008754646429890995-as-rome-gasperini-fou-de-joie-apres-le-nul-face-au-psg",
-    "source_url": "https://www.footmercato.net/a1008754646429890995-as-rome-gasperini-fou-de-joie-apres-le-nul-face-au-psg",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=53570e6361e7a325",
-    "published": "2026-11-26T01:59:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epaliveeight678698.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epaliveeight678698.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "1cc3727d9af75938",
-    "title": "PSG : Dembélé égale Neymar dans un classement",
-    "summary": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
-    "summary_short": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
-    "content": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
-    "paragraphs": [
-      "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)"
-    ],
-    "key_points": [
-      "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG.",
-      "Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)"
-    ],
-    "telegram_summary": "Ousmane Dembélé a profité de son entrée face à l’AS Roma (2-2) pour enrichir un peu plus son histoire avec le PSG. Entré en jeu à la 59e minute, le Ballon d’Or 2025 a rapidement fait parler son talent (…)",
-    "link": "https://www.footmercato.net/a1602255283944485351-psg-dembele-egale-neymar-dans-un-classement",
-    "source_url": "https://www.footmercato.net/a1602255283944485351-psg-dembele-egale-neymar-dans-un-classement",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1cc3727d9af75938",
-    "published": "2026-11-26T01:36:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dembele-6a9bd1d2e1b87.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dembele-6a9bd1d2e1b87.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   }
 ]
