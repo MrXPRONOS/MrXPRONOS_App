@@ -1,14 +1,15 @@
 {
-  "date": "2026-11-26",
+  "date": "2026-11-27",
   "status": "no_pick",
   "selection": null,
   "reason": "no_qualified_real_quote",
   "frozen": false,
   "policy": "bsd-v2-montante-daily-1",
   "rejections": {
-    "non_bsd_or_combo_or_finished": 52,
+    "non_bsd_or_combo_or_finished": 51,
     "match_started": 1,
-    "wrong_day_or_too_late": 13
+    "unverified_or_low_odds": 2,
+    "wrong_day_or_too_late": 11
   },
   "eligible_count": 0,
   "nim": {
