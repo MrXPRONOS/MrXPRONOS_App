@@ -1,18 +1,18 @@
 {
-  "last_run_id": "45899528635",
-  "last_checked": "2026-11-26T21:41:33.906587+00:00",
+  "last_run_id": "45967567327",
+  "last_checked": "2026-11-27T10:27:15.669062+00:00",
   "status": "category_failed",
   "verification": "failed",
   "verified_posts": 0,
   "empty_streak": 0,
   "alert": true,
   "outcomes": {
-    "films": "failure",
+    "films": "success",
     "series": "failure",
-    "desir": "skipped",
-    "comedie": "skipped",
-    "anime": "skipped",
-    "action": "skipped"
+    "desir": "success",
+    "comedie": "success",
+    "anime": "failure",
+    "action": "failure"
   },
   "catalogues": {
     "series": {
