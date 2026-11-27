@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-27T00:07:19+00:00",
+    "published": "2026-11-27T00:36:16+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -1646,6 +1646,74 @@
     "quality_score": 83
   },
   {
+    "slug": "0e098fd0919a86ff",
+    "title": "'Priceless' Duran proves 'the man' but is he papering over cracks at Celtic?",
+    "summary": "Camilo Duran's 15-goal haul this season has made him an invaluable player for a Celtic side fighting for European progression.",
+    "summary_short": "Camilo Duran's 15-goal haul this season has made him an invaluable player for a Celtic side fighting for European progression.",
+    "content": "Camilo Duran's 15-goal haul this season has made him an invaluable player for a Celtic side fighting for European progression.",
+    "paragraphs": [
+      "Camilo Duran's 15-goal haul this season has made him an invaluable player for a Celtic side fighting for European progression."
+    ],
+    "key_points": [
+      "Camilo Duran's 15-goal haul this season has made him an invaluable player for a Celtic side fighting for European progression."
+    ],
+    "telegram_summary": "Camilo Duran's 15-goal haul this season has made him an invaluable player for a Celtic side fighting for European progression.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/c62klz1wwdn7o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/c62klz1wwdn7o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0e098fd0919a86ff",
+    "published": "2026-11-27T00:18:44+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/31e7/live/1ca69ca0-e9f0-11f1-afc6-7da1c727ad8d.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/31e7/live/1ca69ca0-e9f0-11f1-afc6-7da1c727ad8d.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "d995c6b23f06333a",
+    "title": "Hearts' European hopes hang by a thread but Vrancken proud",
+    "summary": "Hearts head coach Wouter Vrancken expresses both pride and disappointment after his team came out on the wrong side of a five-goal thriller against Monaco.",
+    "summary_short": "Hearts head coach Wouter Vrancken expresses both pride and disappointment after his team came out on the wrong side of a five-goal thriller against Monaco.",
+    "content": "Hearts head coach Wouter Vrancken expresses both pride and disappointment after his team came out on the wrong side of a five-goal thriller against Monaco.",
+    "paragraphs": [
+      "Hearts head coach Wouter Vrancken expresses both pride and disappointment after his team came out on the wrong side of a five-goal thriller against Monaco."
+    ],
+    "key_points": [
+      "Hearts head coach Wouter Vrancken expresses both pride and disappointment after his team came out on the wrong side of a five-goal thriller against Monaco."
+    ],
+    "telegram_summary": "Hearts head coach Wouter Vrancken expresses both pride and disappointment after his team came out on the wrong side of a five-goal thriller against Monaco.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cqr7g49ej14ko?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cqr7g49ej14ko?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d995c6b23f06333a",
+    "published": "2026-11-26T23:59:43+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/f50e/live/fd3df170-e9df-11f1-9361-cd8ed0157587.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/f50e/live/fd3df170-e9df-11f1-9361-cd8ed0157587.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
     "slug": "98a92b8982698cf8",
     "title": "OL : Loïs Openda estime que l'arbitre s'est trompé sur son penalty refusé lors de OL - Lillestrøm (vidéo)",
     "summary": "Alors qu'il aurait pu offrir la victoire à l'OL pour son retour à la compétition, face à Lillestrøm (0-0, J5 Ligue Europa), ce jeudi 26 novembre, Loïs Openda, l'attaquant lyonnais, a finalement vu…",
@@ -2021,73 +2089,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "60012e731ebd0a1c",
-    "title": "Ligue Europa : Crystal Palace renverse la Real Sociedad, Torreense proche de l’exploit face au Celtic Glasgow, le résumé de la soirée",
-    "summary": "Attention à la vieille dame. La Juventus ne s’est fait que très brièvement peur ce jeudi soir. Après avoir encaissé…",
-    "summary_short": "Attention à la vieille dame. La Juventus ne s’est fait que très brièvement peur ce jeudi soir. Après avoir encaissé…",
-    "content": "Attention à la vieille dame. La Juventus ne s’est fait que très brièvement peur ce jeudi soir. Après avoir encaissé…",
-    "paragraphs": [
-      "Attention à la vieille dame. La Juventus ne s’est fait que très brièvement peur ce jeudi soir. Après avoir encaissé…"
-    ],
-    "key_points": [
-      "La Juventus ne s’est fait que très brièvement peur ce jeudi soir."
-    ],
-    "telegram_summary": "Attention à la vieille dame. La Juventus ne s’est fait que très brièvement peur ce jeudi soir. Après avoir encaissé…",
-    "link": "https://www.sofoot.com/breves/ligue-europa-crystal-palace-renverse-la-real-sociedad-torreense-proche-de-lexploit-face-au-celtic-glasgow-le-resume-de-la-soiree",
-    "source_url": "https://www.sofoot.com/breves/ligue-europa-crystal-palace-renverse-la-real-sociedad-torreense-proche-de-lexploit-face-au-celtic-glasgow-le-resume-de-la-soiree",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=60012e731ebd0a1c",
-    "published": "2026-11-26T22:30:06+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26232927/15417209.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26232927/15417209.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "6ea6350af118385b",
-    "title": "Ligue Conférence : le classement de la phase de Ligue",
-    "summary": "Découvrez le classement de la phase de ligue de la Ligue Europa Conférence 2026/27 !",
-    "summary_short": "Découvrez le classement de la phase de ligue de la Ligue Europa Conférence 2026/27 !",
-    "content": "Découvrez le classement de la phase de ligue de la Ligue Europa Conférence 2026/27 !",
-    "paragraphs": [
-      "Découvrez le classement de la phase de ligue de la Ligue Europa Conférence 2026/27 !"
-    ],
-    "key_points": [
-      "Découvrez le classement de la phase de ligue de la Ligue Europa Conférence 2026/27 !"
-    ],
-    "telegram_summary": "Découvrez le classement de la phase de ligue de la Ligue Europa Conférence 2026/27 !",
-    "link": "https://www.onzemondial.com/europa-league-conference/ligue-conference-le-classement-de-la-phase-de-ligue-1002903",
-    "source_url": "https://www.onzemondial.com/europa-league-conference/ligue-conference-le-classement-de-la-phase-de-ligue-1002903",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6ea6350af118385b",
-    "published": "2026-11-26T22:30:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1002903/409486/1200-L-ligue-confrence-le-classement-de-la-phase-de-ligue.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002903/409486/1200-L-ligue-confrence-le-classement-de-la-phase-de-ligue.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
