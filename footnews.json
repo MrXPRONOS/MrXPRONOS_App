@@ -1,5 +1,66 @@
 [
   {
+    "slug": "0a7bd60234dba618",
+    "title": "Premier League : Nottingham Forest enfonce Chelsea dans la crise",
+    "summary": "Chelsea n’y arrive plus. Déjà en grande difficulté ces dernières semaines avec deux défaites en championnat face à Sunderland (1-0) et Leeds (4-1), les Blues ont confirmé leur mauvaise passe en (…)",
+    "summary_short": "Chelsea n’y arrive plus. Déjà en grande difficulté ces dernières semaines avec deux défaites en championnat face à Sunderland (1-0) et Leeds (4-1), les Blues ont confirmé leur mauvaise passe en (…)",
+    "content": "Chelsea n’y arrive plus. Déjà en grande difficulté ces dernières semaines avec deux défaites en championnat face à Sunderland (1-0) et Leeds (4-1), les Blues ont confirmé leur mauvaise passe en (…)",
+    "paragraphs": [
+      "Chelsea n’y arrive plus. Déjà en grande difficulté ces dernières semaines avec deux défaites en championnat face à Sunderland (1-0) et Leeds (4-1), les Blues ont confirmé leur mauvaise passe en (…)"
+    ],
+    "key_points": [
+      "Déjà en grande difficulté ces dernières semaines avec deux défaites en championnat face à Sunderland (1-0) et Leeds (4-1), les Blues ont confirmé leur mauvaise passe en (…)"
+    ],
+    "telegram_summary": "Chelsea n’y arrive plus. Déjà en grande difficulté ces dernières semaines avec deux défaites en championnat face à Sunderland (1-0) et Leeds (4-1), les Blues ont confirmé leur mauvaise passe en (…)",
+    "link": "https://www.footmercato.net/a9158036255785414277-premier-league-nottingham-forest-enfonce-chelsea-dans-la-crise",
+    "source_url": "https://www.footmercato.net/a9158036255785414277-premier-league-nottingham-forest-enfonce-chelsea-dans-la-crise",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0a7bd60234dba618",
+    "published": "2026-11-27T21:54:43+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/xabialonso-6a99280715b24.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/xabialonso-6a99280715b24.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50614098",
+      "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
+      "published": "2026-11-27T21:26:26Z",
+      "score": 0.214,
+      "matched_terms": [
+        "chelsea",
+        "forest",
+        "nottingham"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Chelsea",
+        "Nottingham Forest"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-27T21:56:34.139088+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
     "slug": "7dc039a2d315646e",
     "title": "Lens : Risser répond aux critiques",
     "summary": "Face aux difficultés défensives du RC Lens, le gardien Robin Risser (21 ans, 11 matchs en L1 cette saison) n'a pas échapp......",
@@ -191,7 +252,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:40:10.404320+00:00"
+      "checked_at": "2026-11-27T21:56:34.139088+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1300,19 +1361,153 @@
     "quality_score": 83
   },
   {
+    "slug": "7aa3cb26f89519b5",
+    "title": "Coupe de France : Premier grand exploit du 8e tour, un club de Régional 1 fait tomber le SM Caen",
+    "summary": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "summary_short": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "content": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "paragraphs": [
+      "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3)."
+    ],
+    "key_points": [
+      "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3)."
+    ],
+    "telegram_summary": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-coupe-de-france-premier-grand-exploit-du-8e-tour-un-club-de-regional-1-fait-tomber-le-sm-caen-547271.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-coupe-de-france-premier-grand-exploit-du-8e-tour-un-club-de-regional-1-fait-tomber-le-sm-caen-547271.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7aa3cb26f89519b5",
+    "published": "2026-11-27T21:53:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/buzz/2022/une/-20221121091115-9445.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2022/une/-20221121091115-9445.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "488991aeb8bd7fc9",
+    "title": "Celtic defend head of security amid Green Brigade row",
+    "summary": "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season.",
+    "summary_short": "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season.",
+    "content": "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season.",
+    "paragraphs": [
+      "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season."
+    ],
+    "key_points": [
+      "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season."
+    ],
+    "telegram_summary": "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/ck1ewjw1qqn7o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/ck1ewjw1qqn7o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=488991aeb8bd7fc9",
+    "published": "2026-11-27T21:50:01+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/19ef/live/10726840-eaa6-11f1-9541-edfa153772c7.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/19ef/live/10726840-eaa6-11f1-9541-edfa153772c7.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "eaf555a79261ff98",
+    "title": "Ligue 1 : Brest fait tomber le Paris FC et s'invite provisoirement sur le podium",
+    "summary": "Porté par une solidité collective impressionnante et un Elvik impérial dans ses cages, Brest a fait tomber le Paris FC (0-1) pour signer une quatrième victoire consécutive en Ligue 1 et s'inviter provisoirement sur le podium.",
+    "summary_short": "Porté par une solidité collective impressionnante et un Elvik impérial dans ses cages, Brest a fait tomber le Paris FC (0-1) pour signer une quatrième victoire consécutive en Ligue 1 et s'inviter provisoirement sur le podium.",
+    "content": "Porté par une solidité collective impressionnante et un Elvik impérial dans ses cages, Brest a fait tomber le Paris FC (0-1) pour signer une quatrième victoire consécutive en Ligue 1 et s'inviter provisoirement sur le podium.",
+    "paragraphs": [
+      "Porté par une solidité collective impressionnante et un Elvik impérial dans ses cages, Brest a fait tomber le Paris FC (0-1) pour signer une quatrième victoire consécutive en Ligue 1 et s'inviter provisoirement sur le podium."
+    ],
+    "key_points": [
+      "Porté par une solidité collective impressionnante et un Elvik impérial dans ses cages, Brest a fait tomber le Paris FC (0-1) pour signer une quatrième victoire consécutive en Ligue 1 et s'inviter provisoirement sur le podium."
+    ],
+    "telegram_summary": "Porté par une solidité collective impressionnante et un Elvik impérial dans ses cages, Brest a fait tomber le Paris FC (0-1) pour signer une quatrième victoire consécutive en Ligue 1 et s'inviter provisoirement sur le podium.",
+    "link": "https://www.onzemondial.com/ligue-1-brest-fait-tomber-le-paris-fc-et-s-invite-provisoirement-sur-le-podium-1011796",
+    "source_url": "https://www.onzemondial.com/ligue-1-brest-fait-tomber-le-paris-fc-et-s-invite-provisoirement-sur-le-podium-1011796",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eaf555a79261ff98",
+    "published": "2026-11-27T21:43:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011796/411743/1200-L-ligue-1-brest-fait-tomber-le-paris-fc-et-s-invite-provisoirement-sur-le-podium.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011796/411743/1200-L-ligue-1-brest-fait-tomber-le-paris-fc-et-s-invite-provisoirement-sur-le-podium.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "0ba2a87aa38d7ba1",
+    "title": "Ligue 1 : Brest ramène le Paris FC sur terre grâce à un grand Egil Selvik et se hisse sur le podium",
+    "summary": "Les Bretons ne s'arrêtent plus !",
+    "summary_short": "Les Bretons ne s'arrêtent plus !",
+    "content": "Les Bretons ne s'arrêtent plus !",
+    "paragraphs": [
+      "Les Bretons ne s'arrêtent plus !"
+    ],
+    "key_points": [],
+    "telegram_summary": "Les Bretons ne s'arrêtent plus !",
+    "link": "https://www.sofoot.com/breves/ligue-1-brest-ramene-le-paris-fc-sur-terre-grace-a-un-grand-egil-selvik-et-se-hisse-sur-le-podium",
+    "source_url": "https://www.sofoot.com/breves/ligue-1-brest-ramene-le-paris-fc-sur-terre-grace-a-un-grand-egil-selvik-et-se-hisse-sur-le-podium",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ba2a87aa38d7ba1",
+    "published": "2026-11-27T21:41:00+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27224021/15424465.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27224021/15424465.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "0ee732d9fdf183a9",
     "title": "Ligue 1 : Brest fait tomber le Paris FC et monte sur le podium",
-    "summary": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Brestois.C’est un (…)",
-    "summary_short": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Brestois.C’est un (…)",
-    "content": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Brestois.C’est un (…)",
+    "summary": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
+    "summary_short": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
+    "content": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
     "paragraphs": [
-      "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Brestois.C’est un (…)"
+      "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)"
     ],
     "key_points": [
       "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1.",
-      "La récompense d’un début de saison bluffant de la part des Brestois.C’est un (…)"
+      "La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)"
     ],
-    "telegram_summary": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Brestois.C’est un (…)",
+    "telegram_summary": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
     "link": "https://www.footmercato.net/a4830964467713620656-ligue-1-brest-fait-tomber-le-paris-fc-et-monte-sur-le-podium",
     "source_url": "https://www.footmercato.net/a4830964467713620656-ligue-1-brest-fait-tomber-le-paris-fc-et-monte-sur-le-podium",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ee732d9fdf183a9",
@@ -1459,7 +1654,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-27T21:40:10.404320+00:00"
+      "checked_at": "2026-11-27T21:56:34.139088+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1555,7 +1750,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:40:10.404320+00:00"
+      "checked_at": "2026-11-27T21:56:34.139088+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1614,7 +1809,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:40:10.404320+00:00"
+      "checked_at": "2026-11-27T21:56:34.139088+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1728,16 +1923,16 @@
   {
     "slug": "efc2853c0760e4a5",
     "title": "Coupe de France : Saint-Omer (R1) crée l’exploit en éliminant Caen, ça passe pour Valenciennes et Cannes",
-    "summary": "La magie de la Coupe, on ne s'en lassera jamais.",
-    "summary_short": "La magie de la Coupe, on ne s'en lassera jamais.",
-    "content": "La magie de la Coupe, on ne s'en lassera jamais.",
+    "summary": "La magie de la Coupe, on ne s’en lassera jamais.",
+    "summary_short": "La magie de la Coupe, on ne s’en lassera jamais.",
+    "content": "La magie de la Coupe, on ne s’en lassera jamais.",
     "paragraphs": [
-      "La magie de la Coupe, on ne s'en lassera jamais."
+      "La magie de la Coupe, on ne s’en lassera jamais."
     ],
     "key_points": [
-      "La magie de la Coupe, on ne s'en lassera jamais."
+      "La magie de la Coupe, on ne s’en lassera jamais."
     ],
-    "telegram_summary": "La magie de la Coupe, on ne s'en lassera jamais.",
+    "telegram_summary": "La magie de la Coupe, on ne s’en lassera jamais.",
     "link": "https://www.sofoot.com/breves/coupe-de-france-saint-omer-r1-cree-lexploit-en-eliminant-caen-ca-passe-pour-valenciennes-et-cannes",
     "source_url": "https://www.sofoot.com/breves/coupe-de-france-saint-omer-r1-cree-lexploit-en-eliminant-caen-ca-passe-pour-valenciennes-et-cannes",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=efc2853c0760e4a5",
@@ -1985,7 +2180,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:40:10.404320+00:00"
+      "checked_at": "2026-11-27T21:56:34.139088+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2060,175 +2255,5 @@
       "So Foot"
     ],
     "quality_score": 77
-  },
-  {
-    "slug": "09d45c40a24f0156",
-    "title": "Coupe de France : Cannes renverse Le Puy aux tirs au but et décroche son billet pour les 32es",
-    "summary": "Au terme d'une rencontre accrochée, l'AS Cannes a décroché son billet pour les 32es de finale de la Coupe de France en éliminant Le Puy-en-Velay aux tirs au but.",
-    "summary_short": "Au terme d'une rencontre accrochée, l'AS Cannes a décroché son billet pour les 32es de finale de la Coupe de France en éliminant Le Puy-en-Velay aux tirs au but.",
-    "content": "Au terme d'une rencontre accrochée, l'AS Cannes a décroché son billet pour les 32es de finale de la Coupe de France en éliminant Le Puy-en-Velay aux tirs au but.",
-    "paragraphs": [
-      "Au terme d'une rencontre accrochée, l'AS Cannes a décroché son billet pour les 32es de finale de la Coupe de France en éliminant Le Puy-en-Velay aux tirs au but."
-    ],
-    "key_points": [
-      "Au terme d'une rencontre accrochée, l'AS Cannes a décroché son billet pour les 32es de finale de la Coupe de France en éliminant Le Puy-en-Velay aux tirs au but."
-    ],
-    "telegram_summary": "Au terme d'une rencontre accrochée, l'AS Cannes a décroché son billet pour les 32es de finale de la Coupe de France en éliminant Le Puy-en-Velay aux tirs au but.",
-    "link": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-cannes-renverse-le-puy-aux-tirs-au-but-et-decroche-son-billet-pour-les-32es-1011795",
-    "source_url": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-cannes-renverse-le-puy-aux-tirs-au-but-et-decroche-son-billet-pour-les-32es-1011795",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=09d45c40a24f0156",
-    "published": "2026-11-27T20:22:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011795/411739/1200-L-coupe-de-france-cannes-renverse-le-puy-aux-tirs-au-but-et-dcroche-son-billet-pour-les-32es.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011795/411739/1200-L-coupe-de-france-cannes-renverse-le-puy-aux-tirs-au-but-et-dcroche-son-billet-pour-les-32es.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "c57225d599f26a97",
-    "title": "Mercato LOSC : Olivier Létang couvre Ethan Mbappé d'éloges après sa prolongation et affiche de grandes ambitions pour son avenir",
-    "summary": "Ethan Mbappé a prolongé son contrat.",
-    "summary_short": "Ethan Mbappé a prolongé son contrat.",
-    "content": "Ethan Mbappé a prolongé son contrat.",
-    "paragraphs": [
-      "Ethan Mbappé a prolongé son contrat."
-    ],
-    "key_points": [
-      "Ethan Mbappé a prolongé son contrat."
-    ],
-    "telegram_summary": "Ethan Mbappé a prolongé son contrat.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-olivier-letang-couvre-ethan-mbappe-d-eloges-apres-sa-prolongation-et-affiche-de-grandes-ambitions-pour-son-avenir-547264.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-olivier-letang-couvre-ethan-mbappe-d-eloges-apres-sa-prolongation-et-affiche-de-grandes-ambitions-pour-son-avenir-547264.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c57225d599f26a97",
-    "published": "2026-11-27T20:18:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250209095501-8637.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250209095501-8637.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "8007ddcc0dca7705",
-    "title": "Mercato LOSC : Le LOSC annonce la prolongation d'Ethan Mbappé ! (officiel)",
-    "summary": "Le LOSC a prolongé le contrat d'Ethan Mbappé.",
-    "summary_short": "Le LOSC a prolongé le contrat d'Ethan Mbappé.",
-    "content": "Le LOSC a prolongé le contrat d'Ethan Mbappé.",
-    "paragraphs": [
-      "Le LOSC a prolongé le contrat d'Ethan Mbappé."
-    ],
-    "key_points": [
-      "Le LOSC a prolongé le contrat d'Ethan Mbappé."
-    ],
-    "telegram_summary": "Le LOSC a prolongé le contrat d'Ethan Mbappé.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-le-losc-annonce-la-prolongation-d-ethan-mbappe-officiel-547263.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-losc-le-losc-annonce-la-prolongation-d-ethan-mbappe-officiel-547263.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8007ddcc0dca7705",
-    "published": "2026-11-27T20:05:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261030224754-7001.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261030224754-7001.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "29e982d0c5ddc093",
-    "title": "« Ils réclament des joueurs comme Neymar, mais critiquent Lamine », Casado vole au secours de Yamal",
-    "summary": "Marc Casado a rejoint le Deportivo la Corogne en prêt en provenance du FC Barcelone et retrouvera son club ce dimanche à l'occasion de la 14ème journée de championnat.",
-    "summary_short": "Marc Casado a rejoint le Deportivo la Corogne en prêt en provenance du FC Barcelone et retrouvera son club ce dimanche à l'occasion de la 14ème journée de championnat.",
-    "content": "Marc Casado a rejoint le Deportivo la Corogne en prêt en provenance du FC Barcelone et retrouvera son club ce dimanche à l'occasion de la 14ème journée de championnat.",
-    "paragraphs": [
-      "Marc Casado a rejoint le Deportivo la Corogne en prêt en provenance du FC Barcelone et retrouvera son club ce dimanche à l'occasion de la 14ème journée de championnat."
-    ],
-    "key_points": [
-      "Marc Casado a rejoint le Deportivo la Corogne en prêt en provenance du FC Barcelone et retrouvera son club ce dimanche à l'occasion de la 14ème journée de championnat."
-    ],
-    "telegram_summary": "Marc Casado a rejoint le Deportivo la Corogne en prêt en provenance du FC Barcelone et retrouvera son club ce dimanche à l'occasion de la 14ème journée de championnat.",
-    "link": "https://www.onzemondial.com/liga/ils-reclament-des-joueurs-comme-neymar-mais-critiquent-lamine-casado-vole-au-secours-de-yamal-1011748",
-    "source_url": "https://www.onzemondial.com/liga/ils-reclament-des-joueurs-comme-neymar-mais-critiquent-lamine-casado-vole-au-secours-de-yamal-1011748",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=29e982d0c5ddc093",
-    "published": "2026-11-27T20:03:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011748/411727/1200-L--ils-rclament-des-joueurs-comme-neymar-mais-critiquent-lamine-casado-vole-au-secours-de-yamal.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011748/411727/1200-L--ils-rclament-des-joueurs-comme-neymar-mais-critiquent-lamine-casado-vole-au-secours-de-yamal.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "ea3c7e4c38febc82",
-    "title": "Scènes de chaos et de violences avant le match OM-Levski Sofia",
-    "summary": "Au stade Vélodrome de Marseille, dans les Bouches-du-Rhône, des supporters marseillais et bulgares se sont battus, jeudi 26 novembre, à quelques minutes du coup d'envoi du match.",
-    "summary_short": "Au stade Vélodrome de Marseille, dans les Bouches-du-Rhône, des supporters marseillais et bulgares se sont battus, jeudi 26 novembre, à quelques minutes du coup d'envoi du match.",
-    "content": "Au stade Vélodrome de Marseille, dans les Bouches-du-Rhône, des supporters marseillais et bulgares se sont battus, jeudi 26 novembre, à quelques minutes du coup d'envoi du match.",
-    "paragraphs": [
-      "Au stade Vélodrome de Marseille, dans les Bouches-du-Rhône, des supporters marseillais et bulgares se sont battus, jeudi 26 novembre, à quelques minutes du coup d'envoi du match."
-    ],
-    "key_points": [
-      "Au stade Vélodrome de Marseille, dans les Bouches-du-Rhône, des supporters marseillais et bulgares se sont battus, jeudi 26 novembre, à quelques minutes du coup d'envoi du match."
-    ],
-    "telegram_summary": "Au stade Vélodrome de Marseille, dans les Bouches-du-Rhône, des supporters marseillais et bulgares se sont battus, jeudi 26 novembre, à quelques minutes du coup d'envoi du match.",
-    "link": "https://www.franceinfo.fr/sports/foot/scenes-de-chaos-et-de-violences-avant-le-match-om-levski-sofia_8303718.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/scenes-de-chaos-et-de-violences-avant-le-match-om-levski-sofia_8303718.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ea3c7e4c38febc82",
-    "published": "2026-11-27T20:00:29+00:00",
-    "image": "https://www.franceinfo.fr/pictures/ggSJ98oqMREr8IkHjW2r9D61Qak/0x0:1520x855/432x243/filters:format(jpg)/2026/11/27/6b09dcb1ba078263888235.jpg",
-    "source_image": "https://www.franceinfo.fr/pictures/ggSJ98oqMREr8IkHjW2r9D61Qak/0x0:1520x855/432x243/filters:format(jpg)/2026/11/27/6b09dcb1ba078263888235.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
   }
 ]
