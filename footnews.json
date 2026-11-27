@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/can/direct-senegal-vainqueur-de-la-can-le-tribunal-arbitral-du-sport-a-rendu-justice-au-sport-estime-le-president-de-la-federation-senegalaise_8298138.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=372148789e1ffaf5",
-    "published": "2026-11-27T05:05:28+00:00",
+    "published": "2026-11-27T05:40:28+00:00",
     "image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/IDL5HqCd6Twh65fb4p5ujL_kUYs/0x106:1024x682/432x243/filters:format(jpg)/2026/11/24/6b05c2991ebd7493036506.jpg",
     "image_origin": "source",
@@ -1574,6 +1574,74 @@
     "quality_score": 90
   },
   {
+    "slug": "8ffb6cb83d7ec6f2",
+    "title": "Barça : la réponse sèche d'Aubameyang sur ses retrouvailles avec les Blaugranas",
+    "summary": "Malgré son passage remarqué en Catalogne, Pierre-Emerick Aubameyang ne considère pas ses retrouvailles avec le Barça comme un rendez-vous particulier.",
+    "summary_short": "Malgré son passage remarqué en Catalogne, Pierre-Emerick Aubameyang ne considère pas ses retrouvailles avec le Barça comme un rendez-vous particulier.",
+    "content": "Malgré son passage remarqué en Catalogne, Pierre-Emerick Aubameyang ne considère pas ses retrouvailles avec le Barça comme un rendez-vous particulier.",
+    "paragraphs": [
+      "Malgré son passage remarqué en Catalogne, Pierre-Emerick Aubameyang ne considère pas ses retrouvailles avec le Barça comme un rendez-vous particulier."
+    ],
+    "key_points": [
+      "Malgré son passage remarqué en Catalogne, Pierre-Emerick Aubameyang ne considère pas ses retrouvailles avec le Barça comme un rendez-vous particulier."
+    ],
+    "telegram_summary": "Malgré son passage remarqué en Catalogne, Pierre-Emerick Aubameyang ne considère pas ses retrouvailles avec le Barça comme un rendez-vous particulier.",
+    "link": "https://www.onzemondial.com/barca-la-reponse-seche-d-aubameyang-sur-ses-retrouvailles-avec-les-blaugranas-1011527",
+    "source_url": "https://www.onzemondial.com/barca-la-reponse-seche-d-aubameyang-sur-ses-retrouvailles-avec-les-blaugranas-1011527",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8ffb6cb83d7ec6f2",
+    "published": "2026-11-27T05:30:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011527/411675/1200-L-bara-la-rponse-sche-d-aubameyang-sur-ses-retrouvailles-avec-les-blaugranas.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011527/411675/1200-L-bara-la-rponse-sche-d-aubameyang-sur-ses-retrouvailles-avec-les-blaugranas.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "30017771effdac4a",
+    "title": "PSG : Quelle porte de sortie pour Lucas Chevalier ?",
+    "summary": "Des volontaires pour relancer un gardien en détresse ?",
+    "summary_short": "Des volontaires pour relancer un gardien en détresse ?",
+    "content": "Des volontaires pour relancer un gardien en détresse ?",
+    "paragraphs": [
+      "Des volontaires pour relancer un gardien en détresse ?"
+    ],
+    "key_points": [
+      "Des volontaires pour relancer un gardien en détresse ?"
+    ],
+    "telegram_summary": "Des volontaires pour relancer un gardien en détresse ?",
+    "link": "https://www.sofoot.com/articles/psg-quelle-porte-de-sortie-pour-lucas-chevalier",
+    "source_url": "https://www.sofoot.com/articles/psg-quelle-porte-de-sortie-pour-lucas-chevalier",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=30017771effdac4a",
+    "published": "2026-11-27T05:00:09+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26165213/15412628.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/26165213/15412628.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "98a4eef966f34729",
     "title": "Brest-Paris FC : chaîne TV, streaming… À quelle heure et où suivre ce match d’ouverture de la 12ème journée de Ligue 1 entre deux ambitieux ?",
     "summary": "Le Stade Brestois reçoit le Paris FC ce vendredi soir pour ouvrir la 12ème journée de Ligue 1. Les deux formations se retrouvent à 20h45, au stade Francis-Le Blé, pour une opposition entre deux équipes particulièrement bien installées dans la première partie du classement.",
@@ -2023,73 +2091,5 @@
       "So Foot"
     ],
     "quality_score": 77
-  },
-  {
-    "slug": "0681d5b28fdfcdeb",
-    "title": "OL - Lilleström : Vicens et Openda ne cherchent pas d'excuses malgré la situation du penalty",
-    "summary": "Carlos Vicens et Loïs Openda ont réagi à la situation litigieuse en fin de match après le penalty finalement annulé contre l'Olympique lyonnais lors du match face à Lilleström.",
-    "summary_short": "Carlos Vicens et Loïs Openda ont réagi à la situation litigieuse en fin de match après le penalty finalement annulé contre l'Olympique lyonnais lors du match face à Lilleström.",
-    "content": "Carlos Vicens et Loïs Openda ont réagi à la situation litigieuse en fin de match après le penalty finalement annulé contre l'Olympique lyonnais lors du match face à Lilleström.",
-    "paragraphs": [
-      "Carlos Vicens et Loïs Openda ont réagi à la situation litigieuse en fin de match après le penalty finalement annulé contre l'Olympique lyonnais lors du match face à Lilleström."
-    ],
-    "key_points": [
-      "Carlos Vicens et Loïs Openda ont réagi à la situation litigieuse en fin de match après le penalty finalement annulé contre l'Olympique lyonnais lors du match face à Lilleström."
-    ],
-    "telegram_summary": "Carlos Vicens et Loïs Openda ont réagi à la situation litigieuse en fin de match après le penalty finalement annulé contre l'Olympique lyonnais lors du match face à Lilleström.",
-    "link": "https://www.onzemondial.com/europa-league/ol-lillestrom-vicens-et-openda-ne-cherchent-pas-dexcuses-malgre-la-situation-du-penalty-1011582",
-    "source_url": "https://www.onzemondial.com/europa-league/ol-lillestrom-vicens-et-openda-ne-cherchent-pas-dexcuses-malgre-la-situation-du-penalty-1011582",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0681d5b28fdfcdeb",
-    "published": "2026-11-26T22:51:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011582/411688/1200-L-ol-lillestrm-vicens-et-openda-ne-cherchent-pas-d-excuses-malgr-la-situation-du-penalty.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011582/411688/1200-L-ol-lillestrm-vicens-et-openda-ne-cherchent-pas-d-excuses-malgr-la-situation-du-penalty.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "5d1e9caa80eb05ca",
-    "title": "Stade Rennais : Franck Haise livre un constat amer après la défaite contre le NEC Nimègue",
-    "summary": "La réaction à chaud de Franck Haise au micro de Canal+.",
-    "summary_short": "La réaction à chaud de Franck Haise au micro de Canal+.",
-    "content": "La réaction à chaud de Franck Haise au micro de Canal+.",
-    "paragraphs": [
-      "La réaction à chaud de Franck Haise au micro de Canal+."
-    ],
-    "key_points": [
-      "La réaction à chaud de Franck Haise au micro de Canal+."
-    ],
-    "telegram_summary": "La réaction à chaud de Franck Haise au micro de Canal+.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-franck-haise-livre-un-constat-amer-apres-la-defaite-contre-le-nec-nimegue-547159.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-franck-haise-livre-un-constat-amer-apres-la-defaite-contre-le-nec-nimegue-547159.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5d1e9caa80eb05ca",
-    "published": "2026-11-26T22:41:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164157-1463.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164157-1463.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
