@@ -1,15 +1,5 @@
 {
-  "active": {
-    "cat": "mindset",
-    "cid": "78d487487f1aebd7bcfb26d4d9185b191d9011954ced965c6d6b340a48fcd2b5",
-    "marks": [
-      "1c4cda6bca75e98f5b656602479da7dc192244cd97b99597b21f701b2f95e7ef",
-      "608f8c3ea9b88ed9a694af73da1fc85a3de0164f6d2c4dd80bfa8799e6b8a861",
-      "7ff4cee4af2b366dcbae72e8abf2baffb2298c7dda6b5fb0ad9f1e67e727190f"
-    ],
-    "next": 2,
-    "pending": null
-  },
+  "active": null,
   "cooldown": 1795729670,
   "done": {
     "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
@@ -91,6 +81,11 @@
     "6c98e22e74425176e7116f6ef6b7f8a1a2da3c4988120380de91e18c7f2ad789": [
       "17062dcdbc895f04ddf9fc545197b120f14734e596074310ad9814bf12ba23d4",
       "18a5ed6de688a992f751b0dfdd426f82a35e69b63fd59d846b875691ead5249a"
+    ],
+    "78d487487f1aebd7bcfb26d4d9185b191d9011954ced965c6d6b340a48fcd2b5": [
+      "1c4cda6bca75e98f5b656602479da7dc192244cd97b99597b21f701b2f95e7ef",
+      "608f8c3ea9b88ed9a694af73da1fc85a3de0164f6d2c4dd80bfa8799e6b8a861",
+      "7ff4cee4af2b366dcbae72e8abf2baffb2298c7dda6b5fb0ad9f1e67e727190f"
     ],
     "8dde0662c0063b1b0b1cdd3c69832a58d3ad161779209e7255a599063ff46dec": [
       "16e3348facf8bdf504fd11ae0a9a25ec7f68f767ec07c029c024f5833e265801",
