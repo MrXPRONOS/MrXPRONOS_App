@@ -32,7 +32,7 @@
       "source": "ESPN News API",
       "article_id": "50614098",
       "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T22:42:30Z",
+      "published": "2026-11-27T23:13:21Z",
       "score": 0.214,
       "matched_terms": [
         "chelsea",
@@ -52,7 +52,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T23:09:59.644809+00:00"
+      "checked_at": "2026-11-27T23:40:05.236326+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -252,7 +252,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T23:09:59.644809+00:00"
+      "checked_at": "2026-11-27T23:40:05.236326+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1186,6 +1186,74 @@
     "quality_score": 86
   },
   {
+    "slug": "1e8ad0b54de4cdc0",
+    "title": "Franck Haisé viré : au Stade rennais, tout le monde peut perdre sa place",
+    "summary": "Franck Haise a été viré après moins de 10 mois à Rennes, où chacun peut se sentir menacé.",
+    "summary_short": "Franck Haise a été viré après moins de 10 mois à Rennes, où chacun peut se sentir menacé.",
+    "content": "Franck Haise a été viré après moins de 10 mois à Rennes, où chacun peut se sentir menacé.",
+    "paragraphs": [
+      "Franck Haise a été viré après moins de 10 mois à Rennes, où chacun peut se sentir menacé."
+    ],
+    "key_points": [
+      "Franck Haise a été viré après moins de 10 mois à Rennes, où chacun peut se sentir menacé."
+    ],
+    "telegram_summary": "Franck Haise a été viré après moins de 10 mois à Rennes, où chacun peut se sentir menacé.",
+    "link": "https://www.sofoot.com/articles/franck-haise-vire-au-stade-rennais-tout-le-monde-peut-perdre-sa-place",
+    "source_url": "https://www.sofoot.com/articles/franck-haise-vire-au-stade-rennais-tout-le-monde-peut-perdre-sa-place",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1e8ad0b54de4cdc0",
+    "published": "2026-11-27T23:15:45+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27231840/ICONSPORT_380160_0181-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27231840/ICONSPORT_380160_0181-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "d78cc9877c26504a",
+    "title": "Wilshere v Ramsey - Arsenal legends treading similar managerial paths",
+    "summary": "Eighteen years after making their Premier League debuts two minutes apart, Jack Wilshere and Aaron Ramsey meet as managers.",
+    "summary_short": "Eighteen years after making their Premier League debuts two minutes apart, Jack Wilshere and Aaron Ramsey meet as managers.",
+    "content": "Eighteen years after making their Premier League debuts two minutes apart, Jack Wilshere and Aaron Ramsey meet as managers.",
+    "paragraphs": [
+      "Eighteen years after making their Premier League debuts two minutes apart, Jack Wilshere and Aaron Ramsey meet as managers."
+    ],
+    "key_points": [
+      "Eighteen years after making their Premier League debuts two minutes apart, Jack Wilshere and Aaron Ramsey meet as managers."
+    ],
+    "telegram_summary": "Eighteen years after making their Premier League debuts two minutes apart, Jack Wilshere and Aaron Ramsey meet as managers.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cm1dvn9w1px4o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cm1dvn9w1px4o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d78cc9877c26504a",
+    "published": "2026-11-27T22:58:49+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/5bf9/live/42579250-ea73-11f1-99a1-253766e7ad8b.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/5bf9/live/42579250-ea73-11f1-99a1-253766e7ad8b.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
     "slug": "6afdd17c21233b20",
     "title": "Pologne : Un spectateur interrompt un match en faisant irruption sur la pelouse en trottinette électrique",
     "summary": "Tout peut arriver en D3 polonaise. Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…",
@@ -1413,7 +1481,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T23:09:59.644809+00:00"
+      "checked_at": "2026-11-27T23:40:05.236326+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2120,107 +2188,12 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-27T23:09:59.644809+00:00"
+      "checked_at": "2026-11-27T23:40:05.236326+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "1288e2174df6d06e",
-    "title": "Lens : \"Je n’ai pas le souvenir d’avoir déjà vu ça\" ... Digard choqué par le talent de Mesloub",
-    "summary": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "summary_short": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "content": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "paragraphs": [
-      "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes."
-    ],
-    "key_points": [
-      "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes."
-    ],
-    "telegram_summary": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "link": "https://www.onzemondial.com/ligue-1/lens-je-nai-pas-le-souvenir-davoir-deja-vu-ca-digard-choque-par-le-talent-de-mesloub-1011781",
-    "source_url": "https://www.onzemondial.com/ligue-1/lens-je-nai-pas-le-souvenir-davoir-deja-vu-ca-digard-choque-par-le-talent-de-mesloub-1011781",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1288e2174df6d06e",
-    "published": "2026-11-27T21:32:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011781/411736/1200-L-lens-je-nai-pas-le-souvenir-davoir-dj-vu-a-digard-choqu-par-le-talent-de-mesloub.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011781/411736/1200-L-lens-je-nai-pas-le-souvenir-davoir-dj-vu-a-digard-choqu-par-le-talent-de-mesloub.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "135a13afb79b7afb",
-    "title": "'You're not welcome here' - Chelsea fans turn on Fofana",
-    "summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "summary_short": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "content": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "paragraphs": [
-      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview."
-    ],
-    "key_points": [
-      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview."
-    ],
-    "telegram_summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cmqlqeqd4wg5o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmqlqeqd4wg5o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=135a13afb79b7afb",
-    "published": "2026-11-27T21:31:54+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/60f7/live/58c8c760-eaa6-11f1-9541-edfa153772c7.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/60f7/live/58c8c760-eaa6-11f1-9541-edfa153772c7.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50614098",
-      "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T22:42:30Z",
-      "score": 0.231,
-      "matched_terms": [
-        "chelsea",
-        "fans",
-        "fofana"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Chelsea",
-        "Nottingham Forest"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-27T23:09:59.644809+00:00"
-    },
-    "quality_sources": [
-      "BBC Sport",
-      "ESPN"
-    ],
-    "quality_score": 93
   }
 ]
