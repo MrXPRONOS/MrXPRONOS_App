@@ -1,18 +1,18 @@
 {
   "contents": {
     "articles.json": {
-      "count": 55,
-      "unique_titles": 54,
-      "with_editorial_image": 55,
+      "count": 58,
+      "unique_titles": 57,
+      "with_editorial_image": 58,
       "visual_variants": {
-        "v1": 18,
+        "v1": 20,
         "v2": 18,
-        "v3": 19
+        "v3": 20
       },
       "source_types": {
-        "bsd": 55
+        "bsd": 58
       },
-      "with_social_image": 55
+      "with_social_image": 58
     },
     "conseils.json": {
       "count": 0,
@@ -30,39 +30,39 @@
         "legacy": 60
       },
       "source_types": {
-        "BBC Sport": 3,
-        "Foot Mercato": 12,
-        "France 24": 14,
-        "Franceinfo": 6,
-        "MadeInFoot": 3,
-        "Maxifoot": 1,
-        "Onze Mondial": 4,
-        "RFI": 5,
-        "RFI Afrique Foot": 7,
-        "So Foot": 5
+        "BBC Sport": 2,
+        "Foot Mercato": 11,
+        "France 24": 13,
+        "Franceinfo": 5,
+        "MadeInFoot": 7,
+        "Maxifoot": 2,
+        "Onze Mondial": 6,
+        "RFI": 6,
+        "RFI Afrique Foot": 4,
+        "So Foot": 4
       },
       "with_social_image": 0
     }
   },
   "delivery": {
-    "items": 1672,
-    "active_items": 115,
-    "retired_items": 1557,
+    "items": 1714,
+    "active_items": 118,
+    "retired_items": 1596,
     "platform_states": {
-      "facebook:not_requested": 1672,
-      "instagram:not_requested": 1672,
-      "telegram:not_requested": 1672,
-      "threads:not_requested": 1672,
-      "tiktok:not_requested": 1672,
-      "youtube:not_requested": 1672
+      "facebook:not_requested": 1714,
+      "instagram:not_requested": 1714,
+      "telegram:not_requested": 1714,
+      "threads:not_requested": 1714,
+      "tiktok:not_requested": 1714,
+      "youtube:not_requested": 1714
     }
   },
   "assets": {
-    "files": 1764,
-    "size_mb": 98.47,
+    "files": 1779,
+    "size_mb": 99.42,
     "by_format": {
-      ".jpg": 93,
-      ".webp": 1671
+      ".jpg": 96,
+      ".webp": 1683
     }
   },
   "real_clicks": null,
