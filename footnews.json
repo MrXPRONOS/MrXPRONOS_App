@@ -1,5 +1,43 @@
 [
   {
+    "slug": "c2a070cabb1d6ff6",
+    "title": "Le Café des Sports : Marseille-Levski Sofia, de violents affrontements entre supporters au Vélodrome",
+    "summary": "Le Café des Sports – vendredi 27 novembre 2026. Direct à 16 h 10 TU / 17 h 10 à Paris sur RFI. En vidéo sur Facebook Live et YouTube Live.",
+    "summary_short": "Le Café des Sports – vendredi 27 novembre 2026. Direct à 16 h 10 TU / 17 h 10 à Paris sur RFI. En vidéo sur Facebook Live et YouTube Live.",
+    "content": "Le Café des Sports – vendredi 27 novembre 2026. Direct à 16 h 10 TU / 17 h 10 à Paris sur RFI. En vidéo sur Facebook Live et YouTube Live. Rediffusion à 22 h 10 TU / 23 h 10 à Paris sur RFI et France 24. Au sommaire : Ligue Europa – Ultra violences au Vélodrome ; CAN 2025 – Le Sénégal retrouve son titre ! ; Premier League – Un dimanche très show ! ; Place aux cartons !",
+    "paragraphs": [
+      "Le Café des Sports – vendredi 27 novembre 2026. Direct à 16 h 10 TU / 17 h 10 à Paris sur RFI. En vidéo sur Facebook Live et YouTube Live.",
+      "Rediffusion à 22 h 10 TU / 23 h 10 à Paris sur RFI et France 24. Au sommaire : Ligue Europa – Ultra violences au Vélodrome ; CAN 2025 – Le Sénégal retrouve son titre ! ; Premier League – Un dimanche très show ! ; Place aux cartons !"
+    ],
+    "key_points": [
+      "Le Café des Sports – vendredi 27 novembre 2026.",
+      "Direct à 16 h 10 TU / 17 h 10 à Paris sur RFI.",
+      "En vidéo sur Facebook Live et YouTube Live.",
+      "Rediffusion à 22 h 10 TU / 23 h 10 à Paris sur RFI et France 24."
+    ],
+    "telegram_summary": "Le Café des Sports – vendredi 27 novembre 2026. Direct à 16 h 10 TU / 17 h 10 à Paris sur RFI. En vidéo sur Facebook Live et YouTube Live.",
+    "link": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261127-le-caf%C3%A9-des-sports-marseille-levski-sofia-de-violents-affrontements-entre-supporters-au-v%C3%A9lodrome",
+    "source_url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261127-le-caf%C3%A9-des-sports-marseille-levski-sofia-de-violents-affrontements-entre-supporters-au-v%C3%A9lodrome",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c2a070cabb1d6ff6",
+    "published": "2026-11-27T18:04:39+00:00",
+    "image": "https://s.rfi.fr/media/display/e6e8b06a-ea4b-11f1-9363-1991d4929b54/w:1024/p:16x9/2026-11-27T095058Z-434237915-RC2SVOAP7P6J-RTRMADP-3-SOCCER-EUROPA-VIOLENCE.jpg",
+    "source_image": "https://s.rfi.fr/media/display/e6e8b06a-ea4b-11f1-9363-1991d4929b54/w:1024/p:16x9/2026-11-27T095058Z-434237915-RC2SVOAP7P6J-RTRMADP-3-SOCCER-EUROPA-VIOLENCE.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
+  },
+  {
     "slug": "082606fe04c267ff",
     "title": "Rennes : c'est la fin pour Haise !",
     "summary": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
@@ -157,8 +195,8 @@
     "published": "2026-11-27T16:12:18+00:00",
     "image": "https://www.franceinfo.fr/pictures/vqtP8vaODo8OGJ5dr1kJFzpx_1w/0x0:1080x1920/fit-in/432x243/filters:upscale():fill(blur):format(jpg)/2026/11/27/6b09abb626892067180056.jpg",
     "source_image": "https://www.franceinfo.fr/pictures/vqtP8vaODo8OGJ5dr1kJFzpx_1w/0x0:1080x1920/fit-in/432x243/filters:upscale():fill(blur):format(jpg)/2026/11/27/6b09abb626892067180056.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
+    "image_origin": "generated_fallback",
+    "image_layout": "general-banner",
     "source": "Franceinfo",
     "source_priority": 82,
     "source_region": "international",
@@ -434,7 +472,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T17:43:46.072531+00:00"
+      "checked_at": "2026-11-27T18:10:13.716732+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -535,7 +573,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T17:43:46.072531+00:00"
+      "checked_at": "2026-11-27T18:10:13.716732+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -570,41 +608,6 @@
     "source_feed": "https://www.footmercato.net/flux-rss",
     "category": "Polémique",
     "category_emoji": "🔥",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "81c147aed472bc42",
-    "title": "La FFF communique à son tour sur les incidents d’OM-Levski Sofia",
-    "summary": "Depuis un peu moins de 24 heures, les prises de parole se multiplient après les incidents survenus lors d’Olympique de Marseille-Levski Sofia en Ligue Europa (1-0). Après le directeur sportif du club (…)",
-    "summary_short": "Depuis un peu moins de 24 heures, les prises de parole se multiplient après les incidents survenus lors d’Olympique de Marseille-Levski Sofia en Ligue Europa (1-0). Après le directeur sportif du club (…)",
-    "content": "Depuis un peu moins de 24 heures, les prises de parole se multiplient après les incidents survenus lors d’Olympique de Marseille-Levski Sofia en Ligue Europa (1-0). Après le directeur sportif du club (…)",
-    "paragraphs": [
-      "Depuis un peu moins de 24 heures, les prises de parole se multiplient après les incidents survenus lors d’Olympique de Marseille-Levski Sofia en Ligue Europa (1-0). Après le directeur sportif du club (…)"
-    ],
-    "key_points": [
-      "Depuis un peu moins de 24 heures, les prises de parole se multiplient après les incidents survenus lors d’Olympique de Marseille-Levski Sofia en Ligue Europa (1-0).",
-      "Après le directeur sportif du club (…)"
-    ],
-    "telegram_summary": "Depuis un peu moins de 24 heures, les prises de parole se multiplient après les incidents survenus lors d’Olympique de Marseille-Levski Sofia en Ligue Europa (1-0). Après le directeur sportif du club (…)",
-    "link": "https://www.footmercato.net/a7642225949641242078-la-fff-communique-a-son-tour-sur-les-incidents-dom-levski-sofia",
-    "source_url": "https://www.footmercato.net/a7642225949641242078-la-fff-communique-a-son-tour-sur-les-incidents-dom-levski-sofia",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=81c147aed472bc42",
-    "published": "2026-11-27T14:28:09+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/fff.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/fff.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
     "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
@@ -1500,6 +1503,208 @@
     "quality_score": 90
   },
   {
+    "slug": "26058d4e1fa0d299",
+    "title": "RC Lens : Didier Digard annonce trois forfaits face à Angers SCO",
+    "summary": "Le point sur l'effectif du RC Lens avant le match face à Angers SCO (J12 L1).",
+    "summary_short": "Le point sur l'effectif du RC Lens avant le match face à Angers SCO (J12 L1).",
+    "content": "Le point sur l'effectif du RC Lens avant le match face à Angers SCO (J12 L1).",
+    "paragraphs": [
+      "Le point sur l'effectif du RC Lens avant le match face à Angers SCO (J12 L1)."
+    ],
+    "key_points": [
+      "Le point sur l'effectif du RC Lens avant le match face à Angers SCO (J12 L1)."
+    ],
+    "telegram_summary": "Le point sur l'effectif du RC Lens avant le match face à Angers SCO (J12 L1).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-didier-digard-annonce-trois-forfaits-face-a-angers-sco-547245.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-didier-digard-annonce-trois-forfaits-face-a-angers-sco-547245.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=26058d4e1fa0d299",
+    "published": "2026-11-27T17:58:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261122092848-3736.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261122092848-3736.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "d11c1b0c76c42857",
+    "title": "Brentford veut devancer le Barça pour une pépite de Gérone",
+    "summary": "Le FC Barcelone pourrait voir l’une de ses pistes défensives lui échapper. Très attentif à la progression d’Holmes Junior, jeune défenseur central de 17 ans évoluant à Gérone, le club catalan est (…)",
+    "summary_short": "Le FC Barcelone pourrait voir l’une de ses pistes défensives lui échapper. Très attentif à la progression d’Holmes Junior, jeune défenseur central de 17 ans évoluant à Gérone, le club catalan est (…)",
+    "content": "Le FC Barcelone pourrait voir l’une de ses pistes défensives lui échapper. Très attentif à la progression d’Holmes Junior, jeune défenseur central de 17 ans évoluant à Gérone, le club catalan est (…)",
+    "paragraphs": [
+      "Le FC Barcelone pourrait voir l’une de ses pistes défensives lui échapper. Très attentif à la progression d’Holmes Junior, jeune défenseur central de 17 ans évoluant à Gérone, le club catalan est (…)"
+    ],
+    "key_points": [
+      "Le FC Barcelone pourrait voir l’une de ses pistes défensives lui échapper.",
+      "Très attentif à la progression d’Holmes Junior, jeune défenseur central de 17 ans évoluant à Gérone, le club catalan est (…)"
+    ],
+    "telegram_summary": "Le FC Barcelone pourrait voir l’une de ses pistes défensives lui échapper. Très attentif à la progression d’Holmes Junior, jeune défenseur central de 17 ans évoluant à Gérone, le club catalan est (…)",
+    "link": "https://www.footmercato.net/a1147638246813476452-brentford-veut-devancer-le-barca-pour-une-pepite-de-gerone",
+    "source_url": "https://www.footmercato.net/a1147638246813476452-brentford-veut-devancer-le-barca-pour-une-pepite-de-gerone",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d11c1b0c76c42857",
+    "published": "2026-11-27T17:53:57+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/deco-2324.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/deco-2324.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "787658d7ae2a3651",
+    "title": "Mercato Rennes : Le Stade Rennais a tranché pour Franck Haise, Sébastien Tambouret assurera l'intérim face au TFC !",
+    "summary": "Franck Haise est en passe d'être démis de ses fonctions d'entraîneur du Stade Rennais FC.",
+    "summary_short": "Franck Haise est en passe d'être démis de ses fonctions d'entraîneur du Stade Rennais FC.",
+    "content": "Franck Haise est en passe d'être démis de ses fonctions d'entraîneur du Stade Rennais FC.",
+    "paragraphs": [
+      "Franck Haise est en passe d'être démis de ses fonctions d'entraîneur du Stade Rennais FC."
+    ],
+    "key_points": [
+      "Franck Haise est en passe d'être démis de ses fonctions d'entraîneur du Stade Rennais FC."
+    ],
+    "telegram_summary": "Franck Haise est en passe d'être démis de ses fonctions d'entraîneur du Stade Rennais FC.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-rennes-le-stade-rennais-a-tranche-pour-franck-haise-sebastien-tambouret-assurera-l-interim-face-au-tfc-547241.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-rennes-le-stade-rennais-a-tranche-pour-franck-haise-sebastien-tambouret-assurera-l-interim-face-au-tfc-547241.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=787658d7ae2a3651",
+    "published": "2026-11-27T17:45:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164217-1772.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164217-1772.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "096f607b5a749cce",
+    "title": "Emery praises Garnacho attitude after Villa selection snub",
+    "summary": "Aston Villa boss Unai Emery praises Alejandro Garnacho's \"fantastic attitude\" but suggests other players rank ahead of him for selection.",
+    "summary_short": "Aston Villa boss Unai Emery praises Alejandro Garnacho's \"fantastic attitude\" but suggests other players rank ahead of him for selection.",
+    "content": "Aston Villa boss Unai Emery praises Alejandro Garnacho's \"fantastic attitude\" but suggests other players rank ahead of him for selection.",
+    "paragraphs": [
+      "Aston Villa boss Unai Emery praises Alejandro Garnacho's \"fantastic attitude\" but suggests other players rank ahead of him for selection."
+    ],
+    "key_points": [
+      "Aston Villa boss Unai Emery praises Alejandro Garnacho's \"fantastic attitude\" but suggests other players rank ahead of him for selection."
+    ],
+    "telegram_summary": "Aston Villa boss Unai Emery praises Alejandro Garnacho's \"fantastic attitude\" but suggests other players rank ahead of him for selection.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cwp9d4eg4n2xo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cwp9d4eg4n2xo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=096f607b5a749cce",
+    "published": "2026-11-27T17:42:00+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/141e/live/97985990-ea85-11f1-a739-457c2295eaba.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/141e/live/97985990-ea85-11f1-a739-457c2295eaba.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50591453",
+      "url": "https://www.espn.com/soccer/story/_/id/50591453/alejandro-garnacho-aston-villa-unai-emery",
+      "published": "2026-11-25T10:20:53Z",
+      "score": 0.333,
+      "matched_terms": [
+        "emery",
+        "garnacho",
+        "snub",
+        "villa"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Aston Villa",
+        "Galatasaray"
+      ],
+      "athletes": [
+        "Alejandro Garnacho"
+      ],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-27T18:10:13.716732+00:00"
+    },
+    "quality_sources": [
+      "BBC Sport",
+      "ESPN"
+    ],
+    "quality_score": 93
+  },
+  {
+    "slug": "9875c26203a2ff1b",
+    "title": "ASSE : les Verts ambitieux en Coupe de France, Cathro confirme",
+    "summary": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
+    "summary_short": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
+    "content": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
+    "paragraphs": [
+      "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro."
+    ],
+    "key_points": [
+      "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France.",
+      "C'est du moins ce qu'a affirmé Ian Cathro."
+    ],
+    "telegram_summary": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
+    "link": "https://www.onzemondial.com/coupe-de-france/asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme-1011771",
+    "source_url": "https://www.onzemondial.com/coupe-de-france/asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme-1011771",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9875c26203a2ff1b",
+    "published": "2026-11-27T17:31:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011771/411732/1200-L-asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011771/411732/1200-L-asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "83b06df26e847aaf",
     "title": "LOSC : Davide Ancelotti prédit un grand avenir à cette pépite du Lille OSC",
     "summary": "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central.",
@@ -1691,7 +1896,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T17:43:46.072531+00:00"
+      "checked_at": "2026-11-27T18:10:13.716732+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1752,7 +1957,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T17:43:46.072531+00:00"
+      "checked_at": "2026-11-27T18:10:13.716732+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2033,207 +2238,5 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "8df9f4ee63d4279c",
-    "title": "Arsenal head coach Slegers leaves by mutual consent",
-    "summary": "Arsenal part company with head coach Renee Slegers by mutual consent after a disappointing start to the season.",
-    "summary_short": "Arsenal part company with head coach Renee Slegers by mutual consent after a disappointing start to the season.",
-    "content": "Arsenal part company with head coach Renee Slegers by mutual consent after a disappointing start to the season.",
-    "paragraphs": [
-      "Arsenal part company with head coach Renee Slegers by mutual consent after a disappointing start to the season."
-    ],
-    "key_points": [
-      "Arsenal part company with head coach Renee Slegers by mutual consent after a disappointing start to the season."
-    ],
-    "telegram_summary": "Arsenal part company with head coach Renee Slegers by mutual consent after a disappointing start to the season.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cmy49d5kpw78o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmy49d5kpw78o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8df9f4ee63d4279c",
-    "published": "2026-11-27T16:14:34+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/e62d/live/61999920-ea77-11f1-a828-d384c0290f6b.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/e62d/live/61999920-ea77-11f1-a828-d384c0290f6b.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "e0f58b20076d7238",
-    "title": "Spurs' Savio to miss festive fixtures after injury setback",
-    "summary": "Tottenham winger Savio will miss the club's Christmas fixtures with injury and could be out for up to 80 days, manager Roberto de Zerbi confirms.",
-    "summary_short": "Tottenham winger Savio will miss the club's Christmas fixtures with injury and could be out for up to 80 days, manager Roberto de Zerbi confirms.",
-    "content": "Tottenham winger Savio will miss the club's Christmas fixtures with injury and could be out for up to 80 days, manager Roberto de Zerbi confirms.",
-    "paragraphs": [
-      "Tottenham winger Savio will miss the club's Christmas fixtures with injury and could be out for up to 80 days, manager Roberto de Zerbi confirms."
-    ],
-    "key_points": [
-      "Tottenham winger Savio will miss the club's Christmas fixtures with injury and could be out for up to 80 days, manager Roberto de Zerbi confirms."
-    ],
-    "telegram_summary": "Tottenham winger Savio will miss the club's Christmas fixtures with injury and could be out for up to 80 days, manager Roberto de Zerbi confirms.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cw4gnm4p3zxlo?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cw4gnm4p3zxlo?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e0f58b20076d7238",
-    "published": "2026-11-27T16:05:30+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/f9de/live/6b9252d0-ea79-11f1-9888-1b7e4a7a7390.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/f9de/live/6b9252d0-ea79-11f1-9888-1b7e4a7a7390.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "4dcfa9837881fe8f",
-    "title": "AJ Auxerre : Will Still rend un bel hommage à Bruno Genesio avant le match contre l'OM",
-    "summary": "Will Still s'est exprimé sur Bruno Genesio en conférence de presse, à deux jours du match entre l'AJ Auxerre et l'Olympique de Marseille.",
-    "summary_short": "Will Still s'est exprimé sur Bruno Genesio en conférence de presse, à deux jours du match entre l'AJ Auxerre et l'Olympique de Marseille.",
-    "content": "Will Still s'est exprimé sur Bruno Genesio en conférence de presse, à deux jours du match entre l'AJ Auxerre et l'Olympique de Marseille.",
-    "paragraphs": [
-      "Will Still s'est exprimé sur Bruno Genesio en conférence de presse, à deux jours du match entre l'AJ Auxerre et l'Olympique de Marseille."
-    ],
-    "key_points": [
-      "Will Still s'est exprimé sur Bruno Genesio en conférence de presse, à deux jours du match entre l'AJ Auxerre et l'Olympique de Marseille."
-    ],
-    "telegram_summary": "Will Still s'est exprimé sur Bruno Genesio en conférence de presse, à deux jours du match entre l'AJ Auxerre et l'Olympique de Marseille.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-aj-auxerre-will-still-rend-un-bel-hommage-a-bruno-genesio-avant-le-match-contre-l-om-547230.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-aj-auxerre-will-still-rend-un-bel-hommage-a-bruno-genesio-avant-le-match-contre-l-om-547230.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4dcfa9837881fe8f",
-    "published": "2026-11-27T16:04:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164223-2484.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164223-2484.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "47a188c06747d937",
-    "title": "Côme : Nico Paz a posé ses conditions pour revenir au Real Madrid !",
-    "summary": "Courtisé par le Real Madrid, qui dispose d’une option de rachat, Nico Paz ne serait pas forcément emballé à l’idée de retrouver la Casa Blanca. Selon les derniers échos britanniques, le jeune Argentin (…)",
-    "summary_short": "Courtisé par le Real Madrid, qui dispose d’une option de rachat, Nico Paz ne serait pas forcément emballé à l’idée de retrouver la Casa Blanca. Selon les derniers échos britanniques, le jeune Argentin (…)",
-    "content": "Courtisé par le Real Madrid, qui dispose d’une option de rachat, Nico Paz ne serait pas forcément emballé à l’idée de retrouver la Casa Blanca. Selon les derniers échos britanniques, le jeune Argentin (…)",
-    "paragraphs": [
-      "Courtisé par le Real Madrid, qui dispose d’une option de rachat, Nico Paz ne serait pas forcément emballé à l’idée de retrouver la Casa Blanca. Selon les derniers échos britanniques, le jeune Argentin (…)"
-    ],
-    "key_points": [
-      "Courtisé par le Real Madrid, qui dispose d’une option de rachat, Nico Paz ne serait pas forcément emballé à l’idée de retrouver la Casa Blanca.",
-      "Selon les derniers échos britanniques, le jeune Argentin (…)"
-    ],
-    "telegram_summary": "Courtisé par le Real Madrid, qui dispose d’une option de rachat, Nico Paz ne serait pas forcément emballé à l’idée de retrouver la Casa Blanca. Selon les derniers échos britanniques, le jeune Argentin (…)",
-    "link": "https://www.footmercato.net/a762644023338464960-come-nico-paz-a-pose-ses-conditions-pour-revenir-au-real-madrid",
-    "source_url": "https://www.footmercato.net/a762644023338464960-come-nico-paz-a-pose-ses-conditions-pour-revenir-au-real-madrid",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=47a188c06747d937",
-    "published": "2026-11-27T16:03:48+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/nico-paz-2425.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/nico-paz-2425.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50610066",
-      "url": "https://www.espn.com/soccer/story/_/id/50610066/transfer-rumors-news-nico-paz-man-united-real-madrid-como",
-      "published": "2026-11-27T15:30:51Z",
-      "score": 0.25,
-      "matched_terms": [
-        "madrid",
-        "nico",
-        "real"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "Argentina",
-        "Como",
-        "Manchester United",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Nico Paz"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Italian Serie A",
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-27T17:43:46.072531+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "e0b7eeda81ad7e3f",
-    "title": "Didier Digard et Robin Risser prennent la défense de Florian Thauvin",
-    "summary": "Il n’y a pas que l’OM ce vendredi. Il y a Florian Thauvin, aussi. Celui",
-    "summary_short": "Il n’y a pas que l’OM ce vendredi. Il y a Florian Thauvin, aussi. Celui",
-    "content": "Il n’y a pas que l’OM ce vendredi. Il y a Florian Thauvin, aussi. Celui",
-    "paragraphs": [
-      "Il n’y a pas que l’OM ce vendredi. Il y a Florian Thauvin, aussi. Celui"
-    ],
-    "key_points": [],
-    "telegram_summary": "Il n’y a pas que l’OM ce vendredi. Il y a Florian Thauvin, aussi. Celui",
-    "link": "https://www.sofoot.com/breves/didier-digard-et-robin-risser-prennent-la-defense-de-florian-thauvin",
-    "source_url": "https://www.sofoot.com/breves/didier-digard-et-robin-risser-prennent-la-defense-de-florian-thauvin",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e0b7eeda81ad7e3f",
-    "published": "2026-11-27T16:01:49+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27170614/15204858.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27170614/15204858.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
