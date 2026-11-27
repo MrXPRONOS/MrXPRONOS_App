@@ -2491,11 +2491,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-27T12:22:05.568986+00:00",
+      "settlement_checked_at": "2026-11-27T20:21:16.465009+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-27T16:22:05.568986+00:00"
+        "next_retry_after": "2026-11-28T00:21:16.465009+00:00"
       }
     },
     {
@@ -6823,7 +6823,7 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
+      "status": "settlement_pending",
       "is_finished": false,
       "home_score": null,
       "away_score": null,
@@ -6926,7 +6926,14 @@
       "generated_at": "2026-11-25T20:29:43.632040+00:00",
       "combo_only": false,
       "revalidated_at": "2026-11-27T00:06:27.207325+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_pending": true,
+      "settlement_checked_at": "2026-11-27T20:21:16.465009+00:00",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "pending": true,
+        "next_retry_after": "2026-11-28T00:21:16.465009+00:00"
+      }
     },
     {
       "id": "bsd:655434",
@@ -13669,7 +13676,7 @@
       }
     },
     "last_added": 0,
-    "updated_at": "2026-11-27T19:57:59.748305+00:00",
+    "updated_at": "2026-11-27T20:21:16.465009+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -88649,5 +88656,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-27T20:21:16.465009+00:00",
+    "checked": 2,
+    "settled": 0,
+    "pending": 2,
+    "h4": 1,
+    "h8": 0,
+    "fallback": 1,
+    "detail_hits": 1,
+    "reconciled_finished": 0
   }
 }
