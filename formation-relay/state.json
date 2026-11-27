@@ -1,5 +1,15 @@
 {
-  "active": null,
+  "active": {
+    "cat": "finance",
+    "cid": "eaa2e424da3c287cb0e189c84336491226b1d8fd8c8646eda9032eda4960f56a",
+    "marks": [
+      "76375dae442c4372b8732945d038fda2e6304bee0a4c8a9445c73b1b1aef88fd",
+      "8fe00a6691a8f38d2c02ae2564c18fb96bf9b3e44dbcffec319d38d0bb55c956",
+      "c3689242ae1230e7dcbd6e395ebacf5459fc996bc49a930ee95e2a790b81a915"
+    ],
+    "next": 0,
+    "pending": null
+  },
   "cooldown": 1795729670,
   "done": {
     "00cd125b28d0eaa81444406ae1b95b5a14d6b72ebab1b5f326f7f64e1e027d42": [
