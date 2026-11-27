@@ -1,5 +1,100 @@
 [
   {
+    "slug": "c46a2abf787d4d93",
+    "title": "MU, Mauricio Pochettino : « je ne suis pas gentil »",
+    "summary": "Deux matchs que Mauricio Pohcettino s’est installé sur le banc de Manchester United et le voilà déjà sous pression. Entre la lourde défaite à Liverpool (4-0) et le match nul au Sporting (1-1), (…)",
+    "summary_short": "Deux matchs que Mauricio Pohcettino s’est installé sur le banc de Manchester United et le voilà déjà sous pression. Entre la lourde défaite à Liverpool (4-0) et le match nul au Sporting (1-1), (…)",
+    "content": "Deux matchs que Mauricio Pohcettino s’est installé sur le banc de Manchester United et le voilà déjà sous pression. Entre la lourde défaite à Liverpool (4-0) et le match nul au Sporting (1-1), (…)",
+    "paragraphs": [
+      "Deux matchs que Mauricio Pohcettino s’est installé sur le banc de Manchester United et le voilà déjà sous pression. Entre la lourde défaite à Liverpool (4-0) et le match nul au Sporting (1-1), (…)"
+    ],
+    "key_points": [
+      "Deux matchs que Mauricio Pohcettino s’est installé sur le banc de Manchester United et le voilà déjà sous pression.",
+      "Entre la lourde défaite à Liverpool (4-0) et le match nul au Sporting (1-1), (…)"
+    ],
+    "telegram_summary": "Deux matchs que Mauricio Pohcettino s’est installé sur le banc de Manchester United et le voilà déjà sous pression. Entre la lourde défaite à Liverpool (4-0) et le match nul au Sporting (1-1), (…)",
+    "link": "https://www.footmercato.net/a3230648651416156022-mu-mauricio-pochettino-je-ne-suis-pas-gentil",
+    "source_url": "https://www.footmercato.net/a3230648651416156022-mu-mauricio-pochettino-je-ne-suis-pas-gentil",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c46a2abf787d4d93",
+    "published": "2026-11-27T19:22:41+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pochet-6b03eeacc4a36.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pochet-6b03eeacc4a36.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 5,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50599139",
+      "url": "https://www.espn.com/soccer/story/_/id/50599139/man-united-mauricio-pochettino-sporting-referee-var-goal",
+      "published": "2026-11-26T00:12:21Z",
+      "score": 0.2,
+      "matched_terms": [
+        "mauricio",
+        "pochettino"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Manchester United",
+        "Sporting CP"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-27T19:40:21.957949+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "a0d55923282be409",
+    "title": "Mercato Rennes : Le Stade Rennais acte le départ de Franck Haise ! (officiel)",
+    "summary": "Franck Haise a été écarté de ses fonctions par le Stade Rennais.",
+    "summary_short": "Franck Haise a été écarté de ses fonctions par le Stade Rennais.",
+    "content": "Franck Haise a été écarté de ses fonctions par le Stade Rennais.",
+    "paragraphs": [
+      "Franck Haise a été écarté de ses fonctions par le Stade Rennais."
+    ],
+    "key_points": [
+      "Franck Haise a été écarté de ses fonctions par le Stade Rennais."
+    ],
+    "telegram_summary": "Franck Haise a été écarté de ses fonctions par le Stade Rennais.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-rennes-le-stade-rennais-acte-le-depart-de-franck-haise-officiel-547257.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-rennes-le-stade-rennais-acte-le-depart-de-franck-haise-officiel-547257.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a0d55923282be409",
+    "published": "2026-11-27T19:17:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919230711-5567.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919230711-5567.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "f725b25420c8bd12",
     "title": "Le Stade Rennais annonce le départ de Franck Haise",
     "summary": "Nous vous l’avons annoncé en exclusivité, c’est désormais officiel : Franck Haise n’est plus l’entraîneur du Stade Rennais. Venu en février dernier pour remettre le club sur les bons rails, le (…)",
@@ -109,17 +204,17 @@
   {
     "slug": "082606fe04c267ff",
     "title": "Rennes : c'est la fin pour Haise ! (officiel)",
-    "summary": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
-    "summary_short": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
-    "content": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
+    "summary": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise a été mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
+    "summary_short": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise a été mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
+    "content": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise a été mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
     "paragraphs": [
-      "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée...."
+      "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise a été mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée...."
     ],
     "key_points": [
-      "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons.",
+      "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise a été mis à pied par les dirigeants bretons.",
       "Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée...."
     ],
-    "telegram_summary": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise va être mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
+    "telegram_summary": "Fragilisé par ses récents résultats décevants, l'entraîneur du Stade Rennais Franck Haise a été mis à pied par les dirigeants bretons. Nommé en février 2026, le technicien français n'aura pas réussi à s'imposer sur la durée....",
     "link": "https://m.maxifoot.fr/football/article-66697.htm",
     "source_url": "https://m.maxifoot.fr/football/article-66697.htm",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=082606fe04c267ff",
@@ -453,40 +548,6 @@
     "quality_score": 82
   },
   {
-    "slug": "a097957bee021d91",
-    "title": "AJ Auxerre : La tuile pour ce cadre de l'AJA avant la réception de l'OM",
-    "summary": "En conférence de presse ce vendredi, à deux jours de la réception de l'OM (29/11, J12 Ligue 1), Will Still, l'entraîneur de l'AJ Auxerre, a annoncé la blessure de Lamine Sy, son latéral droit…",
-    "summary_short": "En conférence de presse ce vendredi, à deux jours de la réception de l'OM (29/11, J12 Ligue 1), Will Still, l'entraîneur de l'AJ Auxerre, a annoncé la blessure de Lamine Sy, son latéral droit…",
-    "content": "En conférence de presse ce vendredi, à deux jours de la réception de l'OM (29/11, J12 Ligue 1), Will Still, l'entraîneur de l'AJ Auxerre, a annoncé la blessure de Lamine Sy, son latéral droit…",
-    "paragraphs": [
-      "En conférence de presse ce vendredi, à deux jours de la réception de l'OM (29/11, J12 Ligue 1), Will Still, l'entraîneur de l'AJ Auxerre, a annoncé la blessure de Lamine Sy, son latéral droit…"
-    ],
-    "key_points": [
-      "En conférence de presse ce vendredi, à deux jours de la réception de l'OM (29/11, J12 Ligue 1), Will Still, l'entraîneur de l'AJ Auxerre, a annoncé la blessure de Lamine Sy, son latéral droit…"
-    ],
-    "telegram_summary": "En conférence de presse ce vendredi, à deux jours de la réception de l'OM (29/11, J12 Ligue 1), Will Still, l'entraîneur de l'AJ Auxerre, a annoncé la blessure de Lamine Sy, son latéral droit…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-aj-auxerre-la-tuile-pour-ce-cadre-de-l-aja-avant-la-reception-de-l-om-547221.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-aj-auxerre-la-tuile-pour-ce-cadre-de-l-aja-avant-la-reception-de-l-om-547221.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a097957bee021d91",
-    "published": "2026-11-27T15:15:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240930091802-8706.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240930091802-8706.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "149d04ff69dcbb81",
     "title": "Lens : \"Une réaction légitime\" ... Digard et Risser sortent du silence sur l'épisode Thauvin",
     "summary": "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1). Un épisode qu'on veut rapidement oublier.",
@@ -625,40 +686,6 @@
       "Franceinfo"
     ],
     "quality_score": 82
-  },
-  {
-    "slug": "14e59d78323a37d6",
-    "title": "PSG - Lorient : Hakimi et Nuno Mendes plus haut sur le terrain ? Luis Enrique répond !",
-    "summary": "Luis Enrique, l'entraîneur du Paris Saint-Germain, était en conférence de presse à la veille de la réception du FC Lorient en Ligue 1.",
-    "summary_short": "Luis Enrique, l'entraîneur du Paris Saint-Germain, était en conférence de presse à la veille de la réception du FC Lorient en Ligue 1.",
-    "content": "Luis Enrique, l'entraîneur du Paris Saint-Germain, était en conférence de presse à la veille de la réception du FC Lorient en Ligue 1.",
-    "paragraphs": [
-      "Luis Enrique, l'entraîneur du Paris Saint-Germain, était en conférence de presse à la veille de la réception du FC Lorient en Ligue 1."
-    ],
-    "key_points": [
-      "Luis Enrique, l'entraîneur du Paris Saint-Germain, était en conférence de presse à la veille de la réception du FC Lorient en Ligue 1."
-    ],
-    "telegram_summary": "Luis Enrique, l'entraîneur du Paris Saint-Germain, était en conférence de presse à la veille de la réception du FC Lorient en Ligue 1.",
-    "link": "https://www.onzemondial.com/ligue-1/psg-lorient-hakimi-et-nuno-mendes-plus-haut-sur-le-terrain-luis-enrique-repond-1011699",
-    "source_url": "https://www.onzemondial.com/ligue-1/psg-lorient-hakimi-et-nuno-mendes-plus-haut-sur-le-terrain-luis-enrique-repond-1011699",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=14e59d78323a37d6",
-    "published": "2026-11-27T12:35:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011699/411715/1200-L-psg-lorient-la-confrence-de-presse-de-luis-enrique.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011699/411715/1200-L-psg-lorient-la-confrence-de-presse-de-luis-enrique.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   },
   {
     "slug": "42c37681bc560226",
@@ -1410,6 +1437,237 @@
     "quality_score": 90
   },
   {
+    "slug": "e3949548f2070334",
+    "title": "Mercato - Barça : Flick a déjà écarté une grosse piste pour renforcer la défense",
+    "summary": "Le Barça cherche un défenseur central en urgence pour cet hiver. Mais Hansi Flick semble intransigeant sur le profil recherché.",
+    "summary_short": "Le Barça cherche un défenseur central en urgence pour cet hiver. Mais Hansi Flick semble intransigeant sur le profil recherché.",
+    "content": "Le Barça cherche un défenseur central en urgence pour cet hiver. Mais Hansi Flick semble intransigeant sur le profil recherché.",
+    "paragraphs": [
+      "Le Barça cherche un défenseur central en urgence pour cet hiver. Mais Hansi Flick semble intransigeant sur le profil recherché."
+    ],
+    "key_points": [
+      "Le Barça cherche un défenseur central en urgence pour cet hiver.",
+      "Mais Hansi Flick semble intransigeant sur le profil recherché."
+    ],
+    "telegram_summary": "Le Barça cherche un défenseur central en urgence pour cet hiver. Mais Hansi Flick semble intransigeant sur le profil recherché.",
+    "link": "https://www.onzemondial.com/liga/mercato-barca-flick-a-deja-ecarte-une-grosse-piste-pour-renforcer-la-defense-1011695",
+    "source_url": "https://www.onzemondial.com/liga/mercato-barca-flick-a-deja-ecarte-une-grosse-piste-pour-renforcer-la-defense-1011695",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e3949548f2070334",
+    "published": "2026-11-27T19:32:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011695/411713/1200-L-mercato-bara-flick-a-dj-cart-une-grosse-piste-pour-renforcer-la-dfense.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011695/411713/1200-L-mercato-bara-flick-a-dj-cart-une-grosse-piste-pour-renforcer-la-dfense.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "36b75a4f179b2a1a",
+    "title": "Franck Haise, l'entraîneur de l'équipe de football du Stade rennais, est mis à pied",
+    "summary": "Arrivé en février pour remplacer Habib Beye, Haise avait mené le club breton à une qualification européenne, mais une série de cinq matchs sans victoire lui a coûté sa place.",
+    "summary_short": "Arrivé en février pour remplacer Habib Beye, Haise avait mené le club breton à une qualification européenne, mais une série de cinq matchs sans victoire lui a coûté sa place.",
+    "content": "Arrivé en février pour remplacer Habib Beye, Haise avait mené le club breton à une qualification européenne, mais une série de cinq matchs sans victoire lui a coûté sa place.",
+    "paragraphs": [
+      "Arrivé en février pour remplacer Habib Beye, Haise avait mené le club breton à une qualification européenne, mais une série de cinq matchs sans victoire lui a coûté sa place."
+    ],
+    "key_points": [
+      "Arrivé en février pour remplacer Habib Beye, Haise avait mené le club breton à une qualification européenne, mais une série de cinq matchs sans victoire lui a coûté sa place."
+    ],
+    "telegram_summary": "Arrivé en février pour remplacer Habib Beye, Haise avait mené le club breton à une qualification européenne, mais une série de cinq matchs sans victoire lui a coûté sa place.",
+    "link": "https://www.franceinfo.fr/sports/foot/l-entraineur-de-l-equipe-de-football-du-stade-rennais-franck-haise-est-mis-a-pied_8303727.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/l-entraineur-de-l-equipe-de-football-du-stade-rennais-franck-haise-est-mis-a-pied_8303727.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36b75a4f179b2a1a",
+    "published": "2026-11-27T19:27:21+00:00",
+    "image": "https://www.franceinfo.fr/pictures/WFCyJYTFC2alGaHMHSbauoolhtI/0x0:6000x3375/432x243/filters:format(jpg)/2026/11/27/6b09d9809f0b8712802980.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/WFCyJYTFC2alGaHMHSbauoolhtI/0x0:6000x3375/432x243/filters:format(jpg)/2026/11/27/6b09d9809f0b8712802980.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "6b9b9fa7416c5afc",
+    "title": "RC Lens : Plusieurs absences de taille dans le groupe lensois pour affronter Angers SCO",
+    "summary": "Le groupe du RC Lens pour affronter Angers SCO (J12 L1).",
+    "summary_short": "Le groupe du RC Lens pour affronter Angers SCO (J12 L1).",
+    "content": "Le groupe du RC Lens pour affronter Angers SCO (J12 L1).",
+    "paragraphs": [
+      "Le groupe du RC Lens pour affronter Angers SCO (J12 L1)."
+    ],
+    "key_points": [
+      "Le groupe du RC Lens pour affronter Angers SCO (J12 L1)."
+    ],
+    "telegram_summary": "Le groupe du RC Lens pour affronter Angers SCO (J12 L1).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-plusieurs-absences-de-taille-dans-le-groupe-lensois-pour-affronter-angers-sco-547258.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-plusieurs-absences-de-taille-dans-le-groupe-lensois-pour-affronter-angers-sco-547258.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6b9b9fa7416c5afc",
+    "published": "2026-11-27T19:25:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261122092850-2843.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261122092850-2843.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "9f45ffe3801e81cd",
+    "title": "Lionel Scaloni pourrait participer aux Championnats du monde de cyclisme 2027 en Haute-Savoie",
+    "summary": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
+    "summary_short": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
+    "content": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
+    "paragraphs": [
+      "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…"
+    ],
+    "key_points": [
+      "Luis Enrique n’a qu’à bien se tenir.",
+      "Il n’est pas le seul à savoir rouler sans les petites…"
+    ],
+    "telegram_summary": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
+    "link": "https://www.sofoot.com/breves/lionel-scaloni-pourrait-participer-aux-championnats-du-monde-de-cyclisme-2027-en-haute-savoie",
+    "source_url": "https://www.sofoot.com/breves/lionel-scaloni-pourrait-participer-aux-championnats-du-monde-de-cyclisme-2027-en-haute-savoie",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9f45ffe3801e81cd",
+    "published": "2026-11-27T19:21:16+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/13105936/14912846.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/13105936/14912846.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "ef7b32df26b09d89",
+    "title": "Brest - Paris FC : les compositions officielles !",
+    "summary": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
+    "summary_short": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
+    "content": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
+    "paragraphs": [
+      "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1."
+    ],
+    "key_points": [
+      "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1."
+    ],
+    "telegram_summary": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
+    "link": "https://www.onzemondial.com/ligue-1/brest-paris-fc-les-compositions-officielles-1011738",
+    "source_url": "https://www.onzemondial.com/ligue-1/brest-paris-fc-les-compositions-officielles-1011738",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ef7b32df26b09d89",
+    "published": "2026-11-27T19:03:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011738/411725/1200-L-brest-paris-fc-les-compositions-officielles.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011738/411725/1200-L-brest-paris-fc-les-compositions-officielles.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "2764c5a88ba70df0",
+    "title": "Real Madrid : Mourinho ne s'enflamme pas pour la C1 et prend le PSG en exemple",
+    "summary": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
+    "summary_short": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
+    "content": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
+    "paragraphs": [
+      "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes."
+    ],
+    "key_points": [
+      "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions.",
+      "Le Portugais a été clair sur les ambitions madrilènes."
+    ],
+    "telegram_summary": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/real-madrid-mourinho-ne-senflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple-1011736",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/real-madrid-mourinho-ne-senflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple-1011736",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2764c5a88ba70df0",
+    "published": "2026-11-27T19:01:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011736/411724/1200-L-real-madrid-mourinho-ne-s-enflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011736/411724/1200-L-real-madrid-mourinho-ne-s-enflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50611810",
+      "url": "https://www.espn.com/video/clip/_/id/50611810/mourinho-embarrasses-cousin-real-madrid-press-conference",
+      "published": "2026-11-27T14:58:51Z",
+      "score": 0.3,
+      "matched_terms": [
+        "madrid",
+        "mourinho",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-27T19:40:21.957949+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "326825b08af0612e",
     "title": "Rennes : ça ne devrait pas être Pierre Sage",
     "summary": "La sanction est tombée. Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté.",
@@ -1907,247 +2165,12 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T19:10:14.140093+00:00"
+      "checked_at": "2026-11-27T19:40:21.957949+00:00"
     },
     "quality_sources": [
       "BBC Sport",
       "ESPN"
     ],
     "quality_score": 93
-  },
-  {
-    "slug": "9875c26203a2ff1b",
-    "title": "ASSE : les Verts ambitieux en Coupe de France, Cathro confirme",
-    "summary": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
-    "summary_short": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
-    "content": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
-    "paragraphs": [
-      "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro."
-    ],
-    "key_points": [
-      "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France.",
-      "C'est du moins ce qu'a affirmé Ian Cathro."
-    ],
-    "telegram_summary": "Auteur d'un très bon début de saison en Ligue 2, où il caracole en tête, Saint-Étienne espère aussi réaliser une très belle campagne en Coupe de France. C'est du moins ce qu'a affirmé Ian Cathro.",
-    "link": "https://www.onzemondial.com/coupe-de-france/asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme-1011771",
-    "source_url": "https://www.onzemondial.com/coupe-de-france/asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme-1011771",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9875c26203a2ff1b",
-    "published": "2026-11-27T17:31:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011771/411732/1200-L-asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011771/411732/1200-L-asse-les-verts-ambitieux-en-coupe-de-france-cathro-confirme.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "83b06df26e847aaf",
-    "title": "LOSC : Davide Ancelotti prédit un grand avenir à cette pépite du Lille OSC",
-    "summary": "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central.",
-    "summary_short": "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central.",
-    "content": "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central.",
-    "paragraphs": [
-      "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central."
-    ],
-    "key_points": [
-      "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central."
-    ],
-    "telegram_summary": "Davide Ancelotti, l'entraîneur du LOSC, s'est exprimé sur Isaac Cossier, son jeune défenseur central.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-predit-un-grand-avenir-a-cette-pepite-du-lille-osc-547240.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-predit-un-grand-avenir-a-cette-pepite-du-lille-osc-547240.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=83b06df26e847aaf",
-    "published": "2026-11-27T17:21:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260725092347-8160.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260725092347-8160.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "ba63897845269741",
-    "title": "Rennes : le club a pris sa décision pour Haise",
-    "summary": "Le Stade rennais aurait pris sa décision concernant l'avenir de Franck Haise.",
-    "summary_short": "Le Stade rennais aurait pris sa décision concernant l'avenir de Franck Haise.",
-    "content": "Le Stade rennais aurait pris sa décision concernant l'avenir de Franck Haise.",
-    "paragraphs": [
-      "Le Stade rennais aurait pris sa décision concernant l'avenir de Franck Haise."
-    ],
-    "key_points": [
-      "Le Stade rennais aurait pris sa décision concernant l'avenir de Franck Haise."
-    ],
-    "telegram_summary": "Le Stade rennais aurait pris sa décision concernant l'avenir de Franck Haise.",
-    "link": "https://www.onzemondial.com/ligue-1/rennes-le-club-a-pris-sa-decision-pour-haise-1011775",
-    "source_url": "https://www.onzemondial.com/ligue-1/rennes-le-club-a-pris-sa-decision-pour-haise-1011775",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba63897845269741",
-    "published": "2026-11-27T17:18:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011775/411734/1200-L-rennes-le-club-a-pris-sa-dcision-pour-haise.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011775/411734/1200-L-rennes-le-club-a-pris-sa-dcision-pour-haise.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "ae98110047a35229",
-    "title": "Entre le Stade rennais et Franck Haise, l’histoire va déjà se terminer",
-    "summary": "Un coach viré en Ligue 1, ça faisait longtemps !",
-    "summary_short": "Un coach viré en Ligue 1, ça faisait longtemps !",
-    "content": "Un coach viré en Ligue 1, ça faisait longtemps !",
-    "paragraphs": [
-      "Un coach viré en Ligue 1, ça faisait longtemps !"
-    ],
-    "key_points": [
-      "Un coach viré en Ligue 1, ça faisait longtemps !"
-    ],
-    "telegram_summary": "Un coach viré en Ligue 1, ça faisait longtemps !",
-    "link": "https://www.sofoot.com/breves/entre-le-stade-rennais-et-franck-haise-lhistoire-va-deja-se-terminer",
-    "source_url": "https://www.sofoot.com/breves/entre-le-stade-rennais-et-franck-haise-lhistoire-va-deja-se-terminer",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ae98110047a35229",
-    "published": "2026-11-27T17:16:36+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27171141/15421463.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27171141/15421463.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "3917c5c0a40c62b5",
-    "title": "C’est terminé pour Franck Haise au Stade Rennais !",
-    "summary": "Au lendemain de la nouvelle contre-performance du Stade Rennais, en Ligue Europa contre le NEC Nimègue (3-1), les Bretons ont choisi de sévir. Selon nos informations, l’aventure de Franck Haise sur le (…)",
-    "summary_short": "Au lendemain de la nouvelle contre-performance du Stade Rennais, en Ligue Europa contre le NEC Nimègue (3-1), les Bretons ont choisi de sévir. Selon nos informations, l’aventure de Franck Haise sur le (…)",
-    "content": "Au lendemain de la nouvelle contre-performance du Stade Rennais, en Ligue Europa contre le NEC Nimègue (3-1), les Bretons ont choisi de sévir. Selon nos informations, l’aventure de Franck Haise sur le (…)",
-    "paragraphs": [
-      "Au lendemain de la nouvelle contre-performance du Stade Rennais, en Ligue Europa contre le NEC Nimègue (3-1), les Bretons ont choisi de sévir. Selon nos informations, l’aventure de Franck Haise sur le (…)"
-    ],
-    "key_points": [
-      "Au lendemain de la nouvelle contre-performance du Stade Rennais, en Ligue Europa contre le NEC Nimègue (3-1), les Bretons ont choisi de sévir.",
-      "Selon nos informations, l’aventure de Franck Haise sur le (…)"
-    ],
-    "telegram_summary": "Au lendemain de la nouvelle contre-performance du Stade Rennais, en Ligue Europa contre le NEC Nimègue (3-1), les Bretons ont choisi de sévir. Selon nos informations, l’aventure de Franck Haise sur le (…)",
-    "link": "https://www.footmercato.net/a1291226215340188956-cest-termine-pour-franck-haise-au-stade-rennais",
-    "source_url": "https://www.footmercato.net/a1291226215340188956-cest-termine-pour-franck-haise-au-stade-rennais",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3917c5c0a40c62b5",
-    "published": "2026-11-27T17:14:48+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/haise-692ae4e189e50.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/haise-692ae4e189e50.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "0b15563bc51911be",
-    "title": "Bruno Fernandes s’apprête finalement à prolonger à Manchester United",
-    "summary": "Action, réaction. Alors que Bruno Fernandes confiait ne pas être en discussions avec Manchester United concernant…",
-    "summary_short": "Action, réaction. Alors que Bruno Fernandes confiait ne pas être en discussions avec Manchester United concernant…",
-    "content": "Action, réaction. Alors que Bruno Fernandes confiait ne pas être en discussions avec Manchester United concernant…",
-    "paragraphs": [
-      "Action, réaction. Alors que Bruno Fernandes confiait ne pas être en discussions avec Manchester United concernant…"
-    ],
-    "key_points": [
-      "Alors que Bruno Fernandes confiait ne pas être en discussions avec Manchester United concernant…"
-    ],
-    "telegram_summary": "Action, réaction. Alors que Bruno Fernandes confiait ne pas être en discussions avec Manchester United concernant…",
-    "link": "https://www.sofoot.com/breves/bruno-fernandes-sapprete-finalement-a-prolonger-a-manchester-united",
-    "source_url": "https://www.sofoot.com/breves/bruno-fernandes-sapprete-finalement-a-prolonger-a-manchester-united",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0b15563bc51911be",
-    "published": "2026-11-27T17:05:44+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27180633/15407524.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27180633/15407524.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50610575",
-      "url": "https://www.espn.com/soccer/story/_/id/50610575/bruno-fernandes-man-united-brentford",
-      "published": "2026-11-27T14:38:39Z",
-      "score": 0.25,
-      "matched_terms": [
-        "bruno",
-        "fernandes",
-        "united"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Brentford",
-        "Manchester United"
-      ],
-      "athletes": [
-        "Bruno Fernandes"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-27T19:10:14.140093+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
   }
 ]
