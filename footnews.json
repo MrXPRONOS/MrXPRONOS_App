@@ -32,7 +32,7 @@
       "source": "ESPN News API",
       "article_id": "50614098",
       "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T21:26:26Z",
+      "published": "2026-11-27T22:01:56Z",
       "score": 0.214,
       "matched_terms": [
         "chelsea",
@@ -52,7 +52,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:56:34.139088+00:00"
+      "checked_at": "2026-11-27T22:12:25.569700+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -252,7 +252,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:56:34.139088+00:00"
+      "checked_at": "2026-11-27T22:12:25.569700+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -400,41 +400,6 @@
       "RFI"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "4a540e7acbbe7b78",
-    "title": "Tottenham : De Zerbi annonce une très longue absence pour Savinho",
-    "summary": "Roberto De Zerbi a confirmé la longue absence de Savinho, touché par une nouvelle blessure musculaire aux ischio-jambiers. L’ailier brésilien de Tottenham, qui venait tout juste de retrouver les (…)",
-    "summary_short": "Roberto De Zerbi a confirmé la longue absence de Savinho, touché par une nouvelle blessure musculaire aux ischio-jambiers. L’ailier brésilien de Tottenham, qui venait tout juste de retrouver les (…)",
-    "content": "Roberto De Zerbi a confirmé la longue absence de Savinho, touché par une nouvelle blessure musculaire aux ischio-jambiers. L’ailier brésilien de Tottenham, qui venait tout juste de retrouver les (…)",
-    "paragraphs": [
-      "Roberto De Zerbi a confirmé la longue absence de Savinho, touché par une nouvelle blessure musculaire aux ischio-jambiers. L’ailier brésilien de Tottenham, qui venait tout juste de retrouver les (…)"
-    ],
-    "key_points": [
-      "Roberto De Zerbi a confirmé la longue absence de Savinho, touché par une nouvelle blessure musculaire aux ischio-jambiers.",
-      "L’ailier brésilien de Tottenham, qui venait tout juste de retrouver les (…)"
-    ],
-    "telegram_summary": "Roberto De Zerbi a confirmé la longue absence de Savinho, touché par une nouvelle blessure musculaire aux ischio-jambiers. L’ailier brésilien de Tottenham, qui venait tout juste de retrouver les (…)",
-    "link": "https://www.footmercato.net/a6613537882190303862-tottenham-de-zerbi-annonce-une-tres-longue-absence-pour-savinho",
-    "source_url": "https://www.footmercato.net/a6613537882190303862-tottenham-de-zerbi-annonce-une-tres-longue-absence-pour-savinho",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4a540e7acbbe7b78",
-    "published": "2026-11-27T17:25:38+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/savinho-2526-6a8422180fff3.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/savinho-2526-6a8422180fff3.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "241247530bb357cf",
@@ -1290,75 +1255,205 @@
     "quality_score": 86
   },
   {
-    "slug": "a88ed3836ff4d1e9",
-    "title": "Ligue des champions: le Real renversant, Lens encore à terre",
-    "summary": "Mené 0-1 à la mi-temps, le Real Madrid a renversé le PSV Eindhoven (5-1) après l’entrée de Jude Bellingham, qui a métamorphosé les siens. Les Madrilènes sont premiers au classement avec cinq victoires en cinq journées.",
-    "summary_short": "Mené 0-1 à la mi-temps, le Real Madrid a renversé le PSV Eindhoven (5-1) après l’entrée de Jude Bellingham, qui a métamorphosé les siens. Les Madrilènes sont premiers au classement avec cinq victoires en cinq journées.",
-    "content": "Mené 0-1 à la mi-temps, le Real Madrid a renversé le PSV Eindhoven (5-1) après l’entrée de Jude Bellingham, qui a métamorphosé les siens. Les Madrilènes sont premiers au classement avec cinq victoires en cinq journées. Lens de son côté a subi une quatrième défaite.",
+    "slug": "b6f1fd9964d8e9bf",
+    "title": "Brest bat le Paris FC (1-0) et grimpe provisoirement sur le podium de la Ligue 1",
+    "summary": "Avec cette quatrième victoire d'affilée obtenue grâce à un but de Luck Zogbé en première période, le Stade Brestois devance Lille à la différence de buts.",
+    "summary_short": "Avec cette quatrième victoire d'affilée obtenue grâce à un but de Luck Zogbé en première période, le Stade Brestois devance Lille à la différence de buts.",
+    "content": "Avec cette quatrième victoire d'affilée obtenue grâce à un but de Luck Zogbé en première période, le Stade Brestois devance Lille à la différence de buts.",
     "paragraphs": [
-      "Mené 0-1 à la mi-temps, le Real Madrid a renversé le PSV Eindhoven (5-1) après l’entrée de Jude Bellingham, qui a métamorphosé les siens. Les Madrilènes sont premiers au classement avec cinq victoires en cinq journées. Lens de son côté a subi une quatrième défaite."
+      "Avec cette quatrième victoire d'affilée obtenue grâce à un but de Luck Zogbé en première période, le Stade Brestois devance Lille à la différence de buts."
     ],
     "key_points": [
-      "Mené 0-1 à la mi-temps, le Real Madrid a renversé le PSV Eindhoven (5-1) après l’entrée de Jude Bellingham, qui a métamorphosé les siens.",
-      "Les Madrilènes sont premiers au classement avec cinq victoires en cinq journées.",
-      "Lens de son côté a subi une quatrième défaite."
+      "Avec cette quatrième victoire d'affilée obtenue grâce à un but de Luck Zogbé en première période, le Stade Brestois devance Lille à la différence de buts."
     ],
-    "telegram_summary": "Mené 0-1 à la mi-temps, le Real Madrid a renversé le PSV Eindhoven (5-1) après l’entrée de Jude Bellingham, qui a métamorphosé les siens. Les Madrilènes sont premiers au classement avec cinq victoires en cinq journées.",
-    "link": "https://www.rfi.fr/fr/sports/20261124-ligue-des-champions-le-real-renversant-lens-encore-%C3%A0-terre",
-    "source_url": "https://www.rfi.fr/fr/sports/20261124-ligue-des-champions-le-real-renversant-lens-encore-%C3%A0-terre",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a88ed3836ff4d1e9",
-    "published": "2026-11-24T22:04:55+00:00",
-    "image": "https://s.rfi.fr/media/display/e5bbb4b2-e852-11f1-ae88-29d00e23de9a/w:1024/p:16x9/AP26328778351895.jpg",
-    "source_image": "https://s.rfi.fr/media/display/e5bbb4b2-e852-11f1-ae88-29d00e23de9a/w:1024/p:16x9/AP26328778351895.jpg",
+    "telegram_summary": "Avec cette quatrième victoire d'affilée obtenue grâce à un but de Luck Zogbé en première période, le Stade Brestois devance Lille à la différence de buts.",
+    "link": "https://www.franceinfo.fr/sports/foot/brest-bat-le-paris-fc-1-0-et-grimpe-provisoirement-sur-le-podium-de-la-ligue-1_8303847.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/brest-bat-le-paris-fc-1-0-et-grimpe-provisoirement-sur-le-podium-de-la-ligue-1_8303847.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b6f1fd9964d8e9bf",
+    "published": "2026-11-27T22:05:49+00:00",
+    "image": "https://www.franceinfo.fr/pictures/Tmn2dAiJIvCh6xGrdF2UBZLi8Vc/0x0:3129x1760/432x243/filters:format(jpg)/2026/11/27/6b09fdfb9cc13063911265.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/Tmn2dAiJIvCh6xGrdF2UBZLi8Vc/0x0:3129x1760/432x243/filters:format(jpg)/2026/11/27/6b09fdfb9cc13063911265.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "RFI",
-    "source_priority": 86,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
     "category": "Matchs",
     "category_emoji": "⚽",
-    "editorial_score": 5,
+    "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
-      "RFI"
+      "Franceinfo"
     ],
-    "quality_score": 86
+    "quality_score": 82
   },
   {
-    "slug": "7b29a692304496f6",
-    "title": "Édition spéciale : CAN 2025, le Sénégal récupère son titre de champion d'Afrique",
-    "summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "summary_short": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "content": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24.",
+    "slug": "33619c3c7d8c7251",
+    "title": "Mercato PSG : Une grosse bataille s'annonce avec Arsenal et Francfort pour l'avenir de David Boly",
+    "summary": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "summary_short": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "content": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
     "paragraphs": [
-      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert. Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
+      "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly."
     ],
     "key_points": [
-      "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-      "Dans cette édition spéciale du Journal de l'Afrique, nous recevons Maître Seydou Diagne, avocat de la Fédération sénégalaise de football, Xavier Barret, spécialiste du football africain, et Cédric Ferreira, journaliste sports France 24."
+      "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly."
     ],
-    "telegram_summary": "Dix mois après une finale chaotique, les Lions de la Teranga sont bien champions d'Afrique : le Tribunal arbitral du sport a donné raison au Sénégal, lui rendant le titre acquis sur le terrain lors de la CAN 2025 aux dépens du Maroc, sacré sur tapis vert.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/journal-de-l-afrique/20261124-edition-sp%C3%A9ciale-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-de-champion-d-afrique",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/journal-de-l-afrique/20261124-edition-sp%C3%A9ciale-can-2025-le-s%C3%A9n%C3%A9gal-r%C3%A9cup%C3%A8re-son-titre-de-champion-d-afrique",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7b29a692304496f6",
-    "published": "2026-11-24T21:58:13+00:00",
-    "image": "https://s.france24.com/media/display/4fa53bc8-e8ad-11f1-8498-95e072ff0a91/w:1024/p:16x9/capture-2dcd8138.jpg",
-    "source_image": "https://s.france24.com/media/display/4fa53bc8-e8ad-11f1-8498-95e072ff0a91/w:1024/p:16x9/capture-2dcd8138.jpg",
+    "telegram_summary": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-une-grosse-bataille-s-annonce-avec-arsenal-et-francfort-pour-l-avenir-de-david-boly-547273.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-une-grosse-bataille-s-annonce-avec-arsenal-et-francfort-pour-l-avenir-de-david-boly-547273.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=33619c3c7d8c7251",
+    "published": "2026-11-27T22:03:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260909161539-1043.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260909161539-1043.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
+    "source": "MadeInFoot",
+    "source_priority": 88,
     "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
     "espn_verification": {},
     "quality_sources": [
-      "France 24"
+      "MadeInFoot"
     ],
-    "quality_score": 83
+    "quality_score": 88
+  },
+  {
+    "slug": "38dfb99da2744bc6",
+    "title": "Amicaux (F) : la France renverse le Venezuela",
+    "summary": "Les Bleues ont renversé une situation bien mal embarquée face au Venezuela (4-2), à Nancy. Bousculées dès les premières minutes, les Françaises ont encaissé deux buts coup sur coup.",
+    "summary_short": "Les Bleues ont renversé une situation bien mal embarquée face au Venezuela (4-2), à Nancy. Bousculées dès les premières minutes, les Françaises ont encaissé deux buts coup sur coup.",
+    "content": "Les Bleues ont renversé une situation bien mal embarquée face au Venezuela (4-2), à Nancy. Bousculées dès les premières minutes, les Françaises ont encaissé deux buts coup sur coup. Deyna Castellanos (…)",
+    "paragraphs": [
+      "Les Bleues ont renversé une situation bien mal embarquée face au Venezuela (4-2), à Nancy. Bousculées dès les premières minutes, les Françaises ont encaissé deux buts coup sur coup. Deyna Castellanos (…)"
+    ],
+    "key_points": [
+      "Les Bleues ont renversé une situation bien mal embarquée face au Venezuela (4-2), à Nancy.",
+      "Bousculées dès les premières minutes, les Françaises ont encaissé deux buts coup sur coup."
+    ],
+    "telegram_summary": "Les Bleues ont renversé une situation bien mal embarquée face au Venezuela (4-2), à Nancy. Bousculées dès les premières minutes, les Françaises ont encaissé deux buts coup sur coup.",
+    "link": "https://www.footmercato.net/a2012729565128324780-amicaux-f-la-france-renverse-le-venezuela",
+    "source_url": "https://www.footmercato.net/a2012729565128324780-amicaux-f-la-france-renverse-le-venezuela",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=38dfb99da2744bc6",
+    "published": "2026-11-27T22:01:17+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotoseight367939.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotoseight367939.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "2d7c22487c8edb0b",
+    "title": "Gibbs-White stars, Fofana struggles - player ratings for Forest v Chelsea",
+    "summary": "Morgan Gibbs-White scored twice as Nottingham Forest beat Chelsea 3-2 at the City Ground for the first time since 1997.",
+    "summary_short": "Morgan Gibbs-White scored twice as Nottingham Forest beat Chelsea 3-2 at the City Ground for the first time since 1997.",
+    "content": "Morgan Gibbs-White scored twice as Nottingham Forest beat Chelsea 3-2 at the City Ground for the first time since 1997.",
+    "paragraphs": [
+      "Morgan Gibbs-White scored twice as Nottingham Forest beat Chelsea 3-2 at the City Ground for the first time since 1997."
+    ],
+    "key_points": [
+      "Morgan Gibbs-White scored twice as Nottingham Forest beat Chelsea 3-2 at the City Ground for the first time since 1997."
+    ],
+    "telegram_summary": "Morgan Gibbs-White scored twice as Nottingham Forest beat Chelsea 3-2 at the City Ground for the first time since 1997.",
+    "link": "https://www.bbc.co.uk/sport/football/articles/cmwy85xxjgxvo?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmwy85xxjgxvo?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2d7c22487c8edb0b",
+    "published": "2026-11-27T21:59:48+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1da8/live/2c6e0460-eaaf-11f1-bf81-6f3b4557bf15.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1da8/live/2c6e0460-eaaf-11f1-bf81-6f3b4557bf15.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
+  },
+  {
+    "slug": "513fc35da792a9f7",
+    "title": "Amical : L’équipe de France féminine renverse le Venezuela après une entame catastrophique",
+    "summary": "France 4-2 Venezuela",
+    "summary_short": "France 4-2 Venezuela",
+    "content": "France 4-2 Venezuela",
+    "paragraphs": [
+      "France 4-2 Venezuela"
+    ],
+    "key_points": [],
+    "telegram_summary": "France 4-2 Venezuela",
+    "link": "https://www.sofoot.com/breves/amical-lequipe-de-france-feminine-renverse-le-venezuela-apres-une-entame-catastrophique",
+    "source_url": "https://www.sofoot.com/breves/amical-lequipe-de-france-feminine-renverse-le-venezuela-apres-une-entame-catastrophique",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=513fc35da792a9f7",
+    "published": "2026-11-27T21:59:15+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27225727/15424863.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27225727/15424863.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "db69a317f9da11a7",
+    "title": "Premier League : Malgré un doublé d’Emegha, Chelsea subit une troisième défaite de suite à Nottingham",
+    "summary": "Nottingham Forest 3-2 Chelsea",
+    "summary_short": "Nottingham Forest 3-2 Chelsea",
+    "content": "Nottingham Forest 3-2 Chelsea",
+    "paragraphs": [
+      "Nottingham Forest 3-2 Chelsea"
+    ],
+    "key_points": [],
+    "telegram_summary": "Nottingham Forest 3-2 Chelsea",
+    "link": "https://www.sofoot.com/breves/premier-league-malgre-un-double-demegha-chelsea-subit-une-troisieme-defaite-de-suite-a-nottingham",
+    "source_url": "https://www.sofoot.com/breves/premier-league-malgre-un-double-demegha-chelsea-subit-une-troisieme-defaite-de-suite-a-nottingham",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=db69a317f9da11a7",
+    "published": "2026-11-27T21:54:50+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27225417/15424841.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27225417/15424841.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "7aa3cb26f89519b5",
@@ -1465,14 +1560,14 @@
   {
     "slug": "0ba2a87aa38d7ba1",
     "title": "Ligue 1 : Brest ramène le Paris FC sur terre grâce à un grand Egil Selvik et se hisse sur le podium",
-    "summary": "Les Bretons ne s'arrêtent plus !",
-    "summary_short": "Les Bretons ne s'arrêtent plus !",
-    "content": "Les Bretons ne s'arrêtent plus !",
+    "summary": "Les Bretons ne s’arrêtent plus !",
+    "summary_short": "Les Bretons ne s’arrêtent plus !",
+    "content": "Les Bretons ne s’arrêtent plus !",
     "paragraphs": [
-      "Les Bretons ne s'arrêtent plus !"
+      "Les Bretons ne s’arrêtent plus !"
     ],
     "key_points": [],
-    "telegram_summary": "Les Bretons ne s'arrêtent plus !",
+    "telegram_summary": "Les Bretons ne s’arrêtent plus !",
     "link": "https://www.sofoot.com/breves/ligue-1-brest-ramene-le-paris-fc-sur-terre-grace-a-un-grand-egil-selvik-et-se-hisse-sur-le-podium",
     "source_url": "https://www.sofoot.com/breves/ligue-1-brest-ramene-le-paris-fc-sur-terre-grace-a-un-grand-egil-selvik-et-se-hisse-sur-le-podium",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ba2a87aa38d7ba1",
@@ -1654,7 +1749,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-27T21:56:34.139088+00:00"
+      "checked_at": "2026-11-27T22:12:25.569700+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1699,16 +1794,16 @@
   {
     "slug": "135a13afb79b7afb",
     "title": "'You're not welcome here' - Chelsea's Fofana booed by own fans",
-    "summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League game at Nottingham Forest after a controversial interview.",
-    "summary_short": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League game at Nottingham Forest after a controversial interview.",
-    "content": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League game at Nottingham Forest after a controversial interview.",
+    "summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
+    "summary_short": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
+    "content": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
     "paragraphs": [
-      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League game at Nottingham Forest after a controversial interview."
+      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview."
     ],
     "key_points": [
-      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League game at Nottingham Forest after a controversial interview."
+      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview."
     ],
-    "telegram_summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League game at Nottingham Forest after a controversial interview.",
+    "telegram_summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
     "link": "https://www.bbc.co.uk/sport/football/articles/cmqlqeqd4wg5o?at_medium=RSS&at_campaign=rss",
     "source_url": "https://www.bbc.co.uk/sport/football/articles/cmqlqeqd4wg5o?at_medium=RSS&at_campaign=rss",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=135a13afb79b7afb",
@@ -1729,7 +1824,7 @@
       "source": "ESPN News API",
       "article_id": "50614098",
       "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T21:26:26Z",
+      "published": "2026-11-27T22:01:56Z",
       "score": 0.333,
       "matched_terms": [
         "booed",
@@ -1750,7 +1845,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:56:34.139088+00:00"
+      "checked_at": "2026-11-27T22:12:25.569700+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -1809,7 +1904,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T21:56:34.139088+00:00"
+      "checked_at": "2026-11-27T22:12:25.569700+00:00"
     },
     "quality_sources": [
       "BBC Sport",
@@ -2125,135 +2220,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "7de45ff9d96f815a",
-    "title": "Nottingham Forest : le but dingue d’Igor Jesus contre Chelsea",
-    "summary": "Chelsea traverse une zone de turbulences et doit rapidement réagir. Battus lors de trois de leurs quatre dernières sorties en Premier League, dont un lourd revers à domicile contre Leeds (1-4), les (…)",
-    "summary_short": "Chelsea traverse une zone de turbulences et doit rapidement réagir. Battus lors de trois de leurs quatre dernières sorties en Premier League, dont un lourd revers à domicile contre Leeds (1-4), les (…)",
-    "content": "Chelsea traverse une zone de turbulences et doit rapidement réagir. Battus lors de trois de leurs quatre dernières sorties en Premier League, dont un lourd revers à domicile contre Leeds (1-4), les (…)",
-    "paragraphs": [
-      "Chelsea traverse une zone de turbulences et doit rapidement réagir. Battus lors de trois de leurs quatre dernières sorties en Premier League, dont un lourd revers à domicile contre Leeds (1-4), les (…)"
-    ],
-    "key_points": [
-      "Chelsea traverse une zone de turbulences et doit rapidement réagir.",
-      "Battus lors de trois de leurs quatre dernières sorties en Premier League, dont un lourd revers à domicile contre Leeds (1-4), les (…)"
-    ],
-    "telegram_summary": "Chelsea traverse une zone de turbulences et doit rapidement réagir. Battus lors de trois de leurs quatre dernières sorties en Premier League, dont un lourd revers à domicile contre Leeds (1-4), les (…)",
-    "link": "https://www.footmercato.net/a4500558315566489311-nottingham-forest-le-but-dingue-digor-jesus-contre-chelsea",
-    "source_url": "https://www.footmercato.net/a4500558315566489311-nottingham-forest-le-but-dingue-digor-jesus-contre-chelsea",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7de45ff9d96f815a",
-    "published": "2026-11-27T20:28:24+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/igor-jesus.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/igor-jesus.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50614098",
-      "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T21:26:26Z",
-      "score": 0.214,
-      "matched_terms": [
-        "chelsea",
-        "forest",
-        "nottingham"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Chelsea",
-        "Nottingham Forest"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-27T21:56:34.139088+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "78d0f29e519e56c2",
-    "title": "Lille : excellente nouvelle pour Ancelotti, le LOSC sécurise une de ses stars",
-    "summary": "Auteur d'un début de saison prometteur, Ethan Mbappé a prolongé son contrat de deux saisons supplémentaires, jusqu'en juin 2029.",
-    "summary_short": "Auteur d'un début de saison prometteur, Ethan Mbappé a prolongé son contrat de deux saisons supplémentaires, jusqu'en juin 2029.",
-    "content": "Auteur d'un début de saison prometteur, Ethan Mbappé a prolongé son contrat de deux saisons supplémentaires, jusqu'en juin 2029.",
-    "paragraphs": [
-      "Auteur d'un début de saison prometteur, Ethan Mbappé a prolongé son contrat de deux saisons supplémentaires, jusqu'en juin 2029."
-    ],
-    "key_points": [
-      "Auteur d'un début de saison prometteur, Ethan Mbappé a prolongé son contrat de deux saisons supplémentaires, jusqu'en juin 2029."
-    ],
-    "telegram_summary": "Auteur d'un début de saison prometteur, Ethan Mbappé a prolongé son contrat de deux saisons supplémentaires, jusqu'en juin 2029.",
-    "link": "https://www.onzemondial.com/ligue-1/lille-excellente-nouvelle-pour-ancelotti-le-losc-securise-une-de-ses-stars-1011789",
-    "source_url": "https://www.onzemondial.com/ligue-1/lille-excellente-nouvelle-pour-ancelotti-le-losc-securise-une-de-ses-stars-1011789",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=78d0f29e519e56c2",
-    "published": "2026-11-27T20:28:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011789/411738/1200-L-lille-excellente-nouvelle-pour-ancelotti-le-losc-scurise-une-de-ses-stars.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011789/411738/1200-L-lille-excellente-nouvelle-pour-ancelotti-le-losc-scurise-une-de-ses-stars.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "b24f8d69534154fa",
-    "title": "Ligue 1 : Changement d’arbitre pour Auxerre-OM, François Letexier remplacé par Jérémie Pignard",
-    "summary": "Un invité de dernière minute ! François Letexier était au sifflet à Milan mercredi pour le match entre…",
-    "summary_short": "Un invité de dernière minute ! François Letexier était au sifflet à Milan mercredi pour le match entre…",
-    "content": "Un invité de dernière minute ! François Letexier était au sifflet à Milan mercredi pour le match entre…",
-    "paragraphs": [
-      "Un invité de dernière minute ! François Letexier était au sifflet à Milan mercredi pour le match entre…"
-    ],
-    "key_points": [
-      "François Letexier était au sifflet à Milan mercredi pour le match entre…"
-    ],
-    "telegram_summary": "Un invité de dernière minute ! François Letexier était au sifflet à Milan mercredi pour le match entre…",
-    "link": "https://www.sofoot.com/breves/ligue-1-changement-darbitre-pour-auxerre-om-francois-letexier-remplace-par-jeremie-pignard",
-    "source_url": "https://www.sofoot.com/breves/ligue-1-changement-darbitre-pour-auxerre-om-francois-letexier-remplace-par-jeremie-pignard",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b24f8d69534154fa",
-    "published": "2026-11-27T20:22:49+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27210041/15406946.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27210041/15406946.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
   }
 ]
