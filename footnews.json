@@ -157,7 +157,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T20:39:59.601842+00:00"
+      "checked_at": "2026-11-27T21:10:05.420388+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -377,40 +377,6 @@
     "quality_score": 92
   },
   {
-    "slug": "afc4fb7d7a59c4d2",
-    "title": "Mercato Rennes : c'est la fin pour Haise !",
-    "summary": "La défaite de trop ! Sur une série de 5 matchs sans victoire toutes compétitions confondues, l'entraîneur du Stade Rennais Franck Haise va faire les f......",
-    "summary_short": "La défaite de trop ! Sur une série de 5 matchs sans victoire toutes compétitions confondues, l'entraîneur du Stade Rennais Franck Haise va faire les f......",
-    "content": "La défaite de trop ! Sur une série de 5 matchs sans victoire toutes compétitions confondues, l'entraîneur du Stade Rennais Franck Haise va faire les f......",
-    "paragraphs": [
-      "La défaite de trop ! Sur une série de 5 matchs sans victoire toutes compétitions confondues, l'entraîneur du Stade Rennais Franck Haise va faire les f......"
-    ],
-    "key_points": [
-      "Sur une série de 5 matchs sans victoire toutes compétitions confondues, l'entraîneur du Stade Rennais Franck Haise va faire les f......"
-    ],
-    "telegram_summary": "La défaite de trop ! Sur une série de 5 matchs sans victoire toutes compétitions confondues, l'entraîneur du Stade Rennais Franck Haise va faire les f......",
-    "link": "https://www.maxifoot.fr/rennes/c-est-la-fin-pour-haise-foot-468509.htm",
-    "source_url": "https://www.maxifoot.fr/rennes/c-est-la-fin-pour-haise-foot-468509.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=afc4fb7d7a59c4d2",
-    "published": "2026-11-27T17:16:48+00:00",
-    "image": "https://news.maxifoot.fr/amp/468509.webp",
-    "source_image": "https://news.maxifoot.fr/amp/468509.webp",
-    "image_origin": "generated_fallback",
-    "image_layout": "general-banner",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
-  },
-  {
     "slug": "d056418921beb5d1",
     "title": "Leverkusen : Ibrahim Maza a décidé de poursuivre sa carrière en Allemagne",
     "summary": "Ibrahim Maza devrait poursuivre son aventure au Bayer Leverkusen pour encore plusieurs saisons. Malgré l’intérêt de plusieurs clubs européens, dont le Bayern Munich, le milieu offensif algérien (…)",
@@ -549,41 +515,6 @@
       "Franceinfo"
     ],
     "quality_score": 82
-  },
-  {
-    "slug": "149d04ff69dcbb81",
-    "title": "Lens : \"Une réaction légitime\" ... Digard et Risser sortent du silence sur l'épisode Thauvin",
-    "summary": "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1). Un épisode qu'on veut rapidement oublier.",
-    "summary_short": "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1). Un épisode qu'on veut rapidement oublier.",
-    "content": "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1). Un épisode qu'on veut rapidement oublier.",
-    "paragraphs": [
-      "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1). Un épisode qu'on veut rapidement oublier."
-    ],
-    "key_points": [
-      "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1).",
-      "Un épisode qu'on veut rapidement oublier."
-    ],
-    "telegram_summary": "Didier Digard et Robin Risser ont réagi à la sortie médiatique de Florian Thauvin au sortir de la défaite contre le RB Leipzig mardi soir (3-1). Un épisode qu'on veut rapidement oublier.",
-    "link": "https://www.onzemondial.com/ligue-1/lens-une-reaction-legitime-digard-et-risser-sortent-du-silence-sur-lepisode-thauvin-1011742",
-    "source_url": "https://www.onzemondial.com/ligue-1/lens-une-reaction-legitime-digard-et-risser-sortent-du-silence-sur-lepisode-thauvin-1011742",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=149d04ff69dcbb81",
-    "published": "2026-11-27T15:01:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011742/411726/1200-L-lens-une-raction-lgitime-digard-et-risser-sortent-du-silence-sur-l-pisode-thauvin.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011742/411726/1200-L-lens-une-raction-lgitime-digard-et-risser-sortent-du-silence-sur-l-pisode-thauvin.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   },
   {
     "slug": "8bc9eae514824f65",
@@ -1405,39 +1336,210 @@
     "quality_score": 83
   },
   {
-    "slug": "f2292c1e6b2b7f11",
-    "title": "CAN 2025: le Sénégal en joie après sa victoire réattribuée par le TAS, le Maroc fataliste",
-    "summary": "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénégal forfait et l'équipe du Maroc championne d'Afrique.",
-    "summary_short": "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénégal forfait et l'équipe du Maroc championne d'Afrique.",
-    "content": "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénégal forfait et l'équipe du Maroc championne d'Afrique. Ce sont bien les Lions de la Teranga, vainqueurs sur le terrain, qui ont remporté le titre continental.",
+    "slug": "b1c8aca23984d81f",
+    "title": "OM : Pression de l'UEFA, saluts nazis… Les précisions du ministre de l'Intérieur sur les incidents au Vélodrome",
+    "summary": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
+    "summary_short": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
+    "content": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
     "paragraphs": [
-      "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénégal forfait et l'équipe du Maroc championne d'Afrique. Ce sont bien les Lions de la Teranga, vainqueurs sur le terrain, qui ont remporté le titre continental."
+      "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…"
     ],
     "key_points": [
-      "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénég",
-      "Ce sont bien les Lions de la Teranga, vainqueurs sur le terrain, qui ont remporté le titre continental."
+      "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…"
     ],
-    "telegram_summary": "Dix mois après une finale de CAN houleuse à Rabat, le Tribunal arbitral du sport a tranché le litige : mardi 24 novembre 2026, la juridiction a contredit le jury d'appel de la Confédération africaine de football qui, le 17 mars, avait déclaré l'équipe du Sénégal forfait et l'équipe du Maroc championne d'Afrique.",
-    "link": "https://www.rfi.fr/fr/afrique-foot/20261124-can-2025-le-s%C3%A9n%C3%A9gal-en-joie-apr%C3%A8s-sa-victoire-r%C3%A9attribu%C3%A9e-par-le-tas-le-maroc-fataliste",
-    "source_url": "https://www.rfi.fr/fr/afrique-foot/20261124-can-2025-le-s%C3%A9n%C3%A9gal-en-joie-apr%C3%A8s-sa-victoire-r%C3%A9attribu%C3%A9e-par-le-tas-le-maroc-fataliste",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f2292c1e6b2b7f11",
-    "published": "2026-11-24T21:09:23+00:00",
-    "image": "https://s.rfi.fr/media/display/a3f9a9ca-e849-11f1-bc6f-1991d4929b54/w:1024/p:16x9/FOOTBALL-SENEGAL-CAN2025-DAKAR.jpg",
-    "source_image": "https://s.rfi.fr/media/display/a3f9a9ca-e849-11f1-bc6f-1991d4929b54/w:1024/p:16x9/FOOTBALL-SENEGAL-CAN2025-DAKAR.jpg",
+    "telegram_summary": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-pression-de-l-uefa-saluts-nazis-les-precisions-du-ministre-de-l-interieur-sur-les-incidents-au-velodrome-547268.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-pression-de-l-uefa-saluts-nazis-les-precisions-du-ministre-de-l-interieur-sur-les-incidents-au-velodrome-547268.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b1c8aca23984d81f",
+    "published": "2026-11-27T21:06:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261127082211-1212.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261127082211-1212.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "RFI Afrique Foot",
-    "source_priority": 90,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/afrique-foot/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
-      "RFI Afrique Foot"
+      "MadeInFoot"
     ],
-    "quality_score": 90
+    "quality_score": 88
+  },
+  {
+    "slug": "efc2853c0760e4a5",
+    "title": "Coupe de France : Saint-Omer (R1) crée l’exploit en éliminant Caen, ça passe pour Valenciennes et Cannes",
+    "summary": "La magie de la Coupe, on ne s'en lassera jamais.",
+    "summary_short": "La magie de la Coupe, on ne s'en lassera jamais.",
+    "content": "La magie de la Coupe, on ne s'en lassera jamais.",
+    "paragraphs": [
+      "La magie de la Coupe, on ne s'en lassera jamais."
+    ],
+    "key_points": [
+      "La magie de la Coupe, on ne s'en lassera jamais."
+    ],
+    "telegram_summary": "La magie de la Coupe, on ne s'en lassera jamais.",
+    "link": "https://www.sofoot.com/breves/coupe-de-france-saint-omer-r1-cree-lexploit-en-eliminant-caen-ca-passe-pour-valenciennes-et-cannes",
+    "source_url": "https://www.sofoot.com/breves/coupe-de-france-saint-omer-r1-cree-lexploit-en-eliminant-caen-ca-passe-pour-valenciennes-et-cannes",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=efc2853c0760e4a5",
+    "published": "2026-11-27T21:05:17+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27220347/15341566.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27220347/15341566.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "cd2f5c00f840dcb8",
+    "title": "Coupe de France : énorme exploit de Saint-Omer, Caen tombe dès le 8e tour !",
+    "summary": "L'US Saint-Omer a signé un exploit retentissant en éliminant le SM Caen (Ligue 3) au bout du suspense (1-0) et décroche son billet pour les 32es de finale de la Coupe de France.",
+    "summary_short": "L'US Saint-Omer a signé un exploit retentissant en éliminant le SM Caen (Ligue 3) au bout du suspense (1-0) et décroche son billet pour les 32es de finale de la Coupe de France.",
+    "content": "L'US Saint-Omer a signé un exploit retentissant en éliminant le SM Caen (Ligue 3) au bout du suspense (1-0) et décroche son billet pour les 32es de finale de la Coupe de France.",
+    "paragraphs": [
+      "L'US Saint-Omer a signé un exploit retentissant en éliminant le SM Caen (Ligue 3) au bout du suspense (1-0) et décroche son billet pour les 32es de finale de la Coupe de France."
+    ],
+    "key_points": [
+      "L'US Saint-Omer a signé un exploit retentissant en éliminant le SM Caen (Ligue 3) au bout du suspense (1-0) et décroche son billet pour les 32es de finale de la Coupe de France."
+    ],
+    "telegram_summary": "L'US Saint-Omer a signé un exploit retentissant en éliminant le SM Caen (Ligue 3) au bout du suspense (1-0) et décroche son billet pour les 32es de finale de la Coupe de France.",
+    "link": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-enorme-exploit-de-saint-omer-caen-tombe-des-le-8e-tour-1011808",
+    "source_url": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-enorme-exploit-de-saint-omer-caen-tombe-des-le-8e-tour-1011808",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cd2f5c00f840dcb8",
+    "published": "2026-11-27T21:04:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011808/411741/1200-L-coupe-de-france-norme-exploit-de-saint-omer-caen-tombe-ds-le-8e-tour.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011808/411741/1200-L-coupe-de-france-norme-exploit-de-saint-omer-caen-tombe-ds-le-8e-tour.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "4b2804d3af55ddfb",
+    "title": "Pourquoi Disney+ a des chances de rafler la mise pour les droits de la Ligue 1",
+    "summary": "Co-diffuseur du championnat espagnol cette saison, Disney+ sera très attendu lors de l’appel d’offres pour les droits de la Ligue 1 la semaine prochaine. Certains concurrents considèrent la (…)",
+    "summary_short": "Co-diffuseur du championnat espagnol cette saison, Disney+ sera très attendu lors de l’appel d’offres pour les droits de la Ligue 1 la semaine prochaine. Certains concurrents considèrent la (…)",
+    "content": "Co-diffuseur du championnat espagnol cette saison, Disney+ sera très attendu lors de l’appel d’offres pour les droits de la Ligue 1 la semaine prochaine. Certains concurrents considèrent la (…)",
+    "paragraphs": [
+      "Co-diffuseur du championnat espagnol cette saison, Disney+ sera très attendu lors de l’appel d’offres pour les droits de la Ligue 1 la semaine prochaine. Certains concurrents considèrent la (…)"
+    ],
+    "key_points": [
+      "Co-diffuseur du championnat espagnol cette saison, Disney+ sera très attendu lors de l’appel d’offres pour les droits de la Ligue 1 la semaine prochaine.",
+      "Certains concurrents considèrent la (…)"
+    ],
+    "telegram_summary": "Co-diffuseur du championnat espagnol cette saison, Disney+ sera très attendu lors de l’appel d’offres pour les droits de la Ligue 1 la semaine prochaine. Certains concurrents considèrent la (…)",
+    "link": "https://www.footmercato.net/a1675732640951196997-pourquoi-disney-est-un-candidat-serieux-pour-lacquisition-des-droits-de-la-ligue-1",
+    "source_url": "https://www.footmercato.net/a1675732640951196997-pourquoi-disney-est-un-candidat-serieux-pour-lacquisition-des-droits-de-la-ligue-1",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4b2804d3af55ddfb",
+    "published": "2026-11-27T21:02:03+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo603725-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo603725-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "8e06871b07f94673",
+    "title": "Coupe de France : grande première dans l'histoire du tirage au sort des 32es de finale",
+    "summary": "Une grande première aura lieu ce lundi à l'occasion du tirage au sort des 32es de finale de la Coupe de France. Un tour marqué par l'apparition des clubs de Ligue 1.",
+    "summary_short": "Une grande première aura lieu ce lundi à l'occasion du tirage au sort des 32es de finale de la Coupe de France. Un tour marqué par l'apparition des clubs de Ligue 1.",
+    "content": "Une grande première aura lieu ce lundi à l'occasion du tirage au sort des 32es de finale de la Coupe de France. Un tour marqué par l'apparition des clubs de Ligue 1.",
+    "paragraphs": [
+      "Une grande première aura lieu ce lundi à l'occasion du tirage au sort des 32es de finale de la Coupe de France. Un tour marqué par l'apparition des clubs de Ligue 1."
+    ],
+    "key_points": [
+      "Une grande première aura lieu ce lundi à l'occasion du tirage au sort des 32es de finale de la Coupe de France.",
+      "Un tour marqué par l'apparition des clubs de Ligue 1."
+    ],
+    "telegram_summary": "Une grande première aura lieu ce lundi à l'occasion du tirage au sort des 32es de finale de la Coupe de France. Un tour marqué par l'apparition des clubs de Ligue 1.",
+    "link": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-grande-premiere-dans-lhistoire-du-tirage-au-sort-des-32es-de-finale-1011681",
+    "source_url": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-grande-premiere-dans-lhistoire-du-tirage-au-sort-des-32es-de-finale-1011681",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8e06871b07f94673",
+    "published": "2026-11-27T21:01:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011681/411711/1200-L-coupe-de-france-grande-premire-dans-l-histoire-du-tirage-au-sort-des-32es-de-finale.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011681/411711/1200-L-coupe-de-france-grande-premire-dans-l-histoire-du-tirage-au-sort-des-32es-de-finale.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "354e380ee5fdfee5",
+    "title": "LOSC : Ethan Mbappé prolonge son contrat avec Lille",
+    "summary": "L’aventure continue. Ethan Mbappé a réussi à faire son trou à Lille, et il va y rester. Alors que son…",
+    "summary_short": "L’aventure continue. Ethan Mbappé a réussi à faire son trou à Lille, et il va y rester. Alors que son…",
+    "content": "L’aventure continue. Ethan Mbappé a réussi à faire son trou à Lille, et il va y rester. Alors que son…",
+    "paragraphs": [
+      "L’aventure continue. Ethan Mbappé a réussi à faire son trou à Lille, et il va y rester. Alors que son…"
+    ],
+    "key_points": [
+      "Ethan Mbappé a réussi à faire son trou à Lille, et il va y rester."
+    ],
+    "telegram_summary": "L’aventure continue. Ethan Mbappé a réussi à faire son trou à Lille, et il va y rester. Alors que son…",
+    "link": "https://www.sofoot.com/breves/losc-ethan-mbappe-prolonge-son-contrat-avec-lille",
+    "source_url": "https://www.sofoot.com/breves/losc-ethan-mbappe-prolonge-son-contrat-avec-lille",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=354e380ee5fdfee5",
+    "published": "2026-11-27T20:41:44+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27212935/15417430.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27212935/15417430.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "7c635fe93ef42214",
@@ -1850,6 +1952,40 @@
     "quality_score": 77
   },
   {
+    "slug": "f6a22da39f37f0a1",
+    "title": "Stade Rennais : c'est officiel, Franck Haise quitte le club !",
+    "summary": "Franck Haise n'est plus l'entraîneur du Stade Rennais.",
+    "summary_short": "Franck Haise n'est plus l'entraîneur du Stade Rennais.",
+    "content": "Franck Haise n'est plus l'entraîneur du Stade Rennais.",
+    "paragraphs": [
+      "Franck Haise n'est plus l'entraîneur du Stade Rennais."
+    ],
+    "key_points": [
+      "Franck Haise n'est plus l'entraîneur du Stade Rennais."
+    ],
+    "telegram_summary": "Franck Haise n'est plus l'entraîneur du Stade Rennais.",
+    "link": "https://www.onzemondial.com/ligue-1/stade-rennais-cest-officiel-franck-haise-quitte-le-club-1011802",
+    "source_url": "https://www.onzemondial.com/ligue-1/stade-rennais-cest-officiel-franck-haise-quitte-le-club-1011802",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f6a22da39f37f0a1",
+    "published": "2026-11-27T19:44:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011802/411740/1200-L-stade-rennais-c-est-officiel-franck-haise-quitte-le-club.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011802/411740/1200-L-stade-rennais-c-est-officiel-franck-haise-quitte-le-club.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "1068f566991056ed",
     "title": "Des U17 d’Annecy à la Ligue des Champions avec le Bayern… le parcours fou du Français Noah Codjo-Evora",
     "summary": "Formé à Annecy, Noah Codjo-Evora a rejoint le Bayern Munich à l’été 2024. L’attaquant français de 19 ans a gravi les échelons, jusqu’à effectuer ses débuts en Ligue des Champions cette semaine face au (…)",
@@ -1986,167 +2122,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "9f45ffe3801e81cd",
-    "title": "Lionel Scaloni pourrait participer aux championnats du monde de cyclisme 2027 en Haute-Savoie",
-    "summary": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
-    "summary_short": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
-    "content": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
-    "paragraphs": [
-      "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…"
-    ],
-    "key_points": [
-      "Luis Enrique n’a qu’à bien se tenir.",
-      "Il n’est pas le seul à savoir rouler sans les petites…"
-    ],
-    "telegram_summary": "Luis Enrique n’a qu’à bien se tenir. Il n’est pas le seul à savoir rouler sans les petites…",
-    "link": "https://www.sofoot.com/breves/lionel-scaloni-pourrait-participer-aux-championnats-du-monde-de-cyclisme-2027-en-haute-savoie",
-    "source_url": "https://www.sofoot.com/breves/lionel-scaloni-pourrait-participer-aux-championnats-du-monde-de-cyclisme-2027-en-haute-savoie",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9f45ffe3801e81cd",
-    "published": "2026-11-27T19:21:16+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/13105936/14912846.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/13105936/14912846.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "ef7b32df26b09d89",
-    "title": "Brest - Paris FC : les compositions officielles !",
-    "summary": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
-    "summary_short": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
-    "content": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
-    "paragraphs": [
-      "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1."
-    ],
-    "key_points": [
-      "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1."
-    ],
-    "telegram_summary": "Découvrez les compositions officielles de l'affiche entre Brest et le Paris FC en Ligue 1.",
-    "link": "https://www.onzemondial.com/ligue-1/brest-paris-fc-les-compositions-officielles-1011738",
-    "source_url": "https://www.onzemondial.com/ligue-1/brest-paris-fc-les-compositions-officielles-1011738",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ef7b32df26b09d89",
-    "published": "2026-11-27T19:03:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011738/411725/1200-L-brest-paris-fc-les-compositions-officielles.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011738/411725/1200-L-brest-paris-fc-les-compositions-officielles.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "2764c5a88ba70df0",
-    "title": "Real Madrid : Mourinho ne s'enflamme pas pour la C1 et prend le PSG en exemple",
-    "summary": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
-    "summary_short": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
-    "content": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
-    "paragraphs": [
-      "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes."
-    ],
-    "key_points": [
-      "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions.",
-      "Le Portugais a été clair sur les ambitions madrilènes."
-    ],
-    "telegram_summary": "José Mourinho, l'entraîneur du Real Madrid, est revenu sur le carton plein de son équipe pour le moment en Ligue des champions. Le Portugais a été clair sur les ambitions madrilènes.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/real-madrid-mourinho-ne-senflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple-1011736",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/real-madrid-mourinho-ne-senflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple-1011736",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2764c5a88ba70df0",
-    "published": "2026-11-27T19:01:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011736/411724/1200-L-real-madrid-mourinho-ne-s-enflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011736/411724/1200-L-real-madrid-mourinho-ne-s-enflamme-pas-pour-la-c1-et-prend-le-psg-en-exemple.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50611810",
-      "url": "https://www.espn.com/video/clip/_/id/50611810/mourinho-embarrasses-cousin-real-madrid-press-conference",
-      "published": "2026-11-27T14:58:51Z",
-      "score": 0.3,
-      "matched_terms": [
-        "madrid",
-        "mourinho",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-27T20:39:59.601842+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "326825b08af0612e",
-    "title": "Rennes : ça ne devrait pas être Pierre Sage",
-    "summary": "La sanction est tombée. Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté.",
-    "summary_short": "La sanction est tombée. Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté.",
-    "content": "La sanction est tombée. Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté. Le (…)",
-    "paragraphs": [
-      "La sanction est tombée. Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté. Le (…)"
-    ],
-    "key_points": [
-      "Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté."
-    ],
-    "telegram_summary": "La sanction est tombée. Rien n’est encore officiel, mais comme nous vous l’avons dévoilé, le Stade Rennais a décidé de se séparer de son entraîneur Franck Haise moins d’un an après l’avoir recruté.",
-    "link": "https://www.footmercato.net/a7518864170681388827-rennes-ca-ne-devrait-pas-etre-pierre-sage",
-    "source_url": "https://www.footmercato.net/a7518864170681388827-rennes-ca-ne-devrait-pas-etre-pierre-sage",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=326825b08af0612e",
-    "published": "2026-11-27T19:00:58+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo577344-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo577344-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   }
 ]
