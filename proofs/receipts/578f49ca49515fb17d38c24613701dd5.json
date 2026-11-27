@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-1fbe71711ee18111:UNDER_35",
+    "recorded_at_utc": "2026-11-27T20:09:58+00:00",
+    "kickoff_utc": "2026-11-29T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Warri Wolves FC",
+      "away_team": "Kun Khalifat FC",
+      "league": "Nigeria Premier Football League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a886b03efe6d3303d70a7b2b89fc363f0f96d313d2845d0f0f799e9e20fe8083"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-3316dc8bb3971bf7:UNDER_35",
+    "recorded_at_utc": "2026-11-27T20:09:58+00:00",
+    "kickoff_utc": "2026-11-29T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Enyimba",
+      "away_team": "Barau FC",
+      "league": "Nigeria Premier Football League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "c776c5d2800e4ad10a81b614a631605d7c7f255148f036f03c278c9369e2a26f"
+}

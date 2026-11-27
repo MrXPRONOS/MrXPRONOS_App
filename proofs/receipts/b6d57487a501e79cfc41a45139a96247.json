@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-70bc1e6aa257293f:UNDER_35",
+    "recorded_at_utc": "2026-11-27T20:09:58+00:00",
+    "kickoff_utc": "2026-11-29T14:30:00+00:00",
+    "fixture": {
+      "home_team": "1º de Maio de Benguela",
+      "away_team": "Interclube Luanda",
+      "league": "Girabola"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a30bced74b6c669d0dc2077b76c5df4937c4b4d855de1fcb243a9334caf14a0f"
+}

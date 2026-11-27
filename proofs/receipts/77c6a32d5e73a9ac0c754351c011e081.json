@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-3ccacc075458eada:1X",
+    "recorded_at_utc": "2026-11-27T20:09:58+00:00",
+    "kickoff_utc": "2026-11-29T18:15:00+00:00",
+    "fixture": {
+      "home_team": "Royale Union Saint-Gilloise",
+      "away_team": "KAA Gent",
+      "league": "Pro League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "0a821db0ff4da6d3c25777a1b3b76e07af5439dd9f32d689ca316eae4dc0aae9"
+}

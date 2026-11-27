@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-9bbdf65c589a2a51:UNDER_35",
+    "recorded_at_utc": "2026-11-27T20:09:58+00:00",
+    "kickoff_utc": "2026-11-29T14:00:00+00:00",
+    "fixture": {
+      "home_team": "Halmstads BK",
+      "away_team": "Mjällby AIF",
+      "league": "Allsvenskan"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.3,
+      "odds": 1.377,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "bac875eec91f30cbe3ce853c77bddf3c56fef95612af3dff6a3e7645cc653ba3"
+}
