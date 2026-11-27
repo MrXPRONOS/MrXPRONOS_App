@@ -32,7 +32,7 @@
       "source": "ESPN News API",
       "article_id": "50614098",
       "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T22:36:04Z",
+      "published": "2026-11-27T22:42:30Z",
       "score": 0.214,
       "matched_terms": [
         "chelsea",
@@ -52,7 +52,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T22:40:16.727412+00:00"
+      "checked_at": "2026-11-27T23:09:59.644809+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -252,7 +252,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T22:40:16.727412+00:00"
+      "checked_at": "2026-11-27T23:09:59.644809+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1186,6 +1186,110 @@
     "quality_score": 86
   },
   {
+    "slug": "6afdd17c21233b20",
+    "title": "Pologne : Un spectateur interrompt un match en faisant irruption sur la pelouse en trottinette électrique",
+    "summary": "Tout peut arriver en D3 polonaise. Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…",
+    "summary_short": "Tout peut arriver en D3 polonaise. Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…",
+    "content": "Tout peut arriver en D3 polonaise. Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…",
+    "paragraphs": [
+      "Tout peut arriver en D3 polonaise. Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…"
+    ],
+    "key_points": [
+      "Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…"
+    ],
+    "telegram_summary": "Tout peut arriver en D3 polonaise. Le match entre Stal Stalowa Wola et la réserve du Legia Varsovie venait d’entrer…",
+    "link": "https://www.sofoot.com/breves/pologne-un-spectateur-interrompt-un-match-en-faisant-irruption-sur-la-pelouse-en-trottinette-electrique",
+    "source_url": "https://www.sofoot.com/breves/pologne-un-spectateur-interrompt-un-match-en-faisant-irruption-sur-la-pelouse-en-trottinette-electrique",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6afdd17c21233b20",
+    "published": "2026-11-27T22:56:17+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27235247/Screenshot_20261127-234954.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27235247/Screenshot_20261127-234954.jpg",
+    "image_origin": "source",
+    "image_layout": "blur-contain",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "030ff09c7d1aa11f",
+    "title": "Le cauchemar se poursuit pour Musiala, peut-il sortir la tête de l'eau ?",
+    "summary": "Encore victime d'une rechute musculaire à Lille, Jamal Musiala voit son retour au premier plan retardé et peine toujours à retrouver une continuité physique.",
+    "summary_short": "Encore victime d'une rechute musculaire à Lille, Jamal Musiala voit son retour au premier plan retardé et peine toujours à retrouver une continuité physique.",
+    "content": "Encore victime d'une rechute musculaire à Lille, Jamal Musiala voit son retour au premier plan retardé et peine toujours à retrouver une continuité physique.",
+    "paragraphs": [
+      "Encore victime d'une rechute musculaire à Lille, Jamal Musiala voit son retour au premier plan retardé et peine toujours à retrouver une continuité physique."
+    ],
+    "key_points": [
+      "Encore victime d'une rechute musculaire à Lille, Jamal Musiala voit son retour au premier plan retardé et peine toujours à retrouver une continuité physique."
+    ],
+    "telegram_summary": "Encore victime d'une rechute musculaire à Lille, Jamal Musiala voit son retour au premier plan retardé et peine toujours à retrouver une continuité physique.",
+    "link": "https://www.onzemondial.com/le-cauchemar-se-poursuit-pour-musiala-peut-il-sortir-la-tete-de-l-eau-1011758",
+    "source_url": "https://www.onzemondial.com/le-cauchemar-se-poursuit-pour-musiala-peut-il-sortir-la-tete-de-l-eau-1011758",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=030ff09c7d1aa11f",
+    "published": "2026-11-27T22:56:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011758/411730/1200-L-le-cauchemar-se-poursuit-pour-musiala-peut-il-sortir-la-tte-de-l-eau.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011758/411730/1200-L-le-cauchemar-se-poursuit-pour-musiala-peut-il-sortir-la-tte-de-l-eau.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "3fca8006ad07bed3",
+    "title": "Thiago Silva rempile d’un an avec Fluminense",
+    "summary": "Le suspense n’aura finalement pas duré longtemps. Thiago Silva va poursuivre l’aventure avec Fluminense. À 42 ans, le défenseur brésilien a prolongé son contrat avec son club formateur et restera (…)",
+    "summary_short": "Le suspense n’aura finalement pas duré longtemps. Thiago Silva va poursuivre l’aventure avec Fluminense. À 42 ans, le défenseur brésilien a prolongé son contrat avec son club formateur et restera (…)",
+    "content": "Le suspense n’aura finalement pas duré longtemps. Thiago Silva va poursuivre l’aventure avec Fluminense. À 42 ans, le défenseur brésilien a prolongé son contrat avec son club formateur et restera (…)",
+    "paragraphs": [
+      "Le suspense n’aura finalement pas duré longtemps. Thiago Silva va poursuivre l’aventure avec Fluminense. À 42 ans, le défenseur brésilien a prolongé son contrat avec son club formateur et restera (…)"
+    ],
+    "key_points": [
+      "Le suspense n’aura finalement pas duré longtemps.",
+      "Thiago Silva va poursuivre l’aventure avec Fluminense.",
+      "À 42 ans, le défenseur brésilien a prolongé son contrat avec son club formateur et restera (…)"
+    ],
+    "telegram_summary": "Le suspense n’aura finalement pas duré longtemps. Thiago Silva va poursuivre l’aventure avec Fluminense. À 42 ans, le défenseur brésilien a prolongé son contrat avec son club formateur et restera (…)",
+    "link": "https://www.footmercato.net/a6503641973679881750-thiago-silva-rempile-dun-an-avec-fluminense",
+    "source_url": "https://www.footmercato.net/a6503641973679881750-thiago-silva-rempile-dun-an-avec-fluminense",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3fca8006ad07bed3",
+    "published": "2026-11-27T22:50:26+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/thiago-silva-fluminense-669e0fde3e5d6.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/thiago-silva-fluminense-669e0fde3e5d6.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "a581c881cff34e01",
     "title": "Brest est en train de déjouer tous les pronostics en Ligue 1 !",
     "summary": "Après un été lourd mentalement avec le décès d’Eric Roy et un début de saison poussif, Brest a totalement renversé la vapeur depuis quelques semaines. Restant sur quatre succès de rang en Ligue 1, le (…)",
@@ -1309,13 +1413,47 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T22:40:16.727412+00:00"
+      "checked_at": "2026-11-27T23:09:59.644809+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
+  },
+  {
+    "slug": "0bed2d74b2bf6b09",
+    "title": "Gibbs-White scores twice as Forest beat struggling Chelsea",
+    "summary": "Igor Jesus' stunning volley and two goals from Morgan Gibbs-White help Nottingham Forest beat a struggling Chelsea side, who lose their third Premier League game in a row.",
+    "summary_short": "Igor Jesus' stunning volley and two goals from Morgan Gibbs-White help Nottingham Forest beat a struggling Chelsea side, who lose their third Premier League game in a row.",
+    "content": "Igor Jesus' stunning volley and two goals from Morgan Gibbs-White help Nottingham Forest beat a struggling Chelsea side, who lose their third Premier League game in a row.",
+    "paragraphs": [
+      "Igor Jesus' stunning volley and two goals from Morgan Gibbs-White help Nottingham Forest beat a struggling Chelsea side, who lose their third Premier League game in a row."
+    ],
+    "key_points": [
+      "Igor Jesus' stunning volley and two goals from Morgan Gibbs-White help Nottingham Forest beat a struggling Chelsea side, who lose their third Premier League game in a row."
+    ],
+    "telegram_summary": "Igor Jesus' stunning volley and two goals from Morgan Gibbs-White help Nottingham Forest beat a struggling Chelsea side, who lose their third Premier League game in a row.",
+    "link": "https://www.bbc.co.uk/sport/football/videos/cm5y10n8e737o?at_medium=RSS&at_campaign=rss",
+    "source_url": "https://www.bbc.co.uk/sport/football/videos/cm5y10n8e737o?at_medium=RSS&at_campaign=rss",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0bed2d74b2bf6b09",
+    "published": "2026-11-27T22:30:22+00:00",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/70aa/live/6d1cc8f0-eab1-11f1-a094-5fdc692f3e33.jpg",
+    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/70aa/live/6d1cc8f0-eab1-11f1-a094-5fdc692f3e33.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "BBC Sport",
+    "source_priority": 85,
+    "source_region": "international",
+    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "BBC Sport"
+    ],
+    "quality_score": 85
   },
   {
     "slug": "5a62bb3626c7ae36",
@@ -1982,7 +2120,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-27T22:40:16.727412+00:00"
+      "checked_at": "2026-11-27T23:09:59.644809+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2026,7 +2164,7 @@
   },
   {
     "slug": "135a13afb79b7afb",
-    "title": "'You're not welcome here' - Chelsea's Fofana booed by own fans",
+    "title": "'You're not welcome here' - Chelsea fans turn on Fofana",
     "summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
     "summary_short": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
     "content": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
@@ -2057,10 +2195,9 @@
       "source": "ESPN News API",
       "article_id": "50614098",
       "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T22:36:04Z",
-      "score": 0.333,
+      "published": "2026-11-27T22:42:30Z",
+      "score": 0.231,
       "matched_terms": [
-        "booed",
         "chelsea",
         "fans",
         "fofana"
@@ -2078,174 +2215,12 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-27T22:40:16.727412+00:00"
+      "checked_at": "2026-11-27T23:09:59.644809+00:00"
     },
     "quality_sources": [
       "BBC Sport",
       "ESPN"
     ],
     "quality_score": 93
-  },
-  {
-    "slug": "2b7cab29f8f8539e",
-    "title": "Champions League to be a factor in Paz move - Saturday's gossip",
-    "summary": "Manchester United may lose the chance to sign Nico Paz without Champions League qualification, Arsenal also want the Como midfielder and Liverpool eye Lamine Camara.",
-    "summary_short": "Manchester United may lose the chance to sign Nico Paz without Champions League qualification, Arsenal also want the Como midfielder and Liverpool eye Lamine Camara.",
-    "content": "Manchester United may lose the chance to sign Nico Paz without Champions League qualification, Arsenal also want the Como midfielder and Liverpool eye Lamine Camara.",
-    "paragraphs": [
-      "Manchester United may lose the chance to sign Nico Paz without Champions League qualification, Arsenal also want the Como midfielder and Liverpool eye Lamine Camara."
-    ],
-    "key_points": [
-      "Manchester United may lose the chance to sign Nico Paz without Champions League qualification, Arsenal also want the Como midfielder and Liverpool eye Lamine Camara."
-    ],
-    "telegram_summary": "Manchester United may lose the chance to sign Nico Paz without Champions League qualification, Arsenal also want the Como midfielder and Liverpool eye Lamine Camara.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cqvg23jg6x78o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cqvg23jg6x78o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2b7cab29f8f8539e",
-    "published": "2026-11-27T21:19:27+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/0f9b/live/13900680-eaa7-11f1-a094-5fdc692f3e33.png",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/0f9b/live/13900680-eaa7-11f1-a094-5fdc692f3e33.png",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "49742966",
-      "url": "https://www.espn.com/soccer/story/_/id/49742966/who-champions-league-debutants-sabah-fk-heres-need-know",
-      "published": "2026-11-25T09:24:56Z",
-      "score": 0.222,
-      "matched_terms": [
-        "champions",
-        "league"
-      ],
-      "topics": [],
-      "teams": [
-        "Arsenal",
-        "Barcelona",
-        "Manchester United"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-27T22:40:16.727412+00:00"
-    },
-    "quality_sources": [
-      "BBC Sport",
-      "ESPN"
-    ],
-    "quality_score": 93
-  },
-  {
-    "slug": "4d65794de3caef97",
-    "title": "Coupe de France : Valenciennes a tremblé face au Pays du Valois mais décroche sa qualification pour les 32es",
-    "summary": "Malmené sur la pelouse de l'US Pays du Valois (N1) ce vendredi soir, le Valenciennes FC a renversé la situation en fin de rencontre grâce à un doublé de Maréchal (84e sp, 90e) pour s'imposer (2-1) et poursuivre son aventure en Coupe de France.",
-    "summary_short": "Malmené sur la pelouse de l'US Pays du Valois (N1) ce vendredi soir, le Valenciennes FC a renversé la situation en fin de rencontre grâce à un doublé de Maréchal (84e sp, 90e) pour s'imposer (2-1) et poursuivre son aventure en Coupe de France.",
-    "content": "Malmené sur la pelouse de l'US Pays du Valois (N1) ce vendredi soir, le Valenciennes FC a renversé la situation en fin de rencontre grâce à un doublé de Maréchal (84e sp, 90e) pour s'imposer (2-1) et poursuivre son aventure en Coupe de France.",
-    "paragraphs": [
-      "Malmené sur la pelouse de l'US Pays du Valois (N1) ce vendredi soir, le Valenciennes FC a renversé la situation en fin de rencontre grâce à un doublé de Maréchal (84e sp, 90e) pour s'imposer (2-1) et poursuivre son aventure en Coupe de France."
-    ],
-    "key_points": [
-      "Malmené sur la pelouse de l'US Pays du Valois (N1) ce vendredi soir, le Valenciennes FC a renversé la situation en fin de rencontre grâce à un doublé de Maréchal (84e sp, 90e) pour s'imposer (2-1) et poursuivre son aventure en Coupe de France."
-    ],
-    "telegram_summary": "Malmené sur la pelouse de l'US Pays du Valois (N1) ce vendredi soir, le Valenciennes FC a renversé la situation en fin de rencontre grâce à un doublé de Maréchal (84e sp, 90e) pour s'imposer (2-1) et poursuivre son aventure en Coupe de France.",
-    "link": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-valenciennes-a-tremble-face-au-pays-du-valois-mais-decroche-sa-qualification-pour-les-32es-1011813",
-    "source_url": "https://www.onzemondial.com/coupe-de-france/coupe-de-france-valenciennes-a-tremble-face-au-pays-du-valois-mais-decroche-sa-qualification-pour-les-32es-1011813",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4d65794de3caef97",
-    "published": "2026-11-27T21:12:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011813/411742/1200-L-coupe-de-france-valenciennes-a-trembl-face-au-pays-du-valois-mais-dcroche-sa-qualification-pour-les-32es.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011813/411742/1200-L-coupe-de-france-valenciennes-a-trembl-face-au-pays-du-valois-mais-dcroche-sa-qualification-pour-les-32es.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "201ad4fea5361b39",
-    "title": "Un club de Régional 1 élimine Caen en Coupe de France",
-    "summary": "Premier exploit lors de ce 8e tour de Coupe de France. Après les victoires de Cannes (L3) face au Puy-en-Velay (1-1, 4-3 tab) et de Valenciennes (L3) contre Pays du Valois, pensionnaire de National 1 (…)",
-    "summary_short": "Premier exploit lors de ce 8e tour de Coupe de France. Après les victoires de Cannes (L3) face au Puy-en-Velay (1-1, 4-3 tab) et de Valenciennes (L3) contre Pays du Valois, pensionnaire de National 1 (…)",
-    "content": "Premier exploit lors de ce 8e tour de Coupe de France. Après les victoires de Cannes (L3) face au Puy-en-Velay (1-1, 4-3 tab) et de Valenciennes (L3) contre Pays du Valois, pensionnaire de National 1 (…)",
-    "paragraphs": [
-      "Premier exploit lors de ce 8e tour de Coupe de France. Après les victoires de Cannes (L3) face au Puy-en-Velay (1-1, 4-3 tab) et de Valenciennes (L3) contre Pays du Valois, pensionnaire de National 1 (…)"
-    ],
-    "key_points": [
-      "Premier exploit lors de ce 8e tour de Coupe de France.",
-      "Après les victoires de Cannes (L3) face au Puy-en-Velay (1-1, 4-3 tab) et de Valenciennes (L3) contre Pays du Valois, pensionnaire de National 1 (…)"
-    ],
-    "telegram_summary": "Premier exploit lors de ce 8e tour de Coupe de France. Après les victoires de Cannes (L3) face au Puy-en-Velay (1-1, 4-3 tab) et de Valenciennes (L3) contre Pays du Valois, pensionnaire de National 1 (…)",
-    "link": "https://www.footmercato.net/a3187064371590350864-un-club-de-regional-1-elimine-caen-en-coupe-de-france",
-    "source_url": "https://www.footmercato.net/a3187064371590350864-un-club-de-regional-1-elimine-caen-en-coupe-de-france",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=201ad4fea5361b39",
-    "published": "2026-11-27T21:06:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldthree455566.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldthree455566.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "b1c8aca23984d81f",
-    "title": "OM : Pression de l'UEFA, saluts nazis… Les précisions du ministre de l'Intérieur sur les incidents au Vélodrome",
-    "summary": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
-    "summary_short": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
-    "content": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
-    "paragraphs": [
-      "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…"
-    ],
-    "key_points": [
-      "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…"
-    ],
-    "telegram_summary": "Invité de l'émission C à vous sur France 5, ce vendredi 27 novembre, le ministre de l’Intérieur, Laurent Nuñez, s'est exprimé concernant les graves incidents survenus au Vélodrome avant le match de…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-pression-de-l-uefa-saluts-nazis-les-precisions-du-ministre-de-l-interieur-sur-les-incidents-au-velodrome-547268.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-pression-de-l-uefa-saluts-nazis-les-precisions-du-ministre-de-l-interieur-sur-les-incidents-au-velodrome-547268.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b1c8aca23984d81f",
-    "published": "2026-11-27T21:06:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261127082211-1212.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261127082211-1212.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
