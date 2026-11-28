@@ -42,8 +42,8 @@ test('guided admin creates a draft, skips description, archives files, publishes
  await msg('5000');await msg('0');assert.equal((await state()).description,'');
  await msg(null,{photo:[{file_id:'cover'}]});assert.ok(calls.some(x=>x.method==='sendPhoto'&&x.body.chat_id===env.STORAGE_CHANNEL_ID));
  await click('aw:menu');await msg('unrelated');assert.equal((await state()).paused,true);await click('aw:resume');
- await msg(null,{document:{file_id:'bad',mime_type:'text/plain'}});assert.equal((await state()).step,'pdf');
- await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});
+ await msg('pas un fichier ni un lien');assert.equal((await state()).step,'pdf');
+ await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});await act('done_assets');
  assert.ok(calls.some(x=>x.method==='sendDocument'&&x.body.chat_id===env.STORAGE_CHANNEL_ID));
  await act('skip');await act('keep_campaign');const d=await state();assert.equal(d.step,'review');await act('draft');
  assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
@@ -63,7 +63,7 @@ test('premium wizard verifies a private channel and creates an entry link and ca
  const click=data=>internals.dispatch(env,{callback_query:{id:'cb',from:{id:1},message:{chat:{id:1,type:'private'}},data}});
  const state=()=>internals.wizRead(env,'1');const act=async a=>{const d=await state();return click('aw:'+d.session+':'+d.step+':'+a);};
  await click('aw:new');await msg('Guide premium');await act('cat0');await msg('5000');await msg('0');
- await msg(null,{photo:[{file_id:'cover'}]});await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});
+ await msg(null,{photo:[{file_id:'cover'}]});await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});await act('done_assets');
  await msg('http://example.com');assert.equal((await state()).step,'shop');await msg('https://example.com/guide');
  await act('new_campaign');await act('private');await act('picker');
  const picker=calls.at(-1).body.reply_markup.keyboard[0][0].request_chat;
@@ -92,4 +92,25 @@ test('Telegram message and caption formatting preserve original text and protect
  const text='🎓 Guide & <test>\n\nApprendre. Appliquer. Réussir.';
  await tg(env,'sendMessage',{chat_id:'1',text});assert.equal(last.text,text);assert.ok(last.entities.some(x=>x.type==='blockquote'));assert.equal(last.parse_mode,undefined);
  await tg(env,'sendDocument',{chat_id:'1',document:'file123',caption:text,protect_content:true});assert.equal(last.caption,text);assert.ok(last.caption_entities.length);assert.equal(last.protect_content,true);
+});
+
+
+test('resource type recognition covers native media and generic archives',()=>{
+ assert.equal(internals.readAsset({document:{file_id:'zip',file_name:'course.zip'}}).kind,'document');
+ assert.equal(internals.readAsset({document:{file_id:'rar',file_name:'course.rar'}}).kind,'document');
+ assert.equal(internals.readAsset({video:{file_id:'v'}}).kind,'video');
+ assert.equal(internals.readAsset({audio:{file_id:'a'}}).kind,'audio');
+ assert.equal(internals.readAsset({voice:{file_id:'s'}}).kind,'voice');
+ assert.equal(internals.readAsset({photo:[{file_id:'p'}]}).kind,'photo');
+ assert.equal(internals.readAsset({text:'https://example.org/video'}).kind,'link');
+ assert.equal(internals.readAsset({text:'hello'}),null);
+});
+test('multiformat Premium resource delivery checks entitlements for every index',async t=>{
+ const {sql,env}=setup();let calls=[];withTelegram(t,(m,b)=>{calls.push({m,b});return {};});
+ const p='masterclass',resources=[{kind:'video',id:'v',name:'Lesson'},{kind:'audio',id:'a',name:'Audio'},{kind:'document',id:'z',name:'Pack.zip'}];
+ sql.prepare('INSERT INTO settings(key,value) VALUES (?,?)').run('product_assets:'+p,JSON.stringify(resources));
+ await internals.resourceAction(env,'2',p,1);assert.ok(!calls.some(x=>x.m==='sendAudio'));
+ await internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},text:'/grant 2 masterclass'}});
+ await internals.sendPDF(env,'2',p);assert.ok(calls.at(-1).b.reply_markup.inline_keyboard[0][0].callback_data==='asset:'+p+':0');
+ await internals.resourceAction(env,'2',p,1);assert.equal(calls.at(-1).m,'sendAudio');assert.equal(calls.at(-1).b.protect_content,true);
 });
