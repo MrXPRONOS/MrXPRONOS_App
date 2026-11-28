@@ -92,10 +92,10 @@ async function showProduct(e,u,pid){
  if(!p)return send(e,u,'Produit indisponible.',[home]);
  const access=await entitlement(e,u,pid);const cs=await all(e.DB,'SELECT id,target FROM campaigns WHERE product_id=? AND active=1 ORDER BY id',pid);
  const buttons=[];if(access||p.price_xof===0)buttons.push([cb('📥 Télécharger',`get:${pid}`)]);
- if(!access&&p.price_xof>0)for(const c of cs)buttons.push([cb(`🎁 Gratuit : ${c.target} invitations`,`c:${c.id}`)]);
+ if(!access&&p.price_xof>0)for(const c of cs)buttons.push([cb(`🎁 Obtenir gratuitement · ${c.target} abonnés`,`c:${c.id}`)]);
  buttons.push(home);
- const price=p.price_xof===0?'Gratuit':`${p.price_xof.toLocaleString('fr-FR')} FCFA (tarif boutique web indépendante)`;
- const caption=(''+p.title+'\n'+p.category+'\n\n💰 Prix : '+price+'\n'+(!access&&p.price_xof>0&&cs.length?'🎁 Accès par parrainage disponible\n':'')+'\n'+p.description+(access?'\n\n✅ Dans votre bibliothèque.':'')).slice(0,1000);
+ const price=p.price_xof===0?'Gratuit':`${p.price_xof.toLocaleString('fr-FR')} FCFA`;const offers=cs.map(c=>`🎁 0 FCFA après ${c.target} nouveaux abonnés validés`).join('\n');
+ const caption=(''+p.title+'\n'+p.category+'\n\n💰 Prix : '+price+'\n'+(!access&&p.price_xof>0&&cs.length?offers+'\n':'')+'\n'+p.description+(access?'\n\n✅ Dans votre bibliothèque.':'')).slice(0,1000);
  return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id,'product');
 }
 async function sendPDF(e,u,pid){
@@ -313,7 +313,7 @@ async function wizMenu(e,u){
  const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);}
  return send(e,u,'⚙️ Administration • MR X ACADEMY\n\nChoisissez une action.',[
  [cb(d?'▶ Reprendre la création':'➕ Nouvelle formation',d?'aw:resume':'aw:new')],
- [cb('📚 Gérer les formations','aw:list:0')],[cb('📊 Statistiques','aw:stats')],home]);
+ [cb('📚 Gérer les formations','aw:list:0')],[cb('📣 Promouvoir les livres','ad:menu')],[cb('📊 Statistiques','aw:stats')],home]);
 }
 async function wizPrompt(e,u,d){
  const steps=wizSteps(d),n=steps.indexOf(d.step)+1;
@@ -475,6 +475,85 @@ async function wizardMessage(e,u,d,m){
 }
 
 const adminCmds=new Set(['admin','product','campaign','file','cover','banner','publish','unpublish','grant','campaignoff']);
+
+// Administrator-only channel promotion. The Premium PDF is never sent to the channel.
+const promoKey=u=>'academy_promo:'+u;
+const promoRead=async(e,u)=>{const r=await row(e.DB,'SELECT value FROM settings WHERE key=?',promoKey(u));return r?JSON.parse(r.value):null;};
+const promoSave=(e,u,d)=>run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',promoKey(u),JSON.stringify(d));
+const promoClear=(e,u)=>run(e.DB,'DELETE FROM settings WHERE key=?',promoKey(u));
+const promoValid=(link,username)=>typeof link==='string'&&/^[A-Za-z0-9_]{5,}$/.test(username)&&new RegExp('^https://t\\.me/'+username+'/[1-9][0-9]*$','i').test(link);
+async function promoCampaign(e,cid){
+ const c=await campaign(e,cid);if(!c?.active||!c.product_active||c.product_id!=='masterclass')return null;
+ const p=await product(e,c.product_id);if(!p?.active||p.price_xof<=0||!p.file_id)return null;
+ const ch=await channelDetails(e,c.channel_id,'public');
+ return ch.username&&/^[A-Za-z0-9_]{5,}$/.test(ch.username)?{c,p,ch}:null;
+}
+async function promoMenu(e,u){
+ const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}
+ const cs=await all(e.DB,"SELECT id,target FROM campaigns WHERE product_id='masterclass' AND active=1 ORDER BY id LIMIT 20");
+ const d=await promoRead(e,u);
+ return send(e,u,'📣 Promouvoir les livres\n\nPréparez une annonce avec un accès au PDF gratuit dans le canal et un accès direct à la Masterclass. Aucun envoi sans confirmation.',[...(d?[[cb('▶ Reprendre la promotion','ad:resume')],[cb('❌ Annuler la promotion','ad:cancel')]]:cs.map(c=>[cb('🎁 Campagne · '+c.target+' abonnés','ad:new:'+c.id)])),[cb('⬅ Administration','aw:menu')]]);
+}
+async function promoPreview(e,u,d){
+ let x;try{x=await promoCampaign(e,d.cid);}catch{}if(!x||!promoValid(d.link,x.ch.username)){await send(e,u,'Canal ou campagne indisponible. Recommencez la promotion.',[[cb('Annuler','ad:cancel')]]);return null;}
+ const me=await tg(e,'getMe',{});if(!/^[A-Za-z0-9_]{5,}$/.test(me.username||'')){await send(e,u,'Nom du bot indisponible.');return null;}
+ const botURL='https://t.me/'+me.username+'?start=p_'+x.p.id;
+ const price=x.p.price_xof.toLocaleString('fr-FR');
+ const caption='📚 L’ART DE PARIER — Les Fondamentaux\n\n200 pages pour comprendre les cotes, les probabilités et les risques des paris sportifs.\n\n🎁 PDF gratuit dans notre canal Telegram.\n\n⭐ Masterclass Expert : 492 pages, 5 volumes.\n💰 Prix : '+price+' FCFA\n🎁 0 FCFA après '+x.c.target+' nouveaux abonnés validés ('+x.c.hold_seconds/3600+' h).\n\nImportant : 18+. Contenu pédagogique. Aucun pari, dépôt ou achat nécessaire. Aucun gain garanti.';
+ return {x,caption,buttons:[[urlButton('📥 Recevoir le PDF gratuit',d.link)],[urlButton('🎁 Obtenir la Masterclass gratuitement',botURL)]],botURL};
+}
+async function promoShow(e,u,d){
+ if(d.step==='link')return send(e,u,'📎 Étape 1 — PDF gratuit\n\nTransférez la publication contenant Les Fondamentaux depuis le canal de coupons, ou collez son lien public exact (t.me/nom/123). Ne transférez pas la Masterclass.',[[cb('Annuler','ad:cancel')]]);
+ if(d.step==='cover')return send(e,u,'🖼 Étape 2 — Affiche\n\nEnvoyez une photo de couverture des Fondamentaux ou choisissez un message sans image.',[[cb('Sans image','ad:noimage:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
+ if(d.step==='posting')return send(e,u,'Publication précédente à vérifier dans le canal. Pour éviter les doublons, aucun nouvel envoi automatique.',[[cb('Annuler','ad:cancel')]]);
+ if(d.step==='review'){
+  const p=await promoPreview(e,u,d);if(!p)return;
+  await photo(e,u,p.caption,[...p.buttons,[cb('✅ Publier dans le canal','ad:post:'+d.nonce)],[cb('Annuler','ad:cancel')]],null,d.cover,'product');
+  return send(e,u,'Aperçu uniquement — destination : @'+p.x.ch.username+'\n\nLien à utiliser dans vos publicités externes :\n'+d.link+'\n\nLien direct vers la Masterclass :\n'+p.botURL);
+ }
+}
+async function promoAction(e,u,action){
+ if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
+ if(action==='ad:menu')return promoMenu(e,u);
+ if(action==='ad:cancel'){await promoClear(e,u);return wizMenu(e,u);}
+ if(action==='ad:resume'){const d=await promoRead(e,u);return d?promoShow(e,u,d):promoMenu(e,u);}
+ const [,a,v]=action.split(':');
+ if(a==='new'&&slug(v)){
+  if(await promoRead(e,u))return promoMenu(e,u);
+  let x;try{x=await promoCampaign(e,v);}catch{}if(!x)return send(e,u,'Cette campagne doit être active, avec un canal public accessible au bot.');
+  const d={cid:v,nonce:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'link'};await promoSave(e,u,d);return promoShow(e,u,d);
+ }
+ const d=await promoRead(e,u);
+ if(!d||v!==d.nonce)return send(e,u,'Cette action a expiré.',[[cb('Promotion','ad:menu')]]);
+ if(a==='noimage'&&d.step==='cover'){d.step='review';await promoSave(e,u,d);return promoShow(e,u,d);}
+ if(a==='post'&&d.step==='review'){
+  const p=await promoPreview(e,u,d);if(!p)return;
+  const me=await tg(e,'getMe',{}),rights=await tg(e,'getChatMember',{chat_id:p.x.ch.id,user_id:me.id});
+  if(rights.status!=='administrator'||!rights.can_post_messages)return send(e,u,'Le bot doit avoir le droit de publier dans le canal. Corrigez ses droits puis reprenez l’aperçu.',[[cb('Reprendre','ad:resume')]]);
+  const old=JSON.stringify(d);d.step='posting';
+  const lock=await run(e.DB,'UPDATE settings SET value=? WHERE key=? AND value=?',JSON.stringify(d),promoKey(u),old);
+  if(!lock.meta.changes)return send(e,u,'Publication déjà traitée ou modifiée.');
+  let m;
+  try{m=d.cover?await tg(e,'sendPhoto',{chat_id:p.x.ch.id,photo:d.cover,caption:p.caption,reply_markup:{inline_keyboard:p.buttons}},'product'):await send(e,p.x.ch.id,p.caption,p.buttons,'product');}
+  catch(err){if(err instanceof TelegramError&&err.status===400){d.step='review';await promoSave(e,u,d);return send(e,u,'Telegram a refusé la publication. Vérifiez l’image et les droits.',[[cb('Reprendre','ad:resume')]]);}return send(e,u,'Résultat incertain : vérifiez le canal avant de republier.',[[cb('Promotion','ad:menu')]]);}
+  const link='https://t.me/'+p.x.ch.username+'/'+m.message_id;
+  await audit(e,u,'promotion_publish',d.cid+':'+m.message_id);await promoClear(e,u);
+  return send(e,u,'✅ Publication envoyée dans le canal.\n\n'+link,[[urlButton('Voir la publication',link)],[cb('Administration','aw:menu')]]);
+ }
+ return promoShow(e,u,d);
+}
+async function promoMessage(e,u,d,m){
+ let x;try{x=await promoCampaign(e,d.cid);}catch{}if(!x)return send(e,u,'Campagne indisponible.',[[cb('Annuler','ad:cancel')]]);
+ if(d.step==='link'){
+  const origin=m.forward_origin;let link=String(m.text||'').trim();
+  if(origin?.type==='channel'&&id(origin.chat.id)===x.ch.id&&m.document?.mime_type==='application/pdf'&&Number.isSafeInteger(origin.message_id)&&origin.message_id>0)link='https://t.me/'+x.ch.username+'/'+origin.message_id;
+  if(!promoValid(link,x.ch.username))return send(e,u,'Lien invalide. Transférez le PDF gratuit depuis @'+x.ch.username+' ou collez son lien exact.',[[cb('Annuler','ad:cancel')]]);
+  d.link=link;d.step='cover';await promoSave(e,u,d);return promoShow(e,u,d);
+ }
+ if(d.step==='cover'){const f=m.photo?.at(-1)?.file_id;if(!f)return send(e,u,'Envoyez une photo ou choisissez Sans image.',[[cb('Sans image','ad:noimage:'+d.nonce)],[cb('Annuler','ad:cancel')]]);d.cover=f;d.step='review';await promoSave(e,u,d);return promoShow(e,u,d);}
+ return promoShow(e,u,d);
+}
+
 async function dispatch(e,update){
  if(update.chat_member)return membershipEvent(e,update);
  if(update.channel_post)return storagePost(e,update.channel_post);
@@ -483,9 +562,10 @@ async function dispatch(e,update){
  const u=id(from.id);await touch(e,u);
  if(q){try{await tg(e,'answerCallbackQuery',{callback_query_id:q.id});}catch(err){if(err.status!==400)throw err;}}
  let action=q?.data||m.text||m.caption||'';
+ if(q&&action.startsWith('ad:'))return promoAction(e,u,action);
  if(q&&action.startsWith('aw:'))return wizardCallback(e,u,action);
- if(!q&&admins(e).has(u)&&!action.startsWith('/')){const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
- if(!q&&action==='/cancel'&&admins(e).has(u)){const d=await wizRead(e,u);if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
+ if(!q&&admins(e).has(u)&&!action.startsWith('/')){const ad=await promoRead(e,u);if(ad)return promoMessage(e,u,ad,m);const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
+ if(!q&&action==='/cancel'&&admins(e).has(u)){if(await promoRead(e,u))return promoAction(e,u,'ad:cancel');const d=await wizRead(e,u);if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
  if(!q&&action.startsWith('/')){
   const match=action.match(/^\/([a-z_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);if(!match)return help(e,u);
   const cmd=match[1],arg=(match[2]||'').trim();
@@ -610,5 +690,5 @@ async function handleAcademyImport(request,e,p){
  finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
 }
 
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.3.2',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.3.3',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
 export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel};
