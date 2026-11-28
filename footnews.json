@@ -370,7 +370,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T12:40:05.970894+00:00"
+      "checked_at": "2026-11-28T12:54:05.526467+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -608,7 +608,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T12:40:05.970894+00:00"
+      "checked_at": "2026-11-28T12:54:05.526467+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -673,44 +673,6 @@
     "published": "2026-11-28T08:45:00+00:00",
     "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011652/411703/1200-L-real-madrid-alavs-les-compositions-probables-de-cette-rencontre-de-la-14me-journe-de-liga.jpg",
     "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011652/411703/1200-L-real-madrid-alavs-les-compositions-probables-de-cette-rencontre-de-la-14me-journe-de-liga.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "d20d18a4fbffdbee",
-    "title": "Nice-Troyes : chaîne TV, streaming… À quelle heure et où suivre cette rencontre de la 12ème journée de Ligue 1 ?",
-    "summary": "L'OGC Nice reçoit Troyes ce samedi soir, dans le cadre de la 12ème journée de Ligue 1, pour une rencontre qui pourrait permettre aux deux équipes de réaliser une belle opération au classement.",
-    "summary_short": "L'OGC Nice reçoit Troyes ce samedi soir, dans le cadre de la 12ème journée de Ligue 1, pour une rencontre qui pourrait permettre aux deux équipes de réaliser une belle opération au classement.",
-    "content": "L'OGC Nice reçoit Troyes ce samedi soir, dans le cadre de la 12ème journée de Ligue 1, pour une rencontre qui pourrait permettre aux deux équipes de réaliser une belle opération au classement. Les Aiglons accueillent les Troyens à 20h45, à l'Allianz Riviera. Malgré leur défaite face au PSG, les Niçois restent bien positionnés dans la première partie du classement. Les Aubois, de leur côté, espèrent poursuivre leur remontée après un dernier succès encourageant.",
-    "paragraphs": [
-      "L'OGC Nice reçoit Troyes ce samedi soir, dans le cadre de la 12ème journée de Ligue 1, pour une rencontre qui pourrait permettre aux deux équipes de réaliser une belle opération au classement. Les Aiglons accueillent les Troyens à 20h45, à l'Allianz Riviera. Malgré leur défaite face au PSG, les Niçois restent bien positionnés dans la première partie du classement.",
-      "Les Aubois, de leur côté, espèrent poursuivre leur remontée après un dernier succès encourageant."
-    ],
-    "key_points": [
-      "L'OGC Nice reçoit Troyes ce samedi soir, dans le cadre de la 12ème journée de Ligue 1, pour une rencontre qui pourrait permettre aux deux équipes de réaliser une belle opération au classement.",
-      "Les Aiglons accueillent les Troyens à 20h45, à l'Allianz Riviera.",
-      "Malgré leur défaite face au PSG, les Niçois restent bien positionnés dans la première partie du classement.",
-      "Les Aubois, de leur côté, espèrent poursuivre leur remontée après un dernier succès encourageant."
-    ],
-    "telegram_summary": "L'OGC Nice reçoit Troyes ce samedi soir, dans le cadre de la 12ème journée de Ligue 1, pour une rencontre qui pourrait permettre aux deux équipes de réaliser une belle opération au classement.",
-    "link": "https://www.onzemondial.com/ligue-1/nice-troyes-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-de-la-12eme-journee-de-ligue-1-1011234",
-    "source_url": "https://www.onzemondial.com/ligue-1/nice-troyes-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-de-la-12eme-journee-de-ligue-1-1011234",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d20d18a4fbffdbee",
-    "published": "2026-11-28T05:50:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011234/411599/1200-L-nice-troyes-chane-tv-streaming-quelle-heure-et-o-suivre-cette-rencontre-de-la-12me-journe-de-ligue-1.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011234/411599/1200-L-nice-troyes-chane-tv-streaming-quelle-heure-et-o-suivre-cette-rencontre-de-la-12me-journe-de-ligue-1.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Onze Mondial",
@@ -1475,6 +1437,40 @@
     "quality_score": 90
   },
   {
+    "slug": "93841d9575379cf5",
+    "title": "Mercato OL : La déclaration forte de Carlos Vicens sur son avenir à Lyon !",
+    "summary": "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse.",
+    "summary_short": "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse.",
+    "content": "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse.",
+    "paragraphs": [
+      "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse."
+    ],
+    "key_points": [
+      "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse."
+    ],
+    "telegram_summary": "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-la-declaration-forte-de-carlos-vicens-sur-son-avenir-a-lyon-547321.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-la-declaration-forte-de-carlos-vicens-sur-son-avenir-a-lyon-547321.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=93841d9575379cf5",
+    "published": "2026-11-28T12:46:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261123143022-2924.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261123143022-2924.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "c974271e572b559e",
     "title": "Work in progress but Liverpool find belief again with Iraola",
     "summary": "With the attack finally firing and Liverpool looking more solid at the back, Andoni Iraola has got the fans believing again. Just in time for derby day.",
@@ -1507,6 +1503,64 @@
       "BBC Sport"
     ],
     "quality_score": 85
+  },
+  {
+    "slug": "0cd5b024816e4234",
+    "title": "Real Madrid : la méthode secrète de Mourinho pour enfin vider l'infirmerie merengue",
+    "summary": "Le Real Madrid voit son infirmerie se vider grâce à un nouveau protocole mis en place cet été et qui porte ses fruits.",
+    "summary_short": "Le Real Madrid voit son infirmerie se vider grâce à un nouveau protocole mis en place cet été et qui porte ses fruits.",
+    "content": "Le Real Madrid voit son infirmerie se vider grâce à un nouveau protocole mis en place cet été et qui porte ses fruits.",
+    "paragraphs": [
+      "Le Real Madrid voit son infirmerie se vider grâce à un nouveau protocole mis en place cet été et qui porte ses fruits."
+    ],
+    "key_points": [
+      "Le Real Madrid voit son infirmerie se vider grâce à un nouveau protocole mis en place cet été et qui porte ses fruits."
+    ],
+    "telegram_summary": "Le Real Madrid voit son infirmerie se vider grâce à un nouveau protocole mis en place cet été et qui porte ses fruits.",
+    "link": "https://www.onzemondial.com/liga/real-madrid-la-methode-secrete-de-mourinho-pour-enfin-vider-linfirmerie-merengue-1011872",
+    "source_url": "https://www.onzemondial.com/liga/real-madrid-la-methode-secrete-de-mourinho-pour-enfin-vider-linfirmerie-merengue-1011872",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0cd5b024816e4234",
+    "published": "2026-11-28T12:36:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011872/411756/1200-L-real-madrid-la-mthode-secrte-de-mourinho-pour-enfin-vider-l-infirmerie-merengue.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011872/411756/1200-L-real-madrid-la-mthode-secrte-de-mourinho-pour-enfin-vider-l-infirmerie-merengue.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50611810",
+      "url": "https://www.espn.com/video/clip/_/id/50611810/mourinho-embarrasses-cousin-real-madrid-press-conference",
+      "published": "2026-11-27T14:58:51Z",
+      "score": 0.231,
+      "matched_terms": [
+        "madrid",
+        "mourinho",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-28T12:54:05.526467+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "2020028a6561bbab",
@@ -1643,6 +1697,41 @@
       "MadeInFoot"
     ],
     "quality_score": 88
+  },
+  {
+    "slug": "e8ec4710accf5b71",
+    "title": "Brésil : L’ancien joueur du Paris Saint-Germain Thiago Silva, 42 ans, prolonge son contrat avec Fluminense",
+    "summary": "Un an de plus et puis s’en va on verra. A 42 ans, Thiago Silva en a encore…",
+    "summary_short": "Un an de plus et puis s’en va on verra. A 42 ans, Thiago Silva en a encore…",
+    "content": "Un an de plus et puis s’en va on verra. A 42 ans, Thiago Silva en a encore…",
+    "paragraphs": [
+      "Un an de plus et puis s’en va on verra. A 42 ans, Thiago Silva en a encore…"
+    ],
+    "key_points": [
+      "Un an de plus et puis s’en va on verra.",
+      "A 42 ans, Thiago Silva en a encore…"
+    ],
+    "telegram_summary": "Un an de plus et puis s’en va on verra. A 42 ans, Thiago Silva en a encore…",
+    "link": "https://www.sofoot.com/breves/bresil-lancien-joueur-du-paris-saint-germain-thiago-silva-42-ans-prolonge-son-contrat-avec-fluminense",
+    "source_url": "https://www.sofoot.com/breves/bresil-lancien-joueur-du-paris-saint-germain-thiago-silva-42-ans-prolonge-son-contrat-avec-fluminense",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e8ec4710accf5b71",
+    "published": "2026-11-28T12:05:44+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/28130647/15426811.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/28130647/15426811.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "ca31f61c165ea417",
@@ -2087,99 +2176,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "6941038087e3c679",
-    "title": "Man Utd trigger Fernandes' one-year contract extension",
-    "summary": "Manchester United activate an option on captain Bruno Fernandes' contract, extending it until 2028.",
-    "summary_short": "Manchester United activate an option on captain Bruno Fernandes' contract, extending it until 2028.",
-    "content": "Manchester United activate an option on captain Bruno Fernandes' contract, extending it until 2028.",
-    "paragraphs": [
-      "Manchester United activate an option on captain Bruno Fernandes' contract, extending it until 2028."
-    ],
-    "key_points": [
-      "Manchester United activate an option on captain Bruno Fernandes' contract, extending it until 2028."
-    ],
-    "telegram_summary": "Manchester United activate an option on captain Bruno Fernandes' contract, extending it until 2028.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/c6d91j5geepqo?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/c6d91j5geepqo?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6941038087e3c679",
-    "published": "2026-11-28T10:28:36+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/b71f/live/40130840-ea6d-11f1-a094-5fdc692f3e33.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/b71f/live/40130840-ea6d-11f1-a094-5fdc692f3e33.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50519617",
-      "url": "https://www.espn.com/soccer/story/_/id/50519617/arda-guler-signs-new-real-madrid-contract",
-      "published": "2026-11-19T17:27:01Z",
-      "score": 0.2,
-      "matched_terms": [
-        "contract",
-        "year"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Türkiye"
-      ],
-      "athletes": [
-        "Arda Güler"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-28T12:40:05.970894+00:00"
-    },
-    "quality_sources": [
-      "BBC Sport",
-      "ESPN"
-    ],
-    "quality_score": 93
-  },
-  {
-    "slug": "02720b3d997c9ecb",
-    "title": "Stade Brestois : Julien Lachuer \"content pour les joueurs et fier d'eux\" après la victoire face au Paris FC",
-    "summary": "Le Stade Brestois s'est imposé face au Paris FC (1-0 ; analyse et notes) ce vendredi 27 novembre lors du match d'ouverture de la 12ème journée de Ligue 1.",
-    "summary_short": "Le Stade Brestois s'est imposé face au Paris FC (1-0 ; analyse et notes) ce vendredi 27 novembre lors du match d'ouverture de la 12ème journée de Ligue 1.",
-    "content": "Le Stade Brestois s'est imposé face au Paris FC (1-0 ; analyse et notes) ce vendredi 27 novembre lors du match d'ouverture de la 12ème journée de Ligue 1.",
-    "paragraphs": [
-      "Le Stade Brestois s'est imposé face au Paris FC (1-0 ; analyse et notes) ce vendredi 27 novembre lors du match d'ouverture de la 12ème journée de Ligue 1."
-    ],
-    "key_points": [
-      "Le Stade Brestois s'est imposé face au Paris FC (1-0 ; analyse et notes) ce vendredi 27 novembre lors du match d'ouverture de la 12ème journée de Ligue 1."
-    ],
-    "telegram_summary": "Le Stade Brestois s'est imposé face au Paris FC (1-0 ; analyse et notes) ce vendredi 27 novembre lors du match d'ouverture de la 12ème journée de Ligue 1.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-brestois-julien-lachuer-content-pour-les-joueurs-et-fier-d-eux-apres-la-victoire-face-au-paris-fc-547283.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-brestois-julien-lachuer-content-pour-les-joueurs-et-fier-d-eux-apres-la-victoire-face-au-paris-fc-547283.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=02720b3d997c9ecb",
-    "published": "2026-11-28T10:25:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/buzz/2022/une/-20221224091517-1903.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2022/une/-20221224091517-1903.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
