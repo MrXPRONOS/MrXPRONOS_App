@@ -121,7 +121,7 @@ const shortKey=p=>'product_short:'+p;
 const formatKey=p=>'product_format:'+p;
 const richTypes=new Set(['bold','italic','underline','strikethrough','spoiler','blockquote','expandable_blockquote','code','pre','text_link']);
 const lineCount=s=>s.split('\n').length;
-const validShort=s=>Array.from(s).length<=200&&s.split('\n').filter(l=>l.trim()).length<=5&&lineCount(s)<=7;
+const validShort=s=>Array.from(s).length<=200&&s.split('\n').filter(l=>l.trim()).length<=5&&s.split('\n').filter(l=>!l.trim()).length<=2&&lineCount(s)<=7;
 function cleanEntities(text,entities){
  if(!Array.isArray(entities))return [];
  return entities.filter(x=>x&&richTypes.has(x.type)&&Number.isSafeInteger(x.offset)&&Number.isSafeInteger(x.length)&&x.offset>=0&&x.length>0&&x.offset+x.length<=text.length&&!(x.type==='text_link'&&(!x.url||!/^https?:\/\/[^\s]+$/i.test(x.url)))).map(x=>({type:x.type,offset:x.offset,length:x.length,...(x.type==='text_link'?{url:x.url}:{}),...(x.type==='pre'&&typeof x.language==='string'?{language:x.language.slice(0,64)}:{})}));
@@ -145,9 +145,9 @@ function captureRich(m){
 function shortDescription(value){
  const text=String(value||'').trim();
  if(validShort(text))return text;
- let out='',count=0;
+ let out='',count=0,blanks=0;
  for(const line of text.split('\n')){
-  if(line.trim()&&++count>5)break;
+  if(line.trim()&&++count>5)break;if(!line.trim()&&++blanks>2)break;
   if(out&&lineCount(out)>=7)break;
   const next=out?out+'\n'+line:line;
   if(Array.from(next).length>200){out=Array.from(next).slice(0,199).join('').trimEnd()+'…';return out;}
@@ -198,6 +198,11 @@ function richPages(r){
   pages.push(sliceRich(r,start,visible));start=end;
  }
  return pages.length?pages:[{text:'Programme non renseigné.',entities:[]}];
+}
+async function adminDetailPage(e,u,p,page){
+ const pages=richPages(await productDetailRich(e,p));page=Math.max(0,Math.min(page,pages.length-1));const nav=[];
+ if(page>0)nav.push(cb('◀ Précédent','aw:detailpage:'+p.id+':'+(page-1)));if(page+1<pages.length)nav.push(cb('Suivant ▶','aw:detailpage:'+p.id+':'+(page+1)));
+ return sendRich(e,u,composeRich('📖 '+p.title+'\nProgramme · '+(page+1)+'/'+pages.length,pages[page]),[...(nav.length?[nav]:[]),[cb('⬅ Formation','aw:product:'+p.id)]]);
 }
 async function productDetails(e,u,pid,page=0){
  const p=await product(e,pid);if(!p||(!p.active&&!await entitlement(e,u,pid)))return send(e,u,'Formation indisponible.',[home]);
@@ -717,7 +722,7 @@ async function wizProduct(e,u,pid){
  const p=await product(e,pid);if(!p)return wizList(e,u);
  const cs=await all(e.DB,'SELECT id,channel_id,target,hold_seconds,active FROM campaigns WHERE product_id=? ORDER BY id',pid);
  const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(pid));const assets=await productAssets(e,p);
- const b=[[cb('✏️ Compléter / modifier','aw:edit:'+pid)],[cb('📖 Voir la fiche détaillée','aw:details:'+pid)]];if(cs.length)b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
+ const b=[[cb('✏️ Compléter / modifier','aw:edit:'+pid)],[cb('📖 Voir la fiche détaillée','aw:details:'+pid),cb('✍️ Voir le résumé','aw:summary:'+pid)]];if(cs.length)b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
  if(assets.length)b.push([cb('📎 Tester les ressources','aw:test:'+pid)]);if(p.active)b.push([cb('📣 Promouvoir ce produit','ad:item:'+pid)]);
  b.push([cb('⬅ Formations','aw:list:0')]);
  return photo(e,u,(p.title+'\n'+p.category+'\nAchat facultatif : '+(p.price_xof?p.price_xof+' FCFA':'non proposé')+'\n'+(p.active?'Publié':'Brouillon')+'\n'+(assets.length?assets.length+' ressource(s) enregistrée(s)':'Aucune ressource')+'\nBoutique web : '+(shop?.value||'non configurée')+'\nCampagnes : '+(cs.length?cs.map(c=>c.id+' · '+c.target+' contacts qualifiés · '+(c.active?'active':'arrêtée')).join('\n'):'aucune')+'\n\n'+await productShort(e,p)).slice(0,1000),b,null,p.cover_file_id);
@@ -732,6 +737,7 @@ async function wizardCallback(e,u,action){
   const d={id:'f-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title'};await wizSave(e,u,d);return wizPrompt(e,u,d);
  }
  const v=action.split(':');
+ if(v.length===4&&v[1]==='detailpage'&&slug(v[2])&&/^\d{1,3}$/.test(v[3])){const p=await product(e,v[2]);if(p)return adminDetailPage(e,u,p,Number(v[3]));}
  if(v.length===3&&v[1]==='list'&&/^\d{1,3}$/.test(v[2]))return wizList(e,u,Number(v[2]));
  if(v.length===3&&slug(v[2])){
   if(v[1]==='campaigns'){
@@ -749,7 +755,8 @@ async function wizardCallback(e,u,action){
   const p=await product(e,v[2]);
   if(v[1]==='product')return wizProduct(e,u,v[2]);
   if(!p)return wizList(e,u);
-  if(v[1]==='details')return send(e,u,p.title+'\n\n'+(p.description||'Description détaillée non renseignée.'),[[cb('⬅ Formation','aw:product:'+p.id)]]);
+  if(v[1]==='details')return adminDetailPage(e,u,p,0);
+  if(v[1]==='summary')return sendRich(e,u,composeRich('✍️ Résumé · '+p.title,await productShortRich(e,p)),[[cb('⬅ Formation','aw:product:'+p.id)]]);
   if(v[1]==='edit'){
    const old=await wizRead(e,u);if(old)return send(e,u,'Une création est déjà en cours.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
    const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(p.id));const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title',edit:true,title:p.title,category:p.category,price:p.price_xof,short:await productShort(e,p),shortEntities:(await productShortRich(e,p)).entities,description:p.description,detailEntities:(await productDetailRich(e,p)).entities,cover:p.cover_file_id,file:p.file_id,filename:p.filename,assets:await productAssets(e,p),shop:shop?.value||''};await wizSave(e,u,d);return wizPrompt(e,u,d);
@@ -825,7 +832,7 @@ async function wizardMessage(e,u,d,m){
  case 'title':if(!t||t.length>120)return invalid('Envoyez un titre de 1 à 120 caractères.');d.title=t;d.step='category';break;
  case 'category':if(!t||t.length>60)return invalid('Envoyez une catégorie de 1 à 60 caractères.');d.category=t;d.step='price';break;
  case 'price':{const v=t.replace(/\s/g,'');if(!/^\d{1,9}$/.test(v)||Number(v)>100000000)return invalid('Envoyez un montant entier de 0 à 100 000 000 FCFA.');d.price=Number(v);d.step='short';break;}
- case 'short':{const rich=captureRich(m);if(!rich.text||!validShort(rich.text))return invalid('Maximum 5 lignes de texte, 7 lignes au total et 200 caractères.');d.short=t==='0'?'':rich.text;d.shortEntities=t==='0'?[]:rich.entities;d.step='description';break;}
+ case 'short':{const rich=captureRich(m);if(!rich.text||!validShort(rich.text))return invalid('Maximum 5 lignes de texte, 2 lignes vides et 200 caractères.');d.short=t==='0'?'':rich.text;d.shortEntities=t==='0'?[]:rich.entities;d.step='description';break;}
  case 'description':{const rich=captureRich(m);if(!rich.text||rich.text.length>3200)return invalid('Maximum 3 200 caractères ou Sans détail.');d.description=t==='0'?'':rich.text;d.detailEntities=t==='0'?[]:rich.entities;d.step='cover';break;}
  case 'cover':{
   const pic=m.photo?.at(-1);if(!pic?.file_id)return invalid('Envoyez la couverture en tant que photo Telegram.');
@@ -903,7 +910,7 @@ async function genericPromoPreview(e,u,d){
 }
 async function genericPromoShow(e,u,d){
  if(d.step==='destination')return send(e,u,'📢 Où souhaitez-vous publier ?\n\nChoisissez un canal public ou privé dont le bot est administrateur, ou créez une annonce à partager ailleurs.',[[cb('📢 Sélectionner le canal','ad:pick:'+d.nonce)],[cb('🔗 Partager ailleurs','ad:external:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
- if(d.step==='message')return send(e,u,'✍️ Envoyez le texte publicitaire (5 lignes, 200 caractères maximum), ou utilisez le résumé du produit.',[[cb('Utiliser la description','ad:default:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
+ if(d.step==='message')return send(e,u,'✍️ Envoyez le texte publicitaire (5 lignes de texte, 2 lignes vides, 200 caractères maximum), ou utilisez le résumé du produit.',[[cb('Utiliser la description','ad:default:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
  if(d.step==='art')return send(e,u,'🖼 Envoyez une affiche, ou utilisez la couverture actuelle.',[[cb('Utiliser la couverture','ad:cover:'+d.nonce)],[cb('Sans image','ad:plain:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
  if(d.step==='posting')return send(e,u,'Publication précédente à vérifier dans le canal. Aucun renvoi automatique.',[[cb('Annuler','ad:cancel')]]);
  if(d.step==='review'){
@@ -937,7 +944,7 @@ async function genericPromoMessage(e,u,d,m){
   const ref=promoDestinationRef(m,d);if(!ref)return send(e,u,'Sélectionnez le canal, transférez une publication ou envoyez son identifiant. Un lien d’invitation privé seul ne suffit pas.',[[cb('Sélectionner','ad:pick:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
   try{d.dest=await promoDestination(e,ref);}catch{return send(e,u,'Canal inaccessible, stockage interdit ou droit de publication manquant.',[[cb('Réessayer','ad:pick:'+d.nonce)],[cb('Annuler','ad:cancel')]]);}
   d.step='message';await closePicker(e,u);
- }else if(d.step==='message'){const rich=captureRich(m);if(!rich.text||!validShort(rich.text))return send(e,u,'Maximum 5 lignes de texte, 7 lignes au total et 200 caractères.');d.message=rich.text;d.messageEntities=rich.entities;d.step='art';}
+ }else if(d.step==='message'){const rich=captureRich(m);if(!rich.text||!validShort(rich.text))return send(e,u,'Maximum 5 lignes de texte, 2 lignes vides et 200 caractères.');d.message=rich.text;d.messageEntities=rich.entities;d.step='art';}
  else if(d.step==='art'){const f=m.photo?.at(-1)?.file_id;if(!f)return send(e,u,'Envoyez une photo ou choisissez la couverture.',[[cb('Utiliser la couverture','ad:cover:'+d.nonce)]]);d.cover=f;d.step='review';}
  else return genericPromoShow(e,u,d);
  await promoSave(e,u,d);return genericPromoShow(e,u,d);
