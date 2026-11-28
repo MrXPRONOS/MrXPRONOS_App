@@ -2218,11 +2218,11 @@
       "revalidated_at": "2026-11-18T00:08:31.111054+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-27T20:21:16.465009+00:00",
+      "settlement_checked_at": "2026-11-28T04:21:15.408577+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-28T00:21:16.465009+00:00"
+        "next_retry_after": "2026-11-28T08:21:15.408577+00:00"
       }
     },
     {
@@ -6655,11 +6655,11 @@
       "revalidated_at": "2026-11-27T00:06:27.207325+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-11-27T20:21:16.465009+00:00",
+      "settlement_checked_at": "2026-11-28T04:21:15.408577+00:00",
       "settlement_watchdog": {
-        "stage": "h4",
+        "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-11-28T00:21:16.465009+00:00"
+        "next_retry_after": "2026-11-28T08:21:15.408577+00:00"
       }
     },
     {
@@ -6681,12 +6681,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -6792,7 +6792,12 @@
       "generated_at": "2026-11-26T00:06:38.148244+00:00",
       "combo_only": false,
       "revalidated_at": "2026-11-27T19:57:59.748305+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-11-28T04:21:15.408577+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:224740",
@@ -13536,7 +13541,8 @@
       "bsd:214176:1X:2026-11-25T20:00:00+00:00",
       "bsd:601088:1X:2026-11-25T20:00:00+00:00",
       "bsd:601340:UNDER_35:2026-11-26T15:30:00+00:00",
-      "bsd:601295:1X:2026-11-26T17:45:00+00:00"
+      "bsd:601295:1X:2026-11-26T17:45:00+00:00",
+      "bsd:655434:UNDER_35:2026-11-27T23:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
@@ -13556,12 +13562,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 173,
-        "wins": 142,
-        "sum_pred": 137.21700000000007,
+        "n": 174,
+        "wins": 143,
+        "sum_pred": 138.01500000000007,
         "penalty": 0.0,
-        "hit_rate": 0.820809,
-        "average_predicted": 0.793162
+        "hit_rate": 0.821839,
+        "average_predicted": 0.79319
       },
       "OVER_15": {
         "n": 109,
@@ -13614,16 +13620,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 283,
-        "wins": 228,
-        "sum_pred": 222.77,
+        "n": 284,
+        "wins": 229,
+        "sum_pred": 223.568,
         "penalty": 0.0,
-        "hit_rate": 0.805654,
-        "average_predicted": 0.787173
+        "hit_rate": 0.806338,
+        "average_predicted": 0.787211
       }
     },
-    "last_added": 0,
-    "updated_at": "2026-11-28T00:07:08.851669+00:00",
+    "last_added": 1,
+    "updated_at": "2026-11-28T04:21:15.408577+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -14189,12 +14195,12 @@
         "average_predicted": 0.813
       },
       "Brazilian Serie B|UNDER_35": {
-        "n": 6,
-        "wins": 6,
-        "sum_pred": 4.843999999999999,
+        "n": 7,
+        "wins": 7,
+        "sum_pred": 5.6419999999999995,
         "penalty": 0.0,
         "hit_rate": 1.0,
-        "average_predicted": 0.807333
+        "average_predicted": 0.806
       },
       "Argentine Division 1|UNDER_35": {
         "n": 8,
@@ -87984,5 +87990,16 @@
       "league_names_from_authenticated_bsd_directory": true,
       "unverified_external_matches_never_published": true
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-11-28T04:21:15.408577+00:00",
+    "checked": 3,
+    "settled": 1,
+    "pending": 2,
+    "h4": 1,
+    "h8": 0,
+    "fallback": 2,
+    "detail_hits": 2,
+    "reconciled_finished": 0
   }
 }
