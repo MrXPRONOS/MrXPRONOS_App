@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
-import {membershipEvent,validateDue,autoReward,handleWebhook,internals} from '../src/bot.js';
+import {membershipEvent,validateDue,autoReward,handleWebhook,internals,formatTelegram,tg} from '../src/bot.js';
 function setup(){
  const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../migrations/0001_init.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0002_catalog.sql',import.meta.url),'utf8'));
  const make=(q,args=[])=>({bind:(...a)=>make(q,a),first:async()=>sql.prepare(q).get(...args)||null,all:async()=>({results:sql.prepare(q).all(...args)}),run:async()=>({meta:{changes:Number(sql.prepare(q).run(...args).changes)}}),_run:()=>sql.prepare(q).run(...args)});
@@ -76,4 +76,20 @@ test('premium wizard verifies a private channel and creates an entry link and ca
  const camp=sql.prepare('SELECT * FROM campaigns WHERE product_id=?').get(d.id);
  assert.equal(camp.channel_id,'-100777');assert.equal(camp.target,10);assert.equal(camp.hold_seconds,86400);assert.equal(camp.channel_url,'https://t.me/+private-entry');
  assert.equal(sql.prepare('SELECT value FROM settings WHERE key=?').get('product_shop:'+d.id).value,'https://example.com/guide');
+});
+
+
+test('formatting uses safe UTF-16 entities for emoji and literal special characters',()=>{
+ const s='🎓 Bienvenue dans MR X ACADEMY !\n\nVotre espace pour apprendre.\n\nApprendre. Appliquer. Réussir.\n\nChoisissez une rubrique :';
+ const e=formatTelegram(s,'welcome'),has=(type,word)=>e.some(x=>x.type===type&&s.slice(x.offset,x.offset+x.length)===word);
+ assert.ok(has('bold','🎓 Bienvenue dans MR X ACADEMY !'));assert.ok(has('italic','Votre espace pour apprendre.'));assert.ok(has('blockquote','Apprendre. Appliquer. Réussir.'));assert.ok(has('underline','Choisissez une rubrique :'));
+ const raw='Livre <b> & _ * [test] 📚\nFinance\n\n💰 Prix : 5 000 FCFA';
+ const f=formatTelegram(raw,'product');assert.equal(raw.slice(f[0].offset,f[0].offset+f[0].length),'Livre <b> & _ * [test] 📚');
+ for(const [txt,items] of [[s,e],[raw,f]])assert.ok(items.every((x,i)=>x.length>0&&x.offset>=0&&x.offset+x.length<=txt.length&&(!i||items[i-1].offset+items[i-1].length<=x.offset)));
+});
+test('Telegram message and caption formatting preserve original text and protection',async t=>{
+ const {env}=setup();let last;withTelegram(t,(_m,b)=>{last=b;return {};});
+ const text='🎓 Guide & <test>\n\nApprendre. Appliquer. Réussir.';
+ await tg(env,'sendMessage',{chat_id:'1',text});assert.equal(last.text,text);assert.ok(last.entities.some(x=>x.type==='blockquote'));assert.equal(last.parse_mode,undefined);
+ await tg(env,'sendDocument',{chat_id:'1',document:'file123',caption:text,protect_content:true});assert.equal(last.caption,text);assert.ok(last.caption_entities.length);assert.equal(last.protect_content,true);
 });
