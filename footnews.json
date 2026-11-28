@@ -52,7 +52,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T04:40:07.008797+00:00"
+      "checked_at": "2026-11-28T05:11:56.561036+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -184,8 +184,8 @@
     "published": "2026-11-27T19:45:00+00:00",
     "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260325092751-3973.jpg",
     "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260325092751-3973.jpg",
-    "image_origin": "generated_fallback",
-    "image_layout": "general-banner",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
     "source": "MadeInFoot",
     "source_priority": 88,
     "source_region": "international",
@@ -252,7 +252,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T04:40:07.008797+00:00"
+      "checked_at": "2026-11-28T05:11:56.561036+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -279,8 +279,8 @@
     "published": "2026-11-27T19:17:00+00:00",
     "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919230711-5567.jpg",
     "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919230711-5567.jpg",
-    "image_origin": "generated_fallback",
-    "image_layout": "general-banner",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
     "source": "MadeInFoot",
     "source_priority": 88,
     "source_region": "international",
@@ -1186,6 +1186,76 @@
     "quality_score": 86
   },
   {
+    "slug": "ffc774f38092b755",
+    "title": "RC Lens : Robin Risser et ces gardiens face au « rookie wall »",
+    "summary": "Le portier du RC Lens traverse une période compliquée.",
+    "summary_short": "Le portier du RC Lens traverse une période compliquée.",
+    "content": "Le portier du RC Lens traverse une période compliquée.",
+    "paragraphs": [
+      "Le portier du RC Lens traverse une période compliquée."
+    ],
+    "key_points": [
+      "Le portier du RC Lens traverse une période compliquée."
+    ],
+    "telegram_summary": "Le portier du RC Lens traverse une période compliquée.",
+    "link": "https://www.sofoot.com/articles/rc-lens-robin-risser-et-ces-gardiens-face-au-rookie-wall",
+    "source_url": "https://www.sofoot.com/articles/rc-lens-robin-risser-et-ces-gardiens-face-au-rookie-wall",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ffc774f38092b755",
+    "published": "2026-11-28T05:00:24+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27173850/ICONSPORT_380355_0347-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/27173850/ICONSPORT_380355_0347-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "c52c2d3e3687007c",
+    "title": "PSG-Lorient : chaîne TV, streaming… À quelle heure et où suivre cette rencontre entre le leader de Ligue 1 et les Bretons ?",
+    "summary": "Le Paris Saint-Germain est de retour au Parc des Princes ce samedi soir avec la réception du FC Lorient. À l'occasion de la 12ème journée de Ligue 1, les champions de France accueillent une formation bretonne qui réalise un début de saison intéressant.",
+    "summary_short": "Le Paris Saint-Germain est de retour au Parc des Princes ce samedi soir avec la réception du FC Lorient. À l'occasion de la 12ème journée de Ligue 1, les champions de France accueillent une formation bretonne qui réalise un début de saison intéressant.",
+    "content": "Le Paris Saint-Germain est de retour au Parc des Princes ce samedi soir avec la réception du FC Lorient. À l'occasion de la 12ème journée de Ligue 1, les champions de France accueillent une formation bretonne qui réalise un début de saison intéressant. Leaders du championnat, les Parisiens souhaitent conserver leur avance en tête et poursuivre leur excellente dynamique.",
+    "paragraphs": [
+      "Le Paris Saint-Germain est de retour au Parc des Princes ce samedi soir avec la réception du FC Lorient. À l'occasion de la 12ème journée de Ligue 1, les champions de France accueillent une formation bretonne qui réalise un début de saison intéressant. Leaders du championnat, les Parisiens souhaitent conserver leur avance en tête et poursuivre leur excellente dynamique."
+    ],
+    "key_points": [
+      "Le Paris Saint-Germain est de retour au Parc des Princes ce samedi soir avec la réception du FC Lorient.",
+      "À l'occasion de la 12ème journée de Ligue 1, les champions de France accueillent une formation bretonne qui réalise un début de saison intéressant.",
+      "Leaders du championnat, les Parisiens souhaitent conserver leur avance en tête et poursuivre leur excellente dynamique."
+    ],
+    "telegram_summary": "Le Paris Saint-Germain est de retour au Parc des Princes ce samedi soir avec la réception du FC Lorient. À l'occasion de la 12ème journée de Ligue 1, les champions de France accueillent une formation bretonne qui réalise un début de saison intéressant.",
+    "link": "https://www.onzemondial.com/ligue-1/psg-lorient-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-entre-le-leader-de-ligue-1-et-les-bretons-1011198",
+    "source_url": "https://www.onzemondial.com/ligue-1/psg-lorient-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-entre-le-leader-de-ligue-1-et-les-bretons-1011198",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c52c2d3e3687007c",
+    "published": "2026-11-28T04:50:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011198/411591/1200-L-psg-lorient-chane-tv-streaming-quelle-heure-et-o-suivre-cette-rencontre-entre-le-leader-de-ligue-1-et-les-bretons.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011198/411591/1200-L-psg-lorient-chane-tv-streaming-quelle-heure-et-o-suivre-cette-rencontre-entre-le-leader-de-ligue-1-et-les-bretons.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "75c6bd1877e7a719",
     "title": "Angers-Lens : chaîne TV, streaming… À quelle heure et où suivre cette rencontre de la 12ème journée de Ligue 1 ?",
     "summary": "La 12ème journée de Ligue 1 se poursuit ce samedi après-midi avec une confrontation entre Angers et le RC Lens. Le SCO accueille les Sang et Or à 17h15, au stade Raymond-Kopa. En difficulté depuis plusieurs semaines, les Angevins doivent impérativement réagir pour sortir de la zone rouge.",
@@ -1557,7 +1627,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T04:40:07.008797+00:00"
+      "checked_at": "2026-11-28T05:11:56.561036+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1668,6 +1738,40 @@
     "quality_score": 80
   },
   {
+    "slug": "a37670c273fe4bff",
+    "title": "Stade Brestois : Égil Selvik sur un nuage après la belle victoire face au Paris FC",
+    "summary": "Egil Selvik s'est exprimé après la belle victoire du Stade Brestois face au Paris FC.",
+    "summary_short": "Egil Selvik s'est exprimé après la belle victoire du Stade Brestois face au Paris FC.",
+    "content": "Egil Selvik s'est exprimé après la belle victoire du Stade Brestois face au Paris FC.",
+    "paragraphs": [
+      "Egil Selvik s'est exprimé après la belle victoire du Stade Brestois face au Paris FC."
+    ],
+    "key_points": [
+      "Egil Selvik s'est exprimé après la belle victoire du Stade Brestois face au Paris FC."
+    ],
+    "telegram_summary": "Egil Selvik s'est exprimé après la belle victoire du Stade Brestois face au Paris FC.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-brestois-egil-selvik-sur-un-nuage-apres-la-belle-victoire-face-au-paris-fc-547274.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-brestois-egil-selvik-sur-un-nuage-apres-la-belle-victoire-face-au-paris-fc-547274.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a37670c273fe4bff",
+    "published": "2026-11-27T22:11:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261127231000-9318.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261127231000-9318.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "427cf132bcbbe9b0",
     "title": "Équipe de France (F) : renversantes, les Bleues s'imposent face au Venezuela en amical",
     "summary": "Menées de deux buts après seulement seize minutes, les Bleues ont renversé le Venezuela (4-2) à Nancy pour signer un succès renversant dans leur préparation à la Coupe du monde 2027.",
@@ -1734,6 +1838,40 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "33619c3c7d8c7251",
+    "title": "Mercato PSG : Une grosse bataille s'annonce avec Arsenal et Francfort pour l'avenir de David Boly",
+    "summary": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "summary_short": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "content": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "paragraphs": [
+      "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly."
+    ],
+    "key_points": [
+      "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly."
+    ],
+    "telegram_summary": "D'après les informations de The Athletic, le PSG va devoir sortir le grand jeu pour conserver David Boly.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-une-grosse-bataille-s-annonce-avec-arsenal-et-francfort-pour-l-avenir-de-david-boly-547273.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-une-grosse-bataille-s-annonce-avec-arsenal-et-francfort-pour-l-avenir-de-david-boly-547273.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=33619c3c7d8c7251",
+    "published": "2026-11-27T22:03:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260909161539-1043.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260909161539-1043.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "38dfb99da2744bc6",
@@ -1903,6 +2041,40 @@
     "quality_score": 77
   },
   {
+    "slug": "7aa3cb26f89519b5",
+    "title": "Coupe de France : Premier grand exploit du 8e tour, un club de Régional 1 fait tomber le SM Caen",
+    "summary": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "summary_short": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "content": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "paragraphs": [
+      "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3)."
+    ],
+    "key_points": [
+      "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3)."
+    ],
+    "telegram_summary": "Un club de Régional 1 a réalisé un magnifique exploit en Coupe de France en éliminant le SM Caen (Ligue 3).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-coupe-de-france-premier-grand-exploit-du-8e-tour-un-club-de-regional-1-fait-tomber-le-sm-caen-547271.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-coupe-de-france-premier-grand-exploit-du-8e-tour-un-club-de-regional-1-fait-tomber-le-sm-caen-547271.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7aa3cb26f89519b5",
+    "published": "2026-11-27T21:53:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/buzz/2022/une/-20221121091115-9445.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2022/une/-20221121091115-9445.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "488991aeb8bd7fc9",
     "title": "Celtic defend head of security amid Green Brigade row",
     "summary": "Celtic defend their head of security Mark Hargreaves and the action taken against the Green Brigade last season.",
@@ -2001,234 +2173,5 @@
       "So Foot"
     ],
     "quality_score": 77
-  },
-  {
-    "slug": "0ee732d9fdf183a9",
-    "title": "Ligue 1 : Brest fait tomber le Paris FC et monte sur le podium",
-    "summary": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
-    "summary_short": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
-    "content": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
-    "paragraphs": [
-      "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)"
-    ],
-    "key_points": [
-      "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1.",
-      "La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)"
-    ],
-    "telegram_summary": "Grâce à son succès obtenu face au Paris FC ce vendredi soir (1-0), Brest s’invite provisoirement sur le podium de Ligue 1. La récompense d’un début de saison bluffant de la part des Finistériens.C’est (…)",
-    "link": "https://www.footmercato.net/a4830964467713620656-ligue-1-brest-fait-tomber-le-paris-fc-et-monte-sur-le-podium",
-    "source_url": "https://www.footmercato.net/a4830964467713620656-ligue-1-brest-fait-tomber-le-paris-fc-et-monte-sur-le-podium",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ee732d9fdf183a9",
-    "published": "2026-11-27T21:38:49+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo793645-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo793645-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "9306f3ad044704a8",
-    "title": "Selvik valide le gros coup de Brest - Débrief et NOTES des joueurs (SB29 1-0 PFC)",
-    "summary": "Grâce à une grosse performance d'Egil Selvik, Brest a battu le Paris FC (1-0) ce vendredi en ouverture de la 12e journée de Li...",
-    "summary_short": "Grâce à une grosse performance d'Egil Selvik, Brest a battu le Paris FC (1-0) ce vendredi en ouverture de la 12e journée de Li...",
-    "content": "Grâce à une grosse performance d'Egil Selvik, Brest a battu le Paris FC (1-0) ce vendredi en ouverture de la 12e journée de Li...",
-    "paragraphs": [
-      "Grâce à une grosse performance d'Egil Selvik, Brest a battu le Paris FC (1-0) ce vendredi en ouverture de la 12e journée de Li..."
-    ],
-    "key_points": [
-      "Grâce à une grosse performance d'Egil Selvik, Brest a battu le Paris FC (1-0) ce vendredi en ouverture de la 12e journée de Li..."
-    ],
-    "telegram_summary": "Grâce à une grosse performance d'Egil Selvik, Brest a battu le Paris FC (1-0) ce vendredi en ouverture de la 12e journée de Li...",
-    "link": "https://m.maxifoot.fr/football/article-66699.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66699.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9306f3ad044704a8",
-    "published": "2026-11-27T21:34:51+00:00",
-    "image": "https://photo.maxifoot.fr/selvik-brest-1.jpg",
-    "source_image": "https://photo.maxifoot.fr/selvik-brest-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
-  },
-  {
-    "slug": "2206bc20947c57fa",
-    "title": "Monaco : Liverpool veut doubler Chelsea pour Lamine Camara",
-    "summary": "Liverpool pourrait rapidement revenir à la charge pour Lamine Camara. Déjà intéressés par le milieu de terrain de l’AS Monaco depuis plusieurs mois, les Reds envisageraient désormais de tenter leur (…)",
-    "summary_short": "Liverpool pourrait rapidement revenir à la charge pour Lamine Camara. Déjà intéressés par le milieu de terrain de l’AS Monaco depuis plusieurs mois, les Reds envisageraient désormais de tenter leur (…)",
-    "content": "Liverpool pourrait rapidement revenir à la charge pour Lamine Camara. Déjà intéressés par le milieu de terrain de l’AS Monaco depuis plusieurs mois, les Reds envisageraient désormais de tenter leur (…)",
-    "paragraphs": [
-      "Liverpool pourrait rapidement revenir à la charge pour Lamine Camara. Déjà intéressés par le milieu de terrain de l’AS Monaco depuis plusieurs mois, les Reds envisageraient désormais de tenter leur (…)"
-    ],
-    "key_points": [
-      "Liverpool pourrait rapidement revenir à la charge pour Lamine Camara.",
-      "Déjà intéressés par le milieu de terrain de l’AS Monaco depuis plusieurs mois, les Reds envisageraient désormais de tenter leur (…)"
-    ],
-    "telegram_summary": "Liverpool pourrait rapidement revenir à la charge pour Lamine Camara. Déjà intéressés par le milieu de terrain de l’AS Monaco depuis plusieurs mois, les Reds envisageraient désormais de tenter leur (…)",
-    "link": "https://www.footmercato.net/a6635442864122216916-monaco-liverpool-veut-doubler-chelsea-pour-lamine-camara",
-    "source_url": "https://www.footmercato.net/a6635442864122216916-monaco-liverpool-veut-doubler-chelsea-pour-lamine-camara",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2206bc20947c57fa",
-    "published": "2026-11-27T21:33:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamine-camara.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamine-camara.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50315695",
-      "url": "https://www.espn.com/soccer/story/_/id/50315695/transfer-rumors-news-everton-eye-loan-man-uniteds-rashford",
-      "published": "2026-10-29T20:20:34Z",
-      "score": 0.333,
-      "matched_terms": [
-        "camara",
-        "liverpool",
-        "monaco"
-      ],
-      "topics": [
-        "soccer transfers"
-      ],
-      "teams": [
-        "AS Monaco",
-        "Liverpool"
-      ],
-      "athletes": [
-        "Lamine Camara"
-      ],
-      "leagues": [
-        "English Premier League",
-        "French Ligue 1",
-        "Soccer"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-11-28T04:40:07.008797+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "1288e2174df6d06e",
-    "title": "Lens : \"Je n’ai pas le souvenir d’avoir déjà vu ça\" ... Digard choqué par le talent de Mesloub",
-    "summary": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "summary_short": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "content": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "paragraphs": [
-      "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes."
-    ],
-    "key_points": [
-      "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes."
-    ],
-    "telegram_summary": "Didier Digard, l'entraîneur du Racing Club de Lens, n'a pas manqué d'être dithyrambique au sujet de Mezian Mesloub, qui enchaîne cette saison sous les couleurs artésiennes.",
-    "link": "https://www.onzemondial.com/ligue-1/lens-je-nai-pas-le-souvenir-davoir-deja-vu-ca-digard-choque-par-le-talent-de-mesloub-1011781",
-    "source_url": "https://www.onzemondial.com/ligue-1/lens-je-nai-pas-le-souvenir-davoir-deja-vu-ca-digard-choque-par-le-talent-de-mesloub-1011781",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1288e2174df6d06e",
-    "published": "2026-11-27T21:32:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011781/411736/1200-L-lens-je-nai-pas-le-souvenir-davoir-dj-vu-a-digard-choqu-par-le-talent-de-mesloub.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011781/411736/1200-L-lens-je-nai-pas-le-souvenir-davoir-dj-vu-a-digard-choqu-par-le-talent-de-mesloub.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "135a13afb79b7afb",
-    "title": "'You're not welcome here' - Chelsea fans turn on Fofana",
-    "summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "summary_short": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "content": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "paragraphs": [
-      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview."
-    ],
-    "key_points": [
-      "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview."
-    ],
-    "telegram_summary": "Chelsea defender Wesley Fofana is booed by his own fans during the Premier League defeat at Nottingham Forest after a controversial interview.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cmqlqeqd4wg5o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cmqlqeqd4wg5o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=135a13afb79b7afb",
-    "published": "2026-11-27T21:31:54+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/60f7/live/58c8c760-eaa6-11f1-9541-edfa153772c7.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/60f7/live/58c8c760-eaa6-11f1-9541-edfa153772c7.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50614098",
-      "url": "https://www.espn.com/soccer/story/_/id/50614098/wesley-fofana-chelsea-nottingham-forest-booing",
-      "published": "2026-11-27T23:13:21Z",
-      "score": 0.231,
-      "matched_terms": [
-        "chelsea",
-        "fans",
-        "fofana"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Chelsea",
-        "Nottingham Forest"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-28T04:40:07.008797+00:00"
-    },
-    "quality_sources": [
-      "BBC Sport",
-      "ESPN"
-    ],
-    "quality_score": 93
   }
 ]
