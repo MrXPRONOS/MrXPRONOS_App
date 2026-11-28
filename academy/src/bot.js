@@ -209,10 +209,11 @@ async function adminDetailPage(e,u,p,page){
 async function productDetails(e,u,pid,page=0){
  const p=await product(e,pid);if(!p||(!p.active&&!await entitlement(e,u,pid)))return send(e,u,'Formation indisponible.',[home]);
  const cs=await activeCampaigns(e,pid),free=await directFree(e,p),access=await entitlement(e,u,pid);
+ if(!access&&!cs.length)return send(e,u,'⚠️ Formation momentanément indisponible.',[home]);
  const b=[];
  if(access||free)b.push([cb('📥 Accéder aux ressources','get:'+pid)]);
  else if(p.active){for(const c of cs)b.push([cb('🎁 Gratuit · '+c.target+' contacts'+(noChannel(c)?' · Sans canal':' · Avec canal'),'c:'+c.id)]);
- if(cs.length&&p.price_xof>0)b.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);}
+ if(cs.length&&p.price_xof>0)b.push([cb('Alternative d’achat · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);}
  b.push([cb('⬅ Retour à la formation','p:'+pid)],home);
  const pages=richPages(await productDetailRich(e,p));page=Math.min(pages.length-1,Math.max(0,page));const nav=[];if(page>0)nav.push(cb('◀ Précédent','details:'+pid+':'+(page-1)));if(page+1<pages.length)nav.push(cb('Suivant ▶','details:'+pid+':'+(page+1)));if(nav.length)b.unshift(nav);
  const rich=composeRich('🎓 '+p.title+'\n📖 Programme · '+(page+1)+'/'+pages.length,pages[page],access?'✅ Dans votre bibliothèque.':free?'🆓 Accès direct.':'🎁 Accès gratuit par recommandation.');
@@ -223,16 +224,17 @@ async function showProduct(e,u,pid){
  const p=await product(e,pid);if(!p)return send(e,u,'⚠️ Formation indisponible.',[home]);
  const access=await entitlement(e,u,pid);if(!p.active&&!access)return send(e,u,'⚠️ Formation indisponible.',[home]);
  const cs=await activeCampaigns(e,pid),free=await directFree(e,p),buttons=[];
+ if(!access&&!cs.length)return send(e,u,'⚠️ Formation momentanément indisponible.',[home]);
  if(access||free)buttons.push([cb('📥 Accéder aux ressources','get:'+pid)]);
  if(!access&&!free&&p.active)for(const c of cs)buttons.push([cb('🎁 Gratuit · '+c.target+' contacts'+(noChannel(c)?' · Sans canal':' · Avec canal'),'c:'+c.id)]);
- if(!access&&!free&&cs.length&&p.price_xof>0)buttons.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);
+ if(!access&&!free&&cs.length&&p.price_xof>0)buttons.push([cb('Alternative d’achat · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);
  buttons.push([cb('📖 En savoir plus','details:'+pid)],home);
  const resources=await productAssets(e,p);
  const body=await productShortRich(e,p);const head='🎓 '+p.title;const tail=access?'✅ Dans votre bibliothèque.':free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA · Invitez '+[...new Set(cs.map(x=>x.target))].join(' ou ')+' contacts qualifiés.'+(cs.every(noChannel)?'':cs.some(noChannel)?' Abonnement selon l’option.':' Puis rejoignez le canal.'):'⚠️ Accès temporairement indisponible.';
  return sendRich(e,u,composeRich(head,body,tail),buttons,p.cover_file_id);
 }
 async function purchaseInfo(e,u,pid){
- const p=await product(e,pid);if(!p?.active||p.price_xof<=0||!(await activeCampaigns(e,pid)).length)return showProduct(e,u,pid);
+ const p=await product(e,pid);if(!p?.active||p.price_xof<=0||await entitlement(e,u,pid)||!(await activeCampaigns(e,pid)).length)return showProduct(e,u,pid);
  return send(e,u,'💳 Achat sans partage\n'+p.title+'\nMontant : '+p.price_xof.toLocaleString('fr-FR')+' FCFA.\n\nLe paiement dans Telegram n’est pas encore activé.\nContactez l’assistance pour vérifier un achat web indépendant.\nAucun paiement n’est demandé ici.',[[cb('🎁 Recevoir gratuitement','p:'+pid)],[cb('Assistance','help')],home]);
 }
 // V1.4: ordered resource manifest. Legacy PDF products remain readable without migration.
@@ -268,7 +270,7 @@ async function resourceAccess(e,u,p){
  return !!access;
 }
 async function resourceMenu(e,u,p,a,page=0){
- const start=page*8;
+ page=Math.max(0,Math.min(page,Math.max(0,Math.ceil(a.length/8)-1)));const start=page*8;
  const b=a.slice(start,start+8).map((x,j)=>[cb((assetIcons[x.kind]||'📎')+' '+(start+j+1)+'. '+x.name.slice(0,40),'asset:'+p.id+':'+(start+j))]);
  const nav=[];if(page>0)nav.push(cb('◀','assets:'+p.id+':'+(page-1)));if(start+8<a.length)nav.push(cb('▶','assets:'+p.id+':'+(page+1)));if(nav.length)b.push(nav);
  b.push([cb('📂 Ma bibliothèque','bibliotheque')],home);
@@ -281,7 +283,7 @@ async function deliverResource(e,u,p,a,index){
  await run(e.DB,'INSERT OR IGNORE INTO deliveries(user_id,product_id,delivered_at) VALUES (?,?,?)',u,p.id,now());
 }
 async function adminResourceMenu(e,u,p,a,page=0){
- const start=page*8,b=a.slice(start,start+8).map((x,j)=>[cb((assetIcons[x.kind]||'📎')+' '+x.name.slice(0,45),'atest:'+p.id+':'+(start+j))]);
+ page=Math.max(0,Math.min(page,Math.max(0,Math.ceil(a.length/8)-1)));const start=page*8,b=a.slice(start,start+8).map((x,j)=>[cb((assetIcons[x.kind]||'📎')+' '+x.name.slice(0,45),'atest:'+p.id+':'+(start+j))]);
  const nav=[];if(page>0)nav.push(cb('◀','apage:'+p.id+':'+(page-1)));if(start+8<a.length)nav.push(cb('▶','apage:'+p.id+':'+(page+1)));if(nav.length)b.push(nav);
  return send(e,u,'📎 Test administrateur — '+p.title,[...b,[cb('⬅ Produit','aw:product:'+p.id)]]);
 }
@@ -712,7 +714,7 @@ async function wizPrompt(e,u,d){
   const short=shortDescription(d.short||d.description)||'Sans description';
   const body=sourceRich(short,{text:d.short,entities:d.shortEntities});
   const tail='📎 '+draftAssets(d).length+' ressource(s) · '+(d.description?'Programme enregistré':'Sans programme')+'\n🎁 '+(d.access==='new'?d.target+' contacts · '+(d.kind==='none'?'Sans canal':d.channel?.title||'Canal à configurer'):d.edit?'Conditions existantes':'Campagne à configurer')+(d.price>0?' · Achat '+d.price.toLocaleString('fr-FR')+' FCFA':'');
-  return sendRich(e,u,composeRich('✅ Aperçu · '+d.title,body,tail,'wizard'),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),d.cover);
+  return sendRich(e,u,composeRich('✅ Aperçu · '+d.title,body,tail,'wizard'),wizButtons(d,[[cb(d.campaignOnly?'✅ Enregistrer et publier':'✅ Publier',wizAction(d,'publish'))],[cb(d.campaignOnly?'💾 Enregistrer sans publier':'💾 Garder en brouillon',wizAction(d,'draft'))]]),d.cover);
  }
  }
 }
@@ -726,7 +728,7 @@ async function wizProduct(e,u,pid){
  const p=await product(e,pid);if(!p)return wizList(e,u);
  const cs=await all(e.DB,'SELECT id,channel_id,channel_url,target,hold_seconds,active FROM campaigns WHERE product_id=? ORDER BY id',pid);
  const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(pid));const assets=await productAssets(e,p);
- const b=[[cb('✏️ Modifier la formation','aw:edit:'+pid)],[cb('📖 Voir la fiche détaillée','aw:details:'+pid),cb('✍️ Voir le résumé','aw:summary:'+pid)]];b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
+ const b=[[cb('✏️ Modifier la formation','aw:edit:'+pid)],[cb('📖 Voir la fiche détaillée','aw:details:'+pid),cb('✍️ Voir le résumé','aw:summary:'+pid)]];b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(assets.length&&p.cover_file_id)b.push([cb('➕ Ajouter une campagne','aw:addcampaign:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
  if(assets.length)b.push([cb('📎 Tester les ressources','aw:test:'+pid)]);if(p.active)b.push([cb('📣 Promouvoir ce produit','ad:item:'+pid)]);
  b.push([cb('⬅ Formations','aw:list:0')]);
  return photo(e,u,(p.title+'\n'+p.category+'\nAchat facultatif : '+(p.price_xof?p.price_xof+' FCFA':'non proposé')+'\n'+(p.active?'Publié':'Brouillon')+'\n'+(assets.length?assets.length+' ressource(s) enregistrée(s)':'Aucune ressource')+'\nBoutique web : '+(shop?.value||'non configurée')+'\nCampagnes : '+(cs.length?cs.map(c=>c.id+' · '+c.target+' contacts qualifiés · '+(c.active?'active':'arrêtée')).join('\n'):'aucune')+'\n\n'+await productShort(e,p)).slice(0,1000),b,null,p.cover_file_id);
@@ -761,9 +763,9 @@ async function wizardCallback(e,u,action){
   if(!p)return wizList(e,u);
   if(v[1]==='details')return adminDetailPage(e,u,p,0);
   if(v[1]==='summary')return sendRich(e,u,composeRich('✍️ Résumé · '+p.title,await productShortRich(e,p)),[[cb('⬅ Formation','aw:product:'+p.id)]]);
-  if(v[1]==='edit'){
+  if(v[1]==='edit'||v[1]==='addcampaign'){
    const old=await wizRead(e,u);if(old)return send(e,u,'Une création est déjà en cours.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
-   const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(p.id));const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title',edit:true,title:p.title,category:p.category,price:p.price_xof,short:await productShort(e,p),shortEntities:(await productShortRich(e,p)).entities,description:p.description,detailEntities:(await productDetailRich(e,p)).entities,cover:p.cover_file_id,file:p.file_id,filename:p.filename,assets:await productAssets(e,p),shop:shop?.value||''};await wizSave(e,u,d);return wizPrompt(e,u,d);
+   const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(p.id));const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:v[1]==='addcampaign'?'channeltype':'title',...(v[1]==='addcampaign'?{access:'new',campaignOnly:true}:{}),edit:true,title:p.title,category:p.category,price:p.price_xof,short:await productShort(e,p),shortEntities:(await productShortRich(e,p)).entities,description:p.description,detailEntities:(await productDetailRich(e,p)).entities,cover:p.cover_file_id,file:p.file_id,filename:p.filename,assets:await productAssets(e,p),shop:shop?.value||''};await wizSave(e,u,d);return wizPrompt(e,u,d);
   }
   if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return adminResourceMenu(e,u,p,a);}
   if(v[1]==='hide'||v[1]==='show'){
@@ -916,7 +918,7 @@ async function genericPromoShow(e,u,d){
  if(d.step==='destination')return send(e,u,'📢 Où souhaitez-vous publier ?\n\nChoisissez un canal public ou privé dont le bot est administrateur, ou créez une annonce à partager ailleurs.',[[cb('📢 Sélectionner le canal','ad:pick:'+d.nonce)],[cb('🔗 Partager ailleurs','ad:external:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
  if(d.step==='message')return send(e,u,'✍️ Envoyez le texte publicitaire (5 lignes de texte, 2 lignes vides, 200 caractères maximum), ou utilisez le résumé du produit.',[[cb('Utiliser la description','ad:default:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
  if(d.step==='art')return send(e,u,'🖼 Envoyez une affiche, ou utilisez la couverture actuelle.',[[cb('Utiliser la couverture','ad:cover:'+d.nonce)],[cb('Sans image','ad:plain:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
- if(d.step==='posting')return send(e,u,'Publication précédente à vérifier dans le canal. Aucun renvoi automatique.',[[cb('Annuler','ad:cancel')]]);
+ if(d.step==='posting')return send(e,u,'⚠️ Publication précédente à vérifier dans le canal.\nAucun renvoi automatique : vérifiez avant de recréer une annonce.',[[cb('Fermer le brouillon','ad:cancel')]]);
  if(d.step==='review'){
   const p=await genericPromoPreview(e,u,d);if(!p)return;
   const b=[...p.buttons,...(d.dest?[[cb('✅ Publier dans le canal','ad:publish:'+d.nonce)]]:[]),[cb('Terminer','ad:cancel')]];
@@ -985,41 +987,16 @@ async function promoAction(e,u,action){
  if(action==='ad:cancel'){const d=await promoRead(e,u);if(d?.step==='destination')await closePicker(e,u);await promoClear(e,u);return wizMenu(e,u);}
  if(action==='ad:resume'){const d=await promoRead(e,u);if(!d)return promoMenu(e,u);const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}delete d.paused;await promoSave(e,u,d);return promoShow(e,u,d);}
  const [,a,v]=action.split(':');
- if(a==='page'&&/^\d{1,3}$/.test(v||''))return promoProducts(e,u,Number(v));
+ if(a==='page'&&/^\d{1,3}$/.test(v||'')){const d=await promoRead(e,u);if(d)return promoMenu(e,u);return promoProducts(e,u,Number(v));}
  if(a==='item'&&slug(v)){if(await promoRead(e,u))return promoMenu(e,u);if(!await genericPromoProduct(e,v))return send(e,u,'Produit non publié ou sans ressources.');const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}const d={pid:v,nonce:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'destination'};await promoSave(e,u,d);return genericPromoShow(e,u,d);}
  if(a==='new'||a==='legacy')return promoMenu(e,u);
  const d=await promoRead(e,u);
  if(!d||d.paused||v!==d.nonce)return send(e,u,'Cette action a expiré.',[[cb('Promotion','ad:menu')]]);
  if(d.pid)return genericPromoAction(e,u,d,a);
- if(d.cid)return promoShow(e,u,d);
- if(a==='noimage'&&d.step==='cover'){d.step='review';await promoSave(e,u,d);return promoShow(e,u,d);}
- if(a==='post'&&d.step==='review'){
-  const p=await promoPreview(e,u,d);if(!p)return;
-  const me=await tg(e,'getMe',{}),rights=await tg(e,'getChatMember',{chat_id:p.x.ch.id,user_id:me.id});
-  if(rights.status!=='administrator'||!rights.can_post_messages)return send(e,u,'Le bot doit avoir le droit de publier dans le canal. Corrigez ses droits puis reprenez l’aperçu.',[[cb('Reprendre','ad:resume')]]);
-  const old=JSON.stringify(d);d.step='posting';
-  const lock=await run(e.DB,'UPDATE settings SET value=? WHERE key=? AND value=?',JSON.stringify(d),promoKey(u),old);
-  if(!lock.meta.changes)return send(e,u,'Publication déjà traitée ou modifiée.');
-  let m;
-  try{m=d.cover?await tg(e,'sendPhoto',{chat_id:p.x.ch.id,photo:d.cover,caption:p.caption,reply_markup:{inline_keyboard:p.buttons}},'product'):await send(e,p.x.ch.id,p.caption,p.buttons,'product');}
-  catch(err){if(err instanceof TelegramError&&err.status===400){d.step='review';await promoSave(e,u,d);return send(e,u,'Telegram a refusé la publication. Vérifiez l’image et les droits.',[[cb('Reprendre','ad:resume')]]);}return send(e,u,'Résultat incertain : vérifiez le canal avant de republier.',[[cb('Promotion','ad:menu')]]);}
-  const link='https://t.me/'+p.x.ch.username+'/'+m.message_id;
-  await audit(e,u,'promotion_publish',d.cid+':'+m.message_id);await promoClear(e,u);
-  return send(e,u,'✅ Publication réussie !\n'+link,[[urlButton('Voir la publication',link)],[cb('Administration','aw:menu')]]);
- }
  return promoShow(e,u,d);
 }
 async function promoMessage(e,u,d,m){
  if(d.pid)return genericPromoMessage(e,u,d,m);
- if(d.cid)return promoShow(e,u,d);
- let x;try{x=await promoCampaign(e,d.cid);}catch{}if(!x)return send(e,u,'⚠️ Cette campagne n’est plus disponible.',[[cb('Annuler','ad:cancel')]]);
- if(d.step==='link'){
-  const origin=m.forward_origin;let link=String(m.text||'').trim();
-  if(origin?.type==='channel'&&id(origin.chat.id)===x.ch.id&&m.document?.mime_type==='application/pdf'&&Number.isSafeInteger(origin.message_id)&&origin.message_id>0)link='https://t.me/'+x.ch.username+'/'+origin.message_id;
-  if(!promoValid(link,x.ch.username))return send(e,u,'Lien invalide. Transférez le PDF gratuit depuis @'+x.ch.username+' ou collez son lien exact.',[[cb('Annuler','ad:cancel')]]);
-  d.link=link;d.step='cover';await promoSave(e,u,d);return promoShow(e,u,d);
- }
- if(d.step==='cover'){const f=m.photo?.at(-1)?.file_id;if(!f)return send(e,u,'Envoyez une photo ou choisissez Sans image.',[[cb('Sans image','ad:noimage:'+d.nonce)],[cb('Annuler','ad:cancel')]]);d.cover=f;d.step='review';await promoSave(e,u,d);return promoShow(e,u,d);}
  return promoShow(e,u,d);
 }
 
@@ -1036,7 +1013,7 @@ async function dispatch(e,update){
  if(q&&admins(e).has(u)&&!action.startsWith('aw:')&&!action.startsWith('ad:')){const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);if(d.step==='channel')await closePicker(e,u);}const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);if(ad.step==='destination')await closePicker(e,u);}}
  if(q&&action==='ri:enable')return enableReferralInline(e,u);
  if(q&&action.startsWith('ad:'))return promoAction(e,u,action);
- if(q&&action.startsWith('aw:')){if(admins(e).has(u)){const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);}}return wizardCallback(e,u,action);}
+ if(q&&action.startsWith('aw:')){if(admins(e).has(u)){const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);if(ad.step==='destination')await closePicker(e,u);}const d=await wizRead(e,u);if(d&&!d.paused&&!['aw:new','aw:resume'].includes(action)&&!action.startsWith('aw:'+d.session+':')){d.paused=true;await wizSave(e,u,d);if(d.step==='channel')await closePicker(e,u);}}return wizardCallback(e,u,action);}
  if(!q&&admins(e).has(u)&&(!action.startsWith('/')||(!m.text&&!!readAsset(m)))){const ad=await promoRead(e,u);if(ad&&!ad.paused)return promoMessage(e,u,ad,m);const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
  if(!q&&action==='/cancel'&&admins(e).has(u)){const ad=await promoRead(e,u);const current=await wizRead(e,u);if(ad&&!ad.paused||ad&&!current)return promoAction(e,u,'ad:cancel');const d=current;if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
  if(!q&&action.startsWith('/')){
