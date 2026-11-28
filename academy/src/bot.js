@@ -35,7 +35,7 @@ async function photo(e,chat,caption,buttons,key,fileId){
 }
 async function welcome(e,u){
  const s=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_key'");const f=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_file_id'");
- return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nLivres, formations et guides pratiques.\nApprendre. Appliquer. Réussir.\n\nChoisissez une rubrique :',menu,s?.value,f?.value);
+ return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nLivres, formations et guides pratiques.\nApprendre. Appliquer. Réussir.\n\nChoisissez une rubrique :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value);
 }
 async function catalogue(e,u,filter='all',page=0){
  const condition=filter==='free'?' AND price_xof=0':filter==='premium'?' AND price_xof>0':'';
@@ -228,25 +228,25 @@ async function storagePost(e,msg){
 const wizardCategories=['Business','Finance','Sport','Intelligence artificielle','Marketing','Leadership','Autre'];
 const wizKey=u=>'admin_wizard:'+u;
 const wizSteps=['title','category','price','description','cover','pdf','review'];
-const wizAction=(d,a)=>'aw:'+d.id+':'+d.step+':'+a;
+const wizAction=(d,a)=>'aw:'+d.session+':'+d.step+':'+a;
 const wizCancel=d=>[cb('❌ Annuler',wizAction(d,'cancel')),cb('⏸ Pause','aw:menu')];
-const wizButtons=(d,extra=[])=>[...extra,...(d.step==='title'?[]:[[cb('⬅ Retour',wizAction(d,'back'))]]),wizCancel(d)];
+const wizButtons=(d,extra=[])=>[...extra,...((d.step==='title'&&d.title)||(d.step==='category'&&d.category)||(d.step==='price'&&Number.isSafeInteger(d.price))||(d.step==='description'&&typeof d.description==='string')||(d.step==='cover'&&d.cover)||(d.step==='pdf'&&d.file)?[[cb('✓ Conserver la valeur actuelle',wizAction(d,'keep'))]]:[]),...(d.step==='title'?[]:[[cb('⬅ Retour',wizAction(d,'back'))]]),wizCancel(d)];
 async function wizRead(e,u){const r=await row(e.DB,'SELECT value FROM settings WHERE key=?',wizKey(u));return r?JSON.parse(r.value):null;}
 const wizSave=(e,u,d)=>run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',wizKey(u),JSON.stringify(d));
 async function wizMenu(e,u){
- const d=await wizRead(e,u);
+ const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);}
  return send(e,u,'⚙️ Administration • MR X ACADEMY\n\nChoisissez une action.',[
  [cb(d?'▶ Reprendre la création':'➕ Nouvelle formation',d?'aw:resume':'aw:new')],
  [cb('📚 Gérer les formations','aw:list:0')],[cb('📊 Statistiques','aw:stats')],home]);
 }
 async function wizPrompt(e,u,d){
  const n=wizSteps.indexOf(d.step)+1;
- const prefix='🎓 Nouvelle formation — étape '+n+'/7\n\n';
+ const prefix='🎓 '+(d.edit?'Modifier la formation':'Nouvelle formation')+' — étape '+n+'/7\n\n';
  const say=(t,b=[])=>send(e,u,prefix+t,wizButtons(d,b));
  switch(d.step){
- case 'title':return say('Quel est le titre de la formation ? Envoyez-le en message.');
- case 'category':return say('Choisissez une catégorie ou écrivez votre propre catégorie.',wizardCategories.map((c,i)=>[cb(c,wizAction(d,'cat'+i))]));
- case 'price':return say('Quel est le prix de la formation en FCFA ? Envoyez un montant entier, ou choisissez Gratuit.',[[cb('🆓 Gratuit',wizAction(d,'free'))]]);
+ case 'title':return say('Quel est le titre de la formation ? Envoyez-le en message.'+(d.title?'\nActuel : '+d.title:''));
+ case 'category':return say('Choisissez une catégorie ou écrivez votre propre catégorie.'+(d.category?'\nActuelle : '+d.category:''),wizardCategories.map((c,i)=>[cb(c,wizAction(d,'cat'+i))]));
+ case 'price':return say('Quel est le prix de la formation en FCFA ? Envoyez un montant entier, ou choisissez Gratuit.'+(Number.isSafeInteger(d.price)?'\nActuel : '+d.price+' FCFA':''),[[cb('🆓 Gratuit',wizAction(d,'free'))]]);
  case 'description':return say('Envoyez une courte description (650 caractères maximum), ou passez cette étape.',[[cb('⏭ Sans description',wizAction(d,'skip'))]]);
  case 'cover':return say('Envoyez la photo de couverture dans cette conversation (en tant que photo Telegram).');
  case 'pdf':return say('Envoyez le fichier PDF comme document (49 Mio maximum).');
@@ -264,7 +264,7 @@ async function wizList(e,u,page=0){
 }
 async function wizProduct(e,u,pid){
  const p=await product(e,pid);if(!p)return wizList(e,u);
- const b=[];if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(p.file_id)b.push([cb('Publier','aw:show:'+pid)]);
+ const b=[[cb('✏️ Compléter / modifier','aw:edit:'+pid)]];if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(p.file_id)b.push([cb('Publier','aw:show:'+pid)]);
  if(p.file_id)b.push([cb('📎 Tester le PDF','aw:test:'+pid)]);
  b.push([cb('⬅ Formations','aw:list:0')]);
  return photo(e,u,(p.title+'\n'+p.category+'\n'+p.price_xof+' FCFA\n'+(p.active?'Publié':'Brouillon')+'\n'+(p.file_id?'PDF enregistré':'PDF manquant')+'\n\n'+p.description).slice(0,1000),b,null,p.cover_file_id);
@@ -273,10 +273,10 @@ async function wizardCallback(e,u,action){
  if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
  if(action==='aw:menu')return wizMenu(e,u);
  if(action==='aw:stats')return adminCommand(e,u,'admin','',null,true);
- if(action==='aw:resume'){const d=await wizRead(e,u);return d?wizPrompt(e,u,d):wizMenu(e,u);}
+ if(action==='aw:resume'){const d=await wizRead(e,u);if(!d)return wizMenu(e,u);d.paused=false;await wizSave(e,u,d);return wizPrompt(e,u,d);}
  if(action==='aw:new'){
-  const old=await wizRead(e,u);if(old)return wizPrompt(e,u,old);
-  const d={id:'f-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),step:'title'};await wizSave(e,u,d);return wizPrompt(e,u,d);
+  const old=await wizRead(e,u);if(old){old.paused=false;await wizSave(e,u,old);return wizPrompt(e,u,old);}
+  const d={id:'f-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title'};await wizSave(e,u,d);return wizPrompt(e,u,d);
  }
  const v=action.split(':');
  if(v.length===3&&v[1]==='list'&&/^\d{1,3}$/.test(v[2]))return wizList(e,u,Number(v[2]));
@@ -284,6 +284,10 @@ async function wizardCallback(e,u,action){
   const p=await product(e,v[2]);
   if(v[1]==='product')return wizProduct(e,u,v[2]);
   if(!p)return wizList(e,u);
+  if(v[1]==='edit'){
+   const old=await wizRead(e,u);if(old)return send(e,u,'Une création est déjà en cours.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
+   const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title',edit:true,title:p.title,category:p.category,price:p.price_xof,description:p.description,cover:p.cover_file_id,file:p.file_id,filename:p.filename};await wizSave(e,u,d);return wizPrompt(e,u,d);
+  }
   if(v[1]==='test'&&p.file_id)return tg(e,'sendDocument',{chat_id:u,document:p.file_id,caption:'Test administrateur : '+p.title,protect_content:true});
   if(v[1]==='hide'||v[1]==='show'){
    if(v[1]==='show'&&!p.file_id)return send(e,u,'PDF manquant.');
@@ -292,18 +296,24 @@ async function wizardCallback(e,u,action){
   }
  }
  const d=await wizRead(e,u);
- if(!d||v.length!==4||v[1]!==d.id||v[2]!==d.step)return send(e,u,'Cette étape a expiré.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
+ if(!d||d.paused||v.length!==4||v[1]!==d.session||v[2]!==d.step)return send(e,u,'Cette étape a expiré.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
  const a=v[3];
  if(a==='cancel'){await run(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u));return send(e,u,'Création annulée. Les fichiers déjà archivés restent dans le canal privé.',[[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);}
  if(a==='back'){const i=wizSteps.indexOf(d.step);if(i>0)d.step=wizSteps[i-1];await wizSave(e,u,d);return wizPrompt(e,u,d);}
- if(d.step==='category'&&/^cat[0-6]$/.test(a)){d.category=wizardCategories[Number(a.slice(3))];d.step='price';}
+ if(a==='keep'&&d.step!=='review'){
+  const field={title:'title',category:'category',price:'price',description:'description',cover:'cover',pdf:'file'}[d.step];if(d[field]===undefined||d[field]===null||(['title','category','cover','pdf'].includes(d.step)&&!d[field]))return wizPrompt(e,u,d);d.step=wizSteps[wizSteps.indexOf(d.step)+1];
+ }else if(d.step==='category'&&/^cat[0-6]$/.test(a)){d.category=wizardCategories[Number(a.slice(3))];d.step='price';}
  else if(d.step==='price'&&a==='free'){d.price=0;d.step='description';}
  else if(d.step==='description'&&a==='skip'){d.description='';d.step='cover';}
  else if(d.step==='review'&&['publish','draft'].includes(a)){
   if(!d.title||!d.category||!Number.isSafeInteger(d.price)||d.price<0||!d.cover||!d.file||!d.filename)return send(e,u,'Brouillon incomplet.',[[cb('Reprendre','aw:resume')]]);
   const active=a==='publish'?1:0;
+  const existing=d.edit?await product(e,d.id):null;
+  if(d.edit&&!existing)return send(e,u,'Produit introuvable.',[[cb('Administration','aw:menu')]]);
+  if(existing&&existing.price_xof!==d.price&&existing.active)return send(e,u,'Masquez d’abord ce produit pour modifier son prix, puis reprenez le brouillon.',[[cb('Administration','aw:menu')]]);
+  const write=d.edit?stmt(e.DB,'UPDATE products SET title=?,category=?,description=?,price_xof=?,active=?,filename=?,file_id=?,cover_file_id=?,object_key=NULL,cover_key=NULL WHERE id=?',d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover,d.id):stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover);
   await e.DB.batch([
-   stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover),
+   write,
    stmt(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u)),
    stmt(e.DB,'INSERT INTO audit(admin_id,action,target,created_at) VALUES (?,?,?,?)',u,'wizard_'+a,d.id,now())
   ]);
@@ -347,8 +357,8 @@ async function dispatch(e,update){
  if(q){try{await tg(e,'answerCallbackQuery',{callback_query_id:q.id});}catch(err){if(err.status!==400)throw err;}}
  let action=q?.data||m.text||m.caption||'';
  if(q&&action.startsWith('aw:'))return wizardCallback(e,u,action);
- if(!q&&admins(e).has(u)&&!action.startsWith('/')){const d=await wizRead(e,u);if(d)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
- if(!q&&action==='/cancel'&&admins(e).has(u)){const d=await wizRead(e,u);if(d)return wizardCallback(e,u,wizAction(d,'cancel'));return wizMenu(e,u);}
+ if(!q&&admins(e).has(u)&&!action.startsWith('/')){const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
+ if(!q&&action==='/cancel'&&admins(e).has(u)){const d=await wizRead(e,u);if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
  if(!q&&action.startsWith('/')){
   const match=action.match(/^\/([a-z_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);if(!match)return help(e,u);
   const cmd=match[1],arg=(match[2]||'').trim();
