@@ -16,12 +16,55 @@ const admins=e=>new Set(String(e.ADMIN_IDS||'').split(',').map(s=>s.trim()).filt
 const telegramId=s=>typeof s==='string'&&/^\d{1,16}$/.test(s);
 const timingSafe=(a,b)=>{if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;let r=0;for(let i=0;i<a.length;i++)r|=a.charCodeAt(i)^b.charCodeAt(i);return r===0;};
 export class TelegramError extends Error {constructor(method,status){super(`Telegram ${method}: ${status}`);this.status=status;}}
-export async function tg(e,method,payload){
+
+// Telegram entities use UTF-16 offsets (the native JavaScript string index).
+// The original text is never parsed as markup; arbitrary titles/descriptions are safe.
+export function formatTelegram(text,style='auto'){
+ const entities=[];if(typeof text!=='string'||!text.trim())return entities;
+ const add=(type,offset,length)=>{if(length>0&&offset>=0&&offset+length<=text.length&&!entities.some(x=>offset<x.offset+x.length&&x.offset<offset+length))entities.push({type,offset,length});};
+ const lines=text.split('\n');let offset=0;let first=true;
+ for(let i=0;i<lines.length;i++){
+  const raw=lines[i],line=raw.trim(),at=offset+raw.indexOf(line);offset+=raw.length+1;
+  if(!line)continue;
+  const heading=first;first=false;
+  if(/^https?:\/\/\S+$/.test(line)||/^[🟩⬜]+$/u.test(line))continue;
+  if(heading){
+   // Preserve the complete title for product, welcome, caption and multi-line messages.
+   let n=line.length;
+   if(lines.length===1&&style==='auto'&&n>100){const end=line.search(/[.!?](?:\s|$)/);n=end>=0&&end<150?end+1:Math.min(n,80);if(n<line.length&&end<0){const space=line.lastIndexOf(' ',n);if(space>0)n=space;}}
+   // Avoid splitting surrogate pairs.
+   if(n<line.length&&/[\uD800-\uDBFF]/.test(line[n-1]))n--;
+   add('bold',at,n);continue;
+  }
+  if(/^(?:Apprendre\. Appliquer\. Réussir\.|Invitez de nouveaux abonnés réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
+  if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
+   const colon=line.indexOf(':');add('underline',at,colon>=0?colon+1:line.length);continue;
+  }
+  if(/^(?:\d+\/\d+ validées|(?:💰 |🏷️ )?Prix :|(?:🆓 )?Gratuit$|✅ Dans votre bibliothèque|✅ Accès|📎 |🎁 Campagne :)/u.test(line)){add('bold',at,line.length);continue;}
+  if(/^(?:Identifiant(?: Telegram)? :|ID :|Canal :)\s*-?\d+$/.test(line)||/^Identifiant : [a-z0-9_-]+$/i.test(line)){
+   const colon=line.indexOf(':');add('bold',at,colon+1);const value=line.slice(colon+1).trim();add('code',at+line.lastIndexOf(value),value.length);continue;
+  }
+  if(/^(?:Utilisateurs|Produits|Invitations valides|En attente|Récompenses|Achats validés|Livraisons uniques|Validées|Statut|Catégorie|Type|Délai de validation)\s*:/.test(line)){
+   const n=line.indexOf(':')+1;add('bold',at,n);continue;
+  }
+  if(/^(?:• |📚 |📖 |⭐ |🎁 |📂 |🔒 |💡 |✓ |⚠️ )/u.test(line)&&style==='welcome'){add('bold',at,line.length);continue;}
+  if(/^(?:Choisissez|Envoyez|Sélectionnez|Quel est|Quelle est|Combien|Durée minimale|Comment obtenir|Ajoutez d’abord|Vous pouvez|Actuel(?:le)? :|Sans description|Livre(?:s)? et formation|Livres, formations|Votre accès est conservé)/i.test(line)||style==='product'&&i===1){add('italic',at,line.length);continue;}
+  if(style==='wizard'&&i>0&&line.length<=260){add('italic',at,line.length);continue;}
+ }
+ return entities.sort((a,b)=>a.offset-b.offset);
+}
+
+export async function tg(e,method,payload,style='auto'){
  const multipart=payload instanceof FormData;
+ if(!multipart&&payload&&!payload.parse_mode){
+  const key=method==='sendMessage'?'text':['sendPhoto','sendDocument','sendVideo'].includes(method)?'caption':null;
+  const entityKey=key==='text'?'entities':'caption_entities';
+  if(key&&typeof payload[key]==='string'&&!payload[entityKey]){const entities=formatTelegram(payload[key],style);if(entities.length)payload={...payload,[entityKey]:entities};}
+ }
  const res=await fetch(`https://api.telegram.org/bot${e.BOT_TOKEN}/${method}`,{method:'POST',headers:multipart?{}:{'Content-Type':'application/json'},body:multipart?payload:JSON.stringify(payload)});
  const j=await res.json();if(!res.ok||!j.ok)throw new TelegramError(method,j.error_code||res.status);return j.result;
 }
-const send=(e,chat,text,buttons)=>tg(e,'sendMessage',{chat_id:chat,text, ...(buttons?{reply_markup:{inline_keyboard:buttons}}:{})});
+const send=(e,chat,text,buttons,style='auto')=>tg(e,'sendMessage',{chat_id:chat,text, ...(buttons?{reply_markup:{inline_keyboard:buttons}}:{})},style);
 const getMember=async(e,channel,user)=>member(await tg(e,'getChatMember',{chat_id:channel,user_id:Number(user)}));
 const touch=(e,user)=>run(e.DB,'INSERT OR IGNORE INTO users(id,created_at) VALUES (?,?)',user,now());
 const product=(e,p)=>row(e.DB,'SELECT * FROM products WHERE id=?',p);
@@ -29,13 +72,13 @@ const campaign=(e,c)=>row(e.DB,`SELECT c.*,p.title,p.active AS product_active FR
 const entitlement=(e,u,p)=>row(e.DB,'SELECT * FROM entitlements WHERE user_id=? AND product_id=?',u,p);
 const grant=(e,u,p,source)=>run(e.DB,'INSERT OR IGNORE INTO entitlements(user_id,product_id,source,created_at) VALUES (?,?,?,?)',u,p,source,now());
 const audit=(e,u,action,target)=>run(e.DB,'INSERT INTO audit(admin_id,action,target,created_at) VALUES (?,?,?,?)',u,action,target,now());
-async function photo(e,chat,caption,buttons,key,fileId){
- if(fileId){try{return await tg(e,'sendPhoto',{chat_id:chat,photo:fileId,caption,reply_markup:{inline_keyboard:buttons||[]}});}catch(err){if(err.status!==400)throw err;}}
- return send(e,chat,caption,buttons);
+async function photo(e,chat,caption,buttons,key,fileId,style='auto'){
+ if(fileId){try{return await tg(e,'sendPhoto',{chat_id:chat,photo:fileId,caption,reply_markup:{inline_keyboard:buttons||[]}},style);}catch(err){if(err.status!==400)throw err;}}
+ return send(e,chat,caption,buttons,style);
 }
 async function welcome(e,u){
  const s=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_key'");const f=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_file_id'");
- return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nLivres, formations et guides pratiques.\nApprendre. Appliquer. Réussir.\n\nChoisissez une rubrique :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value);
+ return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nVotre espace pour apprendre, développer vos compétences et passer à l’action.\n\nApprendre. Appliquer. Réussir.\n\n📚 Explorez nos livres et formations\n📖 Accédez aux ressources gratuites\n⭐ Découvrez nos contenus Premium\n🎁 Débloquez des formations par parrainage\n\nVotre bibliothèque vous accompagne partout, directement sur Telegram.\n\nChoisissez une rubrique :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value,'welcome');
 }
 async function catalogue(e,u,filter='all',page=0){
  const condition=filter==='free'?' AND price_xof=0':filter==='premium'?' AND price_xof>0':'';
@@ -52,8 +95,8 @@ async function showProduct(e,u,pid){
  if(!access&&p.price_xof>0)for(const c of cs)buttons.push([cb(`🎁 Gratuit : ${c.target} invitations`,`c:${c.id}`)]);
  buttons.push(home);
  const price=p.price_xof===0?'Gratuit':`${p.price_xof.toLocaleString('fr-FR')} FCFA (tarif boutique web indépendante)`;
- const caption=`${p.title}\n${p.category} • ${price}\n\n${p.description}${access?'\n\n✅ Dans votre bibliothèque.':''}`.slice(0,1000);
- return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id);
+ const caption=(''+p.title+'\n'+p.category+'\n\n💰 Prix : '+price+'\n'+(!access&&p.price_xof>0&&cs.length?'🎁 Accès par parrainage disponible\n':'')+'\n'+p.description+(access?'\n\n✅ Dans votre bibliothèque.':'')).slice(0,1000);
+ return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id,'product');
 }
 async function sendPDF(e,u,pid){
  const p=await product(e,pid);if(!p)return send(e,u,'Produit introuvable.',[home]);
@@ -61,7 +104,7 @@ async function sendPDF(e,u,pid){
  if(!access)return send(e,u,'🔒 Ce produit n’est pas encore débloqué.',[[cb('Voir le produit',`p:${pid}`)],home]);
  if(!p.file_id)return send(e,u,'Fichier temporairement indisponible. Votre accès est conservé.',[home]);
  let result;
- try{result=await tg(e,'sendDocument',{chat_id:u,document:p.file_id,caption:p.title,protect_content:p.price_xof>0});}
+ try{result=await tg(e,'sendDocument',{chat_id:u,document:p.file_id,caption:'📥 '+p.title+'\n\n✅ Accès enregistré dans votre bibliothèque.\nBonne lecture !',protect_content:p.price_xof>0});}
  catch(err){if(err.status!==400)throw err;return send(e,u,'Fichier temporairement indisponible. Votre accès est conservé.',[home]);}
  await run(e.DB,'INSERT OR IGNORE INTO deliveries(user_id,product_id,delivered_at) VALUES (?,?,?)',u,pid,now());
  return result;
@@ -275,7 +318,7 @@ async function wizMenu(e,u){
 async function wizPrompt(e,u,d){
  const steps=wizSteps(d),n=steps.indexOf(d.step)+1;
  const prefix='🎓 '+(d.edit?'Modifier la formation':'Nouvelle formation')+' — étape '+n+'/'+steps.length+'\n\n';
- const say=(t,b=[])=>send(e,u,prefix+t,wizButtons(d,b));
+ const say=(t,b=[])=>send(e,u,prefix+t,wizButtons(d,b),'wizard');
  switch(d.step){
  case 'title':return say('Quel est le titre de la formation ? Envoyez-le en message.'+(d.title?'\nActuel : '+d.title:''));
  case 'category':return say('Choisissez une catégorie ou écrivez votre propre catégorie.'+(d.category?'\nActuelle : '+d.category:''),wizardCategories.map((c,i)=>[cb(c,wizAction(d,'cat'+i))]));
@@ -291,7 +334,7 @@ async function wizPrompt(e,u,d){
  case 'hold':return say('Durée minimale d’abonnement avant validation ? Envoyez un nombre entier d’heures de 0 à 168.',[[cb('24 h (recommandé)',wizAction(d,'h24')),cb('0 h (test)',wizAction(d,'h0'))]]);
  case 'review':{
   const caption='✅ Aperçu avant publication\n\n'+d.title+'\n'+d.category+'\n'+(d.price===0?'Gratuit':d.price.toLocaleString('fr-FR')+' FCFA')+'\n\n'+(d.description||'Sans description')+'\n\n📎 '+d.filename+(d.price>0?'\n\nBoutique web : '+(d.shop?'lien enregistré':'aucun lien')+'\nParrainage : '+(d.access==='new'?d.target+' nouveaux abonnés • '+d.hold+' h • '+d.channel.title+' ('+d.kind+')':'pas de nouvelle campagne'):'');
-  return photo(e,u,caption.slice(0,1000),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),null,d.cover);
+  return photo(e,u,caption.slice(0,1000),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),null,d.cover,'wizard');
  }
  }
 }
@@ -476,5 +519,5 @@ export async function handleWebhook(request,e){
  try{await dispatch(e,update);await run(e.DB,"UPDATE updates SET state='done' WHERE id=?",uid);return new Response('OK');}
  catch(err){console.error('Update failed',uid,err.message);await run(e.DB,'UPDATE updates SET lease_until=0 WHERE id=?',uid);return new Response('Retry',{status:503});}
 }
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.3.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.3.1',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
 export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel};
