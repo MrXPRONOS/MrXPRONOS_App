@@ -172,13 +172,69 @@ async function campaigns(e,u,onlyMine=false){
  return send(e,u,cs.length?'🎁 Choisissez une campagne.':'Aucune campagne disponible.',[...cs.map(c=>[cb(`${c.title.slice(0,42)} · ${c.target}`,`c:${c.id}`)]),home]);
 }
 async function counts(e,c,u){const r=await all(e.DB,'SELECT state,COUNT(*) n FROM referrals WHERE campaign_id=? AND owner_id=? GROUP BY state',c,u);return Object.fromEntries(r.map(x=>[x.state,Number(x.n)]));}
+
+// Share a ready-to-send referral post, never a Premium file.
+// The owner is always obtained from Telegram, not from the inline query text.
+function referralCaption(p,c,link){
+ const clean=s=>String(s||'').replace(/[\r\n\t]+/g,' ').replace(/\s+/g,' ').trim();
+ const short=(s,n)=>{const a=Array.from(clean(s));return a.length>n?a.slice(0,n-1).join('')+'…':a.join('');};
+ const title=short(p.title,110);
+ const desc=short(clean(p.description).split(/(?<=[.!?])\s/)[0],115);
+ const lines=['🎁 '+title,desc||'Découvrez cette ressource MR X ACADEMY.','Je participe au parrainage ('+c.target+' nouveaux abonnés validés).','Rejoignez le canal via mon lien personnel :',link];
+ return lines.join('\n');
+}
+async function referralPost(e,u,cid){
+ const c=await campaign(e,cid);if(!c?.active||!c.product_active)return null;
+ const p=await product(e,c.product_id);if(!p?.active)return null;
+ const l=await row(e.DB,'SELECT invite_link FROM links WHERE campaign_id=? AND owner_id=?',cid,u);
+ if(!l||!validJoinURL(l.invite_link))return null;
+ if(!await getMember(e,c.channel_id,u))return null;
+ const caption=referralCaption(p,c,l.invite_link);
+ return {p,c,caption,link:l.invite_link,buttons:[[urlButton('🚀 Rejoindre le canal',l.invite_link)]]};
+}
+async function referralShare(e,u,cid){
+ const x=await referralPost(e,u,cid);if(!x)return send(e,u,'Créez votre lien personnel et rejoignez le canal avant de partager.',[[cb('Voir la campagne','c:'+cid)]]);
+ await photo(e,u,x.caption,x.buttons,null,x.p.cover_file_id,'product');
+ const me=await tg(e,'getMe',{});
+ const b=[];
+ if(me.supports_inline_queries)b.push([{text:'📤 Partager la publication',switch_inline_query:'ref_'+cid}]);
+ b.push([urlButton('Partager le texte et le lien','https://t.me/share/url?url='+encodeURIComponent(x.link)+'&text='+encodeURIComponent(x.caption.split('\n').slice(0,-1).join('\n')))]);
+ b.push([cb('⬅ Mes invitations','c:'+cid)]);
+ return send(e,u,'✅ Votre publication est prête !\n\n'+(me.supports_inline_queries?'Choisissez Partager la publication, sélectionnez une conversation puis touchez le résultat proposé.':'Transférez la publication ci-dessus ou partagez son texte et son lien.')+'\n\nPartagez uniquement avec des personnes intéressées. Évitez le spam.',b);
+}
+async function referralInline(e,q){
+ if(!q?.id||!q.from||q.from.is_bot)return;
+ const u=id(q.from.id),match=String(q.query||'').trim().match(/^ref_([a-z0-9_-]{1,24})$/);
+ let results=[];
+ if(match){
+  const x=await referralPost(e,u,match[1]);
+  if(x){
+   const base={id:'ref_'+match[1],title:'Partager '+x.p.title.slice(0,60),description:'Publication avec votre lien personnel',reply_markup:{inline_keyboard:x.buttons}};
+   results=x.p.cover_file_id?[{...base,type:'photo',photo_file_id:x.p.cover_file_id,caption:x.caption,caption_entities:formatTelegram(x.caption,'product')}]:[{...base,type:'article',input_message_content:{message_text:x.caption,entities:formatTelegram(x.caption,'product'),link_preview_options:{is_disabled:true}}}];
+  }
+ }
+ return tg(e,'answerInlineQuery',{inline_query_id:q.id,results,cache_time:0,is_personal:true});
+}
+async function enableReferralInline(e,u){
+ if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
+ const me=await tg(e,'getMe',{});
+ if(!me.supports_inline_queries)return send(e,u,'Activez d’abord /setinline dans @BotFather pour MR X ACADEMY, puis revenez ici.',[[cb('Réessayer','ri:enable')],[cb('Administration','aw:menu')]]);
+ const info=await tg(e,'getWebhookInfo',{});
+ const expected='https://mr-x-academy-bot.ananiolivier44.workers.dev/telegram/webhook';
+ if(info.url!==expected||!e.WEBHOOK_SECRET)return send(e,u,'Webhook inattendu. Aucun changement effectué.');
+ const updates=[...new Set([...(info.allowed_updates||[]),'message','callback_query','chat_member','my_chat_member','channel_post','inline_query'])];
+ await tg(e,'setWebhook',{url:expected,secret_token:e.WEBHOOK_SECRET,allowed_updates:updates,max_connections:info.max_connections||1,drop_pending_updates:false});
+ const verify=await tg(e,'getWebhookInfo',{});
+ return send(e,u,verify.allowed_updates?.includes('inline_query')?'✅ Partage natif activé. Les publications personnalisées peuvent être envoyées dans les conversations.':'Activation non confirmée. Réessayez.',[[cb('Administration','aw:menu')]]);
+}
+
 async function showCampaign(e,u,cid){
  const c=await campaign(e,cid);if(!c?.active||!c.product_active)return send(e,u,'Campagne indisponible.',[home]);
  if(await entitlement(e,u,c.product_id))return send(e,u,'✅ Vous disposez déjà de ce produit.',[[cb('📥 Télécharger',`get:${c.product_id}`)],home]);
  if(!await getMember(e,c.channel_id,u))return send(e,u,'Rejoignez le canal pour participer, puis vérifiez votre abonnement.',[[urlButton('Rejoindre le canal',c.channel_url)],[cb('✅ Vérifier mon abonnement',`c:${cid}`)],home]);
  const link=await row(e.DB,'SELECT invite_link FROM links WHERE campaign_id=? AND owner_id=?',cid,u);
  const n=await counts(e,cid,u),v=n.valid||0;
- const b=[];if(link){b.push([urlButton('📤 Partager mon lien',`https://t.me/share/url?url=${encodeURIComponent(link.invite_link)}&text=${encodeURIComponent('Découvrez les ressources de MR X ACADEMY !')}`)]);b.push([cb('🔄 Actualiser',`check:${cid}`)]);}else b.push([cb('🔗 Créer mon lien personnel',`link:${cid}`)]);
+ const b=[];if(link){b.push([cb('📣 Ma publication à partager','rshare:'+cid)]);b.push([cb('🔄 Actualiser',`check:${cid}`)]);}else b.push([cb('🔗 Créer mon lien personnel',`link:${cid}`)]);
  b.push([cb('🎁 Vérifier et obtenir la récompense',`claim:${cid}`)],home);
  return send(e,u,`🎁 ${c.title}\n\n${'🟩'.repeat(Math.min(v,c.target))}${'⬜'.repeat(Math.max(0,c.target-v))}\n${v}/${c.target} validées • ${n.pending||0} en attente\n\nInvitez de nouveaux abonnés réellement intéressés. Un compte ne compte qu’une fois par canal. Délai de validation : ${c.hold_seconds/3600} h. Aucun pari, dépôt ou achat obligatoire. Pas de spam.${link?'\n\nVotre lien personnel :\n'+link.invite_link:''}`,b);
 }
@@ -193,7 +249,7 @@ async function makeLink(e,u,cid){
   link=await row(e.DB,'SELECT * FROM links WHERE campaign_id=? AND owner_id=?',cid,u);
   if(link.invite_link!==made.invite_link)await tg(e,'revokeChatInviteLink',{chat_id:c.channel_id,invite_link:made.invite_link});
  }
- return showCampaign(e,u,cid);
+ await showCampaign(e,u,cid);return referralShare(e,u,cid);
 }
 // An observed membership event is authoritative only for the exact channel and its own invite link.
 // A previously observed member, even after leaving, cannot be credited again.
@@ -367,7 +423,7 @@ async function wizMenu(e,u){
  const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);}
  return send(e,u,'⚙️ Administration • MR X ACADEMY\n\nChoisissez une action.',[
  [cb(d?'▶ Reprendre la création':'➕ Nouvelle formation',d?'aw:resume':'aw:new')],
- [cb('📚 Gérer les formations','aw:list:0')],[cb('📣 Promouvoir les produits','ad:menu')],[cb('📊 Statistiques','aw:stats')],home]);
+ [cb('📚 Gérer les formations','aw:list:0')],[cb('📣 Promouvoir les produits','ad:menu')],[cb('🔗 Activer le partage natif','ri:enable')],[cb('📊 Statistiques','aw:stats')],home]);
 }
 async function wizPrompt(e,u,d){
  const steps=wizSteps(d),n=steps.indexOf(d.step)+1;
@@ -695,6 +751,7 @@ async function promoMessage(e,u,d,m){
 }
 
 async function dispatch(e,update){
+ if(update.inline_query)return referralInline(e,update.inline_query);
  if(update.chat_member)return membershipEvent(e,update);
  if(update.channel_post)return storagePost(e,update.channel_post);
  const q=update.callback_query,m=q?.message||update.message;if(!m||m.chat?.type!=='private')return;
@@ -702,6 +759,7 @@ async function dispatch(e,update){
  const u=id(from.id);await touch(e,u);
  if(q){try{await tg(e,'answerCallbackQuery',{callback_query_id:q.id});}catch(err){if(err.status!==400)throw err;}}
  let action=q?.data||m.text||m.caption||'';
+ if(q&&action==='ri:enable')return enableReferralInline(e,u);
  if(q&&action.startsWith('ad:'))return promoAction(e,u,action);
  if(q&&action.startsWith('aw:')){if(admins(e).has(u)){const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);}}return wizardCallback(e,u,action);}
  if(!q&&admins(e).has(u)&&(!action.startsWith('/')||(!m.text&&!!readAsset(m)))){const ad=await promoRead(e,u);if(ad&&!ad.paused)return promoMessage(e,u,ad,m);const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
@@ -726,7 +784,7 @@ async function dispatch(e,update){
  if(v[0]==='lib'&&/^\d{1,3}$/.test(v[1]||''))return library(e,u,Number(v[1]));
  if(v.length===3&&slug(v[1])&&/^\d{1,3}$/.test(v[2])){if(v[0]==='asset'||v[0]==='assets')return resourceAction(e,u,v[1],Number(v[2]),v[0]==='assets');if(['atest','apage'].includes(v[0])&&admins(e).has(u)){const p=await product(e,v[1]);if(!p)return;const assets=await productAssets(e,p);if(v[0]==='apage')return adminResourceMenu(e,u,p,assets,Number(v[2]));const a=assets[Number(v[2])];if(a)return sendAsset(e,u,a,'Test administrateur — '+a.name,true);}}
  if(v.length===2&&slug(v[1])){
-  if(v[0]==='p')return showProduct(e,u,v[1]);if(v[0]==='get')return sendPDF(e,u,v[1]);if(v[0]==='c')return showCampaign(e,u,v[1]);if(v[0]==='link')return makeLink(e,u,v[1]);if(v[0]==='check')return refresh(e,u,v[1]);if(v[0]==='claim')return claim(e,u,v[1]);
+  if(v[0]==='rshare')return referralShare(e,u,v[1]);if(v[0]==='p')return showProduct(e,u,v[1]);if(v[0]==='get')return sendPDF(e,u,v[1]);if(v[0]==='c')return showCampaign(e,u,v[1]);if(v[0]==='link')return makeLink(e,u,v[1]);if(v[0]==='check')return refresh(e,u,v[1]);if(v[0]==='claim')return claim(e,u,v[1]);
  }
  return help(e,u);
 }
@@ -831,5 +889,5 @@ async function handleAcademyImport(request,e,p){
  finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
 }
 
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.4.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
-export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.4.1',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline};
