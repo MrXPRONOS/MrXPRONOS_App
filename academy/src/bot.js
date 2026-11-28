@@ -173,7 +173,7 @@ async function campaigns(e,u,onlyMine=false){
 }
 
 // V1.6 — self-composed bundles. Each contact is unique per pack AND reserved per product.
-const packQuote=targets=>{const original=targets.reduce((a,b)=>a+b,0);return {original,target:Math.ceil(original*0.8),saved:original-Math.ceil(original*0.8)};};
+const packQuote=targets=>{const original=targets.reduce((a,b)=>a+b,0),target=Math.ceil(original*4/5);return {original,target,saved:original-target};};
 const packRow=(e,pid)=>row(e.DB,'SELECT * FROM referral_packs WHERE id=?',pid);
 const packItems=(e,pid)=>all(e.DB,'SELECT i.*,p.title,p.description,p.active,p.cover_file_id,p.price_xof,c.active campaign_active,c.channel_id,c.channel_url FROM referral_pack_items i JOIN products p ON p.id=i.product_id JOIN campaigns c ON c.id=i.campaign_id AND c.product_id=i.product_id WHERE i.pack_id=? ORDER BY i.position',pid);
 const packCount=async(e,pid)=>Number((await row(e.DB,'SELECT COUNT(*) n FROM referral_pack_visits WHERE pack_id=?',pid))?.n||0);
@@ -262,7 +262,7 @@ async function packInline(e,q,pid){
 async function packClaim(e,u,pid){
  const p=await packRow(e,pid);if(!p||p.owner_id!==u)return send(e,u,'Pack introuvable.',[home]);
  const items=await packItems(e,pid);
- if(!packReady(items)||await packCount(e,pid)<p.target)return packDashboard(e,u,pid);
+ if(!packReady(items)||await packCount(e,pid)<p.target)return packDashboard(e,u,pid);if((await Promise.all(items.map(x=>entitlement(e,u,x.product_id)))).every(Boolean))return packDashboard(e,u,pid);
  const channels=new Map();for(const x of items)if(!await entitlement(e,u,x.product_id))channels.set(x.channel_id,x.channel_url);
  const missing=[];for(const [cid,url] of channels){try{if(!await getMember(e,cid,u))missing.push(url);}catch{return send(e,u,'Vérification d’un canal temporairement indisponible.',[[cb('Réessayer','pk:claim:'+pid)]]);}}
  if(missing.length)return send(e,u,'📢 Rejoignez les canaux requis avant de recevoir le pack.',[...missing.map((url,j)=>[urlButton('Rejoindre le canal '+(j+1),url)]),[cb('✅ Vérifier et recevoir','pk:claim:'+pid)],[cb('⬅ Mon pack','pk:view:'+pid)]]);
@@ -284,20 +284,20 @@ async function packAction(e,u,action){
  const [,a,v,w]=action.split(':');
  if(a==='select'||a==='dash')return (a==='select'?packOptions:personalDashboard)(e,u,/^\d{1,3}$/.test(v||'')?Number(v):0);
  if(a==='reset'){await saveSelection(e,u,[]);return packOptions(e,u);}
- if(a==='toggle'&&slug(v)){const s=await packSelection(e,u),x=await campaign(e,v),p=x?await product(e,x.product_id):null;if(s.includes(v))await saveSelection(e,u,s.filter(z=>z!==v));else if(s.length<5&&x?.active&&p?.active&&p.price_xof>0&&!await entitlement(e,u,p.id)){await saveSelection(e,u,[...s,v]);}else return send(e,u,'Sélection indisponible ou maximum de cinq formations.',[[cb('Retour','pk:select:0')]]);return packOptions(e,u,/^\d{1,3}$/.test(w||'')?Number(w):0);}
+ if(a==='toggle'&&slug(v)){const s=await packSelection(e,u),x=await campaign(e,v),p=x?await product(e,x.product_id):null;if(s.includes(v))await saveSelection(e,u,s.filter(z=>z!==v));else if(s.length<5&&x?.active&&p?.active&&p.price_xof>0&&!await entitlement(e,u,p.id)){const keep=[];for(const old of s){const q=await campaign(e,old);if(q?.product_id!==p.id)keep.push(old);}await saveSelection(e,u,[...keep,v]);}else return send(e,u,'Sélection indisponible ou maximum de cinq formations.',[[cb('Retour','pk:select:0')]]);return packOptions(e,u,/^\d{1,3}$/.test(w||'')?Number(w):0);}
  if(a==='create')return createPack(e,u,await packSelection(e,u));
  if(!slug(v))return personalDashboard(e,u);
  if(a==='view')return packDashboard(e,u,v);if(a==='share')return packShare(e,u,v);if(a==='claim')return packClaim(e,u,v);
- if(a==='copy'){const items=await packItems(e,v);if(!packReady(items))return send(e,u,'Pack indisponible.',[home]);return createPack(e,u,items.map(x=>x.campaign_id));}
+ if(a==='copy'){const items=await packItems(e,v);if(!packReady(items))return send(e,u,'Pack indisponible.',[home]);const selected=[];for(const x of items)if(!await entitlement(e,u,x.product_id))selected.push(x.campaign_id);await saveSelection(e,u,selected);return packOptions(e,u);}
  return personalDashboard(e,u);
 }
 async function detailedStats(e,u,kind,page=0){
  if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
  const byChannel=kind==='channels';
- const q=byChannel?"SELECT c.channel_id label,COUNT(DISTINCT c.id) campaigns,(SELECT COUNT(*) FROM discovery_visits d JOIN campaigns dc ON dc.id=d.campaign_id WHERE dc.channel_id=c.channel_id AND d.owner_id IS NOT NULL) contacts,(SELECT COUNT(DISTINCT i.pack_id) FROM referral_pack_items i JOIN campaigns pc ON pc.id=i.campaign_id WHERE pc.channel_id=c.channel_id) packs FROM campaigns c GROUP BY c.channel_id ORDER BY contacts DESC,label LIMIT 9 OFFSET ?":"SELECT p.title label,(SELECT COUNT(*) FROM campaigns c WHERE c.product_id=p.id) campaigns,(SELECT COUNT(*) FROM discovery_visits d WHERE d.product_id=p.id AND d.owner_id IS NOT NULL) contacts,(SELECT COUNT(*) FROM referral_pack_items i WHERE i.product_id=p.id) packs,(SELECT COUNT(*) FROM entitlements t WHERE t.product_id=p.id) acquired FROM products p ORDER BY contacts DESC,p.id LIMIT 9 OFFSET ?";
+ const q=byChannel?"SELECT c.channel_id label,COUNT(DISTINCT c.id) campaigns,(SELECT COUNT(*) FROM discovery_visits d JOIN campaigns dc ON dc.id=d.campaign_id WHERE dc.channel_id=c.channel_id AND d.owner_id IS NOT NULL) contacts,(SELECT COUNT(DISTINCT i.pack_id) FROM referral_pack_items i JOIN campaigns pc ON pc.id=i.campaign_id WHERE pc.channel_id=c.channel_id) packs,(SELECT COUNT(*) FROM referral_pack_visits v WHERE EXISTS(SELECT 1 FROM referral_pack_items i JOIN campaigns pc ON pc.id=i.campaign_id WHERE i.pack_id=v.pack_id AND pc.channel_id=c.channel_id)) pack_contacts FROM campaigns c GROUP BY c.channel_id ORDER BY contacts DESC,label LIMIT 9 OFFSET ?":"SELECT p.title label,(SELECT COUNT(*) FROM campaigns c WHERE c.product_id=p.id) campaigns,(SELECT COUNT(*) FROM discovery_visits d WHERE d.product_id=p.id AND d.owner_id IS NOT NULL) contacts,(SELECT COUNT(*) FROM referral_pack_items i WHERE i.product_id=p.id) packs,(SELECT COUNT(*) FROM referral_pack_visits v JOIN referral_pack_items i ON i.pack_id=v.pack_id WHERE i.product_id=p.id) pack_contacts,(SELECT COUNT(*) FROM entitlements t WHERE t.product_id=p.id) acquired FROM products p ORDER BY contacts DESC,p.id LIMIT 9 OFFSET ?";
  const a=await all(e.DB,q,page*8),b=[],nav=[];if(page>0)nav.push(cb('◀','st:'+kind+':'+(page-1)));if(a.length>8)nav.push(cb('▶','st:'+kind+':'+(page+1)));if(nav.length)b.push(nav);
  b.push([cb('⬅ Statistiques','aw:stats')]);
- return send(e,u,'📊 Statistiques par '+(byChannel?'canal':'formation')+'\n\n'+a.slice(0,8).map(x=>x.label+'\n'+x.contacts+' contacts individuels · '+x.campaigns+' campagnes · '+x.packs+' packs'+(!byChannel?' · '+x.acquired+' accès acquis':'')).join('\n\n'),b);
+ return send(e,u,'📊 Statistiques par '+(byChannel?'canal':'formation')+'\n\n'+a.slice(0,8).map(x=>x.label+'\n'+x.contacts+' contacts individuels · '+x.pack_contacts+' contacts de packs\n'+x.campaigns+' campagnes · '+x.packs+' packs'+(!byChannel?' · '+x.acquired+' accès acquis':'')).join('\n\n'),b);
 }
 
 async function counts(e,c,u){const r=await all(e.DB,'SELECT state,COUNT(*) n FROM referrals WHERE campaign_id=? AND owner_id=? GROUP BY state',c,u);return Object.fromEntries(r.map(x=>[x.state,Number(x.n)]));}
@@ -452,8 +452,8 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
  if(cmd==='admin'){
   if(!statsOnly)return wizMenu(e,u);
-  const s=await row(e.DB,`SELECT (SELECT COUNT(*) FROM users) users,(SELECT COUNT(*) FROM products) products,(SELECT COUNT(*) FROM discovery_visits WHERE owner_id IS NOT NULL) valid,(SELECT COUNT(*) FROM referral_packs) packs,(SELECT COUNT(*) FROM referral_pack_visits) pack_contacts,(SELECT COUNT(*) FROM entitlements WHERE source='referral') rewards,(SELECT COUNT(*) FROM entitlements WHERE source='purchase') purchases,(SELECT COUNT(*) FROM deliveries) deliveries`);
-  return send(e,u,`ADMIN • MR X ACADEMY\nUtilisateurs : ${s.users}\nProduits : ${s.products}\nContacts individuels : ${s.valid}\nPacks : ${s.packs}\nContacts de packs : ${s.pack_contacts}\nRécompenses : ${s.rewards}\nAchats validés : ${s.purchases}\nLivraisons uniques : ${s.deliveries}`,[[cb('Par formation','st:products:0'),cb('Par canal','st:channels:0')],[cb('⬅ Administration','aw:menu')]]);
+  const s=await row(e.DB,`SELECT (SELECT COUNT(*) FROM users) users,(SELECT COUNT(*) FROM products) products,(SELECT COUNT(*) FROM discovery_visits WHERE owner_id IS NOT NULL) valid,(SELECT COUNT(*) FROM referral_packs) packs,(SELECT COUNT(*) FROM referral_pack_visits) pack_contacts,(SELECT COUNT(DISTINCT visitor_id) FROM (SELECT visitor_id FROM discovery_visits WHERE owner_id IS NOT NULL UNION SELECT visitor_id FROM referral_pack_visits)) distinct_contacts,(SELECT COUNT(*) FROM entitlements WHERE source='referral') rewards,(SELECT COUNT(*) FROM entitlements WHERE source='purchase') purchases,(SELECT COUNT(*) FROM deliveries) deliveries`);
+  return send(e,u,`ADMIN • MR X ACADEMY\nUtilisateurs : ${s.users}\nProduits : ${s.products}\nContacts individuels : ${s.valid}\nPacks : ${s.packs}\nContacts de packs : ${s.pack_contacts}\nContacts uniques (tous produits) : ${s.distinct_contacts}\nRécompenses : ${s.rewards}\nAchats validés : ${s.purchases}\nLivraisons uniques : ${s.deliveries}`,[[cb('Par formation','st:products:0'),cb('Par canal','st:channels:0')],[cb('⬅ Administration','aw:menu')]]);
  }
  if(cmd==='product'){
   const p=JSON.parse(arg);if(!slug(p.id)||typeof p.title!=='string'||!p.title.trim()||p.title.length>120||typeof p.category!=='string'||p.category.length>60||typeof p.description!=='string'||p.description.length>650||!Number.isSafeInteger(p.price_xof)||p.price_xof<0||p.price_xof>100000000)throw new Error('Invalid product');
