@@ -1,4 +1,4 @@
-# MR X ACADEMY — Bot V1.2
+# MR X ACADEMY — Bot V1.3
 
 Module autonome du dépôt `MrXPRONOS/MrXPRONOS_App`, dossier `academy/`. Worker `mr-x-academy-bot`, compte Cloudflare Personnel de Ciné Radar, base D1 `mr-x-academy`. Aucun PDF ni secret dans le dépôt public. Aucun R2 requis. Mini App et synchronisation Ficsell hors périmètre V1.
 
@@ -77,3 +77,7 @@ Limites : Telegram n'a pas d'historique exhaustif des anciens membres avant l'in
 ## Assistant de création V1.2
 
 En privé, `/admin` ou bouton Administration → Nouvelle formation. Sept étapes : titre, catégorie, prix (0 = gratuit), description optionnelle (0 ou bouton), couverture (photo), PDF, aperçu. Publier ou garder en brouillon. Pause, retour, annulation et reprise possibles. Le bot doit pouvoir publier dans le canal privé de stockage : les fichiers sont automatiquement archivés. Gérer les formations permet de compléter/modifier les deux produits initiaux, conserver les valeurs existantes, tester le PDF, publier ou masquer. Les anciennes commandes restent disponibles. Pour modifier le prix d'un produit déjà publié, le masquer d'abord. Les campagnes restent configurées avec /campaign. Les fichiers déjà archivés restent dans le canal après annulation. Aucun changement de secrets requis.
+
+## Premium V1.3
+
+Les livres payants ajoutent les étapes : URL HTTPS de la boutique web indépendante (facultative, visible à l'administrateur seulement), nouvelle campagne ou conservation des campagnes existantes, canal public/privé, sélection Telegram ou transfert d'une publication ou ID numérique/lien de publication, objectif 1–20 nouveaux abonnés et délai 0–168 h. Le bot vérifie ses droits d'invitation, refuse le canal de stockage et génère son propre lien d'entrée privé. Les participants reçoivent chacun leur lien individuel. Le menu Gérer les formations → Gérer les campagnes affiche le lien du bot à publier dans le canal, les statistiques et permet l'arrêt explicite. Les droits acquis restent en bibliothèque. Une adhésion ne compte qu'une fois par canal, y compris entre campagnes. Les anciennes campagnes ne sont pas supprimées par une nouvelle. Le lien Ficsell n'est pas un bouton de paiement Telegram : achat indépendant et validation manuelle /grant ; Telegram Stars non implémenté. Les fichiers restent protégés selon les droits existants. Aucun secret ni migration supplémentaire.
