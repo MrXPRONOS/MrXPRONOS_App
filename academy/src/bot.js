@@ -40,7 +40,7 @@ export function formatTelegram(text,style='auto'){
    add('bold',at,n);continue;
   }
   if(/^(?:Apprendre\. Appliquer\. Réussir\.|Invitez des contacts réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
-  if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
+  if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|📖 Présentation détaillée|Programme :|Objectifs :|Prérequis :|Public visé :|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
    const colon=line.indexOf(':');add('underline',at,colon>=0?colon+1:line.length);continue;
   }
   if(/^(?:\d+\/\d+ contacts qualifiés|(?:💰 |🏷️ )?Prix :|(?:🆓 )?Gratuit$|✅ Dans votre bibliothèque|✅ Accès|📎 |🎁 Campagne :|🎁 Accès par parrainage|🎁 0 FCFA)/u.test(line)){add('bold',at,line.length);continue;}
@@ -492,7 +492,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
   return send(e,u,`ADMIN • MR X ACADEMY\nUtilisateurs : ${s.users}\nProduits : ${s.products}\nContacts individuels : ${s.valid}\nPacks : ${s.packs}\nContacts de packs : ${s.pack_contacts}\nContacts uniques (tous produits) : ${s.distinct_contacts}\nRécompenses : ${s.rewards}\nAchats validés : ${s.purchases}\nLivraisons uniques : ${s.deliveries}`,[[cb('Par formation','st:products:0'),cb('Par canal','st:channels:0')],[cb('⬅ Administration','aw:menu')]]);
  }
  if(cmd==='product'){
-  const p=JSON.parse(arg);if(!slug(p.id)||typeof p.title!=='string'||!p.title.trim()||p.title.length>120||typeof p.category!=='string'||p.category.length>60||typeof p.description!=='string'||p.description.length>650||!Number.isSafeInteger(p.price_xof)||p.price_xof<0||p.price_xof>100000000)throw new Error('Invalid product');
+  const p=JSON.parse(arg);if(!slug(p.id)||typeof p.title!=='string'||!p.title.trim()||p.title.length>120||typeof p.category!=='string'||p.category.length>60||typeof p.description!=='string'||p.description.length>3200||!Number.isSafeInteger(p.price_xof)||p.price_xof<0||p.price_xof>100000000)throw new Error('Invalid product');
   const old=await product(e,p.id);if(old&&old.price_xof!==p.price_xof&&old.active)throw new Error('Unpublish first');
   await run(e.DB,`INSERT INTO products(id,title,category,description,price_xof,filename) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,category=excluded.category,description=excluded.description,price_xof=excluded.price_xof`,p.id,p.title,p.category,p.description,p.price_xof,`${p.id}.pdf`);await audit(e,u,'product',p.id);return send(e,u,'Produit enregistré. Ajoutez le PDF puis /publish '+p.id);
  }
@@ -516,7 +516,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  }
  if(cmd==='publish'||cmd==='unpublish'){
   if(!slug(arg))throw new Error('Invalid product');const p=await product(e,arg);if(!p)throw new Error('Unknown product');
-  if(cmd==='publish'&&(!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,p.id)).length))throw new Error('Missing resources or referral campaign');
+  if(cmd==='publish'&&(!(await productAssets(e,p)).length||!(await activeCampaigns(e,p.id)).length))throw new Error('Missing resources or referral campaign');
   await run(e.DB,'UPDATE products SET active=? WHERE id=?',cmd==='publish'?1:0,arg);await audit(e,u,cmd,arg);return send(e,u,'Statut modifié : '+arg);
  }
  if(cmd==='campaignoff'){
@@ -599,7 +599,7 @@ async function wizPrompt(e,u,d){
  case 'cover':return say('Envoyez la photo de couverture dans cette conversation (en tant que photo Telegram).');
  case 'pdf':{const a=draftAssets(d);return say('Envoyez les ressources une par une : documents (PDF, ZIP, RAR, etc.), vidéos, audios, images ou liens HTTPS.\n\n'+a.length+' / 100 ressources enregistrées.\n'+a.slice(-5).map((x,i)=> (assetIcons[x.kind]||'📎')+' '+x.name).join('\n')+'\n\nCliquez sur Terminer lorsque tout est ajouté.',[...(a.length?[[cb('✅ Terminer les ressources',wizAction(d,'done_assets'))],[cb('↩ Retirer la dernière',wizAction(d,'remove_asset'))],[cb('🗑 Vider la liste',wizAction(d,'clear_assets'))]]:[])]);}
  case 'shop':return say('Envoyez le lien HTTPS de la fiche de vente sur votre boutique web indépendante (Ficsell, etc.) ou passez cette étape. Il sera conservé pour votre administration et futur catalogue web, pas utilisé comme paiement dans Telegram.'+(d.shop?'\nActuel : '+d.shop:''),[[cb('⏭ Sans lien',wizAction(d,'skip'))],...(d.shop?[[cb('✓ Conserver le lien',wizAction(d,'keep_shop'))]]:[])]);
- case 'access':return say('Configurez l’accès gratuit. Créez une campagne de recommandation ou conservez les conditions existantes.'+(d.price===0&&!d.edit?' Vous pouvez aussi offrir un accès direct sans condition.':''),[[cb('🎁 Gratuit par recommandation',wizAction(d,'new_campaign'))],...(d.edit?[[cb('✓ Conserver les conditions',wizAction(d,'keep_campaign'))]]:[]),...(d.price===0&&!d.edit?[[cb('🆓 Accès direct sans condition',wizAction(d,'keep_campaign'))]]:[])]);
+ case 'access':return say('Configurez l’accès gratuit par recommandation. Une campagne active est nécessaire pour publier une formation complète.',[[cb('🎁 Créer une campagne',wizAction(d,'new_campaign'))],[cb(d.edit?'✓ Conserver les conditions existantes':'💾 Configurer plus tard (brouillon)',wizAction(d,'keep_campaign'))]]);
  case 'channeltype':return say('Quel type de canal devra être rejoint pour débloquer le produit ?',[[cb('🌐 Canal public',wizAction(d,'public'))],[cb('🔒 Canal privé',wizAction(d,'private'))]]);
  case 'channel':return say('Ajoutez le bot comme administrateur du canal cible avec le droit Inviter. Sélectionnez ensuite le canal dans Telegram, transférez une publication, ou envoyez @username / lien public / ID -100… / lien t.me/c/… . Le canal de stockage est interdit.',[[cb('📢 Sélectionner le canal',wizAction(d,'picker'))]]);
  case 'target':return say('Combien de contacts qualifiés sont nécessaires ? Recommandé : 5. Envoyez un nombre de 1 à 20.',[[cb('5',wizAction(d,'n5')),cb('10',wizAction(d,'n10')),cb('15',wizAction(d,'n15')),cb('20',wizAction(d,'n20'))]]);
@@ -659,7 +659,7 @@ async function wizardCallback(e,u,action){
   }
   if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return adminResourceMenu(e,u,p,a);}
   if(v[1]==='hide'||v[1]==='show'){
-   if(v[1]==='show'&&(!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,p.id)).length))return send(e,u,'Ressource ou campagne de recommandation manquante.');
+   if(v[1]==='show'&&(!(await productAssets(e,p)).length||!(await activeCampaigns(e,p.id)).length))return send(e,u,'Ressource ou campagne de recommandation manquante.');
    await run(e.DB,'UPDATE products SET active=? WHERE id=?',v[1]==='show'?1:0,p.id);
    await audit(e,u,'wizard_'+v[1],p.id);return wizProduct(e,u,p.id);
   }
@@ -686,7 +686,7 @@ async function wizardCallback(e,u,action){
   if(d.access==='new')d.hold=0;
   if(!d.title||!d.category||!Number.isSafeInteger(d.price)||d.price<0||!d.cover||!draftAssets(d).length||!d.filename)return send(e,u,'Brouillon incomplet.',[[cb('Reprendre','aw:resume')]]);
   const active=a==='publish'?1:0;
-  if(active&&(d.price>0||await hasCampaign(e,d.id))&&d.access!=='new'&&!(await activeCampaigns(e,d.id)).length)return send(e,u,'Configurez une campagne de recommandation avant de publier.',[[cb('⬅ Retour',wizAction(d,'back'))]]);
+  if(active&&d.access!=='new'&&!(await activeCampaigns(e,d.id)).length)return send(e,u,'Configurez une campagne de recommandation avant de publier.',[[cb('⬅ Retour',wizAction(d,'back'))]]);
   const existing=d.edit?await product(e,d.id):null;
   if(d.edit&&!existing)return send(e,u,'Produit introuvable.',[[cb('Administration','aw:menu')]]);
   if(existing&&existing.price_xof!==d.price&&existing.active)return send(e,u,'Masquez d’abord ce produit pour modifier son prix, puis reprenez le brouillon.',[[cb('Administration','aw:menu')]]);
@@ -848,7 +848,6 @@ async function genericPromoMessage(e,u,d,m){
 
 async function promoMenu(e,u){
  const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}
- const cs=await all(e.DB,"SELECT id,target FROM campaigns WHERE product_id='masterclass' AND active=1 ORDER BY id LIMIT 20");
  const d=await promoRead(e,u);
  return send(e,u,'📣 Promouvoir les produits\n\nChoisissez une formation complète à promouvoir. Aucun envoi sans confirmation.',[...(d?[[cb('▶ Reprendre la promotion','ad:resume')],[cb('❌ Annuler la promotion','ad:cancel')]]:[[cb('📦 Choisir un produit','ad:page:0')]]),[cb('⬅ Administration','aw:menu')]]);
 }
@@ -880,12 +879,7 @@ async function promoAction(e,u,action){
  const [,a,v]=action.split(':');
  if(a==='page'&&/^\d{1,3}$/.test(v||''))return promoProducts(e,u,Number(v));
  if(a==='item'&&slug(v)){if(await promoRead(e,u))return promoMenu(e,u);if(!await genericPromoProduct(e,v))return send(e,u,'Produit non publié ou sans ressources.');const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}const d={pid:v,nonce:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'destination'};await promoSave(e,u,d);return genericPromoShow(e,u,d);}
- if(a==='new'&&slug(v))return promoMenu(e,u);
- if(a==='legacy'&&slug(v)){
-  if(await promoRead(e,u))return promoMenu(e,u);
-  let x;try{x=await promoCampaign(e,v);}catch{}if(!x)return send(e,u,'Cette campagne doit être active, avec un canal public accessible au bot.');
-  const d={cid:v,nonce:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'link'};await promoSave(e,u,d);return promoShow(e,u,d);
- }
+ if(a==='new'||a==='legacy')return promoMenu(e,u);
  const d=await promoRead(e,u);
  if(!d||d.paused||v!==d.nonce)return send(e,u,'Cette action a expiré.',[[cb('Promotion','ad:menu')]]);
  if(d.pid)return genericPromoAction(e,u,d,a);
