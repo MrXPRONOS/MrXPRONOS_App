@@ -117,15 +117,87 @@ async function catalogue(e,u,filter='all',page=0){
 }
 // Public descriptions are separate from the protected course files.
 const shortKey=p=>'product_short:'+p;
-function shortDescription(value){
- const lines=String(value||'').replace(/\r\n?/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean);
- const original=lines.slice(0,5).join('\n'),chars=Array.from(original);
- if(chars.length<=200&&lines.length<=5)return original;
- return chars.slice(0,199).join('').trimEnd()+'…';
+// Native Telegram formatting is stored with its source text; offsets are UTF-16.
+const formatKey=p=>'product_format:'+p;
+const richTypes=new Set(['bold','italic','underline','strikethrough','spoiler','blockquote','expandable_blockquote','code','pre','text_link']);
+const lineCount=s=>s.split('\n').length;
+const validShort=s=>Array.from(s).length<=200&&s.split('\n').filter(l=>l.trim()).length<=5&&lineCount(s)<=7;
+function cleanEntities(text,entities){
+ if(!Array.isArray(entities))return [];
+ return entities.filter(x=>x&&richTypes.has(x.type)&&Number.isSafeInteger(x.offset)&&Number.isSafeInteger(x.length)&&x.offset>=0&&x.length>0&&x.offset+x.length<=text.length&&!(x.type==='text_link'&&(!x.url||!/^https?:\/\/[^\s]+$/i.test(x.url)))).map(x=>({type:x.type,offset:x.offset,length:x.length,...(x.type==='text_link'?{url:x.url}:{}),...(x.type==='pre'&&typeof x.language==='string'?{language:x.language.slice(0,64)}:{})}));
 }
-async function productShort(e,p){
- const s=await row(e.DB,'SELECT value FROM settings WHERE key=?',shortKey(p.id));
- return shortDescription(s?.value||p.description)||'Découvrez cette formation complète.';
+function sliceRich(r,start,end){
+ const text=r.text.slice(start,end),entities=[];
+ for(const x of cleanEntities(r.text,r.entities)){
+  let lo=Math.max(start,x.offset),hi=Math.min(end,x.offset+x.length);
+  if(hi<=lo)continue;
+  // Telegram entity lengths exclude trailing whitespace/newlines.
+  const span=r.text.slice(lo,hi),trimmed=span.trimEnd();hi=lo+trimmed.length;
+  if(hi>lo)entities.push({...x,offset:lo-start,length:hi-lo});
+ }
+ return {text,entities};
+}
+function captureRich(m){
+ const raw=String(m.text||''),start=raw.length-raw.trimStart().length,end=raw.trimEnd().length;
+ if(end<=start)return {text:'',entities:[]};
+ return sliceRich({text:raw,entities:m.entities},start,end);
+}
+function shortDescription(value){
+ const text=String(value||'').trim();
+ if(validShort(text))return text;
+ let out='',count=0;
+ for(const line of text.split('\n')){
+  if(line.trim()&&++count>5)break;
+  if(out&&lineCount(out)>=7)break;
+  const next=out?out+'\n'+line:line;
+  if(Array.from(next).length>200){out=Array.from(next).slice(0,199).join('').trimEnd()+'…';return out;}
+  out=next;
+ }
+ return out.trimEnd();
+}
+function sourceRich(text,saved){
+ return {text,entities:saved?.text===text?cleanEntities(text,saved.entities):[]};
+}
+async function productFormats(e,p){
+ const row0=await row(e.DB,'SELECT value FROM settings WHERE key=?',formatKey(p.id));
+ try{return JSON.parse(row0?.value||'{}')||{};}catch{return {};}
+}
+async function productShortRich(e,p){
+ const s=await row(e.DB,'SELECT value FROM settings WHERE key=?',shortKey(p.id)),f=await productFormats(e,p);
+ const text=shortDescription(s?.value||p.description)||'Découvrez cette formation complète.';
+ return sourceRich(text,f.short);
+}
+async function productShort(e,p){return (await productShortRich(e,p)).text;}
+async function productDetailRich(e,p){const f=await productFormats(e,p);return sourceRich(p.description||'Le programme détaillé n’a pas encore été renseigné.',f.detail);}
+function composeRich(head,r,tail='',style='product'){
+ // Preserve the authored body verbatim. Add paragraph separators when line budget allows.
+ const base=lineCount(head)+lineCount(r.text)+(tail?lineCount(tail):0);
+ const gap=base<10?'\n\n':'\n',lastGap=base+(gap==='\n\n'?1:0)<10?'\n\n':'\n';
+ const prefix=head+gap,text=prefix+r.text+(tail?lastGap+tail:'');
+ const start=prefix.length,end=start+r.text.length;
+ const authored=cleanEntities(r.text,r.entities).map(x=>({...x,offset:x.offset+start}));
+ const auto=formatTelegram(text,style).filter(x=>x.offset+x.length<=start||x.offset>=end);
+ return {text,entities:[...auto,...authored].sort((a,b)=>a.offset-b.offset||b.length-a.length)};
+}
+async function sendRich(e,u,r,b,cover=null){
+ const reply_markup={inline_keyboard:b||[]};
+ if(cover){try{return await tg(e,'sendPhoto',{chat_id:u,photo:cover,caption:r.text,caption_entities:r.entities,reply_markup});}catch(err){if(err.status!==400)throw err;}}
+ return tg(e,'sendMessage',{chat_id:u,text:r.text,entities:r.entities,reply_markup});
+}
+function richPages(r){
+ const pages=[];let start=0;
+ while(start<r.text.length){
+  let end=start,lines=0;
+  while(end<r.text.length&&lines<6){
+   const nl=r.text.indexOf('\n',end),next=nl<0?r.text.length:nl+1;
+   if(next-start>2500){if(end===start){end=start+2500;if(/[\uD800-\uDBFF]/.test(r.text[end-1]))end--;}break;}
+   end=next;lines++;
+  }
+  // Exclude the separator only from display, not from the stored source.
+  const visible=end<r.text.length&&r.text[end-1]==='\n'?end-1:end;
+  pages.push(sliceRich(r,start,visible));start=end;
+ }
+ return pages.length?pages:[{text:'Programme non renseigné.',entities:[]}];
 }
 async function productDetails(e,u,pid,page=0){
  const p=await product(e,pid);if(!p||(!p.active&&!await entitlement(e,u,pid)))return send(e,u,'Formation indisponible.',[home]);
@@ -135,9 +207,9 @@ async function productDetails(e,u,pid,page=0){
  else if(p.active){for(const c of cs)b.push([cb('🎁 Recevoir gratuitement · '+c.target+' contacts','c:'+c.id)]);
  if(cs.length&&p.price_xof>0)b.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);}
  b.push([cb('⬅ Retour à la formation','p:'+pid)],home);
- const pages=detailPages(p.description);page=Math.min(pages.length-1,Math.max(0,page));const nav=[];if(page>0)nav.push(cb('◀ Précédent','details:'+pid+':'+(page-1)));if(page+1<pages.length)nav.push(cb('Suivant ▶','details:'+pid+':'+(page+1)));if(nav.length)b.unshift(nav);
- const text='🎓 '+p.title+'\n📖 Programme · '+(page+1)+'/'+pages.length+'\n'+pages[page]+'\n'+(access?'✅ Dans votre bibliothèque.':free?'🆓 Accès direct.':'🎁 Accès gratuit par recommandation.');
- return send(e,u,text,b);
+ const pages=richPages(await productDetailRich(e,p));page=Math.min(pages.length-1,Math.max(0,page));const nav=[];if(page>0)nav.push(cb('◀ Précédent','details:'+pid+':'+(page-1)));if(page+1<pages.length)nav.push(cb('Suivant ▶','details:'+pid+':'+(page+1)));if(nav.length)b.unshift(nav);
+ const rich=composeRich('🎓 '+p.title+'\n📖 Programme · '+(page+1)+'/'+pages.length,pages[page],access?'✅ Dans votre bibliothèque.':free?'🆓 Accès direct.':'🎁 Accès gratuit par recommandation.');
+ return sendRich(e,u,rich,b);
 }
 
 async function showProduct(e,u,pid){
@@ -149,8 +221,8 @@ async function showProduct(e,u,pid){
  if(!access&&!free&&cs.length&&p.price_xof>0)buttons.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);
  buttons.push([cb('📖 En savoir plus','details:'+pid)],home);
  const resources=await productAssets(e,p);
- const caption=compactMessage('🎓 '+p.title+'\n'+p.category+' · '+resources.length+' ressource(s)\n'+await productShort(e,p)+'\n'+(access?'✅ Dans votre bibliothèque.':accessText(p,cs,free))).slice(0,1000);
- return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id,'product');
+ const body=await productShortRich(e,p);const head='🎓 '+p.title;const tail=access?'✅ Dans votre bibliothèque.':free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA · Invitez '+[...new Set(cs.map(x=>x.target))].join(' ou ')+' contacts, puis rejoignez le canal.':'⚠️ Accès temporairement indisponible.';
+ return sendRich(e,u,composeRich(head,body,tail),buttons,p.cover_file_id);
 }
 async function purchaseInfo(e,u,pid){
  const p=await product(e,pid);if(!p?.active||p.price_xof<=0||!(await activeCampaigns(e,pid)).length)return showProduct(e,u,pid);
@@ -391,12 +463,12 @@ async function referralPost(e,u,cid){
  const c=await campaign(e,cid);if(!c?.active||!c.product_active)return null;
  const p=await product(e,c.product_id);if(!p?.active)return null;
  const l=await discoveryLink(e,cid,u);if(!l)return null;
- const link=await discoveryURL(e,l.token),caption=referralCaption({...p,description:await productShort(e,p)},c,link);
- return {p,c,caption,link,buttons:[[urlButton('📚 Découvrir la formation',link)]]};
+ const link=await discoveryURL(e,l.token),rich=composeRich('🎓 '+p.title,await productShortRich(e,p),'🎁 Accès gratuit par recommandation.\n'+link);
+ return {p,c,caption:rich.text,entities:rich.entities,link,buttons:[[urlButton('📚 Découvrir la formation',link)]]};
 }
 async function referralShare(e,u,cid){
  const x=await referralPost(e,u,cid);if(!x)return send(e,u,'Créez votre lien personnel avant de partager.',[[cb('Voir la campagne','c:'+cid)]]);
- await photo(e,u,x.caption,x.buttons,null,x.p.cover_file_id,'product');
+ await sendRich(e,u,{text:x.caption,entities:x.entities},x.buttons,x.p.cover_file_id);
  const me=await tg(e,'getMe',{});
  const b=[];
  if(me.supports_inline_queries)b.push([{text:'📤 Partager la publication',switch_inline_query:'ref_'+cid}]);
@@ -412,7 +484,7 @@ async function referralInline(e,q){
   const x=await referralPost(e,u,match[1]);
   if(x){
    const base={id:'ref_'+match[1],title:'Partager '+x.p.title.slice(0,60),description:'Publication avec votre lien personnel',reply_markup:{inline_keyboard:x.buttons}};
-   results=x.p.cover_file_id?[{...base,type:'photo',photo_file_id:x.p.cover_file_id,caption:x.caption,caption_entities:formatTelegram(x.caption,'product')}]:[{...base,type:'article',input_message_content:{message_text:x.caption,entities:formatTelegram(x.caption,'product'),link_preview_options:{is_disabled:true}}}];
+   results=x.p.cover_file_id?[{...base,type:'photo',photo_file_id:x.p.cover_file_id,caption:x.caption,caption_entities:x.entities}]:[{...base,type:'article',input_message_content:{message_text:x.caption,entities:x.entities,link_preview_options:{is_disabled:true}}}];
   }
  }
  return tg(e,'answerInlineQuery',{inline_query_id:q.id,results,cache_time:0,is_personal:true});
@@ -617,8 +689,8 @@ async function wizPrompt(e,u,d){
  case 'title':return say('Quel est le titre de la formation ? Envoyez-le en message.'+(d.title?'\nActuel : '+d.title:''));
  case 'category':return say('Choisissez une catégorie ou écrivez votre propre catégorie.'+(d.category?'\nActuelle : '+d.category:''),wizardCategories.map((c,i)=>[cb(c,wizAction(d,'cat'+i))]));
  case 'price':return say('Quel montant souhaitez-vous proposer pour un achat sans partage ? L’accès par recommandation reste gratuit. Envoyez un montant en FCFA, ou 0 pour ne proposer aucun achat.'+(Number.isSafeInteger(d.price)?'\nActuel : '+d.price+' FCFA':''),[[cb('Aucun achat proposé',wizAction(d,'free'))]]);
- case 'short':return say('✍️ Résumé · 5 lignes et 200 caractères maximum.\nPrésentez les points forts de la formation.',[[cb('⏭ Résumé automatique',wizAction(d,'skip'))]]);
- case 'description':return say('📖 Présentation détaillée · 3 200 caractères max.\nProgramme, objectifs, public, formats et prérequis.\nVisible via En savoir plus.',[[cb('⏭ Sans détail',wizAction(d,'skip'))]]);
+ case 'short':return say('✍️ Résumé · 5 lignes de texte, 2 lignes vides et 200 caractères maximum.\nGras, italique et citations Telegram seront conservés.',[[cb('⏭ Résumé automatique',wizAction(d,'skip'))]]);
+ case 'description':return say('📖 Présentation détaillée · 3 200 caractères max.\nProgramme, objectifs, public et prérequis.\nLes paragraphes et styles Telegram sont conservés.',[[cb('⏭ Sans détail',wizAction(d,'skip'))]]);
  case 'cover':return say('Envoyez la photo de couverture dans cette conversation (en tant que photo Telegram).');
  case 'pdf':{const a=draftAssets(d);return say('📎 Ajoutez vos ressources une par une.\nPDF, ZIP, RAR, vidéo, audio, image ou lien HTTPS.\n'+a.length+' / 100 ressources enregistrées.\n'+a.slice(-5).map((x,i)=> (assetIcons[x.kind]||'📎')+' '+x.name).join('\n')+'\nCliquez sur Terminer lorsque tout est ajouté.',[...(a.length?[[cb('✅ Terminer les ressources',wizAction(d,'done_assets'))],[cb('↩ Retirer la dernière',wizAction(d,'remove_asset'))],[cb('🗑 Vider la liste',wizAction(d,'clear_assets'))]]:[])]);}
  case 'shop':return say('Envoyez le lien HTTPS de la fiche de vente sur votre boutique web indépendante (Ficsell, etc.) ou passez cette étape. Il sera conservé pour votre administration et futur catalogue web, pas utilisé comme paiement dans Telegram.'+(d.shop?'\nActuel : '+d.shop:''),[[cb('⏭ Sans lien',wizAction(d,'skip'))],...(d.shop?[[cb('✓ Conserver le lien',wizAction(d,'keep_shop'))]]:[])]);
@@ -628,8 +700,10 @@ async function wizPrompt(e,u,d){
  case 'target':return say('Combien de contacts qualifiés sont nécessaires ? Recommandé : 5. Envoyez un nombre de 1 à 20.',[[cb('5',wizAction(d,'n5')),cb('10',wizAction(d,'n10')),cb('15',wizAction(d,'n15')),cb('20',wizAction(d,'n20'))]]);
  case 'hold':d.hold=0;d.step='review';await wizSave(e,u,d);return wizPrompt(e,u,d);
  case 'review':{
-  const caption='✅ Aperçu avant publication\n\n'+d.title+'\n'+d.category+'\nAchat facultatif : '+(d.price===0?'Non proposé':d.price.toLocaleString('fr-FR')+' FCFA')+'\n\n'+(shortDescription(d.short||d.description)||'Sans description')+'\n\n📖 Description détaillée : '+(d.description?'enregistrée':'non renseignée')+'\n\n📎 '+draftAssets(d).length+' ressource(s) : '+draftAssets(d).slice(0,3).map(x=>x.name).join(', ')+(d.price>0?'\n\nBoutique web : '+(d.shop?'lien enregistré':'aucun lien'):'')+'\nAccès gratuit : '+(d.access==='new'?d.target+' contacts qualifiés • canal : '+d.channel.title+' ('+d.kind+')':d.edit?'conditions existantes':'accès direct sans condition');
-  return photo(e,u,caption.slice(0,1000),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),null,d.cover,'wizard');
+  const short=shortDescription(d.short||d.description)||'Sans description';
+  const body=sourceRich(short,{text:d.short,entities:d.shortEntities});
+  const tail='📎 '+draftAssets(d).length+' ressource(s) · '+(d.description?'Programme enregistré':'Sans programme')+'\n🎁 '+(d.access==='new'?d.target+' contacts · '+d.channel.title:d.edit?'Conditions existantes':'Campagne à configurer')+(d.price>0?' · Achat '+d.price.toLocaleString('fr-FR')+' FCFA':'');
+  return sendRich(e,u,composeRich('✅ Aperçu · '+d.title,body,tail,'wizard'),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),d.cover);
  }
  }
 }
@@ -678,7 +752,7 @@ async function wizardCallback(e,u,action){
   if(v[1]==='details')return send(e,u,p.title+'\n\n'+(p.description||'Description détaillée non renseignée.'),[[cb('⬅ Formation','aw:product:'+p.id)]]);
   if(v[1]==='edit'){
    const old=await wizRead(e,u);if(old)return send(e,u,'Une création est déjà en cours.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
-   const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(p.id));const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title',edit:true,title:p.title,category:p.category,price:p.price_xof,short:await productShort(e,p),description:p.description,cover:p.cover_file_id,file:p.file_id,filename:p.filename,assets:await productAssets(e,p),shop:shop?.value||''};await wizSave(e,u,d);return wizPrompt(e,u,d);
+   const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(p.id));const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title',edit:true,title:p.title,category:p.category,price:p.price_xof,short:await productShort(e,p),shortEntities:(await productShortRich(e,p)).entities,description:p.description,detailEntities:(await productDetailRich(e,p)).entities,cover:p.cover_file_id,file:p.file_id,filename:p.filename,assets:await productAssets(e,p),shop:shop?.value||''};await wizSave(e,u,d);return wizPrompt(e,u,d);
   }
   if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return adminResourceMenu(e,u,p,a);}
   if(v[1]==='hide'||v[1]==='show'){
@@ -697,8 +771,8 @@ async function wizardCallback(e,u,action){
   const field={title:'title',category:'category',price:'price',short:'short',description:'description',cover:'cover',pdf:'file'}[d.step];if(d[field]===undefined||d[field]===null||(['title','category','cover','pdf'].includes(d.step)&&!d[field]))return wizPrompt(e,u,d);d.step=d.step==='pdf'?afterPDF(d):basicSteps[basicSteps.indexOf(d.step)+1];
  }else if(d.step==='category'&&/^cat[0-6]$/.test(a)){d.category=wizardCategories[Number(a.slice(3))];d.step='price';}
  else if(d.step==='price'&&a==='free'){d.price=0;d.step='short';}
- else if(d.step==='short'&&a==='skip'){d.short='';d.step='description';}
- else if(d.step==='description'&&a==='skip'){d.description='';d.step='cover';}
+ else if(d.step==='short'&&a==='skip'){d.short='';d.shortEntities=[];d.step='description';}
+ else if(d.step==='description'&&a==='skip'){d.description='';d.detailEntities=[];d.step='cover';}
  else if(d.step==='shop'&&['skip','keep_shop'].includes(a)){if(a==='skip')d.shop='';d.step='access';}
  else if(d.step==='access'&&['new_campaign','keep_campaign'].includes(a)){d.access=a==='new_campaign'?'new':'keep';if(d.access==='new'){delete d.campaignId;delete d.joinLink;delete d.joinChannel;}d.step=d.access==='new'?'channeltype':'review';}
  else if(d.step==='channeltype'&&['public','private'].includes(a)){d.kind=a;d.channel=null;delete d.campaignId;delete d.joinLink;delete d.joinChannel;d.step='channel';}
@@ -714,7 +788,7 @@ async function wizardCallback(e,u,action){
   if(d.edit&&!existing)return send(e,u,'⚠️ Formation introuvable.',[[cb('Administration','aw:menu')]]);
   if(existing&&existing.price_xof!==d.price&&existing.active)return send(e,u,'Masquez d’abord ce produit pour modifier son prix, puis reprenez le brouillon.',[[cb('Administration','aw:menu')]]);
   const write=d.edit?stmt(e.DB,'UPDATE products SET title=?,category=?,description=?,price_xof=?,active=?,filename=?,file_id=?,cover_file_id=?,object_key=NULL,cover_key=NULL WHERE id=?',d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover,d.id):stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover);
-  const extra=[stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',assetKey(d.id),JSON.stringify(draftAssets(d))),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shortKey(d.id),shortDescription(d.short||d.description))];
+  const extra=[stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',assetKey(d.id),JSON.stringify(draftAssets(d))),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shortKey(d.id),shortDescription(d.short||d.description)),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',formatKey(d.id),JSON.stringify({short:sourceRich(shortDescription(d.short||d.description),{text:d.short,entities:d.shortEntities}),detail:sourceRich(d.description||'',{text:d.description,entities:d.detailEntities})}))];
   if(d.price>0||d.access==='new'){
    extra.push(stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shopKey(d.id),d.shop||''));
    if(d.access==='new'){
@@ -751,8 +825,8 @@ async function wizardMessage(e,u,d,m){
  case 'title':if(!t||t.length>120)return invalid('Envoyez un titre de 1 à 120 caractères.');d.title=t;d.step='category';break;
  case 'category':if(!t||t.length>60)return invalid('Envoyez une catégorie de 1 à 60 caractères.');d.category=t;d.step='price';break;
  case 'price':{const v=t.replace(/\s/g,'');if(!/^\d{1,9}$/.test(v)||Number(v)>100000000)return invalid('Envoyez un montant entier de 0 à 100 000 000 FCFA.');d.price=Number(v);d.step='short';break;}
- case 'short':if(!t||Array.from(t).length>200||t.replace(/\r\n?/g,'\n').split('\n').length>5)return invalid('Maximum 5 lignes et 200 caractères.');d.short=t==='0'?'':t;d.step='description';break;
- case 'description':if(!t||t.length>3200)return invalid('Envoyez une description de 3 200 caractères maximum ou cliquez sur Sans détail.');d.description=t==='0'?'':t;d.step='cover';break;
+ case 'short':{const rich=captureRich(m);if(!rich.text||!validShort(rich.text))return invalid('Maximum 5 lignes de texte, 7 lignes au total et 200 caractères.');d.short=t==='0'?'':rich.text;d.shortEntities=t==='0'?[]:rich.entities;d.step='description';break;}
+ case 'description':{const rich=captureRich(m);if(!rich.text||rich.text.length>3200)return invalid('Maximum 3 200 caractères ou Sans détail.');d.description=t==='0'?'':rich.text;d.detailEntities=t==='0'?[]:rich.entities;d.step='cover';break;}
  case 'cover':{
   const pic=m.photo?.at(-1);if(!pic?.file_id)return invalid('Envoyez la couverture en tant que photo Telegram.');
   if(!validChannel(String(e.STORAGE_CHANNEL_ID||'')))return invalid('Le canal de stockage est mal configuré. Vérifiez STORAGE_CHANNEL_ID.');
@@ -823,9 +897,9 @@ async function genericPromoPreview(e,u,d){
  const url='https://t.me/'+me.username+'?start=p_'+p.id;
  const cs=await all(e.DB,'SELECT id,target,hold_seconds FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id LIMIT 10',p.id);
  const access=accessText(p,cs,await directFree(e,p));
- const caption=(p.title+'\n'+shortDescription(d.message??await productShort(e,p))+'\n'+(cs.length?'🎁 Accès gratuit par recommandation.':'🆓 Accès gratuit.')+'\n📖 Découvrez le programme dans le bot.').slice(0,1000);
+ const rich=composeRich('🎓 '+p.title,d.message!==undefined?sourceRich(shortDescription(d.message),{text:d.message,entities:d.messageEntities}):await productShortRich(e,p),(cs.length?'🎁 Accès gratuit par recommandation.':'🆓 Accès gratuit.')+'\n📖 Découvrez le programme dans le bot.');const caption=rich.text;
  const buttons=[[urlButton(cs.length?'🎁 Découvrir / recevoir gratuitement':await directFree(e,p)?'📥 Recevoir gratuitement':'📚 Voir le produit',url)]];
- return {p,caption,buttons,url};
+ return {p,caption,entities:rich.entities,buttons,url};
 }
 async function genericPromoShow(e,u,d){
  if(d.step==='destination')return send(e,u,'📢 Où souhaitez-vous publier ?\n\nChoisissez un canal public ou privé dont le bot est administrateur, ou créez une annonce à partager ailleurs.',[[cb('📢 Sélectionner le canal','ad:pick:'+d.nonce)],[cb('🔗 Partager ailleurs','ad:external:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
@@ -835,7 +909,7 @@ async function genericPromoShow(e,u,d){
  if(d.step==='review'){
   const p=await genericPromoPreview(e,u,d);if(!p)return;
   const b=[...p.buttons,...(d.dest?[[cb('✅ Publier dans le canal','ad:publish:'+d.nonce)]]:[]),[cb('Terminer','ad:cancel')]];
-  await photo(e,u,p.caption,b,null,d.cover,'product');
+  await sendRich(e,u,{text:p.caption,entities:p.entities},b,d.cover);
   return send(e,u,'Aperçu — '+(d.dest?d.dest.title:'partage externe')+'\n\nLien direct à partager :\n'+p.url);
  }
 }
@@ -843,14 +917,14 @@ async function genericPromoAction(e,u,d,a){
  if(!admins(e).has(u))return send(e,u,'🔒 Accès réservé à l’administration.');
  if(d.step==='destination'&&a==='pick')return tg(e,'sendMessage',{chat_id:u,text:'Sélectionnez un canal dans Telegram, transférez une publication ou envoyez son @nom / ID -100…',reply_markup:{keyboard:[[{text:'📢 Sélectionner un canal',request_chat:{request_id:parseInt(d.nonce.slice(0,7),16)+1,chat_is_channel:true,bot_is_member:true,request_title:true}}]],resize_keyboard:true,one_time_keyboard:true}});
  if(d.step==='destination'&&a==='external'){d.dest=null;d.step='message';await closePicker(e,u);}
- else if(d.step==='message'&&a==='default'){delete d.message;d.step='art';}
+ else if(d.step==='message'&&a==='default'){delete d.message;delete d.messageEntities;d.step='art';}
  else if(d.step==='art'&&['cover','plain'].includes(a)){const p=await genericPromoProduct(e,d.pid);if(!p)return send(e,u,'⚠️ Formation indisponible.');d.cover=a==='cover'?p.cover_file_id:null;d.step='review';}
  else if(d.step==='review'&&a==='publish'&&d.dest){
   const p=await genericPromoPreview(e,u,d);if(!p)return;
   let dest;try{dest=await promoDestination(e,d.dest.id);}catch{return send(e,u,'Vérifiez le droit de publication du bot.',[[cb('Reprendre','ad:resume')]]);}
   const old=JSON.stringify(d);d.step='posting';
   const lock=await run(e.DB,'UPDATE settings SET value=? WHERE key=? AND value=?',JSON.stringify(d),promoKey(u),old);if(!lock.meta.changes)return send(e,u,'Publication déjà traitée.');
-  let m;try{m=d.cover?await tg(e,'sendPhoto',{chat_id:dest.id,photo:d.cover,caption:p.caption,reply_markup:{inline_keyboard:p.buttons}},'product'):await send(e,dest.id,p.caption,p.buttons,'product');}
+  let m;try{m=await sendRich(e,dest.id,{text:p.caption,entities:p.entities},p.buttons,d.cover);}
   catch(err){if(err instanceof TelegramError&&[400,403].includes(err.status)){d.step='review';await promoSave(e,u,d);return send(e,u,'Publication refusée. Vérifiez les droits ou l’image.',[[cb('Reprendre','ad:resume')]]);}return send(e,u,'Résultat incertain : vérifiez le canal avant de recommencer.');}
   const link=dest.username?'https://t.me/'+dest.username+'/'+m.message_id:'https://t.me/c/'+dest.id.slice(4)+'/'+m.message_id;
   await audit(e,u,'promotion_publish',d.pid+':'+m.message_id);await promoClear(e,u);
@@ -863,7 +937,7 @@ async function genericPromoMessage(e,u,d,m){
   const ref=promoDestinationRef(m,d);if(!ref)return send(e,u,'Sélectionnez le canal, transférez une publication ou envoyez son identifiant. Un lien d’invitation privé seul ne suffit pas.',[[cb('Sélectionner','ad:pick:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
   try{d.dest=await promoDestination(e,ref);}catch{return send(e,u,'Canal inaccessible, stockage interdit ou droit de publication manquant.',[[cb('Réessayer','ad:pick:'+d.nonce)],[cb('Annuler','ad:cancel')]]);}
   d.step='message';await closePicker(e,u);
- }else if(d.step==='message'){const t=String(m.text||'').trim();if(!t||Array.from(t).length>200||t.replace(/\r\n?/g,'\n').split('\n').length>5)return send(e,u,'Envoyez un texte de 1 à 200 caractères, sur 5 lignes maximum.');d.message=t;d.step='art';}
+ }else if(d.step==='message'){const rich=captureRich(m);if(!rich.text||!validShort(rich.text))return send(e,u,'Maximum 5 lignes de texte, 7 lignes au total et 200 caractères.');d.message=rich.text;d.messageEntities=rich.entities;d.step='art';}
  else if(d.step==='art'){const f=m.photo?.at(-1)?.file_id;if(!f)return send(e,u,'Envoyez une photo ou choisissez la couverture.',[[cb('Utiliser la couverture','ad:cover:'+d.nonce)]]);d.cover=f;d.step='review';}
  else return genericPromoShow(e,u,d);
  await promoSave(e,u,d);return genericPromoShow(e,u,d);
@@ -1081,5 +1155,5 @@ async function handleAcademyImport(request,e,p){
  finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
 }
 
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.9.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
-export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard,packDiscount,directFree,accessText,purchaseInfo,shortDescription,productShort,productDetails,detailPages,compactMessage,progressBar};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.9.1',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard,packDiscount,directFree,accessText,purchaseInfo,shortDescription,productShort,productDetails,detailPages,compactMessage,progressBar,captureRich,cleanEntities,composeRich,richPages,productShortRich,productDetailRich,validShort};
