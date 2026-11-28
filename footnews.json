@@ -370,7 +370,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T12:54:05.526467+00:00"
+      "checked_at": "2026-11-28T13:09:56.739022+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -608,7 +608,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T12:54:05.526467+00:00"
+      "checked_at": "2026-11-28T13:09:56.739022+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1437,6 +1437,108 @@
     "quality_score": 90
   },
   {
+    "slug": "c6e163056dc9935f",
+    "title": "OM : Bruno Genesio réagit à l'éviction de Franck Haise et livre un constat sans détour sur le métier d'entraîneur",
+    "summary": "Bruno Genesio s'est exprimé sur le licenciement de Franck Haise en conférence de presse.",
+    "summary_short": "Bruno Genesio s'est exprimé sur le licenciement de Franck Haise en conférence de presse.",
+    "content": "Bruno Genesio s'est exprimé sur le licenciement de Franck Haise en conférence de presse.",
+    "paragraphs": [
+      "Bruno Genesio s'est exprimé sur le licenciement de Franck Haise en conférence de presse."
+    ],
+    "key_points": [
+      "Bruno Genesio s'est exprimé sur le licenciement de Franck Haise en conférence de presse."
+    ],
+    "telegram_summary": "Bruno Genesio s'est exprimé sur le licenciement de Franck Haise en conférence de presse.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-reagit-a-l-eviction-de-franck-haise-et-livre-un-constat-sans-detour-sur-le-metier-d-entraineur-547324.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-reagit-a-l-eviction-de-franck-haise-et-livre-un-constat-sans-detour-sur-le-metier-d-entraineur-547324.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c6e163056dc9935f",
+    "published": "2026-11-28T13:04:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919230706-3750.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919230706-3750.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "0c99cd1f4ed59eed",
+    "title": "« Je ne reviendrai pas » : Pep Guardiola brise le rêve des supporters du Barça",
+    "summary": "Alors que les supporters du Barça rêvent toujours de le revoir un jour sur le banc du Camp Nou, Pep Guardiola a une nouvelle fois douché leurs espoirs de manière catégorique. Interrogé par le magazine (…)",
+    "summary_short": "Alors que les supporters du Barça rêvent toujours de le revoir un jour sur le banc du Camp Nou, Pep Guardiola a une nouvelle fois douché leurs espoirs de manière catégorique. Interrogé par le magazine (…)",
+    "content": "Alors que les supporters du Barça rêvent toujours de le revoir un jour sur le banc du Camp Nou, Pep Guardiola a une nouvelle fois douché leurs espoirs de manière catégorique. Interrogé par le magazine (…)",
+    "paragraphs": [
+      "Alors que les supporters du Barça rêvent toujours de le revoir un jour sur le banc du Camp Nou, Pep Guardiola a une nouvelle fois douché leurs espoirs de manière catégorique. Interrogé par le magazine (…)"
+    ],
+    "key_points": [
+      "Alors que les supporters du Barça rêvent toujours de le revoir un jour sur le banc du Camp Nou, Pep Guardiola a une nouvelle fois douché leurs espoirs de manière catégorique."
+    ],
+    "telegram_summary": "Alors que les supporters du Barça rêvent toujours de le revoir un jour sur le banc du Camp Nou, Pep Guardiola a une nouvelle fois douché leurs espoirs de manière catégorique. Interrogé par le magazine (…)",
+    "link": "https://www.footmercato.net/a2253649710939392172-je-ne-reviendrai-pas-au-barca-pep-guardiola-brise-le-reve-des-supporters-du-barca",
+    "source_url": "https://www.footmercato.net/a2253649710939392172-je-ne-reviendrai-pas-au-barca-pep-guardiola-brise-le-reve-des-supporters-du-barca",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0c99cd1f4ed59eed",
+    "published": "2026-11-28T13:01:35+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pep-guardiola-2526.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pep-guardiola-2526.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "b1038eebc473b504",
+    "title": "PSG-Lorient : intérim réussi en l'absence de Marquinhos, le casse-tête de Luis Enrique",
+    "summary": "Le capitaine historique du club de la capitale est de retour de blessure et devrait être aligné dès le coup d'envoi face à Lorient (17h15).",
+    "summary_short": "Le capitaine historique du club de la capitale est de retour de blessure et devrait être aligné dès le coup d'envoi face à Lorient (17h15).",
+    "content": "Le capitaine historique du club de la capitale est de retour de blessure et devrait être aligné dès le coup d'envoi face à Lorient (17h15).",
+    "paragraphs": [
+      "Le capitaine historique du club de la capitale est de retour de blessure et devrait être aligné dès le coup d'envoi face à Lorient (17h15)."
+    ],
+    "key_points": [
+      "Le capitaine historique du club de la capitale est de retour de blessure et devrait être aligné dès le coup d'envoi face à Lorient (17h15)."
+    ],
+    "telegram_summary": "Le capitaine historique du club de la capitale est de retour de blessure et devrait être aligné dès le coup d'envoi face à Lorient (17h15).",
+    "link": "https://www.onzemondial.com/ligue-1/psg-lorient-interim-reussi-en-labsence-de-marquinhos-le-casse-tete-de-luis-enrique-1011898",
+    "source_url": "https://www.onzemondial.com/ligue-1/psg-lorient-interim-reussi-en-labsence-de-marquinhos-le-casse-tete-de-luis-enrique-1011898",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b1038eebc473b504",
+    "published": "2026-11-28T12:59:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011898/411762/1200-L-psg-lorient-intrim-russi-en-l-absence-de-marquinhos-le-casse-tte-de-luis-enrique.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011898/411762/1200-L-psg-lorient-intrim-russi-en-l-absence-de-marquinhos-le-casse-tte-de-luis-enrique.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "93841d9575379cf5",
     "title": "Mercato OL : La déclaration forte de Carlos Vicens sur son avenir à Lyon !",
     "summary": "Carlos Vicens en a dit plus sur son avenir à l'OL ce samedi 28 novembre en conférence de presse.",
@@ -1469,6 +1571,41 @@
       "MadeInFoot"
     ],
     "quality_score": 88
+  },
+  {
+    "slug": "afac0fb30998c6f0",
+    "title": "Coupe intercontinentale : le match du Paris Saint-Germain contre le vainqueur de la Copa Libertadores sera diffusé en clair sur M6",
+    "summary": "Allez, prenez ça les détracteur du football ultra-capitaliste ! Le 16 décembre prochain, le Paris Saint-Germain défendra son titre lors…",
+    "summary_short": "Allez, prenez ça les détracteur du football ultra-capitaliste ! Le 16 décembre prochain, le Paris Saint-Germain défendra son titre lors…",
+    "content": "Allez, prenez ça les détracteur du football ultra-capitaliste ! Le 16 décembre prochain, le Paris Saint-Germain défendra son titre lors…",
+    "paragraphs": [
+      "Allez, prenez ça les détracteur du football ultra-capitaliste ! Le 16 décembre prochain, le Paris Saint-Germain défendra son titre lors…"
+    ],
+    "key_points": [
+      "Allez, prenez ça les détracteur du football ultra-capitaliste !",
+      "Le 16 décembre prochain, le Paris Saint-Germain défendra son titre lors…"
+    ],
+    "telegram_summary": "Allez, prenez ça les détracteur du football ultra-capitaliste ! Le 16 décembre prochain, le Paris Saint-Germain défendra son titre lors…",
+    "link": "https://www.sofoot.com/breves/coupe-intercontinentale-le-match-du-paris-saint-germain-contre-le-vainqueur-de-la-copa-libertadores-sera-diffuse-en-clair-sur-m6",
+    "source_url": "https://www.sofoot.com/breves/coupe-intercontinentale-le-match-du-paris-saint-germain-contre-le-vainqueur-de-la-copa-libertadores-sera-diffuse-en-clair-sur-m6",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=afac0fb30998c6f0",
+    "published": "2026-11-28T12:41:06+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/28134606/11868006.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/28134606/11868006.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "c974271e572b559e",
@@ -1554,7 +1691,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T12:54:05.526467+00:00"
+      "checked_at": "2026-11-28T13:09:56.739022+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2035,142 +2172,6 @@
     "category": "Polémique",
     "category_emoji": "🔥",
     "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "e6112a9a789126e6",
-    "title": "PSG : Les statistiques folles de Warren Zaïre-Emery avant son 200e match et un record d'Adrien Rabiot en passe de tomber",
-    "summary": "Warren Zaïre-Emery devrait être bien titulaire avec le PSG ce samedi face au FC Lorient.",
-    "summary_short": "Warren Zaïre-Emery devrait être bien titulaire avec le PSG ce samedi face au FC Lorient.",
-    "content": "Warren Zaïre-Emery devrait être bien titulaire avec le PSG ce samedi face au FC Lorient.",
-    "paragraphs": [
-      "Warren Zaïre-Emery devrait être bien titulaire avec le PSG ce samedi face au FC Lorient."
-    ],
-    "key_points": [
-      "Warren Zaïre-Emery devrait être bien titulaire avec le PSG ce samedi face au FC Lorient."
-    ],
-    "telegram_summary": "Warren Zaïre-Emery devrait être bien titulaire avec le PSG ce samedi face au FC Lorient.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-les-statistiques-folles-de-warren-zaire-emery-avant-son-200e-match-et-un-record-d-adrien-rabiot-en-passe-de-tomber-547311.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-les-statistiques-folles-de-warren-zaire-emery-avant-son-200e-match-et-un-record-d-adrien-rabiot-en-passe-de-tomber-547311.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e6112a9a789126e6",
-    "published": "2026-11-28T10:59:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260823222236-7306.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260823222236-7306.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "4ee97a7ae1860300",
-    "title": "Mondial U17 : La France affrontera l’Ouganda en seizième de finale",
-    "summary": "Place aux choses sérieuses. Après avoir terminé en tête de leur poule du Mondial U17, les Bleuets connaissent désormais leur…",
-    "summary_short": "Place aux choses sérieuses. Après avoir terminé en tête de leur poule du Mondial U17, les Bleuets connaissent désormais leur…",
-    "content": "Place aux choses sérieuses. Après avoir terminé en tête de leur poule du Mondial U17, les Bleuets connaissent désormais leur…",
-    "paragraphs": [
-      "Place aux choses sérieuses. Après avoir terminé en tête de leur poule du Mondial U17, les Bleuets connaissent désormais leur…"
-    ],
-    "key_points": [
-      "Après avoir terminé en tête de leur poule du Mondial U17, les Bleuets connaissent désormais leur…"
-    ],
-    "telegram_summary": "Place aux choses sérieuses. Après avoir terminé en tête de leur poule du Mondial U17, les Bleuets connaissent désormais leur…",
-    "link": "https://www.sofoot.com/breves/mondial-u17-la-france-affrontera-louganda-en-seizieme-de-finale",
-    "source_url": "https://www.sofoot.com/breves/mondial-u17-la-france-affrontera-louganda-en-seizieme-de-finale",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4ee97a7ae1860300",
-    "published": "2026-11-28T10:48:15+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/28114447/10883142.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/11/28114447/10883142.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "4d1a59119415fc72",
-    "title": "OM : Slogans hostiles, banderoles xénophobes… 200 Bulgares manifestent devant l'ambassade de France après les incidents au Vélodrome",
-    "summary": "D'après les informations de RMC Sport, 200 Bulgares ont manifesté devant l'ambassade de France à Sofia, en Bulgarie, dans le but de protester contre les violents incidents au Vélodrome.",
-    "summary_short": "D'après les informations de RMC Sport, 200 Bulgares ont manifesté devant l'ambassade de France à Sofia, en Bulgarie, dans le but de protester contre les violents incidents au Vélodrome.",
-    "content": "D'après les informations de RMC Sport, 200 Bulgares ont manifesté devant l'ambassade de France à Sofia, en Bulgarie, dans le but de protester contre les violents incidents au Vélodrome.",
-    "paragraphs": [
-      "D'après les informations de RMC Sport, 200 Bulgares ont manifesté devant l'ambassade de France à Sofia, en Bulgarie, dans le but de protester contre les violents incidents au Vélodrome."
-    ],
-    "key_points": [
-      "D'après les informations de RMC Sport, 200 Bulgares ont manifesté devant l'ambassade de France à Sofia, en Bulgarie, dans le but de protester contre les violents incidents au Vélodrome."
-    ],
-    "telegram_summary": "D'après les informations de RMC Sport, 200 Bulgares ont manifesté devant l'ambassade de France à Sofia, en Bulgarie, dans le but de protester contre les violents incidents au Vélodrome.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-slogans-hostiles-banderoles-xenophobes-200-bulgares-manifestent-devant-l-ambassade-de-france-apres-les-incidents-au-velodrome-547305.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-slogans-hostiles-banderoles-xenophobes-200-bulgares-manifestent-devant-l-ambassade-de-france-apres-les-incidents-au-velodrome-547305.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4d1a59119415fc72",
-    "published": "2026-11-28T10:37:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261128093939-6661.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261128093939-6661.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "df1d020dd92377ab",
-    "title": "OL–Lilleström : \"Bien embêté\" les gros regrets de l’arbitre après le penalty refusé à Openda",
-    "summary": "L'arbitre du choc entre l'OL et Lilleström aurait concédé son erreur après avoir refusé un penalty à Loïs Openda en Ligue Europa.",
-    "summary_short": "L'arbitre du choc entre l'OL et Lilleström aurait concédé son erreur après avoir refusé un penalty à Loïs Openda en Ligue Europa.",
-    "content": "L'arbitre du choc entre l'OL et Lilleström aurait concédé son erreur après avoir refusé un penalty à Loïs Openda en Ligue Europa.",
-    "paragraphs": [
-      "L'arbitre du choc entre l'OL et Lilleström aurait concédé son erreur après avoir refusé un penalty à Loïs Openda en Ligue Europa."
-    ],
-    "key_points": [
-      "L'arbitre du choc entre l'OL et Lilleström aurait concédé son erreur après avoir refusé un penalty à Loïs Openda en Ligue Europa."
-    ],
-    "telegram_summary": "L'arbitre du choc entre l'OL et Lilleström aurait concédé son erreur après avoir refusé un penalty à Loïs Openda en Ligue Europa.",
-    "link": "https://www.onzemondial.com/ligue-1/ol-lillestrom-bien-embete-les-gros-regrets-de-larbitre-apres-le-penalty-refuse-a-openda-1011854",
-    "source_url": "https://www.onzemondial.com/ligue-1/ol-lillestrom-bien-embete-les-gros-regrets-de-larbitre-apres-le-penalty-refuse-a-openda-1011854",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=df1d020dd92377ab",
-    "published": "2026-11-28T10:35:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011854/411752/1200-L-ollillestrm-bien-embt-les-gros-regrets-de-larbitre-aprs-le-penalty-refus-openda.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011854/411752/1200-L-ollillestrm-bien-embt-les-gros-regrets-de-larbitre-aprs-le-penalty-refus-openda.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
     "espn_verification": {},
     "quality_sources": [
       "Onze Mondial"
