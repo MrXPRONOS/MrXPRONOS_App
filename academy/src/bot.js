@@ -19,6 +19,29 @@ export class TelegramError extends Error {constructor(method,status){super(`Tele
 
 // Telegram entities use UTF-16 offsets (the native JavaScript string index).
 // The original text is never parsed as markup; arbitrary titles/descriptions are safe.
+// V1.9: compact editorial style without silently dropping text.
+export function compactMessage(value,max=10){
+ if(typeof value!=='string')return value;
+ const lines=value.replace(/\r\n?/g,'\n').split('\n').map(s=>s.trimEnd());
+ if(lines.length<=max)return lines.join('\n');
+ const a=lines.filter(s=>s.trim());
+ while(a.length>max){
+  let at=-1;
+  for(let j=a.length-2;j>=1;j--){if(!/https?:\/\/|^\/\w+/.test(a[j])&&!/https?:\/\/|^\/\w+/.test(a[j+1])){at=j;break;}}
+  if(at<0)at=a.length-2;
+  a.splice(at,2,a[at]+' '+a[at+1]);
+ }
+ return a.join('\n');
+}
+function detailPages(value){
+ const lines=String(value||'Le programme détaillé n’a pas encore été renseigné.').replace(/\r\n?/g,'\n').split('\n').filter(x=>x.trim());
+ const parts=[];
+ for(const l of lines){let s=l;while(s.length>500){let at=s.lastIndexOf(' ',500);if(at<250)at=500;if(/[\uD800-\uDBFF]/.test(s[at-1]))at--;parts.push(s.slice(0,at));s=s.slice(at).trimStart();}if(s)parts.push(s);}
+ const pages=[];for(let i=0;i<parts.length;i+=6)pages.push(parts.slice(i,i+6).join('\n'));return pages.length?pages:['Programme non renseigné.'];
+}
+const progressBar=(n,t)=>{const filled=Math.min(10,Math.max(0,Math.floor(n*10/Math.max(1,t))));return '▰'.repeat(filled)+'▱'.repeat(10-filled);};
+const packTitles=items=>{const a=items.map(x=>String(x.title||'Formation').replace(/\s+/g,' ').trim());const out=[];for(let j=0;j<a.length;j+=2)out.push('• '+a.slice(j,j+2).join(' / '));return out.join('\n');};
+
 export function formatTelegram(text,style='auto'){
  const entities=[];if(typeof text!=='string'||!text.trim())return entities;
  const add=(type,offset,length)=>{if(length>0&&offset>=0&&offset+length<=text.length&&!entities.some(x=>offset<x.offset+x.length&&x.offset<offset+length))entities.push({type,offset,length});};
@@ -27,7 +50,7 @@ export function formatTelegram(text,style='auto'){
   const raw=lines[i],line=raw.trim(),at=offset+raw.indexOf(line);offset+=raw.length+1;
   if(!line)continue;
   const heading=first;first=false;
-  if(/^https?:\/\/\S+$/.test(line)||/^[🟩⬜]+$/u.test(line))continue;
+  if(/^https?:\/\/\S+$/.test(line)||/^[🟩⬜▰▱]+$/u.test(line))continue;
   if(/^(?:Votre identifiant|Identifiant(?: Telegram)?|ID|Canal) :\s*-?\d+$/.test(line)||/^Identifiant : [a-z0-9_-]+$/i.test(line)){
    const colon=line.indexOf(':');add('bold',at,colon+1);const value=line.slice(colon+1).trim();add('code',at+line.lastIndexOf(value),value.length);continue;
   }
@@ -39,16 +62,16 @@ export function formatTelegram(text,style='auto'){
    if(n<line.length&&/[\uD800-\uDBFF]/.test(line[n-1]))n--;
    add('bold',at,n);continue;
   }
-  if(/^(?:Apprendre\. Appliquer\. Réussir\.|Invitez des contacts réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
-  if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|📖 Présentation détaillée|Programme :|Objectifs :|Prérequis :|Public visé :|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
+  if(/^(?:Apprendre\. Appliquer\. Réussir\.|Apprendre • Appliquer • Réussir|Invitez des contacts réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
+  if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|📖 Présentation détaillée|📚 Programme|📖 Programme|Programme :|Objectifs :|Prérequis :|Public visé :|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
    const colon=line.indexOf(':');add('underline',at,colon>=0?colon+1:line.length);continue;
   }
-  if(/^(?:\d+\/\d+ contacts qualifiés|(?:💰 |🏷️ )?Prix :|(?:🆓 )?Gratuit$|✅ Dans votre bibliothèque|✅ Accès|📎 |🎁 Campagne :|🎁 Accès par parrainage|🎁 0 FCFA)/u.test(line)){add('bold',at,line.length);continue;}
+  if(/^(?:\d+\/\d+ contacts qualifiés|(?:💰 |🏷️ )?Prix :|(?:🆓 )?Gratuit$|✅ Dans votre bibliothèque|✅ Accès|📎 |🎁 Campagne :|🎁 Accès par parrainage|🎁 0 FCFA|🎯 |💸 |✅ Objectif|🎉 Objectif|📊 Progression|🆓 Accès|✨ )/u.test(line)){add('bold',at,line.length);continue;}
   if(/^(?:Utilisateurs|Produits|Invitations valides|En attente|Récompenses|Achats validés|Livraisons uniques|Validées|Statut|Catégorie|Type|Délai de validation)\s*:/.test(line)){
    const n=line.indexOf(':')+1;add('bold',at,n);continue;
   }
   if(/^(?:• |📚 |📖 |⭐ |🎁 |📂 |🔒 |💡 |✓ |⚠️ )/u.test(line)&&style==='welcome'){add('bold',at,line.length);continue;}
-  if(/^(?:Choisissez|Envoyez|Sélectionnez|Quel est|Quelle est|Combien|Durée minimale|Comment obtenir|Ajoutez d’abord|Vous pouvez|Actuel(?:le)? :|Sans description|Livre(?:s)? et formation|Livres, formations|Votre accès est conservé|Votre espace|Votre bibliothèque vous accompagne|Bonne lecture)/i.test(line)||style==='product'&&i===1){add('italic',at,line.length);continue;}
+  if(/^(?:Choisissez|Envoyez|Sélectionnez|Quel est|Quelle est|Combien|Durée minimale|Comment obtenir|Ajoutez d’abord|Vous pouvez|Actuel(?:le)? :|Sans description|Livre(?:s)? et formation|Livres, formations|Votre accès est conservé|Votre espace|Votre bibliothèque vous accompagne|Bonne lecture|Il vous reste|Partagez uniquement|Alternative :)/i.test(line)||style==='product'&&i===1){add('italic',at,line.length);continue;}
   if(style==='wizard'&&i>0&&line.length<=260){add('italic',at,line.length);continue;}
  }
  return entities.sort((a,b)=>a.offset-b.offset);
@@ -59,7 +82,7 @@ export async function tg(e,method,payload,style='auto'){
  if(!multipart&&payload&&!payload.parse_mode){
   const key=method==='sendMessage'?'text':['sendPhoto','sendDocument','sendVideo','sendAudio','sendVoice','sendAnimation'].includes(method)?'caption':null;
   const entityKey=key==='text'?'entities':'caption_entities';
-  if(key&&typeof payload[key]==='string'&&!payload[entityKey]){const entities=formatTelegram(payload[key],style);if(entities.length)payload={...payload,[entityKey]:entities};}
+  if(key&&typeof payload[key]==='string'&&!payload[entityKey]){const text=compactMessage(payload[key]);const entities=formatTelegram(text,style);payload={...payload,[key]:text,...(entities.length?{[entityKey]:entities}:{})};}
  }
  const res=await fetch(`https://api.telegram.org/bot${e.BOT_TOKEN}/${method}`,{method:'POST',headers:multipart?{}:{'Content-Type':'application/json'},body:multipart?payload:JSON.stringify(payload)});
  const j=await res.json();if(!res.ok||!j.ok)throw new TelegramError(method,j.error_code||res.status);return j.result;
@@ -78,13 +101,13 @@ async function photo(e,chat,caption,buttons,key,fileId,style='auto'){
 }
 async function welcome(e,u){
  const s=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_key'");const f=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_file_id'");
- return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nVotre espace pour apprendre, développer vos compétences et passer à l’action.\n\nApprendre. Appliquer. Réussir.\n\n📚 Découvrez nos formations complètes\n📖 Consultez leur programme avant de choisir\n🎁 Recevez-les gratuitement par recommandation\n📦 Composez vos packs et réduisez vos objectifs\n\nVotre bibliothèque vous accompagne partout, directement sur Telegram.\n\nChoisissez une rubrique :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value,'welcome');
+ return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\nApprendre • Appliquer • Réussir\n\n📚 Des formations complètes, à votre rythme.\n🎁 Recevez-les gratuitement par recommandation.\n📦 Combinez vos formations et réduisez vos objectifs.\n📂 Retrouvez vos acquis dans votre bibliothèque.\n\nChoisissez une rubrique pour commencer :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value,'welcome');
 }
 // Free-first. price_xof is the optional alternative purchase price.
 const hasCampaign=async(e,pid)=>!!await row(e.DB,'SELECT id FROM campaigns WHERE product_id=? LIMIT 1',pid);
 const activeCampaigns=(e,pid)=>all(e.DB,'SELECT id,target FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id',pid);
 const directFree=async(e,p)=>p.price_xof===0&&!await hasCampaign(e,p.id);
-const accessText=(p,cs,free)=>free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA — Accès gratuit par recommandation\n'+cs.map(c=>'Invitez '+c.target+' contacts qualifiés et rejoignez le canal pour recevoir cette formation.').join('\n')+(p.price_xof>0?'\n\nAlternative : achat sans partage à '+p.price_xof.toLocaleString('fr-FR')+' FCFA.':''):'Accès par recommandation temporairement indisponible.';
+const accessText=(p,cs,free)=>free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA — Accès gratuit par recommandation\n'+'Invitez '+cs.map(c=>c.target).filter((n,i,a)=>a.indexOf(n)===i).join(' ou ')+' contacts qualifiés, puis rejoignez le canal.'+(p.price_xof>0?'\nAlternative : achat sans partage à '+p.price_xof.toLocaleString('fr-FR')+' FCFA.':''):'Accès par recommandation temporairement indisponible.';
 async function catalogue(e,u,filter='all',page=0){
  const condition=filter==='free'?" AND p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)":filter==='premium'?" AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1)":" AND ((p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)) OR EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1))";
  const ps=await all(e.DB,'SELECT p.id,p.title FROM products p WHERE p.active=1'+condition+' ORDER BY p.category,p.title,p.id LIMIT 9 OFFSET ?',page*8);
@@ -104,7 +127,7 @@ async function productShort(e,p){
  const s=await row(e.DB,'SELECT value FROM settings WHERE key=?',shortKey(p.id));
  return shortDescription(s?.value||p.description)||'Découvrez cette formation complète.';
 }
-async function productDetails(e,u,pid){
+async function productDetails(e,u,pid,page=0){
  const p=await product(e,pid);if(!p||(!p.active&&!await entitlement(e,u,pid)))return send(e,u,'Formation indisponible.',[home]);
  const cs=await activeCampaigns(e,pid),free=await directFree(e,p),access=await entitlement(e,u,pid);
  const b=[];
@@ -112,8 +135,8 @@ async function productDetails(e,u,pid){
  else if(p.active){for(const c of cs)b.push([cb('🎁 Recevoir gratuitement · '+c.target+' contacts','c:'+c.id)]);
  if(cs.length&&p.price_xof>0)b.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);}
  b.push([cb('⬅ Retour à la formation','p:'+pid)],home);
- const description=String(p.description||'Le programme détaillé n’a pas encore été renseigné.').slice(0,3200);
- const text=(p.title+'\n\n📖 Présentation détaillée\n\n'+description+'\n\nConditions d’accès\n'+(access?'✅ Dans votre bibliothèque.':accessText(p,cs,free))).slice(0,3900);
+ const pages=detailPages(p.description);page=Math.min(pages.length-1,Math.max(0,page));const nav=[];if(page>0)nav.push(cb('◀ Précédent','details:'+pid+':'+(page-1)));if(page+1<pages.length)nav.push(cb('Suivant ▶','details:'+pid+':'+(page+1)));if(nav.length)b.unshift(nav);
+ const text='🎓 '+p.title+'\n📖 Programme · '+(page+1)+'/'+pages.length+'\n'+pages[page]+'\n'+(access?'✅ Dans votre bibliothèque.':free?'🆓 Accès direct.':'🎁 Accès gratuit par recommandation.');
  return send(e,u,text,b);
 }
 
@@ -126,12 +149,12 @@ async function showProduct(e,u,pid){
  if(!access&&!free&&cs.length&&p.price_xof>0)buttons.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);
  buttons.push([cb('📖 En savoir plus','details:'+pid)],home);
  const resources=await productAssets(e,p);
- const caption=(p.title+'\n'+p.category+' · '+resources.length+' ressource(s)\n\n'+(access?'✅ Dans votre bibliothèque.':accessText(p,cs,free))+'\n\n'+await productShort(e,p)).slice(0,1000);
+ const caption=compactMessage('🎓 '+p.title+'\n'+p.category+' · '+resources.length+' ressource(s)\n'+await productShort(e,p)+'\n'+(access?'✅ Dans votre bibliothèque.':accessText(p,cs,free))).slice(0,1000);
  return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id,'product');
 }
 async function purchaseInfo(e,u,pid){
  const p=await product(e,pid);if(!p?.active||p.price_xof<=0||!(await activeCampaigns(e,pid)).length)return showProduct(e,u,pid);
- return send(e,u,'Achat sans partage\n\n'+p.title+'\nMontant indicatif : '+p.price_xof.toLocaleString('fr-FR')+' FCFA.\n\nLe paiement dans Telegram n’est pas encore activé. Pour un achat effectué indépendamment sur notre boutique web, contactez l’assistance pour la vérification et l’accès. Aucun paiement n’est demandé ici.',[[cb('🎁 Recevoir gratuitement','p:'+pid)],[cb('Assistance','help')],home]);
+ return send(e,u,'💳 Achat sans partage\n'+p.title+'\nMontant : '+p.price_xof.toLocaleString('fr-FR')+' FCFA.\n\nLe paiement dans Telegram n’est pas encore activé.\nContactez l’assistance pour vérifier un achat web indépendant.\nAucun paiement n’est demandé ici.',[[cb('🎁 Recevoir gratuitement','p:'+pid)],[cb('Assistance','help')],home]);
 }
 // V1.4: ordered resource manifest. Legacy PDF products remain readable without migration.
 const assetKey=p=>'product_assets:'+p;
@@ -224,7 +247,7 @@ async function packOptions(e,u,page=0){
  const nav=[];if(page>0)nav.push(cb('◀','pk:select:'+String(page-1)));if(ps.length>8)nav.push(cb('▶','pk:select:'+String(page+1)));if(nav.length)b.push(nav);
  const selected=[];for(const cid of s){const x=await campaign(e,cid);if(x?.active&&x.product_active&&!await entitlement(e,u,x.product_id))selected.push(x);}
  const quote=packQuote(selected.map(x=>x.target));
- const text='📦 Composez votre pack\n\nSélectionnez 2 à 10 formations gratuites par recommandation.\n'+selected.map(x=>'• '+x.title).join('\n')+'\n\nSélection : '+selected.length+'/'+MAX_PACK+'\n'+(selected.length>=2?'Objectif normal : '+quote.original+'\nObjectif groupé : '+quote.target+' contacts qualifiés\nÉconomie : '+quote.saved+' contacts ('+packDiscount(selected.length)+' % avant arrondi).':'Sélectionnez au moins deux formations différentes.');
+ const text='📦 Composez votre pack\nSélectionnez 2 à 10 formations complètes.\n'+packTitles(selected)+'\nSélection : '+selected.length+'/'+MAX_PACK+'\n'+(selected.length>=2?'🎯 Objectif : '+quote.target+' au lieu de '+quote.original+' contacts\n💸 Économie : '+quote.saved+' contacts ('+packDiscount(selected.length)+' % avant arrondi).':'Sélectionnez au moins deux formations différentes.');
  if(selected.length>=2)b.push([cb('✅ Créer le pack · '+quote.target+' contacts','pk:create')]);
  b.push([cb('Réinitialiser','pk:reset')],[cb('⬅ Mes parrainages','progression')],home);
  return send(e,u,text,b);
@@ -243,7 +266,7 @@ async function createPack(e,u,ids){
 }
 async function notifyProgress(e,u,n,target,title,action){
  if(n>target)return;
- try{await send(e,u,(n>=target?'🎉 Objectif atteint !':'🎉 Nouveau contact qualifié !')+'\n\n'+title+'\n'+n+'/'+target+' contacts qualifiés'+(n>=target?'\nVérifiez votre abonnement pour débloquer vos ressources.':''),[[cb(n>=target?'🎁 Récupérer mes ressources':'📊 Voir ma progression',action)]]);}
+ try{await send(e,u,(n>=target?'🎉 Objectif atteint !':'🎉 Nouveau contact qualifié !')+'\n\n'+title+'\n'+progressBar(n,target)+'\n'+n+'/'+target+' contacts qualifiés'+(n>=target?'\nVérifiez votre abonnement pour recevoir vos ressources.':'\n🎯 Il reste '+(target-n)+' contact(s).'),[[cb(n>=target?'🎁 Récupérer mes ressources':'📊 Voir ma progression',action)]]);}
  catch(err){console.warn('Progress notification not delivered',err.status||err.name);}
 }
 async function packDiscover(e,u,token){
@@ -260,17 +283,17 @@ async function packDiscover(e,u,token){
  }
  const b=items.map(x=>[cb('📚 '+x.title.slice(0,46),'p:'+x.product_id)]);
  b.push([cb('🎁 Composer ce pack pour moi','pk:copy:'+p.id)],[cb('Composer un autre pack','pk:select:0')],home);
- return send(e,u,'🎓 Découvrez ces formations\n\n'+items.map(x=>'• '+x.title).join('\n')+'\n\nAccès groupé : '+p.target+' contacts qualifiés au lieu de '+p.original_target+'.\nVous devrez rejoindre les canaux associés au moment du déblocage.',b);
+ return send(e,u,'🎓 Découvrez ces formations\n\n'+packTitles(items)+'\n\nAccès groupé : '+p.target+' contacts qualifiés au lieu de '+p.original_target+'.\nVous devrez rejoindre les canaux associés au moment du déblocage.',b);
 }
 async function packDashboard(e,u,pid){
  const p=await packRow(e,pid);if(!p||p.owner_id!==u)return send(e,u,'Pack introuvable.',[home]);
  const items=await packItems(e,pid),n=await packCount(e,pid),owned=[];for(const x of items)if(await entitlement(e,u,x.product_id))owned.push(x.product_id);
- if(owned.length===items.length&&items.length)return send(e,u,'✅ Pack terminé\n\n'+items.map(x=>'• '+x.title).join('\n')+'\n\nVos formations sont dans votre bibliothèque.',[[cb('📂 Ma bibliothèque','bibliotheque')],[cb('⬅ Mes parrainages','progression')],home]);
+ if(owned.length===items.length&&items.length)return send(e,u,'✅ Pack terminé\n\n'+packTitles(items)+'\n\nVos formations sont dans votre bibliothèque.',[[cb('📂 Ma bibliothèque','bibliotheque')],[cb('⬅ Mes parrainages','progression')],home]);
  if(!packReady(items))return send(e,u,'⚠️ Pack indisponible : une campagne est arrêtée ou un produit masqué. Vos accès déjà acquis sont conservés.',[[cb('⬅ Mes parrainages','progression')],home]);
  const b=[[cb('📣 Ma publicité groupée','pk:share:'+pid)],[cb('🔄 Actualiser','pk:view:'+pid)]];
  if(n>=p.target)b.push([cb('🎁 Vérifier et recevoir le pack','pk:claim:'+pid)]);
  b.push([cb('⬅ Mes parrainages','progression')],home);
- return send(e,u,'📦 Mon pack de '+items.length+' formations\n\n'+items.map(x=>'• '+x.title).join('\n')+'\n\n'+n+'/'+p.target+' contacts qualifiés\nObjectif initial : '+p.original_target+' · Économie : '+(p.original_target-p.target)+'\n\n'+(n>=p.target?'Objectif atteint ! Vérifiez votre abonnement aux canaux.':'Partagez votre publicité. Chaque nouveau contact doit découvrir toutes les formations via votre lien.')+'\nLes compteurs individuels restent séparés.',b);
+ return send(e,u,'📦 Mon pack de '+items.length+' formations\n\n'+packTitles(items)+'\n'+progressBar(n,p.target)+'\n'+n+'/'+p.target+' contacts qualifiés\nObjectif initial : '+p.original_target+' · Économie : '+(p.original_target-p.target)+'\n\n'+(n>=p.target?'Objectif atteint ! Vérifiez votre abonnement aux canaux.':'Partagez votre publicité. Chaque nouveau contact doit découvrir toutes les formations via votre lien.')+'\nLes compteurs individuels restent séparés.',b);
 }
 async function packPost(e,u,pid){
  const p=await packRow(e,pid);if(!p||p.owner_id!==u)return null;
@@ -414,15 +437,15 @@ async function showCampaign(e,u,cid){
  const b=[];
  if(link){b.push([cb('📣 Ma publication à partager','rshare:'+cid)],[cb('🔄 Actualiser','check:'+cid)]);}
  else b.push([cb('🔗 Créer mon lien personnel','link:'+cid)]);
- let instruction='Invitez '+c.target+' contacts qualifiés : chaque personne doit ouvrir votre lien et démarrer le bot pour cette formation. Aucun abonnement n’est exigé de vos contacts.';
+ let instruction='Partagez votre lien : chaque nouveau contact doit démarrer le bot.\nVos contacts n’ont pas à rejoindre le canal.';
  if(ready){
   let joined=false;try{joined=await getMember(e,c.channel_id,u);}catch{}
-  if(!joined){b.push([urlButton('📢 Rejoindre le canal',c.channel_url)],[cb('✅ Vérifier mon abonnement et recevoir','claim:'+cid)]);instruction='Objectif atteint ! Rejoignez le canal puis vérifiez votre abonnement pour recevoir la formation.';}
-  else{b.push([cb('🎁 Recevoir la formation','claim:'+cid)]);instruction='Objectif atteint ! Vous pouvez recevoir votre formation.';}
+  if(!joined){b.push([urlButton('📢 Rejoindre le canal',c.channel_url)],[cb('✅ Vérifier mon abonnement et recevoir','claim:'+cid)]);instruction='🎉 Objectif atteint !\nRejoignez le canal, puis vérifiez votre abonnement.';}
+  else{b.push([cb('🎁 Recevoir la formation','claim:'+cid)]);instruction='🎉 Objectif atteint !\nVotre formation vous attend.';}
  }else b.push([cb('🎁 Vérifier mon accès','claim:'+cid)]);
  b.push(home);
  const url=link?await discoveryURL(e,link.token):'';
- return send(e,u,'🎁 '+c.title+'\n\n'+'🟩'.repeat(Math.min(v,c.target))+'⬜'.repeat(Math.max(0,c.target-v))+'\n'+v+'/'+c.target+' contacts qualifiés\n\n'+instruction+'\n\nImportant : un compte par formation, pas d’auto-parrainage ni de spam. Aucun achat, pari ou dépôt obligatoire.'+(url?'\n\nVotre lien personnel :\n'+url:''),b);
+ return send(e,u,'🎁 '+c.title+'\n'+progressBar(v,c.target)+'\n'+v+'/'+c.target+' contacts qualifiés\n'+(ready?'✅ Objectif atteint':'🎯 Il reste '+Math.max(0,c.target-v)+' contact(s).')+'\n'+instruction+'\nImportant : un compte par formation, ni auto-parrainage ni spam. Aucun achat, pari ou dépôt obligatoire.'+(url?'\nVotre lien personnel :\n'+url:''),b);
 }
 async function makeLink(e,u,cid){
  const c=await campaign(e,cid);if(!c?.active||!c.product_active)return send(e,u,'Campagne indisponible.',[home]);
@@ -951,7 +974,7 @@ async function dispatch(e,update){
  if(action==='help')return help(e,u);
  let v=action.split(':');if(v[0]==='list'&&['all','free','premium'].includes(v[1])&&/^\d{1,3}$/.test(v[2]||''))return catalogue(e,u,v[1],Number(v[2]));
  if(v[0]==='lib'&&/^\d{1,3}$/.test(v[1]||''))return library(e,u,Number(v[1]));
- if(v.length===3&&slug(v[1])&&/^\d{1,3}$/.test(v[2])){if(v[0]==='asset'||v[0]==='assets')return resourceAction(e,u,v[1],Number(v[2]),v[0]==='assets');if(['atest','apage'].includes(v[0])&&admins(e).has(u)){const p=await product(e,v[1]);if(!p)return;const assets=await productAssets(e,p);if(v[0]==='apage')return adminResourceMenu(e,u,p,assets,Number(v[2]));const a=assets[Number(v[2])];if(a)return sendAsset(e,u,a,'Test administrateur — '+a.name,true);}}
+ if(v.length===3&&slug(v[1])&&/^\d{1,3}$/.test(v[2])){if(v[0]==='details')return productDetails(e,u,v[1],Number(v[2]));if(v[0]==='asset'||v[0]==='assets')return resourceAction(e,u,v[1],Number(v[2]),v[0]==='assets');if(['atest','apage'].includes(v[0])&&admins(e).has(u)){const p=await product(e,v[1]);if(!p)return;const assets=await productAssets(e,p);if(v[0]==='apage')return adminResourceMenu(e,u,p,assets,Number(v[2]));const a=assets[Number(v[2])];if(a)return sendAsset(e,u,a,'Test administrateur — '+a.name,true);}}
  if(v.length===2&&slug(v[1])){
   if(v[0]==='details')return productDetails(e,u,v[1]);if(v[0]==='buy')return purchaseInfo(e,u,v[1]);if(v[0]==='rshare')return referralShare(e,u,v[1]);if(v[0]==='p')return showProduct(e,u,v[1]);if(v[0]==='get')return sendPDF(e,u,v[1]);if(v[0]==='c')return showCampaign(e,u,v[1]);if(v[0]==='link')return makeLink(e,u,v[1]);if(v[0]==='check')return refresh(e,u,v[1]);if(v[0]==='claim')return claim(e,u,v[1]);
  }
@@ -1058,5 +1081,5 @@ async function handleAcademyImport(request,e,p){
  finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
 }
 
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.8.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
-export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard,packDiscount,directFree,accessText,purchaseInfo,shortDescription,productShort,productDetails};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.9.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard,packDiscount,directFree,accessText,purchaseInfo,shortDescription,productShort,productDetails,detailPages,compactMessage,progressBar};
