@@ -1,5 +1,73 @@
 [
   {
+    "slug": "412c35a6d6545851",
+    "title": "PSG : Luis Enrique devient le seul survivant de la saison dernière en Ligue 1 !",
+    "summary": "Après le départ de Franck Haise, officialisé ce jeudi 27 novembre par le Stade Rennais, Luis Enrique (PSG) est désormais le seul entraîneur de Ligue 1 présent sur son banc la saison dernière à avoir…",
+    "summary_short": "Après le départ de Franck Haise, officialisé ce jeudi 27 novembre par le Stade Rennais, Luis Enrique (PSG) est désormais le seul entraîneur de Ligue 1 présent sur son banc la saison dernière à avoir…",
+    "content": "Après le départ de Franck Haise, officialisé ce jeudi 27 novembre par le Stade Rennais, Luis Enrique (PSG) est désormais le seul entraîneur de Ligue 1 présent sur son banc la saison dernière à avoir…",
+    "paragraphs": [
+      "Après le départ de Franck Haise, officialisé ce jeudi 27 novembre par le Stade Rennais, Luis Enrique (PSG) est désormais le seul entraîneur de Ligue 1 présent sur son banc la saison dernière à avoir…"
+    ],
+    "key_points": [
+      "Après le départ de Franck Haise, officialisé ce jeudi 27 novembre par le Stade Rennais, Luis Enrique (PSG) est désormais le seul entraîneur de Ligue 1 présent sur son banc la saison dernière à avoir…"
+    ],
+    "telegram_summary": "Après le départ de Franck Haise, officialisé ce jeudi 27 novembre par le Stade Rennais, Luis Enrique (PSG) est désormais le seul entraîneur de Ligue 1 présent sur son banc la saison dernière à avoir…",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-devient-le-seul-survivant-de-la-saison-derniere-en-ligue-1-547301.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-devient-le-seul-survivant-de-la-saison-derniere-en-ligue-1-547301.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=412c35a6d6545851",
+    "published": "2026-11-28T09:55:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260828232353-6459.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260828232353-6459.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "862424960edf052f",
+    "title": "Mercato Hull : le prêt de Vaz interrompu ?",
+    "summary": "Prêté avec option d'achat par l'AS Roma cet été, Robinio Vaz (19 ans, 5 apparitions en Premier League cette saison) risqu......",
+    "summary_short": "Prêté avec option d'achat par l'AS Roma cet été, Robinio Vaz (19 ans, 5 apparitions en Premier League cette saison) risqu......",
+    "content": "Prêté avec option d'achat par l'AS Roma cet été, Robinio Vaz (19 ans, 5 apparitions en Premier League cette saison) risqu......",
+    "paragraphs": [
+      "Prêté avec option d'achat par l'AS Roma cet été, Robinio Vaz (19 ans, 5 apparitions en Premier League cette saison) risqu......"
+    ],
+    "key_points": [
+      "Prêté avec option d'achat par l'AS Roma cet été, Robinio Vaz (19 ans, 5 apparitions en Premier League cette saison) risqu......"
+    ],
+    "telegram_summary": "Prêté avec option d'achat par l'AS Roma cet été, Robinio Vaz (19 ans, 5 apparitions en Premier League cette saison) risqu......",
+    "link": "https://www.maxifoot.fr/hull/le-pret-de-vaz-interrompu-foot-468529.htm",
+    "source_url": "https://www.maxifoot.fr/hull/le-pret-de-vaz-interrompu-foot-468529.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=862424960edf052f",
+    "published": "2026-11-28T09:43:48+00:00",
+    "image": "https://news.maxifoot.fr/amp/468529.webp",
+    "source_image": "https://news.maxifoot.fr/amp/468529.webp",
+    "image_origin": "generated_fallback",
+    "image_layout": "general-banner",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
     "slug": "f5b4f0c76ce6b755",
     "title": "PSG : Luis Enrique, le dernier survivant d’une valse des entraîneurs complètement folle",
     "summary": "La valse des entraîneurs continue en Ligue 1 et Luis Enrique peut mesurer le chemin parcouru depuis son arrivée au Paris Saint-Germain. Après la mise à l’écart de Franck Haise par le Stade Rennais, ce (…)",
@@ -127,7 +195,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1198,6 +1266,109 @@
     "quality_score": 90
   },
   {
+    "slug": "cf4f53828654bad5",
+    "title": "Droits TV de la Ligue 1 : un géant américain prêt à lâcher 350 millions d'euros pour tout rafler ?",
+    "summary": "La LFP continue de chercher un nouveau diffuseur pour la Ligue 1 et un géant américain pourrait bien faire son apparition.",
+    "summary_short": "La LFP continue de chercher un nouveau diffuseur pour la Ligue 1 et un géant américain pourrait bien faire son apparition.",
+    "content": "La LFP continue de chercher un nouveau diffuseur pour la Ligue 1 et un géant américain pourrait bien faire son apparition.",
+    "paragraphs": [
+      "La LFP continue de chercher un nouveau diffuseur pour la Ligue 1 et un géant américain pourrait bien faire son apparition."
+    ],
+    "key_points": [
+      "La LFP continue de chercher un nouveau diffuseur pour la Ligue 1 et un géant américain pourrait bien faire son apparition."
+    ],
+    "telegram_summary": "La LFP continue de chercher un nouveau diffuseur pour la Ligue 1 et un géant américain pourrait bien faire son apparition.",
+    "link": "https://www.onzemondial.com/ligue-1/droits-tv-de-la-ligue-1-un-geant-americain-pret-a-lacher-350-millions-deuros-pour-tout-rafler-1011850",
+    "source_url": "https://www.onzemondial.com/ligue-1/droits-tv-de-la-ligue-1-un-geant-americain-pret-a-lacher-350-millions-deuros-pour-tout-rafler-1011850",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cf4f53828654bad5",
+    "published": "2026-11-28T10:00:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011850/411751/1200-L-droits-tv-de-la-ligue-1-un-gant-amricain-prt-lcher-350-millions-d-euros-pour-tout-rafler.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011850/411751/1200-L-droits-tv-de-la-ligue-1-un-gant-amricain-prt-lcher-350-millions-d-euros-pour-tout-rafler.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "02dcbe251d97f9bb",
+    "title": "PSG : les statistiques folles de Zaïre-Emery avant son 200e match",
+    "summary": "À seulement 20 ans et 265 jours, Warren Zaïre-Emery s’apprête à franchir un cap symbolique avec le Paris Saint-Germain. Titulaire annoncé samedi face à Lorient, le milieu de terrain disputera son 200e (…)",
+    "summary_short": "À seulement 20 ans et 265 jours, Warren Zaïre-Emery s’apprête à franchir un cap symbolique avec le Paris Saint-Germain. Titulaire annoncé samedi face à Lorient, le milieu de terrain disputera son 200e (…)",
+    "content": "À seulement 20 ans et 265 jours, Warren Zaïre-Emery s’apprête à franchir un cap symbolique avec le Paris Saint-Germain. Titulaire annoncé samedi face à Lorient, le milieu de terrain disputera son 200e (…)",
+    "paragraphs": [
+      "À seulement 20 ans et 265 jours, Warren Zaïre-Emery s’apprête à franchir un cap symbolique avec le Paris Saint-Germain. Titulaire annoncé samedi face à Lorient, le milieu de terrain disputera son 200e (…)"
+    ],
+    "key_points": [
+      "À seulement 20 ans et 265 jours, Warren Zaïre-Emery s’apprête à franchir un cap symbolique avec le Paris Saint-Germain.",
+      "Titulaire annoncé samedi face à Lorient, le milieu de terrain disputera son 200e (…)"
+    ],
+    "telegram_summary": "À seulement 20 ans et 265 jours, Warren Zaïre-Emery s’apprête à franchir un cap symbolique avec le Paris Saint-Germain. Titulaire annoncé samedi face à Lorient, le milieu de terrain disputera son 200e (…)",
+    "link": "https://www.footmercato.net/a3436946994829146992-psg-les-statistiques-folles-de-zaire-emery-avant-son-200e-match",
+    "source_url": "https://www.footmercato.net/a3436946994829146992-psg-les-statistiques-folles-de-zaire-emery-avant-son-200e-match",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=02dcbe251d97f9bb",
+    "published": "2026-11-28T09:59:57+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/warren-zaire-emery-2223.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/warren-zaire-emery-2223.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "d397f9017639584d",
+    "title": "FC Lorient : Quatre absents dans le groupe des Merlus pour affronter le PSG",
+    "summary": "Le groupe du FC Lorient pour le match face au PSG (J12 Ligue 1), ce samedi 28 novembre.",
+    "summary_short": "Le groupe du FC Lorient pour le match face au PSG (J12 Ligue 1), ce samedi 28 novembre.",
+    "content": "Le groupe du FC Lorient pour le match face au PSG (J12 Ligue 1), ce samedi 28 novembre.",
+    "paragraphs": [
+      "Le groupe du FC Lorient pour le match face au PSG (J12 Ligue 1), ce samedi 28 novembre."
+    ],
+    "key_points": [
+      "Le groupe du FC Lorient pour le match face au PSG (J12 Ligue 1), ce samedi 28 novembre."
+    ],
+    "telegram_summary": "Le groupe du FC Lorient pour le match face au PSG (J12 Ligue 1), ce samedi 28 novembre.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-fc-lorient-quatre-absents-dans-le-groupe-des-merlus-pour-affronter-le-psg-547300.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-fc-lorient-quatre-absents-dans-le-groupe-des-merlus-pour-affronter-le-psg-547300.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d397f9017639584d",
+    "published": "2026-11-28T09:45:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260914111042-8432.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260914111042-8432.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "0cfd93c851269143",
     "title": "Chelsea : conspué et insulté, Fofana a vécu un cauchemar...",
     "summary": "Recadré par Chelsea après une interview non autorisée, le défenseur central Wesley Fofana s'est attiré les foudres des fans des Blues pour ses propos. Après avoir concédé un penalty contre Nottingham Forest (2-3) vendredi en Premier League, le Français a été insulté par ses propres supporters....",
@@ -1265,7 +1436,7 @@
       "source": "ESPN News API",
       "article_id": "50611692",
       "url": "https://www.espn.com/soccer/story/_/id/50611692/arsenal-man-city-mikel-arteta-premier-league-case",
-      "published": "2026-11-27T15:34:18Z",
+      "published": "2026-11-28T09:54:35Z",
       "score": 0.286,
       "matched_terms": [
         "arsenal",
@@ -1286,7 +1457,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1415,7 +1586,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1479,7 +1650,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1641,7 +1812,7 @@
         "UEFA Europa League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1706,7 +1877,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1885,6 +2056,66 @@
       "BBC Sport"
     ],
     "quality_score": 85
+  },
+  {
+    "slug": "7257ebf32f1ee724",
+    "title": "Atlético de Madrid : Diego Simeone réclame des joueurs",
+    "summary": "Diego Simeone ne cache plus ses intentions à l’approche du mercato hivernal. Avant d’affronter Elche, l’entraîneur de l’Atlético de Madrid a clairement affiché son souhait de renforcer son effectif, (…)",
+    "summary_short": "Diego Simeone ne cache plus ses intentions à l’approche du mercato hivernal. Avant d’affronter Elche, l’entraîneur de l’Atlético de Madrid a clairement affiché son souhait de renforcer son effectif, (…)",
+    "content": "Diego Simeone ne cache plus ses intentions à l’approche du mercato hivernal. Avant d’affronter Elche, l’entraîneur de l’Atlético de Madrid a clairement affiché son souhait de renforcer son effectif, (…)",
+    "paragraphs": [
+      "Diego Simeone ne cache plus ses intentions à l’approche du mercato hivernal. Avant d’affronter Elche, l’entraîneur de l’Atlético de Madrid a clairement affiché son souhait de renforcer son effectif, (…)"
+    ],
+    "key_points": [
+      "Diego Simeone ne cache plus ses intentions à l’approche du mercato hivernal.",
+      "Avant d’affronter Elche, l’entraîneur de l’Atlético de Madrid a clairement affiché son souhait de renforcer son effectif, (…)"
+    ],
+    "telegram_summary": "Diego Simeone ne cache plus ses intentions à l’approche du mercato hivernal. Avant d’affronter Elche, l’entraîneur de l’Atlético de Madrid a clairement affiché son souhait de renforcer son effectif, (…)",
+    "link": "https://www.footmercato.net/a2835806232842983560-atletico-de-madrid-diego-simeone-reclame-des-joueurs",
+    "source_url": "https://www.footmercato.net/a2835806232842983560-atletico-de-madrid-diego-simeone-reclame-des-joueurs",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7257ebf32f1ee724",
+    "published": "2026-11-28T08:05:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diego-simeone-2627.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diego-simeone-2627.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50574062",
+      "url": "https://www.espn.com/soccer/story/_/id/50574062/diego-simeone-atletico-madrid-laliga",
+      "published": "2026-11-23T17:18:23Z",
+      "score": 0.364,
+      "matched_terms": [
+        "atletico",
+        "diego",
+        "madrid",
+        "simeone"
+      ],
+      "topics": [],
+      "teams": [
+        "Atlético Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
   },
   {
     "slug": "f6dd3ee85cf4ff7b",
@@ -2075,216 +2306,12 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T09:40:14.258625+00:00"
+      "checked_at": "2026-11-28T10:10:10.769328+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "55fc5680a8287b55",
-    "title": "OM-Levski Sofia : « ils frappaient tout ce qu’ils voyaient », les témoignages glaçants de supporters marseillais",
-    "summary": "La victoire de l’Olympique de Marseille face au Levski Sofia (1-0), jeudi soir en Ligue Europa, a été éclipsée par de violents affrontements survenus dans les tribunes du stade Vélodrome.",
-    "summary_short": "La victoire de l’Olympique de Marseille face au Levski Sofia (1-0), jeudi soir en Ligue Europa, a été éclipsée par de violents affrontements survenus dans les tribunes du stade Vélodrome.",
-    "content": "La victoire de l’Olympique de Marseille face au Levski Sofia (1-0), jeudi soir en Ligue Europa, a été éclipsée par de violents affrontements survenus dans les tribunes du stade Vélodrome. Présent en (…)",
-    "paragraphs": [
-      "La victoire de l’Olympique de Marseille face au Levski Sofia (1-0), jeudi soir en Ligue Europa, a été éclipsée par de violents affrontements survenus dans les tribunes du stade Vélodrome. Présent en (…)"
-    ],
-    "key_points": [
-      "La victoire de l’Olympique de Marseille face au Levski Sofia (1-0), jeudi soir en Ligue Europa, a été éclipsée par de violents affrontements survenus dans les tribunes du stade Vélodrome."
-    ],
-    "telegram_summary": "La victoire de l’Olympique de Marseille face au Levski Sofia (1-0), jeudi soir en Ligue Europa, a été éclipsée par de violents affrontements survenus dans les tribunes du stade Vélodrome.",
-    "link": "https://www.footmercato.net/a4082654789669607512-om-levski-sofia-ils-frappaient-tout-ce-quils-voyaient-les-temoignages-glacants-de-supporters-marseillais",
-    "source_url": "https://www.footmercato.net/a4082654789669607512-om-levski-sofia-ils-frappaient-tout-ce-quils-voyaient-les-temoignages-glacants-de-supporters-marseillais",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=55fc5680a8287b55",
-    "published": "2026-11-28T07:34:09+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo813394-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo813394-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "086440b0a542e41d",
-    "title": "TÉMOIGNAGE. Au Vélodrome jeudi soir à Marseille, \"une dizaine de personnes m'a entouré et frappé\", raconte un supporter bulgare blessé au Vélodrome",
-    "summary": "Après les violents affrontements entre supporters marseillais et bulgares au Vélodrome, un supporter bulgare grièvement blessé met en cause le dispositif de sécurité.",
-    "summary_short": "Après les violents affrontements entre supporters marseillais et bulgares au Vélodrome, un supporter bulgare grièvement blessé met en cause le dispositif de sécurité.",
-    "content": "Après les violents affrontements entre supporters marseillais et bulgares au Vélodrome, un supporter bulgare grièvement blessé met en cause le dispositif de sécurité.",
-    "paragraphs": [
-      "Après les violents affrontements entre supporters marseillais et bulgares au Vélodrome, un supporter bulgare grièvement blessé met en cause le dispositif de sécurité."
-    ],
-    "key_points": [
-      "Après les violents affrontements entre supporters marseillais et bulgares au Vélodrome, un supporter bulgare grièvement blessé met en cause le dispositif de sécurité."
-    ],
-    "telegram_summary": "Après les violents affrontements entre supporters marseillais et bulgares au Vélodrome, un supporter bulgare grièvement blessé met en cause le dispositif de sécurité.",
-    "link": "https://www.franceinfo.fr/sports/foot/ligue-europa/temoignage-au-velodrome-jeudi-soir-a-marseille-une-dizaine-de-personnes-m-a-entoure-et-frappe-raconte-un-supporter-bulgare-blesse-au-velodrome_8304294.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-europa/temoignage-au-velodrome-jeudi-soir-a-marseille-une-dizaine-de-personnes-m-a-entoure-et-frappe-raconte-un-supporter-bulgare-blesse-au-velodrome_8304294.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=086440b0a542e41d",
-    "published": "2026-11-28T07:30:34+00:00",
-    "image": "https://www.franceinfo.fr/pictures/qr1fgsegY6QMbjsIJhD6Jfbt-vw/0x63:1200x738/432x243/filters:format(jpg)/2026/11/28/6b0a7951783d0490793662.jpg",
-    "source_image": "https://www.franceinfo.fr/pictures/qr1fgsegY6QMbjsIJhD6Jfbt-vw/0x63:1200x738/432x243/filters:format(jpg)/2026/11/28/6b0a7951783d0490793662.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
-  },
-  {
-    "slug": "bb8dea22b33638f5",
-    "title": "MLS : Lionel Messi et l’Inter Miami éliminés dès le premier tour des play-offs !",
-    "summary": "Coup de tonnerre en MLS ! Champion en titre, l’Inter Miami de Lionel Messi a été éliminé dès le premier tour des play-offs par le Columbus Crew (le premier tour des play-offs se disputant au meilleur (…)",
-    "summary_short": "Coup de tonnerre en MLS ! Champion en titre, l’Inter Miami de Lionel Messi a été éliminé dès le premier tour des play-offs par le Columbus Crew (le premier tour des play-offs se disputant au meilleur (…)",
-    "content": "Coup de tonnerre en MLS ! Champion en titre, l’Inter Miami de Lionel Messi a été éliminé dès le premier tour des play-offs par le Columbus Crew (le premier tour des play-offs se disputant au meilleur (…)",
-    "paragraphs": [
-      "Coup de tonnerre en MLS ! Champion en titre, l’Inter Miami de Lionel Messi a été éliminé dès le premier tour des play-offs par le Columbus Crew (le premier tour des play-offs se disputant au meilleur (…)"
-    ],
-    "key_points": [
-      "Champion en titre, l’Inter Miami de Lionel Messi a été éliminé dès le premier tour des play-offs par le Columbus Crew (le premier tour des play-offs se disputant au meilleur (…)"
-    ],
-    "telegram_summary": "Coup de tonnerre en MLS ! Champion en titre, l’Inter Miami de Lionel Messi a été éliminé dès le premier tour des play-offs par le Columbus Crew (le premier tour des play-offs se disputant au meilleur (…)",
-    "link": "https://www.footmercato.net/a8655421662956380267-mls-lionel-messi-et-linter-miami-elimines-des-le-premier-tour-des-play-offs",
-    "source_url": "https://www.footmercato.net/a8655421662956380267-mls-lionel-messi-et-linter-miami-elimines-des-le-premier-tour-des-play-offs",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bb8dea22b33638f5",
-    "published": "2026-11-28T07:29:37+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lionel-messi-2627.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lionel-messi-2627.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "58850ae992a8439a",
-    "title": "OM-Sofia : comment 200 billets VIP imposés par l'UEFA ont mis le feu au Vélodrome",
-    "summary": "Les scènes de chaos au Stade Vélodrome auraient-elles pu être évitée sans le règlement de l'UEFA ?",
-    "summary_short": "Les scènes de chaos au Stade Vélodrome auraient-elles pu être évitée sans le règlement de l'UEFA ?",
-    "content": "Les scènes de chaos au Stade Vélodrome auraient-elles pu être évitée sans le règlement de l'UEFA ?",
-    "paragraphs": [
-      "Les scènes de chaos au Stade Vélodrome auraient-elles pu être évitée sans le règlement de l'UEFA ?"
-    ],
-    "key_points": [
-      "Les scènes de chaos au Stade Vélodrome auraient-elles pu être évitée sans le règlement de l'UEFA ?"
-    ],
-    "telegram_summary": "Les scènes de chaos au Stade Vélodrome auraient-elles pu être évitée sans le règlement de l'UEFA ?",
-    "link": "https://www.onzemondial.com/europa-league/om-sofia-comment-200-billets-vip-imposes-par-luefa-ont-mis-le-feu-au-velodrome-1011826",
-    "source_url": "https://www.onzemondial.com/europa-league/om-sofia-comment-200-billets-vip-imposes-par-luefa-ont-mis-le-feu-au-velodrome-1011826",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=58850ae992a8439a",
-    "published": "2026-11-28T07:28:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011826/411746/1200-L-om-sofia-comment-200-billets-vip-imposs-par-l-uefa-ont-mis-le-feu-au-vlodrome.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011826/411746/1200-L-om-sofia-comment-200-billets-vip-imposs-par-l-uefa-ont-mis-le-feu-au-vlodrome.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "a9bc9b3c41aac2a4",
-    "title": "How dad's embarrassment was making of Gross at Brighton",
-    "summary": "Pascal Gross says his dad 'embarrassment' at him looking for free-kicks played an important part in him becoming the player he is today at Brighton.",
-    "summary_short": "Pascal Gross says his dad 'embarrassment' at him looking for free-kicks played an important part in him becoming the player he is today at Brighton.",
-    "content": "Pascal Gross says his dad 'embarrassment' at him looking for free-kicks played an important part in him becoming the player he is today at Brighton.",
-    "paragraphs": [
-      "Pascal Gross says his dad 'embarrassment' at him looking for free-kicks played an important part in him becoming the player he is today at Brighton."
-    ],
-    "key_points": [
-      "Pascal Gross says his dad 'embarrassment' at him looking for free-kicks played an important part in him becoming the player he is today at Brighton."
-    ],
-    "telegram_summary": "Pascal Gross says his dad 'embarrassment' at him looking for free-kicks played an important part in him becoming the player he is today at Brighton.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/cm3egnw0y0d0o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/cm3egnw0y0d0o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a9bc9b3c41aac2a4",
-    "published": "2026-11-28T07:25:04+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/feb8/live/786c73f0-e8ee-11f1-8808-1d4222955d7e.jpg",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/feb8/live/786c73f0-e8ee-11f1-8808-1d4222955d7e.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "36523136f9b0c1cc",
-    "title": "Who am I? Plus today's other quizzes",
-    "summary": "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser.",
-    "summary_short": "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser.",
-    "content": "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser.",
-    "paragraphs": [
-      "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser."
-    ],
-    "key_points": [
-      "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser."
-    ],
-    "telegram_summary": "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser.",
-    "link": "https://www.bbc.co.uk/sport/football/articles/c35y1kgn2l90o?at_medium=RSS&at_campaign=rss",
-    "source_url": "https://www.bbc.co.uk/sport/football/articles/c35y1kgn2l90o?at_medium=RSS&at_campaign=rss",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36523136f9b0c1cc",
-    "published": "2026-11-28T07:04:56+00:00",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1fbf/live/38bd3c70-bda7-11f1-bc2e-018d645d8d21.png",
-    "source_image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/1fbf/live/38bd3c70-bda7-11f1-bc2e-018d645d8d21.png",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "BBC Sport",
-    "source_priority": 85,
-    "source_region": "international",
-    "source_feed": "https://feeds.bbci.co.uk/sport/football/rss.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "BBC Sport"
-    ],
-    "quality_score": 85
   }
 ]
