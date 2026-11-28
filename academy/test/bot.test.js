@@ -35,14 +35,14 @@ test('referral publication only describes the product and opens the bot',()=>{
  assert.ok(!/parrainage|contacts qualifiés|canal/.test(text));assert.ok(text.split('\n').length<=5);assert.ok(text.includes('start=r_test'));
 });
 test('scheduled reward no longer grants without explicit channel verification',async()=>{const {sql,env}=setup();assert.equal(await autoReward(env),false);assert.equal(count(sql,'entitlements'),0);});
-test('direct premium callback without entitlement denied, free PDF works',async t=>{const {sql,env}=setup();let sent=0;withTelegram(t,m=>{if(m==='sendDocument')sent++;return {};});await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);await internals.sendPDF(env,'2','fondamentaux');assert.equal(sent,1);assert.equal(count(sql,'entitlements'),1);});
+test('all complete courses require entitlement, including zero-price legacy products',async t=>{const {sql,env}=setup();let sent=0;withTelegram(t,m=>{if(m==='sendDocument')sent++;return {};});await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);await internals.sendPDF(env,'2','fondamentaux');assert.equal(sent,0);assert.equal(count(sql,'entitlements'),0);});
 test('same Telegram update replay is ignored; wrong secret denied',async t=>{const {env}=setup();let sent=0;withTelegram(t,m=>{if(m==='sendMessage')sent++;return {};});const data={update_id:4,message:{chat:{id:2,type:'private'},from:{id:2},text:'/id'}};const req=secret=>new Request('https://test/telegram/webhook',{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret},body:JSON.stringify(data)});assert.equal((await handleWebhook(req('bad'),env)).status,403);assert.equal((await handleWebhook(req('secret'),env)).status,200);assert.equal((await handleWebhook(req('secret'),env)).status,200);assert.equal(sent,1);});
 test('non administrator cannot grant a product',async t=>{const {sql,env}=setup();withTelegram(t,()=>({}));await internals.dispatch(env,{message:{chat:{id:2,type:'private'},from:{id:2},text:'/grant 2 masterclass'}});assert.equal(count(sql,'entitlements'),0);});
 test('multiple campaign links on same channel cannot credit one account twice',async()=>{const {sql,env}=setup();sql.exec("INSERT INTO campaigns VALUES ('other','masterclass','-10012345','https://t.me/testchan',5,0,1); INSERT INTO links VALUES ('other','2','https://t.me/+other','-10012345',0)");await membershipEvent(env,ev(31));await membershipEvent(env,ev(31,{link:'https://t.me/+other',uid:200}));assert.equal(count(sql,'referrals'),1);});
 
 test('allowlisted private storage imports a PDF; other channels cannot replace it',async t=>{const {sql,env}=setup();env.STORAGE_CHANNEL_ID='-100987654';withTelegram(t,()=>({}));const post=(chat,f)=>({channel_post:{chat:{id:chat,type:'channel'},caption:'/file masterclass',document:{mime_type:'application/pdf',file_id:f,file_size:123,file_name:'Masterclass.pdf'}}});await internals.dispatch(env,post(-100987654,'new_pdf'));assert.equal(sql.prepare("SELECT file_id FROM products WHERE id='masterclass'").get().file_id,'new_pdf');await internals.dispatch(env,post(-100777777,'bad_pdf'));assert.equal(sql.prepare("SELECT file_id FROM products WHERE id='masterclass'").get().file_id,'new_pdf');});
 test('private storage imports the welcome photo only from its allowlisted channel',async t=>{const {sql,env}=setup();env.STORAGE_CHANNEL_ID='-100987654';withTelegram(t,()=>({}));await internals.dispatch(env,{channel_post:{chat:{id:-100987654,type:'channel'},caption:'/banner',photo:[{file_id:'banner'}]}});assert.equal(sql.prepare("SELECT value FROM settings WHERE key='welcome_file_id'").get().value,'banner');});
-test('free PDF remains shareable while premium is protected',async t=>{const {env}=setup();let protections=[];withTelegram(t,(m,b)=>{if(m==='sendDocument')protections.push(b.protect_content);return {};});await internals.sendPDF(env,'2','fondamentaux');await internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},text:'/grant 2 masterclass'}});await internals.sendPDF(env,'2','masterclass');assert.deepEqual(protections,[false,true]);});
+test('existing entitlement is retained and all acquired resources are protected',async t=>{const {env,sql}=setup();let protections=[];withTelegram(t,(m,b)=>{if(m==='sendDocument')protections.push(b.protect_content);return {};});sql.prepare("INSERT INTO entitlements(user_id,product_id,source,created_at) VALUES ('2','fondamentaux','free',0)").run();await internals.sendPDF(env,'2','fondamentaux');await internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},text:'/grant 2 masterclass'}});await internals.sendPDF(env,'2','masterclass');assert.deepEqual(protections,[true,true]);});
 
 
 test('guided admin creates a draft, skips description, archives files, publishes and edits in place',async t=>{
@@ -210,4 +210,31 @@ test('rich program pagination preserves blank lines and formatting',()=>{
  const pages=internals.richPages({text,entities:[{type:'italic',offset:text.indexOf('Module 12'),length:9}]});
  assert.equal(pages.map(x=>x.text).join('\n'),text);
  assert.equal(pages.at(-1).entities[0].type,'italic');
+});
+
+
+test('channel-free campaign only grants after threshold; no Telegram channel lookup',async t=>{
+ const {sql,env}=setup();sql.exec("UPDATE campaigns SET target=5,hold_seconds=0,channel_id='',channel_url='' WHERE id='mc'");
+ const calls=[];withTelegram(t,(m,b)=>{calls.push({m,b});if(m==='getMe')return {username:'AcademyTestBot'};return {};});
+ await internals.makeLink(env,'1','mc');
+ const token=sql.prepare("SELECT token FROM discovery_links WHERE owner_id='1'").get().token;
+ const visit=u=>internals.dispatch(env,{message:{chat:{id:u,type:'private'},from:{id:u},text:'/start r_'+token}});
+ for(let u=3;u<=6;u++)await visit(u);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),0);
+ await visit(7);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),1);
+ assert.ok(!calls.some(x=>x.m==='getChatMember'));assert.ok(calls.some(x=>x.m==='sendDocument'&&x.b.protect_content));
+});
+test('retired importer is closed even without credentials',async()=>{
+ const {default:worker}=await import('../src/bot.js');
+ assert.equal((await worker.fetch(new Request('https://test/academy-import/status',{method:'POST'}),{})).status,410);
+});
+test('leaving an admin wizard for home pauses the draft',async t=>{
+ const {env}=setup();withTelegram(t,()=>({}));
+ const click=data=>internals.dispatch(env,{callback_query:{id:'cb',from:{id:1},message:{chat:{id:1,type:'private'}},data}});
+ await click('aw:new');await click('home');assert.equal((await internals.wizRead(env,'1')).paused,true);
+ await click('aw:resume');assert.equal((await internals.wizRead(env,'1')).paused,false);
+});
+test('admin can stop and restart channel-free campaign without losing attribution',async t=>{
+ const {sql,env}=setup();sql.exec("UPDATE campaigns SET channel_id='',channel_url='',hold_seconds=0 WHERE id='mc'");withTelegram(t,m=>m==='getMe'?{username:'AcademyTestBot'}:{});
+ await internals.wizardCallback(env,'1','aw:stopconfirm:mc');assert.equal(sql.prepare("SELECT active FROM campaigns WHERE id='mc'").get().active,0);
+ await internals.wizardCallback(env,'1','aw:restart:mc');assert.equal(sql.prepare("SELECT active FROM campaigns WHERE id='mc'").get().active,1);
 });
