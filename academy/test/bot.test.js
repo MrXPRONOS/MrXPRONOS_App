@@ -52,7 +52,7 @@ test('guided admin creates a draft, skips description, archives files, publishes
  const state=()=>internals.wizRead(env,'1');const act=async a=>{const d=await state();return click('aw:'+d.session+':'+d.step+':'+a);};
  await click('aw:new',2);assert.equal(await state(),null);
  await click('aw:new');await msg('Guide business');await act('cat0');await msg('invalid');assert.equal((await state()).step,'price');
- await msg('5000');await msg('0');assert.equal((await state()).description,'');
+ await msg('5000');await msg('0');await msg('0');assert.equal((await state()).description,'');
  await msg(null,{photo:[{file_id:'cover'}]});assert.ok(calls.some(x=>x.method==='sendPhoto'&&x.body.chat_id===env.STORAGE_CHANNEL_ID));
  await click('aw:menu');await msg('unrelated');assert.equal((await state()).paused,true);await click('aw:resume');
  await msg('pas un fichier ni un lien');assert.equal((await state()).step,'pdf');
@@ -63,7 +63,7 @@ test('guided admin creates a draft, skips description, archives files, publishes
  await click('aw:'+d.session+':review:publish');assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
  await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
  sql.prepare('INSERT INTO campaigns VALUES (?,?,?,?,?,?,?)').run('guide-c',d.id,'-10012345','https://t.me/testchan',5,0,1);await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,1);
- await click('aw:edit:'+d.id);for(let j=0;j<6;j++)await act('keep');await act('skip');await act('keep_campaign');await act('publish');
+ await click('aw:edit:'+d.id);for(let j=0;j<7;j++)await act('keep');await act('skip');await act('keep_campaign');await act('publish');
  assert.equal(sql.prepare('SELECT file_id FROM products WHERE id=?').get(d.id).file_id,'pdf');
  assert.equal(count(sql,'products'),3);
  await click('aw:new');await act('cancel');assert.equal(await state(),null);
@@ -76,7 +76,7 @@ test('premium wizard verifies a private channel and creates an entry link and ca
  const msg=(text,more={})=>internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},...(text==null?{}:{text}),...more}});
  const click=data=>internals.dispatch(env,{callback_query:{id:'cb',from:{id:1},message:{chat:{id:1,type:'private'}},data}});
  const state=()=>internals.wizRead(env,'1');const act=async a=>{const d=await state();return click('aw:'+d.session+':'+d.step+':'+a);};
- await click('aw:new');await msg('Guide premium');await act('cat0');await msg('5000');await msg('0');
+ await click('aw:new');await msg('Guide premium');await act('cat0');await msg('5000');await msg('0');await msg('0');
  await msg(null,{photo:[{file_id:'cover'}]});await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});await act('done_assets');
  await msg('http://example.com');assert.equal((await state()).step,'shop');await msg('https://example.com/guide');
  await act('new_campaign');await act('private');await act('picker');
@@ -159,4 +159,22 @@ test('zero purchase price cannot bypass recommendation even after campaign is st
  await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);
  sql.exec("UPDATE campaigns SET active=0 WHERE product_id='masterclass'");
  await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);
+});
+
+
+test('short description is bounded and detailed program is public without resource disclosure',async t=>{
+ const {sql,env}=setup();const calls=[];withTelegram(t,(method,body)=>{calls.push({method,body});return {};});
+ const summary='Un parcours complet pour développer ses compétences.';
+ const detailed='Programme :\n'+Array.from({length:20},(_,i)=>'Module '+(i+1)+' : exercices et études de cas.').join('\n');
+ sql.prepare('UPDATE products SET description=?,active=1 WHERE id=?').run(detailed,'masterclass');
+ sql.prepare('INSERT INTO settings(key,value) VALUES (?,?)').run('product_short:masterclass',summary);
+ assert.equal(Array.from(internals.shortDescription('🎓'.repeat(250))).length,200);
+ assert.equal(internals.shortDescription('1\n2\n3\n4\n5\n6').split('\n').length,5);
+ await internals.showProduct(env,'2','masterclass');
+ const card=calls.at(-1).body;assert.ok((card.caption||card.text).includes(summary));assert.ok(!(card.caption||card.text).includes('Module 20'));
+ assert.ok(card.reply_markup.inline_keyboard.some(r=>r.some(b=>b.callback_data==='details:masterclass')));
+ await internals.productDetails(env,'2','masterclass');assert.ok(calls.at(-1).body.text.includes('Module 20'));
+ assert.ok(!calls.some(c=>c.method==='sendDocument'));
+ sql.exec("UPDATE products SET active=0 WHERE id='masterclass'");
+ await internals.productDetails(env,'2','masterclass');assert.ok(calls.at(-1).body.text.includes('indisponible'));
 });
