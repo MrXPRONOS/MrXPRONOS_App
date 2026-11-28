@@ -1,0 +1,27 @@
+name: Academy regression tests
+on:
+  push:
+    branches: [academy/bot-v1]
+    paths:
+      - 'academy/**'
+      - '.github/workflows/academy-tests.yml'
+  pull_request:
+    paths:
+      - 'academy/**'
+      - '.github/workflows/academy-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: academy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check
+      - run: npm test
