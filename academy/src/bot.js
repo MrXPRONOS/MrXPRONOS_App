@@ -519,5 +519,96 @@ export async function handleWebhook(request,e){
  try{await dispatch(e,update);await run(e.DB,"UPDATE updates SET state='done' WHERE id=?",uid);return new Response('OK');}
  catch(err){console.error('Update failed',uid,err.message);await run(e.DB,'UPDATE updates SET lease_until=0 WHERE id=?',uid);return new Response('Retry',{status:503});}
 }
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.3.1',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+
+// Temporary capability-based importer. No token, PDF or cover is stored in GitHub.
+// The capability hash, expiry and exact file manifest are provisioned in D1.
+const IMPORT_KEY='academy_import_v1';
+const importSlots={
+ 'fondamentaux-cover':{pid:'fondamentaux',kind:'photo',name:'Les_Fondamentaux_Couverture.jpg',mime:'image/jpeg'},
+ 'fondamentaux-pdf':{pid:'fondamentaux',kind:'document',name:'L_Art_de_Parier_Les_Fondamentaux.pdf',mime:'application/pdf'},
+ 'masterclass-cover':{pid:'masterclass',kind:'photo',name:'Masterclass_Expert_Couverture.jpg',mime:'image/jpeg'},
+ 'masterclass-pdf':{pid:'masterclass',kind:'document',name:'L_Art_de_Parier_Masterclass_Expert.pdf',mime:'application/pdf'},
+ 'welcome':{kind:'photo',name:'MR_X_ACADEMY_Bienvenue.jpg',mime:'image/jpeg'}
+};
+const importCors={'Access-Control-Allow-Origin':'null','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Academy-Import-Key','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
+const importResponse=(data,status=200)=>Response.json(data,{status,headers:importCors});
+const hexDigest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
+async function importReadBody(request,limit){
+ const length=request.headers.get('Content-Length');
+ if(length!==null&&(!/^\d+$/.test(length)||Number(length)>limit))throw Error('size');
+ if(!request.body)throw Error('body');
+ const reader=request.body.getReader();const parts=[];let total=0;
+ try{while(true){const {done,value}=await reader.read();if(done)break;total+=value.byteLength;if(total>limit){await reader.cancel();throw Error('size');}parts.push(value);}}
+ finally{reader.releaseLock();}
+ const data=new Uint8Array(total);let pos=0;for(const p of parts){data.set(p,pos);pos+=p.byteLength;}return data;
+}
+async function importState(e){const r=await row(e.DB,'SELECT value FROM settings WHERE key=?',IMPORT_KEY);if(!r)return null;try{return JSON.parse(r.value);}catch{return null;}}
+async function importDone(e){const rows=await all(e.DB,"SELECT key FROM settings WHERE key LIKE 'academy_import_asset:%'");return rows.map(r=>r.key.slice('academy_import_asset:'.length)).filter(s=>Object.hasOwn(importSlots,s));}
+async function importExisting(e,s){
+ if(!s.pid)return row(e.DB,"SELECT value FROM settings WHERE key='welcome_file_id'");
+ const p=await product(e,s.pid);return p&&(s.kind==='photo'?p.cover_file_id:p.file_id);
+}
+function importChannelRef(s){
+ const t=String(s||'').trim();if(!t)return '';
+ if(validChannel(t)||/^@[A-Za-z0-9_]{5,}$/.test(t))return t;
+ if(/^https:\/\/t\.me\/c\/\d+\/\d+\/?$/.test(t))return '-100'+t.split('/')[4];
+ if(/^https:\/\/t\.me\/[A-Za-z0-9_]{5,}\/?$/.test(t))return '@'+t.split('/')[3];
+ throw Error('Canal invalide. Utilisez @nom, ID -100… ou lien t.me/c/…');
+}
+async function handleAcademyImport(request,e,p){
+ if(request.method==='OPTIONS')return new Response(null,{status:204,headers:importCors});
+ if(request.method!=='POST')return importResponse({ok:false,error:'Méthode refusée.'},405);
+ const key=request.headers.get('X-Academy-Import-Key')||'';
+ const cfg=await importState(e);
+ if(!cfg||!Number.isSafeInteger(cfg.expires)||cfg.expires<now()||!/^[-_A-Za-z0-9]{43}$/.test(key)||!timingSafe(await hexDigest(new TextEncoder().encode(key)),cfg.hash))return importResponse({ok:false,error:'Clé invalide, consommée ou expirée.'},403);
+ if(!validChannel(String(e.STORAGE_CHANNEL_ID||''))||!e.BOT_TOKEN)return importResponse({ok:false,error:'Stockage Telegram non configuré.'},409);
+ const slot=p.slice('/academy-import/'.length);
+ if(slot==='status')return importResponse({ok:true,done:await importDone(e)});
+ const lockKey='academy_import_lock';
+ const lock=await run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE CAST(settings.value AS INTEGER)<?',lockKey,String(now()+300),now());
+ if(!lock.meta.changes)return importResponse({ok:false,error:'Import déjà en cours. Réessayez dans un instant.'},409);
+ try{
+  if(slot==='finish'){
+   const done=await importDone(e);
+   if(!Object.keys(importSlots).every(s=>done.includes(s)))return importResponse({ok:false,error:'Tous les fichiers ne sont pas encore enregistrés.'},409);
+   let body;try{body=JSON.parse(new TextDecoder().decode(await importReadBody(request,1024)));}catch{return importResponse({ok:false,error:'Données invalides.'},400);}
+   let ref;try{ref=importChannelRef(body.channel);}catch(err){return importResponse({ok:false,error:err.message},400);}
+   const extra=[];let premium=false;
+   const found=await product(e,'fondamentaux'),master=await product(e,'masterclass');
+   if(!found?.file_id||!found?.cover_file_id||!master?.file_id||!master?.cover_file_id)return importResponse({ok:false,error:'Fichiers introuvables dans le catalogue.'},409);
+   if(ref){
+    let ch;try{ch=await channelDetails(e,ref,null);}catch{return importResponse({ok:false,error:'Canal inaccessible. Ajoutez le bot comme administrateur avec le droit d’inviter. Le canal de stockage est interdit.'},409);}
+    const same=await row(e.DB,'SELECT id FROM campaigns WHERE product_id=? AND channel_id=? AND target=? AND hold_seconds=? AND active=1 LIMIT 1','masterclass',ch.id,10,86400);
+    if(!same){
+     const cid='c-'+crypto.randomUUID().replace(/-/g,'').slice(0,20);let join=ch.username?'https://t.me/'+ch.username:null;
+     if(!join){const made=await tg(e,'createChatInviteLink',{chat_id:ch.id,name:'academy-masterclass',creates_join_request:false});join=made.invite_link;}
+     if(!validJoinURL(join))return importResponse({ok:false,error:'Lien d’entrée Telegram invalide.'},409);
+     extra.push(stmt(e.DB,'INSERT INTO campaigns(id,product_id,channel_id,channel_url,target,hold_seconds,active) VALUES (?,?,?,?,?,?,1)',cid,'masterclass',ch.id,join,10,86400));
+    }
+    premium=true;
+   }else{
+    const existing=await row(e.DB,'SELECT id FROM campaigns WHERE product_id=? AND target=10 AND hold_seconds=86400 AND active=1 LIMIT 1','masterclass');premium=!!existing;
+   }
+   await e.DB.batch([stmt(e.DB,'UPDATE products SET active=1 WHERE id=?','fondamentaux'),...(premium?[stmt(e.DB,'UPDATE products SET active=1 WHERE id=?','masterclass')]:[]),...extra,stmt(e.DB,'DELETE FROM settings WHERE key=?',IMPORT_KEY)]);
+   return importResponse({ok:true,freePublished:true,premiumPublished:premium});
+  }
+  const s=Object.hasOwn(importSlots,slot)?importSlots[slot]:null;const expected=cfg.files?.[slot];
+  if(!s||!expected||!Number.isSafeInteger(expected.size)||expected.size<1||expected.size>20*1024*1024)return importResponse({ok:false,error:'Fichier non autorisé.'},400);
+  if((await importDone(e)).includes(slot))return importResponse({ok:true,already:true});
+  if(await importExisting(e,s))return importResponse({ok:false,error:'Cette ressource a déjà été enregistrée autrement. Aucun remplacement automatique.'},409);
+  let bytes;try{bytes=await importReadBody(request,expected.size);}catch{return importResponse({ok:false,error:'Taille du fichier invalide.'},400);}
+  if(bytes.byteLength!==expected.size||!timingSafe(await hexDigest(bytes),expected.sha256))return importResponse({ok:false,error:'Le fichier ne correspond pas à la version originale.'},400);
+  const f=new FormData();f.append('chat_id',String(e.STORAGE_CHANNEL_ID));f.append(s.kind,new Blob([bytes],{type:s.mime}),s.name);f.append('caption','Archive MR X ACADEMY — '+s.name);
+  const result=await tg(e,s.kind==='photo'?'sendPhoto':'sendDocument',f);
+  const fileId=s.kind==='photo'?result.photo?.at(-1)?.file_id:result.document?.file_id;
+  if(!fileId)throw Error('missing file_id');
+  const write=s.pid?stmt(e.DB,s.kind==='photo'?'UPDATE products SET cover_file_id=?,cover_key=NULL WHERE id=? AND cover_file_id IS NULL':'UPDATE products SET file_id=?,object_key=NULL WHERE id=? AND file_id IS NULL',fileId,s.pid):stmt(e.DB,"INSERT OR IGNORE INTO settings(key,value) VALUES ('welcome_file_id',?)",fileId);
+  const q=await e.DB.batch([write,stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO NOTHING','academy_import_asset:'+slot,String(now()))]);
+  if(!q[0].meta.changes){await run(e.DB,'DELETE FROM settings WHERE key=?','academy_import_asset:'+slot);return importResponse({ok:false,error:'Ressource modifiée pendant l’import. Vérifiez dans le bot.'},409);}
+  return importResponse({ok:true,slot});
+ }catch(err){console.error('Academy import failed',slot,err.status||err.name);return importResponse({ok:false,error:'Import Telegram impossible. Vérifiez les droits de publication du bot dans le canal privé et réessayez.'},502);}
+ finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
+}
+
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.3.2',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
 export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel};
