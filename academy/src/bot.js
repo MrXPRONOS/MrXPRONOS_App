@@ -39,7 +39,7 @@ export function formatTelegram(text,style='auto'){
    if(n<line.length&&/[\uD800-\uDBFF]/.test(line[n-1]))n--;
    add('bold',at,n);continue;
   }
-  if(/^(?:Apprendre\. Appliquer\. Réussir\.|Invitez de contacts qualifiés réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
+  if(/^(?:Apprendre\. Appliquer\. Réussir\.|Invitez des contacts réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
   if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
    const colon=line.indexOf(':');add('underline',at,colon>=0?colon+1:line.length);continue;
   }
@@ -94,7 +94,7 @@ async function showProduct(e,u,pid){
  const buttons=[];if(access||p.price_xof===0)buttons.push([cb('📥 Accéder aux ressources',`get:${pid}`)]);
  if(!access&&p.price_xof>0)for(const c of cs)buttons.push([cb(`🎁 Obtenir gratuitement · ${c.target} contacts`,`c:${c.id}`)]);
  buttons.push(home);
- const price=p.price_xof===0?'Gratuit':`${p.price_xof.toLocaleString('fr-FR')} FCFA`;const offers=cs.map(c=>`🎁 0 FCFA après ${c.target} contacts qualifiés`).join('\n');
+ const price=p.price_xof===0?'Gratuit':`${p.price_xof.toLocaleString('fr-FR')} FCFA`;const offers=cs.map(c=>`🎁 0 FCFA après ${c.target} contacts qualifiés`).join('\n')+'\n'+(cs.length?'Rejoignez le canal au moment de récupérer la formation.':'');
  const resources=await productAssets(e,p);const caption=(''+p.title+'\n'+p.category+' · '+resources.length+' ressource(s)'+'\n\n💰 Prix : '+price+'\n'+(!access&&p.price_xof>0&&cs.length?offers+'\n':'')+'\n'+p.description+(access?'\n\n✅ Dans votre bibliothèque.':'')).slice(0,1000);
  return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id,'product');
 }
@@ -332,7 +332,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
   await run(e.DB,`INSERT INTO products(id,title,category,description,price_xof,filename) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,category=excluded.category,description=excluded.description,price_xof=excluded.price_xof`,p.id,p.title,p.category,p.description,p.price_xof,`${p.id}.pdf`);await audit(e,u,'product',p.id);return send(e,u,'Produit enregistré. Ajoutez le PDF puis /publish '+p.id);
  }
  if(cmd==='campaign'){
-  const c=JSON.parse(arg);if(!slug(c.id)||!slug(c.product_id)||c.channel_id===String(e.STORAGE_CHANNEL_ID||'')||!validChannel(c.channel_id)||!validJoinURL(c.channel_url)||!Number.isInteger(c.target)||c.target<1||c.target>20||!Number.isInteger(c.hold_hours)||c.hold_hours<0||c.hold_hours>168)throw new Error('Invalid campaign');
+  const c=JSON.parse(arg);if(!slug(c.id)||!slug(c.product_id)||c.channel_id===String(e.STORAGE_CHANNEL_ID||'')||!validChannel(c.channel_id)||!validJoinURL(c.channel_url)||!Number.isInteger(c.target)||c.target<1||c.target>20||(c.hold_hours!==undefined&&c.hold_hours!==0))throw new Error('Invalid campaign');
   const p=await product(e,c.product_id);if(!p?.active||p.price_xof===0)throw new Error('Publish paid product first');
   const me=await tg(e,'getMe',{}),status=await tg(e,'getChatMember',{chat_id:c.channel_id,user_id:me.id});if(status.status!=='administrator'||!status.can_invite_users)throw new Error('Bot needs admin invite permission');
   const old=await campaign(e,c.id);if(old&&(old.product_id!==c.product_id||old.channel_id!==c.channel_id||old.target!==c.target||old.hold_seconds!==0))throw new Error('Use new campaign ID for rule changes');
