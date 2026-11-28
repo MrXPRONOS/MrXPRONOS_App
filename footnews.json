@@ -90,7 +90,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T06:09:57.538256+00:00"
+      "checked_at": "2026-11-28T06:40:18.671571+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -290,7 +290,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T06:09:57.538256+00:00"
+      "checked_at": "2026-11-28T06:40:18.671571+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1152,76 +1152,100 @@
     "quality_score": 86
   },
   {
-    "slug": "689a1990d1d5e865",
-    "title": "CAN 2025 : le Sénégal déclaré vainqueur par le TAS, le Maroc conteste",
-    "summary": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "summary_short": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "content": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
+    "slug": "ba1829ad7491f530",
+    "title": "Real Madrid : un gros défaut encore à gommer pour Mourinho",
+    "summary": "L'équipe entraînée par José Mourinho s'est relevée sportivement après quelques délicatesses mais possède toujours quelques défauts notamment sur le plan athlétique.",
+    "summary_short": "L'équipe entraînée par José Mourinho s'est relevée sportivement après quelques délicatesses mais possède toujours quelques défauts notamment sur le plan athlétique.",
+    "content": "L'équipe entraînée par José Mourinho s'est relevée sportivement après quelques délicatesses mais possède toujours quelques défauts notamment sur le plan athlétique.",
     "paragraphs": [
-      "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
+      "L'équipe entraînée par José Mourinho s'est relevée sportivement après quelques délicatesses mais possède toujours quelques défauts notamment sur le plan athlétique."
     ],
     "key_points": [
-      "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025.",
-      "La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure."
+      "L'équipe entraînée par José Mourinho s'est relevée sportivement après quelques délicatesses mais possède toujours quelques défauts notamment sur le plan athlétique."
     ],
-    "telegram_summary": "Le Tribunal arbitral du sport a rendu sa décision : le Sénégal est officiellement champion d’Afrique 2025. La Fédération marocaine a annoncé contester le verdict, dénonçant des irrégularités dans la procédure.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261125-can-2025-le-s%C3%A9n%C3%A9gal-d%C3%A9clar%C3%A9-vainqueur-par-le-tas-le-maroc-conteste",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261125-can-2025-le-s%C3%A9n%C3%A9gal-d%C3%A9clar%C3%A9-vainqueur-par-le-tas-le-maroc-conteste",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=689a1990d1d5e865",
-    "published": "2026-11-25T06:28:24+00:00",
-    "image": "https://s.france24.com/media/display/bd4d0a1e-e878-11f1-b093-29d00e23de9a/w:1024/p:16x9/senegal-13.jpg",
-    "source_image": "https://s.france24.com/media/display/bd4d0a1e-e878-11f1-b093-29d00e23de9a/w:1024/p:16x9/senegal-13.jpg",
+    "telegram_summary": "L'équipe entraînée par José Mourinho s'est relevée sportivement après quelques délicatesses mais possède toujours quelques défauts notamment sur le plan athlétique.",
+    "link": "https://www.onzemondial.com/liga/real-madrid-un-gros-defaut-encore-a-gommer-pour-mourinho-1011761",
+    "source_url": "https://www.onzemondial.com/liga/real-madrid-un-gros-defaut-encore-a-gommer-pour-mourinho-1011761",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba1829ad7491f530",
+    "published": "2026-11-28T06:30:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011761/411729/1200-L-real-madrid-un-gros-dfaut-encore-gommer-pour-mourinho.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011761/411729/1200-L-real-madrid-un-gros-dfaut-encore-gommer-pour-mourinho.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
+    "source": "Onze Mondial",
+    "source_priority": 80,
     "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50611810",
+      "url": "https://www.espn.com/video/clip/_/id/50611810/mourinho-embarrasses-cousin-real-madrid-press-conference",
+      "published": "2026-11-27T14:58:51Z",
+      "score": 0.273,
+      "matched_terms": [
+        "madrid",
+        "mourinho",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-28T06:40:18.671571+00:00"
+    },
     "quality_sources": [
-      "France 24"
+      "Onze Mondial",
+      "ESPN"
     ],
-    "quality_score": 83
+    "quality_score": 88
   },
   {
-    "slug": "cc991ebdd7b30206",
-    "title": "Victoire du Sénégal à la CAN: «Le TAS a rendu une décision logique juridiquement et juste sportivement»",
-    "summary": "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titre de champion d'Afrique au Maroc après les évènements qui avaient émaillé la finale de la compétition en janvier…",
-    "summary_short": "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titre de champion d'Afrique au Maroc après les évènements qui avaient émaillé la finale de la compétition en janvier…",
-    "content": "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titre de champion d'Afrique au Maroc après les évènements qui avaient émaillé la finale de la compétition en janvier dernier.  À la suite de cette décision, la fédération marocaine a exprimé « sa surprise » et indiqué vouloir « engager toutes les procédures légales nécessaires » à son encontre. Journaliste spécialiste du ballon rond africain, Patrick Juillard analyse l'issue de cette crise sportive qui secoue le football continental depuis le début de l'année.",
+    "slug": "c2018ad844c702b6",
+    "title": "Real Madrid-Alavés : chaîne TV, streaming… À quelle heure et où suivre la rencontre des Merengue comptant pour la 14ème journée de Liga ?",
+    "summary": "Ce samedi soir, la Liga propose une affiche entre le Real Madrid et le Deportivo Alavés. Les deux formations se retrouvent à 21h00, au stade Santiago-Bernabéu, pour le compte de la 14ème journée.",
+    "summary_short": "Ce samedi soir, la Liga propose une affiche entre le Real Madrid et le Deportivo Alavés. Les deux formations se retrouvent à 21h00, au stade Santiago-Bernabéu, pour le compte de la 14ème journée.",
+    "content": "Ce samedi soir, la Liga propose une affiche entre le Real Madrid et le Deportivo Alavés. Les deux formations se retrouvent à 21h00, au stade Santiago-Bernabéu, pour le compte de la 14ème journée. Deuxièmes, dans la roue du FC Barcelone, les Madrilènes souhaitent poursuivre leur excellente dynamique pour mettre la pression sur les Catalans. En face, Alavés, 9ème, tentera de réaliser un énorme coup dans la capitale espagnole pour se rapprocher des places européennes.",
     "paragraphs": [
-      "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titre de champion d'Afrique au Maroc après les évènements qui avaient émaillé la finale de la compétition en janvier dernier.",
-      "À la suite de cette décision, la fédération marocaine a exprimé « sa surprise » et indiqué vouloir « engager toutes les procédures légales nécessaires » à son encontre. Journaliste spécialiste du ballon rond africain, Patrick Juillard analyse l'issue de cette crise sportive qui secoue le football continental depuis le début de l'année."
+      "Ce samedi soir, la Liga propose une affiche entre le Real Madrid et le Deportivo Alavés. Les deux formations se retrouvent à 21h00, au stade Santiago-Bernabéu, pour le compte de la 14ème journée. Deuxièmes, dans la roue du FC Barcelone, les Madrilènes souhaitent poursuivre leur excellente dynamique pour mettre la pression sur les Catalans.",
+      "En face, Alavés, 9ème, tentera de réaliser un énorme coup dans la capitale espagnole pour se rapprocher des places européennes."
     ],
     "key_points": [
-      "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titr",
-      "À la suite de cette décision, la fédération marocaine a exprimé « sa surprise » et indiqué vouloir « engager toutes les procédures légales nécessaires » à son encontre.",
-      "Journaliste spécialiste du ballon rond africain, Patrick Juillard analyse l'issue de cette crise sportive qui secoue le football continental depuis le début de l'année."
+      "Ce samedi soir, la Liga propose une affiche entre le Real Madrid et le Deportivo Alavés.",
+      "Les deux formations se retrouvent à 21h00, au stade Santiago-Bernabéu, pour le compte de la 14ème journée.",
+      "Deuxièmes, dans la roue du FC Barcelone, les Madrilènes souhaitent poursuivre leur excellente dynamique pour mettre la pression sur les Catalans.",
+      "En face, Alavés, 9ème, tentera de réaliser un énorme coup dans la capitale espagnole pour se rapprocher des places européennes."
     ],
-    "telegram_summary": "Plus haute instance juridictionnelle du sport international, le Tribunal arbitral du sport (TAS) a décidé, mardi 24 novembre, de déclarer le Sénégal vainqueur légitime de la CAN 2025 de football, inversant ainsi la décision de la CAF qui avait attribué le titre de champion d'Afrique au Maroc après les évènements qui avaient…",
-    "link": "https://www.rfi.fr/fr/podcasts/le-grand-invit%C3%A9-afrique/20261125-victoire-du-s%C3%A9n%C3%A9gal-%C3%A0-la-can-le-tas-a-rendu-une-d%C3%A9cision-logique-juridiquement-et-juste-sportivement",
-    "source_url": "https://www.rfi.fr/fr/podcasts/le-grand-invit%C3%A9-afrique/20261125-victoire-du-s%C3%A9n%C3%A9gal-%C3%A0-la-can-le-tas-a-rendu-une-d%C3%A9cision-logique-juridiquement-et-juste-sportivement",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cc991ebdd7b30206",
-    "published": "2026-11-25T06:23:43+00:00",
-    "image": "https://s.rfi.fr/media/display/9f1f333c-e427-11f1-ba29-6b451f569414/w:1024/p:16x9/000-936U7UF.jpg",
-    "source_image": "https://s.rfi.fr/media/display/9f1f333c-e427-11f1-ba29-6b451f569414/w:1024/p:16x9/000-936U7UF.jpg",
+    "telegram_summary": "Ce samedi soir, la Liga propose une affiche entre le Real Madrid et le Deportivo Alavés. Les deux formations se retrouvent à 21h00, au stade Santiago-Bernabéu, pour le compte de la 14ème journée.",
+    "link": "https://www.onzemondial.com/liga/real-madrid-alaves-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-la-rencontre-des-merengue-comptant-pour-la-14eme-journee-de-liga-1011447",
+    "source_url": "https://www.onzemondial.com/liga/real-madrid-alaves-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-la-rencontre-des-merengue-comptant-pour-la-14eme-journee-de-liga-1011447",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c2018ad844c702b6",
+    "published": "2026-11-28T06:10:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1011447/411653/1200-L-real-madrid-alavs-chane-tv-streaming-quelle-heure-et-o-suivre-la-rencontre-des-merengue-comptant-pour-la-14me-journe-de-liga.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1011447/411653/1200-L-real-madrid-alavs-chane-tv-streaming-quelle-heure-et-o-suivre-la-rencontre-des-merengue-comptant-pour-la-14me-journe-de-liga.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "RFI",
-    "source_priority": 86,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
-      "RFI"
+      "Onze Mondial"
     ],
-    "quality_score": 86
+    "quality_score": 80
   },
   {
     "slug": "6db5f985b50d8f54",
@@ -1346,7 +1370,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-11-28T06:09:57.538256+00:00"
+      "checked_at": "2026-11-28T06:40:18.671571+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1796,7 +1820,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-28T06:09:57.538256+00:00"
+      "checked_at": "2026-11-28T06:40:18.671571+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
