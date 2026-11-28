@@ -63,7 +63,7 @@ export function formatTelegram(text,style='auto'){
    add('bold',at,n);continue;
   }
   if(/^(?:Apprendre\. Appliquer\. Réussir\.|Apprendre • Appliquer • Réussir|Invitez des contacts réellement intéressés\.|Conseil :|À savoir :|Important :|Les droits déjà acquis|Les fichiers déjà archivés)/i.test(line)){add('blockquote',at,line.length);continue;}
-  if(/^(?:Votre lien personnel :|Lien du bot à partager dans le canal :|Choisissez une rubrique :|Conditions d’accès|📖 Présentation détaillée|📚 Programme|📖 Programme|Programme :|Objectifs :|Prérequis :|Public visé :|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
+  if(/^(?:Votre lien personnel :|Lien direct de la campagne :|Choisissez une rubrique :|Conditions d’accès|📖 Présentation détaillée|📚 Programme|📖 Programme|Programme :|Objectifs :|Prérequis :|Public visé :|Votre progression|Récapitulatif|Parrainage :|Boutique web :|Campagnes :)/i.test(line)){
    const colon=line.indexOf(':');add('underline',at,colon>=0?colon+1:line.length);continue;
   }
   if(/^(?:\d+\/\d+ contacts qualifiés|(?:💰 |🏷️ )?Prix :|(?:🆓 )?Gratuit$|✅ Dans votre bibliothèque|✅ Accès|📎 |🎁 Campagne :|🎁 Accès par parrainage|🎁 0 FCFA|🎯 |💸 |✅ Objectif|🎉 Objectif|📊 Progression|🆓 Accès|✨ )/u.test(line)){add('bold',at,line.length);continue;}
@@ -107,14 +107,15 @@ async function welcome(e,u){
 const hasCampaign=async(e,pid)=>!!await row(e.DB,'SELECT id FROM campaigns WHERE product_id=? LIMIT 1',pid);
 const noChannel=c=>c.channel_id===''&&c.channel_url==='';
 const activeCampaigns=(e,pid)=>all(e.DB,'SELECT id,target,channel_id,channel_url FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id',pid);
-const directFree=async(e,p)=>p.price_xof===0&&!await hasCampaign(e,p.id);
+// Existing entitlements are retained, but every new access requires a campaign or verified grant.
+const directFree=async(e,p)=>false;
 const accessText=(p,cs,free)=>free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA — Accès gratuit par recommandation\n'+'Invitez '+cs.map(c=>c.target).filter((n,i,a)=>a.indexOf(n)===i).join(' ou ')+' contacts qualifiés.'+(cs.every(noChannel)?'':cs.some(noChannel)?' Certaines options exigent un abonnement.':' Rejoignez ensuite le canal.')+(p.price_xof>0?'\nAlternative : achat sans partage à '+p.price_xof.toLocaleString('fr-FR')+' FCFA.':''):'Accès par recommandation temporairement indisponible.';
 async function catalogue(e,u,filter='all',page=0){
- const condition=filter==='free'?" AND p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)":filter==='premium'?" AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1)":" AND ((p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)) OR EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1))";
+ const condition=" AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1)";
  const ps=await all(e.DB,'SELECT p.id,p.title FROM products p WHERE p.active=1'+condition+' ORDER BY p.category,p.title,p.id LIMIT 9 OFFSET ?',page*8);
  const buttons=ps.slice(0,8).map(p=>[cb('🎓 '+p.title.slice(0,50),'p:'+p.id)]);
  const nav=[];if(page>0)nav.push(cb('◀','list:'+filter+':'+(page-1)));if(ps.length>8)nav.push(cb('▶','list:'+filter+':'+(page+1)));if(nav.length)buttons.push(nav);buttons.push(home);
- return send(e,u,ps.length?(filter==='free'?'🆓 Accès gratuit direct':filter==='premium'?'🎁 Formations gratuites par recommandation':'📚 Les formations Academy\nChoisissez votre prochain apprentissage.'):'📚 Catalogue en préparation.\nDécouvrez les formations dès leur publication.',buttons);
+ return send(e,u,ps.length?'📚 Formations complètes\nGratuites par recommandation. Choisissez votre formation.':'📚 Catalogue en préparation.\nDécouvrez les formations dès leur publication.',buttons);
 }
 // Public descriptions are separate from the protected course files.
 const shortKey=p=>'product_short:'+p;
@@ -263,7 +264,7 @@ async function sendAsset(e,chat,a,caption,protect=false){
 }
 async function resourceAccess(e,u,p){
  let access=await entitlement(e,u,p.id);
- if(!access&&p.active&&await directFree(e,p)){await grant(e,u,p.id,'free');access=await entitlement(e,u,p.id);}
+ // No unconditional delivery for unpublished or former sample products.
  return !!access;
 }
 async function resourceMenu(e,u,p,a,page=0){
@@ -286,14 +287,14 @@ async function adminResourceMenu(e,u,p,a,page=0){
 }
 async function resourceAction(e,u,pid,index,menuOnly=false){
  const p=await product(e,pid);if(!p)return send(e,u,'⚠️ Formation introuvable.',[home]);
- if(!await resourceAccess(e,u,p))return send(e,u,'🔒 Formation verrouillée\nDébloquez votre accès gratuitement par recommandation.',[[cb('Voir le produit','p:'+pid)],home]);
+ if(!await resourceAccess(e,u,p))return send(e,u,'🔒 Formation verrouillée\nDébloquez votre accès gratuitement par recommandation.',[[cb('Voir la formation','p:'+pid)],home]);
  const a=await productAssets(e,p);if(!a.length)return send(e,u,'📂 Aucune ressource disponible pour le moment.\nVotre accès reste acquis.',[home]);
  return menuOnly?resourceMenu(e,u,p,a,index):deliverResource(e,u,p,a,index);
 }
 
 async function sendPDF(e,u,pid){
  const p=await product(e,pid);if(!p)return send(e,u,'⚠️ Formation introuvable.',[home]);
- if(!await resourceAccess(e,u,p))return send(e,u,'🔒 Formation verrouillée\nDébloquez votre accès gratuitement par recommandation.',[[cb('Voir le produit','p:'+pid)],home]);
+ if(!await resourceAccess(e,u,p))return send(e,u,'🔒 Formation verrouillée\nDébloquez votre accès gratuitement par recommandation.',[[cb('Voir la formation','p:'+pid)],home]);
  const assets=await productAssets(e,p);if(!assets.length)return send(e,u,'📂 Aucune ressource disponible pour le moment.\nVotre accès reste acquis.',[home]);
  return assets.length===1?deliverResource(e,u,p,assets,0):resourceMenu(e,u,p,assets);
 }
@@ -302,9 +303,10 @@ async function library(e,u,page=0){
  const b=ps.slice(0,8).map(p=>[cb(`📥 ${p.title.slice(0,50)}`,`get:${p.id}`)]);const n=[];if(page>0)n.push(cb('◀',`lib:${page-1}`));if(ps.length>8)n.push(cb('▶',`lib:${page+1}`));if(n.length)b.push(n);b.push(home);
  return send(e,u,ps.length?'📂 Ma bibliothèque':'📂 Ma bibliothèque\nAucune formation débloquée pour le moment.',b);
 }
-async function campaigns(e,u,onlyMine=false){
- const cs=await all(e.DB,`SELECT c.id,p.title,c.target FROM campaigns c JOIN products p ON p.id=c.product_id ${onlyMine?'JOIN discovery_links l ON l.campaign_id=c.id AND l.owner_id=?':''} WHERE c.active=1 AND p.active=1 ORDER BY c.id LIMIT 30`,...(onlyMine?[u]:[]));
- return send(e,u,cs.length?'🎁 Apprenez gratuitement\nChoisissez une formation à recommander.':'🎁 Aucune campagne disponible pour le moment.',[...cs.map(c=>[cb(`${c.title.slice(0,42)} · ${c.target}`,`c:${c.id}`)]),home]);
+async function campaigns(e,u,page=0){
+ const cs=await all(e.DB,"SELECT c.id,p.title,c.target,c.channel_id,c.channel_url FROM campaigns c JOIN products p ON p.id=c.product_id WHERE c.active=1 AND p.active=1 AND NOT EXISTS(SELECT 1 FROM entitlements t WHERE t.user_id=? AND t.product_id=p.id) ORDER BY p.title,c.target,c.id LIMIT 9 OFFSET ?",u,page*8);
+ const b=cs.slice(0,8).map(c=>[cb(c.title.slice(0,36)+' · '+c.target+(noChannel(c)?' · Sans canal':' · Avec canal'),'c:'+c.id)]);const nav=[];if(page>0)nav.push(cb('◀','clist:'+(page-1)));if(cs.length>8)nav.push(cb('▶','clist:'+(page+1)));if(nav.length)b.push(nav);b.push([cb('📊 Mes parrainages','progression')],home);
+ return send(e,u,cs.length?'🎁 Apprenez gratuitement\nChoisissez une formation à recommander.':'🎁 Aucune autre campagne disponible pour le moment.',b);
 }
 
 // V1.6 — self-composed bundles. Each contact is unique per pack AND reserved per product.
@@ -320,10 +322,10 @@ const packSelectionKey=u=>'pack_selection:'+u;
 async function packSelection(e,u){const x=await row(e.DB,'SELECT value FROM settings WHERE key=?',packSelectionKey(u));return x?JSON.parse(x.value):[];}
 const saveSelection=(e,u,s)=>run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',packSelectionKey(u),JSON.stringify(s));
 async function packOptions(e,u,page=0){
- const s=await packSelection(e,u),ps=await all(e.DB,"SELECT p.id,p.title,c.id cid,c.target FROM products p JOIN campaigns c ON c.id=(SELECT c2.id FROM campaigns c2 WHERE c2.product_id=p.id AND c2.active=1 ORDER BY c2.target,c2.id LIMIT 1) WHERE p.active=1 AND NOT EXISTS(SELECT 1 FROM entitlements t WHERE t.user_id=? AND t.product_id=p.id) ORDER BY p.title,p.id LIMIT 9 OFFSET ?",u,page*8);
- const b=ps.slice(0,8).map(p=>[cb((s.includes(p.cid)?'✅ ':'⬜ ')+p.title.slice(0,42)+' · '+p.target,'pk:toggle:'+p.cid+':'+page)]);
+ const s=await packSelection(e,u),ps=await all(e.DB,"SELECT p.id,p.title,c.id cid,c.target,c.channel_id,c.channel_url FROM products p JOIN campaigns c ON c.id=(SELECT c2.id FROM campaigns c2 WHERE c2.product_id=p.id AND c2.active=1 ORDER BY c2.target,CASE WHEN c2.channel_id='' AND c2.channel_url='' THEN 0 ELSE 1 END,c2.id LIMIT 1) WHERE p.active=1 AND NOT EXISTS(SELECT 1 FROM entitlements t WHERE t.user_id=? AND t.product_id=p.id) ORDER BY p.title,p.id LIMIT 9 OFFSET ?",u,page*8);
+ const b=ps.slice(0,8).map(p=>[cb((s.includes(p.cid)?'✅ ':'⬜ ')+p.title.slice(0,35)+' · '+p.target+(noChannel(p)?' · Sans canal':' · Avec canal'),'pk:toggle:'+p.cid+':'+page)]);
  const nav=[];if(page>0)nav.push(cb('◀','pk:select:'+String(page-1)));if(ps.length>8)nav.push(cb('▶','pk:select:'+String(page+1)));if(nav.length)b.push(nav);
- const selected=[];for(const cid of s){const x=await campaign(e,cid);if(x?.active&&x.product_active&&!await entitlement(e,u,x.product_id))selected.push(x);}
+ const selected=[];for(const cid of s){const x=await campaign(e,cid);if(x?.active&&x.product_active&&!await entitlement(e,u,x.product_id)&&!selected.some(y=>y.product_id===x.product_id))selected.push(x);}if(selected.length!==s.length)await saveSelection(e,u,selected.map(x=>x.id));
  const quote=packQuote(selected.map(x=>x.target));
  const text='📦 Composez votre pack\nSélectionnez 2 à 10 formations complètes.\n'+packTitles(selected)+'\nSélection : '+selected.length+'/'+MAX_PACK+'\n'+(selected.length>=2?'🎯 Objectif : '+quote.target+' au lieu de '+quote.original+' contacts\n💸 Économie : '+quote.saved+' contacts ('+packDiscount(selected.length)+' % avant arrondi).':'Sélectionnez au moins deux formations différentes.');
  if(selected.length>=2)b.push([cb('✅ Créer le pack · '+quote.target+' contacts','pk:create')]);
@@ -334,7 +336,7 @@ async function createPack(e,u,ids){
  if(!Array.isArray(ids)||ids.length<2||ids.length>MAX_PACK||new Set(ids).size!==ids.length)return send(e,u,'Sélectionnez 2 à 10 formations différentes.',[[cb('Composer un pack','pk:select:0')]]);
  const items=[];for(const cid of ids){const x=await campaign(e,cid),p=x?await product(e,x.product_id):null;if(!x?.active||!p?.active||await entitlement(e,u,p.id)||items.some(y=>y.product_id===p.id))return send(e,u,'Une formation est indisponible, déjà acquise ou sélectionnée en double.',[[cb('Revoir la sélection','pk:select:0')]]);items.push(x);}
  const signature=items.map(x=>x.product_id).sort().join(','),old=await row(e.DB,'SELECT id FROM referral_packs WHERE owner_id=? AND signature=?',u,signature);
- if(old)return packDashboard(e,u,old.id);
+ if(old){await saveSelection(e,u,[]);return packDashboard(e,u,old.id);}
  const quote=packQuote(items.map(x=>x.target)),pid='b-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),token=crypto.randomUUID().replace(/-/g,'');
  const ops=[stmt(e.DB,'INSERT OR IGNORE INTO referral_packs(id,owner_id,signature,token,target,original_target,created_at) VALUES (?,?,?,?,?,?,?)',pid,u,signature,token,quote.target,quote.original,now())];
  for(let j=0;j<items.length;j++){const x=items[j];ops.push(stmt(e.DB,'INSERT OR IGNORE INTO referral_pack_items(pack_id,product_id,campaign_id,position) SELECT id,?,?,? FROM referral_packs WHERE id=?',x.product_id,x.id,j,pid));ops.push(stmt(e.DB,'INSERT OR IGNORE INTO discovery_visits(product_id,visitor_id,campaign_id,owner_id,created_at) VALUES (?,?,?,NULL,?)',x.product_id,u,x.id,now()));}
@@ -371,7 +373,7 @@ async function packDashboard(e,u,pid){
  const b=[[cb('📣 Ma publicité groupée','pk:share:'+pid)],[cb('🔄 Actualiser','pk:view:'+pid)]];
  if(n>=p.target)b.push([cb('🎁 Vérifier et recevoir le pack','pk:claim:'+pid)]);
  b.push([cb('⬅ Mes parrainages','progression')],home);
- return send(e,u,'📦 Mon pack de '+items.length+' formations\n\n'+packTitles(items)+'\n'+progressBar(n,p.target)+'\n'+n+'/'+p.target+' contacts qualifiés\nObjectif initial : '+p.original_target+' · Économie : '+(p.original_target-p.target)+'\n\n'+(n>=p.target?'Objectif atteint ! Récupérez votre pack.':'Partagez votre publicité. Chaque nouveau contact doit découvrir toutes les formations via votre lien.')+'\nLes compteurs individuels restent séparés.',b);
+ return send(e,u,'📦 Mon pack de '+items.length+' formations\n\n'+packTitles(items)+'\n'+progressBar(n,p.target)+'\n'+n+'/'+p.target+' contacts qualifiés\nObjectif initial : '+p.original_target+' · Économie : '+(p.original_target-p.target)+'\n\n'+(n>=p.target?'Objectif atteint ! Récupérez votre pack.':'Partagez votre publicité. Chaque nouveau contact doit découvrir toutes les formations via votre lien.')+'\nLes compteurs restent séparés. Un contact déjà attribué à l’une des formations ne compte pas pour ce pack.',b);
 }
 async function packPost(e,u,pid){
  const p=await packRow(e,pid);if(!p||p.owner_id!==u)return null;
@@ -479,7 +481,7 @@ async function referralShare(e,u,cid){
  const b=[];
  if(me.supports_inline_queries)b.push([{text:'📤 Partager la publication',switch_inline_query:'ref_'+cid}]);
  b.push([urlButton('Partager le texte et le lien','https://t.me/share/url?url='+encodeURIComponent(x.link)+'&text='+encodeURIComponent(x.caption.split('\n').slice(0,-1).join('\n')))]);
- b.push([cb('⬅ Mes invitations','c:'+cid)]);
+ b.push([cb('⬅ Mon parrainage','c:'+cid)]);
  return send(e,u,'📣 Votre publication est prête !\nVotre lien personnel est déjà intégré.\n'+(me.supports_inline_queries?'Appuyez sur Partager, choisissez une conversation, puis sélectionnez la publication.':'Transférez la publication ou partagez son texte et son lien.')+'\nImportant : partagez sans spam, avec des personnes intéressées.',b);
 }
 async function referralInline(e,q){
@@ -596,7 +598,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  if(cmd==='product'){
   const p=JSON.parse(arg);if(!slug(p.id)||typeof p.title!=='string'||!p.title.trim()||p.title.length>120||typeof p.category!=='string'||p.category.length>60||typeof p.description!=='string'||p.description.length>3200||!Number.isSafeInteger(p.price_xof)||p.price_xof<0||p.price_xof>100000000)throw new Error('Invalid product');
   const old=await product(e,p.id);if(old&&old.price_xof!==p.price_xof&&old.active)throw new Error('Unpublish first');
-  await run(e.DB,`INSERT INTO products(id,title,category,description,price_xof,filename) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,category=excluded.category,description=excluded.description,price_xof=excluded.price_xof`,p.id,p.title,p.category,p.description,p.price_xof,`${p.id}.pdf`);await audit(e,u,'product',p.id);return send(e,u,'Produit enregistré. Ajoutez le PDF puis /publish '+p.id);
+  await run(e.DB,`INSERT INTO products(id,title,category,description,price_xof,filename) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,category=excluded.category,description=excluded.description,price_xof=excluded.price_xof`,p.id,p.title,p.category,p.description,p.price_xof,`${p.id}.pdf`);await audit(e,u,'product',p.id);return send(e,u,'Formation enregistrée. Ajoutez les ressources et configurez une campagne avant /publish '+p.id);
  }
  if(cmd==='campaign'){
   const c=JSON.parse(arg);if(c.channel_id==null&&c.channel_url==null){c.channel_id='';c.channel_url='';}if(!slug(c.id)||!slug(c.product_id)||(!noChannel(c)&&(c.channel_id===String(e.STORAGE_CHANNEL_ID||'')||!validChannel(c.channel_id)||!validJoinURL(c.channel_url)))||!Number.isInteger(c.target)||c.target<1||c.target>20||(c.hold_hours!==undefined&&c.hold_hours!==0))throw new Error('Invalid campaign');
@@ -686,7 +688,7 @@ async function wizMenu(e,u){
  const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);}
  return send(e,u,'⚙️ MR X ACADEMY · Administration\nGérez vos formations, campagnes et publications.\nChoisissez une action :',[
  [cb(d?'▶ Reprendre la création':'➕ Nouvelle formation',d?'aw:resume':'aw:new')],
- [cb('📚 Gérer les formations','aw:list:0')],[cb('📣 Promouvoir les produits','ad:menu')],[cb('🔗 Activer le partage natif','ri:enable')],[cb('📊 Statistiques','aw:stats')],home]);
+ [cb('📚 Gérer les formations','aw:list:0')],[cb('📣 Promouvoir les formations','ad:menu')],[cb('🔗 Activer le partage natif','ri:enable')],[cb('📊 Statistiques','aw:stats')],home]);
 }
 async function wizPrompt(e,u,d){
  const steps=wizSteps(d),n=steps.indexOf(d.step)+1;
@@ -724,11 +726,12 @@ async function wizProduct(e,u,pid){
  const p=await product(e,pid);if(!p)return wizList(e,u);
  const cs=await all(e.DB,'SELECT id,channel_id,channel_url,target,hold_seconds,active FROM campaigns WHERE product_id=? ORDER BY id',pid);
  const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(pid));const assets=await productAssets(e,p);
- const b=[[cb('✏️ Compléter / modifier','aw:edit:'+pid)],[cb('📖 Voir la fiche détaillée','aw:details:'+pid),cb('✍️ Voir le résumé','aw:summary:'+pid)]];if(cs.length)b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
+ const b=[[cb('✏️ Modifier la formation','aw:edit:'+pid)],[cb('📖 Voir la fiche détaillée','aw:details:'+pid),cb('✍️ Voir le résumé','aw:summary:'+pid)]];b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
  if(assets.length)b.push([cb('📎 Tester les ressources','aw:test:'+pid)]);if(p.active)b.push([cb('📣 Promouvoir ce produit','ad:item:'+pid)]);
  b.push([cb('⬅ Formations','aw:list:0')]);
  return photo(e,u,(p.title+'\n'+p.category+'\nAchat facultatif : '+(p.price_xof?p.price_xof+' FCFA':'non proposé')+'\n'+(p.active?'Publié':'Brouillon')+'\n'+(assets.length?assets.length+' ressource(s) enregistrée(s)':'Aucune ressource')+'\nBoutique web : '+(shop?.value||'non configurée')+'\nCampagnes : '+(cs.length?cs.map(c=>c.id+' · '+c.target+' contacts qualifiés · '+(c.active?'active':'arrêtée')).join('\n'):'aucune')+'\n\n'+await productShort(e,p)).slice(0,1000),b,null,p.cover_file_id);
 }
+async function adminCampaigns(e,u,pid,page=0){const cs=await all(e.DB,'SELECT id,target,channel_id,channel_url,active FROM campaigns WHERE product_id=? ORDER BY active DESC,id LIMIT 9 OFFSET ?',pid,page*8);const b=cs.slice(0,8).map(c=>[cb((c.active?'🟢 ':'⚪ ')+c.target+' contacts · '+(noChannel(c)?'Sans canal':'Avec canal')+' · '+c.id.slice(-6),'aw:camp:'+c.id)]);const nav=[];if(page>0)nav.push(cb('◀','aw:clist:'+pid+':'+(page-1)));if(cs.length>8)nav.push(cb('▶','aw:clist:'+pid+':'+(page+1)));if(nav.length)b.push(nav);b.push([cb('⬅ Formation','aw:product:'+pid)]);return send(e,u,'🎁 Campagnes de recommandation',b);}
 async function wizardCallback(e,u,action){
  if(!admins(e).has(u))return send(e,u,'🔒 Accès réservé à l’administration.');
  if(action==='aw:menu')return wizMenu(e,u);
@@ -739,20 +742,19 @@ async function wizardCallback(e,u,action){
   const d={id:'f-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title'};await wizSave(e,u,d);return wizPrompt(e,u,d);
  }
  const v=action.split(':');
+ if(v.length===4&&v[1]==='clist'&&slug(v[2])&&/^\d{1,3}$/.test(v[3]))return adminCampaigns(e,u,v[2],Number(v[3]));
  if(v.length===4&&v[1]==='detailpage'&&slug(v[2])&&/^\d{1,3}$/.test(v[3])){const p=await product(e,v[2]);if(p)return adminDetailPage(e,u,p,Number(v[3]));}
  if(v.length===3&&v[1]==='list'&&/^\d{1,3}$/.test(v[2]))return wizList(e,u,Number(v[2]));
  if(v.length===3&&slug(v[2])){
-  if(v[1]==='campaigns'){
-   const cs=await all(e.DB,'SELECT id,target,hold_seconds,active FROM campaigns WHERE product_id=? ORDER BY id LIMIT 30',v[2]);
-   return send(e,u,'🎁 Campagnes de parrainage', [...cs.map(c=>[cb((c.active?'🟢 ':'⚪ ')+c.target+' contacts qualifiés · '+c.id.slice(-8),'aw:camp:'+c.id)]),[cb('⬅ Formation','aw:product:'+v[2])]]);
-  }
-  if(['camp','stop','stopconfirm'].includes(v[1])){
+  if(v[1]==='campaigns')return adminCampaigns(e,u,v[2]);
+  if(['camp','stop','stopconfirm','restart'].includes(v[1])){
    const c=await campaign(e,v[2]);if(!c)return wizMenu(e,u);
-   if(v[1]==='stop')return send(e,u,'Arrêter cette campagne ? Les droits déjà acquis restent disponibles, mais les invitations en cours ne permettront plus de débloquer le livre.',[[cb('Confirmer l’arrêt','aw:stopconfirm:'+c.id)],[cb('Retour','aw:camp:'+c.id)]]);
+   if(v[1]==='stop')return send(e,u,'Arrêter cette campagne ?\nLes accès acquis restent disponibles.\nLes contacts déjà crédités sont conservés, mais le déblocage sera suspendu.',[[cb('Confirmer l’arrêt','aw:stopconfirm:'+c.id)],[cb('Retour','aw:camp:'+c.id)]]);
+   if(v[1]==='restart'){if(!noChannel(c)){try{await channelDetails(e,c.channel_id,null);}catch{return send(e,u,'⚠️ Vérifiez les droits du bot sur le canal.',[[cb('Retour','aw:camp:'+c.id)]]);}}await run(e.DB,'UPDATE campaigns SET active=1 WHERE id=?',c.id);await audit(e,u,'wizard_campaignon',c.id);return wizardCallback(e,u,'aw:camp:'+c.id);}
    if(v[1]==='stopconfirm'){await run(e.DB,'UPDATE campaigns SET active=0 WHERE id=?',c.id);await audit(e,u,'wizard_campaignoff',c.id);return send(e,u,'Campagne arrêtée.',[[cb('⬅ Formation','aw:product:'+c.product_id)]]);}
    const me=await tg(e,'getMe',{}),link=me.username?'https://t.me/'+me.username+'?start=c_'+c.id:'';
    const total=await row(e.DB,'SELECT COUNT(*) valid FROM discovery_visits WHERE campaign_id=? AND owner_id IS NOT NULL',c.id);
-   return send(e,u,'🎁 '+c.title+'\n'+c.target+' contacts qualifiés\nCanal de déblocage : '+(noChannel(c)?'Aucun':c.channel_id)+'\nStatut : '+(c.active?'active':'arrêtée')+'\nContacts qualifiés : '+(total?.valid||0)+'\n\nLien du bot à partager dans le canal :\n'+link,[[...(c.active?[cb('Arrêter','aw:stop:'+c.id)]:[]),cb('⬅ Formation','aw:product:'+c.product_id)]]);
+   return send(e,u,'🎁 '+c.title+'\n'+c.target+' contacts qualifiés\nCanal de déblocage : '+(noChannel(c)?'Aucun':c.channel_id)+'\nStatut : '+(c.active?'active':'arrêtée')+'\nContacts qualifiés : '+(total?.valid||0)+'\n\nLien du bot à partager dans le canal :\n'+link,[[...(c.active?[cb('Arrêter','aw:stop:'+c.id)]:[cb('Réactiver','aw:restart:'+c.id)]),cb('⬅ Formation','aw:product:'+c.product_id)]]);
   }
   const p=await product(e,v[2]);
   if(v[1]==='product')return wizProduct(e,u,v[2]);
@@ -823,7 +825,7 @@ async function wizardCallback(e,u,action){
    stmt(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u)),
    stmt(e.DB,'INSERT INTO audit(admin_id,action,target,created_at) VALUES (?,?,?,?)',u,'wizard_'+a,d.id,now())
   ]);
-  return send(e,u,(active?'🎉 Formation publiée !':'💾 Formation enregistrée en brouillon.')+'\n'+d.title+'\nIdentifiant : '+d.id+(d.price>0?(d.campaignId?'\n\n🎁 Campagne : '+d.campaignId+'\n'+d.target+' contacts qualifiés. '+(active?'Les utilisateurs peuvent y participer.':'Elle sera disponible à la publication.'):'\n\nAccès Premium : campagnes existantes ou accès accordé après achat web vérifié.'):''),[[cb('Voir la formation','aw:product:'+d.id)],[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);
+  return send(e,u,(active?'🎉 Formation publiée !':'💾 Formation enregistrée en brouillon.')+'\n'+d.title+'\nIdentifiant : '+d.id+(d.access==='new'?'\n🎁 '+d.target+' contacts · '+(d.kind==='none'?'Sans canal':'Avec canal'):'\nConditions existantes conservées.'),[[cb('Voir la formation','aw:product:'+d.id)],[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);
  }else return wizPrompt(e,u,d);
  await wizSave(e,u,d);return wizPrompt(e,u,d);
 }
@@ -880,10 +882,10 @@ async function genericPromoProduct(e,pid){
  const p=await product(e,pid);if(!p?.active||!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,pid)).length)return null;return p;
 }
 async function promoProducts(e,u,page=0){
- const ps=await all(e.DB,'SELECT id,title FROM products WHERE active=1 ORDER BY title,id LIMIT 9 OFFSET ?',page*8);
+ const ps=await all(e.DB,'SELECT p.id,p.title FROM products p WHERE p.active=1 AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1) ORDER BY p.title,p.id LIMIT 9 OFFSET ?',page*8);
  const b=ps.slice(0,8).map(p=>[cb(p.title.slice(0,50),'ad:item:'+p.id)]);
  const nav=[];if(page>0)nav.push(cb('◀','ad:page:'+(page-1)));if(ps.length>8)nav.push(cb('▶','ad:page:'+(page+1)));if(nav.length)b.push(nav);
- return send(e,u,'📣 Sélectionnez le produit à promouvoir.',[...b,[cb('⬅ Promotion','ad:menu')]]);
+ return send(e,u,'📣 Sélectionnez la formation à promouvoir.',[...b,[cb('⬅ Promotion','ad:menu')]]);
 }
 async function promoDestination(e,ref){
  const chat=await tg(e,'getChat',{chat_id:ref}),cid=id(chat.id);
@@ -907,7 +909,7 @@ async function genericPromoPreview(e,u,d){
  const cs=await all(e.DB,'SELECT id,target,hold_seconds FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id LIMIT 10',p.id);
  const access=accessText(p,cs,await directFree(e,p));
  const rich=composeRich('🎓 '+p.title,d.message!==undefined?sourceRich(shortDescription(d.message),{text:d.message,entities:d.messageEntities}):await productShortRich(e,p),(cs.length?'🎁 Accès gratuit par recommandation.':'🆓 Accès gratuit.')+'\n📖 Découvrez le programme dans le bot.');const caption=rich.text;
- const buttons=[[urlButton(cs.length?'🎁 Découvrir / recevoir gratuitement':await directFree(e,p)?'📥 Recevoir gratuitement':'📚 Voir le produit',url)]];
+ const buttons=[[urlButton(cs.length?'🎁 Découvrir / recevoir gratuitement':await directFree(e,p)?'📥 Recevoir gratuitement':'📚 Voir la formation',url)]];
  return {p,caption,entities:rich.entities,buttons,url};
 }
 async function genericPromoShow(e,u,d){
@@ -955,7 +957,7 @@ async function genericPromoMessage(e,u,d,m){
 async function promoMenu(e,u){
  const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}
  const d=await promoRead(e,u);
- return send(e,u,'📣 Promouvoir les produits\n\nChoisissez une formation complète à promouvoir. Aucun envoi sans confirmation.',[...(d?[[cb('▶ Reprendre la promotion','ad:resume')],[cb('❌ Annuler la promotion','ad:cancel')]]:[[cb('📦 Choisir un produit','ad:page:0')]]),[cb('⬅ Administration','aw:menu')]]);
+ return send(e,u,'📣 Promouvoir les formations\n\nChoisissez une formation complète à promouvoir. Aucun envoi sans confirmation.',[...(d?[[cb('▶ Reprendre la promotion','ad:resume')],[cb('❌ Annuler la promotion','ad:cancel')]]:[[cb('📦 Choisir un produit','ad:page:0')]]),[cb('⬅ Administration','aw:menu')]]);
 }
 async function promoPreview(e,u,d){
  let x;try{x=await promoCampaign(e,d.cid);}catch{}if(!x||!promoValid(d.link,x.ch.username)){await send(e,u,'Canal ou campagne indisponible. Recommencez la promotion.',[[cb('Annuler','ad:cancel')]]);return null;}
@@ -1030,15 +1032,18 @@ async function dispatch(e,update){
  const u=id(from.id);await touch(e,u);
  if(q){try{await tg(e,'answerCallbackQuery',{callback_query_id:q.id});}catch(err){if(err.status!==400)throw err;}}
  let action=q?.data||m.text||m.caption||'';
+ // Leaving a wizard for the public navigation pauses it; explicit resume is required.
+ if(q&&admins(e).has(u)&&!action.startsWith('aw:')&&!action.startsWith('ad:')){const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);if(d.step==='channel')await closePicker(e,u);}const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);if(ad.step==='destination')await closePicker(e,u);}}
  if(q&&action==='ri:enable')return enableReferralInline(e,u);
  if(q&&action.startsWith('ad:'))return promoAction(e,u,action);
  if(q&&action.startsWith('aw:')){if(admins(e).has(u)){const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);}}return wizardCallback(e,u,action);}
  if(!q&&admins(e).has(u)&&(!action.startsWith('/')||(!m.text&&!!readAsset(m)))){const ad=await promoRead(e,u);if(ad&&!ad.paused)return promoMessage(e,u,ad,m);const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
- if(!q&&action==='/cancel'&&admins(e).has(u)){if(await promoRead(e,u))return promoAction(e,u,'ad:cancel');const d=await wizRead(e,u);if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
+ if(!q&&action==='/cancel'&&admins(e).has(u)){const ad=await promoRead(e,u);const current=await wizRead(e,u);if(ad&&!ad.paused||ad&&!current)return promoAction(e,u,'ad:cancel');const d=current;if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
  if(!q&&action.startsWith('/')){
   const match=action.match(/^\/([a-z_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);if(!match)return help(e,u);
   const cmd=match[1],arg=(match[2]||'').trim();
   if(adminCmds.has(cmd)){try{if(cmd==='admin'&&admins(e).has(u)){const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);}}return await adminCommand(e,u,cmd,arg,m);}catch(err){console.warn('Admin command rejected',cmd,err.message);return send(e,u,'Commande refusée ou configuration incomplète. Consultez le README et vérifiez les paramètres.');}}
+  if(cmd==='start'&&admins(e).has(u)){const d=await wizRead(e,u);if(d&&!d.paused){d.paused=true;await wizSave(e,u,d);if(d.step==='channel')await closePicker(e,u);}const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);if(ad.step==='destination')await closePicker(e,u);}}
   if(cmd==='id')return send(e,u,`Votre identifiant : ${u}`);
   if(cmd==='start'&&arg.startsWith('b_'))return packDiscover(e,u,arg.slice(2));
   if(cmd==='start'&&arg.startsWith('r_'))return discover(e,u,arg.slice(2));
@@ -1047,10 +1052,10 @@ async function dispatch(e,update){
  }
  if(action==='home')return welcome(e,u);
  if(action==='catalogue')return catalogue(e,u);
- if(action==='gratuit')return catalogue(e,u,'free');
- if(action==='premium')return catalogue(e,u,'premium');
+ if(action==='gratuit'||action==='premium')return catalogue(e,u);
  if(action==='bibliotheque')return library(e,u);
  if(action==='parrainage')return campaigns(e,u);
+ if(/^clist:\d{1,3}$/.test(action))return campaigns(e,u,Number(action.split(':')[1]));
  if(action==='progression')return personalDashboard(e,u);
  if(action.startsWith('pk:'))return packAction(e,u,action);
  if(/^st:(products|channels):\d{1,3}$/.test(action)){const [,kind,page]=action.split(':');return detailedStats(e,u,kind,Number(page));}
@@ -1164,5 +1169,5 @@ async function handleAcademyImport(request,e,p){
  finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
 }
 
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.9.2',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return new Response('Importateur historique désactivé',{status:410});if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.9.3',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
 export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard,packDiscount,directFree,accessText,purchaseInfo,shortDescription,productShort,productDetails,detailPages,compactMessage,progressBar,captureRich,cleanEntities,composeRich,richPages,productShortRich,productDetailRich,validShort,noChannel};
