@@ -1,4 +1,4 @@
-# MR X ACADEMY — Bot V1.3
+# MR X ACADEMY — Bot V1.3.1
 
 Module autonome du dépôt `MrXPRONOS/MrXPRONOS_App`, dossier `academy/`. Worker `mr-x-academy-bot`, compte Cloudflare Personnel de Ciné Radar, base D1 `mr-x-academy`. Aucun PDF ni secret dans le dépôt public. Aucun R2 requis. Mini App et synchronisation Ficsell hors périmètre V1.
 
@@ -81,3 +81,7 @@ En privé, `/admin` ou bouton Administration → Nouvelle formation. Sept étape
 ## Premium V1.3
 
 Les livres payants ajoutent les étapes : URL HTTPS de la boutique web indépendante (facultative, visible à l'administrateur seulement), nouvelle campagne ou conservation des campagnes existantes, canal public/privé, sélection Telegram ou transfert d'une publication ou ID numérique/lien de publication, objectif 1–20 nouveaux abonnés et délai 0–168 h. Le bot vérifie ses droits d'invitation, refuse le canal de stockage et génère son propre lien d'entrée privé. Les participants reçoivent chacun leur lien individuel. Le menu Gérer les formations → Gérer les campagnes affiche le lien du bot à publier dans le canal, les statistiques et permet l'arrêt explicite. Les droits acquis restent en bibliothèque. Une adhésion ne compte qu'une fois par canal, y compris entre campagnes. Les anciennes campagnes ne sont pas supprimées par une nouvelle. Le lien Ficsell n'est pas un bouton de paiement Telegram : achat indépendant et validation manuelle /grant ; Telegram Stars non implémenté. Les fichiers restent protégés selon les droits existants. Aucun secret ni migration supplémentaire.
+
+## Présentation V1.3.1
+
+Les messages et légendes utilisent les entités Telegram (gras, italique, citation, soulignement et code), calculées sur le texte original en UTF-16. Aucun titre ou description saisi par un administrateur n'est interprété comme du HTML ou Markdown. Le message /start est enrichi et garde la bannière enregistrée. La description de profil avant /start reste du texte simple, conformément à setMyDescription. Aucun changement de données ni secrets.
