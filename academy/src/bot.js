@@ -324,7 +324,7 @@ async function packSelection(e,u){const x=await row(e.DB,'SELECT value FROM sett
 const saveSelection=(e,u,s)=>run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',packSelectionKey(u),JSON.stringify(s));
 async function packOptions(e,u,page=0){
  const s=await packSelection(e,u),ps=await all(e.DB,"SELECT p.id,p.title,c.id cid,c.target,c.channel_id,c.channel_url FROM products p JOIN campaigns c ON c.id=(SELECT c2.id FROM campaigns c2 WHERE c2.product_id=p.id AND c2.active=1 ORDER BY c2.target,CASE WHEN c2.channel_id='' AND c2.channel_url='' THEN 0 ELSE 1 END,c2.id LIMIT 1) WHERE p.active=1 AND NOT EXISTS(SELECT 1 FROM entitlements t WHERE t.user_id=? AND t.product_id=p.id) ORDER BY p.title,p.id LIMIT 9 OFFSET ?",u,page*8);
- const b=ps.slice(0,8).map(p=>[cb((s.includes(p.cid)?'✅ ':'⬜ ')+p.title.slice(0,35)+' · '+p.target+(noChannel(p)?' · Sans canal':' · Avec canal'),'pk:toggle:'+p.cid+':'+page)]);
+ const visible=[];for(const p of ps.slice(0,8)){let selected=null;for(const cid of s){const x=await campaign(e,cid);if(x?.product_id===p.id&&x.active&&x.product_active){selected=x;break;}}visible.push({...p,...(selected?{cid:selected.id,target:selected.target,channel_id:selected.channel_id,channel_url:selected.channel_url}:{})});}const b=visible.map(p=>[cb((s.includes(p.cid)?'✅ ':'⬜ ')+p.title.slice(0,35)+' · '+p.target+(noChannel(p)?' · Sans canal':' · Avec canal'),'pk:toggle:'+p.cid+':'+page)]);
  const nav=[];if(page>0)nav.push(cb('◀','pk:select:'+String(page-1)));if(ps.length>8)nav.push(cb('▶','pk:select:'+String(page+1)));if(nav.length)b.push(nav);
  const selected=[];for(const cid of s){const x=await campaign(e,cid);if(x?.active&&x.product_active&&!await entitlement(e,u,x.product_id)&&!selected.some(y=>y.product_id===x.product_id))selected.push(x);}if(selected.length!==s.length)await saveSelection(e,u,selected.map(x=>x.id));
  const quote=packQuote(selected.map(x=>x.target));
@@ -372,7 +372,7 @@ async function packDashboard(e,u,pid){
  if(owned.length===items.length&&items.length)return send(e,u,'✅ Pack terminé\n\n'+packTitles(items)+'\n\nVos formations sont dans votre bibliothèque.',[[cb('📂 Ma bibliothèque','bibliotheque')],[cb('⬅ Mes parrainages','progression')],home]);
  if(!packReady(items))return send(e,u,'⚠️ Pack indisponible : une campagne est arrêtée ou un produit masqué. Vos accès déjà acquis sont conservés.',[[cb('⬅ Mes parrainages','progression')],home]);
  const b=[[cb('📣 Ma publicité groupée','pk:share:'+pid)],[cb('🔄 Actualiser','pk:view:'+pid)]];
- if(n>=p.target)b.push([cb('🎁 Vérifier et recevoir le pack','pk:claim:'+pid)]);
+ if(n>=p.target)b.push([cb('🎁 Recevoir le pack','pk:claim:'+pid)]);
  b.push([cb('⬅ Mes parrainages','progression')],home);
  return send(e,u,'📦 Mon pack de '+items.length+' formations\n\n'+packTitles(items)+'\n'+progressBar(n,p.target)+'\n'+n+'/'+p.target+' contacts qualifiés\nObjectif initial : '+p.original_target+' · Économie : '+(p.original_target-p.target)+'\n\n'+(n>=p.target?'Objectif atteint ! Récupérez votre pack.':'Partagez votre publicité. Chaque nouveau contact doit découvrir toutes les formations via votre lien.')+'\nLes compteurs restent séparés. Un contact déjà attribué à l’une des formations ne compte pas pour ce pack.',b);
 }
@@ -512,8 +512,9 @@ async function enableReferralInline(e,u){
 }
 
 async function showCampaign(e,u,cid){
- const c=await campaign(e,cid);if(!c?.active||!c.product_active)return send(e,u,'⚠️ Cette campagne n’est plus disponible.',[home]);
+ const c=await campaign(e,cid);if(!c)return send(e,u,'⚠️ Cette campagne n’est plus disponible.',[home]);
  if(await entitlement(e,u,c.product_id))return send(e,u,'✅ Formation déjà acquise\nRetrouvez vos ressources dans votre bibliothèque.',[[cb('📥 Accéder aux ressources','get:'+c.product_id)],home]);
+ if(!c.active||!c.product_active)return send(e,u,'⚠️ Campagne suspendue. Vos contacts déjà crédités sont conservés.',[[cb('📊 Mes parrainages','progression')],home]);
  const link=await discoveryLink(e,cid,u),v=await discoveryCount(e,cid,u),ready=v>=c.target;
  const b=[];
  if(link){b.push([cb('📣 Ma publication à partager','rshare:'+cid)],[cb('🔄 Actualiser','check:'+cid)]);}
@@ -574,12 +575,12 @@ async function refresh(e,u,cid){return showCampaign(e,u,cid);}
 async function unlock(e,u,c){
  if(!c?.active||!c.product_active||await entitlement(e,u,c.product_id))return false;
  if(await discoveryCount(e,c.id,u)<c.target)return false;
- if(!noChannel(c)&&!await getMember(e,c.channel_id,u))return false;
+ if(!noChannel(c)&&(!validChannel(c.channel_id)||!validJoinURL(c.channel_url)||!await getMember(e,c.channel_id,u)))return false;
  const result=await run(e.DB,"INSERT OR IGNORE INTO entitlements(user_id,product_id,source,created_at) SELECT ?,c.product_id,'referral',? FROM campaigns c JOIN products p ON p.id=c.product_id WHERE c.id=? AND c.active=1 AND p.active=1 AND (SELECT COUNT(*) FROM discovery_visits d WHERE d.campaign_id=c.id AND d.owner_id=?)>=c.target",u,now(),c.id,u);
  return Boolean(result.meta.changes);
 }
 async function claim(e,u,cid){
- const c=await campaign(e,cid);if(!c?.active||!c.product_active)return send(e,u,'⚠️ Cette campagne n’est plus disponible.',[home]);
+ const c=await campaign(e,cid);if(c&&await entitlement(e,u,c.product_id))return sendPDF(e,u,c.product_id);if(!c?.active||!c.product_active)return send(e,u,'⚠️ Cette campagne n’est plus disponible.',[[cb('📊 Mes parrainages','progression')],home]);
  if(await entitlement(e,u,c.product_id))return sendPDF(e,u,c.product_id);
  let fresh=false;try{fresh=await unlock(e,u,c);}catch(err){console.warn('Channel verification deferred',err.message);return send(e,u,'Vérification du canal temporairement impossible. Réessayez.',[[cb('Vérifier mon accès','claim:'+cid)]]);}
  if(!await entitlement(e,u,c.product_id))return showCampaign(e,u,cid);
@@ -907,9 +908,8 @@ async function genericPromoPreview(e,u,d){
  const p=await genericPromoProduct(e,d.pid);if(!p){await send(e,u,'⚠️ Formation indisponible.',[[cb('Annuler','ad:cancel')]]);return null;}
  const me=await tg(e,'getMe',{});if(!/^[A-Za-z0-9_]{5,}$/.test(me.username||''))return null;
  const url='https://t.me/'+me.username+'?start=p_'+p.id;
- const cs=await all(e.DB,'SELECT id,target,hold_seconds FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id LIMIT 10',p.id);
- 
- const rich=composeRich('🎓 '+p.title,d.message!==undefined?sourceRich(shortDescription(d.message),{text:d.message,entities:d.messageEntities}):await productShortRich(e,p),(cs.length?'🎁 Accès gratuit par recommandation.':'🆓 Accès gratuit.')+'\n📖 Découvrez le programme dans le bot.');const caption=rich.text;
+ const cs=await activeCampaigns(e,p.id);if(!cs.length)return null;
+ const rich=composeRich('🎓 '+p.title,d.message!==undefined?sourceRich(shortDescription(d.message),{text:d.message,entities:d.messageEntities}):await productShortRich(e,p),'🎁 Accès gratuit par recommandation.\n📖 Découvrez le programme dans le bot.');const caption=rich.text;
  const buttons=[[urlButton('🎁 Découvrir la formation',url)]];
  return {p,caption,entities:rich.entities,buttons,url};
 }
@@ -922,7 +922,7 @@ async function genericPromoShow(e,u,d){
   const p=await genericPromoPreview(e,u,d);if(!p)return;
   const b=[...p.buttons,...(d.dest?[[cb('✅ Publier dans le canal','ad:publish:'+d.nonce)]]:[]),[cb('Terminer','ad:cancel')]];
   await sendRich(e,u,{text:p.caption,entities:p.entities},b,d.cover);
-  return send(e,u,'Aperçu — '+(d.dest?d.dest.title:'partage externe')+'\n\nLien direct à partager :\n'+p.url);
+  return send(e,u,'Aperçu — '+(d.dest?d.dest.title:'partage externe')+'\n\nLien direct à partager :\n'+p.url, d.dest?undefined:[[urlButton('📤 Partager le texte et le lien','https://t.me/share/url?url='+encodeURIComponent(p.url)+'&text='+encodeURIComponent(p.caption))],[cb('Terminer','ad:cancel')]]);
  }
 }
 async function genericPromoAction(e,u,d,a){
