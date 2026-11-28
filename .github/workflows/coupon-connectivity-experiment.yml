@@ -1,0 +1,44 @@
+name: Coupon connectivity experiment
+on:
+  push:
+    branches: [experiment/coupon-share-1win]
+    paths: [.github/workflows/coupon-connectivity-experiment.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  connectivity:
+    if: github.ref == 'refs/heads/experiment/coupon-share-1win'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check public homepages (no login or betting)
+        shell: python
+        run: |
+          import socket
+          import urllib.request
+          import urllib.error
+          from urllib.parse import urlsplit
+          from concurrent.futures import ThreadPoolExecutor
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          opener = urllib.request.build_opener(NoRedirect())
+          def check(url):
+              host = urlsplit(url).hostname
+              try:
+                  socket.getaddrinfo(host, 443)
+              except OSError as e:
+                  return f"{host}: DNS FAILED ({e})"
+              try:
+                  req = urllib.request.Request(url, headers={"User-Agent": "MrXPRONOS-connectivity-check/0.1"})
+                  with opener.open(req, timeout=10) as r:
+                      return f"{host}: HTTP {r.status}"
+              except urllib.error.HTTPError as e:
+                  return f"{host}: HTTP {e.code} (no retry or redirect)"
+              except Exception as e:
+                  return f"{host}: FAILED ({e})"
+          urls = ["https://megapari.com/", "https://betwinner.com/", "https://1win.com/", "https://winwin.bet/", "https://winsport365.com/"]
+          with ThreadPoolExecutor(max_workers=5) as pool:
+              for line in pool.map(check, urls):
+                  print(line, flush=True)
