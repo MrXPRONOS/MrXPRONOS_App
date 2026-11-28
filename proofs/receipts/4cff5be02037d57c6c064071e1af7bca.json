@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-58a9d3cf5e75c10f:1X",
+    "recorded_at_utc": "2026-11-28T00:15:08+00:00",
+    "kickoff_utc": "2026-11-29T23:30:00+00:00",
+    "fixture": {
+      "home_team": "Boca Juniors",
+      "away_team": "Gimnasia y Esgrima",
+      "league": "Argentina Division 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "d67cf66a20679eb6ccac1633d722a4875723f90d61590370b8c5c28e8633a221"
+}
