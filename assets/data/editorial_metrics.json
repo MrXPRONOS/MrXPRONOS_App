@@ -1,18 +1,18 @@
 {
   "contents": {
     "articles.json": {
-      "count": 58,
-      "unique_titles": 57,
-      "with_editorial_image": 58,
+      "count": 59,
+      "unique_titles": 58,
+      "with_editorial_image": 59,
       "visual_variants": {
         "v1": 20,
         "v2": 18,
-        "v3": 20
+        "v3": 21
       },
       "source_types": {
-        "bsd": 58
+        "bsd": 59
       },
-      "with_social_image": 58
+      "with_social_image": 59
     },
     "conseils.json": {
       "count": 0,
@@ -30,39 +30,39 @@
         "legacy": 60
       },
       "source_types": {
-        "BBC Sport": 2,
-        "Foot Mercato": 11,
-        "France 24": 13,
-        "Franceinfo": 5,
-        "MadeInFoot": 7,
-        "Maxifoot": 2,
-        "Onze Mondial": 6,
-        "RFI": 6,
-        "RFI Afrique Foot": 4,
-        "So Foot": 4
+        "BBC Sport": 4,
+        "Foot Mercato": 8,
+        "France 24": 9,
+        "Franceinfo": 7,
+        "MadeInFoot": 5,
+        "Maxifoot": 1,
+        "Onze Mondial": 9,
+        "RFI": 5,
+        "RFI Afrique Foot": 6,
+        "So Foot": 6
       },
       "with_social_image": 0
     }
   },
   "delivery": {
-    "items": 1714,
-    "active_items": 118,
-    "retired_items": 1596,
+    "items": 1764,
+    "active_items": 119,
+    "retired_items": 1645,
     "platform_states": {
-      "facebook:not_requested": 1714,
-      "instagram:not_requested": 1714,
-      "telegram:not_requested": 1714,
-      "threads:not_requested": 1714,
-      "tiktok:not_requested": 1714,
-      "youtube:not_requested": 1714
+      "facebook:not_requested": 1764,
+      "instagram:not_requested": 1764,
+      "telegram:not_requested": 1764,
+      "threads:not_requested": 1764,
+      "tiktok:not_requested": 1764,
+      "youtube:not_requested": 1764
     }
   },
   "assets": {
-    "files": 1779,
-    "size_mb": 99.42,
+    "files": 1784,
+    "size_mb": 99.73,
     "by_format": {
-      ".jpg": 96,
-      ".webp": 1683
+      ".jpg": 97,
+      ".webp": 1687
     }
   },
   "real_clicks": null,

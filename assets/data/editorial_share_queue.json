@@ -1,5 +1,1056 @@
 [
   {
+    "id": "b89c5aa72703f63751c233aa",
+    "kind": "article",
+    "title": "Boca Juniors vs Gimnasia y Esgrima : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-656537/",
+    "source_date": "2026-11-28T00:14:53.554082+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-656537-ec3b86bf-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-656537-ec3b86bf-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-656537-ec3b86bf-social.jpg"
+  },
+  {
+    "id": "e5a1650037e9d3d99dddb3c7",
+    "kind": "news",
+    "title": "Premier League : Nottingham Forest enfonce Chelsea dans la crise",
+    "url": "https://www.footmercato.net/a9158036255785414277-premier-league-nottingham-forest-enfonce-chelsea-dans-la-crise",
+    "source_date": "2026-11-27T21:54:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "09bcbd6f36954a043bdfd679",
+    "kind": "news",
+    "title": "Lens : Risser répond aux critiques",
+    "url": "https://www.maxifoot.fr/lens/risser-repond-aux-critiques-foot-468508.htm",
+    "source_date": "2026-11-27T21:20:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7a22e3f1f8598d0054e472f8",
+    "kind": "news",
+    "title": "Lille prolonge Ethan Mbappé",
+    "url": "https://www.footmercato.net/a3524586840194147782-lille-prolonge-ethan-mbappe",
+    "source_date": "2026-11-27T20:00:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7c984e0d56af0aacbea4f44e",
+    "kind": "news",
+    "title": "Football : faut-il baisser le salaire d'un joueur malade ?",
+    "url": "https://www.franceinfo.fr/sports/foot/bayern-munich/football-faut-il-baisser-le-salaire-d-un-joueur-malade_8303061.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-27T20:00:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d57e19d467b826af6ac8d74e",
+    "kind": "news",
+    "title": "Mercato PSG : La vérité sur les rumeurs d'une éventuelle arrivée de Vinicius Junior à Paris",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-la-verite-sur-les-rumeurs-d-une-eventuelle-arrivee-de-vinicius-junior-a-paris-547259.html",
+    "source_date": "2026-11-27T19:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "026cfa9131102917c687001b",
+    "kind": "news",
+    "title": "MU, Mauricio Pochettino : « je ne suis pas gentil »",
+    "url": "https://www.footmercato.net/a3230648651416156022-mu-mauricio-pochettino-je-ne-suis-pas-gentil",
+    "source_date": "2026-11-27T19:22:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "83ffdf858e276f00ae59cd04",
+    "kind": "news",
+    "title": "Mercato Rennes : Le Stade Rennais acte le départ de Franck Haise ! (officiel)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-rennes-le-stade-rennais-acte-le-depart-de-franck-haise-officiel-547257.html",
+    "source_date": "2026-11-27T19:17:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e16420e48f5c90f3b12857c7",
+    "kind": "news",
+    "title": "Le Stade Rennais annonce le départ de Franck Haise",
+    "url": "https://www.footmercato.net/a7752601579830361649-le-stade-rennais-annonce-le-depart-de-franck-haise",
+    "source_date": "2026-11-27T19:07:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ffd6abc49f6e5e22e04f74db",
+    "kind": "news",
+    "title": "Le Café des Sports : Marseille-Levski Sofia, de violents affrontements entre supporters au Vélodrome",
+    "url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261127-le-caf%C3%A9-des-sports-marseille-levski-sofia-de-violents-affrontements-entre-supporters-au-v%C3%A9lodrome",
+    "source_date": "2026-11-27T18:04:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "90b420c81e60354bcdc4e24d",
+    "kind": "news",
+    "title": "Ligue des champions CAF: une course au titre ouverte en l’absence d’Al Ahly et de Sundowns",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261127-ligue-des-champions-caf-une-course-au-titre-ouverte-en-l-absence-d-al-ahly-et-de-sundowns",
+    "source_date": "2026-11-27T15:47:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bb0585689d1d10df541848c8",
+    "kind": "news",
+    "title": "Ligue Europa : une banderole pro-palestinienne provoque des heurts et un incident diplomatique",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261127-ligue-europa-une-banderole-pro-palestinienne-provoque-des-heurts-et-un-incident-diplomatique",
+    "source_date": "2026-11-27T15:41:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "adc8817278d38a66d2a0f56a",
+    "kind": "news",
+    "title": "Traumatisme crânien, coups de ceinture, fumigènes… Des scènes de violences dans les gradins du match OM-Levski Sofia à Marseille",
+    "url": "https://www.franceinfo.fr/sports/foot/traumatisme-cranien-coups-de-ceinture-fumigenes-scenes-de-violences-dans-les-gradins-du-match-om-levski-sofia-a-marseille_8303082.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-27T15:37:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "486aa6df468e8b5777ceffdc",
+    "kind": "news",
+    "title": "TEMOIGNAGES. \"Ils ont provoqué en faisant des signes nazis, des cris racistes\" : des supporters marseillais reviennent sur les violences survenues lors du match OM - Levski Sofia",
+    "url": "https://www.franceinfo.fr/sports/foot/om/temoignages-ils-ont-provoque-en-faisant-des-signes-nazis-des-cris-racistes-des-supporters-marseillais-reviennent-sur-les-violences-survenues-lors-du-match-om-levski-sofia_8303151.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-27T14:50:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "147bc530a161623554a78d93",
+    "kind": "news",
+    "title": "Coupe de la Confédération: l’USM Alger en route pour un troisième sacre ?",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261127-coupe-de-la-conf%C3%A9d%C3%A9ration-l-usm-alger-en-route-pour-un-troisi%C3%A8me-sacre",
+    "source_date": "2026-11-27T14:01:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6fa46aa9e4a0b8116aac7e7c",
+    "kind": "news",
+    "title": "Violences lors du match OM - Levski Sofia : l'Association nationale des supporters \"condamne fermement\"",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-europa/l-association-nationale-des-supporters-condamne-fermement-les-violences-en-marge-de-la-rencontre-entre-marseille-et-le-levski-sofia_8302902.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-27T13:09:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ef76c7074a7c4f755c6a8dab",
+    "kind": "news",
+    "title": "Échanges de coups, jets de projectiles, saluts nazis : soirée chaotique à Marseille contre le Levski",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261127-%C3%A9changes-coups-jets-projectiles-saluts-nazis-soir%C3%A9e-chaotique-marseille-contre-levski-sofia-om-football-sport",
+    "source_date": "2026-11-27T12:09:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "755b1d7ca0e61392bbd3a2b7",
+    "kind": "news",
+    "title": "Incidents et blessés à Marseille lors d'OM-Levski Sofia : ce que l'on sait",
+    "url": "https://www.france24.com/fr/vid%C3%A9o/20261127-incidents-et-bless%C3%A9s-%C3%A0-marseille-lors-d-om-levski-sofia-ce-que-l-on-sait",
+    "source_date": "2026-11-27T11:35:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f28740ae7b45769371eb440e",
+    "kind": "news",
+    "title": "CAN 2025: pour les Congolais, la décision du TAS réhabilite l’arbitre Jean-Jacques Ndala",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261127-can-2025-pour-les-congolais-la-d%C3%A9cision-du-tas-r%C3%A9habilite-l-arbitre-jean-jacques-ndala",
+    "source_date": "2026-11-27T11:26:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f228ef2a356a786fe4a23f50",
+    "kind": "news",
+    "title": "Ligue des champions CAF: calendrier et résultats de l'édition 2026-2027",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261127-ligue-des-champions-caf-calendrier-et-r%C3%A9sultats-de-l-%C3%A9dition-2026-2027",
+    "source_date": "2026-11-27T09:04:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4393f1026205c14d31c82bd6",
+    "kind": "news",
+    "title": "CAF Awards 2026: la liste des finalistes annonce un nouveau duel Maroc-Sénégal",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261127-caf-awards-2026-la-liste-des-finalistes-annonce-un-nouveau-duel-maroc-s%C3%A9n%C3%A9gal",
+    "source_date": "2026-11-27T09:02:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "31ef4e3facaac5038019786b",
+    "kind": "news",
+    "title": "Match OM-Levski Sofia : l’UEFA ouvre une enquête disciplinaire",
+    "url": "https://www.france24.com/fr/france/20261127-football-des-supporters-du-levski-sofia-bless%C3%A9s-%C3%A0-marseille-la-bulgarie-exprime-son-indignation",
+    "source_date": "2026-11-27T01:37:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8b6a48f40a98f3e4486b8b4b",
+    "kind": "news",
+    "title": "Mercato : Nico Paz ne veut pas retourner au Real Madrid, où pourrait-il rebondir ?",
+    "url": "https://www.onzemondial.com/transferts/mercato-nico-paz-ne-veut-pas-retourner-au-real-madrid-ou-pourrait-il-rebondir-1011754",
+    "source_date": "2026-11-28T05:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1dbaa13fb52b9fff3b7de83b",
+    "kind": "news",
+    "title": "Le Mans-Lille : chaîne TV, streaming… À quelle heure et où suivre ce rendez-vous de la 12ème journée de Ligue 1 ?",
+    "url": "https://www.onzemondial.com/ligue-1/le-mans-lille-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-rendez-vous-de-la-12eme-journee-de-ligue-1-1011206",
+    "source_date": "2026-11-28T05:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1ed318214fbde0356807856c",
+    "kind": "news",
+    "title": "RC Lens : Robin Risser et ces gardiens face au « rookie wall »",
+    "url": "https://www.sofoot.com/articles/rc-lens-robin-risser-et-ces-gardiens-face-au-rookie-wall",
+    "source_date": "2026-11-28T05:00:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "11f2b8797e911ad447d01c3b",
+    "kind": "news",
+    "title": "PSG-Lorient : chaîne TV, streaming… À quelle heure et où suivre cette rencontre entre le leader de Ligue 1 et les Bretons ?",
+    "url": "https://www.onzemondial.com/ligue-1/psg-lorient-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-entre-le-leader-de-ligue-1-et-les-bretons-1011198",
+    "source_date": "2026-11-28T04:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5de6dc0ff65f948d571c37eb",
+    "kind": "news",
+    "title": "Angers-Lens : chaîne TV, streaming… À quelle heure et où suivre cette rencontre de la 12ème journée de Ligue 1 ?",
+    "url": "https://www.onzemondial.com/ligue-1/angers-lens-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-de-la-12eme-journee-de-ligue-1-1011191",
+    "source_date": "2026-11-28T04:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "88d230d2f8331cee78d2a87e",
+    "kind": "news",
+    "title": "Le Havre-Strasbourg : chaîne TV, streaming… À quelle heure et où suivre cette rencontre sous tension entre relégables ?",
+    "url": "https://www.onzemondial.com/ligue-1/le-havre-strasbourg-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-sous-tension-entre-relegables-1011226",
+    "source_date": "2026-11-28T04:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ce9928f725a01eef86e1ce5d",
+    "kind": "news",
+    "title": "Franck Haisé viré : au Stade rennais, tout le monde peut perdre sa place",
+    "url": "https://www.sofoot.com/articles/franck-haise-vire-au-stade-rennais-tout-le-monde-peut-perdre-sa-place",
+    "source_date": "2026-11-27T23:15:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "dc8b2eef7b4457042376b415",
+    "kind": "news",
+    "title": "Wilshere v Ramsey - Arsenal legends treading similar managerial paths",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cm1dvn9w1px4o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-27T22:58:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "abaa82fffd0bcda5cf0f3b46",
+    "kind": "news",
+    "title": "Pologne : Un spectateur interrompt un match en faisant irruption sur la pelouse en trottinette électrique",
+    "url": "https://www.sofoot.com/breves/pologne-un-spectateur-interrompt-un-match-en-faisant-irruption-sur-la-pelouse-en-trottinette-electrique",
+    "source_date": "2026-11-27T22:56:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "47c5ae360a8794d4ce2c14ca",
+    "kind": "news",
+    "title": "Le cauchemar se poursuit pour Musiala, peut-il sortir la tête de l'eau ?",
+    "url": "https://www.onzemondial.com/le-cauchemar-se-poursuit-pour-musiala-peut-il-sortir-la-tete-de-l-eau-1011758",
+    "source_date": "2026-11-27T22:56:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6cb5cdf2b0389f5d851c62f7",
+    "kind": "news",
+    "title": "Thiago Silva rempile d’un an avec Fluminense",
+    "url": "https://www.footmercato.net/a6503641973679881750-thiago-silva-rempile-dun-an-avec-fluminense",
+    "source_date": "2026-11-27T22:50:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "14670ef4e0751ebb21e6c2fb",
+    "kind": "news",
+    "title": "Brest est en train de déjouer tous les pronostics en Ligue 1 !",
+    "url": "https://www.footmercato.net/a2706401857683016658-brest-est-en-train-de-dejouer-tous-les-pronostics-en-ligue-1",
+    "source_date": "2026-11-27T22:35:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f1b14daea0b4e2b94c03a163",
+    "kind": "news",
+    "title": "Julien Lachuer après la victoire de Brest contre le Paris FC : « Là où il est, Eric Roy doit être fier »",
+    "url": "https://www.sofoot.com/breves/julien-lachuer-apres-la-victoire-de-brest-contre-le-paris-fc-la-ou-il-est-eric-roy-doit-etre-fier",
+    "source_date": "2026-11-27T22:33:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f5c79eb1ae03093a0998e7bb",
+    "kind": "news",
+    "title": "Des clubs de Premier League demandent la vente de Manchester City",
+    "url": "https://www.footmercato.net/a3522405779809248532-des-clubs-de-premier-league-demandent-la-vente-de-manchester-city",
+    "source_date": "2026-11-27T22:32:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "222747023df58fdcb52ad2ca",
+    "kind": "news",
+    "title": "Gibbs-White scores twice as Forest beat struggling Chelsea",
+    "url": "https://www.bbc.co.uk/sport/football/videos/cm5y10n8e737o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-27T22:30:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "502d94c8336448e54828d886",
+    "kind": "news",
+    "title": "Les footballeuses françaises renversent le Venezuela (4-2) en match amical",
+    "url": "https://www.franceinfo.fr/sports/foot/l-equipe-de-france-feminine-renversent-le-venezuela-4-2-en-match-amical_8303850.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-27T22:27:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "53c935ee02f80e0b53b101d6",
+    "kind": "news",
+    "title": "Lille : le message fort d'Ancelotti à ses joueurs après l'exploit face au Bayern",
+    "url": "https://www.onzemondial.com/ligue-1/lille-le-message-fort-dancelotti-a-ses-joueurs-apres-lexploit-face-au-bayern-1011780",
+    "source_date": "2026-11-27T22:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "767170bf3007b29daa0814a8",
+    "kind": "news",
+    "title": "Stade Brestois : Égil Selvik sur un nuage après la belle victoire face au Paris FC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-stade-brestois-egil-selvik-sur-un-nuage-apres-la-belle-victoire-face-au-paris-fc-547274.html",
+    "source_date": "2026-11-27T22:11:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7b7d419632dddd8ead03639a",
+    "kind": "news",
+    "title": "Équipe de France (F) : renversantes, les Bleues s'imposent face au Venezuela en amical",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-feminine-renversantes-les-bleues-simposent-face-au-venezuela-en-amical-1011817",
+    "source_date": "2026-11-27T22:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ca5d57a85a07ffb57f0bf4e4",
+    "kind": "news",
+    "title": "Brest bat le Paris FC (1-0) et grimpe provisoirement sur le podium de la Ligue 1",
+    "url": "https://www.franceinfo.fr/sports/foot/brest-bat-le-paris-fc-1-0-et-grimpe-provisoirement-sur-le-podium-de-la-ligue-1_8303847.html#xtor=RSS-3-%5Bsports%2Ffoot%5D",
+    "source_date": "2026-11-27T22:05:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4fb56f7be761c096ab388235",
+    "kind": "news",
+    "title": "Mercato PSG : Une grosse bataille s'annonce avec Arsenal et Francfort pour l'avenir de David Boly",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-une-grosse-bataille-s-annonce-avec-arsenal-et-francfort-pour-l-avenir-de-david-boly-547273.html",
+    "source_date": "2026-11-27T22:03:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2ee59c0f9ef36d1f1fda7e7b",
+    "kind": "news",
+    "title": "Amicaux (F) : la France renverse le Venezuela",
+    "url": "https://www.footmercato.net/a2012729565128324780-amicaux-f-la-france-renverse-le-venezuela",
+    "source_date": "2026-11-27T22:01:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5537592df68fd0f372a1221f",
+    "kind": "news",
+    "title": "Strasbourg : énorme retour pour le déplacement au Havre, quatre absents à déplorer",
+    "url": "https://www.onzemondial.com/ligue-1/strasbourg-enorme-retour-pour-le-deplacement-au-havre-quatre-absents-a-deplorer-1011785",
+    "source_date": "2026-11-27T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "55a71015738eeda2a2ca3543",
+    "kind": "news",
+    "title": "Gibbs-White stars, Fofana struggles - player ratings for Forest v Chelsea",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cmwy85xxjgxvo?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-27T21:59:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fe0de05597fea140859c557d",
+    "kind": "news",
+    "title": "Amical : L’équipe de France féminine renverse le Venezuela après une entame catastrophique",
+    "url": "https://www.sofoot.com/breves/amical-lequipe-de-france-feminine-renverse-le-venezuela-apres-une-entame-catastrophique",
+    "source_date": "2026-11-27T21:59:15+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "799ea7ab08c2ef67dd66f9e9",
+    "kind": "news",
+    "title": "Premier League : Malgré un doublé d’Emegha, Chelsea subit une troisième défaite de suite à Nottingham",
+    "url": "https://www.sofoot.com/breves/premier-league-malgre-un-double-demegha-chelsea-subit-une-troisieme-defaite-de-suite-a-nottingham",
+    "source_date": "2026-11-27T21:54:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5a8752d6ff853c870476488d",
+    "kind": "news",
+    "title": "Coupe de France : Premier grand exploit du 8e tour, un club de Régional 1 fait tomber le SM Caen",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-coupe-de-france-premier-grand-exploit-du-8e-tour-un-club-de-regional-1-fait-tomber-le-sm-caen-547271.html",
+    "source_date": "2026-11-27T21:53:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e48487ca3a91591b9fc25254",
+    "kind": "news",
+    "title": "Celtic defend head of security amid Green Brigade row",
+    "url": "https://www.bbc.co.uk/sport/football/articles/ck1ewjw1qqn7o?at_medium=RSS&at_campaign=rss",
+    "source_date": "2026-11-27T21:50:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-28T05:43:01.533143+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "a664886aef2707939a9e9288",
     "kind": "article",
     "title": "Espérance Sportive De Tunis vs Wiliete SC : analyse du match",
@@ -84,7 +1135,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a16d8477e3b38f2c378d6ca3",
@@ -126,7 +1177,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "11e7a1f68092e7df15ba7cbc",
@@ -147,7 +1198,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5f1d7fc167ac011d34b67dbf",
@@ -168,7 +1219,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bddf13921b9698a2e57cc01e",
@@ -189,7 +1240,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "049cc8644b1163142bdcab47",
@@ -210,7 +1261,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9cf98d608297423ebecbfd50",
@@ -231,7 +1282,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "36768c16b2df3090a0b23ae6",
@@ -252,7 +1303,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "550bc269e6706a9dda0cfc95",
@@ -273,7 +1324,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4a7fe0f1109f84f0761b2ce9",
@@ -294,7 +1345,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8ac5412266457e3865185401",
@@ -315,7 +1366,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2544ea531fa88e0125d6a946",
@@ -336,7 +1387,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ae7bd76e2bc47af34ee7cb23",
@@ -378,7 +1429,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0c1f73afd7cc9e984273a680",
@@ -399,7 +1450,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cb599dbdce4e72ffce393b14",
@@ -420,7 +1471,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "963dfc7f1b505157f86f2ef4",
@@ -441,7 +1492,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "549d935fa681ac92e01d9a28",
@@ -462,7 +1513,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e3645c7bba6868631120d8a7",
@@ -504,7 +1555,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "230b0eb146fc28ee29b5424a",
@@ -525,7 +1576,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "72492ed86a2fce0464c0b17e",
@@ -588,7 +1639,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a46cf1b62be8c3a8ddc34af6",
@@ -609,7 +1660,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9161cefeb0498240dcd99c07",
@@ -630,7 +1681,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "15e34f157a705e9a2ce3e9b7",
@@ -651,7 +1702,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "224aaf881a8c543c08d27303",
@@ -672,7 +1723,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "50b8071bf29efb2f98bc3e48",
@@ -693,7 +1744,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cf2f49fc1989abf33f5eeeca",
@@ -714,7 +1765,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e3f8331404a8e4bc5ed51d30",
@@ -735,7 +1786,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fe9ec6d9f16f0eb0b0a0240d",
@@ -756,7 +1807,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fc157c994b96493f2793d0a9",
@@ -777,7 +1828,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2798c58d6df7968007880947",
@@ -798,7 +1849,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "84d1025f78a10199fae9d4c2",
@@ -819,7 +1870,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "74e3a7ccf3288f167d49e23b",
@@ -840,7 +1891,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ade870b05d123897ed011bf2",
@@ -861,7 +1912,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ec4b2508c04eb57f63d4980f",
@@ -882,7 +1933,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "59e068a86860da79e9511630",
@@ -1218,7 +2269,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2eb9fd1e1588ede3c1eace01",
@@ -1260,7 +2311,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3ed938da27d284d56013c4a3",
@@ -1724,7 +2775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "71583b521a5988bc4efe68c9",
@@ -1934,7 +2985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aacb2b50b8f6d630e24a2001",
@@ -1976,7 +3027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "db81ea164f5e962b83c49ab5",
@@ -2060,7 +3111,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6859a1ad48b551dfaa1bee62",
@@ -2123,7 +3174,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1125e26ad5703efc90259332",
@@ -2165,7 +3216,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "966b4e99097c148d02279d78",
@@ -2186,7 +3237,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "09b67790d98f5d43f3b8d5dd",
@@ -2207,7 +3258,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "94f3ce5d3e293adff98af4e4",
@@ -2228,7 +3279,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f1c50f9e5445be99bad3182e",
@@ -2249,7 +3300,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "114c53cb17cc17e0c3e43a43",
@@ -2270,7 +3321,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "92796b8b092c86c5f676c9e8",
@@ -2312,7 +3363,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ed02b292a0ea1aa3294a95cd",
@@ -2333,7 +3384,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0150670ac4cbb1bafd04b06a",
