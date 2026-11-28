@@ -84,9 +84,9 @@ async function welcome(e,u){
 const hasCampaign=async(e,pid)=>!!await row(e.DB,'SELECT id FROM campaigns WHERE product_id=? LIMIT 1',pid);
 const activeCampaigns=(e,pid)=>all(e.DB,'SELECT id,target FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id',pid);
 const directFree=async(e,p)=>p.price_xof===0&&!await hasCampaign(e,p.id);
-const accessText=(p,cs,free)=>free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 Accès gratuit par recommandation\n'+cs.map(c=>'Invitez '+c.target+' contacts qualifiés et rejoignez le canal pour recevoir cette formation.').join('\n')+(p.price_xof>0?'\n\nAlternative : achat sans partage à '+p.price_xof.toLocaleString('fr-FR')+' FCFA.':''):'Accès par recommandation temporairement indisponible.';
+const accessText=(p,cs,free)=>free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA — Accès gratuit par recommandation\n'+cs.map(c=>'Invitez '+c.target+' contacts qualifiés et rejoignez le canal pour recevoir cette formation.').join('\n')+(p.price_xof>0?'\n\nAlternative : achat sans partage à '+p.price_xof.toLocaleString('fr-FR')+' FCFA.':''):'Accès par recommandation temporairement indisponible.';
 async function catalogue(e,u,filter='all',page=0){
- const condition=filter==='free'?" AND p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)":filter==='premium'?" AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1)":" AND (p.price_xof=0 OR EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1))";
+ const condition=filter==='free'?" AND p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)":filter==='premium'?" AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1)":" AND ((p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)) OR EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1))";
  const ps=await all(e.DB,'SELECT p.id,p.title FROM products p WHERE p.active=1'+condition+' ORDER BY p.category,p.title,p.id LIMIT 9 OFFSET ?',page*8);
  const buttons=ps.slice(0,8).map(p=>[cb('🎓 '+p.title.slice(0,50),'p:'+p.id)]);
  const nav=[];if(page>0)nav.push(cb('◀','list:'+filter+':'+(page-1)));if(ps.length>8)nav.push(cb('▶','list:'+filter+':'+(page+1)));if(nav.length)buttons.push(nav);buttons.push(home);
@@ -491,7 +491,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  }
  if(cmd==='publish'||cmd==='unpublish'){
   if(!slug(arg))throw new Error('Invalid product');const p=await product(e,arg);if(!p)throw new Error('Unknown product');
-  if(cmd==='publish'&&(!(await productAssets(e,p)).length||p.price_xof>0&&!(await activeCampaigns(e,p.id)).length))throw new Error('Missing resources or referral campaign');
+  if(cmd==='publish'&&(!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,p.id)).length))throw new Error('Missing resources or referral campaign');
   await run(e.DB,'UPDATE products SET active=? WHERE id=?',cmd==='publish'?1:0,arg);await audit(e,u,cmd,arg);return send(e,u,'Statut modifié : '+arg);
  }
  if(cmd==='campaignoff'){
@@ -579,7 +579,7 @@ async function wizPrompt(e,u,d){
  case 'target':return say('Combien de contacts qualifiés sont nécessaires ? Recommandé : 5. Envoyez un nombre de 1 à 20.',[[cb('5',wizAction(d,'n5')),cb('10',wizAction(d,'n10')),cb('15',wizAction(d,'n15')),cb('20',wizAction(d,'n20'))]]);
  case 'hold':d.hold=0;d.step='review';await wizSave(e,u,d);return wizPrompt(e,u,d);
  case 'review':{
-  const caption='✅ Aperçu avant publication\n\n'+d.title+'\n'+d.category+'\n💰 Prix : '+(d.price===0?'Gratuit':d.price.toLocaleString('fr-FR')+' FCFA')+'\n\n'+(d.description||'Sans description')+'\n\n📎 '+draftAssets(d).length+' ressource(s) : '+draftAssets(d).slice(0,3).map(x=>x.name).join(', ')+(d.price>0?'\n\nBoutique web : '+(d.shop?'lien enregistré':'aucun lien')+'\nParrainage : '+(d.access==='new'?d.target+' contacts qualifiés • canal : '+d.channel.title+' ('+d.kind+')':'pas de nouvelle campagne'):'');
+  const caption='✅ Aperçu avant publication\n\n'+d.title+'\n'+d.category+'\nAchat facultatif : '+(d.price===0?'Non proposé':d.price.toLocaleString('fr-FR')+' FCFA')+'\n\n'+(d.description||'Sans description')+'\n\n📎 '+draftAssets(d).length+' ressource(s) : '+draftAssets(d).slice(0,3).map(x=>x.name).join(', ')+(d.price>0?'\n\nBoutique web : '+(d.shop?'lien enregistré':'aucun lien'):'')+'\nAccès gratuit : '+(d.access==='new'?d.target+' contacts qualifiés • canal : '+d.channel.title+' ('+d.kind+')':d.edit?'conditions existantes':'accès direct sans condition');
   return photo(e,u,caption.slice(0,1000),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),null,d.cover,'wizard');
  }
  }
@@ -597,7 +597,7 @@ async function wizProduct(e,u,pid){
  const b=[[cb('✏️ Compléter / modifier','aw:edit:'+pid)]];if(cs.length)b.push([cb('🎁 Gérer les campagnes','aw:campaigns:'+pid)]);if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(assets.length)b.push([cb('Publier','aw:show:'+pid)]);
  if(assets.length)b.push([cb('📎 Tester les ressources','aw:test:'+pid)]);if(p.active)b.push([cb('📣 Promouvoir ce produit','ad:item:'+pid)]);
  b.push([cb('⬅ Formations','aw:list:0')]);
- return photo(e,u,(p.title+'\n'+p.category+'\n'+p.price_xof+' FCFA\n'+(p.active?'Publié':'Brouillon')+'\n'+(assets.length?assets.length+' ressource(s) enregistrée(s)':'Aucune ressource')+'\nBoutique web : '+(shop?.value||'non configurée')+'\nCampagnes : '+(cs.length?cs.map(c=>c.id+' · '+c.target+' invitations · '+(c.active?'active':'arrêtée')).join('\n'):'aucune')+'\n\n'+p.description).slice(0,1000),b,null,p.cover_file_id);
+ return photo(e,u,(p.title+'\n'+p.category+'\nAchat facultatif : '+(p.price_xof?p.price_xof+' FCFA':'non proposé')+'\n'+(p.active?'Publié':'Brouillon')+'\n'+(assets.length?assets.length+' ressource(s) enregistrée(s)':'Aucune ressource')+'\nBoutique web : '+(shop?.value||'non configurée')+'\nCampagnes : '+(cs.length?cs.map(c=>c.id+' · '+c.target+' contacts qualifiés · '+(c.active?'active':'arrêtée')).join('\n'):'aucune')+'\n\n'+p.description).slice(0,1000),b,null,p.cover_file_id);
 }
 async function wizardCallback(e,u,action){
  if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
@@ -632,7 +632,7 @@ async function wizardCallback(e,u,action){
   }
   if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return adminResourceMenu(e,u,p,a);}
   if(v[1]==='hide'||v[1]==='show'){
-   if(v[1]==='show'&&(!(await productAssets(e,p)).length||p.price_xof>0&&!(await activeCampaigns(e,p.id)).length))return send(e,u,'Ressource ou campagne de recommandation manquante.');
+   if(v[1]==='show'&&(!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,p.id)).length))return send(e,u,'Ressource ou campagne de recommandation manquante.');
    await run(e.DB,'UPDATE products SET active=? WHERE id=?',v[1]==='show'?1:0,p.id);
    await audit(e,u,'wizard_'+v[1],p.id);return wizProduct(e,u,p.id);
   }
@@ -658,7 +658,7 @@ async function wizardCallback(e,u,action){
   if(d.access==='new')d.hold=0;
   if(!d.title||!d.category||!Number.isSafeInteger(d.price)||d.price<0||!d.cover||!draftAssets(d).length||!d.filename)return send(e,u,'Brouillon incomplet.',[[cb('Reprendre','aw:resume')]]);
   const active=a==='publish'?1:0;
-  if(active&&d.price>0&&d.access!=='new'&&!(await activeCampaigns(e,d.id)).length)return send(e,u,'Configurez une campagne de recommandation avant de publier.',[[cb('⬅ Retour',wizAction(d,'back'))]]);
+  if(active&&(d.price>0||await hasCampaign(e,d.id))&&d.access!=='new'&&!(await activeCampaigns(e,d.id)).length)return send(e,u,'Configurez une campagne de recommandation avant de publier.',[[cb('⬅ Retour',wizAction(d,'back'))]]);
   const existing=d.edit?await product(e,d.id):null;
   if(d.edit&&!existing)return send(e,u,'Produit introuvable.',[[cb('Administration','aw:menu')]]);
   if(existing&&existing.price_xof!==d.price&&existing.active)return send(e,u,'Masquez d’abord ce produit pour modifier son prix, puis reprenez le brouillon.',[[cb('Administration','aw:menu')]]);
@@ -742,7 +742,7 @@ async function promoCampaign(e,cid){
 }
 
 async function genericPromoProduct(e,pid){
- const p=await product(e,pid);if(!p?.active||!(await productAssets(e,p)).length)return null;return p;
+ const p=await product(e,pid);if(!p?.active||!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,pid)).length)return null;return p;
 }
 async function promoProducts(e,u,page=0){
  const ps=await all(e.DB,'SELECT id,title FROM products WHERE active=1 ORDER BY title,id LIMIT 9 OFFSET ?',page*8);
