@@ -1,4 +1,4 @@
-# MR X ACADEMY — Bot V1.1
+# MR X ACADEMY — Bot V1.2
 
 Module autonome du dépôt `MrXPRONOS/MrXPRONOS_App`, dossier `academy/`. Worker `mr-x-academy-bot`, compte Cloudflare Personnel de Ciné Radar, base D1 `mr-x-academy`. Aucun PDF ni secret dans le dépôt public. Aucun R2 requis. Mini App et synchronisation Ficsell hors périmètre V1.
 
@@ -73,3 +73,7 @@ Node 22.13+ ; `npm install`, `npm run check`, `npm test`. Tests SQLite locaux et
 `/health` : état du service et présence des configurations, sans valeur de secret. Vérifier en réel : `/start`, image, catalogue, accès gratuit, refus du Premium, droits admin ; campagne de test distincte (2 invitations et délai zéro) avec comptes légitimes consentants, doublons et départs, attribution et livraison. Désactiver la campagne de test et activer la vraie à 10/24 h seulement après succès.
 
 Limites : Telegram n'a pas d'historique exhaustif des anciens membres avant l'installation ; les multicomptes ne peuvent pas être totalement détectés. Un compte ne compte qu'une fois par canal. Le cron valide 5 invitations et tente une récompense par passage ; le lecteur peut actualiser et réclamer. Le droit est unique et reste en bibliothèque après erreur d'envoi. Les confirmations d'adhésion nécessitent les droits et le webhook correctement configurés. Ne pas publier de liens du canal privé ni de tokens. Mini App et synchronisation des paiements à développer séparément.
+
+## Assistant de création V1.2
+
+En privé, `/admin` ou bouton Administration → Nouvelle formation. Sept étapes : titre, catégorie, prix (0 = gratuit), description optionnelle (0 ou bouton), couverture (photo), PDF, aperçu. Publier ou garder en brouillon. Pause, retour, annulation et reprise possibles. Le bot doit pouvoir publier dans le canal privé de stockage : les fichiers sont automatiquement archivés. Gérer les formations permet de compléter/modifier les deux produits initiaux, conserver les valeurs existantes, tester le PDF, publier ou masquer. Les anciennes commandes restent disponibles. Pour modifier le prix d'un produit déjà publié, le masquer d'abord. Les campagnes restent configurées avec /campaign. Les fichiers déjà archivés restent dans le canal après annulation. Aucun changement de secrets requis.
