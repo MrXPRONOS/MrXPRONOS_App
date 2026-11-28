@@ -173,8 +173,22 @@ test('short description is bounded and detailed program is public without resour
  await internals.showProduct(env,'2','masterclass');
  const card=calls.at(-1).body;assert.ok((card.caption||card.text).includes(summary));assert.ok(!(card.caption||card.text).includes('Module 20'));
  assert.ok(card.reply_markup.inline_keyboard.some(r=>r.some(b=>b.callback_data==='details:masterclass')));
- await internals.productDetails(env,'2','masterclass');assert.ok(calls.at(-1).body.text.includes('Module 20'));
+ await internals.productDetails(env,'2','masterclass',3);assert.ok(calls.at(-1).body.text.includes('Module 20'));
  assert.ok(!calls.some(c=>c.method==='sendDocument'));
  sql.exec("UPDATE products SET active=0 WHERE id='masterclass'");
  await internals.productDetails(env,'2','masterclass');assert.ok(calls.at(-1).body.text.includes('indisponible'));
+});
+
+
+test('editorial layout preserves content and limits ordinary messages to ten explicit lines',()=>{
+ const original=Array.from({length:24},(_,i)=>'Line '+i).join('\n\n')+'\nhttps://t.me/example';
+ const compact=internals.compactMessage(original);
+ assert.ok(compact.split('\n').length<=10);
+ assert.equal(compact.replace(/\s+/g,' '),original.replace(/\s+/g,' '));
+ assert.ok(compact.endsWith('https://t.me/example'));
+ assert.equal(internals.progressBar(3,5),'▰'.repeat(6)+'▱'.repeat(4));
+ const program=Array.from({length:20},(_,i)=>'Module '+(i+1)).join('\n');
+ const pages=internals.detailPages(program);
+ assert.equal(pages.length,4);assert.ok(pages.every(p=>p.split('\n').length<=6));
+ assert.equal(pages.join('\n'),program);
 });
