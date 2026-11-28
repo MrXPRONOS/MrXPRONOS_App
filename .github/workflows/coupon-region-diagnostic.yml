@@ -1,0 +1,38 @@
+name: Coupon region diagnostic
+on:
+  push:
+    branches: [experiment/coupon-share-1win]
+    paths: [.github/workflows/coupon-region-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - run: python -m pip install playwright
+      - name: Inspect public pages only
+        shell: python
+        run: |
+          import re, shutil, json
+          from playwright.sync_api import sync_playwright
+          sites = {"Megapari":"https://megapari.com/","Betwinner":"https://betwinner.com/","WinWin Bet":"https://winwin.bet/","WinSport365":"https://winsport365.com/"}
+          restricted = re.compile(r"not available in your (?:country|region|location)|access denied|forbidden|restricted (?:country|region)|captcha|verify you are human|unavailable in your|not accessible from your", re.I)
+          with sync_playwright() as p:
+              browser = p.chromium.launch(executable_path=shutil.which("google-chrome") or shutil.which("chromium"))
+              for name, url in sites.items():
+                  context = browser.new_context()
+                  page = context.new_page()
+                  try:
+                      response = page.goto(url, wait_until="domcontentloaded", timeout=20000)
+                      page.wait_for_timeout(2500)
+                      body = page.locator("body").inner_text(timeout=6000)
+                      status = response.status if response else None
+                      match = restricted.search(body)
+                      result = {"bookmaker":name,"http":status,"title":page.title(),"result":"restricted" if match or status in (403,451) else "page_loaded_unverified","restriction":match.group(0) if match else None}
+                      print(json.dumps(result),flush=True)
+                  except Exception as exc:
+                      print(json.dumps({"bookmaker":name,"result":"error","type":type(exc).__name__}),flush=True)
+                  finally:
+                      context.close()
+              browser.close()
