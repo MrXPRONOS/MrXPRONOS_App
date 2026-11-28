@@ -4,7 +4,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import {membershipEvent,validateDue,autoReward,handleWebhook,internals,formatTelegram,tg} from '../src/bot.js';
 function setup(){
- const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../migrations/0001_init.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0002_catalog.sql',import.meta.url),'utf8'));
+ const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../migrations/0001_init.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0002_catalog.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0003_discovery.sql',import.meta.url),'utf8'));
  const make=(q,args=[])=>({bind:(...a)=>make(q,a),first:async()=>sql.prepare(q).get(...args)||null,all:async()=>({results:sql.prepare(q).all(...args)}),run:async()=>({meta:{changes:Number(sql.prepare(q).run(...args).changes)}}),_run:()=>sql.prepare(q).run(...args)});
  const DB={prepare:make,batch:async ss=>{sql.exec('BEGIN');try{const r=ss.map(s=>s._run());sql.exec('COMMIT');return r;}catch(e){sql.exec('ROLLBACK');throw e;}}};
  sql.exec(`UPDATE products SET active=1,file_id='file123'; INSERT INTO users VALUES ('1',0),('2',0); INSERT INTO campaigns VALUES ('mc','masterclass','-10012345','https://t.me/testchan',10,86400,1); INSERT INTO links VALUES ('mc','1','https://t.me/+test','-10012345',0);`);
@@ -20,8 +20,21 @@ test('only genuine first join via exact link counts; self, bot, wrong channel an
 test('leaving before validation rejects permanently, even if rejoining',async()=>{const {sql,env}=setup();await membershipEvent(env,ev(7,{uid:1}));await membershipEvent(env,ev(7,{old:'member',status:'left',uid:2,at:n()-80000}));await membershipEvent(env,ev(7,{uid:3,at:n()-70000}));assert.equal(sql.prepare('SELECT state FROM referrals').get().state,'rejected');});
 test('older leave event does not undo newer state',async()=>{const {sql,env}=setup();await membershipEvent(env,ev(7,{uid:2,at:n()-80000}));await membershipEvent(env,ev(7,{uid:1,old:'member',status:'left',at:n()-90000}));assert.equal(sql.prepare('SELECT state FROM referrals').get().state,'pending');});
 test('retention window enforced and validation uses live membership',async t=>{const {sql,env}=setup();withTelegram(t,(_m,b)=>({status:b.user_id===7?'left':'member'}));await membershipEvent(env,ev(7));await membershipEvent(env,ev(8));await membershipEvent(env,ev(9,{at:n()-100}));await validateDue(env);assert.deepEqual(sql.prepare('SELECT invitee_id,state FROM referrals ORDER BY invitee_id').all().map(x=>[x.invitee_id,x.state]),[['7','rejected'],['8','valid'],['9','pending']]);});
-test('nine invitations cannot unlock and ten unlock once with private delivery',async t=>{const {sql,env}=setup();let sent=0;withTelegram(t,(method)=>{if(method==='getChatMember')return {status:'member'};if(method==='sendDocument'){sent++;return {document:{file_id:'file123'}};}return {};});for(let i=10;i<19;i++)await membershipEvent(env,ev(i));await validateDue(env);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),0);await membershipEvent(env,ev(19));await validateDue(env);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),1);assert.equal(sent,1);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),1);assert.equal(count(sql,'deliveries'),1);});
-test('automatic reward after threshold works and does not duplicate entitlement',async t=>{const {sql,env}=setup();let sent=0;withTelegram(t,m=>{if(m==='getChatMember')return {status:'member'};if(m==='sendDocument')sent++;return {};});for(let i=20;i<30;i++)await membershipEvent(env,ev(i));await validateDue(env);assert.equal(await autoReward(env),true);assert.equal(await autoReward(env),false);assert.equal(sent,1);assert.equal(count(sql,'entitlements'),1);});
+test('five qualified contacts unlock only after beneficiary joins the channel',async t=>{
+ const {sql,env}=setup();sql.exec("UPDATE campaigns SET target=5,hold_seconds=0 WHERE id='mc'");let joined=false,sent=0;const checked=[];
+ withTelegram(t,(m,b)=>{if(m==='getChatMember'){checked.push(b.user_id);return {status:joined?'member':'left'};}if(m==='getMe')return {username:'AcademyTestBot'};if(m==='sendDocument')sent++;return {};});
+ await internals.makeLink(env,'1','mc');const token=sql.prepare("SELECT token FROM discovery_links WHERE owner_id='1'").get().token;
+ const start=u=>internals.dispatch(env,{message:{chat:{id:u,type:'private'},from:{id:u},text:'/start r_'+token}});
+ await start(1);await start(10);await start(10);assert.equal(await internals.discoveryCount(env,'mc','1'),1);
+ for(let u=11;u<=13;u++)await start(u);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),0);
+ await start(14);assert.equal(await internals.discoveryCount(env,'mc','1'),5);await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),0);
+ joined=true;await internals.claim(env,'1','mc');assert.equal(count(sql,'entitlements'),1);assert.equal(sent,1);assert.ok(checked.every(x=>x===1));
+});
+test('referral publication only describes the product and opens the bot',()=>{
+ const text=internals.referralCaption({title:'Formation',description:'Une introduction pratique.'},{target:5},'https://t.me/AcademyTestBot?start=r_test');
+ assert.ok(!/parrainage|contacts qualifiés|canal/.test(text));assert.ok(text.split('\n').length<=5);assert.ok(text.includes('start=r_test'));
+});
+test('scheduled reward no longer grants without explicit channel verification',async()=>{const {sql,env}=setup();assert.equal(await autoReward(env),false);assert.equal(count(sql,'entitlements'),0);});
 test('direct premium callback without entitlement denied, free PDF works',async t=>{const {sql,env}=setup();let sent=0;withTelegram(t,m=>{if(m==='sendDocument')sent++;return {};});await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);await internals.sendPDF(env,'2','fondamentaux');assert.equal(sent,1);assert.equal(count(sql,'entitlements'),1);});
 test('same Telegram update replay is ignored; wrong secret denied',async t=>{const {env}=setup();let sent=0;withTelegram(t,m=>{if(m==='sendMessage')sent++;return {};});const data={update_id:4,message:{chat:{id:2,type:'private'},from:{id:2},text:'/id'}};const req=secret=>new Request('https://test/telegram/webhook',{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':secret},body:JSON.stringify(data)});assert.equal((await handleWebhook(req('bad'),env)).status,403);assert.equal((await handleWebhook(req('secret'),env)).status,200);assert.equal((await handleWebhook(req('secret'),env)).status,200);assert.equal(sent,1);});
 test('non administrator cannot grant a product',async t=>{const {sql,env}=setup();withTelegram(t,()=>({}));await internals.dispatch(env,{message:{chat:{id:2,type:'private'},from:{id:2},text:'/grant 2 masterclass'}});assert.equal(count(sql,'entitlements'),0);});
@@ -71,10 +84,10 @@ test('premium wizard verifies a private channel and creates an entry link and ca
  await msg(env.STORAGE_CHANNEL_ID);assert.equal((await state()).step,'channel');
  canInvite=false;await msg('-100777');assert.equal((await state()).step,'channel');canInvite=true;
  await msg(null,{chat_shared:{request_id:picker.request_id,chat_id:-100777}});assert.equal((await state()).step,'target');
- await msg('21');assert.equal((await state()).step,'target');await act('n10');await act('h24');
+ await msg('21');assert.equal((await state()).step,'target');await act('n10');
  const d=await state();canInvite=false;await act('publish');assert.equal(sql.prepare('SELECT id FROM products WHERE id=?').get(d.id),undefined);canInvite=true;await act('publish');
  const camp=sql.prepare('SELECT * FROM campaigns WHERE product_id=?').get(d.id);
- assert.equal(camp.channel_id,'-100777');assert.equal(camp.target,10);assert.equal(camp.hold_seconds,86400);assert.equal(camp.channel_url,'https://t.me/+private-entry');
+ assert.equal(camp.channel_id,'-100777');assert.equal(camp.target,10);assert.equal(camp.hold_seconds,0);assert.equal(camp.channel_url,'https://t.me/+private-entry');
  assert.equal(sql.prepare('SELECT value FROM settings WHERE key=?').get('product_shop:'+d.id).value,'https://example.com/guide');
 });
 
