@@ -30,3 +30,27 @@ test('multiple campaign links on same channel cannot credit one account twice',a
 test('allowlisted private storage imports a PDF; other channels cannot replace it',async t=>{const {sql,env}=setup();env.STORAGE_CHANNEL_ID='-100987654';withTelegram(t,()=>({}));const post=(chat,f)=>({channel_post:{chat:{id:chat,type:'channel'},caption:'/file masterclass',document:{mime_type:'application/pdf',file_id:f,file_size:123,file_name:'Masterclass.pdf'}}});await internals.dispatch(env,post(-100987654,'new_pdf'));assert.equal(sql.prepare("SELECT file_id FROM products WHERE id='masterclass'").get().file_id,'new_pdf');await internals.dispatch(env,post(-100777777,'bad_pdf'));assert.equal(sql.prepare("SELECT file_id FROM products WHERE id='masterclass'").get().file_id,'new_pdf');});
 test('private storage imports the welcome photo only from its allowlisted channel',async t=>{const {sql,env}=setup();env.STORAGE_CHANNEL_ID='-100987654';withTelegram(t,()=>({}));await internals.dispatch(env,{channel_post:{chat:{id:-100987654,type:'channel'},caption:'/banner',photo:[{file_id:'banner'}]}});assert.equal(sql.prepare("SELECT value FROM settings WHERE key='welcome_file_id'").get().value,'banner');});
 test('free PDF remains shareable while premium is protected',async t=>{const {env}=setup();let protections=[];withTelegram(t,(m,b)=>{if(m==='sendDocument')protections.push(b.protect_content);return {};});await internals.sendPDF(env,'2','fondamentaux');await internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},text:'/grant 2 masterclass'}});await internals.sendPDF(env,'2','masterclass');assert.deepEqual(protections,[false,true]);});
+
+
+test('guided admin creates a draft, skips description, archives files, publishes and edits in place',async t=>{
+ const {sql,env}=setup();env.STORAGE_CHANNEL_ID='-100987654';const calls=[];withTelegram(t,(method,body)=>{calls.push({method,body});return {message_id:1};});
+ const msg=(text,more={},user=1)=>internals.dispatch(env,{message:{chat:{id:user,type:'private'},from:{id:user},...(text==null?{}:{text}),...more}});
+ const click=(data,user=1)=>internals.dispatch(env,{callback_query:{id:'cb',from:{id:user},message:{chat:{id:user,type:'private'}},data}});
+ const state=()=>internals.wizRead(env,'1');const act=async a=>{const d=await state();return click('aw:'+d.session+':'+d.step+':'+a);};
+ await click('aw:new',2);assert.equal(await state(),null);
+ await click('aw:new');await msg('Guide business');await act('cat0');await msg('invalid');assert.equal((await state()).step,'price');
+ await msg('5000');await msg('0');assert.equal((await state()).description,'');
+ await msg(null,{photo:[{file_id:'cover'}]});assert.ok(calls.some(x=>x.method==='sendPhoto'&&x.body.chat_id===env.STORAGE_CHANNEL_ID));
+ await click('aw:menu');await msg('unrelated');assert.equal((await state()).paused,true);await click('aw:resume');
+ await msg(null,{document:{file_id:'bad',mime_type:'text/plain'}});assert.equal((await state()).step,'pdf');
+ await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});
+ assert.ok(calls.some(x=>x.method==='sendDocument'&&x.body.chat_id===env.STORAGE_CHANNEL_ID));
+ const d=await state();assert.equal(d.step,'review');await act('draft');
+ assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
+ await click('aw:'+d.session+':review:publish');assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
+ await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,1);
+ await click('aw:edit:'+d.id);for(let j=0;j<6;j++)await act('keep');await act('publish');
+ assert.equal(sql.prepare('SELECT file_id FROM products WHERE id=?').get(d.id).file_id,'pdf');
+ assert.equal(count(sql,'products'),3);
+ await click('aw:new');await act('cancel');assert.equal(await state(),null);
+});
