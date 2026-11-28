@@ -61,7 +61,8 @@ test('guided admin creates a draft, skips description, archives files, publishes
  await act('skip');await act('keep_campaign');const d=await state();assert.equal(d.step,'review');await act('draft');
  assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
  await click('aw:'+d.session+':review:publish');assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
- await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,1);
+ await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
+ sql.prepare('INSERT INTO campaigns VALUES (?,?,?,?,?,?,?)').run('guide-c',d.id,'-10012345','https://t.me/testchan',5,0,1);await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,1);
  await click('aw:edit:'+d.id);for(let j=0;j<6;j++)await act('keep');await act('skip');await act('keep_campaign');await act('publish');
  assert.equal(sql.prepare('SELECT file_id FROM products WHERE id=?').get(d.id).file_id,'pdf');
  assert.equal(count(sql,'products'),3);
@@ -143,4 +144,19 @@ test('composed pack discount and atomic attribution and grant across channels',a
  joined.add('-10012345');await internals.packClaim(env,'1',pack.id);assert.equal(count(sql,'entitlements'),0);
  joined.add('-10054321');await internals.packClaim(env,'1',pack.id);assert.equal(count(sql,'entitlements'),2);
  await internals.packClaim(env,'1',pack.id);assert.equal(count(sql,'entitlements'),2);
+});
+
+
+test('progressive pack savings up to ten products fit the existing database limit',()=>{
+ const expected=[5,8,12,14,17,18,20,20,23,25];
+ for(let n=1;n<=10;n++)assert.equal(internals.packQuote(Array(n).fill(5)).target,expected[n-1]);
+ assert.equal(internals.packQuote(Array(10).fill(20)).target,100);
+ assert.equal(internals.packQuote([5,10,20]).target,27);
+});
+test('zero purchase price cannot bypass recommendation even after campaign is stopped',async t=>{
+ const {sql,env}=setup();let sent=0;withTelegram(t,m=>{if(m==='sendDocument')sent++;return {};});
+ sql.exec("UPDATE products SET price_xof=0 WHERE id='masterclass'");
+ await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);
+ sql.exec("UPDATE campaigns SET active=0 WHERE product_id='masterclass'");
+ await internals.sendPDF(env,'2','masterclass');assert.equal(sent,0);
 });
