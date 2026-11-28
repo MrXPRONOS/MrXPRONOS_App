@@ -7,7 +7,7 @@ const all=async(db,sql,...args)=>(await db.prepare(sql).bind(...args).all()).res
 const stmt=(db,sql,...args)=>db.prepare(sql).bind(...args);
 const cb=(text,callback_data)=>({text,callback_data});
 const urlButton=(text,url)=>({text,url});
-const menu=[[cb('📚 Catalogue','catalogue'),cb('🆓 Produits gratuits','gratuit')],[cb('🎁 Parrainage','parrainage'),cb('📊 Mes parrainages','progression')],[cb('⭐ Produits Premium','premium'),cb('📦 Composer un pack','pk:select:0')],[cb('📂 Ma bibliothèque','bibliotheque'),cb('❔ Assistance','help')]];
+const menu=[[cb('📚 Catalogue','catalogue'),cb('🆓 Accès direct','gratuit')],[cb('🎁 Parrainage','parrainage'),cb('📊 Mes parrainages','progression')],[cb('🎁 Accès par recommandation','premium'),cb('📦 Composer un pack','pk:select:0')],[cb('📂 Ma bibliothèque','bibliotheque'),cb('❔ Assistance','help')]];
 const home=[cb('🏠 Accueil','home')];
 const member=m=>['member','administrator','creator'].includes(m?.status)||(m?.status==='restricted'&&m.is_member===true);
 const validChannel=s=>typeof s==='string'&&/^-100\d+$/.test(s);
@@ -78,27 +78,36 @@ async function photo(e,chat,caption,buttons,key,fileId,style='auto'){
 }
 async function welcome(e,u){
  const s=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_key'");const f=await row(e.DB,"SELECT value FROM settings WHERE key='welcome_file_id'");
- return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nVotre espace pour apprendre, développer vos compétences et passer à l’action.\n\nApprendre. Appliquer. Réussir.\n\n📚 Explorez nos livres et formations\n📖 Accédez aux ressources gratuites\n⭐ Découvrez nos contenus Premium\n🎁 Débloquez des formations par parrainage\n\nVotre bibliothèque vous accompagne partout, directement sur Telegram.\n\nChoisissez une rubrique :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value,'welcome');
+ return photo(e,u,'🎓 Bienvenue dans MR X ACADEMY !\n\nVotre espace pour apprendre, développer vos compétences et passer à l’action.\n\nApprendre. Appliquer. Réussir.\n\n📚 Explorez nos livres et formations\n📖 Recevez des ressources gratuites\n🎁 Débloquez des formations par recommandation\n📦 Composez vos packs et réduisez vos objectifs\n\nVotre bibliothèque vous accompagne partout, directement sur Telegram.\n\nChoisissez une rubrique :',admins(e).has(u)?[...menu,[cb('⚙️ Administration','aw:menu')]]:menu,s?.value,f?.value,'welcome');
 }
+// Free-first. price_xof is the optional alternative purchase price.
+const hasCampaign=async(e,pid)=>!!await row(e.DB,'SELECT id FROM campaigns WHERE product_id=? LIMIT 1',pid);
+const activeCampaigns=(e,pid)=>all(e.DB,'SELECT id,target FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id',pid);
+const directFree=async(e,p)=>p.price_xof===0&&!await hasCampaign(e,p.id);
+const accessText=(p,cs,free)=>free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 Accès gratuit par recommandation\n'+cs.map(c=>'Invitez '+c.target+' contacts qualifiés et rejoignez le canal pour recevoir cette formation.').join('\n')+(p.price_xof>0?'\n\nAlternative : achat sans partage à '+p.price_xof.toLocaleString('fr-FR')+' FCFA.':''):'Accès par recommandation temporairement indisponible.';
 async function catalogue(e,u,filter='all',page=0){
- const condition=filter==='free'?' AND price_xof=0':filter==='premium'?' AND price_xof>0':'';
- const ps=await all(e.DB,`SELECT id,title,price_xof FROM products WHERE active=1${condition} ORDER BY category,title,id LIMIT 9 OFFSET ?`,page*8);
- const buttons=ps.slice(0,8).map(p=>[cb(`${p.price_xof===0?'📖':'🎓'} ${p.title.slice(0,50)}`,`p:${p.id}`)]);
- const nav=[];if(page>0)nav.push(cb('◀',`list:${filter}:${page-1}`));if(ps.length>8)nav.push(cb('▶',`list:${filter}:${page+1}`));if(nav.length)buttons.push(nav);buttons.push(home);
- return send(e,u,ps.length?'📚 Catalogue — choisissez un produit.':'Aucun produit disponible actuellement.',buttons);
+ const condition=filter==='free'?" AND p.price_xof=0 AND NOT EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id)":filter==='premium'?" AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1)":" AND (p.price_xof=0 OR EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1))";
+ const ps=await all(e.DB,'SELECT p.id,p.title FROM products p WHERE p.active=1'+condition+' ORDER BY p.category,p.title,p.id LIMIT 9 OFFSET ?',page*8);
+ const buttons=ps.slice(0,8).map(p=>[cb('🎓 '+p.title.slice(0,50),'p:'+p.id)]);
+ const nav=[];if(page>0)nav.push(cb('◀','list:'+filter+':'+(page-1)));if(ps.length>8)nav.push(cb('▶','list:'+filter+':'+(page+1)));if(nav.length)buttons.push(nav);buttons.push(home);
+ return send(e,u,ps.length?(filter==='free'?'🆓 Accès gratuit direct':filter==='premium'?'🎁 Formations gratuites par recommandation':'📚 Catalogue des formations gratuites'):'Aucun produit disponible actuellement.',buttons);
 }
 async function showProduct(e,u,pid){
- const p=await product(e,pid);if(!p?.active&&!await entitlement(e,u,pid))return send(e,u,'Produit indisponible.',[home]);
- if(!p)return send(e,u,'Produit indisponible.',[home]);
- const access=await entitlement(e,u,pid);const cs=await all(e.DB,'SELECT id,target FROM campaigns WHERE product_id=? AND active=1 ORDER BY id',pid);
- const buttons=[];if(access||p.price_xof===0)buttons.push([cb('📥 Accéder aux ressources',`get:${pid}`)]);
- if(!access&&p.price_xof>0)for(const c of cs)buttons.push([cb(`🎁 Obtenir gratuitement · ${c.target} contacts`,`c:${c.id}`)]);
+ const p=await product(e,pid);if(!p)return send(e,u,'Produit indisponible.',[home]);
+ const access=await entitlement(e,u,pid);if(!p.active&&!access)return send(e,u,'Produit indisponible.',[home]);
+ const cs=await activeCampaigns(e,pid),free=await directFree(e,p),buttons=[];
+ if(access||free)buttons.push([cb('📥 Accéder aux ressources','get:'+pid)]);
+ if(!access&&!free&&p.active)for(const c of cs)buttons.push([cb('🎁 Recevoir gratuitement · '+c.target+' contacts','c:'+c.id)]);
+ if(!access&&!free&&cs.length&&p.price_xof>0)buttons.push([cb('Achat sans partage · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);
  buttons.push(home);
- const price=p.price_xof===0?'Gratuit':`${p.price_xof.toLocaleString('fr-FR')} FCFA`;const offers=cs.map(c=>`🎁 0 FCFA après ${c.target} contacts qualifiés`).join('\n')+'\n'+(cs.length?'Rejoignez le canal au moment de récupérer la formation.':'');
- const resources=await productAssets(e,p);const caption=(''+p.title+'\n'+p.category+' · '+resources.length+' ressource(s)'+'\n\n💰 Prix : '+price+'\n'+(!access&&p.price_xof>0&&cs.length?offers+'\n':'')+'\n'+p.description+(access?'\n\n✅ Dans votre bibliothèque.':'')).slice(0,1000);
+ const resources=await productAssets(e,p);
+ const caption=(p.title+'\n'+p.category+' · '+resources.length+' ressource(s)\n\n'+(access?'✅ Dans votre bibliothèque.':accessText(p,cs,free))+'\n\n'+p.description).slice(0,1000);
  return photo(e,u,caption,buttons,p.cover_key,p.cover_file_id,'product');
 }
-
+async function purchaseInfo(e,u,pid){
+ const p=await product(e,pid);if(!p?.active||p.price_xof<=0||!(await activeCampaigns(e,pid)).length)return showProduct(e,u,pid);
+ return send(e,u,'Achat sans partage\n\n'+p.title+'\nMontant indicatif : '+p.price_xof.toLocaleString('fr-FR')+' FCFA.\n\nLe paiement dans Telegram n’est pas encore activé. Pour un achat effectué indépendamment sur notre boutique web, contactez l’assistance pour la vérification et l’accès. Aucun paiement n’est demandé ici.',[[cb('🎁 Recevoir gratuitement','p:'+pid)],[cb('Assistance','help')],home]);
+}
 // V1.4: ordered resource manifest. Legacy PDF products remain readable without migration.
 const assetKey=p=>'product_assets:'+p;
 const assetMethods={document:'sendDocument',video:'sendVideo',audio:'sendAudio',voice:'sendVoice',photo:'sendPhoto',animation:'sendAnimation'};
@@ -128,7 +137,7 @@ async function sendAsset(e,chat,a,caption,protect=false){
 }
 async function resourceAccess(e,u,p){
  let access=await entitlement(e,u,p.id);
- if(!access&&p.active&&p.price_xof===0){await grant(e,u,p.id,'free');access=await entitlement(e,u,p.id);}
+ if(!access&&p.active&&await directFree(e,p)){await grant(e,u,p.id,'free');access=await entitlement(e,u,p.id);}
  return !!access;
 }
 async function resourceMenu(e,u,p,a,page=0){
@@ -140,7 +149,7 @@ async function resourceMenu(e,u,p,a,page=0){
 }
 async function deliverResource(e,u,p,a,index){
  const x=a[index];if(!x)return send(e,u,'Ressource introuvable.',[[cb('Voir les ressources','get:'+p.id)]]);
- try{await sendAsset(e,u,x,'📥 '+p.title+'\n'+(index+1)+'/'+a.length+' — '+x.name,p.price_xof>0);}
+ try{await sendAsset(e,u,x,'📥 '+p.title+'\n'+(index+1)+'/'+a.length+' — '+x.name,!(await directFree(e,p)));}
  catch(err){if(err.status!==400)throw err;return send(e,u,'Ressource temporairement indisponible. Votre accès est conservé.',[[cb('Voir les ressources','get:'+p.id)]]);}
  await run(e.DB,'INSERT OR IGNORE INTO deliveries(user_id,product_id,delivered_at) VALUES (?,?,?)',u,p.id,now());
 }
@@ -173,29 +182,31 @@ async function campaigns(e,u,onlyMine=false){
 }
 
 // V1.6 — self-composed bundles. Each contact is unique per pack AND reserved per product.
-const packQuote=targets=>{const original=targets.reduce((a,b)=>a+b,0),target=Math.ceil(original*4/5);return {original,target,saved:original-target};};
+const MAX_PACK=10;
+const packDiscount=n=>n<2?0:Math.min(50,20+(n-2)*5);
+const packQuote=targets=>{const original=targets.reduce((a,b)=>a+b,0),discount=packDiscount(targets.length),target=Math.ceil(original*(100-discount)/100);return {original,target,saved:original-target};};
 const packRow=(e,pid)=>row(e.DB,'SELECT * FROM referral_packs WHERE id=?',pid);
 const packItems=(e,pid)=>all(e.DB,'SELECT i.*,p.title,p.description,p.active,p.cover_file_id,p.price_xof,c.active campaign_active,c.channel_id,c.channel_url FROM referral_pack_items i JOIN products p ON p.id=i.product_id JOIN campaigns c ON c.id=i.campaign_id AND c.product_id=i.product_id WHERE i.pack_id=? ORDER BY i.position',pid);
 const packCount=async(e,pid)=>Number((await row(e.DB,'SELECT COUNT(*) n FROM referral_pack_visits WHERE pack_id=?',pid))?.n||0);
-const packReady=items=>items.length>=2&&items.every(x=>x.active&&x.campaign_active&&x.price_xof>0);
+const packReady=items=>items.length>=2&&items.length<=MAX_PACK&&items.every(x=>x.active&&x.campaign_active);
 const packTokenURL=async(e,token)=>(await discoveryURL(e,token)).replace('?start=r_','?start=b_');
 const packSelectionKey=u=>'pack_selection:'+u;
 async function packSelection(e,u){const x=await row(e.DB,'SELECT value FROM settings WHERE key=?',packSelectionKey(u));return x?JSON.parse(x.value):[];}
 const saveSelection=(e,u,s)=>run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',packSelectionKey(u),JSON.stringify(s));
 async function packOptions(e,u,page=0){
- const s=await packSelection(e,u),ps=await all(e.DB,"SELECT p.id,p.title,c.id cid,c.target FROM products p JOIN campaigns c ON c.id=(SELECT c2.id FROM campaigns c2 WHERE c2.product_id=p.id AND c2.active=1 ORDER BY c2.target,c2.id LIMIT 1) WHERE p.active=1 AND p.price_xof>0 AND NOT EXISTS(SELECT 1 FROM entitlements t WHERE t.user_id=? AND t.product_id=p.id) ORDER BY p.title,p.id LIMIT 9 OFFSET ?",u,page*8);
+ const s=await packSelection(e,u),ps=await all(e.DB,"SELECT p.id,p.title,c.id cid,c.target FROM products p JOIN campaigns c ON c.id=(SELECT c2.id FROM campaigns c2 WHERE c2.product_id=p.id AND c2.active=1 ORDER BY c2.target,c2.id LIMIT 1) WHERE p.active=1 AND NOT EXISTS(SELECT 1 FROM entitlements t WHERE t.user_id=? AND t.product_id=p.id) ORDER BY p.title,p.id LIMIT 9 OFFSET ?",u,page*8);
  const b=ps.slice(0,8).map(p=>[cb((s.includes(p.cid)?'✅ ':'⬜ ')+p.title.slice(0,42)+' · '+p.target,'pk:toggle:'+p.cid+':'+page)]);
  const nav=[];if(page>0)nav.push(cb('◀','pk:select:'+String(page-1)));if(ps.length>8)nav.push(cb('▶','pk:select:'+String(page+1)));if(nav.length)b.push(nav);
  const selected=[];for(const cid of s){const x=await campaign(e,cid);if(x?.active&&x.product_active&&!await entitlement(e,u,x.product_id))selected.push(x);}
  const quote=packQuote(selected.map(x=>x.target));
- const text='📦 Composez votre pack\n\nSélectionnez 2 à 5 formations Premium avec parrainage.\n'+selected.map(x=>'• '+x.title).join('\n')+'\n\nSélection : '+selected.length+'/5\n'+(selected.length>=2?'Objectif normal : '+quote.original+'\nObjectif groupé : '+quote.target+' contacts qualifiés\nÉconomie : '+quote.saved+' contacts (20 % avant arrondi).':'Sélectionnez au moins deux formations différentes.');
+ const text='📦 Composez votre pack\n\nSélectionnez 2 à 10 formations gratuites par recommandation.\n'+selected.map(x=>'• '+x.title).join('\n')+'\n\nSélection : '+selected.length+'/'+MAX_PACK+'\n'+(selected.length>=2?'Objectif normal : '+quote.original+'\nObjectif groupé : '+quote.target+' contacts qualifiés\nÉconomie : '+quote.saved+' contacts ('+packDiscount(selected.length)+' % avant arrondi).':'Sélectionnez au moins deux formations différentes.');
  if(selected.length>=2)b.push([cb('✅ Créer le pack · '+quote.target+' contacts','pk:create')]);
  b.push([cb('Réinitialiser','pk:reset')],[cb('⬅ Mes parrainages','progression')],home);
  return send(e,u,text,b);
 }
 async function createPack(e,u,ids){
- if(!Array.isArray(ids)||ids.length<2||ids.length>5||new Set(ids).size!==ids.length)return send(e,u,'Sélectionnez 2 à 5 formations différentes.',[[cb('Composer un pack','pk:select:0')]]);
- const items=[];for(const cid of ids){const x=await campaign(e,cid),p=x?await product(e,x.product_id):null;if(!x?.active||!p?.active||p.price_xof<=0||await entitlement(e,u,p.id)||items.some(y=>y.product_id===p.id))return send(e,u,'Une formation est indisponible, déjà acquise ou sélectionnée en double.',[[cb('Revoir la sélection','pk:select:0')]]);items.push(x);}
+ if(!Array.isArray(ids)||ids.length<2||ids.length>MAX_PACK||new Set(ids).size!==ids.length)return send(e,u,'Sélectionnez 2 à 10 formations différentes.',[[cb('Composer un pack','pk:select:0')]]);
+ const items=[];for(const cid of ids){const x=await campaign(e,cid),p=x?await product(e,x.product_id):null;if(!x?.active||!p?.active||await entitlement(e,u,p.id)||items.some(y=>y.product_id===p.id))return send(e,u,'Une formation est indisponible, déjà acquise ou sélectionnée en double.',[[cb('Revoir la sélection','pk:select:0')]]);items.push(x);}
  const signature=items.map(x=>x.product_id).sort().join(','),old=await row(e.DB,'SELECT id FROM referral_packs WHERE owner_id=? AND signature=?',u,signature);
  if(old)return packDashboard(e,u,old.id);
  const quote=packQuote(items.map(x=>x.target)),pid='b-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),token=crypto.randomUUID().replace(/-/g,'');
@@ -217,7 +228,7 @@ async function packDiscover(e,u,token){
  if(p.owner_id!==u){
   // One atomic batch: qualify only if all products are new to the visitor, then reserve those products.
   const changes=await e.DB.batch([
-   stmt(e.DB,"INSERT OR IGNORE INTO referral_pack_visits(pack_id,visitor_id,created_at) SELECT b.id,?,? FROM referral_packs b WHERE b.id=? AND b.owner_id<>? AND (SELECT COUNT(*) FROM referral_pack_items i WHERE i.pack_id=b.id)>=2 AND NOT EXISTS(SELECT 1 FROM referral_pack_items i JOIN products p ON p.id=i.product_id JOIN campaigns c ON c.id=i.campaign_id WHERE i.pack_id=b.id AND (p.active<>1 OR p.price_xof<=0 OR c.active<>1 OR c.product_id<>i.product_id OR EXISTS(SELECT 1 FROM discovery_visits d WHERE d.product_id=i.product_id AND d.visitor_id=?) OR EXISTS(SELECT 1 FROM entitlements t WHERE t.product_id=i.product_id AND t.user_id=?)))",u,now(),p.id,u,u,u),
+   stmt(e.DB,"INSERT OR IGNORE INTO referral_pack_visits(pack_id,visitor_id,created_at) SELECT b.id,?,? FROM referral_packs b WHERE b.id=? AND b.owner_id<>? AND (SELECT COUNT(*) FROM referral_pack_items i WHERE i.pack_id=b.id)>=2 AND NOT EXISTS(SELECT 1 FROM referral_pack_items i JOIN products p ON p.id=i.product_id JOIN campaigns c ON c.id=i.campaign_id WHERE i.pack_id=b.id AND (p.active<>1 OR c.active<>1 OR c.product_id<>i.product_id OR EXISTS(SELECT 1 FROM discovery_visits d WHERE d.product_id=i.product_id AND d.visitor_id=?) OR EXISTS(SELECT 1 FROM entitlements t WHERE t.product_id=i.product_id AND t.user_id=?)))",u,now(),p.id,u,u,u),
    stmt(e.DB,'INSERT OR IGNORE INTO discovery_visits(product_id,visitor_id,campaign_id,owner_id,created_at) SELECT i.product_id,v.visitor_id,i.campaign_id,NULL,v.created_at FROM referral_pack_items i JOIN referral_pack_visits v ON v.pack_id=i.pack_id WHERE i.pack_id=? AND v.visitor_id=?',p.id,u)
   ]);
   if(changes[0]?.meta?.changes)await notifyProgress(e,p.owner_id,await packCount(e,p.id),p.target,'Pack de '+items.length+' formations','pk:view:'+p.id);
@@ -240,8 +251,8 @@ async function packPost(e,u,pid){
  const p=await packRow(e,pid);if(!p||p.owner_id!==u)return null;
  const items=await packItems(e,pid);if(!packReady(items))return null;
  const link=await packTokenURL(e,p.token),short=(s,n)=>Array.from(String(s).replace(/\s+/g,' ').trim()).slice(0,n).join('');
- const names=items.map(x=>short(x.title,55)),split=Math.ceil(names.length/2);
- const caption=['🎓 Découvrez '+items.length+' formations MR X ACADEMY',names.slice(0,split).join(' • '),names.slice(split).join(' • '),'Découvrez les ressources et leurs conditions d’accès :',link].join('\n');
+ const names=items.map(x=>short(x.title,45)),split=Math.ceil(names.length/2);
+ const caption=['🎓 '+items.length+' formations à découvrir gratuitement',names.slice(0,split).join(' • '),names.slice(split).join(' • '),'Accès gratuit par recommandation. Découvrez les conditions :',link].join('\n');
  return {p,items,caption,link,cover:items.find(x=>x.cover_file_id)?.cover_file_id||null,buttons:[[urlButton('📚 Découvrir les formations',link)]]};
 }
 async function packShare(e,u,pid){
@@ -267,7 +278,7 @@ async function packClaim(e,u,pid){
  const missing=[];for(const [cid,url] of channels){try{if(!await getMember(e,cid,u))missing.push(url);}catch{return send(e,u,'Vérification d’un canal temporairement indisponible.',[[cb('Réessayer','pk:claim:'+pid)]]);}}
  if(missing.length)return send(e,u,'📢 Rejoignez les canaux requis avant de recevoir le pack.',[...missing.map((url,j)=>[urlButton('Rejoindre le canal '+(j+1),url)]),[cb('✅ Vérifier et recevoir','pk:claim:'+pid)],[cb('⬅ Mon pack','pk:view:'+pid)]]);
  // All missing products are granted atomically; recheck campaign availability and count in SQL.
- await run(e.DB,"INSERT OR IGNORE INTO entitlements(user_id,product_id,source,created_at) SELECT b.owner_id,i.product_id,'referral',? FROM referral_packs b JOIN referral_pack_items i ON i.pack_id=b.id WHERE b.id=? AND b.owner_id=? AND (SELECT COUNT(*) FROM referral_pack_visits v WHERE v.pack_id=b.id)>=b.target AND NOT EXISTS(SELECT 1 FROM referral_pack_items j JOIN products p ON p.id=j.product_id JOIN campaigns c ON c.id=j.campaign_id WHERE j.pack_id=b.id AND (p.active<>1 OR p.price_xof<=0 OR c.active<>1 OR c.product_id<>j.product_id))",now(),pid,u);
+ await run(e.DB,"INSERT OR IGNORE INTO entitlements(user_id,product_id,source,created_at) SELECT b.owner_id,i.product_id,'referral',? FROM referral_packs b JOIN referral_pack_items i ON i.pack_id=b.id WHERE b.id=? AND b.owner_id=? AND (SELECT COUNT(*) FROM referral_pack_visits v WHERE v.pack_id=b.id)>=b.target AND NOT EXISTS(SELECT 1 FROM referral_pack_items j JOIN products p ON p.id=j.product_id JOIN campaigns c ON c.id=j.campaign_id WHERE j.pack_id=b.id AND (p.active<>1 OR c.active<>1 OR c.product_id<>j.product_id))",now(),pid,u);
  for(const x of items)if(!await entitlement(e,u,x.product_id))return packDashboard(e,u,pid);
  return send(e,u,'🎉 Votre pack est débloqué !\n\nToutes les formations sont disponibles dans votre bibliothèque.',[...items.map(x=>[cb('📥 '+x.title.slice(0,46),'get:'+x.product_id)]),[cb('📂 Ma bibliothèque','bibliotheque')],home]);
 }
@@ -284,7 +295,7 @@ async function packAction(e,u,action){
  const [,a,v,w]=action.split(':');
  if(a==='select'||a==='dash')return (a==='select'?packOptions:personalDashboard)(e,u,/^\d{1,3}$/.test(v||'')?Number(v):0);
  if(a==='reset'){await saveSelection(e,u,[]);return packOptions(e,u);}
- if(a==='toggle'&&slug(v)){const s=await packSelection(e,u),x=await campaign(e,v),p=x?await product(e,x.product_id):null;if(s.includes(v))await saveSelection(e,u,s.filter(z=>z!==v));else if(s.length<5&&x?.active&&p?.active&&p.price_xof>0&&!await entitlement(e,u,p.id)){const keep=[];for(const old of s){const q=await campaign(e,old);if(q?.product_id!==p.id)keep.push(old);}await saveSelection(e,u,[...keep,v]);}else return send(e,u,'Sélection indisponible ou maximum de cinq formations.',[[cb('Retour','pk:select:0')]]);return packOptions(e,u,/^\d{1,3}$/.test(w||'')?Number(w):0);}
+ if(a==='toggle'&&slug(v)){const s=await packSelection(e,u),x=await campaign(e,v),p=x?await product(e,x.product_id):null;if(s.includes(v))await saveSelection(e,u,s.filter(z=>z!==v));else if(s.length<MAX_PACK&&x?.active&&p?.active&&!await entitlement(e,u,p.id)){const keep=[];for(const old of s){const q=await campaign(e,old);if(q?.product_id!==p.id)keep.push(old);}await saveSelection(e,u,[...keep,v]);}else return send(e,u,'Sélection indisponible ou maximum de dix formations.',[[cb('Retour','pk:select:0')]]);return packOptions(e,u,/^\d{1,3}$/.test(w||'')?Number(w):0);}
  if(a==='create')return createPack(e,u,await packSelection(e,u));
  if(!slug(v))return personalDashboard(e,u);
  if(a==='view')return packDashboard(e,u,v);if(a==='share')return packShare(e,u,v);if(a==='claim')return packClaim(e,u,v);
@@ -326,7 +337,7 @@ function referralCaption(p,c,link){
  const short=(s,n)=>{const a=Array.from(clean(s));return a.length>n?a.slice(0,n-1).join('')+'…':a.join('');};
  const title=short(p.title,110);
  const desc=short(clean(p.description).split(/(?<=[.!?])\s/)[0],145);
- return ['🎓 '+title,desc||'Découvrez cette ressource MR X ACADEMY.','Découvrez la formation et ses conditions d’accès :',link].join('\n');
+ return ['🎓 '+title,desc||'Découvrez cette ressource MR X ACADEMY.','Accès gratuit par recommandation. Découvrez les conditions :',link].join('\n');
 }
 async function referralPost(e,u,cid){
  const c=await campaign(e,cid);if(!c?.active||!c.product_active)return null;
@@ -462,7 +473,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  }
  if(cmd==='campaign'){
   const c=JSON.parse(arg);if(!slug(c.id)||!slug(c.product_id)||c.channel_id===String(e.STORAGE_CHANNEL_ID||'')||!validChannel(c.channel_id)||!validJoinURL(c.channel_url)||!Number.isInteger(c.target)||c.target<1||c.target>20||(c.hold_hours!==undefined&&c.hold_hours!==0))throw new Error('Invalid campaign');
-  const p=await product(e,c.product_id);if(!p?.active||p.price_xof===0)throw new Error('Publish paid product first');
+  const p=await product(e,c.product_id);if(!p)throw new Error('Unknown product');
   const me=await tg(e,'getMe',{}),status=await tg(e,'getChatMember',{chat_id:c.channel_id,user_id:me.id});if(status.status!=='administrator'||!status.can_invite_users)throw new Error('Bot needs admin invite permission');
   const old=await campaign(e,c.id);if(old&&(old.product_id!==c.product_id||old.channel_id!==c.channel_id||old.target!==c.target||old.hold_seconds!==0))throw new Error('Use new campaign ID for rule changes');
   await run(e.DB,`INSERT INTO campaigns(id,product_id,channel_id,channel_url,target,hold_seconds,active) VALUES (?,?,?,?,?,?,1) ON CONFLICT(id) DO UPDATE SET channel_url=excluded.channel_url,active=1`,c.id,c.product_id,c.channel_id,c.channel_url,c.target,0);await audit(e,u,'campaign',c.id);return send(e,u,'Campagne active : '+c.id);
@@ -480,7 +491,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  }
  if(cmd==='publish'||cmd==='unpublish'){
   if(!slug(arg))throw new Error('Invalid product');const p=await product(e,arg);if(!p)throw new Error('Unknown product');
-  if(cmd==='publish'&&!(await productAssets(e,p)).length)throw new Error('Missing resources');
+  if(cmd==='publish'&&(!(await productAssets(e,p)).length||p.price_xof>0&&!(await activeCampaigns(e,p.id)).length))throw new Error('Missing resources or referral campaign');
   await run(e.DB,'UPDATE products SET active=? WHERE id=?',cmd==='publish'?1:0,arg);await audit(e,u,cmd,arg);return send(e,u,'Statut modifié : '+arg);
  }
  if(cmd==='campaignoff'){
@@ -506,9 +517,9 @@ async function storagePost(e,msg){
 const wizardCategories=['Business','Finance','Sport','Intelligence artificielle','Marketing','Leadership','Autre'];
 const wizKey=u=>'admin_wizard:'+u;
 const basicSteps=['title','category','price','description','cover','pdf'];
-const premiumSteps=d=>d.price>0?['shop','access',...(d.access==='new'?['channeltype','channel','target']:[])]:[];
+const premiumSteps=d=>[...(d.price>0?['shop']:[]),'access',...(d.access==='new'?['channeltype','channel','target']:[])];
 const wizSteps=d=>[...basicSteps,...premiumSteps(d),'review'];
-const afterPDF=d=>d.price>0?'shop':'review';
+const afterPDF=d=>d.price>0?'shop':'access';
 const shopKey=p=>'product_shop:'+p;
 const shopURL=s=>{try{const u=new URL(s);return s.length<=500&&u.protocol==='https:'&&!u.username&&!u.password&&u.hostname.includes('.')&&!['localhost','127.0.0.1'].includes(u.hostname);}catch{return false;}};
 const channelReq=d=>parseInt(d.session.slice(0,7),16)+1;
@@ -557,12 +568,12 @@ async function wizPrompt(e,u,d){
  switch(d.step){
  case 'title':return say('Quel est le titre de la formation ? Envoyez-le en message.'+(d.title?'\nActuel : '+d.title:''));
  case 'category':return say('Choisissez une catégorie ou écrivez votre propre catégorie.'+(d.category?'\nActuelle : '+d.category:''),wizardCategories.map((c,i)=>[cb(c,wizAction(d,'cat'+i))]));
- case 'price':return say('Quel est le prix de la formation en FCFA ? Envoyez un montant entier, ou choisissez Gratuit.'+(Number.isSafeInteger(d.price)?'\nActuel : '+d.price+' FCFA':''),[[cb('🆓 Gratuit',wizAction(d,'free'))]]);
+ case 'price':return say('Quel montant souhaitez-vous proposer pour un achat sans partage ? L’accès par recommandation reste gratuit. Envoyez un montant en FCFA, ou 0 pour ne proposer aucun achat.'+(Number.isSafeInteger(d.price)?'\nActuel : '+d.price+' FCFA':''),[[cb('Aucun achat proposé',wizAction(d,'free'))]]);
  case 'description':return say('Envoyez une courte description (650 caractères maximum), ou passez cette étape.',[[cb('⏭ Sans description',wizAction(d,'skip'))]]);
  case 'cover':return say('Envoyez la photo de couverture dans cette conversation (en tant que photo Telegram).');
  case 'pdf':{const a=draftAssets(d);return say('Envoyez les ressources une par une : documents (PDF, ZIP, RAR, etc.), vidéos, audios, images ou liens HTTPS.\n\n'+a.length+' / 100 ressources enregistrées.\n'+a.slice(-5).map((x,i)=> (assetIcons[x.kind]||'📎')+' '+x.name).join('\n')+'\n\nCliquez sur Terminer lorsque tout est ajouté.',[...(a.length?[[cb('✅ Terminer les ressources',wizAction(d,'done_assets'))],[cb('↩ Retirer la dernière',wizAction(d,'remove_asset'))],[cb('🗑 Vider la liste',wizAction(d,'clear_assets'))]]:[])]);}
  case 'shop':return say('Envoyez le lien HTTPS de la fiche de vente sur votre boutique web indépendante (Ficsell, etc.) ou passez cette étape. Il sera conservé pour votre administration et futur catalogue web, pas utilisé comme paiement dans Telegram.'+(d.shop?'\nActuel : '+d.shop:''),[[cb('⏭ Sans lien',wizAction(d,'skip'))],...(d.shop?[[cb('✓ Conserver le lien',wizAction(d,'keep_shop'))]]:[])]);
- case 'access':return say('Comment obtenir ce livre Premium ? Vous pouvez conserver les campagnes existantes ou créer une nouvelle campagne de parrainage. Une nouvelle campagne ne supprime pas les anciennes. Les achats web vérifiés restent accordés manuellement.',[[cb('🎁 Créer une campagne',wizAction(d,'new_campaign'))],[cb('✓ Pas de nouvelle campagne',wizAction(d,'keep_campaign'))]]);
+ case 'access':return say('Configurez l’accès gratuit. Créez une campagne de recommandation ou conservez les conditions existantes.'+(d.price===0&&!d.edit?' Vous pouvez aussi offrir un accès direct sans condition.':''),[[cb('🎁 Gratuit par recommandation',wizAction(d,'new_campaign'))],...(d.edit?[[cb('✓ Conserver les conditions',wizAction(d,'keep_campaign'))]]:[]),...(d.price===0&&!d.edit?[[cb('🆓 Accès direct sans condition',wizAction(d,'keep_campaign'))]]:[])]);
  case 'channeltype':return say('Quel type de canal devra être rejoint pour débloquer le produit ?',[[cb('🌐 Canal public',wizAction(d,'public'))],[cb('🔒 Canal privé',wizAction(d,'private'))]]);
  case 'channel':return say('Ajoutez le bot comme administrateur du canal cible avec le droit Inviter. Sélectionnez ensuite le canal dans Telegram, transférez une publication, ou envoyez @username / lien public / ID -100… / lien t.me/c/… . Le canal de stockage est interdit.',[[cb('📢 Sélectionner le canal',wizAction(d,'picker'))]]);
  case 'target':return say('Combien de contacts qualifiés sont nécessaires ? Recommandé : 5. Envoyez un nombre de 1 à 20.',[[cb('5',wizAction(d,'n5')),cb('10',wizAction(d,'n10')),cb('15',wizAction(d,'n15')),cb('20',wizAction(d,'n20'))]]);
@@ -621,7 +632,7 @@ async function wizardCallback(e,u,action){
   }
   if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return adminResourceMenu(e,u,p,a);}
   if(v[1]==='hide'||v[1]==='show'){
-   if(v[1]==='show'&&!(await productAssets(e,p)).length)return send(e,u,'Ressource manquante.');
+   if(v[1]==='show'&&(!(await productAssets(e,p)).length||p.price_xof>0&&!(await activeCampaigns(e,p.id)).length))return send(e,u,'Ressource ou campagne de recommandation manquante.');
    await run(e.DB,'UPDATE products SET active=? WHERE id=?',v[1]==='show'?1:0,p.id);
    await audit(e,u,'wizard_'+v[1],p.id);return wizProduct(e,u,p.id);
   }
@@ -647,12 +658,13 @@ async function wizardCallback(e,u,action){
   if(d.access==='new')d.hold=0;
   if(!d.title||!d.category||!Number.isSafeInteger(d.price)||d.price<0||!d.cover||!draftAssets(d).length||!d.filename)return send(e,u,'Brouillon incomplet.',[[cb('Reprendre','aw:resume')]]);
   const active=a==='publish'?1:0;
+  if(active&&d.price>0&&d.access!=='new'&&!(await activeCampaigns(e,d.id)).length)return send(e,u,'Configurez une campagne de recommandation avant de publier.',[[cb('⬅ Retour',wizAction(d,'back'))]]);
   const existing=d.edit?await product(e,d.id):null;
   if(d.edit&&!existing)return send(e,u,'Produit introuvable.',[[cb('Administration','aw:menu')]]);
   if(existing&&existing.price_xof!==d.price&&existing.active)return send(e,u,'Masquez d’abord ce produit pour modifier son prix, puis reprenez le brouillon.',[[cb('Administration','aw:menu')]]);
   const write=d.edit?stmt(e.DB,'UPDATE products SET title=?,category=?,description=?,price_xof=?,active=?,filename=?,file_id=?,cover_file_id=?,object_key=NULL,cover_key=NULL WHERE id=?',d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover,d.id):stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover);
   const extra=[stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',assetKey(d.id),JSON.stringify(draftAssets(d)))];
-  if(d.price>0){
+  if(d.price>0||d.access==='new'){
    extra.push(stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shopKey(d.id),d.shop||''));
    if(d.access==='new'){
     if(!d.channel||!Number.isInteger(d.target)||d.target<1||d.target>20||!Number.isInteger(d.hold)||d.hold<0||d.hold>168)return send(e,u,'Conditions de parrainage incomplètes.',[[cb('Reprendre','aw:resume')]]);
@@ -671,7 +683,7 @@ async function wizardCallback(e,u,action){
      extra.push(stmt(e.DB,'INSERT OR IGNORE INTO campaigns(id,product_id,channel_id,channel_url,target,hold_seconds,active) VALUES (?,?,?,?,?,?,1)',d.campaignId,d.id,ch.id,join,d.target,d.hold*3600));
     }
    }
-  }else{extra.push(stmt(e.DB,'DELETE FROM settings WHERE key=?',shopKey(d.id)));extra.push(stmt(e.DB,'UPDATE campaigns SET active=0 WHERE product_id=?',d.id));}
+  }else{extra.push(stmt(e.DB,'DELETE FROM settings WHERE key=?',shopKey(d.id)));}
   await e.DB.batch([
    write,...extra,
    stmt(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u)),
@@ -724,7 +736,7 @@ const promoClear=(e,u)=>run(e.DB,'DELETE FROM settings WHERE key=?',promoKey(u))
 const promoValid=(link,username)=>typeof link==='string'&&/^[A-Za-z0-9_]{5,}$/.test(username)&&new RegExp('^https://t\\.me/'+username+'/[1-9][0-9]*$','i').test(link);
 async function promoCampaign(e,cid){
  const c=await campaign(e,cid);if(!c?.active||!c.product_active||c.product_id!=='masterclass')return null;
- const p=await product(e,c.product_id);if(!p?.active||p.price_xof<=0||!p.file_id)return null;
+ const p=await product(e,c.product_id);if(!p?.active||!p.file_id)return null;
  const ch=await channelDetails(e,c.channel_id,'public');
  return ch.username&&/^[A-Za-z0-9_]{5,}$/.test(ch.username)?{c,p,ch}:null;
 }
@@ -758,9 +770,9 @@ async function genericPromoPreview(e,u,d){
  const me=await tg(e,'getMe',{});if(!/^[A-Za-z0-9_]{5,}$/.test(me.username||''))return null;
  const url='https://t.me/'+me.username+'?start=p_'+p.id;
  const cs=await all(e.DB,'SELECT id,target,hold_seconds FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id LIMIT 10',p.id);
- const access=p.price_xof===0?'🆓 Gratuit':'💰 Prix : '+p.price_xof.toLocaleString('fr-FR')+' FCFA'+(cs.length?'\n🎁 0 FCFA après '+cs[0].target+' contacts qualifiés.':'');
+ const access=accessText(p,cs,await directFree(e,p));
  const caption=(p.title+'\n\n'+access+'\n\n'+(d.message??p.description??'')+'\n\n📦 '+(await productAssets(e,p)).length+' ressource(s) disponibles.').slice(0,1000);
- const buttons=[[urlButton(p.price_xof===0?'📥 Recevoir gratuitement':cs.length?'🎁 Découvrir / obtenir gratuitement':'📚 Voir le produit',url)]];
+ const buttons=[[urlButton(cs.length?'🎁 Découvrir / recevoir gratuitement':await directFree(e,p)?'📥 Recevoir gratuitement':'📚 Voir le produit',url)]];
  return {p,caption,buttons,url};
 }
 async function genericPromoShow(e,u,d){
@@ -816,7 +828,7 @@ async function promoPreview(e,u,d){
  const me=await tg(e,'getMe',{});if(!/^[A-Za-z0-9_]{5,}$/.test(me.username||'')){await send(e,u,'Nom du bot indisponible.');return null;}
  const botURL='https://t.me/'+me.username+'?start=p_'+x.p.id;
  const price=x.p.price_xof.toLocaleString('fr-FR');
- const caption='📚 L’ART DE PARIER — Les Fondamentaux\n\n200 pages pour comprendre les cotes, les probabilités et les risques des paris sportifs.\n\n🎁 PDF gratuit dans notre canal Telegram.\n\n⭐ Masterclass Expert : 492 pages, 5 volumes.\n💰 Prix : '+price+' FCFA\n🎁 0 FCFA après '+x.c.target+' contacts qualifiés.\n\nImportant : 18+. Contenu pédagogique. Aucun pari, dépôt ou achat nécessaire. Aucun gain garanti.';
+ const caption='📚 L’ART DE PARIER — Les Fondamentaux\n\n200 pages pour comprendre les cotes, les probabilités et les risques des paris sportifs.\n\n🎁 PDF gratuit dans notre canal Telegram.\n\n⭐ Masterclass Expert : 492 pages, 5 volumes.\n🎁 Accès gratuit après '+x.c.target+' contacts qualifiés et abonnement au canal.\nAlternative : achat sans partage à '+price+' FCFA.\n\nImportant : 18+. Contenu pédagogique. Aucun pari, dépôt ou achat nécessaire. Aucun gain garanti.';
  return {x,caption,buttons:[[urlButton('📥 Recevoir le PDF gratuit',d.link)],[urlButton('🎁 Obtenir la Masterclass gratuitement',botURL)]],botURL};
 }
 async function promoShow(e,u,d){
@@ -914,7 +926,7 @@ async function dispatch(e,update){
  if(v[0]==='lib'&&/^\d{1,3}$/.test(v[1]||''))return library(e,u,Number(v[1]));
  if(v.length===3&&slug(v[1])&&/^\d{1,3}$/.test(v[2])){if(v[0]==='asset'||v[0]==='assets')return resourceAction(e,u,v[1],Number(v[2]),v[0]==='assets');if(['atest','apage'].includes(v[0])&&admins(e).has(u)){const p=await product(e,v[1]);if(!p)return;const assets=await productAssets(e,p);if(v[0]==='apage')return adminResourceMenu(e,u,p,assets,Number(v[2]));const a=assets[Number(v[2])];if(a)return sendAsset(e,u,a,'Test administrateur — '+a.name,true);}}
  if(v.length===2&&slug(v[1])){
-  if(v[0]==='rshare')return referralShare(e,u,v[1]);if(v[0]==='p')return showProduct(e,u,v[1]);if(v[0]==='get')return sendPDF(e,u,v[1]);if(v[0]==='c')return showCampaign(e,u,v[1]);if(v[0]==='link')return makeLink(e,u,v[1]);if(v[0]==='check')return refresh(e,u,v[1]);if(v[0]==='claim')return claim(e,u,v[1]);
+  if(v[0]==='buy')return purchaseInfo(e,u,v[1]);if(v[0]==='rshare')return referralShare(e,u,v[1]);if(v[0]==='p')return showProduct(e,u,v[1]);if(v[0]==='get')return sendPDF(e,u,v[1]);if(v[0]==='c')return showCampaign(e,u,v[1]);if(v[0]==='link')return makeLink(e,u,v[1]);if(v[0]==='check')return refresh(e,u,v[1]);if(v[0]==='claim')return claim(e,u,v[1]);
  }
  return help(e,u);
 }
@@ -1019,5 +1031,5 @@ async function handleAcademyImport(request,e,p){
  finally{await run(e.DB,'DELETE FROM settings WHERE key=?',lockKey);}
 }
 
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.6.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
-export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p.startsWith('/academy-import/'))return handleAcademyImport(request,e,p);if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.7.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage,channelDetails,premiumChannel,promoValid,promoAction,promoMessage,promoPreview,promoRead,showProduct,readAsset,productAssets,sendAsset,resourceAction,genericPromoPreview,genericPromoAction,referralCaption,referralPost,referralShare,referralInline,enableReferralInline,discover,discoveryCount,showCampaign,makeLink,unlock,packQuote,createPack,packDiscover,packCount,packDashboard,packClaim,packPost,packAction,personalDashboard,packDiscount,directFree,accessText,purchaseInfo};
