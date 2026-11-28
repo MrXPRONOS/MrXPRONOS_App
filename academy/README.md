@@ -109,3 +109,7 @@ Le catalogue principal ne distingue plus les extraits gratuits. Une nouvelle pub
 ## V1.9 — Style éditorial Academy
 
 Messages réécrits pour la lisibilité, avec titre, statut, consigne et action claire. Les messages ordinaires autoformatés sont compactés à dix lignes explicites sans supprimer de mots ; les retours automatiques à la ligne dépendent de l'écran. Les programmes détaillés sont paginés à six lignes de contenu et restent accessibles avant déblocage. Les barres de progression à dix segments sont calculées sur les compteurs réels. Les statistiques détaillées sont paginées à quatre entrées. Les contenus transmis avec formatage explicite sont préservés. Aucun changement de schéma, de campagne ni de paiement.
+
+## V1.9.1 — Descriptions enrichies
+
+Le résumé accepte cinq lignes de texte et deux lignes vides, dans la limite de 200 caractères. Les entités Telegram natives (gras, italique, souligné, barré, spoiler, citation, code, lien HTTPS/HTTP) sont enregistrées avec le texte source dans `product_format:<id>` ; les décalages UTF-16 sont ajustés lors de la composition et de la pagination. Les descriptions sont conservées lors des modifications et reprises dans les fiches, aperçus et publications individuelles, y compris inline. Le partage de secours sous forme de texte seul ne transporte pas les styles. Les anciens textes sans entités restent compatibles. Le résumé de la Masterclass a été aéré en production ; sa description détaillée n'a pas été réécrite. Aucun changement de schéma.
