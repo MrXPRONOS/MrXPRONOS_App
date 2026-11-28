@@ -4,9 +4,9 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import {membershipEvent,validateDue,autoReward,handleWebhook,internals,formatTelegram,tg} from '../src/bot.js';
 function setup(){
- const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../migrations/0001_init.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0002_catalog.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0003_discovery.sql',import.meta.url),'utf8'));
+ const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../migrations/0001_init.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0002_catalog.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0003_discovery.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../migrations/0004_packs.sql',import.meta.url),'utf8'));
  const make=(q,args=[])=>({bind:(...a)=>make(q,a),first:async()=>sql.prepare(q).get(...args)||null,all:async()=>({results:sql.prepare(q).all(...args)}),run:async()=>({meta:{changes:Number(sql.prepare(q).run(...args).changes)}}),_run:()=>sql.prepare(q).run(...args)});
- const DB={prepare:make,batch:async ss=>{sql.exec('BEGIN');try{const r=ss.map(s=>s._run());sql.exec('COMMIT');return r;}catch(e){sql.exec('ROLLBACK');throw e;}}};
+ const DB={prepare:make,batch:async ss=>{sql.exec('BEGIN');try{const r=ss.map(s=>({meta:{changes:Number(s._run().changes)}}));sql.exec('COMMIT');return r;}catch(e){sql.exec('ROLLBACK');throw e;}}};
  sql.exec(`UPDATE products SET active=1,file_id='file123'; INSERT INTO users VALUES ('1',0),('2',0); INSERT INTO campaigns VALUES ('mc','masterclass','-10012345','https://t.me/testchan',10,86400,1); INSERT INTO links VALUES ('mc','1','https://t.me/+test','-10012345',0);`);
  const env={DB,FILES:{get:async()=>null,head:async()=>null},BOT_TOKEN:'test',WEBHOOK_SECRET:'secret',ADMIN_IDS:'1'};
  return {sql,env};
@@ -126,4 +126,21 @@ test('multiformat Premium resource delivery checks entitlements for every index'
  await internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},text:'/grant 2 masterclass'}});
  await internals.sendPDF(env,'2',p);assert.ok(calls.at(-1).b.reply_markup.inline_keyboard[0][0].callback_data==='asset:'+p+':0');
  await internals.resourceAction(env,'2',p,1);assert.equal(calls.at(-1).m,'sendAudio');assert.equal(calls.at(-1).b.protect_content,true);
+});
+
+
+test('composed pack discount and atomic attribution and grant across channels',async t=>{
+ const {sql,env}=setup();sql.exec("UPDATE campaigns SET target=5,hold_seconds=0 WHERE id='mc'; INSERT INTO products(id,title,category,description,price_xof,active,file_id,filename) VALUES ('other','Formation B','Business','Une formation pratique.',5000,1,'pdf-b','b.pdf'); INSERT INTO campaigns VALUES ('other-c','other','-10054321','https://t.me/otherchan',5,0,1)");
+ const joined=new Set(),calls=[];withTelegram(t,(m,b)=>{calls.push({m,b});if(m==='getMe')return {username:'AcademyTestBot',supports_inline_queries:true};if(m==='getChatMember')return {status:joined.has(b.chat_id)?'member':'left'};return {};});
+ assert.deepEqual(internals.packQuote([5,5]),{original:10,target:8,saved:2});
+ await internals.createPack(env,'1',['mc','other-c']);const pack=sql.prepare('SELECT * FROM referral_packs').get();assert.equal(pack.target,8);
+ await internals.createPack(env,'1',['other-c','mc']);assert.equal(count(sql,'referral_packs'),1);
+ const visit=u=>internals.dispatch(env,{message:{chat:{id:u,type:'private'},from:{id:u},text:'/start b_'+pack.token}});
+ await visit(1);await visit(2);await visit(2);assert.equal(await internals.packCount(env,pack.id),1);
+ assert.equal(sql.prepare("SELECT COUNT(*) n FROM discovery_visits WHERE visitor_id='2'").get().n,2);
+ for(let u=3;u<=9;u++)await visit(u);assert.equal(await internals.packCount(env,pack.id),8);
+ await internals.packClaim(env,'2',pack.id);assert.equal(count(sql,'entitlements'),0);
+ joined.add('-10012345');await internals.packClaim(env,'1',pack.id);assert.equal(count(sql,'entitlements'),0);
+ joined.add('-10054321');await internals.packClaim(env,'1',pack.id);assert.equal(count(sql,'entitlements'),2);
+ await internals.packClaim(env,'1',pack.id);assert.equal(count(sql,'entitlements'),2);
 });
