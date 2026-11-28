@@ -229,7 +229,6 @@ async function showProduct(e,u,pid){
  if(!access&&!free&&p.active)for(const c of cs)buttons.push([cb('🎁 Gratuit · '+c.target+' contacts'+(noChannel(c)?' · Sans canal':' · Avec canal'),'c:'+c.id)]);
  if(!access&&!free&&cs.length&&p.price_xof>0)buttons.push([cb('Alternative d’achat · '+p.price_xof.toLocaleString('fr-FR')+' FCFA','buy:'+pid)]);
  buttons.push([cb('📖 En savoir plus','details:'+pid)],home);
- const resources=await productAssets(e,p);
  const body=await productShortRich(e,p);const head='🎓 '+p.title;const tail=access?'✅ Dans votre bibliothèque.':free?'🆓 Accès gratuit, sans condition.':cs.length?'🎁 0 FCFA · Invitez '+[...new Set(cs.map(x=>x.target))].join(' ou ')+' contacts qualifiés.'+(cs.every(noChannel)?'':cs.some(noChannel)?' Abonnement selon l’option.':' Puis rejoignez le canal.'):'⚠️ Accès temporairement indisponible.';
  return sendRich(e,u,composeRich(head,body,tail),buttons,p.cover_file_id);
 }
@@ -649,7 +648,7 @@ const wizardCategories=['Business','Finance','Sport','Intelligence artificielle'
 const wizKey=u=>'admin_wizard:'+u;
 const basicSteps=['title','category','price','short','description','cover','pdf'];
 const premiumSteps=d=>[...(d.price>0?['shop']:[]),'access',...(d.access==='new'?['channeltype',...(d.kind==='none'?[]:['channel']),'target']:[])];
-const wizSteps=d=>[...basicSteps,...premiumSteps(d),'review'];
+const wizSteps=d=>d.campaignOnly?['channeltype',...(d.kind==='none'?[]:['channel']),'target','review']:[...basicSteps,...premiumSteps(d),'review'];
 const afterPDF=d=>d.price>0?'shop':'access';
 const shopKey=p=>'product_shop:'+p;
 const shopURL=s=>{try{const u=new URL(s);return s.length<=500&&u.protocol==='https:'&&!u.username&&!u.password&&u.hostname.includes('.')&&!['localhost','127.0.0.1'].includes(u.hostname);}catch{return false;}};
@@ -705,7 +704,7 @@ async function wizPrompt(e,u,d){
  case 'cover':return say('Envoyez la photo de couverture dans cette conversation (en tant que photo Telegram).');
  case 'pdf':{const a=draftAssets(d);return say('📎 Ajoutez vos ressources une par une.\nPDF, ZIP, RAR, vidéo, audio, image ou lien HTTPS.\n'+a.length+' / 100 ressources enregistrées.\n'+a.slice(-5).map((x,i)=> (assetIcons[x.kind]||'📎')+' '+x.name).join('\n')+'\nCliquez sur Terminer lorsque tout est ajouté.',[...(a.length?[[cb('✅ Terminer les ressources',wizAction(d,'done_assets'))],[cb('↩ Retirer la dernière',wizAction(d,'remove_asset'))],[cb('🗑 Vider la liste',wizAction(d,'clear_assets'))]]:[])]);}
  case 'shop':return say('Envoyez le lien HTTPS de la fiche de vente sur votre boutique web indépendante (Ficsell, etc.) ou passez cette étape. Il sera conservé pour votre administration et futur catalogue web, pas utilisé comme paiement dans Telegram.'+(d.shop?'\nActuel : '+d.shop:''),[[cb('⏭ Sans lien',wizAction(d,'skip'))],...(d.shop?[[cb('✓ Conserver le lien',wizAction(d,'keep_shop'))]]:[])]);
- case 'access':return say('🎁 Configurez l’accès gratuit.\nUne campagne active est nécessaire pour publier.',[[cb('🎁 Créer une campagne',wizAction(d,'new_campaign'))],[cb(d.edit?'✓ Conserver les conditions existantes':'💾 Configurer plus tard (brouillon)',wizAction(d,'keep_campaign'))]]);
+ case 'access':return say('🎁 Configurez l’accès gratuit.\nLa recommandation est obligatoire ; le canal est facultatif.',[[cb('🎁 Créer une campagne',wizAction(d,'new_campaign'))],[cb(d.edit?'✓ Conserver les conditions existantes':'💾 Configurer plus tard (brouillon)',wizAction(d,'keep_campaign'))]]);
  case 'channeltype':return say('Le canal est facultatif. Choisissez les conditions de déblocage.',[[cb('🎁 Recommandation seule',wizAction(d,'none'))],[cb('🌐 Canal public',wizAction(d,'public'))],[cb('🔒 Canal privé',wizAction(d,'private'))]]);
  case 'channel':return say('Ajoutez le bot comme administrateur du canal cible avec le droit Inviter. Sélectionnez ensuite le canal dans Telegram, transférez une publication, ou envoyez @username / lien public / ID -100… / lien t.me/c/… . Le canal de stockage est interdit.',[[cb('📢 Sélectionner le canal',wizAction(d,'picker'))]]);
  case 'target':return say('Combien de contacts qualifiés sont nécessaires ? Recommandé : 5. Envoyez un nombre de 1 à 20.',[[cb('5',wizAction(d,'n5')),cb('10',wizAction(d,'n10')),cb('15',wizAction(d,'n15')),cb('20',wizAction(d,'n20'))]]);
@@ -714,7 +713,7 @@ async function wizPrompt(e,u,d){
   const short=shortDescription(d.short||d.description)||'Sans description';
   const body=sourceRich(short,{text:d.short,entities:d.shortEntities});
   const tail='📎 '+draftAssets(d).length+' ressource(s) · '+(d.description?'Programme enregistré':'Sans programme')+'\n🎁 '+(d.access==='new'?d.target+' contacts · '+(d.kind==='none'?'Sans canal':d.channel?.title||'Canal à configurer'):d.edit?'Conditions existantes':'Campagne à configurer')+(d.price>0?' · Achat '+d.price.toLocaleString('fr-FR')+' FCFA':'');
-  return sendRich(e,u,composeRich('✅ Aperçu · '+d.title,body,tail,'wizard'),wizButtons(d,[[cb(d.campaignOnly?'✅ Enregistrer et publier':'✅ Publier',wizAction(d,'publish'))],[cb(d.campaignOnly?'💾 Enregistrer sans publier':'💾 Garder en brouillon',wizAction(d,'draft'))]]),d.cover);
+  return sendRich(e,u,composeRich('✅ Aperçu · '+d.title,body,tail,'wizard'),wizButtons(d,d.campaignOnly?[[cb('✅ Enregistrer la campagne',wizAction(d,'publish'))]]:[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),d.cover);
  }
  }
 }
@@ -795,15 +794,15 @@ async function wizardCallback(e,u,action){
  else if(d.step==='review'&&['publish','draft'].includes(a)){
   if(d.access==='new')d.hold=0;
   if(!d.title||!d.category||!Number.isSafeInteger(d.price)||d.price<0||!d.cover||!draftAssets(d).length||!d.filename)return send(e,u,'⚠️ Brouillon incomplet\nRenseignez les informations manquantes.',[[cb('Reprendre','aw:resume')]]);
-  const active=a==='publish'?1:0;
+  const active=d.campaignOnly?Number((await product(e,d.id))?.active||0):a==='publish'?1:0;
   if(active&&d.access!=='new'&&!(await activeCampaigns(e,d.id)).length)return send(e,u,'Configurez une campagne de recommandation avant de publier.',[[cb('⬅ Retour',wizAction(d,'back'))]]);
   const existing=d.edit?await product(e,d.id):null;
   if(d.edit&&!existing)return send(e,u,'⚠️ Formation introuvable.',[[cb('Administration','aw:menu')]]);
   if(existing&&existing.price_xof!==d.price&&existing.active)return send(e,u,'Masquez d’abord ce produit pour modifier son prix, puis reprenez le brouillon.',[[cb('Administration','aw:menu')]]);
-  const write=d.edit?stmt(e.DB,'UPDATE products SET title=?,category=?,description=?,price_xof=?,active=?,filename=?,file_id=?,cover_file_id=?,object_key=NULL,cover_key=NULL WHERE id=?',d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover,d.id):stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover);
-  const extra=[stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',assetKey(d.id),JSON.stringify(draftAssets(d))),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shortKey(d.id),shortDescription(d.short||d.description)),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',formatKey(d.id),JSON.stringify({short:sourceRich(shortDescription(d.short||d.description),{text:d.short,entities:d.shortEntities}),detail:sourceRich(d.description||'',{text:d.description,entities:d.detailEntities})}))];
+  const write=d.campaignOnly?stmt(e.DB,'UPDATE products SET active=active WHERE id=?',d.id):d.edit?stmt(e.DB,'UPDATE products SET title=?,category=?,description=?,price_xof=?,active=?,filename=?,file_id=?,cover_file_id=?,object_key=NULL,cover_key=NULL WHERE id=?',d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover,d.id):stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover);
+  const extra=d.campaignOnly?[]:[stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',assetKey(d.id),JSON.stringify(draftAssets(d))),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shortKey(d.id),shortDescription(d.short||d.description)),stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',formatKey(d.id),JSON.stringify({short:sourceRich(shortDescription(d.short||d.description),{text:d.short,entities:d.shortEntities}),detail:sourceRich(d.description||'',{text:d.description,entities:d.detailEntities})}))];
   if(d.price>0||d.access==='new'){
-   extra.push(stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shopKey(d.id),d.shop||''));
+   if(!d.campaignOnly)extra.push(stmt(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',shopKey(d.id),d.shop||''));
    if(d.access==='new'){
     if((d.kind!=='none'&&!d.channel)||!Number.isInteger(d.target)||d.target<1||d.target>20||!Number.isInteger(d.hold)||d.hold<0||d.hold>168)return send(e,u,'Conditions de parrainage incomplètes.',[[cb('Reprendre','aw:resume')]]);
     let ch;if(d.kind==='none')ch={id:'',title:'Sans canal',username:''};else try{ch=await channelDetails(e,d.channel.id,d.kind);}catch{return send(e,u,'Le bot n’a plus les droits nécessaires sur ce canal. Rétablissez-les puis réessayez.',wizButtons(d,[[cb('Réessayer',wizAction(d,a))]]));}
@@ -827,7 +826,7 @@ async function wizardCallback(e,u,action){
    stmt(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u)),
    stmt(e.DB,'INSERT INTO audit(admin_id,action,target,created_at) VALUES (?,?,?,?)',u,'wizard_'+a,d.id,now())
   ]);
-  return send(e,u,(active?'🎉 Formation publiée !':'💾 Formation enregistrée en brouillon.')+'\n'+d.title+'\nIdentifiant : '+d.id+(d.access==='new'?'\n🎁 '+d.target+' contacts · '+(d.kind==='none'?'Sans canal':'Avec canal'):'\nConditions existantes conservées.'),[[cb('Voir la formation','aw:product:'+d.id)],[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);
+  return send(e,u,(d.campaignOnly?'✅ Campagne enregistrée.':active?'🎉 Formation publiée !':'💾 Formation enregistrée en brouillon.')+'\n'+d.title+'\nIdentifiant : '+d.id+(d.access==='new'?'\n🎁 '+d.target+' contacts · '+(d.kind==='none'?'Sans canal':'Avec canal'):'\nConditions existantes conservées.'),[[cb('Voir la formation','aw:product:'+d.id)],[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);
  }else return wizPrompt(e,u,d);
  await wizSave(e,u,d);return wizPrompt(e,u,d);
 }
@@ -881,7 +880,7 @@ async function promoCampaign(e,cid){
 }
 
 async function genericPromoProduct(e,pid){
- const p=await product(e,pid);if(!p?.active||!(await productAssets(e,p)).length||!await directFree(e,p)&&!(await activeCampaigns(e,pid)).length)return null;return p;
+ const p=await product(e,pid);if(!p?.active||!(await productAssets(e,p)).length||!(await activeCampaigns(e,pid)).length)return null;return p;
 }
 async function promoProducts(e,u,page=0){
  const ps=await all(e.DB,'SELECT p.id,p.title FROM products p WHERE p.active=1 AND EXISTS(SELECT 1 FROM campaigns c WHERE c.product_id=p.id AND c.active=1) ORDER BY p.title,p.id LIMIT 9 OFFSET ?',page*8);
@@ -909,9 +908,9 @@ async function genericPromoPreview(e,u,d){
  const me=await tg(e,'getMe',{});if(!/^[A-Za-z0-9_]{5,}$/.test(me.username||''))return null;
  const url='https://t.me/'+me.username+'?start=p_'+p.id;
  const cs=await all(e.DB,'SELECT id,target,hold_seconds FROM campaigns WHERE product_id=? AND active=1 ORDER BY target,id LIMIT 10',p.id);
- const access=accessText(p,cs,await directFree(e,p));
+ 
  const rich=composeRich('🎓 '+p.title,d.message!==undefined?sourceRich(shortDescription(d.message),{text:d.message,entities:d.messageEntities}):await productShortRich(e,p),(cs.length?'🎁 Accès gratuit par recommandation.':'🆓 Accès gratuit.')+'\n📖 Découvrez le programme dans le bot.');const caption=rich.text;
- const buttons=[[urlButton(cs.length?'🎁 Découvrir / recevoir gratuitement':await directFree(e,p)?'📥 Recevoir gratuitement':'📚 Voir la formation',url)]];
+ const buttons=[[urlButton('🎁 Découvrir la formation',url)]];
  return {p,caption,entities:rich.entities,buttons,url};
 }
 async function genericPromoShow(e,u,d){
@@ -969,18 +968,7 @@ async function promoPreview(e,u,d){
  const caption='📚 L’ART DE PARIER — Les Fondamentaux\n\n200 pages pour comprendre les cotes, les probabilités et les risques des paris sportifs.\n\n🎁 PDF gratuit dans notre canal Telegram.\n\n⭐ Masterclass Expert : 492 pages, 5 volumes.\n🎁 Accès gratuit après '+x.c.target+' contacts qualifiés et abonnement au canal.\nAlternative : achat sans partage à '+price+' FCFA.\n\nImportant : 18+. Contenu pédagogique. Aucun pari, dépôt ou achat nécessaire. Aucun gain garanti.';
  return {x,caption,buttons:[[urlButton('📥 Recevoir le PDF gratuit',d.link)],[urlButton('🎁 Obtenir la Masterclass gratuitement',botURL)]],botURL};
 }
-async function promoShow(e,u,d){
- if(d.pid)return genericPromoShow(e,u,d);
- if(d.cid)return send(e,u,'Cette ancienne promotion n’est plus disponible. Annulez-la pour promouvoir une formation complète.',[[cb('Annuler','ad:cancel')]]);
- if(d.step==='link')return send(e,u,'📎 Étape 1 — PDF gratuit\n\nTransférez la publication contenant Les Fondamentaux depuis le canal de coupons, ou collez son lien public exact (t.me/nom/123). Ne transférez pas la Masterclass.',[[cb('Annuler','ad:cancel')]]);
- if(d.step==='cover')return send(e,u,'🖼 Étape 2 — Affiche\n\nEnvoyez une photo de couverture des Fondamentaux ou choisissez un message sans image.',[[cb('Sans image','ad:noimage:'+d.nonce)],[cb('Annuler','ad:cancel')]]);
- if(d.step==='posting')return send(e,u,'Publication précédente à vérifier dans le canal. Pour éviter les doublons, aucun nouvel envoi automatique.',[[cb('Annuler','ad:cancel')]]);
- if(d.step==='review'){
-  const p=await promoPreview(e,u,d);if(!p)return;
-  await photo(e,u,p.caption,[...p.buttons,[cb('✅ Publier dans le canal','ad:post:'+d.nonce)],[cb('Annuler','ad:cancel')]],null,d.cover,'product');
-  return send(e,u,'Aperçu uniquement — destination : @'+p.x.ch.username+'\n\nLien à utiliser dans vos publicités externes :\n'+d.link+'\n\nLien direct vers la Masterclass :\n'+p.botURL);
- }
-}
+async function promoShow(e,u,d){if(d.pid)return genericPromoShow(e,u,d);return send(e,u,'Cette ancienne promotion n’est plus disponible. Annulez-la pour promouvoir une formation complète.',[[cb('Annuler','ad:cancel')]]);}
 async function promoAction(e,u,action){
  if(!admins(e).has(u))return send(e,u,'🔒 Accès réservé à l’administration.');
  if(action==='ad:menu')return promoMenu(e,u);
