@@ -45,12 +45,35 @@ test('guided admin creates a draft, skips description, archives files, publishes
  await msg(null,{document:{file_id:'bad',mime_type:'text/plain'}});assert.equal((await state()).step,'pdf');
  await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});
  assert.ok(calls.some(x=>x.method==='sendDocument'&&x.body.chat_id===env.STORAGE_CHANNEL_ID));
- const d=await state();assert.equal(d.step,'review');await act('draft');
+ await act('skip');await act('keep_campaign');const d=await state();assert.equal(d.step,'review');await act('draft');
  assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
  await click('aw:'+d.session+':review:publish');assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,0);
  await click('aw:show:'+d.id);assert.equal(sql.prepare('SELECT active FROM products WHERE id=?').get(d.id).active,1);
- await click('aw:edit:'+d.id);for(let j=0;j<6;j++)await act('keep');await act('publish');
+ await click('aw:edit:'+d.id);for(let j=0;j<6;j++)await act('keep');await act('skip');await act('keep_campaign');await act('publish');
  assert.equal(sql.prepare('SELECT file_id FROM products WHERE id=?').get(d.id).file_id,'pdf');
  assert.equal(count(sql,'products'),3);
  await click('aw:new');await act('cancel');assert.equal(await state(),null);
+});
+
+
+test('premium wizard verifies a private channel and creates an entry link and campaign',async t=>{
+ const {sql,env}=setup();env.STORAGE_CHANNEL_ID='-100987654';let canInvite=true;const calls=[];
+ withTelegram(t,(method,body)=>{calls.push({method,body});if(method==='getChat')return {id:Number(body.chat_id),type:'channel',title:'Privé'};if(method==='getMe')return {id:99,username:'AcademyTestBot'};if(method==='getChatMember')return {status:'administrator',can_invite_users:canInvite};if(method==='createChatInviteLink')return {invite_link:'https://t.me/+private-entry'};return {};});
+ const msg=(text,more={})=>internals.dispatch(env,{message:{chat:{id:1,type:'private'},from:{id:1},...(text==null?{}:{text}),...more}});
+ const click=data=>internals.dispatch(env,{callback_query:{id:'cb',from:{id:1},message:{chat:{id:1,type:'private'}},data}});
+ const state=()=>internals.wizRead(env,'1');const act=async a=>{const d=await state();return click('aw:'+d.session+':'+d.step+':'+a);};
+ await click('aw:new');await msg('Guide premium');await act('cat0');await msg('5000');await msg('0');
+ await msg(null,{photo:[{file_id:'cover'}]});await msg(null,{document:{file_id:'pdf',mime_type:'application/pdf',file_name:'guide.pdf'}});
+ await msg('http://example.com');assert.equal((await state()).step,'shop');await msg('https://example.com/guide');
+ await act('new_campaign');await act('private');await act('picker');
+ const picker=calls.at(-1).body.reply_markup.keyboard[0][0].request_chat;
+ await msg('https://t.me/+opaque');assert.equal((await state()).step,'channel');
+ await msg(env.STORAGE_CHANNEL_ID);assert.equal((await state()).step,'channel');
+ canInvite=false;await msg('-100777');assert.equal((await state()).step,'channel');canInvite=true;
+ await msg(null,{chat_shared:{request_id:picker.request_id,chat_id:-100777}});assert.equal((await state()).step,'target');
+ await msg('21');assert.equal((await state()).step,'target');await act('n10');await act('h24');
+ const d=await state();canInvite=false;await act('publish');assert.equal(sql.prepare('SELECT id FROM products WHERE id=?').get(d.id),undefined);canInvite=true;await act('publish');
+ const camp=sql.prepare('SELECT * FROM campaigns WHERE product_id=?').get(d.id);
+ assert.equal(camp.channel_id,'-100777');assert.equal(camp.target,10);assert.equal(camp.hold_seconds,86400);assert.equal(camp.channel_url,'https://t.me/+private-entry');
+ assert.equal(sql.prepare('SELECT value FROM settings WHERE key=?').get('product_shop:'+d.id).value,'https://example.com/guide');
 });
