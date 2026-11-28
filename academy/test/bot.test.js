@@ -192,3 +192,22 @@ test('editorial layout preserves content and limits ordinary messages to ten exp
  assert.equal(pages.length,4);assert.ok(pages.every(p=>p.split('\n').length<=6));
  assert.equal(pages.join('\n'),program);
 });
+
+
+test('native formatting survives whitespace trimming and composition',()=>{
+ const text='🎓 Formation\n\nCas pratiques.\n\nSans mise réelle.';
+ const entities=[{type:'bold',offset:0,length:'🎓 Formation'.length},{type:'italic',offset:text.indexOf('Cas pratiques.'),length:'Cas pratiques.'.length},{type:'blockquote',offset:text.indexOf('Sans mise réelle.'),length:'Sans mise réelle.'.length}];
+ const rich=internals.captureRich({text:'  '+text+'  ',entities:entities.map(x=>({...x,offset:x.offset+2}))});
+ assert.equal(rich.text,text);assert.deepEqual(rich.entities,entities);
+ assert.equal(internals.shortDescription(text),text);
+ assert.ok(internals.validShort('a\n\nb\nc\n\nd\ne'));
+ const composed=internals.composeRich('Titre',rich,'🎁 0 FCFA');
+ assert.ok(composed.text.includes(text));assert.ok(composed.text.split('\n').length<=10);
+ for(const x of entities)assert.ok(composed.entities.some(y=>y.type===x.type&&composed.text.slice(y.offset,y.offset+y.length)===text.slice(x.offset,x.offset+x.length)));
+});
+test('rich program pagination preserves blank lines and formatting',()=>{
+ const text=Array.from({length:12},(_,i)=>'Module '+(i+1)).join('\n\n');
+ const pages=internals.richPages({text,entities:[{type:'italic',offset:text.indexOf('Module 12'),length:9}]});
+ assert.equal(pages.map(x=>x.text).join('\n'),text);
+ assert.equal(pages.at(-1).entities[0].type,'italic');
+});
