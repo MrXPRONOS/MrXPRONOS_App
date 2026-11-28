@@ -1,0 +1,26 @@
+{
+  "name": "mr-x-academy-bot",
+  "main": "src/bot.js",
+  "compatibility_date": "2026-11-28",
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mr-x-academy",
+      "database_id": "cca7c105-7900-4a0f-97dc-28a6ade0f9f5",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
+  },
+  "account_id": "930f553f2679a327848330349c667e8a"
+}
