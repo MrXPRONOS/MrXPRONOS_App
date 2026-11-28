@@ -144,6 +144,11 @@ async function deliverResource(e,u,p,a,index){
  catch(err){if(err.status!==400)throw err;return send(e,u,'Ressource temporairement indisponible. Votre accès est conservé.',[[cb('Voir les ressources','get:'+p.id)]]);}
  await run(e.DB,'INSERT OR IGNORE INTO deliveries(user_id,product_id,delivered_at) VALUES (?,?,?)',u,p.id,now());
 }
+async function adminResourceMenu(e,u,p,a,page=0){
+ const start=page*8,b=a.slice(start,start+8).map((x,j)=>[cb((assetIcons[x.kind]||'📎')+' '+x.name.slice(0,45),'atest:'+p.id+':'+(start+j))]);
+ const nav=[];if(page>0)nav.push(cb('◀','apage:'+p.id+':'+(page-1)));if(start+8<a.length)nav.push(cb('▶','apage:'+p.id+':'+(page+1)));if(nav.length)b.push(nav);
+ return send(e,u,'📎 Test administrateur — '+p.title,[...b,[cb('⬅ Produit','aw:product:'+p.id)]]);
+}
 async function resourceAction(e,u,pid,index,menuOnly=false){
  const p=await product(e,pid);if(!p)return send(e,u,'Produit introuvable.',[home]);
  if(!await resourceAccess(e,u,p))return send(e,u,'🔒 Ce produit n’est pas encore débloqué.',[[cb('Voir le produit','p:'+pid)],home]);
@@ -282,6 +287,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
   await run(e.DB,`INSERT INTO campaigns(id,product_id,channel_id,channel_url,target,hold_seconds,active) VALUES (?,?,?,?,?,?,1) ON CONFLICT(id) DO UPDATE SET channel_url=excluded.channel_url,active=1`,c.id,c.product_id,c.channel_id,c.channel_url,c.target,c.hold_hours*3600);await audit(e,u,'campaign',c.id);return send(e,u,'Campagne active : '+c.id);
  }
  if(cmd==='file'){
+  if(await row(e.DB,'SELECT value FROM settings WHERE key=?',assetKey(arg)))return send(e,u,'Produit multiformat : utilisez Gérer les formations pour modifier ses ressources.');
   if(!slug(arg)||!await product(e,arg)||msg.document?.mime_type!=='application/pdf'||(msg.document.file_size||0)>49*1024*1024)throw new Error('Attach PDF');
   await run(e.DB,'UPDATE products SET file_id=?,filename=?,object_key=NULL WHERE id=?',msg.document.file_id,msg.document.file_name||`${arg}.pdf`,arg);await audit(e,u,'file',arg);return send(e,u,'PDF enregistré.');
  }
@@ -293,7 +299,7 @@ async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  }
  if(cmd==='publish'||cmd==='unpublish'){
   if(!slug(arg))throw new Error('Invalid product');const p=await product(e,arg);if(!p)throw new Error('Unknown product');
-  if(cmd==='publish'&&!p.file_id)throw new Error('Missing PDF');
+  if(cmd==='publish'&&!(await productAssets(e,p)).length)throw new Error('Missing resources');
   await run(e.DB,'UPDATE products SET active=? WHERE id=?',cmd==='publish'?1:0,arg);await audit(e,u,cmd,arg);return send(e,u,'Statut modifié : '+arg);
  }
  if(cmd==='campaignoff'){
@@ -432,7 +438,7 @@ async function wizardCallback(e,u,action){
    const old=await wizRead(e,u);if(old)return send(e,u,'Une création est déjà en cours.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
    const shop=await row(e.DB,'SELECT value FROM settings WHERE key=?',shopKey(p.id));const d={id:p.id,session:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'title',edit:true,title:p.title,category:p.category,price:p.price_xof,description:p.description,cover:p.cover_file_id,file:p.file_id,filename:p.filename,assets:await productAssets(e,p),shop:shop?.value||''};await wizSave(e,u,d);return wizPrompt(e,u,d);
   }
-  if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return send(e,u,'📎 Test administrateur — '+p.title,a.slice(0,100).map((x,j)=>[cb((assetIcons[x.kind]||'📎')+' '+x.name.slice(0,45),'atest:'+p.id+':'+j)]));}
+  if(v[1]==='test'){const a=await productAssets(e,p);if(!a.length)return send(e,u,'Aucune ressource.');return adminResourceMenu(e,u,p,a);}
   if(v[1]==='hide'||v[1]==='show'){
    if(v[1]==='show'&&!(await productAssets(e,p)).length)return send(e,u,'Ressource manquante.');
    await run(e.DB,'UPDATE products SET active=? WHERE id=?',v[1]==='show'?1:0,p.id);
@@ -645,8 +651,8 @@ async function promoShow(e,u,d){
 async function promoAction(e,u,action){
  if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
  if(action==='ad:menu')return promoMenu(e,u);
- if(action==='ad:cancel'){await promoClear(e,u);return wizMenu(e,u);}
- if(action==='ad:resume'){const d=await promoRead(e,u);if(!d)return promoMenu(e,u);delete d.paused;await promoSave(e,u,d);return promoShow(e,u,d);}
+ if(action==='ad:cancel'){const d=await promoRead(e,u);if(d?.step==='destination')await closePicker(e,u);await promoClear(e,u);return wizMenu(e,u);}
+ if(action==='ad:resume'){const d=await promoRead(e,u);if(!d)return promoMenu(e,u);const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}delete d.paused;await promoSave(e,u,d);return promoShow(e,u,d);}
  const [,a,v]=action.split(':');
  if(a==='page'&&/^\d{1,3}$/.test(v||''))return promoProducts(e,u,Number(v));
  if(a==='item'&&slug(v)){if(await promoRead(e,u))return promoMenu(e,u);if(!await genericPromoProduct(e,v))return send(e,u,'Produit non publié ou sans ressources.');const w=await wizRead(e,u);if(w&&!w.paused){w.paused=true;await wizSave(e,u,w);}const d={pid:v,nonce:crypto.randomUUID().replace(/-/g,'').slice(0,16),step:'destination'};await promoSave(e,u,d);return genericPromoShow(e,u,d);}
@@ -698,7 +704,7 @@ async function dispatch(e,update){
  let action=q?.data||m.text||m.caption||'';
  if(q&&action.startsWith('ad:'))return promoAction(e,u,action);
  if(q&&action.startsWith('aw:')){if(admins(e).has(u)){const ad=await promoRead(e,u);if(ad&&!ad.paused){ad.paused=true;await promoSave(e,u,ad);}}return wizardCallback(e,u,action);}
- if(!q&&admins(e).has(u)&&!action.startsWith('/')){const ad=await promoRead(e,u);if(ad&&!ad.paused)return promoMessage(e,u,ad,m);const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
+ if(!q&&admins(e).has(u)&&(!action.startsWith('/')||(!m.text&&!!readAsset(m)))){const ad=await promoRead(e,u);if(ad&&!ad.paused)return promoMessage(e,u,ad,m);const d=await wizRead(e,u);if(d&&!d.paused)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
  if(!q&&action==='/cancel'&&admins(e).has(u)){if(await promoRead(e,u))return promoAction(e,u,'ad:cancel');const d=await wizRead(e,u);if(d){d.paused=false;await wizSave(e,u,d);return wizardCallback(e,u,wizAction(d,'cancel'));}return wizMenu(e,u);}
  if(!q&&action.startsWith('/')){
   const match=action.match(/^\/([a-z_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);if(!match)return help(e,u);
@@ -718,7 +724,7 @@ async function dispatch(e,update){
  if(action==='help')return help(e,u);
  let v=action.split(':');if(v[0]==='list'&&['all','free','premium'].includes(v[1])&&/^\d{1,3}$/.test(v[2]||''))return catalogue(e,u,v[1],Number(v[2]));
  if(v[0]==='lib'&&/^\d{1,3}$/.test(v[1]||''))return library(e,u,Number(v[1]));
- if(v.length===3&&slug(v[1])&&/^\d{1,3}$/.test(v[2])){if(v[0]==='asset'||v[0]==='assets')return resourceAction(e,u,v[1],Number(v[2]),v[0]==='assets');if(v[0]==='atest'&&admins(e).has(u)){const p=await product(e,v[1]);if(!p)return;const a=(await productAssets(e,p))[Number(v[2])];if(a)return sendAsset(e,u,a,'Test administrateur — '+a.name,true);}}
+ if(v.length===3&&slug(v[1])&&/^\d{1,3}$/.test(v[2])){if(v[0]==='asset'||v[0]==='assets')return resourceAction(e,u,v[1],Number(v[2]),v[0]==='assets');if(['atest','apage'].includes(v[0])&&admins(e).has(u)){const p=await product(e,v[1]);if(!p)return;const assets=await productAssets(e,p);if(v[0]==='apage')return adminResourceMenu(e,u,p,assets,Number(v[2]));const a=assets[Number(v[2])];if(a)return sendAsset(e,u,a,'Test administrateur — '+a.name,true);}}
  if(v.length===2&&slug(v[1])){
   if(v[0]==='p')return showProduct(e,u,v[1]);if(v[0]==='get')return sendPDF(e,u,v[1]);if(v[0]==='c')return showCampaign(e,u,v[1]);if(v[0]==='link')return makeLink(e,u,v[1]);if(v[0]==='check')return refresh(e,u,v[1]);if(v[0]==='claim')return claim(e,u,v[1]);
  }
