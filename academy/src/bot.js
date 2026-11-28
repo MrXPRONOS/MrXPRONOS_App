@@ -171,11 +171,12 @@ export async function autoReward(e){
  return true;
 }
 async function help(e,u){return send(e,u,'MR X ACADEMY — Assistance\n\n• Les invitations comptent uniquement les nouveaux abonnés attribués à votre lien.\n• Votre bibliothèque est liée à votre compte Telegram.\n• Un produit acquis reste disponible dans votre bibliothèque.\n• Aucun achat ni activité de jeu n’est requis pour le parrainage.\n• /privacy : données utilisées.\n• /id : identifiant utile au support.\n'+(e.SUPPORT_HANDLE?`\nContact : ${e.SUPPORT_HANDLE}`:''),[home]);}
-async function adminCommand(e,u,cmd,arg,msg){
+async function adminCommand(e,u,cmd,arg,msg,statsOnly=false){
  if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
  if(cmd==='admin'){
+  if(!statsOnly)return wizMenu(e,u);
   const s=await row(e.DB,`SELECT (SELECT COUNT(*) FROM users) users,(SELECT COUNT(*) FROM products) products,(SELECT COUNT(*) FROM referrals WHERE state='valid') valid,(SELECT COUNT(*) FROM referrals WHERE state='pending') pending,(SELECT COUNT(*) FROM entitlements WHERE source='referral') rewards,(SELECT COUNT(*) FROM entitlements WHERE source='purchase') purchases,(SELECT COUNT(*) FROM deliveries) deliveries`);
-  return send(e,u,`ADMIN • MR X ACADEMY\nUtilisateurs : ${s.users}\nProduits : ${s.products}\nInvitations valides : ${s.valid}\nEn attente : ${s.pending}\nRécompenses : ${s.rewards}\nAchats validés : ${s.purchases}\nLivraisons uniques : ${s.deliveries}\n\n/product {JSON}\n/campaign {JSON}\n/file ID (en légende du PDF)\n/cover ID (en légende de l’image)\n/banner (en légende de l’image)\n/publish ID\n/unpublish ID\n/grant USER_ID PRODUCT_ID\n/campaignoff ID`);
+  return send(e,u,`ADMIN • MR X ACADEMY\nUtilisateurs : ${s.users}\nProduits : ${s.products}\nInvitations valides : ${s.valid}\nEn attente : ${s.pending}\nRécompenses : ${s.rewards}\nAchats validés : ${s.purchases}\nLivraisons uniques : ${s.deliveries}`,[[cb('⬅ Administration','aw:menu')]]);
  }
  if(cmd==='product'){
   const p=JSON.parse(arg);if(!slug(p.id)||typeof p.title!=='string'||!p.title.trim()||p.title.length>120||typeof p.category!=='string'||p.category.length>60||typeof p.description!=='string'||p.description.length>650||!Number.isSafeInteger(p.price_xof)||p.price_xof<0||p.price_xof>100000000)throw new Error('Invalid product');
@@ -222,6 +223,120 @@ async function storagePost(e,msg){
  if((cmd==='banner'&&arg)||(cmd!=='banner'&&!arg))return;
  try{await adminCommand(e,actor,cmd,arg,msg);}catch(err){console.warn('Storage import rejected',cmd,err.message);await send(e,actor,'Import du canal refusé : vérifiez le type de fichier et sa légende.');}
 }
+
+// Guided creation: private per-admin state in existing D1 settings, no new binding.
+const wizardCategories=['Business','Finance','Sport','Intelligence artificielle','Marketing','Leadership','Autre'];
+const wizKey=u=>'admin_wizard:'+u;
+const wizSteps=['title','category','price','description','cover','pdf','review'];
+const wizAction=(d,a)=>'aw:'+d.id+':'+d.step+':'+a;
+const wizCancel=d=>[cb('❌ Annuler',wizAction(d,'cancel')),cb('⏸ Pause','aw:menu')];
+const wizButtons=(d,extra=[])=>[...extra,...(d.step==='title'?[]:[[cb('⬅ Retour',wizAction(d,'back'))]]),wizCancel(d)];
+async function wizRead(e,u){const r=await row(e.DB,'SELECT value FROM settings WHERE key=?',wizKey(u));return r?JSON.parse(r.value):null;}
+const wizSave=(e,u,d)=>run(e.DB,'INSERT INTO settings(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',wizKey(u),JSON.stringify(d));
+async function wizMenu(e,u){
+ const d=await wizRead(e,u);
+ return send(e,u,'⚙️ Administration • MR X ACADEMY\n\nChoisissez une action.',[
+ [cb(d?'▶ Reprendre la création':'➕ Nouvelle formation',d?'aw:resume':'aw:new')],
+ [cb('📚 Gérer les formations','aw:list:0')],[cb('📊 Statistiques','aw:stats')],home]);
+}
+async function wizPrompt(e,u,d){
+ const n=wizSteps.indexOf(d.step)+1;
+ const prefix='🎓 Nouvelle formation — étape '+n+'/7\n\n';
+ const say=(t,b=[])=>send(e,u,prefix+t,wizButtons(d,b));
+ switch(d.step){
+ case 'title':return say('Quel est le titre de la formation ? Envoyez-le en message.');
+ case 'category':return say('Choisissez une catégorie ou écrivez votre propre catégorie.',wizardCategories.map((c,i)=>[cb(c,wizAction(d,'cat'+i))]));
+ case 'price':return say('Quel est le prix de la formation en FCFA ? Envoyez un montant entier, ou choisissez Gratuit.',[[cb('🆓 Gratuit',wizAction(d,'free'))]]);
+ case 'description':return say('Envoyez une courte description (650 caractères maximum), ou passez cette étape.',[[cb('⏭ Sans description',wizAction(d,'skip'))]]);
+ case 'cover':return say('Envoyez la photo de couverture dans cette conversation (en tant que photo Telegram).');
+ case 'pdf':return say('Envoyez le fichier PDF comme document (49 Mio maximum).');
+ case 'review':{
+  const caption='✅ Aperçu avant publication\n\n'+d.title+'\n'+d.category+'\n'+(d.price===0?'Gratuit':d.price.toLocaleString('fr-FR')+' FCFA')+'\n\n'+(d.description||'Sans description')+'\n\n📎 '+d.filename;
+  return photo(e,u,caption.slice(0,1000),wizButtons(d,[[cb('✅ Publier',wizAction(d,'publish'))],[cb('💾 Garder en brouillon',wizAction(d,'draft'))]]),null,d.cover);
+ }
+ }
+}
+async function wizList(e,u,page=0){
+ const ps=await all(e.DB,'SELECT id,title,active,file_id FROM products ORDER BY title,id LIMIT 9 OFFSET ?',page*8);
+ const buttons=ps.slice(0,8).map(p=>[cb((p.active?'🟢 ':'⚪ ')+p.title.slice(0,48),'aw:product:'+p.id)]);
+ const nav=[];if(page>0)nav.push(cb('◀','aw:list:'+(page-1)));if(ps.length>8)nav.push(cb('▶','aw:list:'+(page+1)));if(nav.length)buttons.push(nav);
+ return send(e,u,ps.length?'📚 Vos formations — choisissez un produit.':'Aucune formation.',[...buttons,[cb('⬅ Administration','aw:menu')]]);
+}
+async function wizProduct(e,u,pid){
+ const p=await product(e,pid);if(!p)return wizList(e,u);
+ const b=[];if(p.active)b.push([cb('Masquer du catalogue','aw:hide:'+pid)]);else if(p.file_id)b.push([cb('Publier','aw:show:'+pid)]);
+ if(p.file_id)b.push([cb('📎 Tester le PDF','aw:test:'+pid)]);
+ b.push([cb('⬅ Formations','aw:list:0')]);
+ return photo(e,u,(p.title+'\n'+p.category+'\n'+p.price_xof+' FCFA\n'+(p.active?'Publié':'Brouillon')+'\n'+(p.file_id?'PDF enregistré':'PDF manquant')+'\n\n'+p.description).slice(0,1000),b,null,p.cover_file_id);
+}
+async function wizardCallback(e,u,action){
+ if(!admins(e).has(u))return send(e,u,'Commande non autorisée.');
+ if(action==='aw:menu')return wizMenu(e,u);
+ if(action==='aw:stats')return adminCommand(e,u,'admin','',null,true);
+ if(action==='aw:resume'){const d=await wizRead(e,u);return d?wizPrompt(e,u,d):wizMenu(e,u);}
+ if(action==='aw:new'){
+  const old=await wizRead(e,u);if(old)return wizPrompt(e,u,old);
+  const d={id:'f-'+crypto.randomUUID().replace(/-/g,'').slice(0,20),step:'title'};await wizSave(e,u,d);return wizPrompt(e,u,d);
+ }
+ const v=action.split(':');
+ if(v.length===3&&v[1]==='list'&&/^\d{1,3}$/.test(v[2]))return wizList(e,u,Number(v[2]));
+ if(v.length===3&&slug(v[2])){
+  const p=await product(e,v[2]);
+  if(v[1]==='product')return wizProduct(e,u,v[2]);
+  if(!p)return wizList(e,u);
+  if(v[1]==='test'&&p.file_id)return tg(e,'sendDocument',{chat_id:u,document:p.file_id,caption:'Test administrateur : '+p.title,protect_content:true});
+  if(v[1]==='hide'||v[1]==='show'){
+   if(v[1]==='show'&&!p.file_id)return send(e,u,'PDF manquant.');
+   await run(e.DB,'UPDATE products SET active=? WHERE id=?',v[1]==='show'?1:0,p.id);
+   await audit(e,u,'wizard_'+v[1],p.id);return wizProduct(e,u,p.id);
+  }
+ }
+ const d=await wizRead(e,u);
+ if(!d||v.length!==4||v[1]!==d.id||v[2]!==d.step)return send(e,u,'Cette étape a expiré.',[[cb('Reprendre','aw:resume')],[cb('Administration','aw:menu')]]);
+ const a=v[3];
+ if(a==='cancel'){await run(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u));return send(e,u,'Création annulée. Les fichiers déjà archivés restent dans le canal privé.',[[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);}
+ if(a==='back'){const i=wizSteps.indexOf(d.step);if(i>0)d.step=wizSteps[i-1];await wizSave(e,u,d);return wizPrompt(e,u,d);}
+ if(d.step==='category'&&/^cat[0-6]$/.test(a)){d.category=wizardCategories[Number(a.slice(3))];d.step='price';}
+ else if(d.step==='price'&&a==='free'){d.price=0;d.step='description';}
+ else if(d.step==='description'&&a==='skip'){d.description='';d.step='cover';}
+ else if(d.step==='review'&&['publish','draft'].includes(a)){
+  if(!d.title||!d.category||!Number.isSafeInteger(d.price)||d.price<0||!d.cover||!d.file||!d.filename)return send(e,u,'Brouillon incomplet.',[[cb('Reprendre','aw:resume')]]);
+  const active=a==='publish'?1:0;
+  await e.DB.batch([
+   stmt(e.DB,'INSERT OR IGNORE INTO products(id,title,category,description,price_xof,active,filename,file_id,cover_file_id) VALUES (?,?,?,?,?,?,?,?,?)',d.id,d.title,d.category,d.description||'',d.price,active,d.filename,d.file,d.cover),
+   stmt(e.DB,'DELETE FROM settings WHERE key=?',wizKey(u)),
+   stmt(e.DB,'INSERT INTO audit(admin_id,action,target,created_at) VALUES (?,?,?,?)',u,'wizard_'+a,d.id,now())
+  ]);
+  return send(e,u,(active?'🎉 Formation publiée !':'💾 Formation enregistrée en brouillon.')+'\n'+d.title+'\nIdentifiant : '+d.id+(d.price>0?'\n\nPour ouvrir un accès Premium, configurez ensuite une campagne ou accordez un accès après achat vérifié.':''),[[cb('Voir la formation','aw:product:'+d.id)],[cb('➕ Nouvelle formation','aw:new')],[cb('Administration','aw:menu')]]);
+ }else return wizPrompt(e,u,d);
+ await wizSave(e,u,d);return wizPrompt(e,u,d);
+}
+async function wizardMessage(e,u,d,m){
+ const t=String(m.text||'').trim();
+ const invalid=(text)=>send(e,u,text,wizButtons(d));
+ switch(d.step){
+ case 'title':if(!t||t.length>120)return invalid('Envoyez un titre de 1 à 120 caractères.');d.title=t;d.step='category';break;
+ case 'category':if(!t||t.length>60)return invalid('Envoyez une catégorie de 1 à 60 caractères.');d.category=t;d.step='price';break;
+ case 'price':{const v=t.replace(/\s/g,'');if(!/^\d{1,9}$/.test(v)||Number(v)>100000000)return invalid('Envoyez un montant entier de 0 à 100 000 000 FCFA.');d.price=Number(v);d.step='description';break;}
+ case 'description':if(!t||t.length>650)return invalid('Envoyez une description de 650 caractères maximum ou cliquez sur Sans description.');d.description=t==='0'?'':t;d.step='cover';break;
+ case 'cover':{
+  const pic=m.photo?.at(-1);if(!pic?.file_id)return invalid('Envoyez la couverture en tant que photo Telegram.');
+  if(!validChannel(String(e.STORAGE_CHANNEL_ID||'')))return invalid('Le canal de stockage est mal configuré. Vérifiez STORAGE_CHANNEL_ID.');
+  try{await tg(e,'sendPhoto',{chat_id:String(e.STORAGE_CHANNEL_ID),photo:pic.file_id,caption:'Archive Academy — couverture — '+d.id});}catch(err){return invalid('Archivage impossible. Vérifiez que le bot peut publier dans le canal privé, puis renvoyez la photo.');}
+  d.cover=pic.file_id;d.step='pdf';break;
+ }
+ case 'pdf':{
+  const f=m.document;if(!f?.file_id||f.mime_type!=='application/pdf'||(f.file_size||0)>49*1024*1024)return invalid('Envoyez un PDF de 49 Mio maximum comme document.');
+  if(!validChannel(String(e.STORAGE_CHANNEL_ID||'')))return invalid('Le canal de stockage est mal configuré.');
+  try{await tg(e,'sendDocument',{chat_id:String(e.STORAGE_CHANNEL_ID),document:f.file_id,caption:'Archive Academy — PDF — '+d.id});}catch(err){return invalid('Archivage impossible. Vérifiez le droit de publication du bot dans le canal privé puis renvoyez le PDF.');}
+  d.file=f.file_id;d.filename=String(f.file_name||d.id+'.pdf').slice(0,200);d.step='review';break;
+ }
+ case 'review':return wizPrompt(e,u,d);
+ default:return wizMenu(e,u);
+ }
+ await wizSave(e,u,d);return wizPrompt(e,u,d);
+}
+
 const adminCmds=new Set(['admin','product','campaign','file','cover','banner','publish','unpublish','grant','campaignoff']);
 async function dispatch(e,update){
  if(update.chat_member)return membershipEvent(e,update);
@@ -229,9 +344,11 @@ async function dispatch(e,update){
  const q=update.callback_query,m=q?.message||update.message;if(!m||m.chat?.type!=='private')return;
  const from=q?.from||m.from;if(!from||from.is_bot||id(m.chat.id)!==id(from.id))return;
  const u=id(from.id);await touch(e,u);
- if(!q&&admins(e).has(u)&&m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);
  if(q){try{await tg(e,'answerCallbackQuery',{callback_query_id:q.id});}catch(err){if(err.status!==400)throw err;}}
  let action=q?.data||m.text||m.caption||'';
+ if(q&&action.startsWith('aw:'))return wizardCallback(e,u,action);
+ if(!q&&admins(e).has(u)&&!action.startsWith('/')){const d=await wizRead(e,u);if(d)return wizardMessage(e,u,d,m);if(m.forward_origin?.type==='channel')return send(e,u,`Canal : ${m.forward_origin.chat.title||'sans titre'}\nID : ${m.forward_origin.chat.id}`);}
+ if(!q&&action==='/cancel'&&admins(e).has(u)){const d=await wizRead(e,u);if(d)return wizardCallback(e,u,wizAction(d,'cancel'));return wizMenu(e,u);}
  if(!q&&action.startsWith('/')){
   const match=action.match(/^\/([a-z_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);if(!match)return help(e,u);
   const cmd=match[1],arg=(match[2]||'').trim();
@@ -265,5 +382,5 @@ export async function handleWebhook(request,e){
  try{await dispatch(e,update);await run(e.DB,"UPDATE updates SET state='done' WHERE id=?",uid);return new Response('OK');}
  catch(err){console.error('Update failed',uid,err.message);await run(e.DB,'UPDATE updates SET lease_until=0 WHERE id=?',uid);return new Response('Retry',{status:503});}
 }
-export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.1.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
-export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts};
+export default {async fetch(request,e){const p=new URL(request.url).pathname;if(p==='/health'&&request.method==='GET')return Response.json({service:'mr-x-academy',version:'1.2.0',telegram_configured:Boolean(e.BOT_TOKEN&&e.WEBHOOK_SECRET),storage_configured:validChannel(String(e.STORAGE_CHANNEL_ID||'')),admin_configured:admins(e).size>0});if(p==='/telegram/webhook'&&request.method==='POST')return handleWebhook(request,e);return new Response('Not found',{status:404});},async scheduled(_event,e,ctx){ctx.waitUntil((async()=>{if(!e.BOT_TOKEN)return;await validateDue(e,null,null,5);await autoReward(e);await run(e.DB,"DELETE FROM updates WHERE state='done' AND created_at<?",now()-7*86400);})());}};
+export const internals={member,slug,validJoinURL,validChannel,sendPDF,claim,makeLink,dispatch,counts,wizRead,wizardCallback,wizardMessage};
